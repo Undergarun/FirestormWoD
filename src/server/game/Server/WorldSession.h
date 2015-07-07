@@ -517,6 +517,9 @@ class WorldSession
             m_PreparedStatementCallbacksBuffer->push_front(p_Callback);
         }
 
+        void SetServiceFlags(uint32 p_Flags);
+        bool HasServiceFlags(uint32 p_Flags) const { return m_ServiceFlags & p_Flags; }
+
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPacket& recvPacket);          // not used

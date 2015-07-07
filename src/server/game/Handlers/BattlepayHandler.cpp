@@ -12,6 +12,7 @@
 #include "WorldPacket.h"
 #include "BattlepayMgr.h"
 #include "BattlepayPacketFactory.h"
+#include "ScriptMgr.h"
 
 void WorldSession::HandleBattlepayGetPurchaseList(WorldPacket& p_RecvData)
 {
@@ -82,7 +83,7 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
     l_Statement->setUInt32(1, GetAccountId());
 
     auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
-    AddPrepareStatementCallback(std::make_pair([this](PreparedQueryResult p_Result) -> void
+    AddPrepareStatementCallback(std::make_pair([this, l_Product](PreparedQueryResult p_Result) -> void
     {
         Battlepay::Purchase* l_Purchase = sBattlepayMgr->GetPurchase(GetAccountId());
 
@@ -99,6 +100,20 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
         {
             Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
             return;
+        }
+
+        if (!l_Product.ScriptName.empty())
+        {
+            std::string l_Reason;
+            bool l_CanBuy = sScriptMgr->BattlePayCanBuy(this, l_Product, l_Reason);
+            if (!l_CanBuy)
+            {
+                std::ostringstream l_Data;
+                l_Data << l_Reason;
+                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                return;
+            }
         }
 
         /// Purchase can be done, let's generate purchase ID & Server Token
@@ -166,6 +181,21 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
         Field* l_Fields = p_Result->Fetch();
         if (std::atoi(l_Fields[0].GetCString()) < l_Purchase->CurrentPrice)
             return;
+
+        Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(l_Purchase->ProductID);
+        if (!l_Product.ScriptName.empty())
+        {
+            std::string l_Reason;
+            bool l_CanBuy = sScriptMgr->BattlePayCanBuy(this, l_Product, l_Reason);
+            if (!l_CanBuy)
+            {
+                std::ostringstream l_Data;
+                l_Data << l_Reason;
+                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::PaymentFailed);
+                return;
+            }
+        }
 
         /// Display "Purchase delivered" frame
         Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::Other);

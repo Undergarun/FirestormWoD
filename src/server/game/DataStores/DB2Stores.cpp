@@ -32,6 +32,7 @@ DB2Storage <LocationEntry>                  sLocationStore(LocationEntryfmt);
 
 std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
 std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
+std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 
 DB2Storage <CurrencyTypesEntry>             sCurrencyTypesStore(CurrencyTypesfmt);
 DB2Storage <CurvePointEntry>                sCurvePointStore(CurvePointEntryfmt);
@@ -348,12 +349,16 @@ void LoadDB2Stores(const std::string& dataPath)
                 uint32 l_DisplayID = 0;
 
                 if (l_AppearanceEntry)
+                {
                     l_DisplayID = l_AppearanceEntry->DisplayID;
+                    g_ItemFileDataId[l_ModifiedAppearanceEntry->ItemID] = l_AppearanceEntry->IconFileDataID;
+                }
 
                 ItemEntry * l_Entry = const_cast<ItemEntry*>(sItemStore.LookupEntry(l_ModifiedAppearanceEntry->ItemID));
-
                 if (l_Entry)
+                {
                     l_Entry->DisplayId = l_DisplayID;
+                }
             }
         }
     }

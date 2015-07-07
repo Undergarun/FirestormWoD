@@ -738,9 +738,9 @@ class SpellMgr
             return &l_Itr->second;
         }
 
-        std::list<SkillLineAbilityEntry const*> const& GetTradeSpellFromSkill(uint32 p_Skill) const
+        std::list<SkillLineAbilityEntry const*> const& GetTradeSpellFromSkill(uint32 p_Skill)
         {
-            return m_SkillTradeSpells.at(p_Skill);
+            return m_SkillTradeSpells[p_Skill];
         }
 
     // Modifiers

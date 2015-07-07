@@ -9,6 +9,7 @@
 #include "BattlepayMgr.h"
 #include "BattlepayPacketFactory.h"
 #include "Chat.h"
+#include "ScriptMgr.h"
 
 namespace Battlepay
 {
@@ -80,7 +81,7 @@ namespace Battlepay
     {
         m_Products.clear();
 
-        QueryResult l_Result = WorldDatabase.PQuery("SELECT ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID FROM battlepay_product");
+        QueryResult l_Result = WorldDatabase.PQuery("SELECT ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID, ScriptName FROM battlepay_product");
         if (!l_Result)
             return;
 
@@ -96,6 +97,7 @@ namespace Battlepay
             l_Product.ChoiceType             = l_Fields[4].GetUInt8();
             l_Product.Flags                  = l_Fields[5].GetUInt32();
             l_Product.DisplayInfoID          = l_Fields[6].GetUInt32();
+            l_Product.ScriptName             = l_Fields[7].GetString();
 
             m_Products.insert(std::make_pair(l_Product.ProductID, l_Product));
         } 
@@ -228,6 +230,9 @@ namespace Battlepay
             if (Player* l_Player = p_Session->GetPlayer())
                 l_Player->AddItem(l_ItemProduct.ItemID, l_ItemProduct.Quantity);
         }
+
+        if (!l_Product.ScriptName.empty())
+            sScriptMgr->OnBattlePayProductDelivery(p_Session, l_Product);
     }
 
     void Manager::OnPaymentSucess(uint32 p_AccountId, uint32 p_NewBalance)
@@ -255,4 +260,24 @@ namespace Battlepay
             ChatHandler(l_Player).PSendSysMessage("Votre nouveau solde est de %u points Ashran.", p_NewBalance);
         }
     }
+
+    bool Manager::AlreadyOwnProduct(uint32 p_ItemID, Player* p_Player) const
+    {
+        if (p_Player == nullptr)
+            return false;
+
+        ItemTemplate const* l_Item = sObjectMgr->GetItemTemplate(p_ItemID);
+        if (l_Item == nullptr)
+            return false;
+
+        /// Check mounts - toys - pets
+        for (auto l_SpellData : l_Item->Spells)
+        {
+            if (l_SpellData.SpellTrigger == ITEM_SPELLTRIGGER_LEARN_SPELL_ID && p_Player->HasSpell(l_SpellData.SpellId))
+                return true;
+        }
+
+        return false;
+    }
+
 }

@@ -33723,6 +33723,6 @@ void Player::_SaveCharacterWorldStates(SQLTransaction& p_Transaction)
 void Player::SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Message)
 {
     std::ostringstream l_Message;
-    l_Message << p_Opcode << " " << p_Message.str();
+    l_Message << p_Opcode << "|" << p_Message.str() << "|";
     ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
 }

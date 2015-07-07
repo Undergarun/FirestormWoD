@@ -24,5 +24,6 @@
 #include "Interface_Transport.hpp"
 #include "Interface_Vehicle.hpp"
 #include "Interface_PlayerCondition.hpp"
+#include "Interface_BattlePay.hpp"
 
 #endif  ///< SCRIPTING_INTERFACES_INTERFACES_HPP_INCLUDED

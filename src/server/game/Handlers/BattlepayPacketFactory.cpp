@@ -50,7 +50,7 @@ namespace Battlepay
                     l_Data.FlushBits();
 
                     l_Data.WriteBit(l_ItemProduct.DisplayInfoID != 0);
-                    l_Data.WriteBit(false); ///< Already has product item
+                    l_Data.WriteBit(sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, p_Session->GetPlayer()));
                     l_Data.WriteBit(l_ItemProduct.PetResult != 0);
 
                     if (l_ItemProduct.PetResult != 0)

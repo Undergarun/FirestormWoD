@@ -67,13 +67,15 @@ namespace Battlepay
             enum
             {
                 AshranStoreBalance,
-                AshranAccountId
+                AshranAccountId,
+                AshranStoreBuyFailed
             };
 
             static const char* g_CustomMessage[] =
             {
                 "ASHRAN_STORE_BALANCE",
-                "ASHRAN_ACCOUNT_ID"
+                "ASHRAN_ACCOUNT_ID",
+                "ASHRAN_STORE_BUY_FAILED"
             };
 
             static const char* GetCustomMessage(uint8 p_ID)

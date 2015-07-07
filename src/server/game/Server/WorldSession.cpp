@@ -1508,3 +1508,13 @@ void WorldSession::InitWarden(BigNumber* k, std::string os)
         // _warden->Init(this, k);
     }
 }
+
+void WorldSession::SetServiceFlags(uint32 p_Flags)
+{
+    m_ServiceFlags |= p_Flags;
+
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LoginDatabaseStatements::LOGIN_SET_ACCOUNT_SERVICE);
+    l_Statement->setUInt32(0, p_Flags);
+    l_Statement->setUInt32(1, GetAccountId());
+    LoginDatabase.AsyncQuery(l_Statement);
+}

@@ -141,5 +141,6 @@ void LoginDatabaseConnection::DoPrepareStatements()
     //////////////////////////////////////////////////////////////////////////
     /// Services
     PREPARE_STATEMENT(LOGIN_REMOVE_ACCOUNT_SERVICE, "UPDATE account SET service_flags = service_flags &~ ? WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SET_ACCOUNT_SERVICE, "UPDATE account SET service_flags = service_flags | ? WHERE id = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
 }

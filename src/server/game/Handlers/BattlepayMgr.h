@@ -95,6 +95,7 @@ namespace Battlepay
         uint8                       ChoiceType;
         uint32                      Flags;
         uint32                      DisplayInfoID;
+        std::string                 ScriptName;
     };
 
     struct ShopEntry
@@ -151,6 +152,11 @@ namespace Battlepay
             * Return if the battlepay is available for player or not
             */
             bool IsAvailable() const;
+
+            /*
+            * Check if the player already own that product
+            */
+            bool AlreadyOwnProduct(uint32 p_ItemID, Player* p_Player) const;
 
             /*
             * Save purchase in website database
