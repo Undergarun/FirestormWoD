@@ -120,6 +120,9 @@ set(scripts_STAT_SRCS
   Pandaria/ThroneOfThunder/boss_primordius.cpp
   Pandaria/ThroneOfThunder/boss_durumu.cpp
   Pandaria/ThroneOfThunder/boss_dark_animus.cpp
+  Pandaria/ThroneOfThunder/boss_iron_qon.cpp
+  Pandaria/ThroneOfThunder/boss_twin_consorts.cpp
+  Pandaria/ThroneOfThunder/boss_lei_shen.cpp
 
   Pandaria/townlong_steppes.cpp
   Pandaria/townlong_steppes.h

@@ -66,6 +66,7 @@ enum eSpells
     SPELL_DARK_POWER                     = 136507,
     // Heroic Mode
     SPELL_SOUL_FRAGMENT                  = 137641,
+    SPELL_SHADOWED_SOUL                  = 137650,
     SPELL_SOUL_FRAGMENT_SWITCH           = 137643,
     SPELL_DISCHARGE                      = 137166,
     SPELL_BODY_HEAT                      = 137084,
@@ -112,21 +113,25 @@ enum eEvents
 
 enum eActions
 {
-    ACTION_SCHEDULE_AT_DMG                         = 1,
-    ACTION_SCHEDULE_FRIGID_ASSAULT                 = 2,
-    ACTION_SCHEDULE_POSSESSION                     = 3,
-    ACTION_SCHEDULE_FROSTBITE                      = 4,
-    ACTION_SCHEDULE_SANDSTROM                      = 5,
-    ACTION_SANDSTORM                               = 6,
-    ACTION_SCHEDULE_WRATH_OF_THE_LOA_SHADOW        = 7,
-    ACTION_SCHEDULE_SHADOWED_SPIRIT_SPAWN          = 8,
-    ACTION_SOUL_FRAGMENT                           = 9,
-    ACTION_TREACHEROUS_GROUND                      = 10,
-    ACTION_GARAJAL_TALK_1                          = 11,
-    ACTION_TALK_AGGRO_KAZRA_JIN                    = 12,
-    ACTION_TALK_AGGRO_SUL                          = 13,
-    ACTION_TALK_AGGRO_MAR_LI                       = 14,
-    ACTION_TALK_AGGRO_MALAKK                       = 15
+    ACTION_SCHEDULE_AT_DMG                  = 1,
+    ACTION_SCHEDULE_FRIGID_ASSAULT          = 2,
+    ACTION_SCHEDULE_POSSESSION              = 3,
+    ACTION_SCHEDULE_FROSTBITE               = 4,
+    ACTION_SCHEDULE_SANDSTROM               = 5,
+    ACTION_SANDSTORM                        = 6,
+    ACTION_SCHEDULE_SHADOWED_SPIRIT_SPAWN   = 8,
+    ACTION_SOUL_FRAGMENT                    = 9,
+    ACTION_TREACHEROUS_GROUND               = 10,
+    ACTION_GARAJAL_TALK_1                   = 11,
+    ACTION_TALK_AGGRO_KAZRA_JIN             = 12,
+    ACTION_TALK_AGGRO_SUL                   = 13,
+    ACTION_TALK_AGGRO_MAR_LI                = 14,
+    ACTION_TALK_AGGRO_MALAKK                = 15
+};
+
+enum eCouncilGuid
+{
+    GUID_RECKLESS_TARGET
 };
 
 enum eDatas
@@ -135,15 +140,81 @@ enum eDatas
     DATA_SPELL_DMG_MULTIPLIER
 };
 
-uint32 entries[4] = {NPC_KAZRA_JIN, NPC_SUL_THE_SANDCRAWLER, NPC_FROST_KING_MALAKK, NPC_HIGH_PRIESTRESS_MAR_LI};
-uint32 possessed[4] = {0, 0, 0, 0};
-
-void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
+enum eMiscs
 {
-    if (!instance)
+    ToTFirstPart    = 610,
+    LastDoor        = 218469
+};
+
+enum eCouncilEquip
+{
+    EQUIP_SUL       = 93238,
+    EQUIP_MARLI     = 94313,
+    EQUIP_MALAKK    = 93758
+};
+
+uint32 g_CouncilBossEntries[4] = { NPC_FROST_KING_MALAKK, NPC_KAZRA_JIN, NPC_SUL_THE_SANDCRAWLER, NPC_HIGH_PRIESTRESS_MAR_LI };
+// uint32 g_Possessed[4] = {0, 0, 0, 0};
+
+// Removing all persistent auras in combat end
+void RemoveAllEncounterAuras(InstanceScript* p_Instance)
+{
+    if (p_Instance)
+    {
+        p_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+        p_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOWED_SOUL);
+        p_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_FRAGMENT);
+        p_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROSTBITE_PERIODIC);
+        p_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CHILLED_TO_THE_BONE);
+        p_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARKED_SOUL);
+        p_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ENTRAPPED);
+        p_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SAND_PERIODIC_DMG);
+        p_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BITING_COLD_AURA);
+    }
+}
+
+void WipeOnFight(InstanceScript* p_Instance, Creature* me)
+{
+    if (!p_Instance)
         return;
 
-    if (!instance->CheckRequiredBosses(DATA_CONCIL_OF_ELDERS))
+    RemoveAllEncounterAuras(p_Instance);
+    p_Instance->SetBossState(DATA_COUNCIL_OF_ELDERS, FAIL);
+
+    std::list<Creature*> l_LivingSandList;
+    GetCreatureListWithEntryInGrid(l_LivingSandList, me, NPC_LIVING_SAND, 200.0f);
+
+    for (Creature* l_LivingSand : l_LivingSandList)
+        l_LivingSand->DespawnOrUnsummon();
+
+    if (Creature* l_GaraJal = p_Instance->instance->GetCreature(p_Instance->GetData64(NPC_GARA_JAL_SOUL)))
+        l_GaraJal->AI()->Reset();
+
+    for (uint8 l_Idx = 0; l_Idx < 4; ++l_Idx)
+    {
+        if (Creature* l_Boss = Creature::GetCreature(*me, p_Instance->GetData64(g_CouncilBossEntries[l_Idx])))
+        {
+            if (!l_Boss->isAlive())
+                l_Boss->Respawn(true);
+
+            p_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, l_Boss);
+
+            l_Boss->SetFullHealth();
+            l_Boss->RemoveAllAuras();
+            l_Boss->GetMotionMaster()->MoveTargetedHome();
+
+            if (l_Boss != me)
+                l_Boss->AI()->EnterEvadeMode();
+        }
+    }
+}
+
+void StartFight(InstanceScript* p_Instance, Creature* me, Unit* /*target*/)
+{
+    if (!p_Instance)
+        return;
+
+    if (!p_Instance->CheckRequiredBosses(DATA_COUNCIL_OF_ELDERS))
     {
         if (me->GetAI())
             me->AI()->EnterEvadeMode();
@@ -151,18 +222,18 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
         return;
     }
 
-    if (instance->GetBossState(DATA_CONCIL_OF_ELDERS) == IN_PROGRESS)
+    if (p_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == IN_PROGRESS)
         return; // Prevent recursive calls
 
-    instance->SetBossState(DATA_CONCIL_OF_ELDERS, IN_PROGRESS);
-    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+    p_Instance->SetBossState(DATA_COUNCIL_OF_ELDERS, IN_PROGRESS);
+    p_Instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
     uint32 mobEntries[4] = {NPC_KAZRA_JIN, NPC_SUL_THE_SANDCRAWLER, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_FROST_KING_MALAKK};
 
     for (int i = 0; i < 4; i++)
     {
         uint32 entry = mobEntries[i];
-        if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
+        if (Creature* boss = p_Instance->instance->GetCreature(p_Instance->GetData64(entry)))
         {
             boss->SetInCombatWithZone();
 
@@ -171,7 +242,7 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
                 case NPC_KAZRA_JIN:
                     if (boss->GetAI())
                         boss->AI()->DoAction(ACTION_TALK_AGGRO_KAZRA_JIN);
-                        break;
+                    break;
                 case NPC_SUL_THE_SANDCRAWLER:
                     if (boss->GetAI())
                         boss->AI()->DoAction(ACTION_TALK_AGGRO_SUL);
@@ -190,25 +261,32 @@ void StartFight(InstanceScript* instance, Creature* me, Unit* /*target*/)
         }
     }
 
-    if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+    if (Creature* garaJalSoul = p_Instance->instance->GetCreature(p_Instance->GetData64(NPC_GARA_JAL_SOUL)))
+    {
         if (garaJalSoul->GetAI())
             garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
+    }
 
 
-    if (Creature* garaJal = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL)))
+    if (Creature* garaJal = p_Instance->instance->GetCreature(p_Instance->GetData64(NPC_GARA_JAL)))
+    {
         if (garaJal->GetAI())
-            garaJal->AI()->DoAction(ACTION_GARAJAL_TALK_1);
+            garaJal->AI()->Talk(0);
+            // garaJal->AI()->DoAction(ACTION_GARAJAL_TALK_1);
+    }
 }
 
-bool isAlonePossessed(InstanceScript* instance)
+bool isAlonePossessed(InstanceScript* p_Instance)
 {
     uint32 bossEntries[4] = {NPC_FROST_KING_MALAKK, NPC_HIGH_PRIESTRESS_MAR_LI, NPC_SUL_THE_SANDCRAWLER, NPC_KAZRA_JIN};
     for (int i = 0; i < 4; i++)
     {
         uint32 entry = bossEntries[i];
-        if (Creature* boss = instance->instance->GetCreature(instance->GetData64(entry)))
+        if (Creature* boss = p_Instance->instance->GetCreature(p_Instance->GetData64(entry)))
+        {
             if (boss->HasAura(SPELL_POSSESSED))
                 return false;
+        }
     }
 
     return true;
@@ -218,12 +296,18 @@ bool AllBossesDead(Creature* me)
 {
     for (uint8 l_I = 0; l_I < 4; l_I++)
     {
-        if (entries[l_I] != me->GetEntry())
-            if (GetClosestCreatureWithEntry(me, entries[l_I], 200.0f, true))
+        if (g_CouncilBossEntries[l_I] != me->GetEntry())
+        {
+            if (GetClosestCreatureWithEntry(me, g_CouncilBossEntries[l_I], 200.0f, true))
                 return false;
             else
                 continue;
+        }
     }
+
+    // All bosses done - removing auras
+    if (InstanceScript* l_Instance = me->GetInstanceScript())
+        RemoveAllEncounterAuras(l_Instance);
 
     return true;
 }
@@ -238,79 +322,86 @@ class npc_gara_jal_s_soul : public CreatureScript
         {
             npc_gara_jal_s_soulAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
-            EventMap events;
-            InstanceScript* pInstance;
-            uint32 targetFaction;
+            EventMap m_Events;
+            InstanceScript* m_Instance;
+            uint32 m_TargetFaction;
+            bool m_FirstEmpowerment;
 
             void Reset()
             {
-                targetFaction = 0;
-                events.Reset();
+                m_TargetFaction = 0;
+                m_Events.Reset();
+                m_FirstEmpowerment = true;
             }
 
             void DoAction(int32 const action)
             {
                 if (action == ACTION_SCHEDULE_POSSESSION)
                 {
-                    uint32 i = urand(0, 3);
+                    /// First empowered troll is always Malakk
+                    uint32 l_EntryToPossess = NPC_FROST_KING_MALAKK;
+                    if (m_FirstEmpowerment)
+                        m_FirstEmpowerment = false;
+                    else
+                    {
+                        std::list<Creature*> l_BossList;
+                        for (uint8 l_Idx = 0; l_Idx < 4; ++l_Idx)
+                        {
+                            if (Creature* l_Boss = m_Instance->instance->GetCreature(m_Instance->GetData64(g_CouncilBossEntries[l_Idx])))
+                            {
+                                if (l_Boss->isAlive() && !l_Boss->HasAura(SPELL_POSSESSED))
+                                    l_BossList.push_back(l_Boss);
+                            }
+                        }
 
-                    while (entries[i] == possessed[i])
-                        i = urand(0, 3);
+                        l_BossList.sort(JadeCore::HealthPctOrderPred(false));
+                        l_EntryToPossess = l_BossList.front()->GetEntry();
+                    }
 
-                    switch (entries[i])
+                    switch (l_EntryToPossess)
                     {
                         case NPC_KAZRA_JIN:
-                            events.ScheduleEvent(EVENT_LINGERING_PRESENCE_KAZRA_JIN, 1000);
+                            m_Events.ScheduleEvent(EVENT_LINGERING_PRESENCE_KAZRA_JIN, 1000);
                             break;
                         case NPC_FROST_KING_MALAKK:
-                            events.ScheduleEvent(EVENT_LINGERING_PRESENCE_MALAKK, 1000);
+                            m_Events.ScheduleEvent(EVENT_LINGERING_PRESENCE_MALAKK, 1000);
                             break;
                         case NPC_HIGH_PRIESTRESS_MAR_LI:
-                            events.ScheduleEvent(EVENT_LINGERING_PRESENCE_HIGH_PRIESTRESS, 1000);
+                            m_Events.ScheduleEvent(EVENT_LINGERING_PRESENCE_HIGH_PRIESTRESS, 1000);
                             break;
                         case NPC_SUL_THE_SANDCRAWLER:
-                            events.ScheduleEvent(EVENT_LINGERING_PRESENCE_SUL_THE_SANDCRAWLER, 1000);
+                            m_Events.ScheduleEvent(EVENT_LINGERING_PRESENCE_SUL_THE_SANDCRAWLER, 1000);
                             break;
                         default:
                             break;
                     }
-
-                    possessed[i] = entries[i];
-
-                    bool full = true;
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (possessed[i] == 0)
-                            full = false;
-                    }
-
-                    if (full)
-                    {
-                        for (int i = 0; i < 4; i++)
-                            possessed[i] = 0;
-                    }
                 }
                 else if (action == ACTION_SOUL_FRAGMENT)
+                {
                     if (IsHeroic())
-                        events.ScheduleEvent(EVENT_SOUL_FRAGMENT, 1000);
+                        m_Events.ScheduleEvent(EVENT_SOUL_FRAGMENT, 1000);
+                }
+            }
+
+            uint32 GetData(uint32 p_Type)
+            {
+                return m_TargetFaction;
             }
 
             void UpdateAI(const uint32 diff)
             {
-                events.Update(diff);
+                m_Events.Update(diff);
 
-                switch (events.ExecuteEvent())
+                switch (m_Events.ExecuteEvent())
                 {
                     case EVENT_LINGERING_PRESENCE_MALAKK:
-                        if (Creature* malakk = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FROST_KING_MALAKK)))
+                        if (Creature* malakk = m_Instance->instance->GetCreature(m_Instance->GetData64(NPC_FROST_KING_MALAKK)))
                         {
                             if (isAlonePossessed(malakk->GetInstanceScript()))
-                            {
                                 me->AddAura(SPELL_POSSESSED, malakk);
-                            }
 
                             if (malakk->GetAI())
                             {
@@ -321,7 +412,7 @@ class npc_gara_jal_s_soul : public CreatureScript
                         }
                         break;
                     case EVENT_LINGERING_PRESENCE_KAZRA_JIN:
-                        if (Creature* kazraJin = pInstance->instance->GetCreature(pInstance->GetData64(NPC_KAZRA_JIN)))
+                        if (Creature* kazraJin = m_Instance->instance->GetCreature(m_Instance->GetData64(NPC_KAZRA_JIN)))
                         {
                             if (isAlonePossessed(kazraJin->GetInstanceScript()) && kazraJin->GetAI())
                             {
@@ -331,7 +422,7 @@ class npc_gara_jal_s_soul : public CreatureScript
                         }
                         break;
                     case EVENT_LINGERING_PRESENCE_HIGH_PRIESTRESS:
-                        if (Creature* priestress = pInstance->instance->GetCreature(pInstance->GetData64(NPC_HIGH_PRIESTRESS_MAR_LI)))
+                        if (Creature* priestress = m_Instance->instance->GetCreature(m_Instance->GetData64(NPC_HIGH_PRIESTRESS_MAR_LI)))
                         {
                             if (isAlonePossessed(priestress->GetInstanceScript()))
                                 me->AddAura(SPELL_POSSESSED, priestress);
@@ -339,13 +430,12 @@ class npc_gara_jal_s_soul : public CreatureScript
                             if (priestress->GetAI())
                             {
                                 priestress->AI()->Talk(1);
-                                priestress->AI()->DoAction(ACTION_SCHEDULE_WRATH_OF_THE_LOA_SHADOW);
                                 priestress->AI()->DoAction(ACTION_SCHEDULE_SHADOWED_SPIRIT_SPAWN);
                             }
                         }
                         break;
                     case EVENT_LINGERING_PRESENCE_SUL_THE_SANDCRAWLER:
-                        if (Creature* sul = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SUL_THE_SANDCRAWLER)))
+                        if (Creature* sul = m_Instance->instance->GetCreature(m_Instance->GetData64(NPC_SUL_THE_SANDCRAWLER)))
                         {
                             if (isAlonePossessed(sul->GetInstanceScript()))
                                 me->AddAura(SPELL_POSSESSED, sul);
@@ -366,9 +456,12 @@ class npc_gara_jal_s_soul : public CreatureScript
                         {
                             JadeCore::RandomResizeList(playerList, 1);
 
-                            targetFaction = playerList.front()->getFaction();
-                            playerList.front()->setFaction(35);
-                            playerList.front()->CastSpell(playerList.front(), SPELL_SOUL_FRAGMENT, false);
+                            if (Player* l_Player = playerList.front())
+                            {
+                                m_TargetFaction = l_Player->getFaction();
+                                l_Player->setFaction(35);
+                                l_Player->CastSpell(l_Player, SPELL_SOUL_FRAGMENT, false);
+                            }
                         }
                         break;
                     }
@@ -384,32 +477,6 @@ class npc_gara_jal_s_soul : public CreatureScript
         }
 };
 
-// Gara'Jal the Spirit Binder - 69135
-class npc_gara_jal_the_spirit_binder : public CreatureScript
-{
-public:
-    npc_gara_jal_the_spirit_binder() : CreatureScript("npc_gara_jal_the_spirit_binder") { }
-
-    struct npc_gara_jal_the_spirit_binderAI : public ScriptedAI
-    {
-        npc_gara_jal_the_spirit_binderAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-
-        void DoAction(int32 const action)
-        {
-            if (action == ACTION_GARAJAL_TALK_1)
-                Talk(0);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_gara_jal_the_spirit_binderAI(creature);
-    }
-};
-
 // Frost King Malakk - 69131
 class boss_king_malakk : public CreatureScript
 {
@@ -418,32 +485,32 @@ class boss_king_malakk : public CreatureScript
 
         struct boss_king_malakkAI : public BossAI
         {
-            boss_king_malakkAI(Creature* creature) : BossAI(creature, DATA_CONCIL_OF_ELDERS)
+            boss_king_malakkAI(Creature* creature) : BossAI(creature, DATA_COUNCIL_OF_ELDERS)
             {
-                pInstance = creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* m_Instance;
             bool firstPossessSwitched;
             bool secondPossessSwitched;
             uint32 coefficient;
             uint32 counter;
-            uint32 targetFaction;
 
             void Reset()
             {
-                if (pInstance)
+                if (m_Instance)
                 {
-                    if (pInstance->GetBossState(FAIL))
-                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, NOT_STARTED);
+                    if (m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL)
+                        m_Instance->SetBossState(DATA_COUNCIL_OF_ELDERS, NOT_STARTED);
 
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+                    RemoveAllEncounterAuras(m_Instance);
                 }
+
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_MALAKK);
 
                 coefficient   = 0;
                 counter       = 0;
-                targetFaction = 0;
                 firstPossessSwitched = false;
                 secondPossessSwitched = false;
                 _Reset();
@@ -454,20 +521,27 @@ class boss_king_malakk : public CreatureScript
 
             void EnterEvadeMode()
             {
-                if (pInstance)
-                {
-                    pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, FAIL);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
-
-                me->SetFullHealth();
-                me->RemoveAllAuras();
-                _EnterEvadeMode();
-                me->GetMotionMaster()->MoveTargetedHome();
-
                 firstPossessSwitched = false;
                 secondPossessSwitched = false;
+
+                events.Reset();
+                summons.DespawnAll();
+
+                _EnterEvadeMode();
+
+                if (!m_Instance || m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL || m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == NOT_STARTED)
+                    return;
+
+                WipeOnFight(m_Instance, me);
+            }
+
+            void JustReachedHome()
+            {
+                if (!m_Instance)
+                    return;
+
+                if (m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL)
+                    Reset();
             }
 
             void JustSummoned(Creature* summon)
@@ -482,7 +556,7 @@ class boss_king_malakk : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                StartFight(pInstance, me, who);
+                StartFight(m_Instance, me, who);
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_FRIGID_ASSAULT, 30000);
@@ -492,26 +566,57 @@ class boss_king_malakk : public CreatureScript
             void JustDied(Unit* killer)
             {
                 summons.DespawnAll();
-                if (pInstance)
+                if (m_Instance)
                 {
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
-
-                if (me->GetMap()->IsLFR())
-                {
-                    me->SetLootRecipient(NULL);
-                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                    if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+                    m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
                 if (!AllBossesDead(me))
                     me->SetLootRecipient(NULL);
                 else
                 {
-                    if (pInstance)
-                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+                    if (m_Instance)
+                    {
+                        m_Instance->SetBossState(DATA_COUNCIL_OF_ELDERS, DONE);
+                        _JustDied();
+
+                        if (IsLFR())
+                        {
+                            me->SetLootRecipient(nullptr);
+
+                            if (Creature* l_KillCredit = Creature::GetCreature(*me, m_Instance->GetData64(NPC_SUL_THE_SANDCRAWLER)))
+                            {
+                                bool l_Assigned = false;
+                                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                                {
+                                    if (Player* l_Player = l_Itr->getSource())
+                                    {
+                                        uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                                        if (l_DungeonID != eMiscs::ToTFirstPart)
+                                            continue;
+
+                                        if (!me || l_Player->IsAtGroupRewardDistance(me))
+                                            sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+
+                                        if (l_Assigned)
+                                            continue;
+
+                                        if (Group* l_Group = l_Player->GetGroup())
+                                        {
+                                            l_Assigned = true;
+                                            sLFGMgr->AutomaticLootAssignation(l_KillCredit, l_Group);
+                                        }
+
+                                        /// For first LFR part, this door should not be opened
+                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                            l_Door->SetGoState(GO_STATE_READY);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Talk(7);
@@ -524,12 +629,9 @@ class boss_king_malakk : public CreatureScript
                     case ACTION_SCHEDULE_FRIGID_ASSAULT:
                         events.ScheduleEvent(EVENT_FRIGID_ASSAULT, 40000);
                         break;
-
                     case ACTION_SCHEDULE_FROSTBITE:
-                    {
                         events.Reset();
                         events.ScheduleEvent(EVENT_FROSTBITE, 2000);
-                    }
                         break;
                     case ACTION_TALK_AGGRO_MALAKK:
                         Talk(0);
@@ -556,11 +658,13 @@ class boss_king_malakk : public CreatureScript
                             events.ScheduleEvent(EVENT_BITING_COLD, 62000);
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                            {
                                 if (garaJalSoul->GetAI())
                                 {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
                                     garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
                                 }
+                            }
 
                             firstPossessSwitched = true;
                         }
@@ -582,11 +686,13 @@ class boss_king_malakk : public CreatureScript
                             events.ScheduleEvent(EVENT_BITING_COLD, 62000);
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                            {
                                 if (garaJalSoul->GetAI())
                                 {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
                                     garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
                                 }
+                            }
 
                             secondPossessSwitched = true;
                         }
@@ -637,9 +743,9 @@ class boss_king_malakk : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (pInstance)
+                if (m_Instance)
                 {
-                    if (pInstance->IsWipe())
+                    if (m_Instance->IsWipe())
                     {
                         EnterEvadeMode();
                         return;
@@ -657,7 +763,6 @@ class boss_king_malakk : public CreatureScript
                 if (me->GetPower(POWER_ENERGY) == 100)
                 {
                     events.Reset();
-
                     events.ScheduleEvent(EVENT_DARK_POWER, 1000);
                 }
 
@@ -670,8 +775,10 @@ class boss_king_malakk : public CreatureScript
                 {
                     case EVENT_FRIGID_ASSAULT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        {
                             if (!target->HasAura(SPELL_FRIGID_ASSAULT_STUN))
                                 me->CastSpell(target, SPELL_FRIGID_ASSAULT, true);
+                        }
                         break;
                     case EVENT_BITING_COLD:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
@@ -680,6 +787,7 @@ class boss_king_malakk : public CreatureScript
                         break;
                     case EVENT_FROSTBITE:
                         if (me->HasAura(SPELL_POSSESSED))
+                        {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             {
                                 me->AddAura(SPELL_FROSTBITE_AURA, target);
@@ -688,6 +796,7 @@ class boss_king_malakk : public CreatureScript
                                 me->CastSpell(target, SPELL_FROSTBITE, true);
                                 events.ScheduleEvent(EVENT_FROSTBITE, 52000);
                             }
+                        }
                         break;
                     case EVENT_DARK_POWER:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
@@ -719,13 +828,13 @@ class boss_kazra_jin : public CreatureScript
 
         struct boss_kazra_jinAI : public BossAI
         {
-            boss_kazra_jinAI(Creature* creature) : BossAI(creature, DATA_CONCIL_OF_ELDERS)
+            boss_kazra_jinAI(Creature* creature) : BossAI(creature, DATA_COUNCIL_OF_ELDERS)
             {
-                pInstance = creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* m_Instance;
             uint64 playerGuid;
             bool touchedTarget;
             bool firstPossessSwitched;
@@ -739,12 +848,12 @@ class boss_kazra_jin : public CreatureScript
             {
                 events.Reset();
 
-                if (pInstance)
+                if (m_Instance)
                 {
-                    if (pInstance->GetBossState(FAIL))
-                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, NOT_STARTED);
+                    if (m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL)
+                        m_Instance->SetBossState(DATA_COUNCIL_OF_ELDERS, NOT_STARTED);
 
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+                    RemoveAllEncounterAuras(m_Instance);
                 }
 
                 touchedTarget         = true;
@@ -791,26 +900,57 @@ class boss_kazra_jin : public CreatureScript
             void JustDied(Unit* killer)
             {
                 summons.DespawnAll();
-                if (pInstance)
+                if (m_Instance)
                 {
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
-
-                if (me->GetMap()->IsLFR())
-                {
-                    me->SetLootRecipient(NULL);
-                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                    if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+                    m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
                 if (!AllBossesDead(me))
                     me->SetLootRecipient(NULL);
                 else
                 {
-                    if (pInstance)
-                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+                    if (m_Instance)
+                    {
+                        m_Instance->SetBossState(DATA_COUNCIL_OF_ELDERS, DONE);
+                        _JustDied();
+
+                        if (IsLFR())
+                        {
+                            me->SetLootRecipient(nullptr);
+
+                            if (Creature* l_KillCredit = Creature::GetCreature(*me, m_Instance->GetData64(NPC_SUL_THE_SANDCRAWLER)))
+                            {
+                                bool l_Assigned = false;
+                                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                                {
+                                    if (Player* l_Player = l_Itr->getSource())
+                                    {
+                                        uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                                        if (l_DungeonID != eMiscs::ToTFirstPart)
+                                            continue;
+
+                                        if (!me || l_Player->IsAtGroupRewardDistance(me))
+                                            sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+
+                                        if (l_Assigned)
+                                            continue;
+
+                                        if (Group* l_Group = l_Player->GetGroup())
+                                        {
+                                            l_Assigned = true;
+                                            sLFGMgr->AutomaticLootAssignation(l_KillCredit, l_Group);
+                                        }
+
+                                        /// For first LFR part, this door should not be opened
+                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                            l_Door->SetGoState(GO_STATE_READY);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Talk(7);
@@ -818,27 +958,34 @@ class boss_kazra_jin : public CreatureScript
 
             void EnterEvadeMode()
             {
-                if (pInstance)
-                {
-                    pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, FAIL);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
-
-                me->SetFullHealth();
-                me->RemoveAllAuras();
-                _EnterEvadeMode();
-                me->GetMotionMaster()->MoveTargetedHome();
-
-                firstPossessSwitched  = false;
+                firstPossessSwitched = false;
                 secondPossessSwitched = false;
-                hasSpawned            = false;
-                touchedTarget         = true;
+                hasSpawned = false;
+                touchedTarget = true;
+
+                events.Reset();
+                summons.DespawnAll();
+
+                _EnterEvadeMode();
+
+                if (!m_Instance || m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL || m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == NOT_STARTED)
+                    return;
+
+                WipeOnFight(m_Instance, me);
+            }
+
+            void JustReachedHome()
+            {
+                if (!m_Instance)
+                    return;
+
+                if (m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL)
+                    Reset();
             }
 
             void EnterCombat(Unit* who)
             {
-                StartFight(pInstance, me, who);
+                StartFight(m_Instance, me, who);
                 events.ScheduleEvent(EVENT_RECKLESS_CHARGE, 5000);
             }
 
@@ -846,6 +993,14 @@ class boss_kazra_jin : public CreatureScript
             {
                 if (id == 1)
                     playerGuid = guid;
+            }
+
+            uint64 GetGUID(int32 p_Guid)
+            {
+                if (p_Guid == GUID_RECKLESS_TARGET)
+                    return recklessTargetGuid;
+
+                return 0;
             }
 
             void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
@@ -864,11 +1019,13 @@ class boss_kazra_jin : public CreatureScript
                             me->CastSpell(me, SPELL_LINGERING_PRESENCE, true);
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                            {
                                 if (garaJalSoul->GetAI())
                                 {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
                                     garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
                                 }
+                            }
 
                             firstPossessSwitched = true;
                         }
@@ -886,11 +1043,13 @@ class boss_kazra_jin : public CreatureScript
                             me->CastSpell(me, SPELL_LINGERING_PRESENCE, true);
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                            {
                                 if (garaJalSoul->GetAI())
                                 {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
                                     garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
                                 }
+                            }
 
                             secondPossessSwitched = true;
                         }
@@ -958,9 +1117,9 @@ class boss_kazra_jin : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (pInstance)
+                if (m_Instance)
                 {
-                    if (pInstance->IsWipe())
+                    if (m_Instance->IsWipe())
                     {
                         EnterEvadeMode();
                         return;
@@ -981,7 +1140,6 @@ class boss_kazra_jin : public CreatureScript
                 if (me->GetPower(POWER_ENERGY) == 100)
                 {
                     events.Reset();
-
                     events.ScheduleEvent(EVENT_DARK_POWER, 1000);
                 }
 
@@ -1084,9 +1242,9 @@ class boss_kazra_jin : public CreatureScript
                     }
                         break;
                     case EVENT_RECKLESS_CHARGE_AREATRIGGER:
-                            me->CastSpell(me, SPELL_RECKLESS_CHARGE_AREATRIGGER, false);
-                            me->SummonCreature(NPC_RECKLESS_CHARGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                            hasSpawned = false;
+                        me->CastSpell(me, SPELL_RECKLESS_CHARGE_AREATRIGGER, false);
+                        me->SummonCreature(NPC_RECKLESS_CHARGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                        hasSpawned = false;
                         break;
                     case EVENT_RECKLESS_CHARGE_AREATRIGGER_DMG:
                     {
@@ -1099,9 +1257,7 @@ class boss_kazra_jin : public CreatureScript
                             GetPlayerListInGrid(playerList, creature, 1.0f);
 
                             for (Player* player : playerList)
-                            {
                                 creature->CastSpell(player, SPELL_RECKLESS_CHARGE_DAMAGE, false);
-                            }
                         }
 
                         events.ScheduleEvent(EVENT_RECKLESS_CHARGE_AREATRIGGER_DMG, 1000);
@@ -1138,13 +1294,13 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
         struct boss_sul_the_sandcrawlerAI : public BossAI
         {
-            boss_sul_the_sandcrawlerAI(Creature* creature) : BossAI(creature, DATA_CONCIL_OF_ELDERS)
+            boss_sul_the_sandcrawlerAI(Creature* creature) : BossAI(creature, DATA_COUNCIL_OF_ELDERS)
             {
-                pInstance = creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* m_Instance;
             bool firstPossessSwitched;
             bool secondPossessSwitched;
             uint32 coefficient;
@@ -1152,19 +1308,20 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
             void Reset()
             {
-                if (pInstance)
+                if (m_Instance)
                 {
-                    if (pInstance->GetBossState(FAIL))
-                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, NOT_STARTED);
+                    if (m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL)
+                        m_Instance->SetBossState(DATA_COUNCIL_OF_ELDERS, NOT_STARTED);
 
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+                    RemoveAllEncounterAuras(m_Instance);
                 }
+
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_SUL);
 
                 events.Reset();
 
                 firstPossessSwitched = false;
                 secondPossessSwitched = false;
-
                 coefficient = 0;
                 counter     = 0;
                 _Reset();
@@ -1189,9 +1346,6 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
                 for (auto creature : secondTwistedFateList)
                     creature->DespawnOrUnsummon();
-
-                if (pInstance)
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
             }
 
             void JustSummoned(Creature* summon)
@@ -1206,7 +1360,7 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                StartFight(pInstance, me, who);
+                StartFight(m_Instance, me, who);
 
                 events.ScheduleEvent(EVENT_SAND_BOLT, 10000);
                 events.ScheduleEvent(EVENT_QUICKSAND, 35000);
@@ -1215,26 +1369,57 @@ class boss_sul_the_sandcrawler : public CreatureScript
             void JustDied(Unit* killer)
             {
                 summons.DespawnAll();
-                if (pInstance)
+                if (m_Instance)
                 {
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
-
-                if (me->GetMap()->IsLFR())
-                {
-                    me->SetLootRecipient(NULL);
-                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                    if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+                    m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
                 if (!AllBossesDead(me))
                     me->SetLootRecipient(NULL);
                 else
                 {
-                    if (pInstance)
-                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+                    if (m_Instance)
+                    {
+                        m_Instance->SetBossState(DATA_COUNCIL_OF_ELDERS, DONE);
+                        _JustDied();
+                    }
+
+                    if (IsLFR())
+                    {
+                        me->SetLootRecipient(nullptr);
+
+                        if (Creature* l_KillCredit = Creature::GetCreature(*me, m_Instance->GetData64(NPC_SUL_THE_SANDCRAWLER)))
+                        {
+                            bool l_Assigned = false;
+                            Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                            {
+                                if (Player* l_Player = l_Itr->getSource())
+                                {
+                                    uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                                    if (l_DungeonID != eMiscs::ToTFirstPart)
+                                        continue;
+
+                                    if (!me || l_Player->IsAtGroupRewardDistance(me))
+                                        sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+
+                                    if (l_Assigned)
+                                        continue;
+
+                                    if (Group* l_Group = l_Player->GetGroup())
+                                    {
+                                        l_Assigned = true;
+                                        sLFGMgr->AutomaticLootAssignation(l_KillCredit, l_Group);
+                                    }
+
+                                    /// For first LFR part, this door should not be opened
+                                    if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                        l_Door->SetGoState(GO_STATE_READY);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Talk(7);
@@ -1242,22 +1427,27 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
             void EnterEvadeMode()
             {
-                if (pInstance)
-                {
-                    pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, FAIL);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
-
-                me->SetFullHealth();
-                me->RemoveAllAuras();
-                events.Reset();
-                summons.DespawnAll();
-                _EnterEvadeMode();
-                me->GetMotionMaster()->MoveTargetedHome();
-
                 firstPossessSwitched = false;
                 secondPossessSwitched = false;
+
+                events.Reset();
+                summons.DespawnAll();
+
+                _EnterEvadeMode();
+
+                if (!m_Instance || m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL || m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == NOT_STARTED)
+                    return;
+
+                WipeOnFight(m_Instance, me);
+            }
+
+            void JustReachedHome()
+            {
+                if (!m_Instance)
+                    return;
+
+                if (m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL)
+                    Reset();
             }
 
             void KilledUnit(Unit* victim)
@@ -1278,11 +1468,13 @@ class boss_sul_the_sandcrawler : public CreatureScript
                             me->CastSpell(me, SPELL_LINGERING_PRESENCE, true);
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                            {
                                 if (garaJalSoul->GetAI())
                                 {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
                                     garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
                                 }
+                            }
 
                             firstPossessSwitched = true;
                         }
@@ -1300,11 +1492,13 @@ class boss_sul_the_sandcrawler : public CreatureScript
                             me->CastSpell(me, SPELL_LINGERING_PRESENCE, true);
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                            {
                                 if (garaJalSoul->GetAI())
                                 {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
                                     garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
                                 }
+                            }
 
                             secondPossessSwitched = true;
                         }
@@ -1365,9 +1559,9 @@ class boss_sul_the_sandcrawler : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (pInstance)
+                if (m_Instance)
                 {
-                    if (pInstance->IsWipe())
+                    if (m_Instance->IsWipe())
                     {
                         EnterEvadeMode();
                         return;
@@ -1385,7 +1579,6 @@ class boss_sul_the_sandcrawler : public CreatureScript
                 if (me->GetPower(POWER_ENERGY) == 100)
                 {
                     events.Reset();
-
                     events.ScheduleEvent(EVENT_DARK_POWER, 1000);
                 }
 
@@ -1572,13 +1765,13 @@ class boss_high_priestress_mar_li : public CreatureScript
 
         struct boss_high_priestress_mar_liAI : public BossAI
         {
-            boss_high_priestress_mar_liAI(Creature* creature) : BossAI(creature, DATA_CONCIL_OF_ELDERS)
+            boss_high_priestress_mar_liAI(Creature* creature) : BossAI(creature, DATA_COUNCIL_OF_ELDERS)
             {
-                pInstance = creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* m_Instance;
             bool firstPossessSwitched;
             bool secondPossessSwitched;
             uint32 coefficient;
@@ -1586,13 +1779,15 @@ class boss_high_priestress_mar_li : public CreatureScript
 
             void Reset()
             {
-                if (pInstance)
+                if (m_Instance)
                 {
-                    if (pInstance->GetBossState(FAIL))
-                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, NOT_STARTED);
+                    if (m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL)
+                        m_Instance->SetBossState(DATA_COUNCIL_OF_ELDERS, NOT_STARTED);
 
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
+                    RemoveAllEncounterAuras(m_Instance);
                 }
+
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_MARLI);
 
                 events.Reset();
 
@@ -1605,11 +1800,6 @@ class boss_high_priestress_mar_li : public CreatureScript
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->ReenableEvadeMode();
                 me->SetPower(POWER_ENERGY, 0, false);
-
-                if (pInstance)
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_FRAGMENT);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(137650);
 
                 std::list<Creature*> l_ShadowedSpiritList;
                 GetCreatureListWithEntryInGrid(l_ShadowedSpiritList, me, NPC_SHADOWED_LOA_SPIRIT, 200.0f);
@@ -1632,7 +1822,6 @@ class boss_high_priestress_mar_li : public CreatureScript
             {
                 switch (action)
                 {
-                    case ACTION_SCHEDULE_WRATH_OF_THE_LOA_SHADOW:
                     case ACTION_SCHEDULE_SHADOWED_SPIRIT_SPAWN:
                     {
                         if (IsHeroic())
@@ -1660,31 +1849,23 @@ class boss_high_priestress_mar_li : public CreatureScript
 
             void EnterEvadeMode()
             {
-                if (pInstance)
-                {
-                    pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, FAIL);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
-
-                me->SetFullHealth();
-                me->RemoveAllAuras();
-                _EnterEvadeMode();
-                me->GetMotionMaster()->MoveTargetedHome();
-
-                std::list<Creature*> livingSandList;
-                GetCreatureListWithEntryInGrid(livingSandList, me, NPC_LIVING_SAND, 200.0f);
-
-                for (Creature* livingSand : livingSandList)
-                    livingSand->DespawnOrUnsummon();
-
                 firstPossessSwitched = false;
                 secondPossessSwitched = false;
+
+                events.Reset();
+                summons.DespawnAll();
+
+                _EnterEvadeMode();
+
+                if (!m_Instance || m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == FAIL || m_Instance->GetBossState(DATA_COUNCIL_OF_ELDERS) == NOT_STARTED)
+                    return;
+
+                WipeOnFight(m_Instance, me);
             }
 
             void EnterCombat(Unit* who)
             {
-                StartFight(pInstance, me, who);
+                StartFight(m_Instance, me, who);
 
                 events.ScheduleEvent(EVENT_WRATH_OF_THE_LOA_BLESSED, 10000);
                 events.ScheduleEvent(EVENT_BLESSED_LOA_SPIRIT_SUMMON, 10000);
@@ -1707,12 +1888,13 @@ class boss_high_priestress_mar_li : public CreatureScript
                             events.ScheduleEvent(EVENT_BLESSED_LOA_SPIRIT_SUMMON, 10000);
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                            {
                                 if (garaJalSoul->GetAI())
                                 {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
                                     garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
                                 }
-
+                            }
 
                             firstPossessSwitched = true;
                         }
@@ -1734,12 +1916,13 @@ class boss_high_priestress_mar_li : public CreatureScript
                             events.ScheduleEvent(EVENT_BLESSED_LOA_SPIRIT_SUMMON, 10000);
 
                             if (Creature* garaJalSoul = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                            {
                                 if (garaJalSoul->GetAI())
                                 {
                                     garaJalSoul->AI()->DoAction(ACTION_SCHEDULE_POSSESSION);
                                     garaJalSoul->AI()->DoAction(ACTION_SOUL_FRAGMENT);
                                 }
-
+                            }
 
                             secondPossessSwitched = true;
                         }
@@ -1750,28 +1933,57 @@ class boss_high_priestress_mar_li : public CreatureScript
             void JustDied(Unit* killer)
             {
                 summons.DespawnAll();
-                if (pInstance)
+                if (m_Instance)
                 {
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GENERIC_STUN);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_FRAGMENT);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(137650);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
-
-                if (me->GetMap()->IsLFR())
-                {
-                    me->SetLootRecipient(NULL);
-                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                    if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                    RemoveAllEncounterAuras(m_Instance);
+                    m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
                 if (!AllBossesDead(me))
                     me->SetLootRecipient(NULL);
                 else
                 {
-                    if (pInstance)
-                        pInstance->SetBossState(DATA_CONCIL_OF_ELDERS, DONE);
+                    if (m_Instance)
+                    {
+                        m_Instance->SetBossState(DATA_COUNCIL_OF_ELDERS, DONE);
+                        _JustDied();
+
+                        if (IsLFR())
+                        {
+                            me->SetLootRecipient(nullptr);
+
+                            if (Creature* l_KillCredit = Creature::GetCreature(*me, m_Instance->GetData64(NPC_SUL_THE_SANDCRAWLER)))
+                            {
+                                bool l_Assigned = false;
+                                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                                {
+                                    if (Player* l_Player = l_Itr->getSource())
+                                    {
+                                        uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                                        if (l_DungeonID != eMiscs::ToTFirstPart)
+                                            continue;
+
+                                        if (!me || l_Player->IsAtGroupRewardDistance(me))
+                                            sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+
+                                        if (l_Assigned)
+                                            continue;
+
+                                        if (Group* l_Group = l_Player->GetGroup())
+                                        {
+                                            l_Assigned = true;
+                                            sLFGMgr->AutomaticLootAssignation(l_KillCredit, l_Group);
+                                        }
+
+                                        /// For first LFR part, this door should not be opened
+                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                            l_Door->SetGoState(GO_STATE_READY);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Talk(8);
@@ -1820,9 +2032,9 @@ class boss_high_priestress_mar_li : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (pInstance)
+                if (m_Instance)
                 {
-                    if (pInstance->IsWipe())
+                    if (m_Instance->IsWipe())
                     {
                         EnterEvadeMode();
                         return;
@@ -1840,7 +2052,6 @@ class boss_high_priestress_mar_li : public CreatureScript
                 if (me->GetPower(POWER_ENERGY) == 100)
                 {
                     events.Reset();
-
                     events.ScheduleEvent(EVENT_DARK_POWER, 1000);
                 }
 
@@ -1865,10 +2076,8 @@ class boss_high_priestress_mar_li : public CreatureScript
                         }
                         break;
                     case EVENT_BLESSED_LOA_SPIRIT_SUMMON:
-                        {
-                            if (!GetClosestCreatureWithEntry(me, NPC_BLESSED_LOA_SPIRIT, 200.0f))
-                                me->CastSpell(me, SPELL_BLESSED_LOA_SPIRIT_SUMMON, true);
-                        }
+                        if (!GetClosestCreatureWithEntry(me, NPC_BLESSED_LOA_SPIRIT, 200.0f))
+                            me->CastSpell(me, SPELL_BLESSED_LOA_SPIRIT_SUMMON, true);
                         events.ScheduleEvent(EVENT_BLESSED_LOA_SPIRIT_SUMMON, 35000);
                         break;
                     case EVENT_SHADOWED_LOA_SPIRIT_SUMMON:
@@ -1974,8 +2183,10 @@ class mob_living_sand : public CreatureScript
                         me->AddAura(SPELL_TREACHEROUS_GROUND, me);
 
                         if (Creature* sul = instance->instance->GetCreature(instance->GetData64(NPC_SUL_THE_SANDCRAWLER)))
+                        {
                             if (sul->GetAI())
                                 sul->AI()->Talk(4);
+                        }
                     }
                 }
 
@@ -2031,8 +2242,10 @@ class mob_living_sand : public CreatureScript
                             GetPlayerListInGrid(playerList, me, 7.0f);
 
                             for (Player* player : playerList)
+                            {
                                 if (!player->HasAura(SPELL_ENTRAPPED))
                                     player->AddAura(SPELL_ENSNARED, player);
+                            }
                         }
 
                         events.ScheduleEvent(EVENT_ENSNARED, 1000);
@@ -2127,8 +2340,10 @@ class mob_blessed_loa_spirit : public CreatureScript
                             }
 
                             if (minBoss)
+                            {
                                 if (bossEntry != minBoss->GetEntry())
                                     bossEntry = minBoss->GetEntry();
+                            }
 
                             me->GetMotionMaster()->MoveChase(minBoss, 0.7f, 0.7f);
                         }
@@ -2242,7 +2457,7 @@ class mob_shadowed_lua_spirit : public CreatureScript
 };
 
 // Reckless Charge (rolling) - 137117
-class spell_reckless_charge_rolling: public SpellScriptLoader
+class spell_reckless_charge_rolling : public SpellScriptLoader
 {
     public:
         spell_reckless_charge_rolling() : SpellScriptLoader("spell_reckless_charge_rolling") { }
@@ -2332,7 +2547,7 @@ class spell_reckless_charge_rolling: public SpellScriptLoader
 };
 
 // Reckless Charge (movement) - 137131
-class spell_reckless_charge_movement: public SpellScriptLoader
+class spell_reckless_charge_movement : public SpellScriptLoader
 {
     public:
         spell_reckless_charge_movement() : SpellScriptLoader("spell_reckless_charge_movement") { }
@@ -2345,16 +2560,15 @@ class spell_reckless_charge_movement: public SpellScriptLoader
             {
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
-                    uint64 targetGuid = CAST_AI(boss_kazra_jin::boss_kazra_jinAI, caster->AI())->recklessTargetGuid;
+                    //uint64 targetGuid = CAST_AI(boss_kazra_jin::boss_kazra_jinAI, caster->AI())->recklessTargetGuid;
+                    uint64 targetGuid = caster->AI()->GetGUID(GUID_RECKLESS_TARGET);
 
                     if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
                     {
                         if (caster->GetEntry() == NPC_KAZRA_JIN && caster->GetAI())
                         {
                             caster->ClearUnitState(UNIT_STATE_CASTING | UNIT_STATE_STUNNED);
-
-                            if (target)
-                                caster->GetMotionMaster()->MovePoint(1, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+                            caster->GetMotionMaster()->MovePoint(1, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                         }
                     }
                 }
@@ -2373,7 +2587,7 @@ class spell_reckless_charge_movement: public SpellScriptLoader
 };
 
 // Frigid Assault (Stun) - 136904
-class spell_frigid_assault: public SpellScriptLoader
+class spell_frigid_assault : public SpellScriptLoader
 {
     public:
         spell_frigid_assault() : SpellScriptLoader("spell_frigid_assault") { }
@@ -2396,8 +2610,10 @@ class spell_frigid_assault: public SpellScriptLoader
                                 target->CastSpell(target, SPELL_FRIGID_ASSAULT_STUN, true);
 
                                 if (Creature* malakk = caster->ToCreature())
+                                {
                                     if (malakk->GetAI())
                                         malakk->AI()->DoAction(ACTION_SCHEDULE_FRIGID_ASSAULT);
+                                }
                             }
                         }
                     }
@@ -2408,8 +2624,10 @@ class spell_frigid_assault: public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     if (Creature* malakk = caster->ToCreature())
+                    {
                         if (malakk->GetAI())
                             malakk->AI()->DoAction(ACTION_SCHEDULE_FRIGID_ASSAULT);
+                    }
                 }
             }
 
@@ -2427,7 +2645,7 @@ class spell_frigid_assault: public SpellScriptLoader
 };
 
 // Lingering Presence - 136467
-class spell_lingering_presence: public SpellScriptLoader
+class spell_lingering_presence : public SpellScriptLoader
 {
     public:
         spell_lingering_presence() : SpellScriptLoader("spell_lingering_presence") { }
@@ -2466,7 +2684,7 @@ class spell_lingering_presence: public SpellScriptLoader
 };
 
 // Biting Cold - 136917
-class spell_biting_cold_malakk: public SpellScriptLoader
+class spell_biting_cold_malakk : public SpellScriptLoader
 {
     public:
         spell_biting_cold_malakk() : SpellScriptLoader("spell_biting_cold_malakk") { }
@@ -2478,9 +2696,13 @@ class spell_biting_cold_malakk: public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Unit* target = GetExplTargetUnit())
+                {
                     if (Creature* caster = GetCaster()->ToCreature())
+                    {
                         if (caster->GetEntry() == NPC_FROST_KING_MALAKK && caster->GetAI())
-                            caster->AddAura(SPELL_BITING_COLD_AURA, target); 
+                            caster->AddAura(SPELL_BITING_COLD_AURA, target);
+                    }
+                }
             }
 
             void Register()
@@ -2496,7 +2718,7 @@ class spell_biting_cold_malakk: public SpellScriptLoader
 };
 
 // Frostbite - 136990
-class spell_frosbite_malakk: public SpellScriptLoader
+class spell_frosbite_malakk : public SpellScriptLoader
 {
     public:
         spell_frosbite_malakk() : SpellScriptLoader("spell_frosbite_malakk") { }
@@ -2508,9 +2730,13 @@ class spell_frosbite_malakk: public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Unit* target = GetExplTargetUnit())
+                {
                     if (Creature* caster = GetCaster()->ToCreature())
+                    {
                         if (caster->GetEntry() == NPC_FROST_KING_MALAKK && caster->GetAI())
                             caster->CastSpell(target, SPELL_FROSTBITE_PERIODIC, true);
+                    }
+                }
             }
 
             void Register()
@@ -2526,7 +2752,7 @@ class spell_frosbite_malakk: public SpellScriptLoader
 };
 
 // Frostbite (aura) - 136922
-class spell_frosbite_malakk_aura: public SpellScriptLoader
+class spell_frosbite_malakk_aura : public SpellScriptLoader
 {
     public:
         spell_frosbite_malakk_aura() : SpellScriptLoader("spell_frosbite_malakk_aura") { }
@@ -2549,7 +2775,7 @@ class spell_frosbite_malakk_aura: public SpellScriptLoader
                             target->GetPlayerListInGrid(playerList, 4.0f);
                             uint8 size = playerList.size();
 
-                            if ((pInstance = target->GetInstanceScript()))
+                            if (pInstance = target->GetInstanceScript())
                             {
                                 if (!pInstance->instance->IsHeroic())
                                 {
@@ -2575,7 +2801,7 @@ class spell_frosbite_malakk_aura: public SpellScriptLoader
                     std::list<Player*> playerList;
                     target->GetPlayerListInGrid(playerList, 4.0f);
 
-                    if ((pInstance = target->GetInstanceScript()))
+                    if (pInstance = target->GetInstanceScript())
                     {
                         if (pInstance->instance->IsHeroic())
                         {
@@ -2592,8 +2818,10 @@ class spell_frosbite_malakk_aura: public SpellScriptLoader
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
+                {
                     if (!target->HasAura(SPELL_BODY_HEAT))
                         target->AddAura(SPELL_CHILLED_TO_THE_BONE, target);
+                }
             }
 
             void Register()
@@ -2611,7 +2839,7 @@ class spell_frosbite_malakk_aura: public SpellScriptLoader
 };
 
 // Overload (aura) - 137149 / Discharge - 137166
-class spell_overload_discharge_kazra_jin: public SpellScriptLoader
+class spell_overload_discharge_kazra_jin : public SpellScriptLoader
 {
     public:
         spell_overload_discharge_kazra_jin() : SpellScriptLoader("spell_overload_discharge_kazra_jin") { }
@@ -2646,7 +2874,7 @@ class spell_overload_discharge_kazra_jin: public SpellScriptLoader
 };
 
 // Ensnared - 136878
-class spell_ensnared: public SpellScriptLoader
+class spell_ensnared : public SpellScriptLoader
 {
     public:
         spell_ensnared() : SpellScriptLoader("spell_ensnared") { }
@@ -2667,11 +2895,13 @@ class spell_ensnared: public SpellScriptLoader
                             caster->GetPlayerListInGrid(playerList, 7.0f);
 
                             for (auto player: playerList)
-                                if (stack == 5)
+                            {
+                                if (stack >= 5)
                                 {
                                     player->RemoveAura(SPELL_ENSNARED);
                                     player->AddAura(SPELL_ENTRAPPED, player);
                                 }
+                            }
                         }
                     }
                 }
@@ -2690,7 +2920,7 @@ class spell_ensnared: public SpellScriptLoader
 };
 
 // SandStorm - 136895
-class spell_sandstorm: public SpellScriptLoader
+class spell_sandstorm : public SpellScriptLoader
 {
     public:
         spell_sandstorm() : SpellScriptLoader("spell_sandstorm") { }
@@ -2735,7 +2965,7 @@ class spell_sandstorm: public SpellScriptLoader
 };
 
 // Dark Power - 136507
-class spell_dark_power: public SpellScriptLoader
+class spell_dark_power : public SpellScriptLoader
 {
     public:
         spell_dark_power() : SpellScriptLoader("spell_dark_power") { }
@@ -2748,11 +2978,13 @@ class spell_dark_power: public SpellScriptLoader
             {
                 if (Unit* target = GetExplTargetUnit())
                     if (Creature* caster = GetCaster()->ToCreature())
+                    {
                         if (caster->GetAI())
                         {
                             uint32 counter = caster->AI()->GetData(DATA_SPELL_DMG_MULTIPLIER);
                             SetHitDamage(GetSpellInfo()->Effects[0].BasePoints * 1 + (counter * 0.10));
                         }
+                    }
             }
 
             void Register()
@@ -2768,7 +3000,7 @@ class spell_dark_power: public SpellScriptLoader
 };
 
 // Soul Fragment - 137641
-class spell_soul_fragment: public SpellScriptLoader
+class spell_soul_fragment : public SpellScriptLoader
 {
     public:
         spell_soul_fragment() : SpellScriptLoader("spell_soul_fragment") { }
@@ -2783,10 +3015,14 @@ class spell_soul_fragment: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if ((instance = caster->GetInstanceScript()))
+                    if (instance = caster->GetInstanceScript())
+                    {
                         if (Creature* garaJal = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
+                        {
                             if (garaJal->GetAI())
-                                caster->setFaction(CAST_AI(npc_gara_jal_s_soul::npc_gara_jal_s_soulAI, garaJal->AI())->targetFaction);
+                                caster->setFaction(garaJal->GetAI()->GetData(0));
+                        }
+                    }
                 }
             }
 
@@ -2803,7 +3039,7 @@ class spell_soul_fragment: public SpellScriptLoader
 };
 
 // Soul Fragment (switch) - 137643
-class spell_soul_fragment_switch: public SpellScriptLoader
+class spell_soul_fragment_switch : public SpellScriptLoader
 {
     public:
         spell_soul_fragment_switch() :  SpellScriptLoader("spell_soul_fragment_switch") { }
@@ -2843,7 +3079,7 @@ class spell_soul_fragment_switch: public SpellScriptLoader
 };
 
 // Twisted Fate (first)- 137943
-class spell_first_twisted_fate: public SpellScriptLoader
+class spell_first_twisted_fate : public SpellScriptLoader
 {
     public:
         spell_first_twisted_fate() :  SpellScriptLoader("spell_first_twisted_fate") { }
@@ -2857,6 +3093,7 @@ class spell_first_twisted_fate: public SpellScriptLoader
                 uint64 targetGuid = 0;
 
                 if (Unit* caster = GetCaster())
+                {
                     if (Creature* twistedFate = caster->ToCreature())
                     {
                         targetGuid = CAST_AI(mob_first_twisted_fate::mob_first_twisted_fateAI, twistedFate->AI())->summonerGuid;
@@ -2864,6 +3101,7 @@ class spell_first_twisted_fate: public SpellScriptLoader
                         if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
                             twistedFate->SetDisplayId(target->GetDisplayId());
                     }
+                }
             }
 
             void Register()
@@ -2879,7 +3117,7 @@ class spell_first_twisted_fate: public SpellScriptLoader
 };
 
 // Twisted Fate (second) - 137964
-class spell_second_twisted_fate: public SpellScriptLoader
+class spell_second_twisted_fate : public SpellScriptLoader
 {
     public:
         spell_second_twisted_fate() :  SpellScriptLoader("spell_second_twisted_fate") { }
@@ -2893,6 +3131,7 @@ class spell_second_twisted_fate: public SpellScriptLoader
                 uint64 targetGuid = 0;
 
                 if (Unit* caster = GetCaster())
+                {
                     if (Creature* twistedFate = caster->ToCreature())
                     {
                         targetGuid = CAST_AI(mob_second_twisted_fate::mob_second_twisted_fateAI, twistedFate->AI())->summonerGuid;
@@ -2900,6 +3139,7 @@ class spell_second_twisted_fate: public SpellScriptLoader
                         if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
                             twistedFate->SetDisplayId(target->GetDisplayId());
                     }
+                }
             }
 
             void Register()
@@ -2915,7 +3155,7 @@ class spell_second_twisted_fate: public SpellScriptLoader
 };
 
 // Twisted Fate (damage) - 137972
-class spell_twisted_fate_damage: public SpellScriptLoader
+class spell_twisted_fate_damage : public SpellScriptLoader
 {
     public:
         spell_twisted_fate_damage() :  SpellScriptLoader("spell_twisted_fate_damage") { }
@@ -2972,31 +3212,30 @@ class spell_twisted_fate_damage: public SpellScriptLoader
 
 void AddSC_boss_council_of_elders()
 {
-    new npc_gara_jal_s_soul();
-    new npc_gara_jal_the_spirit_binder();
-    new boss_king_malakk();
-    new boss_kazra_jin();
-    new boss_sul_the_sandcrawler();
-    new boss_high_priestress_mar_li();
-    new mob_living_sand();
-    new mob_blessed_loa_spirit();
-    new mob_shadowed_lua_spirit();
-    new mob_first_twisted_fate();
-    new mob_second_twisted_fate();
-    new spell_reckless_charge_rolling();
-    new spell_reckless_charge_movement();
-    new spell_frigid_assault();
-    new spell_lingering_presence();
-    new spell_biting_cold_malakk();
-    new spell_frosbite_malakk();
-    new spell_frosbite_malakk_aura();
-    new spell_overload_discharge_kazra_jin();
-    new spell_ensnared();
-    new spell_sandstorm();
-    new spell_dark_power();
-    new spell_soul_fragment();
-    new spell_soul_fragment_switch();
-    new spell_first_twisted_fate();
-    new spell_second_twisted_fate();
-    new spell_twisted_fate_damage();
+    new npc_gara_jal_s_soul();                  ///< 69182
+    new boss_king_malakk();                     ///< 69131
+    new boss_kazra_jin();                       ///< 69134
+    new boss_sul_the_sandcrawler();             ///< 69078
+    new boss_high_priestress_mar_li();          ///< 69132
+    new mob_living_sand();                      ///< 69153
+    new mob_blessed_loa_spirit();               ///< 69040
+    new mob_shadowed_lua_spirit();              ///< 69548
+    new mob_first_twisted_fate();               ///< 69740
+    new mob_second_twisted_fate();              ///< 69746
+    new spell_reckless_charge_rolling();        ///< 137117
+    new spell_reckless_charge_movement();       ///< 137131
+    new spell_frigid_assault();                 ///< 136904
+    new spell_lingering_presence();             ///< 136467
+    new spell_biting_cold_malakk();             ///< 136917
+    new spell_frosbite_malakk();                ///< 136990
+    new spell_frosbite_malakk_aura();           ///< 136922
+    new spell_overload_discharge_kazra_jin();   ///< 137149 - 137166
+    new spell_ensnared();                       ///< 136878
+    new spell_sandstorm();                      ///< 136895
+    new spell_dark_power();                     ///< 136507
+    new spell_soul_fragment();                  ///< 137641
+    new spell_soul_fragment_switch();           ///< 137643
+    new spell_first_twisted_fate();             ///< 137943
+    new spell_second_twisted_fate();            ///< 137964
+    new spell_twisted_fate_damage();            ///< 137972
 }

@@ -19,146 +19,121 @@
 #include "Player.h"
 #include "GameEventMgr.h"
 
-class spell_Mark_of_Bleeding_Hollow : public SpellScriptLoader
+namespace eEnchantmentMarkProc
+{
+    enum
+    {
+        Thunderlord     = 159234,
+        Warsong         = 159675,
+        BleedingHollow  = 173322,
+        Frostwolf       = 159676,
+        Blackrock       = 159679,
+        Shadowmoon      = 159678
+    };
+}
+namespace eEnchantmentMarkAura
+{
+    enum
+    {
+        Thunderlord     = 159243,
+        Warsong         = 159682,
+        BleedingHollow  = 173321,
+        Frostwolf       = 159683,
+        Blackrock       = 159685,
+        Shadowmoon      = 159684
+    };
+}
+
+class spell_enchantment_mark : public SpellScriptLoader
 {
     public:
-        spell_Mark_of_Bleeding_Hollow()
-            : SpellScriptLoader("spell_Mark_of_Bleeding_Hollow")
-        {
+        spell_enchantment_mark() : SpellScriptLoader("spell_enchantment_mark") { }
 
-        }
-
-        class spell_Mark_of_Bleeding_Hollow_AuraScript : public AuraScript
+        class spell_enchantment_mark_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_Mark_of_Bleeding_Hollow_AuraScript);
+            PrepareAuraScript(spell_enchantment_mark_AuraScript);
 
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 if (!GetOwner() || !GetOwner()->ToPlayer())
                     return;
 
-                GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), 173322, TRIGGERED_FULL_MASK);
+                switch (GetSpellInfo()->Id)
+                {
+                    case eEnchantmentMarkAura::Thunderlord:
+                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Thunderlord, TRIGGERED_FULL_MASK);
+                        break;
+                    case eEnchantmentMarkAura::Warsong:
+                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Warsong, TRIGGERED_FULL_MASK);
+                        break;
+                    case eEnchantmentMarkAura::BleedingHollow:
+                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::BleedingHollow, TRIGGERED_FULL_MASK);
+                        break;
+                    case eEnchantmentMarkAura::Frostwolf:
+                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Frostwolf, TRIGGERED_FULL_MASK);
+                        break;
+                    case eEnchantmentMarkAura::Blackrock:
+                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Blackrock, TRIGGERED_FULL_MASK);
+                        break;
+                    case eEnchantmentMarkAura::Shadowmoon:
+                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Shadowmoon, TRIGGERED_FULL_MASK);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_Mark_of_Bleeding_Hollow_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_enchantment_mark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new spell_Mark_of_Bleeding_Hollow_AuraScript();
+            return new spell_enchantment_mark_AuraScript();
         }
-
 };
 
-class spell_Mark_of_Blackrock : public SpellScriptLoader
+/// last update : 6.1.2 19865
+/// Shattered Bleed - 159238
+class spell_Mark_Of_The_Shattered_Bleed : public SpellScriptLoader
 {
     public:
-        spell_Mark_of_Blackrock()
-            : SpellScriptLoader("spell_Mark_of_Blackrock")
+        spell_Mark_Of_The_Shattered_Bleed() : SpellScriptLoader("spell_Mark_Of_The_Shattered_Bleed") { }
+
+        class spell_Mark_Of_The_Shattered_Bleed_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_Mark_Of_The_Shattered_Bleed_SpellScript);
 
-        }
-
-        class spell_Mark_of_Blackrock_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_Mark_of_Blackrock_AuraScript);
-
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            SpellCastResult CheckCast()
             {
-                if (!GetOwner() || !GetOwner()->ToPlayer())
-                    return;
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
 
-                GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), 159679, TRIGGERED_FULL_MASK);
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Caster->IsValidAssistTarget(l_Target))
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
             }
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_Mark_of_Blackrock_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnCheckCast += SpellCheckCastFn(spell_Mark_Of_The_Shattered_Bleed_SpellScript::CheckCast);
             }
         };
 
-        AuraScript* GetAuraScript() const override
+        SpellScript* GetSpellScript() const
         {
-            return new spell_Mark_of_Blackrock_AuraScript();
+            return new spell_Mark_Of_The_Shattered_Bleed_SpellScript();
         }
-
-};
-
-class spell_Mark_of_Thunderlord : public SpellScriptLoader
-{
-    public:
-        spell_Mark_of_Thunderlord()
-            : SpellScriptLoader("spell_Mark_of_Thunderlord")
-        {
-
-        }
-
-        class spell_Mark_of_Thunderlord_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_Mark_of_Thunderlord_AuraScript);
-
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
-            {
-                if (!GetOwner() || !GetOwner()->ToPlayer())
-                    return;
-
-                GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), 159234, TRIGGERED_FULL_MASK);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_Mark_of_Thunderlord_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_Mark_of_Thunderlord_AuraScript();
-        }
-
-};
-
-class spell_Mark_of_Warsong : public SpellScriptLoader
-{
-    public:
-        spell_Mark_of_Warsong()
-            : SpellScriptLoader("spell_Mark_of_Warsong")
-        {
-
-        }
-
-        class spell_Mark_of_Warsong_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_Mark_of_Warsong_AuraScript);
-
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
-            {
-                if (!GetOwner() || !GetOwner()->ToPlayer())
-                    return;
-
-                GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), 159675, TRIGGERED_FULL_MASK);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_Mark_of_Warsong_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_Mark_of_Warsong_AuraScript();
-        }
-
 };
 
 void AddSC_spell_item_enchantment()
 {
-    new spell_Mark_of_Bleeding_Hollow();
-    new spell_Mark_of_Blackrock();
-    new spell_Mark_of_Thunderlord();
-    new spell_Mark_of_Warsong();
+    new spell_enchantment_mark();
+    new spell_Mark_Of_The_Shattered_Bleed();
 }

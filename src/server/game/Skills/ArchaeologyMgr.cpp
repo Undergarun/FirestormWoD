@@ -225,7 +225,7 @@ namespace MS { namespace Skill { namespace Archaeology
         {
             Tokenizer l_Tokens(l_Fields[1].GetCString(), ' ');
 
-            for (uint8 l_I = 0; l_I < l_Tokens.size(); ++l_I)
+            for (uint8 l_I = 0; l_I < l_Tokens.size() && l_I < Constants::MaxResearchProject; ++l_I)
                 m_ResearchProjects.insert(uint32(atoi(l_Tokens[l_I])));
         }
 
@@ -336,11 +336,12 @@ namespace MS { namespace Skill { namespace Archaeology
         if (sResearchProjectSet.empty())
             return;
 
+        if (m_ResearchProjects.size() > Constants::MaxResearchProject)
+            return;
+
         uint16 l_CurrentSkillValue = m_Player->GetSkillValue(SKILL_ARCHAEOLOGY);
         if (!l_CurrentSkillValue)
             return;
-
-        m_ResearchProjects.clear();
 
         ProjectsSetMap l_CandidatesProjectListPerBranch;
         uint32 l_ProjectBaseChance = l_CurrentSkillValue / 10;
@@ -350,6 +351,19 @@ namespace MS { namespace Skill { namespace Archaeology
             ResearchProjectEntry const* l_ProjectEntry = (*l_It);
 
             if (!l_ProjectEntry)
+                continue;
+
+            auto l_SecondIt = std::find_if(m_ResearchProjects.begin(), m_ResearchProjects.end(), [l_ProjectEntry](uint32 const& p_ProjectID) -> bool
+            {
+                ResearchProjectEntry const* l_Second = sResearchProjectStore.LookupEntry(p_ProjectID);
+
+                if (!l_Second || l_Second->branchId != l_ProjectEntry->branchId)
+                    return false;
+
+                return true;
+            });
+
+            if (l_SecondIt != m_ResearchProjects.end())
                 continue;
 
             if ((l_ProjectEntry->rare && !roll_chance_i(l_ProjectBaseChance)))
@@ -378,7 +392,8 @@ namespace MS { namespace Skill { namespace Archaeology
             ProjectSet::iterator l_It = l_BranchPorjects.begin();
             std::advance(l_It, rand() % l_BranchPorjects.size());
 
-            m_ResearchProjects.insert(*l_It);
+            if (m_ResearchProjects.size() < Constants::MaxResearchProject)
+                m_ResearchProjects.emplace(*l_It);
         }
 
         _archaeologyChanged = true;
@@ -512,7 +527,7 @@ namespace MS { namespace Skill { namespace Archaeology
             return;
 
         uint8 l_Count = 0;
-        for (ResearchProjectSet::const_iterator l_It = m_ResearchProjects.begin(); l_It != m_ResearchProjects.end(); ++l_It)
+        for (ResearchProjectSet::const_iterator l_It = m_ResearchProjects.begin(); l_It != m_ResearchProjects.end() && l_Count < 20; ++l_It)
         {
             m_Player->SetUInt16Value(PLAYER_FIELD_RESEARCHING + (l_Count / 2), l_Count % 2, (*l_It));
             ++l_Count;

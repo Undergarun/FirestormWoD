@@ -96,7 +96,6 @@ enum ShamanSpells
     SPELL_SHA_FROST_SHOCK                       = 8056,
     SPELL_SHA_LAVA_SURGE_AURA                   = 77756,
     SPELL_SHA_LAVA_BURST                        = 51505,
-    SPELL_SPIRIT_HUNT_HEAL                      = 58879,
     SPELL_SHA_WINDFURY_ATTACK                   = 25504,
     SPELL_SHA_LAMETONGUE_ATTACK                 = 10444,
     SPELL_SHA_PVP_BONUS_WOD_2                   = 166103,
@@ -784,6 +783,7 @@ class spell_sha_earthgrab: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Stone Bulwark - 114889
 class spell_sha_stone_bulwark: public SpellScriptLoader
 {
@@ -796,23 +796,29 @@ class spell_sha_stone_bulwark: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (Unit* l_Caster = GetCaster())
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+
+                if (l_Caster == nullptr || l_Owner == nullptr)
+                    return;
+
+                Player* l_Player = l_Owner->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                float spellPower = spellPower = l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
+                int32 l_Amount = 0.875f * spellPower;
+
+                if (AuraPtr aura = l_Player->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
+                    aura->GetEffect(EFFECT_0)->SetAmount(aura->GetEffect(EFFECT_0)->GetAmount() + l_Amount);
+                else if (p_AurEff->GetTickNumber() == 1)
                 {
-                    if (Unit* l_Owner = l_Caster->GetOwner())
-                    {
-                        float spellPower = spellPower = l_Owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
-                        int32 l_Amount = 0.875f * spellPower;
-
-                        if (AuraPtr aura = l_Owner->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
-                            l_Amount += aura->GetEffect(EFFECT_0)->GetAmount();
-                        else if (p_AurEff->GetTickNumber() == 1)
-                            l_Amount *= 4.f;
-
-                        if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Owner))
-                            aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
-
-                        PreventDefaultAction();
-                    }
+                    l_Amount *= 4.0f;
+                    if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Player))
+                        aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
                 }
 
             }
@@ -1197,10 +1203,7 @@ class spell_sha_earthquake: public SpellScriptLoader
                 int32 l_Bp0 = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.11 * 10;
 
                 if (AuraPtr l_ChainLightning = l_Caster->GetAura(SPELL_SHA_IMPROVED_CHAIN_LIGHTNING))
-                {
                     l_Bp0 += CalculatePct(l_Bp0, l_ChainLightning->GetEffect(EFFECT_0)->GetAmount());
-                    l_ChainLightning->Remove();
-                }
 
                 l_Bp0 /= GetSpellInfo()->GetDuration() / IN_MILLISECONDS;
 
@@ -1552,36 +1555,6 @@ class spell_sha_heroism: public SpellScriptLoader
         }
 };
 
-/// 58877 - Spirit Hunt
-class spell_sha_spirit_hunt: public SpellScriptLoader
-{
-    public:
-        spell_sha_spirit_hunt() : SpellScriptLoader("spell_sha_spirit_hunt") { }
-
-        class spell_sha_spirit_hunt_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_spirit_hunt_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                int32 bp0 = eventInfo.GetDamageInfo()->GetDamage();
-                if (Unit* player = GetCaster()->GetOwner())
-                    GetCaster()->CastCustomSpell(player, SPELL_SPIRIT_HUNT_HEAL, &bp0, NULL, NULL, true);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_sha_spirit_hunt_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_spirit_hunt_AuraScript();
-        }
-};
-
 /// 105792 - Lava Shock Spread
 class spell_sha_lava_lash_spread: public SpellScriptLoader
 {
@@ -1743,6 +1716,55 @@ class spell_sha_flame_shock : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_flame_shock_SpellScript();
+        }
+};
+
+/// Call by Chain Heal - 1064
+class spell_sha_improved_chain_heal : public SpellScriptLoader
+{
+    public:
+        spell_sha_improved_chain_heal() : SpellScriptLoader("spell_sha_improved_chain_heal") { }
+
+        class spell_sha_improved_chain_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_improved_chain_heal_SpellScript);
+
+            enum eSpells
+            {
+                ImprovedChainHealAura = 157813
+            };
+
+            void HitTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                Unit* l_ExplTarget = GetExplTargetUnit();
+
+                if (l_Target == nullptr || l_ExplTarget == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::ImprovedChainHealAura))
+                    return;
+
+                if (l_ExplTarget->GetGUID() != l_Target->GetGUID()) ///< Only first target
+                    return;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::ImprovedChainHealAura);
+                int32 l_Heal = GetHitHeal();
+
+                l_Heal += CalculatePct(l_Heal, l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                SetHitHeal(l_Heal);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_improved_chain_heal_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_improved_chain_heal_SpellScript();
         }
 };
 
@@ -1940,39 +1962,6 @@ class spell_sha_glyph_of_eternal_earth : public SpellScriptLoader
         }
 };
 
-/// 10400 - Flametongue
-class spell_sha_flametongue: public SpellScriptLoader
-{
-    public:
-        spell_sha_flametongue() : SpellScriptLoader("spell_sha_flametongue") { }
-
-        class spell_sha_flametongue_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_flametongue_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                Unit* target = eventInfo.GetProcTarget();
-                SpellInfo const* spellProto = GetSpellInfo();
-
-                if (eventInfo.GetDamageInfo()->GetAttackType() == WeaponAttackType::OffAttack || spellProto)
-                    GetCaster()->CastSpell(target, SPELL_SHA_LAMETONGUE_ATTACK, true);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_sha_flametongue_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_flametongue_AuraScript();
-        }
-};
-
 /// 157804 - Improved Flame Shock
 class spell_sha_improoved_flame_shock: public SpellScriptLoader
 {
@@ -2067,6 +2056,7 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
 
                 int32 l_HealAmount = CalculatePct(l_TakenDamage, p_AurEff->GetAmount());
                 l_Caster->CastCustomSpell(l_Owner, eSpells::SpiritHuntHeal, &l_HealAmount, nullptr, nullptr, true);
+                l_Caster->CastCustomSpell(l_Caster, eSpells::SpiritHuntHeal, &l_HealAmount, nullptr, nullptr, true);
             }
 
             void Register()
@@ -2719,6 +2709,112 @@ class spell_sha_cloudburst: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Call Lightning - 157348, Wind Gust - 157331
+class spell_sha_call_lightning : public SpellScriptLoader
+{
+    public:
+        spell_sha_call_lightning() : SpellScriptLoader("spell_sha_call_lightning") { }
+
+        class spell_sha_call_lightning_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_call_lightning_SpellScript);
+
+            void HitTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                int32 l_Damage = int32(l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier);
+
+                SetHitDamage(l_Damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_call_lightning_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_call_lightning_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Soothing Winds - 157333
+class spell_sha_soothing_wind : public SpellScriptLoader
+{
+    public:
+        spell_sha_soothing_wind() : SpellScriptLoader("spell_sha_soothing_wind") { }
+
+        class spell_sha_soothing_wind_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_soothing_wind_SpellScript);
+
+            void HitTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                int32 l_Heal = int32(l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier);
+
+                SetHitHeal(l_Heal);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_soothing_wind_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_soothing_wind_SpellScript();
+        }
+};
+
+/// WoD PvP Enhancement 2P Bonus - 166103
+class spell_sha_WoDPvPEnhancement2PBonus : public SpellScriptLoader
+{
+    public:
+        spell_sha_WoDPvPEnhancement2PBonus() : SpellScriptLoader("spell_sha_WoDPvPEnhancement2PBonus") { }
+
+        class spell_sha_WoDPvPEnhancement2PBonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_WoDPvPEnhancement2PBonus_AuraScript);
+
+            void OnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_WoDPvPEnhancement2PBonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_WoDPvPEnhancement2PBonus_AuraScript();
+        }
+};
+
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_unleashed_fury();
@@ -2747,10 +2843,8 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_ascendance();
     new spell_sha_bloodlust();
     new spell_sha_heroism();
-    new spell_sha_spirit_hunt();
     new spell_sha_lava_lash_spread();
     new spell_sha_windfury();
-    new spell_sha_flametongue();
     new spell_sha_improoved_flame_shock();
     new spell_sha_feral_spirit();
     new spell_sha_pet_spirit_hunt();
@@ -2771,4 +2865,8 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_maelstrom_weapon();
     new spell_sha_cloudburst_totem();
     new spell_sha_cloudburst();
+    new spell_sha_call_lightning();
+    new spell_sha_soothing_wind();
+    new spell_sha_WoDPvPEnhancement2PBonus();
+    new spell_sha_improved_chain_heal();
 }

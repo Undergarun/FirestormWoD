@@ -98,6 +98,9 @@ enum eSpells
     SPELL_CRY_HAVOC             = 125907,
     SPELL_FRENZIED_ASSAULT      = 125900,
 
+    /// Reshape Life (Un'sok)
+    SPELL_RESHAPE_LIFE          = 122370,
+
     // Generic enrage spell
     SPELL_BERSERK               = 26662,
 };

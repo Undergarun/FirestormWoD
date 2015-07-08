@@ -119,7 +119,8 @@ enum MageSpells
     SPELL_MAGE_WOD_PVP_FIRE_2P_BONUS             = 165977,
     SPELL_MAGE_WOD_PVP_FIRE_2P_BONUS_EFFECT      = 165979,
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS             = 171169,
-    SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS_EFFECT      = 171170
+    SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS_EFFECT      = 171170,
+    SPELL_MAGE_POLYMORPH_CRITTERMORPH            = 120091
 };
 
 /// Item - Mage WoD PvP Frost 2P Bonus - 180723
@@ -176,45 +177,6 @@ public:
                 itr->RemoveAura(eSpells::SlickIce, l_Caster->GetGUID());
         }
     }
-};
-
-/// Arcane Orb - 153626
-class spell_areatrigger_arcane_orb : public AreaTriggerEntityScript
-{
-    public:
-        spell_areatrigger_arcane_orb() : AreaTriggerEntityScript("spell_areatrigger_arcane_orb") { }
-
-        enum eArcaneOrbSpell
-        {
-            ArcaneOrbDamage = 153640
-        };
-
-        void OnCreate(AreaTrigger* p_AreaTrigger)
-        {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
-                l_Caster->CastSpell(l_Caster, SPELL_MAGE_ARCANE_CHARGE, true);
-        }
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
-            {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 2.0f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eArcaneOrbSpell::ArcaneOrbDamage, true);
-            }
-        }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new spell_areatrigger_arcane_orb();
-        }
 };
 
 /// Arcane Charge - 36032
@@ -382,6 +344,20 @@ class spell_mage_comet_storm : public SpellScriptLoader
                             }
                         }
                     }
+                }
+                if (GetSpellInfo()->Id == eCometDatas::CometStorm)
+                {
+                    int32 l_Damage = GetHitDamage();;
+
+                    /// Damage split between all enemies 
+                    if (GetSpell()->GetUnitTargetCount() > 1)
+                        l_Damage = int32(GetHitDamage() / GetSpell()->GetUnitTargetCount());
+
+                    /// Comet Storm (Frost) damage has increased by 94% but deals 33.3% less damage in PvP combat. - 6.1
+                    if (GetHitUnit() && GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
+                        l_Damage = l_Damage - CalculatePct(l_Damage, 33.3f);
+
+                    SetHitDamage(l_Damage);
                 }
             }
 
@@ -2641,6 +2617,47 @@ class spell_mage_flameglow : public SpellScriptLoader
         }
 };
 
+/// Polymorph - 118 - last update 5.4.2 17688
+class spell_mage_polymorph : public SpellScriptLoader
+{
+    public:
+        spell_mage_polymorph() : SpellScriptLoader("spell_mage_polymorph") { }
+
+        class spell_mage_polymorph_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_polymorph_SpellScript);
+
+            void HandleTarget(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(56382))
+                        return;
+
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Target->GetCreatureType() == CreatureType::CREATURE_TYPE_CRITTER)
+                        {
+                            PreventHitAura();
+
+                            l_Caster->CastSpell(l_Target, SPELL_MAGE_POLYMORPH_CRITTERMORPH, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mage_polymorph_SpellScript::HandleTarget, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_TARGET_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_polymorph_SpellScript();
+        }
+};
+
 class PlayerScript_rapid_teleportation : public PlayerScript
 {
     public:
@@ -2655,11 +2672,47 @@ class PlayerScript_rapid_teleportation : public PlayerScript
         }
 };
 
+/// Ring of Frost (Freeze) - 82691 - last update: 6.1.2 19865
+class spell_ring_of_frost_freeze : public SpellScriptLoader
+{
+    public:
+        spell_ring_of_frost_freeze() : SpellScriptLoader("spell_ring_of_frost_freeze") { }
+
+        enum Spells
+        {
+            RingOfFrostImmune = 91264
+        };
+
+        class spell_ring_of_frost_freeze_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ring_of_frost_freeze_AuraScript);
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEATH)
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(GetTarget(), Spells::RingOfFrostImmune, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ring_of_frost_freeze_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ring_of_frost_freeze_AuraScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
     new spell_areatrigger_mage_wod_frost_2p_bonus();
-    new spell_areatrigger_arcane_orb();
 
     /// Spells
     new spell_mage_arcane_charge();
@@ -2709,6 +2762,8 @@ void AddSC_mage_spell_scripts()
     new spell_mage_glyph_of_the_unbound_elemental();
     new spell_mage_WoDPvPFrost2PBonus();
     new spell_mage_arcane_power();
+    new spell_mage_polymorph();
+    new spell_ring_of_frost_freeze();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

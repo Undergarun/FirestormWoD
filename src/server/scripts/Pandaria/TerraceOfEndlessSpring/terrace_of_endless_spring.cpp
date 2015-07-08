@@ -478,7 +478,7 @@ class mob_night_terror_summon : public CreatureScript
 };
 
 // Night Terrors (missile) - 125736
-class spell_night_terrors_missile: public SpellScriptLoader
+class spell_night_terrors_missile : public SpellScriptLoader
 {
     public:
         spell_night_terrors_missile() : SpellScriptLoader("spell_night_terrors_missile") { }
@@ -511,7 +511,7 @@ class spell_night_terrors_missile: public SpellScriptLoader
 };
 
 // Night Terrors (periodic) - 125745
-class spell_night_terrors_periodic: public SpellScriptLoader
+class spell_night_terrors_periodic : public SpellScriptLoader
 {
     public:
         spell_night_terrors_periodic() : SpellScriptLoader("spell_night_terrors_periodic") { }

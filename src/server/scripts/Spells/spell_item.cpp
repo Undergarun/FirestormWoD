@@ -2538,6 +2538,38 @@ class spell_item_throw_mantra: public SpellScriptLoader
         }
 };
 
+class spell_item_ancient_knowledge : public SpellScriptLoader
+{
+    public:
+        spell_item_ancient_knowledge() : SpellScriptLoader("spell_item_ancient_knowledge") { }
+
+        class spell_item_ancient_knowledge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_ancient_knowledge_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->getLevel() > 84)
+                        return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_ancient_knowledge_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_ancient_knowledge_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2599,4 +2631,5 @@ void AddSC_item_spell_scripts()
     new spell_item_zuluhed_chains();
     new spell_item_yak_s_milk();
     new spell_item_throw_mantra();
+    new spell_item_ancient_knowledge();
 }

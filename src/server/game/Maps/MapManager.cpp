@@ -171,6 +171,10 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         return false;
 
     Difficulty targetDifficulty = player->GetDifficultyID(entry);
+
+    if (entry->MapID == player->GetGarrisonMapID())
+        targetDifficulty = Difficulty::DifficultyNormal;
+
     //The player has a heroic mode and tries to enter into instance which has no a heroic mode
     MapDifficulty const* mapDiff = GetMapDifficultyData(entry->MapID, targetDifficulty);
     if (!mapDiff)
@@ -307,26 +311,24 @@ void MapManager::Update(uint32 diff)
         iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));
 
     sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
-    
-    while (!m_CriticalOperation.empty())
-    {
-        if (m_CriticalOperation.front())
-            m_CriticalOperation.front()();
 
-        m_CriticalOperation.pop();
-    }
-
+    std::queue<std::function<void()>> l_Operations;
     m_CriticalOperationLock.acquire();
+
+    l_Operations = m_CriticalOperation;
     
     while (!m_CriticalOperation.empty())
-    {
-        if (m_CriticalOperation.front())
-            m_CriticalOperation.front()();
-
         m_CriticalOperation.pop();
-    }
 
     m_CriticalOperationLock.release();
+
+    while (!l_Operations.empty())
+    {
+        if (l_Operations.front())
+            l_Operations.front()();
+
+        l_Operations.pop();
+    }
 
     i_timer.SetCurrent(0);
 }

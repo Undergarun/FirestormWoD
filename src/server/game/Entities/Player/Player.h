@@ -230,7 +230,7 @@ typedef std::list<uint64> WhisperListContainer;
 struct SpellCooldown
 {
     uint64 end;
-    uint16 itemid;
+    uint32 itemid;
 };
 
 typedef std::map<uint32, SpellCooldown> SpellCooldowns;
@@ -1637,7 +1637,8 @@ class Player : public Unit, public GridObject<Player>
 
         MS::Garrison::Manager * GetGarrison();
         void CreateGarrison();
-        bool IsInGarrison();
+        bool IsInGarrison() const;
+        int32 GetGarrisonMapID() const;
         void DeleteGarrison();
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
@@ -2672,7 +2673,7 @@ class Player : public Unit, public GridObject<Player>
         void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
         void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr);
 
-        void SendTeleportPacket(Position &oldPos);
+        void SendTeleportPacket(Position &p_NewPosition);
 
         Corpse* GetCorpse() const;
         void SpawnCorpseBones();
@@ -2851,7 +2852,7 @@ class Player : public Unit, public GridObject<Player>
         }
 
         void SendAurasForTarget(Unit* target);
-        void SendCooldownAtLogin();
+        void SendSpellHistory();
 
         PlayerMenu* PlayerTalkClass;
         std::vector<ItemSetEffect*> ItemSetEff;

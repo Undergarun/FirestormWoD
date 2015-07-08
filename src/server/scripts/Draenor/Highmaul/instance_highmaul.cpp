@@ -19,6 +19,10 @@ DoorData const g_DoorData[] =
     { eHighmaulGameobjects::Earthwall2,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::Earthwall3,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::Earthwall4,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::TwinOgronEntrance,  eHighmaulDatas::BossTwinOgron,          DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::TwinOgronExit,      eHighmaulDatas::BossTwinOgron,          DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::FelBreakerEntrance, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::FelBreakerExitDoor, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { 0,                                        0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -56,6 +60,11 @@ class instance_highmaul : public InstanceMapScript
 
                 m_TectusGuid                = 0;
                 m_GuardiansGuids.resize(eHighmaulDatas::MaxTectusGuardians);
+
+                m_PhemosGuid                = 0;
+                m_PolGuid                   = 0;
+
+                m_KoraghGuid                = 0;
             }
 
             uint64 m_ArenaMasterGuid;
@@ -84,6 +93,13 @@ class instance_highmaul : public InstanceMapScript
             /// The Market
             uint64 m_TectusGuid;
             std::vector<uint64> m_GuardiansGuids;
+
+            /// The Gorthenon
+            uint64 m_PhemosGuid;
+            uint64 m_PolGuid;
+
+            /// Chamber of Nullification
+            uint64 m_KoraghGuid;
 
             void Initialize() override
             {
@@ -148,6 +164,25 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::Lokk:
                         m_GuardiansGuids[p_Creature->GetEntry() - eHighmaulCreatures::Rokka] = p_Creature->GetGUID();
                         break;
+                    case eHighmaulCreatures::Phemos:
+                        m_PhemosGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::Pol:
+                        m_PolGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::Koragh:
+                        m_KoraghGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::IronGrunt:
+                    case eHighmaulCreatures::BlackrockGrunt:
+                    case eHighmaulCreatures::LowBatchDeadPale:
+                    case eHighmaulCreatures::NightTwistedPaleVis:
+                    case eHighmaulCreatures::CosmeticGorianWarr:
+                    case eHighmaulCreatures::GorianCivilian:
+                    case eHighmaulCreatures::RuneOfNullification:
+                        p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                        p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        break;
                     default:
                         break;
                 }
@@ -206,6 +241,10 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::Earthwall2:
                     case eHighmaulGameobjects::Earthwall3:
                     case eHighmaulGameobjects::Earthwall4:
+                    case eHighmaulGameobjects::TwinOgronEntrance:
+                    case eHighmaulGameobjects::TwinOgronExit:
+                    case eHighmaulGameobjects::FelBreakerEntrance:
+                    case eHighmaulGameobjects::FelBreakerExitDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eHighmaulGameobjects::ArenaElevator:
@@ -248,6 +287,10 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::Earthwall2:
                     case eHighmaulGameobjects::Earthwall3:
                     case eHighmaulGameobjects::Earthwall4:
+                    case eHighmaulGameobjects::TwinOgronEntrance:
+                    case eHighmaulGameobjects::TwinOgronExit:
+                    case eHighmaulGameobjects::FelBreakerEntrance:
+                    case eHighmaulGameobjects::FelBreakerExitDoor:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -345,6 +388,12 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::Oro:
                     case eHighmaulCreatures::Lokk:
                         return m_GuardiansGuids[p_Type - eHighmaulCreatures::Rokka];
+                    case eHighmaulCreatures::Phemos:
+                        return m_PhemosGuid;
+                    case eHighmaulCreatures::Pol:
+                        return m_PolGuid;
+                    case eHighmaulCreatures::Koragh:
+                        return m_KoraghGuid;
                     default:
                         break;
                 }
@@ -394,7 +443,11 @@ class instance_highmaul : public InstanceMapScript
                     p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
 
-                    if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
+                    if (GetBossState(eHighmaulDatas::BossTwinOgron) == EncounterState::DONE)
+                        p_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                    else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
+                        p_Player->NearTeleportTo(eHighmaulLocs::CityBaseTeleporter);
+                    else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
                         p_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
                     else
                         p_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);

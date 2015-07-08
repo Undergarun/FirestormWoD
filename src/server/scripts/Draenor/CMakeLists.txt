@@ -10,11 +10,13 @@
 
 file(GLOB_RECURSE sources_Garrison Draenor/Garrison/*.hpp Draenor/Garrison/*.cpp Draenor/Garrison/*.hxx)
 file(GLOB_RECURSE sources_Highmaul Draenor/Highmaul/*.hpp Draenor/Highmaul/*.cpp Draenor/Highmaul/*.hxx)
+file(GLOB_RECURSE sources_IronDocks Draenor/IronDocks/*.hpp Draenor/IronDocks/*.cpp Draenor/IronDocks/*.hxx)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   ${sources_Garrison}
   ${sources_Highmaul}
+  ${sources_IronDocks}
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
   Draenor/frostfire_ridge.cpp
@@ -40,13 +42,6 @@ set(scripts_STAT_SRCS
   Draenor/BloodmaulSlagMines/boss_forgemaster_gogduh.cpp
   Draenor/BloodmaulSlagMines/boss_roltall.cpp
   Draenor/BloodmaulSlagMines/boss_gugrokk.cpp
-  Draenor/IronDocks/boss_girmrail.cpp
-  Draenor/IronDocks/boss_nokgar.cpp
-  Draenor/IronDocks/boss_oshir.cpp
-  Draenor/IronDocks/instance_iron_docks.cpp
-  Draenor/IronDocks/iron_docks.cpp
-  Draenor/IronDocks/iron_docks.h
-  Draenor/IronDocks/skulloc.cpp
   Draenor/Auchindoun/auchindon.cpp
   Draenor/Auchindoun/auchindon.h
   Draenor/Auchindoun/boss_azakael.cpp

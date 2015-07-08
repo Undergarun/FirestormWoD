@@ -22,6 +22,7 @@
 #include "ScriptedCreature.h"
 #include "terrace_of_endless_spring.h"
 #include "GridNotifiers.h"
+#include "AreaTrigger.h"
 
 enum eLeiShiSpells
 {
@@ -92,10 +93,17 @@ Position hidePositions[4] =
 #define HEROIC_DIST_TO_VORTEX 21.0f
 #define DIST_TO_SCARY_FOG_DOT 4.5f
 
+// 62983 - Lei Shi
 class boss_lei_shi : public CreatureScript
 {
     public:
         boss_lei_shi() : CreatureScript("boss_lei_shi") { }
+
+        enum eMiscs
+        {
+            EvilDisplay = 43783,
+            GoodDisplay = 40357
+        };
 
         struct boss_lei_shiAI : public BossAI
         {
@@ -156,7 +164,7 @@ class boss_lei_shi : public CreatureScript
                 endCombatPct        = 2;
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_IMMUNE_TO_PC);
-                me->RestoreDisplayId();
+                me->SetDisplayId(eMiscs::EvilDisplay);
                 me->RemoveAura(SPELL_AFRAID);
                 me->RemoveAura(SPELL_HIDE);
                 me->RemoveAura(SPELL_HIDE_STACKS);
@@ -253,7 +261,7 @@ class boss_lei_shi : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
             {
                 if (!pInstance)
                     return;
@@ -263,7 +271,7 @@ class boss_lei_shi : public CreatureScript
                     damage = 0;
                     return;
                 }
- 
+
                 if (nextAfraidPct)
                 {
                     if (me->HealthBelowPctDamaged(nextAfraidPct, damage))
@@ -340,21 +348,24 @@ class boss_lei_shi : public CreatureScript
                             me->CastSpell(l_Player, SPELL_LEI_SHI_BONUS, true);
 
                             // Valor points
-                            l_Player->ModifyCurrency(CURRENCY_TYPE_VALOR_POINTS, 40);
+                            if (!IsLFR())
+                                l_Player->ModifyCurrency(CURRENCY_TYPE_VALOR_POINTS, 40);
                         }
                     }
 
-                    if (me->GetMap()->IsLFR())
+                    if (IsLFR())
                     {
                         me->SetLootRecipient(NULL);
                         Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                         if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                     }
 
                     for (auto itr : animatedProtectors)
+                    {
                         if (Creature* protector = Creature::GetCreature(*me, itr))
                             protector->DespawnOrUnsummon();
+                    }
                 }
             }
 
@@ -363,7 +374,7 @@ class boss_lei_shi : public CreatureScript
                 me->setFaction(35);
                 me->RemoveAllAreasTrigger();
                 me->RemoveAllAuras();
-                me->RestoreDisplayId();
+                me->SetDisplayId(eMiscs::GoodDisplay);
                 me->SetFullHealth();
                 me->CastSpell(me, SPELL_LEI_SHI_TRANSFORM, true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -750,7 +761,7 @@ class mob_lei_shi_hidden : public CreatureScript
 };
 
 // Get Away! - 123461
-class spell_get_away: public SpellScriptLoader
+class spell_get_away : public SpellScriptLoader
 {
     public:
         spell_get_away() : SpellScriptLoader("spell_get_away") { }
@@ -762,9 +773,13 @@ class spell_get_away: public SpellScriptLoader
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (caster->ToCreature())
+                    {
                         if (caster->ToCreature()->AI())
                             caster->ToCreature()->AI()->DoAction(ACTION_TERMINATE_GET_AWAY_PHASE);
+                    }
+                }
             }
 
             void Register()
@@ -780,7 +795,7 @@ class spell_get_away: public SpellScriptLoader
 };
 
 // Get Away! - 123467
-class spell_get_away_damage: public SpellScriptLoader
+class spell_get_away_damage : public SpellScriptLoader
 {
     public:
         spell_get_away_damage() : SpellScriptLoader("spell_get_away_damage") { }
@@ -792,9 +807,13 @@ class spell_get_away_damage: public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (Unit* target = GetHitUnit())
+                    {
                         if (target->isMoving() && target->isInFront(caster))
                             SetHitDamage(GetHitDamage() / 2);
+                    }
+                }
             }
 
             void Register()
@@ -810,7 +829,7 @@ class spell_get_away_damage: public SpellScriptLoader
 };
 
 // Hide - 123244
-class spell_hide: public SpellScriptLoader
+class spell_hide : public SpellScriptLoader
 {
     public:
         spell_hide() : SpellScriptLoader("spell_hide") { }
@@ -862,7 +881,7 @@ class spell_hide: public SpellScriptLoader
 };
 
 // Hide (stacks) - 123233
-class spell_hide_stacks: public SpellScriptLoader
+class spell_hide_stacks : public SpellScriptLoader
 {
     public:
         spell_hide_stacks() : SpellScriptLoader("spell_hide_stacks") { }
@@ -874,9 +893,13 @@ class spell_hide_stacks: public SpellScriptLoader
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (caster->ToCreature())
+                    {
                         if (caster->ToCreature()->AI())
                             caster->ToCreature()->AI()->DoAction(ACTION_TERMINATE_HIDE_PHASE);
+                    }
+                }
             }
 
             void Register()
@@ -892,7 +915,7 @@ class spell_hide_stacks: public SpellScriptLoader
 };
 
 // Scary Fog (DoT) - 123705
-class spell_scary_fog_dot: public SpellScriptLoader
+class spell_scary_fog_dot : public SpellScriptLoader
 {
     public:
         spell_scary_fog_dot() : SpellScriptLoader("spell_scary_fog_dot") { }
@@ -907,11 +930,17 @@ class spell_scary_fog_dot: public SpellScriptLoader
 
                 Map::PlayerList const& players = GetCaster()->GetMap()->GetPlayers();
                 if (!players.isEmpty())
+                {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
                         if (Player* player = itr->getSource())
+                        {
                             if (player->GetExactDist2d(GetCaster()->GetPositionX(), GetCaster()->GetPositionY()) >= HEROIC_DIST_TO_VORTEX &&
                                 !player->HasAura(SPELL_SCARY_FOG_DOT))
                                 targets.push_back(player);
+                        }
+                    }
+                }
 
                 for (auto itr : targets)
                 {
@@ -960,7 +989,7 @@ class spell_scary_fog_dot: public SpellScriptLoader
 };
 
 // Scary Fog (stacks) - 123712
-class spell_scary_fog_stacks: public SpellScriptLoader
+class spell_scary_fog_stacks : public SpellScriptLoader
 {
     public:
         spell_scary_fog_stacks() : SpellScriptLoader("spell_scary_fog_stacks") { }
@@ -1000,15 +1029,66 @@ class spell_scary_fog_stacks: public SpellScriptLoader
         }
 };
 
+/// Created by spell 123461
+class at_get_away : public AreaTriggerEntityScript
+{
+    public:
+        at_get_away() : AreaTriggerEntityScript("at_get_away") { }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            Position l_Pos;
+            p_AreaTrigger->GetPosition(&l_Pos);
+            uint64 l_AreatTriggerGuid = p_AreaTrigger->GetGUID();
+
+            std::list<Player*> l_PlayerList;
+            GetPlayerListInGrid(l_PlayerList, p_AreaTrigger, 60.0f);
+
+            for (Player* l_Player : l_PlayerList)
+            {
+                if (l_Player->IsWithinDist(p_AreaTrigger, 40.f, false))
+                {
+                    if (!l_Player->isAlive() && l_Player->HasMovementForce(l_AreatTriggerGuid))
+                        l_Player->SendApplyMovementForce(l_AreatTriggerGuid, false, l_Pos);
+
+                    if (l_Player->isAlive() && !l_Player->HasMovementForce(l_AreatTriggerGuid))
+                        l_Player->SendApplyMovementForce(l_AreatTriggerGuid, true, l_Pos, -3.f, 1);
+                }
+                /// Remove movement force if we're outside of the range
+                else if (l_Player->HasMovementForce(l_AreatTriggerGuid))
+                    l_Player->SendApplyMovementForce(l_AreatTriggerGuid, false, l_Pos);
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            Position l_Pos;
+            p_AreaTrigger->GetPosition(&l_Pos);
+
+            Map::PlayerList const &l_PlayerList = p_AreaTrigger->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+            {
+                if (Player* l_Player = l_Itr->getSource())
+                    l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, l_Pos, 1);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new at_get_away();
+        }
+};
+
 void AddSC_boss_lei_shi()
 {
-    new boss_lei_shi();
-    new mob_animated_protector();
-    new mob_lei_shi_hidden();
-    new spell_get_away();
-    new spell_get_away_damage();
-    new spell_hide();
-    new spell_hide_stacks();
-    new spell_scary_fog_dot();
-    new spell_scary_fog_stacks();
+    new boss_lei_shi();             ///< 62983
+    new mob_animated_protector();   ///< 62995
+    new mob_lei_shi_hidden();       ///< 63099
+    new spell_get_away();           ///< 123461
+    new spell_get_away_damage();    ///< 123467
+    new spell_hide();               ///< 123244
+    new spell_hide_stacks();        ///< 123233
+    new spell_scary_fog_dot();      ///< 123705
+    new spell_scary_fog_stacks();   ///< 123712
+    new at_get_away();              ///< 123461
 }

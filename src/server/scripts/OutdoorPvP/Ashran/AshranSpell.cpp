@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "AshranMgr.hpp"
@@ -58,7 +58,7 @@ class spell_ashran_blade_twister: public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ashran_blade_twister_AuraScript();
         }
@@ -98,7 +98,7 @@ class spell_ashran_emberfall_living_bomb: public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ashran_emberfall_living_bomb_AuraScript();
         }
@@ -165,7 +165,7 @@ class spell_ashran_faction_rewards : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ashran_faction_rewards_SpellScript();
         }
@@ -222,7 +222,7 @@ class spell_ashran_booming_shout : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ashran_booming_shout_SpellScript();
         }
@@ -250,7 +250,7 @@ class spell_ashran_curse_of_krong : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ashran_curse_of_krong_AuraScript();
         }
@@ -356,7 +356,7 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ashran_artifacts_collected_AuraScript();
         }
@@ -398,7 +398,7 @@ class spell_ashran_stone_empowerment : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ashran_stone_empowerment_AuraScript();
         }
@@ -471,7 +471,7 @@ class spell_ashran_pocket_flying_machine : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ashran_pocket_flying_machine_SpellScript();
         }
@@ -517,7 +517,7 @@ class spell_ashran_vile_blood : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ashran_vile_blood_AuraScript();
         }
@@ -570,7 +570,7 @@ class spell_ashran_splitting_breath : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ashran_splitting_breath_SpellScript();
         }
@@ -623,7 +623,7 @@ class spell_ashran_shadow_claws : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ashran_shadow_claws_SpellScript();
         }
@@ -656,7 +656,7 @@ class spell_ashran_darkness_within : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ashran_darkness_within_AuraScript();
         }
@@ -709,7 +709,7 @@ class spell_ashran_earth_smash : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_ashran_earth_smash_SpellScript();
         }
@@ -737,9 +737,193 @@ class spell_ashran_preserved_discombobulator_ray : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_ashran_preserved_discombobulator_ray_AuraScript();
+        }
+};
+
+/// Shockwave - 164092
+class spell_ashran_shockwave : public SpellScriptLoader
+{
+    public:
+        spell_ashran_shockwave() : SpellScriptLoader("spell_ashran_shockwave") { }
+
+        class spell_ashran_shockwave_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ashran_shockwave_SpellScript);
+
+            enum eSpell
+            {
+                TargetRestrict = 21000
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Angle = 2 * M_PI / 360 * l_Restriction->ConeAngle;
+                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster, l_Angle))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_shockwave_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_shockwave_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_ashran_shockwave_SpellScript();
+        }
+};
+
+/// Ancient Artifact - 168506
+class spell_ashran_ancient_artifact : public SpellScriptLoader
+{
+    public:
+        spell_ashran_ancient_artifact() : SpellScriptLoader("spell_ashran_ancient_artifact") { }
+
+        class spell_ashran_ancient_artifact_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_ancient_artifact_AuraScript);
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (Unit* l_Target = GetTarget())
+                {
+                    OutdoorPvP* l_Outdoor = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(l_Target->GetZoneId());
+                    if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_Outdoor)
+                        l_Ashran->HandleArtifactDrop(l_Target, l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_EXPIRE ? 0 : GetDuration());
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_ashran_ancient_artifact_AuraScript::OnRemove, EFFECT_4, SPELL_AURA_398, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ashran_ancient_artifact_AuraScript();
+        }
+};
+
+/// Horde Racer - 166819
+/// Alliance Racer - 166784
+class spell_ashran_horde_and_alliance_racer : public SpellScriptLoader
+{
+    public:
+        spell_ashran_horde_and_alliance_racer() : SpellScriptLoader("spell_ashran_horde_and_alliance_racer") { }
+
+        class spell_ashran_horde_and_alliance_racer_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_horde_and_alliance_racer_AuraScript);
+
+            enum eSpells
+            {
+                HordeRider      = 166819,
+                AllianceRider   = 166784
+            };
+
+            enum eDatas
+            {
+                SpeedPCTPerPlayer   = 30,
+                MaxSpeedPCT         = 500
+            };
+
+            uint32 m_CheckTimer;
+
+            bool Load()
+            {
+                m_CheckTimer = 200;
+                return true;
+            }
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (m_CheckTimer)
+                    {
+                        if (m_CheckTimer <= p_Diff)
+                        {
+                            m_CheckTimer = 200;
+
+                            std::list<Player*> l_PlayerList;
+                            l_Caster->GetPlayerListInGrid(l_PlayerList, 10.0f);
+
+                            if (l_PlayerList.empty())
+                            {
+                                if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                                    l_AurEff->ChangeAmount(0);
+
+                                return;
+                            }
+
+                            l_PlayerList.remove_if([this](Player* p_Player) -> bool
+                            {
+                                if (p_Player == nullptr)
+                                    return true;
+
+                                if (GetSpellInfo()->Id == eSpells::AllianceRider && p_Player->GetTeamId() != TeamId::TEAM_ALLIANCE)
+                                    return true;
+
+                                if (GetSpellInfo()->Id == eSpells::HordeRider && p_Player->GetTeamId() != TeamId::TEAM_HORDE)
+                                    return true;
+
+                                return false;
+                            });
+
+                            if (l_PlayerList.empty())
+                            {
+                                if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                                    l_AurEff->ChangeAmount(0);
+
+                                return;
+                            }
+
+                            /// The riders move very slowly, but for each player of their faction within their vicinity their speed is increased by 30%,
+                            /// allowing them to outstrip their competitor.
+                            if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                                l_AurEff->ChangeAmount(std::min(((int32)l_PlayerList.size() * eDatas::SpeedPCTPerPlayer), (int32)eDatas::MaxSpeedPCT));
+                        }
+                        else
+                            m_CheckTimer -= p_Diff;
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_ashran_horde_and_alliance_racer_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ashran_horde_and_alliance_racer_AuraScript();
         }
 };
 
@@ -759,4 +943,7 @@ void AddSC_AshranSpells()
     new spell_ashran_darkness_within();
     new spell_ashran_earth_smash();
     new spell_ashran_preserved_discombobulator_ray();
+    new spell_ashran_shockwave();
+    new spell_ashran_ancient_artifact();
+    new spell_ashran_horde_and_alliance_racer();
 }

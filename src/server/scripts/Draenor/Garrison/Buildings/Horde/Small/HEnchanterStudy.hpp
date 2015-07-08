@@ -10,6 +10,7 @@
 
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../GarrisonNPC.hpp"
+#include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
@@ -22,32 +23,13 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
+
+        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_YuklaGreenshadowAI = SimpleSequenceCosmeticScriptAI<&npc_YuklaGreenshadowAIData::FnLevel1, &npc_YuklaGreenshadowAIData::FnLevel2, &npc_YuklaGreenshadowAIData::FnLevel3>;
-
-    class npc_YuklaGreenshadow : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_YuklaGreenshadow();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
+    using npc_YuklaGreenshadow = ProfessionBuilding_SkillNPC<npc_YuklaGreenshadowAIData::ScriptName, SKILL_ENCHANTING, Quests::Horde_YourFirstEnchantingWorkOrder, &npc_YuklaGreenshadowAIData::Recipes, &npc_YuklaGreenshadowAIData::FnLevel1, &npc_YuklaGreenshadowAIData::FnLevel2, &npc_YuklaGreenshadowAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79820 - Garra                                                     ////
@@ -57,32 +39,11 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
     }
 
-    using npc_GarraAI = SimpleSequenceCosmeticScriptAI<&npc_GarraAIData::FnLevel1, &npc_GarraAIData::FnLevel2, &npc_GarraAIData::FnLevel3>;
-
-    class npc_Garra : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_Garra();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
+    using npc_Garra = ProfessionBuilding_WorkOrderNPC<npc_GarraAIData::ScriptName, SKILL_ENCHANTING, Quests::Horde_YourFirstEnchantingWorkOrder, &npc_GarraAIData::FnLevel1, &npc_GarraAIData::FnLevel2, &npc_GarraAIData::FnLevel3>;
 
 }   ///< namespace Garrison
 }   ///< namespace MS

@@ -34,53 +34,45 @@ namespace MS { namespace Garrison
         {
 
         };
-    }
 
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
+        char ScriptName[] = "npc_YuklaGreenshadow_Garr";
 
-    /// Constructor
-    npc_YuklaGreenshadow::npc_YuklaGreenshadow()
-        : CreatureScript("npc_YuklaGreenshadow_Garr")
-    {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a player opens a gossip dialog with the GameObject.
-    /// @p_Player     : Source player instance
-    /// @p_Creature   : Target GameObject instance
-    bool npc_YuklaGreenshadow::OnGossipHello(Player * p_Player, Creature * p_Creature)
-    {
-        if (!p_Player->HasQuest(Quests::Horde_YourFirstEnchantingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Horde_YourFirstEnchantingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_YourFirstEnchantingWorkOrder, 4);
-
-        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-
-        return true;
-    }
-    /// Called when a player selects a gossip item in the creature's gossip menu.
-    /// @p_Player   : Source player instance
-    /// @p_Creature : Target creature instance
-    /// @p_Sender   : Sender menu
-    /// @p_Action   : Action
-    bool npc_YuklaGreenshadow::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
-    {
-        p_Player->CLOSE_GOSSIP_MENU();
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI * npc_YuklaGreenshadow::GetAI(Creature * p_Creature) const
-    {
-        return new npc_YuklaGreenshadowAI(p_Creature);
+        std::vector<SkillNPC_RecipeEntry> Recipes
+        {
+            { 158877, 31228 },
+            { 158907,     0 },
+            { 158892, 31228 },
+            { 158893, 31228 },
+            { 158878, 31228 },
+            { 158908,     0 },
+            { 158879, 31228 },
+            { 158894, 31228 },
+            { 158909,     0 },
+            { 158880, 31228 },
+            { 158910,     0 },
+            { 158895, 31228 },
+            { 158896, 31228 },
+            { 158911,     0 },
+            { 158881, 31228 },
+            { 162948,     0 },
+            { 169091,     0 },
+            { 159236,     0 },
+            { 158914, 31228 },
+            { 158899, 31229 },
+            { 158884, 31229 },
+            { 158915, 31228 },
+            { 158900, 31229 },
+            { 158885, 31229 },
+            { 158916, 31228 },
+            { 158901, 31229 },
+            { 158886, 31229 },
+            { 158917, 31228 },
+            { 158902, 31229 },
+            { 158887, 31229 },
+            { 158918, 31228 },
+            { 158903, 31229 },
+            { 158889, 31229 },
+        };
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -102,57 +94,8 @@ namespace MS { namespace Garrison
         {
 
         };
-    }
 
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Constructor
-    npc_Garra::npc_Garra()
-        : CreatureScript("npc_Garra_Garr")
-    {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a player opens a gossip dialog with the GameObject.
-    /// @p_Player     : Source player instance
-    /// @p_Creature   : Target GameObject instance
-    bool npc_Garra::OnGossipHello(Player * p_Player, Creature * p_Creature)
-    {
-        if (p_Player->HasQuest(Quests::Horde_YourFirstEnchantingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Horde_YourFirstEnchantingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_YourFirstEnchantingWorkOrder, 4);
-
-        if (p_Player->HasQuest(Quests::Horde_YourFirstEnchantingWorkOrder) || p_Player->IsQuestRewarded(Quests::Horde_YourFirstEnchantingWorkOrder))
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-
-        return true;
-    }
-    /// Called when a player selects a gossip item in the creature's gossip menu.
-    /// @p_Player   : Source player instance
-    /// @p_Creature : Target creature instance
-    /// @p_Sender   : Sender menu
-    /// @p_Action   : Action
-    bool npc_Garra::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
-    {
-        if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == GetName())
-            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
-
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI * npc_Garra::GetAI(Creature * p_Creature) const
-    {
-        return new npc_GarraAI(p_Creature);
+        char ScriptName[] = "npc_Garra_Garr";
     }
 
 }   ///< namespace Garrison
