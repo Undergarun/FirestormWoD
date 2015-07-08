@@ -1962,7 +1962,8 @@ class spell_sha_glyph_of_eternal_earth : public SpellScriptLoader
         }
 };
 
-/// 157804 - Improved Flame Shock
+/// last update : 6.1.2 19802
+/// Improved Flame Shock - 157804
 class spell_sha_improoved_flame_shock: public SpellScriptLoader
 {
     public:
@@ -1972,13 +1973,32 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_improoved_flame_shock_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            enum eData
+            {
+                CategoryIDLavaLash = 1538
+            };
+
+            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
-                if (Unit* l_Caster = GetCaster())
-                    if (Player* l_Player = l_Caster->ToPlayer())
-                        l_Player->RemoveSpellCooldown(SPELL_SHA_LAVA_LASH, true);
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_SHA_FLAME_SHOCK)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;;
+
+                l_Player->RestoreCharge(eData::CategoryIDLavaLash);
             }
 
             void Register()
