@@ -342,6 +342,9 @@ enum eGameObjects
     /// Twin Consorts
     GOB_TWIN_ENTRANCE               = 218781,
     GOB_TWIN_EXIT                   = 218394,
+    GOB_CONCUBINES_BACK             = 218711,
+    GOB_CONCUBINES_FRONT            = 218712,
+
 
     /// Lei Shen
     GOB_DISPLACEMENT_PAD            = 218417,   ///< Teleport Player to Lei Shen's room
