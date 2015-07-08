@@ -772,11 +772,12 @@ class spell_warr_heroic_leap: public SpellScriptLoader
 
             enum eSpells
             {
-                Taunt              = 355,
-                HeroicLeapJump     = 94954,
-                SpellPvp4P         = 133277,
-                HeroicLeapSpeed    = 133278,
-                ImprovedHeroicLeap = 157449
+                Taunt                  = 355,
+                HeroicLeapJump         = 94954,
+                SpellPvp4PBonus        = 133277,
+                GlyphOfHeroicLeapSpeed = 133278,
+                ImprovedHeroicLeap     = 157449,
+                GlyphOfHeroicLeap      = 159708
             };
 
             SpellCastResult CheckElevation()
@@ -814,8 +815,8 @@ class spell_warr_heroic_leap: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster->HasAura(eSpells::SpellPvp4P))
-                    l_Caster->CastSpell(l_Caster, eSpells::HeroicLeapSpeed, true);
+                if (l_Caster->HasAura(eSpells::GlyphOfHeroicLeap) || l_Caster->HasAura(eSpells::SpellPvp4PBonus))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfHeroicLeapSpeed, true);
 
                 Player* l_Player = l_Caster->ToPlayer();
                 if (!l_Player)
