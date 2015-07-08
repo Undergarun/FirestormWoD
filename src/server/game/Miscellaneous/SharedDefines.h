@@ -4876,8 +4876,10 @@ enum TradeStatus
     TRADE_STATUS_TRADE_COMPLETE         = 16,
     TRADE_STATUS_IGNORE_YOU             = 17,
     TRADE_STATUS_NOT_ELIGIBLE           = 19,
+    TRADE_STATUS_TARGET_LOGOUT          = 20,
+    TRADE_STATUS_BEGIN_TRADE            = 21,
     TRADE_STATUS_BUSY                   = 22,
-    TRADE_STATUS_PROPOSE                = 23,
+    TRADE_STATUS_BEGIN_PROPOSED         = 23,
     TRADE_STATUS_TRADE_CANCELED         = 26,
     TRADE_STATUS_YOU_STUNNED            = 30,
     TRADE_STATUS_NO_TARGET              = 31
