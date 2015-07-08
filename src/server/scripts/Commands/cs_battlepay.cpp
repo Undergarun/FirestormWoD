@@ -60,7 +60,7 @@ class battlepay_commandscript: public CommandScript
             std::ostringstream l_StrBuilder;
 
             l_StrBuilder << "SET @PRODUCTID := COALESCE((SELECT MAX(ProductID) FROM battlepay_product), 0) + 1;" << std::endl;
-            l_StrBuilder << "SET @ORDER := COALESCE((SELECT MAX(Ordering) FROM battlepay_shop_entry WHERE GroupID = " << l_Group << ") + 1;" << std::endl;
+            l_StrBuilder << "SET @ORDER := COALESCE((SELECT MAX(Ordering) FROM battlepay_shop_entry WHERE GroupID = " << l_Group << "), 0) + 1;" << std::endl;
             l_StrBuilder << "SET @DISPLAYINFOID := COALESCE((SELECT MAX(DisplayInfoId) FROM battlepay_display_info), 0) + 1;" << std::endl;
 
             do
@@ -121,6 +121,13 @@ class battlepay_commandscript: public CommandScript
                 {
                     if (g_ItemFileDataId.find(l_ItemID) != g_ItemFileDataId.end())
                         l_FileDataID = g_ItemFileDataId[l_ItemID];
+
+                    if (l_FileDataID == 0)
+                    {
+                        ItemEntry const* l_ItemEntry = sItemStore.LookupEntry(l_ItemID);
+                        if (l_ItemEntry != nullptr)
+                            l_FileDataID = l_ItemEntry->DisplayId;
+                    }
                 }
 
                 l_StrBuilder << "INSERT INTO `battlepay_shop_entry` (GroupID, ProductID, Ordering, Flags, BannerType, DisplayInfoID) VALUES (" << l_Group << ",@PRODUCTID, @ORDER, 0, 0, 0);" << std::endl;

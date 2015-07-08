@@ -271,12 +271,16 @@ namespace Battlepay
         if (l_Item == nullptr)
             return false;
 
-        /// Check mounts - toys - pets
+        /// Check mounts - pets
         for (auto l_SpellData : l_Item->Spells)
         {
             if (l_SpellData.SpellTrigger == ITEM_SPELLTRIGGER_LEARN_SPELL_ID && p_Player->HasSpell(l_SpellData.SpellId))
                 return true;
         }
+
+        /// Check toys
+        if (p_Player->HasToy(p_ItemID))
+            return true;
 
         return false;
     }
