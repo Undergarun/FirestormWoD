@@ -2128,6 +2128,8 @@ class npc_new_lightwell : public CreatureScript
 
                 if (AuraPtr charges = me->GetAura(59907))
                 {
+                    charges->SetCharges(15);
+                    charges->GetEffect(0)->ChangeAmount(15);
                     if (Unit* owner = me->GetOwner())
                     {
                         // Glyph of Deep Wells
@@ -2209,6 +2211,8 @@ class npc_lightwell : public CreatureScript
 
                 if (AuraPtr charges = me->GetAura(59907))
                 {
+                    charges->SetCharges(15);
+                    charges->GetEffect(0)->ChangeAmount(15);
                     if (Unit* owner = me->GetOwner())
                     {
                         // Glyph of Deep Wells
