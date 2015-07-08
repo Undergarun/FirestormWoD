@@ -1895,13 +1895,6 @@ class spell_warr_rend : public SpellScriptLoader
         }
 };
 
-enum BloodBathSpells
-{
-    SPELL_BLOOD_BATH        = 12292,
-    SPELL_BLOOD_BATH_SNARE  = 147531,
-    SPELL_BLOOD_BATH_DAMAGE = 113344
-};
-
 /// Blood Bath - 12292
 class spell_warr_blood_bath : public SpellScriptLoader
 {
@@ -1912,6 +1905,13 @@ class spell_warr_blood_bath : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_blood_bath_Aurascript);
 
+            enum eSpells
+            {
+                BloodBath       = 12292,
+                BloodBathSnare  = 147531,
+                BloodBathDamage = 113344
+            };
+
             void HandleOnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& p_ProcInfo)
             {
                 PreventDefaultAction();
@@ -1919,26 +1919,26 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 if (!p_ProcInfo.GetDamageInfo() || !p_ProcInfo.GetDamageInfo()->GetDamage() || !p_ProcInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_BLOOD_BATH_DAMAGE)
+                if (p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::BloodBathDamage)
                     return;
 
                 Unit* l_Target = p_ProcInfo.GetActionTarget();
                 Unit* l_Caster = GetCaster();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH);
-                SpellInfo const* l_SpellInfoDamage = sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH_DAMAGE);
+                if (l_Target == nullptr || l_Caster == nullptr || l_Target == l_Caster)
+                    return;
 
-                /// 30% additional damage as a bleed over 6 sec
-
-                if (l_SpellInfo == nullptr || l_SpellInfoDamage == nullptr || l_Target == nullptr || l_Caster == nullptr)
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::BloodBath);
+                SpellInfo const* l_SpellInfoDamage = sSpellMgr->GetSpellInfo(eSpells::BloodBathDamage);
+                if (l_SpellInfo == nullptr || l_SpellInfoDamage == nullptr)
                     return;
 
                 int32 l_Damage = (p_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100;
 
-                if (AuraEffectPtr l_PreviousBloodbath = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffectPtr l_PreviousBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                 {
-                    int32 l_PeriodicDamage = l_PreviousBloodbath->GetAmount();
-                    int32 l_Duration = l_Target->GetAura(SPELL_BLOOD_BATH_DAMAGE, l_Caster->GetGUID())->GetDuration();
-                    int32 l_Amplitude = l_PreviousBloodbath->GetAmplitude();
+                    int32 l_PeriodicDamage = l_PreviousBloodBath->GetAmount();
+                    int32 l_Duration = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID())->GetDuration();
+                    int32 l_Amplitude = l_PreviousBloodBath->GetAmplitude();
 
                     int32 l_PreviousTotalDamage = 0;
 
@@ -1950,10 +1950,10 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 if (l_SpellInfoDamage->Effects[EFFECT_0].Amplitude)
                     l_Damage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
 
-                l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
-                l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);
+                l_Caster->CastSpell(l_Target, eSpells::BloodBathSnare, true);
+                l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage, true);
 
-                if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                     l_BloodbathActual->SetAmount(l_Damage);
             }
 
