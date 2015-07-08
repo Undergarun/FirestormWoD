@@ -1315,10 +1315,12 @@ class spell_warr_intervene: public SpellScriptLoader
                 Unit* l_Target = GetHitUnit();
 
                 if (l_Target == nullptr)
-                    return SPELL_FAILED_DONT_REPORT;
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
 
                 if (l_Caster->GetDistance(l_Target) > GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend)
-                    return SPELL_FAILED_OUT_OF_RANGE;
+                    return SpellCastResult::SPELL_FAILED_OUT_OF_RANGE;
+
+                return SpellCastResult::SPELL_CAST_OK;
             }
 
             void HandleOnHit()
@@ -1329,7 +1331,7 @@ class spell_warr_intervene: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
                 
-                l_Caster->CastSpell(l_Target, WARRIOR_SPELL_INTERVENE_TRIGGERED, true);
+                l_Caster->CastSpell(l_Target, WarriorSpells::WARRIOR_SPELL_INTERVENE_TRIGGERED, true);
             }
 
             void Register()
