@@ -127,6 +127,17 @@ namespace Battlepay
         bool   Lock;
     };
 
+    struct ProductGroupLocale
+    {
+        StringVector Name;
+    };
+
+    struct DisplayInfoLocale
+    {
+        StringVector Name;
+        StringVector Description;
+    };
+
     class Manager
     {
         public:
@@ -240,7 +251,37 @@ namespace Battlepay
             */
             std::string const& GetDefaultWalletName() const { return m_WalletName; }
 
+            /*
+            * Generate pack description for given product/locale
+            * Used for sets
+            */
             std::string GeneratePackDescription(Battlepay::Product const& p_Product, LocaleConstant p_Locale);
+
+            /*
+            * Retreive locale from product group id
+            * Can return nullptr if locale doesn't exist
+            */
+            ProductGroupLocale const* GetProductGroupLocale(uint32 p_Entry) const
+            {
+                auto l_Itr = m_ProductGroupLocales.find(p_Entry);
+                if (l_Itr == m_ProductGroupLocales.end())
+                    return nullptr;
+
+                return &l_Itr->second;
+            }
+
+            /*
+            * Retreive locale from battlepay display info id
+            * Can return nullptr if locale doesn't exist
+            */
+            DisplayInfoLocale const* GetDisplayInfoLocale(uint32 p_Entry) const
+            {
+                auto l_Itr = m_DisplayInfoLocales.find(p_Entry);
+                if (l_Itr == m_DisplayInfoLocales.end())
+                    return nullptr;
+
+                return &l_Itr->second;
+            }
 
         private:
 
@@ -264,13 +305,25 @@ namespace Battlepay
             */
             void LoadDisplayInfos();
 
+            /*
+            * Load product groups locales in database
+            */
+            void LoadProductGroupLocales();
+
+            /*
+            * Load display info locales in databases
+            */
+            void LoadDisplayInfoLocales();
+
             std::string GetQualityColor(ItemQualities p_Quality) const;
 
-            std::vector<ProductGroup>     m_ProductGroups;
-            std::vector<ShopEntry>        m_ShopEntries;
-            std::map<uint32, Product>     m_Products;
-            std::map<uint32, DisplayInfo> m_DisplayInfos;
-            std::map<uint32, Purchase>    m_ActualTransactions;
+            std::vector<ProductGroup>            m_ProductGroups;
+            std::vector<ShopEntry>               m_ShopEntries;
+            std::map<uint32, Product>            m_Products;
+            std::map<uint32, DisplayInfo>        m_DisplayInfos;
+            std::map<uint32, Purchase>           m_ActualTransactions;
+            std::map<uint32, ProductGroupLocale> m_ProductGroupLocales;
+            std::map<uint32, DisplayInfoLocale>  m_DisplayInfoLocales;
 
             uint64       m_PurchaseIDCount;
             std::string  m_WalletName;

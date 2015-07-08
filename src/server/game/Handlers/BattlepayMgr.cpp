@@ -26,6 +26,12 @@ namespace Battlepay
 
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Battlepay shop entries ...");
         LoadShopEntires();
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Battlepay product group locales ...");
+        LoadProductGroupLocales();
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Battlepay display info locales ...");
+        LoadDisplayInfoLocales();
     }
 
     void Manager::LoadDisplayInfos()
@@ -160,6 +166,63 @@ namespace Battlepay
             m_ShopEntries.push_back(l_ShopEntry);
         } 
         while (l_Result->NextRow());
+    }
+
+    void Manager::LoadProductGroupLocales()
+    {
+        uint32 l_OldMSTime = getMSTime();
+
+        m_ProductGroupLocales.clear();
+
+        QueryResult l_Result = WorldDatabase.PQuery("SELECT GroupID, Name_loc1, Name_loc2, Name_loc3, Name_loc4, Name_loc5, Name_loc6, Name_loc7, Name_loc8, Name_loc9, Name_loc10 FROM locales_battlepay_product_group");
+        if (!l_Result)
+            return;
+
+        do
+        {
+            Field* l_Fields  = l_Result->Fetch();
+            uint32 l_GroupID = l_Fields[0].GetUInt32();
+
+            ProductGroupLocale& l_ProductGroupLocale = m_ProductGroupLocales[l_GroupID];
+
+            for (uint8 l_LocaleIdx = 1; l_LocaleIdx < MAX_LOCALES; l_LocaleIdx++)
+                sObjectMgr->AddLocaleString(l_Fields[l_LocaleIdx].GetString(), LocaleConstant(l_LocaleIdx), l_ProductGroupLocale.Name);
+        }
+        while (l_Result->NextRow());
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu battlepay_product_group locale strings in %u ms", (unsigned long)m_ProductGroupLocales.size(), GetMSTimeDiffToNow(l_OldMSTime));
+    }
+
+    void Manager::LoadDisplayInfoLocales()
+    {
+        uint32 l_OldMSTime = getMSTime();
+
+        m_DisplayInfoLocales.clear();
+
+        QueryResult l_Result = WorldDatabase.PQuery("SELECT DisplayInfoId, Name_loc1, Name_loc2, Name_loc3, Name_loc4, Name_loc5, Name_loc6, Name_loc7, Name_loc8, Name_loc9, Name_loc10,"
+            "Description_loc1, Description_loc2, Description_loc3, Description_loc4, Description_loc5, Description_loc6, Description_loc7, Description_loc8, Description_loc9, Description_loc10 FROM locales_battlepay_display_info");
+
+        if (!l_Result)
+            return;
+
+        do
+        {
+            Field* l_Fields        = l_Result->Fetch();
+
+            uint32 l_FieldIdx      = 0;
+            uint32 l_DisplayInfoId = l_Fields[l_FieldIdx++].GetUInt32();
+
+            DisplayInfoLocale& l_DisplayInfoLocale = m_DisplayInfoLocales[l_DisplayInfoId];
+
+            for (uint8 l_LocaleIdx = 1; l_LocaleIdx < MAX_LOCALES; l_LocaleIdx++)
+                sObjectMgr->AddLocaleString(l_Fields[l_FieldIdx++].GetString(), LocaleConstant(l_LocaleIdx), l_DisplayInfoLocale.Name);
+
+            for (uint8 l_LocaleIdx = 1; l_LocaleIdx < MAX_LOCALES; l_LocaleIdx++)
+                sObjectMgr->AddLocaleString(l_Fields[l_FieldIdx++].GetString(), LocaleConstant(l_LocaleIdx), l_DisplayInfoLocale.Description);
+        }
+        while (l_Result->NextRow());
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu battlepay_product_group locale strings in %u ms", (unsigned long)m_ProductGroupLocales.size(), GetMSTimeDiffToNow(l_OldMSTime));
     }
 
     /// @TODO

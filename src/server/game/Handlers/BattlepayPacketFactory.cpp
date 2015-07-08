@@ -16,7 +16,8 @@ namespace Battlepay
     {
         void SendProductList(WorldSession* p_Session)
         {
-            Player* l_Player = p_Session->GetPlayer();
+            Player* l_Player           = p_Session->GetPlayer();
+            LocaleConstant l_LocaleIdx = p_Session->GetSessionDbLocaleIndex();
 
             WorldPacket l_Data(SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE);
             l_Data << uint32(ProductListResult::Available);                         ///< Result
@@ -76,7 +77,7 @@ namespace Battlepay
                         l_Data.WriteBits(l_ItemProduct.PetResult, 4);
 
                     if (l_ItemProduct.DisplayInfoID != 0)
-                        WriteDisplayInfo(l_ItemProduct.DisplayInfoID, l_Data);
+                        WriteDisplayInfo(l_ItemProduct.DisplayInfoID, l_Data, l_LocaleIdx);
                 }
 
                 l_Data.FlushBits();
@@ -87,7 +88,7 @@ namespace Battlepay
                     if (l_Product.Items.size() > 1)
                         l_Description = sBattlepayMgr->GeneratePackDescription(l_Product, p_Session->GetSessionDbLocaleIndex());
 
-                    WriteDisplayInfo(l_Product.DisplayInfoID, l_Data, l_Description);
+                    WriteDisplayInfo(l_Product.DisplayInfoID, l_Data, l_LocaleIdx, l_Description);
                 }
             }
 
@@ -100,8 +101,15 @@ namespace Battlepay
 
                 l_Data.FlushBits();
 
-                l_Data.WriteBits(l_ProductGroup.Name.size(), 8);
-                l_Data.WriteString(l_ProductGroup.Name);
+                std::string l_Name = l_ProductGroup.Name;
+                if (l_LocaleIdx >= 0)
+                {
+                    if (ProductGroupLocale const* l_Locale = sBattlepayMgr->GetProductGroupLocale(l_ProductGroup.GroupID))
+                        ObjectMgr::GetLocaleString(l_Locale->Name, l_LocaleIdx, l_Name);
+                }
+
+                l_Data.WriteBits(l_Name.size(), 8);
+                l_Data.WriteString(l_Name);
             }
 
             for (auto& l_ShopEntry : sBattlepayMgr->GetShopEntries())
@@ -117,24 +125,37 @@ namespace Battlepay
                 l_Data.WriteBit(l_ShopEntry.DisplayInfoID != 0);
 
                 if (l_ShopEntry.DisplayInfoID != 0)
-                    Battlepay::PacketFactory::WriteDisplayInfo(l_ShopEntry.DisplayInfoID, l_Data);
+                    Battlepay::PacketFactory::WriteDisplayInfo(l_ShopEntry.DisplayInfoID, l_Data, l_LocaleIdx);
             }
 
             p_Session->SendPacket(&l_Data);
         }
 
-        void WriteDisplayInfo(uint32 p_DisplayInfoID, WorldPacket& p_Packet, std::string p_Description)
+        void WriteDisplayInfo(uint32 p_DisplayInfoID, WorldPacket& p_Packet, LocaleConstant p_LocaleIdx, std::string p_Description)
         {
             DisplayInfo const* l_DisplayInfo = sBattlepayMgr->GetDisplayInfo(p_DisplayInfoID);
             if (l_DisplayInfo == nullptr)
                 return;
 
+            DisplayInfoLocale const* l_Locale = sBattlepayMgr->GetDisplayInfoLocale(p_DisplayInfoID);
+
+            std::string l_Name = l_DisplayInfo->Name1;
+            if (p_LocaleIdx >= 0 && l_Locale != nullptr)
+                ObjectMgr::GetLocaleString(l_Locale->Name, p_LocaleIdx, l_Name);
+
+            if (p_Description.empty())
+            {
+                p_Description = l_DisplayInfo->Name1;
+                if (p_LocaleIdx >= 0 && l_Locale != nullptr)
+                    ObjectMgr::GetLocaleString(l_Locale->Description, p_LocaleIdx, p_Description);
+            }
+
             p_Packet.FlushBits();
             p_Packet.WriteBit(l_DisplayInfo->CreatureDisplayInfoID != 0);
             p_Packet.WriteBit(l_DisplayInfo->FileDataID != 0);
-            p_Packet.WriteBits(l_DisplayInfo->Name1.size(), 10);
+            p_Packet.WriteBits(l_Name.size(), 10);
             p_Packet.WriteBits(l_DisplayInfo->Name2.size(), 10);
-            p_Packet.WriteBits(!p_Description.empty() ? p_Description.size() : l_DisplayInfo->Name3.size(), 13);
+            p_Packet.WriteBits(p_Description.size(), 13);
             p_Packet.WriteBit(l_DisplayInfo->Flags != 0);
 
             if (l_DisplayInfo->CreatureDisplayInfoID != 0)
@@ -143,9 +164,9 @@ namespace Battlepay
             if (l_DisplayInfo->FileDataID != 0)
                 p_Packet << uint32(l_DisplayInfo->FileDataID);
 
-            p_Packet.WriteString(l_DisplayInfo->Name1);
+            p_Packet.WriteString(l_Name);
             p_Packet.WriteString(l_DisplayInfo->Name2);
-            p_Packet.WriteString(!p_Description.empty() ? p_Description : l_DisplayInfo->Name3);
+            p_Packet.WriteString(p_Description);
 
             if (l_DisplayInfo->Flags != 0)
                 p_Packet << uint32(l_DisplayInfo->Flags);
