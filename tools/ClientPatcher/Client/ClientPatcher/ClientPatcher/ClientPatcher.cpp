@@ -99,13 +99,12 @@ const struct RewriteItem Mac64Patchs[] =
 const uint8_t jam_dispatch_check_data_win32[] = { 0xEB, 0x1D };     ///< jmp to bypass socket check
 const uint8_t jam_quest_check_data_win32[]    = { 0x90, 0x90 };     ///< jmp to bypass socket check
 const uint8_t client_check_data_win32[]       = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x22, 0x01, 0x00, 0x00 };     ///< jmp to bypass socket check
-const uint8_t load_custom_data1_win32[]       = { 0x00 };
+const uint8_t load_custom_data1[]             = { 0x00 };
 const uint8_t load_custom_data2_win32[]       = { 0x75 };
 const uint8_t load_custom_data3_win32[]       = { 0x75 };
-const uint8_t load_custom_data4_win32[]       = { 0x04 };
-const uint8_t load_custom_data5_win32[]       = { 0x75 };
-const uint8_t navigatehome_to_navigateto[]     = { 0x83, 0xC4, 0x0C, 0x56, 0x8B, 0xCF, 0xE8, 0xE3, 0xFE, 0xFF, 0xFF, 0x90, 0xEB, 0x37 };
-
+const uint8_t load_custom_data4[]             = { 0x04 };
+const uint8_t load_custom_data5[]             = { 0x75 };
+const uint8_t navigatehome_to_navigateto[]    = { 0x83, 0xC4, 0x0C, 0x56, 0x8B, 0xCF, 0xE8, 0xE3, 0xFE, 0xFF, 0xFF, 0x90, 0xEB, 0x37 };
 
 const struct RewriteItem Win32Patchs[] =
 {
@@ -119,11 +118,11 @@ const struct RewriteItem Win32Patchs[] =
     { 0x0020D0A3, sizeof(jam_dispatch_check_data_win32),         jam_dispatch_check_data_win32          },        ///< Bypass jam dispatch socket check
     { 0x00202D1A, sizeof(jam_quest_check_data_win32),            jam_quest_check_data_win32             },        ///< Bypass jam quest dispatch socket check
     { 0x00264AEB, sizeof(client_check_data_win32),               client_check_data_win32                },        ///< Bypass client dispatch socket check
-    { 0x000123B3, sizeof(load_custom_data1_win32),               load_custom_data1_win32,               },        ///< CASC - check local file
+    { 0x000123B3, sizeof(load_custom_data1),                     load_custom_data1,                     },        ///< CASC - check local file
     { 0x000110B6, sizeof(load_custom_data2_win32),               load_custom_data2_win32,               },        ///< CASC - check local file part 2
     { 0x000123C0, sizeof(load_custom_data3_win32),               load_custom_data3_win32,               },        ///< CASC - check local file part 3
-    { 0x0086CA12, sizeof(load_custom_data4_win32),               load_custom_data4_win32,               },        ///< Bypass signature check
-    { 0x0039AE8E, sizeof(load_custom_data5_win32),               load_custom_data5_win32,               },        ///< Bypass .old  rename
+    { 0x0086CA12, sizeof(load_custom_data4),                     load_custom_data4,                     },        ///< Bypass signature check
+    { 0x0039AE8E, sizeof(load_custom_data5),                     load_custom_data5,                     },        ///< Bypass .old  rename
     { 0x0003EE92, sizeof(navigatehome_to_navigateto),            navigatehome_to_navigateto,            }         ///< Replace lua funtion navigatehome(string index) to navigateto(string url)
 };
 
@@ -145,6 +144,16 @@ const uint8_t jam_dispatch_check_data_win64[] =
     0xEB, 0x2B                          ///< jmp loc_14037F0E3
 };
 
+const uint8_t load_custom_data2_win64[] =
+{
+    0x0F, 0x85                          ///< JNZ loc_14001AE3A
+};
+
+const uint8_t load_custom_data3_win64[] =
+{
+    0x0F, 0x85                          ///< JNZ loc_14001CDF2
+};
+
 const struct RewriteItem Win64Patchs[] =
 {
     { 0x00F09CC8, sizeof(config_data),                           config_data                            },        ///< Change default configuration file
@@ -157,6 +166,11 @@ const struct RewriteItem Win64Patchs[] =
     { 0x0037E4B6, sizeof(jam_dispatch_check_data_win64),         jam_dispatch_check_data_win64          },        ///< Bypass jam dispatch socket check
     { 0x0036E481, sizeof(jam_quest_check_data_win64),            jam_quest_check_data_win64             },        ///< bypass jam quest dispatch socket check
     { 0x00407D1E, sizeof(client_check_data_win64),               client_check_data_win64                },        ///< bypass client dispatch socket check
+    { 0x0001C0AE, sizeof(load_custom_data1),                     load_custom_data1,                     },
+    { 0x0001A1A5, sizeof(load_custom_data2_win64),               load_custom_data2_win64                },
+    { 0x0001C0AF, sizeof(load_custom_data3_win64),               load_custom_data3_win64,               },
+    { 0x00D5FADB, sizeof(load_custom_data4),                     load_custom_data4,                     },        ///< Bypass signature check
+    { 0x0060540D, sizeof(load_custom_data5),                     load_custom_data5,                     },        ///< Bypass .old  rename
 };
 
 const uint8_t client_packets_check_data_mac64[] = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x27, 0x01, 0x00, 0x00 };   ///< jmp to bypass socket check
