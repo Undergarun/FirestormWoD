@@ -28,9 +28,6 @@
 
 enum WarriorSpells
 {
-    WARRIOR_SPELL_VICTORY_RUSH_DAMAGE           = 34428,
-    WARRIOR_SPELL_VICTORY_RUSH_HEAL             = 118779,
-    WARRIOR_SPELL_VICTORIOUS_STATE              = 32216,
     WARRIOR_SPELL_BLOODTHIRST                   = 23881,
     WARRIOR_SPELL_BLOODTHIRST_HEAL              = 117313,
     WARRIOR_SPELL_DEEP_WOUNDS                   = 115767,
@@ -1010,9 +1007,16 @@ class spell_warr_victory_rush: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_victory_rush_SpellScript);
 
+            enum eSpells
+            {
+                VictoriousState   = 32216,
+                VictoryRushDamage = 34428,
+                VictoryRushHeal   = 118779
+            };
+
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_VICTORY_RUSH_DAMAGE))
+                if (!sSpellMgr->GetSpellInfo(eSpells::VictoryRushDamage))
                     return false;
                 return true;
             }
@@ -1024,10 +1028,10 @@ class spell_warr_victory_rush: public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                 {
-                    caster->CastSpell(caster, WARRIOR_SPELL_VICTORY_RUSH_HEAL, true);
+                    caster->CastSpell(caster, eSpells::VictoryRushHeal, true);
 
-                    if (caster->HasAura(WARRIOR_SPELL_VICTORIOUS_STATE))
-                        caster->RemoveAura(WARRIOR_SPELL_VICTORIOUS_STATE);
+                    if (caster->HasAura(eSpells::VictoriousState))
+                        caster->RemoveAura(eSpells::VictoriousState);
                 }
             }
 
@@ -1040,6 +1044,44 @@ class spell_warr_victory_rush: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warr_victory_rush_SpellScript();
+        }
+};
+
+/// Victory Rush (heal) - 118779
+class spell_warr_victory_rush_heal: public SpellScriptLoader
+{
+    public:
+        spell_warr_victory_rush_heal() : SpellScriptLoader("spell_warr_victory_rush_heal") { }
+
+        class spell_warr_victory_rush_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_victory_rush_heal_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfVictoryRush = 58382
+            };
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                int32 l_Heal = GetHitHeal();
+
+                if (AuraEffectPtr l_GlyphOfVictoryRush = l_Caster->GetAuraEffect(eSpells::GlyphOfVictoryRush, EFFECT_0))
+                    AddPct(l_Heal, l_GlyphOfVictoryRush->GetAmount());
+
+                SetHitHeal(l_Heal);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_victory_rush_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_victory_rush_heal_SpellScript;
         }
 };
 
@@ -2333,6 +2375,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_bloodthirst();
     new spell_warr_bloodthirst_heal();
     new spell_warr_victory_rush();
+    new spell_warr_victory_rush_heal();
     new spell_warr_deep_wounds();
     new spell_warr_charge();
     new spell_warr_shield_wall();
