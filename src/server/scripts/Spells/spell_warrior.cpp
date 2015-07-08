@@ -760,13 +760,6 @@ class spell_warr_rallying_cry: public SpellScriptLoader
         }
 };
 
-enum HeroicLeapSpells
-{
-    SPELL_WARR_HEROIC_LEAP_JUMP      = 94954,
-    SPELL_WARR_ITEM_PVP_SET_4P_BONUS = 133277,
-    SPELL_WARR_HEROIC_LEAP_SPEED     = 133278,
-};
-
 /// Heroic leap - 6544
 class spell_warr_heroic_leap: public SpellScriptLoader
 {
@@ -776,6 +769,15 @@ class spell_warr_heroic_leap: public SpellScriptLoader
         class spell_warr_heroic_leap_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_heroic_leap_SpellScript);
+
+            enum eSpells
+            {
+                Taunt              = 355,
+                HeroicLeapJump     = 94954,
+                SpellPvp4P         = 133277,
+                HeroicLeapSpeed    = 133278,
+                ImprovedHeroicLeap = 157449
+            };
 
             SpellCastResult CheckElevation()
             {
@@ -805,15 +807,23 @@ class spell_warr_heroic_leap: public SpellScriptLoader
             {
                 WorldLocation* l_SpellDest = const_cast<WorldLocation*>(GetExplTargetDest());
                 if (l_SpellDest)
-                    GetCaster()->CastSpell(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ(), SPELL_WARR_HEROIC_LEAP_JUMP, true);
+                    GetCaster()->CastSpell(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ(), eSpells::HeroicLeapJump, true);
             }
 
             void HandleAfterCast()
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster->HasAura(SPELL_WARR_ITEM_PVP_SET_4P_BONUS))
-                    l_Caster->CastSpell(l_Caster, SPELL_WARR_HEROIC_LEAP_SPEED, true);
+                if (l_Caster->HasAura(eSpells::SpellPvp4P))
+                    l_Caster->CastSpell(l_Caster, eSpells::HeroicLeapSpeed, true);
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (l_Player->HasAura(eSpells::ImprovedHeroicLeap) && l_Player->HasSpellCooldown(eSpells::Taunt))
+                    l_Player->RemoveSpellCooldown(eSpells::Taunt, true);
+
             }
 
             void Register()
