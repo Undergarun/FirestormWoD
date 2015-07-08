@@ -1295,6 +1295,11 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             amount += CalculatePct(amount, totalMod);
 
+            /// Bonus Taken    
+            /// Dampening, must be calculated off the raw amount
+            if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(110310, EFFECT_0))
+                amount = CalculatePct(amount, 100 - l_AurEff->GetAmount());
+
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
                 amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
