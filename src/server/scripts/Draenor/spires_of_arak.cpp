@@ -39,10 +39,10 @@ class boss_rukhmar : public CreatureScript
             void Reset()
             {
                 m_Events.Reset();
-                m_ZRef = 0.0f;
-                m_MovingUpToward = false;
-                m_MovingDownToward = false;
+                m_ZRef               = 0.0f;
                 me->m_CombatDistance = 500.0f;
+                m_MovingUpToward     = false;
+                m_MovingDownToward   = false;
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -164,7 +164,13 @@ class boss_rukhmar : public CreatureScript
                 EnterEvadeIfOutOfCombatArea(p_Diff);
                 HandleHealthAndDamageScaling();
 
-                if (me->HasUnitState(UNIT_STATE_CASTING) || !UpdateVictim() || (m_MovingUpToward || m_MovingDownToward))
+                if (!UpdateVictim())
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING) || (m_MovingUpToward || m_MovingDownToward))
                 {
                     if (m_MovingUpToward)
                     {
