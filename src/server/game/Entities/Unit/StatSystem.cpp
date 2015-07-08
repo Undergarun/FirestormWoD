@@ -526,8 +526,8 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     if (dualWield && HasAuraType(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE))
         dualWieldModifier += (float)GetTotalAuraModifier(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE) / 100.f;
 
-    float weapon_normalized_min = weapon_mindamage + attackPower / 3.5f * att_speed * dualWieldModifier;
-    float weapon_normalized_max = weapon_maxdamage + attackPower / 3.5f * att_speed * dualWieldModifier;
+    float weapon_normalized_min = (weapon_mindamage + attackPower / 3.5f) * dualWieldModifier;
+    float weapon_normalized_max = (weapon_maxdamage + attackPower / 3.5f) * dualWieldModifier;
 
     /// Special damage calculate for Hunter spells that should deal normalized weapon damage
     if (getClass() == CLASS_HUNTER && normalized)
@@ -584,6 +584,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
 
     uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
+
     AddPct(min_damage, autoAttacksPctBonus);
     AddPct(max_damage, autoAttacksPctBonus);
 }
