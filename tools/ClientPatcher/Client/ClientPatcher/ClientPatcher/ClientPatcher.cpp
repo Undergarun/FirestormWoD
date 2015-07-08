@@ -104,9 +104,7 @@ const uint8_t load_custom_data2_win32[]       = { 0x75 };
 const uint8_t load_custom_data3_win32[]       = { 0x75 };
 const uint8_t load_custom_data4_win32[]       = { 0x04 };
 const uint8_t load_custom_data5_win32[]       = { 0x75 };
-
-const uint8_t browser_account_id_win32[]      = { 0xEB, 0x0B};
-const uint8_t browser_replace_url_win32[]     = { 0x02 };
+const uint8_t navigatehome_to_navigateto[]     = { 0x83, 0xC4, 0x0C, 0x56, 0x8B, 0xCF, 0xE8, 0xE3, 0xFE, 0xFF, 0xFF, 0x90, 0xEB, 0x37 };
 
 
 const struct RewriteItem Win32Patchs[] =
@@ -126,8 +124,7 @@ const struct RewriteItem Win32Patchs[] =
     { 0x000123C0, sizeof(load_custom_data3_win32),               load_custom_data3_win32,               },        ///< CASC - check local file part 3
     { 0x0086CA12, sizeof(load_custom_data4_win32),               load_custom_data4_win32,               },        ///< Bypass signature check
     { 0x0039AE8E, sizeof(load_custom_data5_win32),               load_custom_data5_win32,               },        ///< Bypass .old  rename
-    { 0x003A3023, sizeof(browser_account_id_win32),              browser_account_id_win32,              },        ///< Fill url with account id intead of account name
-    { 0x0003EEA5, sizeof(browser_replace_url_win32),             browser_replace_url_win32,             },        ///< Use navigable url 2 instead 5 with account name fill
+    { 0x0003EE92, sizeof(navigatehome_to_navigateto),            navigatehome_to_navigateto,            }         ///< Replace lua funtion navigatehome(string index) to navigateto(string url)
 };
 
 const uint8_t client_check_data_win64[] =
