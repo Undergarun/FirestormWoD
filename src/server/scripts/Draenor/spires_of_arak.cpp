@@ -39,10 +39,11 @@ class boss_rukhmar : public CreatureScript
             void Reset()
             {
                 m_ZRef               = 0.0f;
-                me->m_CombatDistance = 500.0f;
+                me->m_CombatDistance = 200.0f;
                 m_MovingUpToward     = false;
                 m_MovingDownToward   = false;
 
+                me->AddAura(SpiresOfArakSpells::SouthshoreMobScalingAura, me);
                 m_Events.Reset();
             }
 
