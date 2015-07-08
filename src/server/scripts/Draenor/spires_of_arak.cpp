@@ -165,10 +165,7 @@ class boss_rukhmar : public CreatureScript
                 HandleHealthAndDamageScaling();
 
                 if (!UpdateVictim())
-                {
-                    EnterEvadeMode();
                     return;
-                }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING) || (m_MovingUpToward || m_MovingDownToward))
                 {
