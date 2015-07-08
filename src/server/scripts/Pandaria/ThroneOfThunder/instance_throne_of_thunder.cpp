@@ -350,158 +350,161 @@ public:
             switch (p_GameObject->GetEntry())
             {
                 /// Doors
-            case GOB_JIN_ROKH_ENTRANCE_DOOR:
-            case GOB_JIN_ROKH_EXIT_DOOR:
-            case GOB_HORRIDON_EXIT_DOOR:
-            case GOB_COUNCIL_ENTRANCE_DOOR_LEFT:
-            case GOB_COUNCIL_ENTRANCE_DOOR_RIGHT:
-            case GOB_COUNCIL_EXIT_DOOR:
-            case GOB_TORTOS_EXIT_DOOR:
-            case GOB_MEGAERA_EXIT_DOOR:
-            case GOB_JI_KUN_EXIT_DOOR:
-            case GOB_DURUMU_EXIT_DOOR:
-            case GOB_PRIMORDIUS_ENTRANCE:
-            case GOB_PRIMORDIUS_EXIT:
-            case GOB_DARK_ANIMUS_ENTRANCE:
-            case GOB_DARK_ANIMUS_EXIT:
-            case GOB_IRON_QON_SEWER_DOOR:
-            case GOB_IRON_QON_EXIT_DOOR:
-            case GOB_TWIN_ENTRANCE:
-            case GOB_TWIN_EXIT:
-                AddDoor(p_GameObject, true);
-                break;
-                /// Jin'Rokh #01
-            case GOB_MOGU_FOUNTAIN_NE:
-                moguFountainsGuids[0] = p_GameObject->GetGUID();
-                p_GameObject->SetGoState(GO_STATE_READY);
-                break;
-            case GOB_MOGU_FOUNTAIN_NW:
-                moguFountainsGuids[1] = p_GameObject->GetGUID();
-                p_GameObject->SetGoState(GO_STATE_READY);
-                break;
-            case GOB_MOGU_FOUNTAIN_SW:
-                moguFountainsGuids[2] = p_GameObject->GetGUID();
-                p_GameObject->SetGoState(GO_STATE_READY);
-                break;
-            case GOB_MOGU_FOUNTAIN_SE:
-                moguFountainsGuids[3] = p_GameObject->GetGUID();
-                p_GameObject->SetGoState(GO_STATE_READY);
-                break;
-                /// Horridon #02
-            case GOB_HORRIDON_GATE:
-                horridonGateGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_FARRAKI_TRIBAL_DOOR:
-                tribalDoorsGuid[0] = p_GameObject->GetGUID();
-                break;
-            case GOB_GURUBASHI_TRIBAL_DOOR:
-                tribalDoorsGuid[1] = p_GameObject->GetGUID();
-                break;
-            case GOB_DRAKKARI_TRIBAL_DOOR:
-                tribalDoorsGuid[2] = p_GameObject->GetGUID();
-                break;
-            case GOB_AMANI_TRIBAL_DOOR:
-                tribalDoorsGuid[3] = p_GameObject->GetGUID();
-                break;
-                /// Ji-Kun #06
-                /// Durumu #07
-            case GOB_DURUMU_ENTRANCE_GATE:
-                durumuEntranceGateGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_DURUMU_EXIT_GATE:
-                durumuExitGateGuid = p_GameObject->GetGUID();
-                break;
-                /// Primordius #08
-            case GOB_FIRST_MOGU_BLOOD_VAT:
-                firstMoguBloodVatGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_SECOND_MOGU_BLOOD_VAT:
-                secondMoguBloodVatGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_THIRD_MOGU_BLOOD_VAT:
-                thirdMoguBloodVatGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_FOURTH_MOGU_BLOOD_VAT:
-                fourthMoguBloodVatGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_FIFTH_MOGU_BLOOD_VAT:
-                fifthMoguBloodVatGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_SIXTH_MOGU_BLOOD_VAT:
-                sixthMoguBloodVatGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_SEVENTH_MOGU_BLOOD_VAT:
-                seventhMoguBloodVatGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_EIGHTH_MOGU_BLOOD_VAT:
-                eighthMoguBloodVatGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_NINTH_MOGU_BLOOD_VAT:
-                ninthMoguBloodVatGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_TENTH_MOGU_BLOOD_VAT:
-                tenthMoguBloodVatGuid = p_GameObject->GetGUID();
-                break;
-                /// Dark Animus #09
-                /// Iron Qon #10
-                /// Lei Shen #12
-            case GOB_NORTH_PILLAR:
-                m_LeiShenPillars[0] = p_GameObject->GetGUID();
-                break;
-            case GOB_EAST_PILLAR:
-                m_LeiShenPillars[1] = p_GameObject->GetGUID();
-                break;
-            case GOB_SOUTH_PILLAR:
-                m_LeiShenPillars[2] = p_GameObject->GetGUID();
-                break;
-            case GOB_WEST_PILLAR:
-                m_LeiShenPillars[3] = p_GameObject->GetGUID();
-                break;
-            case GOB_FLOOR_NORTH:
-                m_FloorGuids[0] = p_GameObject->GetGUID();
-                break;
-            case GOB_FLOOR_EAST:
-                m_FloorGuids[1] = p_GameObject->GetGUID();
-                break;
-            case GOB_FLOOR_SOUTH:
-                m_FloorGuids[2] = p_GameObject->GetGUID();
-                break;
-            case GOB_FLOOR_WEST:
-                m_FloorGuids[3] = p_GameObject->GetGUID();
-                break;
-            case GOB_CHARGING_STATION:
-                m_ChargingStationGuid = p_GameObject->GetGUID();
-                break;
-            case GOB_NW_WINDOW:
-                m_LeiShenWindows[0] = p_GameObject->GetGUID();
-                break;
-            case GOB_NE_WINDOW:
-                m_LeiShenWindows[1] = p_GameObject->GetGUID();
-                break;
-            case GOB_SE_WINDOW:
-                m_LeiShenWindows[2] = p_GameObject->GetGUID();
-                break;
-            case GOB_SW_WINDOW:
-                m_LeiShenWindows[3] = p_GameObject->GetGUID();
-                break;
-            case GOB_WIND_NW_FX:
-                m_LeiShenWindFX[0] = p_GameObject->GetGUID();
-                break;
-            case GOB_WIND_NE_FX:
-                m_LeiShenWindFX[1] = p_GameObject->GetGUID();
-                break;
-            case GOB_WIND_SE_FX:
-                m_LeiShenWindFX[2] = p_GameObject->GetGUID();
-                break;
-            case GOB_WIND_SW_FX:
-                m_LeiShenWindFX[3] = p_GameObject->GetGUID();
-                break;
-                /// Ra-den #13
-            case GOB_RADEN_SECRET_ENTRY_IRIS:
-                m_RadenIrisGuid = p_GameObject->GetGUID();
-                break;
-            default:
-                break;
+                case GOB_JIN_ROKH_ENTRANCE_DOOR:
+                case GOB_JIN_ROKH_EXIT_DOOR:
+                case GOB_HORRIDON_EXIT_DOOR:
+                case GOB_COUNCIL_ENTRANCE_DOOR_LEFT:
+                case GOB_COUNCIL_ENTRANCE_DOOR_RIGHT:
+                case GOB_COUNCIL_EXIT_DOOR:
+                case GOB_TORTOS_EXIT_DOOR:
+                case GOB_MEGAERA_EXIT_DOOR:
+                case GOB_JI_KUN_EXIT_DOOR:
+                case GOB_DURUMU_EXIT_DOOR:
+                case GOB_PRIMORDIUS_ENTRANCE:
+                case GOB_PRIMORDIUS_EXIT:
+                case GOB_DARK_ANIMUS_ENTRANCE:
+                case GOB_DARK_ANIMUS_EXIT:
+                case GOB_IRON_QON_SEWER_DOOR:
+                case GOB_IRON_QON_EXIT_DOOR:
+                case GOB_IRON_QON_EXIT_DOOR_2:
+                case GOB_TWIN_ENTRANCE:
+                case GOB_TWIN_EXIT:
+                case GOB_CONCUBINES_BACK:
+                case GOB_CONCUBINES_FRONT:
+                    AddDoor(p_GameObject, true);
+                    break;
+                    /// Jin'Rokh #01
+                case GOB_MOGU_FOUNTAIN_NE:
+                    moguFountainsGuids[0] = p_GameObject->GetGUID();
+                    p_GameObject->SetGoState(GO_STATE_READY);
+                    break;
+                case GOB_MOGU_FOUNTAIN_NW:
+                    moguFountainsGuids[1] = p_GameObject->GetGUID();
+                    p_GameObject->SetGoState(GO_STATE_READY);
+                    break;
+                case GOB_MOGU_FOUNTAIN_SW:
+                    moguFountainsGuids[2] = p_GameObject->GetGUID();
+                    p_GameObject->SetGoState(GO_STATE_READY);
+                    break;
+                case GOB_MOGU_FOUNTAIN_SE:
+                    moguFountainsGuids[3] = p_GameObject->GetGUID();
+                    p_GameObject->SetGoState(GO_STATE_READY);
+                    break;
+                    /// Horridon #02
+                case GOB_HORRIDON_GATE:
+                    horridonGateGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_FARRAKI_TRIBAL_DOOR:
+                    tribalDoorsGuid[0] = p_GameObject->GetGUID();
+                    break;
+                case GOB_GURUBASHI_TRIBAL_DOOR:
+                    tribalDoorsGuid[1] = p_GameObject->GetGUID();
+                    break;
+                case GOB_DRAKKARI_TRIBAL_DOOR:
+                    tribalDoorsGuid[2] = p_GameObject->GetGUID();
+                    break;
+                case GOB_AMANI_TRIBAL_DOOR:
+                    tribalDoorsGuid[3] = p_GameObject->GetGUID();
+                    break;
+                    /// Ji-Kun #06
+                    /// Durumu #07
+                case GOB_DURUMU_ENTRANCE_GATE:
+                    durumuEntranceGateGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_DURUMU_EXIT_GATE:
+                    durumuExitGateGuid = p_GameObject->GetGUID();
+                    break;
+                    /// Primordius #08
+                case GOB_FIRST_MOGU_BLOOD_VAT:
+                    firstMoguBloodVatGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_SECOND_MOGU_BLOOD_VAT:
+                    secondMoguBloodVatGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_THIRD_MOGU_BLOOD_VAT:
+                    thirdMoguBloodVatGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_FOURTH_MOGU_BLOOD_VAT:
+                    fourthMoguBloodVatGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_FIFTH_MOGU_BLOOD_VAT:
+                    fifthMoguBloodVatGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_SIXTH_MOGU_BLOOD_VAT:
+                    sixthMoguBloodVatGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_SEVENTH_MOGU_BLOOD_VAT:
+                    seventhMoguBloodVatGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_EIGHTH_MOGU_BLOOD_VAT:
+                    eighthMoguBloodVatGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_NINTH_MOGU_BLOOD_VAT:
+                    ninthMoguBloodVatGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_TENTH_MOGU_BLOOD_VAT:
+                    tenthMoguBloodVatGuid = p_GameObject->GetGUID();
+                    break;
+                    /// Dark Animus #09
+                    /// Iron Qon #10
+                    /// Lei Shen #12
+                case GOB_NORTH_PILLAR:
+                    m_LeiShenPillars[0] = p_GameObject->GetGUID();
+                    break;
+                case GOB_EAST_PILLAR:
+                    m_LeiShenPillars[1] = p_GameObject->GetGUID();
+                    break;
+                case GOB_SOUTH_PILLAR:
+                    m_LeiShenPillars[2] = p_GameObject->GetGUID();
+                    break;
+                case GOB_WEST_PILLAR:
+                    m_LeiShenPillars[3] = p_GameObject->GetGUID();
+                    break;
+                case GOB_FLOOR_NORTH:
+                    m_FloorGuids[0] = p_GameObject->GetGUID();
+                    break;
+                case GOB_FLOOR_EAST:
+                    m_FloorGuids[1] = p_GameObject->GetGUID();
+                    break;
+                case GOB_FLOOR_SOUTH:
+                    m_FloorGuids[2] = p_GameObject->GetGUID();
+                    break;
+                case GOB_FLOOR_WEST:
+                    m_FloorGuids[3] = p_GameObject->GetGUID();
+                    break;
+                case GOB_CHARGING_STATION:
+                    m_ChargingStationGuid = p_GameObject->GetGUID();
+                    break;
+                case GOB_NW_WINDOW:
+                    m_LeiShenWindows[0] = p_GameObject->GetGUID();
+                    break;
+                case GOB_NE_WINDOW:
+                    m_LeiShenWindows[1] = p_GameObject->GetGUID();
+                    break;
+                case GOB_SE_WINDOW:
+                    m_LeiShenWindows[2] = p_GameObject->GetGUID();
+                    break;
+                case GOB_SW_WINDOW:
+                    m_LeiShenWindows[3] = p_GameObject->GetGUID();
+                    break;
+                case GOB_WIND_NW_FX:
+                    m_LeiShenWindFX[0] = p_GameObject->GetGUID();
+                    break;
+                case GOB_WIND_NE_FX:
+                    m_LeiShenWindFX[1] = p_GameObject->GetGUID();
+                    break;
+                case GOB_WIND_SE_FX:
+                    m_LeiShenWindFX[2] = p_GameObject->GetGUID();
+                    break;
+                case GOB_WIND_SW_FX:
+                    m_LeiShenWindFX[3] = p_GameObject->GetGUID();
+                    break;
+                    /// Ra-den #13
+                case GOB_RADEN_SECRET_ENTRY_IRIS:
+                    m_RadenIrisGuid = p_GameObject->GetGUID();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -509,16 +512,31 @@ public:
         {
             switch (p_GameObject->GetEntry())
             {
-            case GOB_JIN_ROKH_ENTRANCE_DOOR:
-            case GOB_JIN_ROKH_EXIT_DOOR:
-            case GOB_HORRIDON_EXIT_DOOR:
-            case GOB_COUNCIL_ENTRANCE_DOOR_RIGHT:
-            case GOB_COUNCIL_ENTRANCE_DOOR_LEFT:
-            case GOB_TORTOS_EXIT_DOOR:
-                AddDoor(p_GameObject, false);
-                break;
-            default:
-                break;
+                    case GOB_JIN_ROKH_ENTRANCE_DOOR:
+                    case GOB_JIN_ROKH_EXIT_DOOR:
+                    case GOB_HORRIDON_EXIT_DOOR:
+                    case GOB_COUNCIL_ENTRANCE_DOOR_LEFT:
+                    case GOB_COUNCIL_ENTRANCE_DOOR_RIGHT:
+                    case GOB_COUNCIL_EXIT_DOOR:
+                    case GOB_TORTOS_EXIT_DOOR:
+                    case GOB_MEGAERA_EXIT_DOOR:
+                    case GOB_JI_KUN_EXIT_DOOR:
+                    case GOB_DURUMU_EXIT_DOOR:
+                    case GOB_PRIMORDIUS_ENTRANCE:
+                    case GOB_PRIMORDIUS_EXIT:
+                    case GOB_DARK_ANIMUS_ENTRANCE:
+                    case GOB_DARK_ANIMUS_EXIT:
+                    case GOB_IRON_QON_SEWER_DOOR:
+                    case GOB_IRON_QON_EXIT_DOOR:
+                    case GOB_IRON_QON_EXIT_DOOR_2:
+                    case GOB_TWIN_ENTRANCE:
+                    case GOB_TWIN_EXIT:
+                    case GOB_CONCUBINES_BACK:
+                    case GOB_CONCUBINES_FRONT:
+                        AddDoor(p_GameObject, false);
+                        break;
+                    default:
+                        break;
             }
         }
 
