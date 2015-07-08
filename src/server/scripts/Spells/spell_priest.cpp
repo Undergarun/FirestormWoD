@@ -3547,7 +3547,7 @@ class spell_pri_twist_of_fate : public SpellScriptLoader
                     return;
 
                 Unit* l_Target = p_EventInfo.GetActionTarget();
-                if (!l_Target || l_Target == l_Caster || l_Target->GetHealthPct() > p_AurEff->GetAmount())
+                if (!l_Target || l_Target->GetHealthPct() > p_AurEff->GetAmount())
                     return;
 
                 l_Caster->CastSpell(l_Caster, SPELL_PRI_TWIST_OF_FATE_PROC, true);
