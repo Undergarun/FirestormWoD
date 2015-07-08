@@ -1298,7 +1298,10 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             /// Bonus Taken    
             /// Dampening, must be calculated off the raw amount
             if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(110310, EFFECT_0))
-                amount = CalculatePct(amount, 100 - l_AurEff->GetAmount());
+            {
+                if (GetId() != 47753) ///< Divine Aegis proc from heal, and get heal % of heal amount, and heal spells are already affected by Dampening
+                    amount = CalculatePct(amount, 100 - l_AurEff->GetAmount());
+            }
 
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
