@@ -28,8 +28,6 @@
 
 enum WarriorSpells
 {
-    WARRIOR_SPELL_BLOODTHIRST                   = 23881,
-    WARRIOR_SPELL_BLOODTHIRST_HEAL              = 117313,
     WARRIOR_SPELL_DEEP_WOUNDS                   = 115767,
     WARRIOR_SPELL_SHOCKWAVE_STUN                = 132168,
     WARRIOR_SPELL_RALLYING_CRY                  = 97463,
@@ -51,8 +49,6 @@ enum WarriorSpells
     WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
     WARRIOR_SPELL_SLUGGISH                      = 129923,
     WARRIOR_SPELL_IMPENDING_VICTORY             = 103840,
-    WARRIOR_SPELL_BLOODSURGE                    = 46915,
-    WARRIOR_SPELL_BLOODSURGE_PROC               = 46916,
     WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
     WARRIOR_SPELL_SUNDER_ARMOR                  = 7386,
     WARRIOR_SPELL_SHIELD_OF_WALL_NOSHIELD       = 146128,
@@ -920,26 +916,32 @@ class spell_warr_bloodthirst: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
 
+            enum eSpells
+            {
+                Bloodthirst     = 23881,
+                BloodthirstHeal = 117313,
+                Bloodsurge      = 46915,
+                BloodsurgeProc  = 46916,
+            };
+
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODTHIRST) || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODTHIRST_HEAL))
+                if (!sSpellMgr->GetSpellInfo(eSpells::Bloodthirst) || !sSpellMgr->GetSpellInfo(eSpells::BloodthirstHeal))
                     return false;
                 return true;
             }
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+
+                if (GetHitDamage())
                 {
-                    if (GetHitDamage())
-                    {
-                        l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODTHIRST_HEAL, true);
+                    l_Caster->CastSpell(l_Caster, eSpells::BloodthirstHeal, true);
 
-                        const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODSURGE);
-
-                        if (l_SpellInfo != nullptr && (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints) || (l_Caster->HasAura(WARRIOR_SPELL_BLOODSURGE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))))
-                            l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
-                    }
+                    if (AuraEffectPtr l_Bloodsurge = l_Caster->GetAuraEffect(eSpells::Bloodsurge, EFFECT_0))
+                        if (roll_chance_i(l_Bloodsurge->GetAmount()))
+                            l_Caster->CastSpell(l_Caster, eSpells::BloodsurgeProc, true);
                 }
             }
 
@@ -975,10 +977,10 @@ class spell_warr_bloodthirst_heal: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 int32 l_Heal = GetHitHeal();
 
-                if (AuraPtr GlyphOfRagingBlow = l_Caster->GetAura(eSpells::GlyphOfRagingBlow))
+                if (AuraPtr l_GlyphOfRagingBlow = l_Caster->GetAura(eSpells::GlyphOfRagingBlow))
                 {
-                    AddPct(l_Heal, GlyphOfRagingBlow->GetEffect(EFFECT_0)->GetAmount());
-                    GlyphOfRagingBlow->Remove();
+                    AddPct(l_Heal, l_GlyphOfRagingBlow->GetEffect(EFFECT_0)->GetAmount());
+                    l_GlyphOfRagingBlow->Remove();
                 }
 
                 SetHitHeal(l_Heal);
