@@ -1424,7 +1424,7 @@ class spell_pri_atonement: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_atonement_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_pri_atonement_SpellScript::HandleOnHit);
             }
         };
 
