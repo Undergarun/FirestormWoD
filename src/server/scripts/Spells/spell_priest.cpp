@@ -1413,16 +1413,26 @@ class spell_pri_atonement: public SpellScriptLoader
                 }
 
                 int32 l_Heal = CalculatePct(GetHitDamage(), l_SpellInfoAtonement->Effects[EFFECT_0].BasePoints);
-                for (auto itr : l_GroupList)
+                for (Unit* l_Unit : l_GroupList)
                 {
-                    if (itr->GetGUID() == l_Player->GetGUID())
+                    if (l_Unit->GetGUID() == l_Player->GetGUID())
                         l_Heal /= 2;
 
-                    l_Player->CastCustomSpell(itr, PRIEST_ATONEMENT_HEAL, &l_Heal, NULL, NULL, true);
+                    CustomSpellValues l_Values;
+
+                    if (GetSpell()->IsCritForTarget(GetHitUnit()))
+                    {
+                        l_Values.SetCustomCritChance(100.f);
+                        l_Heal /= 2; ///< Since we are going critical again
+                    }
+
+                    l_Values.AddSpellMod(SPELLVALUE_BASE_POINT0, l_Heal);
+
+                    l_Player->CastCustomSpell(PriestSpells::PRIEST_ATONEMENT_HEAL, l_Values, l_Unit, true);
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterHit += SpellHitFn(spell_pri_atonement_SpellScript::HandleOnHit);
             }
@@ -1478,7 +1488,7 @@ class spell_pri_atonement: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 if (m_scriptSpellId == eSpells::PowerWordSolace)
                     OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_atonement_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
