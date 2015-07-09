@@ -184,7 +184,8 @@ class InstanceScript : public ZoneScript
 
         void SaveToDB();
 
-        virtual void Update(uint32 /*diff*/) {}
+        virtual void Update(uint32 p_Diff) { UpdateOperations(p_Diff); }
+        void UpdateOperations(uint32 const p_Diff);
 
         // Used by the map's CanEnter function.
         // This is to prevent players from entering during boss encounters.
@@ -274,6 +275,22 @@ class InstanceScript : public ZoneScript
         uint32 GetCompletedEncounterMask() const { return m_CompletedEncounters; }
 
         virtual void OnGameObjectRemove(GameObject* p_Go);
+
+        /// Add timed delayed operation
+        /// @p_Timeout  : Delay time
+        /// @p_Function : Callback function
+        void AddTimedDelayedOperation(uint32 p_Timeout, std::function<void()> && p_Function)
+        {
+            m_EmptyWarned = false;
+            m_TimedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(p_Timeout, p_Function));
+        }
+
+        /// Called after last delayed operation was deleted
+        /// Do whatever you want
+        virtual void LastOperationCalled() { }
+
+        std::vector<std::pair<int32, std::function<void()>>>    m_TimedDelayedOperations;   ///< Delayed operations
+        bool                                                    m_EmptyWarned;              ///< Warning when there are no more delayed operations
 
         struct CriteriaProgressData
         {

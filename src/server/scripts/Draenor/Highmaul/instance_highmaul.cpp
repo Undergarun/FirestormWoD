@@ -452,14 +452,21 @@ class instance_highmaul : public InstanceMapScript
                     p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
 
-                    if (GetBossState(eHighmaulDatas::BossKoragh) == EncounterState::DONE)
-                        p_Player->NearTeleportTo(eHighmaulLocs::FelBreakerRoom);
-                    else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
-                        p_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
-                    else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
-                        p_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
-                    else
-                        p_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
+                    uint64 l_Guid = p_Player->GetGUID();
+                    AddTimedDelayedOperation(200, [this, l_Guid]() -> void
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                        {
+                            if (GetBossState(eHighmaulDatas::BossKoragh) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::FelBreakerRoom);
+                            else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                            else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
+                            else
+                                l_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
+                        }
+                    });
                 }
                 else
                 {
