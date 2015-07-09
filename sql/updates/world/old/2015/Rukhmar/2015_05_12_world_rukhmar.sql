@@ -27,6 +27,11 @@
 
 	UPDATE creature_template SET inhabittype = 4, faction = 14, scriptname = "npc_energized_phoenix" WHERE entry = 83769;
 
+#83783/NPC - Depleted Phoenix
+
+	DELETE FROM creature_template_addon WHERE entry = 83783;
+	INSERT INTO creature_template_addon (entry, auras) VALUE (83783, "169704");
+
 #83768/Piles of Ash
 
 	UPDATE creature_template SET unit_flags = unit_flags |  0x02000000 WHERE entry = 83768;
