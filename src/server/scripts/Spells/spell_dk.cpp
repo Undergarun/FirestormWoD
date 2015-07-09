@@ -1254,7 +1254,8 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
 
-            uint32 m_AbsorbPct, m_HpPct, m_AmountAbsorb, m_Absorbed = 0;
+            int32 m_AbsorbPct, m_HpPct, m_AmountAbsorb = 0;
+            uint32 m_Absorbed = 0;
 
             bool Load()
             {

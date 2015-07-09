@@ -659,8 +659,8 @@ class spell_mage_cauterize: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_cauterize_AuraScript);
 
-            uint32 absorbChance;
-            uint32 healtPct;
+            int32 absorbChance;
+            int32 healtPct;
 
             bool Load()
             {

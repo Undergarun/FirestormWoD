@@ -2379,7 +2379,7 @@ class spell_pri_guardian_spirit: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_guardian_spirit_AuraScript);
 
-            uint32 healPct;
+            int32 healPct;
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {

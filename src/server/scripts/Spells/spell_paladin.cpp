@@ -1589,7 +1589,7 @@ class spell_pal_ardent_defender: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_ardent_defender_AuraScript);
 
-            uint32 m_AbsorbPct, m_HealPct;
+            int32 m_AbsorbPct, m_HealPct;
 
             bool Load()
             {
