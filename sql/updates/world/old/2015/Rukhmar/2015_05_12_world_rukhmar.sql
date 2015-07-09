@@ -11,6 +11,7 @@
 		`speed_run` = 2,
 		`speed_fly` = 2,
 		`unit_flags` = 0,
+		`dmg_multiplier` = 10,
 		`scriptname` = "boss_rukhmar",
 		`mechanic_immune_mask` = 769638399,
 		`trackingquestid` = 37464,
@@ -18,7 +19,7 @@
 	WHERE `entry` = @RUKHMAR;
 
 	DELETE FROM creature WHERE id = @RUKHMAR;
-	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUE ('83746','1116','6722','6722','1','1','0','0','131.766','2506.42','135.821','2.64288','1800','0','0','43331200','0','2','0','0','0','2176','0','0','0','0',NULL);
+	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUE ('83746','1116','6722','6722','1','1','0','0','131.766','2506.42','135.821','2.64288','900','0','0','43331200','0','2','0','0','0','2176','0','0','0','0',NULL);
 	insert into creature_addon (guid, path_id) value ((select distinct guid from creature where id = @RUKHMAR), @RUKHMAR);
 
 

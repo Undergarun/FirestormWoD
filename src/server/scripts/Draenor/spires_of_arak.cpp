@@ -225,7 +225,7 @@ class boss_rukhmar : public CreatureScript
                         break;
                     }
                     case SpiresOfArakEvents::EventSharpBeak:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, SpiresOfArakSpells::SpellSharpBeak, false);
                         m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 33000);
                         break;
