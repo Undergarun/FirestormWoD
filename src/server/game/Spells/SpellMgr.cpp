@@ -4322,11 +4322,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163140:///< Mind Fungus
             case 163590:///< Creeping Moss (damage)
             case 165494:///< Creeping Moss (healing)
-            case 162370:///< Crystalline Barrage (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
+            case 162370:///< Crystalline Barrage (DoT)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                break;
+            case 163312: ///< Raving Assault
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT;
                 break;
             case 154996: ///< Engulfing Fire (searcher)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;

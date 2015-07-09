@@ -206,7 +206,6 @@ class boss_kargath_bladefist : public CreatureScript
             FirePillarSelector      = 159712,
             TriggerCosmeticAura     = 160519,   ///< Fire aura when breaked by Fire Pillar
             /// Berserker Rush
-            BerserkerRushSearcher   = 163180,
             SpellBerserkerRush      = 158986,
             BerserkerRushIncreasing = 159028,   ///< Increase speed and damage done every 2s
             BerserkerRushDamageTick = 159001,   ///< Triggers damaging spell 159002 every 2s
@@ -591,11 +590,6 @@ class boss_kargath_bladefist : public CreatureScript
 
                         break;
                     }
-                    case eSpells::BerserkerRushSearcher:
-                    {
-                        me->CastSpell(p_Target, eSpells::SpellBerserkerRush, false);
-                        break;
-                    }
                     case eSpells::SpellBerserkerRush:
                     {
                         m_BerserkerRushTarget = p_Target->GetGUID();
@@ -730,8 +724,10 @@ class boss_kargath_bladefist : public CreatureScript
                     }
                     case eEvents::EventBerserkerRush:
                     {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                            me->CastSpell(l_Target, eSpells::SpellBerserkerRush, false);
+
                         Talk(eTalks::BerserkerRush);
-                        me->CastSpell(me, eSpells::BerserkerRushSearcher, true);
                         m_Events.ScheduleEvent(eEvents::EventBerserkerRush, 45000);
                         break;
                     }

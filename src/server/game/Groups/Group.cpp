@@ -2816,7 +2816,9 @@ void Group::SendRaidMarkersUpdate()
 
     l_Data << uint8(0); ///< PartyIndex
     l_Data << uint32(GetActiveMarkers());
+
     l_Data.WriteBits(CountActiveMarkers(), 4);
+    l_Data.FlushBits();
 
     for (RaidMarker l_Marker : l_RaidMarkers)
     {
@@ -2894,7 +2896,9 @@ void Group::RemoveRaidMarker(uint8 p_Slot)
 
 void Group::RemoveAllRaidMarkers()
 {
-    m_RaidMarkers.clear();
+    for (uint8 l_Slot = 0; l_Slot < eRaidMarkersMisc::MaxRaidMarkers; ++l_Slot)
+        m_RaidMarkers[l_Slot] = RaidMarker();
+
     SendRaidMarkersUpdate();
 }
 

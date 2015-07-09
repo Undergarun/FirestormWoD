@@ -65,6 +65,8 @@ class instance_highmaul : public InstanceMapScript
                 m_PolGuid                   = 0;
 
                 m_KoraghGuid                = 0;
+
+                m_PlayerPhases.clear();
             }
 
             uint64 m_ArenaMasterGuid;
@@ -100,6 +102,9 @@ class instance_highmaul : public InstanceMapScript
 
             /// Chamber of Nullification
             uint64 m_KoraghGuid;
+
+            /// Phasing
+            std::map<uint32, uint32> m_PlayerPhases;
 
             void Initialize() override
             {
@@ -438,19 +443,30 @@ class instance_highmaul : public InstanceMapScript
             {
                 InstanceScript::OnPlayerEnter(p_Player);
 
+                /// We must save the player phases to prevent some bugs
+                if (m_PlayerPhases.find(p_Player->GetGUIDLow()) == m_PlayerPhases.end())
+                    m_PlayerPhases.insert(std::make_pair(p_Player->GetGUIDLow(), p_Player->GetPhaseMask()));
+
                 if (GetBossState(eHighmaulDatas::BossKargathBladefist) == EncounterState::DONE)
                 {
                     p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
 
-                    if (GetBossState(eHighmaulDatas::BossTwinOgron) == EncounterState::DONE)
-                        p_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
-                    else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
-                        p_Player->NearTeleportTo(eHighmaulLocs::CityBaseTeleporter);
-                    else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
-                        p_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
-                    else
-                        p_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
+                    uint64 l_Guid = p_Player->GetGUID();
+                    AddTimedDelayedOperation(200, [this, l_Guid]() -> void
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                        {
+                            if (GetBossState(eHighmaulDatas::BossKoragh) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::FelBreakerRoom);
+                            else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                            else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
+                            else
+                                l_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
+                        }
+                    });
                 }
                 else
                 {
@@ -466,7 +482,15 @@ class instance_highmaul : public InstanceMapScript
 
                 p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                 p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
-                p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
+
+                /// We must restore original phasing for each players
+                if (m_PlayerPhases.find(p_Player->GetGUIDLow()) != m_PlayerPhases.end())
+                {
+                    p_Player->SetPhaseMask(m_PlayerPhases[p_Player->GetGUIDLow()], true);
+                    m_PlayerPhases.erase(p_Player->GetGUIDLow());
+                }
+                else
+                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
             }
 
             void SendUpdateWorldState(uint32 p_Field, uint32 p_Value)
@@ -487,7 +511,7 @@ class instance_highmaul : public InstanceMapScript
                     if (Player* l_Player = l_Iter->getSource())
                     {
                         l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
-                        l_Player->SetPhaseMask(2, true);
+                        l_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     }
                 }
             }

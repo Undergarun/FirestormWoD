@@ -2406,7 +2406,6 @@ class Player : public Unit, public GridObject<Player>
         ActionButton const* GetActionButton(uint8 button);
         void SendInitialActionButtons() const { SendActionButtons(0); }
         void SendActionButtons(uint32 state) const;
-        void BuildActionButtonsDatas(WorldPacket* data, uint8 buttons[MAX_ACTION_BUTTONS][8], uint8 order, bool byte = false) const;
         bool IsActionButtonDataValid(uint8 button, uint32 action, uint8 type);
 
         int8 GetFreeActionButton();

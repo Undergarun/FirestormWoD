@@ -3547,7 +3547,7 @@ class spell_pri_twist_of_fate : public SpellScriptLoader
                     return;
 
                 Unit* l_Target = p_EventInfo.GetActionTarget();
-                if (!l_Target || l_Target == l_Caster || l_Target->GetHealthPct() > p_AurEff->GetAmount())
+                if (!l_Target || l_Target->GetHealthPct() > p_AurEff->GetAmount())
                     return;
 
                 l_Caster->CastSpell(l_Caster, SPELL_PRI_TWIST_OF_FATE_PROC, true);
@@ -3593,10 +3593,15 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                if (!p_EventInfo.GetHealInfo())
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (p_EventInfo.GetHealInfo() == nullptr || l_Player == nullptr)
                     return;
 
                 int32 l_Amount = p_EventInfo.GetHealInfo()->GetHeal();
+                if ((l_Player->GetMap() && l_Player->GetMap()->IsBattlegroundOrArena()) || l_Player->IsInPvPCombat())
+                    l_Amount = CalculatePct(l_Amount, 50);
+
                 int32 l_PreviousAmount = 0;
 
                 /// Divine Aegis previous amount for stack.
