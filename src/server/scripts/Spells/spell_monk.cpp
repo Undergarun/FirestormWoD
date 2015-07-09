@@ -916,7 +916,7 @@ class spell_monk_dampen_harm: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_dampen_harm_AuraScript);
 
-            uint32 healthPct;
+            int32 healthPct;
 
             bool Load()
             {

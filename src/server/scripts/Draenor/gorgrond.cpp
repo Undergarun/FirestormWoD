@@ -150,9 +150,16 @@ class boss_tarlna_the_ageless : public CreatureScript
                 if (AuraPtr l_Scaling = me->GetAura(eSpells::SouthshoreMobScalingAura))
                 {
                     if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
-                        l_Damage->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    {
+                        if ((eDatas::HealthScalingCoeff * l_Count) != l_Damage->GetAmount())
+                            l_Damage->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    }
+
                     if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
-                        l_Health->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    {
+                        if ((eDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
+                            l_Health->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    }
                 }
             }
 
