@@ -1379,8 +1379,12 @@ void Unit::CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo
     Spell* spell = new Spell(this, spellInfo, triggerFlags, originalCaster);
 
     if (value)
+    {
         for (CustomSpellValues::const_iterator itr = value->begin(); itr != value->end(); ++itr)
             spell->SetSpellValue(itr->first, itr->second);
+
+        spell->SetCustomCritChance(value->GetCustomCritChance());
+    }
 
     spell->m_CastItem = castItem;
     spell->SetPeriodicDamageModifier(periodicDamageModifier);
