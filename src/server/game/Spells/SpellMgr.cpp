@@ -156,7 +156,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
                 return DIMINISHING_INCAPACITATE;
 
             // Fear -- 118699
-            if (spellproto->Id == 118699)
+            if (spellproto->Id == 118699 || spellproto->Id == 130616)
                 return DIMINISHING_DISORIENT;
             // Howl of Terror -- 5484
             if (spellproto->SpellFamilyFlags[1] & 0x8)
@@ -483,7 +483,7 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             if (spellproto->Id == 5484)
                 return 6 * IN_MILLISECONDS;
             /// Fear - 6 seconds in PvP (6.0)
-            if (spellproto->Id == 118699)
+            if (spellproto->Id == 118699 || spellproto->Id == 130616)
                 return 6 * IN_MILLISECONDS;
             break;
         }
