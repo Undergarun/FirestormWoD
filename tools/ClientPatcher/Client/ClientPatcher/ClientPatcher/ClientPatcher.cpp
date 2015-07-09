@@ -192,6 +192,11 @@ const uint8_t navigatehome_to_navigateto_win64[]
     0xC3                                         ///< ret
 };
 
+const uint8_t navigatehome_2_win64[] =
+{
+    0x8B, 0xD0, 0x48, 0x8B, 0xCB, 0xE8, 0x36, 0xFE, 0xFF, 0xFF, 0xEB, 0x44
+};
+
 const struct RewriteItem Win64Patchs[] =
 {
     { 0x00F09CC8, sizeof(config_data),                           config_data                            },        ///< Change default configuration file
@@ -209,7 +214,8 @@ const struct RewriteItem Win64Patchs[] =
     { 0x0001C0AF, sizeof(load_custom_data3_win64),               load_custom_data3_win64,               },
     { 0x00D5FADB, sizeof(load_custom_data4),                     load_custom_data4,                     },        ///< Bypass signature check
     { 0x0060540D, sizeof(load_custom_data5),                     load_custom_data5,                     },        ///< Bypass .old  rename
-    { 0x0005EB60, sizeof(navigatehome_to_navigateto_win64),      navigatehome_to_navigateto_win64       }
+    { 0x0005EB60, sizeof(navigatehome_to_navigateto_win64),      navigatehome_to_navigateto_win64       },
+    { 0x0005ED20, sizeof(navigatehome_2_win64),                  navigatehome_2_win64                   }
 };
 
 const uint8_t client_packets_check_data_mac64[] = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x27, 0x01, 0x00, 0x00 };   ///< jmp to bypass socket check
