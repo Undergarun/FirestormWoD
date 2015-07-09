@@ -160,10 +160,28 @@ typedef std::pair<SpellValueMod, int32>     CustomSpellValueMod;
 class CustomSpellValues : public std::vector<CustomSpellValueMod>
 {
     public:
+        CustomSpellValues() :
+        m_CustomCritChance(-1.f)
+        {
+        }
+
         void AddSpellMod(SpellValueMod mod, int32 value)
         {
             push_back(std::make_pair(mod, value));
         }
+
+        float GetCustomCritChance() const
+        {
+            return m_CustomCritChance;
+        }
+
+        void SetCustomCritChance(float p_CustomProcChance)
+        {
+            m_CustomCritChance = p_CustomProcChance;
+        }
+
+    private:
+        float m_CustomCritChance;
 };
 
 enum SpellFacingFlags

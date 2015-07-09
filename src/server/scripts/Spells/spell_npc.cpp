@@ -106,19 +106,19 @@ class npc_frozen_orb : public CreatureScript
 
         enum Constants
         {
-            CheckDist = 5, ///< Every AI update, the orb will try to travel this distance
-            DamageDelay = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
-            HeightMaxStep = 3, ///< Maximum step height the orb can go before stopping (this value goes along with CheckDist)
-            HoverHeight = 0    ///< "Display" height modification (some modelid are centered at the origin)
+            CheckDist     = 5,                   ///< Every AI update, the orb will try to travel this distance
+            DamageDelay   = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
+            HeightMaxStep = 3,                   ///< Maximum step height the orb can go before stopping (this value goes along with CheckDist)
+            HoverHeight   = 0                    ///< "Display" height modification (some modelid are centered at the origin)
         };
 
         enum Spells
         {
-            FingersOfFrostVisual = 44544,
-            SelfSnare90Pct       = 82736,
-            TargetSnareAndDamage = 84721,
             FingersOfFrost       = 126084,
-            FrozenOrbVisual      = 123605
+            FingersOfFrostVisual = 44544,
+            FrozenOrbVisual      = 123605,
+            SelfSnare90Pct       = 82736,
+            TargetSnareAndDamage = 84721
         };
 
         struct npc_frozen_orbAI : public ScriptedAI
@@ -215,7 +215,7 @@ class npc_frozen_orb : public CreatureScript
                 l_Dest.m_positionY += l_CheckDist * l_RotSin;
 
                 float l_DestHeight = me->GetMap()->GetHeight(l_Dest.m_positionX, l_Dest.m_positionY, MAX_HEIGHT);
-                float l_Diff = l_DestHeight - (l_Origin.m_positionZ - Constants::HoverHeight) + 1.f;
+                float l_Diff = l_DestHeight - (l_Origin.m_positionZ - Constants::HoverHeight) + 1.f; ///< +1 because reasons (I have no idea why this is required, but it is)
 
                 if (std::abs(l_Diff) - std::abs(l_MaxStep) > 0.f)
                 {
@@ -239,13 +239,13 @@ class npc_frozen_orb : public CreatureScript
 
                 /// Let's cast some rays to see if there's an obstacle in front of us
                 Position l_StaticHit;
-                bool l_Hit1 = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(me->GetMapId(),
+                VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(me->GetMapId(),
                     l_Origin.m_positionX, l_Origin.m_positionY, l_Origin.m_positionZ,
                     l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ,
                     l_StaticHit.m_positionX, l_StaticHit.m_positionY, l_StaticHit.m_positionZ, 0.f);
 
                 Position l_DynamicHit;
-                bool l_Hit2 = me->GetMap()->getObjectHitPos(me->GetPhaseMask(),
+                me->GetMap()->getObjectHitPos(me->GetPhaseMask(),
                     l_Origin.m_positionX, l_Origin.m_positionY, l_Origin.m_positionZ,
                     l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ,
                     l_DynamicHit.m_positionX, l_DynamicHit.m_positionY, l_DynamicHit.m_positionZ, 0.f);
