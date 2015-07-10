@@ -11885,19 +11885,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
         if (l_HasFingerOfFrostProc)
         {
-            AuraPtr l_ProcAura   = GetAura(44544);
-            AuraPtr l_VisualAura = GetAura(126084);
-
-            if (l_ProcAura && l_VisualAura && l_ProcAura->GetStackAmount() == 1 && l_VisualAura->GetStackAmount() == 1)
-            {
-                l_ProcAura->SetStackAmount(l_ProcAura->GetStackAmount() + 1);
-                l_VisualAura->SetStackAmount(l_VisualAura->GetStackAmount() + 1);
-            }
-            else
-            {
-                CastSpell(this, 44544, true);  ///< Fingers of frost proc
-                CastSpell(this, 126084, true); ///< Fingers of frost visual
-            }
+            CastSpell(this, 44544, true);  ///< Fingers of frost proc
+            CastSpell(this, 126084, true); ///< Fingers of frost visual
         }
     }
 
