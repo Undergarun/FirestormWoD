@@ -35,6 +35,7 @@ enum ShamanSpells
     SHAMAN_SPELL_EXHAUSTION                     = 57723,
     HUNTER_SPELL_INSANITY                       = 95809,
     MAGE_SPELL_TEMPORAL_DISPLACEMENT            = 80354,
+    HUNTER_SPELL_FATIGUED                       = 160455,
     SPELL_SHA_LIGHTNING_SHIELD_AURA             = 324,
     SPELL_SHA_ASCENDANCE_ELEMENTAL              = 114050,
     SPELL_SHA_ASCENDANCE_RESTORATION            = 114052,
@@ -1477,6 +1478,7 @@ class spell_sha_bloodlust: public SpellScriptLoader
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_FATIGUED));
             }
 
             void ApplyDebuff()

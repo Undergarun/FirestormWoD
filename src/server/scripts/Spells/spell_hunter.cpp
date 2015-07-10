@@ -54,6 +54,7 @@ enum HunterSpells
     HUNTER_SPELL_INSANITY                           = 95809,
     SPELL_SHAMAN_SATED                              = 57724,
     SPELL_SHAMAN_EXHAUSTED                          = 57723,
+    HUNTER_SPELL_FATIGUED                           = 160455,
     HUNTER_SPELL_CAMOUFLAGE_VISUAL                  = 80326,
     HUNTER_SPELL_GLYPH_OF_CAMOUFLAGE_VISUAL         = 119450,
     HUNTER_SPELL_CAMOUFLAGE_PERIODIC_HEAL           = 51753,
@@ -2449,6 +2450,7 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_FATIGUED));
             }
 
             void ApplyDebuff()
@@ -2469,6 +2471,59 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_ancient_hysteria_SpellScript();
+        }
+};
+
+/// Netherwinds - 160452
+class spell_hun_netherwinds : public SpellScriptLoader
+{
+    public:
+        spell_hun_netherwinds() : SpellScriptLoader("spell_hun_netherwinds") { }
+
+        class spell_hun_netherwinds_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_netherwinds_SpellScript);
+
+            SpellCastResult CheckMap()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SPELL_SHAMAN_EXHAUSTED))
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Caster->GetMap() && l_Caster->GetMap()->IsBattleArena())
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_INSANITY));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_EXHAUSTED));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_SATED));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_FATIGUED));
+            }
+
+            void ApplyDebuff()
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(target, HunterSpells::HUNTER_SPELL_FATIGUED, true);
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_hun_netherwinds_SpellScript::CheckMap);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_netherwinds_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_netherwinds_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                AfterHit += SpellHitFn(spell_hun_netherwinds_SpellScript::ApplyDebuff);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_netherwinds_SpellScript();
         }
 };
 
@@ -3662,6 +3717,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_camouflage_visual();
     new spell_hun_serpent_spread();
     new spell_hun_ancient_hysteria();
+    new spell_hun_netherwinds();
     new spell_hun_kill_command();
     new spell_hun_cobra_shot();
     new spell_hun_steady_shot();
