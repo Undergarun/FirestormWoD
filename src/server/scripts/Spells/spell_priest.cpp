@@ -1418,7 +1418,17 @@ class spell_pri_atonement: public SpellScriptLoader
                     if (l_Unit->GetGUID() == l_Player->GetGUID())
                         l_Heal /= 2;
 
-                    l_Player->CastCustomSpell(l_Unit, PriestSpells::PRIEST_ATONEMENT_HEAL, &l_Heal, nullptr, nullptr, true);
+                    CustomSpellValues l_Values;
+
+                    if (GetSpell()->IsCritForTarget(GetHitUnit()))
+                    {
+                        l_Values.SetCustomCritChance(100.f);
+                        l_Heal /= 2; ///< Since we are going critical again
+                    }
+
+                    l_Values.AddSpellMod(SPELLVALUE_BASE_POINT0, l_Heal);
+
+                    l_Player->CastCustomSpell(PriestSpells::PRIEST_ATONEMENT_HEAL, l_Values, l_Unit, true);
                 }
             }
 
