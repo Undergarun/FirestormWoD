@@ -8038,9 +8038,22 @@ void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
+    GuidUnorderedSet l_IgnoredPlayers;
+
+    std::list<Unit*> l_Members;
+    m_caster->GetRaidMembers(l_Members);
+    
+    uint64 l_OwnerGUID = m_caster->GetGUID();
+    for (Unit* l_Member : l_Members)
+    {
+        uint64 l_MemberGUID = l_Member->GetGUID();
+        if (l_MemberGUID != l_OwnerGUID && l_Member->GetTypeId() == TypeID::TYPEID_PLAYER)
+            l_IgnoredPlayers.insert(l_MemberGUID);
+    }
+
     WorldPacket l_Data(SMSG_CLEAR_TARGET, 16 + 2);
     l_Data.appendPackGUID(m_caster->GetGUID());
-    m_caster->SendMessageToSet(&l_Data, true);
+    m_caster->SendMessageToSet(&l_Data, true, l_IgnoredPlayers);
 }
 
 void Spell::EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex)
