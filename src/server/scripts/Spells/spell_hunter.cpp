@@ -2421,7 +2421,7 @@ class spell_hun_serpent_spread: public SpellScriptLoader
         }
 };
 
-// Ancient Hysteria - 90355
+/// Ancient Hysteria - 90355 - last update: 6.1.2 19802
 class spell_hun_ancient_hysteria: public SpellScriptLoader
 {
     public:
@@ -2431,70 +2431,22 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_ancient_hysteria_SpellScript);
 
-            SpellCastResult CheckMap()
+            bool Validate(SpellInfo const* /*p_SpellEntry*/) override
             {
-                Unit* l_Caster = GetCaster();
+                if (!sSpellMgr->GetSpellInfo(HunterSpells::HUNTER_SPELL_INSANITY))
+                    return false;
 
-                if (l_Caster->HasAura(SPELL_SHAMAN_EXHAUSTED))
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (l_Caster->GetMap() && l_Caster->GetMap()->IsBattleArena())
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
+                return true;
             }
-
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_FATIGUED));
-            }
-
-            void ApplyDebuff()
-            {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, HUNTER_SPELL_INSANITY, true);
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_hun_ancient_hysteria_SpellScript::CheckMap);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                AfterHit += SpellHitFn(spell_hun_ancient_hysteria_SpellScript::ApplyDebuff);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_ancient_hysteria_SpellScript();
-        }
-};
-
-/// Netherwinds - 160452
-class spell_hun_netherwinds : public SpellScriptLoader
-{
-    public:
-        spell_hun_netherwinds() : SpellScriptLoader("spell_hun_netherwinds") { }
-
-        class spell_hun_netherwinds_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_netherwinds_SpellScript);
 
             SpellCastResult CheckMap()
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster->HasAura(SPELL_SHAMAN_EXHAUSTED))
-                    return SPELL_FAILED_DONT_REPORT;
+                if (l_Caster->HasAura(HunterSpells::SPELL_SHAMAN_EXHAUSTED))
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
 
-                if (l_Caster->GetMap() && l_Caster->GetMap()->IsBattleArena())
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
+                return SpellCastResult::SPELL_CAST_OK;
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
@@ -2508,15 +2460,73 @@ class spell_hun_netherwinds : public SpellScriptLoader
 
             void ApplyDebuff()
             {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, HunterSpells::HUNTER_SPELL_FATIGUED, true);
+                if (Unit* l_Target = GetHitUnit())
+                    l_Target->CastSpell(l_Target, HunterSpells::HUNTER_SPELL_INSANITY, true);
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_hun_ancient_hysteria_SpellScript::CheckMap);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
+                AfterHit += SpellHitFn(spell_hun_ancient_hysteria_SpellScript::ApplyDebuff);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_ancient_hysteria_SpellScript();
+        }
+};
+
+/// Netherwinds - 160452 - last update: 6.1.2 19802
+class spell_hun_netherwinds : public SpellScriptLoader
+{
+    public:
+        spell_hun_netherwinds() : SpellScriptLoader("spell_hun_netherwinds") { }
+
+        class spell_hun_netherwinds_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_netherwinds_SpellScript);
+
+            bool Validate(SpellInfo const* /*p_SpellEntry*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(HunterSpells::HUNTER_SPELL_FATIGUED))
+                    return false;
+
+                return true;
+            }
+
+            SpellCastResult CheckMap()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(HunterSpells::SPELL_SHAMAN_EXHAUSTED))
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_INSANITY));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_EXHAUSTED));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_SATED));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_FATIGUED));
+            }
+
+            void ApplyDebuff()
+            {
+                if (Unit* l_Target = GetHitUnit())
+                    l_Target->CastSpell(l_Target, HunterSpells::HUNTER_SPELL_FATIGUED, true);
+            }
+
+            void Register() override
+            {
                 OnCheckCast += SpellCheckCastFn(spell_hun_netherwinds_SpellScript::CheckMap);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_netherwinds_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_netherwinds_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_netherwinds_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_netherwinds_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_hun_netherwinds_SpellScript::ApplyDebuff);
             }
         };
