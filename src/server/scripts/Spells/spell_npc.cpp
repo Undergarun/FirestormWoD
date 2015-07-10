@@ -137,15 +137,6 @@ class npc_frozen_orb : public CreatureScript
                 ///< No evade mode for orbs
             }
 
-            void IsSummonedBy(Unit* p_Owner) override
-            {
-                if (p_Owner && p_Owner->GetTypeId() == TypeID::TYPEID_PLAYER)
-                {
-                    p_Owner->CastSpell(p_Owner, Spells::FingersOfFrostVisual, true);
-                    p_Owner->CastSpell(p_Owner, Spells::FingersOfFrost, true);
-                }
-            }
-
             void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
@@ -183,12 +174,23 @@ class npc_frozen_orb : public CreatureScript
                             if (l_Target->isAlive() && me->GetExactDistSq(l_Target) < l_MaxRadius * l_MaxRadius && me->IsWithinLOSInMap(l_Target) && me->IsValidAttackTarget(l_Target))
                             {
                                 me->AddAura(Spells::SelfSnare90Pct, me);
+
+                                /// Frozen Orb gives one stack of FoF on first hit
+                                if (Unit* l_Owner = me->GetOwner())
+                                {
+                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
+                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
+                                }
                                 break;
                             }
                         }
                     }
 
-                    me->CastSpell(me, TargetSnareAndDamage, true);
+                    Unit* l_DamageCaster = me;
+                    if (Unit* l_Owner = me->GetOwner())
+                        l_DamageCaster = l_Owner;
+
+                    l_DamageCaster->CastSpell(me, TargetSnareAndDamage, true);
 
                     m_DamageTimer -= Constants::DamageDelay;
                 }
