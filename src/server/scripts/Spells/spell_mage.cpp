@@ -37,6 +37,7 @@ enum MageSpells
     HUNTER_SPELL_INSANITY                        = 95809,
     SPELL_SHAMAN_SATED                           = 57724,
     SPELL_SHAMAN_EXHAUSTED                       = 57723,
+    HUNTER_SPELL_FATIGUED                        = 160455,
     SPELL_MAGE_CONJURE_REFRESHMENT_R1            = 92739,
     SPELL_MAGE_CONJURE_REFRESHMENT_R2            = 92799,
     SPELL_MAGE_CONJURE_REFRESHMENT_R3            = 92802,
@@ -1465,6 +1466,7 @@ class spell_mage_time_warp: public SpellScriptLoader
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_FATIGUED));
             }
 
             void ApplyDebuff()

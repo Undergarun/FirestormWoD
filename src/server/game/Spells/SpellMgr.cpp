@@ -4608,10 +4608,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO | SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
-            case 57723: ///< Exhaustion
-            case 57724: ///< Sated
-            case 80354: ///< Temporal Displacement
-            case 95809: ///< Insanity
+            case 57723:  ///< Exhaustion
+            case 57724:  ///< Sated
+            case 80354:  ///< Temporal Displacement
+            case 95809:  ///< Insanity
+            case 160455: ///< Fatigued
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
                 break;
             case 105770: ///< Item - Druid T13 Restoration 4P Bonus (Rejuvenation)
@@ -6355,6 +6356,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 159740: ///< Glyph of Raging Blow
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TriggerSpell = 159747;
+                break;
+            case 84721: ///< Frozen Orb damage
+                spellInfo->AttributesEx2 |= SpellAttr2::SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             default:
                 break;

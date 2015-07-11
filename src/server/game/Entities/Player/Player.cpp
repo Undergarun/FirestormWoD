@@ -8718,12 +8718,12 @@ void Player::SaveRecallPosition()
     m_recallO = GetOrientation();
 }
 
-void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self)
+void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self, const GuidUnorderedSet& p_IgnoreList)
 {
     if (self)
         GetSession()->SendPacket(data);
 
-    JadeCore::MessageDistDeliverer notifier(this, data, dist);
+    JadeCore::MessageDistDeliverer notifier(this, data, dist, false, nullptr, p_IgnoreList);
     VisitNearbyWorldObject(dist, notifier);
 }
 
@@ -8736,14 +8736,14 @@ void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self, b
     VisitNearbyWorldObject(dist, notifier);
 }
 
-void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
+void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr, const GuidUnorderedSet& p_IgnoreList)
 {
     if (skipped_rcvr != this)
         GetSession()->SendPacket(data);
 
     // we use World::GetMaxVisibleDistance() because i cannot see why not use a distance
     // update: replaced by GetMap()->GetVisibilityDistance()
-    JadeCore::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr);
+    JadeCore::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr, p_IgnoreList);
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
