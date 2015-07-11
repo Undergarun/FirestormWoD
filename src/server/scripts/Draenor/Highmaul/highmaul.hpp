@@ -136,7 +136,13 @@ enum eHighmaulGameobjects
 
     /// Ko'ragh's Doors
     FelBreakerEntrance  = 236213,
-    FelBreakerExitDoor  = 236214
+    FelBreakerExitDoor  = 236214,
+
+    /// Imperator Margokk Door
+    ThroneRoomDoor      = 231938,
+
+    /// Misc
+    Teleporter          = 231776
 };
 
 enum eHighmaulWorldStates

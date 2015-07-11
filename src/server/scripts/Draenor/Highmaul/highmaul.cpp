@@ -25,6 +25,9 @@ Position const g_KargathPos = { 3444.50f, 7550.76f, 55.39f, 0.90f };
 Position const g_IronWarmasterPos = { 4155.636719f, 7817.216309f, 0.253316f, 0.514213f };
 Position const g_IronWarmasterJump = { 4182.975098f, 7839.367188f, 7.755508f, 5.603590f };
 
+/// Teleporter to Imperator's Rise
+Position const g_TeleporterSpawnPos = { 4186.096f, 8574.492f, 425.353f, 3.851739f };
+
 /// Gharg <Arena Master> - 84971
 class npc_highmaul_gharg_arena_master : public CreatureScript
 {
@@ -2322,6 +2325,427 @@ class npc_highmaul_ogron_brute : public CreatureScript
         }
 };
 
+/// Gorian Rune-Mender - 87910
+class npc_highmaul_gorian_rune_mender : public CreatureScript
+{
+    public:
+        npc_highmaul_gorian_rune_mender() : CreatureScript("npc_highmaul_gorian_rune_mender") { }
+
+        enum eSpells
+        {
+            AttackPale  = 175491,
+            Ready2HL    = 175155
+        };
+
+        struct npc_highmaul_gorian_rune_menderAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_gorian_rune_menderAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->RemoveAura(eSpells::AttackPale);
+                me->CastSpell(me, eSpells::Ready2HL, true);
+
+                ScheduleNextOperation();
+            }
+
+            void LastOperationCalled() override
+            {
+                ScheduleNextOperation();
+            }
+
+            void ScheduleNextOperation()
+            {
+                AddTimedDelayedOperation(urand(2 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS), [this]() -> void
+                {
+                    if (urand(0, 1))
+                    {
+                        me->RemoveAura(eSpells::Ready2HL);
+                        me->CastSpell(me, eSpells::AttackPale, true);
+                    }
+                    else
+                    {
+                        me->RemoveAura(eSpells::AttackPale);
+                        me->CastSpell(me, eSpells::Ready2HL, true);
+                    }
+                });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_gorian_rune_menderAI(p_Creature);
+        }
+};
+
+/// Night-Twisted Fanatic - 87768
+class npc_highmaul_night_twisted_fanatic : public CreatureScript
+{
+    public:
+        npc_highmaul_night_twisted_fanatic() : CreatureScript("npc_highmaul_night_twisted_fanatic") { }
+
+        enum eSpells
+        {
+            Sacrifice       = 175430,
+            FullHeal        = 17683,
+            ClearAllDebuffs = 34098,
+            FadeOut         = 166930
+        };
+
+        enum eSteps
+        {
+            StepSacrifice,
+            StepHeal,
+            StepReturn
+        };
+
+        struct npc_highmaul_night_twisted_fanaticAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_night_twisted_fanaticAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_CosmeticStep = eSteps::StepSacrifice;
+            }
+
+            uint8 m_CosmeticStep;
+
+            void Reset() override
+            {
+                ScheduleNextOperation();
+            }
+
+            void LastOperationCalled() override
+            {
+                ScheduleNextOperation();
+            }
+
+            void ScheduleNextOperation()
+            {
+                uint32 l_Time = 0;
+                switch (m_CosmeticStep)
+                {
+                    default:
+                    case eSteps::StepSacrifice:
+                        l_Time = urand(5 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eSteps::StepHeal:
+                    case eSteps::StepReturn:
+                        l_Time = 4 * TimeConstants::IN_MILLISECONDS;
+                        break;
+                }
+
+                AddTimedDelayedOperation(l_Time, [this]() -> void
+                {
+                    switch (m_CosmeticStep)
+                    {
+                        default:
+                        case eSteps::StepSacrifice:
+                        {
+                            m_CosmeticStep = eSteps::StepHeal;
+                            me->CastSpell(me, eSpells::Sacrifice, false);
+                            break;
+                        }
+                        case eSteps::StepHeal:
+                        {
+                            m_CosmeticStep = eSteps::StepReturn;
+                            me->CastSpell(me, eSpells::FullHeal, true);
+                            me->CastSpell(me, eSpells::ClearAllDebuffs, true);
+                            me->CastSpell(me, eSpells::FadeOut, true);
+                            break;
+                        }
+                        case eSteps::StepReturn:
+                        {
+                            m_CosmeticStep = eSteps::StepSacrifice;
+                            me->RemoveAura(eSpells::Sacrifice);
+                            me->RemoveAura(eSpells::FadeOut);
+                            break;
+                        }
+                    }
+                });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_night_twisted_fanaticAI(p_Creature);
+        }
+};
+
+/// Gorian Warden - 87619
+class npc_highmaul_gorian_warden : public CreatureScript
+{
+    public:
+        npc_highmaul_gorian_warden() : CreatureScript("npc_highmaul_gorian_warden") { }
+
+        enum eSpells
+        {
+            AttackPale  = 175491,
+            Ready1H     = 175387
+        };
+
+        struct npc_highmaul_gorian_wardenAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_gorian_wardenAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->RemoveAura(eSpells::AttackPale);
+                me->CastSpell(me, eSpells::Ready1H, true);
+
+                ScheduleNextOperation();
+            }
+
+            void LastOperationCalled() override
+            {
+                ScheduleNextOperation();
+            }
+
+            void ScheduleNextOperation()
+            {
+                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (urand(0, 1))
+                    {
+                        me->RemoveAura(eSpells::Ready1H);
+                        me->CastSpell(me, eSpells::AttackPale, true);
+                    }
+                    else
+                    {
+                        me->RemoveAura(eSpells::AttackPale);
+                        me->CastSpell(me, eSpells::Ready1H, true);
+                    }
+                });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_gorian_wardenAI(p_Creature);
+        }
+};
+
+/// Ogron Warbringer - 87589
+class npc_highmaul_ogron_warbringer : public CreatureScript
+{
+    public:
+        npc_highmaul_ogron_warbringer() : CreatureScript("npc_highmaul_ogron_warbringer") { }
+
+        enum eSpells
+        {
+            AttackPale      = 175505,
+            ReadyUnarmed    = 173366
+        };
+
+        struct npc_highmaul_ogron_warbringerAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_ogron_warbringerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->RemoveAura(eSpells::AttackPale);
+                me->CastSpell(me, eSpells::ReadyUnarmed, true);
+
+                ScheduleNextOperation();
+            }
+
+            void LastOperationCalled() override
+            {
+                ScheduleNextOperation();
+            }
+
+            void ScheduleNextOperation()
+            {
+                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (urand(0, 1))
+                    {
+                        me->RemoveAura(eSpells::ReadyUnarmed);
+                        me->CastSpell(me, eSpells::AttackPale, true);
+                    }
+                    else
+                    {
+                        me->RemoveAura(eSpells::AttackPale);
+                        me->CastSpell(me, eSpells::ReadyUnarmed, true);
+                    }
+                });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_ogron_warbringerAI(p_Creature);
+        }
+};
+
+/// Warden Thul'tok <Defender of the Rise> - 81269
+class npc_highmaul_warden_thultok : public CreatureScript
+{
+    public:
+        npc_highmaul_warden_thultok() : CreatureScript("npc_highmaul_warden_thultok") { }
+
+        enum eSpells
+        {
+            DestructiveForce    = 175061,
+            ArcaneResidue       = 175047
+        };
+
+        enum eEvents
+        {
+            EventDestructiveForce = 1,
+            EventArcaneResidue
+        };
+
+        struct npc_highmaul_warden_thultokAI : public ScriptedAI
+        {
+            npc_highmaul_warden_thultokAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->RemoveAllAreasTrigger();
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                me->RemoveAllAreasTrigger();
+
+                me->SummonGameObject(eHighmaulGameobjects::Teleporter, g_TeleporterSpawnPos, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventDestructiveForce, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventArcaneResidue, 10 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventDestructiveForce:
+                        me->CastSpell(me, eSpells::DestructiveForce, false);
+                        m_Events.ScheduleEvent(eEvents::EventDestructiveForce, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventArcaneResidue:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::ArcaneResidue, true);
+                        m_Events.ScheduleEvent(eEvents::EventArcaneResidue, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_warden_thultokAI(p_Creature);
+        }
+};
+
+/// Gorian Royal Guardsman <King's Guard> - 81806
+class npc_highmaul_gorian_royal_guardsman : public CreatureScript
+{
+    public:
+        npc_highmaul_gorian_royal_guardsman() : CreatureScript("npc_highmaul_gorian_royal_guardsman") { }
+
+        enum eSpells
+        {
+            /// Pulverize
+            PulverizeAura   = 174445,
+            PulverizeStack  = 174446,
+            PulverizedStun  = 174452,
+            /// Rampage
+            RampageSearcher = 174468,
+            RampageAura     = 174469
+        };
+
+        enum eEvent
+        {
+            EventRampage = 1
+        };
+
+        struct npc_highmaul_gorian_royal_guardsmanAI : public ScriptedAI
+        {
+            npc_highmaul_gorian_royal_guardsmanAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpells::PulverizeAura, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventRampage, 10 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::PulverizeStack:
+                    {
+                        if (AuraPtr l_Aura = p_Target->GetAura(p_SpellInfo->Id, me->GetGUID()))
+                        {
+                            if (l_Aura->GetStackAmount() >= 8)
+                            {
+                                me->CastSpell(p_Target, eSpells::PulverizedStun, true);
+                                p_Target->RemoveAura(p_SpellInfo->Id);
+                            }
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_gorian_royal_guardsmanAI(p_Creature);
+        }
+};
+
 /// Arena Elevator - 233098
 class go_highmaul_arena_elevator : public GameObjectScript
 {
@@ -2385,12 +2809,14 @@ class go_highmaul_portal : public GameObjectScript
         {
             go_highmaul_portalAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject)
             {
-                m_CheckTimer = 1000;
+                m_CheckTimer = 500;
                 m_IsUp = p_GameObject->GetPositionZ() < 300.0f;
+                m_ImperatorsRise = p_GameObject->GetPositionZ() > 400.0f;
             }
 
             uint32 m_CheckTimer;
             bool m_IsUp;
+            bool m_ImperatorsRise;
 
             enum eSpell
             {
@@ -2403,7 +2829,7 @@ class go_highmaul_portal : public GameObjectScript
                 {
                     if (m_CheckTimer <= p_Diff)
                     {
-                        m_CheckTimer = 1000;
+                        m_CheckTimer = 500;
 
                         std::list<Player*> l_PlayerList;
                         go->GetPlayerListInGrid(l_PlayerList, 5.0f);
@@ -2412,10 +2838,15 @@ class go_highmaul_portal : public GameObjectScript
                         {
                             l_Player->CastSpell(l_Player, eSpell::Teleport, true);
 
-                            if (m_IsUp)
-                                l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                            if (m_ImperatorsRise)
+                                l_Player->NearTeleportTo(eHighmaulLocs::ImperatorsRise);
                             else
-                                l_Player->NearTeleportTo(eHighmaulLocs::CityBaseTeleporter);
+                            {
+                                if (m_IsUp)
+                                    l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                                else
+                                    l_Player->NearTeleportTo(eHighmaulLocs::CityBaseTeleporter);
+                            }
                         }
                     }
                     else
@@ -3008,6 +3439,50 @@ class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScri
         }
 };
 
+/// Arcane Residue - 175047
+class areatrigger_highmaul_arcane_residue : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_arcane_residue() : AreaTriggerEntityScript("areatrigger_highmaul_arcane_residue") { }
+
+        enum eSpell
+        {
+            ArcaneResidue = 175056
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 8.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->GetDistance(l_Caster) > 4.0f)
+                    {
+                        if (l_Unit->HasAura(eSpell::ArcaneResidue))
+                            l_Unit->RemoveAura(eSpell::ArcaneResidue);
+                    }
+                    else
+                    {
+                        if (!l_Unit->HasAura(eSpell::ArcaneResidue))
+                            l_Caster->CastSpell(l_Unit, eSpell::ArcaneResidue, true);
+                    }
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_arcane_residue();
+        }
+};
+
 void AddSC_highmaul()
 {
     /// NPCs
@@ -3034,6 +3509,12 @@ void AddSC_highmaul()
     new npc_highmaul_ogron_earthshaker();
     new npc_highmaul_gorian_arcanist();
     new npc_highmaul_ogron_brute();
+    new npc_highmaul_gorian_rune_mender();
+    new npc_highmaul_night_twisted_fanatic();
+    new npc_highmaul_gorian_warden();
+    new npc_highmaul_ogron_warbringer();
+    new npc_highmaul_warden_thultok();
+    new npc_highmaul_gorian_royal_guardsman();
 
     /// GameObjects
     new go_highmaul_arena_elevator();
@@ -3055,4 +3536,5 @@ void AddSC_highmaul()
 
     /// AreaTriggers
     new areatrigger_highmaul_rune_of_disintegration();
+    new areatrigger_highmaul_arcane_residue();
 }

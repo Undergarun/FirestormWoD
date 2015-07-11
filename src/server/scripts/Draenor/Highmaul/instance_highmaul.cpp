@@ -23,6 +23,7 @@ DoorData const g_DoorData[] =
     { eHighmaulGameobjects::TwinOgronExit,      eHighmaulDatas::BossTwinOgron,          DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::FelBreakerEntrance, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::FelBreakerExitDoor, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::ThroneRoomDoor,     eHighmaulDatas::BossImperatorMargok,    DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { 0,                                        0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -250,6 +251,7 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::TwinOgronExit:
                     case eHighmaulGameobjects::FelBreakerEntrance:
                     case eHighmaulGameobjects::FelBreakerExitDoor:
+                    case eHighmaulGameobjects::ThroneRoomDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eHighmaulGameobjects::ArenaElevator:
@@ -296,6 +298,7 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::TwinOgronExit:
                     case eHighmaulGameobjects::FelBreakerEntrance:
                     case eHighmaulGameobjects::FelBreakerExitDoor:
+                    case eHighmaulGameobjects::ThroneRoomDoor:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
