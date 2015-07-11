@@ -2156,7 +2156,7 @@ public:
 
 // Call by Templars Verdict 85256 - Divine storm 53385 - Eternal Flame 114163
 // Call by Word of Glory 85673 - Shield of Righteous 53600
-// Call by Light of dawn 85222
+// Call by Light of dawn 85222 - Final Verdict 157048
 // Divine Purpose - 86172
 class spell_pal_divine_purpose: public SpellScriptLoader
 {

@@ -121,7 +121,9 @@ enum MageSpells
     SPELL_MAGE_WOD_PVP_FIRE_2P_BONUS_EFFECT      = 165979,
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS             = 171169,
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS_EFFECT      = 171170,
-    SPELL_MAGE_POLYMORPH_CRITTERMORPH            = 120091
+    SPELL_MAGE_POLYMORPH_CRITTERMORPH            = 120091,
+    SPELL_MAGE_DRAGON_BREATH                     = 31661,
+    SPELL_MAGE_PRESENCE_OF_MIND                  = 12043
 };
 
 /// Item - Mage WoD PvP Frost 2P Bonus - 180723
@@ -1581,12 +1583,18 @@ class spell_mage_cold_snap: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Player* player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     // Resets cooldown of Ice Block, Frost Nova and Cone of Cold
-                    player->RemoveSpellCooldown(SPELL_MAGE_ICE_BLOCK, true);
-                    player->RemoveSpellCooldown(SPELL_MAGE_FROST_NOVA, true);
-                    player->RemoveSpellCooldown(SPELL_MAGE_CONE_OF_COLD, true);
+                    l_Player->RemoveSpellCooldown(SPELL_MAGE_ICE_BLOCK, true);
+                    l_Player->RemoveSpellCooldown(SPELL_MAGE_FROST_NOVA, true);
+
+                    if (l_Player->GetSpecializationId() == SPEC_MAGE_FROST)
+                        l_Player->RemoveSpellCooldown(SPELL_MAGE_CONE_OF_COLD, true);
+                    if (l_Player->GetSpecializationId() == SPEC_MAGE_FIRE)
+                        l_Player->RemoveSpellCooldown(SPELL_MAGE_DRAGON_BREATH, true);
+                    if (l_Player->GetSpecializationId() == SPEC_MAGE_ARCANE)
+                        l_Player->RemoveSpellCooldown(SPELL_MAGE_PRESENCE_OF_MIND, true);
                 }
             }
 

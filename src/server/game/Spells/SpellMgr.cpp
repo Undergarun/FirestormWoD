@@ -5060,6 +5060,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 91021: ///< Find Weakness
                 spellInfo->Effects[0].BasePoints = 100;
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 118699: ///< Fear Effect
                 spellInfo->Dispel = DISPEL_MAGIC;

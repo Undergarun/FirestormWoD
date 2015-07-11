@@ -17130,9 +17130,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         // Hack Fix : Subterfuge aura can't be removed by any action
         if (spellInfo->Id == 115191)
         {
-            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131361) && !(procExtra & PROC_EX_ABSORB) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
+            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131361) && !(procExtra & PROC_EX_ABSORB) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && procSpell->Id != 146347)
                 CastSpell(this, 115192, true);
         }
+
+        /// Hack Fix for Subterfuge
+        if (spellInfo->Id == 115191 && procSpell->Id == 146347)
+            useCharges = false;
 
         // Hack Fix - Vanish :  If rogue has vanish aura stealth is not removed on periodic damage
         if ((spellInfo->Id == 115191 || spellInfo->Id == 1784) && HasAura(131361) && isVictim)
