@@ -2558,6 +2558,40 @@ class spell_pal_denounce : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Turn Evil - 145067
+class spell_pal_turn_evil : public SpellScriptLoader
+{
+    public:
+        spell_pal_turn_evil() : SpellScriptLoader("spell_pal_turn_evil") { }
+
+        class spell_pal_turn_evil_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_turn_evil_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                        return SPELL_FAILED_BAD_TARGETS;
+                    return SPELL_CAST_OK;
+                }
+                return SPELL_FAILED_NO_VALID_TARGETS;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pal_turn_evil_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_turn_evil_SpellScript();
+        }
+};
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -2586,6 +2620,7 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_turn_evil();
     new spell_pal_denounce();
     new spell_pal_enhanced_holy_shock();
     new spell_pal_light_of_dawn();
