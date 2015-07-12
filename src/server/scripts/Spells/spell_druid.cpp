@@ -1541,6 +1541,9 @@ class spell_dru_cat_form: public SpellScriptLoader
                         if (AuraPtr l_SavageRoarNew = l_Player->GetAura(eSpells::SPELL_DRU_SAVAGE_ROAR))
                             l_SavageRoarNew->SetDuration(l_SavageRoarDuration);
                     }
+
+                    /// Fix Berserk - amount of energy after reshift
+                    l_Player->UpdateMaxPower(POWER_ENERGY);
                 }
             }
 

@@ -724,6 +724,13 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (plr && plr->getClass() == CLASS_WARLOCK && plr->HasSpellCooldown(5484) && damage)
         plr->ReduceSpellCooldown(5484, 1000);
 
+    /// Custom WoD Script - Glyph of Frostbrand Weapon
+    if (plr && ToPlayer() && ToPlayer()->getClass() == CLASS_SHAMAN && ToPlayer()->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT)
+    {
+        if (cleanDamage->attackType == WeaponAttackType::OffAttack && ToPlayer()->HasAura(161654))
+            ToPlayer()->CastSpell(plr, 147732, true);
+    }
+
     // Custom MoP Script - Glyph of Fortuitous Spheres
     if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(146953))
     {
@@ -1571,7 +1578,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     /// Apply Versatility damage bonus done/taken
     if (GetSpellModOwner()) 
     {
-        if (GetSpellModOwner()->getClass() != CLASS_HUNTER) ///< Hunter is exception, to prevent double stack of versatility)
+        if (GetSpellModOwner())
             damage += CalculatePct(damage, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
         if (victim->GetSpellModOwner())
             damage -= CalculatePct(damage, victim->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
@@ -11733,6 +11740,19 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, PvPPower);
     }
 
+    /// 171752 - Glyph of Savagery
+    if (ToPlayer() && ToPlayer()->getClass() == CLASS_DRUID && ToPlayer()->GetSpecializationId() == SPEC_DRUID_FERAL)
+    {
+        if (HasAura(768) || HasAura(171745))
+        {
+            if (ToPlayer()->HasGlyph(171752))
+            {
+                SpellInfo const* l_GlyphOfSavagery = sSpellMgr->GetSpellInfo(155836);
+                DoneTotal += CalculatePct(pdamage, l_GlyphOfSavagery->Effects[EFFECT_0].BasePoints);
+            }
+        }
+    }
+
     // 76658 - Mastery : Essence of the Viper
     if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_SPELL) && HasAura(76658))
     {
@@ -12398,8 +12418,8 @@ bool Unit::IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolM
 float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
     //! Mobs can't crit with spells. Player Totems can
-    //! Fire Elemental (from totem) can too - but this part is a hack and needs more research
-    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508)
+    //! Fire Elemental (from totem) and Ebon Gargoyle can too - but this part is a hack and needs more research
+    if (IS_CRE_OR_VEH_GUID(GetGUID()) && !(isTotem() && IS_PLAYER_GUID(GetOwnerGUID())) && GetEntry() != 15438 && GetEntry() != 63508 && GetEntry() != 27829)
         return 0.0f;
 
     // not critting spell
@@ -13352,6 +13372,19 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     {
         float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE);
         AddPct(DoneTotalMod, PvPPower);
+    }
+
+    /// 171752 - Glyph of Savagery
+    if (ToPlayer() && ToPlayer()->getClass() == CLASS_DRUID && ToPlayer()->GetSpecializationId() == SPEC_DRUID_FERAL)
+    {
+        if (HasAura(768) || HasAura(171745))
+        {
+            if (ToPlayer()->HasGlyph(171752))
+            {
+                SpellInfo const* l_GlyphOfSavagery = sSpellMgr->GetSpellInfo(155836);
+                AddPct(DoneTotalMod, l_GlyphOfSavagery->Effects[EFFECT_0].BasePoints);
+            }
+        }
     }
 
     // Custom MoP Script

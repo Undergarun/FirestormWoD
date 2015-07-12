@@ -15517,6 +15517,18 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
                 RemoveAura(84601);
         }
     }
+    /// Single-Minded Fury - 81099
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        if (getClass() == CLASS_WARRIOR && ToPlayer()->GetSpecializationId() == SPEC_WARRIOR_FURY)
+        {
+            if (HasAura(81099))
+            {
+                RemoveAura(81099);
+                AddAura(81099, this);
+            }
+        }
+    }
 
     // close gossips
     PlayerTalkClass->ClearMenus();

@@ -529,13 +529,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_normalized_min = weapon_mindamage + attackPower / 3.5f * att_speed * dualWieldModifier;
     float weapon_normalized_max = weapon_maxdamage + attackPower / 3.5f * att_speed * dualWieldModifier;
 
-    /// Special damage calculate for Hunter spells that should deal normalized weapon damage
-    if (getClass() == CLASS_HUNTER && normalized)
-    {
-        weapon_normalized_min = weapon_mindamage + (attackPower / 3.5f * 2.8f);
-        weapon_normalized_max = weapon_maxdamage + (attackPower / 3.5f * 2.8f);
-    }
-
     if (IsInFeralForm())
     {
         float weaponSpeed = BASE_ATTACK_TIME / 1000.0f;
@@ -565,27 +558,51 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
-    /// Hack fix : Single-Minded Fury
-    if (addTotalPct && l_UsedWeapon)
+    /// Normalized Weapon Damage
+    if (normalized)
     {
-        if (getClass() == CLASS_WARRIOR && GetSpecializationId() == SPEC_WARRIOR_FURY)
+        CalculateNormalizedWeaponDamage(attType, min_damage, max_damage, attackPower, weapon_mindamage, weapon_maxdamage, l_UsedWeapon);
+        min_damage = (min_damage * base_pct + total_value) * total_pct;
+        max_damage = (max_damage * base_pct + total_value) * total_pct;
+    }
+    /// Damage based on auto-attack
+    else
+    {
+        min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
+        max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
+
+        uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
+        AddPct(min_damage, autoAttacksPctBonus);
+        AddPct(max_damage, autoAttacksPctBonus);
+    }
+}
+
+void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
+{
+    /// Monks and Druids have their own damage calculation, they don't have normalized weapon damage spells
+    if (getClass() == CLASS_MONK || getClass() == CLASS_DRUID)
+        return;
+
+    float l_NormalizedSpeedCoef = 1.0f;
+
+    /// Speed coefficients from http://wowwiki.wikia.com/Normalization - tested on official server, information is correct
+    if (l_UsedWeapon && l_UsedWeapon->GetTemplate())
+    {
+        if (l_UsedWeapon->GetTemplate()->IsOneHanded())
         {
-            /// Two-Handed weapon
-            /// We should remove Single-Minded Fury bonus, it should work just for one hand weapons
-            if (l_UsedWeapon->GetTemplate() && l_UsedWeapon->GetTemplate()->Sheath == 1)
-                total_pct = total_pct / 1.2f;
+            if (l_UsedWeapon->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                l_NormalizedSpeedCoef = 1.7f;
+            else
+                l_NormalizedSpeedCoef = 2.4f;
         }
+        else if (l_UsedWeapon->GetTemplate()->IsTwoHandedWeapon())
+            l_NormalizedSpeedCoef = 3.3f;
+        else if (l_UsedWeapon->GetTemplate()->IsRangedWeapon())
+            l_NormalizedSpeedCoef = 2.8f;
     }
 
-    /// Apply Versatility rating to damage calculation
-    base_pct += (ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)) / 100.0f;
-
-    min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
-    max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
-
-    uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
-    AddPct(min_damage, autoAttacksPctBonus);
-    AddPct(max_damage, autoAttacksPctBonus);
+    min_damage = weapon_mindamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
+    max_damage = weapon_maxdamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
 }
 
 void Player::UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields)

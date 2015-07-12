@@ -5463,6 +5463,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 5221:  ///< Shred
             case 22599: ///< Chromatic Mantle of the Dawn
             case 86273: ///< Illuminated Healing 
+            case 1752:  ///< Sinister Strike
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
             case 47753: ///< Divine Aegis

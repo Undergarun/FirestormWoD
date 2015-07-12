@@ -2590,6 +2590,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateAllRatings();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage, bool l_NoLongerDualWields = false);
+        void CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon);
 
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float OCTRegenMPPerSpirit();
