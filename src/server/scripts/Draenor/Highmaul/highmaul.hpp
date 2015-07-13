@@ -62,43 +62,46 @@ enum eHighmaulDatas
 enum eHighmaulCreatures
 {
     /// Walled City
-    GhargArenaMaster    = 84971,
-    GorianEnforcer      = 88724,
+    GhargArenaMaster        = 84971,
+    GorianEnforcer          = 88724,
     /// The Coliseum
-    KargathBladefist    = 78714,
-    JhornTheMad         = 83377,
-    ThoktarIronskull    = 83378,
-    Vulgor              = 80048,
-    BladespireSorcerer  = 80071,
-    CrowdAreatrigger    = 79260,
-    MargokCosmetic      = 83268,
-    IronBomberSpawner   = 79712,
-    IronBomber          = 78926,
-    DrunkenBileslinger  = 78954,
-    HighmaulSweeper     = 88874,
+    KargathBladefist        = 78714,
+    JhornTheMad             = 83377,
+    ThoktarIronskull        = 83378,
+    Vulgor                  = 80048,
+    BladespireSorcerer      = 80071,
+    CrowdAreatrigger        = 79260,
+    MargokCosmetic          = 83268,
+    IronBomberSpawner       = 79712,
+    IronBomber              = 78926,
+    DrunkenBileslinger      = 78954,
+    HighmaulSweeper         = 88874,
     /// The Underbelly
-    TheButcher          = 77404,
+    TheButcher              = 77404,
     /// Gorian Strands
-    IronGrunt           = 88118,
-    BlackrockGrunt      = 86610,
-    LowBatchDeadPale    = 86283,
-    NightTwistedPaleVis = 82694,
-    CosmeticGorianWarr  = 82690,
-    GorianCivilian      = 85371,
-    Brackenspore        = 78491,
-    BFC9000             = 81403,
+    IronGrunt               = 88118,
+    BlackrockGrunt          = 86610,
+    LowBatchDeadPale        = 86283,
+    NightTwistedPaleVis     = 82694,
+    CosmeticGorianWarr      = 82690,
+    GorianCivilian          = 85371,
+    Brackenspore            = 78491,
+    BFC9000                 = 81403,
     /// The Market
-    Tectus              = 78948,
-    Rokka               = 86071,
-    Oro                 = 86072,
-    Lokk                = 86073,
+    Tectus                  = 78948,
+    Rokka                   = 86071,
+    Oro                     = 86072,
+    Lokk                    = 86073,
     /// The Gorthenon
-    Phemos              = 78237,
-    Pol                 = 78238,
+    Phemos                  = 78237,
+    Pol                     = 78238,
     /// Chamber of Nullification
-    Koragh              = 79015,
-    RuneOfNullification = 79559,
-    VolatileAnomaly     = 79956
+    Koragh                  = 79015,
+    RuneOfNullification     = 79559,
+    VolatileAnomaly         = 79956,
+    /// Throne of the Imperator
+    ImperatorMargok         = 77428,
+    HighCouncilorMalgris    = 81811
 };
 
 enum eHighmaulGameobjects

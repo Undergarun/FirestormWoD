@@ -2708,11 +2708,19 @@ class npc_highmaul_gorian_royal_guardsman : public CreatureScript
                         {
                             if (l_Aura->GetStackAmount() >= 8)
                             {
-                                me->CastSpell(p_Target, eSpells::PulverizedStun, true);
+                                p_Target->CastSpell(p_Target, eSpells::PulverizedStun, true);
                                 p_Target->RemoveAura(p_SpellInfo->Id);
                             }
                         }
 
+                        break;
+                    }
+                    case eSpells::RampageSearcher:
+                    {
+                        me->CastSpell(me, eSpells::RampageAura, true);
+                        me->SetSpeed(UnitMoveType::MOVE_WALK, 2.0f);
+                        me->SetSpeed(UnitMoveType::MOVE_RUN, 2.0f);
+                        me->GetMotionMaster()->MovePoint(eSpells::RampageAura, *p_Target);
                         break;
                     }
                     default:
@@ -2720,8 +2728,369 @@ class npc_highmaul_gorian_royal_guardsman : public CreatureScript
                 }
             }
 
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_ID == eSpells::RampageAura)
+                {
+                    me->RemoveAura(eSpells::RampageAura);
+
+                    me->SetSpeed(UnitMoveType::MOVE_WALK, 1.0f);
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 1.0f);
+
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        me->GetMotionMaster()->MoveChase(l_Target);
+                }
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventRampage:
+                        me->CastSpell(me, eSpells::RampageSearcher, false);
+                        m_Events.ScheduleEvent(eEvent::EventRampage, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_gorian_royal_guardsmanAI(p_Creature);
+        }
+};
+
+/// Gorian High Sorcerer <King's Guard> - 86256
+class npc_highmaul_gorian_high_sorcerer : public CreatureScript
+{
+    public:
+        npc_highmaul_gorian_high_sorcerer() : CreatureScript("npc_highmaul_gorian_high_sorcerer") { }
+
+        enum eSpells
+        {
+            /// Arcane Blast
+            ArcaneBlast         = 174442,
+            /// Nether Font
+            NetherFontSearcher  = 174434,
+            NetherFontMissile   = 174435,
+            /// Celerity
+            Celerity            = 174440
+        };
+
+        enum eEvents
+        {
+            EventArcaneBlast = 1,
+            EventNetherFont,
+            EventCelerity
+        };
+
+        struct npc_highmaul_gorian_high_sorcererAI : public ScriptedAI
+        {
+            npc_highmaul_gorian_high_sorcererAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventArcaneBlast, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventNetherFont, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventCelerity, 15 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::NetherFontSearcher:
+                        me->CastSpell(p_Target, eSpells::NetherFontMissile, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventArcaneBlast:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::ArcaneBlast, false);
+                        m_Events.ScheduleEvent(eEvents::EventArcaneBlast, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventNetherFont:
+                        me->CastSpell(me, eSpells::NetherFontSearcher, false);
+                        m_Events.ScheduleEvent(eEvents::EventNetherFont, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventCelerity:
+                        if (Unit* l_Target = me->SelectNearbyAlly(me, 50.0f))
+                            me->CastSpell(l_Target, eSpells::Celerity, false);
+                        m_Events.ScheduleEvent(eEvents::EventCelerity, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_gorian_high_sorcererAI(p_Creature);
+        }
+};
+
+/// Ogron Mauler - 81779
+class npc_highmaul_ogron_mauler : public CreatureScript
+{
+    public:
+        npc_highmaul_ogron_mauler() : CreatureScript("npc_highmaul_ogron_mauler") { }
+
+        enum eSpell
+        {
+            DeafeningRoar = 174477
+        };
+
+        enum eEvent
+        {
+            EventDeafeningRoar = 1
+        };
+
+        struct npc_highmaul_ogron_maulerAI : public ScriptedAI
+        {
+            npc_highmaul_ogron_maulerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventDeafeningRoar, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventDeafeningRoar:
+                        me->CastSpell(me, eSpell::DeafeningRoar, false);
+                        m_Events.ScheduleEvent(eEvent::EventDeafeningRoar, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_ogron_maulerAI(p_Creature);
+        }
+};
+
+/// Guard Captain Thag <King's Guard> - 81780
+class npc_highmaul_guard_captain_thag : public CreatureScript
+{
+    public:
+        npc_highmaul_guard_captain_thag() : CreatureScript("npc_highmaul_guard_captain_thag") { }
+
+        enum eSpells
+        {
+            /// Brutal Cleave
+            BrutalCleave    = 174491,
+            /// Ground Stomp
+            GroundStomp     = 174495,
+            /// Rending Throw
+            RendingThrow    = 174500
+        };
+
+        enum eEvents
+        {
+            EventBrutalCleave = 1,
+            EventGroundStomp,
+            EventRendingThrow
+        };
+
+        enum eAction
+        {
+            ActionIntro
+        };
+
+        struct npc_highmaul_guard_captain_thagAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_guard_captain_thagAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_DoorGuid = 0;
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            EventMap m_Events;
+            uint64 m_DoorGuid;
+
+            InstanceScript* m_Instance;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (GameObject* l_Door = me->FindNearestGameObject(eHighmaulGameobjects::ThroneRoomDoor, 50.0f))
+                    {
+                        l_Door->SetGoState(GOState::GO_STATE_READY);
+                        m_DoorGuid = l_Door->GetGUID();
+                    }
+                });
+
+                /// Second equip is a shield
+                me->SetCanDualWield(false);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventBrutalCleave, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventGroundStomp, 7 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventRendingThrow, 10 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (GameObject* l_Door = GameObject::GetGameObject(*me, m_DoorGuid))
+                    l_Door->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                if (m_Instance != nullptr)
+                {
+                    Creature* l_CouncilorMalgris = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::HighCouncilorMalgris));
+                    Creature* l_ImperatorMargok = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::ImperatorMargok));
+
+                    if (l_CouncilorMalgris && l_ImperatorMargok && l_CouncilorMalgris->IsAIEnabled && l_ImperatorMargok->IsAIEnabled)
+                    {
+                        l_CouncilorMalgris->AI()->DoAction(eAction::ActionIntro);
+                        l_ImperatorMargok->AI()->DoAction(eAction::ActionIntro);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventBrutalCleave:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::BrutalCleave, false);
+                        m_Events.ScheduleEvent(eEvents::EventBrutalCleave, 7 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventGroundStomp:
+                        me->CastSpell(me, eSpells::GroundStomp, true);
+                        m_Events.ScheduleEvent(eEvents::EventGroundStomp, 6 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventRendingThrow:
+                        me->CastSpell(me, eSpells::RendingThrow, true);
+                        m_Events.ScheduleEvent(eEvents::EventRendingThrow, 6 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_guard_captain_thagAI(p_Creature);
+        }
+};
+
+/// Councilor Daglat <Gorian War Council> - 81810
+class npc_highmaul_councilor_daglat : public CreatureScript
+{
+    public:
+        npc_highmaul_councilor_daglat() : CreatureScript("npc_highmaul_councilor_daglat") { }
+
+        enum eSpells
+        {
+            KneelCosmeticForced = 130491
+        };
+
+        enum eEvents
+        {
+        };
+
+        struct npc_highmaul_councilor_daglatAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_councilor_daglatAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->CastSpell(me, eSpells::KneelCosmeticForced, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
                 if (!UpdateVictim())
                     return;
 
@@ -2742,7 +3111,309 @@ class npc_highmaul_gorian_royal_guardsman : public CreatureScript
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
-            return new npc_highmaul_gorian_royal_guardsmanAI(p_Creature);
+            return new npc_highmaul_councilor_daglatAI(p_Creature);
+        }
+};
+
+/// Councilor Magknor <Gorian War Council> - 81808
+class npc_highmaul_councilor_magknor : public CreatureScript
+{
+    public:
+        npc_highmaul_councilor_magknor() : CreatureScript("npc_highmaul_councilor_magknor") { }
+
+        enum eSpells
+        {
+            KneelCosmeticForced = 130491
+        };
+
+        enum eEvents
+        {
+        };
+
+        struct npc_highmaul_councilor_magknorAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_councilor_magknorAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->CastSpell(me, eSpells::KneelCosmeticForced, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_councilor_magknorAI(p_Creature);
+        }
+};
+
+/// Councilor Gorluk <Gorian War Council> - 81809
+class npc_highmaul_councilor_gorluk : public CreatureScript
+{
+    public:
+        npc_highmaul_councilor_gorluk() : CreatureScript("npc_highmaul_councilor_gorluk") { }
+
+        enum eSpells
+        {
+            KneelCosmeticForced = 130491
+        };
+
+        enum eEvents
+        {
+        };
+
+        struct npc_highmaul_councilor_gorlukAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_councilor_gorlukAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->CastSpell(me, eSpells::KneelCosmeticForced, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_councilor_gorlukAI(p_Creature);
+        }
+};
+
+/// Councilor Nouk <Gorian War Council> - 81807
+class npc_highmaul_councilor_nouk : public CreatureScript
+{
+    public:
+        npc_highmaul_councilor_nouk() : CreatureScript("npc_highmaul_councilor_nouk") { }
+
+        enum eSpells
+        {
+            KneelCosmeticForced = 130491
+        };
+
+        enum eEvents
+        {
+        };
+
+        struct npc_highmaul_councilor_noukAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_councilor_noukAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->CastSpell(me, eSpells::KneelCosmeticForced, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_councilor_noukAI(p_Creature);
+        }
+};
+
+/// High Councilor Mal'gris <Gorian War Council> - 81811
+class npc_highmaul_high_councilor_malgris : public CreatureScript
+{
+    public:
+        npc_highmaul_high_councilor_malgris() : CreatureScript("npc_highmaul_high_councilor_malgris") { }
+
+        enum eSpells
+        {
+            UnstableTempest     = 174981,
+            UnstableTempestAura = 174976
+        };
+
+        enum eEvent
+        {
+            EventUnstableTempest = 1
+        };
+
+        enum eTalks
+        {
+            Intro1,
+            Intro2
+        };
+
+        enum eActions
+        {
+            ActionIntro,
+            ActionFinishIntro
+        };
+
+        struct npc_highmaul_high_councilor_malgrisAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_high_councilor_malgrisAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            EventMap m_Events;
+
+            InstanceScript* m_Instance;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventUnstableTempest, 50);
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eActions::ActionIntro:
+                    {
+                        Talk(eTalks::Intro1);
+
+                        AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Talk(eTalks::Intro2);
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Margok = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::ImperatorMargok)))
+                {
+                    if (l_Margok->IsAIEnabled)
+                        l_Margok->AI()->DoAction(eActions::ActionFinishIntro);
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventUnstableTempest:
+                    {
+                        CustomSpellValues l_Values;
+                        if (AuraPtr l_Aura = me->GetAura(eSpells::UnstableTempestAura))
+                            l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, l_Aura->GetStackAmount());
+                        else
+                            l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, 1);
+
+                        me->CastCustomSpell(eSpells::UnstableTempest, l_Values, me, false);
+                        m_Events.ScheduleEvent(eEvent::EventUnstableTempest, 50);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_high_councilor_malgrisAI(p_Creature);
         }
 };
 
@@ -3406,6 +4077,39 @@ class spell_highmaul_decimate : public SpellScriptLoader
         }
 };
 
+/// Unstable Tempest - 174981
+class spell_highmaul_unstable_tempest : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_unstable_tempest() : SpellScriptLoader("spell_highmaul_unstable_tempest") { }
+
+        class spell_highmaul_unstable_tempest_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_unstable_tempest_SpellScript);
+
+            enum eSpell
+            {
+                UnstableTempestStack = 174976
+            };
+
+            void HandleOnCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpell::UnstableTempestStack, true);
+            }
+
+            void Register() override
+            {
+                OnCast += SpellCastFn(spell_highmaul_unstable_tempest_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_unstable_tempest_SpellScript();
+        }
+};
+
 /// Rune of Disintegration - 175648
 class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScript
 {
@@ -3515,6 +4219,14 @@ void AddSC_highmaul()
     new npc_highmaul_ogron_warbringer();
     new npc_highmaul_warden_thultok();
     new npc_highmaul_gorian_royal_guardsman();
+    new npc_highmaul_gorian_high_sorcerer();
+    new npc_highmaul_ogron_mauler();
+    new npc_highmaul_guard_captain_thag();
+    new npc_highmaul_councilor_daglat();
+    new npc_highmaul_councilor_magknor();
+    new npc_highmaul_councilor_gorluk();
+    new npc_highmaul_councilor_nouk();
+    new npc_highmaul_high_councilor_malgris();
 
     /// GameObjects
     new go_highmaul_arena_elevator();
@@ -3533,6 +4245,7 @@ void AddSC_highmaul()
     new spell_highmaul_earthdevastating_slam_dmg();
     new spell_highmaul_arcane_barrage();
     new spell_highmaul_decimate();
+    new spell_highmaul_unstable_tempest();
 
     /// AreaTriggers
     new areatrigger_highmaul_rune_of_disintegration();

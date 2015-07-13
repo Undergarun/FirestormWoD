@@ -1275,7 +1275,8 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
                 {
                     l_Boss->SetPower(Powers::POWER_ALTERNATE_POWER, 0);
 
-                    if (l_Boss->IsAIEnabled)
+                    AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                    if (l_Boss->IsAIEnabled && l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_DEATH)
                         l_Boss->AI()->DoAction(eAction::CancelBreakersStrength);
                 }
             }

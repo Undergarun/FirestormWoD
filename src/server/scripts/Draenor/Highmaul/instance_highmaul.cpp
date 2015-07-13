@@ -104,6 +104,10 @@ class instance_highmaul : public InstanceMapScript
             /// Chamber of Nullification
             uint64 m_KoraghGuid;
 
+            /// Throne of the Imperator
+            uint64 m_ImperatorMargokGuid;
+            uint64 m_HighCouncilorMalgris;
+
             /// Phasing
             std::map<uint32, uint32> m_PlayerPhases;
 
@@ -188,6 +192,12 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::RuneOfNullification:
                         p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
                         p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        break;
+                    case eHighmaulCreatures::ImperatorMargok:
+                        m_ImperatorMargokGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::HighCouncilorMalgris:
+                        m_HighCouncilorMalgris = p_Creature->GetGUID();
                         break;
                     default:
                         break;
@@ -402,6 +412,10 @@ class instance_highmaul : public InstanceMapScript
                         return m_PolGuid;
                     case eHighmaulCreatures::Koragh:
                         return m_KoraghGuid;
+                    case eHighmaulCreatures::ImperatorMargok:
+                        return m_ImperatorMargokGuid;
+                    case eHighmaulCreatures::HighCouncilorMalgris:
+                        return m_HighCouncilorMalgris;
                     default:
                         break;
                 }
