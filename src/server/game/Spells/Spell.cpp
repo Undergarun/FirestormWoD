@@ -6268,13 +6268,15 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_ONLY_BATTLEGROUNDS;
 
     // do not allow spells to be cast in arenas or rated battlegrounds
-    if (Player * player = m_caster->ToPlayer())
-        if (player->InArena() || player->InRatedBattleGround())
+    if (Player* l_Player = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+    {
+        if (l_Player->InArena() || l_Player->InRatedBattleGround())
         {
-            SpellCastResult castResult = CheckArenaAndRatedBattlegroundCastRules();
+            SpellCastResult castResult = CheckArenaAndRatedBattlegroundCastRules(l_Player->GetBattleground());
             if (castResult != SPELL_CAST_OK)
                 return castResult;
         }
+    }
 
     // zone check
     if (m_caster->GetTypeId() == TYPEID_UNIT || !m_caster->ToPlayer()->isGameMaster())
@@ -7163,11 +7165,10 @@ SpellCastResult Spell::CheckCasterAuras() const
     return SPELL_CAST_OK;
 }
 
-SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
+SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules(Battleground const* p_Battleground)
 {
-    Battleground* bg = m_caster->ToPlayer()->GetBattleground();
-    bool isRatedBG = bg ? bg->IsRatedBG() : false;
-    bool isArena = bg ? bg->isArena() : false;
+    bool isRatedBG = p_Battleground ? p_Battleground->IsRatedBG() : false;
+    bool isArena = p_Battleground ? p_Battleground->isArena() : false;
 
     // check USABLE attributes
     // USABLE takes precedence over NOT_USABLE
