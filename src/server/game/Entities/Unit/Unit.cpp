@@ -16893,7 +16893,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
         {
             // ...the chance to activate up to two extra times (depending if PvE or PvP) at X% of normal effectiveness
-            uint8 l_ProcTimes = (target->GetTypeId() == TYPEID_PLAYER) ? 1 : 2;
+            uint8 l_ProcTimes = (target->GetSpellModOwner() != nullptr) ? 1 : 2;
             for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
             {
                 if (roll_chance_f(GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
