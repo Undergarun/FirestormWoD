@@ -1260,9 +1260,9 @@ class spell_pri_power_word_shield: public SpellScriptLoader
                     if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
                     {
                         if (m_DmgByAttackerList.find(l_Attacker->GetGUID()) != m_DmgByAttackerList.end())
-                            m_DmgByAttackerList.find(l_Attacker->GetGUID())->second += p_DmgInfo.GetDamage();
+                            m_DmgByAttackerList.find(l_Attacker->GetGUID())->second += p_AbsorbAmount;
                         else
-                            m_DmgByAttackerList[l_Attacker->GetGUID()] = p_DmgInfo.GetDamage();
+                            m_DmgByAttackerList[l_Attacker->GetGUID()] = p_AbsorbAmount;
                     }
                 }
             }
