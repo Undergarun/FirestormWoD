@@ -26295,7 +26295,8 @@ void Player::UpdatePotionCooldown(Spell* spell)
                 if (proto->Spells[idx].SpellId && proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
                     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
                     {
-                        SendCooldownEvent(spellInfo, m_lastPotionId);
+                        if (!HasSpellCooldown(spellInfo->Id))
+                            SendCooldownEvent(spellInfo, m_lastPotionId);
                         found = true;
                     }
             // if not - used by Spinal Healing Injector
