@@ -6365,6 +6365,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 33619: ///< Glyph of Reflective Shield damage
                 spellInfo->AttributesEx3 |= SpellAttr3::SPELL_ATTR3_NO_DONE_BONUS;
                 break;
+            case 159456: ///< Glyph of Travel
+                spellInfo->Stances = 0;
+                break;
             default:
                 break;
         }

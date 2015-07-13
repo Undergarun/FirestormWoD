@@ -3412,6 +3412,50 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
         }
 };
 
+/// 159456 - Glyph of Travel
+/// Called by Travel Form - 165961
+class spell_dru_glyph_of_travel: public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_travel() : SpellScriptLoader("spell_dru_glyph_of_travel") { }
+
+        class spell_dru_glyph_of_travel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_travel_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfTravel = 159456
+            };
+
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (AuraEffectPtr l_GlyphOfTravel = l_Caster->GetAuraEffect(eSpells::GlyphOfTravel, EFFECT_0))
+                    if (!l_Caster->isInCombat() && !l_Player->InBattleground() && !l_Player->InArena())
+                        amount += l_GlyphOfTravel->GetAmount();
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_glyph_of_travel_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_SPEED_ALWAYS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_glyph_of_travel_AuraScript();
+        }
+};
+
+
 enum SpellsRake
 {
     SPELL_DRU_RAKE_STUNT = 163505,
@@ -4596,6 +4640,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_travel_form_playerscript();
     new spell_dru_swift_flight_passive();
     new spell_dru_glyph_of_the_stag();
+    new spell_dru_glyph_of_travel();
     new spell_dru_rake();
     new spell_dru_rake_triggered();
     new spell_dru_shred();
