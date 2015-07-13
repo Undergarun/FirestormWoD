@@ -6361,6 +6361,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 84721: ///< Frozen Orb damage
                 spellInfo->AttributesEx2 |= SpellAttr2::SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
+            case 33619: ///< Glyph of Reflective Shield damage
+                spellInfo->AttributesEx3 |= SpellAttr3::SPELL_ATTR3_NO_DONE_BONUS;
+                break;
             default:
                 break;
         }
