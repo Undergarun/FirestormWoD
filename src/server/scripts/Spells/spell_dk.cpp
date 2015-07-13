@@ -1254,7 +1254,8 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
 
-            uint32 m_AbsorbPct, m_HpPct, m_AmountAbsorb, m_Absorbed = 0;
+            int32 m_AbsorbPct, m_HpPct, m_AmountAbsorb = 0;
+            uint32 m_Absorbed = 0;
 
             bool Load()
             {
@@ -1485,14 +1486,6 @@ class spell_dk_blood_boil: public SpellScriptLoader
 
                 if (l_Player == nullptr)
                     return SPELL_FAILED_SUCCESS;
-
-                Unit* l_Target = l_Player->GetSelectedUnit();
-
-                if (l_Target != nullptr && !l_Player->IsValidAttackTarget(l_Target))
-                    return SPELL_FAILED_NO_VALID_TARGETS;
-
-                if (l_Target != nullptr && l_Player->GetDistance(l_Target) > GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusHostile)
-                    return SPELL_FAILED_OUT_OF_RANGE;
 
                 return SPELL_CAST_OK;
             }

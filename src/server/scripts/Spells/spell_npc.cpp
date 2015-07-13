@@ -14,6 +14,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "Vehicle.h"
+#include "VMapFactory.h"
 
 /// Prismatic Crystal - 76933
 class spell_npc_mage_prismatic_crystal : public CreatureScript
@@ -103,123 +104,166 @@ class npc_frozen_orb : public CreatureScript
     public:
         npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
 
+        enum Constants
+        {
+            CheckDist     = 5,                   ///< Every AI update, the orb will try to travel this distance
+            DamageDelay   = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
+            HeightMaxStep = 3,                   ///< Maximum step height the orb can go before stopping (this value goes along with CheckDist)
+            HoverHeight   = 0                    ///< "Display" height modification (some modelid are centered at the origin)
+        };
+
+        enum Spells
+        {
+            FingersOfFrost       = 126084,
+            FingersOfFrostVisual = 44544,
+            FrozenOrbVisual      = 123605,
+            SelfSnare90Pct       = 82736,
+            TargetSnareAndDamage = 84721
+        };
+
         struct npc_frozen_orbAI : public ScriptedAI
         {
+            uint32 m_DamageTimer;
+            bool m_KeepMoving;
+
             npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
             {
-                frozenOrbTimer = 0;
-                frozenOrbTimer2 = 0;
+                m_DamageTimer = Constants::DamageDelay; ///< As we want the damage to proc on summon
+                m_KeepMoving = true;
             }
-
-            enum frozenOrbSpells
-            {
-                FingersOfFrostVisual = 44544,
-                SelfSnare90Pct       = 82736,
-                TargetSnareAndDamage = 84721,
-                FingersOfFrost       = 126084,
-                FrozenOrbVisual      = 123605
-            };
-
-            uint32 frozenOrbTimer;
-            uint32 frozenOrbTimer2;
-            float m_DestX;
-            float m_DestY;
 
             void EnterEvadeMode() override
             {
-                if (!_EnterEvadeMode())
-                    return;
-
-                Reset();
-
-                if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
-                    me->GetVehicleKit()->Reset(true);
-
-                me->SetLastDamagedTime(0);
+                ///< No evade mode for orbs
             }
 
-            void IsSummonedBy(Unit* p_Owner) override
+            void Reset() override
             {
-                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
-                {
-                    //me->RemoveAllAuras();
-                    me->CastSpell(me, FrozenOrbVisual, true);
-                    me->CastSpell(me, SelfSnare90Pct, true);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->AddAura(Spells::FrozenOrbVisual, me);
+                me->SetCanFly(true);
 
-                    p_Owner->CastSpell(p_Owner, FingersOfFrostVisual, true);
-                    p_Owner->CastSpell(p_Owner, FingersOfFrost, true);
+                /// Adjust orb height
+                Position l_Pos = *me;
+                l_Pos.m_positionZ = me->GetMap()->GetHeight(l_Pos.m_positionX, l_Pos.m_positionY, MAX_HEIGHT) + Constants::HoverHeight;
+                me->SetPosition(l_Pos);
 
-                    frozenOrbTimer = 1000;
-                    frozenOrbTimer2 = 500;
-
-                    float rotation = p_Owner->GetOrientation();
-
-                    float l_LastZ = p_Owner->GetPositionZ();
-                    float l_MaxDist = 0.f;
-                    for (float l_I = 1; l_I <= 35; l_I += 0.25f)
-                    {
-                        float x = p_Owner->GetPositionX() + (l_I * cos(rotation));
-                        float y = p_Owner->GetPositionY() + (l_I * sin(rotation));
-
-                        float l_Z = p_Owner->GetMap()->GetHeight(x, y, MAX_HEIGHT);
-
-                        me->SetPosition(x, y, l_Z, 0);
-
-                        if (abs(l_Z - l_LastZ) < 0.25f && p_Owner->IsWithinLOSInMap(me))
-                        {
-                            l_LastZ = l_Z;
-                            l_MaxDist = l_I;
-                        }
-                        else
-                            break;
-                    }
-
-                    m_DestX = p_Owner->GetPositionX() + (l_MaxDist * cos(rotation));
-                    m_DestY = p_Owner->GetPositionY() + (l_MaxDist * sin(rotation));
-
-                    me->SetPosition(p_Owner->GetPositionX(), p_Owner->GetPositionY(), p_Owner->GetPositionZ(), rotation);
-
-                    me->SetSpeed(MOVE_RUN, 1, true);
-                    me->SetWalk(false);
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), m_DestX, m_DestY, me->GetMap()->GetHeight(m_DestX, m_DestY, MAX_HEIGHT) + 0.5);
-
-                    me->getHostileRefManager().setOnlineOfflineState(false);
-                }
-                else
-                    me->DespawnOrUnsummon();
+                /// Give it a movement
+                UpdateMovement();
             }
 
             void UpdateAI(const uint32 p_Diff) override
             {
-                Unit* l_Owner = me->GetOwner();
+                m_DamageTimer += p_Diff;
+                if (m_DamageTimer > Constants::DamageDelay)
+                {
+                    /// Frozen Orb slows down when it damages an enemy
+                    if (!me->HasAura(Spells::SelfSnare90Pct))
+                    {
+                        const float l_MaxRadius = 10.f; ///< Spell radius
 
-                if (!l_Owner)
+                        /// Find all the enemies in range
+                        std::list<Unit*> l_Targets;
+
+                        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(me, me, l_MaxRadius);
+                        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(me, l_Targets, l_Check);
+                        me->VisitNearbyObject(l_MaxRadius, l_Searcher);
+
+                        for (Unit* l_Target : l_Targets)
+                        {
+                            if (l_Target->isAlive() && me->GetExactDistSq(l_Target) < l_MaxRadius * l_MaxRadius && me->IsWithinLOSInMap(l_Target) && me->IsValidAttackTarget(l_Target))
+                            {
+                                me->AddAura(Spells::SelfSnare90Pct, me);
+
+                                /// Frozen Orb gives one stack of FoF on first hit
+                                if (Unit* l_Owner = me->GetOwner())
+                                {
+                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
+                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    Unit* l_DamageCaster = me;
+                    if (Unit* l_Owner = me->GetOwner())
+                        l_DamageCaster = l_Owner;
+
+                    l_DamageCaster->CastSpell(me, TargetSnareAndDamage, true);
+
+                    m_DamageTimer -= Constants::DamageDelay;
+                }
+
+                /// Keep updating movement
+                UpdateMovement();
+            }
+
+            void UpdateMovement()
+            {
+                if (!m_KeepMoving)
                     return;
 
-                if (frozenOrbTimer <= p_Diff)
+                const float l_CheckDist = float(Constants::CheckDist);
+                const float l_MaxStep = float(Constants::HeightMaxStep);
+
+                float l_Rotation = me->GetOrientation();
+                float l_RotCos = std::cos(l_Rotation);
+                float l_RotSin = std::sin(l_Rotation);
+
+                Position l_Origin = *me;
+                Position l_Dest(l_Origin);
+                l_Dest.m_positionX += l_CheckDist * l_RotCos;
+                l_Dest.m_positionY += l_CheckDist * l_RotSin;
+
+                float l_DestHeight = me->GetMap()->GetHeight(l_Dest.m_positionX, l_Dest.m_positionY, MAX_HEIGHT);
+                float l_Diff = l_DestHeight - (l_Origin.m_positionZ - Constants::HoverHeight) + 1.f; ///< +1 because reasons (I have no idea why this is required, but it is)
+
+                if (std::abs(l_Diff) - std::abs(l_MaxStep) > 0.f)
                 {
-                    if (l_Owner->ToPlayer()->HasSpellCooldown(TargetSnareAndDamage))
-                        l_Owner->ToPlayer()->RemoveSpellCooldown(TargetSnareAndDamage);
+                    float l_Step = l_CheckDist / 10.f;
 
-                    l_Owner->CastSpell(me, TargetSnareAndDamage, true);
+                    for (uint32 l_I = 0; l_I < 10; ++l_I)
+                    {
+                        l_Dest.m_positionX -= l_Step * l_RotCos;
+                        l_Dest.m_positionY -= l_Step * l_RotSin;
 
-                    frozenOrbTimer = 1000;
+                        l_DestHeight = me->GetMap()->GetHeight(l_Dest.m_positionX, l_Dest.m_positionY, MAX_HEIGHT);
+                        l_Diff = l_DestHeight - (l_Origin.m_positionZ - Constants::HoverHeight) + 1.f;
+                        if (std::abs(l_Diff) - std::abs(l_MaxStep) < 0.f)
+                            break;
+                    }
+
+                    m_KeepMoving = false;
                 }
-                else
-                    frozenOrbTimer -= p_Diff;
 
-                if (frozenOrbTimer2 <= p_Diff)
-                {
-                    //me->SetSpeed(MOVE_RUN, 1, true);
-                    //me->SetWalk(false);
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), m_DestX, m_DestY, me->GetMap()->GetHeight(me->m_positionX, me->m_positionY, MAX_HEIGHT) + 0.5);
+                l_Dest.m_positionZ = l_DestHeight + Constants::HoverHeight;
 
-                    frozenOrbTimer2 = 500;
-                }
+                /// Let's cast some rays to see if there's an obstacle in front of us
+                Position l_StaticHit;
+                VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(me->GetMapId(),
+                    l_Origin.m_positionX, l_Origin.m_positionY, l_Origin.m_positionZ,
+                    l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ,
+                    l_StaticHit.m_positionX, l_StaticHit.m_positionY, l_StaticHit.m_positionZ, 0.f);
+
+                Position l_DynamicHit;
+                me->GetMap()->getObjectHitPos(me->GetPhaseMask(),
+                    l_Origin.m_positionX, l_Origin.m_positionY, l_Origin.m_positionZ,
+                    l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ,
+                    l_DynamicHit.m_positionX, l_DynamicHit.m_positionY, l_DynamicHit.m_positionZ, 0.f);
+
+                /// Get the closer hit pos (for obvious reasons)
+                Position l_FinalPos;
+                if (l_Origin.GetExactDistSq(&l_StaticHit) < l_Origin.GetExactDistSq(&l_DynamicHit))
+                    l_FinalPos = l_StaticHit;
                 else
-                    frozenOrbTimer2 -= p_Diff;
+                    l_FinalPos = l_DynamicHit;
+
+                me->GetMotionMaster()->MovePoint(0, l_FinalPos);
+
+                /// If we hit something, stop moving
+                if (l_Dest.GetExactDistSq(&l_FinalPos) > 0.1f)
+                    m_KeepMoving = false;
             }
         };
 

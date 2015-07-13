@@ -1,0 +1,1 @@
+UPDATE creature_template SET modelid1 = 11686, ScriptName = "npc_frozen_orb", unit_flags = 33554507, unit_flags2 = 32768, speed_walk = 10 WHERE entry = 45322;

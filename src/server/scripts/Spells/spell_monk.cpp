@@ -629,7 +629,7 @@ class spell_monk_chi_brew: public SpellScriptLoader
                         l_Player->CastSpell(l_Player, SPELL_MONK_MANA_TEA_STACKS, true);
                     break;
                 case SPEC_MONK_WINDWALKER:
-                    for (uint8 i = 0; i < l_BonusAmount->Effects[EFFECT_1].BasePoints; ++i)
+                    for (uint8 i = 0; i < l_BonusAmount->Effects[EFFECT_0].BasePoints; ++i)
                         l_Player->CastSpell(l_Player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
 
                     if (l_Mastery)
@@ -916,7 +916,7 @@ class spell_monk_dampen_harm: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_dampen_harm_AuraScript);
 
-            uint32 healthPct;
+            int32 healthPct;
 
             bool Load()
             {
@@ -4840,7 +4840,9 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 {
                     uint32 l_Duration = (l_Chi * 2 + 2) * IN_MILLISECONDS;
 
-                    if (AuraPtr l_Aura = l_Caster->AddAura(SPELL_MONK_SHUFFLE, l_Caster))
+                    if (AuraPtr l_PreviousAura = l_Caster->GetAura(SPELL_MONK_SHUFFLE))
+                        l_PreviousAura->SetDuration(l_PreviousAura->GetDuration() + l_Duration);
+                    else if (AuraPtr l_Aura = l_Caster->AddAura(SPELL_MONK_SHUFFLE, l_Caster))
                         l_Aura->SetDuration(l_Duration);
                 }
 
@@ -4921,10 +4923,14 @@ class spell_monk_detonate_chi : public SpellScriptLoader
 
             void HandleCast()
             {
+                uint32 l_AllMonkHealingSphereSpells[] = { 157682, 157683, 157684, 157685, 157686, 157687, 157688, 157689, eSpells::HealingSphereAreaTrigger};
+
                 Unit* l_Caster = GetCaster();
 
                 std::list<AreaTrigger*> l_HealingSphereList;
-                l_Caster->GetAreaTriggerList(l_HealingSphereList, eSpells::HealingSphereAreaTrigger);
+
+                for (int l_I = 0; l_I < sizeof(l_AllMonkHealingSphereSpells) / sizeof(int); l_I++)
+                    l_Caster->GetAreaTriggerList(l_HealingSphereList, l_AllMonkHealingSphereSpells[l_I]);
 
                 if (!l_HealingSphereList.empty())
                 {

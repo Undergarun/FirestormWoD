@@ -154,9 +154,15 @@ class boss_rukhmar : public CreatureScript
                 if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
                 {
                     if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
-                        l_Damage->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
+                    {
+                        if ((SpiresOfArakDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
+                            l_Damage->ChangeAmount(SpiresOfArakDatas::DamageScalingCoeff * l_Count);
+                    }
                     if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    {
+                        if ((SpiresOfArakDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
                         l_Health->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
+                    }
                 }
             }
 
@@ -325,9 +331,15 @@ class npc_energized_phoenix : public CreatureScript
                 if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
                 {
                     if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
-                        l_Damage->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
+                    {
+                        if ((SpiresOfArakDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
+                            l_Damage->ChangeAmount(SpiresOfArakDatas::DamageScalingCoeff * l_Count);
+                    }
                     if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
-                        l_Health->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
+                    {
+                        if ((SpiresOfArakDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
+                            l_Health->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
+                    }
                 }
             }
 

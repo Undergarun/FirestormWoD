@@ -142,10 +142,11 @@ namespace JadeCore
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject* src, WorldPacket* msg, float dist, bool own_team_only = false, Player const* skipped = NULL)
+        GuidUnorderedSet m_IgnoredGUIDs;
+        MessageDistDeliverer(WorldObject* src, WorldPacket* msg, float dist, bool own_team_only = false, Player const* skipped = NULL, GuidUnorderedSet p_IgnoredSet = GuidUnorderedSet())
             : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
             , team((own_team_only && src->GetTypeId() == TYPEID_PLAYER) ? ((Player*)src)->GetTeam() : 0)
-            , skipped_receiver(skipped)
+            , skipped_receiver(skipped), m_IgnoredGUIDs(p_IgnoredSet)
         {
         }
         void Visit(PlayerMapType &m);
@@ -157,6 +158,10 @@ namespace JadeCore
         {
             // never send packet to self
             if (player == i_source || (team && player->GetTeam() != team) || skipped_receiver == player)
+                return;
+
+            /// Don't send the packet to ignored players
+            if (m_IgnoredGUIDs.find(player->GetGUID()) != m_IgnoredGUIDs.end())
                 return;
 
             if (!player->HaveAtClient(i_source))

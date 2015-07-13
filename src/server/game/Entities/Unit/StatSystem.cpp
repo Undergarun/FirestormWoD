@@ -915,7 +915,7 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    l_AurEff->ChangeAmount(l_AurEff->CalculateAmount(this), true, true);
+                    l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
                 }
             }
         }
@@ -1118,6 +1118,7 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     uint32 cooldown = 0;
+    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     for (uint32 i = 0; i < MAX_RUNES; ++i)
         if (GetBaseRune(i) == rune)
@@ -1130,6 +1131,7 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
+    regen *= HastePct;
     SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(rune), regen);
 }
 
@@ -1137,6 +1139,8 @@ void Player::UpdateAllRunesRegen()
 {
     if (getClass() != Classes::CLASS_DEATH_KNIGHT)
         return;
+
+    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
@@ -1147,6 +1151,7 @@ void Player::UpdateAllRunesRegen()
             if (regen < 0.0099999998f)
                 regen = 0.01f;
 
+            regen *= HastePct;
             SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, regen);
         }
     }
@@ -1654,9 +1659,23 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     if (p_AttType > WeaponAttackType::BaseAttack)
         return;
 
-    UnitMods l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
+    UnitMods l_UnitMod;
 
-    /// For hunter pets damage calculation we don't need take their attack speed time, it's always 2.0f 
+    switch (p_AttType)
+    {
+        case WeaponAttackType::BaseAttack:
+        default:
+            l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
+            break;
+        case WeaponAttackType::OffAttack:
+            l_UnitMod = UNIT_MOD_DAMAGE_OFFHAND;
+            break;
+        case WeaponAttackType::RangedAttack:
+            l_UnitMod = UNIT_MOD_DAMAGE_RANGED;
+            break;
+    }
+
+    /// For hunter pets damage calculation we don't need take their attack speed time, it's always 2.0f
     float l_AttackSpeed = isHunterPet() ? 2.0f : float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 
@@ -1681,12 +1700,20 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     float l_MinDamage = ((l_BaseValue + l_WeaponMinDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
     float l_MaxDamage = ((l_BaseValue + l_WeaponMaxDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
 
-    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, l_MinDamage);
-    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, l_MaxDamage);
-
-    SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
-    SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
-
-    SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MinDamage / 2);
-    SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MaxDamage / 2);
+    switch (p_AttType)
+    {
+        case WeaponAttackType::BaseAttack:
+        default:
+            SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
+            break;
+        case WeaponAttackType::OffAttack:
+            SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MinDamage / 2);
+            SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, l_MaxDamage / 2);
+            break;
+        case WeaponAttackType::RangedAttack:
+            SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, l_MinDamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, l_MaxDamage);
+            break;
+    }
 }

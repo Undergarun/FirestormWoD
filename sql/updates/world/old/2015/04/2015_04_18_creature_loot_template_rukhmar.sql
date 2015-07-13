@@ -2,21 +2,20 @@ SET @REF_RUKHMAR = 83746;
 
 DELETE FROM `reference_loot_template` WHERE entry = @REF_RUKHMAR;
 INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_RUKHMAR, 115433, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 115434, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 115435, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 115436, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 115437, 100, 1, 1, 1, 1),
+(@REF_RUKHMAR, 115436, 56, 1, 1, 1, 1),
+(@REF_RUKHMAR, 120114, 53, 1, 1, 1, 1),
+(@REF_RUKHMAR, 115434, 51, 1, 1, 1, 1),
 (@REF_RUKHMAR, 115438, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 115439, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 115440, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 115441, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 116771, 0.01, 1, 1, 1, 1),
-(@REF_RUKHMAR, 120111, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 120112, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 120113, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 120114, 100, 1, 1, 1, 1),
-(@REF_RUKHMAR, 122293, 100, 1, 1, 1, 1);
+(@REF_RUKHMAR, 115437, 20, 1, 1, 1, 1),
+(@REF_RUKHMAR, 120112, 20, 1, 1, 1, 1),
+(@REF_RUKHMAR, 115441, 44, 1, 1, 1, 1),
+(@REF_RUKHMAR, 115435, 36, 1, 1, 1, 1),
+(@REF_RUKHMAR, 120111, 32, 1, 1, 1, 1),
+(@REF_RUKHMAR, 115439, 30, 1, 1, 1, 1),
+(@REF_RUKHMAR, 115433, 35, 1, 1, 1, 1),
+(@REF_RUKHMAR, 115440, 29, 1, 1, 1, 1),
+(@REF_RUKHMAR, 116771, 5, 1, 1, 1, 1),
+(@REF_RUKHMAR, 120113, 27, 1, 1, 1, 1);
 
 UPDATE `creature_template` SET `lootid`= @REF_RUKHMAR WHERE `entry`= @REF_RUKHMAR;
 

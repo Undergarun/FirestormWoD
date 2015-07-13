@@ -37,6 +37,7 @@ enum MageSpells
     HUNTER_SPELL_INSANITY                        = 95809,
     SPELL_SHAMAN_SATED                           = 57724,
     SPELL_SHAMAN_EXHAUSTED                       = 57723,
+    HUNTER_SPELL_FATIGUED                        = 160455,
     SPELL_MAGE_CONJURE_REFRESHMENT_R1            = 92739,
     SPELL_MAGE_CONJURE_REFRESHMENT_R2            = 92799,
     SPELL_MAGE_CONJURE_REFRESHMENT_R3            = 92802,
@@ -659,8 +660,8 @@ class spell_mage_cauterize: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_cauterize_AuraScript);
 
-            uint32 absorbChance;
-            uint32 healtPct;
+            int32 absorbChance;
+            int32 healtPct;
 
             bool Load()
             {
@@ -786,7 +787,7 @@ class spell_mage_arcane_barrage: public SpellScriptLoader
                                 l_Target->CastCustomSpell(itr, SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED, &l_Basepoints, NULL, NULL, true, 0, NULLAURA_EFFECT, l_Player->GetGUID());
 
                             if (AuraPtr l_ArcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE, l_Player->GetGUID()))
-                                l_ArcaneCharge->ModStackAmount(-l_ArcaneCharge->GetCharges());
+                                l_ArcaneCharge->ModStackAmount(-(l_ArcaneCharge->CalcMaxCharges() + 1));
                         }
                     }
                 }
@@ -1465,6 +1466,7 @@ class spell_mage_time_warp: public SpellScriptLoader
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_FATIGUED));
             }
 
             void ApplyDebuff()

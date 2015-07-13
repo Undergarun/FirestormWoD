@@ -2223,6 +2223,8 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                             {
                                 int32 l_Duration = l_ModSpell->GetDuration();
                                 AddPct(l_Duration, l_RevealingStrike->GetAmount());
+                                if (l_Duration >= 6 * IN_MILLISECONDS && l_Target->GetTypeId() == TYPEID_PLAYER) ///< Can't be more than 6s on pvp
+                                    l_Duration = 6 * IN_MILLISECONDS;
                                 l_ModSpell->SetDuration(l_Duration);
                             }
                             break;

@@ -113,7 +113,7 @@ namespace MS { namespace Garrison
             /// Complete a mission
             void CompleteMission(uint32 p_MissionRecID);
             /// Do mission bonus roll
-            void DoMissionBonusRoll(uint32 p_MissionRecID);
+            void DoMissionBonusRoll(uint64 p_MissionTableGUID, uint32 p_MissionRecID);
             /// Set mission has complete
             void SetAllInProgressMissionAsComplete();
             /// Get followers on a mission

@@ -128,10 +128,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         case SPELLFAMILY_WARRIOR:
         {
             // Shockwave -- 132168
-            if (spellproto->SpellFamilyFlags[1] & 0x8000 && spellproto->Id != 46968)
+            if (spellproto->Id == 132168)
                 return DIMINISHING_STUN;
             // Storm Bolt -- 132169
-            if (spellproto->SpellFamilyFlags[2] & 0x1000 && spellproto->Id != 107570 && spellproto->Id != 145585)
+            if (spellproto->Id == 132169)
                 return DIMINISHING_STUN;
 
             // Intimidating Shout -- 5246
@@ -156,7 +156,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
                 return DIMINISHING_INCAPACITATE;
 
             // Fear -- 118699
-            if (spellproto->SpellFamilyFlags[1] & 0x400 && spellproto->Id != 5782)
+            if (spellproto->Id == 118699)
                 return DIMINISHING_DISORIENT;
             // Howl of Terror -- 5484
             if (spellproto->SpellFamilyFlags[1] & 0x8)
@@ -483,7 +483,7 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             if (spellproto->Id == 5484)
                 return 6 * IN_MILLISECONDS;
             /// Fear - 6 seconds in PvP (6.0)
-            if (spellproto->Id == 5782)
+            if (spellproto->Id == 118699)
                 return 6 * IN_MILLISECONDS;
             break;
         }
@@ -4323,11 +4323,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163140:///< Mind Fungus
             case 163590:///< Creeping Moss (damage)
             case 165494:///< Creeping Moss (healing)
-            case 162370:///< Crystalline Barrage (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
+            case 162370:///< Crystalline Barrage (DoT)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                break;
+            case 163312: ///< Raving Assault
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT;
                 break;
             case 154996: ///< Engulfing Fire (searcher)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -4600,10 +4609,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO | SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
-            case 57723: ///< Exhaustion
-            case 57724: ///< Sated
-            case 80354: ///< Temporal Displacement
-            case 95809: ///< Insanity
+            case 57723:  ///< Exhaustion
+            case 57724:  ///< Sated
+            case 80354:  ///< Temporal Displacement
+            case 95809:  ///< Insanity
+            case 160455: ///< Fatigued
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
                 break;
             case 105770: ///< Item - Druid T13 Restoration 4P Bonus (Rejuvenation)
@@ -5089,7 +5099,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 33110: ///< Prayer of Mending
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 119611: ///< Renewing Mist 
                 spellInfo->Effects[0].BonusMultiplier = 0.109984f;
@@ -5587,14 +5596,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 126895: ///< Zen Pilgrimage : Return
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 break;
-            case 101546: ///< Spinning Crane Kick
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
-                break;
             case 125084: ///< Charging Ox Wave
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); ///< radius 30
-                break;
-            case 107270: ///< Spinning Crane Kick - Radius
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
                 break;
             case 107223: ///< Sunfire Rays
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
@@ -6355,6 +6358,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159740: ///< Glyph of Raging Blow
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TriggerSpell = 159747;
                 break;
+            case 84721: ///< Frozen Orb damage
+                spellInfo->AttributesEx2 |= SpellAttr2::SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
             default:
                 break;
         }
@@ -6418,6 +6424,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 120644: ///< Halo (damage)
                 case 120517: ///< Halo (heal)
                 case 61882: ///< Earthquake
                 case 152280:///< Defile

@@ -2128,6 +2128,8 @@ class npc_new_lightwell : public CreatureScript
 
                 if (AuraPtr charges = me->GetAura(59907))
                 {
+                    charges->SetCharges(15);
+                    charges->GetEffect(0)->ChangeAmount(15);
                     if (Unit* owner = me->GetOwner())
                     {
                         // Glyph of Deep Wells
@@ -2209,6 +2211,8 @@ class npc_lightwell : public CreatureScript
 
                 if (AuraPtr charges = me->GetAura(59907))
                 {
+                    charges->SetCharges(15);
+                    charges->GetEffect(0)->ChangeAmount(15);
                     if (Unit* owner = me->GetOwner())
                     {
                         // Glyph of Deep Wells
@@ -4922,6 +4926,58 @@ class npc_xuen_the_white_tiger : public CreatureScript
         }
 };
 
+class npc_doomguard : public CreatureScript
+{
+    public:
+        npc_doomguard() : CreatureScript("npc_doomguard") { }
+
+        enum eSpells
+        {
+            SPELL_DOOMBOLT = 85692
+        };
+
+        struct npc_doomguardAI : CreatureAI
+        {
+            npc_doomguardAI(Creature* creature) :
+                CreatureAI(creature)
+            {
+            }
+
+            void UpdateAI(const uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+                
+                Unit* l_Victim = me->getVictim();
+                if (l_Victim->HasCrowdControlAura(me))
+                {
+                    me->InterruptNonMeleeSpells(false);
+                    return;
+                }
+
+                Position l_Pos = *l_Victim;
+                float l_DistSq = me->GetExactDistSq(&l_Pos);
+                float l_Range = AISpellInfo[eSpells::SPELL_DOOMBOLT].maxRange;
+                if (l_DistSq > l_Range * l_Range)
+                    me->GetMotionMaster()->MoveChase(l_Victim, l_Range);
+                else
+                    me->GetMotionMaster()->Clear(true);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                DoCast(eSpells::SPELL_DOOMBOLT);
+                /// If cast failed (or has cooldown), go melee
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_doomguardAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4977,4 +5033,5 @@ void AddSC_npcs_special()
     new npc_training_dummy_tanking();
     new npc_consecration();
     new npc_xuen_the_white_tiger();
+    new npc_doomguard();
 }
