@@ -2043,6 +2043,11 @@ class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_on_desactivate_cat_form_AuraScript);
 
+            enum eSpells
+            {
+                GlyphOfCatForm = 47180
+            };
+
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
@@ -2071,10 +2076,33 @@ class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
                     l_DashAura->GetEffect(0)->SetAmount(sSpellMgr->GetSpellInfo(SPELL_DRUID_DASH)->Effects[EFFECT_0].BasePoints);
             }
 
+            void OnAfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (l_Caster->HasSpell(eSpells::GlyphOfCatForm) && l_Caster->HasAura(eSpells::GlyphOfCatForm))
+                    l_Caster->RemoveAura(eSpells::GlyphOfCatForm);
+            }
+
+            void OnAfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (l_Caster->HasSpell(eSpells::GlyphOfCatForm) && !l_Caster->HasAura(eSpells::GlyphOfCatForm))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfCatForm);
+            }
+
             void Register()
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
                 OnEffectApply += AuraEffectApplyFn(spell_dru_on_desactivate_cat_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnAfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_on_desactivate_cat_form_AuraScript::OnAfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
