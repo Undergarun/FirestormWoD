@@ -3410,12 +3410,18 @@ class spell_hun_spirit_mend : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_spirit_mend_SpellScript);
 
-            void HandleHeal(SpellEffIndex)
+            void HandleHeal(SpellEffIndex l_Idx)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    SetHitHeal(int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f));
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Heal = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f);
+                l_Heal = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, l_Idx, SPELL_DIRECT_DAMAGE);
+                l_Heal = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Heal, SPELL_DIRECT_DAMAGE);
+                SetHitHeal(l_Heal);
             }
 
             void Register()
