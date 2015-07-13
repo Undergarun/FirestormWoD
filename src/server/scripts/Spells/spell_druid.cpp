@@ -3477,6 +3477,8 @@ class spell_dru_rake: public SpellScriptLoader
 
             enum eSpells
             {
+                Prowl           = 5215,
+                GlyphOfRake     = 54821,
                 KingOfTheJungle = 102543
             };
 
@@ -3496,6 +3498,11 @@ class spell_dru_rake: public SpellScriptLoader
                         else
                             l_ImprovedRake->GetEffect(1)->SetAmount(0);
                     }
+
+                    /// Default 0-5 yards, up to 0-12 yards (+7 yards)
+                    SpellInfo* l_RakeSpellInfo = (SpellInfo*)GetSpellInfo();
+                    if (l_RakeSpellInfo && l_Caster->HasAura(eSpells::GlyphOfRake) && l_Caster->HasAura(eSpells::Prowl))
+                        l_RakeSpellInfo->SetRangeIndex(294);
                 }
             }
 
