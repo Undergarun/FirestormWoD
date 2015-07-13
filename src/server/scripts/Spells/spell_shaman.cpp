@@ -1409,6 +1409,9 @@ class spell_sha_ascendance: public SpellScriptLoader
                     {
                         case SPEC_SHAMAN_ELEMENTAL:
                             _player->CastSpell(_player, SPELL_SHA_ASCENDANCE_ELEMENTAL, true);
+
+                            if (_player->HasSpellCooldown(SPELL_SHA_LAVA_BURST))
+                                _player->RemoveSpellCooldown(SPELL_SHA_LAVA_BURST, true);
                             break;
                         case SPEC_SHAMAN_ENHANCEMENT:
                             _player->CastSpell(_player, SPELL_SHA_ASCENDANCE_ENHANCED, true);
