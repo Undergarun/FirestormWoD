@@ -1206,7 +1206,6 @@ class spell_pri_power_word_shield: public SpellScriptLoader
                 if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 {
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
-
                     if (l_SpellInfo == nullptr)
                         return;
 
@@ -1231,27 +1230,29 @@ class spell_pri_power_word_shield: public SpellScriptLoader
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Owner = GetUnitOwner();
-
                 if (l_Target == nullptr || l_Owner == nullptr)
                     return;
 
-                if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD))
+                if (l_Owner == l_Target)
                 {
-                    for (std::map<uint64, uint32>::iterator it = m_DmgByAttackerList.begin(); it != m_DmgByAttackerList.end(); ++it)
+                    if (AuraEffectPtr l_ReflectiveShield = l_Owner->GetAuraEffect(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, SpellEffIndex::EFFECT_0))
                     {
-                        if ((*it).first == l_Target->GetGUID())
-                            return;
-                        int32 l_Damage = CalculatePct((*it).second, sSpellMgr->GetSpellInfo(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)->Effects[EFFECT_0].BasePoints);
-                        l_Owner->CastCustomSpell(l_Target->GetUnit(*l_Target, (*it).first), PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, NULL, NULL, true);
+                        for (auto l_It = m_DmgByAttackerList.begin(); l_It != m_DmgByAttackerList.end(); ++l_It)
+                        {
+                            if (l_It->first == l_Target->GetGUID())
+                                return;
+
+                            int32 l_Damage = CalculatePct(l_It->second, l_ReflectiveShield->GetAmount());
+                            l_Owner->CastCustomSpell(l_Target->GetUnit(*l_Target, l_It->first), PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
+                        }
                     }
                 }
             }
 
-            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Owner = GetUnitOwner();
-
                 if (l_Target == nullptr || l_Owner == nullptr)
                     return;
 
@@ -1259,8 +1260,10 @@ class spell_pri_power_word_shield: public SpellScriptLoader
                 {
                     if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
                     {
-                        if (m_DmgByAttackerList.find(l_Attacker->GetGUID()) != m_DmgByAttackerList.end())
-                            m_DmgByAttackerList.find(l_Attacker->GetGUID())->second += p_AbsorbAmount;
+                        uint64 l_GUID = l_Attacker->GetGUID();
+                        auto l_It = m_DmgByAttackerList.find(l_GUID);
+                        if (l_It != m_DmgByAttackerList.end())
+                            l_It->second += p_AbsorbAmount;
                         else
                             m_DmgByAttackerList[l_Attacker->GetGUID()] = p_AbsorbAmount;
                     }
