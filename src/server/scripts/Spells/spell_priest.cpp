@@ -1258,14 +1258,14 @@ class spell_pri_power_word_shield: public SpellScriptLoader
 
                 if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
                 {
-                    if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
+                    if (l_Owner == l_Target && l_Owner->HasAura(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
                     {
                         uint64 l_GUID = l_Attacker->GetGUID();
                         auto l_It = m_DmgByAttackerList.find(l_GUID);
                         if (l_It != m_DmgByAttackerList.end())
-                            l_It->second += p_AbsorbAmount;
+                            l_It->second += p_DmgInfo.GetDamage();
                         else
-                            m_DmgByAttackerList[l_Attacker->GetGUID()] = p_AbsorbAmount;
+                            m_DmgByAttackerList[l_Attacker->GetGUID()] = p_DmgInfo.GetDamage();
                     }
                 }
             }
