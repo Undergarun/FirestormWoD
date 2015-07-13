@@ -4583,6 +4583,44 @@ class spell_dru_WodPvpBalance4pBonus : public SpellScriptLoader
 };
 
 
+/// 16914 - Hurricane
+class spell_dru_hurricane: public SpellScriptLoader
+{
+    public:
+        spell_dru_hurricane() : SpellScriptLoader("spell_dru_hurricane") { }
+
+        class spell_dru_hurricane_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_hurricane_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfHurricane = 54831
+            };
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (AuraEffectPtr l_GlyphOfHurricane = l_Caster->GetAuraEffect(eSpells::GlyphOfHurricane, EFFECT_0))
+                    p_Amount += l_GlyphOfHurricane->GetAmount();
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_hurricane_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_hurricane_AuraScript();
+        }
+};
+
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift_ally_proc();
@@ -4666,4 +4704,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_WodPvpBalance4pBonus();
     new spell_dru_empowered_moonkin();
     new spell_dru_ursa_major_aura();
+    new spell_dru_hurricane();
 }
