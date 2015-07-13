@@ -727,7 +727,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     /// Custom WoD Script - Glyph of Frostbrand Weapon
     if (plr && ToPlayer() && ToPlayer()->getClass() == CLASS_SHAMAN && ToPlayer()->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT)
     {
-        if (cleanDamage->attackType == WeaponAttackType::OffAttack && ToPlayer()->HasAura(161654))
+        if (cleanDamage && cleanDamage->attackType == WeaponAttackType::OffAttack && ToPlayer()->HasAura(161654))
             ToPlayer()->CastSpell(plr, 147732, true);
     }
 
