@@ -81,14 +81,6 @@ enum WarlockSpells
     WARLOCK_SOULBURN_OVERRIDE_2             = 104249,
     WARLOCK_SEED_OF_CORRUPTION_DUMMY        = 157697,
     WARLOCK_SOULBURN_DEMONIC_CIRCLE_TELE    = 114794,
-    WARLOCK_GRIMOIRE_OF_SUPREMACY_TALENT    = 108499,
-    WARLOCK_SUMMON_FEL_IMP                  = 112866,
-    WARLOCK_SUMMON_VOIDLORD                 = 112867,
-    WARLOCK_SUMMON_SHIVARRA                 = 112868,
-    WARLOCK_SUMMON_OBSERVER                 = 112869,
-    WARLOCK_SUMMON_WRATHGUARD               = 112870,
-    WARLOCK_SUMMON_ABYSSAL                  = 112921,
-    WARLOCK_SUMMON_TERRORGUARD              = 112927,
     WARLOCK_IMP_SINGLE_MAGIC                = 132411,
     WARLOCK_VOIDWALKER_SHADOW_BULWARK       = 132413,
     WARLOCK_SUCCUBUS_WHIPLASH               = 137706,
@@ -220,44 +212,6 @@ class spell_warl_grimoire_of_service: public SpellScriptLoader
         }
 };
 
-/// Call by Summon Fel Imp - 112866, Summon Voidlord - 112867, Summon Shivarra - 112868
-/// Summon Observer - 112869, Summon Wrathguard - 112870, Summon Abyssal - 112921, Summon Terrorguard - 112927
-/// Grimoire of Supremacy - 108499
-class spell_warl_grimoire_of_supremacy_effect : public SpellScriptLoader
-{
-    public:
-        spell_warl_grimoire_of_supremacy_effect() : SpellScriptLoader("spell_warl_grimoire_of_supremacy_effect") { }
-
-        class spell_warl_grimoire_of_supremacy_effect_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_grimoire_of_supremacy_effect_SpellScript);
-
-            enum eSpells
-            {
-                GrimoireOfSupremacyBonus = 115578
-            };
-
-            void HandleAfterCast()
-            {
-                Unit* l_Caster = GetCaster();
-
-                for (Unit::ControlList::const_iterator itr = l_Caster->m_Controlled.begin(); itr != l_Caster->m_Controlled.end(); ++itr)
-                    (*itr)->CastSpell((*itr), eSpells::GrimoireOfSupremacyBonus, true);
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_warl_grimoire_of_supremacy_effect_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_grimoire_of_supremacy_effect_SpellScript();
-        }
-};
-
-
 // Haunt (dispel effect) - 48181
 class spell_warl_haunt_dispel: public SpellScriptLoader
 {
@@ -320,7 +274,7 @@ class spell_warl_haunt : public SpellScriptLoader
         }
 };
 
-// Grimoire of Supremacy - 108499
+/// Grimoire of Supremacy - 108499
 class spell_warl_grimoire_of_supremacy: public SpellScriptLoader
 {
     public:
@@ -330,47 +284,60 @@ class spell_warl_grimoire_of_supremacy: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_grimoire_of_supremacy_AuraScript);
 
+            enum eSpells
+            {
+                SummonFelImp      = 112866,
+                SummonVoidlord    = 112867,
+                SummonShivarra    = 112868,
+                SummonObserver    = 112869,
+                SummonWrathguard  = 112870,
+                SummonAbyssal     = 112921,
+                SummonTerrorguard = 112927
+            };
+
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                {
-                    _player->learnSpell(WARLOCK_SUMMON_FEL_IMP, false);
-                    _player->learnSpell(WARLOCK_SUMMON_VOIDLORD, false);
-                    _player->learnSpell(WARLOCK_SUMMON_SHIVARRA, false);
-                    _player->learnSpell(WARLOCK_SUMMON_OBSERVER, false);
-                    _player->learnSpell(WARLOCK_SUMMON_ABYSSAL, false);
-                    _player->learnSpell(WARLOCK_SUMMON_TERRORGUARD, false);
+                Player* l_Player = GetTarget()->ToPlayer();
+                if (!l_Player)
+                    return;
 
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        _player->learnSpell(WARLOCK_SUMMON_WRATHGUARD, false);
-                }
+                l_Player->learnSpell(eSpells::SummonFelImp, false);
+                l_Player->learnSpell(eSpells::SummonVoidlord, false);
+                l_Player->learnSpell(eSpells::SummonShivarra, false);
+                l_Player->learnSpell(eSpells::SummonObserver, false);
+                l_Player->learnSpell(eSpells::SummonAbyssal, false);
+                l_Player->learnSpell(eSpells::SummonTerrorguard, false);
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                    l_Player->learnSpell(eSpells::SummonWrathguard, false);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                {
-                    if (_player->HasSpell(WARLOCK_SUMMON_FEL_IMP))
-                        _player->removeSpell(WARLOCK_SUMMON_FEL_IMP, false, false);
+                Player* l_Player = GetTarget()->ToPlayer();
+                if (!l_Player)
+                    return;
 
-                    if (_player->HasSpell(WARLOCK_SUMMON_VOIDLORD))
-                        _player->removeSpell(WARLOCK_SUMMON_VOIDLORD, false, false);
+                if (l_Player->HasSpell(eSpells::SummonFelImp))
+                    l_Player->removeSpell(eSpells::SummonFelImp, false, false);
 
-                    if (_player->HasSpell(WARLOCK_SUMMON_SHIVARRA))
-                        _player->removeSpell(WARLOCK_SUMMON_SHIVARRA, false, false);
+                if (l_Player->HasSpell(eSpells::SummonVoidlord))
+                    l_Player->removeSpell(eSpells::SummonVoidlord, false, false);
 
-                    if (_player->HasSpell(WARLOCK_SUMMON_OBSERVER))
-                        _player->removeSpell(WARLOCK_SUMMON_OBSERVER, false, false);
+                if (l_Player->HasSpell(eSpells::SummonShivarra))
+                    l_Player->removeSpell(eSpells::SummonShivarra, false, false);
 
-                    if (_player->HasSpell(WARLOCK_SUMMON_WRATHGUARD))
-                        _player->removeSpell(WARLOCK_SUMMON_WRATHGUARD, false, false);
+                if (l_Player->HasSpell(eSpells::SummonObserver))
+                    l_Player->removeSpell(eSpells::SummonObserver, false, false);
 
-                    if (_player->HasSpell(WARLOCK_SUMMON_ABYSSAL))
-                        _player->removeSpell(WARLOCK_SUMMON_ABYSSAL, false, false);
+                if (l_Player->HasSpell(eSpells::SummonAbyssal))
+                    l_Player->removeSpell(eSpells::SummonAbyssal, false, false);
 
-                    if (_player->HasSpell(WARLOCK_SUMMON_TERRORGUARD))
-                        _player->removeSpell(WARLOCK_SUMMON_TERRORGUARD, false, false);
-                }
+                if (l_Player->HasSpell(eSpells::SummonTerrorguard))
+                    l_Player->removeSpell(eSpells::SummonTerrorguard, false, false);
+
+                if (l_Player->HasSpell(eSpells::SummonWrathguard))
+                    l_Player->removeSpell(eSpells::SummonWrathguard, false, false);
             }
 
             void Register()
@@ -385,6 +352,44 @@ class spell_warl_grimoire_of_supremacy: public SpellScriptLoader
             return new spell_warl_grimoire_of_supremacy_AuraScript();
         }
 };
+
+/// Call by Summon Fel Imp - 112866, Summon Voidlord - 112867, Summon Shivarra - 112868
+/// Summon Observer - 112869, Summon Wrathguard - 112870, Summon Abyssal - 112921, Summon Terrorguard - 112927
+/// Grimoire of Supremacy - 108499
+class spell_warl_grimoire_of_supremacy_effect : public SpellScriptLoader
+{
+    public:
+        spell_warl_grimoire_of_supremacy_effect() : SpellScriptLoader("spell_warl_grimoire_of_supremacy_effect") { }
+
+        class spell_warl_grimoire_of_supremacy_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_grimoire_of_supremacy_effect_SpellScript);
+
+            enum eSpells
+            {
+                GrimoireOfSupremacyBonus = 115578
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                for (Unit::ControlList::const_iterator itr = l_Caster->m_Controlled.begin(); itr != l_Caster->m_Controlled.end(); ++itr)
+                    (*itr)->CastSpell((*itr), eSpells::GrimoireOfSupremacyBonus, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_warl_grimoire_of_supremacy_effect_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_grimoire_of_supremacy_effect_SpellScript();
+        }
+};
+
 
 // Soulburn : Seed of Corruption - Damage - 87385
 class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
@@ -3616,9 +3621,9 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_WodPvPDemonology4PBonus();
     new spell_warl_WoDPvPDestruction2PBonus();
     new spell_warl_fel_firebolt();
-    new spell_warl_grimoire_of_supremacy_effect();
     new spell_warl_doom_bolt();
     new spell_warl_grimoire_of_synergy();
+    new spell_warl_grimoire_of_supremacy_effect();
 
     new PlayerScript_WoDPvPDemonology2PBonus();
 }

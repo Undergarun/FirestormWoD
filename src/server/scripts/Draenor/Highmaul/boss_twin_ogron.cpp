@@ -79,10 +79,10 @@ class boss_twin_ogron_pol : public CreatureScript
             InterruptingShoutDmg    = 158102,
             /// Shield Charge
             SpellShieldCharge       = 158134,
-            ShieldChargeSearcher    = 158136,
             ShieldChargeEndingAoE   = 158157,
+            InjuredDoT              = 155569,
 
-            ShieldBash              = 157159
+            ShieldBash              = 143834
         };
 
         enum eEvents
@@ -252,7 +252,10 @@ class boss_twin_ogron_pol : public CreatureScript
 
                         Talk(eTalks::ShieldCharge);
                         Talk(eTalks::ShieldChargeWarn);
-                        me->CastSpell(me, eSpells::ShieldChargeSearcher, true);
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                            me->CastSpell(l_Target, eSpells::SpellShieldCharge, false);
+
                         m_ShieldChargeScheduled = true;
                         break;
                     }
@@ -295,6 +298,8 @@ class boss_twin_ogron_pol : public CreatureScript
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InjuredDoT);
+
                     if (IsLFR())
                     {
                         Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
@@ -312,6 +317,8 @@ class boss_twin_ogron_pol : public CreatureScript
                 {
                     m_Instance->SetBossState(eHighmaulDatas::BossTwinOgron, EncounterState::FAIL);
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InjuredDoT);
 
                     RespawnOgrons(me, m_Instance);
                 }
@@ -379,11 +386,6 @@ class boss_twin_ogron_pol : public CreatureScript
 
                         break;
                     }
-                    case eSpells::ShieldChargeSearcher:
-                    {
-                        me->CastSpell(p_Target, eSpells::SpellShieldCharge, false);
-                        break;
-                    }
                     default:
                         break;
                 }
@@ -419,7 +421,7 @@ class boss_twin_ogron_pol : public CreatureScript
                     case eEvents::EventShieldBash:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::ShieldBash, true);
+                            me->CastSpell(l_Target, eSpells::ShieldBash, false);
                         m_Events.ScheduleEvent(eEvents::EventShieldBash, 22 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -1090,7 +1092,15 @@ class spell_highmaul_disposition : public SpellScriptLoader
 
                 if (Creature* l_Boss = GetTarget()->ToCreature())
                 {
-                    l_Boss->EnergizeBySpell(l_Boss, GetSpellInfo()->Id, 1, Powers::POWER_ENERGY);
+                    float l_EnergyGain = 1.0f;
+
+                    /// Pol energizes 25% faster than Phemos
+                    if (l_Boss->GetEntry() == eHighmaulCreatures::Pol)
+                        l_EnergyGain *= 1.25f;
+
+                    l_EnergyGain *= 1.0f + (float)l_Boss->GetPower(Powers::POWER_ALTERNATE_POWER) / 100.0f;
+
+                    l_Boss->EnergizeBySpell(l_Boss, GetSpellInfo()->Id, l_EnergyGain, Powers::POWER_ENERGY);
 
                     if (!l_Boss->IsAIEnabled)
                         return;

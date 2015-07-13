@@ -1379,8 +1379,12 @@ void Unit::CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo
     Spell* spell = new Spell(this, spellInfo, triggerFlags, originalCaster);
 
     if (value)
+    {
         for (CustomSpellValues::const_iterator itr = value->begin(); itr != value->end(); ++itr)
             spell->SetSpellValue(itr->first, itr->second);
+
+        spell->SetCustomCritChance(value->GetCustomCritChance());
+    }
 
     spell->m_CastItem = castItem;
     spell->SetPeriodicDamageModifier(periodicDamageModifier);
@@ -3112,7 +3116,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
         for (Unit::AuraEffectList::const_iterator i = mReflectSpellsSchool.begin(); i != mReflectSpellsSchool.end(); ++i)
             if ((*i)->GetMiscValue() & spell->GetSchoolMask())
                 reflectchance += (*i)->GetAmount();
-        if (reflectchance > 0 && roll_chance_i(reflectchance))
+        if (reflectchance > 0 && roll_chance_i(reflectchance) && !spell->IsPositive())
         {
             // Hack fix for Glyph of Grounding Totem - Remove aura
             if (victim->HasAura(89523))
@@ -9546,7 +9550,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (!(procEx & PROC_EX_CRITICAL_HIT))
                 return false;
 
-            if (!procSpell || !procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) || procSpell->Id != 5374 || procSpell->Id != 8676 || procSpell->Id != 111240)
+            if (!procSpell || (!procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) && procSpell->Id != 5374 && procSpell->Id != 27576))
                 return false;
 
             break;
@@ -11881,19 +11885,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
         if (l_HasFingerOfFrostProc)
         {
-            AuraPtr l_ProcAura   = GetAura(44544);
-            AuraPtr l_VisualAura = GetAura(126084);
-
-            if (l_ProcAura && l_VisualAura && l_ProcAura->GetStackAmount() == 1 && l_VisualAura->GetStackAmount() == 1)
-            {
-                l_ProcAura->SetStackAmount(l_ProcAura->GetStackAmount() + 1);
-                l_VisualAura->SetStackAmount(l_VisualAura->GetStackAmount() + 1);
-            }
-            else
-            {
-                CastSpell(this, 44544, true);  ///< Fingers of frost proc
-                CastSpell(this, 126084, true); ///< Fingers of frost visual
-            }
+            CastSpell(this, 44544, true);  ///< Fingers of frost proc
+            CastSpell(this, 126084, true); ///< Fingers of frost visual
         }
     }
 
@@ -15480,13 +15473,16 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
 
     Unit* owner = GetOwner();
     // called from caster
-    if (Player* modOwner = GetSpellModOwner())
+    Player* modOwner = GetSpellModOwner();
+
+    if (modOwner != nullptr)
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
     if (!((spellProto->Attributes & (SPELL_ATTR0_ABILITY|SPELL_ATTR0_TRADESPELL)) || (spellProto->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))) &&
         ((GetTypeId() == TYPEID_PLAYER && spellProto->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
     {
-        castTime = int32(float(castTime) * GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
+        if (modOwner != nullptr)
+            castTime = int32(float(castTime) * modOwner->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
         // Gargoyle Strike should be affected by DeathKnight haste
         if (spellProto->Id == 51963 && owner && owner->GetTypeId() == TYPEID_PLAYER)
             castTime = int32(float(castTime) * owner->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));

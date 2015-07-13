@@ -580,6 +580,8 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_spellAura = NULLAURA;
     isStolen = false;
 
+    m_CustomCritChance = -1.f;
+
     //Auto Shot & Shoot (wand)
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
 
@@ -6022,9 +6024,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         Player* player = m_caster->ToPlayer();
 
         // Can cast triggered (by aura only?) spells while have this flag
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY)
-            && !(player->HasAura(46924) && m_spellInfo->Id == 55694 || m_spellInfo->Id == 469 || m_spellInfo->Id == 6673 || m_spellInfo->Id == 97462 || m_spellInfo->Id == 5246 || m_spellInfo->Id == 12323
-            || m_spellInfo->Id == 107566 || m_spellInfo->Id == 102060 || m_spellInfo->Id == 1160 || m_spellInfo->Id == 18499) && // Hack fix Bladestorm - caster should be able to cast only shout spells during bladestorm
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY) &&
             (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : ((m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS) == 0 || GetSpellInfo()->CalcCastTime(m_caster))) &&
             (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
@@ -8337,8 +8337,11 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
             targetInfo.damage += m_damage;
         }
     }
-
-    targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
+    
+    if (m_CustomCritChance < 0.f)
+        targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
+    else
+        targetInfo.crit = roll_chance_f(m_CustomCritChance);
 }
 
 SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& skillId, int32& reqSkillValue, int32& skillValue)

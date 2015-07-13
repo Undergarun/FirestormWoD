@@ -779,6 +779,9 @@ void AddSC_boss_megaera();
 void AddSC_boss_ji_kun();
 void AddSC_boss_primordius();
 void AddSC_boss_dark_animus();
+void AddSC_boss_iron_qon();
+void AddSC_boss_twin_consorts();
+void AddSC_boss_lei_shen();
 void AddSC_instance_siege_of_orgrimmar();           // Siege of Orgrimmar
 void AddSC_siege_of_orgrimmar();
 void AddSC_immerseus();
@@ -1703,6 +1706,9 @@ void AddPandarieScripts()
     AddSC_boss_durumu();
     AddSC_boss_primordius();
     AddSC_boss_dark_animus();
+    AddSC_boss_iron_qon();
+    AddSC_boss_twin_consorts();
+    AddSC_boss_lei_shen();
     AddSC_instance_siege_of_orgrimmar();            // Siege of Orgrimmar
     AddSC_siege_of_orgrimmar();
     AddSC_immerseus();

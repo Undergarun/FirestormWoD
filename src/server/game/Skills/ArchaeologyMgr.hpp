@@ -27,6 +27,7 @@ namespace MS { namespace Skill { namespace Archaeology
         {
             ResearchSitePerContinent = 4,                                                   ///< Player can have at max 4 research site per continent
             ResearchContinentCount   = 6,                                                   ///< Kalimdor, EasternKingdoms, Outland, Northrend, Pandaria, Draenor
+            MaxResearchProject       = 20,                                                  ///< Research project max count
             MaxResearchSites         = ResearchSitePerContinent * ResearchContinentCount,   ///< Total max research site per player
             DigSiteFarDist           = 40,                                                  ///< Distance between player and the loot far threshold
             DigSiteMedDist           = 20,                                                  ///< Distance between player and the loot medium threshold

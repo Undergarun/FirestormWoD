@@ -2026,7 +2026,7 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_REALM_STATS].SetInterval(MINUTE * IN_MILLISECONDS);
 
-    m_timers[WUPDATE_TRANSFERT].SetInterval(15 * IN_MILLISECONDS);
+    m_timers[WUPDATE_TRANSFERT].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_TRANSFER_MOP].SetInterval(1 * MINUTE * IN_MILLISECONDS);
 
     //to set mailtimer to return mails every day between 4 and 5 am

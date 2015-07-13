@@ -28,11 +28,6 @@
 
 enum WarriorSpells
 {
-    WARRIOR_SPELL_VICTORY_RUSH_DAMAGE           = 34428,
-    WARRIOR_SPELL_VICTORY_RUSH_HEAL             = 118779,
-    WARRIOR_SPELL_VICTORIOUS_STATE              = 32216,
-    WARRIOR_SPELL_BLOODTHIRST                   = 23881,
-    WARRIOR_SPELL_BLOODTHIRST_HEAL              = 117313,
     WARRIOR_SPELL_DEEP_WOUNDS                   = 115767,
     WARRIOR_SPELL_SHOCKWAVE_STUN                = 132168,
     WARRIOR_SPELL_RALLYING_CRY                  = 97463,
@@ -54,8 +49,6 @@ enum WarriorSpells
     WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
     WARRIOR_SPELL_SLUGGISH                      = 129923,
     WARRIOR_SPELL_IMPENDING_VICTORY             = 103840,
-    WARRIOR_SPELL_BLOODSURGE                    = 46915,
-    WARRIOR_SPELL_BLOODSURGE_PROC               = 46916,
     WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
     WARRIOR_SPELL_SUNDER_ARMOR                  = 7386,
     WARRIOR_SPELL_SHIELD_OF_WALL_NOSHIELD       = 146128,
@@ -654,6 +647,64 @@ class spell_warr_mortal_strike: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Mortal strike - 12294, Wild Strike - 100130
+class spell_warr_glyph_of_die_by_the_sword : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_die_by_the_sword() : SpellScriptLoader("spell_warr_glyph_of_die_by_the_sword") { }
+
+        class spell_warr_glyph_of_die_by_the_sword_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_die_by_the_sword_SpellScript);
+
+            enum eSpells
+            {
+                MortalStrike = 12294,
+                WildStrike = 100130,
+                GlyphofDiebytheSword = 58386,
+                DiebytheSword = 118038
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphofDiebytheSword))
+                    return;
+
+                const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphofDiebytheSword);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if (AuraPtr l_DieByTheSword = l_Caster->GetAura(eSpells::DiebytheSword))
+                {
+                    switch (GetSpellInfo()->Id)
+                    {
+                    case eSpells::MortalStrike: ///< increases its duration by 2 sec
+                        l_DieByTheSword->SetDuration(l_DieByTheSword->GetDuration() + (l_SpellInfo->Effects[EFFECT_1].BasePoints * IN_MILLISECONDS));
+                    case eSpells::WildStrike: ///< increases its duration by 0.25 sec
+                        l_DieByTheSword->SetDuration(l_DieByTheSword->GetDuration() + (((float)l_SpellInfo->Effects[EFFECT_0].BasePoints / 4) * IN_MILLISECONDS));
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_glyph_of_die_by_the_sword_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_die_by_the_sword_SpellScript();
+        }
+};
+
 /// Rallying cry - 97462
 class spell_warr_rallying_cry: public SpellScriptLoader
 {
@@ -709,13 +760,6 @@ class spell_warr_rallying_cry: public SpellScriptLoader
         }
 };
 
-enum HeroicLeapSpells
-{
-    SPELL_WARR_HEROIC_LEAP_JUMP      = 94954,
-    SPELL_WARR_ITEM_PVP_SET_4P_BONUS = 133277,
-    SPELL_WARR_HEROIC_LEAP_SPEED     = 133278,
-};
-
 /// Heroic leap - 6544
 class spell_warr_heroic_leap: public SpellScriptLoader
 {
@@ -725,6 +769,16 @@ class spell_warr_heroic_leap: public SpellScriptLoader
         class spell_warr_heroic_leap_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_heroic_leap_SpellScript);
+
+            enum eSpells
+            {
+                Taunt                  = 355,
+                HeroicLeapJump         = 94954,
+                SpellPvp4PBonus        = 133277,
+                GlyphOfHeroicLeapSpeed = 133278,
+                ImprovedHeroicLeap     = 157449,
+                GlyphOfHeroicLeap      = 159708
+            };
 
             SpellCastResult CheckElevation()
             {
@@ -754,15 +808,23 @@ class spell_warr_heroic_leap: public SpellScriptLoader
             {
                 WorldLocation* l_SpellDest = const_cast<WorldLocation*>(GetExplTargetDest());
                 if (l_SpellDest)
-                    GetCaster()->CastSpell(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ(), SPELL_WARR_HEROIC_LEAP_JUMP, true);
+                    GetCaster()->CastSpell(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ(), eSpells::HeroicLeapJump, true);
             }
 
             void HandleAfterCast()
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster->HasAura(SPELL_WARR_ITEM_PVP_SET_4P_BONUS))
-                    l_Caster->CastSpell(l_Caster, SPELL_WARR_HEROIC_LEAP_SPEED, true);
+                if (l_Caster->HasAura(eSpells::GlyphOfHeroicLeap) || l_Caster->HasAura(eSpells::SpellPvp4PBonus))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfHeroicLeapSpeed, true);
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (l_Player->HasAura(eSpells::ImprovedHeroicLeap) && l_Player->HasSpellCooldown(eSpells::Taunt))
+                    l_Player->RemoveSpellCooldown(eSpells::Taunt, true);
+
             }
 
             void Register()
@@ -865,26 +927,32 @@ class spell_warr_bloodthirst: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
 
+            enum eSpells
+            {
+                Bloodthirst     = 23881,
+                BloodthirstHeal = 117313,
+                Bloodsurge      = 46915,
+                BloodsurgeProc  = 46916,
+            };
+
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODTHIRST) || !sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODTHIRST_HEAL))
+                if (!sSpellMgr->GetSpellInfo(eSpells::Bloodthirst) || !sSpellMgr->GetSpellInfo(eSpells::BloodthirstHeal))
                     return false;
                 return true;
             }
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+
+                if (GetHitDamage())
                 {
-                    if (GetHitDamage())
-                    {
-                        l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODTHIRST_HEAL, true);
+                    l_Caster->CastSpell(l_Caster, eSpells::BloodthirstHeal, true);
 
-                        const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODSURGE);
-
-                        if (l_SpellInfo != nullptr && (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints) || (l_Caster->HasAura(WARRIOR_SPELL_BLOODSURGE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))))
-                            l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
-                    }
+                    if (AuraEffectPtr l_Bloodsurge = l_Caster->GetAuraEffect(eSpells::Bloodsurge, EFFECT_0))
+                        if (roll_chance_i(l_Bloodsurge->GetAmount()))
+                            l_Caster->CastSpell(l_Caster, eSpells::BloodsurgeProc, true);
                 }
             }
 
@@ -900,6 +968,48 @@ class spell_warr_bloodthirst: public SpellScriptLoader
         }
 };
 
+/// Bloodthirst (heal) - 117313
+class spell_warr_bloodthirst_heal: public SpellScriptLoader
+{
+    public:
+        spell_warr_bloodthirst_heal() : SpellScriptLoader("spell_warr_bloodthirst_heal") { }
+
+        class spell_warr_bloodthirst_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfRagingBlow = 159747
+            };
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                int32 l_Heal = GetHitHeal();
+
+                if (AuraPtr l_GlyphOfRagingBlow = l_Caster->GetAura(eSpells::GlyphOfRagingBlow))
+                {
+                    AddPct(l_Heal, l_GlyphOfRagingBlow->GetEffect(EFFECT_0)->GetAmount());
+                    l_GlyphOfRagingBlow->Remove();
+                }
+
+                SetHitHeal(l_Heal);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_bloodthirst_heal_SpellScript;
+        }
+};
+
+
 /// Victory Rush - 34428
 class spell_warr_victory_rush: public SpellScriptLoader
 {
@@ -910,9 +1020,16 @@ class spell_warr_victory_rush: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_victory_rush_SpellScript);
 
+            enum eSpells
+            {
+                VictoriousState   = 32216,
+                VictoryRushDamage = 34428,
+                VictoryRushHeal   = 118779
+            };
+
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_VICTORY_RUSH_DAMAGE))
+                if (!sSpellMgr->GetSpellInfo(eSpells::VictoryRushDamage))
                     return false;
                 return true;
             }
@@ -924,10 +1041,10 @@ class spell_warr_victory_rush: public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                 {
-                    caster->CastSpell(caster, WARRIOR_SPELL_VICTORY_RUSH_HEAL, true);
+                    caster->CastSpell(caster, eSpells::VictoryRushHeal, true);
 
-                    if (caster->HasAura(WARRIOR_SPELL_VICTORIOUS_STATE))
-                        caster->RemoveAura(WARRIOR_SPELL_VICTORIOUS_STATE);
+                    if (caster->HasAura(eSpells::VictoriousState))
+                        caster->RemoveAura(eSpells::VictoriousState);
                 }
             }
 
@@ -940,6 +1057,44 @@ class spell_warr_victory_rush: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warr_victory_rush_SpellScript();
+        }
+};
+
+/// Victory Rush (heal) - 118779
+class spell_warr_victory_rush_heal: public SpellScriptLoader
+{
+    public:
+        spell_warr_victory_rush_heal() : SpellScriptLoader("spell_warr_victory_rush_heal") { }
+
+        class spell_warr_victory_rush_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_victory_rush_heal_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfVictoryRush = 58382
+            };
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                int32 l_Heal = GetHitHeal();
+
+                if (AuraEffectPtr l_GlyphOfVictoryRush = l_Caster->GetAuraEffect(eSpells::GlyphOfVictoryRush, EFFECT_0))
+                    AddPct(l_Heal, l_GlyphOfVictoryRush->GetAmount());
+
+                SetHitHeal(l_Heal);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_victory_rush_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_victory_rush_heal_SpellScript;
         }
 };
 
@@ -1198,6 +1353,7 @@ class spell_warr_spell_reflection: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Intervene - 3411
 class spell_warr_intervene: public SpellScriptLoader
 {
@@ -1208,17 +1364,34 @@ class spell_warr_intervene: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_intervene_SpellScript);
 
+            SpellCastResult CheckCastRange()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+
+                if (l_Caster->GetDistance(l_Target) > GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend)
+                    return SpellCastResult::SPELL_FAILED_OUT_OF_RANGE;
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, WARRIOR_SPELL_INTERVENE_TRIGGERED, true);
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+                
+                l_Caster->CastSpell(l_Target, WarriorSpells::WARRIOR_SPELL_INTERVENE_TRIGGERED, true);
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warr_intervene_SpellScript::CheckCastRange);
                 OnHit += SpellHitFn(spell_warr_intervene_SpellScript::HandleOnHit);
             }
         };
@@ -1723,13 +1896,6 @@ class spell_warr_rend : public SpellScriptLoader
         }
 };
 
-enum BloodBathSpells
-{
-    SPELL_BLOOD_BATH        = 12292,
-    SPELL_BLOOD_BATH_SNARE  = 147531,
-    SPELL_BLOOD_BATH_DAMAGE = 113344
-};
-
 /// Blood Bath - 12292
 class spell_warr_blood_bath : public SpellScriptLoader
 {
@@ -1740,6 +1906,13 @@ class spell_warr_blood_bath : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_blood_bath_Aurascript);
 
+            enum eSpells
+            {
+                BloodBath       = 12292,
+                BloodBathSnare  = 147531,
+                BloodBathDamage = 113344
+            };
+
             void HandleOnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& p_ProcInfo)
             {
                 PreventDefaultAction();
@@ -1747,26 +1920,26 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 if (!p_ProcInfo.GetDamageInfo() || !p_ProcInfo.GetDamageInfo()->GetDamage() || !p_ProcInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_BLOOD_BATH_DAMAGE)
+                if (p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::BloodBathDamage)
                     return;
 
                 Unit* l_Target = p_ProcInfo.GetActionTarget();
                 Unit* l_Caster = GetCaster();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH);
-                SpellInfo const* l_SpellInfoDamage = sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH_DAMAGE);
+                if (l_Target == nullptr || l_Caster == nullptr || l_Target == l_Caster)
+                    return;
 
-                /// 30% additional damage as a bleed over 6 sec
-
-                if (l_SpellInfo == nullptr || l_SpellInfoDamage == nullptr || l_Target == nullptr || l_Caster == nullptr)
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::BloodBath);
+                SpellInfo const* l_SpellInfoDamage = sSpellMgr->GetSpellInfo(eSpells::BloodBathDamage);
+                if (l_SpellInfo == nullptr || l_SpellInfoDamage == nullptr)
                     return;
 
                 int32 l_Damage = (p_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100;
 
-                if (AuraEffectPtr l_PreviousBloodbath = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffectPtr l_PreviousBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                 {
-                    int32 l_PeriodicDamage = l_PreviousBloodbath->GetAmount();
-                    int32 l_Duration = l_Target->GetAura(SPELL_BLOOD_BATH_DAMAGE, l_Caster->GetGUID())->GetDuration();
-                    int32 l_Amplitude = l_PreviousBloodbath->GetAmplitude();
+                    int32 l_PeriodicDamage = l_PreviousBloodBath->GetAmount();
+                    int32 l_Duration = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID())->GetDuration();
+                    int32 l_Amplitude = l_PreviousBloodBath->GetAmplitude();
 
                     int32 l_PreviousTotalDamage = 0;
 
@@ -1778,10 +1951,10 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 if (l_SpellInfoDamage->Effects[EFFECT_0].Amplitude)
                     l_Damage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
 
-                l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
-                l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);
+                l_Caster->CastSpell(l_Target, eSpells::BloodBathSnare, true);
+                l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage, true);
 
-                if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                     l_BloodbathActual->SetAmount(l_Damage);
             }
 
@@ -2003,6 +2176,14 @@ class spell_warr_shield_slam : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_shield_slam_SpellScript);
 
+            static float gte(int32 p_Level, int32 p_MinLevel)
+            {
+                if (p_Level < p_MinLevel)
+                    return (float)p_MinLevel / 100;
+
+                return (float)p_Level / 100;
+            }
+
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -2011,7 +2192,12 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                int32 l_Damage = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.366f;
+                /// Formula : $apmult=${0.366+$gte($PL,80)*0.426+$gte($PL,85)*2.46}
+                float l_ApMul = 0.366f + gte(l_Caster->getLevel(), 80) * 0.426f + gte(l_Caster->getLevel(), 85) * 2.46f;
+                /// $gladmult=$?a156291[${1.05}][${1.0}] -> Already apply by Gladiator Stance
+                /// $shieldchargemult=$?a169667[${1.25}][${1.0}] -> Already apply on spell_warr_shield_charge
+
+                int32 l_Damage = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * l_ApMul;
 
                 l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
@@ -2200,7 +2386,9 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_heroic_leap();
     new spell_warr_shockwave();
     new spell_warr_bloodthirst();
+    new spell_warr_bloodthirst_heal();
     new spell_warr_victory_rush();
+    new spell_warr_victory_rush_heal();
     new spell_warr_deep_wounds();
     new spell_warr_charge();
     new spell_warr_shield_wall();
@@ -2220,6 +2408,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_meat_cleaver();
     new spell_warr_shield_slam();
     new spell_warr_blood_craze_aura();
+    new spell_warr_glyph_of_die_by_the_sword();
 
     /// Playerscripts
     new PlayerScript_second_wind();

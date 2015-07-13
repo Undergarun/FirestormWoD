@@ -56,7 +56,8 @@ namespace SpiresOfArakDatas
 {
     enum
     {
-        HealthScalingCoeff = 10
+        HealthScalingCoeff = 10,
+        DamageScalingCoeff = 1
     };
 }
 

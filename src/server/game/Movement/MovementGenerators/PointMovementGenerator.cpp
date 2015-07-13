@@ -121,10 +121,6 @@ enum specialSpells
     BoarsRuchJump                       = 166225,
     Winded                              = 166227,
 
-    /// Night-Twisted Berserker - Highmaul
-    RavingAssaultCharge                 = 163312,
-    RavingAssaultRemoveAura             = 163323,
-
     /// Ogron Earthshaker - Highmaul
     IntimidatingRoarJump                = 166170,
     IntimidatingRoarFear                = 166171,
@@ -229,9 +225,6 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
         case specialSpells::BoarsRuchJump:
             unit.CastSpell(&unit, specialSpells::Winded, true);
             unit.ClearUnitState(UnitState::UNIT_STATE_ROOT);
-            break;
-        case specialSpells::RavingAssaultCharge:
-            unit.CastSpell(&unit, specialSpells::RavingAssaultRemoveAura, true);
             break;
         case specialSpells::IntimidatingRoarJump:
             unit.CastSpell(&unit, specialSpells::Squash, true);

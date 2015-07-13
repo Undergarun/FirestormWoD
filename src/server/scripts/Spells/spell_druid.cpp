@@ -4071,6 +4071,13 @@ class spell_dru_ursa_major_aura : public SpellScriptLoader
                     return;
 
                 l_Caster->AddToStackOnDuration(GetSpellInfo()->Id, GetSpellInfo()->GetMaxDuration(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                StackOnDuration* l_Stack = l_Caster->GetStackOnDuration(GetSpellInfo()->Id);
+
+                if (l_Stack == nullptr)
+                    return;
+
+                GetEffect(EFFECT_0)->SetAmount(l_Stack->GetTotalAmount());
             }
 
             void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr p_AurEff)
@@ -4085,10 +4092,19 @@ class spell_dru_ursa_major_aura : public SpellScriptLoader
                 if (l_Stack == nullptr)
                     return;
 
+                if (p_AurEff->GetAmount() > l_Stack->GetTotalAmount())
+                {
+                    float l_Percent = l_Caster->GetHealthPct();
+                    l_Caster->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, p_AurEff->GetAmount(), false);
+                    l_Caster->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, l_Stack->GetTotalAmount(), true);
+                    if (l_Caster->isAlive())
+                        l_Caster->SetHealth(l_Caster->CountPctFromMaxHealth(int32(l_Percent)));
+                }
+
                 p_AurEff->SetAmount(l_Stack->GetTotalAmount());
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes p_Mode)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4102,7 +4118,7 @@ class spell_dru_ursa_major_aura : public SpellScriptLoader
             {
                 OnEffectApply += AuraEffectApplyFn(spell_dru_ursa_major_aura_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY));
                 OnEffectUpdate += AuraEffectUpdateFn(spell_dru_ursa_major_aura_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
-                OnEffectRemove += AuraEffectRemoveFn(spell_dru_ursa_major_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_ursa_major_aura_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

@@ -611,7 +611,8 @@ class boss_tectus : public CreatureScript
                     }
                     case eEvents::EventCrystallineBarrage:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        /// Crystalline Barrage should not select Main Tank or Off Tank
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
                         {
                             Talk(eTalks::CrystallineBarrage, l_Target->GetGUID());
 
@@ -1300,6 +1301,27 @@ class npc_highmaul_night_twisted_berserker : public CreatureScript
                 m_Events.ScheduleEvent(eEvent::EventRavingAssault, 8 * TimeConstants::IN_MILLISECONDS);
             }
 
+            void SpellHitTarget(Unit* p_Victim, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Victim == nullptr || p_Victim == me->ToUnit() || p_SpellInfo->Id != eSpells::RavingAssault)
+                    return;
+
+                Position l_Pos  = *p_Victim;
+                float l_Angle   = me->GetRelativeAngle(l_Pos.GetPositionX(), l_Pos.GetPositionY());
+                float l_Dist    = me->GetDistance(l_Pos);
+
+                me->GetFirstCollisionPosition(l_Pos, l_Dist, l_Angle);
+                me->GetMotionMaster()->MoveCharge(&l_Pos, SPEED_CHARGE, eSpells::RavingAssault);
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_ID != eSpells::RavingAssault)
+                    return;
+
+                me->RemoveAura(eSpells::RavingAssault);
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 if (!UpdateVictim())
@@ -1313,10 +1335,12 @@ class npc_highmaul_night_twisted_berserker : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvent::EventRavingAssault:
+                    {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, eSpells::RavingAssault, false);
                         m_Events.ScheduleEvent(eEvent::EventRavingAssault, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     default:
                         break;
                 }
@@ -1876,7 +1900,7 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 4.0f;
+                float l_Radius = 5.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
