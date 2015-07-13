@@ -16887,7 +16887,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
     // Multistrike...
     if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL) &&
-        damage && target && GetTypeId() == TYPEID_PLAYER && !(procSpell && !procSpell->IsPositive() && target->GetGUID() == GetGUID()))
+        damage && target && GetSpellModOwner() && !(procSpell && !procSpell->IsPositive() && target->GetGUID() == GetGUID()))
     {
         // ...grants your spells, abilities, and auto-attacks...
         if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
@@ -16896,11 +16896,11 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             uint8 l_ProcTimes = (target->GetTypeId() == TYPEID_PLAYER) ? 1 : 2;
             for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
             {
-                if (roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+                if (roll_chance_f(GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
                 {
                     bool l_IsCrit = false;
 
-                    uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+                    uint32 l_MultistrikeDamage = damage * GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
 
                     if (procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask())))
                         l_IsCrit = true;
