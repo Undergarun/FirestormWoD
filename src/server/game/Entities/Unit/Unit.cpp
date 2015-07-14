@@ -5216,10 +5216,6 @@ int32 Unit::GetTotalAuraModifier(AuraType auratype, constAuraEffectPtr excludeAu
     for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
         modifier += itr->second;
 
-    // Fix Mastery : Critical Block - Increase critical block chance
-    if (HasAura(76857) && auratype == SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)
-        modifier += int32(GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f);
-
     return modifier;
 }
 
