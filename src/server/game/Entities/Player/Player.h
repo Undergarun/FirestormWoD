@@ -81,10 +81,10 @@ typedef std::unordered_set<uint64> GuidUnorderedSet;
 /// 6.0.3 19116
 enum ToastTypes
 {
-    TOAST_TYPE_NONE         = 0,
-    TOAST_TYPE_NEW_CURRENCY = 1,
-    TOAST_TYPE_NEW_ITEM     = 2,
-    TOAST_TYPE_MONEY        = 3,
+    TOAST_TYPE_NEW_CURRENCY = 0,
+    TOAST_TYPE_NONE         = 1,
+    TOAST_TYPE_MONEY        = 2,
+    TOAST_TYPE_NEW_ITEM     = 3
 };
 
 /// 6.0.3 19116

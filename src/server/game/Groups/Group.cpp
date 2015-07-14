@@ -1007,8 +1007,8 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data << uint32(p_CountDown);                          ///< the countdown time to choose "need" or "greed"
-    l_Data << uint8(p_Roll.totalPlayersRolling);            ///< maybe the number of players rolling for it???
     l_Data << uint8(p_Roll.rollVoteMask);                   ///< roll type mask
+    l_Data << uint8(p_Roll.totalPlayersRolling);            ///< maybe the number of players rolling for it???
 
     p_Player->GetSession()->SendPacket(&l_Data);
 }

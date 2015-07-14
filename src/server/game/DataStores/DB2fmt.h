@@ -82,7 +82,7 @@ const char QuestPackageItemEntryfmt[] = "niiii";
 const char MountEntryfmt[] = "niiisssiii";
 const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 const char VignetteEntryfmt[] = "nsiiff";
-const char SpecializationSpellsfmt[] = "niiixx";
+const char SpecializationSpellsfmt[] = "nixiix";
 const char MailTemplateEntryfmt[]= "ns";
 
 const char GlyphRequiredSpecfmt[] =
