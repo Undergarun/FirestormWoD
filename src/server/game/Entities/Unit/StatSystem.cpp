@@ -840,15 +840,6 @@ void Player::UpdateBlockPercentage()
         // apply diminishing formula to diminishing dodge chance
         value = nondiminishing + (diminishing * blockCap[pClass] / (diminishing + blockCap[pClass] * k_constant[pClass]));
 
-        // Custom MoP Script
-        // 76671 - Mastery : Divine Bulwark - Block Percentage
-        if (GetTypeId() == TYPEID_PLAYER && HasAura(76671))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY);
-
-        // 76857 - Mastery : Critical Block - Block Percentage
-        if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY) * 0.5f;
-
         if (value < 0.0f)
             value = 0.0f;
 
@@ -899,11 +890,6 @@ void Player::UpdateMasteryPercentage()
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
 
-    // Custom MoP Script
-    // 76671 - Mastery : Divine Bulwark - Update Block Percentage
-    // 76857 - Mastery : Critical Block - Update Block Percentage
-    if (HasAura(76671) || HasAura(76857))
-        UpdateBlockPercentage();
     // 77494 - Mastery : Nature's Guardian - Update Armor
     if (HasAura(77494))
         UpdateArmor();
