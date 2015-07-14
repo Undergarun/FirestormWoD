@@ -11778,23 +11778,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // 77219 - Mastery : Master Demonologist
-    // Bonus damage while using Metamorphosis
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(77219))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-    else if (isPet())
-    {
-        Unit* owner = GetOwner();
-        if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
-        {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
-            DoneTotal += CalculatePct(pdamage, Mastery);
-        }
-    }
-
     // 76547 - Mastery : Mana Adept
     if (spellProto && GetTypeId() == TYPEID_PLAYER)
     {
@@ -12022,6 +12005,13 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
                 AddPct(DoneTotalMod, (*i)->GetAmount());
         }
+    }
+
+    if (isPet() && GetSpellModOwner())
+    {
+        AuraEffectList const& mModDamagePercentDone = GetSpellModOwner()->GetAuraEffectsByType(SPELL_AURA_MOD_PET_DAMAGE_DONE);
+        for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+            AddPct(DoneTotalMod, (*i)->GetAmount());
     }
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
@@ -13372,18 +13362,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         AddPct(DoneTotalMod, Mastery);
     }
 
-    // 77219 - Mastery : Master Demonologist
-    // Bonus damage for demon servants
-    if (isPet())
-    {
-        Unit* owner = GetOwner();
-        if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
-        {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
-            AddPct(DoneTotalMod, Mastery);
-        }
-    }
-
     // Custom MoP Script
     // 76657 - Mastery : Master of Beasts
     if (isPet())
@@ -13501,6 +13479,13 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                 }
             }
         }
+    }
+
+    if (isPet() && GetSpellModOwner())
+    {
+        AuraEffectList const& mModDamagePercentDone = GetSpellModOwner()->GetAuraEffectsByType(SPELL_AURA_MOD_PET_DAMAGE_DONE);
+        for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+            AddPct(DoneTotalMod, (*i)->GetAmount());
     }
 
     AuraEffectList const& mDamageDoneVersus = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
