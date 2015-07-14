@@ -11760,17 +11760,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // 76657 - Mastery : Master of Beasts
-    if (isPet())
-    {
-        Unit* owner = GetOwner();
-        if (owner && owner->GetTypeId() == TYPEID_PLAYER && owner->HasAura(76657))
-        {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f;
-            DoneTotal += CalculatePct(pdamage, Mastery);
-        }
-    }
-
     // Mastery : Emberstorm - 77220
     // Increases the damage of Immolate, Incinerate, Fel Flame and Conflagrate (include the Fire and Brimstone spells)
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && spellProto
@@ -13415,18 +13404,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
         AddPct(DoneTotalMod, Mastery);
-    }
-
-    // Custom MoP Script
-    // 76657 - Mastery : Master of Beasts
-    if (isPet())
-    {
-        Unit* owner = GetOwner();
-        if (owner && owner->GetTypeId() == TYPEID_PLAYER && owner->HasAura(76657))
-        {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f;
-            AddPct(DoneTotalMod, Mastery);
-        }
     }
 
     // Custom MoP Script
