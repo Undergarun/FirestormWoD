@@ -142,38 +142,6 @@ class spell_mastery_molten_earth_periodic: public SpellScriptLoader
         }
 };
 
-/// Mastery: Razor Claws - 77493
-class spell_mastery_razor_claws : public SpellScriptLoader
-{
-    public:
-        spell_mastery_razor_claws() : SpellScriptLoader("spell_mastery_razor_claws") { }
-
-        class spell_mastery_razor_claws_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mastery_razor_claws_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * float(GetSpellInfo()->Effects[EFFECT_1].BonusMultiplier);
-                    p_Amount = l_Mastery;
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_razor_claws_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_razor_claws_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_ADD_PCT_MODIFIER);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mastery_razor_claws_AuraScript();
-        }
-};
-
 /// 76671 - Mastery : Divine Bulwark
 class spell_mastery_divine_bulwark : public SpellScriptLoader
 {
@@ -1070,7 +1038,6 @@ void AddSC_mastery_spell_scripts()
 {
     new spell_mastery_molten_earth();
     new spell_mastery_molten_earth_periodic();
-    new spell_mastery_razor_claws();
     new spell_mastery_executioner();
     new spell_mastery_sniper_training();
     new spell_mastery_recently_moved();
