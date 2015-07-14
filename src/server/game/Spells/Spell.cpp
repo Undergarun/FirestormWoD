@@ -4755,6 +4755,11 @@ void Spell::SendSpellStart()
     if (m_CastItemEntry)
         l_CastFlagsEx |= CastFlagsEx::CAST_FLAG_EX_TOY_COOLDOWN;
 
+    uint32 l_SchoolImmunityMask = m_caster->GetSchoolImmunityMask();
+    uint32 l_MechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+    if (l_SchoolImmunityMask || l_MechanicImmunityMask)
+        l_CastFlags |= CAST_FLAG_IMMUNITY;
+
     if (m_triggeredByAuraSpell)
         l_CastFlags |= CAST_FLAG_PENDING;
 
@@ -4891,8 +4896,11 @@ void Spell::SendSpellStart()
 
     data << uint32(l_ExtraTargetsCount);
 
-    data << uint32(0);
-    data << uint32(0);
+    if (l_CastFlags & CAST_FLAG_IMMUNITY)
+    {
+        data << uint32(l_SchoolImmunityMask);
+        data << uint32(l_MechanicImmunityMask);
+    }
 
     data << uint32(l_PredictAmount);
     data << uint8(l_PredicType);

@@ -13248,6 +13248,26 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo)
     return false;
 }
 
+uint32 Unit::GetSchoolImmunityMask() const
+{
+    uint32 l_Mask = 0;
+    SpellImmuneList const& l_MechanicList = m_spellImmune[IMMUNITY_SCHOOL];
+    for (SpellImmuneList::const_iterator l_Itr = l_MechanicList.begin(); l_Itr != l_MechanicList.end(); ++l_Itr)
+        l_Mask |= l_Itr->type;
+
+    return l_Mask;
+}
+
+uint32 Unit::GetMechanicImmunityMask() const
+{
+    uint32 l_Mask = 0;
+    SpellImmuneList const& l_MechanicList = m_spellImmune[IMMUNITY_MECHANIC];
+    for (SpellImmuneList::const_iterator l_Itr = l_MechanicList.begin(); l_Itr != l_MechanicList.end(); ++l_Itr)
+        l_Mask |= (1 << l_Itr->type);
+
+    return l_Mask;
+}
+
 bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
     if (!spellInfo || !spellInfo->Effects[index].IsEffect())
