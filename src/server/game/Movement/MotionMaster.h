@@ -165,6 +165,11 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void MoveTakeoff(uint32 id, float x, float y, float z);
 
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE);
+        void MoveCharge(Position const* p_Pos, float p_Speed = SPEED_CHARGE, uint32 p_ID = EVENT_CHARGE)
+        {
+            MoveCharge(p_Pos->m_positionX, p_Pos->m_positionY, p_Pos->m_positionZ, p_Speed, p_ID);
+        }
+
         void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ);
         void MoveJumpTo(float angle, float speedXY, float speedZ);
         void MoveJump(float x, float y, float z, float speedXY, float speedZ, float o = 10.0f, uint32 id = 0);

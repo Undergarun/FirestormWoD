@@ -31,6 +31,7 @@
 #include <set>
 #include <string>
 #include <sstream>
+#include <unordered_set>
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
@@ -122,6 +123,7 @@ class ZoneScript;
 class Unit;
 class Transport;
 
+typedef std::unordered_set<uint64> GuidUnorderedSet;
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
 class DynamicFields
@@ -980,9 +982,9 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
-        virtual void SendMessageToSet(WorldPacket* data, bool self);
-        virtual void SendMessageToSetInRange(WorldPacket* data, float dist, bool self);
-        virtual void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr);
+        virtual void SendMessageToSet(WorldPacket* data, bool self, const GuidUnorderedSet& p_IgnoredList = GuidUnorderedSet());
+        virtual void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, const GuidUnorderedSet& p_IgnoredList = GuidUnorderedSet());
+        virtual void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr, const GuidUnorderedSet& p_IgnoredList = GuidUnorderedSet());
 
         virtual uint8 getLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 

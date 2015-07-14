@@ -23,7 +23,8 @@ class boss_tarlna_the_ageless : public CreatureScript
         {
             MainHandEquipID         = 118056,
             MaxGiantLasherSpawns    = 15,
-            HealthScalingCoeff      = 10
+            HealthScalingCoeff      = 10,
+            DamageScalingCoeff      = 1
         };
 
         enum eSpells
@@ -150,9 +151,16 @@ class boss_tarlna_the_ageless : public CreatureScript
                 if (AuraPtr l_Scaling = me->GetAura(eSpells::SouthshoreMobScalingAura))
                 {
                     if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
-                        l_Damage->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    {
+                        if ((eDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
+                            l_Damage->ChangeAmount(eDatas::DamageScalingCoeff * l_Count);
+                    }
+
                     if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
-                        l_Health->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    {
+                        if ((eDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
+                            l_Health->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    }
                 }
             }
 
@@ -178,6 +186,7 @@ class boss_drov_the_ruiner : public CreatureScript
         enum eDatas
         {
             HealthScalingCoeff  = 10,
+            DamageScalingCoeff  = 1,
             RumblingGoren       = 88106,
             FrenziedGoren       = 88119
         };
@@ -319,9 +328,16 @@ class boss_drov_the_ruiner : public CreatureScript
                 if (AuraPtr l_Scaling = me->GetAura(eSpells::SouthshoreMobScalingAura))
                 {
                     if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
-                        l_Damage->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    {
+                        if ((eDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
+                            l_Damage->ChangeAmount(eDatas::DamageScalingCoeff * l_Count);
+                    }
+
                     if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
-                        l_Health->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    {
+                        if ((eDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
+                            l_Health->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    }
                 }
             }
         };

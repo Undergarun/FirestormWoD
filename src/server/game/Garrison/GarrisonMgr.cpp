@@ -1493,7 +1493,7 @@ namespace MS { namespace Garrison
     }
 
     /// Do mission bonus roll
-    void Manager::DoMissionBonusRoll(uint32 p_MissionRecID)
+    void Manager::DoMissionBonusRoll(uint64 p_MissionTableGUID, uint32 p_MissionRecID)
     {
         auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission & p_Mission) -> bool
         {
@@ -1598,7 +1598,38 @@ namespace MS { namespace Garrison
             }
 
             if (!l_IsContractItem)
-                m_Owner->AddItem(l_Item.first, l_Item.second);
+            {
+                uint32 l_NoSpaceForCount = 0;
+                uint32 l_Count = l_Item.second;
+                ItemPosCountVec l_Dest;
+
+                if (m_Owner->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_Item.first, l_Count, &l_NoSpaceForCount) != EQUIP_ERR_OK)
+                    l_Count -= l_NoSpaceForCount;
+
+                if (l_Count == 0 || l_Dest.empty())
+                {
+                    Item* l_NewItem = l_Item.first ? Item::CreateItem(l_Item.first, l_Item.second, m_Owner) : nullptr;
+
+                    int l_LocIDX = m_Owner->GetSession()->GetSessionDbLocaleIndex();
+
+                    MailDraft l_Draft("Garrison mission reward", "");
+
+                    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+                    if (l_NewItem)
+                    {
+                        // /Save new item before send
+                        l_NewItem->SaveToDB(l_Transaction);                               /// Save for prevent lost at next mail load, if send fail then item will deleted
+
+                        /// Item
+                        l_Draft.AddItem(l_NewItem);
+                    }
+
+                    l_Draft.SendMailTo(l_Transaction, m_Owner, MailSender(MAIL_CREATURE, GUID_ENPART(p_MissionTableGUID)));
+                    CharacterDatabase.CommitTransaction(l_Transaction);
+                }
+                else
+                    m_Owner->AddItem(l_Item.first, l_Item.second);
+            }
         }
 
         std::vector<GarrisonFollower*> l_MissionFollowers;

@@ -2599,7 +2599,7 @@ uint8 Player::GetChatTag() const
     return tag;
 }
 
-void Player::SendTeleportPacket(Position &l_OldPosition)
+void Player::SendTeleportPacket(Position& p_OldPosition)
 {
     ObjectGuid l_TransportGUID = GetTransGUID();
     bool l_HasVehicle = false;
@@ -2630,7 +2630,7 @@ void Player::SendTeleportPacket(Position &l_OldPosition)
     SendDirectMessage(&l_TeleportPacket);
 
     GetPosition(&m_mover->m_movementInfo.pos);
-    Relocate(&l_OldPosition);
+    Relocate(&p_OldPosition);
 
     WorldPacket l_TeleportUpdatePacket(SMSG_MOVE_UPDATE_TELEPORT, 300);
 
@@ -2661,69 +2661,69 @@ void Player::SendTeleportPacket(Position &l_OldPosition)
     SendMessageToSet(&l_TeleportUpdatePacket, this);
 }
 
-bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
+bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_Options)
 {
-    //sAnticheatMgr->DisableAnticheatDetection(this,true);
-
-    if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
+    if (!MapManager::IsValidMapCoord(p_MapID, p_X, p_Y, p_Z, p_O))
     {
-        sLog->outError(LOG_FILTER_MAPS, "TeleportTo: invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player (GUID: %u, name: %s, map: %d, X: %f, Y: %f, Z: %f, O: %f).",
-            mapid, x, y, z, orientation, GetGUIDLow(), GetName(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+        sLog->outError(LogFilterType::LOG_FILTER_MAPS, "TeleportTo: invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player (GUID: %u, name: %s, map: %d, X: %f, Y: %f, Z: %f, O: %f).",
+            p_MapID, p_X, p_Y, p_Z, p_O, GetGUIDLow(), GetName(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         return false;
     }
 
-    if (AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()) && DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, mapid, this))
+    if (AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()) && DisableMgr::IsDisabledFor(DisableType::DISABLE_TYPE_MAP, p_MapID, this))
     {
-        sLog->outError(LOG_FILTER_MAPS, "Player (GUID: %u, name: %s) tried to enter a forbidden map %u", GetGUIDLow(), GetName(), mapid);
-        SendTransferAborted(mapid, TRANSFER_ABORT_MAP_NOT_ALLOWED);
+        sLog->outError(LogFilterType::LOG_FILTER_MAPS, "Player (GUID: %u, name: %s) tried to enter a forbidden map %u", GetGUIDLow(), GetName(), p_MapID);
+        SendTransferAborted(p_MapID, TRANSFER_ABORT_MAP_NOT_ALLOWED);
         return false;
     }
 
-    // preparing unsummon pet if lost (we must get pet before teleportation or will not find it later)
-    Pet* pet = GetPet();
+    /// Preparing unsummon pet if lost (we must get pet before teleportation or will not find it later)
+    Pet* l_Pet = GetPet();
 
-    MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
+    MapEntry const* l_MapEntry = sMapStore.LookupEntry(p_MapID);
 
-    // don't let enter battlegrounds without assigned battleground id (for example through areatrigger)...
-    // don't let gm level > 1 either
-    if (!InBattleground() && mEntry->IsBattlegroundOrArena())
+    /// Don't let enter battlegrounds without assigned battleground id (for example through areatrigger)...
+    /// Don't let gm level > 1 either
+    if (!InBattleground() && l_MapEntry->IsBattlegroundOrArena())
         return false;
 
-    // client without expansion support
-    if (GetSession()->Expansion() < mEntry->Expansion())
+    /// Client without expansion support
+    if (GetSession()->Expansion() < l_MapEntry->Expansion())
     {
-        sLog->outDebug(LOG_FILTER_MAPS, "Player %s using client without required expansion tried teleport to non accessible map %u", GetName(), mapid);
+        sLog->outDebug(LogFilterType::LOG_FILTER_MAPS, "Player %s using client without required expansion tried teleport to non accessible map %u", GetName(), p_MapID);
 
         if (GetTransport())
         {
             m_transport->RemovePassenger(this);
-            m_transport = NULL;
+            m_transport = nullptr;
             m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
             m_movementInfo.t_time = 0;
             m_movementInfo.t_seat = -1;
-            RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
+
+            /// Teleport to near graveyard if on transport, looks blizz like :)
+            RepopAtGraveyard();
         }
 
-        SendTransferAborted(mapid, TRANSFER_ABORT_INSUF_EXPAN_LVL, mEntry->Expansion());
-
-        return false;                                       // normal client can't teleport to this map...
+        SendTransferAborted(p_MapID, TRANSFER_ABORT_INSUF_EXPAN_LVL, l_MapEntry->Expansion());
+        /// Normal client can't teleport to this map...
+        return false;
     }
     else
-        sLog->outDebug(LOG_FILTER_MAPS, "Player %s is being teleported to map %u", GetName(), mapid);
+        sLog->outDebug(LogFilterType::LOG_FILTER_MAPS, "Player %s is being teleported to map %u", GetName(), p_MapID);
 
     if (m_vehicle)
         ExitVehicle();
 
-    // reset movement flags at teleport, because player will continue move with these flags after teleport
+    /// Reset movement flags at teleport, because player will continue move with these flags after teleport
     SetUnitMovementFlags(0);
     DisableSpline();
 
     if (m_transport)
     {
-        if (!(options & TELE_TO_NOT_LEAVE_TRANSPORT))
+        if (!(p_Options & TeleportToOptions::TELE_TO_NOT_LEAVE_TRANSPORT))
         {
             m_transport->RemovePassenger(this);
-            m_transport = NULL;
+            m_transport = nullptr;
             m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
             m_movementInfo.t_time = 0;
             m_movementInfo.t_seat = -1;
@@ -2731,237 +2731,239 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         }
     }
 
-    // The player was ported to another map and loses the duel immediately.
-    // We have to perform this check before the teleport, otherwise the
-    // ObjectAccessor won't find the flag.
-    if (m_Duel && GetMapId() != mapid && GetMap()->GetGameObject(GetGuidValue(PLAYER_FIELD_DUEL_ARBITER)))
-        DuelComplete(DUEL_FLED);
+    /// The player was ported to another map and loses the duel immediately.
+    /// We have to perform this check before the teleport, otherwise the
+    /// ObjectAccessor won't find the flag.
+    if (m_Duel && GetMapId() != p_MapID && GetMap()->GetGameObject(GetGuidValue(EPlayerFields::PLAYER_FIELD_DUEL_ARBITER)))
+        DuelComplete(DuelCompleteType::DUEL_FLED);
 
-    if (GetMapId() == mapid)
+    if (GetMapId() == p_MapID)
     {
-        //lets reset far teleport flag if it wasn't reset during chained teleports
+        /// Lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
-        //setup delayed teleport flag
+        /// Setup delayed teleport flag
         SetDelayedTeleportFlag(IsCanDelayTeleport());
-        //if teleport spell is casted in Unit::Update() func
-        //then we need to delay it until update process will be finished
+        /// If teleport spell is casted in Unit::Update() func
+        /// Then we need to delay it until update process will be finished
         if (IsHasDelayedTeleport())
         {
             SetSemaphoreTeleportNear(true);
-            //lets save teleport destination for player
-            m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
-            m_teleport_options = options;
+            /// Lets save teleport destination for player
+            m_teleport_dest = WorldLocation(p_MapID, p_X, p_Y, p_Z, p_O);
+            m_teleport_options = p_Options;
             return true;
         }
 
-        if (!(options & TELE_TO_NOT_UNSUMMON_PET))
+        if (!(p_Options & TeleportToOptions::TELE_TO_NOT_UNSUMMON_PET))
         {
-            //same map, only remove pet if out of range for new position
-            if (pet && !pet->IsWithinDist3d(x, y, z, GetMap()->GetVisibilityRange()))
+            /// Same map, only remove pet if out of range for new position
+            if (l_Pet && !l_Pet->IsWithinDist3d(p_X, p_Y, p_Z, GetMap()->GetVisibilityRange()))
             {
                 UnsummonPetTemporaryIfAny();
                 UnsummonCurrentBattlePetIfAny(true);
             }
         }
 
-        if (!(options & TELE_TO_NOT_LEAVE_COMBAT))
+        if (!(p_Options & TeleportToOptions::TELE_TO_NOT_LEAVE_COMBAT))
             CombatStop();
 
-        // this will be used instead of the current location in SaveToDB
-        m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
-        SetFallInformation(0, z);
+        /// This will be used instead of the current location in SaveToDB
+        m_teleport_dest = WorldLocation(p_MapID, p_X, p_Y, p_Z, p_O);
+        SetFallInformation(0, p_Z);
 
-        // code for finish transfer called in WorldSession::HandleMovementOpcodes()
-        // at client packet CMSG_MOVE_TELEPORT_ACK
+        /// Code for finish transfer called in WorldSession::HandleMovementOpcodes()
+        /// At client packet CMSG_MOVE_TELEPORT_ACK
         SetSemaphoreTeleportNear(true);
-        // near teleport, triggering send CMSG_MOVE_TELEPORT_ACK from client at landing
+        /// Near teleport, triggering send CMSG_MOVE_TELEPORT_ACK from client at landing
         if (!GetSession()->PlayerLogout())
         {
-            Position oldPos;
-            GetPosition(&oldPos);
-            Relocate(x, y, z, orientation);
-            SendTeleportPacket(oldPos); // this automatically relocates to oldPos in order to broadcast the packet in the right place
+            Position l_OldPos = *this;
+            Relocate(p_X, p_Y, p_Z, p_O);
+
+            /// This automatically relocates to oldPos in order to broadcast the packet in the right place
+            SendTeleportPacket(l_OldPos);
         }
     }
     else
     {
-        // Pandaria
-        if (mapid == 870  && getLevel() < 85 && getClass() != CLASS_MONK  && !isGameMaster())
+        /// Pandaria
+        if (p_MapID == 870  && getLevel() < 85 && getClass() != Classes::CLASS_MONK  && !isGameMaster())
             return false;
 
-        // Tréfonds
-         if ( mapid == 646  && getLevel() < 80 && !isGameMaster())
+        /// Deepholm
+        if (p_MapID == 646  && getLevel() < 80 && !isGameMaster())
             return false;
 
-        if (GetMapId() == 860 && GetTeamId() == TEAM_NEUTRAL)
+        if (GetMapId() == 860 && GetTeamId() == TeamId::TEAM_NEUTRAL)
             return false;
 
-        // far teleport to another map
-        Map* oldmap = IsInWorld() ? GetMap() : NULL;
-        // check if we can enter before stopping combat / removing pet / totems / interrupting spells
+        /// Far teleport to another map
+        Map* l_OldMap = IsInWorld() ? GetMap() : nullptr;
+        /// Check if we can enter before stopping combat / removing pet / totems / interrupting spells
 
-        // Check enter rights before map getting to avoid creating instance copy for player
-        // this check not dependent from map instance copy and same for all instance copies of selected map
-        if (!sMapMgr->CanPlayerEnter(mapid, this, false))
+        /// Check enter rights before map getting to avoid creating instance copy for player
+        /// This check not dependent from map instance copy and same for all instance copies of selected map
+        if (!sMapMgr->CanPlayerEnter(p_MapID, this, false))
             return false;
 
-        if (Group* group = GetGroup())
+        if (Group* l_Group = GetGroup())
         {
-            if (mEntry->IsDungeon())
-                group->IncrementPlayersInInstance();
+            if (l_MapEntry->IsDungeon())
+                l_Group->IncrementPlayersInInstance();
             else
-                group->DecrementPlayersInInstance();
+                l_Group->DecrementPlayersInInstance();
         }
 
-        //I think this always returns true. Correct me if I am wrong.
-        // If the map is not created, assume it is possible to enter it.
-        // It will be created in the WorldPortAck.
-        //Map* map = sMapMgr->FindBaseNonInstanceMap(mapid);
-        //if (!map || map->CanEnter(this))
+        /// I think this always returns true. Correct me if I am wrong.
+        /// If the map is not created, assume it is possible to enter it.
+        /// It will be created in the WorldPortAck.
+        /// Lets reset near teleport flag if it wasn't reset during chained teleports
+        SetSemaphoreTeleportNear(false);
+
+        /// Setup delayed teleport flag
+        SetDelayedTeleportFlag(IsCanDelayTeleport());
+
+        /// If teleport spell is casted in Unit::Update() func
+        /// Then we need to delay it until update process will be finished
+        if (IsHasDelayedTeleport())
         {
-            //lets reset near teleport flag if it wasn't reset during chained teleports
-            SetSemaphoreTeleportNear(false);
-            //setup delayed teleport flag
-            SetDelayedTeleportFlag(IsCanDelayTeleport());
-            //if teleport spell is casted in Unit::Update() func
-            //then we need to delay it until update process will be finished
-            if (IsHasDelayedTeleport())
+            SetSemaphoreTeleportFar(true);
+
+            /// Lets save teleport destination for player
+            m_teleport_dest = WorldLocation(p_MapID, p_X, p_Y, p_Z, p_O);
+            m_teleport_options = p_Options;
+            return true;
+        }
+
+        SetSelection(0);
+        CombatStop();
+        ResetContestedPvP();
+
+        /// Remove player from battleground on far teleport (when changing maps)
+        if (Battleground const* l_Battleground = GetBattleground())
+        {
+            /// Note: at battleground join battleground id set before teleport
+            /// And we already will found "current" battleground
+            /// Just need check that this is targeted map or leave
+
+            /// Don't teleport to entry point
+            if (l_Battleground->GetMapId() != p_MapID)
+                LeaveBattleground(false);
+        }
+
+        /// Remove arena spell coldowns/buffs now to also remove pet's cooldowns before it's temporarily unsummoned
+        if (l_MapEntry->IsBattleArena())
+        {
+            RemoveArenaSpellCooldowns(true);
+            RemoveArenaAuras();
+
+            if (l_Pet)
+                l_Pet->RemoveArenaAuras();
+        }
+
+        /// Remove pet on map change
+        if (l_Pet)
+            UnsummonPetTemporaryIfAny();
+
+        UnsummonCurrentBattlePetIfAny(true);
+
+        /// Remove stealth on map change
+        if (HasAuraType(AuraType::SPELL_AURA_MOD_STEALTH))
+        {
+            RemoveAurasByType(AuraType::SPELL_AURA_MOD_STEALTH);
+
+            switch (getClass())
             {
-                SetSemaphoreTeleportFar(true);
-                //lets save teleport destination for player
-                m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
-                m_teleport_options = options;
-                return true;
+                case Classes::CLASS_ROGUE:
+                    RemoveSpellCooldown(1784);
+                    RemoveSpellCooldown(115191);
+                    break;
+                case Classes::CLASS_DRUID:
+                    RemoveSpellCooldown(5215);
+                    break;
+                default:
+                    break;
             }
+        }
 
-            SetSelection(0);
-            CombatStop();
-            ResetContestedPvP();
+        /// Remove all dyn objects and AreaTrigger
+        RemoveAllDynObjects();
+        RemoveAllAreasTrigger();
 
-            // remove player from battleground on far teleport (when changing maps)
-            if (Battleground const* bg = GetBattleground())
-            {
-                // Note: at battleground join battleground id set before teleport
-                // and we already will found "current" battleground
-                // just need check that this is targeted map or leave
-                if (bg->GetMapId() != mapid)
-                    LeaveBattleground(false);                   // don't teleport to entry point
-            }
+        /// Stop spellcasting
+        /// Not attempt interrupt teleportation spell at caster teleport
+        if (!(p_Options & TeleportToOptions::TELE_TO_SPELL))
+        {
+            if (IsNonMeleeSpellCasted(true))
+                InterruptNonMeleeSpells(true);
+        }
 
-            // remove arena spell coldowns/buffs now to also remove pet's cooldowns before it's temporarily unsummoned
-            if (mEntry->IsBattleArena())
-            {
-                RemoveArenaSpellCooldowns(true);
-                RemoveArenaAuras();
-                if (pet)
-                    pet->RemoveArenaAuras();
-            }
+        /// Remove auras before removing from map...
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::AURA_INTERRUPT_FLAG_CHANGE_MAP | SpellAuraInterruptFlags::AURA_INTERRUPT_FLAG_MOVE | SpellAuraInterruptFlags::AURA_INTERRUPT_FLAG_TURNING);
 
-            // remove pet on map change
-            if (pet)
-            {
-                UnsummonPetTemporaryIfAny();
-            }
-            UnsummonCurrentBattlePetIfAny(true);
+        if (!GetSession()->PlayerLogout())
+        {
+            /// Send transfer packets
+            bool l_TransferSpellID = false;
 
-            // remove stealth on map change
-            if (HasAuraType(SPELL_AURA_MOD_STEALTH))
-            {
-                RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+            WorldPacket l_Data(Opcodes::SMSG_TRANSFER_PENDING, 50);
 
-                switch (getClass())
-                {
-                    case CLASS_ROGUE:
-                        RemoveSpellCooldown(1784);
-                        RemoveSpellCooldown(115191);
-                        break;
-                    case CLASS_DRUID:
-                        RemoveSpellCooldown(5215);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            // remove all dyn objects and AreaTrigger
-            RemoveAllDynObjects();
-            RemoveAllAreasTrigger();
-
-            // stop spellcasting
-            // not attempt interrupt teleportation spell at caster teleport
-            if (!(options & TELE_TO_SPELL))
-                if (IsNonMeleeSpellCasted(true))
-                    InterruptNonMeleeSpells(true);
-
-            //remove auras before removing from map...
-            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
-
-            if (!GetSession()->PlayerLogout())
-            {
-                // send transfer packets
-                bool l_TransferSpellID = false;
-
-                WorldPacket data(SMSG_TRANSFER_PENDING, 50);
-
-                data << uint32(mapid);
-                data.WriteBit(m_transport != NULL);
-                data.WriteBit(0);
-                data.FlushBits();
-
-                if (m_transport)
-                    data << m_transport->GetEntry() << GetMapId();
-
-                if (l_TransferSpellID)
-                    data << uint32(0);
-
-                GetSession()->SendPacket(&data);
-            }
-
-            // remove from old map now
-            if (oldmap)
-                oldmap->RemovePlayerFromMap(this, false);
-
-            // new final coordinates
-            float final_x = x;
-            float final_y = y;
-            float final_z = z;
-            float final_o = orientation;
+            l_Data << uint32(p_MapID);
+            l_Data.WriteBit(m_transport != nullptr);
+            l_Data.WriteBit(0);
+            l_Data.FlushBits();
 
             if (m_transport)
-            {
-                final_x += m_movementInfo.t_pos.GetPositionX();
-                final_y += m_movementInfo.t_pos.GetPositionY();
-                final_z += m_movementInfo.t_pos.GetPositionZ();
-                final_o += m_movementInfo.t_pos.GetOrientation();
-            }
+                l_Data << m_transport->GetEntry() << GetMapId();
 
-            m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
-            SetFallInformation(0, final_z);
-            // if the player is saved before worldportack (at logout for example)
-            // this will be used instead of the current location in SaveToDB
+            if (l_TransferSpellID)
+                l_Data << uint32(0);
 
-            if (!GetSession()->PlayerLogout())
-            {
-                WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4 + 4);
-
-                l_Data << uint32(mapid);                                    ///< uint32
-                l_Data << float(m_teleport_dest.GetPositionX());            ///< float
-                l_Data << float(m_teleport_dest.GetPositionY());            ///< float
-                l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
-                l_Data << float(m_teleport_dest.GetOrientation());          ///< float
-                l_Data << uint32(0);                                        ///< uint32 => TransferSpellID
-
-                GetSession()->SendPacket(&l_Data);
-
-                SendSavedInstances();
-            }
-
-            // move packet sent by client always after far teleport
-            // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
-            SetSemaphoreTeleportFar(true);
+            GetSession()->SendPacket(&l_Data);
         }
-        //else
-        //    return false;
+
+        /// Remove from old map now
+        if (l_OldMap)
+            l_OldMap->RemovePlayerFromMap(this, false);
+
+        /// New final coordinates
+        float l_FinalX = p_X;
+        float l_FinalY = p_Y;
+        float l_FinalZ = p_Z;
+        float l_FinalO = p_O;
+
+        if (m_transport)
+        {
+            l_FinalX += m_movementInfo.t_pos.GetPositionX();
+            l_FinalY += m_movementInfo.t_pos.GetPositionY();
+            l_FinalZ += m_movementInfo.t_pos.GetPositionZ();
+            l_FinalO += m_movementInfo.t_pos.GetOrientation();
+        }
+
+        m_teleport_dest = WorldLocation(p_MapID, l_FinalX, l_FinalY, l_FinalZ, l_FinalO);
+        SetFallInformation(0, l_FinalZ);
+
+        /// If the player is saved before worldportack (at logout for example)
+        /// This will be used instead of the current location in SaveToDB
+        if (!GetSession()->PlayerLogout())
+        {
+            WorldPacket l_Data(Opcodes::SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4 + 4);
+            l_Data << uint32(p_MapID);                                  ///< uint32
+            l_Data << float(m_teleport_dest.GetPositionX());            ///< float
+            l_Data << float(m_teleport_dest.GetPositionY());            ///< float
+            l_Data << float(m_teleport_dest.GetPositionZ());            ///< float
+            l_Data << float(m_teleport_dest.GetOrientation());          ///< float
+            l_Data << uint32(0);                                        ///< uint32 => TransferSpellID
+            GetSession()->SendPacket(&l_Data);
+
+            SendSavedInstances();
+        }
+
+        /// Move packet sent by client always after far teleport
+        /// Code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
+        SetSemaphoreTeleportFar(true);
     }
+
     return true;
 }
 
@@ -4801,24 +4803,17 @@ void Player::InitStatsForLevel(bool reapplyMods)
         SetUInt32Value(index, 0);
 
     SetUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, 0);
+    SetFloatValue(PLAYER_FIELD_MOD_HEALING_PERCENT, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PERCENT, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT, 1.0f);
     for (uint8 i = 0; i < 7; ++i)
     {
         SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG+i, 0);
         SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, 0);
         SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT+i, 1.00f);
     }
+
     SetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PERCENT, 1.0f);
-
-    // Set new PCT MoP field to 1.0f to get correct client tooltip
-    SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT, 1.0f);
-    SetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PERCENT, 1.0f);
-    SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT, 1.0f);
-
-    for (uint8 l_WeaponAttackType = WeaponAttackType::BaseAttack; l_WeaponAttackType < WeaponAttackType::MaxAttack; l_WeaponAttackType++)
-    {
-        SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS       + l_WeaponAttackType, 1.0f);
-        SetFloatValue(PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS + l_WeaponAttackType, 1.0f);
-    }
 
     //reset attack power, damage and attack speed fields
     SetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME, 2000.0f);
@@ -4831,6 +4826,11 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, 0.0f);
     SetFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, 0.0f);
     SetFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, 0.0f);
+    for (uint8 l_WeaponAttackType = WeaponAttackType::BaseAttack; l_WeaponAttackType < WeaponAttackType::MaxAttack; l_WeaponAttackType++)
+    {
+        SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS       + l_WeaponAttackType, 1.0f);
+        SetFloatValue(PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS + l_WeaponAttackType, 1.0f);
+    }
 
     SetInt32Value(UNIT_FIELD_ATTACK_POWER,            0);
     SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 0.0f);
@@ -7921,10 +7921,6 @@ void Player::UpdateRating(CombatRating p_CombatRating)
     {
         float l_HastePct = l_Amount * GetRatingMultiplier(p_CombatRating);
 
-        /// last update : 6.1.2 19802
-        if (HasAura(120275)) ///< Way of the Monk
-            l_HastePct += 55.0f;
-
         AuraEffectList const& l_HasteAuras = GetAuraEffectsByType(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK);
         for (AuraEffectList::const_iterator l_Iter = l_HasteAuras.begin(); l_Iter != l_HasteAuras.end(); ++l_Iter)
         {
@@ -8569,13 +8565,13 @@ void Player::SendActionButtons(uint32 p_State) const
 
     if (p_State != 2)
     {
-        //Masks
-        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+        /// Masks
+        for (uint8 l_Button = 0; l_Button < MAX_ACTION_BUTTONS; ++l_Button)
         {
-            ActionButtonList::const_iterator itr = m_actionButtons.find(button);
+            auto l_Iter = m_actionButtons.find(l_Button);
 
-            if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
-                l_Data << uint64(itr->second.packedData);
+            if (l_Iter != m_actionButtons.end() && l_Iter->second.uState != ACTIONBUTTON_DELETED)
+                l_Data << uint64(l_Iter->second.packedData);
             else
                 l_Data << uint64(0);
         }
@@ -8583,9 +8579,7 @@ void Player::SendActionButtons(uint32 p_State) const
     else
     {
         for (uint32 l_I = 0; l_I < MAX_ACTION_BUTTONS; l_I++)
-        {
             l_Data << uint64(0);
-        }
     }
 
     l_Data << uint8(p_State);
@@ -8593,20 +8587,6 @@ void Player::SendActionButtons(uint32 p_State) const
     GetSession()->SendPacket(&l_Data);
 
     sLog->outInfo(LOG_FILTER_NETWORKIO, "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
-}
-
-void Player::BuildActionButtonsDatas(WorldPacket* data, uint8 buttons[MAX_ACTION_BUTTONS][8], uint8 order, bool byte) const
-{
-    if (!byte)
-    {
-        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
-            data->WriteBit(buttons[button][order]);
-    }
-    else
-    {
-        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
-            data->WriteByteSeq(buttons[button][order]);
-    }
 }
 
 bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
@@ -8737,12 +8717,12 @@ void Player::SaveRecallPosition()
     m_recallO = GetOrientation();
 }
 
-void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self)
+void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self, const GuidUnorderedSet& p_IgnoreList)
 {
     if (self)
         GetSession()->SendPacket(data);
 
-    JadeCore::MessageDistDeliverer notifier(this, data, dist);
+    JadeCore::MessageDistDeliverer notifier(this, data, dist, false, nullptr, p_IgnoreList);
     VisitNearbyWorldObject(dist, notifier);
 }
 
@@ -8755,14 +8735,14 @@ void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self, b
     VisitNearbyWorldObject(dist, notifier);
 }
 
-void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
+void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr, const GuidUnorderedSet& p_IgnoreList)
 {
     if (skipped_rcvr != this)
         GetSession()->SendPacket(data);
 
     // we use World::GetMaxVisibleDistance() because i cannot see why not use a distance
     // update: replaced by GetMap()->GetVisibilityDistance()
-    JadeCore::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr);
+    JadeCore::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr, p_IgnoreList);
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
@@ -15534,6 +15514,18 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
             }
             else
                 RemoveAura(84601);
+        }
+    }
+    /// Single-Minded Fury - 81099
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        if (getClass() == CLASS_WARRIOR && ToPlayer()->GetSpecializationId() == SPEC_WARRIOR_FURY)
+        {
+            if (HasAura(81099))
+            {
+                RemoveAura(81099);
+                AddAura(81099, this);
+            }
         }
     }
 
@@ -26300,7 +26292,8 @@ void Player::UpdatePotionCooldown(Spell* spell)
                 if (proto->Spells[idx].SpellId && proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
                     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
                     {
-                        SendCooldownEvent(spellInfo, m_lastPotionId);
+                        if (!HasSpellCooldown(spellInfo->Id))
+                            SendCooldownEvent(spellInfo, m_lastPotionId);
                         found = true;
                     }
             // if not - used by Spinal Healing Injector
@@ -32834,7 +32827,6 @@ void Player::UpdatePvP(uint32 diff)
 void Player::OnLeavePvPCombat()
 {
     RescaleAllItemsIfNeeded(true);
-    UpdatePotionCooldown();
 }
 
 /// Get pet battle combat team size
