@@ -11761,19 +11761,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // 76547 - Mastery : Mana Adept
-    if (spellProto && GetTypeId() == TYPEID_PLAYER)
-    {
-        if (HasAura(76547))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-            float manapct = float(GetPower(POWER_MANA)) / float(GetMaxPower(POWER_MANA));
-            float bonus = 0;
-            bonus = (Mastery * manapct);
-            DoneTotal += CalculatePct(pdamage, bonus);
-        }
-    }
-
     // 77514 - Mastery : Frozen Heart
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST))
     {
