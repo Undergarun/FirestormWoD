@@ -3349,8 +3349,11 @@ void Player::Regenerate(Powers power)
             }
             /// Regenerate Focus
             case POWER_FOCUS:
-                addvalue += (5.0f + CalculatePct(5.0f, HastePct)) * sWorld->getRate(RATE_POWER_FOCUS);
+            {
+                float l_HastePct = 1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE);
+                addvalue += 4.0f * l_HastePct * sWorld->getRate(RATE_POWER_FOCUS);
                 break;
+            }
             /// Regenerate Energy
             case POWER_ENERGY:
                 addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);

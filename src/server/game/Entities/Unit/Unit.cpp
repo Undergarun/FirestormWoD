@@ -17132,14 +17132,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         {
             if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131361) && !(procExtra & PROC_EX_ABSORB) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && ((procSpell && procSpell->Id != 146347) || !procSpell))
             {
-                /// Doesn't call Subterfuge from Drain Life spell
-                if ((procSpell && procSpell->Id != 146347) || !procSpell)
+                /// Doesn't call Subterfuge from Drain Life and Touch of the Grave spells
+                if ((procSpell && procSpell->Id != 146347 && procSpell->Id != 127802) || !procSpell)
                     CastSpell(this, 115192, true);
             }
         }
 
-        /// Hack Fix for Subterfuge with Drain Life
-        if (spellInfo->Id == 115191 && procSpell && procSpell->Id == 146347)
+        /// Hack Fix for Subterfuge with Drain Life and Touch of the Grave
+        if (spellInfo->Id == 115191 && procSpell && (procSpell->Id == 146347 || procSpell->Id == 127802))
             useCharges = false;
 
         // Hack Fix - Vanish :  If rogue has vanish aura stealth is not removed on periodic damage
