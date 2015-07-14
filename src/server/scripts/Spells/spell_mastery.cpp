@@ -142,42 +142,6 @@ class spell_mastery_molten_earth_periodic: public SpellScriptLoader
         }
 };
 
-/// Molten Earth Damage - 170379
-class spell_mastery_molten_earth_damage: public SpellScriptLoader
-{
-    public:
-        spell_mastery_molten_earth_damage() : SpellScriptLoader("spell_mastery_molten_earth_damage") { }
-
-        class spell_mastery_molten_earth_damage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mastery_molten_earth_damage_SpellScript);
-
-            void HandleDamage(SpellEffIndex)
-            {
-                Unit* l_Target = GetHitUnit();
-                Unit* l_Caster = GetCaster();
-                if (!l_Target || !l_Caster)
-                    return;
-
-                if (AuraPtr l_Aura = l_Caster->GetAura(MoltenEarthSpells::MoltenEarthAura))
-                {
-                    if (Player* l_Player = l_Caster->ToPlayer())
-                        SetHitDamage(GetHitDamage() * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * l_Aura->GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier / 100);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_mastery_molten_earth_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mastery_molten_earth_damage_SpellScript();
-        }
-};
-
 /// Mastery: Razor Claws - 77493
 class spell_mastery_razor_claws : public SpellScriptLoader
 {
@@ -1106,7 +1070,6 @@ void AddSC_mastery_spell_scripts()
 {
     new spell_mastery_molten_earth();
     new spell_mastery_molten_earth_periodic();
-    new spell_mastery_molten_earth_damage();
     new spell_mastery_razor_claws();
     new spell_mastery_executioner();
     new spell_mastery_sniper_training();

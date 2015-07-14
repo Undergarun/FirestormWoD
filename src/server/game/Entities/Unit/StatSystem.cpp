@@ -308,14 +308,6 @@ void Player::UpdateArmor()
             l_Armor += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
     }
 
-    // Custom MoP Script
-    // 77494 - Mastery : Nature's Guardian
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(77494))
-    {
-        float l_Mastery = 1.0f + GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
-        l_Armor *= l_Mastery;
-    }
-
     SetArmor(int32(l_Armor));
 
     if (Pet* l_Pet = GetPet())
@@ -889,10 +881,6 @@ void Player::UpdateMasteryPercentage()
         value = value < 0.0f ? 0.0f : value;
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
-
-    // 77494 - Mastery : Nature's Guardian - Update Armor
-    if (HasAura(77494))
-        UpdateArmor();
 
     /// Update some mastery spells
     AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
