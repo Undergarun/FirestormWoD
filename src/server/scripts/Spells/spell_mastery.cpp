@@ -142,39 +142,6 @@ class spell_mastery_molten_earth_periodic: public SpellScriptLoader
         }
 };
 
-/// Mastery: Executioner - 76808
-class spell_mastery_executioner : public SpellScriptLoader
-{
-    public:
-        spell_mastery_executioner() : SpellScriptLoader("spell_mastery_executioner") { }
-
-        class spell_mastery_executioner_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mastery_executioner_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr p_AuraPtr, int32& p_Amount, bool&)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * float(GetSpellInfo()->Effects[p_AuraPtr->GetEffIndex()].BonusMultiplier);
-                    p_Amount = l_Mastery;
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_executioner_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_executioner_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_executioner_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_ADD_PCT_MODIFIER);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mastery_executioner_AuraScript();
-        }
-};
-
 /// Mastery: Sniper Training - 76659
 class spell_mastery_sniper_training : public SpellScriptLoader
 {
@@ -1005,7 +972,6 @@ void AddSC_mastery_spell_scripts()
 {
     new spell_mastery_molten_earth();
     new spell_mastery_molten_earth_periodic();
-    new spell_mastery_executioner();
     new spell_mastery_sniper_training();
     new spell_mastery_recently_moved();
     new spell_mastery_sniper_training_aura();
