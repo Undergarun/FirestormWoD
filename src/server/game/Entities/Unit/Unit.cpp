@@ -12774,13 +12774,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         DoneTotal += CalculatePct(healamount, PvPPower);
     }
 
-    // 77484 - Mastery : Shield Discipline
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && healamount != 0 && HasAura(77484))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
-        DoneTotal += CalculatePct(healamount, Mastery);
-    }
-
     // 77226 - Mastery : Deep Healing
     if ((GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER && GetOwner()->HasAura(77226)) || (GetTypeId() == TYPEID_PLAYER && HasAura(77226)))
     {
