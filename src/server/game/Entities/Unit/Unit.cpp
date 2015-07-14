@@ -11775,16 +11775,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
-    // 77223 - Mastery : Enhanced Elements
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE))
-    {
-        if (HasAura(77223))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-            DoneTotal += CalculatePct(pdamage, Mastery);
-        }
-    }
-
     // 77492 - Mastery : Total Eclipse
     if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE) && HasAura(77492) && HasAura(48517)) // Solar Eclipse
     {
@@ -13333,17 +13323,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                 SpellInfo const* l_GlyphOfSavagery = sSpellMgr->GetSpellInfo(155836);
                 AddPct(DoneTotalMod, l_GlyphOfSavagery->Effects[EFFECT_0].BasePoints);
             }
-        }
-    }
-
-    // Custom MoP Script
-    // 77223 - Mastery : Enhanced Elements
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE))
-    {
-        if (HasAura(77223))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-            AddPct(DoneTotalMod, Mastery);
         }
     }
 
