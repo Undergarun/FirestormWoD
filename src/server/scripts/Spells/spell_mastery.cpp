@@ -832,6 +832,7 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
         }
 };
 
+<<<<<<< HEAD
 enum MasterAnguish
 {
     SPELL_PRIEST_MIND_BLAST = 8092,
@@ -947,6 +948,5 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_ignite();
     new spell_mastery_hand_of_light();
     new spell_mastery_elemental_overload();
-    new spell_mastery_master_mental_anguish();
     new spell_mastery_primal_tenacity();
 }
