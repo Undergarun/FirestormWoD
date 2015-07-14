@@ -832,42 +832,6 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
         }
 };
 
-// Call by Mortal Strike - 12294, Colossus Smash - 167105, Execute - 5308
-// Mastery: Weapons Master - 76338
-class spell_mastery_weapons_master : public SpellScriptLoader
-{
-    public:
-        spell_mastery_weapons_master() : SpellScriptLoader("spell_mastery_weapons_master") { }
-
-        class spell_mastery_weapons_master_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mastery_weapons_master_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
-                    {
-                        float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
-
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_mastery_weapons_master_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mastery_weapons_master_SpellScript();
-        }
-};
-
 enum MasterAnguish
 {
     SPELL_PRIEST_MIND_BLAST = 8092,
@@ -983,7 +947,6 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_ignite();
     new spell_mastery_hand_of_light();
     new spell_mastery_elemental_overload();
-    new spell_mastery_weapons_master();
     new spell_mastery_master_mental_anguish();
     new spell_mastery_primal_tenacity();
 }
