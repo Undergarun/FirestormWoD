@@ -12774,21 +12774,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         DoneTotal += CalculatePct(healamount, PvPPower);
     }
 
-    // 77226 - Mastery : Deep Healing
-    if ((GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER && GetOwner()->HasAura(77226)) || (GetTypeId() == TYPEID_PLAYER && HasAura(77226)))
-    {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-            
-            if (GetOwner())
-                Mastery = GetOwner()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-
-            float healthpct = victim->GetHealthPct();
-
-            float bonus = 0;
-            bonus = CalculatePct((1 + (100.0f - healthpct)), Mastery);
-            DoneTotal += CalculatePct(healamount, bonus);
-    }
-
     /// Apply Versatility healing bonus done
     if (GetSpellModOwner())
         DoneTotal += CalculatePct(healamount, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
