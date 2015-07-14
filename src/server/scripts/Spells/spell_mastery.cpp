@@ -1042,36 +1042,6 @@ class spell_mastery_master_mental_anguish : public SpellScriptLoader
             }
         };
 
-        class spell_mastery_master_mental_anguish_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mastery_master_mental_anguish_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (GetSpellInfo()->Id != SPELL_PRIEST_MIND_FLAY)
-                        return;
-
-                    if (l_Caster->HasAura(SPELL_PRIEST_MENTAL_ANGUISH))
-                    {
-                        float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
-                        p_Amount += CalculatePct(p_Amount, l_MasteryValue);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_master_mental_anguish_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mastery_master_mental_anguish_AuraScript();
-        }
-
         SpellScript* GetSpellScript() const
         {
             return new spell_mastery_master_mental_anguish_SpellScript();

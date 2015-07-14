@@ -469,7 +469,7 @@ class spell_hun_glyph_of_mirrored_blades : public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_glyph_of_mirrored_blades_AuraScript::CalculateAmount, EFFECT_9, SPELL_AURA_REFLECT_SPELLS);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_glyph_of_mirrored_blades_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_REFLECT_SPELLS);
             }
         };
 
