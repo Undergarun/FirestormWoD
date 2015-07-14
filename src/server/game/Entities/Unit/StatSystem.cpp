@@ -419,13 +419,6 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
-    /// 76857  - Mastery : Critical Block
-    /// 117906 - Mastery: Elusive Brawler
-    /// 77513  - Mastery: Blood Shield
-    /// 155783 - Mastery: Primal Tenacity
-    if (GetTypeId() == TYPEID_PLAYER && (HasAura(76857) || HasAura(117906) || HasAura(77513) || HasAura(155783)))
-        attPowerMultiplier += GetFloatValue(PLAYER_FIELD_MASTERY) / 100;
-
     //add dynamic flat mods
     if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
     {
@@ -906,10 +899,6 @@ void Player::UpdateMasteryPercentage()
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
 
-    /// 117906 - Mastery: Elusive Brawler - Update attack power
-    /// 155783 - Mastery: Primal Tenacity - Update attack power
-    if (HasAura(117906) || HasAura(155783))
-        UpdateAttackPowerAndDamage();
     // Custom MoP Script
     // 76671 - Mastery : Divine Bulwark - Update Block Percentage
     // 76857 - Mastery : Critical Block - Update Block Percentage
@@ -932,10 +921,14 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    if (l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
+                    if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
+                        || l_SpellInfo->Id == 76856 ///< Mastery : Unshackled Fury
+                        || l_SpellInfo->Id == 77492) ///< Mastery : Total Eclipse
                         l_AurEff->ChangeAmount(0, true, true);
                     else
+                    {
                         l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+                    }
                 }
             }
         }
