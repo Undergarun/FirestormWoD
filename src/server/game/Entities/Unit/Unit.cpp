@@ -12877,6 +12877,13 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
             DoneTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
     }
 
+    AuraEffectList const& mHealingDoneFromHealth = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_FROM_PCT_HEALTH);
+    for (AuraEffectList::const_iterator i = mHealingDoneFromHealth.begin(); i != mHealingDoneFromHealth.end(); ++i)
+    {
+        float l_Bonus = CalculatePct((1 + (100.0f - victim->GetHealthPct())), (*i)->GetAmount());
+        DoneTotalMod += CalculatePct(1.0f, l_Bonus);
+    }
+
     // done scripted mod (take it from owner)
     Unit const* owner = GetOwner() ? GetOwner() : this;
     AuraEffectList const& mOverrideClassScript= owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
