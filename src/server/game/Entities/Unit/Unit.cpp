@@ -11761,16 +11761,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // 77515 - Mastery : Dreadblade
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask &  SPELL_SCHOOL_MASK_SHADOW))
-    {
-        if (HasAura(77515))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
-            DoneTotal += CalculatePct(pdamage, Mastery);
-        }
-    }
-
     // 76613 - Mastery : Icicles
     if (spellProto && victim)
     {
@@ -13364,17 +13354,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (HasAura(76856) && HasAuraState(AURA_STATE_ENRAGE))
         {
             float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.375f;
-            AddPct(DoneTotalMod, Mastery);
-        }
-    }
-
-    // Custom MoP Script
-    // 77515 - Mastery : Dreadblade
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_SHADOW))
-    {
-        if (HasAura(77515))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
             AddPct(DoneTotalMod, Mastery);
         }
     }
