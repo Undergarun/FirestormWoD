@@ -142,39 +142,6 @@ class spell_mastery_molten_earth_periodic: public SpellScriptLoader
         }
 };
 
-/// 76671 - Mastery : Divine Bulwark
-class spell_mastery_divine_bulwark : public SpellScriptLoader
-{
-    public:
-        spell_mastery_divine_bulwark() : SpellScriptLoader("spell_mastery_divine_bulwark") { }
-
-        class spell_mastery_divine_bulwark_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mastery_divine_bulwark_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr p_AuraPtr, int32& p_Amount, bool&)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * float(GetSpellInfo()->Effects[p_AuraPtr->GetEffIndex()].BonusMultiplier);
-                    p_Amount = l_Mastery;
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_divine_bulwark_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_ADD_FLAT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_divine_bulwark_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_ADD_FLAT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_divine_bulwark_AuraScript::CalculateAmount, EFFECT_4, SPELL_AURA_MOD_ATTACK_POWER_PCT);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mastery_divine_bulwark_AuraScript();
-        }
-};
-
 /// Mastery: Executioner - 76808
 class spell_mastery_executioner : public SpellScriptLoader
 {
@@ -1052,6 +1019,5 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_elemental_overload();
     new spell_mastery_weapons_master();
     new spell_mastery_master_mental_anguish();
-    new spell_mastery_divine_bulwark();
     new spell_mastery_primal_tenacity();
 }
