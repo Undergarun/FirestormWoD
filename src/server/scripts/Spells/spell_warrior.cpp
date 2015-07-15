@@ -772,12 +772,7 @@ class spell_warr_heroic_leap: public SpellScriptLoader
 
             enum eSpells
             {
-                Taunt                  = 355,
-                HeroicLeapJump         = 94954,
-                SpellPvp4PBonus        = 133277,
-                GlyphOfHeroicLeapSpeed = 133278,
-                ImprovedHeroicLeap     = 157449,
-                GlyphOfHeroicLeap      = 159708
+                HeroicLeapJump         = 94954
             };
 
             SpellCastResult CheckElevation()
@@ -811,27 +806,10 @@ class spell_warr_heroic_leap: public SpellScriptLoader
                     GetCaster()->CastSpell(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ(), eSpells::HeroicLeapJump, true);
             }
 
-            void HandleAfterCast()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(eSpells::GlyphOfHeroicLeap) || l_Caster->HasAura(eSpells::SpellPvp4PBonus))
-                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfHeroicLeapSpeed, true);
-
-                Player* l_Player = l_Caster->ToPlayer();
-                if (!l_Player)
-                    return;
-
-                if (l_Player->HasAura(eSpells::ImprovedHeroicLeap) && l_Player->HasSpellCooldown(eSpells::Taunt))
-                    l_Player->RemoveSpellCooldown(eSpells::Taunt, true);
-
-            }
-
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap_SpellScript::CheckElevation);
                 OnCast += SpellCastFn(spell_warr_heroic_leap_SpellScript::HandleOnCast);
-                AfterCast += SpellCastFn(spell_warr_heroic_leap_SpellScript::HandleAfterCast);
             }
         };
 
@@ -851,17 +829,44 @@ class spell_warr_heroic_leap_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_heroic_leap_damage_SpellScript);
 
-            void HandleOnHit()
+            enum eSpells
+            {
+                Taunt                  = 355,
+                HeroicLeapJump         = 94954,
+                SpellPvp4PBonus        = 133277,
+                GlyphOfHeroicLeapSpeed = 133278,
+                ImprovedHeroicLeap     = 157449,
+                GlyphOfHeroicLeap      = 159708
+            };
+
+            void HandleAfterCast()
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                    if (l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                        SetHitDamage(int32(GetHitDamage() * 1.2f));
+                if (l_Caster->HasAura(eSpells::GlyphOfHeroicLeap) || l_Caster->HasAura(eSpells::SpellPvp4PBonus))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfHeroicLeapSpeed, true);
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (l_Player->HasAura(eSpells::ImprovedHeroicLeap) && l_Player->HasSpellCooldown(eSpells::Taunt))
+                    l_Player->RemoveSpellCooldown(eSpells::Taunt, true);
+            }
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                    SetHitDamage(int32(GetHitDamage() * 1.2f));
             }
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_warr_heroic_leap_damage_SpellScript::HandleAfterCast);
                 OnHit += SpellHitFn(spell_warr_heroic_leap_damage_SpellScript::HandleOnHit);
             }
         };
