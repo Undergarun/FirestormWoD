@@ -883,18 +883,29 @@ class spell_generic_clone: public SpellScriptLoader
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 spellId = uint32(GetSpellInfo()->Effects[effIndex].CalcValue());
-                GetHitUnit()->CastSpell(GetCaster(), spellId, true);
+                Unit* l_Caster = GetCaster();
+
+                if (Unit* l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target,  uint32(GetEffectValue()), true);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+                /// Nightmare Figment Mirror Image
+                if (m_scriptSpellId == 57528)
+                {
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
+                }
+                else
+                {
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                }
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_generic_clone_SpellScript();
         }
@@ -924,13 +935,10 @@ class spell_generic_clone_weapon: public SpellScriptLoader
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                Unit* caster = GetCaster();
+                Unit* l_Caster = GetCaster();
 
-                if (Unit* target = GetHitUnit())
-                {
-                    uint32 spellId = uint32(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
-                    caster->CastSpell(target, spellId, true);
-                }
+                if (Unit* l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target,  uint32(GetEffectValue()), true);
             }
 
             void Register()
@@ -939,7 +947,7 @@ class spell_generic_clone_weapon: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_generic_clone_weapon_SpellScript();
         }
@@ -958,8 +966,12 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
 
                 bool Validate(SpellInfo const* /*spellEntry*/)
                 {
-                    if (!sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_2_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_3_AURA)
-                        || !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_2_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_RANGED_AURA))
+                    if (!sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_AURA) ||
+                        !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_2_AURA) ||
+                        !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_3_AURA) ||
+                        !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_AURA) ||
+                        !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_2_AURA) ||
+                        !sSpellMgr->GetSpellInfo(SPELL_COPY_RANGED_AURA))
                         return false;
                     return true;
                 }
@@ -978,48 +990,46 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                         case SPELL_COPY_WEAPON_2_AURA:
                         case SPELL_COPY_WEAPON_3_AURA:
                         {
-
                             prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
-                            if (Player* player = caster->ToPlayer())
 
+                            if (Player* player = caster->ToPlayer())
                             {
                                 if (Item* mainItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
                                     target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, mainItem->GetEntry());
-
                             }
                             else
                                 target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID));
                             break;
-                    }
-                    case SPELL_COPY_OFFHAND_AURA:
-                    case SPELL_COPY_OFFHAND_2_AURA:
-                    {
-                        prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
-
-                        if (Player* player = caster->ToPlayer())
+                        case SPELL_COPY_OFFHAND_AURA:
+                        case SPELL_COPY_OFFHAND_2_AURA:
                         {
-                            if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
-                        }
-                        else
-                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
-                        break;
-                    }
-                    case SPELL_COPY_RANGED_AURA:
-                    {
-                        prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2);
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
 
-                        if (Player* player = caster->ToPlayer())
-                        {
-                            if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, rangedItem->GetEntry());
+                            if (Player* player = caster->ToPlayer())
+                            {
+                                if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
+                            }
+                            else
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
+                            break;
                         }
-                        else
-                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2));
-                        break;
+                        case SPELL_COPY_RANGED_AURA:
+                        {
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2);
+
+                            if (Player* player = caster->ToPlayer())
+                            {
+                                if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, rangedItem->GetEntry());
+                            }
+                            else
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2));
+                            break;
+                        }
+                        default:
+                            break;
                     }
-                    default:
-                        break;
                 }
             }
 
@@ -1032,19 +1042,15 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                     case SPELL_COPY_WEAPON_AURA:
                     case SPELL_COPY_WEAPON_2_AURA:
                     case SPELL_COPY_WEAPON_3_AURA:
-                    {
                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, prevItem);
                        break;
-                    }
                     case SPELL_COPY_OFFHAND_AURA:
                     case SPELL_COPY_OFFHAND_2_AURA:
-                    {
                         target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, prevItem);
-                    }
+                        break;
                     case SPELL_COPY_RANGED_AURA:
-                    {
                         target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, prevItem);
-                    }
+                        break;
                     default:
                         break;
                 }
@@ -1052,13 +1058,13 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_gen_clone_weapon_auraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DISARM, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_clone_weapon_auraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DISARM, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_gen_clone_weapon_auraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_clone_weapon_auraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
 
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_gen_clone_weapon_auraScript();
         }
