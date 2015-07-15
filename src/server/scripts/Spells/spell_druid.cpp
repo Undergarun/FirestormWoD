@@ -4617,6 +4617,54 @@ class spell_dru_WodPvpBalance4pBonus : public SpellScriptLoader
         }
 };
 
+/// Item - Druid WoD PvP Balance 2P Bonus - 165701
+/// Called by Entangling Roots - 339
+class spell_dru_wod_pvp_balance_2p : public SpellScriptLoader
+{
+public:
+    spell_dru_wod_pvp_balance_2p() : SpellScriptLoader("spell_dru_wod_pvp_balance_2p") { }
+
+    class spell_dru_wod_pvp_balance_2p_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_wod_pvp_balance_2p_AuraScript);
+
+        enum eSpells
+        {
+            CategoryID = 1485,
+            STARSURGE = 78674,
+            DRUID_WOD_PVP_BALANCE_2P_BONUS = 165701
+        };
+
+        void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (l_Player->HasAura(eSpells::DRUID_WOD_PVP_BALANCE_2P_BONUS))
+                {
+                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                    /// When Entangling Roots is dispelled or broken by damage, you gain 1 charge of Starsurge.
+                    if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL)
+                    {
+                        if (ChargesData* l_Charges = l_Player->GetChargesData(eSpells::CategoryID))
+                            l_Player->RestoreCharge(eSpells::CategoryID);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectRemove += AuraEffectApplyFn(spell_dru_wod_pvp_balance_2p_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_ROOT_2, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_wod_pvp_balance_2p_AuraScript();
+    }
+};
+
+
 
 /// 16914 - Hurricane
 class spell_dru_hurricane: public SpellScriptLoader
@@ -4740,4 +4788,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_empowered_moonkin();
     new spell_dru_ursa_major_aura();
     new spell_dru_hurricane();
+    new spell_dru_wod_pvp_balance_2p();
 }

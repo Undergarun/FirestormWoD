@@ -1225,9 +1225,6 @@ class spell_warr_charge: public SpellScriptLoader
             {
                 int32 l_RageGain = GetEffectValue() / l_Caster->GetPowerCoeff(POWER_RAGE);
 
-                if (AuraEffectPtr l_BullRush = l_Caster->GetAuraEffect(SPELL_WARR_GLYPH_OF_BULL_RUSH, EFFECT_0))
-                    l_RageGain += l_BullRush->GetAmount();
-
                 l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, l_RageGain * l_Caster->GetPowerCoeff(POWER_RAGE), POWER_RAGE);
             }
         }

@@ -30456,6 +30456,8 @@ void Player::ActivateSpec(uint8 spec)
     SetUsedTalentCount(usedTalentPoint);
     InitTalentForLevel();
     InitSpellForLevel();
+    if (Powers l_PowerType = getPowerType())
+        UpdateMaxPower(l_PowerType);
 
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS_SPEC);

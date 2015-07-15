@@ -2617,6 +2617,45 @@ class spell_rog_deep_insight : public SpellScriptLoader
         }
 };
 
+/// Glyph of Energy Flows - 159636
+class spell_rog_glyph_of_energy_flows : public SpellScriptLoader
+{
+public:
+    spell_rog_glyph_of_energy_flows() : SpellScriptLoader("spell_rog_glyph_of_energy_flows") { }
+
+    class spell_rog_glyph_of_energy_flows_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_glyph_of_energy_flows_AuraScript);
+
+        enum eSpells
+        {
+            EVASION = 5277,
+            GLYPH_OF_ENERGY_FLOWS_PROC = 159637
+        };
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(eSpells::EVASION))
+                    l_Caster->CastSpell(l_Caster, eSpells::GLYPH_OF_ENERGY_FLOWS_PROC, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_rog_glyph_of_energy_flows_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_rog_glyph_of_energy_flows_AuraScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_anticipation();
@@ -2665,6 +2704,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_backstab();
     new spell_rog_bandits_guile();
     new spell_rog_deep_insight();
+    new spell_rog_glyph_of_energy_flows();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();

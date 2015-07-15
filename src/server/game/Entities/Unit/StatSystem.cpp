@@ -544,7 +544,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
     /// Normalized Weapon Damage
-    if (normalized)
+    if (normalized && getClass() != CLASS_MONK && getClass() != CLASS_DRUID) ///< Monks and Druids have their own damage calculation
     {
         CalculateNormalizedWeaponDamage(attType, min_damage, max_damage, attackPower, weapon_mindamage, weapon_maxdamage, l_UsedWeapon);
         min_damage = (min_damage * base_pct + total_value) * total_pct;
@@ -564,10 +564,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
 void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
 {
-    /// Monks and Druids have their own damage calculation, they don't have normalized weapon damage spells
-    if (getClass() == CLASS_MONK || getClass() == CLASS_DRUID)
-        return;
-
     float l_NormalizedSpeedCoef = 1.0f;
 
     /// Speed coefficients from http://wowwiki.wikia.com/Normalization - tested on official server, information is correct
