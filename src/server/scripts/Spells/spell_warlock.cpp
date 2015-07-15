@@ -1490,7 +1490,8 @@ class spell_warl_twilight_ward_s12: public SpellScriptLoader
         }
 };
 
-// Hellfire - 1949
+/// last update : 6.1.2 19802
+/// Hellfire - 1949
 class spell_warl_hellfire_periodic: public SpellScriptLoader
 {
     public:
@@ -1500,33 +1501,27 @@ class spell_warl_hellfire_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_hellfire_periodic_AuraScript);
 
-            std::list<Unit*> targetList;
+            std::list<Unit*> m_TargetList;
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_2].BasePoints, POWER_DEMONIC_FURY);
-                    caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
+                    p_AurEff->GetTargetList(m_TargetList);
+
+                    l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_2].BasePoints, POWER_DEMONIC_FURY);
+                    l_Caster->CastSpell(l_Caster, WARLOCK_HELLFIRE_DAMAGE, true);
+
+                    for (auto itr : m_TargetList)
+                        l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_3].BasePoints, POWER_DEMONIC_FURY);
+
+                    m_TargetList.clear();
                 }
-            }
-
-            void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
-            {
-                aurEff->GetTargetList(targetList);
-
-                if (Unit* caster = GetCaster())
-                    for (auto itr : targetList)
-                        caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_3].BasePoints, POWER_DEMONIC_FURY);
-
-                targetList.clear();
             }
 
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-                OnEffectUpdate += AuraEffectUpdateFn(spell_warl_hellfire_periodic_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-
             }
         };
 

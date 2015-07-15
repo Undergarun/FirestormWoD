@@ -1541,6 +1541,9 @@ class spell_dru_cat_form: public SpellScriptLoader
                         if (AuraPtr l_SavageRoarNew = l_Player->GetAura(eSpells::SPELL_DRU_SAVAGE_ROAR))
                             l_SavageRoarNew->SetDuration(l_SavageRoarDuration);
                     }
+
+                    /// Fix Berserk - amount of energy after reshift
+                    l_Player->UpdateMaxPower(POWER_ENERGY);
                 }
             }
 
@@ -2040,6 +2043,11 @@ class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_on_desactivate_cat_form_AuraScript);
 
+            enum eSpells
+            {
+                GlyphOfCatForm = 47180
+            };
+
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
@@ -2068,10 +2076,33 @@ class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
                     l_DashAura->GetEffect(0)->SetAmount(sSpellMgr->GetSpellInfo(SPELL_DRUID_DASH)->Effects[EFFECT_0].BasePoints);
             }
 
+            void OnAfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (l_Caster->HasSpell(eSpells::GlyphOfCatForm) && l_Caster->HasAura(eSpells::GlyphOfCatForm))
+                    l_Caster->RemoveAura(eSpells::GlyphOfCatForm);
+            }
+
+            void OnAfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (l_Caster->HasSpell(eSpells::GlyphOfCatForm) && !l_Caster->HasAura(eSpells::GlyphOfCatForm))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfCatForm);
+            }
+
             void Register()
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
                 OnEffectApply += AuraEffectApplyFn(spell_dru_on_desactivate_cat_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnAfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_on_desactivate_cat_form_AuraScript::OnAfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -3409,6 +3440,50 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
         }
 };
 
+/// 159456 - Glyph of Travel
+/// Called by Travel Form - 165961
+class spell_dru_glyph_of_travel: public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_travel() : SpellScriptLoader("spell_dru_glyph_of_travel") { }
+
+        class spell_dru_glyph_of_travel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_travel_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfTravel = 159456
+            };
+
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (AuraEffectPtr l_GlyphOfTravel = l_Caster->GetAuraEffect(eSpells::GlyphOfTravel, EFFECT_0))
+                    if (!l_Caster->isInCombat() && !l_Player->InBattleground() && !l_Player->InArena())
+                        amount += l_GlyphOfTravel->GetAmount();
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_glyph_of_travel_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_SPEED_ALWAYS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_glyph_of_travel_AuraScript();
+        }
+};
+
+
 enum SpellsRake
 {
     SPELL_DRU_RAKE_STUNT = 163505,
@@ -3430,6 +3505,8 @@ class spell_dru_rake: public SpellScriptLoader
 
             enum eSpells
             {
+                Prowl           = 5215,
+                GlyphOfRake     = 54821,
                 KingOfTheJungle = 102543
             };
 
@@ -3449,6 +3526,11 @@ class spell_dru_rake: public SpellScriptLoader
                         else
                             l_ImprovedRake->GetEffect(1)->SetAmount(0);
                     }
+
+                    /// Default 0-5 yards, up to 0-12 yards (+7 yards)
+                    SpellInfo* l_RakeSpellInfo = (SpellInfo*)GetSpellInfo();
+                    if (l_RakeSpellInfo && l_Caster->HasAura(eSpells::GlyphOfRake) && l_Caster->HasAura(eSpells::Prowl))
+                        l_RakeSpellInfo->SetRangeIndex(294);
                 }
             }
 
@@ -4536,6 +4618,44 @@ class spell_dru_WodPvpBalance4pBonus : public SpellScriptLoader
 };
 
 
+/// 16914 - Hurricane
+class spell_dru_hurricane: public SpellScriptLoader
+{
+    public:
+        spell_dru_hurricane() : SpellScriptLoader("spell_dru_hurricane") { }
+
+        class spell_dru_hurricane_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_hurricane_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfHurricane = 54831
+            };
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (AuraEffectPtr l_GlyphOfHurricane = l_Caster->GetAuraEffect(eSpells::GlyphOfHurricane, EFFECT_0))
+                    p_Amount += l_GlyphOfHurricane->GetAmount();
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_hurricane_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_hurricane_AuraScript();
+        }
+};
+
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift_ally_proc();
@@ -4593,6 +4713,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_travel_form_playerscript();
     new spell_dru_swift_flight_passive();
     new spell_dru_glyph_of_the_stag();
+    new spell_dru_glyph_of_travel();
     new spell_dru_rake();
     new spell_dru_rake_triggered();
     new spell_dru_shred();
@@ -4618,4 +4739,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_WodPvpBalance4pBonus();
     new spell_dru_empowered_moonkin();
     new spell_dru_ursa_major_aura();
+    new spell_dru_hurricane();
 }

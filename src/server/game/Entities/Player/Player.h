@@ -72,7 +72,6 @@ class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
 typedef std::set<uint32> DailyLootsCooldowns;
-typedef std::unordered_set<uint64> GuidUnorderedSet;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
@@ -2591,6 +2590,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateAllRatings();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage, bool l_NoLongerDualWields = false);
+        void CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon);
 
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float OCTRegenMPPerSpirit();
@@ -2668,10 +2668,10 @@ class Player : public Unit, public GridObject<Player>
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z);
 
-        void SendMessageToSet(WorldPacket* data, bool self) {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet
-        void SendMessageToSetInRange(WorldPacket* data, float fist, bool self);// overwrite Object::SendMessageToSetInRange
+        void SendMessageToSet(WorldPacket* data, bool self, const GuidUnorderedSet& p_IgnoreList = GuidUnorderedSet()) override { SendMessageToSetInRange(data, GetVisibilityRange(), self, p_IgnoreList); };
+        void SendMessageToSetInRange(WorldPacket* data, float fist, bool self, const GuidUnorderedSet& p_IgnoreList = GuidUnorderedSet()) override;
         void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
-        void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr);
+        void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr, const GuidUnorderedSet& p_IgnoreList = GuidUnorderedSet()) override;
 
         void SendTeleportPacket(Position &p_NewPosition);
 

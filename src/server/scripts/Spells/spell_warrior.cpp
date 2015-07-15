@@ -2359,6 +2359,69 @@ class spell_warr_defensive_stance : public SpellScriptLoader
         }
 };
 
+/// Single-Minded Fury - 81099
+class spell_warr_single_minded_fury : public SpellScriptLoader
+{
+public:
+    spell_warr_single_minded_fury() : SpellScriptLoader("spell_warr_single_minded_fury") { }
+
+    class spell_warr_single_minded_fury_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_single_minded_fury_AuraScript);
+
+        void CalculateFirstEffect(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+        {
+            if (GetCaster() == nullptr)
+                return;
+
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                if (mainItem && l_OffHandItem)
+                {
+                    if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                        p_Amount = 0;
+                }
+                else
+                    p_Amount = 0;
+            }
+        }
+
+        void CalculateSecondEffect(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+        {
+            if (GetCaster() == nullptr)
+                return;
+
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                if (mainItem && l_OffHandItem)
+                {
+                    if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                        p_Amount = 0;
+                }
+                else
+                    p_Amount = 0;
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateFirstEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateSecondEffect, EFFECT_1, SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_single_minded_fury_AuraScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_defensive_stance();
@@ -2409,6 +2472,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shield_slam();
     new spell_warr_blood_craze_aura();
     new spell_warr_glyph_of_die_by_the_sword();
+    new spell_warr_single_minded_fury();
 
     /// Playerscripts
     new PlayerScript_second_wind();

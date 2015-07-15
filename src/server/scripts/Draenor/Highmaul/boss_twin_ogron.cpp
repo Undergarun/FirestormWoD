@@ -1098,7 +1098,7 @@ class spell_highmaul_disposition : public SpellScriptLoader
                     if (l_Boss->GetEntry() == eHighmaulCreatures::Pol)
                         l_EnergyGain *= 1.25f;
 
-                    l_EnergyGain *= l_Boss->GetPower(Powers::POWER_ALTERNATE_POWER);
+                    l_EnergyGain *= 1.0f + (float)l_Boss->GetPower(Powers::POWER_ALTERNATE_POWER) / 100.0f;
 
                     l_Boss->EnergizeBySpell(l_Boss, GetSpellInfo()->Id, l_EnergyGain, Powers::POWER_ENERGY);
 
