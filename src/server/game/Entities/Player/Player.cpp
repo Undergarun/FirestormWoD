@@ -30779,7 +30779,7 @@ void Player::_LoadRandomBGStatus(PreparedQueryResult result)
         m_IsBGRandomWinner = true;
 }
 
-uint32 Player::GetAverageItemLevelEquipped()
+uint32 Player::GetAverageItemLevelEquipped() const
 {
     int32 l_Sum = 0;
     uint32 l_Count = 0;
@@ -30812,7 +30812,7 @@ uint32 Player::GetAverageItemLevelEquipped()
     return uint32(float(((float)l_Sum) / l_Count));
 }
 
-uint32 Player::GetAverageItemLevelTotal()
+uint32 Player::GetAverageItemLevelTotal() const
 {
     // If player has a 2h ignore offhand if not found (if found fury and count it)
     // If player does not have a 2h check offhand
@@ -30831,6 +30831,123 @@ uint32 Player::GetAverageItemLevelTotal()
         if (l_Item && l_Item->GetTemplate())
         {
             l_EquipItemLevel[i] = l_Item->GetTemplate()->GetItemLevelIncludingQuality(m_itemScale[i]);
+
+            if (i == EQUIPMENT_SLOT_MAINHAND && ((CanDualWield() && l_Item->GetTemplate()->IsOneHanded()) || (CanTitanGrip() && l_Item->GetTemplate()->IsTwoHandedWeapon())))
+                l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND] = std::max(l_EquipItemLevel[i], l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND]);
+
+            if (i == EQUIPMENT_SLOT_OFFHAND && l_Item->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+                l_EquipItemLevel[EQUIPMENT_SLOT_MAINHAND] = std::max(l_EquipItemLevel[i], l_EquipItemLevel[EQUIPMENT_SLOT_MAINHAND]);
+
+            continue;
+        }
+
+        l_EquipItemLevel[i] = 0;
+    }
+
+    l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+    l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1];
+    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1], l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2]);
+    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1];
+
+    for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    {
+        if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (l_Item->IsSuitableForItemLevelCalulcation(true))
+            {
+                int slot = GetGuessedEquipSlot(l_Item->GetTemplate());
+                int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate(), l_Item));
+
+                if (slot != NULL_SLOT)
+                {
+                    if (slot == EQUIPMENT_SLOT_MAINHAND && ((CanDualWield() && l_Item->GetTemplate()->IsOneHanded()) || (CanTitanGrip() && l_Item->GetTemplate()->IsTwoHandedWeapon())))
+                        l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND]);
+
+                    if (slot == EQUIPMENT_SLOT_TRINKET1)
+                        l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+
+                    if (slot == EQUIPMENT_SLOT_FINGER1)
+                        l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2]);
+
+                    l_EquipItemLevel[slot] = std::max(l_EquipItemLevel[slot], l_ThisIlvl);
+                }
+            }
+        }
+    }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Bag* pBag = GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+            {
+                if (Item* l_Item = pBag->GetItemByPos(j))
+                {
+                    if (l_Item->IsSuitableForItemLevelCalulcation(true))
+                    {
+                        int slot = GetGuessedEquipSlot(l_Item->GetTemplate());
+                        int l_ThisIlvl = l_Item->GetTemplate()->GetItemLevelIncludingQuality(GetEquipItemLevelFor(l_Item->GetTemplate(), l_Item));
+
+                        if (slot != NULL_SLOT)
+                        {
+                            if (slot == EQUIPMENT_SLOT_MAINHAND && ((CanDualWield() && l_Item->GetTemplate()->IsOneHanded()) || (CanTitanGrip() && l_Item->GetTemplate()->IsTwoHandedWeapon())))
+                                l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND]);
+
+                            if (slot == EQUIPMENT_SLOT_TRINKET1)
+                                l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+
+                            if (slot == EQUIPMENT_SLOT_FINGER1)
+                                l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = std::max(l_ThisIlvl, l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2]);
+
+                            l_EquipItemLevel[slot] = std::max(l_EquipItemLevel[slot], l_ThisIlvl);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    uint32 l_Sum = 0;
+    uint32 l_Count = 0;
+
+    for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
+            continue;
+
+        if (i == EQUIPMENT_SLOT_OFFHAND && !l_EquipItemLevel[i])
+            continue;
+
+        l_Sum += l_EquipItemLevel[i];
+        ++l_Count;
+    }
+
+    if (!l_Count)
+        return 0;
+
+    return uint32(float(((float)l_Sum) / l_Count));
+}
+
+
+uint32 Player::GetAverageItemLevelTotalWithOrWithoutPvPBonus(bool p_PvP) const
+{
+    // If player has a 2h ignore offhand if not found (if found fury and count it)
+    // If player does not have a 2h check offhand
+    int l_EquipItemLevel[EQUIPMENT_SLOT_END];
+
+    for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        // don't check tabard, ranged or shirt
+        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
+        {
+            l_EquipItemLevel[i] = 0;
+            continue;
+        }
+
+        Item* l_Item = m_items[i];
+        if (l_Item && l_Item->GetTemplate())
+        {
+            l_EquipItemLevel[i] = GetEquipItemLevelFor(l_Item->GetTemplate(), l_Item, !p_PvP, p_PvP);
 
             if (i == EQUIPMENT_SLOT_MAINHAND && ((CanDualWield() && l_Item->GetTemplate()->IsOneHanded()) || (CanTitanGrip() && l_Item->GetTemplate()->IsTwoHandedWeapon())))
                 l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND] = std::max(l_EquipItemLevel[i], l_EquipItemLevel[EQUIPMENT_SLOT_OFFHAND]);
@@ -32669,7 +32786,7 @@ ScalingStatDistributionEntry const* Player::GetSSDForItem(Item const* p_Item) co
     return sScalingStatDistributionStore.LookupEntry(l_SSDID);
 }
 
-uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item) const
+uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item, bool p_IgnorePvPModifiers /* = false */, bool p_ForcePvPItemLevel /* = false */) const
 {
     uint32 ilvl = itemProto->ItemLevel;
 
@@ -32681,8 +32798,8 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
     if (item)
         ilvl += item->GetItemLevelBonusFromItemBonuses();
 
-    if (itemProto->PvPScalingLevel)
-        if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())
+    if (itemProto->PvPScalingLevel && !p_IgnorePvPModifiers)
+        if (p_ForcePvPItemLevel || (GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())
             ilvl += itemProto->PvPScalingLevel;
 
     if (uint32 minItemLevel = GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL))

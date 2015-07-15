@@ -614,7 +614,7 @@ enum PlayerAvgItemLevelOffsets
     TotalAvgItemLevel       = 0,
     EquippedAvgItemLevel    = 1,
     NonPvPAvgItemLevel      = 2,
-    UnkAvgItemLevel         = 3,
+    PvPAvgItemLevel         = 3,
     MaxAvgItemLevel         = 4
 };
 
@@ -3326,8 +3326,9 @@ class Player : public Unit, public GridObject<Player>
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
         Spell* m_spellModTakingSpell;
 
-        uint32 GetAverageItemLevelEquipped();
-        uint32 GetAverageItemLevelTotal();
+        uint32 GetAverageItemLevelEquipped() const;
+        uint32 GetAverageItemLevelTotal() const;
+        uint32 GetAverageItemLevelTotalWithOrWithoutPvPBonus(bool p_PvP) const;
         bool isDebugAreaTriggers;
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
@@ -3503,7 +3504,7 @@ class Player : public Unit, public GridObject<Player>
         //////////////////////////////////////////////////////////////////////////
 
         ScalingStatDistributionEntry const* GetSSDForItem(Item const* p_Item) const;
-        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr) const;
+        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr, bool p_IgnorePvPModifiers = false, bool p_ForcePvPItemLevel = false) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
         void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
         bool UpdateItemLevelCutOff(uint32 p_StartsWith, uint32 p_MinLevel, uint32 p_MaxLevel, bool p_RescaleItems = true);
