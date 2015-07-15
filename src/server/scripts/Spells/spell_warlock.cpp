@@ -1498,33 +1498,68 @@ class spell_warl_hellfire_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_hellfire_periodic_AuraScript);
 
-            std::list<Unit*> m_TargetList;
-
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTickOnCaster(constAuraEffectPtr /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
-                {
-                    p_AurEff->GetTargetList(m_TargetList);
-
                     l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_2].BasePoints, POWER_DEMONIC_FURY);
+            }
+
+            void OnTickOnAreaEnemy(constAuraEffectPtr /*p_AurEff*/)
+            {
+                if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, WARLOCK_HELLFIRE_DAMAGE, true);
-
-                    for (auto itr : m_TargetList)
-                        l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_3].BasePoints, POWER_DEMONIC_FURY);
-
-                    m_TargetList.clear();
-                }
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTickOnAreaEnemy, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTickOnCaster, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_hellfire_periodic_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Hellfire (area enemy damage)- 5857
+class spell_warl_hellfire_damage_area : public SpellScriptLoader
+{
+    public:
+        spell_warl_hellfire_damage_area() : SpellScriptLoader("spell_warl_hellfire_damage_area") { }
+
+        class spell_warl_hellfire_damage_area_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_hellfire_damage_area_SpellScript);
+
+            enum eSpells
+            {
+                hellfireTick = 1949
+            };
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::hellfireTick);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                l_Caster->EnergizeBySpell(l_Caster, l_SpellInfo->Id, l_SpellInfo->Effects[EFFECT_3].BasePoints, POWER_DEMONIC_FURY);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_hellfire_damage_area_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_hellfire_damage_area_SpellScript();
         }
 };
 
@@ -3587,6 +3622,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_hand_of_guldan_damage();
     new spell_warl_twilight_ward_s12();
     new spell_warl_hellfire_periodic();
+    new spell_warl_hellfire_damage_area();
     new spell_warl_demonic_leap_jump();
     new spell_warl_demonic_leap();
     new spell_warl_soul_swap_soulburn();
