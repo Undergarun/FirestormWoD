@@ -686,10 +686,10 @@ void LoadDB2Stores(const std::string& dataPath)
     }
 
     /// Check loaded DB2 files proper version
-    if (!sItemStore.LookupEntry(123975) ||              ///< Last item added in 6.1.2
-        !sItemExtendedCostStore.LookupEntry(5853) )     ///< Last item extended cost added in 6.1.2
+    if (!sItemStore.LookupEntry(128706) ||              ///< Last item added in 6.2.0 (20216)
+        !sItemExtendedCostStore.LookupEntry(5923) )     ///< Last item extended cost added in 6.2.0 (20216)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Please extract correct db2 files from client 6.1.2");
+        sLog->outError(LOG_FILTER_GENERAL, "Please extract correct db2 files from client 6.2.0 (20216)");
         exit(1);
     }
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Initialized %d DB2 data stores.", DB2FilesCount);
