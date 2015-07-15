@@ -4874,10 +4874,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 88767: ///< Fulmination (triggered)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
-            case 130616: ///< Glyph of Fear effect
-            case 117961: ///< Impervious Shield
             case 117837: ///< Delirious
-            case 117697: ///< Shield of Darkness
                 spellInfo->Dispel = DISPEL_MAGIC;
                 break;
             case 125972: ///< Felin Grace
@@ -5838,11 +5835,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 92328: ///< Heart's Judgment, Heart of Ignacious trinket (heroic)
                 spellInfo->CasterAuraSpell = 92325;
-                break;
-            case 56244: ///< Glyph of Fear
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                spellInfo->Effects[EFFECT_0].BasePoints = 5000;
-                spellInfo->Effects[EFFECT_0].MiscValue = SPELLMOD_COOLDOWN;
                 break;
             case 45182: ///< Cheat Death
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;

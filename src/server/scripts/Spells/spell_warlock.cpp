@@ -32,9 +32,6 @@ enum WarlockSpells
     WARLOCK_DEMONIC_CIRCLE_TELEPORT         = 48020,
     WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 62388,
     WARLOCK_UNSTABLE_AFFLICTION_DISPEL      = 31117,
-    WARLOCK_GLYPH_OF_FEAR                   = 56244,
-    WARLOCK_FEAR_EFFECT                     = 118699,
-    WARLOCK_GLYPH_OF_FEAR_EFFECT            = 130616,
     WARLOCK_CREATE_HEALTHSTONE              = 23517,
     WARLOCK_SOULBURN_AURA                   = 74434,
     WARLOCK_CORRUPTION                      = 146739,
@@ -2515,23 +2512,29 @@ class spell_warl_fear: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_fear_SpellScript);
 
-            void HandleAfterHit()
+            enum eSpells
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Player->HasAura(WARLOCK_GLYPH_OF_FEAR))
-                            l_Player->CastSpell(l_Target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
-                        else
-                            l_Player->CastSpell(l_Target, WARLOCK_FEAR_EFFECT, true);
-                    }
-                }
+                GlyphOfFear       = 56244,
+                FearEffect        = 118699,
+                GlyphOfFearEffect = 130616,
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Caster || !l_Target)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::GlyphOfFear))
+                    l_Caster->CastSpell(l_Target, eSpells::GlyphOfFearEffect, true);
+                else
+                    l_Caster->CastSpell(l_Target, eSpells::FearEffect, true);
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_warl_fear_SpellScript::HandleAfterHit);
+                OnHit += SpellHitFn(spell_warl_fear_SpellScript::HandleOnHit);
             }
         };
 
