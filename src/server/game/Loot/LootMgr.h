@@ -109,10 +109,9 @@ enum LootItemUiType
 
 enum LootListItemType
 {
-    //                                  = 0,
-    LOOT_LIST_ITEM                      = 1,
-    LOOT_LIST_TRACKING_QUEST            = 2,
-    LOOT_LIST_CURRENCY                  = 3
+    LOOT_LIST_ITEM                      = 0,
+    LOOT_LIST_TRACKING_QUEST            = 1,
+    LOOT_LIST_CURRENCY                  = 2,
 };
 
 // type of Loot Item in Loot View

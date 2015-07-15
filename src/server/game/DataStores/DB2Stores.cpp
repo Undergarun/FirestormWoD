@@ -326,7 +326,7 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     LoadDB2(bad_db2_files, sSpellEffectGroupSizeStore,      db2Path, "SpellEffectGroupSize.db2",        "spell_effect_group_size",      "ID");
     LoadDB2(bad_db2_files, sSpellReagentsStore,             db2Path, "SpellReagents.db2"                                                    );
-    LoadDB2(bad_db2_files, sSpellReagentsCurrencyStore,     db2Path, "SpelLReagentsCurrency.db2"                                            );
+    LoadDB2(bad_db2_files, sSpellReagentsCurrencyStore,     db2Path, "SpellReagentsCurrency.db2"                                            );
     LoadDB2(bad_db2_files, sSpellRuneCostStore,             db2Path, "SpellRuneCost.db2"                                                    );
     LoadDB2(bad_db2_files, sSpellCastingRequirementsStore,  db2Path, "SpellCastingRequirements.db2",    "spell_casting_requirements",   "ID");
     LoadDB2(bad_db2_files, sSpellAuraRestrictionsStore,     db2Path, "SpellAuraRestrictions.db2",       "spell_aura_restrictions",      "ID");

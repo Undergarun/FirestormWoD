@@ -35,6 +35,7 @@ enum ShamanSpells
     SHAMAN_SPELL_EXHAUSTION                     = 57723,
     HUNTER_SPELL_INSANITY                       = 95809,
     MAGE_SPELL_TEMPORAL_DISPLACEMENT            = 80354,
+    HUNTER_SPELL_FATIGUED                       = 160455,
     SPELL_SHA_LIGHTNING_SHIELD_AURA             = 324,
     SPELL_SHA_ASCENDANCE_ELEMENTAL              = 114050,
     SPELL_SHA_ASCENDANCE_RESTORATION            = 114052,
@@ -101,7 +102,6 @@ enum ShamanSpells
     SPELL_SHA_PVP_BONUS_WOD_2                   = 166103,
     SPELL_SHA_PVP_BONUS_WOD_4                   = 171121,
     SPELL_SHA_LIGHTNING_SHIELD                  = 324,
-    SPELL_SHA_IMPROVED_CHAIN_LIGHTNING          = 157766,
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_ELEMENTAL    = 159101,
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_ENHANCEMENT  = 159103,
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_RESTORATION  = 159105,
@@ -1185,8 +1185,9 @@ class spell_sha_earthquake: public SpellScriptLoader
 
             enum eSpells
             {
-                Earthquake     = 61882,
-                EarthquakeTick = 77478
+                Earthquake             = 61882,
+                EarthquakeTick         = 77478,
+                ImprovedChainLightning = 157766,
             };
 
             void OnTick(constAuraEffectPtr aurEff)
@@ -1202,8 +1203,8 @@ class spell_sha_earthquake: public SpellScriptLoader
                 /// dealing ${$SPN * 0.11 * 10 * (1 + $170374m3 / 100)} Physical damage over $d
                 int32 l_Bp0 = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.11 * 10;
 
-                if (AuraPtr l_ChainLightning = l_Caster->GetAura(SPELL_SHA_IMPROVED_CHAIN_LIGHTNING))
-                    l_Bp0 += CalculatePct(l_Bp0, l_ChainLightning->GetEffect(EFFECT_0)->GetAmount());
+                if (AuraEffectPtr l_ChainLightning = l_Caster->GetAuraEffect(eSpells::ImprovedChainLightning, EFFECT_0))
+                    l_Bp0 += CalculatePct(l_Bp0, l_ChainLightning->GetAmount());
 
                 l_Bp0 /= GetSpellInfo()->GetDuration() / IN_MILLISECONDS;
 
@@ -1365,7 +1366,7 @@ class spell_sha_healing_rain_heal : public SpellScriptLoader
         }
 };
 
-/// Ascendance - 114049
+/// Ascendance - 114049 - last update: 6.1.2 19865
 class spell_sha_ascendance: public SpellScriptLoader
 {
     public:
@@ -1377,61 +1378,64 @@ class spell_sha_ascendance: public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellEntry)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHA_ASCENDANCE))
+                if (!sSpellMgr->GetSpellInfo(ShamanSpells::SPELL_SHA_ASCENDANCE))
                     return false;
+
                 return true;
             }
 
             SpellCastResult CheckCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_NONE)
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_NONE)
                     {
-                        SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_SELECT_TALENT_SPECIAL);
-                        return SPELL_FAILED_CUSTOM_ERROR;
+                        SetCustomCastResultMessage(SpellCustomErrors::SPELL_CUSTOM_ERROR_MUST_SELECT_TALENT_SPECIAL);
+                        return SpellCastResult::SPELL_FAILED_CUSTOM_ERROR;
                     }
-                    else
-                        return SPELL_CAST_OK;
                 }
                 else
-                    return SPELL_FAILED_DONT_REPORT;
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
 
-                return SPELL_CAST_OK;
+                return SpellCastResult::SPELL_CAST_OK;
             }
 
             void HandleAfterCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    switch(_player->GetSpecializationId(_player->GetActiveSpec()))
+                    switch(l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
                     {
-                        case SPEC_SHAMAN_ELEMENTAL:
-                            _player->CastSpell(_player, SPELL_SHA_ASCENDANCE_ELEMENTAL, true);
-                            break;
-                        case SPEC_SHAMAN_ENHANCEMENT:
-                            _player->CastSpell(_player, SPELL_SHA_ASCENDANCE_ENHANCED, true);
+                        case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
+                            l_Player->CastSpell(l_Player, ShamanSpells::SPELL_SHA_ASCENDANCE_ELEMENTAL, true);
 
-                            if (_player->HasSpellCooldown(SPELL_SHA_STORMSTRIKE))
-                                _player->RemoveSpellCooldown(SPELL_SHA_STORMSTRIKE, true);
+                            if (l_Player->HasSpellCooldown(ShamanSpells::SPELL_SHA_LAVA_BURST))
+                                l_Player->RemoveSpellCooldown(ShamanSpells::SPELL_SHA_LAVA_BURST, true);
                             break;
-                        case SPEC_SHAMAN_RESTORATION:
-                            _player->CastSpell(_player, SPELL_SHA_ASCENDANCE_RESTORATION, true);
+                        case SpecIndex::SPEC_SHAMAN_ENHANCEMENT:
+                            l_Player->CastSpell(l_Player, ShamanSpells::SPELL_SHA_ASCENDANCE_ENHANCED, true);
+
+                            if (l_Player->HasSpellCooldown(ShamanSpells::SPELL_SHA_STORMSTRIKE))
+                                l_Player->RemoveSpellCooldown(ShamanSpells::SPELL_SHA_STORMSTRIKE, true);
                             break;
+                        case SpecIndex::SPEC_SHAMAN_RESTORATION:
+                            l_Player->CastSpell(l_Player, ShamanSpells::SPELL_SHA_ASCENDANCE_RESTORATION, true);
+                            break;
+
                         default:
                             break;
                     }
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_sha_ascendance_SpellScript::CheckCast);
                 AfterCast += SpellCastFn(spell_sha_ascendance_SpellScript::HandleAfterCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_sha_ascendance_SpellScript();
         }
@@ -1454,7 +1458,7 @@ class EarthenPowerTargetSelector
         }
 };
 
-/// Bloodlust - 2825
+/// Bloodlust - 2825 - last update: 6.1.2 19802
 class spell_sha_bloodlust: public SpellScriptLoader
 {
     public:
@@ -1464,31 +1468,33 @@ class spell_sha_bloodlust: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_bloodlust_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*p_SpellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SHAMAN_SPELL_SATED))
+                if (!sSpellMgr->GetSpellInfo(ShamanSpells::SHAMAN_SPELL_SATED))
                     return false;
+
                 return true;
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
             {
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_SATED));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::HUNTER_SPELL_INSANITY));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_EXHAUSTION));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::MAGE_SPELL_TEMPORAL_DISPLACEMENT));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::HUNTER_SPELL_FATIGUED));
             }
 
             void ApplyDebuff()
             {
                 if (Unit* l_Target = GetHitUnit())
-                    l_Target->CastSpell(l_Target, SHAMAN_SPELL_SATED, true);
+                    l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_SATED, true);
             }
 
-            void Register()
+            void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_bloodlust_SpellScript::ApplyDebuff);
             }
         };
@@ -1499,7 +1505,7 @@ class spell_sha_bloodlust: public SpellScriptLoader
         }
 };
 
-/// Heroism - 32182
+/// Heroism - 32182 - last update: 6.1.2 19802
 class spell_sha_heroism: public SpellScriptLoader
 {
     public:
@@ -1509,42 +1515,43 @@ class spell_sha_heroism: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_heroism_SpellScript);
 
+            bool Validate(SpellInfo const* /*p_SpellEntry*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(ShamanSpells::SHAMAN_SPELL_EXHAUSTION))
+                    return false;
+
+                return true;
+            }
+
             SpellCastResult CheckCast()
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster->HasAura(SHAMAN_SPELL_EXHAUSTION))
+                if (l_Caster->HasAura(ShamanSpells::SHAMAN_SPELL_EXHAUSTION))
                     return SPELL_FAILED_DONT_REPORT;
 
                 return SPELL_CAST_OK;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SHAMAN_SPELL_EXHAUSTION))
-                    return false;
-                return true;
-            }
-
             void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
             {
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_EXHAUSTION));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::HUNTER_SPELL_INSANITY));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_SATED));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::MAGE_SPELL_TEMPORAL_DISPLACEMENT));
             }
 
             void ApplyDebuff()
             {
                 if (Unit* l_Target = GetHitUnit())
-                    GetCaster()->CastSpell(l_Target, SHAMAN_SPELL_EXHAUSTION, true);
+                    l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_EXHAUSTION, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_sha_heroism_SpellScript::CheckCast);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_heroism_SpellScript::ApplyDebuff);
             }
         };
@@ -1962,7 +1969,8 @@ class spell_sha_glyph_of_eternal_earth : public SpellScriptLoader
         }
 };
 
-/// 157804 - Improved Flame Shock
+/// last update : 6.1.2 19802
+/// Improved Flame Shock - 157804
 class spell_sha_improoved_flame_shock: public SpellScriptLoader
 {
     public:
@@ -1972,13 +1980,32 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_improoved_flame_shock_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            enum eData
+            {
+                CategoryIDLavaLash = 1538
+            };
+
+            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
-                if (Unit* l_Caster = GetCaster())
-                    if (Player* l_Player = l_Caster->ToPlayer())
-                        l_Player->RemoveSpellCooldown(SPELL_SHA_LAVA_LASH, true);
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_SHA_FLAME_SHOCK)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;;
+
+                l_Player->RestoreCharge(eData::CategoryIDLavaLash);
             }
 
             void Register()
@@ -2115,32 +2142,42 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
         }
 };
 
-/// 157765 Enhanced Chain Lightning
+/// Enhanced Chain Lightning - 157765
+/// Called by Chain Lightning - 421 and Lava Beam - 114074
 class spell_sha_enhanced_chain_lightning: public SpellScriptLoader
 {
     public:
         spell_sha_enhanced_chain_lightning() : SpellScriptLoader("spell_sha_enhanced_chain_lightning") { }
 
-        class spell_sha_enhanced_chain_lightning_AuraScript : public AuraScript
+        class spell_sha_enhanced_chain_lightning_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_sha_enhanced_chain_lightning_AuraScript);
+            PrepareSpellScript(spell_sha_enhanced_chain_lightning_SpellScript);
 
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            enum eSpells
             {
-                PreventDefaultAction();
-                GetCaster()->CastSpell(GetCaster(), SPELL_SHA_IMPROVED_CHAIN_LIGHTNING, true);
+                ImprovedChainLightning              = 157765,
+                ImprovedChainLightningEarthquakeMod = 157766,
+            };
+
+            uint8 m_TargetReach = 0;
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::ImprovedChainLightning) && ++m_TargetReach == 3)
+                    l_Caster->CastSpell(l_Caster, eSpells::ImprovedChainLightningEarthquakeMod, true);
             }
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_enhanced_chain_lightning_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnHit += SpellHitFn(spell_sha_enhanced_chain_lightning_SpellScript::HandleOnHit);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_sha_enhanced_chain_lightning_AuraScript();
+            return new spell_sha_enhanced_chain_lightning_SpellScript();
         }
 };
 

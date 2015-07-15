@@ -3856,10 +3856,11 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
 
             enum eSpells
             {
-                Exhausted           = 57723,
-                Insanity            = 95809,
-                Sated               = 57724,
-                TemporalDisplacement = 80354
+                Exhausted            = 57723,
+                Insanity             = 95809,
+                Sated                = 57724,
+                TemporalDisplacement = 80354,
+                Fatigued             = 160455
             };
 
             SpellCastResult CheckCast()
@@ -3878,6 +3879,7 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Exhausted));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Sated));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TemporalDisplacement));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Fatigued));
             }
 
             void Register()
@@ -3951,6 +3953,48 @@ class spell_gen_selfie_camera : public SpellScriptLoader
         {
             return new spell_gen_selfie_camera_AuraScript();
         }
+};
+
+/// 181883 - S.E.L.F.I.E. Lens Upgrade Kit
+class spell_gen_selfie_lens_upgrade_kit : public SpellScriptLoader
+{
+    enum ItemIDs
+    {
+        SELFIECameraMkII = 122674
+    };
+
+    public:
+        /// Constructor
+        spell_gen_selfie_lens_upgrade_kit()
+            : SpellScriptLoader("spell_gen_selfie_lens_upgrade_kit")
+        {
+
+        }
+
+        /// Spell script
+        class spell_gen_selfie_lens_upgrade_kit_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_selfie_lens_upgrade_kit_SpellScript);
+
+            /// After the spell is caster
+            void OnAfterCast()
+            {
+                if (GetCaster()->ToPlayer())
+                    GetCaster()->ToPlayer()->AddItem(ItemIDs::SELFIECameraMkII, 1);
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_gen_selfie_lens_upgrade_kit_SpellScript::OnAfterCast);
+            }
+        };
+
+        /// Get a fresh spell script instance
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_selfie_lens_upgrade_kit_SpellScript();
+        }
+
 };
 
 /// Carrying Seaforium - 52410
@@ -4301,6 +4345,7 @@ void AddSC_generic_spell_scripts()
     new Resolve::spell_resolve_passive();
     new spell_gen_dampening();
     new spell_gen_selfie_camera();
+    new spell_gen_selfie_lens_upgrade_kit();
     new spell_gen_carrying_seaforium();
     new spell_inherit_master_threat_list();
     new spell_taunt_flag_targeting();

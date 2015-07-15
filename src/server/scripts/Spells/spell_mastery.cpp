@@ -276,38 +276,6 @@ class spell_mastery_executioner : public SpellScriptLoader
         }
 };
 
-/// Mastery: Potent Poisons - 76803
-class spell_mastery_potent_poisons : public SpellScriptLoader
-{
-    public:
-        spell_mastery_potent_poisons() : SpellScriptLoader("spell_mastery_potent_poisons") { }
-
-        class spell_mastery_potent_poisons_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mastery_potent_poisons_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * (float(GetSpellInfo()->Effects[EFFECT_2].BasePoints) / 100.0f);
-                    p_Amount = l_Mastery;
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_potent_poisons_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_potent_poisons_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_ADD_PCT_MODIFIER);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mastery_potent_poisons_AuraScript();
-        }
-};
-
 /// Mastery: Sniper Training - 76659
 class spell_mastery_sniper_training : public SpellScriptLoader
 {
@@ -875,24 +843,14 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
                             {
                                 float value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f;
 
-                                int32 l_Bp = int32(CalculatePct(GetHitDamage(), value));
+                                int32 l_Bp = int32(CalculatePct(GetHitDamage() + GetAbsorbedDamage(), value));
 
                                 SpellInfo const* l_Inquisition = sSpellMgr->GetSpellInfo(SPELL_PAL_INQUISITION);
                                 // [Inquisition - 84963] does increase the holy damage done by Mastery : Hand of Light - 76672
                                 if (l_Caster->HasAura(SPELL_PAL_INQUISITION))
                                     AddPct(l_Bp, l_Inquisition->Effects[EFFECT_0].BasePoints);
 
-                                // Need to recalculate if damage is absorbed
-                                if (!l_Bp)
-                                {
-                                    int32 l_AbsorbedDamage = int32(CalculatePct(GetAbsorbedDamage(), value));
-                                    // If spell didn't hit, absorbedDamage will be random negative value, because of it players receive 1kk+ heal/damage from it.
-                                    // 100000 - to prevent bug with high damage, because it's unreal to deal ~555k damage (555k*0.18%=100k).
-                                    if (l_AbsorbedDamage > 0 && l_AbsorbedDamage < 100000)
-                                        l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_AbsorbedDamage, NULL, NULL, true);
-                                }
-                                else
-                                    l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_Bp, NULL, NULL, true);
+                                l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_Bp, NULL, NULL, true);
                             }
                         }
                     }
@@ -1044,79 +1002,6 @@ class spell_mastery_weapons_master : public SpellScriptLoader
         }
 };
 
-/// Called by Doom - 603, Immolation Aura - 140720
-/// Mastery: Master Demonologist - 77219
-class spell_mastery_master_demonologist_aura : public SpellScriptLoader
-{
-    public:
-        spell_mastery_master_demonologist_aura() : SpellScriptLoader("spell_mastery_master_demonologist_aura") { }
-
-        class spell_mastery_master_demonologist_aura_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mastery_master_demonologist_aura_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculate*/)
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster == nullptr)
-                    return;
-
-                /// Further increases the damage of your Touch of Chaos, Chaos Wave, Doom, Immolation Aura, and Soul Fire while in Metamorphosis by 12%.
-                if (l_Caster->HasAura(SPELL_WARLOCK_METAMORPHIS) && l_Caster->HasAura(SPELL_WARLOCK_MASTER_DEMONOLOGIST))
-                {
-                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-                    p_Amount += CalculatePct(p_Amount, l_MasteryValue);
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_master_demonologist_aura_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mastery_master_demonologist_aura_AuraScript();
-        }
-};
-
-/// Called by Chaos wave - 124915, Touch of Chao - 103964, Soul Fire - 6353, Demonbolt - 157695
-/// Mastery: Master Demonologist - 77219
-class spell_mastery_master_demonologist : public SpellScriptLoader
-{
-    public:
-        spell_mastery_master_demonologist() : SpellScriptLoader("spell_mastery_master_demonologist") { }
-
-        class spell_mastery_master_demonologist_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mastery_master_demonologist_SpellScript);
-
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                Unit* l_Caster = GetCaster();
-
-                /// Further increases the damage of your Touch of Chaos, Chaos Wave, Doom, Immolation Aura, and Soul Fire while in Metamorphosis by 12%.
-                if (l_Caster->HasAura(SPELL_WARLOCK_METAMORPHIS) && l_Caster->HasAura(SPELL_WARLOCK_MASTER_DEMONOLOGIST))
-                {
-                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_mastery_master_demonologist_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mastery_master_demonologist_SpellScript();
-        }
-};
-
 enum MasterAnguish
 {
     SPELL_PRIEST_MIND_BLAST = 8092,
@@ -1254,7 +1139,6 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_molten_earth_damage();
     new spell_mastery_razor_claws();
     new spell_mastery_executioner();
-    new spell_mastery_potent_poisons();
     new spell_mastery_sniper_training();
     new spell_mastery_recently_moved();
     new spell_mastery_sniper_training_aura();
@@ -1267,8 +1151,6 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_hand_of_light();
     new spell_mastery_elemental_overload();
     new spell_mastery_weapons_master();
-    new spell_mastery_master_demonologist();
-    new spell_mastery_master_demonologist_aura();
     new spell_mastery_master_mental_anguish();
     new spell_mastery_divine_bulwark();
     new spell_mastery_primal_tenacity();

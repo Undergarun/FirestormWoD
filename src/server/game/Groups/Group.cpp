@@ -1007,8 +1007,8 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data << uint32(p_CountDown);                          ///< the countdown time to choose "need" or "greed"
-    l_Data << uint8(p_Roll.totalPlayersRolling);            ///< maybe the number of players rolling for it???
     l_Data << uint8(p_Roll.rollVoteMask);                   ///< roll type mask
+    l_Data << uint8(p_Roll.totalPlayersRolling);            ///< maybe the number of players rolling for it???
 
     p_Player->GetSession()->SendPacket(&l_Data);
 }
@@ -2816,7 +2816,9 @@ void Group::SendRaidMarkersUpdate()
 
     l_Data << uint8(0); ///< PartyIndex
     l_Data << uint32(GetActiveMarkers());
+
     l_Data.WriteBits(CountActiveMarkers(), 4);
+    l_Data.FlushBits();
 
     for (RaidMarker l_Marker : l_RaidMarkers)
     {
@@ -2894,7 +2896,9 @@ void Group::RemoveRaidMarker(uint8 p_Slot)
 
 void Group::RemoveAllRaidMarkers()
 {
-    m_RaidMarkers.clear();
+    for (uint8 l_Slot = 0; l_Slot < eRaidMarkersMisc::MaxRaidMarkers; ++l_Slot)
+        m_RaidMarkers[l_Slot] = RaidMarker();
+
     SendRaidMarkersUpdate();
 }
 

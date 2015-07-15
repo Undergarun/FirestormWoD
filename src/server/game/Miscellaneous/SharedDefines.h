@@ -722,7 +722,7 @@ enum SpellAttr7
     SPELL_ATTR7_ALLIANCE_ONLY                    = 0x00000200, //  9 Teleports, mounts and other spells.
     SPELL_ATTR7_DISPEL_CHARGES                   = 0x00000400, // 10 Dispel and Spellsteal individual charges instead of whole aura.
     SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER         = 0x00000800, // 11 Only non-player casts interrupt, though Feral Charge - Bear has it.
-    SPELL_ATTR7_UNK12                            = 0x00001000, // 12 Not set in 3.2.2a.
+    SPELL_ATTR7_SILENCE_ONLY_NONPLAYER           = 0x00001000, // 12 Not set in 3.2.2a.
     SPELL_ATTR7_UNK13                            = 0x00002000, // 13 Not set in 3.2.2a.
     SPELL_ATTR7_UNK14                            = 0x00004000, // 14 Only 52150 (Raise Dead - Pet) spell.
     SPELL_ATTR7_UNK15                            = 0x00008000, // 15 Exorcism. Usable on players? 100% crit chance on undead and demons?
@@ -870,7 +870,7 @@ enum SpellAttr11
     SPELL_ATTR11_UNK13                            = 0x00002000, // 13
     SPELL_ATTR11_UNK14                            = 0x00004000, // 14
     SPELL_ATTR11_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR11_UNK16                            = 0x00010000, // 16
+    SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE     = 0x00010000, // 16
     SPELL_ATTR11_UNK17                            = 0x00020000, // 17
     SPELL_ATTR11_UNK18                            = 0x00040000, // 18
     SPELL_ATTR11_UNK19                            = 0x00080000, // 19
@@ -4698,48 +4698,51 @@ enum ResponseCodes
     CHAR_CREATE_CHARACTER_GOLD_LIMIT                       = 68,
     CHAR_CREATE_FORCE_LOGIN                                = 69,
     CHAR_CREATE_TRIAL                                      = 70,
-    CHAR_CREATE_VETERAN                                    = 71,
 
-    CHAR_DELETE_IN_PROGRESS                                = 72,
-    CHAR_DELETE_SUCCESS                                    = 73,
-    CHAR_DELETE_FAILED                                     = 74,
-    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 75,
-    CHAR_DELETE_FAILED_GUILD_LEADER                        = 76,
-    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 77,
-    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 78,
+    CHAR_DELETE_IN_PROGRESS                                = 71,
+    CHAR_DELETE_SUCCESS                                    = 72,
+    CHAR_DELETE_FAILED                                     = 73,
+    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 74,
+    CHAR_DELETE_FAILED_GUILD_LEADER                        = 75,
+    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 76,
+    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 77,
+    CHAR_DELETE_FAILED_UPGRADE_IN_PROGRESS                 = 78,
+    CHAR_DELETE_FAILED_HAS_WOW_TOKEN                       = 79,
+    CHAR_DELETE_FAILED_VAS_TRANSACTION_IN_PROGRESS         = 80,
 
-    CHAR_LOGIN_IN_PROGRESS                                 = 79,
-    CHAR_LOGIN_SUCCESS                                     = 80,
-    CHAR_LOGIN_NO_WORLD                                    = 81,
-    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 82,
-    CHAR_LOGIN_NO_INSTANCES                                = 83,
-    CHAR_LOGIN_FAILED                                      = 84,
-    CHAR_LOGIN_DISABLED                                    = 85,
-    CHAR_LOGIN_NO_CHARACTER                                = 86,
-    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 87,
-    CHAR_LOGIN_LOCKED_BY_BILLING                           = 88,
-    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 89,
-    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 90,
-    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 91,
-    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 92,
+    CHAR_LOGIN_IN_PROGRESS                                 = 81,
+    CHAR_LOGIN_SUCCESS                                     = 82,
+    CHAR_LOGIN_NO_WORLD                                    = 83,
+    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 84,
+    CHAR_LOGIN_NO_INSTANCES                                = 85,
+    CHAR_LOGIN_FAILED                                      = 86,
+    CHAR_LOGIN_DISABLED                                    = 87,
+    CHAR_LOGIN_NO_CHARACTER                                = 88,
+    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 89,
+    CHAR_LOGIN_LOCKED_BY_BILLING                           = 90,
+    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 91,
+    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 92,
+    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 93,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 94,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_VAS_TRANSACTION           = 95,
 
-    CHAR_NAME_SUCCESS                                      = 93,
-    CHAR_NAME_FAILURE                                      = 94,
-    CHAR_NAME_NO_NAME                                      = 95,
-    CHAR_NAME_TOO_SHORT                                    = 96,
-    CHAR_NAME_TOO_LONG                                     = 97,
-    CHAR_NAME_INVALID_CHARACTER                            = 98,
-    CHAR_NAME_MIXED_LANGUAGES                              = 99,
-    CHAR_NAME_PROFANE                                      = 100,
-    CHAR_NAME_RESERVED                                     = 101,
-    CHAR_NAME_INVALID_APOSTROPHE                           = 102,
-    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 103,
-    CHAR_NAME_THREE_CONSECUTIVE                            = 104,
-    CHAR_NAME_INVALID_SPACE                                = 105,
-    CHAR_NAME_CONSECUTIVE_SPACES                           = 106,
-    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 107,
-    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 108,
-    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 109
+    CHAR_NAME_SUCCESS                                      = 96,
+    CHAR_NAME_FAILURE                                      = 97,
+    CHAR_NAME_NO_NAME                                      = 98,
+    CHAR_NAME_TOO_SHORT                                    = 99,
+    CHAR_NAME_TOO_LONG                                     = 100,
+    CHAR_NAME_INVALID_CHARACTER                            = 101,
+    CHAR_NAME_MIXED_LANGUAGES                              = 102,
+    CHAR_NAME_PROFANE                                      = 103,
+    CHAR_NAME_RESERVED                                     = 104,
+    CHAR_NAME_INVALID_APOSTROPHE                           = 105,
+    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 106,
+    CHAR_NAME_THREE_CONSECUTIVE                            = 107,
+    CHAR_NAME_INVALID_SPACE                                = 108,
+    CHAR_NAME_CONSECUTIVE_SPACES                           = 109,
+    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 110,
+    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 111,
+    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 112,
 };
 
 /// Ban function modes
@@ -4882,34 +4885,25 @@ enum PetSlot
 
 enum TradeStatus
 {
-    // Most of the enum is wrong TODO: Fix later not so important atm
-    TRADE_STATUS_PROPOSED               = 0,
-    TRADE_STATUS_MUST_REPAIR            = 4,
-    TRADE_STATUS_IGNORE_YOU             = 7,
-    TRADE_STATUS_INITIATE_TRADE         = 8,
-    TRADE_STATUS_TARGET_TO_FAR          = 9,
+    TRADE_STATUS_YOU_DEAD               = 0,
+    TRADE_STATUS_WRONG_FACTION          = 1,
+    TRADE_STATUS_BACK_TO_TRADE          = 2,
+    TRADE_STATUS_TARGET_TO_FAR          = 5,
+    TRADE_STATUS_TRADE_ACCEPT           = 8,
+    TRADE_STATUS_TARGET_DEAD            = 9,
     TRADE_STATUS_OPEN_WINDOW            = 10,
-    TRADE_STATUS_TRIAL_ACCOUNT          = 11,
-    TRADE_STATUS_BEGIN_TRADE            = 12,
-    TRADE_STATUS_NOT_ELIGIBLE           = 15,
-    TRADE_STATUS_NOT_ON_TAPLIST         = 16,
-    TRADE_STATUS_TARGET_STUNNED         = 19,
-    TRADE_STATUS_BUSY                   = 21,  ///< will fix those later
-    TRADE_STATUS_YOU_DEAD               = 21,
-    TRADE_STATUS_YOU_STUNNED            = 21,
-    TRADE_STATUS_YOU_LOGOUT             = 21,
-    TRADE_STATUS_NO_TARGET              = 21,
-    TRADE_STATUS_TARGET_DEAD            = 21,
-    TRADE_STATUS_WRONG_REALM            = 22,  ///< ERR_CHAT_PLAYER_AMBIGUOUS_S
-    TRADE_STATUS_TRADE_COMPLETE         = 23,  ///< WTF ? ERR_TRADE_BAG_FULL
-    TRADE_STATUS_TRADE_ACCEPT           = 24,
-    TRADE_STATUS_TRADE_DECLINE          = 25,
-    TRADE_STATUS_BACK_TO_TRADE          = 26,
-    TRADE_STATUS_NOT_ENOUGH_CURRENCY    = 27,
-    TRADE_STATUS_TRADE_CANCELED         = 28,
-    TRADE_STATUS_WRONG_FACTION          = 29,
-    TRADE_STATUS_TARGET_LOGOUT          = 30,
-    TRADE_STATUS_TARGET_MOUNTED         = 30,
+    TRADE_STATUS_TARGET_STUNNED         = 11,
+    TRADE_STATUS_YOU_LOGOUT             = 12,
+    TRADE_STATUS_TRADE_COMPLETE         = 16,
+    TRADE_STATUS_IGNORE_YOU             = 17,
+    TRADE_STATUS_NOT_ELIGIBLE           = 19,
+    TRADE_STATUS_TARGET_LOGOUT          = 20,
+    TRADE_STATUS_BEGIN_TRADE            = 21,
+    TRADE_STATUS_BUSY                   = 22,
+    TRADE_STATUS_BEGIN_PROPOSED         = 23,
+    TRADE_STATUS_TRADE_CANCELED         = 26,
+    TRADE_STATUS_YOU_STUNNED            = 30,
+    TRADE_STATUS_NO_TARGET              = 31
 };
 
 enum eUpdateCollisionReasons

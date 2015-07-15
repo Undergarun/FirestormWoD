@@ -580,6 +580,8 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_spellAura = NULLAURA;
     isStolen = false;
 
+    m_CustomCritChance = -1.f;
+
     //Auto Shot & Shoot (wand)
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
 
@@ -4753,6 +4755,11 @@ void Spell::SendSpellStart()
     if (m_CastItemEntry)
         l_CastFlagsEx |= CastFlagsEx::CAST_FLAG_EX_TOY_COOLDOWN;
 
+    uint32 l_SchoolImmunityMask = m_caster->GetSchoolImmunityMask();
+    uint32 l_MechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+    if (l_SchoolImmunityMask || l_MechanicImmunityMask)
+        l_CastFlags |= CAST_FLAG_IMMUNITY;
+
     if (m_triggeredByAuraSpell)
         l_CastFlags |= CAST_FLAG_PENDING;
 
@@ -4890,8 +4897,11 @@ void Spell::SendSpellStart()
 
     data << uint32(l_ExtraTargetsCount);
 
-    data << uint32(0);
-    data << uint32(0);
+    if (l_CastFlags & CAST_FLAG_IMMUNITY)
+    {
+        data << uint32(l_SchoolImmunityMask);
+        data << uint32(l_MechanicImmunityMask);
+    }
 
     data << uint32(l_PredictAmount);
     data << uint8(l_PredicType);
@@ -6009,9 +6019,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         Player* player = m_caster->ToPlayer();
 
         // Can cast triggered (by aura only?) spells while have this flag
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY)
-            && !(player->HasAura(46924) && m_spellInfo->Id == 55694 || m_spellInfo->Id == 469 || m_spellInfo->Id == 6673 || m_spellInfo->Id == 97462 || m_spellInfo->Id == 5246 || m_spellInfo->Id == 12323
-            || m_spellInfo->Id == 107566 || m_spellInfo->Id == 102060 || m_spellInfo->Id == 1160 || m_spellInfo->Id == 18499) && // Hack fix Bladestorm - caster should be able to cast only shout spells during bladestorm
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY) &&
             (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : ((m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS) == 0 || GetSpellInfo()->CalcCastTime(m_caster))) &&
             (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
@@ -6255,13 +6263,15 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_ONLY_BATTLEGROUNDS;
 
     // do not allow spells to be cast in arenas or rated battlegrounds
-    if (Player * player = m_caster->ToPlayer())
-        if (player->InArena() || player->InRatedBattleGround())
+    if (Player* l_Player = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+    {
+        if (l_Player->InArena() || l_Player->InRatedBattleGround())
         {
-            SpellCastResult castResult = CheckArenaAndRatedBattlegroundCastRules();
+            SpellCastResult castResult = CheckArenaAndRatedBattlegroundCastRules(l_Player->GetBattleground());
             if (castResult != SPELL_CAST_OK)
                 return castResult;
         }
+    }
 
     // zone check
     if (m_caster->GetTypeId() == TYPEID_UNIT || !m_caster->ToPlayer()->isGameMaster())
@@ -7150,11 +7160,10 @@ SpellCastResult Spell::CheckCasterAuras() const
     return SPELL_CAST_OK;
 }
 
-SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
+SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules(Battleground const* p_Battleground)
 {
-    Battleground* bg = m_caster->ToPlayer()->GetBattleground();
-    bool isRatedBG = bg ? bg->IsRatedBG() : false;
-    bool isArena = bg ? bg->isArena() : false;
+    bool isRatedBG = p_Battleground ? p_Battleground->IsRatedBG() : false;
+    bool isArena = p_Battleground ? p_Battleground->isArena() : false;
 
     // check USABLE attributes
     // USABLE takes precedence over NOT_USABLE
@@ -8324,8 +8333,11 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
             targetInfo.damage += m_damage;
         }
     }
-
-    targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
+    
+    if (m_CustomCritChance < 0.f)
+        targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
+    else
+        targetInfo.crit = roll_chance_f(m_CustomCritChance);
 }
 
 SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& skillId, int32& reqSkillValue, int32& skillValue)

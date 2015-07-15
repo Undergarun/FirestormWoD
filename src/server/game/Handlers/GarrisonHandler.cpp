@@ -510,7 +510,7 @@ void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData
         return;
     }
 
-    l_Garrison->DoMissionBonusRoll(l_MissionID);
+    l_Garrison->DoMissionBonusRoll(l_NpcGUID, l_MissionID);
 }
 
 void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData)

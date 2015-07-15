@@ -529,13 +529,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_normalized_min = weapon_mindamage + attackPower / 3.5f * att_speed * dualWieldModifier;
     float weapon_normalized_max = weapon_maxdamage + attackPower / 3.5f * att_speed * dualWieldModifier;
 
-    /// Special damage calculate for Hunter spells that should deal normalized weapon damage
-    if (getClass() == CLASS_HUNTER && normalized)
-    {
-        weapon_normalized_min = weapon_mindamage + (attackPower / 3.5f * 2.8f);
-        weapon_normalized_max = weapon_maxdamage + (attackPower / 3.5f * 2.8f);
-    }
-
     if (IsInFeralForm())
     {
         float weaponSpeed = BASE_ATTACK_TIME / 1000.0f;
@@ -565,27 +558,51 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
-    /// Hack fix : Single-Minded Fury
-    if (addTotalPct && l_UsedWeapon)
+    /// Normalized Weapon Damage
+    if (normalized)
     {
-        if (getClass() == CLASS_WARRIOR && GetSpecializationId() == SPEC_WARRIOR_FURY)
+        CalculateNormalizedWeaponDamage(attType, min_damage, max_damage, attackPower, weapon_mindamage, weapon_maxdamage, l_UsedWeapon);
+        min_damage = (min_damage * base_pct + total_value) * total_pct;
+        max_damage = (max_damage * base_pct + total_value) * total_pct;
+    }
+    /// Damage based on auto-attack
+    else
+    {
+        min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
+        max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
+
+        uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
+        AddPct(min_damage, autoAttacksPctBonus);
+        AddPct(max_damage, autoAttacksPctBonus);
+    }
+}
+
+void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
+{
+    /// Monks and Druids have their own damage calculation, they don't have normalized weapon damage spells
+    if (getClass() == CLASS_MONK || getClass() == CLASS_DRUID)
+        return;
+
+    float l_NormalizedSpeedCoef = 1.0f;
+
+    /// Speed coefficients from http://wowwiki.wikia.com/Normalization - tested on official server, information is correct
+    if (l_UsedWeapon && l_UsedWeapon->GetTemplate())
+    {
+        if (l_UsedWeapon->GetTemplate()->IsOneHanded())
         {
-            /// Two-Handed weapon
-            /// We should remove Single-Minded Fury bonus, it should work just for one hand weapons
-            if (l_UsedWeapon->GetTemplate() && l_UsedWeapon->GetTemplate()->Sheath == 1)
-                total_pct = total_pct / 1.2f;
+            if (l_UsedWeapon->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                l_NormalizedSpeedCoef = 1.7f;
+            else
+                l_NormalizedSpeedCoef = 2.4f;
         }
+        else if (l_UsedWeapon->GetTemplate()->IsTwoHandedWeapon())
+            l_NormalizedSpeedCoef = 3.3f;
+        else if (l_UsedWeapon->GetTemplate()->IsRangedWeapon())
+            l_NormalizedSpeedCoef = 2.8f;
     }
 
-    /// Apply Versatility rating to damage calculation
-    base_pct += (ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)) / 100.0f;
-
-    min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
-    max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
-
-    uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
-    AddPct(min_damage, autoAttacksPctBonus);
-    AddPct(max_damage, autoAttacksPctBonus);
+    min_damage = weapon_mindamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
+    max_damage = weapon_maxdamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
 }
 
 void Player::UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields)
@@ -915,7 +932,10 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    l_AurEff->ChangeAmount(l_AurEff->CalculateAmount(this), true, true);
+                    if (l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
+                        l_AurEff->ChangeAmount(0, true, true);
+                    else
+                        l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
                 }
             }
         }
@@ -1118,6 +1138,7 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     uint32 cooldown = 0;
+    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     for (uint32 i = 0; i < MAX_RUNES; ++i)
         if (GetBaseRune(i) == rune)
@@ -1130,6 +1151,7 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
+    regen *= HastePct;
     SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(rune), regen);
 }
 
@@ -1137,6 +1159,8 @@ void Player::UpdateAllRunesRegen()
 {
     if (getClass() != Classes::CLASS_DEATH_KNIGHT)
         return;
+
+    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
@@ -1147,6 +1171,7 @@ void Player::UpdateAllRunesRegen()
             if (regen < 0.0099999998f)
                 regen = 0.01f;
 
+            regen *= HastePct;
             SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, regen);
         }
     }
@@ -1654,9 +1679,23 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     if (p_AttType > WeaponAttackType::BaseAttack)
         return;
 
-    UnitMods l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
+    UnitMods l_UnitMod;
 
-    /// For hunter pets damage calculation we don't need take their attack speed time, it's always 2.0f 
+    switch (p_AttType)
+    {
+        case WeaponAttackType::BaseAttack:
+        default:
+            l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
+            break;
+        case WeaponAttackType::OffAttack:
+            l_UnitMod = UNIT_MOD_DAMAGE_OFFHAND;
+            break;
+        case WeaponAttackType::RangedAttack:
+            l_UnitMod = UNIT_MOD_DAMAGE_RANGED;
+            break;
+    }
+
+    /// For hunter pets damage calculation we don't need take their attack speed time, it's always 2.0f
     float l_AttackSpeed = isHunterPet() ? 2.0f : float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 
@@ -1681,12 +1720,20 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     float l_MinDamage = ((l_BaseValue + l_WeaponMinDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
     float l_MaxDamage = ((l_BaseValue + l_WeaponMaxDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
 
-    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, l_MinDamage);
-    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, l_MaxDamage);
-
-    SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
-    SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
-
-    SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MinDamage / 2);
-    SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MaxDamage / 2);
+    switch (p_AttType)
+    {
+        case WeaponAttackType::BaseAttack:
+        default:
+            SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
+            break;
+        case WeaponAttackType::OffAttack:
+            SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MinDamage / 2);
+            SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, l_MaxDamage / 2);
+            break;
+        case WeaponAttackType::RangedAttack:
+            SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, l_MinDamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, l_MaxDamage);
+            break;
+    }
 }

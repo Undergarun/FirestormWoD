@@ -1297,6 +1297,14 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             amount += CalculatePct(amount, totalMod);
 
+            /// Bonus Taken    
+            /// Dampening, must be calculated off the raw amount
+            if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(110310, EFFECT_0))
+            {
+                if (GetId() != 47753) ///< Divine Aegis proc from heal, and get heal % of heal amount, and heal spells are already affected by Dampening
+                    amount = CalculatePct(amount, 100 - l_AurEff->GetAmount());
+            }
+
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
                 amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
@@ -4229,6 +4237,10 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
 
     switch (miscVal)
     {
+        case 27:
+            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SILENCE, apply);
+            aura_immunity_list.push_back(SPELL_AURA_MOD_SILENCE);
+            break;
         case 96:
         case 1615:
         {
@@ -5229,7 +5241,7 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
 
 void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT | AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK)))
         return;
 
     Unit* target = aurApp->GetTarget();
@@ -5240,7 +5252,7 @@ void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurAp
     float percent = target->GetHealthPct();
     target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, amount, apply);
     if (target->isAlive())
-        target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
+        target->SetHealth(target->CountPctFromMaxHealth(percent));
 }
 
 void AuraEffect::HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -7560,7 +7572,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
     }
     else
-        damage = uint32(target->CountPctFromMaxHealth(damage));
+        damage = uint32(target->CountPctFromMaxHealth((int32)damage));
 
     // WoD: Apply factor on damages depending on creature level and expansion
     if ((caster->GetTypeId() == TYPEID_PLAYER || caster->IsPetGuardianStuff()) && target->GetTypeId() == TYPEID_UNIT)

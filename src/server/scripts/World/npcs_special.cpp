@@ -2128,6 +2128,8 @@ class npc_new_lightwell : public CreatureScript
 
                 if (AuraPtr charges = me->GetAura(59907))
                 {
+                    charges->SetCharges(15);
+                    charges->GetEffect(0)->ChangeAmount(15);
                     if (Unit* owner = me->GetOwner())
                     {
                         // Glyph of Deep Wells
@@ -2209,6 +2211,8 @@ class npc_lightwell : public CreatureScript
 
                 if (AuraPtr charges = me->GetAura(59907))
                 {
+                    charges->SetCharges(15);
+                    charges->GetEffect(0)->ChangeAmount(15);
                     if (Unit* owner = me->GetOwner())
                     {
                         // Glyph of Deep Wells
@@ -3714,21 +3718,6 @@ enum PastSelfSpells
     SPELL_ENCHANTED_REFLECTION_2    = 102288
 };
 
-struct auraData
-{
-    auraData(uint32 p_ID, int32 p_Duration, uint8 p_Charges, bool p_HasStackAmount) :
-        ID(p_ID), Duration(p_Duration), Charges(p_Charges), HasStackAmount(p_HasStackAmount)
-    {
-        memset(EffectAmounts, 0, sizeof(EffectAmounts));
-    }
-
-    uint32 ID;
-    int32 Duration;
-    int32 EffectAmounts[MAX_EFFECTS];
-    uint8 Charges;
-    bool HasStackAmount;
-};
-
 #define ACTION_ALTER_TIME   1
 
 class npc_past_self : public CreatureScript
@@ -3750,7 +3739,6 @@ class npc_past_self : public CreatureScript
 
             int32 m_Mana;
             int32 m_Health;
-            std::vector<std::unique_ptr<auraData>> m_SavedAuras;
 
             void Reset()
             {
@@ -3762,37 +3750,6 @@ class npc_past_self : public CreatureScript
             {
                 if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
                 {
-                    Unit::AuraApplicationMap const& appliedAuras = p_Owner->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::const_iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
-                    {
-                        if (AuraPtr aura = itr->second->GetBase())
-                        {
-                            SpellInfo const* auraInfo = aura->GetSpellInfo();
-                            if (!auraInfo)
-                                continue;
-
-                            if (auraInfo->Id == SPELL_ALTER_TIME)
-                                continue;
-
-                            if (auraInfo->IsPassive())
-                                continue;
-
-                            if (auraInfo->Id == 23333 || auraInfo->Id == 23335) ///< Horde Flag || Alliance Flag
-                                continue;
-
-                            bool l_Stack = aura->GetStackAmount();
-                            uint8 l_Charges = l_Stack ? aura->GetStackAmount() : aura->GetCharges();
-
-                            m_SavedAuras.emplace_back(new auraData(auraInfo->Id, aura->GetDuration(), l_Charges, l_Stack));
-
-                            for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
-                            {
-                                if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
-                                    m_SavedAuras.back()->EffectAmounts[l_I] = l_Effect->GetAmount();
-                            }
-                        }
-                    }
-
                     m_Mana = p_Owner->GetPower(Powers::POWER_MANA);
                     m_Health = p_Owner->GetHealth();
 
@@ -3815,32 +3772,6 @@ class npc_past_self : public CreatureScript
                             {
                                 if (!l_Owner->isAlive())
                                     return;
-
-                                l_Owner->RemoveNonPassivesAuras();
-
-                                for (const auto& l_AuraDataPtr : m_SavedAuras)
-                                {
-                                    /// Since we removed all non-passive aura and don't store passive ones, we can't already have that aura
-                                    AuraPtr l_Aura = l_Owner->AddAura(l_AuraDataPtr->ID, l_Owner);
-                                    if (l_Aura)
-                                    {
-                                        l_Aura->SetDuration(l_AuraDataPtr->Duration);
-                                        if (l_AuraDataPtr->HasStackAmount)
-                                            l_Aura->SetStackAmount(l_AuraDataPtr->Charges);
-                                        else
-                                            l_Aura->SetCharges(l_AuraDataPtr->Charges);
-
-                                        for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
-                                        {
-                                            if (AuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
-                                                l_Effect->ChangeAmount(l_AuraDataPtr->EffectAmounts[l_I]);
-                                        }
-
-                                        l_Aura->SetNeedClientUpdateForTargets();
-                                    }
-                                }
-
-                                m_SavedAuras.clear();
 
                                 l_Owner->SetPower(POWER_MANA, m_Mana);
                                 l_Owner->SetHealth(m_Health);
@@ -4922,6 +4853,58 @@ class npc_xuen_the_white_tiger : public CreatureScript
         }
 };
 
+class npc_doomguard : public CreatureScript
+{
+    public:
+        npc_doomguard() : CreatureScript("npc_doomguard") { }
+
+        enum eSpells
+        {
+            SPELL_DOOMBOLT = 85692
+        };
+
+        struct npc_doomguardAI : CreatureAI
+        {
+            npc_doomguardAI(Creature* creature) :
+                CreatureAI(creature)
+            {
+            }
+
+            void UpdateAI(const uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+                
+                Unit* l_Victim = me->getVictim();
+                if (l_Victim->HasCrowdControlAura(me))
+                {
+                    me->InterruptNonMeleeSpells(false);
+                    return;
+                }
+
+                Position l_Pos = *l_Victim;
+                float l_DistSq = me->GetExactDistSq(&l_Pos);
+                float l_Range = AISpellInfo[eSpells::SPELL_DOOMBOLT].maxRange;
+                if (l_DistSq > l_Range * l_Range)
+                    me->GetMotionMaster()->MoveChase(l_Victim, l_Range);
+                else
+                    me->GetMotionMaster()->Clear(true);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                DoCast(eSpells::SPELL_DOOMBOLT);
+                /// If cast failed (or has cooldown), go melee
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_doomguardAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4977,4 +4960,5 @@ void AddSC_npcs_special()
     new npc_training_dummy_tanking();
     new npc_consecration();
     new npc_xuen_the_white_tiger();
+    new npc_doomguard();
 }

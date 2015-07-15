@@ -54,6 +54,7 @@ enum HunterSpells
     HUNTER_SPELL_INSANITY                           = 95809,
     SPELL_SHAMAN_SATED                              = 57724,
     SPELL_SHAMAN_EXHAUSTED                          = 57723,
+    HUNTER_SPELL_FATIGUED                           = 160455,
     HUNTER_SPELL_CAMOUFLAGE_VISUAL                  = 80326,
     HUNTER_SPELL_GLYPH_OF_CAMOUFLAGE_VISUAL         = 119450,
     HUNTER_SPELL_CAMOUFLAGE_PERIODIC_HEAL           = 51753,
@@ -2420,7 +2421,7 @@ class spell_hun_serpent_spread: public SpellScriptLoader
         }
 };
 
-// Ancient Hysteria - 90355
+/// Ancient Hysteria - 90355 - last update: 6.1.2 19802
 class spell_hun_ancient_hysteria: public SpellScriptLoader
 {
     public:
@@ -2430,38 +2431,44 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_ancient_hysteria_SpellScript);
 
+            bool Validate(SpellInfo const* /*p_SpellEntry*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(HunterSpells::HUNTER_SPELL_INSANITY))
+                    return false;
+
+                return true;
+            }
+
             SpellCastResult CheckMap()
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster->HasAura(SPELL_SHAMAN_EXHAUSTED))
-                    return SPELL_FAILED_DONT_REPORT;
+                if (l_Caster->HasAura(HunterSpells::SPELL_SHAMAN_EXHAUSTED))
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
 
-                if (l_Caster->GetMap() && l_Caster->GetMap()->IsBattleArena())
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
+                return SpellCastResult::SPELL_CAST_OK;
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_INSANITY));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_EXHAUSTED));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_SATED));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_FATIGUED));
             }
 
             void ApplyDebuff()
             {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, HUNTER_SPELL_INSANITY, true);
+                if (Unit* l_Target = GetHitUnit())
+                    l_Target->CastSpell(l_Target, HunterSpells::HUNTER_SPELL_INSANITY, true);
             }
 
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_hun_ancient_hysteria_SpellScript::CheckMap);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_hun_ancient_hysteria_SpellScript::ApplyDebuff);
             }
         };
@@ -2469,6 +2476,64 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_ancient_hysteria_SpellScript();
+        }
+};
+
+/// Netherwinds - 160452 - last update: 6.1.2 19802
+class spell_hun_netherwinds : public SpellScriptLoader
+{
+    public:
+        spell_hun_netherwinds() : SpellScriptLoader("spell_hun_netherwinds") { }
+
+        class spell_hun_netherwinds_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_netherwinds_SpellScript);
+
+            bool Validate(SpellInfo const* /*p_SpellEntry*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(HunterSpells::HUNTER_SPELL_FATIGUED))
+                    return false;
+
+                return true;
+            }
+
+            SpellCastResult CheckMap()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(HunterSpells::SPELL_SHAMAN_EXHAUSTED))
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_INSANITY));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_EXHAUSTED));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_SATED));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_FATIGUED));
+            }
+
+            void ApplyDebuff()
+            {
+                if (Unit* l_Target = GetHitUnit())
+                    l_Target->CastSpell(l_Target, HunterSpells::HUNTER_SPELL_FATIGUED, true);
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_hun_netherwinds_SpellScript::CheckMap);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_netherwinds_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_netherwinds_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
+                AfterHit += SpellHitFn(spell_hun_netherwinds_SpellScript::ApplyDebuff);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_netherwinds_SpellScript();
         }
 };
 
@@ -3345,12 +3410,18 @@ class spell_hun_spirit_mend : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_spirit_mend_SpellScript);
 
-            void HandleHeal(SpellEffIndex)
+            void HandleHeal(SpellEffIndex l_Idx)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    SetHitHeal(int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f));
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Heal = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f);
+                l_Heal = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, l_Idx, SPELL_DIRECT_DAMAGE);
+                l_Heal = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Heal, SPELL_DIRECT_DAMAGE);
+                SetHitHeal(l_Heal);
             }
 
             void Register()
@@ -3580,6 +3651,64 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Adaptation - 152244
+class spell_hun_adaptation : public SpellScriptLoader
+{
+    public:
+        spell_hun_adaptation() : SpellScriptLoader("spell_hun_adaptation") { }
+
+        class spell_hun_adaptation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_adaptation_AuraScript);
+
+            enum eSpells
+            {
+                CombatExperience = 156843
+            };
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+                 
+                if (l_Caster == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->RemoveAura(eSpells::CombatExperience);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_adaptation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_PET_SPECS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_adaptation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_PET_SPECS, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_adaptation_AuraScript();
+        }
+};
+
+
 // Aimed Shot - 19434
 class spell_hun_aimed_shot : public SpellScriptLoader
 {
@@ -3662,6 +3791,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_camouflage_visual();
     new spell_hun_serpent_spread();
     new spell_hun_ancient_hysteria();
+    new spell_hun_netherwinds();
     new spell_hun_kill_command();
     new spell_hun_cobra_shot();
     new spell_hun_steady_shot();
@@ -3680,6 +3810,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_explosive_shot();
     new spell_hun_aimed_shot();
     new spell_hun_poisoned_ammo();
+    new spell_hun_adaptation();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();

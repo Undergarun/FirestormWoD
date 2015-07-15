@@ -160,10 +160,28 @@ typedef std::pair<SpellValueMod, int32>     CustomSpellValueMod;
 class CustomSpellValues : public std::vector<CustomSpellValueMod>
 {
     public:
+        CustomSpellValues() :
+        m_CustomCritChance(-1.f)
+        {
+        }
+
         void AddSpellMod(SpellValueMod mod, int32 value)
         {
             push_back(std::make_pair(mod, value));
         }
+
+        float GetCustomCritChance() const
+        {
+            return m_CustomCritChance;
+        }
+
+        void SetCustomCritChance(float p_CustomProcChance)
+        {
+            m_CustomCritChance = p_CustomProcChance;
+        }
+
+    private:
+        float m_CustomCritChance;
 };
 
 enum SpellFacingFlags
@@ -1611,6 +1629,7 @@ class Unit : public WorldObject
         bool HealthAbovePctHealed(int32 pct, uint32 heal) const { return uint64(GetHealth()) + uint64(heal) > CountPctFromMaxHealth(pct); }
         float GetHealthPct() const { return GetMaxHealth() ? 100.f * GetHealth() / GetMaxHealth() : 0.0f; }
         uint32 CountPctFromMaxHealth(int32 pct) const { return CalculatePct(GetMaxHealth(), pct); }
+        uint32 CountPctFromMaxHealth(float p_Percent) const { return CalculatePct((float)GetMaxHealth(), p_Percent); }
         uint32 CountPctFromCurHealth(int32 pct) const { return CalculatePct(GetHealth(), pct); }
         uint32 CountPctFromMaxMana(int32 pct) const { return CalculatePct(GetMaxPower(POWER_MANA), pct); }
         uint32 CountPctFromCurMana(int32 pct) const { return CalculatePct(GetPower(POWER_MANA), pct); }
@@ -2388,6 +2407,8 @@ class Unit : public WorldObject
         void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
         void ApplySpellDispelImmunity(const SpellInfo* spellProto, DispelType type, bool apply);
         virtual bool IsImmunedToSpell(SpellInfo const* spellInfo);
+        uint32 GetSchoolImmunityMask() const;
+        uint32 GetMechanicImmunityMask() const;
                                                             // redefined in Creature
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask);
         bool IsImmunedToDamage(SpellInfo const* spellInfo);

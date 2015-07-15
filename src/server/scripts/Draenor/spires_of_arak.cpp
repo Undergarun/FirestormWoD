@@ -38,11 +38,13 @@ class boss_rukhmar : public CreatureScript
 
             void Reset()
             {
+                m_ZRef               = 0.0f;
+                me->m_CombatDistance = 200.0f;
+                m_MovingUpToward     = false;
+                m_MovingDownToward   = false;
+
+                me->AddAura(SpiresOfArakSpells::SouthshoreMobScalingAura, me);
                 m_Events.Reset();
-                m_ZRef = 0.0f;
-                m_MovingUpToward = false;
-                m_MovingDownToward = false;
-                me->m_CombatDistance = 500.0f;
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -74,7 +76,7 @@ class boss_rukhmar : public CreatureScript
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventBloodFeather, 7000);
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventSolarBreath, 12000);
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventBlazeOfGlory, 19000);
-                  m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 33000);
+                  m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 23000);
             }
 
             void EnterCombat(Unit* p_Who) override
@@ -152,9 +154,15 @@ class boss_rukhmar : public CreatureScript
                 if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
                 {
                     if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
-                        l_Damage->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
+                    {
+                        if ((SpiresOfArakDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
+                            l_Damage->ChangeAmount(SpiresOfArakDatas::DamageScalingCoeff * l_Count);
+                    }
                     if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    {
+                        if ((SpiresOfArakDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
                         l_Health->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
+                    }
                 }
             }
 
@@ -164,16 +172,34 @@ class boss_rukhmar : public CreatureScript
                 EnterEvadeIfOutOfCombatArea(p_Diff);
                 HandleHealthAndDamageScaling();
 
-                if (me->HasUnitState(UNIT_STATE_CASTING) || !UpdateVictim() || (m_MovingUpToward || m_MovingDownToward))
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING) || (m_MovingUpToward || m_MovingDownToward))
                 {
                     if (m_MovingUpToward)
                     {
                         if (CheckPosition(m_ZNew))
                         {
+                            std::list<Creature*> l_CreatureList;
+                            std::list<Creature*> l_PhoenixList;
                             m_MovingUpToward = false;
+
                             me->CastSpell(me, SpiresOfArakSpells::SpellLooseQuillsLauncher, true);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                             me->AddUnitState(UNIT_STATE_ROOT);
+                            me->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 150.0f);
+
+                            for (Creature* l_Creature : l_CreatureList)
+                            {
+                                me->GetCreatureListWithEntryInGrid(l_PhoenixList, SpiresOfArakCreatures::CreatureDepletedPhoenix, 150.0f);
+
+                                if (l_PhoenixList.size() >= 8)
+                                    break;
+
+                                l_Creature->DespawnOrUnsummon();
+                                me->SummonCreature(SpiresOfArakCreatures::CreatureDepletedPhoenix, l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ);
+                            }
                         }
                     }
                     else if (m_MovingDownToward)
@@ -205,16 +231,16 @@ class boss_rukhmar : public CreatureScript
                         break;
                     }
                     case SpiresOfArakEvents::EventSharpBeak:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, SpiresOfArakSpells::SpellSharpBeak, false);
-                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 10000);
+                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 33000);
                         break;
                     case SpiresOfArakEvents::EventBloodFeather:
                         me->CastSpell(me, SpiresOfArakSpells::SpellBloodFeatherDummy, false);
                         m_Events.ScheduleEvent(SpiresOfArakEvents::EventBloodFeather, 33000);
                         break;
                     case SpiresOfArakEvents::EventSolarBreath:
-                        me->AddAura(SpiresOfArakSpells::SpellSolarBreath, me);
+                        me->CastSpell(me, SpiresOfArakSpells::SpellSolarBreath, false);
                         m_Events.ScheduleEvent(SpiresOfArakEvents::EventSolarBreath, 33000);
                         break;
                     case SpiresOfArakEvents::EventBlazeOfGlory:
@@ -250,6 +276,7 @@ class npc_energized_phoenix : public CreatureScript
             uint64 m_SummonerGuid;
             uint64 m_PlayerGuid;
             bool m_KilledByPlayer;
+            bool m_Fixated;
 
             void Reset() override
             {
@@ -262,7 +289,11 @@ class npc_energized_phoenix : public CreatureScript
                 m_KilledByPlayer = true;
                 m_PlayerGuid = 0;
                 m_SummonerGuid = 0;
+                m_Fixated = false;
                 m_Events.Reset();
+
+                me->AddAura(SpiresOfArakSpells::SouthshoreMobScalingAura, me);
+                m_Events.ScheduleEvent(SpiresOfArakEvents::EventPhoenixFixatePlr, 200);
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -273,22 +304,7 @@ class npc_energized_phoenix : public CreatureScript
             void IsSummonedBy(Unit* p_Summoner) override
             {
                 /// Select some random player to focus on
-                std::list<Player*> l_PlayerList;
-                GetPlayerListInGrid(l_PlayerList, me, 30.0f);
                 m_SummonerGuid = p_Summoner->GetGUID();
-
-                if (!l_PlayerList.empty())
-                {
-                    JadeCore::RandomResizeList(l_PlayerList, 1);
-
-                    if (Player* l_Player = l_PlayerList.front())
-                    {
-                        m_PlayerGuid = l_Player->GetGUID();
-                        me->AddThreat(l_Player, 100000.0f);
-                        me->CastSpell(l_Player, SpiresOfArakSpells::SpellFixate, false);
-                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 300);
-                    }
-                }
             }
 
             void JustDied(Unit* p_Killer) override
@@ -303,22 +319,63 @@ class npc_energized_phoenix : public CreatureScript
                 }
             }
 
+            void HandleHealthAndDamageScaling()
+            {
+                std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                {
+                    Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
+                    return l_Unit && l_Unit->GetTypeId() == TYPEID_PLAYER;
+                });
+
+                if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    {
+                        if ((SpiresOfArakDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
+                            l_Damage->ChangeAmount(SpiresOfArakDatas::DamageScalingCoeff * l_Count);
+                    }
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    {
+                        if ((SpiresOfArakDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
+                            l_Health->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
+                    }
+                }
+            }
+
             void UpdateAI(const uint32 p_Diff) override
             {
                 m_Events.Update(p_Diff);
-
-                if (!UpdateVictim())
-                    return;
+                HandleHealthAndDamageScaling();
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case SpiresOfArakEvents::EventPhoenixFixatePlr:
+                    {
+                        std::list<Player*> l_PlayerList;
+                        GetPlayerListInGrid(l_PlayerList, me, 100.0f);
+
+                        if (!l_PlayerList.empty())
+                        {
+                            JadeCore::RandomResizeList(l_PlayerList, 1);
+
+                            if (Player* l_Player = l_PlayerList.front())
+                            {
+                                m_PlayerGuid = l_Player->GetGUID();
+                                me->AddThreat(l_Player, 100000.0f);
+                                me->CastSpell(l_Player, SpiresOfArakSpells::SpellFixate, false);
+                                m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 200);
+                            }
+                        }
+                        break;
+                    }
                     case SpiresOfArakEvents::EventMoveToPlayer:
                     {
                         if (m_PlayerGuid)
                         {
                             if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
                             {
-                                if (me->GetDistance2d(l_Player) <= 1.0f)
+                                if (me->GetDistance2d(l_Player) <= 1.2f)
                                 {
                                     m_KilledByPlayer = false;
                                     m_Events.Reset();
@@ -329,8 +386,9 @@ class npc_energized_phoenix : public CreatureScript
                                 }
                                 else
                                 {
+                                    me->GetMotionMaster()->Clear();
                                     me->GetMotionMaster()->MoveCharge(l_Player->m_positionX, l_Player->m_positionY, l_Player->m_positionZ, 2.0f);
-                                    m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 300);
+                                    m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 200);
                                 }
                             }
                         }
@@ -380,10 +438,17 @@ class spell_rukhmar_blaze_of_glory : public SpellScriptLoader
                     return;
 
                 std::list<Creature*> l_CreatureList;
-                l_Caster->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 50.0f);
+                std::list<Creature*> l_PhoenixList;
+
+                l_Caster->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 150.0f);
 
                 for (Creature* l_Creature : l_CreatureList)
                 {
+                    l_Caster->GetCreatureListWithEntryInGrid(l_PhoenixList, SpiresOfArakCreatures::CreatureEnergizedPhoenix, 150.0f);
+
+                    if (l_PhoenixList.size() >= 8)
+                        break;
+
                     l_Creature->DespawnOrUnsummon();
                     l_Caster->SummonCreature(SpiresOfArakCreatures::CreatureEnergizedPhoenix, l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ);
                 }
@@ -467,7 +532,7 @@ class spell_aura_pierced_armor : public SpellScriptLoader
                     return;
 
                 if (Creature* l_Rukhmar = l_Owner->ToCreature())
-                    l_Rukhmar->CastSpell(l_Rukhmar, SpiresOfArakSpells::SpellSolarBreathDamage, false);
+                    l_Rukhmar->CastSpell(l_Rukhmar, SpiresOfArakSpells::SpellSolarBreathDamage, true);
             }
 
             void Register() override
