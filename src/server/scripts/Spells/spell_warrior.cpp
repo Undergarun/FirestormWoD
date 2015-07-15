@@ -1075,7 +1075,7 @@ class spell_warr_victory_rush_heal: public SpellScriptLoader
                 GlyphOfVictoryRush = 58382
             };
 
-            void HandleHeal(SpellEffIndex /*effIndex*/)
+            void HandleHeal()
             {
                 Unit* l_Caster = GetCaster();
                 int32 l_Heal = GetHitHeal();
@@ -1088,7 +1088,7 @@ class spell_warr_victory_rush_heal: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_victory_rush_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+                OnHit += SpellHitFn(spell_warr_victory_rush_heal_SpellScript::HandleHeal);
             }
         };
 
