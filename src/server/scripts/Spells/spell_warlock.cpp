@@ -2889,7 +2889,8 @@ enum ImmolateSpells
     SpellEmpoweredImmolate = 157114
 };
 
-// Soulburn : Immolate - 348
+/// last update : 6.1.2 19802
+/// Soulburn : Immolate - 348, Immolate (Fire and Brimstone override) - 108686
 class spell_warl_immolate : public SpellScriptLoader
 {
     public:
