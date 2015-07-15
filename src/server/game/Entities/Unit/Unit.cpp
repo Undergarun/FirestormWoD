@@ -11734,19 +11734,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, PvPPower);
     }
 
-    /// 171752 - Glyph of Savagery
-    if (ToPlayer() && ToPlayer()->getClass() == CLASS_DRUID && ToPlayer()->GetSpecializationId() == SPEC_DRUID_FERAL)
-    {
-        if (HasAura(768) || HasAura(171745))
-        {
-            if (ToPlayer()->HasGlyph(171752))
-            {
-                SpellInfo const* l_GlyphOfSavagery = sSpellMgr->GetSpellInfo(155836);
-                DoneTotal += CalculatePct(pdamage, l_GlyphOfSavagery->Effects[EFFECT_0].BasePoints);
-            }
-        }
-    }
-
     // Mastery : Emberstorm - 77220
     // Increases the damage of spells wich consume Burning Embers (Shadowburn and Chaos Bolt)
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && spellProto && (spellProto->Id == 17877 || spellProto->Id == 116858))
@@ -13298,20 +13285,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE);
         AddPct(DoneTotalMod, PvPPower);
     }
-
-    /// 171752 - Glyph of Savagery
-    if (ToPlayer() && ToPlayer()->getClass() == CLASS_DRUID && ToPlayer()->GetSpecializationId() == SPEC_DRUID_FERAL)
-    {
-        if (HasAura(768) || HasAura(171745))
-        {
-            if (ToPlayer()->HasGlyph(171752))
-            {
-                SpellInfo const* l_GlyphOfSavagery = sSpellMgr->GetSpellInfo(155836);
-                AddPct(DoneTotalMod, l_GlyphOfSavagery->Effects[EFFECT_0].BasePoints);
-            }
-        }
-    }
-
+    
     // Custom MoP Script
     // 76856 - Mastery : Unshackled Fury
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0)
@@ -16944,10 +16918,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             target->ToPlayer()->AddSpellCooldown(122465, 0, 10 * IN_MILLISECONDS);
         }
     }
-
-    // Find Weakness - 91023
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(91023) && procSpell && (procSpell->Id == 8676 || procSpell->Id == 703 || procSpell->Id == 1833))
-        CastSpell(target, 91021, true);
 
     /// Revealing Strike - 84617
     if (target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)

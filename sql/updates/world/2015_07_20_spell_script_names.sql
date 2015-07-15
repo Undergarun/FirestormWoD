@@ -19,3 +19,11 @@ INSERT INTO `spell_script_names` VALUES (159636, 'spell_rog_glyph_of_energy_flow
 -- fix Glyph of Energy Flows
 DELETE FROM `spell_proc_event` WHERE `entry`=159636;
 INSERT INTO `spell_proc_event` (`entry`, `procEx`) VALUES (159636, 0x0000004 + 0x0000010);
+
+-- fix Lunar Inspiration
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dru_lunar_inspiration';
+INSERT INTO `spell_script_names` VALUES (155580, 'spell_dru_lunar_inspiration');
+
+-- fix Find Weakness
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rog_find_weakness';
+INSERT INTO `spell_script_names` VALUES (91023, 'spell_rog_find_weakness');

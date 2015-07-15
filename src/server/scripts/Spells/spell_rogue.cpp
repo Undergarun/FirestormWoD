@@ -78,7 +78,9 @@ enum RogueSpells
     ROGUE_SPELL_RUTHLESSNESS                    = 14161,
     ROGUE_SPELL_DEADLY_THROW_INTERRUPT          = 137576,
     ROGUE_SPELL_WOD_PVP_SUBTLETY_4P             = 170877,
-    ROGUE_SPELL_WOD_PVP_SUBTLETY_4P_EFFECT      = 170879
+    ROGUE_SPELL_WOD_PVP_SUBTLETY_4P_EFFECT      = 170879,
+    ROGUE_SPELL_FIND_WEAKNESS                   = 91023,
+    ROGUE_SPELL_FIND_WEAKNESS_PROC              = 91021
 };
 
 /// Anticipation - 114015
@@ -780,6 +782,9 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
 
                 if (l_Caster->HasAura(ROGUE_SPELL_CLOAK_AND_DAGGER) && !l_Caster->HasUnitState(UNIT_STATE_ROOT))
                     l_Caster->CastSpell(l_Target, ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY, true);
+
+                if (GetSpellInfo()->Id == ROGUE_SPELL_GARROTE_DOT && l_Caster->HasAura(ROGUE_SPELL_FIND_WEAKNESS))
+                    l_Caster->AddAura(ROGUE_SPELL_FIND_WEAKNESS_PROC, l_Target);
             }
 
             void Register()
@@ -2656,6 +2661,61 @@ public:
     }
 };
 
+/// Find Weakness - 91023
+class spell_rog_find_weakness : public SpellScriptLoader
+{
+public:
+    spell_rog_find_weakness() : SpellScriptLoader("spell_rog_find_weakness") { }
+
+    class spell_rog_find_weakness_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_find_weakness_AuraScript);
+
+        enum eSpells
+        {
+            Ambush = 8676,
+            Garrote = 703,
+            CheapShot = 1833
+        };
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+            if (l_SpellInfo == nullptr)
+                return;
+
+            int32 l_ProcSpells[] = { eSpells::Ambush, eSpells::Garrote, eSpells::CheapShot };
+
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = p_EventInfo.GetActionTarget())
+                {
+                    if (l_Caster->GetGUID() == l_Target->GetGUID())
+                        return;
+
+                    for (int l_I = 0; l_I < sizeof(l_ProcSpells) / sizeof(int); l_I++)
+                    {
+                        if (l_SpellInfo->Id == l_ProcSpells[l_I])
+                            l_Caster->AddAura(ROGUE_SPELL_FIND_WEAKNESS_PROC, l_Target);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_rog_find_weakness_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_rog_find_weakness_AuraScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_anticipation();
@@ -2705,6 +2765,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_bandits_guile();
     new spell_rog_deep_insight();
     new spell_rog_glyph_of_energy_flows();
+    new spell_rog_find_weakness();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();
