@@ -118,6 +118,18 @@ WHERE entry = 81808;
 
 UPDATE creature_model_info SET bounding_radius = 1.05, combat_reach = 5.25 WHERE modelid = 56638;
 
+# Arcane Torrent
+UPDATE creature_template SET
+    minlevel       = 100,
+    maxlevel       = 100,
+    faction        = 14,
+    unit_flags     = 33555200,
+    unit_flags2    = 2048,
+    modelid1       = 11686;
+    modelid2       = 0,
+    ScriptName     = 'npc_highmaul_arcane_torrent'
+WHERE entry = 87256;
+
 # Councilor Daglat <Gorian War Council>
 UPDATE creature_template SET
     minlevel       = 102,

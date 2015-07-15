@@ -3063,11 +3063,16 @@ class npc_highmaul_councilor_daglat : public CreatureScript
 
         enum eSpells
         {
-            KneelCosmeticForced = 130491
+            KneelCosmeticForced = 130491,
+            /// Teleport + Arcane Destruction
+            TeleportSearcher    = 174536,
+            TeleportMove        = 174538,
+            ArcaneDestruction   = 174541
         };
 
-        enum eEvents
+        enum eEvent
         {
+            EventArcaneDestruction = 1
         };
 
         struct npc_highmaul_councilor_daglatAI : public MS::AI::CosmeticAI
@@ -3085,6 +3090,30 @@ class npc_highmaul_councilor_daglat : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                m_Events.ScheduleEvent(eEvent::EventArcaneDestruction, 1 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::TeleportSearcher:
+                    {
+                        me->CastSpell(*p_Target, eSpells::TeleportMove, true);
+
+                        AddTimedDelayedOperation(200, [this]() -> void
+                        {
+                            me->CastSpell(me, eSpells::ArcaneDestruction, false);
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -3101,6 +3130,10 @@ class npc_highmaul_councilor_daglat : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case eEvent::EventArcaneDestruction:
+                        me->CastSpell(me, eSpells::TeleportSearcher, true);
+                        m_Events.ScheduleEvent(eEvent::EventArcaneDestruction, 5 * TimeConstants::IN_MILLISECONDS);
+                        break;
                     default:
                         break;
                 }
@@ -3123,28 +3156,48 @@ class npc_highmaul_councilor_magknor : public CreatureScript
 
         enum eSpells
         {
-            KneelCosmeticForced = 130491
+            KneelCosmeticForced     = 130491,
+            /// Arcane Torrent
+            ArcaneTorrentSummon     = 174549,
+            ArcaneTorrentAura       = 174558
         };
 
-        enum eEvents
+        enum eEvent
         {
+            EventArcaneTorrent = 1
         };
 
         struct npc_highmaul_councilor_magknorAI : public MS::AI::CosmeticAI
         {
-            npc_highmaul_councilor_magknorAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+            npc_highmaul_councilor_magknorAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature), m_Summons(p_Creature) { }
 
             EventMap m_Events;
+            SummonList m_Summons;
 
             void Reset() override
             {
                 m_Events.Reset();
 
                 me->CastSpell(me, eSpells::KneelCosmeticForced, true);
+
+                m_Summons.DespawnAll();
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->CastSpell(me, eSpells::ArcaneTorrentSummon, true);
+
+                m_Events.ScheduleEvent(eEvent::EventArcaneTorrent, 1 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustSummoned(Creature* p_Summon) override
+            {
+                m_Summons.Summon(p_Summon);
+            }
+
+            void SummonedCreatureDespawn(Creature* p_Summon) override
+            {
+                m_Summons.Despawn(p_Summon);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -3161,6 +3214,10 @@ class npc_highmaul_councilor_magknor : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case eEvent::EventArcaneTorrent:
+                        me->CastSpell(me, eSpells::ArcaneTorrentAura, false);
+                        m_Events.ScheduleEvent(eEvent::EventArcaneTorrent, 60 * TimeConstants::IN_MILLISECONDS);
+                        break;
                     default:
                         break;
                 }
@@ -3172,6 +3229,56 @@ class npc_highmaul_councilor_magknor : public CreatureScript
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_highmaul_councilor_magknorAI(p_Creature);
+        }
+};
+
+/// Arcane Torrent - 87256
+class npc_highmaul_arcane_torrent : public CreatureScript
+{
+    public:
+        npc_highmaul_arcane_torrent() : CreatureScript("npc_highmaul_arcane_torrent") { }
+
+        enum eSpell
+        {
+            ArcaneTorrentMoveSearcher = 174581
+        };
+
+        struct npc_highmaul_arcane_torrentAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_arcane_torrentAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            void Reset() override
+            {
+                SetCanSeeEvenInPassiveMode(true);
+
+                me->CastSpell(me, eSpell::ArcaneTorrentMoveSearcher, true);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpell::ArcaneTorrentMoveSearcher:
+                        me->GetMotionMaster()->MovePoint(eSpell::ArcaneTorrentMoveSearcher, *p_Target);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_ID == eSpell::ArcaneTorrentMoveSearcher)
+                    me->CastSpell(me, eSpell::ArcaneTorrentMoveSearcher, true);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_arcane_torrentAI(p_Creature);
         }
 };
 
@@ -4224,6 +4331,7 @@ void AddSC_highmaul()
     new npc_highmaul_guard_captain_thag();
     new npc_highmaul_councilor_daglat();
     new npc_highmaul_councilor_magknor();
+    new npc_highmaul_arcane_torrent();
     new npc_highmaul_councilor_gorluk();
     new npc_highmaul_councilor_nouk();
     new npc_highmaul_high_councilor_malgris();
