@@ -3725,9 +3725,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166289:///< Arcane Force (Gorian Arcanist)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
-            case 20167: ///< Seal of Insight
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
-                break;
             case 150055:///< Volcanic Tantrum
             case 149963:///< Shatter Earth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
