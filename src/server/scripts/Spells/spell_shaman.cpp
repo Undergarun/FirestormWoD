@@ -1064,6 +1064,7 @@ class spell_sha_lava_surge: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Healing Stream - 52042
 class spell_sha_healing_stream: public SpellScriptLoader
 {
@@ -1074,11 +1075,35 @@ class spell_sha_healing_stream: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_healing_stream_SpellScript);
 
+            enum eSpells
+            {
+                RushingStreams = 147074,
+                GlyphOfHealingStreamTotem = 55456
+            };
+
             bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHA_HEALING_STREAM))
                     return false;
                 return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (Unit* l_Owner = l_Caster->GetOwner())
+                    l_Caster = l_Owner;
+
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+
+                    if (l_Caster->HasAura(eSpells::RushingStreams)) ///< Your Healing Stream Totem now heals two targets 
+                        p_Targets.resize(2);
+                    else
+                        p_Targets.resize(1);
+                }
             }
 
             void HandleOnHit()
@@ -1091,14 +1116,15 @@ class spell_sha_healing_stream: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         /// Glyph of Healing Stream Totem
-                        if (l_Owner->HasAura(SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM))
-                            l_Owner->CastSpell(l_Target, SPELL_SHA_GLYPH_OF_HEALING_STREAM, true);
+                        if (l_Owner->HasAura(eSpells::GlyphOfHealingStreamTotem))
+                            l_Owner->CastSpell(l_Target, eSpells::GlyphOfHealingStreamTotem, true);
                     }
                 }
             }
 
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_stream_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
                 OnHit += SpellHitFn(spell_sha_healing_stream_SpellScript::HandleOnHit);
             }
         };
