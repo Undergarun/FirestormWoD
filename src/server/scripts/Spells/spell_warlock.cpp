@@ -2063,7 +2063,7 @@ public:
     }
 };
 
-// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
+/// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 class spell_warl_conflagrate_aura: public SpellScriptLoader
 {
     public:
@@ -2082,7 +2082,7 @@ class spell_warl_conflagrate_aura: public SpellScriptLoader
                         if (!target->HasAura(WARLOCK_IMMOLATE) && !caster->HasAura(WARLOCK_GLYPH_OF_CONFLAGRATE))
                             if (AuraPtr conflagrate = target->GetAura(WARLOCK_CONFLAGRATE))
                                 target->RemoveAura(WARLOCK_CONFLAGRATE);
-                        if (!target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
+                            if (!target->HasAura(WARLOCK_IMMOLATE))
                             if (AuraPtr conflagrate = target->GetAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE))
                                 target->RemoveAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE);
                     }
