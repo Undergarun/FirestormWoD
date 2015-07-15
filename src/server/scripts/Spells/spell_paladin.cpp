@@ -811,7 +811,7 @@ class spell_pal_seal_of_insight: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_wrath_SpellScript::FilterTargets, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_seal_of_insight_SpellScript::FilterTargets, EFFECT_1, SPELL_EFFECT_HEAL);
                 OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnHealWithoutGlyph, EFFECT_0, SPELL_EFFECT_HEAL);
                 OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnHealWithGlyph, EFFECT_1, SPELL_EFFECT_HEAL);
             }

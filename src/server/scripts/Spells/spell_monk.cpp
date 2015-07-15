@@ -1196,6 +1196,13 @@ class spell_monk_guard: public SpellScriptLoader
 
                     l_TargetList.remove(l_Caster);
 
+                    l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr || p_Unit->GetSpellModOwner() == nullptr)
+                            return true;
+                        return false;
+                    });
+
                     if (l_TargetList.size() > 1)
                     {
                         l_TargetList.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
