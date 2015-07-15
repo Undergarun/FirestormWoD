@@ -5217,10 +5217,6 @@ int32 Unit::GetTotalAuraModifier(AuraType auratype, constAuraEffectPtr excludeAu
     for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
         modifier += itr->second;
 
-    // Fix Mastery : Critical Block - Increase critical block chance
-    if (HasAura(76857) && auratype == SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)
-        modifier += int32(GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f);
-
     return modifier;
 }
 
@@ -11754,82 +11750,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
-    // 76658 - Mastery : Essence of the Viper
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_SPELL) && HasAura(76658))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
-    // 76657 - Mastery : Master of Beasts
-    if (isPet())
-    {
-        Unit* owner = GetOwner();
-        if (owner && owner->GetTypeId() == TYPEID_PLAYER && owner->HasAura(76657))
-        {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f;
-            DoneTotal += CalculatePct(pdamage, Mastery);
-        }
-    }
-
-    // Mastery : Emberstorm - 77220
-    // Increases the damage of Immolate, Incinerate, Fel Flame and Conflagrate (include the Fire and Brimstone spells)
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && spellProto
-        && (spellProto->Id == 17962 || spellProto->Id == 348 || spellProto->Id == 77799
-        || spellProto->Id == 29722 || spellProto->Id == 114654 || spellProto->Id == 108685
-        || spellProto->Id == 108686))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
     // Mastery : Emberstorm - 77220
     // Increases the damage of spells wich consume Burning Embers (Shadowburn and Chaos Bolt)
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && spellProto && (spellProto->Id == 17877 || spellProto->Id == 116858))
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
         DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
-    // 77215 - Mastery : Potent Afflictions
-    // Increase periodic damage of Corruption, Agony and Unstable Affliction
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->IsAfflictionPeriodicDamage() && damagetype == DOT && HasAura(77215))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.1f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
-    // 76547 - Mastery : Mana Adept
-    if (spellProto && GetTypeId() == TYPEID_PLAYER)
-    {
-        if (HasAura(76547))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-            float manapct = float(GetPower(POWER_MANA)) / float(GetMaxPower(POWER_MANA));
-            float bonus = 0;
-            bonus = (Mastery * manapct);
-            DoneTotal += CalculatePct(pdamage, bonus);
-        }
-    }
-
-    // 77514 - Mastery : Frozen Heart
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST))
-    {
-        if (HasAura(77514))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-            DoneTotal += CalculatePct(pdamage, Mastery);
-        }
-    }
-
-    // 77515 - Mastery : Dreadblade
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask &  SPELL_SCHOOL_MASK_SHADOW))
-    {
-        if (HasAura(77515))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
-            DoneTotal += CalculatePct(pdamage, Mastery);
-        }
     }
 
     // 76613 - Mastery : Icicles
@@ -11843,16 +11769,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
                 float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
                 DoneTotal += CalculatePct(pdamage, Mastery);
             }
-        }
-    }
-
-    // 77223 - Mastery : Enhanced Elements
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE))
-    {
-        if (HasAura(77223))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-            DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
 
@@ -12026,6 +11942,13 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
                 DoneTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
         }
+    }
+
+    AuraEffectList const& mModDamageFromPercentPower = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_FROM_PCT_POWER);
+    for (AuraEffectList::const_iterator i = mModDamageFromPercentPower.begin(); i != mModDamageFromPercentPower.end(); ++i)
+    {
+        float l_Pct = (float(GetPower(getPowerType())) / float(GetMaxPower(getPowerType()))) * (*i)->GetAmount();
+        DoneTotalMod += CalculatePct(1.0f, l_Pct);
     }
 
     if (isPet() && GetSpellModOwner())
@@ -12848,28 +12771,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         DoneTotal += CalculatePct(healamount, PvPPower);
     }
 
-    // 77484 - Mastery : Shield Discipline
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && healamount != 0 && HasAura(77484))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
-        DoneTotal += CalculatePct(healamount, Mastery);
-    }
-
-    // 77226 - Mastery : Deep Healing
-    if ((GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER && GetOwner()->HasAura(77226)) || (GetTypeId() == TYPEID_PLAYER && HasAura(77226)))
-    {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-            
-            if (GetOwner())
-                Mastery = GetOwner()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-
-            float healthpct = victim->GetHealthPct();
-
-            float bonus = 0;
-            bonus = CalculatePct((1 + (100.0f - healthpct)), Mastery);
-            DoneTotal += CalculatePct(healamount, bonus);
-    }
-
     /// Apply Versatility healing bonus done
     if (GetSpellModOwner())
         DoneTotal += CalculatePct(healamount, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
@@ -12956,6 +12857,13 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     {
         if (!((*i)->GetBase()->GetSpellInfo()->Id == 158298 && victim->GetGUID() != GetGUID())) ///< Resolve bonus healing only done to yourself
             DoneTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
+    }
+
+    AuraEffectList const& mHealingDoneFromHealth = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_FROM_PCT_HEALTH);
+    for (AuraEffectList::const_iterator i = mHealingDoneFromHealth.begin(); i != mHealingDoneFromHealth.end(); ++i)
+    {
+        float l_Bonus = CalculatePct((1 + (100.0f - victim->GetHealthPct())), (*i)->GetAmount());
+        DoneTotalMod += CalculatePct(1.0f, l_Bonus);
     }
 
     // done scripted mod (take it from owner)
@@ -13401,64 +13309,12 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     }
 
     // Custom MoP Script
-    // 77223 - Mastery : Enhanced Elements
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FIRE || spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST || spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE))
-    {
-        if (HasAura(77223))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-            AddPct(DoneTotalMod, Mastery);
-        }
-    }
-
-    // 76658 - Mastery : Essence of the Viper
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_SPELL) && HasAura(76658))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
-        AddPct(DoneTotalMod, Mastery);
-    }
-
-    // Custom MoP Script
-    // 76657 - Mastery : Master of Beasts
-    if (isPet())
-    {
-        Unit* owner = GetOwner();
-        if (owner && owner->GetTypeId() == TYPEID_PLAYER && owner->HasAura(76657))
-        {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f;
-            AddPct(DoneTotalMod, Mastery);
-        }
-    }
-
-    // Custom MoP Script
     // 76856 - Mastery : Unshackled Fury
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0)
     {
         if (HasAura(76856) && HasAuraState(AURA_STATE_ENRAGE))
         {
             float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.375f;
-            AddPct(DoneTotalMod, Mastery);
-        }
-    }
-
-    // Custom MoP Script
-    // 77514 - Mastery : Frozen Heart
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST))
-    {
-        if (HasAura(77514))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-            AddPct(DoneTotalMod, Mastery);
-        }
-    }
-
-    // Custom MoP Script
-    // 77515 - Mastery : Dreadblade
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_SHADOW))
-    {
-        if (HasAura(77515))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
             AddPct(DoneTotalMod, Mastery);
         }
     }
