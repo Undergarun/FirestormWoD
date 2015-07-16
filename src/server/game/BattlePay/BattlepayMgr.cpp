@@ -233,11 +233,9 @@ namespace Battlepay
         return ShopCurrency::Krw;
     }
 
-    /// @TODO
-    bool Manager::IsAvailable() const
+    bool Manager::IsAvailable(WorldSession* p_Session) const
     {
-        /// @TODO: Move that to config file
-        return true;
+        return sWorld->getBoolConfig(CONFIG_BATTLEPAY_ENABLE) && (int)p_Session->GetSecurity() >= sWorld->getIntConfig(CONFIG_BATTLEPAY_MIN_SECURITY);
     }
 
     void Manager::SavePurchase(WorldSession* p_Session, Battlepay::Purchase* p_Purchase)
@@ -256,12 +254,20 @@ namespace Battlepay
         Battlepay::DisplayInfo const* l_DisplayInfo = sBattlepayMgr->GetDisplayInfo(l_Product.DisplayInfoID);
         std::string l_Type = "item";
 
+        std::string l_ProductName = "";
+        if (l_DisplayInfo != nullptr)
+        {
+            l_ProductName = l_DisplayInfo->Name1;
+            if (Battlepay::DisplayInfoLocale const* l_Locale = sBattlepayMgr->GetDisplayInfoLocale(l_Product.DisplayInfoID))
+                ObjectMgr::GetLocaleString(l_Locale->Name, p_Session->GetSessionDbLocaleIndex(), l_ProductName);
+        }
+
         PreparedStatement* l_Statement = WebDatabase.GetPreparedStatement(WEB_INS_PURCHASE);
         l_Statement->setUInt32(0, p_Session->GetAccountId());
         l_Statement->setUInt32(1, sLog->GetRealmID());
         l_Statement->setUInt32(2, p_Session->GetPlayer() ? p_Session->GetPlayer()->GetGUIDLow() : 0);
         l_Statement->setString(3, l_ItemsText.str());
-        l_Statement->setString(4, "InGame Shop - " + l_Type + " - " + std::string(l_DisplayInfo ? l_DisplayInfo->Name1 : ""));
+        l_Statement->setString(4, "InGame Shop - " + l_Type + " - " + l_ProductName);
         l_Statement->setUInt32(5, p_Purchase->CurrentPrice);
         l_Statement->setString(6, p_Session->GetRemoteAddress());
         l_Statement->setString(7, l_Type);
@@ -319,9 +325,6 @@ namespace Battlepay
                 PacketFactory::CustomMessage::GetCustomMessage(PacketFactory::CustomMessage::AshranStoreBalance),
                 l_Data
             );
-
-            /// @TODO: Translation
-            ChatHandler(l_Player).PSendSysMessage("Votre nouveau solde est de %u points Ashran.", p_NewBalance);
         }
     }
 

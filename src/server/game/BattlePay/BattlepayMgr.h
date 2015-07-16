@@ -144,7 +144,7 @@ namespace Battlepay
 
             Manager()
             {
-                m_WalletName = "Ashran points";     ///< @TODO: Take it from server conf
+                m_WalletName      = "Ashran points";     ///< @TODO: Take it from server conf
                 m_PurchaseIDCount = 0;
             }
 
@@ -163,7 +163,7 @@ namespace Battlepay
             /*
             * Return if the battlepay is available for player or not
             */
-            bool IsAvailable() const;
+            bool IsAvailable(WorldSession* p_Session) const;
 
             /*
             * Check if the player already own that product
@@ -327,7 +327,6 @@ namespace Battlepay
 
             uint64       m_PurchaseIDCount;
             std::string  m_WalletName;
-
     };
 }
 

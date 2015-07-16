@@ -21,7 +21,7 @@ void WorldSession::HandleBattlepayGetPurchaseList(WorldPacket& p_RecvData)
 
 void WorldSession::HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData)
 {
-    if (!sBattlepayMgr->IsAvailable())
+    if (!sBattlepayMgr->IsAvailable(this))
         return;
 
     Battlepay::PacketFactory::SendDistributionList(this);

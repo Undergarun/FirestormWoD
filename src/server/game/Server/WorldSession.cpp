@@ -1177,10 +1177,10 @@ void WorldSession::SendFeatureSystemStatus()
     bool l_ItemRestorationButtonEnbaled         = false;
     bool l_RecruitAFriendSystem                 = false;
     bool l_HasTravelPass                        = false;
-    bool l_WebTicketSystemStatus                = true;
+    bool l_InGameBrowser                        = true;
     bool l_StoreEnabled                         = true;
     bool l_StoreIsDisabledByParentalControls    = false;
-    bool l_StoreIsAvailable                     = true;
+    bool l_StoreIsAvailable                     = sBattlepayMgr->IsAvailable(this);
     bool l_IsRestrictedAccount                  = false;
     bool l_IsTutorialEnabled                    = false;
     bool l_ShowNPETutorial                      = true;
@@ -1222,7 +1222,7 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data.WriteBit(l_StoreIsAvailable);                            ///< Can purchase in store
     l_Data.WriteBit(l_StoreIsDisabledByParentalControls);           ///< Is store disabled by parental controls
     l_Data.WriteBit(l_ItemRestorationButtonEnbaled);                ///< Item Restoration Button Enabled
-    l_Data.WriteBit(l_WebTicketSystemStatus);                       ///< Web ticket system enabled
+    l_Data.WriteBit(l_InGameBrowser);                               ///< Web ticket system enabled
     l_Data.WriteBit(l_PlayTimeAlert);                               ///< Session Alert Enabled
     l_Data.WriteBit(l_RecruitAFriendSystem);                        ///< Recruit A Friend System Status
     l_Data.WriteBit(l_HasTravelPass);                               ///< Has travel pass (can group with cross-realm Battle.net friends.)

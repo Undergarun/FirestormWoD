@@ -40,6 +40,7 @@ if(SCRIPTS)
   include(PetBattle/CMakeLists.txt)
   include(Draenor/CMakeLists.txt)
   include(Fun/CMakeLists.txt)
+  include(BattlePay/CMakeLists.txt)
 endif()
 
 MACRO( auto_group ProjectDirectory ProjectSources )
@@ -104,6 +105,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds/Zones
   ${CMAKE_SOURCE_DIR}/src/server/game/BattlePet
+  ${CMAKE_SOURCE_DIR}/src/server/game/BattlePay
   ${CMAKE_SOURCE_DIR}/src/server/game/Calendar
   ${CMAKE_SOURCE_DIR}/src/server/game/Chat
   ${CMAKE_SOURCE_DIR}/src/server/game/Chat/Channels
