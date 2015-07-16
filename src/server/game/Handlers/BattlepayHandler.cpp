@@ -102,6 +102,21 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
             return;
         }
 
+        /// Check bag free spaces (items)
+        if (l_Product.Items.size())
+        {
+            Player* l_Player = GetPlayer();
+            if (l_Player != nullptr && l_Product.Items.size() > l_Player->GetBagsFreeSlots())
+            {
+                std::ostringstream l_Data;
+                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::NotEnoughFreeBagSlots, GetSessionDbLocaleIndex());
+                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                return;
+            }
+        }
+
+        /// Custom check (scripts)
         if (!l_Product.ScriptName.empty())
         {
             std::string l_Reason;
@@ -182,6 +197,7 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
         if (std::atoi(l_Fields[0].GetCString()) < l_Purchase->CurrentPrice)
             return;
 
+        /// Custom check (scripts)
         Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(l_Purchase->ProductID);
         if (!l_Product.ScriptName.empty())
         {
@@ -193,6 +209,20 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
                 l_Data << l_Reason;
                 GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
                 Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::PaymentFailed);
+                return;
+            }
+        }
+
+        /// Check bag free spaces (items)
+        if (l_Product.Items.size())
+        {
+            Player* l_Player = GetPlayer();
+            if (l_Player != nullptr && l_Product.Items.size() > l_Player->GetBagsFreeSlots())
+            {
+                std::ostringstream l_Data;
+                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::NotEnoughFreeBagSlots, GetSessionDbLocaleIndex());
+                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
                 return;
             }
         }

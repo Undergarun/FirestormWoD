@@ -32,6 +32,17 @@ namespace Battlepay
         Beta   = 16
     };
 
+    enum String
+    {
+        AtGoldLimit                 = 14089,
+        NeedToBeInGame              = 14090,
+        TooHighLevel                = 14091,
+        YouAlreadyOwnThat           = 14092,
+        Level90Required             = 14093,
+        ReachPrimaryProfessionLimit = 14094,
+        NotEnoughFreeBagSlots       = 14095
+    };
+
     /// Client error enum
     /// See Blizzard_StoreUISecure.lua
     /// Last update : 6.0.3 19116

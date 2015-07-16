@@ -33730,3 +33730,22 @@ void Player::SendCustomMessage(std::string const& p_Opcode, std::ostringstream c
     l_Message << p_Opcode << "|" << p_Message.str() << "|";
     ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
 }
+
+uint32 Player::GetBagsFreeSlots() const
+{
+    uint32 l_FreeBagSlots = 0;
+
+    for (uint8 l_I = INVENTORY_SLOT_BAG_START; l_I < INVENTORY_SLOT_BAG_END; l_I++)
+    {
+        if (Bag * l_Bag = GetBagByPos(l_I))
+            l_FreeBagSlots += l_Bag->GetFreeSlots();
+    }
+
+    for (uint8 l_I = INVENTORY_SLOT_ITEM_START; l_I < INVENTORY_SLOT_ITEM_END; l_I++)
+    {
+        if (!GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+            ++l_FreeBagSlots;
+    }
+
+    return l_FreeBagSlots;
+}
