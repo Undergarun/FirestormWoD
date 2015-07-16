@@ -310,7 +310,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235                     Unused 6.1.2
     &Spell::EffectGiveExperience,                           //236 SPELL_EFFECT_GIVE_EXPERIENCE
     &Spell::EffectNULL,                                     //237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
-    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_INCREASE_SKILL
+    &Spell::EffectIncreaseSkill,                            //238 SPELL_EFFECT_INCREASE_SKILL
     &Spell::EffectNULL,                                     //239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
     &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.1.2
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
@@ -1383,7 +1383,7 @@ void Spell::EffectJump(SpellEffIndex effIndex)
 
     float speedXY, speedZ;
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
-    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, 10.0f, m_spellInfo->Id);
 }
 
 void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
@@ -1622,19 +1622,7 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
     {
         if (m_spellAura->GetEffect(i) && m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_SCHOOL_ABSORB)
         {
-            float AbsorbMod2 = 0.0f;
-
-            Unit *l_Caster = GetCaster();
-
-            if (l_Caster == nullptr)
-                return;
-
-            float minval = (float)l_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-            float maxval = (float)l_Caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-
-            AbsorbMod2 = minval + maxval;
             int currentValue = m_spellAura->GetEffect(i)->GetAmount();
-            AddPct(currentValue, AbsorbMod2);
 
             m_spellAura->GetEffect(i)->SetAmount(currentValue);
         }
@@ -1695,6 +1683,10 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
         gainMultiplier = m_spellInfo->Effects[effIndex].CalcValueMultiplier(m_originalCaster, this);
 
         int32 gain = int32(newDamage* gainMultiplier);
+
+        /// Hack fix for Dark Animus
+        if (m_caster->GetEntry() == 69427)
+            gain = 1;
 
         m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, powerType);
     }
@@ -2266,6 +2258,9 @@ void Spell::EffectCreateRandomItem(SpellEffIndex /*effIndex*/)
         return;
     Player* player = unitTarget->ToPlayer();
 
+    // Update craft skill
+    player->UpdateCraftSkill(m_spellInfo->Id);
+
     // create some random items
     player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
     // TODO: ExecuteLogEffectCreateItem(i, m_spellInfo->Effects[i].ItemType);
@@ -2333,8 +2328,8 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
-        case 6572:  // Revenge
-            if (m_caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+        case 6572:  /// Revenge
+            if (m_caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE && m_caster->GetShapeshiftForm() != FORM_GLADIATORSTANCE)
                 return;
             break;
         case 9512:                                          // Restore Energy
@@ -2594,8 +2589,10 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         // TODO: Add script for spell 41920 - Filling, becouse server it freze when use this spell
         // handle outdoor pvp object opening, return true if go was registered for handling
         // these objects must have been spawned by outdoorpvp!
-        else if (gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_GOOBER && sOutdoorPvPMgr->HandleOpenGo(player, gameObjTarget->GetGUID()))
+        else if (gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_GOOBER && sOutdoorPvPMgr->HandleOpenGo(player, gameObjTarget->GetGUID()) ||
+            gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_NEW_FLAG_DROP && sOutdoorPvPMgr->HandleOpenGo(player, gameObjTarget->GetGUID()))
             return;
+
         lockId = goInfo->GetLockId();
         guid = gameObjTarget->GetGUID();
     }
@@ -4250,13 +4247,13 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     if (l_CurrentSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
 
-                    /// Item - Rogue WoD PvP 2P Bonus - 165995
-                    if (m_spellInfo->Id == 57994 && m_originalCaster->HasAura(165995))
-                        m_originalCaster->CastSpell(m_originalCaster, 77762, true);
+                    /// Item - Rogue WoD PvP 2P Bonus
+                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
+                        m_originalCaster->CastSpell(m_originalCaster, 165996, true);
 
                     /// Item - Shaman WoD PvP Elemental 4P Bonus - 171109
-                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(171109))
-                        m_originalCaster->CastSpell(unitTarget, 165996, true);
+                    if (m_spellInfo->Id == 57994 && m_originalCaster->HasAura(171109))
+                        m_originalCaster->CastSpell(m_originalCaster, 77762, true);
 
                     /// Item - Druid WoD PvP Feral 2P Bonus
                     if (m_spellInfo->Id == 93985 && m_originalCaster->HasAura(170848))
@@ -4268,6 +4265,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                                 l_Player->RemoveSpellCooldown(5217, true);
                         }
                     }
+
+                    /// Glyph of Rude interruption
+                    if (m_spellInfo->Id == 6552 && m_originalCaster->HasAura(58372))
+                        m_originalCaster->CastSpell(m_originalCaster, 86663, true);
 
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(l_CurrentSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
@@ -6596,7 +6597,8 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         return;
 
     // HACK FIX !! @TODO: Find how filter not stealable spells for boss
-    if (unitTarget->ToCreature() && (unitTarget->ToCreature()->IsDungeonBoss() || unitTarget->ToCreature()->isWorldBoss()))
+    if (unitTarget->ToCreature()
+        && (unitTarget->ToCreature()->IsDungeonBoss() || unitTarget->ToCreature()->isWorldBoss() || unitTarget->ToCreature()->GetCreatureTemplate()->rank == CREATURE_ELITE_WORLDBOSS))
         return;
 
     DispelChargesList steal_list;
@@ -7931,6 +7933,37 @@ void Spell::EffectGarrisonFinalize(SpellEffIndex p_EffIndex)
     l_Player->ToPlayer()->GetGarrison()->ActivateBuilding();
 }
 
+void Spell::EffectIncreaseSkill(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (!l_Player)
+        return;
+
+    uint16 l_SkillId = m_spellInfo->Effects[p_EffIndex].MiscValue;
+
+    if (!l_Player->HasSkill(l_SkillId))
+        return;
+
+    int32 l_MaxSkillValue = m_spellInfo->Effects[p_EffIndex].MiscValueB;
+    int32 l_CurrentSkillValue = l_Player->GetSkillValue(l_SkillId);
+
+    if (l_CurrentSkillValue >= l_MaxSkillValue)
+        return;
+
+    int32 l_BasePoints = m_spellInfo->Effects[p_EffIndex].BasePoints;
+
+    int32 l_NewValue = std::min((int32)l_MaxSkillValue, (int32)(l_CurrentSkillValue + l_BasePoints));
+
+    l_Player->UpdateSkillPro(l_SkillId, 1000, l_BasePoints);
+}
+
 void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -8005,9 +8038,22 @@ void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
+    GuidUnorderedSet l_IgnoredPlayers;
+
+    std::list<Unit*> l_Members;
+    m_caster->GetRaidMembers(l_Members);
+    
+    uint64 l_OwnerGUID = m_caster->GetGUID();
+    for (Unit* l_Member : l_Members)
+    {
+        uint64 l_MemberGUID = l_Member->GetGUID();
+        if (l_MemberGUID != l_OwnerGUID && l_Member->GetTypeId() == TypeID::TYPEID_PLAYER)
+            l_IgnoredPlayers.insert(l_MemberGUID);
+    }
+
     WorldPacket l_Data(SMSG_CLEAR_TARGET, 16 + 2);
     l_Data.appendPackGUID(m_caster->GetGUID());
-    m_caster->SendMessageToSet(&l_Data, true);
+    m_caster->SendMessageToSet(&l_Data, true, l_IgnoredPlayers);
 }
 
 void Spell::EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex)

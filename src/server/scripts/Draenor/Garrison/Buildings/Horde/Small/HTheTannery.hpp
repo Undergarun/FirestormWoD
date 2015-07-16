@@ -10,6 +10,7 @@
 
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../GarrisonNPC.hpp"
+#include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
@@ -22,32 +23,13 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
+
+        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_MurneGreenhoofAI = SimpleSequenceCosmeticScriptAI<&npc_MurneGreenhoofAIData::FnLevel1, &npc_MurneGreenhoofAIData::FnLevel2, &npc_MurneGreenhoofAIData::FnLevel3>;
-
-    class npc_MurneGreenhoof : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_MurneGreenhoof();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
+    using npc_MurneGreenhoof = ProfessionBuilding_SkillNPC<npc_MurneGreenhoofAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Horde_YourFirstLeatherworkingWorkOrder, &npc_MurneGreenhoofAIData::Recipes, &npc_MurneGreenhoofAIData::FnLevel1, &npc_MurneGreenhoofAIData::FnLevel2, &npc_MurneGreenhoofAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79833 - Yanney                                                    ////
@@ -57,32 +39,11 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
     }
 
-    using npc_YanneyAI = SimpleSequenceCosmeticScriptAI<&npc_YanneyAIData::FnLevel1, &npc_YanneyAIData::FnLevel2, &npc_YanneyAIData::FnLevel3>;
-
-    class npc_Yanney : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_Yanney();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
+    using npc_Yanney = ProfessionBuilding_WorkOrderNPC<npc_YanneyAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Horde_YourFirstLeatherworkingWorkOrder, &npc_YanneyAIData::FnLevel1, &npc_YanneyAIData::FnLevel2, &npc_YanneyAIData::FnLevel3>;
 
 }   ///< namespace Garrison
 }   ///< namespace MS

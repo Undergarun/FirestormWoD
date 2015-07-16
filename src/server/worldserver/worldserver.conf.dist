@@ -3156,6 +3156,12 @@ DisableRestart = 1
 LootAoe.Enabled = 1
 LastClientBuild = 19342
 
+#   LogPackets
+#        Description: Print packet exchange (sent/received) to stdout, only works on Windows
+#                     0 - (Disabled)
+#        Default:     1 - (Enabled)
+LogPackets = 1
+
 ###################################################################################################
 # VIP CONFIG
 #

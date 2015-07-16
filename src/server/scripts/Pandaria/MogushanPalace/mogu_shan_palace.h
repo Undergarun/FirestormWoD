@@ -92,7 +92,7 @@ enum eCreatures
 
 enum eTypes
 {
-    TYPE_MING_ATTACK,
+    TYPE_MING_ATTACK = 4,   ///< Types are used as DATA_* with SetData function (WTF?!), so i make the enum start at 4 to avoid misconception error.
     TYPE_KUAI_ATTACK,
     TYPE_HAIYAN_ATTACK,
     TYPE_ALL_ATTACK,

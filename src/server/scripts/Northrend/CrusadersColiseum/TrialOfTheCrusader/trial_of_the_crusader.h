@@ -293,6 +293,8 @@ enum eAchievementData
     SPELL_TRAITOR_KING_10                   = 68186,
     SPELL_TRAITOR_KING_25                   = 68515,
 
+    SPELL_LEECHING_SWARM_AURA               = 66118,
+
     // Timed events
     EVENT_START_TWINS_FIGHT                 = 21853
 };

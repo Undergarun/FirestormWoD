@@ -572,6 +572,16 @@ void ScriptMgr::OnRemoveAreaTriggerEntity(AreaTrigger * p_AreaTrigger, uint32 p_
     p_AreaTrigger->GetScript()->OnRemove(p_AreaTrigger, p_Time);
 }
 
+void ScriptMgr::OnDestinationReached(AreaTrigger* p_AreaTrigger)
+{
+    ASSERT(p_AreaTrigger);
+
+    if (!p_AreaTrigger->GetScript())
+        return;
+
+    p_AreaTrigger->GetScript()->OnDestinationReached(p_AreaTrigger);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 /// Called when a dummy spell effect is triggered on the creature.

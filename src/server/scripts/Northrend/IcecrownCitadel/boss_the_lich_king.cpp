@@ -544,12 +544,13 @@ class boss_the_lich_king : public CreatureScript
 
             void EnterCombat(Unit* target)
             {
-                if (!instance->CheckRequiredBosses(DATA_THE_LICH_KING, target->ToPlayer()))
+                /// Needed until ships fight work with transport rewrite.
+                /*if (!instance->CheckRequiredBosses(DATA_THE_LICH_KING, target->ToPlayer()))
                 {
                     EnterEvadeMode();
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
-                }
+                }*/
 
                 me->setActive(true);
                 DoZoneInCombat();

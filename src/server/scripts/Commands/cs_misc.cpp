@@ -1377,111 +1377,120 @@ class misc_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleAddItemCommand(ChatHandler* handler, char const* args)
+        static bool HandleAddItemCommand(ChatHandler* p_Handler, char const* p_Args)
         {
-            if (!*args)
+            if (!*p_Args)
                 return false;
 
-            uint32 itemId = 0;
+            uint32 l_ItemID = 0;
+            std::vector<uint32> l_Bonuses;
 
-            if (args[0] == '[')                                        // [name] manual form
+            /// [name] manual form
+            if (p_Args[0] == '[')
             {
-                char const* itemNameStr = strtok((char*)args, "]");
+                char const* l_ItemNameStr = strtok((char*)p_Args, "]");
 
-                if (itemNameStr && itemNameStr[0])
+                if (l_ItemNameStr && l_ItemNameStr[0])
                 {
-                    std::string itemName = itemNameStr + 1;
-                    WorldDatabase.EscapeString(itemName);
+                    std::string l_ItemName = l_ItemNameStr + 1;
+                    WorldDatabase.EscapeString(l_ItemName);
 
-                    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(HOTFIX_SEL_ITEM_TEMPLATE_BY_NAME);
-                    stmt->setString(0, itemName);
-                    PreparedQueryResult result = WorldDatabase.Query(stmt);
+                    PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(HOTFIX_SEL_ITEM_TEMPLATE_BY_NAME);
+                    l_Statement->setString(0, l_ItemName);
+                    PreparedQueryResult l_Result = WorldDatabase.Query(l_Statement);
 
-                    if (!result)
+                    if (!l_Result)
                     {
-                        handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr + 1);
-                        handler->SetSentErrorMessage(true);
+                        p_Handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, l_ItemNameStr + 1);
+                        p_Handler->SetSentErrorMessage(true);
                         return false;
                     }
-                    itemId = result->Fetch()->GetUInt32();
+
+                    l_ItemID = l_Result->Fetch()->GetUInt32();
                 }
                 else
                     return false;
             }
-            else                                                    // item_id or [name] Shift-click form |color|Hitem:item_id:0:0:0|h[name]|h|r
+            /// Item_id or [name] Shift-click form |color|Hitem:item_id:0:0:0|h[name]|h|r
+            else
+                l_ItemID = p_Handler->GetItemIDAndBonusesFromLink((char*)p_Args, l_Bonuses);
+
+            char const* l_CCount = strtok(NULL, " ");
+
+            int32 l_Count = 1;
+            if (l_CCount)
+                l_Count = strtol(l_CCount, NULL, 10);
+
+            if (l_Count == 0)
+                l_Count = 1;
+
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+            Player* l_PlayerTarget = p_Handler->getSelectedPlayer();
+            if (!l_PlayerTarget)
+                l_PlayerTarget = l_Player;
+
+            sLog->outDebug(LOG_FILTER_GENERAL, p_Handler->GetTrinityString(LANG_ADDITEM), l_ItemID, l_Count);
+
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemID);
+            if (!l_ItemTemplate)
             {
-                char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
-                if (!id)
-                    return false;
-                itemId = uint32(atol(id));
-            }
-
-            char const* ccount = strtok(NULL, " ");
-
-            int32 count = 1;
-
-            if (ccount)
-                count = strtol(ccount, NULL, 10);
-
-            if (count == 0)
-                count = 1;
-
-            Player* player = handler->GetSession()->GetPlayer();
-            Player* playerTarget = handler->getSelectedPlayer();
-            if (!playerTarget)
-                playerTarget = player;
-
-            sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_ADDITEM), itemId, count);
-
-            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
-            if (!itemTemplate)
-            {
-                handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
-                handler->SetSentErrorMessage(true);
+                p_Handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, l_ItemID);
+                p_Handler->SetSentErrorMessage(true);
                 return false;
             }
 
-            // Subtract
-            if (count < 0)
+            /// Subtract
+            if (l_Count < 0)
             {
-                playerTarget->DestroyItemCount(itemId, -count, true, false);
-                handler->PSendSysMessage(LANG_REMOVEITEM, itemId, -count, handler->GetNameLink(playerTarget).c_str());
+                l_PlayerTarget->DestroyItemCount(l_ItemID, -l_Count, true, false);
+                p_Handler->PSendSysMessage(LANG_REMOVEITEM, l_ItemID, -l_Count, p_Handler->GetNameLink(l_PlayerTarget).c_str());
                 return true;
             }
 
-            // Adding items
-            uint32 noSpaceForCount = 0;
+            /// Adding items
+            uint32 l_NoSpaceForCount = 0;
 
-            // check space and find places
-            ItemPosCountVec dest;
-            InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
-            if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
-                count -= noSpaceForCount;
+            /// check space and find places
+            ItemPosCountVec l_Dest;
+            InventoryResult l_MSG = l_PlayerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_ItemID, l_Count, &l_NoSpaceForCount);
 
-            if (count == 0 || dest.empty())                         // can't add any
+            /// Convert to possible store amount
+            if (l_MSG != EQUIP_ERR_OK)
+                l_Count -= l_NoSpaceForCount;
+
+            /// Can't add any
+            if (l_Count == 0 || l_Dest.empty())
             {
-                handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
-                handler->SetSentErrorMessage(true);
+                p_Handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, l_ItemID, l_NoSpaceForCount);
+                p_Handler->SetSentErrorMessage(true);
                 return false;
             }
 
-            Item* item = playerTarget->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+            Item* l_Item = l_PlayerTarget->StoreNewItem(l_Dest, l_ItemID, true, Item::GenerateItemRandomPropertyId(l_ItemID));
 
-            // remove binding (let GM give it to another player later)
-            if (player == playerTarget)
-            for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
-            if (Item* item1 = player->GetItemByPos(itr->pos))
-                item1->SetBinding(false);
-
-            if (count > 0 && item)
+            /// Remove binding (let GM give it to another player later)
+            if (l_Player == l_PlayerTarget)
             {
-                player->SendNewItem(item, count, false, true);
-                if (player != playerTarget)
-                    playerTarget->SendNewItem(item, count, true, false);
+                for (ItemPosCountVec::const_iterator l_Iter = l_Dest.begin(); l_Iter != l_Dest.end(); ++l_Iter)
+                {
+                    if (Item* l_Item1 = l_Player->GetItemByPos(l_Iter->pos))
+                        l_Item1->SetBinding(false);
+                }
             }
 
-            if (noSpaceForCount > 0)
-                handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
+            if (l_Count > 0 && l_Item)
+            {
+                if (!l_Bonuses.empty())
+                    l_Item->AddItemBonuses(l_Bonuses);
+
+                l_Player->SendNewItem(l_Item, l_Count, false, true);
+
+                if (l_Player != l_PlayerTarget)
+                    l_PlayerTarget->SendNewItem(l_Item, l_Count, true, false);
+            }
+
+            if (l_NoSpaceForCount > 0)
+                p_Handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, l_ItemID, l_NoSpaceForCount);
 
             return true;
         }

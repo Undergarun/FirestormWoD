@@ -34,53 +34,39 @@ namespace MS { namespace Garrison
         {
 
         };
-    }
+        
+        char ScriptName[] = "npc_AndersLongstitch_Garr";
 
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Constructor
-    npc_AndersLongstitch::npc_AndersLongstitch()
-        : CreatureScript("npc_AndersLongstitch_Garr")
-    {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a player opens a gossip dialog with the GameObject.
-    /// @p_Player     : Source player instance
-    /// @p_Creature   : Target GameObject instance
-    bool npc_AndersLongstitch::OnGossipHello(Player * p_Player, Creature * p_Creature)
-    {
-        if (!p_Player->HasQuest(Quests::Alliance_YourFirstLeatherworkingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstLeatherworkingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstLeatherworkingWorkOrder, 4);
-
-        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-
-        return true;
-    }
-    /// Called when a player selects a gossip item in the creature's gossip menu.
-    /// @p_Player   : Source player instance
-    /// @p_Creature : Target creature instance
-    /// @p_Sender   : Sender menu
-    /// @p_Action   : Action
-    bool npc_AndersLongstitch::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
-    {
-        p_Player->CLOSE_GOSSIP_MENU();
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI * npc_AndersLongstitch::GetAI(Creature * p_Creature) const
-    {
-        return new npc_AndersLongstitchAI(p_Creature);
+        std::vector<SkillNPC_RecipeEntry> Recipes
+        { 
+            { 171260,     0 },
+            { 171261,     0 },
+            { 171262,     0 },
+            { 171263,     0 },
+            { 171264,     0 },
+            { 171265,     0 },
+            { 171266, 28267 },
+            { 171267, 28267 },
+            { 171268, 28267 },
+            { 171269, 28267 },
+            { 171270, 28268 },
+            { 171271, 28268 },
+            { 171272, 28268 },
+            { 171273, 28268 },
+            { 171274, 28268 },
+            { 171275, 28268 },
+            { 171276, 28268 },
+            { 171277, 28268 },
+            { 171282, 28268 },
+            { 171284, 28268 },
+            { 171281, 28268 },
+            { 171279, 28268 },
+            { 171280, 28268 },
+            { 171278, 28268 },
+            { 171285, 28268 },
+            { 171283, 28268 },
+            { 178208,     0 },
+        };
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -102,57 +88,8 @@ namespace MS { namespace Garrison
         {
 
         };
-    }
 
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Constructor
-    npc_MarianneLevine::npc_MarianneLevine()
-        : CreatureScript("npc_MarianneLevine_Garr")
-    {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a player opens a gossip dialog with the GameObject.
-    /// @p_Player     : Source player instance
-    /// @p_Creature   : Target GameObject instance
-    bool npc_MarianneLevine::OnGossipHello(Player * p_Player, Creature * p_Creature)
-    {
-        if (p_Player->HasQuest(Quests::Alliance_YourFirstLeatherworkingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstLeatherworkingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstLeatherworkingWorkOrder, 4);
-
-        if (p_Player->HasQuest(Quests::Alliance_YourFirstLeatherworkingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstLeatherworkingWorkOrder))
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-
-        return true;
-    }
-    /// Called when a player selects a gossip item in the creature's gossip menu.
-    /// @p_Player   : Source player instance
-    /// @p_Creature : Target creature instance
-    /// @p_Sender   : Sender menu
-    /// @p_Action   : Action
-    bool npc_MarianneLevine::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
-    {
-        if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == GetName())
-            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
-
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI * npc_MarianneLevine::GetAI(Creature * p_Creature) const
-    {
-        return new npc_MarianneLevineAI(p_Creature);
+        char ScriptName[] = "npc_MarianneLevine_Garr";
     }
 
 }   ///< namespace Garrison

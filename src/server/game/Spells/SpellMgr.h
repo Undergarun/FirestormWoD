@@ -740,6 +740,9 @@ class SpellMgr
 
         std::list<SkillLineAbilityEntry const*> const& GetTradeSpellFromSkill(uint32 p_Skill)
         {
+            if (m_SkillTradeSpells.find(p_Skill) == m_SkillTradeSpells.end())
+                m_SkillTradeSpells[p_Skill] = {};
+
             return m_SkillTradeSpells[p_Skill];
         }
 

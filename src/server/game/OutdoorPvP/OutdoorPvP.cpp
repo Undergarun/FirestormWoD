@@ -668,7 +668,11 @@ bool OutdoorPvP::AddCreature(uint32 p_Type, uint32 p_Entry, uint32 p_Team, uint3
             p_Entry = l_Data->id;
         }
 
-        m_Creatures[p_Type] = MAKE_NEW_GUID(l_Guid, p_Entry, HIGHGUID_UNIT);
+        CreatureTemplate const* l_Template = sObjectMgr->GetCreatureTemplate(p_Entry);
+        if (l_Template == nullptr)
+            return false;
+
+        m_Creatures[p_Type] = MAKE_NEW_GUID(l_Guid, p_Entry, l_Template->VehicleId ? HighGuid::HIGHGUID_VEHICLE : HighGuid::HIGHGUID_UNIT);
         m_CreatureTypes[m_Creatures[p_Type]] = p_Type;
         return true;
     }

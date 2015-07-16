@@ -565,6 +565,18 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
+    /// Hack fix : Single-Minded Fury
+    if (addTotalPct && l_UsedWeapon)
+    {
+        if (getClass() == CLASS_WARRIOR && GetSpecializationId() == SPEC_WARRIOR_FURY)
+        {
+            /// Two-Handed weapon
+            /// We should remove Single-Minded Fury bonus, it should work just for one hand weapons
+            if (l_UsedWeapon->GetTemplate() && l_UsedWeapon->GetTemplate()->Sheath == 1)
+                total_pct = total_pct / 1.2f;
+        }
+    }
+
     /// Apply Versatility rating to damage calculation
     base_pct += (ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)) / 100.0f;
 
@@ -709,8 +721,15 @@ void Player::UpdateParryPercentage()
         // Parry from rating
         diminishing = GetRatingBonusValue(CR_PARRY);
 
+        /// Parry from strength, just for paladin/dk/warrior
+        /*http://www.sacredduty.net/2014/08/06/tc401-avoidance-diminishing-returns-in-wod/
+        1% parry before diminishing returns = 176.3760684 strength
+        1 strength gives 1 / 176.3760684 = 0,0056697034301282*/
+        if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)
+            diminishing += GetTotalStatValue(STAT_STRENGTH, false) * 0.00566970f;
+
         // apply diminishing formula to diminishing parry chance
-        value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + parryCap[pClass] * k_constant[pClass]);
+        value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + (parryCap[pClass] * k_constant[pClass]));
 
         /// Apply parry from pct of critical strike from gear
         value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
@@ -896,7 +915,10 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    l_AurEff->ChangeAmount(l_AurEff->CalculateAmount(this), true, true);
+                    if (l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
+                        l_AurEff->ChangeAmount(0, true, true);
+                    else
+                        l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
                 }
             }
         }
@@ -1071,7 +1093,18 @@ void Player::UpdateEnergyRegen()
     if (getPowerType() != Powers::POWER_ENERGY)
         return;
 
-    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_ENERGY));
+    uint32 l_PowerIndex = GetPowerIndexByClass(Powers::POWER_ENERGY, getClass());
+
+    float l_RegenFlatMultiplier = 1.0f;
+    Unit::AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (auto l_AuraEffect : l_RegenAura)
+    {
+        if (l_AuraEffect->GetMiscValue() != Powers::POWER_ENERGY)
+            continue;
+
+        l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
+    }
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + l_PowerIndex, GetRegenForPower(Powers::POWER_ENERGY) - (GetRegenForPower(Powers::POWER_ENERGY) / l_RegenFlatMultiplier));
 }
 
 void Player::UpdateFocusRegen()
@@ -1088,6 +1121,7 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     uint32 cooldown = 0;
+    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     for (uint32 i = 0; i < MAX_RUNES; ++i)
         if (GetBaseRune(i) == rune)
@@ -1100,6 +1134,7 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
+    regen *= HastePct;
     SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(rune), regen);
 }
 
@@ -1107,6 +1142,8 @@ void Player::UpdateAllRunesRegen()
 {
     if (getClass() != Classes::CLASS_DEATH_KNIGHT)
         return;
+
+    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
@@ -1117,6 +1154,7 @@ void Player::UpdateAllRunesRegen()
             if (regen < 0.0099999998f)
                 regen = 0.01f;
 
+            regen *= HastePct;
             SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, regen);
         }
     }
@@ -1149,8 +1187,11 @@ float Player::GetRegenForPower(Powers p_Power)
             l_Pct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + l_Pct) / 100.f);
-    return l_BaseRegen * l_HastePct;
+    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+
+    float l_Total = l_BaseRegen * l_HastePct;
+
+    return l_Total * l_Pct;
 }
 
 void Player::_ApplyAllStatBonuses()
@@ -1621,9 +1662,23 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     if (p_AttType > WeaponAttackType::BaseAttack)
         return;
 
-    UnitMods l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
+    UnitMods l_UnitMod;
 
-    /// For hunter pets damage calculation we don't need take their attack speed time, it's always 2.0f 
+    switch (p_AttType)
+    {
+        case WeaponAttackType::BaseAttack:
+        default:
+            l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
+            break;
+        case WeaponAttackType::OffAttack:
+            l_UnitMod = UNIT_MOD_DAMAGE_OFFHAND;
+            break;
+        case WeaponAttackType::RangedAttack:
+            l_UnitMod = UNIT_MOD_DAMAGE_RANGED;
+            break;
+    }
+
+    /// For hunter pets damage calculation we don't need take their attack speed time, it's always 2.0f
     float l_AttackSpeed = isHunterPet() ? 2.0f : float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 
@@ -1648,12 +1703,20 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     float l_MinDamage = ((l_BaseValue + l_WeaponMinDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
     float l_MaxDamage = ((l_BaseValue + l_WeaponMaxDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
 
-    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, l_MinDamage);
-    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, l_MaxDamage);
-
-    SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
-    SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
-
-    SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MinDamage / 2);
-    SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MaxDamage / 2);
+    switch (p_AttType)
+    {
+        case WeaponAttackType::BaseAttack:
+        default:
+            SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
+            break;
+        case WeaponAttackType::OffAttack:
+            SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MinDamage / 2);
+            SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, l_MaxDamage / 2);
+            break;
+        case WeaponAttackType::RangedAttack:
+            SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, l_MinDamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, l_MaxDamage);
+            break;
+    }
 }

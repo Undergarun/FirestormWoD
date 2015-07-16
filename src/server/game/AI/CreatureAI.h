@@ -170,6 +170,9 @@ class CreatureAI : public UnitAI
         // Called when a creature regen one of his power
         virtual void RegeneratePower(Powers power, int32& value) {}
 
+        // Called when a creature has one of hi power modified
+        virtual void PowerModified(Powers p_Power, int32 p_Value) { }
+
         // Called when a creature has one of his power set
         virtual void SetPower(Powers power, int32 value) {}
 

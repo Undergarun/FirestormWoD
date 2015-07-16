@@ -48,7 +48,7 @@ void AddSC_spell_skill();
 void AddSC_npc_spell_scripts();
 void AddSC_areatrigger_spell_scripts();
 void AddSC_spell_item_enchantment();
-
+void AddSC_spell_toy();
 void AddSC_SmartSCripts();
 void AddSC_petbattle_abilities();
 
@@ -779,6 +779,9 @@ void AddSC_boss_megaera();
 void AddSC_boss_ji_kun();
 void AddSC_boss_primordius();
 void AddSC_boss_dark_animus();
+void AddSC_boss_iron_qon();
+void AddSC_boss_twin_consorts();
+void AddSC_boss_lei_shen();
 void AddSC_instance_siege_of_orgrimmar();           // Siege of Orgrimmar
 void AddSC_siege_of_orgrimmar();
 void AddSC_immerseus();
@@ -955,6 +958,7 @@ void AddSpellScripts()
     AddSC_npc_spell_scripts();
     AddSC_areatrigger_spell_scripts();
     AddSC_spell_item_enchantment();
+    AddSC_spell_toy();
 #ifdef SCRIPTS
     AddSC_petbattle_abilities();
 #endif
@@ -1710,6 +1714,9 @@ void AddPandarieScripts()
     AddSC_boss_durumu();
     AddSC_boss_primordius();
     AddSC_boss_dark_animus();
+    AddSC_boss_iron_qon();
+    AddSC_boss_twin_consorts();
+    AddSC_boss_lei_shen();
     AddSC_instance_siege_of_orgrimmar();            // Siege of Orgrimmar
     AddSC_siege_of_orgrimmar();
     AddSC_immerseus();

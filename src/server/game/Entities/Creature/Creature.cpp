@@ -327,7 +327,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
 
     // Load creature equipment
     if (!data || data->equipmentId == 0)                    // use default from the template
-        LoadEquipment(GetOriginalEquipmentId());
+        LoadEquipment(m_OriginalEquipmentId ? m_OriginalEquipmentId : -1);  ///< If no original equip, try to find a random one
     else if (data && data->equipmentId != 0)                // override, 0 means no equipment
     {
         m_OriginalEquipmentId = data->equipmentId;
@@ -1690,7 +1690,7 @@ bool Creature::CanAlwaysSee(WorldObject const* obj) const
     return false;
 }
 
-bool Creature::canStartAttack(Unit const* who, bool force) const
+bool Creature::canStartAttack(Unit const* p_Who, bool p_Forced) const
 {
     if (isCivilian())
         return false;
@@ -1699,33 +1699,44 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
         return false;
 
     // Do not attack non-combat pets
-    if (who->GetTypeId() == TYPEID_UNIT && who->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET)
+    if (p_Who->GetTypeId() == TYPEID_UNIT && p_Who->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET)
         return false;
 
-    if (!CanFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE + m_CombatDistance))
+    if (!CanFly() && (GetDistanceZ(p_Who) > CREATURE_Z_ATTACK_RANGE + m_CombatDistance))
         //|| who->IsControlledByPlayer() && who->IsFlying()))
         // we cannot check flying for other creatures, too much map/vmap calculation
         // TODO: should switch to range attack
         return false;
 
-    if (!force)
+    if (Player const* l_Player = p_Who->ToPlayer())
     {
-        if (!_IsTargetAcceptable(who))
-            return false;
-
-        if (who->isInCombat() && IsWithinDist(who, ATTACK_DISTANCE))
-            if (Unit* victim = who->getAttackerForHelper())
-                if (IsWithinDistInMap(victim, sWorld->getFloatConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS)))
-                    force = true;
-
-        if (!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + m_CombatDistance)))
+        /// Prevent creatures from attacking teleported players
+        if (l_Player->IsBeingTeleportedNear())
             return false;
     }
 
-    if (!canCreatureAttack(who, force))
+    if (!p_Forced)
+    {
+        if (!_IsTargetAcceptable(p_Who))
+            return false;
+
+        if (p_Who->isInCombat() && IsWithinDist(p_Who, ATTACK_DISTANCE))
+        {
+            if (Unit* l_Victim = p_Who->getAttackerForHelper())
+            {
+                if (IsWithinDistInMap(l_Victim, sWorld->getFloatConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS)))
+                    p_Forced = true;
+            }
+        }
+
+        if (!p_Forced && (IsNeutralToAll() || !IsWithinDistInMap(p_Who, GetAttackDistance(p_Who) + m_CombatDistance)))
+            return false;
+    }
+
+    if (!canCreatureAttack(p_Who, p_Forced))
         return false;
 
-    return IsWithinLOSInMap(who);
+    return IsWithinLOSInMap(p_Who);
 }
 
 float Creature::GetAttackDistance(Unit const* player) const

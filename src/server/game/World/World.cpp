@@ -1417,6 +1417,8 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_MOP_TRANSFER_ENABLE] = ConfigMgr::GetBoolDefault("MopTransfer.enable", false);
     m_bool_configs[CONFIG_WEB_DATABASE_ENABLE] = ConfigMgr::GetBoolDefault("WebDatabase.enable", false);
 
+    m_bool_configs[CONFIG_LOG_PACKETS] = ConfigMgr::GetBoolDefault("LogPackets", true);
+
     std::string fn_analogsfile = ConfigMgr::GetStringDefault("LexicsCutterAnalogsFile", "letter_analogs.txt");
     std::string fn_wordsfile = ConfigMgr::GetStringDefault("LexicsCutterWordsFile", "innormative_words.txt");
 
@@ -2023,7 +2025,7 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_REALM_STATS].SetInterval(MINUTE * IN_MILLISECONDS);
 
-    m_timers[WUPDATE_TRANSFERT].SetInterval(15 * IN_MILLISECONDS);
+    m_timers[WUPDATE_TRANSFERT].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_TRANSFER_MOP].SetInterval(1 * MINUTE * IN_MILLISECONDS);
 
     //to set mailtimer to return mails every day between 4 and 5 am
@@ -3203,14 +3205,6 @@ void World::ShutdownMsg(bool show, Player* player)
 
         SendServerMessage(msgid, str.c_str(), player);
         sLog->outDebug(LOG_FILTER_GENERAL, "Server is %s in %s", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), str.c_str());
-    }
-
-    if (m_ShutdownTimer == 5)
-        sWorld->KickAll(); // save and kick all players
-    else if (m_ShutdownTimer == 2)
-    {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Automatic scheduled server restart!");
-        ASSERT(false);
     }
 }
 

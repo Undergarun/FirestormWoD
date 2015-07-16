@@ -13,6 +13,8 @@
 #include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "Vehicle.h"
+#include "VMapFactory.h"
 
 /// Prismatic Crystal - 76933
 class spell_npc_mage_prismatic_crystal : public CreatureScript
@@ -96,6 +98,182 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
         }
 };
 
+/// Frozen Orb - 45322
+class npc_frozen_orb : public CreatureScript
+{
+    public:
+        npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
+
+        enum Constants
+        {
+            CheckDist     = 5,                   ///< Every AI update, the orb will try to travel this distance
+            DamageDelay   = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
+            HeightMaxStep = 3,                   ///< Maximum step height the orb can go before stopping (this value goes along with CheckDist)
+            HoverHeight   = 0                    ///< "Display" height modification (some modelid are centered at the origin)
+        };
+
+        enum Spells
+        {
+            FingersOfFrost       = 126084,
+            FingersOfFrostVisual = 44544,
+            FrozenOrbVisual      = 123605,
+            SelfSnare90Pct       = 82736,
+            TargetSnareAndDamage = 84721
+        };
+
+        struct npc_frozen_orbAI : public ScriptedAI
+        {
+            uint32 m_DamageTimer;
+            bool m_KeepMoving;
+
+            npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
+            {
+                m_DamageTimer = Constants::DamageDelay; ///< As we want the damage to proc on summon
+                m_KeepMoving = true;
+            }
+
+            void EnterEvadeMode() override
+            {
+                ///< No evade mode for orbs
+            }
+
+            void Reset() override
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->AddAura(Spells::FrozenOrbVisual, me);
+                me->SetCanFly(true);
+
+                /// Adjust orb height
+                Position l_Pos = *me;
+                l_Pos.m_positionZ = me->GetMap()->GetHeight(l_Pos.m_positionX, l_Pos.m_positionY, MAX_HEIGHT) + Constants::HoverHeight;
+                me->SetPosition(l_Pos);
+
+                /// Give it a movement
+                UpdateMovement();
+            }
+
+            void UpdateAI(const uint32 p_Diff) override
+            {
+                m_DamageTimer += p_Diff;
+                if (m_DamageTimer > Constants::DamageDelay)
+                {
+                    /// Frozen Orb slows down when it damages an enemy
+                    if (!me->HasAura(Spells::SelfSnare90Pct))
+                    {
+                        const float l_MaxRadius = 10.f; ///< Spell radius
+
+                        /// Find all the enemies in range
+                        std::list<Unit*> l_Targets;
+
+                        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(me, me, l_MaxRadius);
+                        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(me, l_Targets, l_Check);
+                        me->VisitNearbyObject(l_MaxRadius, l_Searcher);
+
+                        for (Unit* l_Target : l_Targets)
+                        {
+                            if (l_Target->isAlive() && me->GetExactDistSq(l_Target) < l_MaxRadius * l_MaxRadius && me->IsWithinLOSInMap(l_Target) && me->IsValidAttackTarget(l_Target))
+                            {
+                                me->AddAura(Spells::SelfSnare90Pct, me);
+
+                                /// Frozen Orb gives one stack of FoF on first hit
+                                if (Unit* l_Owner = me->GetOwner())
+                                {
+                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
+                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    Unit* l_DamageCaster = me;
+                    if (Unit* l_Owner = me->GetOwner())
+                        l_DamageCaster = l_Owner;
+
+                    l_DamageCaster->CastSpell(me, TargetSnareAndDamage, true);
+
+                    m_DamageTimer -= Constants::DamageDelay;
+                }
+
+                /// Keep updating movement
+                UpdateMovement();
+            }
+
+            void UpdateMovement()
+            {
+                if (!m_KeepMoving)
+                    return;
+
+                const float l_CheckDist = float(Constants::CheckDist);
+                const float l_MaxStep = float(Constants::HeightMaxStep);
+
+                float l_Rotation = me->GetOrientation();
+                float l_RotCos = std::cos(l_Rotation);
+                float l_RotSin = std::sin(l_Rotation);
+
+                Position l_Origin = *me;
+                Position l_Dest(l_Origin);
+                l_Dest.m_positionX += l_CheckDist * l_RotCos;
+                l_Dest.m_positionY += l_CheckDist * l_RotSin;
+
+                float l_DestHeight = me->GetMap()->GetHeight(l_Dest.m_positionX, l_Dest.m_positionY, MAX_HEIGHT);
+                float l_Diff = l_DestHeight - (l_Origin.m_positionZ - Constants::HoverHeight) + 1.f; ///< +1 because reasons (I have no idea why this is required, but it is)
+
+                if (std::abs(l_Diff) - std::abs(l_MaxStep) > 0.f)
+                {
+                    float l_Step = l_CheckDist / 10.f;
+
+                    for (uint32 l_I = 0; l_I < 10; ++l_I)
+                    {
+                        l_Dest.m_positionX -= l_Step * l_RotCos;
+                        l_Dest.m_positionY -= l_Step * l_RotSin;
+
+                        l_DestHeight = me->GetMap()->GetHeight(l_Dest.m_positionX, l_Dest.m_positionY, MAX_HEIGHT);
+                        l_Diff = l_DestHeight - (l_Origin.m_positionZ - Constants::HoverHeight) + 1.f;
+                        if (std::abs(l_Diff) - std::abs(l_MaxStep) < 0.f)
+                            break;
+                    }
+
+                    m_KeepMoving = false;
+                }
+
+                l_Dest.m_positionZ = l_DestHeight + Constants::HoverHeight;
+
+                /// Let's cast some rays to see if there's an obstacle in front of us
+                Position l_StaticHit;
+                VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(me->GetMapId(),
+                    l_Origin.m_positionX, l_Origin.m_positionY, l_Origin.m_positionZ,
+                    l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ,
+                    l_StaticHit.m_positionX, l_StaticHit.m_positionY, l_StaticHit.m_positionZ, 0.f);
+
+                Position l_DynamicHit;
+                me->GetMap()->getObjectHitPos(me->GetPhaseMask(),
+                    l_Origin.m_positionX, l_Origin.m_positionY, l_Origin.m_positionZ,
+                    l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ,
+                    l_DynamicHit.m_positionX, l_DynamicHit.m_positionY, l_DynamicHit.m_positionZ, 0.f);
+
+                /// Get the closer hit pos (for obvious reasons)
+                Position l_FinalPos;
+                if (l_Origin.GetExactDistSq(&l_StaticHit) < l_Origin.GetExactDistSq(&l_DynamicHit))
+                    l_FinalPos = l_StaticHit;
+                else
+                    l_FinalPos = l_DynamicHit;
+
+                me->GetMotionMaster()->MovePoint(0, l_FinalPos);
+
+                /// If we hit something, stop moving
+                if (l_Dest.GetExactDistSq(&l_FinalPos) > 0.1f)
+                    m_KeepMoving = false;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_frozen_orbAI(creature);
+        }
+};
+
+
 /// Shadow Reflection - 77726
 class spell_npc_rogue_shadow_reflection : public CreatureScript
 {
@@ -150,8 +328,9 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                     {
                         if (!m_Queuing)
                             break;
-                        uint32 l_SpellID = p_Data & 0xFFFFFFFF;
-                        uint32 l_Time = p_Data >> 32;
+
+                        uint32 l_SpellID = ((uint32*)(&p_Data))[0];
+                        uint32 l_Time = ((uint32*)(&p_Data))[1];
                         m_SpellQueue.push(SpellData(l_SpellID, l_Time));
                         break;
                     }
@@ -185,6 +364,9 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
             {
                 if (p_SpellInfo->Id == eSpells::ShadowReflectionClone && p_Caster != nullptr && p_Caster->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
+                    me->SetMaxPower(Powers::POWER_COMBO_POINT, 5);
+                    me->SetPower(Powers::POWER_COMBO_POINT, p_Caster->GetPower(Powers::POWER_COMBO_POINT));
+
                     for (uint8 l_AttType = 0; l_AttType < WeaponAttackType::MaxAttack; ++l_AttType)
                     {
                         me->SetBaseWeaponDamage((WeaponAttackType)l_AttType, MAXDAMAGE, p_Caster->GetWeaponDamageRange((WeaponAttackType)l_AttType, MAXDAMAGE));
@@ -192,7 +374,6 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                     }
 
                     me->UpdateAttackPowerAndDamage();
-
                 }
             }
 
@@ -333,7 +514,7 @@ class spell_npc_sha_storm_elemental : public CreatureScript
 
             enum eSpells
             {
-                SpellWindGust       = 157333,
+                SpellWindGust       = 157331,
                 SpellCallLightning  = 157348
             };
 
@@ -352,7 +533,7 @@ class spell_npc_sha_storm_elemental : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker)
             {
-                m_Events.ScheduleEvent(eEvents::EventWindGust, 2000);
+                m_Events.ScheduleEvent(eEvents::EventWindGust, 500);
                 m_Events.ScheduleEvent(eEvents::EventCallLightning, 8000);
             }
 
@@ -385,7 +566,7 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                     case eEvents::EventWindGust:
                         if (Unit* l_Target = me->getVictim())
                             me->CastSpell(l_Target, eSpells::SpellWindGust, false);
-                        m_Events.ScheduleEvent(eEvents::EventWindGust, 9000);
+                        m_Events.ScheduleEvent(eEvents::EventWindGust, 500);
                         break;
                     case eEvents::EventCallLightning:
                         if (Unit* l_Target = me->getVictim())
@@ -395,8 +576,6 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -748,6 +927,70 @@ class spell_npc_warl_wild_imp : public CreatureScript
         }
 };
 
+class spell_npc_warl_imp : public CreatureScript
+{
+    public:
+        spell_npc_warl_imp() : CreatureScript("npc_imp") { }
+
+        enum eSpells
+        {
+            Firebolt = 3110
+        };
+
+        struct spell_npc_warl_impAI : public ScriptedAI
+        {
+            spell_npc_warl_impAI(Creature *creature) : ScriptedAI(creature)
+            {
+                me->SetReactState(REACT_HELPER);
+            }
+
+            void Reset()
+            {
+                me->SetReactState(REACT_HELPER);
+
+                if (me->GetOwner())
+                if (me->GetOwner()->getVictim())
+                    AttackStart(me->GetOwner()->getVictim());
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                Unit* l_Owner = me->GetOwner();
+                if (!l_Owner)
+                    return;
+
+                if (!UpdateVictim())
+                {
+                    Unit* l_OwnerTarget = nullptr;
+                    if (Player* l_Player = l_Owner->ToPlayer())
+                        l_OwnerTarget = l_Player->GetSelectedUnit();
+                    else
+                        l_OwnerTarget = l_Owner->getVictim();
+
+                    if (l_OwnerTarget)
+                        AttackStart(l_OwnerTarget);
+
+                    return;
+                }
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
+
+                /// Master gains 8 Demonic Fury
+                Player* l_Player = l_Owner->ToPlayer();
+                if (l_Player != nullptr && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                    l_Owner->EnergizeBySpell(l_Owner, eSpells::Firebolt, 8 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_warl_impAI(creature);
+        }
+};
+
 enum eGatewaySpells
 {
     PortalVisual = 113900,
@@ -902,10 +1145,35 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
         }
 };
 
+/// Mocking Banner - 59390
+class spell_npc_warr_mocking_banner : public CreatureScript
+{
+    public:
+        spell_npc_warr_mocking_banner() : CreatureScript("spell_npc_warr_mocking_banner") { }
+
+        struct spell_npc_warr_mocking_bannerAI : public ScriptedAI
+        {
+            spell_npc_warr_mocking_bannerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_warr_mocking_bannerAI(p_Creature);
+        }
+};
+
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
     new spell_npc_mage_prismatic_crystal();
+    new npc_frozen_orb();
 
     /// Rogue NPC
     new spell_npc_rogue_shadow_reflection();
@@ -920,9 +1188,11 @@ void AddSC_npc_spell_scripts()
 
     /// Warrior NPC
     new spell_npc_warr_ravager();
+    new spell_npc_warr_mocking_banner();
 
     /// Warlock NPC
     new spell_npc_warl_wild_imp();
+    new spell_npc_warl_imp();
     new spell_npc_warl_demonic_gateway_purple();
     new spell_npc_warl_demonic_gateway_green();
 }

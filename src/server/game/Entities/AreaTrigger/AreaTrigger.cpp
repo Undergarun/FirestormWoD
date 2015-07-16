@@ -46,6 +46,7 @@ AreaTrigger::AreaTrigger()
     m_CreatedTime = 0;
     m_Flags = 0;
     m_CreatureVisualGUID = 0;
+    m_TimeToTarget = 0;
 
     m_Trajectory = AREATRIGGER_INTERPOLATION_NONE;
     m_Templates.clear();
@@ -129,6 +130,10 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
 
     SetEntry(l_MainTemplate->m_Entry);
     SetDuration(p_SpellInfo->GetDuration());
+
+    if (GetDuration() != -1)
+        SetTimeToTarget(GetDuration());
+
     SetObjectScale(1);
 
     SetGuidValue(AREATRIGGER_FIELD_CASTER, p_Caster->GetGUID());
@@ -159,13 +164,11 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
 
     if (l_MainTemplate->m_CreatureVisualEntry != 0)
     {
-        Creature* l_CreatureVisual = p_Caster->SummonCreature(l_MainTemplate->m_CreatureVisualEntry, l_DestinationPosition.GetPositionX(), l_DestinationPosition.GetPositionY(), l_DestinationPosition.GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN, p_Caster->GetGUID());
-        m_CreatureVisualGUID = l_CreatureVisual->GetGUID();
+        if (Creature* l_Visual = p_Caster->SummonCreature(l_MainTemplate->m_CreatureVisualEntry, l_DestinationPosition, TEMPSUMMON_MANUAL_DESPAWN, 0, 0, p_Caster->GetGUID()))
+            m_CreatureVisualGUID = l_Visual->GetGUID();
     }
 
     sScriptMgr->OnCreateAreaTriggerEntity(this);
-
-    /// Add npc for visual
 
     return true;
 }
@@ -265,7 +268,13 @@ void AreaTrigger::Update(uint32 p_Time)
         if (GetMainTemplate()->m_MoveCurveID != 0 && GetTrajectory() != AREATRIGGER_INTERPOLATION_LINEAR)
             UpdatePositionWithPathId(m_CreatedTime, this);
         else if (m_Trajectory)
+        {
             GetPositionAtTime(m_CreatedTime, this);
+
+            /// Check if AreaTrigger is arrived to Dest pos
+            if (IsNearPosition(&m_Destination, 0.1f))
+                sScriptMgr->OnDestinationReached(this);
+        }
     }
 }
 
@@ -286,9 +295,7 @@ void AreaTrigger::Remove(uint32 p_time)
         if (m_CreatureVisualGUID != 0)
         {
             if (Creature* l_CreatureVisual = GetMap()->GetCreature(m_CreatureVisualGUID))
-            {
                 l_CreatureVisual->DespawnOrUnsummon();
-            }
         }
     }
 }
@@ -409,7 +416,7 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
             {
                 AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
                 /// Durations get decreased over time so create time + remaining duration = max duration
-                int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetDuration() + GetCreatedTime();
+                int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetTimeToTarget();
                 float l_Progress = std::min((float)l_Duration, (float)p_Time) / l_Duration;
                 p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
                 p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
@@ -517,7 +524,90 @@ void AreaTrigger::CastSpell(Unit* p_Target, uint32 p_SpellId)
     }
 }
 
+void AreaTrigger::SendAreaTriggerRePath(uint32 p_TimeToTarget, uint32 p_OldTime)
+{
+    uint32 l_PointCount = 4; ///< Actual Pos * 2 + New Dest * 2 (Don't know why it's sent two times)
+    G3D::Vector3 l_ActualPos = G3D::Vector3(m_positionX, m_positionY, m_positionZ);
+    G3D::Vector3 l_NewDest = G3D::Vector3(m_Destination.m_positionX, m_Destination.m_positionY, m_Destination.m_positionZ);
+
+    WorldPacket l_Data(Opcodes::SMSG_AREA_TRIGGER_RE_PATH);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint32(p_TimeToTarget);
+    l_Data << uint32(p_OldTime);
+    l_Data << uint32(l_PointCount);
+    l_Data.WriteVector3(l_ActualPos);
+    l_Data.WriteVector3(l_ActualPos);
+    l_Data.WriteVector3(l_NewDest);
+    l_Data.WriteVector3(l_NewDest);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+}
+
 AreaTrigger* AreaTrigger::GetAreaTrigger(WorldObject const& p_Object, uint64 p_Guid)
 {
     return p_Object.GetMap()->GetAreaTrigger(p_Guid);
+}
+
+/// Method to check if a Coordinate is located in a polygon
+bool AreaTrigger::IsInAreaTriggerPolygon(std::vector<G3D::Vector2> p_Polygon, G3D::Vector2 p_Point, float p_Radius/* = 0.5f*/) const
+{
+    /// This method uses the ray tracing algorithm to determine if the point is in the polygon
+    int l_PointCount = p_Polygon.size();
+    int l_J = -999;
+    int l_I = -999;
+    bool l_IsInPolygon = false;
+
+    for (l_I = 0; l_I < l_PointCount; l_I++)
+    {
+        /// Repeat loop for all sets of points
+        /// If i is the last vertex, let j be the first vertex
+        if (l_I == (l_PointCount - 1))
+            l_J = 0;
+        /// For all-else, let j=(i+1)th vertex
+        else
+            l_J = l_I + 1;
+
+        float l_VerticeY_I = p_Polygon[l_I].y;
+        float l_VerticeX_I = p_Polygon[l_I].x;
+        float l_VerticeY_J = p_Polygon[l_J].y;
+        float l_VerticeX_J = p_Polygon[l_J].x;
+        float l_TestX = p_Point.x;
+        float l_TestY = p_Point.y;
+
+        /// Following statement checks if testPoint.Y is below Y-coord of i-th vertex. NB: Y-axis is inverted
+        bool l_BelowLowY = l_VerticeY_I < l_TestY + p_Radius;
+
+        /// Following statement checks if testPoint.Y is below Y-coord of i+1-th vertex
+        bool l_BelowHighY = l_VerticeY_J < l_TestY + p_Radius;
+
+        /// Following statement is true if testPoint.Y satisfies either (only one is possible)
+        /// -->(i).Y < testPoint.Y < (i+1).Y        OR
+        /// -->(i).Y > testPoint.Y > (i+1).Y
+        ///
+        /// (Note)
+        /// Both of the conditions indicate that a point is located within the edges of the Y-th coordinate
+        /// of the (i)-th and the (i+1)- th vertices of the polygon. If neither of the above
+        /// conditions is satisfied, then it is assured that a semi-infinite horizontal line draw
+        /// to the right from the testpoint will NOT cross the line that connects vertices i and i+1
+        /// of the polygon
+
+        bool l_WithinYsEdges = l_BelowLowY != l_BelowHighY;
+
+        if (l_WithinYsEdges)
+        {
+            /// This is the slope of the line that connects vertices i and i+1 of the polygon
+            float l_sLopeOfLine = (l_VerticeX_J - l_VerticeX_I) / (l_VerticeY_J - l_VerticeY_I);
+
+            /// This looks up the x-coord of a point lying on the above line, given its y-coord
+            float l_PointOnLine = (l_sLopeOfLine * (l_VerticeY_I - l_TestY)) + l_VerticeX_I;
+
+            /// Checks to see if x-coord of testPoint is smaller than the point on the line with the same y-coord
+            bool l_IsLeftToLine = l_TestX - p_Radius < l_PointOnLine;
+
+            /// This statement changes true to false (and vice-versa)
+            if (l_IsLeftToLine)
+                l_IsInPolygon = !l_IsInPolygon;
+        }
+    }
+
+    return l_IsInPolygon;
 }

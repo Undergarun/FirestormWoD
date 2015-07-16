@@ -891,6 +891,8 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             if (int32 l_PriceMod = m_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                  l_Price -= CalculatePct(l_Price, l_PriceMod);
 
+            bool l_BypassFilter = l_ItemTemplate->HasSpec() || l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER;
+
             l_ItemDataBuffer << uint32(l_Muid);
             l_ItemDataBuffer << uint32(ITEM_VENDOR_TYPE_ITEM);              ///< Item type
 
@@ -903,7 +905,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             l_ItemDataBuffer << uint32(l_VendorItem->ExtendedCost);         ///< Extended cost ID
             l_ItemDataBuffer << uint32(l_VendorItem->PlayerConditionID);    ///< Player condition failed
 
-            l_ItemDataBuffer.WriteBit(false);                               ///< Do not filter on vendor
+            l_ItemDataBuffer.WriteBit(l_BypassFilter);                      ///< Do not filter on vendor
             l_ItemDataBuffer.FlushBits();
 
             l_ItemCount++;

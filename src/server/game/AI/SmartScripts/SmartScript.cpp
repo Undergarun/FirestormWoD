@@ -1074,7 +1074,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             if (e.action.invincHP.percent)
-                ai->SetInvincibilityHpLevel(me->CountPctFromMaxHealth(e.action.invincHP.percent));
+                ai->SetInvincibilityHpLevel(me->CountPctFromMaxHealth((int32)e.action.invincHP.percent));
             else
                 ai->SetInvincibilityHpLevel(e.action.invincHP.minHP);
             break;

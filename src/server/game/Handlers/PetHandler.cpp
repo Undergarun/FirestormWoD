@@ -411,7 +411,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                 if (pet->isPossessed() || pet->IsVehicle())
                     Spell::SendCastResult(GetPlayer(), spellInfo, 0, result);
                 else
-                    pet->SendPetCastFail(spellid, result);
+                    pet->SendPetCastFail(spellid, result, 0);
 
                 if (!pet->ToCreature()->HasSpellCooldown(spellid))
                     GetPlayer()->SendClearCooldown(spellid, pet);
@@ -836,7 +836,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
     {
         if (l_Caster->GetTypeId() == TYPEID_UNIT && l_Caster->GetCharmInfo() && l_Caster->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(l_SpellInfo))
         {
-            l_Caster->SendPetCastFail(l_SpellID, SPELL_FAILED_NOT_READY);
+            l_Caster->SendPetCastFail(l_SpellID, SPELL_FAILED_NOT_READY, l_CastCount);
             return;
         }
     }
@@ -885,7 +885,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
     }
     else
     {
-        l_Caster->SendPetCastFail(l_SpellID, l_Result);
+        l_Caster->SendPetCastFail(l_SpellID, l_Result, l_CastCount);
         if (l_Caster->GetTypeId() == TYPEID_PLAYER)
         {
             if (!l_Caster->ToPlayer()->HasSpellCooldown(l_SpellID))

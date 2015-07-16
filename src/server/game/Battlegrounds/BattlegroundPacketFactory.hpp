@@ -60,7 +60,7 @@ namespace MS
                 if (p_IsSkirmish)
                     l_BGQueueID |= (uint8(BattlegroundQueueType::ArenaSkirmish) & 0xF) << 16;
 
-                if (p_BG->IsWargame())
+                if (p_BG && p_BG->IsWargame())
                     l_BGQueueID |= (uint8(BattlegroundQueueType::WarGame) & 0xF) << 16;
 
                 switch (p_StatusID)

@@ -1052,7 +1052,7 @@ class at_get_away : public AreaTriggerEntityScript
                         l_Player->SendApplyMovementForce(l_AreatTriggerGuid, false, l_Pos);
 
                     if (l_Player->isAlive() && !l_Player->HasMovementForce(l_AreatTriggerGuid))
-                        l_Player->SendApplyMovementForce(l_AreatTriggerGuid, true, l_Pos, -3.f);
+                        l_Player->SendApplyMovementForce(l_AreatTriggerGuid, true, l_Pos, -3.f, 1);
                 }
                 /// Remove movement force if we're outside of the range
                 else if (l_Player->HasMovementForce(l_AreatTriggerGuid))
@@ -1073,7 +1073,7 @@ class at_get_away : public AreaTriggerEntityScript
             }
         }
 
-        at_get_away* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new at_get_away();
         }

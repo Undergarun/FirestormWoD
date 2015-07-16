@@ -19,6 +19,10 @@ DoorData const g_DoorData[] =
     { eHighmaulGameobjects::Earthwall2,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::Earthwall3,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::Earthwall4,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::TwinOgronEntrance,  eHighmaulDatas::BossTwinOgron,          DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::TwinOgronExit,      eHighmaulDatas::BossTwinOgron,          DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::FelBreakerEntrance, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::FelBreakerExitDoor, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { 0,                                        0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -56,6 +60,13 @@ class instance_highmaul : public InstanceMapScript
 
                 m_TectusGuid                = 0;
                 m_GuardiansGuids.resize(eHighmaulDatas::MaxTectusGuardians);
+
+                m_PhemosGuid                = 0;
+                m_PolGuid                   = 0;
+
+                m_KoraghGuid                = 0;
+
+                m_PlayerPhases.clear();
             }
 
             uint64 m_ArenaMasterGuid;
@@ -84,6 +95,16 @@ class instance_highmaul : public InstanceMapScript
             /// The Market
             uint64 m_TectusGuid;
             std::vector<uint64> m_GuardiansGuids;
+
+            /// The Gorthenon
+            uint64 m_PhemosGuid;
+            uint64 m_PolGuid;
+
+            /// Chamber of Nullification
+            uint64 m_KoraghGuid;
+
+            /// Phasing
+            std::map<uint32, uint32> m_PlayerPhases;
 
             void Initialize() override
             {
@@ -148,6 +169,25 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::Lokk:
                         m_GuardiansGuids[p_Creature->GetEntry() - eHighmaulCreatures::Rokka] = p_Creature->GetGUID();
                         break;
+                    case eHighmaulCreatures::Phemos:
+                        m_PhemosGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::Pol:
+                        m_PolGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::Koragh:
+                        m_KoraghGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::IronGrunt:
+                    case eHighmaulCreatures::BlackrockGrunt:
+                    case eHighmaulCreatures::LowBatchDeadPale:
+                    case eHighmaulCreatures::NightTwistedPaleVis:
+                    case eHighmaulCreatures::CosmeticGorianWarr:
+                    case eHighmaulCreatures::GorianCivilian:
+                    case eHighmaulCreatures::RuneOfNullification:
+                        p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                        p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        break;
                     default:
                         break;
                 }
@@ -206,6 +246,10 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::Earthwall2:
                     case eHighmaulGameobjects::Earthwall3:
                     case eHighmaulGameobjects::Earthwall4:
+                    case eHighmaulGameobjects::TwinOgronEntrance:
+                    case eHighmaulGameobjects::TwinOgronExit:
+                    case eHighmaulGameobjects::FelBreakerEntrance:
+                    case eHighmaulGameobjects::FelBreakerExitDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eHighmaulGameobjects::ArenaElevator:
@@ -248,6 +292,10 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::Earthwall2:
                     case eHighmaulGameobjects::Earthwall3:
                     case eHighmaulGameobjects::Earthwall4:
+                    case eHighmaulGameobjects::TwinOgronEntrance:
+                    case eHighmaulGameobjects::TwinOgronExit:
+                    case eHighmaulGameobjects::FelBreakerEntrance:
+                    case eHighmaulGameobjects::FelBreakerExitDoor:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -345,6 +393,12 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::Oro:
                     case eHighmaulCreatures::Lokk:
                         return m_GuardiansGuids[p_Type - eHighmaulCreatures::Rokka];
+                    case eHighmaulCreatures::Phemos:
+                        return m_PhemosGuid;
+                    case eHighmaulCreatures::Pol:
+                        return m_PolGuid;
+                    case eHighmaulCreatures::Koragh:
+                        return m_KoraghGuid;
                     default:
                         break;
                 }
@@ -389,15 +443,30 @@ class instance_highmaul : public InstanceMapScript
             {
                 InstanceScript::OnPlayerEnter(p_Player);
 
+                /// We must save the player phases to prevent some bugs
+                if (m_PlayerPhases.find(p_Player->GetGUIDLow()) == m_PlayerPhases.end())
+                    m_PlayerPhases.insert(std::make_pair(p_Player->GetGUIDLow(), p_Player->GetPhaseMask()));
+
                 if (GetBossState(eHighmaulDatas::BossKargathBladefist) == EncounterState::DONE)
                 {
                     p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
 
-                    if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
-                        p_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
-                    else
-                        p_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
+                    uint64 l_Guid = p_Player->GetGUID();
+                    AddTimedDelayedOperation(200, [this, l_Guid]() -> void
+                    {
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                        {
+                            if (GetBossState(eHighmaulDatas::BossKoragh) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::FelBreakerRoom);
+                            else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                            else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
+                            else
+                                l_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
+                        }
+                    });
                 }
                 else
                 {
@@ -413,7 +482,15 @@ class instance_highmaul : public InstanceMapScript
 
                 p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                 p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
-                p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
+
+                /// We must restore original phasing for each players
+                if (m_PlayerPhases.find(p_Player->GetGUIDLow()) != m_PlayerPhases.end())
+                {
+                    p_Player->SetPhaseMask(m_PlayerPhases[p_Player->GetGUIDLow()], true);
+                    m_PlayerPhases.erase(p_Player->GetGUIDLow());
+                }
+                else
+                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
             }
 
             void SendUpdateWorldState(uint32 p_Field, uint32 p_Value)
@@ -434,7 +511,7 @@ class instance_highmaul : public InstanceMapScript
                     if (Player* l_Player = l_Iter->getSource())
                     {
                         l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
-                        l_Player->SetPhaseMask(2, true);
+                        l_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     }
                 }
             }

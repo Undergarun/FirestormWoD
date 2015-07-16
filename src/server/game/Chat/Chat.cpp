@@ -863,6 +863,67 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** s
     return cKey;
 }
 
+uint32 ChatHandler::GetItemIDAndBonusesFromLink(char* p_Text, std::vector<uint32>& p_Bonuses, char** p_Something)
+{
+    /// Skip empty
+    if (!p_Text)
+        return 0;
+
+    /// Skip spaces
+    while (*p_Text == ' ' || *p_Text == '\t' || *p_Text == '\b')
+        ++p_Text;
+
+    if (!*p_Text)
+        return 0;
+
+    /// Return non link case
+    if (p_Text[0] != '|')
+        return atoi(strtok(p_Text, " "));
+
+    /// [name] Shift-click form |color|linkType:key|h[name]|h|r
+    /// Or
+    /// [name] Shift-click form |color|linkType:key:something1:...:somethingN|h[name]|h|r
+
+    char* l_Check = strtok(p_Text, "|");                    ///< Skip color
+    if (!l_Check)
+        return 0;                                           ///< End of data
+
+    char* l_CLinkType = strtok(nullptr, ":");               ///< Linktype
+    if (!l_CLinkType)
+        return 0;                                           ///< End of data
+
+    if (strcmp(l_CLinkType, "Hitem") != 0)
+    {
+        strtok(nullptr, " ");                               ///< Skip link tail (to allow continue strtok(NULL, s) use after return from function
+        SendSysMessage(LANG_WRONG_LINK_TYPE);
+        return 0;
+    }
+
+    char* l_CKeys = strtok(nullptr, "|");                   ///< Extract keys and values
+    char* l_CBonuses = l_CKeys;
+    char* l_CKeysTail = strtok(nullptr, "");
+
+    /// Bonus is the last one
+    uint32 l_Bonus = 0;
+    char* l_CBonus = strtok(l_CBonuses, ":|");
+    while (l_CBonus != nullptr)
+    {
+        l_Bonus = l_CBonus ? atol(l_CBonus) : 0;
+        l_CBonus = strtok(nullptr, ":|");
+    }
+
+    if (l_Bonus)
+        p_Bonuses.push_back(l_Bonus);
+
+    char* l_CKey = strtok(l_CKeys, ":|");                   ///< Extract key
+    if (p_Something)
+        *p_Something = strtok(nullptr, ":|");               ///< Extract something
+
+    strtok(l_CKeysTail, "]");                               ///< Restart scan tail and skip name with possible spaces
+    strtok(nullptr, " ");                                   ///< Skip link tail (to allow continue strtok(NULL, s) use after return from function
+    return l_CKey ? atol(l_CKey) : 0;
+}
+
 char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1)
 {
     // skip empty

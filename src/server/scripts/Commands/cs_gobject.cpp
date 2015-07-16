@@ -40,7 +40,8 @@ class gobject_commandscript: public CommandScript
                 { "phase",          SEC_GAMEMASTER,     false, &HandleGameObjectSetPhaseCommand,  "", NULL },
                 { "state",          SEC_GAMEMASTER,     false, &HandleGameObjectSetStateCommand,  "", NULL },
                 { "flags",          SEC_ADMINISTRATOR,  false, &HandleGameObjectSetFlagsCommand,  "", NULL },
-                { "field",          SEC_ADMINISTRATOR,  false, &HandleGameObjectSetFieldCommand, "", NULL },
+                { "field",          SEC_ADMINISTRATOR,  false, &HandleGameObjectSetFieldCommand,  "", NULL },
+                { "animkit",        SEC_ADMINISTRATOR,  false, &HandleGameObjectSetAnimKitCOmmand,"", NULL },
                 { NULL,             0,                  false, NULL,                              "", NULL }
             };
             static ChatCommand gobjectGetCommandTable[] =
@@ -764,6 +765,35 @@ class gobject_commandscript: public CommandScript
 
             l_GameObject->SetUInt32Value(l_IntField, l_Val);
             p_Handler->PSendSysMessage("Set gobject field %d value %d", l_IntField, l_Val);
+            return true;
+        }
+
+        static bool HandleGameObjectSetAnimKitCOmmand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            uint32 l_GuidLow = GetGuidLowFromArgsOrLastTargetedGo(p_Handler, p_Args);
+            if (!l_GuidLow)
+                return false;
+
+            GameObject* l_GameObject = nullptr;
+
+            if (GameObjectData const* l_GameObjectData = sObjectMgr->GetGOData(l_GuidLow))
+                l_GameObject = p_Handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(l_GuidLow, l_GameObjectData->id);
+
+            if (!l_GameObject)
+            {
+                p_Handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, l_GuidLow);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_Value = strtok(nullptr, " ");
+            if (!l_Value)
+                return false;
+
+            uint32 l_Val = atoi(l_Value);
+
+            l_GameObject->SetAIAnimKitId(l_Val);
+            p_Handler->PSendSysMessage("Set AnimkitID %u for GameObject %u.", l_Val, l_GuidLow);
             return true;
         }
 

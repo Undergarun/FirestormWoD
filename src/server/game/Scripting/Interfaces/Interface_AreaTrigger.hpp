@@ -101,6 +101,12 @@ class AreaTriggerEntityScript : public ScriptObjectImpl<true>
             UNUSED(p_Time);
         }
 
+        /// Called when AreaTrigger reached its Destination
+        virtual void OnDestinationReached(AreaTrigger* p_AreaTrigger)
+        {
+            UNUSED(p_AreaTrigger);
+        }
+
         /// Allow to make local AreaTriggerEntityScript for each AreaTrigger
         virtual AreaTriggerEntityScript* GetAI() const = 0;
 

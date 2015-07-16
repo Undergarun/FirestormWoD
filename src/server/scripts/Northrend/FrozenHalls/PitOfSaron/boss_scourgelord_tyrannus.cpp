@@ -145,6 +145,7 @@ class boss_tyrannus : public CreatureScript
                 events.SetPhase(PHASE_NONE);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                 instance->SetBossState(DATA_TYRANNUS, NOT_STARTED);
             }
 

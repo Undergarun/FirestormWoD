@@ -104,8 +104,9 @@ class ChatHandler
         Unit*     getSelectedUnit();
         WorldObject* getSelectedObject();
 
-        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = NULL);
-        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);
+        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
+        uint32    GetItemIDAndBonusesFromLink(char* p_Text, std::vector<uint32>& p_Bonuses, char** p_Something = nullptr);
+        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
 
         // if args have single value then it return in arg2 and arg1 == NULL
         void      extractOptFirstArg(char* args, char** arg1, char** arg2);

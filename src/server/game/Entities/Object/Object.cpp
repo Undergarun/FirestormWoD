@@ -391,7 +391,6 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
             bool l_HasTransportInformations = l_Unit->m_movementInfo.t_guid != 0;
             bool l_HasFallData              = l_Unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) || l_Unit->m_movementInfo.fallTime != 0;
-            bool l_HasMovementSpline        = false;
             bool l_HeightChangeFailed       = false;
             bool l_RemoteTimeValid          = false;
 
@@ -413,7 +412,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             p_Data->WriteBits(l_ExtraMovementFlags, 15);                    ///< Extra movement flags
             p_Data->WriteBit(l_HasTransportInformations);                   ///< Has transport informations
             p_Data->WriteBit(l_HasFallData);                                ///< Has fall data
-            p_Data->WriteBit(l_HasMovementSpline);                          ///< Has Movement Spline
+            p_Data->WriteBit(l_HasSpline);                                  ///< Has Movement Spline
             p_Data->WriteBit(l_HeightChangeFailed);                         ///< Height Change Failed
             p_Data->WriteBit(l_RemoteTimeValid);                            ///< Remote Time Valid
 
@@ -488,7 +487,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
         if (l_HasSpline)
         {
-            Movement::MoveSpline * l_Spline = l_Unit->movespline;
+            Movement::MoveSpline* l_Spline = l_Unit->movespline;
 
             *p_Data << uint32(l_Spline->GetId());                           ///< Move spline ID
 
@@ -502,19 +501,22 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             }
             else
             {
-                *p_Data << float(0);                                        ///< Spline destination X
-                *p_Data << float(0);                                        ///< Spline destination Y
-                *p_Data << float(0);                                        ///< Spline destination Z
+                /// I've seen always the third points as Spline destination... Don't know why
+                Vector3 l_Destination = l_Spline->spline.last() > 2 ? l_Spline->spline.getPoint(2) : l_Spline->spline.getPoint(l_Spline->spline.last());
+
+                *p_Data << float(l_Destination.x);                                        ///< Spline destination X
+                *p_Data << float(l_Destination.y);                                        ///< Spline destination Y
+                *p_Data << float(l_Destination.z);                                        ///< Spline destination Z
             }
 
-            p_Data->WriteBit(!l_Spline->Finalized());
+            p_Data->WriteBit(!l_Spline->Finalized());                       ///< HasSplineMove
             p_Data->FlushBits();
 
             if (!l_Spline->Finalized())
             {
-                bool l_IsParabolicAndNotEnded   = (l_Spline->splineflags & Movement::MoveSplineFlag::Parabolic) && l_Spline->effect_start_time < l_Spline->Duration();
-                bool l_IsParabolicOrAnimated    = l_Spline->splineflags & (Movement::MoveSplineFlag::Parabolic | Movement::MoveSplineFlag::Animation);
-                bool l_HasFilterKeys             = false;
+                bool l_HasJumpGravity   = (l_Spline->splineflags & Movement::MoveSplineFlag::Parabolic) && l_Spline->effect_start_time < l_Spline->Duration();
+                bool l_HasSpecialTime   = l_Spline->splineflags & (Movement::MoveSplineFlag::Parabolic | Movement::MoveSplineFlag::Animation);
+                bool l_HasFilterKeys    = false;
 
                 uint8 l_FinalFacingMove = 0;
 
@@ -533,16 +535,16 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
                 p_Data->WriteBits(l_Spline->splineflags.raw(), 25);         ///< Spline flags
                 p_Data->WriteBits(l_FinalFacingMove, 2);                    ///< Final facing computation
-                p_Data->WriteBit(l_IsParabolicAndNotEnded);                 ///< Is an parabolic movement and it's not ended
-                p_Data->WriteBit(l_IsParabolicOrAnimated);                  ///< Is an parabolic movement or it's animated
+                p_Data->WriteBit(l_HasJumpGravity);                         ///< Is an parabolic movement and it's not ended
+                p_Data->WriteBit(l_HasSpecialTime);                         ///< Is an parabolic movement or it's animated
                 p_Data->WriteBits(uint8(l_Spline->spline.mode()), 2);       ///< Spline mode
                 p_Data->WriteBit(l_HasFilterKeys);                          ///< Has unk spline part
                 p_Data->FlushBits();
 
+                *p_Data << uint32(l_Spline->TimePassed());                  ///< Time passed
                 *p_Data << uint32(l_Spline->Duration());                    ///< Total spline duration
-                *p_Data << uint32(l_Spline->timePassed());                  ///< Time passed
-                *p_Data << float(1.f);                                      ///< splineInfo.duration_mod; added in 3.1
-                *p_Data << float(1.f);                                      ///< splineInfo.duration_mod_next; added in 3.1
+                *p_Data << float(1.0f);                                     ///< DurationMod
+                *p_Data << float(1.0f);                                     ///< DurationModNext
                 *p_Data << uint32(l_Spline->getPath().size());              ///< Path node count
 
                 if (l_FinalFacingMove == 3)
@@ -558,10 +560,10 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                     *p_Data << float(l_Spline->facing.f.z);                 ///< Final facing Z
                 }
 
-                if (l_IsParabolicAndNotEnded)
+                if (l_HasJumpGravity)
                     *p_Data << float(l_Spline->vertical_acceleration);      ///< Vertical acceleration
 
-                if (l_IsParabolicOrAnimated)
+                if (l_HasSpecialTime)
                     *p_Data << uint32(l_Spline->effect_start_time);         ///< Effect start time
 
                 if (l_HasFilterKeys)
@@ -655,23 +657,23 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_HAS_AREATRIGGER)
     {
-        const AreaTriggerTemplate* l_MainTemplate = l_AreaTrigger->GetMainTemplate();
+        AreaTriggerTemplate const* l_MainTemplate = l_AreaTrigger->GetMainTemplate();
 
-        // We need to find the true conditions for FollowTerrain and HasAreaTriggerSpline.
-        bool l_AbsoluteOrientation      = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_ABSOLUTE_ORIENTATION;
-        bool l_DynamicShape             = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_DYNAMIC_SHAPE;
-        bool l_Attached                 = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_ATTACHED;
-        bool l_FaceMovementDir          = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_FACE_MOVEMENT_DIR;
-        bool l_FollowsTerrain           = l_MainTemplate->m_MoveCurveID || (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE);
-        bool l_HasTargetRollPitchYaw    = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH;
-        bool l_HasScaleCurveID          = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_SCALE_CURVE;
-        bool l_HasMorphCurveID          = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_MORPH_CURVE;
-        bool l_HasFacingCurveID         = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_FACING_CURVE;
-        bool l_HasMoveCurveID           = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE;
-        bool l_HasAreaTriggerSphere     = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
-        bool l_HasAreaTriggerBox        = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_BOX;
-        bool l_HasAreaTriggerPolygon    = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON;
-        bool l_HasAreaTriggerCylinder   = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_CYLINDER;
+        /// We need to find the true conditions for HasAreaTriggerSpline.
+        bool l_AbsoluteOrientation      = l_MainTemplate->HasAbsoluteOrientation();
+        bool l_DynamicShape             = l_MainTemplate->HasDynamicShape();
+        bool l_Attached                 = l_MainTemplate->HasAttached();
+        bool l_FaceMovementDir          = l_MainTemplate->HasFaceMovementDir();
+        bool l_FollowsTerrain           = l_MainTemplate->HasFollowsTerrain();
+        bool l_HasTargetRollPitchYaw    = l_MainTemplate->HasTargetRollPitchYaw();
+        bool l_HasScaleCurveID          = l_MainTemplate->HasScaleCurveID();
+        bool l_HasMorphCurveID          = l_MainTemplate->HasMorphCurveID();
+        bool l_HasFacingCurveID         = l_MainTemplate->HasFacingCurveID();
+        bool l_HasMoveCurveID           = l_MainTemplate->HasMoveCurveID();
+        bool l_HasAreaTriggerSphere     = l_MainTemplate->HasAreaTriggerSphere();
+        bool l_HasAreaTriggerBox        = l_MainTemplate->HasAreaTriggerBox();
+        bool l_HasAreaTriggerPolygon    = l_MainTemplate->HasAreaTriggerPolygon();
+        bool l_HasAreaTriggerCylinder   = l_MainTemplate->HasAreaTriggerCylinder();
         bool l_HasAreaTriggerSpline     = l_MainTemplate->m_MoveCurveID || (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0);
 
         uint32 l_ElapsedMS = l_AreaTrigger->GetCreatedTime();
@@ -794,15 +796,15 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             }
             else
             {
-                uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
+                uint32 l_PathNodeCount = l_AreaTrigger->GetTimeToTarget() / l_AreaTrigger->GetUpdateInterval();
 
-                *p_Data << uint32(l_AreaTrigger->GetDuration());                            ///< Time To Target
+                *p_Data << uint32(l_AreaTrigger->GetTimeToTarget());                        ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
                 *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
                 for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)
                 {
                     Position l_Pos;
-                    l_AreaTrigger->GetPositionAtTime(l_AreaTrigger->GetDuration() * l_I / l_PathNodeCount, &l_Pos);
+                    l_AreaTrigger->GetPositionAtTime(l_AreaTrigger->GetTimeToTarget() * l_I / l_PathNodeCount, &l_Pos);
 
                     *p_Data << float(l_Pos.m_positionX);                                    ///< Node position X
                     *p_Data << float(l_Pos.m_positionY);                                    ///< Node position Y
@@ -2704,21 +2706,16 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     uint32 speakerNameLength = name ? strlen(name) : 0;
     std::string channel = ""; // no channel
 
-    ObjectGuid senderGuid = GetGUID();
-    ObjectGuid groupGuid = 0;
-    ObjectGuid receiverGuid = targetGuid;
-    ObjectGuid guildGuid = 0;
-
     data->Initialize(SMSG_CHAT, 800);
     *data << uint8(msgtype);
     *data << uint8(language);
-    data->appendPackGUID(senderGuid);
-    data->appendPackGUID(0);
-    data->appendPackGUID(0);
-    data->appendPackGUID(0);
+    data->appendPackGUID(GetGUID());
+    data->appendPackGUID(0);            ///< SenderGuildGUID
+    data->appendPackGUID(0);            ///< WoWAccountGUID
+    data->appendPackGUID(targetGuid);
     *data << uint32(g_RealmID);
     *data << uint32(g_RealmID);
-    data->appendPackGUID(groupGuid);
+    data->appendPackGUID(0);            ///< GroupGUID
     *data << uint32(0);
     *data << float(0);
 
@@ -2742,21 +2739,21 @@ void Unit::BuildHeartBeatMsg(WorldPacket* data) const
     WriteMovementUpdate(*data);
 }
 
-void WorldObject::SendMessageToSet(WorldPacket* data, bool self)
+void WorldObject::SendMessageToSet(WorldPacket* data, bool self, const GuidUnorderedSet& p_IgnoredList)
 {
     if (IsInWorld())
-        SendMessageToSetInRange(data, GetVisibilityRange(), self);
+        SendMessageToSetInRange(data, GetVisibilityRange(), self, p_IgnoredList);
 }
 
-void WorldObject::SendMessageToSetInRange(WorldPacket* data, float dist, bool /*self*/)
+void WorldObject::SendMessageToSetInRange(WorldPacket* data, float dist, bool /*self*/, const GuidUnorderedSet& p_IgnoredList)
 {
-    JadeCore::MessageDistDeliverer notifier(this, data, dist);
+    JadeCore::MessageDistDeliverer notifier(this, data, dist, false, nullptr, p_IgnoredList);
     VisitNearbyWorldObject(dist, notifier);
 }
 
-void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
+void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr, const GuidUnorderedSet& p_IgnoredList)
 {
-    JadeCore::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr);
+    JadeCore::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr, p_IgnoredList);
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
@@ -3335,6 +3332,15 @@ Player* WorldObject::FindNearestPlayer(float range, bool alive)
     JadeCore::PlayerSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(this, player, check);
     VisitNearbyWorldObject(range, searcher);
     return player;
+}
+
+AreaTrigger* WorldObject::FindNearestAreaTrigger(uint32 p_SpellID, float p_Range) const
+{
+    AreaTrigger* l_AreaTrigger = nullptr;
+    JadeCore::NearestAreaTriggerWithIDInObjectRangeCheck l_Check(*this, p_SpellID, p_Range);
+    JadeCore::AreaTriggerSearcher<JadeCore::NearestAreaTriggerWithIDInObjectRangeCheck>l_Searcher(this, l_AreaTrigger, l_Check);
+    VisitNearbyObject(p_Range, l_Searcher);
+    return l_AreaTrigger;
 }
 
 void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>& gameobjectList, uint32 entry, float maxSearchRange) const

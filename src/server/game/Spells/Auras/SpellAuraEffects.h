@@ -332,7 +332,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
 
         // aura effect periodic tick handlers

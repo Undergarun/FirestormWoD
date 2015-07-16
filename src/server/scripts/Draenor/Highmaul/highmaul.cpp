@@ -59,6 +59,11 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
                 me->GetMotionMaster()->MovePoint(eMove::MoveFirstPos, g_GhargFirstPos);
             }
 
+            bool CanRespawn() override
+            {
+                return false;
+            }
+
             void DoAction(int32 const p_Action)
             {
                 if (p_Action == eAction::ActionMove)
@@ -512,11 +517,6 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
             EventDevour
         };
 
-        enum eCreature
-        {
-            IronGrunt = 88118
-        };
-
         struct npc_highmaul_night_twisted_devoutAI : public MS::AI::CosmeticAI
         {
             npc_highmaul_night_twisted_devoutAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
@@ -526,14 +526,24 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
             void Reset() override
             {
                 m_Events.Reset();
+
+                if (me->HasFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC) ||
+                    me->HasFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE))
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (me->HasReactState(ReactStates::REACT_PASSIVE))
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 m_Events.ScheduleEvent(eEvents::EventTaintedClaws, urand(6000, 9000));
                 m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 10000));
 
-                if (Creature* l_IronGrunt = me->FindNearestCreature(eCreature::IronGrunt, 3.0f))
+                if (Creature* l_IronGrunt = me->FindNearestCreature(eHighmaulCreatures::IronGrunt, 3.0f))
                 {
                     me->Kill(l_IronGrunt);
                     DoZoneInCombat(me, 40.0f);
@@ -901,11 +911,6 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
             EventSurgeOfDarkness = 1
         };
 
-        enum eCreature
-        {
-            IronGrunt = 88118
-        };
-
         struct npc_highmaul_night_twisted_bruteAI : public ScriptedAI
         {
             npc_highmaul_night_twisted_bruteAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -922,7 +927,7 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
                 m_Events.ScheduleEvent(eEvent::EventSurgeOfDarkness, urand(8000, 12000));
 
                 std::list<Creature*> l_IronGrunts;
-                me->GetCreatureListWithEntryInGrid(l_IronGrunts, eCreature::IronGrunt, 35.0f);
+                me->GetCreatureListWithEntryInGrid(l_IronGrunts, eHighmaulCreatures::IronGrunt, 35.0f);
 
                 if (!l_IronGrunts.empty())
                 {
@@ -1823,6 +1828,500 @@ class npc_highmaul_greater_void_aberration : public CreatureScript
         }
 };
 
+/// Highmaul Conscript - 82519
+class npc_highmaul_highmaul_conscript : public CreatureScript
+{
+    public:
+        npc_highmaul_highmaul_conscript() : CreatureScript("npc_highmaul_highmaul_conscript") { }
+
+        enum eSpells
+        {
+            RendingSlash    = 166185,
+            ShieldBlocking  = 166177,
+            ShieldCharge    = 166178,
+            AtArms          = 157739
+        };
+
+        enum eEvents
+        {
+            EventRendingSlash = 1,
+            EventShieldBlocking,
+            EventShieldCharge
+        };
+
+        struct npc_highmaul_highmaul_conscriptAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_highmaul_conscriptAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+            EventMap m_Events;
+
+            uint64 m_ChargeTarget;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                m_ChargeTarget = 0;
+
+                me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+                me->CastSpell(me, eSpells::AtArms, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventRendingSlash, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventShieldBlocking, 13 * TimeConstants::IN_MILLISECONDS);
+
+                me->RemoveAura(eSpells::AtArms);
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_ID != EVENT_CHARGE)
+                    return;
+
+                me->RemoveAura(eSpells::AtArms);
+                me->RemoveAura(eSpells::ShieldCharge);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Phemos = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Phemos)))
+                {
+                    if (l_Phemos->IsAIEnabled)
+                    {
+                        l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
+                        l_Phemos->AI()->DoAction(0);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventRendingSlash:
+                    {
+                        me->CastSpell(me, eSpells::RendingSlash, false);
+                        m_Events.ScheduleEvent(eEvents::EventRendingSlash, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventShieldBlocking:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        {
+                            m_ChargeTarget = l_Target->GetGUID();
+                            me->SetFacingTo(me->GetAngle(l_Target));
+                            me->CastSpell(l_Target, eSpells::ShieldBlocking, false);
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+                        }
+
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->CastSpell(me, eSpells::AtArms, true);
+                        });
+
+                        m_Events.ScheduleEvent(eEvents::EventShieldCharge, 6 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventShieldBlocking, 60 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventShieldCharge:
+                    {
+                        if (Unit* l_Target = Unit::GetUnit(*me, m_ChargeTarget))
+                        {
+                            float l_O = me->GetOrientation();
+                            Position l_Pos;
+
+                            me->GetContactPoint(l_Target, l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ);
+                            l_Target->GetFirstCollisionPosition(l_Pos, l_Target->GetObjectSize(), l_O);
+                            me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+                            me->GetMotionMaster()->MoveCharge(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ + l_Target->GetObjectSize());
+
+                            me->CastSpell(me, eSpells::ShieldCharge, true);
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                if (!me->HasAura(eSpells::ShieldBlocking))
+                    DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_highmaul_conscriptAI(p_Creature);
+        }
+};
+
+/// Ogron Earthshaker - 82399
+class npc_highmaul_ogron_earthshaker : public CreatureScript
+{
+    public:
+        npc_highmaul_ogron_earthshaker() : CreatureScript("npc_highmaul_ogron_earthshaker") { }
+
+        enum eSpells
+        {
+            IntimidatingRoarJump    = 166170,
+            EarthdevastatingSlam    = 166174,
+            EarthdevastatingSlamDmg = 166175
+        };
+
+        enum eEvents
+        {
+            EventIntimidatingRoar = 1,
+            EventEarthdevastatingSlam
+        };
+
+        enum eAction
+        {
+            ActionSlam
+        };
+
+        struct npc_highmaul_ogron_earthshakerAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_ogron_earthshakerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+            EventMap m_Events;
+
+            float m_Orientation;
+            uint8 m_SlamCount;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                m_Orientation = 0.0f;
+                m_SlamCount = 0;
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventIntimidatingRoar, 6 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventEarthdevastatingSlam, 17 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eAction::ActionSlam)
+                {
+                    me->SetFacingTo(m_Orientation);
+                    me->CastSpell(me, eSpells::EarthdevastatingSlamDmg, false);
+
+                    m_Orientation += M_PI / 3;
+                    ++m_SlamCount;
+
+                    if (m_SlamCount >= 6)
+                    {
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+                    }
+                }
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Phemos = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Phemos)))
+                {
+                    if (l_Phemos->IsAIEnabled)
+                    {
+                        l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
+                        l_Phemos->AI()->DoAction(0);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventIntimidatingRoar:
+                    {
+                        me->CastSpell(me, eSpells::IntimidatingRoarJump, true);
+                        m_Events.ScheduleEvent(eEvents::EventIntimidatingRoar, 25 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventEarthdevastatingSlam:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 15.0f))
+                        {
+                            m_Orientation = me->GetAngle(l_Target);
+                            m_SlamCount = 0;
+                            me->SetFacingTo(m_Orientation);
+                            me->CastSpell(l_Target, eSpells::EarthdevastatingSlam, true);
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventEarthdevastatingSlam, 60 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                if (!me->HasAura(eSpells::EarthdevastatingSlam))
+                    DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_ogron_earthshakerAI(p_Creature);
+        }
+};
+
+/// Gorian Arcanist - 82528
+class npc_highmaul_gorian_arcanist : public CreatureScript
+{
+    public:
+        npc_highmaul_gorian_arcanist() : CreatureScript("npc_highmaul_gorian_arcanist") { }
+
+        enum eSpells
+        {
+            ArcaneForceCosmetic     = 166289,
+
+            ArcaneBolt              = 166204,
+            ArcaneVolatility        = 166199,
+            ArcaneVolatilityAura    = 166200,
+            ArcaneVolatilityDmg     = 166202,
+            ArcaneVolatilityBump    = 166201,
+            ArcaneBarrage           = 178023
+        };
+
+        enum eEvents
+        {
+            EventArcaneBolt = 1,
+            EventArcaneVolatility,
+            EventArcaneBarrage
+        };
+
+        enum eCreature
+        {
+            InvisibleStalker = 15214
+        };
+
+        struct npc_highmaul_gorian_arcanistAI : public ScriptedAI
+        {
+            npc_highmaul_gorian_arcanistAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                if (Creature* l_Stalker = me->FindNearestCreature(eCreature::InvisibleStalker, 20.0f))
+                    me->CastSpell(l_Stalker, eSpells::ArcaneForceCosmetic, false);
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventArcaneBolt, 6 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventArcaneVolatility, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventArcaneBarrage, 8 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::ArcaneVolatility:
+                        me->CastSpell(p_Target, eSpells::ArcaneVolatilityAura, true);
+                        break;
+                    case eSpells::ArcaneVolatilityDmg:
+                        me->CastSpell(p_Target, eSpells::ArcaneVolatilityBump, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Phemos = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Phemos)))
+                {
+                    if (l_Phemos->IsAIEnabled)
+                    {
+                        l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
+                        l_Phemos->AI()->DoAction(0);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventArcaneBolt:
+                        me->CastSpell(me, eSpells::ArcaneBolt, false);
+                        m_Events.ScheduleEvent(eEvents::EventArcaneBolt, 28 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventArcaneVolatility:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::ArcaneVolatility, false);
+                        m_Events.ScheduleEvent(eEvents::EventArcaneVolatility, 35 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventArcaneBarrage:
+                        me->CastSpell(me, eSpells::ArcaneBarrage, false);
+                        m_Events.ScheduleEvent(eEvents::EventArcaneBarrage, 30 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_gorian_arcanistAI(p_Creature);
+        }
+};
+
+/// Ogron Brute - 82400
+class npc_highmaul_ogron_brute : public CreatureScript
+{
+    public:
+        npc_highmaul_ogron_brute() : CreatureScript("npc_highmaul_ogron_brute") { }
+
+        enum eSpell
+        {
+            Decimate = 166189
+        };
+
+        enum eEvent
+        {
+            EventDecimate = 1
+        };
+
+        struct npc_highmaul_ogron_bruteAI : public ScriptedAI
+        {
+            npc_highmaul_ogron_bruteAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventDecimate, 6 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Phemos = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Phemos)))
+                {
+                    if (l_Phemos->IsAIEnabled)
+                    {
+                        l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
+                        l_Phemos->AI()->DoAction(0);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventDecimate:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpell::Decimate, false);
+                        m_Events.ScheduleEvent(eEvent::EventDecimate, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_ogron_bruteAI(p_Creature);
+        }
+};
+
 /// Arena Elevator - 233098
 class go_highmaul_arena_elevator : public GameObjectScript
 {
@@ -1840,11 +2339,6 @@ class go_highmaul_instance_portal : public GameObjectScript
 {
     public:
         go_highmaul_instance_portal() : GameObjectScript("go_highmaul_instance_portal") { }
-
-        enum eData
-        {
-            DreanorMap = 1116
-        };
 
         struct go_highmaul_instance_portalAI : public GameObjectAI
         {
@@ -1878,6 +2372,61 @@ class go_highmaul_instance_portal : public GameObjectScript
         GameObjectAI* GetAI(GameObject* p_GameObject) const override
         {
             return new go_highmaul_instance_portalAI(p_GameObject);
+        }
+};
+
+/// Portal (teleporter to upper/lower city) - 231776
+class go_highmaul_portal : public GameObjectScript
+{
+    public:
+        go_highmaul_portal() : GameObjectScript("go_highmaul_portal") { }
+
+        struct go_highmaul_portalAI : public GameObjectAI
+        {
+            go_highmaul_portalAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject)
+            {
+                m_CheckTimer = 1000;
+                m_IsUp = p_GameObject->GetPositionZ() < 300.0f;
+            }
+
+            uint32 m_CheckTimer;
+            bool m_IsUp;
+
+            enum eSpell
+            {
+                Teleport = 160595 ///< Cosmetic effect
+            };
+
+            void UpdateAI(uint32 p_Diff) override
+            {
+                if (m_CheckTimer)
+                {
+                    if (m_CheckTimer <= p_Diff)
+                    {
+                        m_CheckTimer = 1000;
+
+                        std::list<Player*> l_PlayerList;
+                        go->GetPlayerListInGrid(l_PlayerList, 5.0f);
+
+                        for (Player* l_Player : l_PlayerList)
+                        {
+                            l_Player->CastSpell(l_Player, eSpell::Teleport, true);
+
+                            if (m_IsUp)
+                                l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                            else
+                                l_Player->NearTeleportTo(eHighmaulLocs::CityBaseTeleporter);
+                        }
+                    }
+                    else
+                        m_CheckTimer -= p_Diff;
+                }
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_highmaul_portalAI(p_GameObject);
         }
 };
 
@@ -1999,7 +2548,7 @@ class spell_highmaul_boars_rush : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_boars_rush_SpellScript();
         }
@@ -2051,7 +2600,7 @@ class spell_highmaul_unstoppable_charge : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_unstoppable_charge_SpellScript();
         }
@@ -2094,6 +2643,335 @@ class spell_highmaul_corrupted_blood_shield : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_highmaul_corrupted_blood_shield_AuraScript();
+        }
+};
+
+/// Rending Slash - 166185
+class spell_highmaul_rending_slash : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_rending_slash() : SpellScriptLoader("spell_highmaul_rending_slash") { }
+
+        class spell_highmaul_rending_slash_SpellScript: public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_rending_slash_SpellScript);
+
+            enum eSpell
+            {
+                TargetRestrict = 22561
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Angle = 2 * M_PI / 360 * l_Restriction->ConeAngle;
+                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster, l_Angle))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_rending_slash_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_54);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_rending_slash_SpellScript();
+        }
+};
+
+/// Shield Charge - 166178
+class spell_highmaul_shield_charge : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_shield_charge() : SpellScriptLoader("spell_highmaul_shield_charge") { }
+
+        class spell_highmaul_shield_charge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_shield_charge_AuraScript);
+
+            enum eSpells
+            {
+                ShieldChargeDamage  = 166180,
+                ShieldChargeBump    = 166181
+            };
+
+            uint32 m_DamageTimer;
+
+            bool Load()
+            {
+                m_DamageTimer = 500;
+                return true;
+            }
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                if (m_DamageTimer)
+                {
+                    if (m_DamageTimer <= p_Diff)
+                    {
+                        if (Unit* l_Caster = GetCaster())
+                        {
+                            std::list<Unit*> l_TargetList;
+                            float l_Radius = 1.0f;
+
+                            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                            l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                            for (Unit* l_Iter : l_TargetList)
+                            {
+                                l_Caster->CastSpell(l_Iter, eSpells::ShieldChargeDamage, true);
+                                l_Iter->CastSpell(l_Iter, eSpells::ShieldChargeBump, true);
+                            }
+                        }
+
+                        m_DamageTimer = 500;
+                    }
+                    else
+                        m_DamageTimer -= p_Diff;
+                }
+            }
+
+            void Register() override
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_highmaul_shield_charge_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_shield_charge_AuraScript();
+        }
+};
+
+/// Earthdevastating Slam - 166174
+class spell_highmaul_earthdevastating_slam : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_earthdevastating_slam() : SpellScriptLoader("spell_highmaul_earthdevastating_slam") { }
+
+        class spell_highmaul_earthdevastating_slam_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_earthdevastating_slam_AuraScript);
+
+            enum eAction
+            {
+                ActionSlam
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (GetTarget() == nullptr)
+                    return;
+
+                if (Creature* l_Trash = GetTarget()->ToCreature())
+                {
+                    if (l_Trash->IsAIEnabled)
+                        l_Trash->AI()->DoAction(eAction::ActionSlam);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_earthdevastating_slam_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_earthdevastating_slam_AuraScript();
+        }
+};
+
+/// Earthdevastating Slam (damage) - 166175
+class spell_highmaul_earthdevastating_slam_dmg : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_earthdevastating_slam_dmg() : SpellScriptLoader("spell_highmaul_earthdevastating_slam_dmg") { }
+
+        class spell_highmaul_earthdevastating_slam_dmg_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_earthdevastating_slam_dmg_SpellScript);
+
+            enum eSpell
+            {
+                TargetRestrict = 21362
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Radius = GetSpellInfo()->Effects[0].CalcRadius(l_Caster);
+                p_Targets.remove_if([l_Radius, l_Caster, l_Restriction](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->IsInAxe(l_Caster, l_Restriction->Width, l_Radius))
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_earthdevastating_slam_dmg_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_129);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_earthdevastating_slam_dmg_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_129);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_earthdevastating_slam_dmg_SpellScript();
+        }
+};
+
+/// Arcane Barrage - 178023
+class spell_highmaul_arcane_barrage : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_arcane_barrage() : SpellScriptLoader("spell_highmaul_arcane_barrage") { }
+
+        enum eSpells
+        {
+            ArcaneBarrageFirst = 178025,
+            ArcaneBarrageSecond = 178026
+        };
+
+        class spell_highmaul_arcane_barrage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_arcane_barrage_SpellScript);
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpells::ArcaneBarrageFirst, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_highmaul_arcane_barrage_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_arcane_barrage_SpellScript();
+        }
+
+        class spell_highmaul_arcane_barrage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_arcane_barrage_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->CastSpell(l_Target, eSpells::ArcaneBarrageSecond, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_arcane_barrage_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_arcane_barrage_AuraScript();
+        }
+};
+
+/// Decimate - 166189
+class spell_highmaul_decimate : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_decimate() : SpellScriptLoader("spell_highmaul_decimate") { }
+
+        enum eSpells
+        {
+            DecimateMissile = 166187
+        };
+
+        class spell_highmaul_decimate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_decimate_SpellScript);
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, eSpells::DecimateMissile, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_highmaul_decimate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_decimate_SpellScript();
+        }
+
+        class spell_highmaul_decimate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_decimate_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetTarget())
+                        l_Caster->CastSpell(l_Target, eSpells::DecimateMissile, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_decimate_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_decimate_AuraScript();
         }
 };
 
@@ -2152,10 +3030,15 @@ void AddSC_highmaul()
     new npc_highmaul_iron_blood_mage();
     new npc_highmaul_night_twisted_ritualist();
     new npc_highmaul_greater_void_aberration();
+    new npc_highmaul_highmaul_conscript();
+    new npc_highmaul_ogron_earthshaker();
+    new npc_highmaul_gorian_arcanist();
+    new npc_highmaul_ogron_brute();
 
     /// GameObjects
     new go_highmaul_arena_elevator();
     new go_highmaul_instance_portal();
+    new go_highmaul_portal();
 
     /// Spells
     new spell_highmaul_chain_grip();
@@ -2163,6 +3046,12 @@ void AddSC_highmaul()
     new spell_highmaul_boars_rush();
     new spell_highmaul_unstoppable_charge();
     new spell_highmaul_corrupted_blood_shield();
+    new spell_highmaul_rending_slash();
+    new spell_highmaul_shield_charge();
+    new spell_highmaul_earthdevastating_slam();
+    new spell_highmaul_earthdevastating_slam_dmg();
+    new spell_highmaul_arcane_barrage();
+    new spell_highmaul_decimate();
 
     /// AreaTriggers
     new areatrigger_highmaul_rune_of_disintegration();

@@ -1254,7 +1254,8 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
 
-            uint32 m_AbsorbPct, m_HpPct, m_AmountAbsorb, m_Absorbed = 0;
+            int32 m_AbsorbPct, m_HpPct, m_AmountAbsorb = 0;
+            uint32 m_Absorbed = 0;
 
             bool Load()
             {
@@ -1485,14 +1486,6 @@ class spell_dk_blood_boil: public SpellScriptLoader
 
                 if (l_Player == nullptr)
                     return SPELL_FAILED_SUCCESS;
-
-                Unit* l_Target = l_Player->GetSelectedUnit();
-
-                if (l_Target != nullptr && !l_Player->IsValidAttackTarget(l_Target))
-                    return SPELL_FAILED_NO_VALID_TARGETS;
-
-                if (l_Target != nullptr && l_Player->GetDistance(l_Target) > GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusHostile)
-                    return SPELL_FAILED_OUT_OF_RANGE;
 
                 return SPELL_CAST_OK;
             }
@@ -2437,6 +2430,81 @@ class spell_dk_death_coil : public SpellScriptLoader
         }
 };
 
+/// Enhanced Death Coil (aura) - 164047
+class spell_dk_enhanced_death_coil : public SpellScriptLoader
+{
+    public:
+        spell_dk_enhanced_death_coil() : SpellScriptLoader("spell_dk_enhanced_death_coil") { }
+
+        class spell_dk_enhanced_death_coil_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_enhanced_death_coil_AuraScript);
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->AddToStackOnDuration(GetSpellInfo()->Id, GetSpellInfo()->GetMaxDuration(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                StackOnDuration* l_Stack = l_Caster->GetStackOnDuration(GetSpellInfo()->Id);
+
+                if (l_Stack == nullptr)
+                    return;
+
+                GetEffect(EFFECT_0)->SetAmount(l_Stack->GetTotalAmount());
+            }
+
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                StackOnDuration* l_Stack = l_Caster->GetStackOnDuration(GetSpellInfo()->Id);
+
+                if (l_Stack == nullptr)
+                    return;
+
+                if (p_AurEff->GetAmount() > l_Stack->GetTotalAmount())
+                {
+                    float l_Percent = l_Caster->GetHealthPct();
+                    l_Caster->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, p_AurEff->GetAmount(), false);
+                    l_Caster->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, l_Stack->GetTotalAmount(), true);
+                    if (l_Caster->isAlive())
+                        l_Caster->SetHealth(l_Caster->CountPctFromMaxHealth(int32(l_Percent)));
+                }
+
+                p_AurEff->SetAmount(l_Stack->GetTotalAmount());
+            }
+
+            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveStackOnDuration(GetSpellInfo()->Id);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dk_enhanced_death_coil_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY));
+                OnEffectUpdate += AuraEffectUpdateFn(spell_dk_enhanced_death_coil_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dk_enhanced_death_coil_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL));
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_enhanced_death_coil_AuraScript();
+        }
+};
+
 enum SkeletonSpells
 {
     SpellSkeletonForm = 147157
@@ -2641,6 +2709,50 @@ class spell_dk_army_transform : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of Icy Runes - 159418
+class spell_dk_glyph_of_icy_runes : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_icy_runes() : SpellScriptLoader("spell_dk_glyph_of_icy_runes") { }
+
+        class spell_dk_glyph_of_icy_runes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_glyph_of_icy_runes_AuraScript);
+
+            enum eSpells
+            {
+                GlyphofIcyRunesProc = 159419
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != DK_SPELL_CHAINS_OF_ICE)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::GlyphofIcyRunesProc, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_glyph_of_icy_runes_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_glyph_of_icy_runes_AuraScript();
+        }
+};
+
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_coil();
@@ -2694,6 +2806,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_improved_death_grip();
     new spell_dk_glyph_of_deaths_embrace();
     new spell_dk_will_of_the_necropolis();
+    new spell_dk_glyph_of_icy_runes();
+    new spell_dk_enhanced_death_coil();
 
     /// Player script
     new PlayerScript_Blood_Tap();

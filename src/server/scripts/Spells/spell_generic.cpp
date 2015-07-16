@@ -383,7 +383,7 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_leeching_swarm_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* spellEntry)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_DMG) || !sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_HEAL))
                     return false;
@@ -396,8 +396,25 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
                 if (!caster)
                     return;
 
+                bool l_IsValid = true;
+                if (caster->GetMapId() != 649)
+                {
+                    caster->RemoveAura(GetSpellInfo()->Id);
+                    caster->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+                    l_IsValid = false;
+                    Remove();
+                    SetDuration(0);
+                }
+
                 if (Unit* target = GetTarget())
                 {
+                    if (!l_IsValid)
+                    {
+                        target->RemoveAura(GetSpellInfo()->Id);
+                        target->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+                        return;
+                    }
+
                     int32 lifeLeeched = target->CountPctFromCurHealth(aurEff->GetAmount());
                     if (lifeLeeched < 250)
                         lifeLeeched = 250;
@@ -408,15 +425,66 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
                 }
             }
 
+            void CheckSpell(constAuraEffectPtr aurEff, bool& isPeriodic, int32& amplitude)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = GetUnitOwner();
+                Unit* l_Target = GetTarget();
+
+                Unit* l_TabUnit[3] = { l_Caster, l_Owner, l_Target };
+
+                for (uint8 l_Idx = 0; l_Idx < 3; ++l_Idx)
+                {
+                    if (l_TabUnit[l_Idx])
+                    {
+                        if (l_TabUnit[l_Idx]->GetMapId() != 649)
+                        {
+                            isPeriodic = false;
+                            Remove();
+                            break;
+                        }
+                    }
+                }
+            }
+
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_leeching_swarm_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_gen_leeching_swarm_AuraScript::CheckSpell, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_gen_leeching_swarm_AuraScript();
+        }
+
+        class spell_gen_leeching_swarm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_leeching_swarm_SpellScript);
+
+            SpellCastResult CheckMap()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetMapId() != 649)
+                        return SPELL_FAILED_INCORRECT_AREA;
+                    else
+                        return SPELL_CAST_OK;
+                }
+                else
+                    return SPELL_FAILED_CASTER_DEAD;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_leeching_swarm_SpellScript::CheckMap);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_leeching_swarm_SpellScript();
         }
 };
 
@@ -3706,8 +3774,8 @@ namespace Resolve
 
                     /// - Update absorption done modifier percentage
                     auto l_AbsorptionModifierEffect = l_ResolvePassiveAura->GetEffect(SpellEffIndex::EFFECT_2);
-                    if (l_HealingModifierEffect != nullptr)
-                        l_HealingModifierEffect->ChangeAmount(l_ResolveAmount);
+                    if (l_AbsorptionModifierEffect != nullptr)
+                        l_AbsorptionModifierEffect->ChangeAmount(l_ResolveAmount);
                 }
             }
     };
@@ -3742,54 +3810,6 @@ namespace Resolve
         }
     };
 }
-
-/// Doom Bolt - 85692
-/// Pet spell Summon Doomguard - 157757
-class spell_gen_doom_bolt : public SpellScriptLoader
-{
-public:
-    spell_gen_doom_bolt() : SpellScriptLoader("spell_gen_doom_bolt") { }
-
-    class spell_gen_doom_bolt_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_gen_doom_bolt_SpellScript);
-
-        void HandleOnHit()
-        {
-            Pet* l_Caster = GetCaster()->ToPet();
-            Unit* l_Target = GetHitUnit();
-
-            if (l_Caster == nullptr)
-                return;
-            if (l_Target == nullptr)
-                return;
-
-            Unit* l_Owner = l_Caster->GetOwner();
-
-            if (l_Owner == nullptr || l_Owner->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            uint32 l_SpellDamage = l_Owner->ToPlayer()->GetStat(STAT_INTELLECT) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier;
-
-            /// If target has less then 20% damage we should increase damage by 20%
-            if (l_Target->GetHealthPct() <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
-                AddPct(l_SpellDamage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-
-            SetHitDamage(l_SpellDamage);
-
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_gen_doom_bolt_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_gen_doom_bolt_SpellScript();
-    }
-};
 
 class spell_gen_dampening : public SpellScriptLoader
 {
@@ -3835,10 +3855,11 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
 
             enum eSpells
             {
-                Exhausted           = 57723,
-                Insanity            = 95809,
-                Sated               = 57724,
-                TemporalDisplacement = 80354
+                Exhausted            = 57723,
+                Insanity             = 95809,
+                Sated                = 57724,
+                TemporalDisplacement = 80354,
+                Fatigued             = 160455
             };
 
             SpellCastResult CheckCast()
@@ -3857,6 +3878,7 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Exhausted));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Sated));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TemporalDisplacement));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Fatigued));
             }
 
             void Register()
@@ -3932,6 +3954,318 @@ class spell_gen_selfie_camera : public SpellScriptLoader
         }
 };
 
+/// 181883 - S.E.L.F.I.E. Lens Upgrade Kit
+class spell_gen_selfie_lens_upgrade_kit : public SpellScriptLoader
+{
+    enum ItemIDs
+    {
+        SELFIECameraMkII = 122674
+    };
+
+    public:
+        /// Constructor
+        spell_gen_selfie_lens_upgrade_kit()
+            : SpellScriptLoader("spell_gen_selfie_lens_upgrade_kit")
+        {
+
+        }
+
+        /// Spell script
+        class spell_gen_selfie_lens_upgrade_kit_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_selfie_lens_upgrade_kit_SpellScript);
+
+            /// After the spell is caster
+            void OnAfterCast()
+            {
+                if (GetCaster()->ToPlayer())
+                    GetCaster()->ToPlayer()->AddItem(ItemIDs::SELFIECameraMkII, 1);
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_gen_selfie_lens_upgrade_kit_SpellScript::OnAfterCast);
+            }
+        };
+
+        /// Get a fresh spell script instance
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_selfie_lens_upgrade_kit_SpellScript();
+        }
+
+};
+
+/// Carrying Seaforium - 52410
+class spell_gen_carrying_seaforium : public SpellScriptLoader
+{
+    public:
+        spell_gen_carrying_seaforium() : SpellScriptLoader("spell_gen_carrying_seaforium") { }
+
+        class spell_gen_carrying_seaforium_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_carrying_seaforium_SpellScript);
+
+            enum eSpells
+            {
+                CARRYING_SEAFORIUM_CAST = 52415
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveAura(eSpells::CARRYING_SEAFORIUM_CAST);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_gen_carrying_seaforium_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_carrying_seaforium_SpellScript();
+        }
+};
+
+/// Inherit Master Threat List - 58838 - last update: 5.4.2 (17688)
+class spell_inherit_master_threat_list : public SpellScriptLoader
+{
+    public:
+        spell_inherit_master_threat_list() : SpellScriptLoader("spell_inherit_master_threat_list") {}
+
+        class spell_inherit_master_threat_list_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_inherit_master_threat_list_SpellScript);
+
+            void HandleCopy(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!GetHitUnit())
+                     return;
+
+                    if (Creature* l_Target = GetHitUnit()->ToCreature())
+                    {
+                        l_Target->getThreatManager().clearReferences();
+                        std::list<HostileReference*>& l_PlayerThreatManager = l_Caster->getThreatManager().getThreatList();
+                        for (HostileReference* l_Threat : l_PlayerThreatManager)
+                        {
+                            if (Unit* l_Obj = Unit::GetUnit(*l_Target, l_Threat->getUnitGuid()))
+                                l_Target->getThreatManager().addThreat(l_Target, l_Threat->getThreat());
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_inherit_master_threat_list_SpellScript::HandleCopy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+            }
+        };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_inherit_master_threat_list_SpellScript;
+    }
+};
+
+/// Taunt Flag Targeting - 51640 - last update: 6.1.2 19865
+class spell_taunt_flag_targeting : public SpellScriptLoader
+{
+    public:
+        spell_taunt_flag_targeting() : SpellScriptLoader("spell_taunt_flag_targeting") {}
+
+        class spell_taunt_flag_targeting_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_taunt_flag_targeting_SpellScript);
+
+            Position m_BestTargetPos;
+            char const* m_BestTargetName = nullptr;
+            std::size_t m_BestTargetNameLength = 0;
+
+            SpellCastResult CheckCast()
+            {
+                /// Used to improve error message
+                bool l_FoundCorpse = false;
+                bool l_InFrontOfMe = false;
+                if (Player* l_Caster = GetCaster()->ToPlayer())
+                {
+                    float l_SearchDist = GetSpellInfo()->Effects[SpellEffIndex::EFFECT_0].CalcRadius(l_Caster);
+
+                    std::list<WorldObject*> l_Targets;
+                    JadeCore::AllWorldObjectsInRange l_Check(l_Caster, l_SearchDist);
+                    JadeCore::WorldObjectListSearcher<JadeCore::AllWorldObjectsInRange> l_Searcher(l_Caster, l_Targets, l_Check);
+                    l_Caster->VisitNearbyObject(l_SearchDist, l_Searcher);
+
+                    Position l_CasterPos;
+                    l_Caster->GetPosition(&l_CasterPos);
+
+                    for (auto l_It = l_Targets.begin(); l_It != l_Targets.end(); ++l_It)
+                    {
+                        /// Either we have a corpse, either we have a player
+                        if (Corpse* l_Corpse = (*l_It)->ToCorpse())
+                        {
+                            if (Player* l_Owner = ObjectAccessor::FindPlayer(l_Corpse->GetOwnerGUID()))
+                            {
+                                if (l_Owner->GetGUID() == l_Caster->GetGUID())
+                                    continue;
+
+                                l_FoundCorpse = true;
+
+                                if (!l_Caster->isInFront(l_Corpse)) ///< Only corpses in front of us
+                                    continue;
+
+                                l_InFrontOfMe = true;
+
+                                if (m_BestTargetName && m_BestTargetPos.GetExactDistSq(&l_CasterPos) < l_Corpse->GetExactDistSq(&l_CasterPos))
+                                    continue;
+
+                                if (l_Caster->GetReactionTo(l_Owner) > REP_NEUTRAL || l_Owner->GetReactionTo(l_Caster) > REP_NEUTRAL) ///< Only enemies corpses
+                                    continue;
+
+                                l_Corpse->GetPosition(&m_BestTargetPos);
+
+                                m_BestTargetName = l_Owner->GetName();
+                                m_BestTargetNameLength = l_Owner->GetNameLength();
+                            }
+                        }
+                        else if (Player* l_Player = (*l_It)->ToPlayer())
+                        {
+                            if (l_Player->GetGUID() == l_Caster->GetGUID())
+                                continue;
+
+                            if (l_Player->isAlive()) ///< Only corpses
+                                continue;
+
+                            l_FoundCorpse = true;
+
+                            if (!l_Caster->isInFront(l_Player))
+                                continue;
+
+                            l_InFrontOfMe = true;
+
+                            /// Skips ghosts
+                            if (l_Player->HasAuraType(SPELL_AURA_GHOST))
+                                continue;
+
+                            /// Is this corpse closer?
+                            if (m_BestTargetName && m_BestTargetPos.GetExactDistSq(&l_CasterPos) < l_Player->GetExactDistSq(&l_CasterPos))
+                                continue;
+
+                            if (l_Caster->GetReactionTo(l_Player) > REP_NEUTRAL || l_Player->GetReactionTo(l_Caster) > REP_NEUTRAL) ///< Only enemies corpses
+                                continue;
+
+                            l_Player->GetPosition(&m_BestTargetPos);
+
+                            m_BestTargetName = l_Player->GetName();
+                            m_BestTargetNameLength = l_Player->GetNameLength();
+                        }
+                    }
+                }
+
+                if (!m_BestTargetName)
+                {
+                    if (l_FoundCorpse)
+                        return (l_InFrontOfMe) ? SpellCastResult::SPELL_FAILED_BAD_TARGETS : SpellCastResult::SPELL_FAILED_NOT_INFRONT;
+                    else
+                    {
+                        SetCustomCastResultMessage(SpellCustomErrors::SPELL_CUSTOM_ERROR_NO_NEARBY_CORPSES);
+                        return SpellCastResult::SPELL_FAILED_CUSTOM_ERROR;
+                    }
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void HandleCast(SpellEffIndex p_Index)
+            {
+                if (Player* l_Caster = GetCaster()->ToPlayer())
+                {
+                    if (m_BestTargetName)
+                    {
+                        l_Caster->CastSpell(m_BestTargetPos, 51657, true);
+                        l_Caster->AddSpellCooldown(GetSpellInfo()->Id, 0, 60 * IN_MILLISECONDS, true);
+
+                        if (WorldSession* l_Session = l_Caster->GetSession())
+                        {
+                            char const* l_TauntText = l_Session->GetTrinityString(LangTauntFlag);
+                            std::size_t l_TauntTextLength = std::strlen(l_TauntText);
+
+                            std::string l_Text;
+                            l_Text.reserve(l_TauntTextLength + m_BestTargetNameLength);
+                            l_Text.append(l_TauntText, l_TauntTextLength);
+                            l_Text.append(m_BestTargetName);
+
+                            WorldPacket l_Data;
+                            /// No specific target needed
+                            l_Caster->BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
+                            l_Session->SendPacket(&l_Data);
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_taunt_flag_targeting_SpellScript::CheckCast);
+                OnEffectLaunch += SpellEffectFn(spell_taunt_flag_targeting_SpellScript::HandleCast, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_taunt_flag_targeting_SpellScript;
+        }
+};
+
+/// Arcane Brillance - 1459, Dark Intent - 109773, Legacy of the White Tiger - 116781
+class spell_gen_raid_buff_stack : public SpellScriptLoader
+{
+    public:
+        spell_gen_raid_buff_stack() : SpellScriptLoader("spell_gen_raid_buff_stack") { }
+
+        class spell_gen_raid_buff_stack_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_raid_buff_stack_SpellScript);
+
+            enum eSpells
+            {
+                DarkIntent = 109773,
+                ArcaneBrillance = 1459,
+                LegacyoftheWhiteTiger = 116781,
+            };
+
+            static uint8 const l_TabAuraSize = 3;
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                uint32 l_TabAura[l_TabAuraSize] = { eSpells::DarkIntent, eSpells::ArcaneBrillance, eSpells::LegacyoftheWhiteTiger };
+
+                for (uint8 l_Idx = 0; l_Idx < l_TabAuraSize; ++l_Idx)
+                {
+                    if (GetSpellInfo()->Id != l_TabAura[l_Idx])
+                        p_Targets.remove_if(JadeCore::UnitAuraCheck(true, l_TabAura[l_Idx]));
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_raid_buff_stack_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_ALLY_OR_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_raid_buff_stack_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_ALLY_OR_RAID);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_raid_buff_stack_SpellScript();
+        }
+};
 
 void AddSC_generic_spell_scripts()
 {
@@ -4008,9 +4342,13 @@ void AddSC_generic_spell_scripts()
     new spell_gen_orb_of_power();
     new spell_vote_buff();
     new Resolve::spell_resolve_passive();
-    new spell_gen_doom_bolt();
     new spell_gen_dampening();
     new spell_gen_selfie_camera();
+    new spell_gen_selfie_lens_upgrade_kit();
+    new spell_gen_carrying_seaforium();
+    new spell_inherit_master_threat_list();
+    new spell_taunt_flag_targeting();
+    new spell_gen_raid_buff_stack();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

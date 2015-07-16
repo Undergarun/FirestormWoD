@@ -64,7 +64,7 @@ struct MySQLConnectionInfo
 
 typedef std::map<uint32 /*index*/, std::pair<const char* /*query*/, ConnectionFlags /*sync/async*/> > PreparedStatementMap;
 
-#define PREPARE_STATEMENT(a, b, c) m_queries[a] = std::make_pair(strdup(b), c);
+#define PREPARE_STATEMENT(a, b, c) m_queries[a] = std::make_pair(strdup(b), CONNECTION_BOTH);
 
 class MySQLConnection
 {

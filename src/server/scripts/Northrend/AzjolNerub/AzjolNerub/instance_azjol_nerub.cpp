@@ -268,9 +268,7 @@ public:
                         pHadronox->setFaction(35);
                         pHadronox->SetVisible(false);
                     }
-                    if (pCrusher->isAlive())
-                        pCrusher->AI()->EnterEvadeMode();
-                    else
+                    if (!pCrusher->isAlive())
                         pCrusher->Respawn();
                 }
                 else
