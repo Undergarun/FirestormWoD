@@ -5214,7 +5214,7 @@
     <field type="string" name="Name" />
     <field type="string" name="Description" />
     <field type="string" name="Icon" />
-    <field type="int" name="UNK6.2" />
+    <field type="int" name="FilterCategory" />
     <field type="int" name="PlayerConditionID" />
   </Mount>
   <CreatureDisplayInfoTrn build="20182">
@@ -5305,7 +5305,7 @@
     <field type="int" name="m_groupSizeDmgCurveID" />
     <field type="int" name="m_groupSizeSpellPointsCurveID" />
     <field type="string" name="m_name_lang" />
-    <field type="int" name="newField1" />
+    <field type="int" name="ItemBonusTreemodId" />
     <field type="int" name="unk6.2" />
   </Difficulty>
   <DriverBlacklist build="0">
@@ -6478,4 +6478,265 @@
     <field type="int" name="field28" />
     <field type="int" name="field29" />
   </LfgDungeons>
+  <SpellVisualKit build="20201">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+    <field type="int" name="field21" />
+    <field type="int" name="field22" />
+    <field type="int" name="field23" />
+    <field type="int" name="field24" />
+    <field type="int" name="field25" />
+    <field type="int" name="field26" />
+    <field type="int" name="field27" />
+    <field type="int" name="field28" />
+    <field type="int" name="field29" />
+    <field type="int" name="field30" />
+    <field type="int" name="field31" />
+    <field type="int" name="field32" />
+    <field type="int" name="field33" />
+    <field type="int" name="field34" />
+    <field type="int" name="field35" />
+    <field type="int" name="field36" />
+    <field type="int" name="field37" />
+    <field type="int" name="field38" />
+    <field type="int" name="field39" />
+    <field type="int" name="field40" />
+  </SpellVisualKit>
+  <ChrClasses build="20201">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_DisplayPower" />
+    <field type="string" name="m_petNameToken" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="m_name_female_lang" />
+    <field type="string" name="m_name_male_lang" />
+    <field type="string" name="m_filename" />
+    <field type="int" name="m_spellClassSet" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_cinematicSequenceID" />
+    <field type="int" name="m_attackPowerPerStrength" />
+    <field type="int" name="m_attackPowerPerAgility" />
+    <field type="int" name="m_rangedAttackPowerPerAgility" />
+    <field type="int" name="m_defaultSpec" />
+    <field type="int" name="m_createScreenFileDataID" />
+    <field type="int" name="m_selectScreenFileDataID" />
+    <field type="int" name="m_lowResScreenFileDataID" />
+    <field type="int" name="m_iconFileDataID" />
+    <field type="int" name="PrimaryStat" />
+  </ChrClasses>
+  <ChrSpecialization build="20201">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="string" name="m_backgroundFile" />
+    <field type="int" name="m_classID" />
+    <field type="int" name="m_masterySpellID_1" />
+    <field type="int" name="m_masterySpellID_2" />
+    <field type="int" name="m_orderIndex" />
+    <field type="int" name="m_petTalentType" />
+    <field type="int" name="m_role" />
+    <field type="int" name="m_spellIconID" />
+    <field type="int" name="m_raidBuffs" />
+    <field type="int" name="m_flags" />
+    <field type="string" name="m_name_lang" />
+    <field type="string" name="name_langunk" />
+    <field type="string" name="m_description_lang" />
+    <field type="int" name="m_maxBuffs" />
+    <field type="int" name="MainStat" />
+  </ChrSpecialization>
+  <MapChallengeMode build="20201">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+  </MapChallengeMode>
+  <MinorTalent build="20201">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="specializationID" />
+    <field type="int" name="SpellId" />
+    <field type="int" name="orderIndex" />
+  </MinorTalent>
+  <PvpDifficulty build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </PvpDifficulty>
+  <SpecializationSpells build="20201">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="SpecID" />
+    <field type="int" name="SpellID" />
+    <field type="int" name="OverridesSpellID" />
+    <field type="string" name="DescriptionLang" />
+    <field type="int" name="newField" />
+  </SpecializationSpells>
+  <SpellCastTimes build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </SpellCastTimes>
+  <SpellFocusObject build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </SpellFocusObject>
+  <SpellLearnSpell build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </SpellLearnSpell>
+  <SpellMisc build="20201">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="Attr0" />
+    <field type="int" name="Attr1" />
+    <field type="int" name="Attr2" />
+    <field type="int" name="Attr3" />
+    <field type="int" name="Attr4" />
+    <field type="int" name="Attr5" />
+    <field type="int" name="Attr6" />
+    <field type="int" name="Attr7" />
+    <field type="int" name="Attr8" />
+    <field type="int" name="Attr9" />
+    <field type="int" name="Attr10" />
+    <field type="int" name="Attr11" />
+    <field type="int" name="Attr12" />
+    <field type="int" name="Attr13" />
+    <field type="int" name="CastTimeIndex" />
+    <field type="int" name="DurationIndex" />
+    <field type="int" name="RangeIndex" />
+    <field type="float" name="Speed" />
+    <field type="int" name="SpellIcon" />
+    <field type="int" name="ActiveIconID" />
+    <field type="int" name="SchoolMAsk" />
+    <field type="int" name="MultiStrikeSpeedMod" />
+  </SpellMisc>
+  <SpellReagents build="20201">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+  </SpellReagents>
+  <Holidays build="20201">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="Duration1" />
+    <field type="int" name="Duration2" />
+    <field type="int" name="Duration3" />
+    <field type="int" name="Duration4" />
+    <field type="int" name="Duration5" />
+    <field type="int" name="Duration6" />
+    <field type="int" name="Duration7" />
+    <field type="int" name="Duration8" />
+    <field type="int" name="Duration9" />
+    <field type="int" name="Duration10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+    <field type="int" name="field21" />
+    <field type="int" name="field22" />
+    <field type="int" name="field23" />
+    <field type="int" name="field24" />
+    <field type="int" name="field25" />
+    <field type="int" name="field26" />
+    <field type="int" name="field27" />
+    <field type="int" name="field28" />
+    <field type="int" name="field29" />
+    <field type="int" name="field30" />
+    <field type="int" name="field31" />
+    <field type="int" name="field32" />
+    <field type="int" name="field33" />
+    <field type="int" name="field34" />
+    <field type="int" name="field35" />
+    <field type="int" name="field36" />
+    <field type="int" name="field37" />
+    <field type="int" name="field38" />
+    <field type="int" name="HolidayNameID" />
+    <field type="int" name="HolidayDescriptionID" />
+    <field type="string" name="TextureFilename" />
+    <field type="int" name="Priority" />
+    <field type="int" name="CalendarFilterType" />
+    <field type="int" name="Flags" />
+  </Holidays>
 </DBFilesClient>
