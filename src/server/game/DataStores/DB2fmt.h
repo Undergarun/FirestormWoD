@@ -87,7 +87,8 @@ const char WbCertWhitelistfmt[] =
     FT_STRING,
     FT_BYTE,
     FT_BYTE,
-    FT_INT
+    FT_INT,
+    FT_END
 };
 
 const char GlyphRequiredSpecfmt[] =
