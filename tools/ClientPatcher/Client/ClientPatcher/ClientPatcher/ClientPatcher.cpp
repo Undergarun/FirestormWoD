@@ -99,11 +99,16 @@ const struct RewriteItem Mac64Patchs[] =
 const uint8_t jam_dispatch_check_data_win32[]    = { 0xEB, 0x1D };     ///< jmp to bypass socket check
 const uint8_t jam_quest_check_data_win32[]       = { 0x90, 0x90 };     ///< jmp to bypass socket check
 const uint8_t client_check_data_win32[]          = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x22, 0x01, 0x00, 0x00 };     ///< jmp to bypass socket check
+
 const uint8_t load_custom_data1[]                = { 0x00 };
 const uint8_t load_custom_data2_win32[]          = { 0x75 };
 const uint8_t load_custom_data3_win32[]          = { 0x75 };
 const uint8_t load_custom_data4[]                = { 0x04 };
 const uint8_t load_custom_data5[]                = { 0x75 };
+const uint8_t addon[]                            = { 0x6A, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+const uint8_t addon2[]                           = { 0x02 };
+const uint8_t addon3[]                           = { 0x00 };
+
 const uint8_t navigatehome_to_navigateto_win32[] = { 0x83, 0xC4, 0x0C, 0x56, 0x8B, 0xCF, 0xE8, 0xE3, 0xFE, 0xFF, 0xFF, 0x90, 0xEB, 0x37 };
 
 const struct RewriteItem Win32Patchs[] =
@@ -123,7 +128,13 @@ const struct RewriteItem Win32Patchs[] =
     { 0x000123C0, sizeof(load_custom_data3_win32),               load_custom_data3_win32,               },        ///< CASC - check local file part 3
     { 0x0086CA12, sizeof(load_custom_data4),                     load_custom_data4,                     },        ///< Bypass signature check
     { 0x0039AE8E, sizeof(load_custom_data5),                     load_custom_data5,                     },        ///< Bypass .old  rename
-    { 0x0003EE92, sizeof(navigatehome_to_navigateto_win32),      navigatehome_to_navigateto_win32,      }         ///< Replace lua funtion navigatehome(string index) to navigateto(string url)
+    { 0x0003EE92, sizeof(navigatehome_to_navigateto_win32),      navigatehome_to_navigateto_win32,      },        ///< Replace lua funtion navigatehome(string index) to navigateto(string url)
+    { 0x0039C5FF, sizeof(addon),                                 addon                                  },
+    { 0x0039E0DE, sizeof(addon2),                                addon2                                 },
+    { 0x0039E3EF, sizeof(addon2),                                addon2                                 },
+    { 0x0039E41E, sizeof(addon2),                                addon2                                 },
+    { 0x00407E6E, sizeof(addon3),                                addon3                                 }
+
 };
 
 const uint8_t client_check_data_win64[] =
