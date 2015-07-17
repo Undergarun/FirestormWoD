@@ -240,6 +240,9 @@ namespace Battlepay
 
     void Manager::SavePurchase(WorldSession* p_Session, Battlepay::Purchase* p_Purchase)
     {
+        if (!sWorld->getBoolConfig(CONFIG_WEB_DATABASE_ENABLE))
+            return;
+
         Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(p_Purchase->ProductID);
         std::ostringstream l_ItemsText;
 

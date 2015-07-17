@@ -235,6 +235,9 @@ namespace Battlepay
 
         void SendPointsBalance(WorldSession* p_Session)
         {
+            if (!sWorld->getBoolConfig(CONFIG_WEB_DATABASE_ENABLE))
+                return;
+
             PreparedStatement* l_Statement = WebDatabase.GetPreparedStatement(WEB_SEL_ACCOUNT_POINTS);
             l_Statement->setUInt32(0, p_Session->GetAccountId());
             l_Statement->setUInt32(1, p_Session->GetAccountId());

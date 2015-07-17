@@ -31,6 +31,9 @@ void WorldSession::HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData)
 
 void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
 {
+    if (!sWorld->getBoolConfig(CONFIG_WEB_DATABASE_ENABLE))
+        return;
+
     uint64 l_TargetCharacter;
     uint32 l_ProductID;
     uint32 l_ClientToken;
@@ -145,6 +148,9 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
 
 void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
 {
+    if (!sWorld->getBoolConfig(CONFIG_WEB_DATABASE_ENABLE))
+        return;
+
     uint32 l_ServerToken;
     uint64 l_ClientCurrentPriceFixedPoint;
     bool   l_ConfirmPurchase;
