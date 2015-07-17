@@ -33061,6 +33061,24 @@ void Player::RestoreCharge(uint32 p_CategoryID)
     SendSetSpellCharges(p_CategoryID);
 }
 
+uint32 Player::CalcMaxCharges(SpellCategoryEntry const* p_Category) const
+{
+    if (p_Category == nullptr)
+        return 0;
+
+    uint32 l_Count = p_Category->MaxCharges;
+
+    uint32 l_ModCharge = 0;
+    Unit::AuraEffectList const& l_ModCharges = GetAuraEffectsByType(AuraType::SPELL_AURA_MOD_CHARGES);
+    for (Unit::AuraEffectList::const_iterator l_Iter = l_ModCharges.begin(); l_Iter != l_ModCharges.end(); ++l_Iter)
+    {
+        if ((*l_Iter)->GetMiscValue() == p_Category->Id)
+            l_ModCharge += (*l_Iter)->GetAmount();
+    }
+
+    return l_Count + l_ModCharge;
+}
+
 bool Player::CanUseCharge(uint32 p_CategoryID) const
 {
     if (m_SpellChargesMap.find(p_CategoryID) == m_SpellChargesMap.end())
