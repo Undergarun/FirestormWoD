@@ -208,6 +208,12 @@ const uint8_t navigatehome_2_win64[] =
     0x8B, 0xD0, 0x48, 0x8B, 0xCB, 0xE8, 0x36, 0xFE, 0xFF, 0xFF, 0xEB, 0x44
 };
 
+const uint8_t addon_1_win64[] = { 0x41, 0xb1, 0x02, 0x90 };
+const uint8_t addon_2_win64[] = { 0x02 };
+const uint8_t addon_3_win64[] = { 0x00 };
+const uint8_t addon_4_win64[] = { 0x41, 0xb1, 0x00, 0x90 };
+
+
 const struct RewriteItem Win64Patchs[] =
 {
     { 0x00F09CC8, sizeof(config_data),                           config_data                            },        ///< Change default configuration file
@@ -226,7 +232,14 @@ const struct RewriteItem Win64Patchs[] =
     { 0x00D5FADB, sizeof(load_custom_data4),                     load_custom_data4,                     },        ///< Bypass signature check
     { 0x0060540D, sizeof(load_custom_data5),                     load_custom_data5,                     },        ///< Bypass .old  rename
     { 0x0005EB60, sizeof(navigatehome_to_navigateto_win64),      navigatehome_to_navigateto_win64       },
-    { 0x0005ED20, sizeof(navigatehome_2_win64),                  navigatehome_2_win64                   }
+    { 0x0005ED20, sizeof(navigatehome_2_win64),                  navigatehome_2_win64                   },
+    { 0x000418D2, sizeof(addon_1_win64),                         addon_1_win64                          },
+    { 0x0060B49B, sizeof(addon_2_win64),                         addon_2_win64                          },
+    { 0x0060BA93, sizeof(addon_2_win64),                         addon_2_win64                          },
+    { 0x0060BAD4, sizeof(addon_2_win64),                         addon_2_win64                          },
+    { 0x006FBF26, sizeof(addon_3_win64),                         addon_3_win64                          },
+    { 0x0003AAFB, sizeof(addon_4_win64),                         addon_4_win64                          },
+    { 0x0003DF39, sizeof(addon_4_win64),                         addon_4_win64                          },
 };
 
 const uint8_t client_packets_check_data_mac64[] = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x27, 0x01, 0x00, 0x00 };   ///< jmp to bypass socket check
