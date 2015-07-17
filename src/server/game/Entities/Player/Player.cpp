@@ -23019,11 +23019,16 @@ void Player::SaveToDB(bool create /*=false*/)
     MS::Utilities::CallBackPtr l_CharCreateCallback = nullptr;
     if (create)
     {
-        l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([this](bool p_Success) -> void
+        uint32 l_AccountID = m_session->GetAccountId();
+        l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
         {
-            WorldPacket data(SMSG_CREATE_CHAR, 1);
-            data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
-            m_session->SendPacket(&data);
+            WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+            if (l_Session == nullptr)
+                return;
+
+            WorldPacket l_Data(SMSG_CREATE_CHAR, 1);
+            l_Data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
+            l_Session->SendPacket(&l_Data);
         });
 
         m_session->AddTransactionCallback(l_CharCreateCallback);
