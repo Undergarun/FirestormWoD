@@ -121,9 +121,9 @@ m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0)
 
     InitializeQueryCallbackParameters();
 
-    m_TransactionCallbacks             = std::make_unique<TransactionCallbacks>();
-    m_PreparedStatementCallbacks       = std::make_unique<PreparedStatementCallbacks>();
-    m_PreparedStatementCallbacksBuffer = std::make_unique<PreparedStatementCallbacks>();
+    m_TransactionCallbacks             = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
+    m_PreparedStatementCallbacks       = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
+    m_PreparedStatementCallbacksBuffer = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
 
     _compressionStream = new z_stream();
     _compressionStream->zalloc = (alloc_func)NULL;
