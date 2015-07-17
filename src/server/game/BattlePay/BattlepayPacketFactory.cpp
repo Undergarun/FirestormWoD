@@ -244,8 +244,20 @@ namespace Battlepay
 
             auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
 
-            p_Session->AddPrepareStatementCallback(std::make_pair([p_Session](PreparedQueryResult p_Result) -> void
+            uint32 l_SessionId = p_Session->GetAccountId();
+
+            p_Session->AddPrepareStatementCallback(std::make_pair([l_SessionId](PreparedQueryResult p_Result) -> void
             {
+                WorldSession* l_Session      = nullptr;
+                SessionMap const& l_Sessions = sWorld->GetAllSessions();
+
+                auto l_Itr = l_Sessions.find(l_SessionId);
+                if (l_Itr != l_Sessions.end())
+                    l_Session = l_Itr->second;
+
+                if (l_Session == nullptr)
+                    return;
+
                 uint32 l_Balance = 0;
                 if (p_Result)
                 {
@@ -253,7 +265,7 @@ namespace Battlepay
                     l_Balance = atoi(l_Fields[0].GetCString());
                 }
 
-                Player* l_Player = p_Session->GetPlayer();
+                Player* l_Player = l_Session->GetPlayer();
                 if (l_Player == nullptr)
                     return;
 
