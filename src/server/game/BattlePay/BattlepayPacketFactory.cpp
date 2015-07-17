@@ -145,7 +145,7 @@ namespace Battlepay
 
             if (p_Description.empty())
             {
-                p_Description = l_DisplayInfo->Name1;
+                p_Description = l_DisplayInfo->Name3;
                 if (p_LocaleIdx >= 0 && l_Locale != nullptr)
                     ObjectMgr::GetLocaleString(l_Locale->Description, p_LocaleIdx, p_Description);
             }
