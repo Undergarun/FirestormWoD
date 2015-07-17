@@ -1084,13 +1084,13 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Loot
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LOOT                                   = 0x2000, ///< 6.2.1 20271
-    CMSG_LOOT_MONEY                             = 0x0096, ///< 6.2.1 20271
-    CMSG_LOOT_ITEM                              = 0x1B07, ///< 6.2.1 20271
+    CMSG_LOOT                                   = 0x1009, ///< 6.2.1 20271
+    CMSG_LOOT_MONEY                             = 0x1734, ///< 6.2.1 20271
+    CMSG_LOOT_ITEM                              = 0x1BB1, ///< 6.2.1 20271
     CMSG_LOOT_RELEASE                           = 0x1F60, ///< 6.2.1 20271
     CMSG_LOOT_ROLL                              = 0x1EB3, ///< 6.2.1 20271
     CMSG_MASTER_LOOT_ITEM                       = 0x1A06, ///< 6.2.1 20271
-    CMSG_DO_MASTER_LOOT_ROLL                    = 0x1734, ///< 6.2.1 20271
+    CMSG_DO_MASTER_LOOT_ROLL                    = 0x0096, ///< 6.2.1 20271
     CMSG_SET_LOOT_SPECIALIZATION                = 0x086D, ///< 6.2.1 20271
     CMSG_SET_LOOT_METHOD                        = 0x04D8, ///< 6.2.1 20271
     CMSG_OPT_OUT_OF_LOOT                        = 0x18D2, ///< 6.2.1 20271
@@ -1143,7 +1143,7 @@ enum Opcodes
     CMSG_LOGOUT_CANCEL                          = 0x0CD2, ///< 6.2.1 20271
     CMSG_SET_ACTION_BUTTON                      = 0x049C, ///< 6.2.1 20271
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x187E, ///< 6.2.1 20271
-    CMSG_SET_SELECTION                          = 0x18C6, ///< 6.2.1 20271
+    CMSG_SET_SELECTION                          = 0x094D, ///< 6.2.1 20271
     CMSG_SETSHEATHED                            = 0x0EB8, ///< 6.2.1 20271
     CMSG_GOSSIP_HELLO                           = 0x0C42, ///< 6.2.1 20271
     CMSG_GOSSIP_SELECT_OPTION                   = 0x1979, ///< 6.2.1 20271
@@ -1473,10 +1473,10 @@ enum Opcodes
     CMSG_GUILD_GET_RANKS                           = 0x003E, ///< 6.2.1 20271
     CMSG_GUILD_ADD_RANK                            = 0x0FC7, ///< 6.2.1 20271
     CMSG_GUILD_DELETE_RANK                         = 0x1FB1, ///< 6.2.1 20271
-    CMSG_GUILD_SET_RANK_PERMISSIONS                = 0x1021, ///< 6.2.1 20271
+    CMSG_GUILD_SET_RANK_PERMISSIONS                = 0x003A, ///< 6.2.1 20271
     CMSG_GUILD_SHIFT_RANK                          = 0x1431, ///< 6.2.1 20271
     CMSG_GUILD_ASSIGN_MEMBER_RANK                  = 0x002A, ///< 6.2.1 20271
-    CMSG_GUILD_GET_ROSTER                          = 0x003A, ///< 6.2.1 20271
+    CMSG_GUILD_GET_ROSTER                          = 0x1529, ///< 6.2.1 20271
     CMSG_GUILD_BANK_ACTIVATE                       = 0x0841, ///< 6.2.1 20271
     CMSG_GUILD_BANK_BUY_TAB                        = 0x18D1, ///< 6.2.1 20271
     CMSG_GUILD_BANK_DEPOSIT_MONEY                  = 0x1966, ///< 6.2.1 20271
@@ -1503,7 +1503,7 @@ enum Opcodes
     CMSG_GUILD_QUERY_NEWS                          = 0x103A, ///< 6.2.1 20271
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x0000, ///< (unused)
     CMSG_QUERY_GUILD_MEMBER_RECIPES                = 0x0000, ///< (unused)
-    CMSG_QUERY_GUILD_RECIPES                       = 0x1529, ///< 6.2.1 20271
+    CMSG_QUERY_GUILD_RECIPES                       = 0x1021, ///< 6.2.1 20271
     CMSG_PLAYER_SAVE_GUILD_EMBLEM                  = 0x01D9, ///< 6.2.1 20271
 
     /// Guild finding
