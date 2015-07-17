@@ -377,7 +377,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     }
 
     /// - Update prepared statements callback
-    if (!m_PreparedStatementCallbacks->empty())
+    /*if (!m_PreparedStatementCallbacks->empty())
     {
         m_PreparedStatementCallbackLock.lock();
         m_PreparedStatementCallbacks->remove_if([](PrepareStatementCallback const& p_Callback) -> bool
@@ -408,7 +408,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     {
         m_PreparedStatementCallbacks->push_front(m_PreparedStatementCallbacksBuffer->front());
         m_PreparedStatementCallbacksBuffer->pop_front();
-    }
+    }*/
 
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
