@@ -329,6 +329,7 @@ class boss_koragh : public CreatureScript
 
                         me->SetAIAnimKitId(eAnimKit::AnimWaiting);
                         me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
 
                         me->CastSpell(me, eSpells::KnockbackForRecharge, true);
                         me->CastSpell(me, eSpells::VulnerabilityAura, true);
@@ -523,6 +524,7 @@ class boss_koragh : public CreatureScript
                         me->CastSpell(me, eSpells::NullificationBarrierAbsorb, true);
 
                         me->RemoveAura(eSpells::VulnerabilityAura);
+                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
                         me->GetMotionMaster()->Clear();
 
