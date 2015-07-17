@@ -6041,7 +6041,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (categories && categories->ChargesCategory != 0)
         {
             auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-            if (category && category->MaxCharges != 0 && !player->CanUseCharge(category->Id))
+            if (category && player->CalcMaxCharges(category) != 0 && !player->CanUseCharge(category->Id))
                 return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
         }
     }
