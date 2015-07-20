@@ -520,8 +520,9 @@ class spell_pal_shield_of_the_righteous: public SpellScriptLoader
         }
 };
 
-// Selfless healer - 85804
-// Called by flash of light - 19750
+/// last update : 6.1.2 19802
+/// Selfless healer - 85804
+/// Called by flash of light - 19750
 class spell_pal_selfless_healer: public SpellScriptLoader
 {
     public:
@@ -533,24 +534,31 @@ class spell_pal_selfless_healer: public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*l_EffIndex*/)
             {
-                if (Player* l_Caster = GetCaster()->ToPlayer())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster->HasAura(PALADIN_SPELL_SELFLESS_HEALER))
-                            l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
-                        if (l_Caster->HasAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
-                        {
-                            int32 l_Charges = l_Caster->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
 
-                            if (l_Caster->IsValidAssistTarget(l_Target) && l_Target != l_Caster)
-                            {
-                                if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_PALADIN_HOLY)
-                                    SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_3].BasePoints / 100) * l_Charges)));
-                                else
-                                    SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_1].BasePoints / 100) * l_Charges)));
-                            }
-                        }
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Player->HasAura(PALADIN_SPELL_SELFLESS_HEALER))
+                    l_Player->CastSpell(l_Player, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
+                if (l_Player->HasAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
+                {
+                    int32 l_Charges = l_Player->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
+
+                    if (l_Player->IsValidAssistTarget(l_Target) && l_Target != l_Player)
+                    {
+                        uint32 l_Heal = 0;
+
+                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY)
+                            l_Heal = int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_3].BasePoints / 100) * l_Charges));
+                        else
+                            l_Heal = int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_1].BasePoints / 100) * l_Charges));
+
+                        l_Heal = l_Player->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, EFFECT_0, HEAL);
+                        l_Heal = l_Target->SpellHealingBonusTaken(l_Player, GetSpellInfo(), l_Heal, HEAL);
+
+                        SetHitHeal(l_Heal);
                     }
                 }
             }
