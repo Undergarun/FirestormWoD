@@ -1,4 +1,4 @@
-ALTER TABLE `challenge_mode_rewards` ADD COLUMN `title` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `gold_valor`;
+ALTER TABLE `challenge_mode_rewards` ADD COLUMN `title` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `gold_money`;
 
 DELETE FROM `challenge_mode_rewards` WHERE map_id NOT IN (1175, 1176, 1182, 1195, 1208, 1209, 1279, 1358);
 
