@@ -4097,7 +4097,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 
     bool callSubterfuge = true;
     if (m_caster->HasAura(108208) && m_caster->HasAura(115191) && !m_caster->HasAura(115192) &&
-        !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
+        !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713) && Id != 127802)
     {
         /// Mounts shouldn't call subterfuge effect
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)

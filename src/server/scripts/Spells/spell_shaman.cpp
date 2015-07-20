@@ -784,7 +784,7 @@ class spell_sha_earthgrab: public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Stone Bulwark - 114889
+/// Stone Bulwark Totem - 114889
 class spell_sha_stone_bulwark: public SpellScriptLoader
 {
     public:
@@ -813,10 +813,18 @@ class spell_sha_stone_bulwark: public SpellScriptLoader
                 int32 l_Amount = 0.875f * spellPower;
 
                 if (AuraPtr aura = l_Player->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
+                {
                     aura->GetEffect(EFFECT_0)->SetAmount(aura->GetEffect(EFFECT_0)->GetAmount() + l_Amount);
+                    aura->RefreshDuration();
+                }
                 else if (p_AurEff->GetTickNumber() == 1)
                 {
                     l_Amount *= 4.0f;
+                    if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Player))
+                        aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
+                }
+                else
+                {
                     if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Player))
                         aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
                 }

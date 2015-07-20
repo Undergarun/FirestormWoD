@@ -2319,7 +2319,7 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                                     
 
                                 int32 l_MaxDuration = l_PsychicHorror->GetMaxDuration();
-                                int32 l_NewDuration = l_MaxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed * IN_MILLISECONDS;
+                                int32 l_NewDuration = l_MaxDuration + (GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed) * IN_MILLISECONDS;
                                 l_PsychicHorror->SetDuration(l_NewDuration);
 
                                 if (l_NewDuration > l_MaxDuration)
