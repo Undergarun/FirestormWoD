@@ -1808,6 +1808,11 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImpli
             break;
         case TARGET_UNIT_MASTER:
             target = m_caster->GetCharmerOrOwner();
+            if (target == nullptr)
+            {
+                target = m_caster;
+                checkIfValid = false;
+            }
             break;
         case TARGET_UNIT_PET:
             target = m_caster->GetGuardianPet();
