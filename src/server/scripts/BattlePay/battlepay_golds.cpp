@@ -16,12 +16,6 @@ namespace BattlePay
         Gold200k    = 2000000000U,
         Gold500k    = 5000000000U,
     };
-
-    enum String
-    {
-        AtGoldLimit    = 14089,
-        NeedToBeInGame = 14090
-    };
 }
 
 template<int64 t_Gold> class BattlePay_Gold : BattlePayProductScript
@@ -44,13 +38,13 @@ template<int64 t_Gold> class BattlePay_Gold : BattlePayProductScript
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::String::NeedToBeInGame, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::NeedToBeInGame, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 
             if (uint64(l_Player->GetMoney() + t_Gold) > MAX_MONEY_AMOUNT)
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::AtGoldLimit, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::AtGoldLimit, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 

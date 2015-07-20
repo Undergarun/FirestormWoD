@@ -34,13 +34,13 @@ namespace Battlepay
 
     enum String
     {
-        AtGoldLimit                 = 14089,
-        NeedToBeInGame              = 14090,
-        TooHighLevel                = 14091,
-        YouAlreadyOwnThat           = 14092,
-        Level90Required             = 14093,
-        ReachPrimaryProfessionLimit = 14094,
-        NotEnoughFreeBagSlots       = 14095
+        AtGoldLimit                 = 14090,
+        NeedToBeInGame              = 14091,
+        TooHighLevel                = 14092,
+        YouAlreadyOwnThat           = 14093,
+        Level90Required             = 14094,
+        ReachPrimaryProfessionLimit = 14095,
+        NotEnoughFreeBagSlots       = 14096
     };
 
     /// Client error enum
