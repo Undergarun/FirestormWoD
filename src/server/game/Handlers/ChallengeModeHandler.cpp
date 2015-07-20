@@ -56,7 +56,7 @@ void WorldSession::HandleGetChallengeModeRewards(WorldPacket& /*p_RecvData*/)
 
                 l_Data << uint32(l_ItemRewards);
                 l_Data << uint32(l_CurrencyRewards);
-                l_Data << uint32(l_ChallengeReward.m_MoneyReward[l_J]);
+                l_Data << uint32(l_ChallengeReward.MoneyReward[l_J]);
             }
         }
     }

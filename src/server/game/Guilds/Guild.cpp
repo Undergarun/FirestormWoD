@@ -1036,7 +1036,7 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 Guild::Guild() : m_id(0), m_leaderGuid(0), m_createdDate(0), m_accountsNumber(0), m_bankMoney(0), m_eventLog(NULL),
     m_achievementMgr(this), _newsLog(this)
 {
-    for (uint8 l_Type = 0; l_Type < CHALLENGE_MAX; l_Type++)
+    for (uint8 l_Type = 0; l_Type < ChallengeMax; l_Type++)
         m_ChallengeCount[l_Type] = 0;
 
     memset(&m_bankEventLog, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(LogHolder*));
@@ -1116,7 +1116,7 @@ bool Guild::Create(Player * p_Leader, const std::string & p_Name)
     if (l_Result)
         sScriptMgr->OnGuildCreate(this, p_Leader, p_Name);
 
-    for (int8 l_Itr = 1; l_Itr < CHALLENGE_MAX; l_Itr++)
+    for (int8 l_Itr = 1; l_Itr < ChallengeMax; l_Itr++)
     {
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INIT_GUILD_CHALLENGES);
         l_Statement->setInt32(0, GetId());
@@ -2479,7 +2479,7 @@ bool Guild::LoadGuildChallengesFromDB(Field* p_Fields)
     int32 l_ChallengeType = p_Fields[1].GetInt32();
     int32 l_ChallengeCount = p_Fields[2].GetInt32();
 
-    if (l_ChallengeType >= CHALLENGE_MAX)
+    if (l_ChallengeType >= ChallengeMax)
         return false;
 
     m_ChallengeCount[l_ChallengeType] = l_ChallengeCount;
@@ -3496,7 +3496,7 @@ void Guild::SendGuildRanksUpdate(uint64 p_OfficierGUID, uint64 p_OtherGUID, uint
 
 void Guild::CompleteGuildChallenge(int32 p_ChallengeType)
 {
-    if (p_ChallengeType >= CHALLENGE_MAX)
+    if (p_ChallengeType >= ChallengeMax)
         return;
 
     GuildChallengeRewardData const& l_RewardDatas = sObjectMgr->GetGuildChallengeRewardData();

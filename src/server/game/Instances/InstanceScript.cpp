@@ -360,6 +360,30 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                         SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
                     }
 
+                    /// Handle Guild challenges
+                    {
+                        InstanceMap::PlayerList const& l_PlayersMap = instance->GetPlayers();
+                        for (InstanceMap::PlayerList::const_iterator l_Itr = l_PlayersMap.begin(); l_Itr != l_PlayersMap.end(); ++l_Itr)
+                        {
+                            if (Player* l_Player = l_Itr->getSource())
+                            {
+                                if (l_Player->GetGroup() && l_Player->GetGroup()->IsGuildGroup(0, true, true))
+                                {
+                                    if (Guild* l_Guild = l_Player->GetGuild())
+                                    {
+                                        if (instance->IsRaid())
+                                            l_Guild->CompleteGuildChallenge(GuildChallengeType::ChallengeRaid);
+                                        else if (instance->IsChallengeMode())
+                                            l_Guild->CompleteGuildChallenge(GuildChallengeType::ChallengeDungeonChallenge);
+                                        else if (instance->IsDungeon())
+                                            l_Guild->CompleteGuildChallenge(GuildChallengeType::ChallengeDungeon);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     m_EncounterTime = 0;
                     break;
                 }
@@ -390,30 +414,6 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
 
         for (MinionSet::iterator l_Iter = l_BossInfos->minion.begin(); l_Iter != l_BossInfos->minion.end(); ++l_Iter)
             UpdateMinionState(*l_Iter, p_State);
-
-        /// ADD GUILD REWARDS
-        {
-            InstanceMap::PlayerList const& l_PlayersMap = instance->GetPlayers();
-            for (InstanceMap::PlayerList::const_iterator l_Itr = l_PlayersMap.begin(); l_Itr != l_PlayersMap.end(); ++l_Itr)
-            {
-                if (Player* l_Player = l_Itr->getSource())
-                {
-                    if (l_Player->GetGroup() && l_Player->GetGroup()->IsGuildGroup(0, true, true))
-                    {
-                        if (Guild* l_Guild = l_Player->GetGuild())
-                        {
-                            if (instance->IsRaid())
-                                l_Guild->CompleteGuildChallenge(CHALLENGE_RAID);
-                            else if (instance->IsChallengeMode())
-                                l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON_CHALLENGE);
-                            else if (instance->IsDungeon())
-                                l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
 
         /// Send encounters for Bosses
         if (instance->IsRaid())
@@ -965,7 +965,7 @@ void InstanceScript::SendChallengeNewPlayerRecord()
                 l_Statement->setUInt32(0, l_NewBestTime ? m_ChallengeTime : l_Challenge->m_BestTime);
                 l_Statement->setUInt32(1, m_ChallengeTime);
                 l_Statement->setUInt8(2, l_NewBestMedal ? m_MedalType : l_Challenge->m_BestMedal);
-                l_Statement->setUInt32(3, l_NewBestMedal ? time(NULL) : l_Challenge->m_BestMedalDate);
+                l_Statement->setUInt32(3, l_NewBestMedal ? time(nullptr) : l_Challenge->m_BestMedalDate);
                 l_Statement->setUInt32(4, l_Player->GetGUIDLow());
                 l_Statement->setUInt32(5, l_MapID);
                 CharacterDatabase.Execute(l_Statement);
@@ -973,7 +973,7 @@ void InstanceScript::SendChallengeNewPlayerRecord()
                 if (l_NewBestMedal)
                 {
                     l_Challenge->m_BestMedal = m_MedalType;
-                    l_Challenge->m_BestMedalDate = time(NULL);
+                    l_Challenge->m_BestMedalDate = time(nullptr);
                 }
 
                 if (l_NewBestTime)
@@ -993,12 +993,12 @@ void InstanceScript::SendChallengeNewPlayerRecord()
                 l_Statement->setUInt32(2, m_ChallengeTime);
                 l_Statement->setUInt32(3, m_ChallengeTime);
                 l_Statement->setUInt8(4, m_MedalType);
-                l_Statement->setUInt32(5, time(NULL));
+                l_Statement->setUInt32(5, time(nullptr));
                 CharacterDatabase.Execute(l_Statement);
 
                 CompletedChallenge l_Challenge;
                 l_Challenge.m_BestMedal = m_MedalType;
-                l_Challenge.m_BestMedalDate = time(NULL);
+                l_Challenge.m_BestMedalDate = time(nullptr);
                 l_Challenge.m_BestTime = m_ChallengeTime;
                 l_Challenge.m_LastTime = m_ChallengeTime;
 
@@ -1057,7 +1057,12 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
 
     /// New best record for a classic group
     if (l_GroupChallenge == nullptr)
+    {
+        /// No previous record, just grant the titles
+        RewardChallengersTitles();
+
         SaveNewGroupChallenge();
+    }
     /// Check if update is needed
     else if (l_GroupChallenge->m_CompletionTime > m_ChallengeTime)
     {
@@ -1065,6 +1070,10 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
 
         l_Statement->setUInt32(0, l_MapID);
         CharacterDatabase.Execute(l_Statement);
+
+        /// Previous record, we must check if it's a new group, delete the title to the old one
+        /// And add it to the new players
+        RewardChallengersTitles(l_GroupChallenge);
 
         SaveNewGroupChallenge();
     }
@@ -1113,7 +1122,7 @@ void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
 
     l_Statement->setUInt32(l_Index++, 0);   ///< AttemptID
     l_Statement->setUInt32(l_Index++, m_ChallengeTime);
-    l_Statement->setUInt32(l_Index++, time(NULL));
+    l_Statement->setUInt32(l_Index++, time(nullptr));
     l_Statement->setUInt8(l_Index++, m_MedalType);
 
     Map::PlayerList const& l_PlayerList = instance->GetPlayers();
@@ -1155,7 +1164,7 @@ uint32 InstanceScript::RewardChallengers()
 
     if (m_MedalType < eChallengeMedals::MaxMedalType)
     {
-        uint32 l_Money = l_Reward->m_MoneyReward[m_MedalType];
+        uint32 l_Money = l_Reward->MoneyReward[m_MedalType];
 
         Map::PlayerList const& l_PlayerList = instance->GetPlayers();
         for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
@@ -1168,6 +1177,84 @@ uint32 InstanceScript::RewardChallengers()
     }
 
     return 0;
+}
+
+void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChallenge /*= nullptr*/)
+{
+    ChallengeReward* l_Reward = sObjectMgr->GetChallengeRewardsForMap(instance->GetId());
+    if (l_Reward == nullptr)
+        return;
+
+    uint32 l_TitleID = l_Reward->TitleID;
+    CharTitlesEntry const* l_Title = sCharTitlesStore.LookupEntry(l_TitleID);
+    if (l_Title == nullptr)
+        return;
+
+    /// Remove title to previous challengers
+    if (p_OldChallenge != nullptr)
+    {
+        for (uint8 l_I = 0; l_I < 5; ++l_I)
+        {
+            /// Check if player is online, then remove the title
+            if (Player* l_Player = HashMapHolder<Player>::Find(p_OldChallenge->m_Members[l_I].m_Guid))
+                l_Player->SetTitle(l_Title, true);
+            else
+            {
+                uint32 l_Index = l_Title->MaskID / 32;
+                uint32 l_Flag = 1 << (l_Title->MaskID % 32);
+                uint32 l_LowGuid = GUID_LOPART(p_OldChallenge->m_Members[l_I].m_Guid);
+
+                SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TITLES);
+                l_Statement->setUInt32(0, l_LowGuid);
+
+                if (PreparedQueryResult l_Result = CharacterDatabase.Query(l_Statement))
+                {
+                    Field* l_Fields = l_Result->Fetch();
+                    char const* l_KnownTitlesStr = l_Fields[0].GetCString();
+
+                    /// Title removal
+                    if (l_KnownTitlesStr)
+                    {
+                        uint32 const l_TitleSize = KNOWN_TITLES_SIZE * 2;
+                        uint32 l_KnownTitles[l_TitleSize];
+                        Tokenizer l_Tokens(l_KnownTitlesStr, ' ', l_TitleSize);
+
+                        if (l_Tokens.size() != l_TitleSize)
+                            return;
+
+                        for (uint32 l_J = 0; l_J < l_TitleSize; ++l_J)
+                            l_KnownTitles[l_J] = atol(l_Tokens[l_J]);
+
+                        l_KnownTitles[l_Index] &= ~l_Flag;
+
+                        std::ostringstream l_Stream;
+                        for (uint32 l_J = 0; l_J < l_TitleSize; ++l_J)
+                            l_Stream << l_KnownTitles[l_J] << ' ';
+
+                        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
+                        l_Statement->setString(0, l_Stream.str().c_str());
+                        l_Statement->setUInt32(1, l_LowGuid);
+                        l_Transaction->Append(l_Statement);
+
+                        /// Unset any currently chosen title
+                        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_RES_CHAR_TITLES_FACTION_CHANGE);
+                        l_Statement->setUInt32(0, l_LowGuid);
+                        l_Transaction->Append(l_Statement);
+                    }
+
+                    CharacterDatabase.CommitTransaction(l_Transaction);
+                }
+            }
+        }
+    }
+
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->SetTitle(l_Title);
+    }
 }
 //////////////////////////////////////////////////////////////////////////
 
