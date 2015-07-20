@@ -134,6 +134,18 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
             }
         }
 
+        for (auto l_ItemProduct : l_Product.Items)
+        {
+            if (sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, GetPlayer()))
+            {
+                std::ostringstream l_Data;
+                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, GetSessionDbLocaleIndex());;
+                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                return;
+            }
+        }
+
         /// Purchase can be done, let's generate purchase ID & Server Token
         l_Purchase->PurchaseID = sBattlepayMgr->GenerateNewPurchaseID();
         l_Purchase->ServerToken = urand(0, 0xFFFFFFF);
@@ -227,6 +239,18 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
             {
                 std::ostringstream l_Data;
                 l_Data << sObjectMgr->GetTrinityString(Battlepay::String::NotEnoughFreeBagSlots, GetSessionDbLocaleIndex());
+                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                return;
+            }
+        }
+
+        for (auto l_ItemProduct : l_Product.Items)
+        {
+            if (sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, GetPlayer()))
+            {
+                std::ostringstream l_Data;
+                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, GetSessionDbLocaleIndex());;
                 GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
                 Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
                 return;
