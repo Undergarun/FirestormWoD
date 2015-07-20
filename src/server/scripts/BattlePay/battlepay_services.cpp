@@ -65,7 +65,7 @@ template<AtLoginFlags t_AtLogin> class BattlePay_CharacterService : BattlePayPro
             }
 
             /// Can't have two flags
-            if (l_Player->HasAtLoginFlag((AtLoginFlags)0xFFFFFFFF)
+            if (l_Player->HasAtLoginFlag((AtLoginFlags)0xFFFFFFFF))
             {
                 p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, p_Session->GetSessionDbLocaleIndex());
                 return false;
