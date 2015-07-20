@@ -2610,7 +2610,7 @@ class spell_hun_kill_command: public SpellScriptLoader
         }
 };
 
-// Kill Command - 83381
+/// Kill Command - 83381
 class spell_hun_kill_command_proc : public SpellScriptLoader
 {
     public:
@@ -2624,7 +2624,7 @@ class spell_hun_kill_command_proc : public SpellScriptLoader
             {
                 if (Unit* l_Owner = GetCaster()->GetOwner())
                 {
-                    int32 l_Damage = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f);
+                    int32 l_Damage = int32(1.5 * (l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f));
                     l_Damage = GetCaster()->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                     l_Damage = GetHitUnit()->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
