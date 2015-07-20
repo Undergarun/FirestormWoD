@@ -3931,7 +3931,7 @@ uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END] =
 
 uint32 GameObjectDynamicUpdateFieldFlags[GAMEOBJECT_DYNAMIC_END] =
 {
-    UF_FLAG_PUBLIC | UF_FLAG_URGENT,    // GAMEOBJECT_DYNAMIC_UNK
+    UF_FLAG_PUBLIC | UF_FLAG_URGENT,    // GAMEOBJECT_DYNAMIC_ENABLE_DOODAD_SETS
 };
 
 // > Object > DynamicObject

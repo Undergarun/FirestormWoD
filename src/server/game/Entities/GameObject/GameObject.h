@@ -410,7 +410,7 @@ struct GameObjectTemplate
         //27 GAMEOBJECT_TYPE_MINI_GAME
         struct
         {
-        } DONOTUSE3;
+        } miniGame;
         //28 GAMEOBJECT_TYPE_DO_NOT_USE_2
         struct
         {
@@ -605,13 +605,24 @@ struct GameObjectTemplate
         struct
         {
             uint32 ShipmentContainer;                       // 0 Shipment Container, References: CharShipmentContainer, NoValue = 0
+            uint32 GiganticAOI;                             // 1 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 LargeAOI;                                // 2 Large AOI, enum { false, true, }; Default: false
         } garrisonShipment;
         // 46 GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE
         struct
         {
             uint32 TrophyInstanceID;                        // 0 Trophy Instance ID, References: TrophyInstance, NoValue = 0
         } garrisonMonumentPlaque;
-
+        // 47 GAMEOBJECT_TYPE_DO_NOT_USE_3
+        struct
+        {
+        } DONOTUSE3;
+        // 48 GAMEOBJECT_TYPE_UI_LINK
+        struct
+        {
+            int32 UILinkType;                              // 0 UI Link Type, Type id: 10
+        } UILink;
+        
         // not use for specific field access (only for output with loop by all filed), also this determinate max union size
         struct
         {
