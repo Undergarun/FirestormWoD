@@ -768,7 +768,8 @@ class spell_pal_art_of_war: public SpellScriptLoader
         }
 };
 
-// Seal of Insight - 20167
+/// last update : 6.1.2 19802
+/// Seal of Insight - 20167
 class spell_pal_seal_of_insight: public SpellScriptLoader
 {
     public:
@@ -778,14 +779,41 @@ class spell_pal_seal_of_insight: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_seal_of_insight_SpellScript);
 
-            void HandleOnHit(SpellEffIndex)
+            enum eSpells
             {
-                // Needs a glyph script later for now its disabled in spellmgr
+                GlyphoftheBattleHealer = 119477
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(1);
+                }
+            }
+
+            void OnHealWithoutGlyph(SpellEffIndex p_Idx)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphoftheBattleHealer))
+                    PreventHitHeal();
+            }
+
+            void OnHealWithGlyph(SpellEffIndex p_Idx)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphoftheBattleHealer))
+                    PreventHitHeal();
             }
 
             void Register()
             {
-            //    OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::HandleOnHit, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_seal_of_insight_SpellScript::FilterTargets, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnHealWithoutGlyph, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnHealWithGlyph, EFFECT_1, SPELL_EFFECT_HEAL);
             }
         };
 

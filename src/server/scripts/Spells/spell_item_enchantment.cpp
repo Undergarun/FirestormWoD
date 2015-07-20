@@ -27,8 +27,8 @@ namespace eEnchantmentMarkProc
         Warsong         = 159675,
         BleedingHollow  = 173322,
         Frostwolf       = 159676,
-        Blackrock       = 159679,
-        Shadowmoon      = 159678
+        //Blackrock       = 159679,
+        //Shadowmoon      = 159678
     };
 }
 namespace eEnchantmentMarkAura
@@ -39,8 +39,8 @@ namespace eEnchantmentMarkAura
         Warsong         = 159682,
         BleedingHollow  = 173321,
         Frostwolf       = 159683,
-        Blackrock       = 159685,
-        Shadowmoon      = 159684
+        //Blackrock       = 159685,
+        //Shadowmoon      = 159684
     };
 }
 
@@ -72,12 +72,14 @@ class spell_enchantment_mark : public SpellScriptLoader
                     case eEnchantmentMarkAura::Frostwolf:
                         GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Frostwolf, TRIGGERED_FULL_MASK);
                         break;
-                    case eEnchantmentMarkAura::Blackrock:
+                    /*
+                     case eEnchantmentMarkAura::Blackrock:
                         GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Blackrock, TRIGGERED_FULL_MASK);
                         break;
                     case eEnchantmentMarkAura::Shadowmoon:
                         GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Shadowmoon, TRIGGERED_FULL_MASK);
                         break;
+                     */
                     default:
                         break;
                 }

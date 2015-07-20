@@ -169,4 +169,11 @@ enum eHighmaulLocs
     CityBaseTeleporter  = 4788
 };
 
+enum eHighmaulDungeons
+{
+    WalledCity      = 849,
+    ArcaneSanctum   = 850,
+    ImperatorsFall  = 851
+};
+
 #endif

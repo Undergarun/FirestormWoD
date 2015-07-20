@@ -2752,6 +2752,45 @@ class spell_dk_glyph_of_icy_runes : public SpellScriptLoader
         }
 };
 
+/// Gargoyle Strike - 51963
+class spell_dk_gargoyle_strike : public SpellScriptLoader
+{
+public:
+    spell_dk_gargoyle_strike() : SpellScriptLoader("spell_dk_gargoyle_strike") { }
+
+    class spell_dk_gargoyle_strike_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_gargoyle_strike_SpellScript);
+
+        void HandleDamage(SpellEffIndex effIndex)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Owner = l_Caster->GetOwner())
+                {
+                    /// Gargoyle Strike damage is increased by DK mastery
+                    int32 l_HitDamage = GetHitDamage();
+                    float l_Mastery = l_Owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
+
+                    l_HitDamage += CalculatePct(l_HitDamage, l_Mastery);
+
+                    SetHitDamage(l_HitDamage);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_dk_gargoyle_strike_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dk_gargoyle_strike_SpellScript();
+    }
+};
+
 
 void AddSC_deathknight_spell_scripts()
 {
@@ -2808,6 +2847,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_will_of_the_necropolis();
     new spell_dk_glyph_of_icy_runes();
     new spell_dk_enhanced_death_coil();
+    new spell_dk_gargoyle_strike();
 
     /// Player script
     new PlayerScript_Blood_Tap();

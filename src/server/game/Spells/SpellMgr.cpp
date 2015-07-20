@@ -3725,9 +3725,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166289:///< Arcane Force (Gorian Arcanist)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
-            case 20167: ///< Seal of Insight
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
-                break;
             case 150055:///< Volcanic Tantrum
             case 149963:///< Shatter Earth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
@@ -4692,6 +4689,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 24529: ///< Glyph of Animal Bond
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA_ON_PET;
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_HEALING_PCT;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[1].BasePoints = 10;
+                spellInfo->Effects[1].RadiusEntry = sSpellRadiusStore.LookupEntry(12); ///< 100 yards
+                spellInfo->Effects[1].MiscValue = 127;
                 break;
             case 982: ///< Revive Pet - hotfix 5.4.2
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(5); ///< 2s
@@ -4868,10 +4871,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 88767: ///< Fulmination (triggered)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
-            case 130616: ///< Glyph of Fear effect
-            case 117961: ///< Impervious Shield
             case 117837: ///< Delirious
-            case 117697: ///< Shield of Darkness
                 spellInfo->Dispel = DISPEL_MAGIC;
                 break;
             case 125972: ///< Felin Grace
@@ -5214,14 +5214,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 11371: ///< Arthas's Gift
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
-            case 41055: ///< Copy Weapon Spells
-            case 45206:
-            case 63416:
-            case 69891:
-            case 69892:
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
-                spellInfo->Mechanic = 0;
-                break;
             case 146950: ///< Glyph of Targeted Expulsion
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -5463,6 +5455,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 5221:  ///< Shred
             case 22599: ///< Chromatic Mantle of the Dawn
             case 86273: ///< Illuminated Healing 
+            case 1752:  ///< Sinister Strike
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
             case 47753: ///< Divine Aegis
@@ -5831,11 +5824,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 92328: ///< Heart's Judgment, Heart of Ignacious trinket (heroic)
                 spellInfo->CasterAuraSpell = 92325;
-                break;
-            case 56244: ///< Glyph of Fear
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                spellInfo->Effects[EFFECT_0].BasePoints = 5000;
-                spellInfo->Effects[EFFECT_0].MiscValue = SPELLMOD_COOLDOWN;
                 break;
             case 45182: ///< Cheat Death
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
@@ -6363,6 +6351,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 33619: ///< Glyph of Reflective Shield damage
                 spellInfo->AttributesEx3 |= SpellAttr3::SPELL_ATTR3_NO_DONE_BONUS;
+                break;
+            case 159456: ///< Glyph of Travel
+                spellInfo->Stances = 0;
                 break;
             default:
                 break;

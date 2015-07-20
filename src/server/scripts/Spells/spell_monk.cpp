@@ -1196,6 +1196,13 @@ class spell_monk_guard: public SpellScriptLoader
 
                     l_TargetList.remove(l_Caster);
 
+                    l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr || p_Unit->GetSpellModOwner() == nullptr)
+                            return true;
+                        return false;
+                    });
+
                     if (l_TargetList.size() > 1)
                     {
                         l_TargetList.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
@@ -1486,7 +1493,7 @@ class spell_monk_thunder_focus_tea: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_thunder_focus_tea_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_thunder_focus_tea_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
                 OnHit += SpellHitFn(spell_monk_thunder_focus_tea_SpellScript::HandleOnHit);
             }
         };

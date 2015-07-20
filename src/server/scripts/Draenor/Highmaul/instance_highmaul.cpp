@@ -35,6 +35,8 @@ class instance_highmaul : public InstanceMapScript
         {
             instance_highmaul_InstanceMapScript(Map* p_Map) : InstanceScript(p_Map)
             {
+                m_Initialized               = false;
+
                 m_ArenaMasterGuid           = 0;
 
                 m_KargathBladefistGuid      = 0;
@@ -68,6 +70,8 @@ class instance_highmaul : public InstanceMapScript
 
                 m_PlayerPhases.clear();
             }
+
+            bool m_Initialized;
 
             uint64 m_ArenaMasterGuid;
 
@@ -473,6 +477,56 @@ class instance_highmaul : public InstanceMapScript
                     p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
                     p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                     p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
+                }
+
+                /// Disable non available bosses for LFR
+                if (!m_Initialized)
+                {
+                    m_Initialized = true;
+
+                    uint32 l_DungeonID = p_Player->GetGroup() ? sLFGMgr->GetDungeon(p_Player->GetGroup()->GetGUID()) : 0;
+
+                    if (!instance->IsLFR())
+                        l_DungeonID = 0;
+
+                    switch (l_DungeonID)
+                    {
+                        case eHighmaulDungeons::WalledCity:
+                        {
+                            if (Creature* l_Tectus = sObjectAccessor->FindCreature(m_TectusGuid))
+                                l_Tectus->setFaction(35);
+
+                            if (Creature* l_Pol = sObjectAccessor->FindCreature(m_PolGuid))
+                                l_Pol->setFaction(35);
+
+                            if (Creature* l_Phemos = sObjectAccessor->FindCreature(m_PhemosGuid))
+                                l_Phemos->setFaction(35);
+
+                            if (Creature* l_Koragh = sObjectAccessor->FindCreature(m_KoraghGuid))
+                                l_Koragh->setFaction(35);
+
+                            break;
+                        }
+                        case eHighmaulDungeons::ArcaneSanctum:
+                        {
+                            if (Creature* l_Kargath = sObjectAccessor->FindCreature(m_KargathBladefistGuid))
+                                l_Kargath->setFaction(35);
+
+                            if (Creature* l_Butcher = sObjectAccessor->FindCreature(m_TheButcherGuid))
+                                l_Butcher->setFaction(35);
+
+                            if (Creature* l_Brackenspore = sObjectAccessor->FindCreature(m_BrackensporeGuid))
+                                l_Brackenspore->setFaction(35);
+
+                            break;
+                        }
+                        case eHighmaulDungeons::ImperatorsFall:
+                        {
+                            break;
+                        }
+                        default:
+                            break;
+                    }
                 }
             }
 

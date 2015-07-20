@@ -5690,11 +5690,20 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
     uint32 health = target->CountPctFromMaxHealth(damage);
     uint32 mana = CalculatePct(target->GetMaxPower(POWER_MANA), damage);
 
-    // Rebirth, soulstone ...
-    if (m_spellInfo->Id == 20484 || m_spellInfo->Id == 3026)
+    /// Rebirth
+    if (m_spellInfo->Id == 20484)
+    {
+        health = target->CountPctFromMaxHealth(60);
+        if (m_caster->HasAura(54733)) ///< Glyph of Rebirth
+            health += target->CountPctFromMaxHealth(40);
+    }
+
+    /// Soulstone
+    if (m_spellInfo->Id == 3026)
         health = target->CountPctFromMaxHealth(60);
 
-    if (m_spellInfo->Id == 61999) // Raise Ally
+    /// Raise Ally
+    if (m_spellInfo->Id == 61999)
         mana = target->CountPctFromMaxMana(60);
 
     ExecuteLogEffectResurrect(effIndex, target);
