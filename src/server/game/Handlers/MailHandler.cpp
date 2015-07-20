@@ -35,7 +35,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
     uint64 l_SendMoney, l_COD;
     std::string l_Target, l_Subject, l_Body;
     uint32 l_BodyLength, l_SubjectLength, l_TargetLenght;
-    uint32 l_PackageID, l_StationeryID;
+    uint32 l_StationeryID;
     uint8 l_AttachmentsCount;
 
     uint64 itemGUIDs[MAX_MAIL_ITEMS];
@@ -45,7 +45,6 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
     p_Packet.readPackGUID(l_Mailbox);
 
     p_Packet >> l_StationeryID;
-    p_Packet >> l_PackageID;
     p_Packet >> l_SendMoney;
     p_Packet >> l_COD;
 
@@ -619,7 +618,6 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
         l_MailsBuffer << uint32((*itr)->messageID);                         // Message ID
         l_MailsBuffer << uint8((*itr)->messageType);                        // Message Type
         l_MailsBuffer << uint64((*itr)->COD);                               // COD
-        l_MailsBuffer << uint32(0);                                         // Package.dbc ID ?
         l_MailsBuffer << uint32((*itr)->stationery);                        // stationery (Stationery.dbc)
         l_MailsBuffer << uint64((*itr)->money);                             // Gold
         l_MailsBuffer << uint32((*itr)->checked);                           // flags
