@@ -32,9 +32,6 @@ enum WarlockSpells
     WARLOCK_DEMONIC_CIRCLE_TELEPORT         = 48020,
     WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 62388,
     WARLOCK_UNSTABLE_AFFLICTION_DISPEL      = 31117,
-    WARLOCK_GLYPH_OF_FEAR                   = 56244,
-    WARLOCK_FEAR_EFFECT                     = 118699,
-    WARLOCK_GLYPH_OF_FEAR_EFFECT            = 130616,
     WARLOCK_CREATE_HEALTHSTONE              = 23517,
     WARLOCK_SOULBURN_AURA                   = 74434,
     WARLOCK_CORRUPTION                      = 146739,
@@ -1490,7 +1487,8 @@ class spell_warl_twilight_ward_s12: public SpellScriptLoader
         }
 };
 
-// Hellfire - 1949
+/// last update : 6.1.2 19802
+/// Hellfire - 1949
 class spell_warl_hellfire_periodic: public SpellScriptLoader
 {
     public:
@@ -1500,39 +1498,68 @@ class spell_warl_hellfire_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_hellfire_periodic_AuraScript);
 
-            std::list<Unit*> targetList;
-
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTickOnCaster(constAuraEffectPtr /*p_AurEff*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_2].BasePoints, POWER_DEMONIC_FURY);
-                    caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
-                }
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_2].BasePoints, POWER_DEMONIC_FURY);
             }
 
-            void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
+            void OnTickOnAreaEnemy(constAuraEffectPtr /*p_AurEff*/)
             {
-                aurEff->GetTargetList(targetList);
-
-                if (Unit* caster = GetCaster())
-                    for (auto itr : targetList)
-                        caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_3].BasePoints, POWER_DEMONIC_FURY);
-
-                targetList.clear();
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, WARLOCK_HELLFIRE_DAMAGE, true);
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-                OnEffectUpdate += AuraEffectUpdateFn(spell_warl_hellfire_periodic_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTickOnAreaEnemy, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTickOnCaster, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_hellfire_periodic_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Hellfire (area enemy damage)- 5857
+class spell_warl_hellfire_damage_area : public SpellScriptLoader
+{
+    public:
+        spell_warl_hellfire_damage_area() : SpellScriptLoader("spell_warl_hellfire_damage_area") { }
+
+        class spell_warl_hellfire_damage_area_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_hellfire_damage_area_SpellScript);
+
+            enum eSpells
+            {
+                hellfireTick = 1949
+            };
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::hellfireTick);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                l_Caster->EnergizeBySpell(l_Caster, l_SpellInfo->Id, l_SpellInfo->Effects[EFFECT_3].BasePoints, POWER_DEMONIC_FURY);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_hellfire_damage_area_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_hellfire_damage_area_SpellScript();
         }
 };
 
@@ -2036,7 +2063,7 @@ public:
     }
 };
 
-// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
+/// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 class spell_warl_conflagrate_aura: public SpellScriptLoader
 {
     public:
@@ -2055,7 +2082,7 @@ class spell_warl_conflagrate_aura: public SpellScriptLoader
                         if (!target->HasAura(WARLOCK_IMMOLATE) && !caster->HasAura(WARLOCK_GLYPH_OF_CONFLAGRATE))
                             if (AuraPtr conflagrate = target->GetAura(WARLOCK_CONFLAGRATE))
                                 target->RemoveAura(WARLOCK_CONFLAGRATE);
-                        if (!target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
+                            if (!target->HasAura(WARLOCK_IMMOLATE))
                             if (AuraPtr conflagrate = target->GetAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE))
                                 target->RemoveAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE);
                     }
@@ -2520,23 +2547,29 @@ class spell_warl_fear: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_fear_SpellScript);
 
-            void HandleAfterHit()
+            enum eSpells
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Player->HasAura(WARLOCK_GLYPH_OF_FEAR))
-                            l_Player->CastSpell(l_Target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
-                        else
-                            l_Player->CastSpell(l_Target, WARLOCK_FEAR_EFFECT, true);
-                    }
-                }
+                GlyphOfFear       = 56244,
+                FearEffect        = 118699,
+                GlyphOfFearEffect = 130616,
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Caster || !l_Target)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::GlyphOfFear))
+                    l_Caster->CastSpell(l_Target, eSpells::GlyphOfFearEffect, true);
+                else
+                    l_Caster->CastSpell(l_Target, eSpells::FearEffect, true);
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_warl_fear_SpellScript::HandleAfterHit);
+                OnHit += SpellHitFn(spell_warl_fear_SpellScript::HandleOnHit);
             }
         };
 
@@ -2856,7 +2889,8 @@ enum ImmolateSpells
     SpellEmpoweredImmolate = 157114
 };
 
-// Soulburn : Immolate - 348
+/// last update : 6.1.2 19802
+/// Soulburn : Immolate - 348, Immolate (Fire and Brimstone override) - 108686
 class spell_warl_immolate : public SpellScriptLoader
 {
     public:
@@ -3589,6 +3623,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_hand_of_guldan_damage();
     new spell_warl_twilight_ward_s12();
     new spell_warl_hellfire_periodic();
+    new spell_warl_hellfire_damage_area();
     new spell_warl_demonic_leap_jump();
     new spell_warl_demonic_leap();
     new spell_warl_soul_swap_soulburn();

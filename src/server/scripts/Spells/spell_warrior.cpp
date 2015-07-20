@@ -772,12 +772,7 @@ class spell_warr_heroic_leap: public SpellScriptLoader
 
             enum eSpells
             {
-                Taunt                  = 355,
-                HeroicLeapJump         = 94954,
-                SpellPvp4PBonus        = 133277,
-                GlyphOfHeroicLeapSpeed = 133278,
-                ImprovedHeroicLeap     = 157449,
-                GlyphOfHeroicLeap      = 159708
+                HeroicLeapJump         = 94954
             };
 
             SpellCastResult CheckElevation()
@@ -811,27 +806,10 @@ class spell_warr_heroic_leap: public SpellScriptLoader
                     GetCaster()->CastSpell(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ(), eSpells::HeroicLeapJump, true);
             }
 
-            void HandleAfterCast()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(eSpells::GlyphOfHeroicLeap) || l_Caster->HasAura(eSpells::SpellPvp4PBonus))
-                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfHeroicLeapSpeed, true);
-
-                Player* l_Player = l_Caster->ToPlayer();
-                if (!l_Player)
-                    return;
-
-                if (l_Player->HasAura(eSpells::ImprovedHeroicLeap) && l_Player->HasSpellCooldown(eSpells::Taunt))
-                    l_Player->RemoveSpellCooldown(eSpells::Taunt, true);
-
-            }
-
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap_SpellScript::CheckElevation);
                 OnCast += SpellCastFn(spell_warr_heroic_leap_SpellScript::HandleOnCast);
-                AfterCast += SpellCastFn(spell_warr_heroic_leap_SpellScript::HandleAfterCast);
             }
         };
 
@@ -851,17 +829,44 @@ class spell_warr_heroic_leap_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_heroic_leap_damage_SpellScript);
 
-            void HandleOnHit()
+            enum eSpells
+            {
+                Taunt                  = 355,
+                HeroicLeapJump         = 94954,
+                SpellPvp4PBonus        = 133277,
+                GlyphOfHeroicLeapSpeed = 133278,
+                ImprovedHeroicLeap     = 157449,
+                GlyphOfHeroicLeap      = 159708
+            };
+
+            void HandleAfterCast()
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                    if (l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                        SetHitDamage(int32(GetHitDamage() * 1.2f));
+                if (l_Caster->HasAura(eSpells::GlyphOfHeroicLeap) || l_Caster->HasAura(eSpells::SpellPvp4PBonus))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfHeroicLeapSpeed, true);
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (l_Player->HasAura(eSpells::ImprovedHeroicLeap) && l_Player->HasSpellCooldown(eSpells::Taunt))
+                    l_Player->RemoveSpellCooldown(eSpells::Taunt, true);
+            }
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                    SetHitDamage(int32(GetHitDamage() * 1.2f));
             }
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_warr_heroic_leap_damage_SpellScript::HandleAfterCast);
                 OnHit += SpellHitFn(spell_warr_heroic_leap_damage_SpellScript::HandleOnHit);
             }
         };
@@ -983,7 +988,7 @@ class spell_warr_bloodthirst_heal: public SpellScriptLoader
                 GlyphOfRagingBlow = 159747
             };
 
-            void HandleHeal(SpellEffIndex /*effIndex*/)
+            void HandleHeal()
             {
                 Unit* l_Caster = GetCaster();
                 int32 l_Heal = GetHitHeal();
@@ -999,7 +1004,7 @@ class spell_warr_bloodthirst_heal: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+                OnHit += SpellHitFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal);
             }
         };
 
@@ -1075,7 +1080,7 @@ class spell_warr_victory_rush_heal: public SpellScriptLoader
                 GlyphOfVictoryRush = 58382
             };
 
-            void HandleHeal(SpellEffIndex /*effIndex*/)
+            void HandleHeal()
             {
                 Unit* l_Caster = GetCaster();
                 int32 l_Heal = GetHitHeal();
@@ -1088,7 +1093,7 @@ class spell_warr_victory_rush_heal: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_victory_rush_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+                OnHit += SpellHitFn(spell_warr_victory_rush_heal_SpellScript::HandleHeal);
             }
         };
 
@@ -2359,6 +2364,69 @@ class spell_warr_defensive_stance : public SpellScriptLoader
         }
 };
 
+/// Single-Minded Fury - 81099
+class spell_warr_single_minded_fury : public SpellScriptLoader
+{
+public:
+    spell_warr_single_minded_fury() : SpellScriptLoader("spell_warr_single_minded_fury") { }
+
+    class spell_warr_single_minded_fury_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_single_minded_fury_AuraScript);
+
+        void CalculateFirstEffect(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+        {
+            if (GetCaster() == nullptr)
+                return;
+
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                if (mainItem && l_OffHandItem)
+                {
+                    if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                        p_Amount = 0;
+                }
+                else
+                    p_Amount = 0;
+            }
+        }
+
+        void CalculateSecondEffect(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+        {
+            if (GetCaster() == nullptr)
+                return;
+
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                if (mainItem && l_OffHandItem)
+                {
+                    if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                        p_Amount = 0;
+                }
+                else
+                    p_Amount = 0;
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateFirstEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateSecondEffect, EFFECT_1, SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_single_minded_fury_AuraScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_defensive_stance();
@@ -2409,6 +2477,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shield_slam();
     new spell_warr_blood_craze_aura();
     new spell_warr_glyph_of_die_by_the_sword();
+    new spell_warr_single_minded_fury();
 
     /// Playerscripts
     new PlayerScript_second_wind();

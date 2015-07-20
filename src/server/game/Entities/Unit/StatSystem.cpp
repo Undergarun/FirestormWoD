@@ -308,14 +308,6 @@ void Player::UpdateArmor()
             l_Armor += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
     }
 
-    // Custom MoP Script
-    // 77494 - Mastery : Nature's Guardian
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(77494))
-    {
-        float l_Mastery = 1.0f + GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
-        l_Armor *= l_Mastery;
-    }
-
     SetArmor(int32(l_Armor));
 
     if (Pet* l_Pet = GetPet())
@@ -418,13 +410,6 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
-
-    /// 76857  - Mastery : Critical Block
-    /// 117906 - Mastery: Elusive Brawler
-    /// 77513  - Mastery: Blood Shield
-    /// 155783 - Mastery: Primal Tenacity
-    if (GetTypeId() == TYPEID_PLAYER && (HasAura(76857) || HasAura(117906) || HasAura(77513) || HasAura(155783)))
-        attPowerMultiplier += GetFloatValue(PLAYER_FIELD_MASTERY) / 100;
 
     //add dynamic flat mods
     if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
@@ -529,13 +514,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_normalized_min = weapon_mindamage + attackPower / 3.5f * att_speed * dualWieldModifier;
     float weapon_normalized_max = weapon_maxdamage + attackPower / 3.5f * att_speed * dualWieldModifier;
 
-    /// Special damage calculate for Hunter spells that should deal normalized weapon damage
-    if (getClass() == CLASS_HUNTER && normalized)
-    {
-        weapon_normalized_min = weapon_mindamage + (attackPower / 3.5f * 2.8f);
-        weapon_normalized_max = weapon_maxdamage + (attackPower / 3.5f * 2.8f);
-    }
-
     if (IsInFeralForm())
     {
         float weaponSpeed = BASE_ATTACK_TIME / 1000.0f;
@@ -565,27 +543,51 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
-    /// Hack fix : Single-Minded Fury
-    if (addTotalPct && l_UsedWeapon)
+    /// Normalized Weapon Damage
+    if (normalized)
     {
-        if (getClass() == CLASS_WARRIOR && GetSpecializationId() == SPEC_WARRIOR_FURY)
+        CalculateNormalizedWeaponDamage(attType, min_damage, max_damage, attackPower, weapon_mindamage, weapon_maxdamage, l_UsedWeapon);
+        min_damage = (min_damage * base_pct + total_value) * total_pct;
+        max_damage = (max_damage * base_pct + total_value) * total_pct;
+    }
+    /// Damage based on auto-attack
+    else
+    {
+        min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
+        max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
+
+        uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
+        AddPct(min_damage, autoAttacksPctBonus);
+        AddPct(max_damage, autoAttacksPctBonus);
+    }
+}
+
+void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
+{
+    /// Monks and Druids have their own damage calculation, they don't have normalized weapon damage spells
+    if (getClass() == CLASS_MONK || getClass() == CLASS_DRUID)
+        return;
+
+    float l_NormalizedSpeedCoef = 1.0f;
+
+    /// Speed coefficients from http://wowwiki.wikia.com/Normalization - tested on official server, information is correct
+    if (l_UsedWeapon && l_UsedWeapon->GetTemplate())
+    {
+        if (l_UsedWeapon->GetTemplate()->IsOneHanded())
         {
-            /// Two-Handed weapon
-            /// We should remove Single-Minded Fury bonus, it should work just for one hand weapons
-            if (l_UsedWeapon->GetTemplate() && l_UsedWeapon->GetTemplate()->Sheath == 1)
-                total_pct = total_pct / 1.2f;
+            if (l_UsedWeapon->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                l_NormalizedSpeedCoef = 1.7f;
+            else
+                l_NormalizedSpeedCoef = 2.4f;
         }
+        else if (l_UsedWeapon->GetTemplate()->IsTwoHandedWeapon())
+            l_NormalizedSpeedCoef = 3.3f;
+        else if (l_UsedWeapon->GetTemplate()->IsRangedWeapon())
+            l_NormalizedSpeedCoef = 2.8f;
     }
 
-    /// Apply Versatility rating to damage calculation
-    base_pct += (ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)) / 100.0f;
-
-    min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
-    max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
-
-    uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
-    AddPct(min_damage, autoAttacksPctBonus);
-    AddPct(max_damage, autoAttacksPctBonus);
+    min_damage = weapon_mindamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
+    max_damage = weapon_maxdamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
 }
 
 void Player::UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields)
@@ -830,15 +832,6 @@ void Player::UpdateBlockPercentage()
         // apply diminishing formula to diminishing dodge chance
         value = nondiminishing + (diminishing * blockCap[pClass] / (diminishing + blockCap[pClass] * k_constant[pClass]));
 
-        // Custom MoP Script
-        // 76671 - Mastery : Divine Bulwark - Block Percentage
-        if (GetTypeId() == TYPEID_PLAYER && HasAura(76671))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY);
-
-        // 76857 - Mastery : Critical Block - Block Percentage
-        if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY) * 0.5f;
-
         if (value < 0.0f)
             value = 0.0f;
 
@@ -889,19 +882,6 @@ void Player::UpdateMasteryPercentage()
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
 
-    /// 117906 - Mastery: Elusive Brawler - Update attack power
-    /// 155783 - Mastery: Primal Tenacity - Update attack power
-    if (HasAura(117906) || HasAura(155783))
-        UpdateAttackPowerAndDamage();
-    // Custom MoP Script
-    // 76671 - Mastery : Divine Bulwark - Update Block Percentage
-    // 76857 - Mastery : Critical Block - Update Block Percentage
-    if (HasAura(76671) || HasAura(76857))
-        UpdateBlockPercentage();
-    // 77494 - Mastery : Nature's Guardian - Update Armor
-    if (HasAura(77494))
-        UpdateArmor();
-
     /// Update some mastery spells
     AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
     for (auto l_Iter : l_AppliedAuras)
@@ -915,7 +895,14 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+                    if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
+                        || l_SpellInfo->Id == 76856 ///< Mastery : Unshackled Fury
+                        || l_SpellInfo->Id == 77492) ///< Mastery : Total Eclipse
+                        l_AurEff->ChangeAmount(0, true, true);
+                    else
+                    {
+                        l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+                    }
                 }
             }
         }

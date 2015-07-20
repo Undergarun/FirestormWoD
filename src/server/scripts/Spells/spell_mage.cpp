@@ -1538,7 +1538,7 @@ class spell_mage_alter_time: public SpellScriptLoader
                         return;
 
                     std::list<Creature*> mirrorList;
-                    _player->GetCreatureListWithEntryInGrid(mirrorList, NPC_PAST_SELF, 50.0f);
+                    _player->GetCreatureListWithEntryInGrid(mirrorList, NPC_PAST_SELF, 100.0f);
 
                     if (mirrorList.empty())
                         return;

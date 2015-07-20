@@ -9845,7 +9845,7 @@ void ObjectMgr::LoadCharacterTemplateData()
                 CharacterTemplate::TemplateItem l_TemplateItem;
                 {
                     l_TemplateItem.m_ItemID = l_ItemFields[0].GetUInt32();
-                    l_TemplateItem.m_Faction = l_ItemFields[1].GetUInt8();
+                    l_TemplateItem.m_Faction = l_ItemFields[1].GetUInt32();
                     l_TemplateItem.m_Count = l_ItemFields[2].GetUInt32();
                 }
 

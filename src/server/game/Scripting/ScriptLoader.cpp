@@ -89,6 +89,7 @@ void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 void AddSC_garrison_commandscript();
 void AddSC_hotfix_commandscript();
+void AddSC_battlepay_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -903,6 +904,12 @@ void AddSC_GameObjectsFun();
 
 // player
 void AddSC_chat_log();
+
+/// BattlePay
+void AddSC_BattlePay_Services();
+void AddSC_BattlePay_Golds();
+void AddSC_BattlePay_Professions();
+
 #endif
 
 void AddScripts()
@@ -911,6 +918,7 @@ void AddScripts()
     AddSC_SmartSCripts();
     AddCommandScripts();
     sAnticheatMgr->StartScripts();
+    AddBattlePayScripts();
 #ifdef SCRIPTS
     AddWorldScripts();
     AddEasternKingdomsScripts();
@@ -927,6 +935,13 @@ void AddScripts()
     AddSC_GameObjectsFun();
     AddSC_TarrenMillFun();
 #endif
+}
+
+void AddBattlePayScripts()
+{
+    AddSC_BattlePay_Services();
+    AddSC_BattlePay_Golds();
+    AddSC_BattlePay_Professions();
 }
 
 void AddSpellScripts()
@@ -994,6 +1009,7 @@ void AddCommandScripts()
     AddSC_wp_commandscript();
     AddSC_garrison_commandscript();
     AddSC_hotfix_commandscript();
+    AddSC_battlepay_commandscript();
 }
 
 void AddWorldScripts()

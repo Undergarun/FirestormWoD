@@ -329,6 +329,7 @@ class boss_koragh : public CreatureScript
 
                         me->SetAIAnimKitId(eAnimKit::AnimWaiting);
                         me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
 
                         me->CastSpell(me, eSpells::KnockbackForRecharge, true);
                         me->CastSpell(me, eSpells::VulnerabilityAura, true);
@@ -523,6 +524,7 @@ class boss_koragh : public CreatureScript
                         me->CastSpell(me, eSpells::NullificationBarrierAbsorb, true);
 
                         me->RemoveAura(eSpells::VulnerabilityAura);
+                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
                         me->GetMotionMaster()->Clear();
 
@@ -592,32 +594,36 @@ class boss_koragh : public CreatureScript
                         {
                             me->CastSpell(me, eSpells::SuppressionFieldAura, false);
 
-                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Target]() -> void
+                            uint64 l_Guid = l_Target->GetGUID();
+                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
                             {
-                                float l_Distance = me->GetDistance(l_Target);
-
-                                if (l_Distance <= 10.0f)
+                                if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
                                 {
-                                    me->SetFacingToObject(l_Target);
+                                    float l_Distance = me->GetDistance(l_Target);
 
-                                    me->RemoveAura(eSpells::SuppressionFieldAura);
-                                    me->CastSpell(me, eSpells::SuppressionFieldMissile, true);
-
-                                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                    if (l_Distance <= 10.0f)
                                     {
-                                        me->GetMotionMaster()->Clear();
-                                        me->GetMotionMaster()->MoveChase(l_Target);
-                                    }
-                                }
-                                else
-                                {
-                                    float l_Orientation = me->GetAngle(l_Target);
-                                    float l_Radius = me->GetDistance(l_Target) - 10.0f;
-                                    float l_X = me->GetPositionX() + (l_Radius * cos(l_Orientation));
-                                    float l_Y = me->GetPositionY() + (l_Radius * sin(l_Orientation));
+                                        me->SetFacingToObject(l_Target);
 
-                                    me->GetMotionMaster()->Clear();
-                                    me->GetMotionMaster()->MoveCharge(l_X, l_Y, l_Target->GetPositionZ(), SPEED_CHARGE, eSpells::SuppressionFieldAura);
+                                        me->RemoveAura(eSpells::SuppressionFieldAura);
+                                        me->CastSpell(me, eSpells::SuppressionFieldMissile, true);
+
+                                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                        {
+                                            me->GetMotionMaster()->Clear();
+                                            me->GetMotionMaster()->MoveChase(l_Target);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        float l_Orientation = me->GetAngle(l_Target);
+                                        float l_Radius = me->GetDistance(l_Target) - 10.0f;
+                                        float l_X = me->GetPositionX() + (l_Radius * cos(l_Orientation));
+                                        float l_Y = me->GetPositionY() + (l_Radius * sin(l_Orientation));
+
+                                        me->GetMotionMaster()->Clear();
+                                        me->GetMotionMaster()->MoveCharge(l_X, l_Y, l_Target->GetPositionZ(), SPEED_CHARGE, eSpells::SuppressionFieldAura);
+                                    }
                                 }
                             });
                         }

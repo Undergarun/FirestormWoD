@@ -469,7 +469,7 @@ class spell_hun_glyph_of_mirrored_blades : public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_glyph_of_mirrored_blades_AuraScript::CalculateAmount, EFFECT_9, SPELL_AURA_REFLECT_SPELLS);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_glyph_of_mirrored_blades_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_REFLECT_SPELLS);
             }
         };
 
@@ -3410,12 +3410,18 @@ class spell_hun_spirit_mend : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_spirit_mend_SpellScript);
 
-            void HandleHeal(SpellEffIndex)
+            void HandleHeal(SpellEffIndex l_Idx)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    SetHitHeal(int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f));
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Heal = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f);
+                l_Heal = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, l_Idx, SPELL_DIRECT_DAMAGE);
+                l_Heal = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Heal, SPELL_DIRECT_DAMAGE);
+                SetHitHeal(l_Heal);
             }
 
             void Register()
@@ -3645,6 +3651,64 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Adaptation - 152244
+class spell_hun_adaptation : public SpellScriptLoader
+{
+    public:
+        spell_hun_adaptation() : SpellScriptLoader("spell_hun_adaptation") { }
+
+        class spell_hun_adaptation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_adaptation_AuraScript);
+
+            enum eSpells
+            {
+                CombatExperience = 156843
+            };
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+                 
+                if (l_Caster == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->RemoveAura(eSpells::CombatExperience);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_adaptation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_PET_SPECS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_adaptation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_PET_SPECS, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_adaptation_AuraScript();
+        }
+};
+
+
 // Aimed Shot - 19434
 class spell_hun_aimed_shot : public SpellScriptLoader
 {
@@ -3746,6 +3810,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_explosive_shot();
     new spell_hun_aimed_shot();
     new spell_hun_poisoned_ammo();
+    new spell_hun_adaptation();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();

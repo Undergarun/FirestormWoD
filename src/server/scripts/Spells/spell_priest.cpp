@@ -1183,105 +1183,81 @@ enum MasterySpells
 
 /// last update : 6.1.2 19802
 /// Power Word: Shield - 17
-class spell_pri_power_word_shield: public SpellScriptLoader
+class spell_pri_power_word_shield : public SpellScriptLoader
 {
-    public:
-        spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
+public:
+    spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
 
-        class spell_pri_power_word_shield_AuraScript : public AuraScript
+    class spell_pri_power_word_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+
+        int32 m_HealByGlyph = 0;
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
         {
-            PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
 
-            std::map<uint64, uint32> m_DmgByAttackerList;
-            int32 m_HealByGlyph = 0;
+            p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
 
-            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
             {
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
+                if (l_SpellInfo == nullptr)
                     return;
 
-                p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
-
-                if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
-                {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
-
-                    if (l_SpellInfo == nullptr)
-                        return;
-
-                    m_HealByGlyph = CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints);
-                    p_Amount -= m_HealByGlyph;
-                }
+                m_HealByGlyph = CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                p_Amount -= m_HealByGlyph;
             }
-
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* l_Target = GetTarget();
-                Unit* l_Owner = GetUnitOwner();
-
-                if (l_Target == nullptr || l_Owner == nullptr)
-                    return;
-
-                if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
-                    l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
-            }
-
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
-            {
-                Unit* l_Target = GetTarget();
-                Unit* l_Owner = GetUnitOwner();
-
-                if (l_Target == nullptr || l_Owner == nullptr)
-                    return;
-
-                if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD))
-                {
-                    for (std::map<uint64, uint32>::iterator it = m_DmgByAttackerList.begin(); it != m_DmgByAttackerList.end(); ++it)
-                    {
-                        if ((*it).first == l_Target->GetGUID())
-                            return;
-                        int32 l_Damage = CalculatePct((*it).second, sSpellMgr->GetSpellInfo(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)->Effects[EFFECT_0].BasePoints);
-                        l_Owner->CastCustomSpell(l_Target->GetUnit(*l_Target, (*it).first), PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, NULL, NULL, true);
-                    }
-                }
-            }
-
-            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
-            {
-                Unit* l_Target = GetTarget();
-                Unit* l_Owner = GetUnitOwner();
-
-                if (l_Target == nullptr || l_Owner == nullptr)
-                    return;
-
-                if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
-                {
-                    if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
-                    {
-                        if (m_DmgByAttackerList.find(l_Attacker->GetGUID()) != m_DmgByAttackerList.end())
-                            m_DmgByAttackerList.find(l_Attacker->GetGUID())->second += p_AbsorbAmount;
-                        else
-                            m_DmgByAttackerList[l_Attacker->GetGUID()] = p_AbsorbAmount;
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_power_word_shield_AuraScript();
         }
-};
 
+        void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Target = GetTarget();
+            Unit* l_Owner = GetUnitOwner();
+
+            if (l_Target == nullptr || l_Owner == nullptr)
+                return;
+
+            if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
+                l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
+        }
+
+        void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_ShieldValue*/)
+        {
+            Unit* l_Target = GetTarget();
+            Unit* l_Owner = GetUnitOwner();
+            if (l_Target == nullptr || l_Owner == nullptr)
+                return;
+
+            if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
+            {
+                if (l_Owner == l_Target && l_Owner->HasAura(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
+                {
+                    if (AuraEffectPtr l_ReflectiveShield = l_Owner->GetAuraEffect(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, SpellEffIndex::EFFECT_0))
+                    {
+                        int32 l_Damage = CalculatePct(p_DmgInfo.GetAbsorb(), l_ReflectiveShield->GetAmount());
+                        l_Owner->CastCustomSpell(l_Attacker, PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_power_word_shield_AuraScript();
+    }
+};
 // Smite - 585
 class spell_pri_smite: public SpellScriptLoader
 {

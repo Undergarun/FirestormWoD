@@ -1,4 +1,4 @@
-DELETE FROM creature_text WHERE entry IN (77404);
+﻿DELETE FROM creature_text WHERE entry IN (77404);
 INSERT INTO creature_text VALUES
 (77404, 0, 0, 'Come here you scrawny grabbers!', 14, 0, 100, 0, 0, 41631, 'TheButcherIntro1'),
 (77404, 1, 0, 'All crunch and no meat!', 14, 0, 100, 0, 0, 41632, 'TheButcherIntro2'),
@@ -155,7 +155,7 @@ DELETE FROM access_requirement WHERE mapId = 1228;
 INSERT INTO access_requirement (mapId, difficulty, level_min, level_max, itemlevel_min, itemlevel_max, COMMENT) VALUES
 (1228, 14, 100, 100, 615, 0, 'Highmaul - Normal'),
 (1228, 15, 100, 100, 615, 0, 'Highmaul - Heroic'),
-(1228, 16, 100, 100, 615, 0, 'Highmaul - Mythic'),
+(1228, 16, 101, 101, 615, 0, 'Highmaul - Mythic'),
 (1228, 17, 100, 100, 615, 0, 'Highmaul - Raid Tool');
 
 SET @REF_BUTCHER_N = 77404;

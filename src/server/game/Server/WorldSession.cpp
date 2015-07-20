@@ -109,6 +109,7 @@ m_clientTimeDelay(0), m_FirstPremadeMoney(false), m_ServiceFlags(p_ServiceFlags)
 {
     _warden = NULL;
     _filterAddonMessages = false;
+    m_LoginTime = time(nullptr);
 
     if (sock)
     {
@@ -119,6 +120,10 @@ m_clientTimeDelay(0), m_FirstPremadeMoney(false), m_ServiceFlags(p_ServiceFlags)
     }
 
     InitializeQueryCallbackParameters();
+
+    m_TransactionCallbacks             = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
+    m_PreparedStatementCallbacks       = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
+    m_PreparedStatementCallbacksBuffer = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
 
     _compressionStream = new z_stream();
     _compressionStream->zalloc = (alloc_func)NULL;
@@ -355,6 +360,55 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     }
     else
         m_VoteSyncTimer -= diff;
+
+    /// - Update transactions callback
+    if (!m_TransactionCallbacks->empty())
+    {
+        m_TransactionCallbackLock.lock();
+        m_TransactionCallbacks->remove_if([](MS::Utilities::CallBackPtr const& l_Callback) -> bool
+        {
+            if (l_Callback->m_State == MS::Utilities::CallBackState::Waiting)
+                return false;
+
+            l_Callback->m_CallBack(l_Callback->m_State == MS::Utilities::CallBackState::Success);
+            return true;
+        });
+        m_TransactionCallbackLock.unlock();
+    }
+
+    /// - Update prepared statements callback
+    if (!m_PreparedStatementCallbacks->empty())
+    {
+        m_PreparedStatementCallbackLock.lock();
+        m_PreparedStatementCallbacks->remove_if([](PrepareStatementCallback const& p_Callback) -> bool
+        {
+            /// If the query result is avaiable ...
+            if (p_Callback.second.ready())
+            {
+                /// Then get it
+                PreparedQueryResult l_Result;
+                p_Callback.second.get(l_Result);
+
+                /// Give the result to the callback, and execute it
+                p_Callback.first(l_Result);
+
+                /// Delete the callback from the forward list
+                return true;
+            }
+
+            /// We havn't the query result yet, we keep the callback and wait for the result!
+            return false;
+        });
+
+        m_PreparedStatementCallbackLock.unlock();
+    }
+
+    /// - Add prepared statements in buffer queue to real queue
+    while (!m_PreparedStatementCallbacksBuffer->empty())
+    {
+        m_PreparedStatementCallbacks->push_front(m_PreparedStatementCallbacksBuffer->front());
+        m_PreparedStatementCallbacksBuffer->pop_front();
+    }
 
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
@@ -1123,10 +1177,10 @@ void WorldSession::SendFeatureSystemStatus()
     bool l_ItemRestorationButtonEnbaled         = false;
     bool l_RecruitAFriendSystem                 = false;
     bool l_HasTravelPass                        = false;
-    bool l_WebTicketSystemStatus                = false;
+    bool l_InGameBrowser                        = sBattlepayMgr->IsAvailable(this);;
     bool l_StoreEnabled                         = true;
     bool l_StoreIsDisabledByParentalControls    = false;
-    bool l_StoreIsAvailable                     = true;
+    bool l_StoreIsAvailable                     = sBattlepayMgr->IsAvailable(this);
     bool l_IsRestrictedAccount                  = false;
     bool l_IsTutorialEnabled                    = false;
     bool l_ShowNPETutorial                      = true;
@@ -1168,7 +1222,7 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data.WriteBit(l_StoreIsAvailable);                            ///< Can purchase in store
     l_Data.WriteBit(l_StoreIsDisabledByParentalControls);           ///< Is store disabled by parental controls
     l_Data.WriteBit(l_ItemRestorationButtonEnbaled);                ///< Item Restoration Button Enabled
-    l_Data.WriteBit(l_WebTicketSystemStatus);                       ///< Web ticket system enabled
+    l_Data.WriteBit(l_InGameBrowser);                               ///< Web ticket system enabled
     l_Data.WriteBit(l_PlayTimeAlert);                               ///< Session Alert Enabled
     l_Data.WriteBit(l_RecruitAFriendSystem);                        ///< Recruit A Friend System Status
     l_Data.WriteBit(l_HasTravelPass);                               ///< Has travel pass (can group with cross-realm Battle.net friends.)
@@ -1453,4 +1507,14 @@ void WorldSession::InitWarden(BigNumber* k, std::string os)
         // _warden = new WardenMac();
         // _warden->Init(this, k);
     }
+}
+
+void WorldSession::SetServiceFlags(uint32 p_Flags)
+{
+    m_ServiceFlags |= p_Flags;
+
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LoginDatabaseStatements::LOGIN_SET_ACCOUNT_SERVICE);
+    l_Statement->setUInt32(0, p_Flags);
+    l_Statement->setUInt32(1, GetAccountId());
+    LoginDatabase.AsyncQuery(l_Statement);
 }
