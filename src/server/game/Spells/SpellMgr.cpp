@@ -4149,9 +4149,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 148908: ///< Mark of Salvation
                 spellInfo->Effects[0].BasePoints = 963;
                 break;
-            case 128997: ///< Spirit Beast Blessing
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                break;
             case 53390: ///< Tidal Waves
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;

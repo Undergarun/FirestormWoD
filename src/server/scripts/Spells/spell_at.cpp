@@ -412,7 +412,11 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
                 if (l_Target != nullptr)
                 {
                     if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::SpellGlyphOfSolace)) ///< Your Freezing Trap also removes all damage over time effects from its target.
-                        l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, l_AreaTriggerCaster->GetGUID());
+                    {
+                        l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                        l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                        l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+                    }
                     l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
                     p_AreaTrigger->Remove(0);
 
