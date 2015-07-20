@@ -1144,7 +1144,7 @@ enum Opcodes
     CMSG_SET_ACTION_BUTTON                      = 0x049C, ///< 6.2.1 20271
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x187E, ///< 6.2.1 20271
     CMSG_SET_SELECTION                          = 0x094D, ///< 6.2.1 20271
-    CMSG_SETSHEATHED                            = 0x0EB8, ///< 6.2.1 20271
+    CMSG_SETSHEATHED                            = 0x0866, ///< 6.2.1 20271
     CMSG_GOSSIP_HELLO                           = 0x0C42, ///< 6.2.1 20271
     CMSG_GOSSIP_SELECT_OPTION                   = 0x1979, ///< 6.2.1 20271
     CMSG_TOGGLE_PVP                             = 0x1F81, ///< 6.2.1 20271
@@ -1332,7 +1332,7 @@ enum Opcodes
     CMSG_MOVE_JUMP                              = 0x1BB7, ///< 6.2.1 20271
     CMSG_MOVE_FALL_LAND                         = 0x0FBF, ///< 6.2.1 20271
     CMSG_WORLD_PORT_RESPONSE                    = 0x0782, ///< 6.2.1 20271
-    CMSG_MOVE_TIME_SKIPPED                      = 0x0866, ///< 6.2.1 20271
+    CMSG_MOVE_TIME_SKIPPED                      = 0x0EB8, ///< 6.2.1 20271
     CMSG_MOVE_SPLINE_DONE                       = 0x1AF0, ///< 6.2.1 20271
 
     /// Update
