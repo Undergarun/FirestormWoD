@@ -910,12 +910,11 @@ void AddSC_BattlePay_Professions();
 void AddScripts()
 {
     AddSpellScripts();
-    AddSC_SmartSCripts();
     AddCommandScripts();
-    sAnticheatMgr->StartScripts();
-    AddBattlePayScripts();
-#ifdef SCRIPTS
     AddWorldScripts();
+    sAnticheatMgr->StartScripts();
+    AddSC_SmartSCripts();
+#ifdef SCRIPTS
     AddEasternKingdomsScripts();
     AddKalimdorScripts();
     AddOutlandScripts();
@@ -925,7 +924,7 @@ void AddScripts()
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
-    AddSC_DuelReset();
+    AddBattlePayScripts();
 #endif
 }
 
@@ -1863,5 +1862,6 @@ void AddCustomScripts()
     AddSC_first_time_connexion();
     AddSC_user_reporting();
     AddSC_warning_update_client();
+    AddSC_DuelReset();
 #endif
 }
