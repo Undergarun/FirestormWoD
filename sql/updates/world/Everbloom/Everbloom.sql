@@ -4,7 +4,7 @@ REPLACE INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `
 
 -- Areatrigger_Teleport
 REPLACE INTO `areatrigger_teleport` (`id`,`name`,`target_map`,`target_position_x`,`target_position_y`,`target_position_z`,`target_orientation`) VALUES ("10285","Everbloom - Exit","1116","7121.84","199.032","145.423","0.766562");
-REPLACE INTO `areatrigger_teleport` (`id`,`name`,`target_map`,`target_position_x`,`target_position_y`,`target_position_z`,`target_orientation`) VALUES ("10244","Everbloom - Entrance","1279","454.855","1350.126","117.067","0.966836")
+REPLACE INTO `areatrigger_teleport` (`id`,`name`,`target_map`,`target_position_x`,`target_position_y`,`target_position_z`,`target_orientation`) VALUES ("10244","Everbloom - Entrance","1279","454.855","1350.126","117.067","0.966836");
 
 -- Gameobject
 DELETE FROM `gameobject` where map = 1279;
@@ -39,7 +39,7 @@ INSERT INTO `gameobject` (`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`
 INSERT INTO `gameobject` (`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`,`isActive`,`protect_anti_doublet`) VALUES ("237472","1279","7109","7383","6","1","762.92","1442.21","88.4421","5.07356","0","0","0","0","0","255","1","0","NULL");
 INSERT INTO `gameobject` (`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`,`isActive`,`protect_anti_doublet`) VALUES ("237473","1279","7109","7109","6","1","326.981","1490.24","102.041","0.623439","0","0","0","0","0","255","1","0","NULL");
 INSERT INTO `gameobject` (`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`,`isActive`,`protect_anti_doublet`) VALUES ("237483","1279","7109","7109","6","1","746.571","1567.3","108.295","0.0687468","0","0","0","0","0","255","1","0","NULL");
-INSERT INTO `gameobject` (`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`,`isActive`,`protect_anti_doublet`) VALUES ("234025","1279","7109","7330","6","1","874.013","-1221.43","197.278","3.25828","0","0","0.998299","-0.0583095","300","0","1","0","NULL")
+INSERT INTO `gameobject` (`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`,`isActive`,`protect_anti_doublet`) VALUES ("234025","1279","7109","7330","6","1","874.013","-1221.43","197.278","3.25828","0","0","0.998299","-0.0583095","300","0","1","0","NULL");
 
 
 -- Creature_template
@@ -150,13 +150,13 @@ REPLACE INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`p
 REPLACE INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES ("82682","34","0","Get away..GET AWAY!","14","0","0","0","0","45486","");
 REPLACE INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES ("82682","35","0"," No! they will take you too!","14","0","0","0","0","45482","");
 REPLACE INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES ("82682","36","0","You musnt give them anoter host!","14","0","0","0","0","45483","");
-REPLACE INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES ("82682","37","0"," Burn my body. its  the only way to stop them.","14","0","0","0","0","45480","")
+REPLACE INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES ("82682","37","0"," Burn my body. its  the only way to stop them.","14","0","0","0","0","45480","");
 
 -- Creature_equip_template
 REPLACE INTO `creature_equip_template` (`entry`,`id`,`itemEntry1`,`itemEntry2`,`itemEntry3`) VALUES ("86372","0","64460","64460","0");
 REPLACE INTO `creature_equip_template` (`entry`,`id`,`itemEntry1`,`itemEntry2`,`itemEntry3`) VALUES ("86372","1","109232","109232","0");
 REPLACE INTO `creature_equip_template` (`entry`,`id`,`itemEntry1`,`itemEntry2`,`itemEntry3`) VALUES ("84336","1","118057","0","0");
-REPLACE INTO `creature_equip_template` (`entry`,`id`,`itemEntry1`,`itemEntry2`,`itemEntry3`) VALUES ("82682","1","105908","0","0")
+REPLACE INTO `creature_equip_template` (`entry`,`id`,`itemEntry1`,`itemEntry2`,`itemEntry3`) VALUES ("82682","1","105908","0","0");
 
 -- Creature_difficluty_template
 REPLACE INTO `creature_template_difficulty` (`entry`, `difficulty`, `difficulty_entry`) VALUES (84386, 'HEROIC_5_DIFFICULTY', 843866);
