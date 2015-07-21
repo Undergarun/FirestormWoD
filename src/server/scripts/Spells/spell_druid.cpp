@@ -4292,6 +4292,7 @@ class spell_dru_healing_touch: public SpellScriptLoader
         }
 };
 
+/// Last Update - 6.1.2 19802
 /// Starsurge - 78674
 class spell_dru_starsurge : public SpellScriptLoader
 {
@@ -4308,25 +4309,21 @@ class spell_dru_starsurge : public SpellScriptLoader
                 SolarEmpowerment = 164545
             };
 
-            void HandleDamage(SpellEffIndex)
+            void HandleOnPrepare()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
+                Unit* l_Caster = GetCaster();
 
-                        if (l_EclipseAmount < 0)
-                            l_Caster->CastSpell(l_Caster, eSpells::SolarEmpowerment, true);
-                        else if (l_EclipseAmount > 0)
-                            l_Caster->CastSpell(l_Caster, eSpells::LunarEmpowerment, true);
-                    }
-                }
+                double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
+
+                if (l_EclipseAmount < 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::SolarEmpowerment, true);
+                else if (l_EclipseAmount > 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::LunarEmpowerment, true);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dru_starsurge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnPrepare += SpellOnPrepareFn(spell_dru_starsurge_SpellScript::HandleOnPrepare);
             }
         };
 
