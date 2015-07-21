@@ -634,13 +634,11 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
             {
                 l_Data << uint32(l_QuestID);  ///< Quest ID
                 l_Data << uint32(0);          ///< Num Blobs
-                l_Data << uint32(0);          ///< Num Blobs
             }
         }
         else
         {
             l_Data << uint32(l_QuestID);      ///< Quest ID
-            l_Data << uint32(0);              ///< Num Blobs
             l_Data << uint32(0);              ///< Num Blobs
         }
     }
