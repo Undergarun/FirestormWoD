@@ -590,7 +590,6 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
             {
                 l_Data << uint32(l_QuestID);          ///< Quest ID
                 l_Data << uint32(l_POIs->size());     ///< Num Blobs
-                l_Data << uint32(l_POIs->size());     ///< Num Blobs
 
                 const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_QuestID);
 
