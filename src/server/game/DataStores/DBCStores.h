@@ -149,7 +149,6 @@ extern MapDifficultyMap                          sMapDifficultyMap;
 extern DBCStorage <MovieEntry>                   sMovieStore;
 extern DBCStorage <PowerDisplayEntry>            sPowerDisplayStore;
 extern DBCStorage <QuestFactionRewEntry>         sQuestFactionRewardStore;
-extern DBCStorage <QuestPOIPointEntry>           sQuestPOIPointStore;
 extern DBCStorage <RandomPropertiesPointsEntry>  sRandomPropertiesPointsStore;
 extern std::set<ResearchProjectEntry const*>     sResearchProjectSet;
 extern std::set<ResearchSiteEntry const*>        sResearchSiteSet;

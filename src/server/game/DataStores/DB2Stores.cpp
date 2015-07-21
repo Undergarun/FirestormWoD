@@ -79,6 +79,7 @@ DB2Storage <VignetteEntry>                  sVignetteStore(VignetteEntryfmt);
 DB2Storage <GlyphRequiredSpecEntry>         sGlyphRequiredSpecStore(GlyphRequiredSpecfmt);
 DB2Storage <MailTemplateEntry>              sMailTemplateStore(MailTemplateEntryfmt);
 DB2Storage <SpecializationSpellEntry>       sSpecializationSpellStore(SpecializationSpellsfmt);
+DB2Storage <QuestPOIPointEntry>             sQuestPOIPointStore(QuestPOIPointfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -276,6 +277,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sPlayerConditionStore,           db2Path, "PlayerCondition.db2"                                                  );
     LoadDB2(bad_db2_files, sVignetteStore,                  db2Path, "Vignette.db2"                                                         );
     LoadDB2(bad_db2_files, sGlyphRequiredSpecStore,         db2Path, "GlyphRequiredSpec.db2"                                                );
+    LoadDB2(bad_db2_files, sQuestPOIPointStore,             db2Path, "QuestPOIPoint.db2"                                                    );
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest DB2

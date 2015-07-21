@@ -73,6 +73,7 @@ extern DB2Storage <PlayerConditionEntry>            sPlayerConditionStore;
 extern DB2Storage <VignetteEntry>                   sVignetteStore;
 extern DB2Storage <GlyphRequiredSpecEntry>          sGlyphRequiredSpecStore;
 extern DB2Storage <MailTemplateEntry>               sMailTemplateStore;
+extern DB2Storage <QuestPOIPointEntry>              sQuestPOIPointStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2

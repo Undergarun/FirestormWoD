@@ -92,7 +92,6 @@ const char MovieEntryfmt[]                    = "nxxxx";
 const char PowerDisplayfmt[]                  = "nisbbb";
 const char PvPDifficultyfmt[]                 = "diiii";
 const char QuestFactionRewardfmt[]            = "niiiiiiiiii";
-const char QuestPOIPointfmt[]                 = "niii";
 const char RandomPropertiesPointsfmt[]        = "niiiiiiiiiiiiiii";
 const char ScenarioStepEntryfmt[]             = "niiissiiii";
 const char ScalingStatValuesfmt[]             = "iniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiix";
