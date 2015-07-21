@@ -90,7 +90,6 @@ void AddSC_garrison_commandscript();
 void AddSC_hotfix_commandscript();
 void AddSC_battlepay_commandscript();
 
-#ifdef SCRIPTS
 //world
 void AddSC_areatrigger_scripts();
 void AddSC_generic_creature();
@@ -105,6 +104,10 @@ void AddSC_npc_companions();
 void AddSC_achievement_scripts();
 void AddSC_PlayerConditions();
 
+// player
+void AddSC_chat_log();
+
+#ifdef SCRIPTS
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
 void AddSC_boss_balinda();
@@ -897,9 +900,6 @@ void AddSC_AshranAreaTrigger();
 void AddSC_AshranNPCNeutral();
 void AddSC_AshranQuest();
 
-// player
-void AddSC_chat_log();
-
 /// BattlePay
 void AddSC_BattlePay_Services();
 void AddSC_BattlePay_Golds();
@@ -931,9 +931,11 @@ void AddScripts()
 
 void AddBattlePayScripts()
 {
+#ifdef SCRIPTS
     AddSC_BattlePay_Services();
     AddSC_BattlePay_Golds();
     AddSC_BattlePay_Professions();
+#endif
 }
 
 void AddSpellScripts()
@@ -1006,7 +1008,6 @@ void AddCommandScripts()
 
 void AddWorldScripts()
 {
-#ifdef SCRIPTS
     AddSC_areatrigger_scripts();
     AddSC_generic_creature();
     AddSC_go_scripts();
@@ -1019,7 +1020,6 @@ void AddWorldScripts()
     AddSC_achievement_scripts();
     AddSC_chat_log();
     AddSC_PlayerConditions();
-#endif
 }
 
 void AddEasternKingdomsScripts()
