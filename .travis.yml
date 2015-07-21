@@ -50,7 +50,7 @@ before_script:
 script:
   - mkdir build && cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-  - make -j
+  - make -j 12
   - cd ..
 
 #after_success:
