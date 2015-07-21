@@ -2,6 +2,27 @@ language: cpp
 compiler:
   - clang
 
+addons:
+  apt:
+    sources:
+    - kalakris-cmake
+    - ubuntu-toolchain-r-test
+    packages:
+    - build-essential
+    - gcc-4.8
+    - g++-4.8
+    - make
+    - cmake
+    - openssl
+    - libmysqlclient-dev
+    - libmysql++-dev
+    - libssl-dev
+    - libace-dev
+    - libreadline6-dev
+    - zlib1g-dev
+    - libbz2-dev
+    - libtool
+
 git:
   depth: 5
 
@@ -11,26 +32,9 @@ branches:
     - wod_ptr
 
 before_install:
-  - sudo add-apt-repository ppa:kalakris/cmake -y
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install build-essential gcc-4.8 g++-4.8 make cmake openssl
-  - sudo apt-get -qq install libmysqlclient-dev libmysql++-dev libssl-dev libace-dev libreadline6-dev zlib1g-dev libbz2-dev libtool
-
+    #
 
 install:
-  - git clone git@github.com:MilleniumStudio/ms_framework.git dep/ms_framework
-  - cd dep/ms_framework
-  - git submodule init
-  - git submodule update --remote
-  - mkdir build && cd build
-  - cmake .. -DCMAKE_BUILD_TYPE=Release
-  - make -j
-  - sudo make install
-  - cmake .. -DCMAKE_BUILD_TYPE=Debug
-  - make -j
-  - sudo make install
-  - cd ../../../
   - mysql -uroot -e 'create database test_mysql;'
 
 before_script:
@@ -46,7 +50,7 @@ before_script:
 script:
   - mkdir build && cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-  - make -j 12
+  - make -j
   - cd ..
 
 #after_success:
