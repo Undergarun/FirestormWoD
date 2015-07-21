@@ -56,7 +56,6 @@ typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTri
 ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 
 DBCStorage <AreaTableEntry>               sAreaStore(AreaTableEntryfmt);
-DBCStorage <AreaGroupEntry>               sAreaGroupStore(AreaGroupEntryfmt);
 static AreaFlagByAreaID                   sAreaFlagByAreaID;
 static AreaFlagByMapID                    sAreaFlagByMapID;                    // For instances without generated *.map files
 
@@ -152,9 +151,8 @@ DBCStorage <PvPDifficultyEntry>          sPvPDifficultyStore(PvPDifficultyfmt);
 DBCStorage <QuestFactionRewEntry>        sQuestFactionRewardStore(QuestFactionRewardfmt);
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
 
-std::set<ResearchSiteEntry const*> sResearchSiteSet;
-std::set<ResearchProjectEntry const*> sResearchProjectSet;
-
+std::set<ResearchSiteEntry const*>      sResearchSiteSet;
+std::set<ResearchProjectEntry const*>   sResearchProjectSet;
 
 DBCStorage <ScenarioStepEntry> sScenarioStepStore(ScenarioStepEntryfmt);
 
@@ -284,7 +282,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore,            dbcPath, "Achievement.dbc", &CustomAchievementfmt, &CustomAchievementIndex);  // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sAnimKitStore,                dbcPath, "AnimKit.dbc");                                                      // 19865
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");                                                  // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sAreaGroupStore,              dbcPath, "AreaGroup.dbc");                                                    // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sArmorLocationStore,          dbcPath, "ArmorLocation.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sBankBagSlotPricesStore,      dbcPath, "BankBagSlotPrices.dbc");                                            // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sBattlemasterListStore,       dbcPath, "BattlemasterList.dbc");                                             // 17399
@@ -621,11 +618,11 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Check loaded DBC files proper version
-    if (!sAreaStore.LookupEntry(5491)          ||     // Last area (areaflag) added in 5.4 (17399)
-        !sCharTitlesStore.LookupEntry(389)     ||     // Last char title added in 5.4 (17399)
-        !sGemPropertiesStore.LookupEntry(2402) ||     // Last gem property added in 5.4.0 (17399)
-        !sMapStore.LookupEntry(1173)           ||     // Last map added in 5.4.0 (17399)
-        !sSpellStore.LookupEntry(150017)       )      // Last spell added in 5.4.0 (17399)
+    if (!sAreaStore.LookupEntry(6420)          ||     // Last area (areaflag) added in 6.2.0 (20216)
+        !sCharTitlesStore.LookupEntry(457)     ||     // Last char title added in 6.2.0 (20216)
+        !sGemPropertiesStore.LookupEntry(2544) ||     // Last gem property added in 6.2.0 (20216)
+        !sMapStore.LookupEntry(1497)           ||     // Last map added in 6.2.0 (20216)
+        !sSpellStore.LookupEntry(191981)       )      // Last spell added in 6.2.0 (20216)
     {
         sLog->outError(LOG_FILTER_GENERAL, "You have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);

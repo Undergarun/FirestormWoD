@@ -27,6 +27,8 @@
 
 extern std::map<uint32, DB2StorageBase*> sDB2PerHash;
 
+extern DB2Storage <AreaGroupEntry>                  sAreaGroupStore;
+extern DB2Storage <AreaGroupMemberEntry>            sAreaGroupMemberStore;
 extern DB2Storage <SoundEntriesEntry>               sSoundEntriesStore;
 extern DB2Storage <CurrencyTypesEntry>              sCurrencyTypesStore;
 extern DB2Storage <PathNodeEntry>                   sPathNodeStore;
@@ -74,8 +76,10 @@ extern DB2Storage <VignetteEntry>                   sVignetteStore;
 extern DB2Storage <GlyphRequiredSpecEntry>          sGlyphRequiredSpecStore;
 extern DB2Storage <MailTemplateEntry>               sMailTemplateStore;
 extern DB2Storage <QuestPOIPointEntry>              sQuestPOIPointStore;
+extern std::set<ResearchProjectEntry const*>        sResearchProjectSet;
+extern std::set<ResearchSiteEntry const*>           sResearchSiteSet;
 
-//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////c
 /// Garrison DB2
 //////////////////////////////////////////////////////////////////////////
 extern DB2Storage <GarrSiteLevelEntry>              sGarrSiteLevelStore;
@@ -165,6 +169,9 @@ extern DB2Storage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
+
+typedef std::unordered_map<uint32, std::vector<uint32> > AreaGroupMemebersByID;
+extern std::vector<uint32> GetAreasForGroup(uint32 areaGroupId);
 
 extern std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 extern std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;

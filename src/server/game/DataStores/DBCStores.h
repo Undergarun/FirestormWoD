@@ -79,7 +79,6 @@ extern ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AnimKitEntry>                 sAnimKitStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
-extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
 extern DBCStorage <ArmorLocationEntry>           sArmorLocationStore;
 extern DBCStorage <BankBagSlotPricesEntry>       sBankBagSlotPricesStore;
@@ -150,8 +149,6 @@ extern DBCStorage <MovieEntry>                   sMovieStore;
 extern DBCStorage <PowerDisplayEntry>            sPowerDisplayStore;
 extern DBCStorage <QuestFactionRewEntry>         sQuestFactionRewardStore;
 extern DBCStorage <RandomPropertiesPointsEntry>  sRandomPropertiesPointsStore;
-extern std::set<ResearchProjectEntry const*>     sResearchProjectSet;
-extern std::set<ResearchSiteEntry const*>        sResearchSiteSet;
 extern DBCStorage <ScenarioStepEntry>            sScenarioStepStore;
 extern DBCStorage <SkillLineEntry>               sSkillLineStore;
 extern DBCStorage <SkillLineAbilityEntry>        sSkillLineAbilityStore;

@@ -130,7 +130,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 return;
 
-            switch (l_BuildingEntry->BuildingLevel)
+            switch (l_BuildingEntry->Level)
             {
                 case 1:
                     (*t_SetupLevel1)(this, me);

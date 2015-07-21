@@ -1818,20 +1818,18 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // normal case
     if (AreaGroupId > 0)
     {
-        bool found = false;
-        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(AreaGroupId);
-        while (groupEntry)
+        bool l_Found = false;
+        std::vector<uint32> l_AreaGroups = GetAreasForGroup(AreaGroupId);
+        for (uint32 areaId : l_AreaGroups)
         {
-            for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
-                if (groupEntry->AreaId[i] == zone_id || groupEntry->AreaId[i] == area_id)
-                    found = true;
-            if (found || !groupEntry->nextGroup)
+            if (areaId == zone_id || areaId == area_id)
+            {
+                l_Found = true;
                 break;
-            // Try search in next group
-            groupEntry = sAreaGroupStore.LookupEntry(groupEntry->nextGroup);
+            }
         }
 
-        if (!found)
+        if (!l_Found)
             return SPELL_FAILED_INCORRECT_AREA;
     }
 

@@ -113,7 +113,7 @@ namespace MS { namespace Garrison
             return 0;
         }
 
-        l_BuildingType = l_Entry->BuildingType;
+        l_BuildingType = l_Entry->Type;
 
         if (!p_ForStartWorkOrder)
             return m_ShipmentPerBuildingType[l_BuildingType];

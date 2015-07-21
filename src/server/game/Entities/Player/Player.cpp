@@ -23672,7 +23672,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
-                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !(spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER))
+                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !(spell->AttributesEx10 & SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE))
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
                     && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
@@ -23698,7 +23698,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
-                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER) == 0))
+                if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE) == 0))
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
                     && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
@@ -27144,7 +27144,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
         if (const SpellInfo * spell = sSpellMgr->GetSpellInfo(l_It->first))
         {
-            if (spell->IsAbilityOfSkillType(SKILL_MOUNT) || spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER)
+            if (spell->IsAbilityOfSkillType(SKILL_MOUNT) || spell->AttributesEx10 & SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE)
             {
                 l_MountSpells[l_It->first] = l_It->second->IsMountFavorite;
             }

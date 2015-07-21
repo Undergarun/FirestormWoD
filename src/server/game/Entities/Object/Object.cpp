@@ -3233,9 +3233,11 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     /// - Blizzard do like that for some garrison special gameobject but the dynamic update field      ///
     ///   doesn't exist WTF !!                                                                         ///
     /// - Need to wait how this thing will elvove to adapt it                                          ///
+    /// - Note 6.2.0 Tc have found the name "GAMEOBJECT_DYNAMIC_ENABLE_DOODAD_SETS"                    ///
+    ///   maybe is more useful for understand                                                          ///
     /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
     if (p_GarrisonPlotObject)
-        go->SetDynamicValue(GAMEOBJECT_DYNAMIC_UNK, 0, 1);
+        go->SetDynamicValue(GAMEOBJECT_DYNAMIC_ENABLE_DOODAD_SETS, 0, 1);
 
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
         ToUnit()->AddGameObject(go);

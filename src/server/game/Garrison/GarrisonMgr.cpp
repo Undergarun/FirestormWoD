@@ -1097,7 +1097,7 @@ namespace MS { namespace Garrison
 
         GarrMissionEntry const* l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
-        if (!m_Owner->HasCurrency(Globals::CurrencyID, l_MissionTemplate->GarrisonCurrencyStartCost))
+        if (!m_Owner->HasCurrency(Globals::CurrencyID, l_MissionTemplate->CurrencyCost))
         {
             StartMissionFailed(p_MissionRecID, p_Followers);
             return;
@@ -1144,7 +1144,7 @@ namespace MS { namespace Garrison
             }
         }
 
-        m_Owner->ModifyCurrency(Globals::CurrencyID, -(int32)l_MissionTemplate->GarrisonCurrencyStartCost);
+        m_Owner->ModifyCurrency(Globals::CurrencyID, -(int32)l_MissionTemplate->CurrencyCost);
 
         std::vector<uint32> l_FollowersIDs;
         for (uint32 l_I = 0; l_I < p_Followers.size(); ++l_I)
@@ -1444,8 +1444,8 @@ namespace MS { namespace Garrison
                     m_PendingMissionReward.RewardCurrencies.push_back(std::make_pair(l_RewardEntry->RewardCurrencyID, l_Amount));
                 }
 
-                if (l_RewardEntry->BonusRewardXP)
-                    m_PendingMissionReward.RewardFollowerXP += l_RewardEntry->BonusRewardXP;
+                if (l_RewardEntry->PlayerRewardXP)
+                    m_PendingMissionReward.RewardFollowerXP += l_RewardEntry->PlayerRewardXP;
             }
 
             /// @TODO fix this
@@ -2205,7 +2205,7 @@ namespace MS { namespace Garrison
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
 
-        l_CurrentAdditionalWinChance = (((100.0 - l_MissionTemplate->BaseBronzeChestChance) * l_CurrentAdditionalWinChance) * 0.0099999998) + l_MissionTemplate->BaseBronzeChestChance;
+        l_CurrentAdditionalWinChance = (((100.0 - l_MissionTemplate->BaseBonusChance) * l_CurrentAdditionalWinChance) * 0.0099999998) + l_MissionTemplate->BaseBonusChance;
 
         if (l_CurrentAdditionalWinChance > 100.0)
             l_CurrentAdditionalWinChance = 100.0;
@@ -2452,7 +2452,7 @@ namespace MS { namespace Garrison
         {
             GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
 
-            if (l_PlotBuildingEntry && l_PlotBuildingEntry->PlotId == l_PlotInstanceEntry->PlotID && l_PlotBuildingEntry->BuildingID == p_BuildingRecID)
+            if (l_PlotBuildingEntry && l_PlotBuildingEntry->PlotID == l_PlotInstanceEntry->PlotID && l_PlotBuildingEntry->BuildingID == p_BuildingRecID)
                 return true;
         }
 
@@ -2467,12 +2467,12 @@ namespace MS { namespace Garrison
         if (!l_BuildingEntry)
             return PurchaseBuildingResults::InvalidBuildingID;
 
-        if (l_BuildingEntry->BuildCostCurrencyID != 0)
+        if (l_BuildingEntry->CostCurrencyID != 0)
         {
-            if (!m_Owner->HasCurrency(l_BuildingEntry->BuildCostCurrencyID, l_BuildingEntry->BuildCostCurrencyAmount))
+            if (!m_Owner->HasCurrency(l_BuildingEntry->CostCurrencyID, l_BuildingEntry->CostCurrencyAmount))
                 return PurchaseBuildingResults::NotEnoughCurrency;
 
-            if (!m_Owner->HasEnoughMoney((uint64)l_BuildingEntry->MoneyCost * GOLD))
+            if (!m_Owner->HasEnoughMoney((uint64)l_BuildingEntry->CostMoney * GOLD))
                 return PurchaseBuildingResults::NotEnoughGold;
         }
 
@@ -2494,11 +2494,11 @@ namespace MS { namespace Garrison
         if (!PlotIsFree(p_PlotInstanceID))
             DeleteBuilding(p_PlotInstanceID);
 
-        if (l_BuildingEntry->BuildCostCurrencyID != 0 && !p_Triggered)
-            m_Owner->ModifyCurrency(l_BuildingEntry->BuildCostCurrencyID, -(int32)l_BuildingEntry->BuildCostCurrencyAmount);
+        if (l_BuildingEntry->CostCurrencyID != 0 && !p_Triggered)
+            m_Owner->ModifyCurrency(l_BuildingEntry->CostCurrencyID, -(int32)l_BuildingEntry->CostCurrencyAmount);
 
-        if (l_BuildingEntry->MoneyCost != 0 && !p_Triggered)
-            m_Owner->ModifyMoney(-(int64)(l_BuildingEntry->MoneyCost * GOLD));
+        if (l_BuildingEntry->CostMoney != 0 && !p_Triggered)
+            m_Owner->ModifyMoney(-(int64)(l_BuildingEntry->CostMoney * GOLD));
 
         if (!p_Triggered)
         {
@@ -2507,7 +2507,7 @@ namespace MS { namespace Garrison
             m_Owner->SendDirectMessage(&l_PlotRemoved);
         }
 
-        uint32 l_BuildingTime = l_BuildingEntry->BuildTime;
+        uint32 l_BuildingTime = l_BuildingEntry->BuildDuration;
 
         if (GetGarrisonScript())
             l_BuildingTime = GetGarrisonScript()->OnPrePurchaseBuilding(m_Owner, p_BuildingRecID, l_BuildingTime);
@@ -2595,8 +2595,8 @@ namespace MS { namespace Garrison
 
             GarrBuildingEntry const* l_BuildingTemplate = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
 
-            if (l_BuildingTemplate && l_BuildingTemplate->PassiveEffect && sGarrAbilityEffectStore.LookupEntry(l_BuildingTemplate->PassiveEffect) != nullptr)
-                l_PassiveEffects.push_back(l_BuildingTemplate->PassiveEffect);
+            if (l_BuildingTemplate && l_BuildingTemplate->FollowerGarrAbilityEffectID && sGarrAbilityEffectStore.LookupEntry(l_BuildingTemplate->FollowerGarrAbilityEffectID) != nullptr)
+                l_PassiveEffects.push_back(l_BuildingTemplate->FollowerGarrAbilityEffectID);
         }
 
         return l_PassiveEffects;
@@ -2665,11 +2665,11 @@ namespace MS { namespace Garrison
 
         DeleteBuilding(p_PlotInstanceID);
 
-        if (l_BuildingEntry->BuildCostCurrencyID != 0)
-            m_Owner->ModifyCurrency(l_BuildingEntry->BuildCostCurrencyID, (int32)l_BuildingEntry->BuildCostCurrencyAmount);
+        if (l_BuildingEntry->CostCurrencyID != 0)
+            m_Owner->ModifyCurrency(l_BuildingEntry->CostCurrencyID, (int32)l_BuildingEntry->CostCurrencyAmount);
 
-        if (l_BuildingEntry->MoneyCost != 0)
-            m_Owner->ModifyMoney(l_BuildingEntry->MoneyCost);
+        if (l_BuildingEntry->CostMoney != 0)
+            m_Owner->ModifyMoney(l_BuildingEntry->CostMoney);
     }
 
     /// Delete building
@@ -2745,7 +2745,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 continue;
 
-            if (l_BuildingEntry->BuildingType == p_BuildingType && (*l_It).Active == true)
+            if (l_BuildingEntry->Type == p_BuildingType && (*l_It).Active == true)
                 return true;
         }
 
@@ -2789,7 +2789,7 @@ namespace MS { namespace Garrison
             if (!l_Building)
                 continue;
 
-            if (l_Building->BuildingType != BuildingType::StoreHouse)
+            if (l_Building->Type != BuildingType::StoreHouse)
                 continue;
 
             l_MaxWorkOrder += l_Building->BonusAmount;
@@ -3014,7 +3014,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry || l_BuildingEntry->BuildingCategory != BuildingCategory::Prebuilt)
                 continue;
 
-            if (HasBuildingType((BuildingType::Type)l_BuildingEntry->BuildingType))
+            if (HasBuildingType((BuildingType::Type)l_BuildingEntry->Type))
                 continue;
 
             uint32 l_PlotID = 0;
@@ -3024,9 +3024,9 @@ namespace MS { namespace Garrison
             {
                 GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
 
-                if (l_PlotBuildingEntry && l_PlotBuildingEntry->BuildingID == l_BuildingEntry->BuildingID)
+                if (l_PlotBuildingEntry && l_PlotBuildingEntry->BuildingID == l_BuildingEntry->ID)
                 {
-                    l_PlotID = l_PlotBuildingEntry->PlotId;
+                    l_PlotID = l_PlotBuildingEntry->PlotID;
                     break;
                 }
             }
@@ -3051,7 +3051,7 @@ namespace MS { namespace Garrison
             if (!l_PlotInstanceID || !HasPlotInstance(l_PlotInstanceID))
                 continue;
 
-            PurchaseBuilding(l_BuildingEntry->BuildingID, l_PlotInstanceID, true);
+            PurchaseBuilding(l_BuildingEntry->ID, l_PlotInstanceID, true);
         }
     }
 
@@ -3399,10 +3399,10 @@ namespace MS { namespace Garrison
             if (!l_Building)
                 continue;
 
-            if (l_Building->BuildingType != BuildingType::Barracks)
+            if (l_Building->Type != BuildingType::Barracks)
                 continue;
 
-            l_BonusMaxActiveFollower = l_Building->Unk7;
+            l_BonusMaxActiveFollower = l_Building->BonusAmount;
 
             for (uint32 l_Y = 0; l_Y < sGarrSpecializationStore.GetNumRows(); ++l_Y)
             {
@@ -3411,8 +3411,8 @@ namespace MS { namespace Garrison
                 if (!l_Specialization)
                     continue;
 
-                if (   l_Specialization->Unk2 == l_Building->BuildingType
-                    && l_Specialization->Unk4 <= l_Building->BuildingLevel
+                if (   l_Specialization->Unk2 == l_Building->Type
+                    && l_Specialization->Unk4 <= l_Building->Level
                     && l_Specialization->Unk3 == 10)
                 {
                     l_BonusMaxActiveFollower += floor(l_Specialization->BasePoint);

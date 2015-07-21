@@ -7531,22 +7531,13 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex p_EffectIndex)
         return;
 
     std::vector<uint32> l_Maps;
+    std::vector<uint32> l_AreaGroups = GetAreasForGroup(m_spellInfo->AreaGroupId);
 
-    AreaGroupEntry const* l_AreaGroupEntry = sAreaGroupStore.LookupEntry(m_spellInfo->AreaGroupId);
-    while (l_AreaGroupEntry)
+    for (uint32 l_AreaID : l_AreaGroups)
     {
-        for (uint8 l_I = 0; l_I < MAX_GROUP_AREA_IDS; ++l_I)
-        {
-            uint32 l_AreaId = l_AreaGroupEntry->AreaId[l_I];
-            AreaTableEntry const* l_AreaTable = sAreaStore.LookupEntry(l_AreaId);
-            if (l_AreaTable == nullptr)
-                continue;
-
+        AreaTableEntry const* l_AreaTable = sAreaStore.LookupEntry(l_AreaID);
+        if (l_AreaTable)
             l_Maps.push_back(l_AreaTable->ContinentID);
-
-        }
-        // Try search in next group
-        l_AreaGroupEntry = sAreaGroupStore.LookupEntry(l_AreaGroupEntry->nextGroup);
     }
 
     if (l_Maps.empty())

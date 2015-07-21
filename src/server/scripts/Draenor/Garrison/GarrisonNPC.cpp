@@ -315,7 +315,7 @@ namespace MS { namespace Garrison
             p_Player->CLOSE_GOSSIP_MENU();
             p_Player->CreateGarrison();
 
-            uint32 l_MovieID    = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
+            uint32 l_MovieID    = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MovieID;
             uint32 l_MapID      = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
             uint32 l_TeamID     = p_Player->GetTeamId();
 

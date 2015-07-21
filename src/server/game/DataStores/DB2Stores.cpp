@@ -122,6 +122,8 @@ DB2Storage<BattlePetSpeciesEntry>           sBattlePetSpeciesStore(BattlePetSpec
 DB2Storage<BattlePetSpeciesStateEntry>      sBattlePetSpeciesStateStore(BattlePetSpeciesStatefmt);
 DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore(BattlePetSpeciesXAbilityfmt);
 
+DB2Storage <AreaGroupEntry>               sAreaGroupStore(AreaGroupEntryfmt);
+DB2Storage <AreaGroupMemberEntry>         sAreaGroupMemberStore(AreaGroupMemberEntryfmt);
 DB2Storage <AuctionHouseEntry>            sAuctionHouseStore(AuctionHouseEntryfmt);
 DB2Storage <BarberShopStyleEntry>         sBarberShopStyleStore(BarberShopStyleEntryfmt);
 DB2Storage <CharStartOutfitEntry>         sCharStartOutfitStore(CharStartOutfitEntryfmt);
@@ -186,6 +188,8 @@ std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
 std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
+
+AreaGroupMemebersByID sAreaGroupMemebersByIDStore;
 
 typedef std::list<std::string> StoreProblemList1;
 
@@ -278,6 +282,8 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sVignetteStore,                  db2Path, "Vignette.db2"                                                         );
     LoadDB2(bad_db2_files, sGlyphRequiredSpecStore,         db2Path, "GlyphRequiredSpec.db2"                                                );
     LoadDB2(bad_db2_files, sQuestPOIPointStore,             db2Path, "QuestPOIPoint.db2"                                                    );
+    LoadDB2(bad_db2_files, sAreaGroupStore,                 db2Path, "AreaGroup.db2"                                                        );
+    LoadDB2(bad_db2_files, sAreaGroupMemberStore,           db2Path, "AreaGroupMember.db2"                                                  );
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest DB2
@@ -424,6 +430,9 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files,  sMailTemplateStore,           db2Path, "MailTemplate.db2");                                                 // 17399
     LoadDB2(bad_db2_files,  sSpecializationSpellStore,    db2Path, "SpecializationSpells.db2");                                         // 17399
 
+    std::set<ResearchSiteEntry const*> sResearchSiteSet;
+    std::set<ResearchProjectEntry const*> sResearchProjectSet;
+    
     for (uint32 l_ID = 0; l_ID < sMountTypeStore.GetNumRows(); ++l_ID)
     {
         MountTypeEntry const* l_Entry = sMountTypeStore.LookupEntry(l_ID);
@@ -482,6 +491,10 @@ void LoadDB2Stores(const std::string& dataPath)
         if (ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(l_I))
             sItemEffectsByItemID[l_Entry->ItemID].push_back(l_I);
     }
+
+    for (uint32 l_ID = 0; l_ID < sAreaGroupMemberStore.GetNumRows(); l_ID++)
+        if (AreaGroupMemberEntry const* l_Entry = sAreaGroupMemberStore.LookupEntry(l_ID))
+            sAreaGroupMemebersByIDStore[l_Entry->AreaGroupID].push_back(l_Entry->AreaID);
 
     for (uint32 l_I = 0; l_I < sItemBonusStore.GetNumRows(); l_I++)
     {
@@ -677,10 +690,10 @@ void LoadDB2Stores(const std::string& dataPath)
     }
 
     /// Check loaded DB2 files proper version
-    if (!sItemStore.LookupEntry(123975) ||              ///< Last item added in 6.1.2
-        !sItemExtendedCostStore.LookupEntry(5853) )     ///< Last item extended cost added in 6.1.2
+    if (!sItemStore.LookupEntry(128706) ||              ///< Last item added in 6.2.0 (20216)
+        !sItemExtendedCostStore.LookupEntry(5923) )     ///< Last item extended cost added in 6.2.0 (20216)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Please extract correct db2 files from client 6.1.2");
+        sLog->outError(LOG_FILTER_GENERAL, "Please extract correct db2 files from client 6.2.0 (20216)");
         exit(1);
     }
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Initialized %d DB2 data stores.", DB2FilesCount);
@@ -845,4 +858,13 @@ const std::string* GetRandomCharacterName(uint8 race, uint8 gender)
     uint32 randPos = urand(0,size-1);
 
     return &sGenNameVectoArraysMap[race].stringVectorArray[gender][randPos];
+}
+
+std::vector<uint32> GetAreasForGroup(uint32 areaGroupId)
+{
+    auto itr = sAreaGroupMemebersByIDStore.find(areaGroupId);
+       if (itr != sAreaGroupMemebersByIDStore.end())
+           return itr->second;
+    
+    return std::vector<uint32>();
 }
