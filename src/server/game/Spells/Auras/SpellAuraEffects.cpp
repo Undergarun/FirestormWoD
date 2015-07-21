@@ -2951,71 +2951,80 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Unit* target = aurApp->GetTarget();
+    Unit* l_Target = aurApp->GetTarget();
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    if (l_Target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (apply)
+    std::list<Unit*> l_TargetList;
+
+    l_TargetList.push_back(l_Target);
+    if (l_Target->HasAura(159459) && l_Target->ToPlayer()->GetPet())  ///< Glyph of Play Dead
+        l_TargetList.push_back(l_Target->ToPlayer()->GetPet()->ToUnit());
+
+    for (auto target : l_TargetList)
     {
-        /*
-        WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 0);
-        target->SendMessageToSet(&data, true);
-        */
-
-        UnitList targets;
-        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(target, target, target->GetMap()->GetVisibilityRange());
-        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
-        target->VisitNearbyObject(target->GetMap()->GetVisibilityRange(), searcher);
-        for (UnitList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        if (apply)
         {
-            if (!(*iter)->HasUnitState(UNIT_STATE_CASTING))
-                continue;
+            /*
+            WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 0);
+            target->SendMessageToSet(&data, true);
+            */
 
-            for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
+            UnitList targets;
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(target, target, target->GetMap()->GetVisibilityRange());
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
+            target->VisitNearbyObject(target->GetMap()->GetVisibilityRange(), searcher);
+            for (UnitList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
             {
-                if ((*iter)->GetCurrentSpell(i)
-                && (*iter)->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
+                if (!(*iter)->HasUnitState(UNIT_STATE_CASTING))
+                    continue;
+
+                for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
                 {
-                    (*iter)->InterruptSpell(CurrentSpellTypes(i), false);
+                    if ((*iter)->GetCurrentSpell(i)
+                        && (*iter)->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
+                    {
+                        (*iter)->InterruptSpell(CurrentSpellTypes(i), false);
+                    }
                 }
             }
+            target->CombatStop();
+            target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+
+            // prevent interrupt message
+            if (GetCasterGUID() == target->GetGUID() && target->GetCurrentSpell(CURRENT_GENERIC_SPELL))
+                target->FinishSpell(CURRENT_GENERIC_SPELL, false);
+            target->InterruptNonMeleeSpells(true);
+            target->getHostileRefManager().deleteReferences();
+
+            // stop handling the effect if it was removed by linked event
+            if (aurApp->GetRemoveMode())
+                return;
+            // blizz like 2.0.x
+            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            // blizz like 2.0.x
+            target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+            // blizz like 2.0.x
+            target->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+
+            target->AddUnitState(UNIT_STATE_DIED);
         }
-        target->CombatStop();
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+        else
+        {
+            /*
+            WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 0);
+            target->SendMessageToSet(&data, true);
+            */
+            // blizz like 2.0.x
+            target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            // blizz like 2.0.x
+            target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+            // blizz like 2.0.x
+            target->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
 
-        // prevent interrupt message
-        if (GetCasterGUID() == target->GetGUID() && target->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-            target->FinishSpell(CURRENT_GENERIC_SPELL, false);
-        target->InterruptNonMeleeSpells(true);
-        target->getHostileRefManager().deleteReferences();
-
-        // stop handling the effect if it was removed by linked event
-        if (aurApp->GetRemoveMode())
-            return;
-                                                            // blizz like 2.0.x
-        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-                                                            // blizz like 2.0.x
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
-                                                            // blizz like 2.0.x
-        target->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-
-        target->AddUnitState(UNIT_STATE_DIED);
-    }
-    else
-    {
-        /*
-        WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 0);
-        target->SendMessageToSet(&data, true);
-        */
-                                                            // blizz like 2.0.x
-        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-                                                            // blizz like 2.0.x
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
-                                                            // blizz like 2.0.x
-        target->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-
-        target->ClearUnitState(UNIT_STATE_DIED);
+            target->ClearUnitState(UNIT_STATE_DIED);
+        }
     }
 }
 
