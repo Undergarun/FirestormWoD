@@ -86,7 +86,6 @@ enum MonkSpells
     SPELL_MONK_CREATE_CHI_SPHERE                = 121286,
     SPELL_MONK_GLYPH_OF_ZEN_FLIGHT              = 125893,
     SPELL_MONK_ZEN_FLIGHT                       = 125883,
-    SPELL_MONK_BEAR_HUG                         = 127361,
     ITEM_MONK_T14_TANK_4P                       = 123159,
     MONK_NPC_BLACK_OX_STATUE                    = 61146,
     SPELL_MONK_GUARD                            = 115295,

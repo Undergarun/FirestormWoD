@@ -2912,47 +2912,6 @@ class spell_hun_masters_call: public SpellScriptLoader
         }
 };
 
-/// Removed in 6.0.2 (still exist on wowhead) ? www.gamepedia.com/Scatter_Shot 
-// Scatter Shot - 37506
-class spell_hun_scatter_shot: public SpellScriptLoader
-{
-    public:
-        spell_hun_scatter_shot() : SpellScriptLoader("spell_hun_scatter_shot") { }
-
-        class spell_hun_scatter_shot_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_scatter_shot_SpellScript);
-
-            bool Load()
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                // break Auto Shot and autohit
-                caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-                caster->AttackStop();
-                caster->SendAttackSwingCancelAttack();
-
-                if (caster->HasAura(HUNTER_SPELL_GLYPH_OF_COLLAPSE))
-                    if (Unit* target = GetHitUnit())
-                        target->RemoveAllAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_scatter_shot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_scatter_shot_SpellScript();
-        }
-};
-
 class spell_hun_pet_heart_of_the_phoenix: public SpellScriptLoader
 {
     public:
@@ -3799,7 +3758,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_chimaera_shot_damage();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
-    new spell_hun_scatter_shot();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
