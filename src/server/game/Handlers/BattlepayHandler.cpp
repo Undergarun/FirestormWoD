@@ -99,7 +99,7 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
 
         /// Check balance
         Field* l_Fields = p_Result->Fetch();
-        if (std::atoi(l_Fields[0].GetCString()) < l_Purchase->CurrentPrice)
+        if (std::atoi(l_Fields[0].GetCString()) < (int64)l_Purchase->CurrentPrice)
         {
             Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
             return;
@@ -212,7 +212,7 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
 
         /// Check balance
         Field* l_Fields = p_Result->Fetch();
-        if (std::atoi(l_Fields[0].GetCString()) < l_Purchase->CurrentPrice)
+        if (std::atoi(l_Fields[0].GetCString()) < (int64)l_Purchase->CurrentPrice)
             return;
 
         /// Custom check (scripts)
