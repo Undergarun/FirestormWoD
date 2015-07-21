@@ -244,7 +244,7 @@ public:
 
                     events.Reset();
                     Talk(eWitherbarkTalks::WitherbarkSpell02);
-                    me->MonsterTextEmote("|TInterface\Icons\inv_misc_embers.blp:20|t %s is completely dehydrated and has |cFFFF0404|Hspell:164275|h[Brittle Bark]|h|r!", me->GetGUID(), true);
+                    me->MonsterTextEmote("|TInterface\\Icons\\inv_misc_embers.blp:20|t %s is completely dehydrated and has |cFFFF0404|Hspell:164275|h[Brittle Bark]|h|r!", me->GetGUID(), true);
 
                     std::list<Creature*> l_EnchantedWatersList;
                     me->GetCreatureListWithEntryInGrid(l_EnchantedWatersList, eEverbloomCreature::CreatureEnchanctedWater, 200.0f);
