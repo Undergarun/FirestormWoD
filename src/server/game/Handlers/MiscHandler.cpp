@@ -1962,6 +1962,7 @@ void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const 
 {
     ObjectGuid guid = m_Player->GetGUID();
     uint32 unkValue = 0;
+
     uint32 inactiveSwapsCount = 0;
 
     WorldPacket l_ShiftPacket(SMSG_SET_PHASE_SHIFT, 500);
