@@ -619,7 +619,7 @@ enum WeaponAttackType
 // Last check : 6.0.3
 enum CombatRating
 {
-    CR_UNUSED_1                         = 0,    //< Deprecated, CR_UNUSED_1 in PaperDollFrame.lua
+    CR_UNUSED_1                         = 0,    //< Deprecated, CR_UNUSED_1 in PaperDollFrame.lua previously CR_WEAPON_SKILL
     CR_DEFENSE_SKILL                    = 1,    //< Deprecated
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
@@ -640,7 +640,7 @@ enum CombatRating
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
     CR_AVOIDANCE                        = 20,
-    CR_UNUSED_2                         = 21,   //< Deprecated, CR_UNUSED_2 in PaperDollFrame.lua
+    CR_UNUSED_2                         = 21,   //< Deprecated, CR_UNUSED_2 in PaperDollFrame.lua previously CR_WEAPON_SKILL_OFFHAND
     CR_WEAPON_SKILL_RANGED              = 22,   //< Deprecated
     CR_EXPERTISE                        = 23,   //< Deprecated
     CR_ARMOR_PENETRATION                = 24,   //< Deprecated

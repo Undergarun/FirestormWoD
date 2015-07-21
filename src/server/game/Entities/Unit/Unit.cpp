@@ -790,23 +790,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             GetOwner()->ModifyPower(POWER_MANA, CalculatePct(GetOwner()->GetPower(POWER_MANA), 0.75f));
     }
 
-    ///@todo Leeching Poison - 112961 dosen't exist see 108211
-    // Leeching Poison - 112961 each attack heal the player for 10% of the damage
-    //if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_ROGUE && damage != 0)
-    //{
-    //    if (AuraPtr leechingPoison = victim->GetAura(112961))
-    //    {
-    //        if (leechingPoison->GetCaster())
-    //        {
-    //            if (leechingPoison->GetCaster()->GetGUID() == GetGUID())
-    //            {
-    //                int32 bp = damage / 10;
-    //                CastCustomSpell(this, 112974, &bp, NULL, NULL, true);
-    //            }
-    //        }
-    //    }
-    //}
-
     // Stagger handler
     if (victim && victim->ToPlayer() && victim->getClass() == CLASS_MONK)
     {
@@ -1895,10 +1878,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
 
         // Custom MoP Script - Zen Meditation - 115176
         if (AuraPtr zenMeditation = victim->GetAura(115176, victim->GetGUID()))
-        {
             victim->RemoveAura(115176);
-            victim->RemoveAura(131523); ///< @todo this aura dosen't exist
-        }
     }
 }
 
@@ -6932,23 +6912,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         return false;
                     }
                 }
-                case 56374: // Glyph of Icy Veins ///< @todo spell id is 56364 but grant MultiStrike not spell haste
-                {
-                    RemoveAurasByType(SPELL_AURA_HASTE_SPELLS, 0, NULLAURA, true, false);
-                    RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-                    return true;
-                }
-                case 56372: // Glyph of Ice Block 
-                /// @todo spellId have changed to 115723
-                {
-                    Player* player = ToPlayer();
-                    if (!player)
-                        return false;
-
-                    // Remove Frost Nova cooldown
-                    player->RemoveSpellCooldown(122, true);
-                    break;
-                }
                 case 64411: // Blessing of Ancient Kings (Val'anyr, Hammer of Ancient Kings)
                 {
                     if (!victim)
@@ -7107,12 +7070,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     // Damage counting
                     triggeredByAura->SetAmount(triggeredByAura->GetAmount() - damage);
                     return true;
-                }
-                case 63310: // Glyph of Shadowflame
-                /// @todo update me new spellid 159688
-                {
-                    triggered_spell_id = 63311;
-                    break;
                 }
                 case 37377: // Shadowflame (Voidheart Raiment set bonus)
                 {
@@ -8725,14 +8682,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
         }
         default:
             break;
-    }
-
-    if (dummySpell->Id == 110588) ///< @todo dosen't exist
-    {
-        if (!GetMisdirectionTarget())
-            return false;
-        triggered_spell_id = 35079; // 4 sec buff on self
-        target = this;
     }
 
     // if not handled by custom case, get triggered spell from dummySpell proto

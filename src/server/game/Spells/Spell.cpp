@@ -7208,7 +7208,6 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if (m_spellInfo->RangeEntry)
     {
-        /// @todo both spellId are removed
         // check needed by 68766 51693 - both spells are cast on enemies and have 0 max range
         // these are triggered by other spells - possibly we should omit range check in that case?
         if (m_spellInfo->RangeEntry->ID == 1)

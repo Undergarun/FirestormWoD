@@ -4663,7 +4663,7 @@ void Player::InitSpellForLevel()
     if (l_PerkList)
     {
         // perks are starting at level 90
-        #define PERK_START_LEVEL 90
+#define PERK_START_LEVEL 90
 
         float l_LevelDiff = getLevel() - PERK_START_LEVEL;
         float l_Coeff = (MAX_LEVEL - PERK_START_LEVEL) / float(l_PerkList->size());
@@ -22964,8 +22964,8 @@ void Player::SaveToDB(bool create /*=false*/)
                 ss << item->GetEntry();
             else
                 ss << '0';
-                ss << " 0 ";
-                ss << " 0 ";
+            ss << " 0 ";
+            ss << " 0 ";
         }
 
         stmt->setString(index++, ss.str());
@@ -28930,7 +28930,7 @@ uint32 rand_number(uint32 value1, uint32 value2, uint32 value3 = 0, uint32 value
 void Player::UpdateCharmedAI()
 {
     //This should only called in Player::Update
-  Creature* charmer = GetCharmer()->ToCreature();
+    Creature* charmer = GetCharmer()->ToCreature();
 
     //kill self if charm aura has infinite duration
     if (charmer->IsInEvadeMode())

@@ -800,7 +800,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     if (GetSpellInfo()->Id == 116849)
                     {
                         // +1100% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 34.341f; ///< @todo update me 31.164.f since 6.1.0 (Tue Feb 24 2015) Build 19445
+                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 31.164;
                     }
                     break;
                 case SPELLFAMILY_MAGE:
@@ -1031,7 +1031,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         {
             if (caster)
             {
-                ///< Seem over old @todo
                 // if Level <= 70 resist = player level
                 int32 resist = caster->getLevel();
 
