@@ -100,6 +100,7 @@ const char GlyphRequiredSpecfmt[] =
 const char AreaGroupEntryfmt[] =
 {
     FT_INDEX,
+    FT_END,
 };
 
 const char AreaGroupMemberEntryfmt[] =
