@@ -32,6 +32,7 @@ DB2Storage <LocationEntry>                  sLocationStore(LocationEntryfmt);
 
 std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
 std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
+std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 
 DB2Storage <CurrencyTypesEntry>             sCurrencyTypesStore(CurrencyTypesfmt);
 DB2Storage <CurvePointEntry>                sCurvePointStore(CurvePointEntryfmt);
@@ -75,6 +76,8 @@ DB2Storage <MountEntry>                     sMountStore(MountEntryfmt);
 DB2Storage <PlayerConditionEntry>           sPlayerConditionStore(PlayerConditionEntryfmt);
 DB2Storage <VignetteEntry>                  sVignetteStore(VignetteEntryfmt);
 DB2Storage <GlyphRequiredSpecEntry>         sGlyphRequiredSpecStore(GlyphRequiredSpecfmt);
+DB2Storage <WbAccessControlListEntry>       sWbAccessControlListStore(WbAccessControlListfmt);
+DB2Storage <WbCertWhitelistEntry>           sWbCertWhitelistStore(WbCertWhitelistfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -319,6 +322,12 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sBattlePetSpeciesStateStore,     db2Path, "BattlePetSpeciesState.db2"                                            );
     LoadDB2(bad_db2_files, sBattlePetSpeciesXAbilityStore,  db2Path, "BattlePetSpeciesXAbility.db2"                                         );
 
+    //////////////////////////////////////////////////////////////////////////
+    /// WebBrowser DB2
+    //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sWbAccessControlListStore,       db2Path, "WbAccessControlList.db2",          "wb_access_control_list",      "ID");
+    LoadDB2(bad_db2_files, sWbCertWhitelistStore,           db2Path, "WbCertWhitelist.db2",              "wb_cert_whitelist",           "ID");
+
     std::set<uint32> scalingCurves;
     for (uint32 i = 0; i < sScalingStatDistributionStore.GetNumRows(); ++i)
         if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(i))
@@ -340,12 +349,16 @@ void LoadDB2Stores(const std::string& dataPath)
                 uint32 l_DisplayID = 0;
 
                 if (l_AppearanceEntry)
+                {
                     l_DisplayID = l_AppearanceEntry->DisplayID;
+                    g_ItemFileDataId[l_ModifiedAppearanceEntry->ItemID] = l_AppearanceEntry->IconFileDataID;
+                }
 
                 ItemEntry * l_Entry = const_cast<ItemEntry*>(sItemStore.LookupEntry(l_ModifiedAppearanceEntry->ItemID));
-
                 if (l_Entry)
+                {
                     l_Entry->DisplayId = l_DisplayID;
+                }
             }
         }
     }

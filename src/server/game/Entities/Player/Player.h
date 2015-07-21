@@ -3629,6 +3629,11 @@ class Player : public Unit, public GridObject<Player>
             return m_CharacterWorldStates.at(p_Index).Value;
         }
 
+        /// Send custom message with system message (addon, custom interfaces ...etc)
+        void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
+
+        uint32 GetBagsFreeSlots() const;
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();

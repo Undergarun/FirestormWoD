@@ -11935,6 +11935,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
         }
     }
 
+
     AuraEffectList const& mModDamageFromPercentPower = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_FROM_PCT_POWER);
     for (AuraEffectList::const_iterator i = mModDamageFromPercentPower.begin(); i != mModDamageFromPercentPower.end(); ++i)
     {

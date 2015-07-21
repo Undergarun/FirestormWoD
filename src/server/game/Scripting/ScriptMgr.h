@@ -921,6 +921,12 @@ class ScriptMgr
         /// @p_Player    : Player instance
         bool EvalPlayerConditionScript(PlayerConditionEntry const* p_Condition, Player* p_Player);
 
+    /// Battle Pay product scripts
+    public:
+        void RegisterBattlePayProductScript(std::string p_ScriptName, BattlePayProductScript* p_Script);
+        void OnBattlePayProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product);
+        bool BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason);
+
     private:
         /// Registered script count
         uint32 m_ScriptCount;
@@ -928,6 +934,8 @@ class ScriptMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, long> m_ScheduledScripts;
         /// Player condition scripts
         MS::Utilities::MutextedMap<uint32, PlayerConditionScript*> m_PlayerConditionScripts;
+        /// Battle Pay Product Script
+        std::map<std::string, BattlePayProductScript*> m_BattlePayProductScripts;
 
 };
 

@@ -27,6 +27,7 @@
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
+#include "MSCallback.hpp"
 
 class Creature;
 class GameObject;
@@ -480,11 +481,44 @@ class WorldSession
         /// @p_JoinDate : unix timestamp of the account creation
         void SetAccountJoinDate(uint32 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
 
+        time_t GetLoginTime() const { return m_LoginTime; }
+
         //////////////////////////////////////////////////////////////////////////
         /// Vote
         //////////////////////////////////////////////////////////////////////////
         bool HaveVoteRemainingTime() const { return m_VoteRemainingTime != 0; }
         uint32 GetVoteRemainingTime() const { return m_VoteRemainingTime; }
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New callback system
+        //////////////////////////////////////////////////////////////////////////
+        void AddTransactionCallback(std::shared_ptr<MS::Utilities::Callback> p_Callback, bool p_Lock = true)
+        {
+            if (p_Lock)
+                m_TransactionCallbackLock.lock();
+
+            m_TransactionCallbacks->push_front(p_Callback);
+
+            if (p_Lock)
+                m_TransactionCallbackLock.unlock();
+        }
+
+        void AddPrepareStatementCallback(std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture> p_Callback, bool p_Buffer = false)
+        {
+            if (!p_Buffer)
+            {
+                m_PreparedStatementCallbackLock.lock();
+                m_PreparedStatementCallbacks->push_front(p_Callback);
+                m_PreparedStatementCallbackLock.unlock();
+                return;
+
+            }
+
+            m_PreparedStatementCallbacksBuffer->push_front(p_Callback);
+        }
+
+        void SetServiceFlags(uint32 p_Flags);
+        bool HasServiceFlags(uint32 p_Flags) const { return m_ServiceFlags & p_Flags; }
 
     public:                                                 // opcodes handlers
 
@@ -1153,6 +1187,14 @@ class WorldSession
         void HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData);
         void HandleChallengeModeRequestMapStats(WorldPacket& p_RecvData);
 
+        //////////////////////////////////////////////////////////////////////////
+        /// Battlepay
+        //////////////////////////////////////////////////////////////////////////
+        void HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData);
+        void HandleBattlepayGetPurchaseList(WorldPacket& p_RecvData);
+        void HandleBattlePayStartPurchase(WorldPacket& p_RecvData);
+        void HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData);
+
         void SendChallengeModeMapStatsUpdate(uint32 p_MapID);
 
         /// Auto sort bags.
@@ -1174,6 +1216,22 @@ class WorldSession
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture m_CharacterLoginCallback;
         QueryResultHolderFuture m_CharacterLoginDBCallback;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New transaction query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using TransactionCallbacks = std::forward_list<std::shared_ptr<MS::Utilities::Callback>>;
+        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
+        std::mutex m_TransactionCallbackLock;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New prepare statement query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using PrepareStatementCallback   = std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture>;
+        using PreparedStatementCallbacks = std::forward_list<PrepareStatementCallback>;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacks;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
+        std::mutex m_PreparedStatementCallbackLock;
 
     private:
         // private trade methods
@@ -1272,6 +1330,7 @@ class WorldSession
         z_stream_s* _compressionStream;
 
         uint32 m_ServiceFlags;
+        time_t m_LoginTime;
 };
 #endif
 /// @}

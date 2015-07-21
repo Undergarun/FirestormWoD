@@ -84,6 +84,7 @@
 #include "SceneObject.h"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
+#include "MSCallback.hpp"
 #include "Vignette.hpp"
 #include "WowTime.hpp"
 
@@ -23029,7 +23030,25 @@ void Player::SaveToDB(bool create /*=false*/)
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
         _SaveStats(trans);
 
-    CharacterDatabase.CommitTransaction(trans);
+    MS::Utilities::CallBackPtr l_CharCreateCallback = nullptr;
+    if (create)
+    {
+        uint32 l_AccountID = m_session->GetAccountId();
+        l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+        {
+            WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+            if (l_Session == nullptr)
+                return;
+
+            WorldPacket l_Data(SMSG_CREATE_CHAR, 1);
+            l_Data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
+            l_Session->SendPacket(&l_Data);
+        });
+
+        m_session->AddTransactionCallback(l_CharCreateCallback);
+    }
+
+    CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);
     LoginDatabase.CommitTransaction(accountTrans);
 
     // we save the data here to prevent spamming
@@ -33743,4 +33762,30 @@ void Player::_SaveCharacterWorldStates(SQLTransaction& p_Transaction)
 
         p_Transaction->Append(l_Statement);
     }
+}
+
+void Player::SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Message)
+{
+    std::ostringstream l_Message;
+    l_Message << p_Opcode << "|" << p_Message.str() << "|";
+    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+}
+
+uint32 Player::GetBagsFreeSlots() const
+{
+    uint32 l_FreeBagSlots = 0;
+
+    for (uint8 l_I = INVENTORY_SLOT_BAG_START; l_I < INVENTORY_SLOT_BAG_END; l_I++)
+    {
+        if (Bag * l_Bag = GetBagByPos(l_I))
+            l_FreeBagSlots += l_Bag->GetFreeSlots();
+    }
+
+    for (uint8 l_I = INVENTORY_SLOT_ITEM_START; l_I < INVENTORY_SLOT_ITEM_END; l_I++)
+    {
+        if (!GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+            ++l_FreeBagSlots;
+    }
+
+    return l_FreeBagSlots;
 }
