@@ -4754,7 +4754,10 @@ void Player::RemoveSpecializationSpells()
     spellToRemove.push_back(107095); // Lunar eclipse (overrider)
 
     for (auto itr : spellToRemove)
+    {
+        RemoveAurasDueToSpell(itr);
         removeSpell(itr);
+    }
 }
 
 void Player::InitStatsForLevel(bool reapplyMods)
