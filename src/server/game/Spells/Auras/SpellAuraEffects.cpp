@@ -1371,25 +1371,16 @@ void AuraEffect::CalculateSpellMod()
                     break;
             }
             break;
-        case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
-        case SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE:
         case SPELL_AURA_ADD_FLAT_MODIFIER:
         case SPELL_AURA_ADD_PCT_MODIFIER:
             if (!m_spellmod)
             {
-                SpellModType type = GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER ? SPELLMOD_FLAT : SPELLMOD_PCT;
-
                 m_spellmod = new SpellModifier(GetBase());
                 m_spellmod->op = SpellModOp(GetMiscValue());
 
-                if (GetAuraType() == SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE)
-                    m_spellmod->op = SpellModOp::SPELLMOD_GLOBAL_COOLDOWN;
-
-                ASSERT(m_spellmod->op < MAX_SPELLMOD);
-
-                m_spellmod->type = type;    // SpellModType value == spell aura types
+                m_spellmod->type = SpellModType(uint32(GetAuraType())); // SpellModType value == spell aura types
                 m_spellmod->spellId = GetId();
-                m_spellmod->mask = GetSpellInfo()->Effects[GetEffIndex()].SpellClassMask;
+                m_spellmod->mask = GetSpellEffectInfo()->SpellClassMask;
                 m_spellmod->charges = GetBase()->GetCharges();
             }
             m_spellmod->value = GetAmount();
@@ -1452,7 +1443,7 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
         aurApp->GetTarget()->_RegisterAuraEffect(shared_from_this(), apply);
 
     // real aura apply/remove, handle modifier
-    if (mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_REAPPLY))
+    if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
         ApplySpellMod(aurApp->GetTarget(), apply);
 
     // call scripts helping/replacing effect handlers
@@ -1499,15 +1490,10 @@ void AuraEffect::HandleEffect(Unit* target, uint8 mode, bool apply)
 
 void AuraEffect::ApplySpellMod(Unit* target, bool apply)
 {
-    if (!m_spellmod)
+    if (!m_spellmod || target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player* modOwner = target->GetSpellModOwner();
-
-    if (modOwner)
-        modOwner->AddSpellMod(m_spellmod, apply);
-    else
-        return;
+    target->ToPlayer()->AddSpellMod(m_spellmod, apply);
 
     AuraPtr checkBase = GetBase();
     // Auras with charges do not mod amount of passive auras
@@ -2951,71 +2937,80 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Unit* target = aurApp->GetTarget();
+    Unit* l_Target = aurApp->GetTarget();
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    if (l_Target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (apply)
+    std::list<Unit*> l_TargetList;
+
+    l_TargetList.push_back(l_Target);
+    if (l_Target->HasAura(159459) && l_Target->ToPlayer()->GetPet())  ///< Glyph of Play Dead
+        l_TargetList.push_back(l_Target->ToPlayer()->GetPet()->ToUnit());
+
+    for (auto target : l_TargetList)
     {
-        /*
-        WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 0);
-        target->SendMessageToSet(&data, true);
-        */
-
-        UnitList targets;
-        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(target, target, target->GetMap()->GetVisibilityRange());
-        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
-        target->VisitNearbyObject(target->GetMap()->GetVisibilityRange(), searcher);
-        for (UnitList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        if (apply)
         {
-            if (!(*iter)->HasUnitState(UNIT_STATE_CASTING))
-                continue;
+            /*
+            WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 0);
+            target->SendMessageToSet(&data, true);
+            */
 
-            for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
+            UnitList targets;
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(target, target, target->GetMap()->GetVisibilityRange());
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
+            target->VisitNearbyObject(target->GetMap()->GetVisibilityRange(), searcher);
+            for (UnitList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
             {
-                if ((*iter)->GetCurrentSpell(i)
-                && (*iter)->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
+                if (!(*iter)->HasUnitState(UNIT_STATE_CASTING))
+                    continue;
+
+                for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
                 {
-                    (*iter)->InterruptSpell(CurrentSpellTypes(i), false);
+                    if ((*iter)->GetCurrentSpell(i)
+                        && (*iter)->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
+                    {
+                        (*iter)->InterruptSpell(CurrentSpellTypes(i), false);
+                    }
                 }
             }
+            target->CombatStop();
+            target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+
+            // prevent interrupt message
+            if (GetCasterGUID() == target->GetGUID() && target->GetCurrentSpell(CURRENT_GENERIC_SPELL))
+                target->FinishSpell(CURRENT_GENERIC_SPELL, false);
+            target->InterruptNonMeleeSpells(true);
+            target->getHostileRefManager().deleteReferences();
+
+            // stop handling the effect if it was removed by linked event
+            if (aurApp->GetRemoveMode())
+                return;
+            // blizz like 2.0.x
+            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            // blizz like 2.0.x
+            target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+            // blizz like 2.0.x
+            target->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+
+            target->AddUnitState(UNIT_STATE_DIED);
         }
-        target->CombatStop();
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+        else
+        {
+            /*
+            WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 0);
+            target->SendMessageToSet(&data, true);
+            */
+            // blizz like 2.0.x
+            target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            // blizz like 2.0.x
+            target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+            // blizz like 2.0.x
+            target->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
 
-        // prevent interrupt message
-        if (GetCasterGUID() == target->GetGUID() && target->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-            target->FinishSpell(CURRENT_GENERIC_SPELL, false);
-        target->InterruptNonMeleeSpells(true);
-        target->getHostileRefManager().deleteReferences();
-
-        // stop handling the effect if it was removed by linked event
-        if (aurApp->GetRemoveMode())
-            return;
-                                                            // blizz like 2.0.x
-        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-                                                            // blizz like 2.0.x
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
-                                                            // blizz like 2.0.x
-        target->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-
-        target->AddUnitState(UNIT_STATE_DIED);
-    }
-    else
-    {
-        /*
-        WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 0);
-        target->SendMessageToSet(&data, true);
-        */
-                                                            // blizz like 2.0.x
-        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-                                                            // blizz like 2.0.x
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
-                                                            // blizz like 2.0.x
-        target->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-
-        target->ClearUnitState(UNIT_STATE_DIED);
+            target->ClearUnitState(UNIT_STATE_DIED);
+        }
     }
 }
 

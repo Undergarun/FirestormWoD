@@ -5462,6 +5462,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             /// All spells - ProcFlags = 0
             case 58372:  ///< Glyph of Rude Interruption
+            case 166061: ///< Item - Death Knight WoD PvP Unholy 4P Bonus
             case 170848: ///< Item - Druid WoD PvP Feral 2P Bonus
             case 170853: ///< Item - Druid WoD PvP Restoration 2P Bonus
             case 165691: ///< Item - Monk WoD PvP Windwalker/Brewmaster 2P Bonus

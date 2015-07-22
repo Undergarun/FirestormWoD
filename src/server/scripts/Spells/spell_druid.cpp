@@ -4292,6 +4292,7 @@ class spell_dru_healing_touch: public SpellScriptLoader
         }
 };
 
+/// Last Update - 6.1.2 19802
 /// Starsurge - 78674
 class spell_dru_starsurge : public SpellScriptLoader
 {
@@ -4308,25 +4309,21 @@ class spell_dru_starsurge : public SpellScriptLoader
                 SolarEmpowerment = 164545
             };
 
-            void HandleDamage(SpellEffIndex)
+            void HandleBeforeCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
+                Unit* l_Caster = GetCaster();
 
-                        if (l_EclipseAmount < 0)
-                            l_Caster->CastSpell(l_Caster, eSpells::SolarEmpowerment, true);
-                        else if (l_EclipseAmount > 0)
-                            l_Caster->CastSpell(l_Caster, eSpells::LunarEmpowerment, true);
-                    }
-                }
+                double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
+
+                if (l_EclipseAmount < 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::SolarEmpowerment, true);
+                else if (l_EclipseAmount > 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::LunarEmpowerment, true);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dru_starsurge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                BeforeCast += SpellCastFn(spell_dru_starsurge_SpellScript::HandleBeforeCast);
             }
         };
 
@@ -4792,6 +4789,56 @@ class spell_dru_hurricane: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of the Flapping Owl - 164997
+class spell_dru_gyph_of_the_flapping_owl : public SpellScriptLoader
+{
+    public:
+        spell_dru_gyph_of_the_flapping_owl() : SpellScriptLoader("spell_dru_gyph_of_the_flapping_owl") { }
+
+        class spell_dru_gyph_of_the_flapping_owl_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_gyph_of_the_flapping_owl_AuraScript);
+
+            enum eSpells
+            {
+                Flap = 164862
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasSpell(eSpells::Flap))
+                    l_Player->learnSpell(eSpells::Flap, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::Flap))
+                    l_Player->removeSpell(eSpells::Flap, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_gyph_of_the_flapping_owl_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_gyph_of_the_flapping_owl_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_gyph_of_the_flapping_owl_AuraScript();
+        }
+};
 
 void AddSC_druid_spell_scripts()
 {
@@ -4879,4 +4926,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_hurricane();
     new spell_dru_wod_pvp_balance_2p();
     new spell_dru_lunar_inspiration();
+    new spell_dru_gyph_of_the_flapping_owl();
 }

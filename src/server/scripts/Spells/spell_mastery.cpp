@@ -552,6 +552,7 @@ class spell_mastery_icicles_periodic : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 // Called by 45470 - Death Strike (Heal)
 // 77513 - Mastery : Blood Shield
 class spell_mastery_blood_shield: public SpellScriptLoader
@@ -563,33 +564,41 @@ class spell_mastery_blood_shield: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mastery_blood_shield_SpellScript);
 
+            enum eSpells
+            {
+                BloodPresence = 48263,
+                MasteryAura = 77513
+            };
+
             void HandleAfterHit()
             {
-                if (Player* _plr = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::BloodPresence))
+                    return;
+
+                if (l_Caster->GetGUID() != l_Target->GetGUID()) ///< Only when you heal yourself
+                    return;
+
+                if (AuraEffectPtr l_MasteryBloodShield = l_Caster->GetAuraEffect(eSpells::MasteryAura, EFFECT_0))
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_plr->GetTypeId() == TYPEID_PLAYER && _plr->HasAura(77513) && _plr->getLevel() >= 80)
-                        {
-                            // Check the Mastery aura while in Blood presence
-                            if (_plr->HasAura(77513) && _plr->HasAura(48263))
-                            {
-                                float Mastery = _plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 6.25f / 100.0f;
+                    float l_Mastery = l_MasteryBloodShield->GetAmount();
 
-                                int32 bp = -int32(GetHitDamage() * Mastery);
+                    int32 l_Bp = -int32(GetHitDamage() * (l_Mastery / 100));
 
-                                if (AuraPtr scentOfBlood = _plr->GetAura(SPELL_DK_SCENT_OF_BLOOD))
-                                    AddPct(bp, (scentOfBlood->GetStackAmount() * 20));
+                    if (AuraPtr l_ScentOfBlood = l_Caster->GetAura(SPELL_DK_SCENT_OF_BLOOD))
+                        AddPct(l_Bp, (l_ScentOfBlood->GetStackAmount() * 20));
 
-                                if (AuraEffectPtr bloodShield = target->GetAuraEffect(MASTERY_SPELL_BLOOD_SHIELD, EFFECT_0))
-                                    bp += bloodShield->GetAmount();
+                    if (AuraEffectPtr l_ActualBloodShield = l_Caster->GetAuraEffect(MASTERY_SPELL_BLOOD_SHIELD, EFFECT_0))
+                        l_Bp += l_ActualBloodShield->GetAmount();
 
-                                bp = std::min(uint32(bp), target->GetMaxHealth());
+                    l_Bp = std::min(uint32(l_Bp), l_Caster->GetMaxHealth());
 
-                                _plr->CastCustomSpell(target, MASTERY_SPELL_BLOOD_SHIELD, &bp, NULL, NULL, true);
-                            }
-                        }
-                    }
+                    l_Caster->CastCustomSpell(l_Caster, MASTERY_SPELL_BLOOD_SHIELD, &l_Bp, NULL, NULL, true);
                 }
             }
 

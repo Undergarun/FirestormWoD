@@ -443,7 +443,8 @@ class spell_dk_death_strike_heal: public SpellScriptLoader
         }
 };
 
-// Howling Blast - 49184
+/// last update : 6.1.2 19802
+/// Howling Blast - 49184
 class spell_dk_howling_blast: public SpellScriptLoader
 {
     public:
@@ -453,31 +454,39 @@ class spell_dk_howling_blast: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_howling_blast_SpellScript);
 
-            uint64 tar;
+            uint64 m_TargetGUID = 0;
+            bool m_HasAuraFrog = false;
 
             void HandleBeforeCast()
             {
-                Unit* target = GetExplTargetUnit();
-                Unit* caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+                Unit* l_Caster = GetCaster();
 
-                if (!caster || !target)
+                if (!l_Target)
                     return;
 
-                tar = target->GetGUID();
+                m_TargetGUID = l_Target->GetGUID();
+
+                if (l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
+                    m_HasAuraFrog = true;
             }
 
             void HandleOnHit()
             {
-                Unit* target = GetHitUnit();
-                Unit* caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
 
-                if (!caster || !target || !tar)
+                if (!l_Target || !m_TargetGUID)
                     return;
 
-                if (target->GetGUID() != tar)
+                if (l_Target->GetGUID() != m_TargetGUID)
                     SetHitDamage(GetHitDamage()/2);
 
-                caster->CastSpell(target, DK_SPELL_FROST_FEVER, true);
+                l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
+
+                /// When you have Freezing Fog active, your next Howling Blast will increase Frost damage taken on all targets by 10% for 8 sec.
+                if (m_HasAuraFrog && l_Caster->HasAura(DK_WOD_PVP_FROST_4P_BONUS))
+                    l_Caster->CastSpell(l_Target, DK_WOD_PVP_FROST_4P_BONUS_EFFECT, true);
             }
 
             void Register()
@@ -1817,10 +1826,6 @@ class spell_dk_empowered_obliterate_icy_touch : public SpellScriptLoader
 
                 if (m_HasAura && l_SpellInfo != nullptr)
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
-
-                /// When you have Freezing Fog active, your next Howling Blast will increase Frost damage taken on all targets by 10% for 8 sec.
-                if (m_HasAura && l_Caster->HasAura(DK_WOD_PVP_FROST_4P_BONUS))
-                    l_Caster->CastSpell(l_Target, DK_WOD_PVP_FROST_4P_BONUS_EFFECT, true);
             }
 
             void Register()
