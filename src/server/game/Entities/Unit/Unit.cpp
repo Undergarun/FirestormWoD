@@ -12081,12 +12081,13 @@ bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
     return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
 }
 
-bool Unit::IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolMask) const
+bool Unit::IsAuraAbsorbCrit(SpellInfo const* p_SpellProto, SpellSchoolMask p_SchoolMask) const
 {
-    if (spellProto->SpellFamilyName != SPELLFAMILY_PRIEST)
+    if (p_SpellProto->SpellFamilyName != SPELLFAMILY_PRIEST
+        && p_SpellProto->Id != 65148) ///< Sacred Shield is able to crit
         return false;
 
-    if ((spellProto->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
+    if ((p_SpellProto->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
         return false;
 
     float l_CritAbsorb = 0.0f;
