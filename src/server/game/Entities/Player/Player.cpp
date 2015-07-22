@@ -20979,29 +20979,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
-    // VIP case
-    if (GetSession()->IsPremium())
-    {
-        // Choose mount
-        switch (GetSession()->getPremiumType())
-        {
-            case 1:
-                // Aile-de-nuit obsidienne
-                addSpell(121820, true, false, false, false, true);
-                break;
-            case 2:
-                // Gangredrake
-                addSpell(113120, true, false, false, false, true);
-                break;
-            default:
-                break;
-        }
-
-        // Mini Thor
-        addSpell(78381, true, false, false, false, true);
-    }
-
     _LoadAuras(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADAURAS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADAURAS_EFFECTS), time_diff);
 
     l_Times.push_back(getMSTime() - l_StartTime);
@@ -23761,10 +23738,8 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
             }
         }
 
-        // add only changed/new not dependent spells
-        //  Gangredrake - VIP  -  Aile-de-nuit obsidienne - VIP - Mini Thor - VIP
-        if (!itr->second->dependent && (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED)
-            && itr->first != 113120 && itr->first != 121820 && itr->first != 78381)
+        /// add only changed/new not dependent spells
+        if (!itr->second->dependent && (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED))
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
