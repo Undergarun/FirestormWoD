@@ -542,8 +542,6 @@ class spell_pal_selfless_healer: public SpellScriptLoader
                 if (l_Player == nullptr || l_Target == nullptr)
                     return;
 
-                if (l_Player->HasAura(PALADIN_SPELL_SELFLESS_HEALER))
-                    l_Player->CastSpell(l_Player, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
                 if (l_Player->HasAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
                 {
                     int32 l_Charges = l_Player->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
