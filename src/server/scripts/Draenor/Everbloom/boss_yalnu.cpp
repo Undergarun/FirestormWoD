@@ -191,13 +191,14 @@ public:
 
             for (int i = 0; i < 7; i++)
             {
-                GameObject* obj = me->SummonGameObject(eEverbloomGameObjects::ObjectVineWall, l_PosWallPos[i].GetPositionX(), l_PosWallPos[i].GetPositionY(), l_PosWallPos[i].GetPositionZ(), l_PosWallPos[i].GetOrientation(), 0, 0, 0, 0, 0);
-                l_GuidsWalls.push_back(obj->GetGUID());
+                GameObject* l_GameObject = me->SummonGameObject(eEverbloomGameObjects::ObjectVineWall, l_PosWallPos[i].GetPositionX(), l_PosWallPos[i].GetPositionY(), l_PosWallPos[i].GetPositionZ(), l_PosWallPos[i].GetOrientation(), 0, 0, 0, 0, 0);
+                if (l_GameObject != nullptr)
+                    m_GuidsWalls.push_back(l_GameObject->GetGUID());
             }
         }
 
         InstanceScript* m_Instance;
-        std::list<uint64> l_GuidsWalls;
+        std::list<uint64> m_GuidsWalls;
         bool m_MovementTrigger;
         bool m_HasShotFire;
 
@@ -266,7 +267,7 @@ public:
                             me->CastSpell(nearest, eYalnuSpells::SpellDragonBreathVisual);
                             m_MovementTrigger = true;
 
-                            for (auto itr : l_GuidsWalls)
+                            for (auto itr : m_GuidsWalls)
                             {
                                 if (GameObject* wall = GameObject::GetGameObject(*me, itr))
                                     wall->Delete();

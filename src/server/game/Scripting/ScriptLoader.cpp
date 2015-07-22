@@ -878,6 +878,15 @@ void AddSC_Nyami();
 void AddSC_azzakel();
 void AddSC_teronogoer();
 
+/// Everbloom
+void AddSC_the_everbloom();
+void AddSC_instance_everbloom();
+void AddSC_boss_ancient_protectors();
+void AddSC_boss_witherbark();
+void AddSC_boss_xeritac();
+void AddSC_boss_sol();
+void AddSC_boss_yalnu();
+
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
@@ -1817,6 +1826,15 @@ void AddDraenorScripts()
     AddSC_Nyami();
     AddSC_azzakel();
     AddSC_teronogoer();
+
+    /// Everbloom
+    AddSC_the_everbloom();
+    AddSC_instance_everbloom();
+    AddSC_boss_ancient_protectors();
+    AddSC_boss_witherbark();
+    AddSC_boss_xeritac();
+    AddSC_boss_sol();
+    AddSC_boss_yalnu();
 
     /// Battlegrounds strongbox
     AddSC_item_strongboxes();
