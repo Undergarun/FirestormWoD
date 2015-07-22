@@ -24735,76 +24735,48 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
 
 void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
 {
-    // Dont pointlessly send mods when player is not in world
-    if (IsInWorld())
+    Opcodes l_Opcode = Opcodes((p_Modifier->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+
+    flag128 l_Mask = 0;
+    uint32 l_ModifierTypeCount = 0; // count of mods per one mod->op
+    uint32 l_MaskIndex = 0;
+
+    WorldPacket l_Packet(l_Opcode);
+    ByteBuffer l_Buffer;
+
+    for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
     {
-        Opcodes l_Opcode = Opcodes((p_Modifier->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+        if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
+            l_Mask[l_MaskIndex++] = 0;
 
-        flag128 l_Mask = 0;
-        uint32 l_ModifierTypeCount = 0; // count of mods per one mod->op
-        uint32 l_MaskIndex = 0;
+        l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
 
-        WorldPacket l_Packet(l_Opcode);
-        ByteBuffer l_Buffer;
-
-        for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
+        if (p_Modifier->mask & l_Mask)
         {
-            if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
-                l_Mask[l_MaskIndex++] = 0;
+            float l_Value = 0.f;
 
-            l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
+            for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                    l_Value += float((*l_It)->value);
 
-            if (p_Modifier->mask & l_Mask)
-            {
-                if (l_Opcode == SMSG_SET_PCT_SPELL_MODIFIER)
-                {
-                    float l_Value = 1;
+            l_Value += p_Apply ? float(p_Modifier->value) : float(-p_Modifier->value);
 
-                    for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
-                        if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
-                            l_Value += float((*l_It)->value)/100;
+            if (p_Modifier->type == SPELLMOD_PCT)
+                l_Value = 1.0f + (l_Value * 0.01f);
 
-                    if (p_Modifier->value)
-                        l_Value += p_Apply ? float(p_Modifier->value) / 100.f : float(p_Modifier->value) / -100.f;
+            l_Buffer << float(l_Value);
+            l_Buffer << uint8(l_EffectIndex);
 
-                    uint32 l_EffIndex = p_Modifier->ownerAura->GetEffectIndexByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
-                    if (l_EffIndex != MAX_EFFECTS && p_Apply)
-                    {
-                        // This needs to be done so sclient receives precise numbers
-                        l_Value -= float(p_Modifier->value) / 100.f;
-                        l_Value -= ((float)p_Modifier->ownerAura->GetSpellInfo()->Effects[l_EffIndex].BasePoints * ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)) / 100.f;
-                    }
-
-                    l_Buffer << float(l_Value);
-                    l_Buffer << uint8(l_EffectIndex);
-
-                    ++l_ModifierTypeCount;
-
-                    continue;
-                }
-
-                float l_Value = 0;
-
-                for (SpellModList::iterator itr = m_spellMods[p_Modifier->op].begin(); itr != m_spellMods[p_Modifier->op].end(); ++itr)
-                    if ((*itr)->type == p_Modifier->type && (*itr)->mask & l_Mask)
-                        l_Value += float((*itr)->value);
-
-                l_Value += p_Apply ? float(p_Modifier->value) : -float(p_Modifier->value);
-
-                l_Buffer << float(l_Value);
-                l_Buffer << uint8(l_EffectIndex);
-
-                ++l_ModifierTypeCount;
-            }
+            ++l_ModifierTypeCount;
         }
-
-        l_Packet << uint32(1);
-        l_Packet << uint8(p_Modifier->op);
-        l_Packet << uint32(l_ModifierTypeCount);
-        l_Packet.append(l_Buffer);
-
-        SendDirectMessage(&l_Packet);
     }
+
+    l_Packet << uint32(1);
+    l_Packet << uint8(p_Modifier->op);
+    l_Packet << uint32(l_ModifierTypeCount);
+    l_Packet.append(l_Buffer);
+
+    SendDirectMessage(&l_Packet);
 
     if (p_Apply)
         m_spellMods[p_Modifier->op].push_back(p_Modifier);

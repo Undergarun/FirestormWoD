@@ -1371,25 +1371,16 @@ void AuraEffect::CalculateSpellMod()
                     break;
             }
             break;
-        case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
-        case SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE:
         case SPELL_AURA_ADD_FLAT_MODIFIER:
         case SPELL_AURA_ADD_PCT_MODIFIER:
             if (!m_spellmod)
             {
-                SpellModType type = GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER ? SPELLMOD_FLAT : SPELLMOD_PCT;
-
                 m_spellmod = new SpellModifier(GetBase());
                 m_spellmod->op = SpellModOp(GetMiscValue());
 
-                if (GetAuraType() == SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE)
-                    m_spellmod->op = SpellModOp::SPELLMOD_GLOBAL_COOLDOWN;
-
-                ASSERT(m_spellmod->op < MAX_SPELLMOD);
-
-                m_spellmod->type = type;    // SpellModType value == spell aura types
+                m_spellmod->type = SpellModType(uint32(GetAuraType())); // SpellModType value == spell aura types
                 m_spellmod->spellId = GetId();
-                m_spellmod->mask = GetSpellInfo()->Effects[GetEffIndex()].SpellClassMask;
+                m_spellmod->mask = GetSpellEffectInfo()->SpellClassMask;
                 m_spellmod->charges = GetBase()->GetCharges();
             }
             m_spellmod->value = GetAmount();
@@ -1452,7 +1443,7 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
         aurApp->GetTarget()->_RegisterAuraEffect(shared_from_this(), apply);
 
     // real aura apply/remove, handle modifier
-    if (mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_REAPPLY))
+    if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
         ApplySpellMod(aurApp->GetTarget(), apply);
 
     // call scripts helping/replacing effect handlers
@@ -1499,15 +1490,10 @@ void AuraEffect::HandleEffect(Unit* target, uint8 mode, bool apply)
 
 void AuraEffect::ApplySpellMod(Unit* target, bool apply)
 {
-    if (!m_spellmod)
+    if (!m_spellmod || target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player* modOwner = target->GetSpellModOwner();
-
-    if (modOwner)
-        modOwner->AddSpellMod(m_spellmod, apply);
-    else
-        return;
+    target->ToPlayer()->AddSpellMod(m_spellmod, apply);
 
     AuraPtr checkBase = GetBase();
     // Auras with charges do not mod amount of passive auras
