@@ -33011,7 +33011,7 @@ bool Player::CanUseCharge(SpellCategoryEntry const* p_Category) const
     if (!l_Charges.m_ConsumedCharges)
         return true;
 
-    if (l_Charges.m_ConsumedCharges >= CalcMaxCharges(p_Category)) // todo
+    if (l_Charges.m_ConsumedCharges >= CalcMaxCharges(p_Category))
         return false;
 
     return true;
