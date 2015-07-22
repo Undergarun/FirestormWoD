@@ -146,7 +146,10 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         _flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
 
-    if (GetBase()->GetSpellInfo()->AttributesEx8 & SPELL_ATTR8_AURA_SEND_AMOUNT)
+    if (GetBase()->GetSpellInfo()->AttributesEx8 & SPELL_ATTR8_AURA_SEND_AMOUNT ||
+        GetBase()->HasEffectType(SPELL_AURA_MOD_MAX_CHARGES) ||
+        GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD) ||
+        GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER))
         _flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
 
     // there are more auras that require this flag, this is just the beginning
@@ -1334,6 +1337,7 @@ bool Aura::CanBeSaved() const
 
 bool Aura::CanBeSentToClient() const
 {
+    /// Chi Wave
     if (GetId() == 115098)
         return false;
 
@@ -1349,7 +1353,9 @@ bool Aura::CanBeSentToClient() const
         HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)     ||
         HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)   ||
         HasEffectType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT)         ||
-        HasEffectType(SPELL_AURA_MOD_CHARGES))
+        HasEffectType(SPELL_AURA_MOD_MAX_CHARGES)               ||
+        HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD)           ||
+        HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER))
         return true;
 
     return false;

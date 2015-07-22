@@ -2249,7 +2249,7 @@ class spell_sha_echo_of_elements: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_echo_of_elements_AuraScript::OnProc, EFFECT_0, SPELL_AURA_MOD_CHARGES);
+                OnEffectProc += AuraEffectProcFn(spell_sha_echo_of_elements_AuraScript::OnProc, EFFECT_0, SPELL_AURA_MOD_MAX_CHARGES);
             }
         };
 
