@@ -1247,7 +1247,9 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
     float l_TotalMod = l_Minval + l_Maxval;
 
     /// Apply Versatility absorb bonus
-    l_TotalMod += p_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+    if (m_spellInfo->Id != 86273 && ///< Mastery: Illuminated Healing is already affected by Versatility because trigger by a healing spell
+        m_spellInfo->Id != 47753) ///< Divine Aegis is already affected by Versatility because trigger by a healing spell
+        l_TotalMod += p_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
 
     /// Apply Mastery: Discipline Shield
     if (p_Caster->HasAura(77484))
