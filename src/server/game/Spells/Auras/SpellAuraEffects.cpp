@@ -1221,31 +1221,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     {
         if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
         {
-            float l_Minval = (float)caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-            float l_Maxval = (float)caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-
-            /// Apply bonus absorption
-            float totalMod = l_Minval + l_Maxval;
-
-            /// Apply Versatility absorb bonus
-            totalMod += caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
-
-            /// Apply Mastery: Discipline Shield
-            if (caster->HasAura(77484))
-            {
-                float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
-                totalMod += l_Mastery;
-            }
-
-            amount += CalculatePct(amount, totalMod);
-
-            /// Bonus Taken    
-            /// Dampening, must be calculated off the raw amount
-            if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(110310, EFFECT_0))
-            {
-                if (GetId() != 47753) ///< Divine Aegis proc from heal, and get heal % of heal amount, and heal spells are already affected by Dampening
-                    amount = CalculatePct(amount, 100 - l_AurEff->GetAmount());
-            }
+            amount = AbsorbBonusDone(caster, amount);
+            amount = AbsorbBonusTaken(caster, amount);
 
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
@@ -1256,6 +1233,49 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     amount *= GetBase()->GetStackAmount();
 
     return amount;
+}
+
+uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
+{
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+        return p_Amount;
+
+    float l_Minval = (float)p_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+    float l_Maxval = (float)p_Caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+
+    /// Apply bonus absorption
+    float l_TotalMod = l_Minval + l_Maxval;
+
+    /// Apply Versatility absorb bonus
+    l_TotalMod += p_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+
+    /// Apply Mastery: Discipline Shield
+    if (p_Caster->HasAura(77484))
+    {
+        float l_Mastery = p_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+        l_TotalMod += l_Mastery;
+    }
+
+    p_Amount += CalculatePct(p_Amount, l_TotalMod);
+
+    return p_Amount;
+}
+
+uint32 AuraEffect::AbsorbBonusTaken(Unit* p_Caster, int32 p_Amount)
+{
+    float totalMod = 0.0f;
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+        return p_Amount;
+
+    /// Dampening, must be calculated off the raw amount
+    if (AuraEffectPtr l_AurEff = p_Caster->GetAuraEffect(110310, EFFECT_0))
+    {
+        if (GetId() != 47753) ///< Divine Aegis proc from heal, and get heal % of heal amount, and heal spells are already affected by Dampening
+            p_Amount = CalculatePct(p_Amount, 100 - l_AurEff->GetAmount());
+    }
+
+    return p_Amount;
 }
 
 void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
