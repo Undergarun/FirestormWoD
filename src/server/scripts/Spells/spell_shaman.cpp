@@ -2090,7 +2090,8 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
 
         enum eSpells
         {
-            SpiritHuntHeal = 58879
+            SpiritHuntHeal = 58879,
+            GlyphofFeralSpirit = 63271
         };
 
         class spell_sha_pet_spirit_hunt_AuraScript : public AuraScript
@@ -2114,6 +2115,10 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
                     return;
 
                 int32 l_HealAmount = CalculatePct(l_TakenDamage, p_AurEff->GetAmount());
+
+                if (AuraPtr l_GlyphofFeralSpirit = l_Owner->GetAura(eSpells::GlyphofFeralSpirit)) ///< Increases the healing done by your Feral Spirits' Spirit Hunt by 40%
+                    l_HealAmount += CalculatePct(l_HealAmount, l_GlyphofFeralSpirit->GetEffect(EFFECT_0)->GetAmount());
+
                 l_Caster->CastCustomSpell(l_Owner, eSpells::SpiritHuntHeal, &l_HealAmount, nullptr, nullptr, true);
                 l_Caster->CastCustomSpell(l_Caster, eSpells::SpiritHuntHeal, &l_HealAmount, nullptr, nullptr, true);
             }
