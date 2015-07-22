@@ -428,7 +428,6 @@ public:
             me->SetInCombatWithZone();
             me->setFaction(7);   
             me->SetReactState(REACT_AGGRESSIVE);
-            me->setFaction(14);
 
             m_Achievement = true;
 
