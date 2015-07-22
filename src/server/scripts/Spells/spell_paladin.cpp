@@ -2479,11 +2479,11 @@ class spell_pal_sanctified_wrath_bonus : public SpellScriptLoader
                     case EFFECT_0: //< Mod CD Holy Shock
                     case EFFECT_4: //< Crit chance
                         if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_HOLY)
-                            PreventHitAura();
+                            PreventHitEffect(p_EffIndex);
                         break;
                     case EFFECT_2: //< Mod CD Hammer of Wrath
                         if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
-                            PreventHitAura();
+                            PreventHitEffect(p_EffIndex);
                         break;
                     default:
                         break;
