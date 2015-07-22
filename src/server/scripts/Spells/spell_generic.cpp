@@ -4224,6 +4224,43 @@ class spell_gen_raid_buff_stack : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Sword Technique - 177189
+class spell_gen_sword_technique: public SpellScriptLoader
+{
+    public:
+        spell_gen_sword_technique() : SpellScriptLoader("spell_gen_sword_technique") { }
+
+        class spell_gen_sword_technique_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_sword_technique_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if ((l_Player->GetMap() && l_Player->GetMap()->IsBattlegroundOrArena()) || l_Player->IsInPvPCombat())
+                    p_Amount -= CalculatePct(p_Amount, 40);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_sword_technique_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_sword_technique_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_drums_of_fury();
@@ -4305,6 +4342,7 @@ void AddSC_generic_spell_scripts()
     new spell_inherit_master_threat_list();
     new spell_taunt_flag_targeting();
     new spell_gen_raid_buff_stack();
+    new spell_gen_sword_technique();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
