@@ -743,7 +743,7 @@ class SpellMgr
             if (m_SkillTradeSpells.find(p_Skill) == m_SkillTradeSpells.end())
                 m_SkillTradeSpells[p_Skill] = {};
 
-            return m_SkillTradeSpells.at(p_Skill);
+            return m_SkillTradeSpells[p_Skill];
         }
 
     // Modifiers

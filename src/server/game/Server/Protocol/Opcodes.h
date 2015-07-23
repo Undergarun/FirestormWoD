@@ -222,6 +222,7 @@ enum Opcodes
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x1CB2, ///< 6.1.2 19783
         SMSG_POWER_UPDATE                           = 0x0F96, ///< 6.1.2 19783
+        SMSG_ADJUST_SPLINE_DURATION                 = 0x0E97, ///< 6.1.2 19865
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x18F1, ///< 6.1.2 19783
@@ -510,7 +511,14 @@ enum Opcodes
         SMSG_CHALLENGE_MODE_COMPLETE                            = 0x03B1, ///< 6.1.2 19783
         SMSG_CHALLENGE_MOD_REWARDS                              = 0x0000, ///< (NYI)
 
-        /// BlackMarket
+        /// Battlepay
+        SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE               = 0x0CE1, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE              = 0x02C0, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE          = 0x120E, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE                 = 0x0F04, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_PURCHASE_UPDATE                         = 0x1639, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_CONFIRM_PURCHASE                        = 0x1716, ///< 6.1.2 19783
+
         SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x18B5, ///< 6.1.2 19783
         SMSG_BLACK_MARKET_OUTBID                                = 0x18E6, ///< 6.1.2 19783
         SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x06B6, ///< 6.1.2 19783
@@ -529,6 +537,10 @@ enum Opcodes
 
         /// Toys
         SMSG_ACCOUNT_TOYS_UPDATE                                = 0x0E1D, ///< 6.1.2 19783
+
+        /// AreaTriggers
+        SMSG_AREA_TRIGGER_RE_SHAPE                              = 0x1A0E, ///< 6.1.2 19865
+        SMSG_AREA_TRIGGER_RE_PATH                               = 0x1F09, ///< 6.1.2 19865
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -738,6 +750,7 @@ enum Opcodes
         SMSG_SPLINE_MOVE_SET_WALK_MODE              = 0x0B09, ///< 6.1.2 19783
         SMSG_SPLINE_MOVE_SET_FLYING                 = 0x0B2A, ///< 6.1.2 19783
         SMSG_SPLINE_MOVE_UNSET_FLYING               = 0x1A2C, ///< 6.1.2 19783
+        SMSG_FLIGHT_SPLINE_SYNC                     = 0x1647, ///< 6.1.2 19865
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1538,7 +1551,10 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay
     //////////////////////////////////////////////////////////////////////////
-    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x1616, ///< (unused) 6.1.2 19783
+    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x1616,    ///< 6.1.2 19783
+    CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY         = 0x0A1D,    ///< 6.1.2 19783
+    CMSG_BATTLE_PAY_START_PURCHASE                 = 0x173F,    ///< 6.1.2 19783
+    CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE      = 0x1A1F,    ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// LFG
@@ -1787,7 +1803,6 @@ enum Opcodes
 
     // SMSG
     SMSG_ACCOUNT_PROFILE                                = 0x0000,
-    SMSG_ADJUST_SPLINE_DURATION                         = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                  = 0x0000,
     SMSG_AREA_SHARE_MAPPINGS_RESPONSE                   = 0x0000,
     SMSG_AREA_SHARE_INFO_RESPONSE                       = 0x0000,
@@ -1860,7 +1875,6 @@ enum Opcodes
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR            = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                     = 0x0000,
     SMSG_FAILED_PLAYER_CONDITION                        = 0x0000,
-    SMSG_FLIGHT_SPLINE_SYNC                             = 0x0000,
     SMSG_FORCED_DEATH_UPDATE                            = 0x0000,
     SMSG_GAMEOBJECT_RESET_STATE                         = 0x0000,
     SMSG_GAME_SPEED_SET                                 = 0x0000,

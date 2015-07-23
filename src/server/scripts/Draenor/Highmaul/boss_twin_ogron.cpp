@@ -26,12 +26,12 @@ Position const g_PhemosMovePos[3] =
 
 Position const g_PhemosJumpPos = { 4028.90f, 8485.51f, 322.226f, 5.63415f };
 
-float g_GorthenonFloor = 330.0f;
+float const g_GorthenonFloor = 330.0f;
 
 Position const g_CenterPos = { 4062.38f, 8470.91f, 322.226f, 0.0f };
 
-float g_CircleToCenterDist = 25.0f;
-float g_BlazeDistToCenter = 136.0f;
+float const g_CircleToCenterDist = 30.0f;
+float const g_BlazeDistToCenter = 136.0f;
 
 void RespawnOgrons(Creature* p_Source, InstanceScript* p_Instance)
 {
@@ -79,10 +79,10 @@ class boss_twin_ogron_pol : public CreatureScript
             InterruptingShoutDmg    = 158102,
             /// Shield Charge
             SpellShieldCharge       = 158134,
-            ShieldChargeSearcher    = 158136,
             ShieldChargeEndingAoE   = 158157,
+            InjuredDoT              = 155569,
 
-            ShieldBash              = 157159
+            ShieldBash              = 143834
         };
 
         enum eEvents
@@ -96,10 +96,6 @@ class boss_twin_ogron_pol : public CreatureScript
             SchedulePulverize,
             ScheduleInterruptingShout,
             ScheduleShieldCharge
-        };
-
-        enum eCreatures
-        {
         };
 
         enum eTalks
@@ -167,9 +163,6 @@ class boss_twin_ogron_pol : public CreatureScript
                 me->CancelSpellVisual(eVisuals::BigPulverize);
                 me->CancelSpellVisual(eVisuals::PulverizeVisual);
                 me->CancelSpellVisualKit(eVisuals::PulverizeLast);
-
-                if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Phemos, 150.0f))
-                    me->CastSpell(l_Other, eSpells::VenomshadeCopyDmgAura, true);
             }
 
             bool CanRespawn() override
@@ -259,7 +252,10 @@ class boss_twin_ogron_pol : public CreatureScript
 
                         Talk(eTalks::ShieldCharge);
                         Talk(eTalks::ShieldChargeWarn);
-                        me->CastSpell(me, eSpells::ShieldChargeSearcher, true);
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                            me->CastSpell(l_Target, eSpells::SpellShieldCharge, false);
+
                         m_ShieldChargeScheduled = true;
                         break;
                     }
@@ -283,6 +279,9 @@ class boss_twin_ogron_pol : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventShieldBash, 22 * TimeConstants::IN_MILLISECONDS);
 
                 StartOgrons(me, p_Attacker);
+
+                if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Phemos, 150.0f))
+                    me->AddAura(eSpells::VenomshadeCopyDmgAura, l_Other);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -298,6 +297,8 @@ class boss_twin_ogron_pol : public CreatureScript
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InjuredDoT);
 
                     if (IsLFR())
                     {
@@ -316,6 +317,8 @@ class boss_twin_ogron_pol : public CreatureScript
                 {
                     m_Instance->SetBossState(eHighmaulDatas::BossTwinOgron, EncounterState::FAIL);
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InjuredDoT);
 
                     RespawnOgrons(me, m_Instance);
                 }
@@ -383,11 +386,6 @@ class boss_twin_ogron_pol : public CreatureScript
 
                         break;
                     }
-                    case eSpells::ShieldChargeSearcher:
-                    {
-                        me->CastSpell(p_Target, eSpells::SpellShieldCharge, false);
-                        break;
-                    }
                     default:
                         break;
                 }
@@ -423,7 +421,7 @@ class boss_twin_ogron_pol : public CreatureScript
                     case eEvents::EventShieldBash:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::ShieldBash, true);
+                            me->CastSpell(l_Target, eSpells::ShieldBash, false);
                         m_Events.ScheduleEvent(eEvents::EventShieldBash, 22 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -467,7 +465,8 @@ class boss_twin_ogron_phemos : public CreatureScript
             WeakenedDefenses        = 159709,
 
             DoubleSlashMainHand     = 158521,
-            DoubleSlashOffHand      = 167198
+            DoubleSlashOffHand      = 167198,
+            BlazeDoT                = 158241
         };
 
         enum eEvents
@@ -614,15 +613,6 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                 me->CancelSpellVisual(eVisuals::QuakeSpellVisual);
                 me->CancelSpellVisualKit(eVisuals::QuakeVisualID);
-
-                if (m_Instance != nullptr)
-                {
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::WeakenedDefenses);
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::EnfeeblingRoarDebuff);
-                }
-
-                if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Pol, 150.0f))
-                    me->CastSpell(l_Other, eSpells::VenomshadeCopyDmgAura, true);
             }
 
             bool CanRespawn() override
@@ -750,6 +740,9 @@ class boss_twin_ogron_phemos : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventDoubleSlash, 26 * TimeConstants::IN_MILLISECONDS);
 
                 StartOgrons(me, p_Attacker);
+
+                if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Pol, 150.0f))
+                    me->AddAura(eSpells::VenomshadeCopyDmgAura, l_Other);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -768,7 +761,10 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::WeakenedDefenses);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::EnfeeblingRoarDebuff);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::BlazeDoT);
                 }
+
+                me->RemoveAllAreasTrigger();
             }
 
             void EnterEvadeMode() override
@@ -782,8 +778,14 @@ class boss_twin_ogron_phemos : public CreatureScript
                     m_Instance->SetBossState(eHighmaulDatas::BossTwinOgron, EncounterState::FAIL);
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::WeakenedDefenses);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::EnfeeblingRoarDebuff);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::BlazeDoT);
+
                     RespawnOgrons(me, m_Instance);
                 }
+
+                me->RemoveAllAreasTrigger();
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -1090,7 +1092,15 @@ class spell_highmaul_disposition : public SpellScriptLoader
 
                 if (Creature* l_Boss = GetTarget()->ToCreature())
                 {
-                    l_Boss->EnergizeBySpell(l_Boss, GetSpellInfo()->Id, 1, Powers::POWER_ENERGY);
+                    float l_EnergyGain = 1.0f;
+
+                    /// Pol energizes 25% faster than Phemos
+                    if (l_Boss->GetEntry() == eHighmaulCreatures::Pol)
+                        l_EnergyGain *= 1.25f;
+
+                    l_EnergyGain *= 1.0f + (float)l_Boss->GetPower(Powers::POWER_ALTERNATE_POWER) / 100.0f;
+
+                    l_Boss->EnergizeBySpell(l_Boss, GetSpellInfo()->Id, l_EnergyGain, Powers::POWER_ENERGY);
 
                     if (!l_Boss->IsAIEnabled)
                         return;

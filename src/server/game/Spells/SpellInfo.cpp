@@ -1568,17 +1568,8 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
     if (Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
         return true;
 
-    if (aura && aura->Id == 33786)
-    {
-        // Re-cyclone & Fiery Fire
-        if (Id == aura->Id || SpellIconID == 109)
-            return false;
-    }
-
-    // these spells (Cyclone for example) can pierce all...
-    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE)
-        // ...but not these (Divine shield for example)
-        && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Id == 48707)))
+    // these spells (Cyclone for example) can pierce all...         // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
+    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH)))
         return true;
 
     return false;
@@ -1716,6 +1707,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SpellSpecificType::SpellSpecificCrowdFavorite:
         case SpellSpecificType::SpellSpecificTarrenMillTitle:
         case SpellSpecificType::SpellSpecificDisposition:
+        case SpellSpecificType::SpellSpecificTowerBuffs:
             return spellSpec1 == spellSpec2;
         case SpellSpecificType::SpellSpecificFood:
             return spellSpec2 == SpellSpecificType::SpellSpecificFood
@@ -1882,9 +1874,11 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         case 110078:
         case 106498:
         case 106368:
+        case 133755:
+        case 140013:
             if (!player)
                 return SPELL_CAST_OK;
-            return (area_id == 5928) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
+            return (area_id == 5928 || area_id == 6622) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         case 103755: // Twilight Epiphany, Archbishop Benedictus, Hour of Twilight
             return ((map_id == 940 && area_id == 5845) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA);
         case 105009: // Gift of Sargeras, Well of Eternity
@@ -2035,7 +2029,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
          return SPELL_FAILED_BAD_TARGETS;
 
      // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
-     if (unitTarget && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
+     if (unitTarget && !unitTarget->IsFriendlyTo(caster) && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
          return SPELL_FAILED_BAD_TARGETS;
 
     // creature/player specific target checks
@@ -2472,6 +2466,10 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case 158016:    ///< Fierce Disposition
                 case 158017:    ///< Savage Disposition
                     return SpellSpecificType::SpellSpecificDisposition;
+                case 173534:    ///< Hold your ground
+                case 173541:    ///< Tower Defense
+                case 173549:    ///< Stand Fast
+                    return SpellSpecificType::SpellSpecificTowerBuffs;
                 default:
                     break;
             }
@@ -3953,6 +3951,30 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
     return false;
 }
 
+bool SpellInfo::IsCustomChecked() const
+{
+    switch (Id)
+    {
+        case 136955:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 136956:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 136957:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 136958:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 136959:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 136960:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138671:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138672:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138673:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138674:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138675:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138676:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 bool SpellInfo::IsCanBeStolen() const
 {
     /// Special rules, some aren't using mana but can be stolen
@@ -4204,8 +4226,19 @@ bool SpellEffectInfo::CanScale() const
                 case SPELL_AURA_DAMAGE_SHIELD:
                 case SPELL_AURA_SCHOOL_ABSORB:
                 case SPELL_AURA_SCHOOL_HEAL_ABSORB:
+                {
+                    switch (_spellInfo->Id)
+                    {
+                        case 162184: ///< Expel Magic: Shadow - Highmaul (Ko'ragh)
+                            return false;
+                        default:
+                            break;
+                    }
+
                     return true;
+                }
                 case SPELL_AURA_DUMMY:
+                {
                     switch (_spellInfo->Id)
                     {
                         // Earthquake
@@ -4214,6 +4247,7 @@ bool SpellEffectInfo::CanScale() const
                         default:
                             break;
                     }
+                }
                 default:
                     break;
             }
@@ -4349,8 +4383,11 @@ bool SpellInfo::CannotBeAddedToCharm() const
 {
     switch (Id)
     {
-        case 121087: // Ground Slam
-        case 121224: // Spirit Bolt
+        case 121087: ///< Ground Slam
+        case 121224: ///< Spirit Bolt
+        case 123995: ///< Invoke Xuen, the White Tiger
+        case 123996: ///< Crackling Tiger Lightning
+        case 123999: ///< Crackling Tiger Lightning Driver
             return false;
         default:
             return true;

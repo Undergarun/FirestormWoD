@@ -586,7 +586,7 @@ public:
     SpellCastResult CheckPower();
     SpellCastResult CheckRuneCost(uint32 runeCostID);
     SpellCastResult CheckCasterAuras() const;
-    SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
+    SpellCastResult CheckArenaAndRatedBattlegroundCastRules(Battleground const* p_Battleground);
 
     int32 CalculateDamage(uint8 i, Unit const* target) const
     {
@@ -668,6 +668,9 @@ public:
     uint64 GetDelayStart() const { return m_delayStart; }
     void SetDelayStart(uint64 m_time) { m_delayStart = m_time; }
     uint64 GetDelayMoment() const { return m_delayMoment; }
+
+    float GetCustomCritChance() const { return m_CustomCritChance; }
+    void SetCustomCritChance(float p_CustomCritChance) { m_CustomCritChance = p_CustomCritChance; }
 
     bool IsNeedSendToClient() const;
 
@@ -773,6 +776,11 @@ protected:
     uint32 m_procVictim;                  // Victim   trigger flags
     uint32 m_procEx;
     void   prepareDataForTriggerSystem(constAuraEffectPtr triggeredByAura);
+
+    // ******************************************
+    // Spell custom values
+    // ******************************************
+    float m_CustomCritChance;
 
     // *****************************************
     // Spell target subsystem

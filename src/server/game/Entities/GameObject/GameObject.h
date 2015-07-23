@@ -678,6 +678,8 @@ struct GameObjectTemplate
                 return flagdrop.open;
             case GAMEOBJECT_TYPE_CAPTURE_POINT:
                 return capturePoint.open;
+            case GAMEOBJECT_TYPE_NEW_FLAG_DROP:
+                return newflagdrop.open;
             default:
                 return 0;
         }
@@ -896,6 +898,7 @@ struct GameObjectData
     uint32 spawnMask;
     uint8 artKit;
     bool isActive;
+    uint32 CustomFlags;
     bool dbData;
 };
 
@@ -916,6 +919,12 @@ class GameObjectModel;
 
 // 5 sec for bobber catch
 #define FISHING_BOBBER_READY_TIME 5
+
+enum eGoBCustomFlags
+{
+    CustomFlagNone          = 0x00,
+    CustomFlagUseQuaternion = 0x01
+};
 
 class GameObject : public WorldObject, public GridObject<GameObject>, public MapObject
 {
@@ -943,6 +952,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void UpdateRotationFields(float rotation2 = 0.0f, float rotation3 = 0.0f);
+        /// p_ZRot, p_YRot, p_XRot - rotation angles around z, y and x axes
+        void SetRotationAngles(float p_ZRot, float p_YRot, float p_XRot);
 
         void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId, language, TargetGuid); }
         void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId, language, TargetGuid); }
@@ -1115,7 +1126,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void EventInform(uint32 eventId);
 
-        uint64 GetRotation() const { return m_rotation; }
+        int64 GetRotation() const { return m_Rotation; }
         virtual uint32 GetScriptId() const { return GetGOInfo()->ScriptId; }
         GameObjectAI* AI() const { return m_AI; }
 
@@ -1141,6 +1152,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void UpdateModelPosition();
 
+        uint32 GetCustomFlags() const { return m_CustomFlags; }
+
     protected:
         bool AIM_Initialize();
         void UpdateModel();                                 // updates model in case displayId were changed
@@ -1165,15 +1178,18 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         GameObjectData const* m_goData;
         GameObjectValue * const m_goValue;
 
-        uint64 m_rotation;
+        int64 m_Rotation;
         Position m_stationaryPosition;
 
         uint64 m_lootRecipient;
         uint32 m_lootRecipientGroup;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
+        uint32 m_CustomFlags;
+
     private:
         void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
+        void SetRotationQuat(float p_QX, float p_QY, float p_QZ, float p_QW);
 
         //! Object distance/size - overridden from Object::_IsWithinDist. Needs to take in account proper GO size.
         bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool /*is3D*/) const

@@ -358,6 +358,12 @@ class instance_heart_of_fear : public InstanceMapScript
                     }
                 }
             }
+
+            void OnPlayerExit(Player* p_Player)
+            {
+                if (p_Player->HasAura(SPELL_RESHAPE_LIFE))
+                    p_Player->RemoveAura(SPELL_RESHAPE_LIFE);
+            }
         };
 };
 

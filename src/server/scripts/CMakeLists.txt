@@ -15,8 +15,9 @@ if (USE_SCRIPTPCH)
 endif ()
 
 message(STATUS "SCRIPT PREPARATIONS")
-include(Spells/CMakeLists.txt)
 
+include(Spells/CMakeLists.txt)
+include(World/CMakeLists.txt)
 include(Commands/CMakeLists.txt)
 
 # include(Examples/CMakeLists.txt)
@@ -30,7 +31,6 @@ set(scripts_STAT_SRCS
 
 if(SCRIPTS)
   include(Custom/CMakeLists.txt)
-  include(World/CMakeLists.txt)
   include(OutdoorPvP/CMakeLists.txt)
   include(EasternKingdoms/CMakeLists.txt)
   include(Kalimdor/CMakeLists.txt)
@@ -40,6 +40,7 @@ if(SCRIPTS)
   include(PetBattle/CMakeLists.txt)
   include(Draenor/CMakeLists.txt)
   include(Fun/CMakeLists.txt)
+  include(BattlePay/CMakeLists.txt)
 endif()
 
 MACRO( auto_group ProjectDirectory ProjectSources )
@@ -104,6 +105,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds/Zones
   ${CMAKE_SOURCE_DIR}/src/server/game/BattlePet
+  ${CMAKE_SOURCE_DIR}/src/server/game/BattlePay
   ${CMAKE_SOURCE_DIR}/src/server/game/Calendar
   ${CMAKE_SOURCE_DIR}/src/server/game/Chat
   ${CMAKE_SOURCE_DIR}/src/server/game/Chat/Channels

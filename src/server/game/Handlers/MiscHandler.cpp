@@ -62,31 +62,32 @@
 
 #include "BattlegroundPacketFactory.hpp"
 
-void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
+void WorldSession::HandleRepopRequestOpcode(WorldPacket& p_RecvData)
 {
-    bool l_CheckInstance = recvData.ReadBit();
+    bool l_CheckInstance = p_RecvData.ReadBit();
 
-    if (GetPlayer()->isAlive() || GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+    if (m_Player->isAlive() || m_Player->HasFlag(EPlayerFields::PLAYER_FIELD_PLAYER_FLAGS, PlayerFlags::PLAYER_FLAGS_GHOST))
         return;
 
-    if (GetPlayer()->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
-        return; // silently return, client should display the error by itself
+    /// Silently return, client should display the error by itself
+    if (m_Player->HasAuraType(AuraType::SPELL_AURA_PREVENT_RESURRECTION))
+        return;
 
-    // the world update order is sessions, players, creatures
-    // the netcode runs in parallel with all of these
-    // creatures can kill players
-    // so if the server is lagging enough the player can
-    // release spirit after he's killed but before he is updated
-    if (GetPlayer()->getDeathState() == JUST_DIED)
+    /// The world update order is sessions, players, creatures
+    /// The netcode runs in parallel with all of these
+    /// Creatures can kill players
+    /// So if the server is lagging enough the player can
+    /// Release spirit after he's killed but before he is updated
+    if (m_Player->getDeathState() == DeathState::JUST_DIED)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleRepopRequestOpcode: got request after player %s(%d) was killed and before he was updated", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
-        GetPlayer()->KillPlayer();
+        sLog->outDebug(LogFilterType::LOG_FILTER_NETWORKIO, "HandleRepopRequestOpcode: got request after player %s(%d) was killed and before he was updated", m_Player->GetName(), m_Player->GetGUIDLow());
+        m_Player->KillPlayer();
     }
 
-    //this is spirit release confirm?
-    GetPlayer()->RemovePet(NULL, PET_SLOT_OTHER_PET, true, true);
-    GetPlayer()->BuildPlayerRepop();
-    GetPlayer()->RepopAtGraveyard();
+    /// This is spirit release confirm?
+    m_Player->RemovePet(nullptr, PetSlot::PET_SLOT_OTHER_PET, true, true);
+    m_Player->BuildPlayerRepop();
+    m_Player->RepopAtGraveyard();
 }
 
 void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
@@ -473,7 +474,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         reason = 1;
     else if (GetPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR))
         reason = 3;                                         // is jumping or falling
-    else if (GetPlayer()->m_Duel || GetPlayer()->HasAura(9454)) // is dueling or frozen by GM via freeze command
+    else if (GetPlayer()->m_Duel || GetPlayer()->InArena() ||GetPlayer()->HasAura(9454)) ///< is dueling, in arena or frozen by GM via freeze command
         reason = 2;                                         // FIXME - Need the correct value
 
     if (reason)

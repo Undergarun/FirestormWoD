@@ -2858,8 +2858,11 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
         else if (!l_Items.empty())
             JadeCore::RandomResizeList(l_Items, 1);
 
-        if (uint32 l_RuneID = GetAugmentRuneID(l_Member))
-            l_Items.push_back(l_RuneID);
+        if (l_Items.empty())
+        {
+            if (uint32 l_RuneID = GetAugmentRuneID(l_Member))
+                l_Items.push_back(l_RuneID);
+        }
 
         for (uint32 l_ItemID : l_Items)
         {

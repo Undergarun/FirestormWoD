@@ -27,10 +27,10 @@
 
 enum eSpells
 {
-    // Intro
+    /// Intro
     SPELL_FORCE_TO_JUMP                     = 138359,
 
-    // Ji-Kun
+    /// Ji-Kun
     SPELL_TALON_RAKE                        = 134366,
     SPELL_CAW_FIRST                         = 138923,
     SPELL_CAW_MISSILE                       = 138926,
@@ -41,47 +41,54 @@ enum eSpells
     SPELL_SAFETY_NET_TRIGGER                = 136524,
     SPELL_SLIMED                            = 134256,
     SPELL_PRIMAL_NUTRIMENT                  = 140741,
-    // Nests (with no effect : 138360  - 139286)
-    SPELL_INCUBATE                          = 137526, // Red beam on activated nest
-    SPELL_INCUBATED                         = 134347, // Incubated young egg (68194), turns into hatchling (68192) 10s after
-    SPELL_LAY_EGG                           = 134367, // Summons an egg (68202)
-    SPELL_FEED_YOUNG                        = 137528, // Casting 2s, triggers 2x 134385 (to script)
-    SPELL_HATCH                             = 137534, // Spawn Juvenile (69836)
-    SPELL_DROP_FEED_POOL                    = 138209, // Shows exploding green pool - triggers 134259 (summons 68188)
-    SPELL_FEED_POOL_PERIODIC_DMG            = 138319, // aura, 35k/s
-    SPELL_MOVE_JUMP_TO_TARGET               = 138359, // Jump to target
-    SPELL_PULL_TARGET_TO_OWN_POSITION       = 138406, // Pulls target
-    SPELL_FEED_SPAWN_SPELL                  = 138840, // Spawns green blob on caster
-    SPELL_FEED_POOL_SPAWN_SPELL_GREEN       = 138854, // Shows giant green pool at caster's feet
-    SPELL_FEED_JUMPS_DOWN_TO_HATCHLING      = 138904, // Jumps + triggers 139285
-    SPELL_JUMP_TO_TARGET_ABOVE_HATCHLING    = 138907, // Jumps to selected target
-    SPELL_BEAM_TO_JUMP_TARGET_NON_HATCHLING = 138914, // Green
-    SPELL_BEAM_TO_JUMP_TARGET_HATCHLING     = 138915, // Yellow
-    SPELL_FEED_APPEARANCE_SPELL             = 138918, // Exploding yellow egg visual
-    SPELL_FEED_POOL_SPAWN                   = 139020, // Shows exploding green pool + spawns feed pool (68188)
-    SPELL_NEST_GUARDIAN_SUMMON              = 139090, // Spawns Nest Guardian
-    SPELL_SPAWN_JI_KUN_HATCHLING            = 139148, // Spawns Ji-Kun Hatchling (70144)
-    SPELL_FEED_POOL_SPAWN_SPELL_YELLOW      = 139284, // Shows yellow pool at caster's feet
-    SPELL_SUMMON_FEED_POOL                  = 140578, // Shows exploding yellow pool
-    SPELL_SUMMON_FEED                       = 134385, // Summons Feed (68178)
-    SPELL_CHEEP_HATCHLING                   = 139296, // Replace MeleeAttack for Hatchling
+    /// Nests (with no effect : 138360  - 139286)
+    SPELL_INCUBATE                          = 137526, ///< Red beam on activated nest
+    SPELL_INCUBATED                         = 134347, ///< Incubated young egg (68194), turns into hatchling (68192) 10s after
+    SPELL_LAY_EGG                           = 134367, ///< Summons an egg (68202)
+    SPELL_FEED_YOUNG                        = 137528, ///< Casting 2s, triggers 2x 134385 (to script)
+    SPELL_HATCH                             = 137534, ///< Spawn Juvenile (69836)
+    SPELL_DROP_FEED_POOL                    = 138209, ///< Shows exploding green pool - triggers 134259 (summons 68188)
+    SPELL_FEED_POOL_PERIODIC_DMG            = 138319, ///< aura, 35k/s
+    SPELL_MOVE_JUMP_TO_TARGET               = 138359, ///< Jump to target
+    SPELL_PULL_TARGET_TO_OWN_POSITION       = 138406, ///< Pulls target
+    SPELL_FEED_SPAWN_SPELL                  = 138840, ///< Spawns green blob on caster
+    SPELL_FEED_POOL_SPAWN_SPELL_GREEN       = 138854, ///< Shows giant green pool at caster's feet
+    SPELL_FEED_JUMPS_DOWN_TO_HATCHLING      = 138904, ///< Jumps + triggers 139285
+    SPELL_JUMP_TO_TARGET_ABOVE_HATCHLING    = 138907, ///< Jumps to selected target
+    SPELL_BEAM_TO_JUMP_TARGET_NON_HATCHLING = 138914, ///< Green
+    SPELL_BEAM_TO_JUMP_TARGET_HATCHLING     = 138915, ///< Yellow
+    SPELL_FEED_APPEARANCE_SPELL             = 138918, ///< Exploding yellow egg visual
+    SPELL_FEED_POOL_SPAWN                   = 139020, ///< Shows exploding green pool + spawns feed pool (68188)
+    SPELL_NEST_GUARDIAN_SUMMON              = 139090, ///< Spawns Nest Guardian
+    SPELL_SPAWN_JI_KUN_HATCHLING            = 139148, ///< Spawns Ji-Kun Hatchling (70144)
+    SPELL_FEED_POOL_SPAWN_SPELL_YELLOW      = 139284, ///< Shows yellow pool at caster's feet
+    SPELL_SUMMON_FEED_POOL                  = 140578, ///< Shows exploding yellow pool
+    SPELL_SUMMON_FEED                       = 134385, ///< Summons Feed (68178)
+    SPELL_CHEEP_HATCHLING                   = 139296, ///< Replace MeleeAttack for Hatchling
     SPELL_CHEEP_FLEDGLING                   = 140570,
     SPELL_CHEEP_JUVENILE                    = 140129,
-    SPELL_EAT                               = 134321, // Cast by Hatchling when Feed pool is near
-    SPELL_MORPH                             = 134322, // If hatchling succeeds to eat (is alive at SPELL_EAT's end), it triggers Morph to turn into Fledgling
-    // Feathers
-    SPELL_DROP_FEATHERS                     = 134338, // Create areatrigger + visual for spawning feathers
-    SPELL_DROP_FEATHERS_GOB                 = 140016, // Spawn feater GOB
-    SPELL_DAEDALIAN_WINGS                   = 134339, // Give the ability to fly to player
-    SPELL_LESSON_OF_ICARUS                  = 140571, // Prevent players from catching a new feather
-    SPELL_FLIGHT                            = 133755, // Flight spell for players
-    // Falling
-    SPELL_PREVENT_FALL_DAMAGE               = 139265, // Reduce fall damages
-    SPELL_CATCH_FALL                        = 85282,  // Falling player ride vehicle (69839 - Fall Catcher)
-    SPELL_EJECT_ALL_PASSENGERS              = 68576,  // Fall catcher eject passengers
-    // Exit
+    SPELL_EAT                               = 134321, ///< Cast by Hatchling when Feed pool is near
+    SPELL_MORPH                             = 134322, ///< If hatchling succeeds to eat (is alive at SPELL_EAT's end), it triggers Morph to turn into Fledgling
+
+    /// Feathers
+    SPELL_DROP_FEATHERS                     = 134338, ///< Create areatrigger + visual for spawning feathers
+    SPELL_DROP_FEATHERS_GOB                 = 140016, ///< Spawn feater GOB
+        /// Using feathers in combat (by killing hatchlings) : 4 stacks of Daedalian wings, each allows player to fly for 10 secs, and there's lesson of Icarus debuff
+        /// which prevent player to take another feather for 1 minute (also, players can't have more than 4 stacks of Daedalian wings, even if debuff is gone).
+    SPELL_DAEDALIAN_WINGS                   = 134339, ///< Give the ability to fly to player - 10 secs
+    SPELL_FLIGHT                            = 133755, ///< Flight spell for players - 10 secs
+    SPELL_LESSON_OF_ICARUS                  = 140571, ///< Prevent players from catching a new feather
+        /// Using feathers when Ji-Kun's dead (on Ji-Kun's platform) : 1 stack of Daedalian wings, which allows player to fly for 1 minute, without any debuff (but
+        /// player can't pick a new feather while he's flying or having Daedalian wings)
+    SPELL_DAEDALIAN_WINGS_LONG              = 140014, ///< Give the ability to fly to player - 1 minute
+    SPELL_FLIGHT_LONG                       = 140013, ///< Flight spell for players - 1 min
+
+    /// Falling
+    SPELL_CATCH_FALL                        = 85282,  ///< Falling player ride vehicle (69839 - Fall Catcher)
+    SPELL_EJECT_ALL_PASSENGERS              = 68576,  ///< Fall catcher eject passengers
+    /// Exit
     SPELL_EXIT_CHAMBER                      = 141014,
-    // Heroic mode
+    /// Heroic mode
     SPELL_TALON_STRIKE                      = 139100,
     SPELL_SCREECH                           = 140640,
     SPELL_SCREECH_REDUCE_CASTING_SPEED      = 134372,
@@ -105,6 +112,7 @@ enum eEvents
     EVENT_EVOLVE,
     EVENT_TALON_STRIKE,
     EVENT_SCREECH,
+    EVENT_REACTIVE_FALL_CATCHER
 };
 
 enum eActions
@@ -126,6 +134,14 @@ enum eTypes
     TYPE_SET_FEED_STATUS,
     TYPE_GET_FEEDPOOL_STATUS,
     TYPE_SET_FEEDPOOL_STATUS,
+    TYPE_SET_FALL_CATCHER_PLAYER_GUID,
+    TYPE_GET_FALL_CATCHER_TYPE
+};
+
+enum eFallCatcherTypes
+{
+    FALL_CATCHER_MAIN,
+    FALL_CATCHER_TRANSPORTER
 };
 
 Position const waypointPos[52] =
@@ -184,48 +200,39 @@ Position const waypointPos[52] =
     { 6160.587f, 4354.137f, -24.45477f, 0.0f }
 };
 
-Position const bossPlatformPos = { 6112.219f, 4285.634f, -30.04051f, 0.0f };
-Position const bossPos = { 6146.1f, 4318.6f, -31.7793f, 6.16672f };
+Position const g_BossPlatformPos = { 6112.219f, 4285.634f, -30.04051f, 0.0f };
+Position const g_BossPos = { 6146.1f, 4318.6f, -31.7793f, 6.16672f };
 
-Position const featherPos[5] =
+/// Activation order - change if 10 players or 25 players. 2 is for Heroic Mode, if the activation summons a Nest Guardian (70134)
+int const g_ActivationOrder10[11][2] =
 {
-    { 6125.65f, 4355.60f, -31.8626f, 5.25605f },
-    { 6110.11f, 4296.95f, -31.8626f, 0.49317f },
-    { 6169.00f, 4281.05f, -31.8626f, 2.10022f },
-    { 6184.19f, 4339.61f, -31.8627f, 3.66889f },
-    { 6084.16f, 4428.31f, -119.633f, 5.20972f }
-};
-
-// Activation order - change if 10 players or 25 players. 2 is for Heroic Mode, if the activation summons a Nest Guardian (70134)
-int const activationOrder10[11][2] =
-{
-    { 1, 0 }, // Activations 0-2 activate a lower nest each
+    { 1, 0 }, ///< Activations 0-2 activate a lower nest each
     { 2, 0 },
     { 1, 0 },
-    { 0, 2 }, // Activation 3-5 activate an upper nest each
+    { 0, 2 }, ///< Activation 3-5 activate an upper nest each
     { 0, 1 },
     { 1, 0 },
-    { 2, 0 }, // Activation 6-7 activate a lower nest each
+    { 2, 0 }, ///< Activation 6-7 activate a lower nest each
     { 1, 0 },
-    { 1, 2 }, // Activation 8 activates both a lower and an upper nest
+    { 1, 2 }, ///< Activation 8 activates both a lower and an upper nest
     { 0, 1 }, // Activation 9-10 activate a upper nest each
     { 0, 2 },
 };
 
-int const activationOrder25[12][2] =
+int const g_ActivationOrder25[12][2] =
 {
-    { 1, 0 }, // Activations 0-3 activate a lower nest each
+    { 1, 0 }, ///< Activations 0-3 activate a lower nest each
     { 2, 0 },
     { 1, 0 },
     { 1, 0 },
-    { 1, 2 }, // Activation 4 activates both a lower and an upper nest
-    { 0, 1 }, // Activations 5-6 activate an upper nest each
+    { 1, 2 }, ///< Activation 4 activates both a lower and an upper nest
+    { 0, 1 }, ///< Activations 5-6 activate an upper nest each
     { 0, 1 },
-    { 1, 1 }, // Activations 7-8 activate both a lower and an upper nest each
+    { 1, 1 }, ///< Activations 7-8 activate both a lower and an upper nest each
     { 1, 2 },
-    { 1, 0 }, // Activations 9-10 activate a lower nest each
+    { 1, 0 }, ///< Activations 9-10 activate a lower nest each
     { 1, 0 },
-    { 1, 1 }, // Activations 11-12 activate both a lower and an upper nest each
+    { 1, 1 }, ///< Activations 11-12 activate both a lower and an upper nest each
 };
 
 enum eActivationLengths
@@ -234,7 +241,7 @@ enum eActivationLengths
     ACTIVATION_LENGTH_25 = 12,
 };
 
-Position const lowerNestPos[5] =
+Position const g_LowerNestPos[5] =
 {
     { 6192.77f, 4267.67f,  -70.79f, 0.0f },
     { 6070.82f, 4284.69f, -101.62f, 0.0f },
@@ -243,7 +250,7 @@ Position const lowerNestPos[5] =
     { 6219.60f, 4333.81f,  -59.09f, 0.0f },
 };
 
-Position const upperNestPos[5] =
+Position const g_UpperNestPos[5] =
 {
     { 6173.00f, 4238.90f, 41.07f, 0.0f },
     { 6077.58f, 4270.47f, 37.64f, 0.0f },
@@ -252,11 +259,59 @@ Position const upperNestPos[5] =
     { 6217.60f, 4353.01f, 66.18f, 0.0f },
 };
 
-// Ji-Kun - 69712
+Position const g_FeatherPos[5] =
+{
+    { 6125.65f, 4355.60f, -31.8626f, 5.25605f },
+    { 6110.11f, 4296.95f, -31.8626f, 0.49317f },
+    { 6169.00f, 4281.05f, -31.8626f, 2.10022f },
+    { 6184.19f, 4339.61f, -31.8627f, 3.66889f },
+    { 6084.16f, 4428.31f, -119.633f, 5.20972f }
+};
+
+void DespawnJiKunAdds(Creature* me)
+{
+    uint8 const l_MaxEntryToDespawn = 11;
+    uint32 l_addEntries[l_MaxEntryToDespawn] =
+    {
+        NPC_HATCHLING,
+        NPC_FEED,
+        NPC_FEED_POOL,
+        NPC_JUVENILE,
+        NPC_YOUNG_EGG_OF_JI_KUN,
+        NPC_MATURE_EGG_OF_JI_KUN,
+        NPC_FLEGLING_JUVENILE,
+        NPC_INCUBATER,
+        NPC_JI_KUN_FLEDGLING_S_EGG,
+        NPC_NEST_GUARDIAN,
+        NPC_JI_KUN_HATCHLING
+    };
+
+    std::list<Creature*> l_addList;
+    for (uint8 l_Idx = 0; l_Idx < l_MaxEntryToDespawn; ++l_Idx)
+    {
+        l_addList.clear();
+        GetCreatureListWithEntryInGrid(l_addList, me, l_addEntries[l_Idx], 500.0f);
+
+        for (Creature* l_Add : l_addList)
+        {
+            if (l_Add->GetEntry() != NPC_INCUBATER)
+                l_Add->DespawnOrUnsummon();
+            else
+                l_Add->AI()->DoAction(ACTION_INCUBATER_WIPE);
+        }
+    }
+}
+
+/// Ji-Kun - 69712
 class boss_ji_kun : public CreatureScript
 {
     public:
         boss_ji_kun() : CreatureScript("boss_ji_kun") { }
+
+        enum eMisc
+        {
+            LFRToTSecondPart = 611
+        };
 
         struct boss_ji_kunAI : public BossAI
         {
@@ -274,9 +329,23 @@ class boss_ji_kun : public CreatureScript
             uint32 m_ActualWaypoint;
             uint32 m_LowerNest;
             uint32 m_UpperNest;
-            uint32 m_NestActivationCount;       // For cycle
-            uint32 m_TotalNestActivationCount;  // Total count for HM mode
+            uint32 m_NestActivationCount;       ///< For cycle
+            uint32 m_TotalNestActivationCount;  ///< Total count for HM mode
             uint32 m_NestTimer;
+
+            void InitializeAI()
+            {
+                if (!me->isAlive())
+                    SpawnExitFeathers();
+                else
+                    Reset();
+            }
+
+            void SpawnExitFeathers()
+            {
+                for (uint8 l_Idx = 0; l_Idx < 5; ++l_Idx)
+                    me->SummonCreature(NPC_EXIT_CHAMBER, g_FeatherPos[l_Idx].GetPositionX(), g_FeatherPos[l_Idx].GetPositionY(), g_FeatherPos[l_Idx].GetPositionZ());
+            }
 
             void Reset()
             {
@@ -284,8 +353,8 @@ class boss_ji_kun : public CreatureScript
 
                 _Reset();
 
-                m_UpperNest = 0;  // Index of first lower nest to be activated
-                m_LowerNest = 0;  // Index of first upper nest to be activated
+                m_UpperNest = 0;  ///< Index of first lower nest to be activated
+                m_LowerNest = 0;  ///< Index of first upper nest to be activated
                 m_NestActivationCount = 0;
                 m_TotalNestActivationCount = 0;
                 m_NestTimer = 0;
@@ -296,8 +365,14 @@ class boss_ji_kun : public CreatureScript
 
                 if (m_Instance)
                 {
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SLIMED);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEED_POOL_PERIODIC_DMG);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCREECH);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LESSON_OF_ICARUS);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFECTED_TALONS_AURA);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TALON_RAKE);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_QUILLS);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCREECH_REDUCE_CASTING_SPEED);
 
                     if (m_Instance->GetBossState(DATA_JI_KUN) !=  DONE)
                     {
@@ -322,76 +397,81 @@ class boss_ji_kun : public CreatureScript
             Creature* GetIncubater(std::list<Creature*> p_IncubaterList, uint32 p_NestOrder)
             {
                 for (Creature* l_Incubater : p_IncubaterList)
+                {
                     if (l_Incubater)
+                    {
                         if (l_Incubater->AI()->GetData(TYPE_GET_NEST_ID) == p_NestOrder)
                             return l_Incubater;
+                    }
+                }
+
                 return 0;
             }
 
             void ActivateNest()
             {
-                // Retrieving nest;
+                /// Retrieving nest;
                 std::list<Creature*> l_IncubaterList;
                 GetCreatureListWithEntryInGrid(l_IncubaterList, me, NPC_INCUBATER, 500.0f);
 
-                // 10 Man cycle
+                /// 10 Man cycle
                 if (!Is25ManRaid())
                 {
-                    // lower nest
-                    if (activationOrder10[m_NestActivationCount][0])
+                    /// lower nest
+                    if (g_ActivationOrder10[m_NestActivationCount][0])
                     {
                         if (Creature* l_Incubater = GetIncubater(l_IncubaterList, m_LowerNest))
                         {
                             l_Incubater->AI()->DoAction(ACTION_ACTIVATE_NEST);
-                            if (IsHeroic() && activationOrder10[m_NestActivationCount][0] == 2)
+                            if (IsHeroic() && g_ActivationOrder10[m_NestActivationCount][0] == 2)
                                 l_Incubater->CastSpell(l_Incubater, SPELL_NEST_GUARDIAN_SUMMON, false);
                         }
                     }
     
-                    // upper nest (id = order + 10)
-                    if (activationOrder10[m_NestActivationCount][1])
+                    /// upper nest (id = order + 10)
+                    if (g_ActivationOrder10[m_NestActivationCount][1])
                     {
                         if (Creature* l_Incubater = GetIncubater(l_IncubaterList, m_UpperNest + 10))
                         {
                             l_Incubater->AI()->DoAction(ACTION_ACTIVATE_NEST);
-                            if (IsHeroic() && activationOrder10[m_NestActivationCount][1] == 2)
+                            if (IsHeroic() && g_ActivationOrder10[m_NestActivationCount][1] == 2)
                                 l_Incubater->CastSpell(l_Incubater, SPELL_NEST_GUARDIAN_SUMMON, false);
                         }
                     }
 
-                    // Increase activation count until the cycle ends, then loop
+                    /// Increase activation count until the cycle ends, then loop
                     m_NestActivationCount = ++m_NestActivationCount % ACTIVATION_LENGTH_10;
                 }
-                // 25 Man cycle (including LFR)
+                /// 25 Man cycle (including LFR)
                 else
                 {
-                    // lower nest
-                    if (activationOrder25[m_NestActivationCount][0])
+                    /// lower nest
+                    if (g_ActivationOrder25[m_NestActivationCount][0])
                     {
                         if (Creature* l_Incubater = GetIncubater(l_IncubaterList, m_LowerNest))
                         {
                             l_Incubater->AI()->DoAction(ACTION_ACTIVATE_NEST);
-                            if (IsHeroic() && activationOrder25[m_NestActivationCount][0] == 2)
+                            if (IsHeroic() && g_ActivationOrder25[m_NestActivationCount][0] == 2)
                                 l_Incubater->CastSpell(l_Incubater, SPELL_NEST_GUARDIAN_SUMMON, false);
                         }
                     }
 
-                    // upper nest (id = order + 10)
-                    if (activationOrder25[m_NestActivationCount][1])
+                    /// upper nest (id = order + 10)
+                    if (g_ActivationOrder25[m_NestActivationCount][1])
                     {
                         if (Creature* l_Incubater = GetIncubater(l_IncubaterList, m_UpperNest + 10))
                         {
                             l_Incubater->AI()->DoAction(ACTION_ACTIVATE_NEST);
-                            if (IsHeroic() && activationOrder25[m_NestActivationCount][1] == 2)
+                            if (IsHeroic() && g_ActivationOrder25[m_NestActivationCount][1] == 2)
                                 l_Incubater->CastSpell(l_Incubater, SPELL_NEST_GUARDIAN_SUMMON, false);
                         }
                     }
 
-                    // Increase activation count until the cycle ends, then loop
+                    /// Increase activation count until the cycle ends, then loop
                     m_NestActivationCount = ++m_NestActivationCount % ACTIVATION_LENGTH_25;
                 }
 
-                // Set the next lower & upper nests that'll be activated (loop if required)
+                ///s Set the next lower & upper nests that'll be activated (loop if required)
                 m_LowerNest = ++m_LowerNest % 4;
                 m_UpperNest = ++m_UpperNest % 4;
             }
@@ -407,12 +487,24 @@ class boss_ji_kun : public CreatureScript
                     }
                 }
 
-                m_Events.ScheduleEvent(EVENT_TALON_RAKE, 24000);
+                m_Events.ScheduleEvent(EVENT_TALON_RAKE, 20000);
                 m_Events.ScheduleEvent(EVENT_CAW, urand(18000, 50000));
-                m_Events.ScheduleEvent(EVENT_QUILLS, urand(42500, 60000));
+                m_Events.ScheduleEvent(EVENT_QUILLS, 10000);
                 m_Events.ScheduleEvent(EVENT_DOWN_DRAFT, 10000);
-                m_Events.ScheduleEvent(EVENT_FEED_YOUNG, 20000);
+                m_Events.ScheduleEvent(EVENT_FEED_YOUNG, 30000);
                 m_NestTimer = 1000;
+            }
+
+            void DamageDealt(Unit* p_Victim, uint32& /*p_Damage*/, DamageEffectType p_Type)
+            {
+                if (p_Type == DIRECT_DAMAGE)
+                {
+                    if (Unit* l_Victim = me->getVictim())
+                    {
+                        if (l_Victim == p_Victim)
+                            me->CastSpell(p_Victim, SPELL_INFECTED_TALONS_AURA, true);
+                    }
+                }
             }
 
 //             void MovementInform(uint32 p_Type, uint32 p_Id)
@@ -428,6 +520,7 @@ class boss_ji_kun : public CreatureScript
             {
                 m_Events.Reset();
                 summons.DespawnAll();
+                _JustDied();
 
                 me->RemoveAllAuras();
                 me->RemoveAllDynObjects();
@@ -435,38 +528,91 @@ class boss_ji_kun : public CreatureScript
 
                 if (m_Instance)
                 {
+                    m_Instance->SetBossState(DATA_JI_KUN, DONE);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SLIMED);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEED_POOL_PERIODIC_DMG);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCREECH);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LESSON_OF_ICARUS);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFECTED_TALONS_AURA);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TALON_RAKE);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_QUILLS);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCREECH_REDUCE_CASTING_SPEED);
                 }
 
-                uint32 l_addEntries[8] = { NPC_HATCHLING, NPC_FEED, NPC_FEED_POOL, NPC_JUVENILE, NPC_YOUNG_EGG_OF_JI_KUN, NPC_MATURE_EGG_OF_JI_KUN, NPC_FLEGLING_JUVENILE, NPC_INCUBATER };
-                std::list<Creature*> l_addList;
-                for (uint8 l_Idx = 0; l_Idx < 8; ++l_Idx)
+                DespawnJiKunAdds(me);
+
+                /// Removing Lesson of Icarus debuff and turning Flight & Daedalian Wings combat auras into Flight & Daeadalian Wings won encounter auras
+                Map::PlayerList const &l_PlayerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
                 {
-                    l_addList.clear();
-                    GetCreatureListWithEntryInGrid(l_addList, me, l_addEntries[l_Idx], 500.0f);
-                    for (Creature* l_Add : l_addList)
+                    if (Player* l_Player = l_Itr->getSource())
                     {
-                        if (l_Add->GetEntry() != NPC_INCUBATER)
-                            l_Add->DespawnOrUnsummon();
+                        if (!l_Player->HasAura(SPELL_DAEDALIAN_WINGS) && !l_Player->HasAura(SPELL_FLIGHT) && !l_Player->HasAura(SPELL_LESSON_OF_ICARUS))
+                            continue;
+
+                        /// Removing Lesson of Icarus
+                        if (l_Player->HasAura(SPELL_LESSON_OF_ICARUS))
+                            l_Player->RemoveAura(SPELL_LESSON_OF_ICARUS);
+
+                        /// If player could fly 1 time or more
+                        if (l_Player->HasAura(SPELL_DAEDALIAN_WINGS))
+                        {
+                            /// Removing Daedalian wings
+                            l_Player->RemoveAura(SPELL_DAEDALIAN_WINGS);
+
+                            /// If player is currently flying, replacing flying aura, but no need to replace Daedalian wings aura
+                            if (l_Player->HasAura(SPELL_FLIGHT))
+                            {
+                                l_Player->RemoveAura(SPELL_FLIGHT);
+                                l_Player->AddAura(SPELL_FLIGHT_LONG, l_Player);
+                            }
+                            // Player not flying : Daedalian wings need to be replace so player can still fly, but with the new aura
+                            else
+                                l_Player->AddAura(SPELL_DAEDALIAN_WINGS_LONG, l_Player);
+                        }
+                        /// Player can't fly more
                         else
-                            l_Add->AI()->DoAction(ACTION_INCUBATER_WIPE);
+                        {
+                            /// Player is already flying (ie. the last stack of Daedalian Wings) : replacing flying aura
+                            if (l_Player->HasAura(SPELL_FLIGHT))
+                            {
+                                l_Player->RemoveAura(SPELL_FLIGHT);
+                                l_Player->AddAura(SPELL_FLIGHT_LONG, l_Player);
+                            }
+                        }
                     }
                 }
 
-                for (uint8 l_Idx = 0; l_Idx < 5; ++l_Idx)
-                    me->SummonCreature(NPC_EXIT_CHAMBER, featherPos[l_Idx].GetPositionX(), featherPos[l_Idx].GetPositionY(), featherPos[l_Idx].GetPositionZ());
-
-                if (me->GetMap()->IsLFR())
+                if (IsLFR())
                 {
-                    me->SetLootRecipient(NULL);
-                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                    if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
-                }
+                    me->SetLootRecipient(nullptr);
 
-                if (GameObject* l_ExitDoor = m_Instance->instance->GetGameObject(m_Instance->GetData64(GOB_JI_KUN_EXIT_DOOR)))
-                    l_ExitDoor->SetGoState(GO_STATE_ACTIVE);
+                    bool l_Assigned = false;
+                    Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = l_Itr->getSource())
+                        {
+                            uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                            if (l_DungeonID != eMisc::LFRToTSecondPart)
+                                continue;
+
+                            if (!me || l_Player->IsAtGroupRewardDistance(me))
+                                sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+
+                            if (l_Assigned)
+                                continue;
+
+                            if (Group* l_Group = l_Player->GetGroup())
+                            {
+                                l_Assigned = true;
+                                sLFGMgr->AutomaticLootAssignation(me, l_Group);
+                            }
+                        }
+                    }
+                }
+                else
+                    SpawnExitFeathers();
             }
 
             void DoAction(const int32 p_Action)
@@ -482,31 +628,32 @@ class boss_ji_kun : public CreatureScript
                      * behaviour (coming to hatchling or to platform).
                      */
 
-                    // Looking for hatchlings to feed
+                    /// Looking for hatchlings to feed
                     uint32 l_FeedCount = 0;
                     for (std::list<Creature*>::iterator itr = l_HatchlingList.begin(); itr != l_HatchlingList.end(); ++itr)
                     {
-                        // We're not feeding dead hatchling or hatchling which has evolved into fledgling or already eating fledgling
+                        /// We're not feeding dead hatchling or hatchling which has evolved into fledgling or already eating fledgling
                         if (!(*itr)->isAlive() || !(*itr)->AI()->GetData(TYPE_IS_HATCHLING) || (*itr)->HasAura(SPELL_EAT))
                             continue;
 
                         (*itr)->AI()->DoAction(ACTION_TAKE_FEED);
                         ++l_FeedCount;
                     }
-                    // No Hatchling to feed : feed to random position on boss platform
+                    /// No Hatchling to feed : feed to random position on boss platform
                     if (!l_FeedCount)
                     {
                         uint8 l_MaxFeed = urand(3, 6);
                         for (uint8 l_Idx = 0; l_Idx < l_MaxFeed; ++l_Idx)
+                        {
                             if (Creature* l_Feed = me->SummonCreature(NPC_FEED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()))
                                 l_Feed->AI()->SetData(TYPE_SET_FEED_STATUS, 0);
+                        }
                     }
                 }
             }
 
             void EnterEvadeMode()
             {
-                m_NestTimer = 0;
                 me->RemoveAllAuras();
                 me->RemoveAllDynObjects();
                 me->RemoveAllAreasTrigger();
@@ -514,27 +661,19 @@ class boss_ji_kun : public CreatureScript
                 m_Events.Reset();
                 summons.DespawnAll();
 
-                uint32 l_addEntries[8] = { NPC_HATCHLING, NPC_FEED, NPC_FEED_POOL, NPC_JUVENILE, NPC_YOUNG_EGG_OF_JI_KUN, NPC_MATURE_EGG_OF_JI_KUN, NPC_FLEGLING_JUVENILE, NPC_INCUBATER };
-                std::list<Creature*> l_addList;
-                for (uint8 l_Idx = 0; l_Idx < 8; ++l_Idx)
-                {
-                    l_addList.clear();
-                    GetCreatureListWithEntryInGrid(l_addList, me, l_addEntries[l_Idx], 500.0f);
-                    for (Creature* l_Add : l_addList)
-                    {
-                        if (l_Add->GetEntry() != NPC_INCUBATER)
-                            l_Add->DespawnOrUnsummon();
-                        else
-                            l_Add->AI()->DoAction(ACTION_INCUBATER_WIPE);
-                    }
-                }
+                DespawnJiKunAdds(me);
 
                 if (m_Instance)
                 {
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SLIMED);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FEED_POOL_PERIODIC_DMG);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCREECH);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LESSON_OF_ICARUS);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INFECTED_TALONS_AURA);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TALON_RAKE);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_QUILLS);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCREECH_REDUCE_CASTING_SPEED);
                 }
-
 
                 m_NestActivationCount = 0;
                 m_NestTimer = 0;
@@ -546,22 +685,21 @@ class boss_ji_kun : public CreatureScript
 
             void UpdateAI(const uint32 p_Diff)
             {
-                // Catch falling players
+                /// Catch falling players
                 Map::PlayerList const& l_playerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator l_Itr = l_playerList.begin(); l_Itr != l_playerList.end(); ++l_Itr)
                 {
                     if (Player* l_Player = l_Itr->getSource())
                     {
-                        if (l_Player->GetPositionZ() < -120.0f)
-                            if (!l_Player->HasAura(SPELL_PREVENT_FALL_DAMAGE) && l_Player->IsFalling())
-                                l_Player->CastSpell(l_Player, SPELL_PREVENT_FALL_DAMAGE, false);
+                        if (!l_Player->HasAura(SPELL_PREVENT_FALL_DAMAGE) && l_Player->IsFalling())
+                            l_Player->CastSpell(l_Player, SPELL_PREVENT_FALL_DAMAGE, false);
                     }
                 }
 
-                // Nest activation
+                /// Nest activation
                 if (m_NestTimer)
                 {
-                    if (m_NestTimer < p_Diff)
+                    if (m_NestTimer <= p_Diff)
                     {
                         ActivateNest();
                         m_NestTimer = 30000;
@@ -583,32 +721,32 @@ class boss_ji_kun : public CreatureScript
                     case EVENT_TALON_RAKE:
                     {
                         DoCastVictim(SPELL_TALON_RAKE);
-                        m_Events.ScheduleEvent(EVENT_TALON_RAKE, urand(20000, 30000));
+                        m_Events.ScheduleEvent(EVENT_TALON_RAKE, 60000);
                         break;
                     }
                     case EVENT_CAW:
                     {
                         if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, SPELL_CAW_FIRST, false);
-                        m_Events.ScheduleEvent(EVENT_CAW, urand(18000, 50000));
+                        m_Events.ScheduleEvent(EVENT_CAW, 30000);
                         break;
                     }
                     case EVENT_QUILLS:
                     {
                         me->CastSpell(me, SPELL_QUILLS, true);
-                        m_Events.ScheduleEvent(EVENT_QUILLS, urand(42500, 60000));
+                        m_Events.ScheduleEvent(EVENT_QUILLS, urand(62500, 67000));
                         break;
                     }
                     case EVENT_DOWN_DRAFT:
                     {
-                        //me->CastSpell(bossPlatformPos.m_positionX, bossPlatformPos.m_positionY, bossPlatformPos.m_positionZ, SPELL_DOWN_DRAFT, false);
-                        m_Events.ScheduleEvent(EVENT_DOWN_DRAFT, 120000);
+                        me->CastSpell(g_BossPlatformPos.m_positionX, g_BossPlatformPos.m_positionY, g_BossPlatformPos.m_positionZ, SPELL_DOWN_DRAFT, false);
+                        m_Events.ScheduleEvent(EVENT_DOWN_DRAFT, 97000);
                         break;
                     }
                     case EVENT_FEED_YOUNG:
                     {
                         me->CastSpell(me, SPELL_SUMMON_FEED, false);
-                        m_Events.ScheduleEvent(EVENT_FEED_YOUNG, 41000);
+                        m_Events.ScheduleEvent(EVENT_FEED_YOUNG, 30000);
                         break;
                     }
                     default:
@@ -625,7 +763,7 @@ class boss_ji_kun : public CreatureScript
         }
 };
 
-// Jump to Boss Platform - 69885
+/// Jump to Boss Platform - 69885
 class mob_jump_to_boss_platform : public CreatureScript
 {
     public:
@@ -655,7 +793,7 @@ class mob_jump_to_boss_platform : public CreatureScript
                         me->GetPlayerListInGrid(l_PlayerList, 13.f);
 
                         for (Player* l_Player : l_PlayerList)
-                            l_Player->CastSpell(bossPlatformPos.m_positionX, bossPlatformPos.m_positionY, bossPlatformPos.m_positionZ, SPELL_FORCE_TO_JUMP, true);
+                            l_Player->CastSpell(g_BossPlatformPos.m_positionX, g_BossPlatformPos.m_positionY, g_BossPlatformPos.m_positionZ, SPELL_FORCE_TO_JUMP, true);
 
                         m_CheckTimer = 500;
                     }
@@ -671,7 +809,7 @@ class mob_jump_to_boss_platform : public CreatureScript
         }
 };
 
-// Fall Catcher - 69839
+/// Fall Catcher - 69839
 class mob_fall_catcher : public CreatureScript
 {
     public:
@@ -686,7 +824,9 @@ class mob_fall_catcher : public CreatureScript
             }
 
             InstanceScript* m_Instance;
+            EventMap m_Events;
             Vehicle* m_Vehicle;
+            uint8 m_Type;
             bool m_IsTransporting;
             float m_LandPosX;
             float m_LandPosY;
@@ -694,14 +834,23 @@ class mob_fall_catcher : public CreatureScript
 
             void Reset()
             {
-                me->SetCanFly(true);
+                m_Events.Reset();
                 me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_HOVER);
                 me->SetDisableGravity(false);
                 m_IsTransporting = false;
+                m_Type = FALL_CATCHER_MAIN;
 
                 m_LandPosX = me->GetPositionX() + 20.0f * cos(me->GetOrientation());
                 m_LandPosY = me->GetPositionY() + 20.0f * sin(me->GetOrientation());
                 m_LandOri  = me->GetOrientation();
+            }
+
+            void IsSummonedBy(Unit* /*p_Summoner*/)
+            {
+                /// Spawned Fall Catcher is checking for players to bring up,
+                /// Summoned Fall Catcher will just bring up player the Spawn one has find
+                m_Type = FALL_CATCHER_TRANSPORTER;
+                me->SetCanFly(true);
             }
 
             void MovementInform(uint32 p_Type, uint32 p_Id)
@@ -709,7 +858,7 @@ class mob_fall_catcher : public CreatureScript
                 if (p_Type != EFFECT_MOTION_TYPE)
                     return;
 
-                // Takeoff
+                /// Takeoff
                 if (p_Id == 1)
                 {
                     Position l_LandPos = { m_LandPosX, m_LandPosY, -28.0f, m_LandOri };
@@ -719,10 +868,10 @@ class mob_fall_catcher : public CreatureScript
                     return;
                 }
 
-                // Landing
+                /// Landing
                 if (p_Id == 2)
                 {
-                    // Releasing passenger
+                    /// Releasing passenger
                     if (m_Vehicle)
                     {
                         if (Unit* l_Player = m_Vehicle->GetPassenger(0))
@@ -733,47 +882,153 @@ class mob_fall_catcher : public CreatureScript
                         }
                     }
 
-                    // Despawn
+                    /// Despawn
                     me->DespawnOrUnsummon();
                 }
             }
 
-            void UpdateAI(const uint32 p_Diff)
+            uint32 GetData(uint32 p_Type)
             {
-                // Waiting for a player to take back
-                if (!m_IsTransporting && m_Instance)
+                if (p_Type == TYPE_GET_FALL_CATCHER_TYPE)
+                    return m_Type;
+                return 0;
+            }
+
+            void SetGUID(uint64 p_Guid, int32 p_Type)
+            {
+                if (p_Type == TYPE_SET_FALL_CATCHER_PLAYER_GUID)
                 {
-                    Creature* l_JiKun = m_Instance->instance->GetCreature(m_Instance->GetData64(NPC_JI_KUN));
-                    if (!l_JiKun)
+                    /// Start transport
+                    m_IsTransporting = true;
+                    if (Player* l_Player = me->GetPlayer(*me, p_Guid))
                     {
-                        me->DespawnOrUnsummon();
-                        return;
-                    }
-
-                    std::list<Player*> l_PlayerList;
-                    GetPlayerListInGrid(l_PlayerList, me, 40.0f);
-
-                    for (Player* l_Player : l_PlayerList)
-                    {
-                        // Player can't be took on vehicle
-                        if (l_Player->GetPositionZ() > -183.0f || l_Player->IsOnVehicle() ||
-                            !l_Player->HasAura(SPELL_PREVENT_FALL_DAMAGE) || l_Player->HasAura(SPELL_SAFETY_NET_TRIGGER))
-                            continue;
-
-                        // Start transport
-                        m_IsTransporting = true;
                         l_Player->RemoveAura(SPELL_PREVENT_FALL_DAMAGE);
                         l_Player->AddAura(SPELL_SAFETY_NET_TRIGGER, l_Player);
                         l_Player->CastSpell(me, SPELL_CATCH_FALL, false);
                         l_Player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
-                        // Summons a substitute for another falling player
-                        l_JiKun->SummonCreature(NPC_FALL_CATCHER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
 
                         me->SetDisableGravity(true);
                         me->GetMotionMaster()->MoveTakeoff(1, me->GetPositionX(), me->GetPositionY(), -25.0f);
                     }
                 }
             }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                /// Transporter doesn't need to check in UpdateAI
+                if (m_Type == FALL_CATCHER_TRANSPORTER)
+                    return;
+
+                /// Waiting for a player to take back
+                if (!m_IsTransporting && m_Instance)
+                {
+                    Creature* l_JiKun = m_Instance->instance->GetCreature(m_Instance->GetData64(NPC_JI_KUN));
+                    if (!l_JiKun)
+                        return;
+
+                    /// Check players prevent fall damage aura, cause Ji-Kun can't handle it if dead
+                    std::list<Player*> l_PlayerList;
+                    GetPlayerListInGrid(l_PlayerList, me, 200.0f);
+
+                    for (Player* l_Player : l_PlayerList)
+                    {
+                        /// Don't bring back dead players
+                        if (!l_Player->isAlive())
+                            continue;
+
+                        /// If player is supposed to have the aura
+                        if (IsPlayerInPreventDamageArea(l_Player))
+                        {
+                            if (!l_Player->HasAura(SPELL_PREVENT_FALL_DAMAGE))
+                                me->CastSpell(l_Player, SPELL_PREVENT_FALL_DAMAGE, true);
+                        }
+                        /// Else, remove the aura if player has it
+                        else if (l_Player->HasAura(SPELL_PREVENT_FALL_DAMAGE))
+                        {
+                            l_Player->RemoveAura(SPELL_PREVENT_FALL_DAMAGE);
+                            continue;
+                        }
+
+                        /// If player isn't at the bottom of the room, he doesn't need to be bring back to Ji-Kun's platform
+                        if (!IsTransportablePlayer(l_Player) || (!IsNearestTransport(l_Player)))
+                            continue;
+
+                        /// Summons another "me" who will bring up the player
+                        if (Creature* l_Transporter = l_JiKun->SummonCreature(NPC_FALL_CATCHER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                            l_Transporter->AI()->SetGUID(l_Player->GetGUID(), TYPE_SET_FALL_CATCHER_PLAYER_GUID);
+
+                        m_IsTransporting = true;
+                        m_Events.ScheduleEvent(EVENT_REACTIVE_FALL_CATCHER, 1000);
+                    }
+                }
+
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == EVENT_REACTIVE_FALL_CATCHER)
+                    m_IsTransporting = false;
+            }
+
+            bool IsPlayerInPreventDamageArea(Player* p_Player)
+            {
+                if (p_Player->isAlive())
+                {
+                    float l_PlayerX = p_Player->GetPositionX();
+                    float l_PlayerY = p_Player->GetPositionY();
+
+                    if (l_PlayerX > 6045.f && l_PlayerX < 6247.f && l_PlayerY > 4220.f && l_PlayerY < 4446.f)
+                        return true;
+                }
+
+                return false;
+            }
+
+            bool IsTransportablePlayer(Player* p_Player)
+            {
+                if (!IsPlayerInPreventDamageArea(p_Player) || !p_Player->isAlive() || p_Player->HasAura(SPELL_SAFETY_NET_TRIGGER) || p_Player->IsOnVehicle() || p_Player->GetPositionZ() > -183.f)
+                    return false;
+                return true;
+            }
+
+            bool IsNearestTransport(Player* p_Player)
+            {
+                float l_Dist = me->GetDistance(p_Player);
+
+                /// Comparing distance to player with other fall catchers
+                std::list<Creature*> l_FallCatcherList;
+                GetCreatureListWithEntryInGrid(l_FallCatcherList, me, NPC_FALL_CATCHER, 200.0f);
+
+                /// Only keep Main Fall catchers
+                l_FallCatcherList.remove_if(CheckFallCatcherType());
+
+                for (Creature* l_FallCatcher : l_FallCatcherList)
+                {
+                    if (l_FallCatcher->AI()->GetData(TYPE_GET_FALL_CATCHER_TYPE) == FALL_CATCHER_TRANSPORTER)
+                        continue;
+
+                    /// If any fall catcher is closest
+                    if (l_Dist > l_FallCatcher->GetDistance(p_Player))
+                        return false;
+                }
+
+                /// Still here? So our fall catcher is the closest
+                return true;
+            }
+
+            class CheckFallCatcherType
+            {
+                public:
+                    bool operator()(Creature* p_Creature) const
+                    {
+                        if (p_Creature->GetEntry() == NPC_FALL_CATCHER)
+                        {
+                            if (p_Creature->AI()->GetData(TYPE_GET_FALL_CATCHER_TYPE) == FALL_CATCHER_MAIN)
+                                return true;
+                        }
+
+                        return false;
+                    }
+            };
+
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const
@@ -782,7 +1037,7 @@ class mob_fall_catcher : public CreatureScript
         }
 };
 
-// Incubater - 69626
+/// Incubater - 69626
 class mob_incubater : public CreatureScript
 {
     public:
@@ -803,7 +1058,8 @@ class mob_incubater : public CreatureScript
                  * As the nest are triggered clockwise, we need to reorder them according to their position
                  */
                 m_NestOrder = 0;
-                // In a lower nest
+
+                /// In a lower nest
                 if (me->GetPositionZ() < 0.0f)
                 {
                     if (me->GetPositionX() > 6215.0f)
@@ -818,7 +1074,7 @@ class mob_incubater : public CreatureScript
                         m_NestOrder = 1;
                     m_IsLowerNest = true;
                 }
-                // In a upper nest
+                /// In a upper nest
                 else
                 {
                     if (me->GetPositionX() > 6215.0f)
@@ -849,9 +1105,17 @@ class mob_incubater : public CreatureScript
                 {
                     case ACTION_ACTIVATE_NEST:
                     {
-                        DoCast(SPELL_INCUBATE);
+                        me->CastSpell(me, SPELL_INCUBATE, true);
 
-                        uint8 l_MaxEggs = Is25ManRaid() ? 5 : 4;
+                        uint8 l_MaxEggs = 0;
+
+                        /// Lower nests : 4 eggs in 10 players, 5 in 25 players
+                        if (m_NestOrder < 10)
+                            l_MaxEggs = Is25ManRaid() ? 5 : 4;
+                        /// Upper nests : 2 eggs in 10 players, 3 in 25 players
+                        else
+                            l_MaxEggs = Is25ManRaid() ? 3 : 2;
+
                         for (uint8 l_Idx = 0; l_Idx < l_MaxEggs; ++l_Idx)
                         {
                             float l_Dist = frand(1.0f, 3.5f);
@@ -882,7 +1146,7 @@ class mob_incubater : public CreatureScript
         }
 };
 
-// Young egg of Ki-Kun - 68194
+/// Young egg of Ki-Kun - 68194
 class mob_young_egg_of_jikun : public CreatureScript
 {
     public:
@@ -937,7 +1201,7 @@ class mob_young_egg_of_jikun : public CreatureScript
         }
 };
 
-// Hatchling - 68192
+/// Hatchling - 68192
 class mob_hatchling : public CreatureScript
 {
     public:
@@ -965,8 +1229,7 @@ class mob_hatchling : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (m_IsHatchling)
-                    me->CastSpell(me, SPELL_DROP_FEATHERS_GOB, false);
+                me->CastSpell(me, SPELL_DROP_FEATHERS_GOB, false);
             }
 
             void DoAction(int32 const p_Action)
@@ -975,7 +1238,7 @@ class mob_hatchling : public CreatureScript
                 {
                     case ACTION_TAKE_FEED:
                     {
-                        me->SummonCreature(NPC_FEED, bossPos.GetPositionX(), bossPos.GetPositionY(), bossPos.GetPositionZ());
+                        me->SummonCreature(NPC_FEED, g_BossPos.GetPositionX(), g_BossPos.GetPositionY(), g_BossPos.GetPositionZ());
                         break;
                     }
                     default:
@@ -1021,7 +1284,7 @@ class mob_hatchling : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
-                    // Replace Melee attack?
+                    /// Replace Melee attack?
                     case EVENT_CHEEP:
                     {
                         Player* l_Victim = me->SelectNearestPlayer();
@@ -1063,8 +1326,8 @@ class mob_hatchling : public CreatureScript
         }
 };
 
-// Ji-Kun Fledgling's Egg - 68202
-// Mature Egg of Ji-Kun - 69628
+/// Ji-Kun Fledgling's Egg - 68202
+/// Mature Egg of Ji-Kun - 69628
 class mob_fledgling_egg : public CreatureScript
 {
     public:
@@ -1082,9 +1345,12 @@ class mob_fledgling_egg : public CreatureScript
                 m_Events.Reset();
                 m_Drop = true;
                 me->SetReactState(REACT_PASSIVE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+
                 if (me->GetEntry() == NPC_MATURE_EGG_OF_JI_KUN)
                     me->CastSpell(me, SPELL_INCUBATED, false);
-                m_Events.ScheduleEvent(EVENT_HATCH, me->GetEntry() == NPC_MATURE_EGG_OF_JI_KUN ? 10000 : 2000);
+                /// Upper nests hatch after 20 secs, lower nests, after 10 secs
+                m_Events.ScheduleEvent(EVENT_HATCH, me->GetPositionZ() > 0.0f ? 20000 : 10000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -1115,8 +1381,8 @@ class mob_fledgling_egg : public CreatureScript
         }
 };
 
-// Juvenile - 70095 (born from 68202 - Ji_Kun Fledgling's Egg)
-// Juvenile - 69836 (born from 69628 - Mature egg of Ji-Kun)
+/// Juvenile - 70095 (born from 68202 - Ji_Kun Fledgling's Egg)
+/// Juvenile - 69836 (born from 69628 - Mature egg of Ji-Kun)
 class mob_juvenile : public CreatureScript
 {
     public:
@@ -1132,7 +1398,7 @@ class mob_juvenile : public CreatureScript
             {
                 m_Events.Reset();
 
-                // Set Flying
+                /// Set Flying
                 me->SetDisableGravity(true);
                 me->SetCanFly(true);
                 me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_HOVER);
@@ -1152,8 +1418,15 @@ class mob_juvenile : public CreatureScript
             void DoAction(int32 const p_Action)
             {
                 if (p_Action == ACTION_SUMMON_FEED)
+                {
                     if (Creature* l_Feed = me->SummonCreature(NPC_FEED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()))
                         l_Feed->AI()->SetData(TYPE_SET_FEED_STATUS, 0);
+                }
+            }
+
+            void EnterEvadeMode()
+            {
+                me->DespawnOrUnsummon();
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -1176,13 +1449,13 @@ class mob_juvenile : public CreatureScript
                         }
                         case EVENT_FLIGHT:
                         {
-                            // Shouldn't attack player in melee anymore
+                            /// Shouldn't attack player in melee anymore
                             me->SetReactState(REACT_PASSIVE);
 
                             float l_Ori  = frand(0.0f, 2 * M_PI);
                             float l_Dist = frand(5.0f, 20.0f);
-                            float l_PosX = bossPos.GetPositionX() + l_Dist * cos(l_Ori);
-                            float l_PosY = bossPos.GetPositionY() + l_Dist * sin(l_Ori);
+                            float l_PosX = g_BossPos.GetPositionX() + l_Dist * cos(l_Ori);
+                            float l_PosY = g_BossPos.GetPositionY() + l_Dist * sin(l_Ori);
                             float l_PosZ = 5.0f;
 
                             me->GetMotionMaster()->MovePoint(1, l_PosX, l_PosY, l_PosZ);
@@ -1209,7 +1482,7 @@ class mob_juvenile : public CreatureScript
         }
 };
 
-// Feed - 68178
+/// Feed - 68178
 class mob_feed : public CreatureScript
 {
     public:
@@ -1265,7 +1538,7 @@ class mob_feed : public CreatureScript
             {
                 m_Events.Update(p_Diff);
 
-                // In case a player catch a feed...
+                /// In case a player catch a feed...
                 if (Player* l_Player = me->SelectNearestPlayer(0.2f))
                 {
                     me->AddAura(SPELL_SLIMED, l_Player);
@@ -1287,18 +1560,18 @@ class mob_feed : public CreatureScript
 
                         float l_Dist = frand(10.0f, 40.0f);
                         float l_Ori  = frand(0.0f, 2 * M_PI);
-                        float l_PosX = bossPos.GetPositionX() + l_Dist * cos(l_Ori);
-                        float l_PosY = bossPos.GetPositionY() + l_Dist * sin(l_Ori);
+                        float l_PosX = g_BossPos.GetPositionX() + l_Dist * cos(l_Ori);
+                        float l_PosY = g_BossPos.GetPositionY() + l_Dist * sin(l_Ori);
 
                         if (m_SummonerEntry == NPC_JI_KUN)
-                            me->GetMotionMaster()->MoveJump(l_PosX, l_PosY, bossPos.GetPositionZ(), 10.0f, 30.0f, 0.0f, 1);
+                            me->GetMotionMaster()->MoveJump(l_PosX, l_PosY, g_BossPos.GetPositionZ(), 10.0f, 30.0f, 0.0f, 1);
                         else
                         {
                             me->SetCanFly(true);
                             me->SetDisableGravity(true);
                             me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_HOVER);
 
-                            me->GetMotionMaster()->MovePoint(1, l_PosX, l_PosY, bossPos.GetPositionZ());
+                            me->GetMotionMaster()->MovePoint(1, l_PosX, l_PosY, g_BossPos.GetPositionZ());
                         }
                         
                         break;
@@ -1315,7 +1588,7 @@ class mob_feed : public CreatureScript
         }
 };
 
-// Feed Pool - 68188
+/// Feed Pool - 68188
 class mob_feed_pool : public CreatureScript
 {
     public:
@@ -1345,7 +1618,7 @@ class mob_feed_pool : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_FEEDPOOL_CHECK_PLAYERS, 500);
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(const int32 p_Action)
             {
                 switch (p_Action)
                 {
@@ -1362,8 +1635,10 @@ class mob_feed_pool : public CreatureScript
                         m_Events.Reset();
 
                         for (Player* l_Player : l_PlayerList)
+                        {
                             if (l_Player->HasAura(SPELL_FEED_POOL_PERIODIC_DMG))
                                 l_Player->RemoveAura(SPELL_FEED_POOL_PERIODIC_DMG);
+                        }
 
                         me->DespawnOrUnsummon();
                     }
@@ -1400,43 +1675,43 @@ class mob_feed_pool : public CreatureScript
 
                     for (Player* l_Player : l_PlayerList)
                     {
-                        // Removing damage aura if player is outside of the pool
+                        /// Removing damage aura if player is outside of the pool
                         if (l_Player->GetDistance2d(me) > 3.0f && l_Player->HasAura(SPELL_FEED_POOL_PERIODIC_DMG))
                         {
                             l_Player->RemoveAura(SPELL_FEED_POOL_PERIODIC_DMG);
                             continue;
                         }
 
-                        // Player in the pool
-                        // Adding Slimed aura if player hasn't it
+                        /// Player in the pool
+                        /// Adding Slimed aura if player hasn't it
                         if (!l_Player->HasAura(SPELL_SLIMED))
                             me->AddAura(SPELL_SLIMED, l_Player);
 
-                        // Checking damage aura
+                        /// Checking damage aura
                         if (l_Player->HasAura(SPELL_FEED_POOL_PERIODIC_DMG))
                         {
-                            // Checking how long players have standed in the pool
+                            /// Checking how long players have standed in the pool
                            l_Itr = m_PlayerTick.find(l_Player->GetGUID());
                            if (l_Itr != m_PlayerTick.end())
                            {
-                               // Increasing tick
+                               /// Increasing tick
                                ++(l_Itr->second);
 
-                               // If player has standed for 6 ticks in the zone, that is 3 second, the pool despawn
+                               /// If player has standed for 6 ticks in the zone, that is 3 second, the pool despawn
                                if (l_Itr->second >= 6)
                                    DoAction(ACTION_FEEDPOOL_DESPAWN);
 
-                               // Remaining player has been found
+                               /// Remaining player has been found
                                l_PlayerGuidList.push_back(l_Player->GetGUID());
                            }
-                           // Player not in map : we add him
+                           /// Player not in map : we add him
                            else
                            {
                                m_PlayerTick.insert(std::make_pair(l_Player->GetGUID(), 1));
                                l_PlayerGuidList.push_back(l_Player->GetGUID());
                            }
                         }
-                        // Player hasn't damage aura : we add aura, and put its guid in the map
+                        /// Player hasn't damage aura : we add aura, and put its guid in the map
                         else
                         {
                             me->AddAura(SPELL_FEED_POOL_PERIODIC_DMG, l_Player);
@@ -1445,21 +1720,23 @@ class mob_feed_pool : public CreatureScript
                         }
                     }
 
-                    // Now we must remove players in the map which haven't been found
+                    /// Now we must remove players in the map which haven't been found
                     std::map<uint64, uint8>::iterator l_Next;
                     for (l_Itr = m_PlayerTick.begin(); l_Itr != m_PlayerTick.end(); l_Itr = l_Next)
                     {
-                        // Avoid crash with if l_Itr is erased
+                        /// Avoid crash with if l_Itr is erased
                         l_Next = l_Itr;
                         ++l_Next;
 
-                        // If player has been found in l_PlayerGuidList, we keep him
+                        /// If player has been found in l_PlayerGuidList, we keep him
                         bool l_Found = false;
                         for (uint64 l_Guid : l_PlayerGuidList)
+                        {
                             if (l_Guid == l_Itr->first)
                                 l_Found = true;
+                        }
 
-                        // Else, we remove him from the list, so he needs to enter the void zone again to despawn it
+                        /// Else, we remove him from the list, so he needs to enter the void zone again to despawn it
                         if (!l_Found)
                             m_PlayerTick.erase(l_Itr->first);
                     }
@@ -1475,7 +1752,7 @@ class mob_feed_pool : public CreatureScript
         }
 };
 
-// Exit Chamber [DNT] - 70734
+/// Exit Chamber [DNT] - 70734
 class mob_jikun_exit_chamber : public CreatureScript
 {
     public:
@@ -1504,7 +1781,7 @@ class mob_jikun_exit_chamber : public CreatureScript
         }
 };
 
-// Nest Guardian - 70134
+/// Nest Guardian - 70134
 class mob_nest_guardian : public CreatureScript
 {
     public:
@@ -1574,8 +1851,8 @@ class mob_nest_guardian : public CreatureScript
 };
 
 
-// Caw - 138923
-class spell_caw: public SpellScriptLoader
+/// Caw - 138923
+class spell_caw : public SpellScriptLoader
 {
     public:
         spell_caw() : SpellScriptLoader("spell_caw") { }
@@ -1587,8 +1864,10 @@ class spell_caw: public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (Unit* l_Target = GetHitUnit())
                         l_Caster->CastSpell(l_Target, SPELL_CAW_MISSILE, true);
+                }
             }
 
             void Register()
@@ -1603,51 +1882,8 @@ class spell_caw: public SpellScriptLoader
         }
 };
 
-// Infected Talons - 140094
-class spell_infected_talons: public SpellScriptLoader
-{
-    public:
-        spell_infected_talons() : SpellScriptLoader("spell_infected_talons") { }
-
-        class spell_infected_talons_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_infected_talons_AuraScript);
-
-            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo & p_EventInfo)
-            {
-                PreventDefaultAction();
-                Unit* l_Caster = GetTarget();
-
-                if (!l_Caster || !p_EventInfo.GetActor() || !l_Caster->ToCreature())
-                    return;
-
-                if (l_Caster != p_EventInfo.GetActor())
-                    return;
-
-                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_INFECTED_TALONS_AURA)
-                    return;
-
-                if (!p_EventInfo.GetDamageInfo()->GetDamage())
-                    return;
-
-                if (Unit* l_Target = l_Caster->getVictim())
-                    l_Caster->CastSpell(l_Target, SPELL_INFECTED_TALONS_AURA, true);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_infected_talons_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_infected_talons_AuraScript();
-        }
-};
-
-// Regurgitate - 134385
-class spell_regurgitate: public SpellScriptLoader
+/// Regurgitate - 134385
+class spell_regurgitate : public SpellScriptLoader
 {
     public:
         spell_regurgitate() : SpellScriptLoader("spell_regurgitate") { }
@@ -1659,8 +1895,10 @@ class spell_regurgitate: public SpellScriptLoader
             void HandleBeforeCast()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (l_Caster->ToCreature())
                         l_Caster->GetAI()->DoAction(ACTION_SUMMON_FEED);
+                }
             }
 
             void Register()
@@ -1676,8 +1914,10 @@ class spell_regurgitate: public SpellScriptLoader
             bool operator()(Creature* p_Creature) const
             {
                 if (!p_Creature->isAlive())
+                {
                     if (p_Creature->AI()->GetData(TYPE_IS_HATCHLING))
                         return true;
+                }
 
                 return false;
             }
@@ -1689,8 +1929,8 @@ class spell_regurgitate: public SpellScriptLoader
         }
 };
 
-// 134339 - Daedalian Wings
-class spell_daedalian_wings: public SpellScriptLoader
+/// 134339 - Daedalian Wings
+class spell_daedalian_wings : public SpellScriptLoader
 {
     public:
         spell_daedalian_wings() : SpellScriptLoader("spell_daedalian_wings") { }
@@ -1698,6 +1938,18 @@ class spell_daedalian_wings: public SpellScriptLoader
         class spell_daedalian_wings_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_daedalian_wings_SpellScript);
+
+            SpellCastResult CheckDeadalian()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_LESSON_OF_ICARUS))
+                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                    return SPELL_CAST_OK;
+                }
+
+                return SPELL_FAILED_CASTER_DEAD;
+            }
 
             void SetStackEnd()
             {
@@ -1713,18 +1965,13 @@ class spell_daedalian_wings: public SpellScriptLoader
                 if (!l_DaedalianAura)
                     return;
 
-                if (!GetClosestCreatureWithEntry(l_Caster, NPC_JI_KUN, 500.0f, true))
-                {
-                    l_Caster->RemoveAura(SPELL_LESSON_OF_ICARUS);
-                    l_DaedalianAura->SetStackAmount(1);
-                }
-                else
-                    l_DaedalianAura->SetStackAmount(4);
+                l_DaedalianAura->SetStackAmount(4);
             }
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_daedalian_wings_SpellScript::SetStackEnd);
+                OnCheckCast += SpellCheckCastFn(spell_daedalian_wings_SpellScript::CheckDeadalian);
+                AfterCast   += SpellCastFn(spell_daedalian_wings_SpellScript::SetStackEnd);
             }
         };
 
@@ -1734,8 +1981,8 @@ class spell_daedalian_wings: public SpellScriptLoader
         }
 };
 
-// 133755 - Flight
-class spell_flight: public SpellScriptLoader
+/// 133755 - Flight
+class spell_flight : public SpellScriptLoader
 {
     public:
         spell_flight() : SpellScriptLoader("spell_flight") { }
@@ -1747,33 +1994,26 @@ class spell_flight: public SpellScriptLoader
             SpellCastResult AllowFly()
             {
                 if (Unit* l_Caster = GetCaster())
-                    if (l_Caster->GetMapId() == 1098)
-                        return SPELL_CAST_OK;
+                {
+                    if (l_Caster->GetMapId() != 1098)
+                        return SPELL_FAILED_INCORRECT_AREA;
 
-                return SPELL_FAILED_INCORRECT_AREA;
+                    return SPELL_CAST_OK;
+                }
+
+                return SPELL_FAILED_CASTER_DEAD;
             }
 
             void DaedalianStacks()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (!GetClosestCreatureWithEntry(l_Caster, NPC_JI_KUN, 500.0f))
+                    if (AuraPtr l_DaedalianAura = l_Caster->GetAura(SPELL_DAEDALIAN_WINGS))
                     {
-                        if (AuraPtr l_FlightAura = l_Caster->AddAura(SPELL_FLIGHT, l_Caster))
-                            l_FlightAura->SetDuration(60000);
-
-                        if (l_Caster->HasAura(SPELL_DAEDALIAN_WINGS))
+                        if (l_DaedalianAura->GetStackAmount() == 1)
                             l_Caster->RemoveAura(SPELL_DAEDALIAN_WINGS);
-                    }
-                    else
-                    {
-                        if (AuraPtr l_DaedalianAura = l_Caster->GetAura(SPELL_DAEDALIAN_WINGS))
-                        {
-                            if (l_DaedalianAura->GetStackAmount() == 1)
-                                l_Caster->RemoveAura(SPELL_DAEDALIAN_WINGS);
-                            else
-                                l_DaedalianAura->SetStackAmount(l_DaedalianAura->GetStackAmount() - 1);
-                        }
+                        else
+                            l_DaedalianAura->SetStackAmount(l_DaedalianAura->GetStackAmount() - 1);
                     }
                 }
             }
@@ -1781,7 +2021,7 @@ class spell_flight: public SpellScriptLoader
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_flight_SpellScript::AllowFly);
-                AfterCast += SpellCastFn(spell_flight_SpellScript::DaedalianStacks);
+                AfterCast   += SpellCastFn(spell_flight_SpellScript::DaedalianStacks);
             }
         };
 
@@ -1791,8 +2031,8 @@ class spell_flight: public SpellScriptLoader
         }
 };
 
-// Screech - 140640
-class spell_screech: public SpellScriptLoader
+/// Screech - 140640
+class spell_screech : public SpellScriptLoader
 {
     public:
         spell_screech() : SpellScriptLoader("spell_screech") { }
@@ -1824,7 +2064,84 @@ class spell_screech: public SpellScriptLoader
         }
 };
 
-// Feather of Ji-Kun - 218543
+/// Daedalian Wings - 140014
+class spell_daedalian_end : public SpellScriptLoader
+{
+    public:
+        spell_daedalian_end() : SpellScriptLoader("spell_daedalian_end") { }
+
+        class spell_daedalian_end_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_daedalian_end_SpellScript);
+
+            SpellCastResult CheckFlightAura()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_FLIGHT_LONG))
+                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                    return SPELL_CAST_OK;
+                }
+
+                return SPELL_FAILED_CASTER_DEAD;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_daedalian_end_SpellScript::CheckFlightAura);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_daedalian_end_SpellScript();
+        }
+};
+
+/// Flight - 140013
+class spell_jikun_flight : public SpellScriptLoader
+{
+    public:
+        spell_jikun_flight() : SpellScriptLoader("spell_jikun_flight") { }
+
+        class spell_jikun_flight_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_jikun_flight_SpellScript);
+
+            SpellCastResult CheckArea()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetMapId() != 1098)
+                        return SPELL_FAILED_INCORRECT_AREA;
+
+                    return SPELL_CAST_OK;
+                }
+
+                return SPELL_FAILED_CASTER_DEAD;
+            }
+
+            void DaedalianAura()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->RemoveAura(SPELL_DAEDALIAN_WINGS_LONG);
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_jikun_flight_SpellScript::CheckArea);
+                AfterCast   += SpellCastFn(spell_jikun_flight_SpellScript::DaedalianAura);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_jikun_flight_SpellScript();
+        }
+};
+
+/// Feather of Ji-Kun - 218543
 class go_feather_of_jikun : public GameObjectScript
 {
     public:
@@ -1836,23 +2153,28 @@ class go_feather_of_jikun : public GameObjectScript
 
             bool GossipHello(Player* p_Player)
             {
-                if (!GetClosestCreatureWithEntry(go, NPC_JI_KUN, 500.0f))
+                InstanceScript* l_Instance = p_Player->GetInstanceScript();
+                if (!l_Instance)
+                    return false;
+
+                if (l_Instance->GetBossState(DATA_JI_KUN) == DONE)
                 {
-                    if (p_Player->HasAura(SPELL_FLIGHT))
+                    if (p_Player->HasAura(SPELL_FLIGHT_LONG) || p_Player->HasAura(SPELL_DAEDALIAN_WINGS_LONG))
                         return false;
+
+                    go->CastSpell(p_Player, SPELL_DAEDALIAN_WINGS_LONG);
                 }
                 else
                 {
                     if (p_Player->HasAura(SPELL_LESSON_OF_ICARUS))
                         return false;
 
+                    go->CastSpell(p_Player, SPELL_DAEDALIAN_WINGS);
                     go->Delete();
                 }
-                go->CastSpell(p_Player, SPELL_DAEDALIAN_WINGS);
 
                 return true;
             }
-
         };
 
         GameObjectAI* GetAI(GameObject* p_Go) const
@@ -1861,25 +2183,80 @@ class go_feather_of_jikun : public GameObjectScript
         }
 };
 
+class at_down_draft : public AreaTriggerEntityScript
+{
+    public:
+        at_down_draft() : AreaTriggerEntityScript("at_down_draft") { }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+            if (!l_Caster)
+                return;
+
+            std::list<Player*> l_PlayerList;
+            GetPlayerListInGrid(l_PlayerList, p_AreaTrigger, 40.f);
+
+            Position l_Pos;
+            p_AreaTrigger->GetPosition(&l_Pos);
+
+            for (Player* l_Player : l_PlayerList)
+            {
+                if (l_Player->IsWithinDist(l_Caster, 30.f, false))
+                {
+                    if (l_Player->isAlive() && !l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
+                        l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, l_Pos, -7.f, 1);
+                    else if (!l_Player->isAlive() && l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
+                        l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, l_Pos);
+                }
+                else if (l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
+                    l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, l_Pos);
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            Position l_Pos;
+            p_AreaTrigger->GetPosition(&l_Pos);
+
+            Map::PlayerList const &l_PlayerList = p_AreaTrigger->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+            {
+                for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, l_Pos);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new at_down_draft();
+        }
+};
+
 void AddSC_boss_ji_kun()
 {
-    new boss_ji_kun();                  // 69712
-    new mob_jump_to_boss_platform();    // 69885
-    new mob_fall_catcher();             // 69839
-    new mob_incubater();                // 69626
-    new mob_young_egg_of_jikun();       // 68194
-    new mob_hatchling();                // 68192
-    new mob_fledgling_egg();            // 68202 - 69628
-    new mob_juvenile();                 // 70095 - 69836
-    new mob_feed();                     // 68178
-    new mob_feed_pool();                // 68188
-    new mob_jikun_exit_chamber();       // 70734
-    new mob_nest_guardian();            // 70134
-    new spell_caw();                    // 138923
-    new spell_infected_talons();        // 140094
-    new spell_regurgitate();            // 134385
-    new spell_daedalian_wings();        // 134339
-    new spell_flight();                 // 133755
-    new spell_screech();                // 140640
-    new go_feather_of_jikun();          // 218543
+    new boss_ji_kun();                  ///< 69712
+    new mob_jump_to_boss_platform();    ///< 69885
+    new mob_fall_catcher();             ///< 69839
+    new mob_incubater();                ///< 69626
+    new mob_young_egg_of_jikun();       ///< 68194
+    new mob_hatchling();                ///< 68192
+    new mob_fledgling_egg();            ///< 68202 - 69628
+    new mob_juvenile();                 ///< 70095 - 69836
+    new mob_feed();                     ///< 68178
+    new mob_feed_pool();                ///< 68188
+    new mob_jikun_exit_chamber();       ///< 70734
+    new mob_nest_guardian();            ///< 70134
+    new spell_caw();                    ///< 138923
+    new spell_regurgitate();            ///< 134385
+    new spell_daedalian_wings();        ///< 134339
+    new spell_flight();                 ///< 133755
+    new spell_screech();                ///< 140640
+    new spell_daedalian_end();          ///< 140014
+    new spell_jikun_flight();           ///< 140013
+    new go_feather_of_jikun();          ///< 218543
+    new at_down_draft();                ///< 134370
 }

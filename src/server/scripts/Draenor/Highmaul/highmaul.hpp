@@ -79,6 +79,12 @@ enum eHighmaulCreatures
     /// The Underbelly
     TheButcher          = 77404,
     /// Gorian Strands
+    IronGrunt           = 88118,
+    BlackrockGrunt      = 86610,
+    LowBatchDeadPale    = 86283,
+    NightTwistedPaleVis = 82694,
+    CosmeticGorianWarr  = 82690,
+    GorianCivilian      = 85371,
     Brackenspore        = 78491,
     BFC9000             = 81403,
     /// The Market
@@ -88,7 +94,11 @@ enum eHighmaulCreatures
     Lokk                = 86073,
     /// The Gorthenon
     Phemos              = 78237,
-    Pol                 = 78238
+    Pol                 = 78238,
+    /// Chamber of Nullification
+    Koragh              = 79015,
+    RuneOfNullification = 79559,
+    VolatileAnomaly     = 79956
 };
 
 enum eHighmaulGameobjects
@@ -154,7 +164,16 @@ enum eHighmaulLocs
     ArenaCenter         = 4783,
     KargathDefeated     = 4784,
     PalaceFrontGate     = 4785,
+    FelBreakerRoom      = 4786,
+    ImperatorsRise      = 4787,
     CityBaseTeleporter  = 4788
+};
+
+enum eHighmaulDungeons
+{
+    WalledCity      = 849,
+    ArcaneSanctum   = 850,
+    ImperatorsFall  = 851
 };
 
 #endif

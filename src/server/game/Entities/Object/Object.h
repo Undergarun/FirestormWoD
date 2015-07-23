@@ -31,6 +31,7 @@
 #include <set>
 #include <string>
 #include <sstream>
+#include <unordered_set>
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
@@ -122,6 +123,7 @@ class ZoneScript;
 class Unit;
 class Transport;
 
+typedef std::unordered_set<uint64> GuidUnorderedSet;
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
 class DynamicFields
@@ -612,6 +614,7 @@ struct Position
         }
         return fmod(o, 2.0f * static_cast<float>(M_PI));
     }
+
     static float NormalizePitch(float o)
     {
         if (o > -M_PI && o < M_PI)
@@ -620,6 +623,20 @@ struct Position
         o = NormalizeOrientation(o + M_PI) - M_PI;
 
         return o;
+    }
+
+    bool IsNearPosition(Position const* p_CheckPos, float p_Range) const
+    {
+        float l_PosX = GetPositionX();
+        float l_PosY = GetPositionY();
+        float l_PosZ = GetPositionZ();
+
+        if ((l_PosX <= (p_CheckPos->m_positionX + p_Range) && l_PosX >= (p_CheckPos->m_positionX - p_Range)) &&
+            (l_PosY <= (p_CheckPos->m_positionY + p_Range) && l_PosY >= (p_CheckPos->m_positionY - p_Range)) &&
+            (l_PosZ <= (p_CheckPos->m_positionZ + p_Range) && l_PosZ >= (p_CheckPos->m_positionZ - p_Range)))
+            return true;
+
+        return false;
     }
 };
 
@@ -965,9 +982,9 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
-        virtual void SendMessageToSet(WorldPacket* data, bool self);
-        virtual void SendMessageToSetInRange(WorldPacket* data, float dist, bool self);
-        virtual void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr);
+        virtual void SendMessageToSet(WorldPacket* data, bool self, const GuidUnorderedSet& p_IgnoredList = GuidUnorderedSet());
+        virtual void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, const GuidUnorderedSet& p_IgnoredList = GuidUnorderedSet());
+        virtual void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr, const GuidUnorderedSet& p_IgnoredList = GuidUnorderedSet());
 
         virtual uint8 getLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
@@ -1040,6 +1057,7 @@ class WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player*     FindNearestPlayer(float range, bool alive = true);
+        AreaTrigger* FindNearestAreaTrigger(uint32 p_SpellID, float p_Range) const;
 
         void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;

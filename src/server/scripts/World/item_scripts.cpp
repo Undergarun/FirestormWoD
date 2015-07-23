@@ -33,6 +33,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
+#include "SpellScript.h"
 
 /*#####
 # item_only_for_flight

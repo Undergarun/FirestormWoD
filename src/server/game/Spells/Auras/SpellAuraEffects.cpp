@@ -1269,10 +1269,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     }
 
     if (DoneActualBenefit != 0.0f && caster)
-    {
-        DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
         amount += (int32)DoneActualBenefit;
-    }
 
     GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
 
@@ -1280,14 +1277,30 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     {
         if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
         {
+            float l_Minval = (float)caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+            float l_Maxval = (float)caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+
+            /// Apply bonus absorption
+            float totalMod = l_Minval + l_Maxval;
+
             /// Apply Versatility absorb bonus
-            amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-            
+            totalMod += caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+
             /// Apply Mastery: Discipline Shield
             if (caster->HasAura(77484))
             {
                 float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
-                amount += CalculatePct(amount, l_Mastery);
+                totalMod += l_Mastery;
+            }
+
+            amount += CalculatePct(amount, totalMod);
+
+            /// Bonus Taken    
+            /// Dampening, must be calculated off the raw amount
+            if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(110310, EFFECT_0))
+            {
+                if (GetId() != 47753) ///< Divine Aegis proc from heal, and get heal % of heal amount, and heal spells are already affected by Dampening
+                    amount = CalculatePct(amount, 100 - l_AurEff->GetAmount());
             }
 
             /// Check if is crit
@@ -4099,16 +4112,16 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
 
     if (GetAuraType() == SPELL_AURA_INCREASE_MIN_SWIM_SPEED)
     {
-        target->UpdateSpeed(MOVE_SWIM, true);
+        target->UpdateSpeed(MOVE_SWIM, false);
         return;
     }
 
-    target->UpdateSpeed(MOVE_RUN, true);
+    target->UpdateSpeed(MOVE_RUN, false);
 
     if (GetAuraType() == SPELL_AURA_MOD_MINIMUM_SPEED)
     {
-        target->UpdateSpeed(MOVE_RUN_BACK, true);
-        target->UpdateSpeed(MOVE_FLIGHT, true);
+        target->UpdateSpeed(MOVE_RUN_BACK, false);
+        target->UpdateSpeed(MOVE_FLIGHT, false);
     }
 }
 
@@ -4222,6 +4235,10 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
 
     switch (miscVal)
     {
+        case 27:
+            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SILENCE, apply);
+            aura_immunity_list.push_back(SPELL_AURA_MOD_SILENCE);
+            break;
         case 96:
         case 1615:
         {
@@ -5222,7 +5239,7 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
 
 void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT | AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK)))
         return;
 
     Unit* target = aurApp->GetTarget();
@@ -5233,7 +5250,7 @@ void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurAp
     float percent = target->GetHealthPct();
     target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, amount, apply);
     if (target->isAlive())
-        target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
+        target->SetHealth(target->CountPctFromMaxHealth(percent));
 }
 
 void AuraEffect::HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -7481,8 +7498,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
         /// Apply versatility rating for players
-        if (caster->ToPlayer())
-            damage += CalculatePct(damage, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->ToPlayer()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        if (caster->GetSpellModOwner())
+            damage += CalculatePct(damage, caster->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
         // Calculate armor mitigation
         if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
@@ -7553,7 +7570,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
     }
     else
-        damage = uint32(target->CountPctFromMaxHealth(damage));
+        damage = uint32(target->CountPctFromMaxHealth((int32)damage));
 
     // WoD: Apply factor on damages depending on creature level and expansion
     if ((caster->GetTypeId() == TYPEID_PLAYER || caster->IsPetGuardianStuff()) && target->GetTypeId() == TYPEID_UNIT)
@@ -7773,19 +7790,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     else
     {
         damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
-
-        // Wild Growth
-        if (m_spellInfo->Id == 48438)
-        {
-            float l_SetMod = 0.f;
-
-            // Item - Druid T10 Restoration 2P Bonus
-            if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(70658, 0))
-                l_SetMod = l_AurEff->GetAmount() / 100.f;
-
-            float l_Mod = (((GetTotalTicks() - GetTickNumber()) - 3.5f) * (2.f + l_SetMod) + 100.f) / 100.f;
-            damage *= l_Mod;
-        }
 
         if (isAreaAura)
             damage = uint32(float(damage) * caster->SpellHealingPctDone(target, m_spellInfo));

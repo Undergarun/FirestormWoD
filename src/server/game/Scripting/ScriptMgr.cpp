@@ -21,6 +21,7 @@
 #include "GossipDef.h"
 #include "CreatureAIImpl.h"
 #include "SpellAuraEffects.h"
+#include "BattlepayMgr.h"
 
 void DoScriptText(int32 p_ItemTextEntry, WorldObject* p_Source, Unit* p_Target)
 {
@@ -569,6 +570,16 @@ void ScriptMgr::OnRemoveAreaTriggerEntity(AreaTrigger * p_AreaTrigger, uint32 p_
         return;
 
     p_AreaTrigger->GetScript()->OnRemove(p_AreaTrigger, p_Time);
+}
+
+void ScriptMgr::OnDestinationReached(AreaTrigger* p_AreaTrigger)
+{
+    ASSERT(p_AreaTrigger);
+
+    if (!p_AreaTrigger->GetScript())
+        return;
+
+    p_AreaTrigger->GetScript()->OnDestinationReached(p_AreaTrigger);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2318,6 +2329,37 @@ bool ScriptMgr::EvalPlayerConditionScript(PlayerConditionEntry const* p_Conditio
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+void ScriptMgr::RegisterBattlePayProductScript(std::string p_ScriptName, BattlePayProductScript* p_Script)
+{
+    if (m_BattlePayProductScripts.find(p_ScriptName) != m_BattlePayProductScripts.end())
+        return;
+
+    m_BattlePayProductScripts[p_ScriptName] = p_Script;
+}
+
+void ScriptMgr::OnBattlePayProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product)
+{
+    auto l_Itr = m_BattlePayProductScripts.find(p_Product.ScriptName);
+    if (l_Itr == m_BattlePayProductScripts.end())
+        return;
+
+    BattlePayProductScript* l_Script = l_Itr->second;
+    l_Script->OnProductDelivery(p_Session, p_Product);
+}
+
+bool ScriptMgr::BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason)
+{
+    auto l_Itr = m_BattlePayProductScripts.find(p_Product.ScriptName);
+    if (l_Itr == m_BattlePayProductScripts.end())
+        return true;
+
+    BattlePayProductScript* l_Script = l_Itr->second;
+    return l_Script->CanBuy(p_Session, p_Product, p_Reason);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// Constructor
 /// @p_Name : Script name
 SpellScriptLoader::SpellScriptLoader(const char * p_Name)
@@ -2536,6 +2578,12 @@ PlayerConditionScript::PlayerConditionScript(uint32 p_ID)
     : ScriptObjectImpl("PlayerConditionScript")
 {
     sScriptMgr->RegisterPlayerConditionScript(p_ID, this);
+}
+
+BattlePayProductScript::BattlePayProductScript(std::string p_ScriptName)
+    : ScriptObjectImpl(p_ScriptName.c_str())
+{
+    sScriptMgr->RegisterBattlePayProductScript(p_ScriptName, this);
 }
 
 /// Instantiate static members of ScriptRegistry.

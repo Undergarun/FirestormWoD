@@ -32,5 +32,6 @@ void AddDraenorScripts();
 void AddBattlegroundScripts();
 void AddOutdoorPvPScripts();
 void AddCustomScripts();
+void AddBattlePayScripts();
 
 #endif

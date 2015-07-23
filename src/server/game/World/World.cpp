@@ -84,6 +84,9 @@
 #include "WildBattlePet.h"
 #include "PlayerDump.h"
 #include "TransportMgr.h"
+#include "BattlepayMgr.h"
+
+uint32 gOnlineGameMaster = 0;
 #include "GarrisonShipmentManager.hpp"
 #include "ChatLexicsCutter.h"
 
@@ -1134,8 +1137,11 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX]              = ConfigMgr::GetIntDefault("Challenge.Mode.Item.Level.Max", 630);
 
     m_int_configs[CONFIG_LAST_CLIENT_BUILD]                          = ConfigMgr::GetIntDefault("LastClientBuild", 19342);
-
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = ConfigMgr::GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
+
+    /// BattlePay configs
+    m_int_configs[CONFIG_BATTLEPAY_MIN_SECURITY] = ConfigMgr::GetIntDefault("BattlePay.Security", 0);
+    m_bool_configs[CONFIG_BATTLEPAY_ENABLE]      = ConfigMgr::GetBoolDefault("BattlePay.Enable", true);
 
     if (int32 clientCacheId = ConfigMgr::GetIntDefault("ClientCacheVersion", 0))
     {
@@ -1414,6 +1420,9 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ACHIEVEMENT_DISABLE] = ConfigMgr::GetBoolDefault("Achievement.disable", false);
 
     m_bool_configs[CONFIG_MOP_TRANSFER_ENABLE] = ConfigMgr::GetBoolDefault("MopTransfer.enable", false);
+    m_bool_configs[CONFIG_WEB_DATABASE_ENABLE] = ConfigMgr::GetBoolDefault("WebDatabase.enable", false);
+
+    m_bool_configs[CONFIG_LOG_PACKETS] = ConfigMgr::GetBoolDefault("LogPackets", true);
 
     m_bool_configs[CONFIG_FUN_ENABLE] = ConfigMgr::GetBoolDefault("Fun.Enable", false);
     m_int_configs[CONFIG_FIRST_PREMADE_MONEY] = ConfigMgr::GetIntDefault("Fun.FirstPremadeMoney", 0);
@@ -2025,7 +2034,7 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_REALM_STATS].SetInterval(MINUTE * IN_MILLISECONDS);
 
-    m_timers[WUPDATE_TRANSFERT].SetInterval(15 * IN_MILLISECONDS);
+    m_timers[WUPDATE_TRANSFERT].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_TRANSFER_MOP].SetInterval(1 * MINUTE * IN_MILLISECONDS);
 
     //to set mailtimer to return mails every day between 4 and 5 am
@@ -2159,6 +2168,8 @@ void World::SetInitialWorldSettings()
     sGarrisonShipmentManager->Init();
 
     PlayerDump::LoadColumnsName();
+
+    sBattlepayMgr->LoadFromDatabase();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
@@ -3204,14 +3215,6 @@ void World::ShutdownMsg(bool show, Player* player)
         SendServerMessage(msgid, str.c_str(), player);
         sLog->outDebug(LOG_FILTER_GENERAL, "Server is %s in %s", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), str.c_str());
     }
-
-    if (m_ShutdownTimer == 5)
-        sWorld->KickAll(); // save and kick all players
-    else if (m_ShutdownTimer == 2)
-    {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Automatic scheduled server restart!");
-        ASSERT(false);
-    }
 }
 
 /// Cancel a planned server shutdown
@@ -3850,7 +3853,7 @@ void World::LoadCharacterNameData()
 {
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character name data");
 
-    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class, level FROM characters WHERE deleteDate IS NULL OR deleteDate = 0");
+    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class, level, account FROM characters WHERE deleteDate IS NULL OR deleteDate = 0");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "No character name data loaded, empty query");
@@ -3863,7 +3866,7 @@ void World::LoadCharacterNameData()
     {
         Field* fields = result->Fetch();
         AddCharacterNameData(fields[0].GetUInt32(), fields[1].GetString(),
-            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/);
+            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/, fields[6].GetUInt32() /*accountid*/);
         ++count;
     }
     while (result->NextRow());
@@ -3871,7 +3874,7 @@ void World::LoadCharacterNameData()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters", count);
 }
 
-void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, uint32 p_AccountID)
 {
     CharacterNameData& data = _characterNameDataMap[guid];
     data.m_name = name;
@@ -3879,6 +3882,7 @@ void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gen
     data.m_gender = gender;
     data.m_class = playerClass;
     data.m_level = level;
+    data.m_AccountId = p_AccountID;
 }
 
 void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)

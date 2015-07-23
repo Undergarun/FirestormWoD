@@ -37,6 +37,7 @@ enum MageSpells
     HUNTER_SPELL_INSANITY                        = 95809,
     SPELL_SHAMAN_SATED                           = 57724,
     SPELL_SHAMAN_EXHAUSTED                       = 57723,
+    HUNTER_SPELL_FATIGUED                        = 160455,
     SPELL_MAGE_CONJURE_REFRESHMENT_R1            = 92739,
     SPELL_MAGE_CONJURE_REFRESHMENT_R2            = 92799,
     SPELL_MAGE_CONJURE_REFRESHMENT_R3            = 92802,
@@ -177,45 +178,6 @@ public:
                 itr->RemoveAura(eSpells::SlickIce, l_Caster->GetGUID());
         }
     }
-};
-
-/// Arcane Orb - 153626
-class spell_areatrigger_arcane_orb : public AreaTriggerEntityScript
-{
-    public:
-        spell_areatrigger_arcane_orb() : AreaTriggerEntityScript("spell_areatrigger_arcane_orb") { }
-
-        enum eArcaneOrbSpell
-        {
-            ArcaneOrbDamage = 153640
-        };
-
-        void OnCreate(AreaTrigger* p_AreaTrigger)
-        {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
-                l_Caster->CastSpell(l_Caster, SPELL_MAGE_ARCANE_CHARGE, true);
-        }
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
-            {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 2.0f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eArcaneOrbSpell::ArcaneOrbDamage, true);
-            }
-        }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new spell_areatrigger_arcane_orb();
-        }
 };
 
 /// Arcane Charge - 36032
@@ -698,8 +660,8 @@ class spell_mage_cauterize: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_cauterize_AuraScript);
 
-            uint32 absorbChance;
-            uint32 healtPct;
+            int32 absorbChance;
+            int32 healtPct;
 
             bool Load()
             {
@@ -825,7 +787,7 @@ class spell_mage_arcane_barrage: public SpellScriptLoader
                                 l_Target->CastCustomSpell(itr, SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED, &l_Basepoints, NULL, NULL, true, 0, NULLAURA_EFFECT, l_Player->GetGUID());
 
                             if (AuraPtr l_ArcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE, l_Player->GetGUID()))
-                                l_ArcaneCharge->ModStackAmount(-l_ArcaneCharge->GetCharges());
+                                l_ArcaneCharge->ModStackAmount(-(l_ArcaneCharge->CalcMaxCharges() + 1));
                         }
                     }
                 }
@@ -1504,6 +1466,7 @@ class spell_mage_time_warp: public SpellScriptLoader
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_FATIGUED));
             }
 
             void ApplyDebuff()
@@ -1575,7 +1538,7 @@ class spell_mage_alter_time: public SpellScriptLoader
                         return;
 
                     std::list<Creature*> mirrorList;
-                    _player->GetCreatureListWithEntryInGrid(mirrorList, NPC_PAST_SELF, 50.0f);
+                    _player->GetCreatureListWithEntryInGrid(mirrorList, NPC_PAST_SELF, 100.0f);
 
                     if (mirrorList.empty())
                         return;
@@ -2711,11 +2674,47 @@ class PlayerScript_rapid_teleportation : public PlayerScript
         }
 };
 
+/// Ring of Frost (Freeze) - 82691 - last update: 6.1.2 19865
+class spell_ring_of_frost_freeze : public SpellScriptLoader
+{
+    public:
+        spell_ring_of_frost_freeze() : SpellScriptLoader("spell_ring_of_frost_freeze") { }
+
+        enum Spells
+        {
+            RingOfFrostImmune = 91264
+        };
+
+        class spell_ring_of_frost_freeze_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ring_of_frost_freeze_AuraScript);
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEATH)
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(GetTarget(), Spells::RingOfFrostImmune, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ring_of_frost_freeze_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ring_of_frost_freeze_AuraScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
     new spell_areatrigger_mage_wod_frost_2p_bonus();
-    new spell_areatrigger_arcane_orb();
 
     /// Spells
     new spell_mage_arcane_charge();
@@ -2766,6 +2765,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_WoDPvPFrost2PBonus();
     new spell_mage_arcane_power();
     new spell_mage_polymorph();
+    new spell_ring_of_frost_freeze();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

@@ -2128,6 +2128,8 @@ class npc_new_lightwell : public CreatureScript
 
                 if (AuraPtr charges = me->GetAura(59907))
                 {
+                    charges->SetCharges(15);
+                    charges->GetEffect(0)->ChangeAmount(15);
                     if (Unit* owner = me->GetOwner())
                     {
                         // Glyph of Deep Wells
@@ -2209,6 +2211,8 @@ class npc_lightwell : public CreatureScript
 
                 if (AuraPtr charges = me->GetAura(59907))
                 {
+                    charges->SetCharges(15);
+                    charges->GetEffect(0)->ChangeAmount(15);
                     if (Unit* owner = me->GetOwner())
                     {
                         // Glyph of Deep Wells
@@ -3278,147 +3282,6 @@ class npc_demoralizing_banner : public CreatureScript
 };
 
 /*######
-# npc_frozen_orb 45322
-######*/
-
-enum frozenOrbSpells
-{
-    SPELL_FINGERS_OF_FROST_VISUAL   = 44544,
-    SPELL_SELF_SNARE_90             = 82736,
-    SPELL_SNARE_DAMAGE              = 84721,
-    SPELL_FINGERS_OF_FROST          = 126084,
-    SPELL_FROZEN_ORB                = 123605
-};
-
-class npc_frozen_orb : public CreatureScript
-{
-    public:
-        npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
-
-        struct npc_frozen_orbAI : public ScriptedAI
-        {
-            npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
-            {
-                frozenOrbTimer = 0;
-                frozenOrbTimer2 = 0;
-            }
-
-            uint32 frozenOrbTimer;
-            uint32 frozenOrbTimer2;
-
-            void EnterEvadeMode() override
-            {
-                if (!_EnterEvadeMode())
-                    return;
-
-                Reset();
-
-                if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
-                    me->GetVehicleKit()->Reset(true);
-
-                me->SetLastDamagedTime(0);
-            }
-
-            void IsSummonedBy(Unit* p_Owner) override
-            {
-                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
-                {
-                    me->RemoveAllAuras();
-
-                    p_Owner->CastSpell(me, SPELL_SNARE_DAMAGE, true);
-                    p_Owner->CastSpell(p_Owner, SPELL_FINGERS_OF_FROST_VISUAL, true);
-                    p_Owner->CastSpell(p_Owner, SPELL_FINGERS_OF_FROST, true);
-                    me->AddAura(SPELL_FROZEN_ORB, me);
-                    me->AddAura(SPELL_SELF_SNARE_90, me);
-
-                    frozenOrbTimer = 1000;
-                    frozenOrbTimer2 = 500;
-
-                    float rotation = p_Owner->GetOrientation();
-
-                    float l_LastZ = p_Owner->GetPositionZ();
-                    float l_MaxDist = 0.f;
-                    for (float l_I = 1; l_I <= 35; l_I += 0.25f)
-                    {
-                        float x = p_Owner->GetPositionX() + (l_I * cos(rotation));
-                        float y = p_Owner->GetPositionY() + (l_I * sin(rotation));
-
-                        float l_Z = p_Owner->GetMap()->GetHeight(x, y, MAX_HEIGHT);
-
-                        me->SetPosition(x, y, l_Z, 0);
-
-                        if (abs(l_Z - l_LastZ) < 0.25f && p_Owner->IsWithinLOSInMap(me))
-                        {
-                            l_LastZ = l_Z;
-                            l_MaxDist = l_I;
-                        }
-                        else
-                            break;
-                    }
-
-                    m_DestX = p_Owner->GetPositionX() + (l_MaxDist * cos(rotation));
-                    m_DestY = p_Owner->GetPositionY() + (l_MaxDist * sin(rotation));
-
-                    me->SetPosition(p_Owner->GetPositionX(), p_Owner->GetPositionY(), p_Owner->GetPositionZ(), rotation);
-
-                    me->SetSpeed(MOVE_RUN, 1, true);
-                    me->SetWalk(false);
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), m_DestX, m_DestY, me->GetMap()->GetHeight(m_DestX, m_DestY, MAX_HEIGHT) + 0.5);
-
-                    me->getHostileRefManager().setOnlineOfflineState(false);
-                    me->SetSpeed(MOVE_RUN, 1, true);
-                }
-                else
-                    me->DespawnOrUnsummon();
-            }
-
-            void UpdateAI(const uint32 p_Diff) override
-            {
-                Unit* owner = me->GetOwner();
-
-                if (!owner)
-                    return;
-
-                if (frozenOrbTimer <= p_Diff)
-                {
-                    if (owner && owner->ToPlayer())
-                    {
-                        if (owner->ToPlayer()->HasSpellCooldown(SPELL_SNARE_DAMAGE))
-                            owner->ToPlayer()->RemoveSpellCooldown(SPELL_SNARE_DAMAGE);
-                    }
-
-                    owner->CastSpell(me, SPELL_SNARE_DAMAGE, true);
-
-                    frozenOrbTimer = 1000;
-                }
-                else
-                    frozenOrbTimer -= p_Diff;
-
-                if (frozenOrbTimer2 <= p_Diff)
-                {
-                    me->SetSpeed(MOVE_RUN, 1, true);
-                    me->SetWalk(false);
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), m_DestX, m_DestY, me->GetMap()->GetHeight(me->m_positionX, me->m_positionY, MAX_HEIGHT) + 0.5);
-
-                    frozenOrbTimer2 = 500;
-                }
-                else
-                    frozenOrbTimer2 -= p_Diff;
-            }
-
-            float m_DestX;
-            float m_DestY;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_frozen_orbAI(creature);
-        }
-};
-
-/*######
 # npc_guardian_of_ancient_kings
 ######*/
 
@@ -3564,84 +3427,86 @@ class npc_dire_beast : public CreatureScript
             return new npc_dire_beastAI(creature);
         }
 };
-
 /*######
 ## npc_ring_of_frost
 ######*/
+
+float const g_RingOfFrostMaxRadius = 5.0f;
 
 class npc_ring_of_frost : public CreatureScript
 {
     public:
         npc_ring_of_frost() : CreatureScript("npc_ring_of_frost") { }
 
+        enum Constants
+        {
+            RingOfFrostFreeze = 82691,
+            RingOfFrostImmune = 91264
+        };
+
         struct npc_ring_of_frostAI : public Scripted_NoMovementAI
         {
-            npc_ring_of_frostAI(Creature *c) : Scripted_NoMovementAI(c)
+            npc_ring_of_frostAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
             {
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void Reset()
             {
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             }
 
             void InitializeAI()
             {
                 ScriptedAI::InitializeAI();
-                Unit * owner = me->GetOwner();
-                if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+                Unit* l_Owner = me->GetOwner();
+                if (!l_Owner || l_Owner->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
 
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
-                std::list<Creature*> templist;
-                me->GetCreatureListWithEntryInGrid(templist, me->GetEntry(), 200.0f);
-                if (!templist.empty())
-                    for (std::list<Creature*>::const_iterator itr = templist.begin(); itr != templist.end(); ++itr)
-                        if ((*itr)->GetOwner() == me->GetOwner() && *itr != me)
-                            (*itr)->DisappearAndDie();
-            }
+                std::list<Creature*> l_RingList;
+                me->GetCreatureListWithEntryInGrid(l_RingList, me->GetEntry(), 200.0f);
 
-            void CheckIfMoveInRing(Unit *who)
-            {
-                if (who->isAlive() && me->IsInRange(who, 2.0f, 4.7f) && me->IsWithinLOSInMap(who))
+                for (Creature* l_Ring : l_RingList)
                 {
-                    if (!who->HasAura(82691))
-                    {
-                        if (!who->HasAura(91264))
-                        {
-                            me->CastSpell(who, 82691, true);
-                            me->CastSpell(who, 91264, true);
-                        }
-                    }
-                    else me->CastSpell(who, 91264, true);
+                    if (l_Ring->GetOwner() == me->GetOwner() && l_Ring != me)
+                        l_Ring->DisappearAndDie();
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void CheckIfMoveInRing(Unit* p_Who)
             {
-                // Find all the enemies
-                std::list<Unit*> targets;
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 5.0f);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(5.0f, searcher);
-                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                    if (!(*iter)->isTotem())
-                        CheckIfMoveInRing(*iter);
+                if (p_Who->isAlive() && me->IsInRange(p_Who, 2.0f, 5.0f) && me->IsWithinLOSInMap(p_Who))
+                {
+                    if (p_Who->HasAura(Constants::RingOfFrostImmune) || p_Who->HasAura(Constants::RingOfFrostFreeze))
+                        return;
+
+                    if (Unit* l_Owner = me->GetOwner())
+                        l_Owner->CastSpell(p_Who, Constants::RingOfFrostFreeze, true);
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                /// Find all the enemies
+                std::list<Unit*> l_Targets;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(me, me, g_RingOfFrostMaxRadius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(me, l_Targets, l_Check);
+                me->VisitNearbyObject(g_RingOfFrostMaxRadius, l_Searcher);
+
+                for (Unit* l_Target : l_Targets)
+                    CheckIfMoveInRing(l_Target);
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* p_Creature) const
         {
-            return new npc_ring_of_frostAI(pCreature);
+            return new npc_ring_of_frostAI(p_Creature);
         }
 };
 
@@ -3850,21 +3715,7 @@ enum PastSelfSpells
     SPELL_FADING                    = 107550,
     SPELL_ALTER_TIME                = 110909,
     SPELL_ENCHANTED_REFLECTION      = 102284,
-    SPELL_ENCHANTED_REFLECTION_2    = 102288,
-};
-
-struct auraData
-{
-    auraData(uint32 id, int32 duration, uint8 charges, bool isStackAmount) :
-        m_id(id), m_Duration(duration), m_Charges(charges), m_isStackAmount(isStackAmount)
-    {
-        memset(m_EffectAmounts, 0, sizeof(m_EffectAmounts));
-    }
-    uint32 m_id;
-    int32 m_Duration;
-    int32 m_EffectAmounts[MAX_EFFECTS];
-    uint8 m_Charges;
-    bool m_isStackAmount;
+    SPELL_ENCHANTED_REFLECTION_2    = 102288
 };
 
 #define ACTION_ALTER_TIME   1
@@ -3882,109 +3733,50 @@ class npc_past_self : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetMaxHealth(500);
                 me->SetHealth(me->GetMaxHealth());
-                mana = 0;
-                health = 0;
-                auras.clear();
+                m_Mana = 0;
+                m_Health = 0;
             }
 
-            int32 mana;
-            int32 health;
-            std::set<auraData*> auras;
+            int32 m_Mana;
+            int32 m_Health;
 
             void Reset()
             {
-                if (!me->HasAura(SPELL_FADING))
-                    me->AddAura(SPELL_FADING, me);
+                if (!me->HasAura(PastSelfSpells::SPELL_FADING))
+                    me->AddAura(PastSelfSpells::SPELL_FADING, me);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* p_Owner)
             {
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
                 {
-                    Unit::AuraApplicationMap const& appliedAuras = owner->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::const_iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
-                    {
-                        if (AuraPtr aura = itr->second->GetBase())
-                        {
-                            SpellInfo const* auraInfo = aura->GetSpellInfo();
-                            if (!auraInfo)
-                                continue;
+                    m_Mana = p_Owner->GetPower(Powers::POWER_MANA);
+                    m_Health = p_Owner->GetHealth();
 
-                            if (auraInfo->Id == SPELL_ALTER_TIME)
-                                continue;
-
-                            if (auraInfo->IsPassive())
-                                continue;
-
-                            if (auraInfo->Id == 23333 || auraInfo->Id == 23335)
-                                continue;
-
-                            bool stack = aura->GetStackAmount();
-                            uint8 charges = stack ? aura->GetStackAmount() : aura->GetCharges();
-                            auto l_Inserted = auras.insert(new auraData(auraInfo->Id, aura->GetDuration(), charges, stack));
-
-                            for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
-                            {
-                                if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
-                                    (*l_Inserted.first)->m_EffectAmounts[l_I] = l_Effect->GetAmount();
-                            }
-                        }
-                    }
-
-                    mana = owner->GetPower(POWER_MANA);
-                    health = owner->GetHealth();
-
-                    owner->AddAura(SPELL_ENCHANTED_REFLECTION, me);
-                    owner->AddAura(SPELL_ENCHANTED_REFLECTION_2, me);
+                    p_Owner->AddAura(PastSelfSpells::SPELL_ENCHANTED_REFLECTION, me);
+                    p_Owner->AddAura(PastSelfSpells::SPELL_ENCHANTED_REFLECTION_2, me);
                 }
                 else
                     me->DespawnOrUnsummon();
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 p_Action)
             {
-                if (action == ACTION_ALTER_TIME)
+                if (p_Action == ACTION_ALTER_TIME)
                 {
-                    if (TempSummon* pastSelf = me->ToTempSummon())
+                    if (TempSummon* l_PastSelf = me->ToTempSummon())
                     {
-                        if (Unit* m_owner = pastSelf->GetSummoner())
+                        if (Unit* l_Owner = l_PastSelf->GetSummoner())
                         {
-                            if (m_owner->ToPlayer())
+                            if (l_Owner->ToPlayer())
                             {
-                                if (!m_owner->isAlive())
+                                if (!l_Owner->isAlive())
                                     return;
 
-                                m_owner->RemoveNonPassivesAuras();
+                                l_Owner->SetPower(POWER_MANA, m_Mana);
+                                l_Owner->SetHealth(m_Health);
 
-                                for (std::set<auraData*>::iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                                {
-                                    AuraPtr aura = !m_owner->HasAura((*itr)->m_id) ? m_owner->AddAura((*itr)->m_id, m_owner) : m_owner->GetAura((*itr)->m_id);
-                                    if (aura)
-                                    {
-                                        aura->SetDuration((*itr)->m_Duration);
-                                        if ((*itr)->m_isStackAmount)
-                                            aura->SetStackAmount((*itr)->m_Charges);
-                                        else
-                                            aura->SetCharges((*itr)->m_Charges);
-
-                                        for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
-                                        {
-                                            if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
-                                                l_Effect->SetAmount((*itr)->m_EffectAmounts[l_I]);
-                                        }
-
-                                        aura->SetNeedClientUpdateForTargets();
-                                    }
-
-                                    delete (*itr);
-                                }
-
-                                auras.clear();
-
-                                m_owner->SetPower(POWER_MANA, mana);
-                                m_owner->SetHealth(health);
-
-                                m_owner->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
+                                l_Owner->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
                                 me->DespawnOrUnsummon(100);
                             }
                         }
@@ -3993,9 +3785,9 @@ class npc_past_self : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature *creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const
         {
-            return new npc_past_selfAI(creature);
+            return new npc_past_selfAI(p_Creature);
         }
 };
 
@@ -4681,24 +4473,42 @@ class npc_rogue_decoy : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void Reset()
+            uint32 m_DespawnTimer;
+
+            void Reset() override
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                m_DespawnTimer = 0;
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_RENAME);
                 me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_RENAME);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* p_Owner) override
             {
-                if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+                if (!p_Owner || p_Owner->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                me->SetMaxHealth(owner->GetMaxHealth() / 2);
+                m_DespawnTimer = 5000;
+
+                me->SetMaxHealth(p_Owner->GetMaxHealth() / 2);
                 me->SetHealth(me->GetMaxHealth());
 
-                owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
-                owner->CastSpell(me, SPELL_CLONE_CASTER, true);
+                p_Owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
+                p_Owner->CastSpell(me, SPELL_CLONE_CASTER, true);
                 me->AddAura(SPELL_ROOT_FOR_EVER, me);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (m_DespawnTimer)
+                {
+                    if (m_DespawnTimer <= p_Diff)
+                    {
+                        m_DespawnTimer = 0;
+                        me->DespawnOrUnsummon();
+                    }
+                    else
+                        m_DespawnTimer -= p_Diff;
+                }
             }
         };
 
@@ -4936,6 +4746,165 @@ class npc_training_dummy_tanking : public CreatureScript
         }
 };
 
+/// Consecration - 43499
+class npc_consecration : public CreatureScript
+{
+    public:
+        npc_consecration() : CreatureScript("npc_consecration") { }
+
+        enum Constants : uint32
+        {
+            TickPeriod = 1 * IN_MILLISECONDS
+        };
+
+        enum eSpells
+        {
+            ConsecrationVisual = 81298,
+            ConsecrationDamage = 81297
+        };
+
+        struct npc_consecrationAI : public PassiveAI
+        {
+            uint32 m_Counter;
+
+            npc_consecrationAI(Creature* creature) :
+                PassiveAI(creature),
+                m_Counter(0)
+            {
+            }
+
+            void EnterEvadeMode() override
+            {
+                if (!me->isAlive())
+                    return;
+
+                me->DeleteThreatList();
+                me->CombatStop(true);
+                me->ResetPlayerDamageReq();
+            }
+
+            void IsSummonedBy(Unit* p_Owner) override
+            {
+                p_Owner->CastSpell(*me, eSpells::ConsecrationVisual, true);
+            }
+
+            void Reset() override
+            {
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_Counter += p_Diff;
+
+                if (m_Counter >= Constants::TickPeriod)
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        if (DynamicObject* dynObj = l_Owner->GetDynObject(eSpells::ConsecrationVisual))
+                        {
+                            l_Owner->CastSpell(*dynObj, eSpells::ConsecrationDamage, true);
+                        }
+                    }
+
+                    m_Counter -= Constants::TickPeriod;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_consecrationAI(creature);
+        }
+};
+/*######
+# npc_xuen_the_white_tiger
+######*/
+
+class npc_xuen_the_white_tiger : public CreatureScript
+{
+    public:
+        npc_xuen_the_white_tiger() : CreatureScript("npc_xuen_the_white_tiger") { }
+
+        enum eSpells
+        {
+            CRACKLING_TIGER_LIGHTNING = 123999
+        };
+        struct npc_xuen_the_white_tigerAI : public PetAI
+        {
+            EventMap events;
+
+            npc_xuen_the_white_tigerAI(Creature* creature) : PetAI(creature)
+            {
+                me->SetReactState(ReactStates::REACT_HELPER);
+            }
+
+            void Reset() override
+            {
+                PetAI::Reset();
+
+                me->CastSpell(me, eSpells::CRACKLING_TIGER_LIGHTNING, true);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_xuen_the_white_tigerAI(creature);
+        }
+};
+
+class npc_doomguard : public CreatureScript
+{
+    public:
+        npc_doomguard() : CreatureScript("npc_doomguard") { }
+
+        enum eSpells
+        {
+            SPELL_DOOMBOLT = 85692
+        };
+
+        struct npc_doomguardAI : CreatureAI
+        {
+            npc_doomguardAI(Creature* creature) :
+                CreatureAI(creature)
+            {
+            }
+
+            void UpdateAI(const uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+                
+                Unit* l_Victim = me->getVictim();
+                if (l_Victim->HasCrowdControlAura(me))
+                {
+                    me->InterruptNonMeleeSpells(false);
+                    return;
+                }
+
+                Position l_Pos = *l_Victim;
+                float l_DistSq = me->GetExactDistSq(&l_Pos);
+                float l_Range = AISpellInfo[eSpells::SPELL_DOOMBOLT].maxRange;
+                if (l_DistSq > l_Range * l_Range)
+                    me->GetMotionMaster()->MoveChase(l_Victim, l_Range);
+                else
+                    me->GetMotionMaster()->Clear(true);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                DoCast(eSpells::SPELL_DOOMBOLT);
+                /// If cast failed (or has cooldown), go melee
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_doomguardAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4969,7 +4938,6 @@ void AddSC_npcs_special()
     new npc_choose_faction();
     //new npc_rate_xp_modifier();
     new npc_demoralizing_banner();
-    new npc_frozen_orb();
     new npc_guardian_of_ancient_kings();
     new npc_dire_beast();
     new npc_ring_of_frost();
@@ -4990,4 +4958,7 @@ void AddSC_npcs_special()
     new npc_training_dummy_healing();
     new npc_training_dummy_damage();
     new npc_training_dummy_tanking();
+    new npc_consecration();
+    new npc_xuen_the_white_tiger();
+    new npc_doomguard();
 }

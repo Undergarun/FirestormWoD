@@ -129,6 +129,15 @@ class SplineBase
         /** Calculates distance between [i; i+1] points, assumes that index i is in bounds. */
         float SegLength(index_type i) const { return (this->*seglengths[m_mode])(i);}
 
+        float GetBaseTotalLength() const
+        {
+            float l_Len = 0.0f;
+            for (uint8 l_I = 0; l_I < index_hi; ++l_I)
+                l_Len += (this->*seglengths[m_mode])(l_I);
+
+            return l_Len;
+        }
+
         std::string ToString() const;
 };
 

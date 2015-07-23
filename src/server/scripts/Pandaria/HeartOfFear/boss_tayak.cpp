@@ -1041,7 +1041,7 @@ class mob_gale_winds_stalker : public CreatureScript
                         {
                             // Player doesn't have forcedMovement
                             if (player->isAlive() && !player->HasMovementForce(NPC_GALE_WINDS_STALKER, true))
-                                player->SendApplyMovementForce(me->GetGUID(), true, pos, 7.f);
+                                player->SendApplyMovementForce(me->GetGUID(), true, pos, -7.f, 1);
                             // Dead player has forcedMovement
                             else if (!player->isAlive() && player->HasMovementForce(NPC_GALE_WINDS_STALKER, true))
                                 player->RemoveAllMovementForces(NPC_GALE_WINDS_STALKER);

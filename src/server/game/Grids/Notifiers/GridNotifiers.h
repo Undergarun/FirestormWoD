@@ -142,10 +142,11 @@ namespace JadeCore
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject* src, WorldPacket* msg, float dist, bool own_team_only = false, Player const* skipped = NULL)
+        GuidUnorderedSet m_IgnoredGUIDs;
+        MessageDistDeliverer(WorldObject* src, WorldPacket* msg, float dist, bool own_team_only = false, Player const* skipped = NULL, GuidUnorderedSet p_IgnoredSet = GuidUnorderedSet())
             : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
             , team((own_team_only && src->GetTypeId() == TYPEID_PLAYER) ? ((Player*)src)->GetTeam() : 0)
-            , skipped_receiver(skipped)
+            , skipped_receiver(skipped), m_IgnoredGUIDs(p_IgnoredSet)
         {
         }
         void Visit(PlayerMapType &m);
@@ -157,6 +158,10 @@ namespace JadeCore
         {
             // never send packet to self
             if (player == i_source || (team && player->GetTeam() != team) || skipped_receiver == player)
+                return;
+
+            /// Don't send the packet to ignored players
+            if (m_IgnoredGUIDs.find(player->GetGUID()) != m_IgnoredGUIDs.end())
                 return;
 
             if (!player->HaveAtClient(i_source))
@@ -1434,6 +1439,36 @@ namespace JadeCore
 
             // prevent clone this object
             NearestCreatureEntryWithLiveStateInObjectRangeCheck(NearestCreatureEntryWithLiveStateInObjectRangeCheck const&);
+    };
+
+    /// Success at areatrigger in range, range update for next check (this can be use with CreatureLastSearcher to find nearest creature)
+    class NearestAreaTriggerWithIDInObjectRangeCheck
+    {
+        public:
+            NearestAreaTriggerWithIDInObjectRangeCheck(WorldObject const& p_Object, uint32 p_SpellID, float p_Range)
+                : m_Object(p_Object), m_SpellID(p_SpellID), m_Range(p_Range) { }
+
+            bool operator()(AreaTrigger* p_AreaTrigger)
+            {
+                if (p_AreaTrigger->GetSpellId() == m_SpellID && m_Object.IsWithinDistInMap(p_AreaTrigger, m_Range))
+                {
+                    /// Use found areatrigger range as new range limit for next check
+                    m_Range = m_Object.GetDistance(p_AreaTrigger);
+                    return true;
+                }
+
+                return false;
+            }
+
+            float GetLastRange() const { return m_Range; }
+
+        private:
+            WorldObject const& m_Object;
+            uint32 m_SpellID;
+            float m_Range;
+
+            // prevent clone this object
+            NearestAreaTriggerWithIDInObjectRangeCheck(NearestAreaTriggerWithIDInObjectRangeCheck const&);
     };
 
     class AnyPlayerInObjectRangeCheck

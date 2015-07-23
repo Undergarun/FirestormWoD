@@ -256,6 +256,10 @@ class UnitAI
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
         virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo) { }
 
+        // Called when we calculate hit result of a spell or a melee attack
+        // Note: it allows to put some conditions to change the result of melee/spell attacks on the Unit
+        virtual void CheckHitResult(MeleeHitOutcome& /*p_MeleeResult*/, SpellMissInfo& /*p_SpellResult*/, Unit* /*p_Attacker*/, SpellInfo const* const p_SpellInfo = nullptr) { }
+
         /// Called when Unit::BuildValuesUpdate is called
         /// Used for send differents factions for players for a same unit
         virtual void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target) { }

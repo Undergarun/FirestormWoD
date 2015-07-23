@@ -1277,8 +1277,8 @@ enum TrinityStrings
     LangAshranReserved1,
     LangAshranReserved2,
     LangAshranReserved3,
-    LangAshranReserved4,
-    LangAshranReserved5,
+    LangSendStadiumRacingEvent,
+    LangStadiumRacingHasBegun,
     LangAshranReserved6,
     LangAshranReserved7,
     LangAshranReserved8,
@@ -1297,8 +1297,33 @@ enum TrinityStrings
 
     /// Custom
     LangWarningUpdateClient,
+    LangTauntFlag,
 
-    // NOT RESERVED IDS                   14089-1999999999
+    /// BattlePay
+    AtGoldLimit ,
+    NeedToBeInGame,
+    TooHighLevel,
+    YouAlreadyOwnThat,
+    Level90Required,
+    ReachPrimaryProfessionLimit,
+    NotEnoughFreeBagSlots,
+    BattlePayReserved1,
+    BattlePayReserved2,
+    BattlePayReserved3,
+    BattlePayReserved4,
+    BattlePayReserved5,
+    BattlePayReserved6,
+    BattlePayReserved7,
+    BattlePayReserved8,
+    BattlePayReserved10,
+    BattlePayReserved11,
+    BattlePayReserved12,
+    BattlePayReserved13,
+    BattlePayReserved14,
+    BattlePayReserved15,
+    BattlePayReserved16,
+
+    // NOT RESERVED IDS                   14112-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
 };

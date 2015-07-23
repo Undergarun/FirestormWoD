@@ -49,7 +49,7 @@ void AddSC_spell_skill();
 void AddSC_npc_spell_scripts();
 void AddSC_areatrigger_spell_scripts();
 void AddSC_spell_item_enchantment();
-
+void AddSC_spell_toy();
 void AddSC_SmartSCripts();
 void AddSC_petbattle_abilities();
 
@@ -89,6 +89,7 @@ void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 void AddSC_garrison_commandscript();
 void AddSC_hotfix_commandscript();
+void AddSC_battlepay_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -779,6 +780,9 @@ void AddSC_boss_megaera();
 void AddSC_boss_ji_kun();
 void AddSC_boss_primordius();
 void AddSC_boss_dark_animus();
+void AddSC_boss_iron_qon();
+void AddSC_boss_twin_consorts();
+void AddSC_boss_lei_shen();
 void AddSC_instance_siege_of_orgrimmar();           // Siege of Orgrimmar
 void AddSC_siege_of_orgrimmar();
 void AddSC_immerseus();
@@ -900,6 +904,12 @@ void AddSC_GameObjectsFun();
 
 // player
 void AddSC_chat_log();
+
+/// BattlePay
+void AddSC_BattlePay_Services();
+void AddSC_BattlePay_Golds();
+void AddSC_BattlePay_Professions();
+
 #endif
 
 void AddScripts()
@@ -908,6 +918,7 @@ void AddScripts()
     AddSC_SmartSCripts();
     AddCommandScripts();
     sAnticheatMgr->StartScripts();
+    AddBattlePayScripts();
 #ifdef SCRIPTS
     AddWorldScripts();
     AddEasternKingdomsScripts();
@@ -924,6 +935,13 @@ void AddScripts()
     AddSC_GameObjectsFun();
     AddSC_TarrenMillFun();
 #endif
+}
+
+void AddBattlePayScripts()
+{
+    AddSC_BattlePay_Services();
+    AddSC_BattlePay_Golds();
+    AddSC_BattlePay_Professions();
 }
 
 void AddSpellScripts()
@@ -948,6 +966,7 @@ void AddSpellScripts()
     AddSC_npc_spell_scripts();
     AddSC_areatrigger_spell_scripts();
     AddSC_spell_item_enchantment();
+    AddSC_spell_toy();
 #ifdef SCRIPTS
     AddSC_petbattle_abilities();
 #endif
@@ -990,6 +1009,7 @@ void AddCommandScripts()
     AddSC_wp_commandscript();
     AddSC_garrison_commandscript();
     AddSC_hotfix_commandscript();
+    AddSC_battlepay_commandscript();
 }
 
 void AddWorldScripts()
@@ -1702,6 +1722,9 @@ void AddPandarieScripts()
     AddSC_boss_durumu();
     AddSC_boss_primordius();
     AddSC_boss_dark_animus();
+    AddSC_boss_iron_qon();
+    AddSC_boss_twin_consorts();
+    AddSC_boss_lei_shen();
     AddSC_instance_siege_of_orgrimmar();            // Siege of Orgrimmar
     AddSC_siege_of_orgrimmar();
     AddSC_immerseus();

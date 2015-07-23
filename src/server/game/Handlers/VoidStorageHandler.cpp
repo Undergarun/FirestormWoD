@@ -166,20 +166,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
 
     uint32 l_FreeBagSlots = 0;
     if (l_Withdrawals.size() != 0)
-    {
-        // make this a Player function
-        for (uint8 l_I = INVENTORY_SLOT_BAG_START; l_I < INVENTORY_SLOT_BAG_END; l_I++)
-        {
-            if (Bag * l_Bag = m_Player->GetBagByPos(l_I))
-                l_FreeBagSlots += l_Bag->GetFreeSlots();
-        }
-
-        for (uint8 l_I = INVENTORY_SLOT_ITEM_START; l_I < INVENTORY_SLOT_ITEM_END; l_I++)
-        {
-            if (!m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
-                ++l_FreeBagSlots;
-        }
-    }
+        l_FreeBagSlots = m_Player->GetBagsFreeSlots();
 
     if (l_Withdrawals.size() > l_FreeBagSlots)
     {

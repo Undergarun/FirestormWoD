@@ -33,7 +33,7 @@ Location MoveSpline::ComputePosition() const
     float u = 1.f;
     int32 seg_time = spline.length(point_Idx,point_Idx+1);
     if (seg_time > 0)
-        u = (time_passed - spline.length(point_Idx)) / (float)seg_time;
+        u = (m_TimePassed - spline.length(point_Idx)) / (float)seg_time;
     Location c;
     c.orientation = initialOrientation;
     spline.evaluate_percent(point_Idx, u, c);
@@ -65,14 +65,15 @@ Location MoveSpline::ComputePosition() const
         if (splineflags.orientationInversed)
             c.orientation = -c.orientation;
     }
+
     return c;
 }
 
 void MoveSpline::computeParabolicElevation(float& el) const
 {
-    if (time_passed > effect_start_time)
+    if (m_TimePassed > effect_start_time)
     {
-        float t_passedf = MSToSec(time_passed - effect_start_time);
+        float t_passedf = MSToSec(m_TimePassed - effect_start_time);
         float t_durationf = MSToSec(Duration() - effect_start_time); //client use not modified duration here
 
         // -a*x*x + bx + c:
@@ -83,7 +84,7 @@ void MoveSpline::computeParabolicElevation(float& el) const
 
 void MoveSpline::computeFallElevation(float& el) const
 {
-    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(time_passed));
+    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(m_TimePassed));
     float final_z = FinalDestination().z;
     if (z_now < final_z)
         el = final_z;
@@ -112,13 +113,15 @@ enum{
 
 struct CommonInitializer
 {
-    CommonInitializer(float _velocity) : velocityInv(1000.f/_velocity), time(minimal_duration) {}
-    float velocityInv;
-    int32 time;
-    inline int32 operator()(Spline<int32>& s, int32 i)
+    CommonInitializer(float p_Velocity) : m_Velocity(1000.f / p_Velocity), m_Time(minimal_duration) {}
+
+    float m_Velocity;
+    int32 m_Time;
+
+    inline int32 operator()(Spline<int32>& p_Spline, int32 p_Index)
     {
-        time += (s.SegLength(i) * velocityInv);
-        return time;
+        m_Time += (p_Spline.SegLength(p_Index) * m_Velocity);
+        return m_Time;
     }
 };
 
@@ -168,8 +171,9 @@ void MoveSpline::Initialize(const MoveSplineInitArgs& args)
     initialOrientation = args.initialOrientation;
 
     onTransport = false;
-    time_passed = 0;
+    m_TimePassed = 0;
     vertical_acceleration = 0.f;
+    m_Velocity = args.velocity;
     effect_start_time = 0;
 
     // Check if its a stop spline
@@ -194,7 +198,7 @@ void MoveSpline::Initialize(const MoveSplineInitArgs& args)
     }
 }
 
-MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
+MoveSpline::MoveSpline() : m_Id(0), m_TimePassed(0),
     vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0)
 {
     splineflags.done = true;
@@ -244,7 +248,7 @@ bool MoveSplineInitArgs::_checkPathBounds() const
 
 /// ============================================================================================
 
-MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
+MoveSpline::UpdateResult MoveSpline::_UpdateState(int32& ms_time_diff)
 {
     if (Finalized())
     {
@@ -254,12 +258,12 @@ MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
 
     UpdateResult result = Result_None;
 
-    int32 minimal_diff = std::min(ms_time_diff, segment_time_elapsed());
+    int32 minimal_diff = std::min(ms_time_diff, NextSegTime());
     ASSERT(minimal_diff >= 0);
-    time_passed += minimal_diff;
+    m_TimePassed += minimal_diff;
     ms_time_diff -= minimal_diff;
 
-    if (time_passed >= next_timestamp())
+    if (m_TimePassed >= NextTime())
     {
         ++point_Idx;
         if (point_Idx < spline.last())
@@ -271,7 +275,7 @@ MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
             if (spline.isCyclic())
             {
                 point_Idx = spline.first();
-                time_passed = time_passed % Duration();
+                m_TimePassed = m_TimePassed % Duration();
                 result = Result_NextCycle;
             }
             else
@@ -299,7 +303,7 @@ std::string MoveSpline::ToString() const
     else if (splineflags.final_point)
         str << "facing  point: " << facing.f.x << " " << facing.f.y << " " << facing.f.z;
     str << std::endl;
-    str << "time passed: " << time_passed << std::endl;
+    str << "time passed: " << m_TimePassed << std::endl;
     str << "total  time: " << Duration() << std::endl;
     str << "spline point Id: " << point_Idx << std::endl;
     str << "path  point  Id: " << currentPathIdx() << std::endl;
@@ -311,7 +315,7 @@ void MoveSpline::_Finalize()
 {
     splineflags.done = true;
     point_Idx = spline.last() - 1;
-    time_passed = Duration();
+    m_TimePassed = Duration();
 }
 
 int32 MoveSpline::currentPathIdx() const

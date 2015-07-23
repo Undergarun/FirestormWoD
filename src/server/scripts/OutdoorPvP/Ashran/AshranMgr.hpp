@@ -1,31 +1,34 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "OutdoorPvP.h"
-#include "OutdoorPvPMgr.h"
-#include "AshranDatas.hpp"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "Player.h"
-#include "WorldPacket.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "Language.h"
-#include "ScriptedCosmeticAI.hpp"
-#include "CreatureTextMgr.h"
-#include "MoveSplineInit.h"
-#include "LFGMgr.h"
-#include "Group.h"
-
 #ifndef ASHRAN_MGR_HPP_ASHRAN
-#define ASHRAN_MGR_HPP_ASHRAN
+# define ASHRAN_MGR_HPP_ASHRAN
+
+# include "OutdoorPvP.h"
+# include "OutdoorPvPMgr.h"
+# include "AshranDatas.hpp"
+# include "ScriptMgr.h"
+# include "ScriptedCreature.h"
+# include "ScriptedGossip.h"
+# include "ScriptedEscortAI.h"
+# include "ScriptedCosmeticAI.hpp"
+# include "Player.h"
+# include "WorldPacket.h"
+# include "World.h"
+# include "ObjectMgr.h"
+# include "Language.h"
+# include "ScriptedCosmeticAI.hpp"
+# include "CreatureTextMgr.h"
+# include "MoveSplineInit.h"
+# include "LFGMgr.h"
+# include "Group.h"
+# include "ScriptPCH.h"
+# include "MapManager.h"
 
 class OutdoorPvPAshran;
 
@@ -95,6 +98,7 @@ class OutdoorPvPAshran : public OutdoorPvP
     using PlayerTimerMap = std::map<uint64, uint32>;
     using PlayerCurrencyLoot = std::map<uint64, uint32>;
     using AshranVignettesMap = std::map<uint32, uint64>;
+    using ActiveCaptains = std::set<uint32>;
 
     public:
         OutdoorPvPAshran();
@@ -109,8 +113,10 @@ class OutdoorPvPAshran : public OutdoorPvP
 
         void HandlePlayerKilled(Player* p_Player);
         void HandleKill(Player* p_Killer, Unit* p_Killed);
+        void ResetKillCap(uint8 p_Team);
 
         bool IsFactionGuard(Unit* p_Unit) const;
+        void SpawnGladiators(uint8 p_TeamID = TeamId::TEAM_NEUTRAL, bool p_Spawn = true);
 
         void FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container);
 
@@ -119,15 +125,19 @@ class OutdoorPvPAshran : public OutdoorPvP
         void ScheduleEndOfBattle(uint32 p_Diff);
         void ScheduleInitPoints(uint32 p_Diff);
         void ScheduleEventsUpdate(uint32 p_Diff);
+        void ScheduleGladiatorRespawn(uint32 p_Diff);
 
         void StartEvent(uint8 p_EventID);
         void EndEvent(uint8 p_EventID, bool p_ScheduleNext = true);
         void SendEventWarningToPlayers(uint32 p_LangID);
+        void SetEventData(uint8 p_EventID, uint8 p_TeamID, uint32 p_Data);
 
         void FillInitialWorldStates(ByteBuffer& p_Data);
         void SendRemoveWorldStates(Player* p_Player);
 
         void HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player);
+        bool HandleOpenGo(Player* p_Player, uint64 p_Guid);
+        void HandleArtifactDrop(Unit* p_Unit, uint32 p_Time);
 
         void OnCreatureCreate(Creature* p_Creature);
         void OnCreatureRemove(Creature* p_Creature);
@@ -150,6 +160,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 GetCurrentBattleType() const;
 
         void HandleFactionBossDeath(uint8 p_Faction);
+        void HandleCaptainDeath(uint32 p_Type);
 
         OPvPCapturePoint_Middle* GetCapturePoint(uint8 p_Index) const { return m_ControlPoints[p_Index]; }
 
@@ -183,7 +194,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         OPvPCapturePoint_Graveyard* m_GraveYard;
         OPvPCapturePoint_Middle* m_ControlPoints[eBattleType::MaxBattleType];
         uint64 m_GenericMoPGuids[eBattleType::MaxBattleType];
-        uint64 m_FactionGenericMoP[MS::Battlegrounds::TeamsCount::Value];
+        uint64 m_FactionGenericMoP[TeamId::TEAM_NEUTRAL];
         uint32 m_InitPointsTimer;
         bool m_IsInitialized;
         bool m_WillBeReset;
@@ -194,27 +205,32 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint64 m_GrandMasrhalTremblade;
         uint32 m_WorldPvPAreaId;
 
-        GuidSet m_PlayersInWar[MS::Battlegrounds::TeamsCount::Value];
-        PlayerTimerMap m_InvitedPlayers[MS::Battlegrounds::TeamsCount::Value];
-        PlayerTimerMap m_PlayersWillBeKick[MS::Battlegrounds::TeamsCount::Value];
+        GuidSet m_PlayersInWar[TeamId::TEAM_NEUTRAL];
+        PlayerTimerMap m_InvitedPlayers[TeamId::TEAM_NEUTRAL];
+        PlayerTimerMap m_PlayersWillBeKick[TeamId::TEAM_NEUTRAL];
         PlayerCurrencyLoot m_PlayerCurrencyLoots;
 
-        uint32 m_EnnemiesKilled[MS::Battlegrounds::TeamsCount::Value];
-        uint32 m_EnnemiesKilledMax[MS::Battlegrounds::TeamsCount::Value];
+        uint32 m_EnnemiesKilled[TeamId::TEAM_NEUTRAL];
+        uint32 m_EnnemiesKilledMax[TeamId::TEAM_NEUTRAL];
 
-        uint64 m_ArtifactsNPCGuids[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
-        uint32 m_ArtifactsCollected[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
-        bool m_ArtifactEventsLaunched[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
+        uint64 m_ArtifactsNPCGuids[TeamId::TEAM_NEUTRAL][eArtifactsDatas::MaxArtifactCounts];
+        uint32 m_ArtifactsCollected[TeamId::TEAM_NEUTRAL][eArtifactsDatas::MaxArtifactCounts];
+        bool m_ArtifactEventsLaunched[TeamId::TEAM_NEUTRAL][eArtifactsDatas::MaxArtifactCounts];
 
+        uint32 m_StadiumRacingLaps[TeamId::TEAM_NEUTRAL];
         uint32 m_AshranEvents[eAshranEvents::MaxEvents];
         bool m_AshranEventsWarned[eAshranEvents::MaxEvents];
+        bool m_AshranEventsLaunched[eAshranEvents::MaxEvents];
 
         uint32 m_CurrentBattleState;
         uint32 m_NextBattleTimer;
         uint32 m_MaxBattleTime;
+        uint32 m_GladiatorRespawnTime;
+        uint32 m_AncientArtifactTime;
 
         AshranVignettesMap m_NeutralVignettes;
-        AshranVignettesMap m_FactionVignettes[MS::Battlegrounds::TeamsCount::Value];
+        AshranVignettesMap m_FactionVignettes[TeamId::TEAM_NEUTRAL];
+        ActiveCaptains m_ActiveCaptains;
 };
 
-#endif
+#endif ///< ASHRAN_MGR_HPP_ASHRAN

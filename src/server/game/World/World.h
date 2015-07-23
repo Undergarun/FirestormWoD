@@ -210,6 +210,9 @@ enum WorldBoolConfigs
     CONFIG_ACHIEVEMENT_DISABLE,
     CONFIG_MOP_TRANSFER_ENABLE,
     CONFIG_FUN_ENABLE,
+    CONFIG_WEB_DATABASE_ENABLE,
+    CONFIG_LOG_PACKETS,
+    CONFIG_BATTLEPAY_ENABLE,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -406,7 +409,11 @@ enum WorldIntConfigs
     CONFIG_PVP_ITEM_LEVEL_MAX,
     CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX,
     CONFIG_LAST_CLIENT_BUILD,
+<<<<<<< HEAD
     CONFIG_FIRST_PREMADE_MONEY,
+=======
+    CONFIG_BATTLEPAY_MIN_SECURITY,
+>>>>>>> origin/wod
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -633,6 +640,7 @@ struct CharacterNameData
     uint8 m_race;
     uint8 m_gender;
     uint8 m_level;
+    uint32 m_AccountId;
 };
 
 enum RecordDiffType
@@ -896,7 +904,7 @@ class World
         bool isEventKillStart;
 
         CharacterNameData const* GetCharacterNameData(uint32 guid) const;
-        void AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
+        void AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, uint32 p_AccountID);
         void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
         void UpdateCharacterNameDataLevel(uint32 guid, uint8 level);
         void DeleteCharacterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }

@@ -1,652 +1,665 @@
-/*
-* Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
+////////////////////////////////////////////////////////////////////////////////
 
+#include "iron_docks.hpp"
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "iron_docks.h"
-#include "Vehicle.h"
+enum eYells
+{
+    /// Nok'gar
+    SayAggro        = 0,    ///< Start the funeral pyres! (46057)
+    SaySlay         = 1,    ///< Hahahaha my blade's thirst for war! (46061) / Revolt.. in the slaughter! (46060)
+    SayDeath        = 2,    ///< You.. will burn.. with me. (46058)
+    SayIntro        = 3,    ///< Warsong arrows sing from the skies, they'll be the last thing you hear as I crush your skull. (46059)
+    SaySpell03      = 6,    ///< Terror overwhelms you.. Death is near! (46064)
+    SaySpell04      = 7,    ///< A death worthy of a warrior. (46065)
 
-enum Yells
-{
-    // Nok'gar
-    SAY_AGGRO = 0, // Start the funeral pyres! (46057)
-    SAY_SLAY = 1, // Hahahaha my blade's thirst for war! (46061) / Revolt.. in the slaughter! (46060)
-    SAY_DEATH = 2, // You.. will burn.. with me. (46058)
-    SAY_INTRO = 3, // Warsong arrows sing from the skies, they'll be the last thing you hear as I crush your skull. (46059)
-    SAY_SPELL01 = 4, // Let them have it! (46062)
-    SAY_SPELL02 = 5, // That's it? you bearly drew blood! (46063)
-    SAY_SPELL03 = 6, // Terror overwhelms you.. Death is near! (46064)
-    SAY_SPELL04 = 7, // A death worthy of a warrior. (46065)
+    /// After Death
+    TalkZoggosh01   = 8,    ///< Sir, they've breached the gates! Nok'gar is.. dead!! We should pick anchor and prepare to sail to Talador. Right now! (44047)
+    TalkKoramar01   = 23,   ///< Calm yourself.. Zoggosh. We'll do no such thing, if these weaklings are so eager to die then we should obliged! (43899)
+    TalkKoramar0222 = 24    ///< Zoggosh.. do not question my authority. This isn't just any Groon, this is Skuloc son of Grool.. the blood of a champion course through his veins.. I'm not concerned with these whelps. (43900)  
+};
 
-    // After Death
-    TALK_ZOGGOSH_01 = 8, // Sir, they've breached the gates! Nok'gar is.. dead!! We should pick anchor and prepare to sail to Talador. Right now! (44047)
-    TALK_ZOGGOSH_02 = 10, // But.. sir.. this is the last of the Grong that we have. Black hand will have our hides if we show up in the... (44048)
-    TALK_ZOGGOSH_03 = 11, // Yes sir.. (44049)
+enum eSpells
+{
+    SpellBarbedArrow                = 164370,
+    SpellRecklessProvocation        = 164426,
+    SpellIntimidated                = 164504,
+    /// Wolf - Dreadfang
+    SpellBloodlettingHowl           = 164835,
+    SpellSavageMauling              = 154039,
+    SpellShreddingSwipesDoT         = 164734,
+    SpellShreddingSwipesJump        = 164735,
+    SpellShreddingSwipesDummy       = 164730,
+    SpellShreddingSwipesAuraRemove  = 164733,
+    /// Adds
+    SpellBarbedArrowAT              = 164278,
+    SpellBurningArrowAT             = 164234,
+    /// MISC
+    SpellWarsongFlag                = 168531,
+    SpellFeignDeath                 = 103750,
+    SpellCosmeticFeignDeath         = 166925
+};
 
-    TALK_KORAMAR_01 = 23, // Calm yourself.. Zoggosh. We'll do no such thing, if these weaklings are so eager to die then we should obliged! (43899)
+enum eEvents
+{
+    EventFireArrows             = 900,
+    EventBarbedArrows           = 902,
+    EventRecklessProvocation    = 903,
+    EventDismount               = 904,
+    /// Wolf
+    EventBloodlettingHowl       = 905,
+    EventSavageMauling          = 906,
+    EventShreddingSwipes        = 907,
+    EventShreddingSwipes2       = 908,
+    EventFireArrowsCheck        = 910
+};
 
-    TALK_KORAMAR_0222 = 24, // Zoggosh.. do not question my authority. This isn't just any Groon, this is Skuloc son of Grool.. the blood of a champion course through his veins.. I'm not concerned with these whelps. (43900)  
-};
-enum Spells
+enum eActions
 {
-    SPELL_FIRE_ARROW = 173148,
-    SPELL_BARBED_ARROW = 164370,
-    SPELL_BURNING_ARROW_DUMMY = 172810,
-    SPELL_RECKLESS_PROVOCATION = 164426,
-    SPELL_INITMIDATED = 164504,
-    // Wolf - Dreadfang
-    SPELL_BLOODLETTING_HOWL = 164835,
-    SPELL_SAVAGE_MAULING = 154039,
-    SPELL_SHERDDING_SWIPES_DOT = 164734,
-    SPELL_SHREDDING_SWIPES_JUMP = 164735,
-    SPELL_SHREDDING_SWIPES_DUMMY = 164730,
-    SPELL_SHREDDING_SWIPES_AURA_TO_REMOVE = 164733,
-    // Adds
-    SPELL_BARBED_ARROW_AREA_TRIGGER = 164278,
-    SPELL_BURNING_ARROW_AREA_TRIGGER = 164234,
-    // MISC
-    SPELL_WARSONG_FLAG = 168531,
+    ActionDismountHeroic    = 1000,
+    ActionFireArrows        = 999
 };
-enum Events
+
+enum eVehicle
 {
-    EVENT_FIRE_ARROWS = 900,
-    EVENT_FIRE_ARROWS_SIGNAL = 901,
-    EVENT_BARBED_ARROWS = 902,
-    EVENT_RECKLESS_PROVOCATION = 903,
-    EVENT_DISMOUNT = 904,
-    // Wolf
-    EVENT_BLOODLETTING_HOWL = 905,
-    EVENT_SAVAGE_MAULING = 906,
-    EVENT_SHREDDING_SWIPES = 907,
-    EVENT_SHREDDING_SWIPES_PART_2 = 908,
-    EVENT_SHREDDING_SWIPES_PART_3 = 909,
-    // 
-    EVENT_FIRE_ARROWS_CHECK = 910,
+    CreatureWolf = 81297
 };
-enum Actions
+
+enum eTrigger
 {
-    ACTION_DISMOUNT_HEROIC = 1000,
-    ACTION_FIRE_ARROWS = 999,
+    ShreddingSwipesTrigger = 81832
 };
-enum Vehicles
-{
-    CREATURE_WOLF = 81297,
-};
-enum Triggers
-{
-    SHREDDING_SWIPES_TRIGGER = 81832,
-};
-Position archers[5] =
+
+Position const g_ArchersPos[5] =
 {
     { 6882.93f, -694.61f, 55.554f, 3.14270f },
     { 6883.21f, -705.07f, 55.922f, 3.13948f },
     { 6883.21f, -688.00f, 56.686f, 3.16305f },
     { 6884.02f, -676.18f, 56.483f, 3.34997f },
-    { 6884.07f, -662.27f, 56.541f, 3.09864f },
+    { 6884.07f, -662.27f, 56.541f, 3.09864f }
 };
+
 class Nokgar_Death_Event : public BasicEvent
 {
-public:
-    explicit Nokgar_Death_Event(Unit* unit, int value) : obj(unit), modifier(value)
-    {
-    }
+    public:
+        explicit Nokgar_Death_Event(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value) { }
 
-    bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
-    {
-        if (InstanceScript* instance = obj->GetInstanceScript())
+        bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {
-            if (Creature* Zoggosh = instance->instance->GetCreature(instance->GetData64(DATA_ZUGGOSH)))
+            if (InstanceScript* l_Instance = m_Obj->GetInstanceScript())
             {
-                if (Creature* Koramar = instance->instance->GetCreature(instance->GetData64(DATA_KORAMAR)))
+                if (Creature* l_Zoggosh = l_Instance->instance->GetCreature(l_Instance->GetData64(eIronDocksDatas::DataZuggosh)))
                 {
-                    if (Creature* Skulloc = instance->instance->GetCreature(instance->GetData64(DATA_SKULLOC)))
+                    if (Creature* l_Koramar = l_Instance->instance->GetCreature(l_Instance->GetData64(eIronDocksDatas::DataKoramar)))
                     {
-                        Skulloc->GetMap()->SetObjectVisibility(1000.0f);
-                        Koramar->GetMap()->SetObjectVisibility(1000.0f);
-                        Zoggosh->GetMap()->SetObjectVisibility(1000.0f);
-
-                        switch (modifier)
+                        if (Creature* l_Skulloc = l_Instance->instance->GetCreature(l_Instance->GetData64(eIronDocksDatas::DataSkulloc)))
                         {
-                        case 0:
-                            Zoggosh->AI()->Talk(TALK_ZOGGOSH_01);
-                            Zoggosh->m_Events.AddEvent(new Nokgar_Death_Event(Zoggosh, 1), Zoggosh->m_Events.CalculateTime(8000));
-                            break;
-                        case 1:
-                            Koramar->AI()->Talk(TALK_KORAMAR_01);
-                            Koramar->m_Events.AddEvent(new Nokgar_Death_Event(Koramar, 2), Koramar->m_Events.CalculateTime(12000));
-                            break;
-                        case 2:
-                            Koramar->AI()->Talk(TALK_KORAMAR_0222);
-                            break;
+                            l_Skulloc->GetMap()->SetObjectVisibility(1000.0f);
+                            l_Koramar->GetMap()->SetObjectVisibility(1000.0f);
+                            l_Zoggosh->GetMap()->SetObjectVisibility(1000.0f);
+
+                            if (l_Zoggosh->IsAIEnabled && l_Koramar->IsAIEnabled)
+                            {
+                                switch (m_Modifier)
+                                {
+                                    case 0:
+                                        l_Zoggosh->AI()->Talk(eYells::TalkZoggosh01);
+                                        l_Zoggosh->m_Events.AddEvent(new Nokgar_Death_Event(l_Zoggosh, 1), l_Zoggosh->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    case 1:
+                                        l_Koramar->AI()->Talk(eYells::TalkKoramar01);
+                                        l_Koramar->m_Events.AddEvent(new Nokgar_Death_Event(l_Koramar, 2), l_Koramar->m_Events.CalculateTime(12 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    case 2:
+                                        l_Koramar->AI()->Talk(eYells::TalkKoramar0222);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
                         }
                     }
                 }
             }
+            return true;
         }
-        return true;
-    }
-private:
-    Creature* storm;
-    Unit* obj;
-    int modifier;
-    int Event;
+    private:
+        Unit* m_Obj;
+        int m_Modifier;
 };
 
-#define dismountTimer 29000
-#define recklessprovocationmsg "Fleshrender Nok'gar casts |cffff0000[Reckless Provocation]|cfffaeb00!"
+/// Dreadfang <Fleshrender Nok'gar's Mount> - 81297
 class boss_mount_wolf : public CreatureScript
 {
-public:
-    boss_mount_wolf() : CreatureScript("boss_mount_wolf") { }
+    public:
+        boss_mount_wolf() : CreatureScript("boss_mount_wolf") { }
 
-    struct boss_mount_wolfAI : public BossAI
-    {
-        boss_mount_wolfAI(Creature* creature) : BossAI(creature, DATA_MOUNT_WOLF), vehicle(creature->GetVehicleKit())
+        struct boss_mount_wolfAI : public BossAI
         {
-            me->Respawn(true);
-            Reset();
-        }
-
-        Vehicle* vehicle;
-        InstanceScript* pinstance = me->GetInstanceScript();
-        int32 diffforshreddingstrike;
-        void Reset() override
-        {
-            _Reset();
-            events.Reset();
-            ASSERT(vehicle);
-
-
-            me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN | UNIT_FLAG2_FEIGN_DEATH);
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
-
-            DespawnCreaturesInArea(NPC_GROMKAR_FLAMESLINGER, me);
-            me->SetReactState(REACT_AGGRESSIVE);
-            diffforshreddingstrike = 300;
-        }
-        void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
-        {
-            std::list<Creature*> creatures;
-            GetCreatureListWithEntryInGrid(creatures, object, entry, 300.0f);
-            if (creatures.empty())
-                return;
-
-            for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-                (*iter)->DespawnOrUnsummon();
-        }
-        void EnterCombat(Unit* /*who*/) override
-        {
-            _EnterCombat();
-            Talk(SAY_AGGRO);
-
-            events.ScheduleEvent(EVENT_SAVAGE_MAULING, urand(10000, 15000));
-            events.ScheduleEvent(EVENT_BLOODLETTING_HOWL, 20000);
-            events.ScheduleEvent(EVENT_SHREDDING_SWIPES, urand(8000, 30000));
-        }
-        void KilledUnit(Unit* who) override
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
-        }
-        void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
-        {
-            if (me->GetHealthPct() <= 12)
+            boss_mount_wolfAI(Creature* p_Creature) : BossAI(p_Creature, eIronDocksDatas::DataMountWolf), m_Vehicle(p_Creature->GetVehicleKit())
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-
-                events.CancelEvent(EVENT_SAVAGE_MAULING);
-                events.CancelEvent(EVENT_BLOODLETTING_HOWL);
-                events.CancelEvent(EVENT_SHREDDING_SWIPES);
-
-                me->RemoveAllAuras();
-                me->SetHealth(me->GetMaxHealth());
-                me->CastSpell(me, 103750); // feign death
-                me->CastSpell(me, 166925); // cosmetic feign death
-
-
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
-                me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-                me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
-
-                me->GetVehicleKit()->RemoveAllPassengers();
-
-                if (Creature* nokgar = pinstance->instance->GetCreature(pinstance->GetData64(DATA_NOKGAR)))
-                    nokgar->AI()->Talk(SAY_SPELL04);
+                me->Respawn(true);
+                Reset();
             }
-            if (me->GetHealthPct() <= 50) // heroic
+
+            Vehicle* m_Vehicle;
+            InstanceScript* m_Instance = me->GetInstanceScript();
+            uint32 m_ShreddingStrikeTimer;
+
+            void Reset() override
             {
-                if (Creature* nokgar = pinstance->instance->GetCreature(pinstance->GetData64(DATA_NOKGAR)))
-                    nokgar->AI()->DoAction(ACTION_DISMOUNT_HEROIC);
+                _Reset();
+                events.Reset();
+
+                ASSERT(m_Vehicle);
+
+                me->RemoveFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
+                me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+
+                DespawnCreaturesInArea(eIronDocksCreatures::NpcGromkarFlameslinger, me);
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                m_ShreddingStrikeTimer = 300;
             }
-        }
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-        void MoveInLineOfSight(Unit* who)
-        {
-            if (who && who->IsInWorld() && who->GetEntry() == SHREDDING_SWIPES_TRIGGER && me->IsWithinDistInMap(who, 1.0f))
+
+            void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
             {
-                who->ToCreature()->DespawnOrUnsummon();
-                me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveAura(SPELL_SHREDDING_SWIPES_AURA_TO_REMOVE);
+                std::list<Creature*> l_CreatureList;
+                GetCreatureListWithEntryInGrid(l_CreatureList, p_Object, p_Entry, 300.0f);
+
+                for (Creature* l_Iter : l_CreatureList)
+                    l_Iter->DespawnOrUnsummon();
             }
-        }
-        void JustReachedHome()
-        {
-            if (Creature* nokgar = pinstance->instance->GetCreature(pinstance->GetData64(DATA_NOKGAR)))
-                nokgar->DespawnOrUnsummon();
 
-            me->DespawnOrUnsummon(1000);
-            me->SummonCreature(me->GetEntry(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            // I think blizzard actually hacked it themselves aswell.
-            if (me->HasAura(SPELL_SHREDDING_SWIPES_AURA_TO_REMOVE))
+            void EnterCombat(Unit* /*p_Who*/) override
             {
-                if (diffforshreddingstrike <= diff)
+                _EnterCombat();
+                Talk(eYells::SayAggro);
+
+                events.ScheduleEvent(eEvents::EventSavageMauling, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eEvents::EventBloodlettingHowl, 20 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eEvents::EventShreddingSwipes, urand(8 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
+            }
+
+            void KilledUnit(Unit* p_Killed) override
+            {
+                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    Talk(eYells::SaySlay);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (me->GetHealthPct() <= 12)
                 {
-                    std::list<Player*> PL_list;
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
-                    JadeCore::AnyPlayerInObjectRangeCheck check(me, 3.0f);
-                    JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(me, PL_list, check);
-                    me->VisitNearbyObject(3.0f, searcher);
+                    events.CancelEvent(eEvents::EventSavageMauling);
+                    events.CancelEvent(eEvents::EventBloodlettingHowl);
+                    events.CancelEvent(eEvents::EventShreddingSwipes);
 
-                    if (PL_list.empty())
-                        return;
+                    me->RemoveAllAuras();
+                    me->SetFullHealth();
+                    me->CastSpell(me, eSpells::SpellFeignDeath);
+                    me->CastSpell(me, eSpells::SpellCosmeticFeignDeath);
 
-                    for (std::list<Player*>::const_iterator itr = PL_list.begin(); itr != PL_list.end(); ++itr)
+
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
+                    me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                    me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                    me->GetVehicleKit()->RemoveAllPassengers();
+
+                    if (Creature* l_Nokgar = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataNokgar)))
                     {
-                        if (me->isInFront((*itr), M_PI * 0.5f))
-                            (*itr)->AddAura(SPELL_SHREDDING_SWIPES_DUMMY, (*itr));
+                        if (l_Nokgar->IsAIEnabled)
+                            l_Nokgar->AI()->Talk(eYells::SaySpell04);
                     }
-
-                    diffforshreddingstrike = 350;
                 }
-                else
-                    diffforshreddingstrike -= diff;
-            }
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
+                if (me->GetHealthPct() <= 50) ///< Heroic
                 {
-                case EVENT_SAVAGE_MAULING:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                    if (Creature* l_Nokgar = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataNokgar)))
                     {
-                        me->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 8.0, 4.0f);
-                        me->Attack(target, true);
-                        me->CastSpell(target, SPELL_SAVAGE_MAULING);
-
-                        events.ScheduleEvent(EVENT_SAVAGE_MAULING, urand(10000, 15000));
+                        if (l_Nokgar->IsAIEnabled)
+                            l_Nokgar->AI()->DoAction(eActions::ActionDismountHeroic);
                     }
-                    break;
-                case EVENT_BLOODLETTING_HOWL:
-                    me->CastSpell(me, SPELL_BLOODLETTING_HOWL);
-                    events.ScheduleEvent(EVENT_BLOODLETTING_HOWL, 20000);
-                    break;
-                case EVENT_SHREDDING_SWIPES:
-                    me->AddAura(SPELL_SHREDDING_SWIPES_AURA_TO_REMOVE, me);
-                    me->SetReactState(REACT_PASSIVE);
-
-                    Position RandomLocationForTrigger;
-                    me->GetRandomNearPosition(RandomLocationForTrigger, 20.0F);
-
-                    // me->SummonCreature(SHREDDING_SWIPES_TRIGGER, RandomLocationForTrigger, TEMPSUMMON_MANUAL_DESPAWN);
-                    events.ScheduleEvent(EVENT_SHREDDING_SWIPES, urand(8000, 30000));
-                    events.ScheduleEvent(EVENT_SHREDDING_SWIPES_PART_2, 500);
-                    break;
-                case EVENT_SHREDDING_SWIPES_PART_2:
-                    if (Creature* shredding_swipes_trigger = me->FindNearestCreature(SHREDDING_SWIPES_TRIGGER, 100.0F, true))
-                    {
-                        Position pos;
-                        me->GetPosition(&pos);
-                        me->GetMotionMaster()->MovePoint(0, pos);
-                    }
-                    break;
                 }
             }
-            DoMeleeAttackIfReady();
-        }
-    private:
 
-    };
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_mount_wolfAI(creature);
-    }
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                _JustDied();
+            }
+
+            void MoveInLineOfSight(Unit* p_Who) override
+            {
+                if (p_Who && p_Who->IsInWorld() && p_Who->GetEntry() == eTrigger::ShreddingSwipesTrigger && me->IsWithinDistInMap(p_Who, 1.0f))
+                {
+                    p_Who->ToCreature()->DespawnOrUnsummon();
+                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                    me->RemoveAura(eSpells::SpellShreddingSwipesAuraRemove);
+                }
+            }
+
+            void JustReachedHome() override
+            {
+                if (Creature* l_Nokgar = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataNokgar)))
+                    l_Nokgar->DespawnOrUnsummon();
+
+                me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                me->SummonCreature(me->GetEntry(), *me, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(p_Diff);
+
+                /// I think blizzard actually hacked it themselves aswell.
+                if (me->HasAura(eSpells::SpellShreddingSwipesAuraRemove))
+                {
+                    if (m_ShreddingStrikeTimer <= p_Diff)
+                    {
+                        std::list<Player*> l_PlayerList;
+
+                        JadeCore::AnyPlayerInObjectRangeCheck l_Check(me, 3.0f);
+                        JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> l_Searcher(me, l_PlayerList, l_Check);
+                        me->VisitNearbyObject(3.0f, l_Searcher);
+
+                        for (Player* l_Iter : l_PlayerList)
+                        {
+                            if (me->isInFront(l_Iter, M_PI * 0.5f))
+                                l_Iter->AddAura(eSpells::SpellShreddingSwipesDummy, l_Iter);
+                        }
+
+                        m_ShreddingStrikeTimer = 350;
+                    }
+                    else
+                        m_ShreddingStrikeTimer -= p_Diff;
+                }
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (events.ExecuteEvent())
+                {
+                    case eEvents::EventSavageMauling:
+                    {
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        {
+                            me->GetMotionMaster()->MoveJump(*l_Target, 8.0, 4.0f);
+                            me->Attack(l_Target, true);
+                            me->CastSpell(l_Target, eSpells::SpellSavageMauling);
+
+                            events.ScheduleEvent(eEvents::EventSavageMauling, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                        }
+
+                        break;
+                    }
+                    case eEvents::EventBloodlettingHowl:
+                    {
+                        me->CastSpell(me, eSpells::SpellBloodlettingHowl);
+                        events.ScheduleEvent(eEvents::EventBloodlettingHowl, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventShreddingSwipes:
+                    {
+                        me->AddAura(eSpells::SpellShreddingSwipesAuraRemove, me);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+                        events.ScheduleEvent(eEvents::EventShreddingSwipes, urand(8 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
+                        events.ScheduleEvent(eEvents::EventShreddingSwipes2, 500);
+                        break;
+                    }
+                    case eEvents::EventShreddingSwipes2:
+                    {
+                        if (Creature* l_ShreddingTrigger = me->FindNearestCreature(eTrigger::ShreddingSwipesTrigger, 100.0F, true))
+                        {
+                            /// Dafuq?
+                            Position l_Pos;
+                            me->GetPosition(&l_Pos);
+                            me->GetMotionMaster()->MovePoint(0, l_Pos);
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new boss_mount_wolfAI(p_Creature);
+        }
 };
+
+/// Fleshrender Nok'gar - 81305
 class boss_nokgar : public CreatureScript
 {
-public:
-    boss_nokgar() : CreatureScript("boss_nokgar") { }
+    public:
+        boss_nokgar() : CreatureScript("boss_nokgar") { }
 
-    struct boss_nokgarAI : public BossAI
-    {
-        boss_nokgarAI(Creature* creature) : BossAI(creature, DATA_NOKGAR)
+        struct boss_nokgarAI : public BossAI
         {
-            intro = false;
-        }
-
-        int8 phase;
-        bool intro;
-        bool dismountheroic;
-        InstanceScript* pinstance = me->GetInstanceScript();
-        void Reset() override
-        {
-            _Reset();
-            events.Reset();
-            summons.DespawnAll();
-            // MountWolf(); 
-            SummonArchers();
-
-            me->SetReactState(REACT_AGGRESSIVE);
-            phase = 0; // mounted
-            me->CastSpell(me, SPELL_WARSONG_FLAG);
-            dismountheroic = false;
-        }
-        void MountWolf()
-        {
-            if (Creature* wolf = instance->instance->GetCreature(instance->GetData64(DATA_MOUNT_WOLF)))
+            boss_nokgarAI(Creature* p_Creature) : BossAI(p_Creature, eIronDocksDatas::DataNokgar)
             {
-                //me->EnterVehicle(wolf, 0, true);
-                // wolf->Respawn(true);
-                // wolf->GetAI()->Reset();
-                // wolf->getThreatManager().resetAllAggro();
-                //wolf->GetVehicleKit()->AddPassenger(me, 0);  
-                //me->_EnterVehicle(wolf->GetVehicleKit(), 0);
-                // me->AddUnitState(UNIT_STATE_ONVEHICLE);
-            }
-        }
-        void SummonArchers()
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                Creature* flameslinger = me->SummonCreature(NPC_GROMKAR_FLAMESLINGER, archers[i], TEMPSUMMON_MANUAL_DESPAWN);
-                // if (flameslinger && flameslinger->IsInWorld())
-                //flameslinger->SetReactState(REACT_PASSIVE);
-            }
-        }
-        void LaunchArchers()
-        {
-            std::list<Creature*> flameslinger;
-            me->GetCreatureListWithEntryInGrid(flameslinger, NPC_GROMKAR_FLAMESLINGER, 100.0F);
-
-            for (auto itr : flameslinger)
-            {
-                itr->GetAI()->DoAction(ACTION_FIRE_ARROWS);
-            }
-        }
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (who && who->IsInWorld() && who->GetTypeId() == TYPEID_PLAYER && !intro && me->IsWithinDistInMap(who, 10.0f))
-            {
-                intro = true;
-                Talk(SAY_INTRO);
-            }
-        }
-        void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo) override
-        {
-            if (me->HealthBelowPct(50) && !dismountheroic)
-            {
-                dismountheroic = true;
-                events.ScheduleEvent(EVENT_DISMOUNT, 1000);
-            }
-            if (me->HasAura(SPELL_RECKLESS_PROVOCATION))
-                if (!p_SpellInfo)
-                    me->AddAura(SPELL_INITMIDATED, attacker);
-        }
-        void EnterCombat(Unit* who) override
-        {
-            _EnterCombat();
-            Talk(SAY_AGGRO);
-            LaunchArchers();
-
-            if (Creature* wolf = instance->instance->GetCreature(instance->GetData64(DATA_MOUNT_WOLF)))
-            {
-                wolf->Attack(who, true);
-                me->Attack(who, true);
-            }
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-
-            if (!me->GetMap()->IsHeroic())
-                events.ScheduleEvent(EVENT_DISMOUNT, dismountTimer);
-        }
-        void KilledUnit(Unit* who) override
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
-        }
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-            Talk(SAY_DEATH);
-            summons.DespawnAll();
-            if (Creature* wolf = pinstance->instance->GetCreature(pinstance->GetData64(DATA_MOUNT_WOLF)))
-            {
-                wolf->DespawnOrUnsummon(2000);
+                m_Intro = false;
             }
 
-            me->m_Events.AddEvent(new Nokgar_Death_Event(me, 0), me->m_Events.CalculateTime(2000));
-        }
-        void JustReachedHome() override
-        {
-            if (Creature* wolf = pinstance->instance->GetCreature(pinstance->GetData64(DATA_MOUNT_WOLF)))
+            int8 m_Phase;
+            bool m_Intro;
+            bool m_DismountHeroic;
+            InstanceScript* m_Instance = me->GetInstanceScript();
+
+            void Reset() override
             {
+                _Reset();
+                events.Reset();
                 summons.DespawnAll();
-                wolf->DespawnOrUnsummon(1000);
-                me->DespawnOrUnsummon(1000);
+                SummonArchers();
 
-                me->SummonCreature(CREATURE_WOLF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                m_Phase = 0;
+                me->CastSpell(me, eSpells::SpellWarsongFlag);
+                m_DismountHeroic = false;
             }
-        }
-        void DoAction(int32 const action)
-        {
-            switch (action)
+
+            void SummonArchers()
             {
-                case ACTION_DISMOUNT_HEROIC:
+                for (uint8 l_I = 0; l_I < 5; l_I++)
+                    me->SummonCreature(eIronDocksCreatures::NpcGromkarFlameslinger, g_ArchersPos[l_I], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+            }
+
+            void LaunchArchers()
+            {
+                std::list<Creature*> l_Flameslingers;
+                me->GetCreatureListWithEntryInGrid(l_Flameslingers, eIronDocksCreatures::NpcGromkarFlameslinger, 100.0f);
+
+                for (Creature* l_Iter : l_Flameslingers)
                 {
-                    events.ScheduleEvent(EVENT_DISMOUNT, 1000);
-                    break;
+                    if (l_Iter->IsAIEnabled)
+                        l_Iter->GetAI()->DoAction(eActions::ActionFireArrows);
                 }
             }
-        }
-        void UpdateAI(uint32 const diff) override
-        {
-            if (!UpdateVictim())
-                return;
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
+            void MoveInLineOfSight(Unit* p_Who) override
             {
-                switch (eventId)
+                if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && !m_Intro && me->IsWithinDistInMap(p_Who, 10.0f))
                 {
-                case EVENT_DISMOUNT:
+                    m_Intro = true;
+                    Talk(eYells::SayIntro);
+                }
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (me->HealthBelowPct(50) && !m_DismountHeroic)
                 {
-                    if (Creature* wolf = instance->instance->GetCreature(instance->GetData64(DATA_MOUNT_WOLF)))
+                    m_DismountHeroic = true;
+                    events.ScheduleEvent(eEvents::EventDismount, 1 * TimeConstants::IN_MILLISECONDS);
+                }
+
+                if (me->HasAura(eSpells::SpellRecklessProvocation))
+                {
+                    if (!p_SpellInfo)
+                        me->AddAura(eSpells::SpellIntimidated, p_Attacker);
+                }
+            }
+
+            void EnterCombat(Unit* p_Who) override
+            {
+                _EnterCombat();
+                Talk(eYells::SayAggro);
+                LaunchArchers();
+
+                if (m_Instance != nullptr)
+                {
+                    if (Creature* l_Wolf = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataMountWolf)))
                     {
-                        wolf->GetVehicleKit()->RemoveAllPassengers(true);
+                        l_Wolf->Attack(p_Who, true);
+                        me->Attack(p_Who, true);
                     }
+                }
 
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    events.SetPhase(1); // non mounted           
-                    events.ScheduleEvent(EVENT_RECKLESS_PROVOCATION, 10000);
-                    break;
-                }
-                case EVENT_RECKLESS_PROVOCATION:
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                if (!IsHeroic())
+                    events.ScheduleEvent(eEvents::EventDismount, 29 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void KilledUnit(Unit* p_Who) override
+            {
+                if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    Talk(eYells::SaySlay);
+            }
+
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                _JustDied();
+
+                Talk(eYells::SayDeath);
+                summons.DespawnAll();
+
+                if (m_Instance != nullptr)
                 {
-                    Talk(SAY_SPELL03);
-                    me->MonsterTextEmote(recklessprovocationmsg, me->GetGUID());
-                    me->CastSpell(me, SPELL_RECKLESS_PROVOCATION);
-                    events.ScheduleEvent(EVENT_RECKLESS_PROVOCATION, urand(15000, 20000));
+                    if (Creature* l_Wolf = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataMountWolf)))
+                        l_Wolf->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
                 }
+
+                me->m_Events.AddEvent(new Nokgar_Death_Event(me, 0), me->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
+            }
+
+            void JustReachedHome() override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Wolf = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataMountWolf)))
+                {
+                    summons.DespawnAll();
+                    l_Wolf->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                    me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+
+                    me->SummonCreature(eVehicle::CreatureWolf, *me, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                 }
             }
-            DoMeleeAttackIfReady();
-        }
-    private:
 
-    };
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_nokgarAI(creature);
-    }
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eActions::ActionDismountHeroic:
+                    {
+                        events.ScheduleEvent(eEvents::EventDismount, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (events.ExecuteEvent())
+                {
+                    case eEvents::EventDismount:
+                    {
+                        if (m_Instance != nullptr)
+                        {
+                            if (Creature* wolf = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataMountWolf)))
+                                wolf->GetVehicleKit()->RemoveAllPassengers(true);
+                        }
+
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        events.SetPhase(1);
+                        events.ScheduleEvent(eEvents::EventRecklessProvocation, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventRecklessProvocation:
+                    {
+                        Talk(eYells::SaySpell03);
+                        me->MonsterTextEmote("Fleshrender Nok'gar casts |cffff0000[Reckless Provocation]|cfffaeb00!", me->GetGUID());
+                        me->CastSpell(me, eSpells::SpellRecklessProvocation);
+                        events.ScheduleEvent(eEvents::EventRecklessProvocation, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new boss_nokgarAI(p_Creature);
+        }
 };
+
+/// Grom'kar Footsoldier - 81279
 class iron_docks_flameslinger : public CreatureScript
 {
-public:
-    iron_docks_flameslinger() : CreatureScript("iron_docks_flameslinger") { }
+    public:
+        iron_docks_flameslinger() : CreatureScript("iron_docks_flameslinger") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+        struct mob_iron_docksAI : public ScriptedAI
         {
-            me->SetDisableGravity(true);
-            me->SetHover(true);
-        }
-
-        bool signal;
-        int32 dshot;
-        int32 eshot;
-        InstanceScript* pinstance = me->GetInstanceScript();
-
-        void Reset()
-        {
-            //signal = true;
-
-            dshot = 0;
-            eshot = 0;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->setFaction(16);
-            me->RemoveAllAuras();
-        }
-        void DoAction(int32 const action)
-        {
-            switch (action)
+            mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
-            case ACTION_FIRE_ARROWS:
-                //signal = true;
-
-                // events.ScheduleEvent(EVENT_FIRE_ARROWS_SIGNAL, 1000);
-                events.ScheduleEvent(EVENT_FIRE_ARROWS, 2000);
-                events.ScheduleEvent(EVENT_BARBED_ARROWS, 12000);
-                break;
+                me->SetDisableGravity(true);
+                me->SetHover(true);
             }
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            events.Update(diff);
 
-            if (uint32 eventId = events.ExecuteEvent())
+            int32 m_DShot;
+            int32 m_EShot;
+
+            void Reset() override
             {
-                switch (eventId)
+                m_DShot = 0;
+                m_EShot = 0;
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                me->setFaction(16);
+                me->RemoveAllAuras();
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
                 {
-                case EVENT_FIRE_ARROWS:
-                    if (Player* target = me->FindNearestPlayer(200.0f, true))
-                        // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0F, true))
-                        me->CastSpell(target, SPELL_BURNING_ARROW_AREA_TRIGGER, true);
-                    // me->CastSpell(me, SPELL_BURNING_ARROW_DUMMY);                                 
-                    events.ScheduleEvent(EVENT_FIRE_ARROWS, 4000);
-
-                    dshot++;
-                    if (dshot >= 4)
-                    {
-                        dshot = 0;
-                        events.CancelEvent(EVENT_FIRE_ARROWS);
-                        events.ScheduleEvent(EVENT_FIRE_ARROWS_CHECK, 1000);
-                    }
-                    break;
-                case EVENT_BARBED_ARROWS:
-                    if (Player* target = me->FindNearestPlayer(200.0f, true))
-                        me->CastSpell(target, SPELL_BARBED_ARROW_AREA_TRIGGER, true);
-                    //me->CastSpell(me, SPELL_BARBED_ARROW);
-                    events.ScheduleEvent(SPELL_BARBED_ARROW, 6000);
-                    eshot++;
-
-                    if (eshot >= 4)
-                    {
-                        eshot = 0;
-                        events.CancelEvent(EVENT_BARBED_ARROWS);
-                        events.ScheduleEvent(EVENT_FIRE_ARROWS_CHECK, 1000);
-                    }
-                    break;
-                case EVENT_FIRE_ARROWS_CHECK:
-                    eshot = 0;
-                    dshot = 0;
-                    events.ScheduleEvent(SPELL_BARBED_ARROW, 20000);
-                    events.ScheduleEvent(EVENT_FIRE_ARROWS, 20000);
-                    break;
+                    case eActions::ActionFireArrows:
+                        events.ScheduleEvent(eEvents::EventFireArrows, 2 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eEvents::EventBarbedArrows, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
                 }
             }
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                events.Update(p_Diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case eEvents::EventFireArrows:
+                    {
+                        if (Player* l_Target = me->FindNearestPlayer(200.0f, true))
+                            me->CastSpell(l_Target, eSpells::SpellBurningArrowAT, true);
+
+                        events.ScheduleEvent(eEvents::EventFireArrows, 4 * TimeConstants::IN_MILLISECONDS);
+
+                        m_DShot++;
+                        if (m_DShot >= 4)
+                        {
+                            m_DShot = 0;
+                            events.CancelEvent(eEvents::EventFireArrows);
+                            events.ScheduleEvent(eEvents::EventFireArrowsCheck, 1 * TimeConstants::IN_MILLISECONDS);
+                        }
+
+                        break;
+                    }
+                    case eEvents::EventBarbedArrows:
+                    {
+                        if (Player* l_Target = me->FindNearestPlayer(200.0f, true))
+                            me->CastSpell(l_Target, eSpells::SpellBarbedArrowAT, true);
+
+                        events.ScheduleEvent(eSpells::SpellBarbedArrow, 6 * TimeConstants::IN_MILLISECONDS);
+                        m_EShot++;
+
+                        if (m_EShot >= 4)
+                        {
+                            m_EShot = 0;
+                            events.CancelEvent(eEvents::EventBarbedArrows);
+                            events.ScheduleEvent(eEvents::EventFireArrowsCheck, 1 * TimeConstants::IN_MILLISECONDS);
+                        }
+
+                        break;
+                    }
+                    case eEvents::EventFireArrowsCheck:
+                    {
+                        m_EShot = 0;
+                        m_DShot = 0;
+                        events.ScheduleEvent(eSpells::SpellBarbedArrow, 20 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eEvents::EventFireArrows, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new mob_iron_docksAI(p_Creature);
+        }
 };
-//SPELL_INITMIDATED
+
+/// Intimidated - 164504
 class iron_docks_intimidated : public SpellScriptLoader
 {
-public:
-    iron_docks_intimidated() : SpellScriptLoader("iron_docks_intimidated") { }
+    public:
+        iron_docks_intimidated() : SpellScriptLoader("iron_docks_intimidated") { }
 
-    class iron_docks_spells : public SpellScript
-    {
-        PrepareSpellScript(iron_docks_spells);
-
-
-        SpellCastResult CheckTarget()
+        class iron_docks_spells : public SpellScript
         {
-            if (GetCaster()->GetEntry() == BOSS_FLESHRENDER_NOKGAR)
+            PrepareSpellScript(iron_docks_spells);
+
+            SpellCastResult CheckTarget()
             {
-                return SPELL_FAILED_DONT_REPORT;
+                if (GetCaster()->GetEntry() == eIronDocksCreatures::BossFleshrenderNokgar)
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+                else
+                    return SpellCastResult::SPELL_CAST_OK;
             }
-            else
-                return SPELL_CAST_OK;
-        }
 
-        void Register()
-        {
-            OnCheckCast += SpellCheckCastFn(iron_docks_spells::CheckTarget);
-        }
-    };
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(iron_docks_spells::CheckTarget);
+            }
+        };
 };
+
 void AddSC_boss_nokgar()
 {
     new boss_nokgar();

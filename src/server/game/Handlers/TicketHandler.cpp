@@ -25,6 +25,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "Util.h"
+#include "WowTime.hpp"
 
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& p_RecvData)
 {
@@ -132,6 +133,12 @@ void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket& /*p_RecvData*/)
 
 void WorldSession::HandleGMTicketGetWebTicketOpcode(WorldPacket& /*p_RecvData*/)
 {
+    time_t l_Now = time(nullptr);
+    WorldPacket l_Data(SMSG_GM_TICKET_CASE_STATUS);
+    l_Data << MS::Utilities::WowTime::Encode(l_Now);
+    l_Data << uint32(l_Now - GetLoginTime());
+    l_Data << uint32(0);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket& /*p_RecvData*/)

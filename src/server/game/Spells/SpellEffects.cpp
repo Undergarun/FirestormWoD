@@ -1622,19 +1622,7 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
     {
         if (m_spellAura->GetEffect(i) && m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_SCHOOL_ABSORB)
         {
-            float AbsorbMod2 = 0.0f;
-
-            Unit *l_Caster = GetCaster();
-
-            if (l_Caster == nullptr)
-                return;
-
-            float minval = (float)l_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-            float maxval = (float)l_Caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-
-            AbsorbMod2 = minval + maxval;
             int currentValue = m_spellAura->GetEffect(i)->GetAmount();
-            AddPct(currentValue, AbsorbMod2);
 
             m_spellAura->GetEffect(i)->SetAmount(currentValue);
         }
@@ -1695,6 +1683,10 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
         gainMultiplier = m_spellInfo->Effects[effIndex].CalcValueMultiplier(m_originalCaster, this);
 
         int32 gain = int32(newDamage* gainMultiplier);
+
+        /// Hack fix for Dark Animus
+        if (m_caster->GetEntry() == 69427)
+            gain = 1;
 
         m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, powerType);
     }
@@ -2336,8 +2328,8 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
-        case 6572:  // Revenge
-            if (m_caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+        case 6572:  /// Revenge
+            if (m_caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE && m_caster->GetShapeshiftForm() != FORM_GLADIATORSTANCE)
                 return;
             break;
         case 9512:                                          // Restore Energy
@@ -2597,8 +2589,10 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         // TODO: Add script for spell 41920 - Filling, becouse server it freze when use this spell
         // handle outdoor pvp object opening, return true if go was registered for handling
         // these objects must have been spawned by outdoorpvp!
-        else if (gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_GOOBER && sOutdoorPvPMgr->HandleOpenGo(player, gameObjTarget->GetGUID()))
+        else if (gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_GOOBER && sOutdoorPvPMgr->HandleOpenGo(player, gameObjTarget->GetGUID()) ||
+            gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_NEW_FLAG_DROP && sOutdoorPvPMgr->HandleOpenGo(player, gameObjTarget->GetGUID()))
             return;
+
         lockId = goInfo->GetLockId();
         guid = gameObjTarget->GetGUID();
     }
@@ -4253,13 +4247,13 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     if (l_CurrentSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
 
-                    /// Item - Rogue WoD PvP 2P Bonus - 165995
-                    if (m_spellInfo->Id == 57994 && m_originalCaster->HasAura(165995))
-                        m_originalCaster->CastSpell(m_originalCaster, 77762, true);
+                    /// Item - Rogue WoD PvP 2P Bonus
+                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
+                        m_originalCaster->CastSpell(m_originalCaster, 165996, true);
 
                     /// Item - Shaman WoD PvP Elemental 4P Bonus - 171109
-                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(171109))
-                        m_originalCaster->CastSpell(unitTarget, 165996, true);
+                    if (m_spellInfo->Id == 57994 && m_originalCaster->HasAura(171109))
+                        m_originalCaster->CastSpell(m_originalCaster, 77762, true);
 
                     /// Item - Druid WoD PvP Feral 2P Bonus
                     if (m_spellInfo->Id == 93985 && m_originalCaster->HasAura(170848))
@@ -5696,11 +5690,20 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
     uint32 health = target->CountPctFromMaxHealth(damage);
     uint32 mana = CalculatePct(target->GetMaxPower(POWER_MANA), damage);
 
-    // Rebirth, soulstone ...
-    if (m_spellInfo->Id == 20484 || m_spellInfo->Id == 3026)
+    /// Rebirth
+    if (m_spellInfo->Id == 20484)
+    {
+        health = target->CountPctFromMaxHealth(60);
+        if (m_caster->HasAura(54733)) ///< Glyph of Rebirth
+            health += target->CountPctFromMaxHealth(40);
+    }
+
+    /// Soulstone
+    if (m_spellInfo->Id == 3026)
         health = target->CountPctFromMaxHealth(60);
 
-    if (m_spellInfo->Id == 61999) // Raise Ally
+    /// Raise Ally
+    if (m_spellInfo->Id == 61999)
         mana = target->CountPctFromMaxMana(60);
 
     ExecuteLogEffectResurrect(effIndex, target);
@@ -6603,7 +6606,8 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         return;
 
     // HACK FIX !! @TODO: Find how filter not stealable spells for boss
-    if (unitTarget->ToCreature() && (unitTarget->ToCreature()->IsDungeonBoss() || unitTarget->ToCreature()->isWorldBoss()))
+    if (unitTarget->ToCreature()
+        && (unitTarget->ToCreature()->IsDungeonBoss() || unitTarget->ToCreature()->isWorldBoss() || unitTarget->ToCreature()->GetCreatureTemplate()->rank == CREATURE_ELITE_WORLDBOSS))
         return;
 
     DispelChargesList steal_list;
@@ -8043,9 +8047,22 @@ void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
+    GuidUnorderedSet l_IgnoredPlayers;
+
+    std::list<Unit*> l_Members;
+    m_caster->GetRaidMembers(l_Members);
+    
+    uint64 l_OwnerGUID = m_caster->GetGUID();
+    for (Unit* l_Member : l_Members)
+    {
+        uint64 l_MemberGUID = l_Member->GetGUID();
+        if (l_MemberGUID != l_OwnerGUID && l_Member->GetTypeId() == TypeID::TYPEID_PLAYER)
+            l_IgnoredPlayers.insert(l_MemberGUID);
+    }
+
     WorldPacket l_Data(SMSG_CLEAR_TARGET, 16 + 2);
     l_Data.appendPackGUID(m_caster->GetGUID());
-    m_caster->SendMessageToSet(&l_Data, true);
+    m_caster->SendMessageToSet(&l_Data, true, l_IgnoredPlayers);
 }
 
 void Spell::EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex)

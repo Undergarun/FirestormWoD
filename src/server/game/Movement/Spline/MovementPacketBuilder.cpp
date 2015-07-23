@@ -184,7 +184,7 @@ namespace Movement
             if (splineFlags.parabolic || splineFlags.animation)
                 data << moveSpline.effect_start_time;       // added in 3.1
 
-            data << moveSpline.timePassed();
+            data << moveSpline.TimePassed();
             data << moveSpline.Duration();
         }
 

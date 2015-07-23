@@ -160,10 +160,28 @@ typedef std::pair<SpellValueMod, int32>     CustomSpellValueMod;
 class CustomSpellValues : public std::vector<CustomSpellValueMod>
 {
     public:
+        CustomSpellValues() :
+        m_CustomCritChance(-1.f)
+        {
+        }
+
         void AddSpellMod(SpellValueMod mod, int32 value)
         {
             push_back(std::make_pair(mod, value));
         }
+
+        float GetCustomCritChance() const
+        {
+            return m_CustomCritChance;
+        }
+
+        void SetCustomCritChance(float p_CustomProcChance)
+        {
+            m_CustomCritChance = p_CustomProcChance;
+        }
+
+    private:
+        float m_CustomCritChance;
 };
 
 enum SpellFacingFlags
@@ -375,6 +393,35 @@ struct SpellImmune
 {
     uint32 type;
     uint32 spellId;
+};
+
+struct StackOnDuration
+{
+    std::vector<std::pair<uint64, int32>> m_StackDuration;
+
+    StackOnDuration() {}
+
+    StackOnDuration(uint64 p_Duration, int32 p_Amount)
+    {
+        m_StackDuration.push_back(std::make_pair(p_Duration, p_Amount));
+    }
+
+    std::vector<std::pair<uint64, int32>> GetStackDuration() const { return m_StackDuration; }
+
+    void DecreaseDuration(int8 p_StackNb, uint32 p_Time)
+    {
+        m_StackDuration[p_StackNb].first -= p_Time;
+    }
+
+    int32 GetTotalAmount() const
+    {
+        int32 l_TotalAmount = 0;
+
+        for (std::pair<uint32, int32> l_Stack : m_StackDuration)
+            l_TotalAmount += l_Stack.second;
+
+        return l_TotalAmount;
+    }
 };
 
 typedef std::list<SpellImmune> SpellImmuneList;
@@ -918,11 +965,12 @@ struct HealTaken
 
 struct DamageDone
 {
-    DamageDone(uint32 dmg, uint32 time)
-    : s_damage(dmg), s_timestamp(time) {}
+    DamageDone(uint32 dmg, uint32 time, uint32 spellId)
+    : s_damage(dmg), s_timestamp(time), s_spellId(spellId) {}
 
     uint32 s_damage;
     uint32 s_timestamp;
+    uint32 s_spellId;
 };
 
 struct DamageTaken
@@ -1442,6 +1490,7 @@ class Unit : public WorldObject
         typedef std::list<AuraEffectPtr> AuraEffectList;
         typedef std::list<AuraPtr> AuraList;
         typedef std::list<AuraApplication *> AuraApplicationList;
+        typedef std::map<uint32, StackOnDuration> AuraStackOnDurationMap;
         typedef std::list<DiminishingReturn> Diminishing;
         typedef std::set<uint32> ComboPointHolderSet;
         typedef std::vector<uint32> AuraIdList;
@@ -1485,7 +1534,11 @@ class Unit : public WorldObject
         void GetRandomContactPoint(const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
-        int32 insightCount;
+        int32 m_InsightCount;
+
+        /// Used for Bandit's Guile
+        void SetInsightCount(uint8 p_Value) { m_InsightCount = p_Value; }
+        uint8 GetInsightCount() const { return m_InsightCount; }
 
         void _addAttacker(Unit* pAttacker)                  // must be called only from Unit::Attack(Unit*)
         {
@@ -1576,6 +1629,7 @@ class Unit : public WorldObject
         bool HealthAbovePctHealed(int32 pct, uint32 heal) const { return uint64(GetHealth()) + uint64(heal) > CountPctFromMaxHealth(pct); }
         float GetHealthPct() const { return GetMaxHealth() ? 100.f * GetHealth() / GetMaxHealth() : 0.0f; }
         uint32 CountPctFromMaxHealth(int32 pct) const { return CalculatePct(GetMaxHealth(), pct); }
+        uint32 CountPctFromMaxHealth(float p_Percent) const { return CalculatePct((float)GetMaxHealth(), p_Percent); }
         uint32 CountPctFromCurHealth(int32 pct) const { return CalculatePct(GetHealth(), pct); }
         uint32 CountPctFromMaxMana(int32 pct) const { return CalculatePct(GetMaxPower(POWER_MANA), pct); }
         uint32 CountPctFromCurMana(int32 pct) const { return CalculatePct(GetPower(POWER_MANA), pct); }
@@ -2034,6 +2088,9 @@ class Unit : public WorldObject
         AuraApplicationMap      & GetAppliedAuras()       { return m_appliedAuras; }
         AuraApplicationMap const& GetAppliedAuras() const { return m_appliedAuras; }
 
+        AuraStackOnDurationMap      & GetAurasStackOnDuration()       { return m_StackOnDurationMap; }
+        AuraStackOnDurationMap const& GetAurasStackOnDuration() const { return m_StackOnDurationMap; }
+
         void RemoveAura(AuraApplicationMap::iterator &i, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(uint32 spellId, uint64 casterGUID = 0, uint32 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
@@ -2087,6 +2144,10 @@ class Unit : public WorldObject
         AuraPtr GetAuraOfRankedSpell(uint32 spellId, uint64 casterGUID = 0, uint64 itemCasterGUID = 0, uint32 reqEffMask = 0) const;
 
         void GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList);
+
+        StackOnDuration* GetStackOnDuration(uint32 p_SpellID);
+        void AddToStackOnDuration(uint32 p_SpellID, uint64 p_DurationTime, int32 p_Amount);
+        void RemoveStackOnDuration(uint32 p_SpellID);
 
         bool HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster = 0) const;
         uint32 GetAuraCount(uint32 spellId) const;
@@ -2346,6 +2407,8 @@ class Unit : public WorldObject
         void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
         void ApplySpellDispelImmunity(const SpellInfo* spellProto, DispelType type, bool apply);
         virtual bool IsImmunedToSpell(SpellInfo const* spellInfo);
+        uint32 GetSchoolImmunityMask() const;
+        uint32 GetMechanicImmunityMask() const;
                                                             // redefined in Creature
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask);
         bool IsImmunedToDamage(SpellInfo const* spellInfo);
@@ -2364,6 +2427,13 @@ class Unit : public WorldObject
         }
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
         void SetSpeed(UnitMoveType mtype, float rate, bool forced = false);
+
+        void SendAdjustSplineDuration(float p_Scale);
+
+        /// This is used to send the current spline percentage
+        /// Send values from 0 to 1, depending on the current waypoint of the current spline
+        void SendFlightSplineSync(float p_SplineDist);
+
         float m_TempSpeed;
 
         bool isHover() const { return HasAuraType(SPELL_AURA_HOVER); }
@@ -2374,7 +2444,6 @@ class Unit : public WorldObject
         int32 CalcSpellDuration(SpellInfo const* spellProto);
         int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell* spell = nullptr);
-        float CalculateLevelPenalty(SpellInfo const* spellProto) const;
 
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
         void removeFollower(FollowerReference* /*pRef*/) { /* nothing to do yet */ }
@@ -2431,7 +2500,7 @@ class Unit : public WorldObject
         void SendRemoveLossOfControl(AuraApplication const* p_AurApp, LossOfControlType p_Type);
 
         ///----------Pet responses methods-----------------
-        void SendPetCastFail(uint32 spellid, SpellCastResult msg);
+        void SendPetCastFail(uint32 spellid, SpellCastResult msg, uint8 l_CastCount);
         void SendPetActionFeedback (uint32 p_SpellID, uint8 p_Reason);
         void SendPetTalk (uint32 pettalk);
         void SendPetAIReaction(uint64 guid);
@@ -2448,6 +2517,9 @@ class Unit : public WorldObject
 
         // group updates
         void UpdateAuraForGroup(uint8 slot);
+
+        /// Stacks Updates
+        void UpdateStackOnDuration(uint32 p_time);
 
         // proc trigger system
         bool CanProc(){return !m_procDeep;}
@@ -2539,6 +2611,7 @@ class Unit : public WorldObject
         uint32 GetHealingDoneInPastSecs(uint32 secs);
         uint32 GetHealingTakenInPastSecs(uint32 secs);
         uint32 GetDamageDoneInPastSecs(uint32 secs);
+        uint32 GetDamageDoneInPastSecsBySpell(uint32 secs, uint32 spellId);
         uint32 GetDamageTakenInPastSecs(uint32 secs);
         void SetHealDone(HealDone* healDone) { m_healDone.push_back(healDone); }
         void SetHealTaken(HealTaken* healTaken) { m_healTaken.push_back(healTaken); }
@@ -2638,7 +2711,7 @@ class Unit : public WorldObject
         AuraList m_removedAuras;
         AuraMap::iterator m_auraUpdateIterator;
         uint32 m_removedAurasCount;
-
+        AuraStackOnDurationMap m_StackOnDurationMap;
         AuraEffectList m_modAuras[TOTAL_AURAS];
         AuraList m_scAuras;                        // casted singlecast auras
         AuraApplicationList m_interruptableAuras;             // auras which have interrupt mask applied on unit
@@ -2738,6 +2811,7 @@ class Unit : public WorldObject
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_CombatTimer;
         TimeTrackerSmall m_movesplineTimer;
+        TimeTrackerSmall m_FlightSplineSyncTimer;
 
         uint64 simulacrumTargetGUID;
         uint64 iciclesTargetGUID;

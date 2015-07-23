@@ -180,7 +180,8 @@ enum SpellSpecificType
     SpellSpecificNonLethalPoison,
     SpellSpecificCrowdFavorite,
     SpellSpecificTarrenMillTitle,
-    SpellSpecificDisposition
+    SpellSpecificDisposition,
+    SpellSpecificTowerBuffs
 };
 
 enum SpellCustomAttributes
@@ -618,6 +619,7 @@ public:
     bool IsInterruptSpell() const;
     bool CannotBeAddedToCharm() const;
     bool IsCustomArchaeologySpell() const;
+    bool IsCustomChecked() const;
 
     // loading helpers
     uint32 _GetExplicitTargetMask() const;
