@@ -2549,7 +2549,7 @@ class spell_warl_fear: public SpellScriptLoader
 
             enum eConstants
             {
-                FearDurationPVP = 8 * IN_MILLISECONDS,
+                FearDurationPVP = 6 * IN_MILLISECONDS, ///< http://wow.gamepedia.com/Diminishing_returns
 
                 /// Spells
                 GlyphOfFear       = 56244,
@@ -2568,7 +2568,7 @@ class spell_warl_fear: public SpellScriptLoader
 
                 l_Caster->CastSpell(l_Target, l_SpellId, true);
 
-                if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER) ///< Patch 4.0.6 (8-Feb-2011): Fear now has a PvP duration of 8 seconds.
+                if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     if (AuraPtr l_FearAura = l_Target->GetAura(l_SpellId))
                     {
