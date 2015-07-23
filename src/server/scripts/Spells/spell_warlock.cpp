@@ -2547,8 +2547,11 @@ class spell_warl_fear: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_fear_SpellScript);
 
-            enum eSpells
+            enum eConstants
             {
+                FearDurationPVP = 8 * IN_MILLISECONDS,
+
+                /// Spells
                 GlyphOfFear       = 56244,
                 FearEffect        = 118699,
                 GlyphOfFearEffect = 130616,
@@ -2561,10 +2564,18 @@ class spell_warl_fear: public SpellScriptLoader
                 if (!l_Caster || !l_Target)
                     return;
 
-                if (l_Caster->HasAura(eSpells::GlyphOfFear))
-                    l_Caster->CastSpell(l_Target, eSpells::GlyphOfFearEffect, true);
-                else
-                    l_Caster->CastSpell(l_Target, eSpells::FearEffect, true);
+                uint32 l_SpellId = (l_Caster->HasAura(eConstants::GlyphOfFear)) ? eConstants::GlyphOfFearEffect : eConstants::FearEffect;
+
+                l_Caster->CastSpell(l_Target, l_SpellId, true);
+
+                if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER) ///< Patch 4.0.6 (8-Feb-2011): Fear now has a PvP duration of 8 seconds.
+                {
+                    if (AuraPtr l_FearAura = l_Target->GetAura(l_SpellId))
+                    {
+                        if (l_FearAura->GetDuration() > eConstants::FearDurationPVP)
+                            l_FearAura->SetDuration(eConstants::FearDurationPVP);
+                    }
+                }
             }
 
             void Register()
