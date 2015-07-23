@@ -801,27 +801,27 @@ class spell_pal_seal_of_insight: public SpellScriptLoader
                 }
             }
 
-            void OnHealWithoutGlyph(SpellEffIndex p_Idx)
+            void OnSelfHeal(SpellEffIndex p_Idx)
             {
                 Unit* l_Caster = GetCaster();
 
                 if (l_Caster->HasAura(eSpells::GlyphoftheBattleHealer))
-                    PreventHitHeal();
+                    PreventHitEffect(p_Idx);
             }
 
-            void OnHealWithGlyph(SpellEffIndex p_Idx)
+            void OnRaidHeal(SpellEffIndex p_Idx)
             {
                 Unit* l_Caster = GetCaster();
 
                 if (!l_Caster->HasAura(eSpells::GlyphoftheBattleHealer))
-                    PreventHitHeal();
+                    PreventHitEffect(p_Idx);
             }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_seal_of_insight_SpellScript::FilterTargets, EFFECT_1, SPELL_EFFECT_HEAL);
-                OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnHealWithoutGlyph, EFFECT_0, SPELL_EFFECT_HEAL);
-                OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnHealWithGlyph, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnEffectLaunch += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnSelfHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectLaunch += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnRaidHeal, EFFECT_1, SPELL_EFFECT_HEAL);
             }
         };
 
