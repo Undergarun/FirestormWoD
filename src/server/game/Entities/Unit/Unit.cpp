@@ -16115,7 +16115,7 @@ void Unit::DeleteCharmInfo()
 CharmInfo::CharmInfo(Unit* unit)
 : m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false),
   m_isCommandAttack(false), m_isAtStay(false), m_isFollowing(false), m_isReturning(false),
-  m_stayX(0.0f), m_stayY(0.0f), m_stayZ(0.0f)
+  m_stayX(0.0f), m_stayY(0.0f), m_stayZ(0.0f), m_CharmType(CharmType::CHARM_TYPE_CHARM)
 {
     for (uint8 i = 0; i < MAX_SPELL_CHARM; ++i)
         m_charmspells[i].SetActionAndType(0, ACT_DISABLED);
@@ -16161,6 +16161,8 @@ void CharmInfo::InitPetActionBar()
         else
             SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_AGGRESSIVE - i, ACT_REACTION);
     }
+
+    m_CharmType = CharmType::CHARM_TYPE_CHARM;
 }
 
 void CharmInfo::InitEmptyActionBar(bool withAttack)
@@ -16171,6 +16173,8 @@ void CharmInfo::InitEmptyActionBar(bool withAttack)
         SetActionBar(ACTION_BAR_INDEX_START, 0, ACT_PASSIVE);
     for (uint32 x = ACTION_BAR_INDEX_START+1; x < ACTION_BAR_INDEX_END; ++x)
         SetActionBar(x, 0, ACT_PASSIVE);
+
+    m_CharmType = CharmType::CHARM_TYPE_CHARM;
 }
 
 void CharmInfo::InitPossessCreateSpells()
@@ -16191,6 +16195,8 @@ void CharmInfo::InitPossessCreateSpells()
             }
         }
     }
+
+    m_CharmType = CharmType::CHARM_TYPE_POSSESS;
 }
 
 void CharmInfo::InitCharmCreateSpells()

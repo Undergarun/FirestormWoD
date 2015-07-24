@@ -1291,7 +1291,7 @@ enum ActionBarIndex
 
 #define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
 
-struct CharmInfo
+class CharmInfo
 {
     public:
         explicit CharmInfo(Unit* unit);
@@ -1340,14 +1340,17 @@ struct CharmInfo
         void SaveStayPosition();
         void GetStayPosition(float &x, float &y, float &z);
 
+        CharmType GetCharmType() const { return m_CharmType; }
+
     private:
 
         Unit* m_unit;
         UnitActionBarEntry PetActionBar[MAX_UNIT_ACTION_BAR_INDEX];
-        CharmSpellInfo m_charmspells[4];
-        CommandStates   m_CommandState;
-        uint32          m_petnumber;
-        bool            m_barInit;
+        CharmSpellInfo     m_charmspells[4];
+        CommandStates      m_CommandState;
+        uint32             m_petnumber;
+        bool               m_barInit;
+        CharmType          m_CharmType;
 
         //for restoration after charmed
         ReactStates     m_oldReactState;

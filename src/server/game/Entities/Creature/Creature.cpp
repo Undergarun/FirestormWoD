@@ -2536,6 +2536,17 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
         return;
 
     uint32 cooldown = spellInfo->GetRecoveryTime();
+
+    /// If we're missing a cooldown but possessed by a player, default to 6s
+    if (cooldown == 0)
+    {
+        if (CharmInfo* l_CharmInfo = GetCharmInfo())
+        {
+            if (l_CharmInfo->GetCharmType() == CharmType::CHARM_TYPE_POSSESS)
+                cooldown = 6 * IN_MILLISECONDS;
+        }
+    }
+
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellid, SPELLMOD_COOLDOWN, cooldown);
 
