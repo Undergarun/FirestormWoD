@@ -3856,6 +3856,39 @@ class spell_pri_dispel_mass : public SpellScriptLoader
         }
 };
 
+/// Dominate Mind - 605
+/// last update: 19865
+class spell_pri_dominate_mind : public SpellScriptLoader
+{
+    public:
+        spell_pri_dominate_mind() : SpellScriptLoader("spell_pri_dominate_mind") { }
+
+        class spell_pri_dominate_mind_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_dominate_mind_SpellScript);
+
+            SpellCastResult CheckTarget()
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (l_Target->ToCreature() && l_Target->ToCreature()->isWorldBoss())
+                        return SpellCastResult::SPELL_FAILED_IMMUNE;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pri_dominate_mind_SpellScript::CheckTarget);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pri_dominate_mind_SpellScript();
+        }
+};
 
 
 void AddSC_priest_spell_scripts()
@@ -3932,6 +3965,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_saving_grace();
     new spell_pri_glyph_of_the_inquisitor();
     new spell_pri_glyph_of_restored_faith();
+    new spell_pri_dominate_mind();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();
