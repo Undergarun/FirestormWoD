@@ -3869,7 +3869,7 @@ class spell_pri_dominate_mind : public SpellScriptLoader
 
             SpellCastResult CheckTarget()
             {
-                if (Unit* l_Target = GetHitUnit())
+                if (Unit* l_Target = GetExplTargetUnit())
                 {
                     if (l_Target->ToCreature() && l_Target->ToCreature()->isWorldBoss())
                         return SpellCastResult::SPELL_FAILED_IMMUNE;
