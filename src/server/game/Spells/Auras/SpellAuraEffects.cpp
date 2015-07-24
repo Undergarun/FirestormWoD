@@ -252,7 +252,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModCombatSpeedPct,                         //193 SPELL_AURA_MELEE_SLOW (in fact combat (any type attack) speed pct)
     &AuraEffect::HandleNoImmediateEffect,                         //194 SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL implemented in Unit::CalcAbsorbResist
     &AuraEffect::HandleNoImmediateEffect,                         //195 SPELL_AURA_MOD_TARGET_ABILITY_ABSORB_SCHOOL implemented in Unit::CalcAbsorbResist
-    &AuraEffect::HandleNULL,                                      //196 SPELL_AURA_MOD_COOLDOWN - flat mod of spell cooldowns
+    &AuraEffect::HandleNoImmediateEffect,                         //196 SPELL_AURA_MOD_COOLDOWN - flat mod of spell cooldowns
     &AuraEffect::HandleNoImmediateEffect,                         //197 SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE implemented in Unit::SpellCriticalBonus Unit::GetUnitCriticalChance
     &AuraEffect::HandleUnused,                                    //198 unused (4.3.4) old SPELL_AURA_MOD_ALL_WEAPON_SKILLS
     &AuraEffect::HandleUnused,                                    //199 unused (4.3.4) old SPELL_AURA_MOD_INCREASES_SPELL_PCT_TO_HIT
@@ -467,13 +467,13 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //408 SPELL_AURA_408
     &AuraEffect::HandleAllowMoveWhileFalling,                     //409 SPELL_AURA_ALLOW_MOVE_WHILE_FALLING
     &AuraEffect::HandleNoImmediateEffect,                         //410 SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET implemented in EffectSummonMultipleHunterPets
-    &AuraEffect::HandleNoImmediateEffect,                         //411 SPELL_AURA_MOD_CHARGES implemented with SpellCharges system
+    &AuraEffect::HandleNoImmediateEffect,                         //411 SPELL_AURA_MOD_MAX_CHARGES implemented in Player::CalcMaxCharges
     &AuraEffect::HandleModManaRegenByHaste,                       //412 SPELL_AURA_MOD_MANA_REGEN_BY_HASTE
     &AuraEffect::HandleNULL,                                      //413 SPELL_AURA_413
     &AuraEffect::HandleNULL,                                      //414 SPELL_AURA_414
     &AuraEffect::HandleNULL,                                      //415 SPELL_AURA_415
-    &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_MOD_COOLDOWN_BY_HASTE
-    &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE
+    &AuraEffect::HandleNoImmediateEffect,                         //416 SPELL_AURA_MOD_COOLDOWN_BY_HASTE
+    &AuraEffect::HandleNoImmediateEffect,                         //417 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE
     &AuraEffect::HandleAuraModMaxPower,                           //418 SPELL_AURA_MOD_MAX_POWER
     &AuraEffect::HandleAuraModifyManaPoolPct,                     //419 SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_420
@@ -509,11 +509,11 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
     &AuraEffect::HandleAuraAdaptation,                            //451 SPELL_AURA_OVERRIDE_PET_SPECS
     &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
-    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_CHARGE_RECOVERY_MOD
-    &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER
+    &AuraEffect::HandleNoImmediateEffect,                         //453 SPELL_AURA_CHARGE_RECOVERY_MOD implemented in Player::GetChargeRecoveryTime
+    &AuraEffect::HandleNoImmediateEffect,                         //454 SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER implemented in Player::GetChargeRecoveryTime
     &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOT_2
-    &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE
-    &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN
+    &AuraEffect::HandleNoImmediateEffect,                         //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE implemented in Player::GetChargeRecoveryTime
+    &AuraEffect::HandleNoImmediateEffect,                         //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN implemented in Player::GetChargeRecoveryTime
     &AuraEffect::HandleAuraIncreaseDualWieldDamage,               //458 SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE
     &AuraEffect::HandleNULL,                                      //459 SPELL_AURA_459
     &AuraEffect::HandleNoImmediateEffect,                         //460 SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL
@@ -684,10 +684,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     switch (GetAuraType())
     {
-        case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
-        case SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE:
-                amount = -ceil(((float)GetSpellInfo()->Effects[GetEffIndex()].BasePoints * ((1.f / caster->GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)));
-            break;
         case SPELL_AURA_MOD_RATING:
         {
             // Heart's Judgment, Heart of Ignacious trinket (Heroic)
@@ -1225,31 +1221,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     {
         if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
         {
-            float l_Minval = (float)caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-            float l_Maxval = (float)caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-
-            /// Apply bonus absorption
-            float totalMod = l_Minval + l_Maxval;
-
-            /// Apply Versatility absorb bonus
-            totalMod += caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
-
-            /// Apply Mastery: Discipline Shield
-            if (caster->HasAura(77484))
-            {
-                float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
-                totalMod += l_Mastery;
-            }
-
-            amount += CalculatePct(amount, totalMod);
-
-            /// Bonus Taken    
-            /// Dampening, must be calculated off the raw amount
-            if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(110310, EFFECT_0))
-            {
-                if (GetId() != 47753) ///< Divine Aegis proc from heal, and get heal % of heal amount, and heal spells are already affected by Dampening
-                    amount = CalculatePct(amount, 100 - l_AurEff->GetAmount());
-            }
+            amount = AbsorbBonusDone(caster, amount);
+            amount = AbsorbBonusTaken(caster, amount);
 
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
@@ -1260,6 +1233,51 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     amount *= GetBase()->GetStackAmount();
 
     return amount;
+}
+
+uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
+{
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+        return p_Amount;
+
+    float l_Minval = (float)p_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+    float l_Maxval = (float)p_Caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+
+    /// Apply bonus absorption
+    float l_TotalMod = l_Minval + l_Maxval;
+
+    /// Apply Versatility absorb bonus
+    if (m_spellInfo->Id != 86273 && ///< Mastery: Illuminated Healing is already affected by Versatility because trigger by a healing spell
+        m_spellInfo->Id != 47753) ///< Divine Aegis is already affected by Versatility because trigger by a healing spell
+        l_TotalMod += p_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+
+    /// Apply Mastery: Discipline Shield
+    if (p_Caster->HasAura(77484))
+    {
+        float l_Mastery = p_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+        l_TotalMod += l_Mastery;
+    }
+
+    p_Amount += CalculatePct(p_Amount, l_TotalMod);
+
+    return p_Amount;
+}
+
+uint32 AuraEffect::AbsorbBonusTaken(Unit* p_Caster, int32 p_Amount)
+{
+    float totalMod = 0.0f;
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+        return p_Amount;
+
+    /// Dampening, must be calculated off the raw amount
+    if (AuraEffectPtr l_AurEff = p_Caster->GetAuraEffect(110310, EFFECT_0))
+    {
+        if (GetId() != 47753) ///< Divine Aegis proc from heal, and get heal % of heal amount, and heal spells are already affected by Dampening
+            p_Amount = CalculatePct(p_Amount, 100 - l_AurEff->GetAmount());
+    }
+
+    return p_Amount;
 }
 
 void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
@@ -3146,7 +3164,7 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* p_AurApp, uint8 p_M
 
         // Glyph of Strangulate - 58618
         // Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
-        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618))
+        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618) && l_Target->HasUnitState(UnitState::UNIT_STATE_CASTING))
         {
             p_AurApp->GetBase()->SetMaxDuration(p_AurApp->GetBase()->GetMaxDuration() + 2000);
             p_AurApp->GetBase()->RefreshDuration();

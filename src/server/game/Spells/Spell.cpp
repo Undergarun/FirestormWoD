@@ -5998,7 +5998,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (categories && categories->ChargesCategory != 0)
         {
             auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-            if (category && player->CalcMaxCharges(category) != 0 && !player->CanUseCharge(category->Id))
+            if (category && !player->CanUseCharge(category))
                 return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
         }
     }
@@ -8793,8 +8793,12 @@ bool Spell::HasGlobalCooldown() const
 
 void Spell::TriggerGlobalCooldown()
 {
-    int32 gcd = m_spellInfo->StartRecoveryTime;
-    if (!gcd)
+    int32 l_Gcd = m_spellInfo->StartRecoveryTime;
+    if (!l_Gcd)
+        return;
+
+    // Only players or controlled units have global cooldown
+    if (m_caster->GetTypeId() != TYPEID_PLAYER && !m_caster->GetCharmInfo())
         return;
 
      if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -8808,24 +8812,32 @@ void Spell::TriggerGlobalCooldown()
     {
         // gcd modifier auras are applied only to own spells and only players have such mods
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            m_caster->ToPlayer()->ApplySpellMod(m_spellInfo->Id, SPELLMOD_GLOBAL_COOLDOWN, gcd, this);
+        {
+            m_caster->ToPlayer()->ApplySpellMod(m_spellInfo->Id, SPELLMOD_GLOBAL_COOLDOWN, l_Gcd, this);
 
-        if (gcd == 0)
+            if (int32 l_CooldownMod = m_caster->ToPlayer()->GetTotalAuraModifier(SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE))
+            {
+                float l_Haste = m_caster->ToPlayer()->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+                l_Gcd *= ApplyPct(l_Haste, l_CooldownMod);
+            }
+        }
+
+        if (l_Gcd == 0)
             return;
 
         // Apply haste rating
-        gcd = int32(float(gcd) * m_caster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
-        if (gcd < MIN_GCD)
-            gcd = MIN_GCD;
-        else if (gcd > MAX_GCD)
-            gcd = MAX_GCD;
+        l_Gcd = int32(float(l_Gcd) * m_caster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
+        if (l_Gcd < MIN_GCD)
+            l_Gcd = MIN_GCD;
+        else if (l_Gcd > MAX_GCD)
+            l_Gcd = MAX_GCD;
     }
 
     // Only players or controlled units have global cooldown
     if (m_caster->GetCharmInfo())
-        m_caster->GetCharmInfo()->GetGlobalCooldownMgr().AddGlobalCooldown(m_spellInfo, gcd);
+        m_caster->GetCharmInfo()->GetGlobalCooldownMgr().AddGlobalCooldown(m_spellInfo, l_Gcd);
     else if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->GetGlobalCooldownMgr().AddGlobalCooldown(m_spellInfo, gcd);
+        m_caster->ToPlayer()->GetGlobalCooldownMgr().AddGlobalCooldown(m_spellInfo, l_Gcd);
 }
 
 void Spell::CancelGlobalCooldown()

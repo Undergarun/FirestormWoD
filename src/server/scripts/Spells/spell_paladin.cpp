@@ -322,17 +322,23 @@ class spell_pal_daybreak: public SpellScriptLoader
 
             enum Constants : int32
             {
-                FullHealTargetCount = 6, ///< After this amount of targets the spell will lose BasePoints% efficiency for each target
-                HealDecrease        = 5, ///< % of heal lost per target over FullHealTargetCount
-                MinimalHeal         = 5, ///< Minimal heal % applied on each target when a lot of target are hit
+                HealDecrease           = 5, ///< % of heal lost per target over FullHealTargetCount
+                MinimalHeal            = 5, ///< Minimal heal % applied on each target when a lot of target are hit
+                MaximumSecondaryTarget = 6  ///< Maximum Secondary Target
             };
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                m_TargetCount = p_Targets.size();
-
                 if (!GetCaster())
                     return;
+
+                if (p_Targets.size() > (MaximumSecondaryTarget + 1 /* Main Target */))
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(MaximumSecondaryTarget + 1 /* Main Target */);
+                }
+
+                m_TargetCount = p_Targets.size();
             }
 
             void HandleBeforeCast()
@@ -346,7 +352,7 @@ class spell_pal_daybreak: public SpellScriptLoader
                 m_TargetId = l_Target->GetGUID();
             }
 
-            void HandleOnHit()
+            void HandleHealSecondaryTarget(SpellEffIndex /*l_EffIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
                 Unit* l_Caster = GetCaster();
@@ -355,14 +361,10 @@ class spell_pal_daybreak: public SpellScriptLoader
                     return;
 
                 int32 l_HealValue = GetHitHeal();
-                if (l_Target->GetGUID() != m_TargetId)
-                {
-                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
-                    if (m_TargetCount > Constants::FullHealTargetCount)
-                        l_Pct = std::max(l_Pct - 5 * Constants::HealDecrease, static_cast<int32>(Constants::MinimalHeal));
+                int32 l_PctSecondaryTargets = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
 
-                    ApplyPct(l_HealValue, l_Pct);
-                }
+                if (l_Target->GetGUID() != m_TargetId)
+                    ApplyPct(l_HealValue, l_PctSecondaryTargets);
 
                 SetHitHeal(l_HealValue);
             }
@@ -382,7 +384,7 @@ class spell_pal_daybreak: public SpellScriptLoader
             {
                 AfterCast += SpellCastFn(spell_pal_daybreak_SpellScript::HandleAfterCast);
                 BeforeCast += SpellCastFn(spell_pal_daybreak_SpellScript::HandleBeforeCast);
-                OnHit += SpellHitFn(spell_pal_daybreak_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_daybreak_SpellScript::HandleHealSecondaryTarget, EFFECT_1, SPELL_EFFECT_HEAL);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_daybreak_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
@@ -540,8 +542,6 @@ class spell_pal_selfless_healer: public SpellScriptLoader
                 if (l_Player == nullptr || l_Target == nullptr)
                     return;
 
-                if (l_Player->HasAura(PALADIN_SPELL_SELFLESS_HEALER))
-                    l_Player->CastSpell(l_Player, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
                 if (l_Player->HasAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
                 {
                     int32 l_Charges = l_Player->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
@@ -801,27 +801,27 @@ class spell_pal_seal_of_insight: public SpellScriptLoader
                 }
             }
 
-            void OnHealWithoutGlyph(SpellEffIndex p_Idx)
+            void OnSelfHeal(SpellEffIndex p_Idx)
             {
                 Unit* l_Caster = GetCaster();
 
                 if (l_Caster->HasAura(eSpells::GlyphoftheBattleHealer))
-                    PreventHitHeal();
+                    PreventHitEffect(p_Idx);
             }
 
-            void OnHealWithGlyph(SpellEffIndex p_Idx)
+            void OnRaidHeal(SpellEffIndex p_Idx)
             {
                 Unit* l_Caster = GetCaster();
 
                 if (!l_Caster->HasAura(eSpells::GlyphoftheBattleHealer))
-                    PreventHitHeal();
+                    PreventHitEffect(p_Idx);
             }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_seal_of_insight_SpellScript::FilterTargets, EFFECT_1, SPELL_EFFECT_HEAL);
-                OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnHealWithoutGlyph, EFFECT_0, SPELL_EFFECT_HEAL);
-                OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnHealWithGlyph, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnEffectLaunch += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnSelfHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectLaunch += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnRaidHeal, EFFECT_1, SPELL_EFFECT_HEAL);
             }
         };
 
