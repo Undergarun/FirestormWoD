@@ -30403,8 +30403,37 @@ void Player::ActivateSpec(uint8 spec)
 
         // apply primary glyph
         if (glyph)
-            if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
-                CastSpell(this, gp->SpellId, true);
+        {
+            bool l_CanApplyGlyph = true;
+
+            if (GlyphPropertiesEntry const* l_GlyphProperties = sGlyphPropertiesStore.LookupEntry(glyph))
+            {
+                if (l_GlyphProperties->GlyphExclusiveCategoryID)
+                {
+                    for (uint8 l_GlyphSlotIndex = 0; l_GlyphSlotIndex < MAX_GLYPH_SLOT_INDEX; ++l_GlyphSlotIndex)
+                    {
+                        uint32 l_GlyphID = GetGlyph(GetActiveSpec(), l_GlyphSlotIndex);
+                        if (!l_GlyphID)
+                            continue;
+
+                        GlyphPropertiesEntry const* l_GlyphPropertiesCheck = sGlyphPropertiesStore.LookupEntry(l_GlyphID);
+                        if (!l_GlyphPropertiesCheck)
+                            continue;
+
+                        if (l_GlyphPropertiesCheck->GlyphExclusiveCategoryID == l_GlyphProperties->GlyphExclusiveCategoryID)
+                        {
+                            l_CanApplyGlyph = false;
+                            break;
+                        }
+                    }
+
+                    if (!l_CanApplyGlyph)
+                        continue;
+                }
+
+                CastSpell(this, l_GlyphProperties->SpellId, true);
+            }
+        }
 
         SetGlyph(slot, glyph);
     }
