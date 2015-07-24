@@ -2914,8 +2914,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     unitTarget = unit;
 
     // Reset damage/healing counter
-    m_damage = target->damage;
-    m_healing = -target->damage;
+    m_damage          = target->damage;
+    m_healing         = -target->damage;
+    m_final_damage    = 0;
+    m_absorbed_damage = 0;
 
     // Fill base trigger info
     uint32 procAttacker = m_procAttacker;
