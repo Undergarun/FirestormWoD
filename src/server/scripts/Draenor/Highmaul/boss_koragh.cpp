@@ -10,24 +10,6 @@
 
 Position const g_CenterPos = { 3903.39f, 8608.15f, 364.71f, 5.589f };
 
-void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
-{
-    if (p_Map == nullptr)
-        return;
-
-    Map::PlayerList const& l_Players = p_Map->GetPlayers();
-    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
-    {
-        if (Player* l_Player = l_Iter->getSource())
-        {
-            if (p_Caster != nullptr)
-                p_Caster->CastSpell(l_Player, p_SpellID, p_Triggered);
-            else
-                l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
-        }
-    }
-}
-
 /// Ko'ragh <Breaker of Magic> - 79015
 class boss_koragh : public CreatureScript
 {
@@ -1120,7 +1102,7 @@ class spell_highmaul_frozen_core : public SpellScriptLoader
 
             enum eSpell
             {
-                FrozenCore = 174405
+                FrozenCoreAura = 174405
             };
 
             uint32 m_DamageTimer;
@@ -1137,25 +1119,18 @@ class spell_highmaul_frozen_core : public SpellScriptLoader
                 {
                     if (m_DamageTimer <= p_Diff)
                     {
-                        if (Unit* l_Target = GetTarget())
+                        m_DamageTimer = 200;
+
+                        if (Unit* l_Target = GetUnitOwner())
                         {
                             std::list<Unit*> l_TargetList;
-                            float l_Radius = 12.0f;
-
-                            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
+                            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, 8.0f);
                             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_TargetList, l_Check);
-                            l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+                            l_Target->VisitNearbyObject(8.0f, l_Searcher);
 
-                            for (Unit* l_Iter : l_TargetList)
-                            {
-                                if (l_Iter->GetDistance(l_Target) <= 8.0f)
-                                    l_Target->CastSpell(l_Iter, eSpell::FrozenCore, true);
-                                else
-                                    l_Iter->RemoveAura(eSpell::FrozenCore);
-                            }
+                            for (Unit* l_Unit : l_TargetList)
+                                l_Target->CastSpell(l_Unit, eSpell::FrozenCoreAura, true);
                         }
-
-                        m_DamageTimer = 200;
                     }
                     else
                         m_DamageTimer -= p_Diff;
@@ -1753,65 +1728,6 @@ class spell_highmaul_suppression_field_aura : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_highmaul_suppression_field_aura_AuraScript();
-        }
-};
-
-/// Frozen Core - 174404
-class spell_highmaul_frozen_core : public SpellScriptLoader
-{
-    public:
-        spell_highmaul_frozen_core() : SpellScriptLoader("spell_highmaul_frozen_core") { }
-
-        class spell_highmaul_frozen_core_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_highmaul_frozen_core_AuraScript);
-
-            enum eSpell
-            {
-                FrozenCoreAura = 174405
-            };
-
-            uint32 m_DamageTimer;
-
-            bool Load()
-            {
-                m_DamageTimer = 200;
-                return true;
-            }
-
-            void OnUpdate(uint32 p_Diff)
-            {
-                if (m_DamageTimer)
-                {
-                    if (m_DamageTimer <= p_Diff)
-                    {
-                        m_DamageTimer = 200;
-
-                        if (Unit* l_Target = GetUnitOwner())
-                        {
-                            std::list<Unit*> l_TargetList;
-                            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, 8.0f);
-                            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_TargetList, l_Check);
-                            l_Target->VisitNearbyObject(8.0f, l_Searcher);
-
-                            for (Unit* l_Unit : l_TargetList)
-                                l_Target->CastSpell(l_Unit, eSpell::FrozenCoreAura, true);
-                        }
-                    }
-                    else
-                        m_DamageTimer -= p_Diff;
-                }
-            }
-
-            void Register() override
-            {
-                OnAuraUpdate += AuraUpdateFn(spell_highmaul_frozen_core_AuraScript::OnUpdate);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_highmaul_frozen_core_AuraScript();
         }
 };
 
