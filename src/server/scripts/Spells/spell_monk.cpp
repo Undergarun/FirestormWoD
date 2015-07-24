@@ -3612,7 +3612,7 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
 
                     // Generates 1 Chi if it hits at least 3 targets.
-                    if (l_SpellInfo != nullptr && p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                    if (l_SpellInfo != nullptr && (int32)p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
                         l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
                 }
             }
@@ -3646,7 +3646,7 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
 
                     // Generates 1 Chi if it hits at least 3 targets.
-                    if (l_SpellInfo != nullptr && p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                    if (l_SpellInfo != nullptr && (int32)p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
                         l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
 
                     /// up to 6 allies

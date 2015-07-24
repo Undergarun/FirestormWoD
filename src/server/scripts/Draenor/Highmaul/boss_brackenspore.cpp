@@ -34,7 +34,25 @@ Position const g_FleshEaterSpawns[eHighmaulDatas::MaxFleshEaterPos] =
     { 4141.948f, 7720.839f, -1.1697650f, 2.001688f }
 };
 
-G3D::Vector3 g_BeachCenter = { 4090.034f, 7793.5166f, 2.974596f };
+G3D::Vector3 g_BeachCenter = { 4103.15f, 7766.47f, 0.254f };
+
+void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
+{
+    if (p_Map == nullptr)
+        return;
+
+    Map::PlayerList const& l_Players = p_Map->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+        {
+            if (p_Caster != nullptr)
+                p_Caster->CastSpell(l_Player, p_SpellID, p_Triggered);
+            else
+                l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
+        }
+    }
+}
 
 void ResetPlayersPower(Creature* p_Source)
 {
@@ -82,6 +100,8 @@ class boss_brackenspore : public CreatureScript
             /// Rejuvenating Mushroom
             RejuvenatingMushDummy   = 177820,
             SummonRejuvenatingMush  = 160021,
+            /// Loot
+            BrackensporeBonus       = 177524,
 
             /// Mythic mode only
             SpellCallOfTheTides     = 160425,
@@ -393,6 +413,8 @@ class boss_brackenspore : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::BurningInfusion);
 
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::BrackensporeBonus, true);
 
                     if (IsLFR())
                     {
@@ -965,6 +987,8 @@ class npc_highmaul_living_mushroom : public CreatureScript
                     me->CastSpell(me, eSpells::Withering3Percent, true);
                     me->CastSpell(me, eSpells::Withering5Percent, true);
                 });
+
+                AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->DespawnOrUnsummon(); });
             }
 
             void HealReceived(Unit* p_Healer, uint32& p_Heal) override
@@ -1043,6 +1067,8 @@ class npc_highmaul_rejuvenating_mushroom : public CreatureScript
                     me->CastSpell(me, eSpells::Withering3Percent, true);
                     me->CastSpell(me, eSpells::Withering5Percent, true);
                 });
+
+                AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->DespawnOrUnsummon(); });
             }
 
             void HealReceived(Unit* p_Healer, uint32& p_Heal) override

@@ -724,7 +724,7 @@ class boss_kargath_bladefist : public CreatureScript
                     }
                     case eEvents::EventBerserkerRush:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
                             me->CastSpell(l_Target, eSpells::SpellBerserkerRush, false);
 
                         Talk(eTalks::BerserkerRush);

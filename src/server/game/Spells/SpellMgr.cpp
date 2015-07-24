@@ -3659,6 +3659,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166185:///< Rending Slash (Highmaul Conscript)
             case 158026:///< Enfeebling Roar - Debuff (Phemos - Twin Ogron)
             case 163134:///< Nullification Barrier - Abosrb (Ko'ragh)
+            case 161345:///< Suppression Field - DoT (Ko'ragh)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 166199:///< Arcane Volatility (Gorian Arcanist)
@@ -3676,6 +3677,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161242:///< Caustic Energy - DoT (Ko'ragh)
             case 172813:///< Expel Magic: Frost - Decrease Speed (Ko'ragh)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 172685:///< Expel Magic: Fire (Ko'ragh)
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
@@ -3688,11 +3690,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161381:///< Volatile Anomalies - Missile 3 (Ko'ragh)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_CASTER_RANDOM;
-                break;
-            case 161345:///< Suppression Field - DoT (Ko'ragh)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 162595:///< Suppression Field - Silence (Ko'ragh)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s

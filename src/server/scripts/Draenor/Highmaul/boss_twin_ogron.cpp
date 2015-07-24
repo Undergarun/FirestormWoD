@@ -33,6 +33,24 @@ Position const g_CenterPos = { 4062.38f, 8470.91f, 322.226f, 0.0f };
 float const g_CircleToCenterDist = 30.0f;
 float const g_BlazeDistToCenter = 136.0f;
 
+void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
+{
+    if (p_Map == nullptr)
+        return;
+
+    Map::PlayerList const& l_Players = p_Map->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+        {
+            if (p_Caster != nullptr)
+                p_Caster->CastSpell(l_Player, p_SpellID, p_Triggered);
+            else
+                l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
+        }
+    }
+}
+
 void RespawnOgrons(Creature* p_Source, InstanceScript* p_Instance)
 {
     if (p_Source == nullptr || p_Instance == nullptr)
@@ -82,7 +100,10 @@ class boss_twin_ogron_pol : public CreatureScript
             ShieldChargeEndingAoE   = 158157,
             InjuredDoT              = 155569,
 
-            ShieldBash              = 143834
+            ShieldBash              = 143834,
+
+            /// Loot
+            TwinOgronBonus          = 177525
         };
 
         enum eEvents
@@ -299,6 +320,8 @@ class boss_twin_ogron_pol : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InjuredDoT);
+
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::TwinOgronBonus, true);
 
                     if (IsLFR())
                     {
@@ -546,7 +569,7 @@ class boss_twin_ogron_phemos : public CreatureScript
             bool m_WhirlwindScheduled;
             bool m_EnfeeblingRoarScheduled;
 
-            uint32 m_EnfeeblingRoarCounter;
+            std::set<uint64> m_EnfeeblingRoarTargets;
 
             Position m_FirstBlazePos;
             uint8 m_FirstWaveCounter;
@@ -604,7 +627,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                 m_WhirlwindScheduled = false;
                 m_EnfeeblingRoarScheduled = false;
 
-                m_EnfeeblingRoarCounter = 0;
+                m_EnfeeblingRoarTargets.clear();
 
                 m_FirstBlazePos = Position();
                 m_FirstWaveCounter = 0;
@@ -698,10 +721,21 @@ class boss_twin_ogron_phemos : public CreatureScript
                         if (m_EnfeeblingRoarScheduled)
                             break;
 
-                        m_EnfeeblingRoarCounter = 0;
+                        m_EnfeeblingRoarTargets.clear();
                         Talk(eTalks::EnfeeblingRoar);
                         me->CastSpell(me, eSpells::SpellEnfeeblingRoar, false);
                         m_EnfeeblingRoarScheduled = true;
+
+                        /// Cast time of Enfeebling roar + 100ms timer
+                        AddTimedDelayedOperation(3100, [this]() -> void
+                        {
+                            for (uint64 l_Guid : m_EnfeeblingRoarTargets)
+                            {
+                                if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                                    me->CastSpell(l_Target, eSpells::EnfeeblingRoarDebuff, true);
+                            }
+                        });
+
                         break;
                     }
                     case eActions::ScheduleWhirlwind:
@@ -834,9 +868,10 @@ class boss_twin_ogron_phemos : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::SpellEnfeeblingRoar:
-                        ++m_EnfeeblingRoarCounter;
-                        me->CastSpell(p_Target, eSpells::EnfeeblingRoarDebuff, true);
+                    {
+                        m_EnfeeblingRoarTargets.insert(p_Target->GetGUID());
                         break;
+                    }
                     default:
                         break;
                 }
@@ -929,7 +964,7 @@ class boss_twin_ogron_phemos : public CreatureScript
             uint32 GetData(uint32 p_ID) override
             {
                 if (p_ID == eMiscs::EnfeeblingCounter)
-                    return m_EnfeeblingRoarCounter;
+                    return m_EnfeeblingRoarTargets.size();
 
                 return 0;
             }
@@ -998,8 +1033,6 @@ class boss_twin_ogron_phemos : public CreatureScript
                                         AreaTrigger* l_AreaTrigger = new AreaTrigger;
                                         if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HighGuid::HIGHGUID_AREATRIGGER), me, l_SpellInfo, 0, p_Pos, l_Dest))
                                             delete l_AreaTrigger;
-                                        else
-                                            l_AreaTrigger->SetTimeToTarget(30 * TimeConstants::IN_MILLISECONDS);
                                     }
                                 });
                             }
@@ -1008,8 +1041,6 @@ class boss_twin_ogron_phemos : public CreatureScript
                                 AreaTrigger* l_AreaTrigger = new AreaTrigger;
                                 if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HighGuid::HIGHGUID_AREATRIGGER), me, l_SpellInfo, 0, p_Pos, l_Dest))
                                     delete l_AreaTrigger;
-                                else
-                                    l_AreaTrigger->SetTimeToTarget(30 * TimeConstants::IN_MILLISECONDS);
                             }
 
                             /// Is it enough?
@@ -1073,6 +1104,8 @@ class spell_highmaul_disposition : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_disposition_AuraScript);
 
+            uint8 m_TickCount;
+
             enum eActions
             {
                 /// Phemos
@@ -1085,6 +1118,12 @@ class spell_highmaul_disposition : public SpellScriptLoader
                 ScheduleShieldCharge        = 2
             };
 
+            bool Load() override
+            {
+                m_TickCount = 0;
+                return true;
+            }
+
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (GetTarget() == nullptr)
@@ -1093,14 +1132,22 @@ class spell_highmaul_disposition : public SpellScriptLoader
                 if (Creature* l_Boss = GetTarget()->ToCreature())
                 {
                     float l_EnergyGain = 1.0f;
+                    l_EnergyGain *= 1.0f + (float)l_Boss->GetPower(Powers::POWER_ALTERNATE_POWER) / 100.0f;
 
                     /// Pol energizes 25% faster than Phemos
                     if (l_Boss->GetEntry() == eHighmaulCreatures::Pol)
+                    {
+                        ++m_TickCount;
                         l_EnergyGain *= 1.25f;
 
-                    l_EnergyGain *= 1.0f + (float)l_Boss->GetPower(Powers::POWER_ALTERNATE_POWER) / 100.0f;
+                        if ((int32)l_EnergyGain == 1 && !(m_TickCount % 2))
+                        {
+                            m_TickCount = 0;
+                            l_EnergyGain += 1.0f;
+                        }
+                    }
 
-                    l_Boss->EnergizeBySpell(l_Boss, GetSpellInfo()->Id, l_EnergyGain, Powers::POWER_ENERGY);
+                    l_Boss->EnergizeBySpell(l_Boss, GetSpellInfo()->Id, (int32)l_EnergyGain, Powers::POWER_ENERGY);
 
                     if (!l_Boss->IsAIEnabled)
                         return;
@@ -1178,7 +1225,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
 
                     uint32 l_Count = l_Phemos->AI()->GetData(eMisc::EnfeeblingCounter);
                     if (!l_Count)
-                        return;
+                        l_Count = 1;
 
                     uint32 l_MaxDuration = l_Aura->GetDuration() * 10;
                     int32 l_Amount = p_AurEff->GetAmount() * 10;
@@ -1186,6 +1233,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
                     l_Aura->SetDuration(l_MaxDuration / l_Count);
                     l_Aura->SetMaxDuration(l_MaxDuration / l_Count);
                     l_Aura->GetEffect(EFFECT_1)->ChangeAmount(l_Amount / l_Count);
+                    l_Aura->SetNeedClientUpdateForTargets();
                 }
             }
 
@@ -1216,7 +1264,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
 
                     uint32 l_Count = l_Phemos->AI()->GetData(eMisc::EnfeeblingCounter);
                     if (!l_Count)
-                        return;
+                        l_Count = 1;
 
                     int32 l_Damage = GetHitDamage() * 10 / l_Count;
                     SetHitDamage(l_Damage);

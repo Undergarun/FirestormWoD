@@ -8,6 +8,24 @@
 
 #include "highmaul.hpp"
 
+void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
+{
+    if (p_Map == nullptr)
+        return;
+
+    Map::PlayerList const& l_Players = p_Map->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+        {
+            if (p_Caster != nullptr)
+                p_Caster->CastSpell(l_Player, p_SpellID, p_Triggered);
+            else
+                l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
+        }
+    }
+}
+
 G3D::Vector3 ComputeLocationSelection(Creature* p_Source, float p_SearchRange, float p_MinRadius, float p_Radius)
 {
     using Cluster = std::set<Player*>;
@@ -124,7 +142,9 @@ class boss_the_butcher : public CreatureScript
             Angry5PerTick       = 156720,
             Angry10PerTick      = 160248,
             /// Frenzy (30%)
-            SpellFrenzy         = 156598
+            SpellFrenzy         = 156598,
+            /// Loot
+            ButcherBonusLoot    = 177504
         };
 
         enum eEvents
@@ -285,6 +305,8 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheCleaverDot);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheTenderizer);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
+
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::ButcherBonusLoot, true);
 
                     if (IsLFR())
                     {
@@ -698,6 +720,9 @@ class spell_highmaul_bounding_cleave_dummy : public SpellScriptLoader
                     return;
 
                 G3D::Vector3 l_Pos = GetBoundingCleaveLocation(l_Butcher);
+                if (l_Pos.x == 0.0f || l_Pos.y == 0.0f || l_Pos.z == 0.0f)
+                    l_Pos = ComputeLocationSelection(l_Butcher, 500.0f, 0.0f, 10.0f);
+
                 l_Butcher->CastSpell(l_Pos, eSpell::BoundingCleaveCharge, true);
             }
 
