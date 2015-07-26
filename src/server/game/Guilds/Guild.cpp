@@ -1661,7 +1661,7 @@ void Guild::HandleInviteMember(WorldSession* p_Session, const std::string& p_Nam
     /// Player already in guild cannot be invited
     if (p_Invitee->GetGuildId())
     {
-        SendCommandResult(p_Session, GUILD_COMMAND_INVITE_PLAYER, ERR_ALREADY_IN_GUILD_S, p_Name);
+        SendCommandResult(p_Session, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, p_Name);
         return;
     }    
 
