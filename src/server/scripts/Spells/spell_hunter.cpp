@@ -2610,7 +2610,7 @@ class spell_hun_kill_command: public SpellScriptLoader
         }
 };
 
-// Kill Command - 83381
+/// Kill Command - 83381
 class spell_hun_kill_command_proc : public SpellScriptLoader
 {
     public:
@@ -2624,7 +2624,7 @@ class spell_hun_kill_command_proc : public SpellScriptLoader
             {
                 if (Unit* l_Owner = GetCaster()->GetOwner())
                 {
-                    int32 l_Damage = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f);
+                    int32 l_Damage = int32(1.5 * (l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f));
                     l_Damage = GetCaster()->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                     l_Damage = GetHitUnit()->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
@@ -2909,47 +2909,6 @@ class spell_hun_masters_call: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_masters_call_SpellScript();
-        }
-};
-
-/// Removed in 6.0.2 (still exist on wowhead) ? www.gamepedia.com/Scatter_Shot 
-// Scatter Shot - 37506
-class spell_hun_scatter_shot: public SpellScriptLoader
-{
-    public:
-        spell_hun_scatter_shot() : SpellScriptLoader("spell_hun_scatter_shot") { }
-
-        class spell_hun_scatter_shot_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_scatter_shot_SpellScript);
-
-            bool Load()
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                // break Auto Shot and autohit
-                caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-                caster->AttackStop();
-                caster->SendAttackSwingCancelAttack();
-
-                if (caster->HasAura(HUNTER_SPELL_GLYPH_OF_COLLAPSE))
-                    if (Unit* target = GetHitUnit())
-                        target->RemoveAllAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_scatter_shot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_scatter_shot_SpellScript();
         }
 };
 
@@ -3799,7 +3758,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_chimaera_shot_damage();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
-    new spell_hun_scatter_shot();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();

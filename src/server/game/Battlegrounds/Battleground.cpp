@@ -917,7 +917,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 {
                     if (Guild* l_Guild = l_Player->GetGuild())
                     {
-                        l_Guild->CompleteGuildChallenge(CHALLENGE_RATED_BG);
+                        l_Guild->CompleteGuildChallenge(ChallengeRatedBG);
                         break;
                     }
                 }

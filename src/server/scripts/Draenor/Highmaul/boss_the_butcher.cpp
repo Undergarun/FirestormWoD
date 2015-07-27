@@ -124,7 +124,9 @@ class boss_the_butcher : public CreatureScript
             Angry5PerTick       = 156720,
             Angry10PerTick      = 160248,
             /// Frenzy (30%)
-            SpellFrenzy         = 156598
+            SpellFrenzy         = 156598,
+            /// Loot
+            ButcherBonusLoot    = 177504
         };
 
         enum eEvents
@@ -285,6 +287,8 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheCleaverDot);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheTenderizer);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
+
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::ButcherBonusLoot, true);
 
                     if (IsLFR())
                     {
@@ -698,6 +702,9 @@ class spell_highmaul_bounding_cleave_dummy : public SpellScriptLoader
                     return;
 
                 G3D::Vector3 l_Pos = GetBoundingCleaveLocation(l_Butcher);
+                if (l_Pos.x == 0.0f || l_Pos.y == 0.0f || l_Pos.z == 0.0f)
+                    l_Pos = ComputeLocationSelection(l_Butcher, 500.0f, 0.0f, 10.0f);
+
                 l_Butcher->CastSpell(l_Pos, eSpell::BoundingCleaveCharge, true);
             }
 

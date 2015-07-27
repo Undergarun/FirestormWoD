@@ -271,21 +271,21 @@ class guild_commandscript: public CommandScript
 
             switch (l_ChallengeType)
             {
-                case CHALLENGE_NONE:
+                case ChallengeNone:
                     break;
-                case CHALLENGE_DUNGEON:
-                    targetGuild->CompleteGuildChallenge(CHALLENGE_DUNGEON);
+                case ChallengeDungeon:
+                    targetGuild->CompleteGuildChallenge(ChallengeDungeon);
                     return true;
-                case CHALLENGE_SCENARIO:
+                case ChallengeScenario:
                     break;
-                case CHALLENGE_DUNGEON_CHALLENGE:
-                    targetGuild->CompleteGuildChallenge(CHALLENGE_DUNGEON_CHALLENGE);
+                case ChallengeDungeonChallenge:
+                    targetGuild->CompleteGuildChallenge(ChallengeDungeonChallenge);
                     return true;
-                case CHALLENGE_RAID:
-                    targetGuild->CompleteGuildChallenge(CHALLENGE_RAID);
+                case ChallengeRaid:
+                    targetGuild->CompleteGuildChallenge(ChallengeRaid);
                     return true;
-                case CHALLENGE_RATED_BG:
-                    targetGuild->CompleteGuildChallenge(CHALLENGE_RATED_BG);
+                case ChallengeRatedBG:
+                    targetGuild->CompleteGuildChallenge(ChallengeRatedBG);
                     return true;
                 default:
                     break;

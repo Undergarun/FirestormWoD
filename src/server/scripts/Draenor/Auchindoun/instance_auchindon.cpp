@@ -18,7 +18,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "auchindon.h"
+#include "auchindon.hpp"
 
 class instance_auchindon : public InstanceMapScript
 {

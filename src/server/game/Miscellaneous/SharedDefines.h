@@ -437,7 +437,7 @@ enum SpellCategoryFlags
 {
     SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // Unused
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
-    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT        = 0x08
+    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
 };
 
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
@@ -810,7 +810,7 @@ enum SpellAttr9
     SPELL_ATTR9_UNK25                            = 0x02000000, // 25
     SPELL_ATTR9_UNK26                            = 0x04000000, // 26 Item - Mage T12 4P Bonus 99064
     SPELL_ATTR9_UNK27                            = 0x08000000, // 27 20707 Soulstone Resurrection, Quest Invis 9 102370
-    SPELL_ATTR9_UNK28                            = 0x10000000, // 28 Decimate, Unholy Frenzy, Spirit Link: all aoe reduce health
+    SPELL_ATTR9_UNK28                            = 0x10000000, // 28 Decimate, Spirit Link: all aoe reduce health
     SPELL_ATTR9_UNK29                            = 0x20000000, // 29 passive raid-wide auras
     SPELL_ATTR9_UNK30                            = 0x40000000, // 30
     SPELL_ATTR9_UNK31                            = 0x80000000  // 31 In Chains 88791

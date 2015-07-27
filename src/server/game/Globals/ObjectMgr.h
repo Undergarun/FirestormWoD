@@ -716,8 +716,9 @@ struct ChallengeReward
         memset(this, 0, sizeof (ChallengeReward));
     }
 
-    uint32 m_MapID;
-    uint32 m_MoneyReward[4];
+    uint32 MapID;
+    uint32 MoneyReward[4];
+    uint32 TitleID;
 };
 
 struct MapChallengeModeHotfix

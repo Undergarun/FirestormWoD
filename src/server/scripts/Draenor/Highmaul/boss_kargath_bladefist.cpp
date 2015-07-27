@@ -84,24 +84,6 @@ Position const g_NewInstancePortalPos = { 3441.737f, 7547.819f, 55.30566f, 0.829
 float const g_InArenaZ = 60.0f;
 float const g_ArenaFloor = 55.30f;
 
-void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
-{
-    if (p_Map == nullptr)
-        return;
-
-    Map::PlayerList const& l_Players = p_Map->GetPlayers();
-    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
-    {
-        if (Player* l_Player = l_Iter->getSource())
-        {
-            if (p_Caster != nullptr)
-                p_Caster->CastSpell(l_Player, p_SpellID, p_Triggered);
-            else
-                l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
-        }
-    }
-}
-
 void ResetAllPlayersFavor(Creature* p_Source)
 {
     if (p_Source == nullptr)
@@ -724,7 +706,7 @@ class boss_kargath_bladefist : public CreatureScript
                     }
                     case eEvents::EventBerserkerRush:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
                             me->CastSpell(l_Target, eSpells::SpellBerserkerRush, false);
 
                         Talk(eTalks::BerserkerRush);

@@ -1,0 +1,1 @@
+UPDATE spell_proc_event SET SchoolMask = 2, SpellFamilyName = 10, SpellFamilyMask1 = 33554432, procFlags = 20, ppmRate = 20 WHERE entry = 20165;
