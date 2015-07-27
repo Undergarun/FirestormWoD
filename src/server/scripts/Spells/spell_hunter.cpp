@@ -3294,7 +3294,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         /// Reduce damage by armor
                         if (l_Pet->IsDamageReducedByArmor(SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo()))
                             l_Damage = l_Pet->CalcArmorReducedDamage(GetHitUnit(), l_Damage, GetSpellInfo(), BaseAttack);
-
                         SetHitDamage(l_Damage);
                     }
                 }
@@ -3623,7 +3622,8 @@ class spell_hun_adaptation : public SpellScriptLoader
 
             enum eSpells
             {
-                CombatExperience = 156843
+                CombatExperienceAdaptation = 156843,
+                CombatExperience = 20782
             };
 
             void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
@@ -3636,7 +3636,11 @@ class spell_hun_adaptation : public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (Pet* l_Pet = l_Player->GetPet())
-                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
+                    {
+                        if (l_Pet->HasAura(eSpells::CombatExperience))
+                            l_Pet->RemoveAura(eSpells::CombatExperience);
+                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperienceAdaptation, true);
+                    }
                 }
             }
 
@@ -3650,7 +3654,10 @@ class spell_hun_adaptation : public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (Pet* l_Pet = l_Player->GetPet())
-                        l_Pet->RemoveAura(eSpells::CombatExperience);
+                    {
+                        l_Pet->RemoveAura(eSpells::CombatExperienceAdaptation);
+                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
+                    }
                 }
             }
 

@@ -970,7 +970,8 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
         CastSpell(this, 121916, true);
     else if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(146652))     ///< Glyph of the Skeleton
         CastSpell(this, 147157, true);
-
+    if (l_PetType == HUNTER_PET) ///< All Hunter pet Get Combat Experience
+        CastSpell(this, 20782, true);
     return true;
 }
 
