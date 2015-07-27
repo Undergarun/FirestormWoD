@@ -866,9 +866,11 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     // Determine pet type
     PetType l_PetType = MAX_PET_TYPE;
-    if (isPet() && m_owner->GetTypeId() == TYPEID_PLAYER)
+
+    Unit* l_Owner = GetOwner();
+    if (l_Owner && isPet() && l_Owner->GetTypeId() == TYPEID_PLAYER)
     {
-        switch (m_owner->getClass())
+        switch (l_Owner->getClass())
         {
             case CLASS_WARLOCK:
             case CLASS_MONK:
@@ -883,7 +885,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
                 m_unitTypeMask |= UNIT_MASK_HUNTER_PET;
                 break;
             default:
-                sLog->outError(LOG_FILTER_PETS, "Unknown type pet %u is summoned by player class %u", GetEntry(), m_owner->getClass());
+                sLog->outError(LOG_FILTER_PETS, "Unknown type pet %u is summoned by player class %u", GetEntry(), l_Owner->getClass());
                 break;
         }
     }
@@ -900,7 +902,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     SetMeleeDamageSchool(SpellSchools(l_CreatureTemplate->dmgschool));
 
-    SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, m_owner->GetArmor() * l_PetStat->m_ArmorCoef);
+    SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, (l_Owner ? l_Owner->GetArmor() : 1) * l_PetStat->m_ArmorCoef);
 
     SetAttackTime(WeaponAttackType::BaseAttack,   l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
     SetAttackTime(WeaponAttackType::OffAttack,    l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
@@ -914,10 +916,10 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     if (l_PetType == HUNTER_PET)
     {
-        if (sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
+        if (sObjectMgr->GetCreatureModelInfo(GetDisplayId()) && l_Owner)
         {
-            SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, m_owner->GetFloatValue(UNIT_FIELD_BOUNDING_RADIUS));
-            SetFloatValue(UNIT_FIELD_COMBAT_REACH, m_owner->GetFloatValue(UNIT_FIELD_COMBAT_REACH));
+            SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, l_Owner->GetFloatValue(UNIT_FIELD_BOUNDING_RADIUS));
+            SetFloatValue(UNIT_FIELD_COMBAT_REACH, l_Owner->GetFloatValue(UNIT_FIELD_COMBAT_REACH));
         }
     }
 
@@ -940,8 +942,8 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
         if (l_PetStat->m_CreatePower < 0.0f)
             l_CreatePower = l_PetStat->m_CreatePower * -1;
         // Positive number, it's percentage of owner power
-        else
-            l_CreatePower = float(m_owner->GetMaxPower(m_owner->getPowerType()) * l_PetStat->m_CreatePower);
+        else if (l_Owner != nullptr)
+            l_CreatePower = float(l_Owner->GetMaxPower(l_Owner->getPowerType()) * l_PetStat->m_CreatePower);
     }
 
     SetCreateMana(l_PetPower == Powers::POWER_MANA ? l_CreatePower : 0);
@@ -958,17 +960,20 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
     UpdateAllStats();
-
-    SetCreateHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
-    SetMaxHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    if (l_Owner != nullptr)
+    {
+        SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+        SetMaxHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    }
+    
     SetFullHealth();
 
     if (IsWarlockPet())
         CastSpell(this, 123746, true);  ///< Fel Energy
 
-    if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(58640))           ///< Glyph of the Geist
+    if (GetEntry() == ENTRY_GHOUL && l_Owner && l_Owner->HasAura(58640))           ///< Glyph of the Geist
         CastSpell(this, 121916, true);
-    else if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(146652))     ///< Glyph of the Skeleton
+    else if (GetEntry() == ENTRY_GHOUL && l_Owner && l_Owner->HasAura(146652))     ///< Glyph of the Skeleton
         CastSpell(this, 147157, true);
 
     return true;
