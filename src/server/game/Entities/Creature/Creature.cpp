@@ -2537,28 +2537,27 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
 
     uint32 l_Cooldown = spellInfo->GetRecoveryTime();
 
-    /// If we're missing a cooldown but possessed by a player, default to 6s
-    if (l_Cooldown == 0)
+    /// If we are possessed by a player, we have to send our cooldown to that player
+    if (CharmInfo* l_CharmInfo = GetCharmInfo())
     {
-        if (CharmInfo* l_CharmInfo = GetCharmInfo())
+        if (l_CharmInfo->GetCharmType() == CharmType::CHARM_TYPE_POSSESS)
         {
-            if (l_CharmInfo->GetCharmType() == CharmType::CHARM_TYPE_POSSESS)
-            {
+            /// If we're missing a cooldown but possessed by a player, default to 6s
+            if (l_Cooldown == 0)
                 l_Cooldown = 6 * IN_MILLISECONDS;
 
-                if (Unit* l_Charmer = GetCharmer())
+            if (Unit* l_Charmer = GetCharmer())
+            {
+                if (Player* l_CharmerPlayer = l_Charmer->ToPlayer())
                 {
-                    if (Player* l_CharmerPlayer = l_Charmer->ToPlayer())
-                    {
-                        WorldPacket data(Opcodes::SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
-                        data.appendPackGUID(GetGUID());
-                        data << uint8(1);
-                        data << uint32(1);
-                        data << uint32(spellid);
-                        data << uint32(l_Cooldown);
+                    WorldPacket data(Opcodes::SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
+                    data.appendPackGUID(GetGUID());
+                    data << uint8(1);
+                    data << uint32(1);
+                    data << uint32(spellid);
+                    data << uint32(l_Cooldown);
 
-                        l_CharmerPlayer->GetSession()->SendPacket(&data);
-                    }
+                    l_CharmerPlayer->GetSession()->SendPacket(&data);
                 }
             }
         }
