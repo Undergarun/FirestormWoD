@@ -1487,9 +1487,40 @@ class spell_dru_natures_cure: public SpellScriptLoader
         }
 };
 
-enum CatFormSpells
+/// Called by Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
+/// Should activate the cat form if not in cat form
+class spell_dru_activate_cat_form : public SpellScriptLoader
 {
-    SPELL_DRUID_GLYPH_OF_CAT_FORM = 47180
+    public:
+        spell_dru_activate_cat_form() : SpellScriptLoader("spell_dru_activate_cat_form") { }
+
+        class spell_dru_activate_cat_form_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_activate_cat_form_SpellScript);
+
+            enum eSpells
+            {
+                CatForm = 768
+            };
+
+            void HandleBeforeHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player && l_Player->GetShapeshiftForm() != FORM_CAT)
+                    l_Player->CastSpell(l_Player, eSpells::CatForm, true);
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_dru_activate_cat_form_SpellScript::HandleBeforeHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_activate_cat_form_SpellScript();
+        }
 };
 
 /// last update : 6.1.2 19802
@@ -1505,46 +1536,23 @@ class spell_dru_cat_form: public SpellScriptLoader
 
             enum eSpells
             {
-                SPELL_DRU_SAVAGE_ROAR = 52610
+                SavageRoar = 52610
             };
 
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
-                {
                     l_Player->RemoveMovementImpairingAuras();
-                    /// Glyph of Cat Form
-                    /// Some form has this aura apply without having the glyph
-                    if (!l_Player->HasGlyph(SPELL_DRUID_GLYPH_OF_CAT_FORM))
-                        l_Player->RemoveAura(SPELL_DRUID_GLYPH_OF_CAT_FORM);
-                }
             }
 
             void HandleAfterHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    uint32 l_SavageRoarDuration;
-                    bool l_HasSavageRoar = false;
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
 
-                    /// Savage Roar
-                    if (AuraPtr l_SavageRoar = l_Player->GetAura(eSpells::SPELL_DRU_SAVAGE_ROAR))
-                    {
-                        l_SavageRoarDuration = l_SavageRoar->GetDuration();
-                        l_SavageRoar->Remove();
-                        l_HasSavageRoar = true;
-                    }
-
-                    if (l_HasSavageRoar)
-                    {
-                        l_Player->AddAura(eSpells::SPELL_DRU_SAVAGE_ROAR, l_Player);
-                        if (AuraPtr l_SavageRoarNew = l_Player->GetAura(eSpells::SPELL_DRU_SAVAGE_ROAR))
-                            l_SavageRoarNew->SetDuration(l_SavageRoarDuration);
-                    }
-
-                    /// Fix Berserk - amount of energy after reshift
-                    l_Player->UpdateMaxPower(POWER_ENERGY);
-                }
+                /// Fix Berserk - amount of energy after reshift
+                l_Player->UpdateMaxPower(POWER_ENERGY);
             }
 
             void Register()
@@ -1553,9 +1561,97 @@ class spell_dru_cat_form: public SpellScriptLoader
             }
         };
 
+        class spell_dru_cat_form_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_cat_form_AuraScript);
+
+            enum eSpells
+            {
+                Dash           = 1850,
+                Prowl          = 5215,
+                GlyphOfCatForm = 47180,
+                DesplacerBeast = 137452
+            };
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Target = GetTarget();
+
+                SpellInfo const* l_Dash = sSpellMgr->GetSpellInfo(eSpells::Dash);
+                if (!l_Dash)
+                    return;
+
+                /// If we have dash, we should restore it to increase movement speed
+                if (AuraEffectPtr l_DashAura = l_Target->GetAuraEffect(eSpells::Dash, EFFECT_0))
+                    l_DashAura->SetAmount(l_Dash->Effects[EFFECT_0].BasePoints);
+
+                if (l_Target->ToPlayer()->HasGlyph(eSpells::GlyphOfCatForm) && !l_Target->HasAura(eSpells::GlyphOfCatForm))
+                    l_Target->AddAura(eSpells::GlyphOfCatForm, l_Target);
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::Prowl))
+                    l_Target->RemoveAura(eSpells::Prowl);
+
+                if (l_Target->HasAura(eSpells::DesplacerBeast))
+                    l_Target->RemoveAura(eSpells::DesplacerBeast);
+
+                /// When we remove cat form dash shouldn't increase movement speed
+                if (AuraEffectPtr l_DashAura = l_Target->GetAuraEffect(eSpells::Dash, EFFECT_0))
+                    l_DashAura->SetAmount(0);
+
+                if (l_Target->HasAura(eSpells::GlyphOfCatForm))
+                    l_Target->RemoveAura(eSpells::GlyphOfCatForm);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_cat_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_cat_form_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_cat_form_AuraScript();
+        }
+};
+
+/// Glyph of Cat form - 47180
+class spell_dru_glyph_of_cat_form : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_cat_form() : SpellScriptLoader("spell_dru_glyph_of_cat_form") { }
+
+        class spell_dru_glyph_of_cat_form_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_glyph_of_cat_form_SpellScript);
+
+            void HandleModHealing(SpellEffIndex /*p_EffIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (!l_Player || l_Player->GetShapeshiftForm() != FORM_CAT)
+                    PreventHitAura();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_glyph_of_cat_form_SpellScript::HandleModHealing, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_glyph_of_cat_form_SpellScript();
         }
 };
 
@@ -1993,158 +2089,40 @@ class spell_dru_teleport_moonglade: public SpellScriptLoader
         }
 };
 
-enum ActivateCatFormSpells
-{
-    SPELL_DRUID_CAT_FORM = 768,
-    SPELL_DRUID_DASH = 1850,
-    SPELL_DRUID_DESPLACER_BEAST_AURA = 137452,
-    SPELL_DRUID_PROWL = 5215
-};
-
-/// Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
-class spell_dru_activate_cat_form: public SpellScriptLoader
+/// Druid of the flames - 138927
+class spell_dru_druid_flames : public SpellScriptLoader
 {
     public:
-        spell_dru_activate_cat_form() : SpellScriptLoader("spell_dru_activate_cat_form") { }
+        spell_dru_druid_flames() : SpellScriptLoader("spell_dru_druid_flames") { }
 
-        class spell_dru_activate_cat_form_SpellScript : public SpellScript
+        class spell_dru_druid_flames_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dru_activate_cat_form_SpellScript);
+            PrepareSpellScript(spell_dru_druid_flames_SpellScript);
 
-            void HandleBeforeHit()
+            enum eDruidOfFlames
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    if (!l_Player->HasAura(SPELL_DRUID_CAT_FORM))
-                        l_Player->CastSpell(l_Player, SPELL_DRUID_CAT_FORM, true);
-                }
+                DruidOfFlamesModel = 38150,
+                DruidOfFlames = 138927
+            };
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player && l_Player->GetShapeshiftForm() == FORM_CAT && l_Player->HasAura(eDruidOfFlames::DruidOfFlames))
+                    l_Player->SetDisplayId(eDruidOfFlames::DruidOfFlamesModel);
             }
 
             void Register()
             {
-                BeforeHit += SpellHitFn(spell_dru_activate_cat_form_SpellScript::HandleBeforeHit);
+                OnHit += SpellHitFn(spell_dru_druid_flames_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_dru_activate_cat_form_SpellScript();
+            return new spell_dru_druid_flames_SpellScript();
         }
-};
-
-/// Call by Cat Form 768
-/// Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
-class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
-{
-    public:
-        spell_dru_on_desactivate_cat_form() : SpellScriptLoader("spell_dru_on_desactivate_cat_form") { }
-
-        class spell_dru_on_desactivate_cat_form_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_on_desactivate_cat_form_AuraScript);
-
-            enum eSpells
-            {
-                GlyphOfCatForm = 47180
-            };
-
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* l_Target = GetTarget();
-
-                if (!l_Target)
-                    return;
-
-                if (l_Target->HasAura(SPELL_DRUID_PROWL))
-                    l_Target->RemoveAura(SPELL_DRUID_PROWL);
-                if (l_Target->HasAura(SPELL_DRUID_DESPLACER_BEAST_AURA))
-                    l_Target->RemoveAura(SPELL_DRUID_DESPLACER_BEAST_AURA);
-                /// When we remove cat form dash shouldn't increase movement speed
-                if (AuraPtr l_DashAura = l_Target->GetAura(SPELL_DRUID_DASH))
-                    l_DashAura->GetEffect(0)->SetAmount(0);
-            }
-
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-            {
-                Unit* l_Target = GetTarget();
-
-                if (!l_Target)
-                    return;
-
-                /// If we have dash, we should restore it to increase movement speed
-                if (AuraPtr l_DashAura = l_Target->GetAura(SPELL_DRUID_DASH))
-                    l_DashAura->GetEffect(0)->SetAmount(sSpellMgr->GetSpellInfo(SPELL_DRUID_DASH)->Effects[EFFECT_0].BasePoints);
-            }
-
-            void OnAfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
-            {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                if (l_Caster->HasSpell(eSpells::GlyphOfCatForm) && l_Caster->HasAura(eSpells::GlyphOfCatForm))
-                    l_Caster->RemoveAura(eSpells::GlyphOfCatForm);
-            }
-
-            void OnAfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
-            {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                if (l_Caster->HasSpell(eSpells::GlyphOfCatForm) && !l_Caster->HasAura(eSpells::GlyphOfCatForm))
-                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfCatForm);
-            }
-
-            void Register()
-            {
-                OnEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-                OnEffectApply += AuraEffectApplyFn(spell_dru_on_desactivate_cat_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnAfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectApply += AuraEffectApplyFn(spell_dru_on_desactivate_cat_form_AuraScript::OnAfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dru_on_desactivate_cat_form_AuraScript();
-        }
-};
-
-enum DruidOfFlamesEnum
-{
-    MODEL_DRUID_OF_FLAMES = 38150,
-    SPELL_DRUID_OF_FLAME = 138927
-};
-
-/// Druid of the flames - 138927
-class spell_dru_druid_flames : public SpellScriptLoader
-{
-public:
-    spell_dru_druid_flames() : SpellScriptLoader("spell_dru_druid_flames") { }
-
-    class spell_dru_druid_flames_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_druid_flames_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(SPELL_DRUID_CAT_FORM) && l_Caster->HasAura(SPELL_DRUID_OF_FLAME))
-                    l_Caster->SetDisplayId(MODEL_DRUID_OF_FLAMES);
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_dru_druid_flames_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_druid_flames_SpellScript();
-    }
 };
 
 namespace Eclipse
@@ -3681,11 +3659,6 @@ class spell_dru_glyph_of_barkskin : public SpellScriptLoader
         }
 };
 
-enum SpellsShred
-{
-    SPELL_DRUID_SWIPE = 106785
-};
-
 /// last update : 6.1.2 19802
 /// Shred - 5221
 class spell_dru_shred: public SpellScriptLoader
@@ -3699,7 +3672,9 @@ class spell_dru_shred: public SpellScriptLoader
 
             enum eSpells
             {
-                KingOfTheJungle = 102543
+                Prowl           = 5215,
+                KingOfTheJungle = 102543,
+                Swipe           = 106785
             };
 
             bool m_isStealthedOrKingOfTheJungle = false;
@@ -3717,7 +3692,7 @@ class spell_dru_shred: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
                 int32 l_Damage = GetHitDamage();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL);
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::Prowl);
 
                 if (l_Target == nullptr)
                     return;
@@ -3739,8 +3714,8 @@ class spell_dru_shred: public SpellScriptLoader
                     }
                 }
 
-                if (l_Target && l_Target->HasAuraState(AURA_STATE_BLEEDING) && sSpellMgr->GetSpellInfo(SPELL_DRUID_SWIPE))
-                    l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(SPELL_DRUID_SWIPE)->Effects[EFFECT_1].BasePoints);
+                if (l_Target && l_Target->HasAuraState(AURA_STATE_BLEEDING) && sSpellMgr->GetSpellInfo(eSpells::Swipe))
+                    l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(eSpells::Swipe)->Effects[EFFECT_1].BasePoints);
 
                 SetHitDamage(l_Damage);
             }
@@ -4377,6 +4352,10 @@ public:
     {
         PrepareSpellScript(spell_dru_dream_of_cenarius_feral_SpellScript);
 
+        enum eSpells
+        {
+            GlyphOfCatForm = 47180
+        };
 
         void HandleOnHit()
         {
@@ -4391,7 +4370,7 @@ public:
                 if (l_Caster != l_Target && l_Caster->HasAura(SPELL_DRU_DREAM_OF_CENARIUS_FERAL))
                 {
                     uint32 l_HealAmount = GetHitHeal();
-                    SpellInfo const* l_GlyphOfCatForm = sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_CAT_FORM);
+                    SpellInfo const* l_GlyphOfCatForm = sSpellMgr->GetSpellInfo(eSpells::GlyphOfCatForm);
 
                     /// Glyph of Cat Form
                     if (l_Caster->GetShapeshiftForm() == FORM_CAT && l_Caster->ToPlayer()->HasGlyph(l_GlyphOfCatForm->Id))
@@ -4881,7 +4860,6 @@ class spell_dru_glyph_of_rake: public SpellScriptLoader
         }
 };
 
-
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift_ally_proc();
@@ -4912,7 +4890,9 @@ void AddSC_druid_spell_scripts()
     new spell_dru_killer_instinct();
     new spell_dru_lifebloom_refresh();
     new spell_dru_natures_cure();
+    new spell_dru_activate_cat_form();
     new spell_dru_cat_form();
+    new spell_dru_glyph_of_cat_form();
     new spell_dru_skull_bash();
     new spell_dru_faerie_swarm();
     new spell_dru_faerie_swarm_speed_aura();
@@ -4921,8 +4901,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_lacerate();
     new spell_dru_faerie_fire();
     new spell_dru_teleport_moonglade();
-    new spell_dru_activate_cat_form();
-    new spell_dru_on_desactivate_cat_form();
     new spell_dru_eclipse();
     new spell_dru_eclipse_mod_damage();
     new spell_dru_moonfire();
