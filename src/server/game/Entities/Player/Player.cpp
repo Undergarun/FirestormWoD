@@ -21637,44 +21637,77 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 }
                 else
                 {
-                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_REFUNDS);
-                    stmt->setUInt32(0, item->GetGUIDLow());
-                    stmt->setUInt32(1, GetGUIDLow());
-                    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+                    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_REFUNDS);
+                    l_Statement->setUInt32(0, item->GetGUIDLow());
+                    l_Statement->setUInt32(1, GetGUIDLow());
+                    auto l_FuturResult = CharacterDatabase.AsyncQuery(l_Statement);
+
+                    WorldSession* l_Session    = GetSession();
+                    uint64        l_PlayerGUID = GetGUID();
+
+                    l_Session->AddPrepareStatementCallback(std::make_pair([l_Session, itemGuid, l_PlayerGUID](PreparedQueryResult p_Result) -> void
                     {
-                        item->SetRefundRecipient((*result)[0].GetUInt32());
-                        item->SetPaidMoney((*result)[1].GetUInt32());
-                        item->SetPaidExtendedCost((*result)[2].GetUInt16());
-                        AddRefundReference(item->GetGUIDLow());
-                    }
-                    else
-                    {
-                        sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with refundable flags, but without data in item_refund_instance. Removing flag.",
-                            GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry());
-                        item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
-                    }
+                        Player* l_Player = l_Session->GetPlayer();
+                        if (l_Player == nullptr || l_Player->GetGUID() != l_PlayerGUID)
+                            return;
+
+                        Item* l_ItemRetreive = l_Player->GetItemByGuid(itemGuid);
+                        if (l_ItemRetreive == nullptr)
+                            return;
+
+                        if (p_Result)
+                        {
+                            l_ItemRetreive->SetRefundRecipient((*p_Result)[0].GetUInt32());
+                            l_ItemRetreive->SetPaidMoney((*p_Result)[1].GetUInt32());
+                            l_ItemRetreive->SetPaidExtendedCost((*p_Result)[2].GetUInt16());
+                            l_Player->AddRefundReference(l_ItemRetreive->GetGUIDLow());
+                        }
+                        else
+                        {
+                            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with refundable flags, but without data in item_refund_instance. Removing flag.",
+                                l_Player->GetGUIDLow(), l_Player->GetName(), l_ItemRetreive->GetGUIDLow(), l_ItemRetreive->GetEntry());
+                            l_ItemRetreive->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
+                        }
+                    }, l_FuturResult), true);
                 }
             }
             else if (item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
             {
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_BOP_TRADE);
-                stmt->setUInt32(0, item->GetGUIDLow());
-                if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_BOP_TRADE);
+                l_Statement->setUInt32(0, item->GetGUIDLow());
+
+                auto l_FuturResult = CharacterDatabase.AsyncQuery(l_Statement);
+
+                WorldSession* l_Session = GetSession();
+                uint64        l_PlayerGUID = GetGUID();
+
+                l_Session->AddPrepareStatementCallback(std::make_pair([l_Session, itemGuid, l_PlayerGUID](PreparedQueryResult p_Result) -> void
                 {
-                    std::string strGUID = (*result)[0].GetString();
-                    Tokenizer GUIDlist(strGUID, ' ');
-                    AllowedLooterSet looters;
-                    for (Tokenizer::const_iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
-                        looters.insert(atol(*itr));
-                    item->SetSoulboundTradeable(looters);
-                    AddTradeableItem(item);
-                }
-                else
-                {
-                    sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with ITEM_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
-                        GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry());
-                    item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
-                }
+                    Player* l_Player = l_Session->GetPlayer();
+                    if (l_Player == nullptr || l_Player->GetGUID() != l_PlayerGUID)
+                        return;
+
+                    Item* l_ItemRetreive = l_Player->GetItemByGuid(itemGuid);
+                    if (l_ItemRetreive == nullptr)
+                        return;
+
+                    if (p_Result)
+                    {
+                        std::string strGUID = (*p_Result)[0].GetString();
+                        Tokenizer GUIDlist(strGUID, ' ');
+                        AllowedLooterSet looters;
+                        for (Tokenizer::const_iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
+                            looters.insert(atol(*itr));
+                        l_ItemRetreive->SetSoulboundTradeable(looters);
+                        l_Player->AddTradeableItem(l_ItemRetreive);
+                    }
+                    else
+                    {
+                        sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with ITEM_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
+                            l_Player->GetGUIDLow(), l_Player->GetName(), l_ItemRetreive->GetGUIDLow(), l_ItemRetreive->GetEntry());
+                        l_ItemRetreive->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
+                    }
+                }, l_FuturResult), true);
             }
             else if (proto->HolidayId)
             {
