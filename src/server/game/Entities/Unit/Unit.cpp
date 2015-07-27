@@ -716,11 +716,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // need for operations with Player class
     Player* plr = victim->ToPlayer();
 
-    // Dealing damage to another player in battle causes them to receive 60% less healing.
-    if (ToPlayer() && ToPlayer()->HasAura(134732) && plr && ToPlayer()->GetBattleground() && plr->GetBattleground())
-        plr->CastSpell(plr, 134735, true);
-
-    // Reduce cooldown of Howl of Terror by 1s if hit
+    /// Reduce cooldown of Howl of Terror by 1s if hit
     if (plr && plr->getClass() == CLASS_WARLOCK && plr->HasSpellCooldown(5484) && damage)
         plr->ReduceSpellCooldown(5484, 1000);
 
@@ -731,7 +727,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             ToPlayer()->CastSpell(plr, 147732, true);
     }
 
-    // Custom MoP Script - Glyph of Fortuitous Spheres
+    /// Custom MoP Script - Glyph of Fortuitous Spheres
     if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(146953))
     {
         if (victim->CountPctFromMaxHealth(25))
@@ -748,11 +744,11 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (HasAura(31224) && victim && damagetype == SPELL_DIRECT_DAMAGE)
         damage = 0;
 
-    // Custom MoP Script - Subterfuge , should be called from normal hit
+    /// Custom MoP Script - Subterfuge , should be called from normal hit
     if (HasAura(108208) && HasAura(115191) && !HasAura(115192) && victim && (damagetype == DIRECT_DAMAGE || HasAura(121471)))
         CastSpell(this, 115192, true);
 
-    // Custom MoP Script - Desperate Measures
+    /// Custom MoP Script - Desperate Measures
     if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(126060))
     {
         if (victim->CountPctFromMaxHealth(35) > (victim->GetHealth() - damage))
@@ -765,17 +761,18 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    // Custom MoP Script - Focused Will
+    /// Custom MoP Script - Focused Will
     if (ToPlayer() && victim->getClass() == CLASS_PRIEST)
     {
         if (plr->GetSpecializationId(plr->GetActiveSpec()) == SPEC_PRIEST_DISCIPLINE)
         {
-            if (victim->CountPctFromMaxHealth(10) < damage)
+            if (victim->CountPctFromMaxHealth(15) < damage) ///< last update 6.0.1 (Tue Oct 14 2014) Build 18379
                 victim->CastSpell(victim, 45242, true);
         }
     }
 
-    // Custom MoP Script
+    /// @todo update me ? 
+    /// Custom MoP Script
     if (ToPlayer() && getClass() == CLASS_MONK && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_MONK_BREWMASTER && HasAura(115315))
     {
         if (damage > 0)
@@ -791,22 +788,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         /// Caster receives 0.75% mana when the Mindbender attacks
         if (GetOwner())
             GetOwner()->ModifyPower(POWER_MANA, CalculatePct(GetOwner()->GetPower(POWER_MANA), 0.75f));
-    }
-
-    // Leeching Poison - 112961 each attack heal the player for 10% of the damage
-    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_ROGUE && damage != 0)
-    {
-        if (AuraPtr leechingPoison = victim->GetAura(112961))
-        {
-            if (leechingPoison->GetCaster())
-            {
-                if (leechingPoison->GetCaster()->GetGUID() == GetGUID())
-                {
-                    int32 bp = damage / 10;
-                    CastCustomSpell(this, 112974, &bp, NULL, NULL, true);
-                }
-            }
-        }
     }
 
     // Stagger handler
@@ -1282,15 +1263,15 @@ uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMas
         l_Stagger -= l_Mastery;
     }
 
-    /// Brewmaster Training : Your Fortifying Brew also increase stagger amount by 20%
-    if (p_Victim->HasAura(120954) && p_Victim->HasAura(117967))
-        l_Stagger -= 0.20f;
+    /// Brewmaster Training : Your Fortifying Brew also increase stagger amount by 20% 
+    if (p_Victim->HasSpell(120954) && p_Victim->HasAura(117967))
+        l_Stagger -= 0.20f;                             ///< last update 6.1.2 19711
     /// Shuffle also increase stagger amount by 10%
     if (p_Victim->HasAura(115307))
-        l_Stagger -= 0.10f;
+        l_Stagger -= 0.10f;                             ///< last update 6.1.2 19711
     /// Staggering increase stagger amount by 6%
     if (p_Victim->HasAura(138233))
-        l_Stagger -= 0.06f;
+        l_Stagger -= 0.06f;                             ///< last update 5.4.0 17153
 
     if (l_Stagger < 0.0f)
         l_Stagger = 0.0f;
@@ -1897,10 +1878,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
 
         // Custom MoP Script - Zen Meditation - 115176
         if (AuraPtr zenMeditation = victim->GetAura(115176, victim->GetGUID()))
-        {
             victim->RemoveAura(115176);
-            victim->RemoveAura(131523);
-        }
     }
 }
 
@@ -2164,7 +2142,7 @@ bool Unit::IsSpellResisted(Unit* victim, SpellSchoolMask schoolMask, SpellInfo c
         uint32 level = victim->getLevel();
         float resistanceConstant = 0.0f;
 
-        // @toto update me http://elitistjerks.com/f15/t29453-combat_ratings_level_85_cataclysm/
+        // @toto update me http://wow.gamepedia.com/Combat_rating_system & SimulationCraft
         if (level >= 61)
             resistanceConstant = 150 + ((level - 60) * (level - 67.5));
         else if (level >= 21 && level <= 60)
@@ -2711,6 +2689,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
     if (attType != WeaponAttackType::RangedAttack && (GetTypeId() == TYPEID_PLAYER || ToCreature()->isPet()) &&
         victim->ToCreature() && !victim->ToCreature()->isPet() && victim->getLevel() > (getLevel() + 2))
     {
+        ///@todo Patch 6.0.2 (2014-10-14): All characters now have a 100% chance to hit, 0% chance to be dodged, 3% chance to be parried, and 0% chance for glancing blows, when fighting creatures up to 3 levels higher (bosses included).
         // Anytime a character makes a melee attack on a level ?? boss
         // there is a 24% chance that blow will be glancing
         // dealing 75% damage and being unable to crit.
@@ -2719,6 +2698,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
             return MELEE_HIT_GLANCING;
     }
 
+    /// @todo check the data from theorycraft and other
     // Need to do some researchs about crushing blows at Mists of Pandaria
     /*if (getLevelForTarget(victim) >= victim->getLevelForTarget(this) + 4 &&
         // can be from by creature (if can) or from controlled player that considered as creature
@@ -3259,6 +3239,7 @@ float Unit::GetUnitMissChanceSpell(Unit const* p_Attacker) const
     {
         uint8 l_LevelDiff = std::min(getLevel() - p_Attacker->getLevel(), STATS_CHANCE_SIZE - 1);
         // TODO check PvE and PvP spell misschance
+        /// http://wow.gamepedia.com/Spell_hit
         l_Chance += g_BaseMissChanceSpell[l_LevelDiff];
     }
 
@@ -6351,7 +6332,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     break;
                 }
                 // Eye for an Eye
-                case 9799:
                 case 25988:
                 {
                     // return damage % to attacker but < 50% own total health
@@ -6893,7 +6873,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggered_spell_id = 37436;
                     break;
                 }
-                case 44448: // Improved Hot Streak
+                case 44448: // Improved Hot Streak ///< @todo this spell is marked delete from game 
                 {
                     if (effIndex != 0)
                         return false;
@@ -6931,22 +6911,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             l_HeatingUp->SetDuration(500);
                         return false;
                     }
-                }
-                case 56374: // Glyph of Icy Veins
-                {
-                    RemoveAurasByType(SPELL_AURA_HASTE_SPELLS, 0, NULLAURA, true, false);
-                    RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-                    return true;
-                }
-                case 56372: // Glyph of Ice Block
-                {
-                    Player* player = ToPlayer();
-                    if (!player)
-                        return false;
-
-                    // Remove Frost Nova cooldown
-                    player->RemoveSpellCooldown(122, true);
-                    break;
                 }
                 case 64411: // Blessing of Ancient Kings (Val'anyr, Hammer of Ancient Kings)
                 {
@@ -7012,7 +6976,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!damage)
                         return false;
 
-                    basepoints0 = CalculatePct(damage, 50);
+                    basepoints0 = CalculatePct(damage, 50); ///< last update 6.0.3 Build 18711
                     triggered_spell_id = 12723;
                     break;
                 }
@@ -7022,14 +6986,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     RemoveAura(dummySpell->Id);
                     return false;
                 }
-                // Glyph of Colossus Smash
-                case 89003:
-                {
-                    triggered_spell_id = 58567;
-                    break;
-                }
             }
-
             // Retaliation
             if (dummySpell->SpellFamilyFlags[1] & 0x8)
             {
@@ -7038,19 +6995,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     return false;
 
                 triggered_spell_id = 22858;
-                break;
-            }
-            // Glyph of Sunder Armor
-            if (dummySpell->Id == 58387)
-            {
-                if (!victim || !victim->isAlive() || !procSpell)
-                    return false;
-
-                target = SelectNearbyTarget(victim);
-                if (!target)
-                    return false;
-
-                triggered_spell_id = 58567;
                 break;
             }
             break;
@@ -7082,19 +7026,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     // Damage counting
                     triggeredByAura->SetAmount(triggeredByAura->GetAmount() - damage);
                     return true;
-                }
-                case 108563:// Backlash
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    if (ToPlayer()->HasSpellCooldown(108563))
-                        return false;
-
-                    target = this;
-                    triggered_spell_id = 34936;
-                    ToPlayer()->AddSpellCooldown(108563, 0, 8 * IN_MILLISECONDS);
-                    break;
                 }
                 case 114790:// Soulburn : Seed of Corruption
                 {
@@ -7140,21 +7071,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggeredByAura->SetAmount(triggeredByAura->GetAmount() - damage);
                     return true;
                 }
-                case 63310: // Glyph of Shadowflame
-                {
-                    triggered_spell_id = 63311;
-                    break;
-                }
-                case 30293: // Soul Leech
-                case 30295:
-                {
-                    basepoints0 = CalculatePct(int32(damage), triggerAmount);
-                    target = this;
-                    triggered_spell_id = 30294;
-                    // Replenishment
-                    CastSpell(this, 57669, true, castItem, triggeredByAura);
-                    break;
-                }
                 case 37377: // Shadowflame (Voidheart Raiment set bonus)
                 {
                     triggered_spell_id = 37379;
@@ -7175,25 +7091,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 {
                     triggered_spell_id = 37378;
                     break;
-                }
-                case 47230: // Fel Synergy R1
-                case 47231: // Fel Synergy R2
-                {
-                    target = GetGuardianPet();
-                    if (!target)
-                        return false;
-                    basepoints0 = CalculatePct(int32(damage), triggerAmount);
-                    triggered_spell_id = 54181;
-                    break;
-                }
-                case 56250: // Glyph of Succubus
-                {
-                    if (!target)
-                        return false;
-
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
-                    return true;
                 }
                 default:
                     break;
@@ -7263,20 +7160,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     target = this;
                     break;
                 }
-                // Glyph of Prayer of Healing
-                case 55680:
-                {
-                    triggered_spell_id = 56161;
-
-                    SpellInfo const* GoPoH = sSpellMgr->GetSpellInfo(triggered_spell_id);
-                    if (!GoPoH)
-                        return false;
-
-                    int32 tickcount = GoPoH->GetMaxDuration() / GoPoH->Effects[EFFECT_0].Amplitude;
-                    basepoints0 = CalculatePct(int32(damage), triggerAmount) / tickcount;
-                    basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_HEAL);
-                    break;
-                }
                 // Oracle Healing Bonus ("Garments of the Oracle" set)
                 case 26169:
                 {
@@ -7302,21 +7185,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 case 28809:
                 {
                     triggered_spell_id = 28810;
-                    break;
-                }
-                // Train of Thought
-                case 92297:
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    if (procSpell->Id != 585 && procSpell->Id != 2060)
-                        return false;
-
-                    if (procSpell->Id == 585 && ToPlayer()->HasSpellCooldown(47540))
-                        ToPlayer()->ReduceSpellCooldown(47540, 500);
-                    else if (procSpell->Id == 2060 && ToPlayer()->HasSpellCooldown(89485))
-                        ToPlayer()->ReduceSpellCooldown(89485, 5000);
                     break;
                 }
                 // Priest T10 Healer 2P Bonus
@@ -7455,8 +7323,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (procSpell->Id != 5185)
                         return false;
 
-                    // Cooldown of Swiftmen reduced by 3s
-                    ToPlayer()->ReduceSpellCooldown(132158, 3000);
+                    /// Cooldown of Swiftmen reduced by 2s
+                    ToPlayer()->ReduceSpellCooldown(132158, 2000); ///< Last update 6.0.2 (Tue Oct 14 2014) Build 18837
                     break;
                 }
                 case 108373:// Dream of Cenarius
@@ -7479,6 +7347,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     break;
                 }
                 case 46832: // Sudden Eclipse (S12 - 2P Balance)
+                /// @todo Changed in Build 18711 6.0.1
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
@@ -7516,53 +7385,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
-                case 54845: // Glyph of Starfire
-                {
-                    triggered_spell_id = 54846;
-                    break;
-                }
-                case 54815: // Glyph of Bloodletting
-                {
-                    if (!target)
-                        return false;
-
-                    // try to find spell Rip on the target
-                    if (constAuraEffectPtr AurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00800000, 0x0, 0x0, GetGUID()))
-                    {
-                        // Rip's max duration, note: spells which modifies Rip's duration also counted
-                        uint32 CountMin = AurEff->GetBase()->GetMaxDuration();
-
-                        // just Rip's max duration without other spells
-                        uint32 CountMax = AurEff->GetSpellInfo()->GetMaxDuration();
-
-                        // add possible auras' and Glyph of Shred's max duration
-                        CountMax += 3 * triggerAmount * IN_MILLISECONDS;      // Glyph of Bloodletting        -> +6 seconds
-                        CountMax += HasAura(60141) ? 4 * IN_MILLISECONDS : 0; // Rip Duration/Lacerate Damage -> +4 seconds
-
-                        // if min < max -> that means caster didn't cast 3 shred yet
-                        // so set Rip's duration and max duration
-                        if (CountMin < CountMax)
-                        {
-                            AurEff->GetBase()->SetDuration(AurEff->GetBase()->GetDuration() + triggerAmount * IN_MILLISECONDS);
-                            AurEff->GetBase()->SetMaxDuration(CountMin + triggerAmount * IN_MILLISECONDS);
-                            return true;
-                        }
-                    }
-                    // if not found Rip
-                    return false;
-                }
                 case 28719: // Healing Touch (Dreamwalker Raiment set)
                 {
                     // mana back
                     basepoints0 = int32(CalculatePct(procSpell->ManaCost, 30));
                     target = this;
                     triggered_spell_id = 28742;
-                    break;
-                }
-                case 28847: // Healing Touch Refund (Idol of Longevity trinket)
-                {
-                    target = this;
-                    triggered_spell_id = 28848;
                     break;
                 }
                 case 37288: // Mana Restore (Malorne Raiment set / Malorne Regalia set)
@@ -7793,9 +7621,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
             switch (dummySpell->Id)
             {
-                case 82661: // Aspect of the Fox
+                ///@remove me in 6.2.0
+                case 172106: // Aspect of the Fox
                 {
-                    EnergizeBySpell(this, 82661, 2, POWER_FOCUS);
+                    EnergizeBySpell(this, 172106, 2, POWER_FOCUS);
                     break;
                 }
             }
@@ -7904,7 +7733,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggered_spell_id = 99092;
                     target = victim;
                     break;
-                // Illuminated Healing
+                /// Mastery: Illuminated Healing
+                ///@ todo update me for 6.X
                 case 76669:
                 {
                     if (!victim || !procSpell || effIndex != 0 || GetTypeId() != TYPEID_PLAYER)
@@ -8001,15 +7831,18 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     return true;
                 }
-                case 105361:// Seal of Command
+                // Seal of Command
+                case 105361:
                     if (effIndex != 0)
                         break;
                     triggered_spell_id = 118215;
                     break;
-                case 20154: // Seal of Righteousness
+                // Seal of Righteousness
+                case 20154:
                     triggered_spell_id = 101423;
                     break;
-                case 53651: // Beacon of Light
+                // Beacon of Light
+                case 53651:
                 {
                     if (Unit* beaconTarget = triggeredByAura->GetBase()->GetCaster())
                     {
@@ -8541,18 +8374,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     return true; // Return true because triggered_spell_id is not exist in DBC, nothing to trigger
                 }
-                case 49194: // Unholy Blight
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    basepoints0 = CalculatePct(int32(damage), triggerAmount);
-                    triggered_spell_id = 50536;
-                    basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
-                    break;
-
-                    break;
-                }
                 case 59327: // Glyph of Unholy Command
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
@@ -8805,28 +8626,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
-                case 116023:// Sparring
-                {
-                    if (!victim)
-                        return false;
-
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    if (!isInFront(victim) || !victim->isInFront(this))
-                        return false;
-
-                    if (ToPlayer()->HasSpellCooldown(116023))
-                        return false;
-
-                    triggered_spell_id = 116033;
-                    target = this;
-
-                    ToPlayer()->AddSpellCooldown(116023, 0, 30 * IN_MILLISECONDS);
-                    victim->CastSpell(victim, 116087, true); // Marker
-
-                    break;
-                }
                 case 137639:// Storm, Earth and Fire
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
@@ -8883,14 +8682,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
         }
         default:
             break;
-    }
-
-    if (dummySpell->Id == 110588)
-    {
-        if (!GetMisdirectionTarget())
-            return false;
-        triggered_spell_id = 35079; // 4 sec buff on self
-        target = this;
     }
 
     // if not handled by custom case, get triggered spell from dummySpell proto
@@ -10007,7 +9798,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             target = victim;
             break;
         case 76857: // Mastery : Critical Block
-        case 58410: // Master Poisoner
         case 79147: // Sanguinary Vein
         case 91023: // Find Weakness
         case 108942:// Phantasm
@@ -11734,19 +11524,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, PvPPower);
     }
 
-    /// 171752 - Glyph of Savagery
-    if (ToPlayer() && ToPlayer()->getClass() == CLASS_DRUID && ToPlayer()->GetSpecializationId() == SPEC_DRUID_FERAL)
-    {
-        if (HasAura(768) || HasAura(171745))
-        {
-            if (ToPlayer()->HasGlyph(171752))
-            {
-                SpellInfo const* l_GlyphOfSavagery = sSpellMgr->GetSpellInfo(155836);
-                DoneTotal += CalculatePct(pdamage, l_GlyphOfSavagery->Effects[EFFECT_0].BasePoints);
-            }
-        }
-    }
-
     // Mastery : Emberstorm - 77220
     // Increases the damage of spells wich consume Burning Embers (Shadowburn and Chaos Bolt)
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && spellProto && (spellProto->Id == 17877 || spellProto->Id == 116858))
@@ -12304,12 +12081,13 @@ bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
     return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
 }
 
-bool Unit::IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolMask) const
+bool Unit::IsAuraAbsorbCrit(SpellInfo const* p_SpellProto, SpellSchoolMask p_SchoolMask) const
 {
-    if (spellProto->SpellFamilyName != SPELLFAMILY_PRIEST)
+    if (p_SpellProto->SpellFamilyName != SPELLFAMILY_PRIEST
+        && p_SpellProto->Id != 65148) ///< Sacred Shield is able to crit
         return false;
 
-    if ((spellProto->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
+    if ((p_SpellProto->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
         return false;
 
     float l_CritAbsorb = 0.0f;
@@ -13299,20 +13077,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE);
         AddPct(DoneTotalMod, PvPPower);
     }
-
-    /// 171752 - Glyph of Savagery
-    if (ToPlayer() && ToPlayer()->getClass() == CLASS_DRUID && ToPlayer()->GetSpecializationId() == SPEC_DRUID_FERAL)
-    {
-        if (HasAura(768) || HasAura(171745))
-        {
-            if (ToPlayer()->HasGlyph(171752))
-            {
-                SpellInfo const* l_GlyphOfSavagery = sSpellMgr->GetSpellInfo(155836);
-                AddPct(DoneTotalMod, l_GlyphOfSavagery->Effects[EFFECT_0].BasePoints);
-            }
-        }
-    }
-
+    
     // Custom MoP Script
     // 76856 - Mastery : Unshackled Fury
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0)
@@ -16350,7 +16115,7 @@ void Unit::DeleteCharmInfo()
 CharmInfo::CharmInfo(Unit* unit)
 : m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false),
   m_isCommandAttack(false), m_isAtStay(false), m_isFollowing(false), m_isReturning(false),
-  m_stayX(0.0f), m_stayY(0.0f), m_stayZ(0.0f)
+  m_stayX(0.0f), m_stayY(0.0f), m_stayZ(0.0f), m_CharmType(CharmType::CHARM_TYPE_CHARM)
 {
     for (uint8 i = 0; i < MAX_SPELL_CHARM; ++i)
         m_charmspells[i].SetActionAndType(0, ACT_DISABLED);
@@ -16396,6 +16161,8 @@ void CharmInfo::InitPetActionBar()
         else
             SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_AGGRESSIVE - i, ACT_REACTION);
     }
+
+    m_CharmType = CharmType::CHARM_TYPE_CHARM;
 }
 
 void CharmInfo::InitEmptyActionBar(bool withAttack)
@@ -16406,6 +16173,8 @@ void CharmInfo::InitEmptyActionBar(bool withAttack)
         SetActionBar(ACTION_BAR_INDEX_START, 0, ACT_PASSIVE);
     for (uint32 x = ACTION_BAR_INDEX_START+1; x < ACTION_BAR_INDEX_END; ++x)
         SetActionBar(x, 0, ACT_PASSIVE);
+
+    m_CharmType = CharmType::CHARM_TYPE_CHARM;
 }
 
 void CharmInfo::InitPossessCreateSpells()
@@ -16426,6 +16195,8 @@ void CharmInfo::InitPossessCreateSpells()
             }
         }
     }
+
+    m_CharmType = CharmType::CHARM_TYPE_POSSESS;
 }
 
 void CharmInfo::InitCharmCreateSpells()
@@ -16946,10 +16717,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
-    // Find Weakness - 91023
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(91023) && procSpell && (procSpell->Id == 8676 || procSpell->Id == 703 || procSpell->Id == 1833))
-        CastSpell(target, 91021, true);
-
     /// Revealing Strike - 84617
     if (target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
     {
@@ -17128,12 +16895,20 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (spellInfo->HasAura(SPELL_AURA_MOD_STEALTH) && procExtra & PROC_EX_ABSORB && isVictim)
             useCharges = false;
 
-        // Hack Fix : Subterfuge aura can't be removed by any action
+        /// Hack Fix : Subterfuge aura can't be removed by any action
         if (spellInfo->Id == 115191)
         {
-            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131361) && !(procExtra & PROC_EX_ABSORB) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
-                CastSpell(this, 115192, true);
+            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131361) && !(procExtra & PROC_EX_ABSORB) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && ((procSpell && procSpell->Id != 146347) || !procSpell))
+            {
+                /// Doesn't call Subterfuge from Drain Life and Touch of the Grave spells
+                if ((procSpell && procSpell->Id != 146347 && procSpell->Id != 127802) || !procSpell)
+                    CastSpell(this, 115192, true);
+            }
         }
+
+        /// Hack Fix for Subterfuge with Drain Life and Touch of the Grave
+        if (spellInfo->Id == 115191 && procSpell && (procSpell->Id == 146347 || procSpell->Id == 127802))
+            useCharges = false;
 
         // Hack Fix - Vanish :  If rogue has vanish aura stealth is not removed on periodic damage
         if ((spellInfo->Id == 115191 || spellInfo->Id == 1784) && HasAura(131361) && isVictim)

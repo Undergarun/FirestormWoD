@@ -243,7 +243,7 @@ std::string CreateDumpString(uint32 type, char const* tableName, QueryResult res
 
     std::list<uint32> l_SkipIndex;
 
-    for (int l_I = 0; l_I < columns.size(); l_I++)
+    for (int32 l_I = 0; l_I < (int32)columns.size(); l_I++)
     {
         if (ashran &&
             ((std::string(tableName) == "characters" && columns[l_I] == "instance_mode_mask")

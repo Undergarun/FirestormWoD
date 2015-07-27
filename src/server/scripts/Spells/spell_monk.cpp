@@ -86,7 +86,6 @@ enum MonkSpells
     SPELL_MONK_CREATE_CHI_SPHERE                = 121286,
     SPELL_MONK_GLYPH_OF_ZEN_FLIGHT              = 125893,
     SPELL_MONK_ZEN_FLIGHT                       = 125883,
-    SPELL_MONK_BEAR_HUG                         = 127361,
     ITEM_MONK_T14_TANK_4P                       = 123159,
     MONK_NPC_BLACK_OX_STATUE                    = 61146,
     SPELL_MONK_GUARD                            = 115295,
@@ -1303,9 +1302,10 @@ class spell_monk_glyph_of_zen_flight: public SpellScriptLoader
         }
 };
 
-// Called by Jab - 100780, Spinning Crane Kick - 101546, Expel Harm - 115072
-// Surging Mist - 116694, Crackling Jade Lightning - 117952
-// Power Strikes - 121817
+/// Called by Jab - 100780, 108557, 115687, 115693, 115695, 115698
+/// Spinning Crane Kick - 101546, Expel Harm - 115072
+/// Surging Mist - 116694, Crackling Jade Lightning - 117952
+/// Power Strikes - 121817
 class spell_monk_power_strikes: public SpellScriptLoader
 {
     public:
@@ -3612,7 +3612,7 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
 
                     // Generates 1 Chi if it hits at least 3 targets.
-                    if (l_SpellInfo != nullptr && p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                    if (l_SpellInfo != nullptr && (int32)p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
                         l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
                 }
             }
@@ -3646,7 +3646,7 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
 
                     // Generates 1 Chi if it hits at least 3 targets.
-                    if (l_SpellInfo != nullptr && p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                    if (l_SpellInfo != nullptr && (int32)p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
                         l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
 
                     /// up to 6 allies

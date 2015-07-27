@@ -61,7 +61,8 @@ enum WarriorSpells
     WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
     WARRIOR_SPELL_DOUBLE_TIME_MARKER            = 124184,
     WARRIOR_ENHANCED_WHIRLWIND                  = 157473,
-    WARROR_MEAT_CLEAVER_TARGET_MODIFIER         = 85739
+    WARROR_MEAT_CLEAVER_TARGET_MODIFIER         = 85739,
+    WARRIOR_HEAVY_REPERCUSSIONS                 = 169680
 };
 
 /// Ravager - 152277
@@ -436,9 +437,6 @@ class spell_warr_berzerker_rage: public SpellScriptLoader
                 {
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_WARRIOR_ARMS)
                         l_Player->CastSpell(l_Player, WARRIOR_SPELL_ENRAGE, true); ///< It should proc only on fury and prot because they have Enrage passive talent and arms not
-
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY && l_Player->getLevel() >= GetSpellInfo()->BaseLevel)
-                        l_Player->AddAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW, l_Player);
                 }
             }
 
@@ -1226,9 +1224,6 @@ class spell_warr_charge: public SpellScriptLoader
             if (l_Caster != nullptr && !m_HasAuraDoubleTimeMarker)
             {
                 int32 l_RageGain = GetEffectValue() / l_Caster->GetPowerCoeff(POWER_RAGE);
-
-                if (AuraEffectPtr l_BullRush = l_Caster->GetAuraEffect(SPELL_WARR_GLYPH_OF_BULL_RUSH, EFFECT_0))
-                    l_RageGain += l_BullRush->GetAmount();
 
                 l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, l_RageGain * l_Caster->GetPowerCoeff(POWER_RAGE), POWER_RAGE);
             }
@@ -2206,6 +2201,11 @@ class spell_warr_shield_slam : public SpellScriptLoader
 
                 l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                /// Heavy Repercussions
+                if (l_Caster->HasAura(WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED) || l_Caster->HasAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
+                    if (AuraPtr l_HeavyRepercussions = l_Caster->GetAura(WARRIOR_HEAVY_REPERCUSSIONS))
+                        l_Damage += CalculatePct(l_Damage, l_HeavyRepercussions->GetEffect(0)->GetAmount());
 
                 SetHitDamage(l_Damage);
             }

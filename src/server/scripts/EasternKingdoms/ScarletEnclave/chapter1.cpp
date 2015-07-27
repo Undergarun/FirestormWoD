@@ -38,7 +38,7 @@ enum eDeathKnightSpells
 
     SPELL_ICY_TOUCH                 = 52372,
     SPELL_PLAGUE_STRIKE             = 52373,
-    SPELL_BLOOD_STRIKE              = 52374,
+    SPELL_BLOOD_STRIKE              = 52374, ///< Removed in 6.0.2 http://eu.battle.net/wow/en/blog/15682579
     SPELL_DEATH_COIL                = 52375
 };
 

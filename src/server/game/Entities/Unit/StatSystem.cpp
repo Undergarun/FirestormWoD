@@ -544,7 +544,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
     /// Normalized Weapon Damage
-    if (normalized)
+    if (normalized && getClass() != CLASS_MONK && getClass() != CLASS_DRUID) ///< Monks and Druids have their own damage calculation
     {
         CalculateNormalizedWeaponDamage(attType, min_damage, max_damage, attackPower, weapon_mindamage, weapon_maxdamage, l_UsedWeapon);
         min_damage = (min_damage * base_pct + total_value) * total_pct;
@@ -564,10 +564,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
 void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
 {
-    /// Monks and Druids have their own damage calculation, they don't have normalized weapon damage spells
-    if (getClass() == CLASS_MONK || getClass() == CLASS_DRUID)
-        return;
-
     float l_NormalizedSpeedCoef = 1.0f;
 
     /// Speed coefficients from http://wowwiki.wikia.com/Normalization - tested on official server, information is correct
@@ -1153,7 +1149,7 @@ float Player::GetRegenForPower(Powers p_Power)
     switch (p_Power)
     {
         case Powers::POWER_FOCUS:
-            l_BaseRegen = 5.0f;
+            l_BaseRegen = 4.0f;
             break;
         case Powers::POWER_ENERGY:
         case Powers::POWER_RUNES:
@@ -1171,11 +1167,29 @@ float Player::GetRegenForPower(Powers p_Power)
             l_Pct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+    float l_HastePct = 1.0f;
+    float l_Total = 1.0f;
 
-    float l_Total = l_BaseRegen * l_HastePct;
+    /// I don't know how energy/runes regen should be calculated, but for focus it should be this way
+    if (p_Power == Powers::POWER_FOCUS)
+    {
+        l_HastePct = 1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE);
+        /// TODO
+        /// Not finished fix, i don't know how to fix it atm.
+        /// UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER by default for hunter is 5 * haste pct. For example, if we have 10% haste: 5 * 1.1 = 5.5, but on WOD base regen for hunters is 4.
+        /// So we should have 4 * 1.1 = 4.4 regen.
+        /// If we just calculate correct regen here, we receive: 5 * haste pct + 4 * haste pct.
+        /// I've tried to remove 5 * haste_pct from this field here, but it's not correct yet.
+        /// If someone has some ideas how to make it exactly 4 * haste pct - help.
+        l_Total = ((l_BaseRegen * l_HastePct) - (5.f * l_HastePct)) * l_Pct;
+    }
+    else
+    {
+        l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+        l_Total = l_BaseRegen * l_HastePct * l_Pct;
+    }
 
-    return l_Total * l_Pct;
+    return l_Total;
 }
 
 void Player::_ApplyAllStatBonuses()

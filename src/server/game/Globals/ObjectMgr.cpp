@@ -2281,7 +2281,7 @@ void ObjectMgr::LoadChallengeRewards()
     uint32 l_OldMSTime = getMSTime();
     uint32 l_Count = 0;
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT map_id, none_money, bronze_money, silver_money, gold_money FROM challenge_mode_rewards");
+    QueryResult l_Result = WorldDatabase.Query("SELECT map_id, none_money, bronze_money, silver_money, gold_money, title FROM challenge_mode_rewards");
     if (!l_Result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 challenge rewards. DB table `challenge_mode_rewards` is empty.");
@@ -2296,10 +2296,12 @@ void ObjectMgr::LoadChallengeRewards()
 
         ChallengeReward& l_Rewards = m_ChallengeRewardsMap[l_MapID];
 
-        l_Rewards.m_MapID = l_MapID;
+        l_Rewards.MapID = l_MapID;
 
         for (uint8 l_I = 0; l_I < 4; ++l_I)
-            l_Rewards.m_MoneyReward[l_I] = l_Fields[l_Index++].GetUInt32();
+            l_Rewards.MoneyReward[l_I] = l_Fields[l_Index++].GetUInt32();
+
+        l_Rewards.TitleID = l_Fields[l_Index++].GetUInt32();
 
         ++l_Count;
     }
@@ -9764,7 +9766,7 @@ void ObjectMgr::LoadGuildChallengeRewardInfo()
         Field* fields = result->Fetch();
 
         uint32 type = fields[0].GetUInt32();
-        if (type >= CHALLENGE_MAX)
+        if (type >= ChallengeMax)
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> guild_challenge_reward has unknown challenge type %u, skip.", type);
             continue;
