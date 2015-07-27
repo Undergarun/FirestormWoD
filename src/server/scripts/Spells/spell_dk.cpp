@@ -1928,7 +1928,8 @@ class spell_dk_plaguebearer: public SpellScriptLoader
         }
 };
 
-// Necrotic Plague - 155159
+/// last update : 6.1.2 19802
+/// Necrotic Plague - 155159
 class spell_dk_necrotic_plague_aura: public SpellScriptLoader
 {
     public:
@@ -1938,52 +1939,57 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_necrotic_plague_aura_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Caster->GetGUID()))
+                    l_AuraNecroticPlague->ModStackAmount(1);
+
+                std::list<Unit*> l_TargetList;
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(l_Target, l_Target, 8.0f);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(l_Target, l_TargetList, u_check);
+                l_Target->VisitNearbyObject(8.0f, searcher);
+
+                l_TargetList.remove_if([this, l_Caster, l_Target](Unit* p_Unit) -> bool
                 {
-                    if (Unit* l_Target = GetTarget())
-                    {
-                        if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Caster->GetGUID()))
-                            l_AuraNecroticPlague->ModStackAmount(1);
+                    if (p_Unit == nullptr)
+                        return true;
 
-                        std::list<Unit*> l_TargetList;
-                        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(l_Caster, l_Caster, 8.0f);
-                        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(l_Caster, l_TargetList, u_check);
-                        l_Caster->VisitNearbyObject(8.0f, searcher);
+                    if (!l_Caster->IsValidAttackTarget(p_Unit))
+                        return true;
 
-                        l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
-                        {
-                            if (p_Unit == nullptr)
-                                return true;
+                    if (l_Target->GetGUID() == p_Unit->GetGUID())
+                        return true;
 
-                            if (!l_Caster->IsValidAttackTarget(p_Unit))
-                                return true;
+                    return false;
+                });
 
-                            return false;
-                        });
+                if (l_TargetList.empty())
+                    return;
 
-                        if (l_TargetList.empty())
-                            return;
-
-                        if (Unit* l_NewTarget = JadeCore::Containers::SelectRandomContainerElement(l_TargetList))
-                            l_Caster->CastSpell(l_NewTarget, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, true);
-                    }
-                }
+                if (Unit* l_NewTarget = JadeCore::Containers::SelectRandomContainerElement(l_TargetList))
+                    l_Caster->CastSpell(l_NewTarget, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, true);
             }
 
             void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = p_EventInfo.GetActionTarget())
-                    {
-                        if (l_Caster->GetGUID() == l_Target->GetGUID())
-                            l_Caster->CastSpell(l_Caster, DK_SPELL_NECROTIC_PLAGUE_ENERGIZE, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = p_EventInfo.GetActionTarget();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Caster->GetGUID() == l_Target->GetGUID() && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DK_BLOOD)
+                    l_Caster->CastSpell(l_Caster, DK_SPELL_NECROTIC_PLAGUE_ENERGIZE, true);
             }
 
             bool CanRefreshProcDummy()
