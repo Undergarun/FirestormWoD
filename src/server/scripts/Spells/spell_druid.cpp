@@ -927,7 +927,7 @@ public:
     class spell_dru_rejuvenation_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
-        
+
         int32 m_RejuvenationAuraPtr = 0;
 
         void HandleAfterHit()
@@ -989,7 +989,7 @@ public:
 
 
         void Register()
-        { 
+        {
             BeforeHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleBeforeHit);
             AfterHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleAfterHit);
         }
@@ -1137,7 +1137,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
                 if (p_Targets.size() > l_MaxTargets)
                     JadeCore::RandomResizeList(p_Targets, l_MaxTargets);
             }
-            
+
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
@@ -1337,7 +1337,7 @@ class spell_dru_lifebloom: public SpellScriptLoader
                     l_Target->CastCustomSpell(l_Target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &l_HealAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
                 }
             }
-            
+
             void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -1941,7 +1941,7 @@ class spell_dru_faerie_fire: public SpellScriptLoader
                     {
                         if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
                             l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                        
+
                         // Glyph of Fae Silence
                         if (l_Player->HasAura(SPELL_DRUID_GLYPH_OF_FAE_SILENCE))
                         {
@@ -3526,11 +3526,6 @@ class spell_dru_rake: public SpellScriptLoader
                         else
                             l_ImprovedRake->GetEffect(1)->SetAmount(0);
                     }
-
-                    /// Default 0-5 yards, up to 0-12 yards (+7 yards)
-                    SpellInfo* l_RakeSpellInfo = (SpellInfo*)GetSpellInfo();
-                    if (l_RakeSpellInfo && l_Caster->HasAura(eSpells::GlyphOfRake) && l_Caster->HasAura(eSpells::Prowl))
-                        l_RakeSpellInfo->SetRangeIndex(294);
                 }
             }
 
@@ -3602,7 +3597,7 @@ public:
         void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
         {
             Unit* l_Caster = GetCaster();
-            
+
             if (l_Caster)
             {
                 if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
@@ -3797,7 +3792,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                 Unit* l_Target = GetHitUnit();
                 int32 l_Damage = GetHitDamage();
 
-                
+
                 /// Prevent double call
                 if (l_Damage == 0)
                     return;
@@ -3807,7 +3802,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
 
                 /// converts each extra point of energy ( up to 25 energy ) into additional damage
                 int32 l_EnergyConsumed = l_Caster->GetPower(POWER_ENERGY) > m_SpellCost ? m_SpellCost : l_Caster->GetPower(POWER_ENERGY);
-                
+
                 AddPct(l_Damage, l_EnergyConsumed * (100 / m_SpellCost));
                 SetHitDamage(l_Damage);
 
@@ -3862,7 +3857,7 @@ class spell_dru_frenzied_regeneration: public SpellScriptLoader
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
-                
+
                 if (l_Caster == nullptr)
                     return;
 
@@ -4149,8 +4144,8 @@ class spell_dru_ursa_major : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                if (p_ProcInfos.GetDamageInfo()->GetSpellInfo() != nullptr 
-                    && p_ProcInfos.GetDamageInfo()->GetSpellInfo()->Id != UrsaMajor::SPELL_DRU_MANGLE 
+                if (p_ProcInfos.GetDamageInfo()->GetSpellInfo() != nullptr
+                    && p_ProcInfos.GetDamageInfo()->GetSpellInfo()->Id != UrsaMajor::SPELL_DRU_MANGLE
                     && p_ProcInfos.GetDamageInfo()->GetSpellInfo()->Id != UrsaMajor::SPELL_DRU_LACERATE)
                     return;
 
@@ -4840,6 +4835,53 @@ class spell_dru_gyph_of_the_flapping_owl : public SpellScriptLoader
         }
 };
 
+/// Glyph of Rake - 54821
+/// Called by Prowl - 5215
+class spell_dru_glyph_of_rake: public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_rake() : SpellScriptLoader("spell_dru_glyph_of_rake") { }
+
+        class spell_dru_glyph_of_rake_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_rake_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfRake         = 54821,
+                GlyphOfRakeModRange = 164020
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::GlyphOfRake))
+                    l_Target->AddAura(eSpells::GlyphOfRakeModRange, l_Target);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::GlyphOfRake))
+                    l_Target->RemoveAura(eSpells::GlyphOfRakeModRange);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_rake_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_rake_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_glyph_of_rake_AuraScript();
+        }
+};
+
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift_ally_proc();
@@ -4927,4 +4969,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wod_pvp_balance_2p();
     new spell_dru_lunar_inspiration();
     new spell_dru_gyph_of_the_flapping_owl();
+    new spell_dru_glyph_of_rake();
 }

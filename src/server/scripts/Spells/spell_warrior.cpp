@@ -995,7 +995,7 @@ class spell_warr_bloodthirst_heal: public SpellScriptLoader
                 if (AuraPtr l_GlyphOfRagingBlow = l_Caster->GetAura(eSpells::GlyphOfRagingBlowHealMod))
                 {
                     AddPct(l_Heal, l_GlyphOfRagingBlow->GetEffect(EFFECT_0)->GetAmount());
-                    l_Caster->RemoveAurasDueToSpell(GlyphOfRagingBlow);
+                    l_Caster->RemoveAurasDueToSpell(eSpells::GlyphOfRagingBlow);
                 }
 
                 SetHitHeal(l_Heal);
