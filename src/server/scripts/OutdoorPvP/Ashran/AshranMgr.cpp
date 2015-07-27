@@ -2060,9 +2060,6 @@ void OutdoorPvPAshran::InitializeEvents()
         l_Timer += l_TimerInterval;
         m_AshranEvents[l_Index] = l_Timer;
     }
-
-    /// DEBUG
-    m_AshranEvents[eAshranEvents::EventStadiumRacing] = 5 * TimeConstants::IN_MILLISECONDS;
 }
 
 void OutdoorPvPAshran::SetBattleState(uint32 p_NewState)

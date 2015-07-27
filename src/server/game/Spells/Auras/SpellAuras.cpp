@@ -1660,46 +1660,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     case 118:   // Polymorph
                     case 61305: // Polymorph (Black Cat)
                     {
-                        // Polymorph Sound - Sheep && Penguin
-                        // Glyph of the Penguin
-                        if (caster->HasAura(52648))
-                            caster->CastSpell(target, 61635, true);
-                        // Glyph of the Monkey
-                        else if (caster->HasAura(57927))
-                            caster->CastSpell(target, 89729, true);
-                        // Glyph of the Porcupine
-                        else if (caster->HasAura(57924))
-                            caster->CastSpell(target, 126834, true);
-                        else
-                            caster->CastSpell(target, 61634, true);
-
                         // Glyph of Polymorph
                         if (caster && caster->HasAura(56375))
                         {
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
-                        }
-
-                        break;
-                    }
-                    case 12536: // Clearcasting
-                    case 12043: // Presence of Mind
-                    {
-                        // Arcane Potency
-                        if (constAuraEffectPtr aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, 2120, 0))
-                        {
-                            uint32 spellId = 0;
-
-                            switch (aurEff->GetId())
-                            {
-                                case 31571: spellId = 57529; break;
-                                case 31572: spellId = 57531; break;
-                                default:
-                                    sLog->outError(LOG_FILTER_SPELLS_AURAS, "Aura::HandleAuraSpecificMods: Unknown rank of Arcane Potency (%d) found", aurEff->GetId());
-                            }
-                            if (spellId)
-                                caster->CastSpell(caster, spellId, true);
                         }
                         break;
                     }
@@ -1742,24 +1708,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 
                 break;
             }
-            case SPELLFAMILY_PRIEST:
-                if (!caster)
-                    break;
-                // Devouring Plague
-                if (GetSpellInfo()->SpellFamilyFlags[0] & 0x02000000 && GetEffect(0))
-                {
-                    // Improved Devouring Plague
-                    if (constAuraEffectPtr aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 3790, 0))
-                    {
-                        uint32 damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), GetEffect(0)->GetAmount(), DOT);
-                        int32 basepoints0 = aurEff->GetAmount() * GetEffect(0)->GetTotalTicks() * int32(damage) / 100;
-                        int32 heal = int32(CalculatePct(basepoints0, 15));
-
-                        caster->CastCustomSpell(target, 63675, &basepoints0, NULL, NULL, true, NULL, GetEffect(0));
-                        caster->CastCustomSpell(caster, 75999, &heal, NULL, NULL, true, NULL, GetEffect(0));
-                    }
-                }
-                break;
             case SPELLFAMILY_PALADIN:
             {
                 if (!caster)
@@ -1838,14 +1786,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 break;
             }
             case SPELLFAMILY_WARRIOR:
-                // Heroic Fury
-                if (m_spellInfo->Id == 60970)
-                {
-                    if (target->GetTypeId() == TYPEID_PLAYER)
-                        target->ToPlayer()->RemoveSpellCooldown(20252, true);
-                }
                 // Battle Shout && Commander Shout
-                else if (m_spellInfo->Id == 469 || m_spellInfo->Id == 6673)
+                if (m_spellInfo->Id == 469 || m_spellInfo->Id == 6673)
                 {
                     // Item - Warrior T12 DPS 2P Bonus
                     if (caster)
@@ -1894,13 +1836,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         }
                         break;
                     }
-                    case 81162: // Will of the Necropolis
-                    {
-                        if (caster)
-                            caster->CastSpell(caster, 96171, true);
-
-                        break;
-                    }
                     default:
                         break;
                 }
@@ -1911,6 +1846,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         return;
 
                     int runicPowerSwitch = 0;
+                    /// Glyph of Shifting Presences
                     if (caster->HasAura(58647)) // You retain 70% of your Runic Power when switching Presences.
                         runicPowerSwitch = int(caster->GetPower(POWER_RUNIC_POWER) * 0.7f);
 
@@ -2017,31 +1953,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 
                 break;
             }
-            case SPELLFAMILY_WARLOCK:
-                if (!caster)
-                    break;
-                // Improved Fear
-                if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00000400)
-                {
-                    if (AuraEffectPtr aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, 98, 0))
-                    {
-                        uint32 spellId = 0;
-                        switch (aurEff->GetId())
-                        {
-                            case 53759: spellId = 60947; break;
-                            case 53754: spellId = 60946; break;
-                            default:
-                                sLog->outError(LOG_FILTER_SPELLS_AURAS, "Aura::HandleAuraSpecificMods: Unknown rank of Improved Fear (%d) found", aurEff->GetId());
-                        }
-                        if (spellId)
-                            caster->CastSpell(target, spellId, true);
-                    }
-                }
-                break;
-            case SPELLFAMILY_PRIEST:
-                if (!caster)
-                    break;
-                break;
             case SPELLFAMILY_ROGUE:
             {
                 switch (GetId())
@@ -2177,12 +2088,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
         case SPELLFAMILY_GENERIC:
             switch (GetId())
             {
-                case 50720: // Vigilance
-                    if (apply)
-                        target->CastSpell(caster, 59665, true, 0, NULLAURA_EFFECT, caster->GetGUID());
-                    else
-                        target->SetReducedThreatPercent(0, 0);
-                    break;
                 case 71289: // Mind Control (Lady Deathwisper)
                     target->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE, 100.0f, apply);
                     break;

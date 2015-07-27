@@ -84,6 +84,7 @@
 #include "SceneObject.h"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
+#include "MSCallback.hpp"
 #include "Vignette.hpp"
 #include "WowTime.hpp"
 
@@ -4803,24 +4804,17 @@ void Player::InitStatsForLevel(bool reapplyMods)
         SetUInt32Value(index, 0);
 
     SetUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, 0);
+    SetFloatValue(PLAYER_FIELD_MOD_HEALING_PERCENT, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PERCENT, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT, 1.0f);
     for (uint8 i = 0; i < 7; ++i)
     {
         SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG+i, 0);
         SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, 0);
         SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT+i, 1.00f);
     }
+
     SetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PERCENT, 1.0f);
-
-    // Set new PCT MoP field to 1.0f to get correct client tooltip
-    SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT, 1.0f);
-    SetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PERCENT, 1.0f);
-    SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT, 1.0f);
-
-    for (uint8 l_WeaponAttackType = WeaponAttackType::BaseAttack; l_WeaponAttackType < WeaponAttackType::MaxAttack; l_WeaponAttackType++)
-    {
-        SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS       + l_WeaponAttackType, 1.0f);
-        SetFloatValue(PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS + l_WeaponAttackType, 1.0f);
-    }
 
     //reset attack power, damage and attack speed fields
     SetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME, 2000.0f);
@@ -4833,6 +4827,11 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, 0.0f);
     SetFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, 0.0f);
     SetFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, 0.0f);
+    for (uint8 l_WeaponAttackType = WeaponAttackType::BaseAttack; l_WeaponAttackType < WeaponAttackType::MaxAttack; l_WeaponAttackType++)
+    {
+        SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS       + l_WeaponAttackType, 1.0f);
+        SetFloatValue(PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS + l_WeaponAttackType, 1.0f);
+    }
 
     SetInt32Value(UNIT_FIELD_ATTACK_POWER,            0);
     SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 0.0f);
@@ -4843,6 +4842,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, 0.0f);
+
     SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, 0.0f);
     SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, 0.0f);
 
@@ -15517,6 +15517,18 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
                 RemoveAura(84601);
         }
     }
+    /// Single-Minded Fury - 81099
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        if (getClass() == CLASS_WARRIOR && ToPlayer()->GetSpecializationId() == SPEC_WARRIOR_FURY)
+        {
+            if (HasAura(81099))
+            {
+                RemoveAura(81099);
+                AddAura(81099, this);
+            }
+        }
+    }
 
     // close gossips
     PlayerTalkClass->ClearMenus();
@@ -20926,29 +20938,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
-    // VIP case
-    if (GetSession()->IsPremium())
-    {
-        // Choose mount
-        switch (GetSession()->getPremiumType())
-        {
-            case 1:
-                // Aile-de-nuit obsidienne
-                addSpell(121820, true, false, false, false, true);
-                break;
-            case 2:
-                // Gangredrake
-                addSpell(113120, true, false, false, false, true);
-                break;
-            default:
-                break;
-        }
-
-        // Mini Thor
-        addSpell(78381, true, false, false, false, true);
-    }
-
     _LoadAuras(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADAURAS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADAURAS_EFFECTS), time_diff);
 
     l_Times.push_back(getMSTime() - l_StartTime);
@@ -23015,7 +23004,25 @@ void Player::SaveToDB(bool create /*=false*/)
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
         _SaveStats(trans);
 
-    CharacterDatabase.CommitTransaction(trans);
+    MS::Utilities::CallBackPtr l_CharCreateCallback = nullptr;
+    if (create)
+    {
+        uint32 l_AccountID = m_session->GetAccountId();
+        l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+        {
+            WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+            if (l_Session == nullptr)
+                return;
+
+            WorldPacket l_Data(SMSG_CREATE_CHAR, 1);
+            l_Data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
+            l_Session->SendPacket(&l_Data);
+        });
+
+        m_session->AddTransactionCallback(l_CharCreateCallback);
+    }
+
+    CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);
     LoginDatabase.CommitTransaction(accountTrans);
 
     // we save the data here to prevent spamming
@@ -23682,10 +23689,8 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
             }
         }
 
-        // add only changed/new not dependent spells
-        //  Gangredrake - VIP  -  Aile-de-nuit obsidienne - VIP - Mini Thor - VIP
-        if (!itr->second->dependent && (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED)
-            && itr->first != 113120 && itr->first != 121820 && itr->first != 78381)
+        /// add only changed/new not dependent spells
+        if (!itr->second->dependent && (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED))
         {
             if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(itr->first))
             {
@@ -26283,7 +26288,8 @@ void Player::UpdatePotionCooldown(Spell* spell)
                 if (proto->Spells[idx].SpellId && proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
                     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
                     {
-                        SendCooldownEvent(spellInfo, m_lastPotionId);
+                        if (!HasSpellCooldown(spellInfo->Id))
+                            SendCooldownEvent(spellInfo, m_lastPotionId);
                         found = true;
                     }
             // if not - used by Spinal Healing Injector
@@ -33726,4 +33732,30 @@ void Player::_SaveCharacterWorldStates(SQLTransaction& p_Transaction)
 
         p_Transaction->Append(l_Statement);
     }
+}
+
+void Player::SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Message)
+{
+    std::ostringstream l_Message;
+    l_Message << p_Opcode << "|" << p_Message.str() << "|";
+    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+}
+
+uint32 Player::GetBagsFreeSlots() const
+{
+    uint32 l_FreeBagSlots = 0;
+
+    for (uint8 l_I = INVENTORY_SLOT_BAG_START; l_I < INVENTORY_SLOT_BAG_END; l_I++)
+    {
+        if (Bag * l_Bag = GetBagByPos(l_I))
+            l_FreeBagSlots += l_Bag->GetFreeSlots();
+    }
+
+    for (uint8 l_I = INVENTORY_SLOT_ITEM_START; l_I < INVENTORY_SLOT_ITEM_END; l_I++)
+    {
+        if (!GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+            ++l_FreeBagSlots;
+    }
+
+    return l_FreeBagSlots;
 }

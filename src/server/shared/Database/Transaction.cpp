@@ -74,16 +74,21 @@ void Transaction::Cleanup()
 
 bool TransactionTask::Execute()
 {
-    if (m_conn->ExecuteTransaction(m_trans))
-        return true;
+    bool l_ExecuteResult = m_conn->ExecuteTransaction(m_trans);
 
     if (m_conn->GetLastError() == 1213)
     {
         uint8 loopBreaker = 5;  // Handle MySQL Errno 1213 without extending deadlock to the core itself
         for (uint8 i = 0; i < loopBreaker; ++i)
-            if (m_conn->ExecuteTransaction(m_trans))
-                return true;
+        {
+            l_ExecuteResult = m_conn->ExecuteTransaction(m_trans);
+            if (l_ExecuteResult)
+                break;
+        }
     }
+
+    if (m_Callback != nullptr)
+        m_Callback->m_State = l_ExecuteResult ? MS::Utilities::CallBackState::Success : MS::Utilities::CallBackState::Fail;
 
     // Clean up now.
     m_trans->Cleanup();
