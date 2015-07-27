@@ -50,10 +50,10 @@ class AuraApplication
         Unit* const _target;
         constAuraPtr _base;
         AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
-        uint8 m_Slot;                                   // Aura slot on unit
+        uint8 m_Slot;                                  // Aura slot on unit
         uint8 _flags;                                  // Aura info flag
         uint32 _effectMask;
-        uint32 _effectsToApply;                         // Used only at spell hit to determine which effect should be applied
+        uint32 _effectsToApply;                        // Used only at spell hit to determine which effect should be applied
         bool _needClientUpdate:1;
 
         explicit AuraApplication(Unit* target, Unit* caster, AuraPtr base, uint32 effMask);

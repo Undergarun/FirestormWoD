@@ -265,6 +265,9 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     SetDisplayId(goinfo->displayId);
     m_model = GameObjectModel::Create(*this);
 
+    /// Recall this function to update the model
+    SetPhaseMask(phaseMask, false);
+
     loot.SetSource(GetGUID());
 
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3

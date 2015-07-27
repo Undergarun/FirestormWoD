@@ -91,7 +91,6 @@ void AddSC_garrison_commandscript();
 void AddSC_hotfix_commandscript();
 void AddSC_battlepay_commandscript();
 
-#ifdef SCRIPTS
 //world
 void AddSC_areatrigger_scripts();
 void AddSC_generic_creature();
@@ -106,6 +105,10 @@ void AddSC_npc_companions();
 void AddSC_achievement_scripts();
 void AddSC_PlayerConditions();
 
+// player
+void AddSC_chat_log();
+
+#ifdef SCRIPTS
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
 void AddSC_boss_balinda();
@@ -879,6 +882,15 @@ void AddSC_Nyami();
 void AddSC_azzakel();
 void AddSC_teronogoer();
 
+/// Everbloom
+void AddSC_the_everbloom();
+void AddSC_instance_everbloom();
+void AddSC_boss_ancient_protectors();
+void AddSC_boss_witherbark();
+void AddSC_boss_xeritac();
+void AddSC_boss_sol();
+void AddSC_boss_yalnu();
+
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
@@ -915,12 +927,11 @@ void AddSC_BattlePay_Professions();
 void AddScripts()
 {
     AddSpellScripts();
-    AddSC_SmartSCripts();
     AddCommandScripts();
-    sAnticheatMgr->StartScripts();
-    AddBattlePayScripts();
-#ifdef SCRIPTS
     AddWorldScripts();
+    sAnticheatMgr->StartScripts();
+    AddSC_SmartSCripts();
+#ifdef SCRIPTS
     AddEasternKingdomsScripts();
     AddKalimdorScripts();
     AddOutlandScripts();
@@ -934,14 +945,17 @@ void AddScripts()
     AddSC_FunScripts();
     AddSC_GameObjectsFun();
     AddSC_TarrenMillFun();
+    AddBattlePayScripts();
 #endif
 }
 
 void AddBattlePayScripts()
 {
+#ifdef SCRIPTS
     AddSC_BattlePay_Services();
     AddSC_BattlePay_Golds();
     AddSC_BattlePay_Professions();
+#endif
 }
 
 void AddSpellScripts()
@@ -1014,7 +1028,6 @@ void AddCommandScripts()
 
 void AddWorldScripts()
 {
-#ifdef SCRIPTS
     AddSC_areatrigger_scripts();
     AddSC_generic_creature();
     AddSC_go_scripts();
@@ -1027,7 +1040,6 @@ void AddWorldScripts()
     AddSC_achievement_scripts();
     AddSC_chat_log();
     AddSC_PlayerConditions();
-#endif
 }
 
 void AddEasternKingdomsScripts()
@@ -1826,6 +1838,15 @@ void AddDraenorScripts()
     AddSC_azzakel();
     AddSC_teronogoer();
 
+    /// Everbloom
+    AddSC_the_everbloom();
+    AddSC_instance_everbloom();
+    AddSC_boss_ancient_protectors();
+    AddSC_boss_witherbark();
+    AddSC_boss_xeritac();
+    AddSC_boss_sol();
+    AddSC_boss_yalnu();
+
     /// Battlegrounds strongbox
     AddSC_item_strongboxes();
 #endif
@@ -1871,5 +1892,6 @@ void AddCustomScripts()
     AddSC_first_time_connexion();
     AddSC_user_reporting();
     AddSC_warning_update_client();
+    AddSC_DuelReset();
 #endif
 }

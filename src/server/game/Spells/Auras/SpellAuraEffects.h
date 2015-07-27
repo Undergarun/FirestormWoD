@@ -74,6 +74,8 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void SetPeriodicTimer(int32 periodicTimer) { m_periodicTimer = periodicTimer; }
 
         int32 CalculateAmount(Unit* caster);
+        uint32 AbsorbBonusDone(Unit* p_Caster, int32 p_Amount);
+        uint32 AbsorbBonusTaken(Unit* p_Caster, int32 p_Amount);
         void CalculatePeriodic(Unit* caster, bool resetPeriodicTimer = true, bool load = false);
         void CalculateSpellMod();
         void ChangeAmount(int32 newAmount, bool mark = true, bool onStackOrReapply = false);

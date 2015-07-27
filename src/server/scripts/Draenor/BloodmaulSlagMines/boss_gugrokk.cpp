@@ -11,7 +11,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
-#include "instance_bloodmaul.h"
+#include "instance_bloodmaul.hpp"
 
 namespace MS { namespace Instances { namespace Bloodmaul
 {

@@ -619,7 +619,7 @@ enum WeaponAttackType
 // Last check : 6.0.3
 enum CombatRating
 {
-    CR_WEAPON_SKILL                     = 0,    //< Deprecated, CR_UNUSED_1 in PaperDollFrame.lua
+    CR_UNUSED_1                         = 0,    //< Deprecated, CR_UNUSED_1 in PaperDollFrame.lua previously CR_WEAPON_SKILL
     CR_DEFENSE_SKILL                    = 1,    //< Deprecated
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
@@ -640,12 +640,12 @@ enum CombatRating
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
     CR_AVOIDANCE                        = 20,
-    CR_WEAPON_SKILL_OFFHAND             = 21,   //< Deprecated, CR_UNUSED_2 in PaperDollFrame.lua
+    CR_UNUSED_2                         = 21,   //< Deprecated, CR_UNUSED_2 in PaperDollFrame.lua previously CR_WEAPON_SKILL_OFFHAND
     CR_WEAPON_SKILL_RANGED              = 22,   //< Deprecated
     CR_EXPERTISE                        = 23,   //< Deprecated
     CR_ARMOR_PENETRATION                = 24,   //< Deprecated
     CR_MASTERY                          = 25,
-    CR_PVP_POWER                        = 26,   //< WoD item doesn't have pvp power, and blizz has removed pvp power from the paper doll, but i think the stat still exist for MoP items ...
+    CR_PVP_POWER                        = 26,   //< romoved since from the paper doll, but the stat still exist for MoP items
     CR_UNUSED_4                         = 27,   //< CR_UNUSED_4 in PaperDollFrame.lua
     CR_VERSATILITY_DAMAGE_DONE          = 28,
     CR_VERSATILITY_DAMAGE_TAKEN         = 30,
@@ -1291,7 +1291,7 @@ enum ActionBarIndex
 
 #define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
 
-struct CharmInfo
+class CharmInfo
 {
     public:
         explicit CharmInfo(Unit* unit);
@@ -1340,14 +1340,17 @@ struct CharmInfo
         void SaveStayPosition();
         void GetStayPosition(float &x, float &y, float &z);
 
+        CharmType GetCharmType() const { return m_CharmType; }
+
     private:
 
         Unit* m_unit;
         UnitActionBarEntry PetActionBar[MAX_UNIT_ACTION_BAR_INDEX];
-        CharmSpellInfo m_charmspells[4];
-        CommandStates   m_CommandState;
-        uint32          m_petnumber;
-        bool            m_barInit;
+        CharmSpellInfo     m_charmspells[4];
+        CommandStates      m_CommandState;
+        uint32             m_petnumber;
+        bool               m_barInit;
+        CharmType          m_CharmType;
 
         //for restoration after charmed
         ReactStates     m_oldReactState;

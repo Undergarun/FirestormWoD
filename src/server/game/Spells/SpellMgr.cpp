@@ -3659,6 +3659,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166185:///< Rending Slash (Highmaul Conscript)
             case 158026:///< Enfeebling Roar - Debuff (Phemos - Twin Ogron)
             case 163134:///< Nullification Barrier - Abosrb (Ko'ragh)
+            case 161345:///< Suppression Field - DoT (Ko'ragh)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 166199:///< Arcane Volatility (Gorian Arcanist)
@@ -3676,6 +3677,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161242:///< Caustic Energy - DoT (Ko'ragh)
             case 172813:///< Expel Magic: Frost - Decrease Speed (Ko'ragh)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 172685:///< Expel Magic: Fire (Ko'ragh)
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
@@ -3688,11 +3690,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161381:///< Volatile Anomalies - Missile 3 (Ko'ragh)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_CASTER_RANDOM;
-                break;
-            case 161345:///< Suppression Field - DoT (Ko'ragh)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 162595:///< Suppression Field - Silence (Ko'ragh)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
@@ -4148,9 +4145,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 148906: ///< Toxic Power
             case 148908: ///< Mark of Salvation
                 spellInfo->Effects[0].BasePoints = 963;
-                break;
-            case 128997: ///< Spirit Beast Blessing
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 53390: ///< Tidal Waves
                 spellInfo->Effects[0].BasePoints = -20;
@@ -5060,6 +5054,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 91021: ///< Find Weakness
                 spellInfo->Effects[0].BasePoints = 100;
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 118699: ///< Fear Effect
                 spellInfo->Dispel = DISPEL_MAGIC;
@@ -5116,6 +5111,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(114163); ///< Replace World of glory by Eternal Flame
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
+            case 136494: ///< Word of Glory (overide by Glyph of Harsh Words)
             case 20066: ///< Repentance
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
@@ -5464,6 +5460,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             /// All spells - ProcFlags = 0
             case 58372:  ///< Glyph of Rude Interruption
+            case 166061: ///< Item - Death Knight WoD PvP Unholy 4P Bonus
             case 170848: ///< Item - Druid WoD PvP Feral 2P Bonus
             case 170853: ///< Item - Druid WoD PvP Restoration 2P Bonus
             case 165691: ///< Item - Monk WoD PvP Windwalker/Brewmaster 2P Bonus
@@ -6289,10 +6286,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 46916: ///< Bloodsurge
                 /// Blizzard use -300%, idk why
                 spellInfo->Effects[EFFECT_1].BasePoints = -100;
-                break;
-            case 103985: ///< Stance of the Fierce Tiger
-                spellInfo->Effects[EFFECT_4].Effect = SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
-                spellInfo->Effects[EFFECT_4].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
                 break;
             case 125050: ///< Fetch (Glyph)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;

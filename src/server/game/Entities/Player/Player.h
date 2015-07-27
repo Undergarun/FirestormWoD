@@ -3531,10 +3531,11 @@ class Player : public Unit, public GridObject<Player>
 
         void RestoreCharge(uint32 p_CategoryID);
         uint32 CalcMaxCharges(SpellCategoryEntry const* p_Category) const;
-        bool CanUseCharge(uint32 p_CategoryID) const;
+        bool CanUseCharge(SpellCategoryEntry const* p_Category) const;
         void UpdateCharges(uint32 const p_Time);
-        void ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Category);
+        void ConsumeCharge(SpellCategoryEntry const* p_Category);
         ChargesData* GetChargesData(uint32 p_CategoryID);
+        int32 GetChargeRecoveryTime(SpellCategoryEntry const* p_Category) const;
         //////////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////////
