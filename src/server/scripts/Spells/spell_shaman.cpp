@@ -1424,6 +1424,11 @@ class spell_sha_ascendance: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_ascendance_SpellScript);
 
+            enum eSpells
+            {
+                LavaBurstCategoryID = 1537
+            };
+
             bool Validate(SpellInfo const* spellEntry)
             {
                 if (!sSpellMgr->GetSpellInfo(ShamanSpells::SPELL_SHA_ASCENDANCE))
@@ -1456,9 +1461,7 @@ class spell_sha_ascendance: public SpellScriptLoader
                     {
                         case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
                             l_Player->CastSpell(l_Player, ShamanSpells::SPELL_SHA_ASCENDANCE_ELEMENTAL, true);
-
-                            if (l_Player->HasSpellCooldown(ShamanSpells::SPELL_SHA_LAVA_BURST))
-                                l_Player->RemoveSpellCooldown(ShamanSpells::SPELL_SHA_LAVA_BURST, true);
+                            l_Player->RestoreCharge(eSpells::LavaBurstCategoryID);
                             break;
                         case SpecIndex::SPEC_SHAMAN_ENHANCEMENT:
                             l_Player->CastSpell(l_Player, ShamanSpells::SPELL_SHA_ASCENDANCE_ENHANCED, true);
