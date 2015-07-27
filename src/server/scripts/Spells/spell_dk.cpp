@@ -592,16 +592,28 @@ class spell_dk_soul_reaper: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_soul_reaper_AuraScript);
 
+            uint8 l_HealthPctMax = 35;
+
+            enum eSpells
+            {
+                ImprovedSoulReaper = 157342
+            };
+
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetCaster())
-                {
-                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    if (removeMode == AURA_REMOVE_BY_DEATH)
-                        GetCaster()->CastSpell(GetCaster(), DK_SPELL_SOUL_REAPER_HASTE, true);
-                    else if (removeMode == AURA_REMOVE_BY_EXPIRE && GetTarget()->GetHealthPct() < 35.0f)
-                        GetCaster()->CastSpell(GetTarget(), DK_SPELL_SOUL_REAPER_DAMAGE, true);
-                }
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (AuraPtr l_ImprovedSoulReaper = l_Caster->GetAura(eSpells::ImprovedSoulReaper))
+                    l_HealthPctMax = l_ImprovedSoulReaper->GetEffect(EFFECT_0)->GetAmount();
+
+                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                if (removeMode == AURA_REMOVE_BY_DEATH)
+                    GetCaster()->CastSpell(GetCaster(), DK_SPELL_SOUL_REAPER_HASTE, true);
+                else if (removeMode == AURA_REMOVE_BY_EXPIRE && GetTarget()->GetHealthPct() < (float)l_HealthPctMax)
+                    GetCaster()->CastSpell(GetTarget(), DK_SPELL_SOUL_REAPER_DAMAGE, true);
             }
 
             void Register()
