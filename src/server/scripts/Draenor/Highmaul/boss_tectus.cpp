@@ -8,24 +8,6 @@
 
 #include "highmaul.hpp"
 
-void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
-{
-    if (p_Map == nullptr)
-        return;
-
-    Map::PlayerList const& l_Players = p_Map->GetPlayers();
-    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
-    {
-        if (Player* l_Player = l_Iter->getSource())
-        {
-            if (p_Caster != nullptr)
-                p_Caster->CastSpell(l_Player, p_SpellID, p_Triggered);
-            else
-                l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
-        }
-    }
-}
-
 uint8 GetEnergyGainFromHealth(float p_HealthPct)
 {
     if (p_HealthPct >= 50.0f)
