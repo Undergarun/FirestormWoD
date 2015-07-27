@@ -795,6 +795,22 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_grimoire_of_sacrifice_AuraScript);
 
+            enum eSpells
+            {
+                SoulLink = 108415
+            };
+
+            void CalculateEffectAmountSoulLink(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
+            {
+                Unit* l_Owner = GetUnitOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                if (!l_Owner->HasSpell(eSpells::SoulLink))
+                    p_Amount = 0;
+            }
+
             void CalculateEffectAmountDestruction(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Owner = GetUnitOwner();
@@ -836,6 +852,7 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
 
             void Register()
             {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountSoulLink, EFFECT_2, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountDestruction, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountAffliction, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_grimoire_of_sacrifice_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
@@ -1955,7 +1972,7 @@ enum EmberTapSpells
     SPELL_WARL_ENHANCED_OF_EMBER_TAP = 157121
 };
 
-// Ember Tap - 114635
+/// Ember Tap - 114635
 class spell_warl_ember_tap: public SpellScriptLoader
 {
     public:
