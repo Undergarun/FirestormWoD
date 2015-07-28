@@ -963,11 +963,11 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     if (l_Owner != nullptr)
     {
-        if (m_owner->GetTypeId() == TYPEID_PLAYER && m_owner->getClass() == CLASS_WARLOCK)
-            SetCreateHealth(m_owner->GetMaxHealth() * 0.75f);
+        if (l_Owner->GetTypeId() == TYPEID_PLAYER && l_Owner->getClass() == CLASS_WARLOCK)
+            SetCreateHealth(l_Owner->GetMaxHealth() * 0.75f);
         else
-            SetCreateHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
-        SetMaxHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+            SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+        SetMaxHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
     }
 
     SetFullHealth();
