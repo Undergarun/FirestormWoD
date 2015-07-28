@@ -61,7 +61,6 @@ enum DeathKnightSpells
     DK_SPELL_DARK_INFUSION_STACKS               = 91342,
     DK_SPELL_DARK_INFUSION_AURA                 = 93426,
     DK_NPC_WILD_MUSHROOM                        = 59172,
-    DK_SPELL_RUNIC_EMPOWERMENT                  = 81229,
     DK_SPELL_GOREFIENDS_GRASP_GRIP_VISUAL       = 114869,
     DK_SPELL_DEATH_GRIP_ONLY_JUMP               = 146599,
     DK_SPELL_GLYPH_OF_CORPSE_EXPLOSION          = 127344,
@@ -74,7 +73,6 @@ enum DeathKnightSpells
     DK_SPELL_PLAGUEBEARER                       = 161497,
     DK_SPELL_NECROTIC_PLAGUE                    = 152281,
     DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA         = 155159,
-    DK_SPELL_RUNIC_CORRUPTION_AURA              = 51462,
     DK_SPELL_RUNIC_CORRUPTION                   = 51460,
     DK_SPELL_DEATH_PACT                         = 48743,
     DK_SPELL_ICY_TOUCH                          = 45477,
@@ -2023,31 +2021,28 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
     }
 };
 
-// Runic Empowerment - 81229
-// Runic Corruption - 51462
-class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
+/// Runic Empowerment - 81229
+class spell_dk_runic_empowerment : public PlayerScript
 {
     public:
-        PlayerScript_Runic_Empowerment_Corrupion_Runic() :PlayerScript("PlayerScript_Runic_Empowerment_Corrupion_Runic") {}
+        spell_dk_runic_empowerment() : PlayerScript("spell_dk_runic_empowerment") {}
+
+        enum eSpells
+        {
+           RunicEmpowerment = 81229,
+        };
 
         void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            // Get the power earn (if > 0 ) or consum (if < 0)
-            int32 l_DiffValue = p_NewValue - p_OldValue;
-
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || p_Regen || l_DiffValue >= 0)
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || p_Regen || p_NewValue > p_OldValue)
                 return;
 
-            if (!p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT) && !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA))
-                return;
+            int32 l_PowerSpent = p_OldValue - p_NewValue;
 
-            if (AuraEffectPtr l_RunicEmpowerment = p_Player->GetAuraEffect(DK_SPELL_RUNIC_EMPOWERMENT, EFFECT_0))
+            if (AuraEffectPtr l_RunicEmpowerment = p_Player->GetAuraEffect(eSpells::RunicEmpowerment, EFFECT_0))
             {
-                // 1.50% chance per Runic Power spent
-                float l_Amount = l_RunicEmpowerment->GetAmount();
-                l_Amount /= 100.f;
-
-                float l_Chance = l_Amount * -l_DiffValue / 10;
+                /// 1.50% chance per Runic Power spent
+                float l_Chance = (l_RunicEmpowerment->GetAmount() / 100.f) * (l_PowerSpent / p_Player->GetPowerCoeff(p_Power));
 
                 if (roll_chance_f(l_Chance))
                 {
@@ -2068,14 +2063,31 @@ class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
                     p_Player->ResyncRunes(MAX_RUNES);
                 }
             }
+        }
+};
 
-            if (AuraEffectPtr l_RunicCorruption = p_Player->GetAuraEffect(DK_SPELL_RUNIC_CORRUPTION_AURA, EFFECT_1))
+/// Runic Corruption - 51462
+class spell_dk_runic_corruption : public PlayerScript
+{
+    public:
+        spell_dk_runic_corruption() : PlayerScript("spell_dk_runic_corruption") {}
+
+        enum eSpells
+        {
+            RunicCorruptionAura = 51462,
+        };
+
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        {
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || p_Regen || p_NewValue > p_OldValue)
+                return;
+
+            int32 l_PowerSpent = p_OldValue - p_NewValue;
+
+            if (AuraEffectPtr l_RunicCorruption = p_Player->GetAuraEffect(eSpells::RunicCorruptionAura, EFFECT_1))
             {
-                // 1.50% chance per Runic Power spent
-                float l_Amount = l_RunicCorruption->GetAmount();
-                l_Amount /= 100.f;
-
-                float l_Chance = l_Amount * -l_DiffValue / 10;
+                /// 1.50% chance per Runic Power spent
+                float l_Chance = (l_RunicCorruption->GetAmount() / 100.f) * (l_PowerSpent / p_Player->GetPowerCoeff(p_Power));
 
                 if (roll_chance_f(l_Chance))
                 {
@@ -2855,6 +2867,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_icy_touch();
     new spell_dk_plaguebearer();
     new spell_dk_necrotic_plague_aura();
+    new spell_dk_runic_empowerment();
+    new spell_dk_runic_corruption();
     new spell_dk_death_pact();
     new spell_dk_chilblains();
     new spell_dk_chilblains_aura();
@@ -2870,7 +2884,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_enhanced_death_coil();
     new spell_dk_gargoyle_strike();
 
-    /// Player script
     new PlayerScript_Blood_Tap();
-    new PlayerScript_Runic_Empowerment_Corrupion_Runic();
 }
