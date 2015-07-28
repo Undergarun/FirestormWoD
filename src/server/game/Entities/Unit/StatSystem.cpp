@@ -544,7 +544,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
     /// Normalized Weapon Damage
-    if (normalized)
+    if (normalized && getClass() != CLASS_MONK && getClass() != CLASS_DRUID) ///< Monks and Druids have their own damage calculation
     {
         CalculateNormalizedWeaponDamage(attType, min_damage, max_damage, attackPower, weapon_mindamage, weapon_maxdamage, l_UsedWeapon);
         min_damage = (min_damage * base_pct + total_value) * total_pct;
@@ -564,10 +564,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
 void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
 {
-    /// Monks and Druids have their own damage calculation, they don't have normalized weapon damage spells
-    if (getClass() == CLASS_MONK || getClass() == CLASS_DRUID)
-        return;
-
     float l_NormalizedSpeedCoef = 1.0f;
 
     /// Speed coefficients from http://wowwiki.wikia.com/Normalization - tested on official server, information is correct
@@ -1153,7 +1149,7 @@ float Player::GetRegenForPower(Powers p_Power)
     switch (p_Power)
     {
         case Powers::POWER_FOCUS:
-            l_BaseRegen = 5.0f;
+            l_BaseRegen = 4.0f;
             break;
         case Powers::POWER_ENERGY:
         case Powers::POWER_RUNES:
@@ -1171,11 +1167,29 @@ float Player::GetRegenForPower(Powers p_Power)
             l_Pct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+    float l_HastePct = 1.0f;
+    float l_Total = 1.0f;
 
-    float l_Total = l_BaseRegen * l_HastePct;
+    /// I don't know how energy/runes regen should be calculated, but for focus it should be this way
+    if (p_Power == Powers::POWER_FOCUS)
+    {
+        l_HastePct = 1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE);
+        /// TODO
+        /// Not finished fix, i don't know how to fix it atm.
+        /// UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER by default for hunter is 5 * haste pct. For example, if we have 10% haste: 5 * 1.1 = 5.5, but on WOD base regen for hunters is 4.
+        /// So we should have 4 * 1.1 = 4.4 regen.
+        /// If we just calculate correct regen here, we receive: 5 * haste pct + 4 * haste pct.
+        /// I've tried to remove 5 * haste_pct from this field here, but it's not correct yet.
+        /// If someone has some ideas how to make it exactly 4 * haste pct - help.
+        l_Total = ((l_BaseRegen * l_HastePct) - (5.f * l_HastePct)) * l_Pct;
+    }
+    else
+    {
+        l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+        l_Total = l_BaseRegen * l_HastePct * l_Pct;
+    }
 
-    return l_Total * l_Pct;
+    return l_Total;
 }
 
 void Player::_ApplyAllStatBonuses()
@@ -1367,8 +1381,11 @@ bool Guardian::UpdateStats(Stats p_Stat)
     ApplyStatBuffMod(p_Stat, m_statFromOwner[p_Stat], false);
     float l_OwnersBonus = 0.0f;
 
-    Unit* l_Owner = GetOwner();
+    Unit* l_Owner = GetSummoner();
 
+    if (!l_Owner)
+        return false;
+    
     float l_Mod = 0.75f;
 
     switch (p_Stat)
@@ -1506,11 +1523,15 @@ void Guardian::UpdateResistances(uint32 p_School)
 // WoD updated
 void Guardian::UpdateArmor()
 {
+    Unit* l_Owner = GetSummoner();
+    if (l_Owner == nullptr)
+        return;
+
     UnitMods l_InitMod = UNIT_MOD_ARMOR;
     PetStatInfo const* l_PetStat = GetPetStat();
 
     /// - Since 6.x, armor of pet are always percentage of owner armor (default 1)
-    float l_Value = m_owner->GetArmor() * (l_PetStat != nullptr ? l_PetStat->m_ArmorCoef : 1.0f);
+    float l_Value = l_Owner->GetArmor() * (l_PetStat != nullptr ? l_PetStat->m_ArmorCoef : 1.0f);
 
     /// - Apply mods
     {
@@ -1518,7 +1539,7 @@ void Guardian::UpdateArmor()
         l_Value *= GetModifierValue(l_InitMod, TOTAL_PCT);
 
         float l_Amount = 0;
-        AuraEffectList const& l_ModPetStats = m_owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+        AuraEffectList const& l_ModPetStats = l_Owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
         for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
         {
             if ((*l_Iterator)->GetMiscValue() == INCREASE_ARMOR_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
@@ -1534,17 +1555,21 @@ void Guardian::UpdateArmor()
 // WoD updated
 void Guardian::UpdateMaxHealth()
 {
+    Unit* l_Owner = GetSummoner();
+    if (l_Owner == nullptr)
+        return;
+
     UnitMods l_UnitMod = UNIT_MOD_HEALTH;
     PetStatInfo const* l_PetStat = GetPetStat();
 
-    float l_Value = (l_PetStat != nullptr) ? m_owner->GetMaxHealth() * GetPetStat()->m_HealthCoef : GetModifierValue(l_UnitMod, BASE_VALUE) + GetCreateHealth();
+    float l_Value = (l_PetStat != nullptr) ? l_Owner->GetMaxHealth() * GetPetStat()->m_HealthCoef : GetModifierValue(l_UnitMod, BASE_VALUE) + GetCreateHealth();
 
     l_Value *= GetModifierValue(l_UnitMod, BASE_PCT);
     l_Value += GetModifierValue(l_UnitMod, TOTAL_VALUE);
     l_Value *= GetModifierValue(l_UnitMod, TOTAL_PCT);
 
     float l_Amount = 0;
-    AuraEffectList const& l_ModPetStats = m_owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+    AuraEffectList const& l_ModPetStats = l_Owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
     for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
     {
         if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
@@ -1561,6 +1586,10 @@ void Guardian::UpdateMaxPower(Powers p_Power)
     UnitMods l_UnitMod = UnitMods(UNIT_MOD_POWER_START + p_Power);
     PetStatInfo const* l_PetStat = GetPetStat();
 
+    Unit* l_Owner = GetSummoner();
+    if (l_Owner == nullptr)
+        return;
+
     float l_AddValue = ((l_PetStat != nullptr) && p_Power == l_PetStat->m_Power) ? 0.0f : GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT);
     float l_Multiplicator = 15.0f;
 
@@ -1576,7 +1605,7 @@ void Guardian::UpdateMaxPower(Powers p_Power)
                 l_Value = l_PetStat->m_CreatePower * -1;
             // Positive number, it's percentage of owner power
             else
-                l_Value = float(m_owner->GetMaxPower(m_owner->getPowerType()) * l_PetStat->m_CreatePower);
+                l_Value = float(l_Owner->GetMaxPower(l_Owner->getPowerType()) * l_PetStat->m_CreatePower);
         }
     }
 
@@ -1593,6 +1622,10 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
     if (p_Ranged)
         return;
 
+    Unit* l_Owner = GetSummoner();
+    if (l_Owner == nullptr)
+        return;
+
     UnitMods l_UnitMod = UNIT_MOD_ATTACK_POWER;
     float l_BaseValue  = std::max(0.0f, 2 * GetStat(STAT_STRENGTH) - 20.0f);
 
@@ -1606,12 +1639,12 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
         switch (l_PetStat->m_PowerStat)
         {
             case PetStatInfo::PowerStatBase::AttackPower:
-                l_BaseValue       = m_owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * l_PetStat->m_APSPCoef;
+                l_BaseValue       = l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * l_PetStat->m_APSPCoef;
                 l_BaseAttackPower = l_BaseValue;
                 l_SpellPower      = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
             case PetStatInfo::PowerStatBase::SpellPower:
-                l_BaseValue       = m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * l_PetStat->m_APSPCoef;
+                l_BaseValue       = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * l_PetStat->m_APSPCoef;
                 l_SpellPower      = l_BaseValue;
                 l_BaseAttackPower = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
@@ -1622,8 +1655,8 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, l_BaseAttackPower);
 
-    if (m_owner->GetTypeId() == TYPEID_PLAYER)
-        m_owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, l_SpellPower);
+    if (l_Owner->GetTypeId() == TYPEID_PLAYER)
+        l_Owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, l_SpellPower);
 
     l_BaseAttackPower      *= GetModifierValue(l_UnitMod, BASE_PCT);
     l_AttackPowerMultiplier = GetModifierValue(l_UnitMod, TOTAL_PCT) - 1.0f;

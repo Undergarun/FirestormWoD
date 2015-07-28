@@ -109,7 +109,6 @@ enum PriestSpells
     PRIEST_SPELL_SPIRIT_OF_REDEMPTION_SHAPESHIFT    = 27827,
     PRIEST_SPELL_LEVITATE                           = 111758,
     PRIEST_SPELL_VOID_TENDRILS_SUMMON               = 127665,
-    PRIEST_NPC_PSYFIEND                             = 59190,
     PRIEST_SPELL_SPECTRAL_GUISE_CHARGES             = 119030,
     PRIEST_SPELL_POWER_WORD_SHIELD                  = 17,
     PRIEST_SPELL_INNER_FOCUS_IMMUNITY               = 96267,
@@ -2318,7 +2317,7 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                                     
 
                                 int32 l_MaxDuration = l_PsychicHorror->GetMaxDuration();
-                                int32 l_NewDuration = l_MaxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed * IN_MILLISECONDS;
+                                int32 l_NewDuration = l_MaxDuration + (GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed) * IN_MILLISECONDS;
                                 l_PsychicHorror->SetDuration(l_NewDuration);
 
                                 if (l_NewDuration > l_MaxDuration)
@@ -3857,6 +3856,39 @@ class spell_pri_dispel_mass : public SpellScriptLoader
         }
 };
 
+/// Dominate Mind - 605
+/// last update: 19865
+class spell_pri_dominate_mind : public SpellScriptLoader
+{
+    public:
+        spell_pri_dominate_mind() : SpellScriptLoader("spell_pri_dominate_mind") { }
+
+        class spell_pri_dominate_mind_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_dominate_mind_SpellScript);
+
+            SpellCastResult CheckTarget()
+            {
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->ToCreature() && l_Target->ToCreature()->isWorldBoss())
+                        return SpellCastResult::SPELL_FAILED_IMMUNE;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pri_dominate_mind_SpellScript::CheckTarget);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pri_dominate_mind_SpellScript();
+        }
+};
 
 
 void AddSC_priest_spell_scripts()
@@ -3933,6 +3965,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_saving_grace();
     new spell_pri_glyph_of_the_inquisitor();
     new spell_pri_glyph_of_restored_faith();
+    new spell_pri_dominate_mind();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();

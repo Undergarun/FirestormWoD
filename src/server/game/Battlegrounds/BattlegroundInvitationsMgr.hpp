@@ -67,11 +67,11 @@ namespace MS
             bool GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo, BattlegroundType::Type p_Type) const;
         
         private:
+            EventProcessor m_Events;                                                                        ///< Events handler.
             uint32 m_WaitTimes[TeamsCount::Value][Brackets::Count][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];  ///< The average time to wait.
             uint32 m_WaitTimeLastPlayer[TeamsCount::Value][Brackets::Count];                                ///< ?????
             uint32 m_SumOfWaitTimes[TeamsCount::Value][Brackets::Count];                                    ///< The sum of the wait times.
             QueuedPlayersMap m_InvitedPlayers;                                                              ///< The players owned by the invitations manager that we are waiting for enter battleground.
-            EventProcessor m_Events;                                                                        ///< Events handler.
         };
 
         /// This class is used to invite player to BG again, when minute lasts from his first invitation

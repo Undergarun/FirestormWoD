@@ -490,6 +490,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SEL_POOL_QUEST_SAVE, "SELECT quest_id FROM pool_quest_save WHERE pool_id = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_AT_LOGIN, "SELECT at_login FROM characters WHERE guid = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN, "SELECT race, class, level, at_login, knownTitles, playerBytes, playerBytes2  FROM characters WHERE guid = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_SEL_CHAR_TITLES, "SELECT knownTitles FROM characters WHERE guid = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SEL_INSTANCE, "SELECT data, completedEncounters FROM instance WHERE map = ? AND id = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SEL_PET_SPELL_LIST, "SELECT DISTINCT pet_spell.spell FROM pet_spell, character_pet WHERE character_pet.owner = ? AND character_pet.id = pet_spell.guid AND character_pet.id <> ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SEL_CHAR_PET, "SELECT id FROM character_pet WHERE owner = ? AND id <> ?", CONNECTION_SYNCH);
@@ -705,8 +706,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     //////////////////////////////////////////////////////////////////////////
     /// SpellCharges
-    PREPARE_STATEMENT(CHAR_SEL_CHARGES_COOLDOWN, "SELECT category, time FROM character_charges_cooldown WHERE guid = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_INS_CHARGES_COOLDOWN, "INSERT INTO character_charges_cooldown (guid, category, time) VALUE (?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_CHARGES_COOLDOWN, "SELECT category, charge, time FROM character_charges_cooldown WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_CHARGES_COOLDOWN, "INSERT INTO character_charges_cooldown (guid, category, charge, time) VALUE (?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_CHARGES_COOLDOWN, "DELETE FROM character_charges_cooldown WHERE guid = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
 

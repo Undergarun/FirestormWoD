@@ -661,6 +661,12 @@ struct AchievementCriteriaUpdateTask
     std::function<void(uint64, uint64)> Task;
 };
 
+using LockedAchievementCriteriaTaskQueue   = ACE_Based::LockedQueue<AchievementCriteriaUpdateTask, ACE_Thread_Mutex>;
+using LockedPlayersAchievementCriteriaTask = ACE_Based::LockedMap<uint32, LockedAchievementCriteriaTaskQueue>;
+
+using AchievementCriteriaTaskQueue   = std::queue<AchievementCriteriaUpdateTask>;
+using PlayersAchievementCriteriaTask = std::map<uint32, AchievementCriteriaTaskQueue>;
+
 class AchievementGlobalMgr
 {
         friend class ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>;
@@ -784,11 +790,20 @@ class AchievementGlobalMgr
         CriteriaEntry const* GetAchievementCriteria(uint32 achievementId) const;
 
         void PrepareCriteriaUpdateTaskThread();
-        void ProcessAllCriteriaUpdateTask();
 
         void AddCriteriaUpdateTask(AchievementCriteriaUpdateTask const& p_Task)
         {
-            m_AchievementCriteriaUpdateTaskStoreQueue.add(p_Task);
+            m_LockedPlayersAchievementCriteriaTask[p_Task.PlayerGUID].add(p_Task);
+        }
+
+        PlayersAchievementCriteriaTask const& GetPlayersCriteriaTask() const
+        {
+            return m_PlayersAchievementCriteriaTask;
+        }
+
+        void ClearPlayersCriteriaTask()
+        {
+            m_PlayersAchievementCriteriaTask.clear();
         }
 
     private:
@@ -814,8 +829,8 @@ class AchievementGlobalMgr
         AchievementRewards m_achievementRewards;
         AchievementRewardLocales m_achievementRewardLocales;
 
-        ACE_Based::LockedQueue<AchievementCriteriaUpdateTask, ACE_Thread_Mutex> m_AchievementCriteriaUpdateTaskStoreQueue;   ///< All criteria update task are first storing here
-        std::queue<AchievementCriteriaUpdateTask> m_AchievementCriteriaUpdateTaskProcessQueue;                               ///< Before thread process, all task stored will be move here
+        LockedPlayersAchievementCriteriaTask m_LockedPlayersAchievementCriteriaTask;  ///< All criteria update task are first storing here
+        PlayersAchievementCriteriaTask       m_PlayersAchievementCriteriaTask;        ///< Before thread process, all task stored will be move here
 };
 
 #define sAchievementMgr ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance()
@@ -824,8 +839,11 @@ class MapUpdater;
 class AchievementCriteriaUpdateRequest : public MapUpdaterTask
 {
     public:
-        AchievementCriteriaUpdateRequest(MapUpdater* p_Updater);
+        AchievementCriteriaUpdateRequest(MapUpdater* p_Updater, AchievementCriteriaTaskQueue p_TaskQueue);
         virtual void call() override;
+
+    private:
+        AchievementCriteriaTaskQueue m_CriteriaUpdateTasks;
 
 };
 

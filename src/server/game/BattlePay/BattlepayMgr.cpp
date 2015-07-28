@@ -235,7 +235,7 @@ namespace Battlepay
 
     bool Manager::IsAvailable(WorldSession* p_Session) const
     {
-        return sWorld->getBoolConfig(CONFIG_BATTLEPAY_ENABLE) && (int)p_Session->GetSecurity() >= sWorld->getIntConfig(CONFIG_BATTLEPAY_MIN_SECURITY);
+        return sWorld->getBoolConfig(CONFIG_BATTLEPAY_ENABLE) && (int)p_Session->GetSecurity() >= (int)sWorld->getIntConfig(CONFIG_BATTLEPAY_MIN_SECURITY);
     }
 
     void Manager::SavePurchase(WorldSession* p_Session, Battlepay::Purchase* p_Purchase)

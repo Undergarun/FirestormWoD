@@ -2802,7 +2802,7 @@ class spell_warl_demonic_circle_summon: public SpellScriptLoader
         }
 };
 
-// Demonic Circle : Teleport - 48020 and Soulburn : Demonic Circle : Teleport - 114794
+// Demonic Circle : Teleport - 48020, Soulburn : Demonic Circle : Teleport - 114794 and Metamorphosis : Demonic Circle : Teleport - 104136
 class spell_warl_demonic_circle_teleport: public SpellScriptLoader
 {
     public:

@@ -1,8 +1,7 @@
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "auchindon.h"
+#include "auchindon.hpp"
 
 enum NyamiSpells
 {

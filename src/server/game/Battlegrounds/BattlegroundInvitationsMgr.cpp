@@ -107,6 +107,9 @@ namespace MS
                     l_TeamIndex = BG_TEAM_HORDE; /// For rated arenas use BG_TEAM_HORDE.
             }
 
+            if (l_TeamIndex >= TeamsCount::Value || p_BracketId >= Brackets::Count)
+                sLog->outAshran("BattlegroundInvitationsMgr: TeamIndex: %u, BracketId: %u", l_TeamIndex, p_BracketId);
+
             /// Store pointer to arrayindex of player that was added first.
             uint32* l_LastPlayerAddedPointer = &(m_WaitTimeLastPlayer[l_TeamIndex][p_BracketId]);
 

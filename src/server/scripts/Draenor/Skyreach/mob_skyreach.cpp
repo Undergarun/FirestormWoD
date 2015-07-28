@@ -1,5 +1,5 @@
 #include "ScriptPCH.h"
-#include "instance_skyreach.h"
+#include "instance_skyreach.hpp"
 
 /*
  TODO: There seems to have other spells to cast here. For example:
