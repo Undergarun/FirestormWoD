@@ -5642,6 +5642,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 124974: ///< Nature's Vigil
                 spellInfo->AttributesEx7 &= ~SPELL_ATTR7_ALLIANCE_ONLY;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
+                break;
             case 120552: ///< Mantid Munition Explosion
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
                 break;
