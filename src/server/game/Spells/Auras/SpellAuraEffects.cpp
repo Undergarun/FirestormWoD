@@ -687,7 +687,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MOD_RATING:
         {
             // Heart's Judgment, Heart of Ignacious trinket (Heroic)
-            if (m_spellInfo->Id == 92328)
+            if (m_spellInfo->Id == 92328 && caster)
             {
                 if (AuraPtr pAura = caster->GetAura(92325))
                     amount *= pAura->GetStackAmount();
@@ -774,7 +774,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MOD_RATING:
         {
             // Heart's Judgment, Heart of Ignacious trinket (Heroic)
-            if (m_spellInfo->Id == 92328)
+            if (m_spellInfo->Id == 92328 && caster)
             {
                 if (AuraPtr pAura = caster->GetAura(92325))
                     amount *= pAura->GetStackAmount();
