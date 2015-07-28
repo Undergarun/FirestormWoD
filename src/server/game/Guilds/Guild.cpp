@@ -1650,12 +1650,21 @@ void Guild::HandleInviteMember(WorldSession* p_Session, const std::string& p_Nam
         SendCommandResult(p_Session, GUILD_INVITE_S, ERR_GUILD_NOT_ALLIED, p_Name);
         return;
     }
+    
     /// Invited player cannot be invited
     if (p_Invitee->GetGuildIdInvited())
     {
         SendCommandResult(p_Session, GUILD_INVITE_S, ERR_ALREADY_INVITED_TO_GUILD_S, p_Name);
         return;
     }
+    
+    /// Player already in guild cannot be invited
+    if (p_Invitee->GetGuildId())
+    {
+        SendCommandResult(p_Session, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, p_Name);
+        return;
+    }    
+
     /// Inviting player must have rights to invite
     if (!_HasRankRight(l_Player, GR_RIGHT_INVITE))
     {

@@ -112,9 +112,14 @@ class spell_dk_glyph_of_death_and_decay: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
-                if (dest && GetCaster()->HasAura(DK_SPELL_GLYPH_OF_DEATH_AND_DECAY))
-                    GetCaster()->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(DeathKnightSpells::DK_SPELL_GLYPH_OF_DEATH_AND_DECAY))
+                    {
+                        if (WorldLocation const* dest = GetExplTargetDest())
+                            l_Caster->CastSpell(*dest, DeathKnightSpells::DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED, true);
+                    }
+                }
             }
 
             void Register()

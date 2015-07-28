@@ -436,7 +436,7 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
                     l_PathList[l_Itr++] = l_Path;
 
                 float l_Dist = 0.f;
-                for (int32 l_I = 1; l_I < (int32)l_PathList.size(); l_I++)
+                for (int l_I = 1; l_I < (int)l_PathList.size(); l_I++)
                     l_Dist += l_PathList[l_I].GetExactDist(&l_PathList[l_I - 1]);
                 
                 AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
@@ -446,7 +446,7 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
 
                 float l_CurrentDistanceProgress = l_Progress * l_Dist;
                 bool l_Found = false;
-                for (int32 l_I = 1; l_I < (int32)l_PathList.size(); l_I++)
+                for (int l_I = 1; l_I < (int)l_PathList.size(); l_I++)
                 {
                     Position& l_CurrentPosition = l_PathList[l_I - 1];
                     Position& l_NextPosition = l_PathList[l_I];
