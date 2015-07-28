@@ -30,7 +30,13 @@ class boss_rukhmar : public CreatureScript
 
             float GetDataZ() { return m_ZRef; }
 
+            enum eEvents
+            {
+                EventMove = 1
+            };
+
             EventMap m_Events;
+            EventMap m_MoveEvent;
             float m_ZRef;
             float m_ZNew;
             bool m_MovingUpToward;
@@ -45,6 +51,7 @@ class boss_rukhmar : public CreatureScript
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->AddAura(SpiresOfArakSpells::SouthshoreMobScalingAura, me);
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1000);
                 m_Events.Reset();
             }
 
@@ -82,6 +89,7 @@ class boss_rukhmar : public CreatureScript
 
             void EnterCombat(Unit* p_Who) override
             {
+                me->SetHomePosition(*me);
                 me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
                 LaunchGroundEvents();
             }
@@ -172,6 +180,18 @@ class boss_rukhmar : public CreatureScript
             {
                 m_Events.Update(p_Diff);
                 EnterEvadeIfOutOfCombatArea(p_Diff);
+
+
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    me->SetWalk(true);
+                    me->LoadPath(me->GetEntry());
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 HandleHealthAndDamageScaling();
 
                 if (!UpdateVictim())
