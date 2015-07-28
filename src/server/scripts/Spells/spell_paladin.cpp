@@ -2628,6 +2628,57 @@ class spell_pal_turn_evil : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of Contemplation - 125043
+class spell_pal_gyph_of_contemplation : public SpellScriptLoader
+{
+    public:
+        spell_pal_gyph_of_contemplation() : SpellScriptLoader("spell_pal_gyph_of_contemplation") { }
+
+        class spell_pal_gyph_of_contemplation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_gyph_of_contemplation_AuraScript);
+
+            enum eSpells
+            {
+                Contemplation = 121183
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasSpell(eSpells::Contemplation))
+                    l_Player->learnSpell(eSpells::Contemplation, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::Contemplation))
+                    l_Player->removeSpell(eSpells::Contemplation, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_gyph_of_contemplation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_gyph_of_contemplation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_gyph_of_contemplation_AuraScript();
+        }
+};
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -2707,6 +2758,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sanctified_wrath();
     new spell_pal_sanctified_wrath_bonus();
     new spell_pal_selfless_healer_proc();
+    new spell_pal_gyph_of_contemplation();
 
     // Player Script
     new PlayerScript_empowered_divine_storm();
