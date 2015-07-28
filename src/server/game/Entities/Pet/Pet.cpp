@@ -867,7 +867,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     // Determine pet type
     PetType l_PetType = MAX_PET_TYPE;
 
-    Unit* l_Owner = GetOwner();
+    Unit* l_Owner = GetSummoner();
     if (l_Owner && isPet() && l_Owner->GetTypeId() == TYPEID_PLAYER)
     {
         switch (l_Owner->getClass())

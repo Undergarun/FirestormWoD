@@ -352,7 +352,7 @@ void Guardian::InitSummon()
 {
     TempSummon::InitSummon();
 
-    Unit* l_Owner = GetOwner();
+    Unit* l_Owner = GetSummoner();
     if (l_Owner == nullptr)
         return;
 

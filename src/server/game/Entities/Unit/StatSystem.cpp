@@ -1381,7 +1381,7 @@ bool Guardian::UpdateStats(Stats p_Stat)
     ApplyStatBuffMod(p_Stat, m_statFromOwner[p_Stat], false);
     float l_OwnersBonus = 0.0f;
 
-    Unit* l_Owner = GetOwner();
+    Unit* l_Owner = GetSummoner();
 
     float l_Mod = 0.75f;
 
