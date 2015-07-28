@@ -3890,12 +3890,24 @@ class spell_gen_selfie_camera : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                GetCaster()->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    l_Caster->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                }
             }
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                GetCaster()->ToPlayer()->CancelSpellVisualKit(54168);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    l_Caster->ToPlayer()->CancelSpellVisualKit(54168);
+                }
             }
 
             void Register()
