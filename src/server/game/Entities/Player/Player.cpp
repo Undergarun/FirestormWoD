@@ -29697,7 +29697,17 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
     GetAchievementMgr().CompletedAchievement(entry, this);
 }
 
-// TODO : Check cheat-hack issue with packet-editing
+static const uint8 k_LevelPerTier[7] =
+{
+    15,
+    30,
+    45,
+    60,
+    75,
+    90,
+    100
+};
+
 bool Player::LearnTalent(uint32 talentId)
 {
     uint32 CurTalentPoints = GetFreeTalentPoints();
@@ -29706,6 +29716,9 @@ bool Player::LearnTalent(uint32 talentId)
 
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
     if (!talentInfo)
+        return false;
+
+    if (k_LevelPerTier[talentInfo->TierID] > getLevel())
         return false;
 
     if (talentInfo->ClassID != getClass())
