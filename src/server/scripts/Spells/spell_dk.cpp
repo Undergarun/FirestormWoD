@@ -73,7 +73,6 @@ enum DeathKnightSpells
     DK_SPELL_PLAGUEBEARER                       = 161497,
     DK_SPELL_NECROTIC_PLAGUE                    = 152281,
     DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA         = 155159,
-    DK_SPELL_RUNIC_CORRUPTION                   = 51460,
     DK_SPELL_DEATH_PACT                         = 48743,
     DK_SPELL_ICY_TOUCH                          = 45477,
     DK_SPELL_CHILBLAINS_TRIGGER                 = 50435,
@@ -2079,6 +2078,7 @@ class spell_dk_runic_corruption : public PlayerScript
 
         enum eSpells
         {
+            RunicCorruption     = 51460,
             RunicCorruptionAura = 51462,
         };
 
@@ -2096,10 +2096,10 @@ class spell_dk_runic_corruption : public PlayerScript
 
                 if (roll_chance_f(l_Chance))
                 {
-                    if (AuraPtr l_AuraRunicCorruption = p_Player->GetAura(DK_SPELL_RUNIC_CORRUPTION))
+                    if (AuraPtr l_AuraRunicCorruption = p_Player->GetAura(eSpells::RunicCorruption))
                         l_AuraRunicCorruption->SetDuration(l_AuraRunicCorruption->GetDuration() + l_AuraRunicCorruption->GetMaxDuration());
                     else
-                        p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);
+                        p_Player->CastSpell(p_Player, eSpells::RunicCorruption, true);
                 }
             }
         }

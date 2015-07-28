@@ -1094,27 +1094,27 @@ void Player::UpdateFocusRegen()
     SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
 }
 
-void Player::UpdateRuneRegen(RuneType rune)
+void Player::UpdateRuneRegen(RuneType p_Rune)
 {
-    if (rune > NUM_RUNE_TYPES)
+    if (p_Rune > NUM_RUNE_TYPES)
         return;
 
-    uint32 cooldown = 0;
-    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+    uint32 l_Cooldown = 0;
 
-    for (uint32 i = 0; i < MAX_RUNES; ++i)
-        if (GetBaseRune(i) == rune)
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+        if (GetBaseRune(i) == p_Rune)
         {
-            cooldown = GetRuneBaseCooldown(i);
+            l_Cooldown = GetRuneBaseCooldown(i);
             break;
         }
 
-    if (cooldown <= 0)
+    if (l_Cooldown <= 0)
         return;
 
-    float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
-    regen *= HastePct;
-    SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(rune), regen);
+    float l_Regen = float(1 * IN_MILLISECONDS) / float(l_Cooldown);
+    l_Regen *= 2.f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+
+    SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(p_Rune), l_Regen);
 }
 
 void Player::UpdateAllRunesRegen()
@@ -1122,23 +1122,21 @@ void Player::UpdateAllRunesRegen()
     if (getClass() != Classes::CLASS_DEATH_KNIGHT)
         return;
 
-    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
-
     for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
-        if (uint32 cooldown = GetRuneTypeBaseCooldown(RuneType(i)))
+        if (uint32 l_Cooldown = GetRuneTypeBaseCooldown(RuneType(i)))
         {
-            float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
+            float l_Regen = float(1 * IN_MILLISECONDS) / float(l_Cooldown);
+            l_Regen *= 2.f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
-            if (regen < 0.0099999998f)
-                regen = 0.01f;
+            if (l_Regen < 0.0099999998f)
+                l_Regen = 0.01f;
 
-            regen *= HastePct;
-            SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, regen);
+            SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, l_Regen);
         }
     }
 
-    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_RUNES));
+    //SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_RUNES));
 }
 
 float Player::GetRegenForPower(Powers p_Power)
