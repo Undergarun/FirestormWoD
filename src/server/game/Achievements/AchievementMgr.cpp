@@ -4064,29 +4064,28 @@ bool AchievementMgr<T>::RequiresScript(CriteriaEntry const* p_Criteria)
 void AchievementGlobalMgr::PrepareCriteriaUpdateTaskThread()
 {
     AchievementCriteriaUpdateTask l_Task;
-    while (m_AchievementCriteriaUpdateTaskStoreQueue.next(l_Task))
-        m_AchievementCriteriaUpdateTaskProcessQueue.push(l_Task);
-}
-
-void AchievementGlobalMgr::ProcessAllCriteriaUpdateTask()
-{
-    while (!m_AchievementCriteriaUpdateTaskProcessQueue.empty())
+    for (auto l_Iterator = m_LockedPlayersAchievementCriteriaTask.begin(); l_Iterator != m_LockedPlayersAchievementCriteriaTask.end(); l_Iterator++)
     {
-        AchievementCriteriaUpdateTask& l_Task = m_AchievementCriteriaUpdateTaskProcessQueue.front();
-        l_Task.Task(l_Task.PlayerGUID, l_Task.UnitGUID);
-        m_AchievementCriteriaUpdateTaskProcessQueue.pop();
+        while ((*l_Iterator).second.next(l_Task))
+            m_PlayersAchievementCriteriaTask[(*l_Iterator).first].push(l_Task);
     }
 }
 
-
-AchievementCriteriaUpdateRequest::AchievementCriteriaUpdateRequest(MapUpdater* p_Updater)
-    : MapUpdaterTask(p_Updater)
+AchievementCriteriaUpdateRequest::AchievementCriteriaUpdateRequest(MapUpdater* p_Updater, AchievementCriteriaTaskQueue p_TaskQueue)
+: MapUpdaterTask(p_Updater), m_CriteriaUpdateTasks(p_TaskQueue)
 {
 
 }
 
 void AchievementCriteriaUpdateRequest::call()
 {
-    sAchievementMgr->ProcessAllCriteriaUpdateTask();
+    AchievementCriteriaUpdateTask l_Task;
+    while (!m_CriteriaUpdateTasks.empty())
+    {
+        l_Task = m_CriteriaUpdateTasks.front();
+        l_Task.Task(l_Task.PlayerGUID, l_Task.UnitGUID);
+        m_CriteriaUpdateTasks.pop();
+    }
+
     UpdateFinished();
 }
