@@ -1090,7 +1090,7 @@ struct MountEntry
     uint32 PlayerConditionID;                                       ///< 9
 };
 
-#define MAX_MOUNT_CAPABILITIES 24
+#define MAX_MOUNT_CAPABILITIES 26
 
 struct MountCapabilities
 {

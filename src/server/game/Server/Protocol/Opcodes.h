@@ -905,6 +905,9 @@ enum Opcodes
         SMSG_LFG_LIST_UPDATE_BLACKLIST                    = 0x117E, ///< 6.2.1 20271
         SMSG_LFG_LIST_UPDATE_STATUS                       = 0x0172, ///< 6.2.1 20271
         SMSG_LFG_LIST_SEARCH_RESULT                       = 0x0565, ///< 6.2.1 20271
+        SMSG_LFG_LIST_APPLY_FOR_GROUP_RESULT              = 0x017E, ///< 6.2.1 20271
+        SMSG_LFG_LIST_APPLICANT_LIST_UPDATE               = 0x006E, ///< 6.2.1 20271
+        SMSG_LFG_LIST_APPLICANT_GROUP_INVITE              = 0x107E, ///< 6.2.1 20271
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1022,8 +1025,8 @@ enum Opcodes
     CMSG_PLAYER_LOGIN                           = 0x11D8, ///< 6.2.1 20271
     CMSG_VIOLENCE_LEVEL                         = 0x0004, ///< 6.2.1 20271
     CMSG_LOAD_SCREEN                            = 0x03C3, ///< 6.2.1 20271
-    CMSG_REQUEST_ACCOUNT_DATA                   = 0x159F, ///< 6.2.1 20271
-    CMSG_UPDATE_ACCOUNT_DATA                    = 0x0498, ///< 6.2.1 20271
+    CMSG_REQUEST_ACCOUNT_DATA                   = 0x07C2, ///< 6.2.1 20271
+    CMSG_UPDATE_ACCOUNT_DATA                    = 0x159F, ///< 6.2.1 20271
     CMSG_SET_DUNGEON_DIFFICULTY                 = 0x01D4, ///< 6.2.1 20271
     CMSG_SET_RAID_DIFFICULTY                    = 0x0AD8, ///< 6.2.1 20271
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x0876, ///< 6.2.1 20271
@@ -1509,7 +1512,7 @@ enum Opcodes
     /// Guild finding
     CMSG_LF_GUILD_ADD_RECRUIT                      = 0x0382, ///< 6.2.1 20271
     CMSG_LF_GUILD_BROWSE                           = 0x112A, ///< 6.2.1 20271
-    CMSG_LF_GUILD_DECLINE_RECRUIT                  = 0x0693, ///< 6.2.1 20271
+    CMSG_LF_GUILD_DECLINE_RECRUIT                  = 0x112A, ///< 6.2.1 20271
     CMSG_LF_GUILD_GET_APPLICATIONS                 = 0x00DB, ///< 6.2.1 20271
     CMSG_LF_GUILD_GET_RECRUITS                     = 0x153D, ///< 6.2.1 20271
     CMSG_LF_GUILD_POST_REQUEST                     = 0x152E, ///< 6.2.1 20271
@@ -1559,11 +1562,16 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// LFG LIST
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LFG_LIST_JOIN                              = 0x0292, ///< 6.2.1 20271
-    CMSG_LFG_LIST_UPDATE_REQUEST                    = 0x0197, ///< 6.2.1 20271
-    CMSG_LFG_LIST_LEAVE                             = 0x109F, ///< 6.2.1 20271
-    CMSG_LFG_LIST_SEARCH                            = 0x0598, ///< 6.2.1 20271
     CMSG_REQUEST_LFG_LIST_BLACKLIST                 = 0x0F39, ///< 6.2.1 20271
+    CMSG_LFG_LIST_JOIN                              = 0x03C1, ///< 6.2.1 20271
+    CMSG_LFG_LIST_UPDATE_REQUEST                    = 0x0197, ///< 6.2.1 20271
+    CMSG_LFG_LIST_LEAVE                             = 0x158B, ///< 6.2.1 20271
+    CMSG_LFG_LIST_SEARCH                            = 0x0598, ///< 6.2.1 20271
+    CMSG_LFG_LIST_APPLY_FOR_GROUP                   = 0x128C, ///< 6.2.1 20271
+    CMSG_LFG_LIST_INVITE_APPLICANT                  = 0x1281, ///< 6.2.1 20271
+    CMSG_LFG_LIST_REMOVE_APPLICANT                  = 0x0693, ///< 6.2.1 20271
+    CMSG_LFG_LIST_CANCEL_APPLICATION                = 0x0488, ///< 6.2.1 20271
+    CMSG_LFG_LIST_INVITATION_ANSWER                 = 0x02DA, ///< 6.2.1 20271
 
     //////////////////////////////////////////////////////////////////////////
     /// Auction House

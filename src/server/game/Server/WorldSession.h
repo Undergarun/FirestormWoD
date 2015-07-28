@@ -27,6 +27,7 @@
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
+#include "LFGListMgr.h"
 
 class Creature;
 class GameObject;
@@ -53,7 +54,6 @@ struct LfgProposal;
 struct LfgReward;
 struct LfgRoleCheck;
 struct LfgUpdateData;
-struct LFGListEntry;
 struct MovementInfo;
 struct PetBattleRequest;
 class PetBattle;
@@ -977,11 +977,28 @@ class WorldSession
         void HandleLfgListUpdateRequest(WorldPacket& p_RecvData);
         void HandleLfgListLeave(WorldPacket& p_RecvData);
         void HandleLfgListSearch(WorldPacket& p_RecvData);
+        void HandleLfgListApplyForGroup(WorldPacket& p_RecvData);
+        void HandleLfgListInviteApplicant(WorldPacket& p_RecvData);
+        void HandleLfgListRemoveApplicant(WorldPacket& p_RecvData);
+        void HandleLfgListCancelApplication(WorldPacket& p_RecvData);
+        void HandleLfgListInvitationAnswer(WorldPacket& p_RecvData);
+
         void SendLfgListJoinResult(LFGListEntry const* p_Entry, uint8 p_Error);
         void SendLfgSearchResponse(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString);
+        void SendLfgListApplyForGroupResult(LFGListEntry const* p_LFGEntry, LFGListEntry::LFGListApplicationEntry const* p_Application, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus p_Status);
+        void SendLfgListApplicantGroupInviteResponse(LFGListEntry::LFGListApplicationEntry const* p_Applicant);
+
         static void BuildLfgListRideTicket(WorldPacket* p_Data, LFGListEntry const* p_Entry);
+        static void BuildLfgListApplicationRideTicket(WorldPacket* p_Data, LFGListEntry::LFGListApplicationEntry const* p_Entry);
+        static void BuildLfgListEntryInfo(WorldPacket* p_Data, LFGListEntry const* p_Entry);
         static void BuildLfgListJoinRequest(WorldPacket* p_Data, LFGListEntry const* p_Entry);
         static void BuildLfgListQueueUpdate(WorldPacket* p_Data, LFGListEntry const* p_Entry, bool p_Listed);
+        static LFGListEntry* ReadLfgListRideTicketInfo(WorldPacket* p_Data, uint32* l_ID);
+        static LFGListEntry::LFGListApplicationEntry* ReadLfgListApplicanmtRideTicketInfo(WorldPacket* p_Data, LFGListEntry* p_ReferenceEntry, uint32* l_ID);
+        static LFGListEntry::LFGListApplicationEntry* ReadLfgListApplicanmtRideTicketInfo(WorldPacket* p_Data, uint32* l_ID);
+        static void BuildLfgListApplicantListUpdate(WorldPacket* p_Data, LFGListEntry const* p_Entry, LFGListEntry::LFGListApplicationEntry const* p_Applicant);
+        static void BuildLfgListApplicantListUpdate(WorldPacket* p_Data, LFGListEntry const* p_Entry, std::list<LFGListEntry::LFGListApplicationEntry const*> p_ApplicantList);
+        static void BuilfLfgListApplicantGroupInvite(WorldPacket* p_Data, LFGListEntry::LFGListApplicationEntry const* p_Applicant);
 
         // Socket gem
         void HandleSocketOpcode(WorldPacket& recvData);

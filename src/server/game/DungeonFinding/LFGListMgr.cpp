@@ -102,7 +102,7 @@ bool LFGListMgr::IsGroupQueued(Group const* p_Group) const
     return m_LFGListQueue.find(p_Group->GetLowGUID()) != m_LFGListQueue.end();
 }
 
-void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry const* p_LFGEntry, WorldSession* p_WorldSession /* = nullptr */, bool p_Listed /* = true */)
+void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry* p_LFGEntry, WorldSession* p_WorldSession /* = nullptr */, bool p_Listed /* = true */)
 {
     WorldPacket l_Data;
     WorldSession::BuildLfgListQueueUpdate(&l_Data, p_LFGEntry, p_Listed);
@@ -110,12 +110,12 @@ void LFGListMgr::SendLFGListStatusUpdate(LFGListEntry const* p_LFGEntry, WorldSe
     if (p_WorldSession)
         p_WorldSession->SendPacket(&l_Data);
     else if (Group* l_Group = p_LFGEntry->m_Group)
-        l_Group->BroadcastPacket(&l_Data, false);
+        p_LFGEntry->BroadcastPacketToGrop(&l_Data);
 }
 
 bool LFGListMgr::Remove(uint32 l_GroupGuidLow, Player* p_Requester /* = nullptr */, bool l_Disband /* = true */)
 {
-    std::unordered_map<uint32, LFGListEntry const*>::const_iterator l_Iter = m_LFGListQueue.find(l_GroupGuidLow);
+    std::unordered_map<uint32, LFGListEntry *>::const_iterator l_Iter = m_LFGListQueue.find(l_GroupGuidLow);
     if (l_Iter == m_LFGListQueue.end())
         return false;
 
@@ -126,7 +126,7 @@ bool LFGListMgr::Remove(uint32 l_GroupGuidLow, Player* p_Requester /* = nullptr 
     if (p_Requester && ((!l_Group->isRaidGroup() || !l_Group->IsAssistant(p_Requester->GetGUID())) && !l_Group->IsLeader(p_Requester->GetGUID())))
         return false;
 
-    LFGListEntry const* l_Entry = l_Iter->second;
+    LFGListEntry* l_Entry = l_Iter->second;
     m_LFGListQueue.erase(l_Iter);
     SendLFGListStatusUpdate(l_Entry, nullptr, false);
     delete l_Entry;
@@ -139,7 +139,7 @@ bool LFGListMgr::Remove(uint32 l_GroupGuidLow, Player* p_Requester /* = nullptr 
 
 void LFGListMgr::PlayerAddedToGroup(Player* p_Player, Group* p_Group)
 {
-    std::unordered_map<uint32, LFGListEntry const*>::const_iterator l_Iter = m_LFGListQueue.find(p_Group->GetLowGUID());
+    std::unordered_map<uint32, LFGListEntry *>::const_iterator l_Iter = m_LFGListQueue.find(p_Group->GetLowGUID());
     if (l_Iter == m_LFGListQueue.end())
         return;
 
@@ -148,7 +148,7 @@ void LFGListMgr::PlayerAddedToGroup(Player* p_Player, Group* p_Group)
 
 void LFGListMgr::PlayerRemoveFromGroup(Player* p_Player, Group* p_Group)
 {
-    std::unordered_map<uint32, LFGListEntry const*>::const_iterator l_Iter = m_LFGListQueue.find(p_Group->GetLowGUID());
+    std::unordered_map<uint32, LFGListEntry *>::const_iterator l_Iter = m_LFGListQueue.find(p_Group->GetLowGUID());
     if (l_Iter == m_LFGListQueue.end())
         return;
 
@@ -179,4 +179,197 @@ std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 p_ActivityCate
         l_LFGFiltered.push_back(l_ListEntry);
     }
     return l_LFGFiltered;
+}
+
+LFGListEntry const* LFGListMgr::GetEntrybyGuidLow(uint32 p_ID)
+{
+    std::unordered_map<uint32, LFGListEntry *>::const_iterator l_Iter = m_LFGListQueue.find(p_ID);
+    if (l_Iter == m_LFGListQueue.end())
+        return nullptr;
+
+    return l_Iter->second;
+}
+
+void LFGListMgr::OnPlayerApplyForGroup(LFGListEntry::LFGListApplicationEntry p_Application, uint32 p_GroupID)
+{
+    LFGListEntry* l_Entry = const_cast<LFGListEntry*>(GetEntrybyGuidLow(p_GroupID));
+
+    if (!l_Entry)
+        return;
+
+    Player* l_Player = p_Application.GetPlayer();
+
+    if (!l_Player)
+        return;
+
+    l_Entry->m_Applications.insert({ l_Player->GetGUIDLow(), p_Application });
+    LFGListEntry::LFGListApplicationEntry* l_Application = &l_Entry->m_Applications.find(l_Player->GetGUIDLow())->second;
+
+    if (l_Entry)
+    {
+        if (l_Entry->m_AutoAcceptInvites)
+            ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITED);
+        else
+            ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_APPLIED);
+    }
+}
+
+void LFGListEntry::BroadcastPacketToGrop(WorldPacket* p_Data)
+{
+    m_Group->BroadcastPacket(p_Data, false);
+}
+
+void LFGListEntry::BroadcastPacketToApplicants(WorldPacket* p_Data)
+{
+    for (auto l_Applicant : m_Applications)
+        if (Player* l_Player = l_Applicant.second.GetPlayer())
+            l_Player->SendDirectMessage(p_Data);
+}
+
+Player* LFGListEntry::LFGListApplicationEntry::GetPlayer() const
+{
+    return sObjectMgr->GetPlayerByLowGUID(m_PlayerLowGuid);
+};
+
+bool LFGListEntry::IsApplied(uint32 p_GuidLow) const
+{
+    return m_Applications.find(p_GuidLow) != m_Applications.end();
+}
+
+bool LFGListEntry::IsApplied(Player* p_Player) const
+{
+    return IsApplied(p_Player->GetGUIDLow());
+}
+
+void LFGListEntry::BroadcastApplicantUpdate(LFGListApplicationEntry const* l_Applicant)
+{
+    WorldPacket l_Data(SMSG_LFG_LIST_APPLICANT_LIST_UPDATE, 0x100);
+    WorldSession::BuildLfgListApplicantListUpdate(&l_Data, this, l_Applicant);
+    BroadcastPacketToGrop(&l_Data);
+}
+
+void LFGListEntry::InviteApplicant(LFGListApplicationEntry const* l_Applicant)
+{
+}
+
+void LFGListEntry::LFGListApplicationEntry::ResetTimeout()
+{
+    m_Timeout = time(nullptr) + (m_Status == LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITED ? LFG_LIST_INVITE_TO_GROUP_TIMEOUT : LFG_LIST_APPLY_FOR_GROUP_TIMEOUT);
+}
+
+void LFGListEntry::ResetTimeout()
+{
+    m_Timeout = time(nullptr) + LFG_LIST_GROUP_TIMEOUT;
+    sLFGListMgr->SendLFGListStatusUpdate(this);
+}
+
+uint32 LFGListEntry::LFGListApplicationEntry::GetRemainingTimeoutTime() const
+{
+    return m_Timeout - time(nullptr);
+}
+
+void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_Application, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus p_Status, bool p_Notify /* = true */)
+{
+    if (p_Application->m_Status == p_Status)
+        return;
+
+    bool l_Remove = false;
+
+    p_Application->m_Status = p_Status;
+
+    switch (p_Status)
+    {
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_APPLIED:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITED:
+        {
+            p_Application->ResetTimeout();
+            p_Application->m_Owner->ResetTimeout();
+
+            if (p_Notify)
+                p_Application->GetPlayer()->GetSession()->SendLfgListApplyForGroupResult(p_Application->m_Owner, p_Application, p_Status);
+            break;
+        }
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_INVITEDECLINED:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_DECLINED:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_CANCELLED:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_TIMEOUT:
+        {
+            p_Application->m_Listed = false;
+            l_Remove = true;
+
+            if (p_Notify)
+                p_Application->GetPlayer()->GetSession()->SendLfgListApplicantGroupInviteResponse(p_Application);
+            break;
+        }
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITEACCEPTED:
+        {
+            p_Application->m_Listed = false;
+            l_Remove = true;
+            p_Application->m_Owner->m_Group->AddMember(p_Application->GetPlayer());
+
+            if (p_Notify)
+                p_Application->GetPlayer()->GetSession()->SendLfgListApplicantGroupInviteResponse(p_Application);
+            break;
+        }
+    }
+
+    p_Application->m_Owner->BroadcastApplicantUpdate(p_Application);
+
+    if (l_Remove)
+        p_Application->m_Owner->m_Applications.erase(p_Application->m_Owner->m_Applications.find(p_Application->m_PlayerLowGuid));
+}
+
+LFGListEntry::LFGListApplicationEntry* LFGListMgr::GetApplicationByID(uint32 p_ID)
+{
+    for (auto& l_Group : m_LFGListQueue)
+    {
+        for (auto& l_Applicant : l_Group.second->m_Applications)
+        {
+            if (l_Applicant.first == p_ID)
+                return &l_Applicant.second;
+        }
+    }
+
+    return nullptr;
+}
+
+void LFGListMgr::Update(uint32 const p_Diff)
+{
+    for (auto& l_Entry : m_LFGListQueue)
+        l_Entry.second->Update(p_Diff);
+}
+
+void LFGListEntry::Update(uint32 const p_Diff)
+{
+    for (auto& l_Application : m_Applications)
+        l_Application.second.Update(p_Diff);
+
+    if (m_Timeout <= time(nullptr)) ///< RIP
+    {
+        sLFGListMgr->Remove(m_Group->GetLowGUID());
+    }
+}
+
+void LFGListEntry::LFGListApplicationEntry::Update(uint32 const p_Diff)
+{
+    if (m_Timeout <= time(nullptr)) ///< Bye bye
+    {
+        sLFGListMgr->ChangeApplicantStatus(this, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_TIMEOUT);
+    }
+}
+
+LFGListEntry::LFGListApplicationEntry* LFGListEntry::GetApplicant(uint32 p_ID)
+{
+    auto l_Iter = m_Applications.find(p_ID);
+    return l_Iter != m_Applications.end() ? &l_Iter->second : nullptr;
+}
+
+void LFGListMgr::RemovePlayerDueToLogout(uint32 p_LowGUID) ///< This is wrong, but cba to do it other way for now
+{
+    LFGListEntry::LFGListApplicationEntry* l_Application = GetApplicationByID(p_LowGUID);
+
+    if (!l_Application)
+        return;
+
+    ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_CANCELLED, false);
 }

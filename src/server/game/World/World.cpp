@@ -2647,6 +2647,8 @@ void World::Update(uint32 diff)
     diffTime = getMSTime();
     RecordTimeDiff("ProcessQueryCallbacks");
 
+    sLFGListMgr->Update(diff);
+
     ///- Erase corpses once every 20 minutes
     if (m_timers[WUPDATE_CORPSES].Passed())
     {

@@ -999,6 +999,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
 Player::~Player()
 {
+    sLFGListMgr->RemovePlayerDueToLogout(GetGUIDLow());
+
     if (m_Garrison)
         delete m_Garrison;
 
@@ -20331,9 +20333,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     /// trans_o,      transguid,      extra_flags,    stable_slots,      at_login,                 zone,                     online,          death_expire_time, taxi_path,           DungeonDifficulty,
     /// 40            41              42              43                 44                        45                        46               47                 48                   49
     /// totalKills,   todayKills,     yesterdayKills, chosenTitle,       watchedFaction,           drunk,                    health,          power1,            power2,              power3,
-    /// 50            51              52              53                 54                        55                        56               57                 58                   59
-    /// power4,       power5,         instance_id,    speccount,         activespec,               specialization1,          specialization2, exploredZones,     equipmentCache,      knownTitles,
-    /// 60            61              62              63                 64                        65                        66               67                 68                   69
+    /// 50            51              52      53              54                 55                        56                        57               58                 59                   60
+    /// power4,       power5,         power6, instance_id,    speccount,         activespec,               specialization1,          specialization2, exploredZones,     equipmentCache,      knownTitles,
+    /// 61            62              63              64                 65                        66                        67               68                 69                   70
     /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet
 
     uint32 l_StartTime = getMSTime();
@@ -20404,8 +20406,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
     SetUInt32Value(PLAYER_FIELD_XP, fields[7].GetUInt32());
 
-    _LoadIntoDataField(fields[57].GetCString(), PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE, false);
-    _LoadIntoDataField(fields[59].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2, true);
+    _LoadIntoDataField(fields[58].GetCString(), PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE, false);
+    _LoadIntoDataField(fields[60].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2, true);
 
     SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, DEFAULT_WORLD_OBJECT_SIZE);
     SetFloatValue(UNIT_FIELD_COMBAT_REACH, 1.5f);
@@ -20430,7 +20432,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_GENDER, fields[5].GetUInt8());
     SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_INEBRIATION, fields[45].GetUInt8());
     SetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS, fields[11].GetUInt32());
-    SetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS_EX, fields[66].GetUInt32());
+    SetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS_EX, fields[67].GetUInt32());
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[44].GetUInt32());
 
     SetGuidValue(PLAYER_FIELD_WOW_ACCOUNT, GetSession()->GetWoWAccountGUID());
@@ -20438,7 +20440,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
     SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, fields[60].GetUInt8());
 
-    m_currentPetSlot = (PetSlot)fields[61].GetUInt8();
+    m_currentPetSlot = (PetSlot)fields[62].GetUInt8();
 
     InitDisplayIds();
 
@@ -20474,11 +20476,11 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     Relocate(fields[12].GetFloat(), fields[13].GetFloat(), fields[14].GetFloat(), fields[16].GetFloat());
 
     uint32 mapId = fields[15].GetUInt16();
-    uint32 instanceId = fields[52].GetUInt32();
+    uint32 instanceId = fields[53].GetUInt32();
 
     SetDungeonDifficultyID(CheckLoadedDungeonDifficultyID(Difficulty(fields[39].GetUInt8())));
     SetRaidDifficultyID(CheckLoadedRaidDifficultyID(Difficulty(fields[67].GetUInt8())));
-    SetLegacyRaidDifficultyID(CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[68].GetUInt8())));
+    SetLegacyRaidDifficultyID(CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[69].GetUInt8())));
 
     std::string taxi_nodes = fields[38].GetString();
     l_Times.push_back(getMSTime() - l_StartTime);
@@ -20784,8 +20786,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetTalentResetCost(fields[24].GetUInt32());
     SetTalentResetTime(time_t(fields[25].GetUInt32()));
 
-    SetSpecializationResetCost(fields[64].GetUInt32());
-    SetSpecializationResetTime(time_t(fields[65].GetUInt32()));
+    SetSpecializationResetCost(fields[65].GetUInt32());
+    SetSpecializationResetTime(time_t(fields[66].GetUInt32()));
 
     m_taxi.LoadTaxiMask(fields[17].GetCString());            // must be before InitTaxiNodesForLevel
 
@@ -20810,7 +20812,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     if (m_deathExpireTime > now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP)
         m_deathExpireTime = now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP-1;
 
-    m_LastSummonedBattlePet = fields[69].GetUInt32();
+    m_LastSummonedBattlePet = fields[70].GetUInt32();
 
     // clear channel spell data (if saved at channel spell casting)
     SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
@@ -20877,11 +20879,11 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     _LoadMail(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADMAIL));
     _LoadMailedItems(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADMAIL_ITEMS));
 
-    SetSpecsCount(fields[53].GetUInt8());
-    SetActiveSpec(fields[54].GetUInt8());
+    SetSpecsCount(fields[54].GetUInt8());
+    SetActiveSpec(fields[55].GetUInt8());
 
-    SetSpecializationId(0, fields[55].GetUInt32(), true);
-    SetSpecializationId(1, fields[56].GetUInt32(), true);
+    SetSpecializationId(0, fields[56].GetUInt32(), true);
+    SetSpecializationId(1, fields[57].GetUInt32(), true);
 
     SetFreeTalentPoints(CalculateTalentsPoints());
 
@@ -21143,7 +21145,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
 
     // RaF stuff.
-    m_grantableLevels = fields[63].GetUInt8();
+    m_grantableLevels = fields[64].GetUInt8();
 
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
         SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
