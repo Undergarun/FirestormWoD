@@ -1383,6 +1383,9 @@ bool Guardian::UpdateStats(Stats p_Stat)
 
     Unit* l_Owner = GetSummoner();
 
+    if (!l_Owner)
+        return false;
+    
     float l_Mod = 0.75f;
 
     switch (p_Stat)
