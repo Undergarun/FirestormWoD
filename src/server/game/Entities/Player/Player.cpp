@@ -26219,7 +26219,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
             }
 
             if (p_SpellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET)
-                l_CategoryCooldown = sWorld->GetNextDailyQuestsResetTime() - l_CurTime;
+                l_CategoryCooldown = (sWorld->GetNextDailyQuestsResetTime() * IN_MILLISECONDS) - l_CurTime;
         }
 
         /// Is charge regen time affected by any mods?
