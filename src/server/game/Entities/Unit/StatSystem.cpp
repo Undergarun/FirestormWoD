@@ -892,8 +892,7 @@ void Player::UpdateMasteryPercentage()
                 {
                     l_AurEff->SetCanBeRecalculated(true);
                     if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
-                        || l_SpellInfo->Id == 76856 ///< Mastery : Unshackled Fury
-                        || l_SpellInfo->Id == 77492) ///< Mastery : Total Eclipse
+                        || l_SpellInfo->Id == 76856) ///< Mastery : Unshackled Fury
                         l_AurEff->ChangeAmount(0, true, true);
                     else
                     {
