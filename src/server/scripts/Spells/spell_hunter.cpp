@@ -272,7 +272,7 @@ class spell_hun_enhanced_basic_attacks : public SpellScriptLoader
 
                         WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
                         l_Data.appendPackGUID(l_Caster->GetGUID());
-                        l_Data << uint8(1);
+                        l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
                         l_Data << uint32(1);
                         l_Data << uint32(l_SpellID);
                         l_Data << uint32(0);

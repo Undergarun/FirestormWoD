@@ -1048,7 +1048,7 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
 
             WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(petGuid);
-            data << uint8(1);
+            data << uint8(CooldownFlags::CooldownFlagNone);
             data << uint32(1);
             data << uint32(spell_id);
             data << uint32(uint32(db_time - curTime) * IN_MILLISECONDS);
@@ -1819,14 +1819,10 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
             continue;
         uint32 unSpellId = itr->first;
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
-        if (!spellInfo)
-        {
-            ASSERT(spellInfo);
-            continue;
-        }
+        ASSERT(spellInfo);
 
         // Not send cooldown for this spells
-        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
         if ((spellInfo->PreventionType & (SpellPreventionMask::Silence)) == 0)
@@ -1836,7 +1832,7 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         {
             WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(GetGUID());
-            data << uint8(1);
+            data << uint8(CooldownFlags::CooldownFlagNone);
             data << uint32(1);
             data << uint32(unSpellId);
             data << uint32(uint32(unTimeMs));

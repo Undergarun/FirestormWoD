@@ -5872,7 +5872,7 @@ void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
 
 void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 {
-    // remove cooldowns on spells that have <= 10 min CD
+    // remove cooldowns on spells that have < 10 min CD
 
     SpellCooldowns::iterator itr, next;
     for (itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); itr = next)
@@ -5880,10 +5880,10 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
         next = itr;
         ++next;
         SpellInfo const* entry = sSpellMgr->GetSpellInfo(itr->first);
-        // check if spellentry is present and if the cooldown is less or equal to 10 min
+        // check if spellentry is present and if the cooldown is less than 10 min
         if (entry &&
-            entry->RecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
-            entry->CategoryRecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
+            entry->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            entry->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
             (entry->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             // remove & notify
@@ -15366,7 +15366,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
                     WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
                     data.appendPackGUID(GetGUID());
-                    data << uint8(1);
+                    data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
                     data << uint32(1);
                     data << uint32(cooldownSpell);
                     data << uint32(0);
@@ -25350,7 +25350,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         }
 
         // Not send cooldown for this spells
-        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
         if ((spellInfo->PreventionType & (SpellPreventionMask::Silence)) == 0)
@@ -26195,7 +26195,7 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bo
     {
         WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
         data.appendPackGUID(GetGUID());
-        data << uint8(1);
+        data << uint8(CooldownFlags::CooldownFlagNone);
         data << uint32(1);
         data << uint32(spellid);
         data << uint32(end_time);
@@ -27197,7 +27197,7 @@ void Player::ApplyEquipCooldown(Item* p_Item)
         SpellCooldowns::iterator l_It = m_spellCooldowns.find(l_SpellData.SpellId);
 
         if (l_It != m_spellCooldowns.end() && l_It->second.itemid == p_Item->GetEntry() && l_It->second.end > uint64((time(NULL) + 30) * IN_MILLISECONDS))
-            break;
+            continue;
 
         AddSpellCooldown(l_SpellData.SpellId, p_Item->GetEntry(), 30 * IN_MILLISECONDS);
 

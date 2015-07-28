@@ -2360,6 +2360,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
         void _SaveChargesCooldowns(SQLTransaction& p_Transaction);
+        uint32 GetLastPotionId() { return m_lastPotionId; }
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 

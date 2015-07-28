@@ -1439,6 +1439,11 @@ bool SpellInfo::IsMultiSlotAura() const
     return (IsPassive() || Id == 55849 || Id == 40075 || Id == 44413) && Id != 76856;
 }
 
+bool SpellInfo::IsCooldownStartedOnEvent() const
+{
+    return Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE || (Category && (CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT));
+}
+
 bool SpellInfo::IsDeathPersistent() const
 {
     return AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT;
