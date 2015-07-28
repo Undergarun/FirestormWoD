@@ -3890,12 +3890,24 @@ class spell_gen_selfie_camera : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                GetCaster()->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    l_Caster->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                }
             }
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                GetCaster()->ToPlayer()->CancelSpellVisualKit(54168);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    l_Caster->ToPlayer()->CancelSpellVisualKit(54168);
+                }
             }
 
             void Register()
@@ -4261,6 +4273,43 @@ class spell_gen_sword_technique: public SpellScriptLoader
         }
 };
 
+/// Faction check for spells (seems to cause problems when applied to every spells)
+class spell_gen_check_faction : public SpellScriptLoader
+{
+    public:
+        spell_gen_check_faction() : SpellScriptLoader("spell_gen_check_faction") {}
+
+        class spell_gen_check_faction_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_check_faction_SpellScript);
+
+            SpellCastResult CheckFaction()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    uint32 l_RaceMask = l_Caster->getRaceMask();
+                    uint32 l_AttributeEx7 = GetSpellInfo()->AttributesEx7;
+
+                    if ((l_AttributeEx7 & SpellAttr7::SPELL_ATTR7_ALLIANCE_ONLY && ((l_RaceMask & RACEMASK_ALLIANCE) == 0)) ||
+                        (l_AttributeEx7 & SpellAttr7::SPELL_ATTR7_HORDE_ONLY && ((l_RaceMask & RACEMASK_HORDE) == 0)))
+                        return SpellCastResult::SPELL_FAILED_SPELL_UNAVAILABLE;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_check_faction_SpellScript::CheckFaction);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_check_faction_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_drums_of_fury();
@@ -4343,6 +4392,7 @@ void AddSC_generic_spell_scripts()
     new spell_taunt_flag_targeting();
     new spell_gen_raid_buff_stack();
     new spell_gen_sword_technique();
+    new spell_gen_check_faction();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
