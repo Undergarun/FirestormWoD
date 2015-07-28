@@ -11546,18 +11546,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
-    // 77492 - Mastery : Total Eclipse
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE) && HasAura(77492) && HasAura(48517)) // Solar Eclipse
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.87f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-    else if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_ARCANE) && HasAura(77492) && HasAura(48518)) // Lunar Eclipse
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.87f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
     // Chaos Bolt - 116858, Chaos Bolt (Fire and Brimstone) - 157701 and Soul Fire - 6353
     // damage is increased by your critical strike chance
     if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 116858 || spellProto->Id == 157701 || spellProto->Id == 6353 || spellProto->Id == 104027))
