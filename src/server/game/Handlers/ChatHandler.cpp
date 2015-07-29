@@ -229,18 +229,20 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
                 if (!ModLangAuras.empty())
                     l_Language = ModLangAuras.front()->GetMiscValue();
             }
-
-            if (!l_Sender->CanSpeak())
-            {
-                std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
-                SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
-                p_RecvData.rfinish(); // Prevent warnings
-                return;
-            }
         }
     }
     else
         l_Language = LANG_UNIVERSAL;
+
+    /// We must check it there, to check emotions too. To prevent very "clever" people who has mute and write with emotions.
+    if (!l_Sender->CanSpeak())
+    {
+        std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
+        SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
+        p_RecvData.rfinish(); // Prevent warnings
+        return;
+    }
+
 
     /// Check if silenced http://wowhead.com/spell=1852
     if (l_Sender->HasAura(1852) && l_Type != CHAT_MSG_WHISPER)
