@@ -2209,8 +2209,7 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
                         if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
                             return;
 
-                        if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_ICY_TOUCH ||
-                            p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpell::HowlingBlast)
+                        if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
                             l_Caster->CastSpell(l_Target, DK_SPELL_CHILBLAINS_TRIGGER, true);
                     }
                 }
