@@ -1136,7 +1136,7 @@ void Player::UpdateAllRunesRegen()
         }
     }
 
-    //SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_RUNES));
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_RUNES));
 }
 
 float Player::GetRegenForPower(Powers p_Power)

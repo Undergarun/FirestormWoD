@@ -29013,25 +29013,29 @@ void Player::UpdateCharmedAI()
 
 uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 {
-    float cooldown = RUNE_BASE_COOLDOWN;
-    float hastePct = 0.0f;
+    float l_Cooldown = RUNE_BASE_COOLDOWN;
+    float l_HastePct = 0.0f;
 
-    AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_RUNES && RuneType((*i)->GetMiscValueB()) == runeType)
-            cooldown /= ((*i)->GetAmount() + 100.0f) / 100.0f;
+    AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (AuraEffectList::const_iterator l_Idx = l_RegenAura.begin(); l_Idx != l_RegenAura.end(); ++l_Idx)
+        if ((*l_Idx)->GetMiscValue() == POWER_RUNES && RuneType((*l_Idx)->GetMiscValueB()) == runeType)
+            l_Cooldown *= 1.0f - ((*l_Idx)->GetAmount() / 100.0f);
 
     // Runes cooldown are now affected by player's haste from equipment ...
-    hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_RANGED_HASTE) / 10.0f;
+    l_HastePct = GetRatingBonusValue(CR_HASTE_MELEE);
+
+    // ... and some auras.
+    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
+    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_2);
+    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_3);
+    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_RANGED_HASTE) / 10.0f;
 
     if (AuraEffectPtr unholy = GetAuraEffect(48265, EFFECT_0))
-        hastePct += unholy->GetAmount();
+        l_HastePct += unholy->GetAmount();
 
-    cooldown *=  1.0f - (hastePct / 100.0f);
+    l_Cooldown *=  1.0f - (l_HastePct / 100.0f);
 
-    return cooldown;
+    return l_Cooldown;
 }
 
 void Player::RemoveRunesBySpell(uint32 spell_id)
