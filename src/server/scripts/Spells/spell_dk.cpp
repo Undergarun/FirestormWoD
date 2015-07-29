@@ -2829,6 +2829,47 @@ public:
     }
 };
 
+/// Control Undead - 111673
+class spell_dk_control_undead : public SpellScriptLoader
+{
+    public:
+        spell_dk_control_undead() : SpellScriptLoader("spell_dk_control_undead") {}
+
+        class spell_dk_control_undead_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_control_undead_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_SUCCESS;
+
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (Unit* l_Owner = l_Target->GetOwner())
+                {
+                    if (l_Owner->GetTypeId() == TYPEID_PLAYER)
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dk_control_undead_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_control_undead_SpellScript();
+        }
+};
+
 
 void AddSC_deathknight_spell_scripts()
 {
@@ -2888,6 +2929,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_icy_runes();
     new spell_dk_enhanced_death_coil();
     new spell_dk_gargoyle_strike();
+    new spell_dk_control_undead();
 
     new PlayerScript_Blood_Tap();
 }
