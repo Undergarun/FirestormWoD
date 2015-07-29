@@ -6878,7 +6878,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (effIndex != 0)
                         return false;
 
-                    if (!damage)
+                    if (!damage && !(procEx & PROC_EX_ABSORB))
                         return false;
 
                     if (!procSpell)
