@@ -2414,6 +2414,7 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
 
         enum eSpells
         {
+            SanctifiedWrath      = 53376,
             SanctifiedWrathBonus = 114232
         };
 
@@ -2427,7 +2428,8 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Caster, eSpells::SanctifiedWrathBonus, true);
+                if (l_Caster->HasAura(eSpells::SanctifiedWrath))
+                    l_Caster->CastSpell(l_Caster, eSpells::SanctifiedWrathBonus, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
