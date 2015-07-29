@@ -2208,7 +2208,6 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
                     {
                         if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
                             return;
-
                         if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
                             l_Caster->CastSpell(l_Target, DK_SPELL_CHILBLAINS_TRIGGER, true);
                     }
@@ -2828,6 +2827,63 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Blood rites - 163952
+class spell_dk_blood_rites : public SpellScriptLoader
+{
+    public:
+        spell_dk_blood_rites() : SpellScriptLoader("spell_dk_blood_rites") { }
+
+        class spell_dk_blood_rites_Aurascript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_blood_rites_Aurascript);
+
+            enum eSpells
+            {
+                BloodRitesEnergize = 163948
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (p_ProcInfos.GetDamageInfo()->GetSpellInfo() != nullptr)
+                    return;
+
+                if (!(p_ProcInfos.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
+                    return;
+
+                Item* l_MainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                if ((l_MainItem && l_MainItem->GetTemplate()->IsTwoHandedWeapon()) || (l_OffHandItem && l_OffHandItem->GetTemplate()->IsTwoHandedWeapon()))
+                {
+                    l_Caster->CastSpell(l_Caster, eSpells::BloodRitesEnergize, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_blood_rites_Aurascript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_blood_rites_Aurascript();
+        }
+};
+
 /// Control Undead - 111673
 class spell_dk_control_undead : public SpellScriptLoader
 {
@@ -2928,6 +2984,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_icy_runes();
     new spell_dk_enhanced_death_coil();
     new spell_dk_gargoyle_strike();
+    new spell_dk_blood_rites();
     new spell_dk_control_undead();
 
     new PlayerScript_Blood_Tap();
