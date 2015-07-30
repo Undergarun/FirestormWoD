@@ -2208,7 +2208,8 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
                     {
                         if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
                             return;
-                        if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
+                        if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST &&
+                            p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != DK_SPELL_CHILBLAINS_TRIGGER)
                             l_Caster->CastSpell(l_Target, DK_SPELL_CHILBLAINS_TRIGGER, true);
                     }
                 }
