@@ -1254,7 +1254,7 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
     /// Apply Mastery: Discipline Shield
     if (p_Caster->HasAura(77484))
     {
-        float l_Mastery = p_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+        float l_Mastery = p_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f; ///< last update: 6.1.2
         l_TotalMod += l_Mastery;
     }
 
