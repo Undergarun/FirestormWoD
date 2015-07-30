@@ -312,9 +312,12 @@ class boss_koragh : public CreatureScript
                         m_Charging = true;
 
                         me->SetReactState(ReactStates::REACT_PASSIVE);
+                        me->ClearAllUnitState();
 
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(eMove::MoveToCenter, g_CenterPos);
+
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfCharging, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eActions::ActionSuppressionField:
@@ -364,6 +367,7 @@ class boss_koragh : public CreatureScript
 
                         m_Events.DelayEvent(eEvents::EventOverflowingEnergy, 20 * TimeConstants::IN_MILLISECONDS);
 
+                        m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventEndOfCharging);
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfCharging, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }

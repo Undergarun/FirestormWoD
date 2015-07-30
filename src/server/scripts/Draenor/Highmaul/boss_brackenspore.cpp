@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "highmaul.hpp"
+# include "highmaul.hpp"
 
 G3D::Vector3 g_CreepingMossPos[eHighmaulDatas::MaxCreepingMoss] =
 {
@@ -34,7 +34,7 @@ Position const g_FleshEaterSpawns[eHighmaulDatas::MaxFleshEaterPos] =
     { 4141.948f, 7720.839f, -1.1697650f, 2.001688f }
 };
 
-G3D::Vector3 g_BeachCenter = { 4103.15f, 7766.47f, 0.254f };
+G3D::Vector3 g_BeachCenter = { 4104.36f, 7769.18f, 0.254f };
 
 void ResetPlayersPower(Creature* p_Source)
 {
@@ -593,15 +593,18 @@ class boss_brackenspore : public CreatureScript
                 if (l_Map == nullptr)
                     return;
 
-                float l_MaxRadius = 90.0f;
                 float l_Orientation = frand(0.0f, 2 * M_PI);
+
+                /// Use different spawn radius depending on orientation
+                float l_Radius = GetSpawnRangeByOrientation(l_Orientation);
+
                 float l_OStep = 2 * M_PI / 30.0f;
-                float l_X = g_BeachCenter.x + (l_MaxRadius * cos(l_Orientation));
-                float l_Y = g_BeachCenter.y + (l_MaxRadius * sin(l_Orientation));
+                float l_X = g_BeachCenter.x + (l_Radius * cos(l_Orientation));
+                float l_Y = g_BeachCenter.y + (l_Radius * sin(l_Orientation));
                 float l_Z = l_Map->GetHeight(l_X, l_Y, MAX_HEIGHT);
 
                 /// First of all, verify if we can spawn an AreaTrigger all around the beach center
-                /// With a radius of 90 yards, it must cover the beach progressively
+                /// With a radius of 60-80 yards, it must cover the beach progressively
                 {
                     if (me->IsWithinLOS(l_X, l_Y, l_Z) && CheckCreepingMossPosition(l_X, l_Y))
                     {
@@ -612,8 +615,10 @@ class boss_brackenspore : public CreatureScript
                     for (uint8 l_J = 0; l_J < 30; ++l_J)
                     {
                         l_Orientation = Position::NormalizeOrientation(l_Orientation + l_OStep);
-                        l_X = g_BeachCenter.x + (l_MaxRadius * cos(l_Orientation));
-                        l_Y = g_BeachCenter.y + (l_MaxRadius * sin(l_Orientation));
+                        l_Radius = GetSpawnRangeByOrientation(l_Orientation);
+
+                        l_X = g_BeachCenter.x + (l_Radius * cos(l_Orientation));
+                        l_Y = g_BeachCenter.y + (l_Radius * sin(l_Orientation));
                         l_Z = l_Map->GetHeight(l_X, l_Y, MAX_HEIGHT);
 
                         if (me->IsWithinLOS(l_X, l_Y, l_Z) && CheckCreepingMossPosition(l_X, l_Y))
@@ -624,14 +629,17 @@ class boss_brackenspore : public CreatureScript
                     }
                 }
 
+                float l_MaxRadius = 80.0f;
                 float l_Step = 2.0f;
 
                 /// Secondly, check for each less radius (2 yard step) ...
                 for (uint8 l_I = 0; l_I < 45; ++l_I)
                 {
                     l_MaxRadius -= l_Step;
-                    l_X = g_BeachCenter.x + (l_MaxRadius * cos(l_Orientation));
-                    l_Y = g_BeachCenter.y + (l_MaxRadius * sin(l_Orientation));
+                    l_Radius = GetSpawnRangeByOrientation(l_Orientation, l_MaxRadius);
+
+                    l_X = g_BeachCenter.x + (l_Radius * cos(l_Orientation));
+                    l_Y = g_BeachCenter.y + (l_Radius * sin(l_Orientation));
                     l_Z = l_Map->GetHeight(l_X, l_Y, MAX_HEIGHT);
 
                     if (me->IsWithinLOS(l_X, l_Y, l_Z) && CheckCreepingMossPosition(l_X, l_Y))
@@ -644,8 +652,10 @@ class boss_brackenspore : public CreatureScript
                     for (uint8 l_J = 0; l_J < 30; ++l_J)
                     {
                         l_Orientation = Position::NormalizeOrientation(l_Orientation + l_OStep);
-                        l_X = g_BeachCenter.x + (l_MaxRadius * cos(l_Orientation));
-                        l_Y = g_BeachCenter.y + (l_MaxRadius * sin(l_Orientation));
+                        l_Radius = GetSpawnRangeByOrientation(l_Orientation, l_MaxRadius);
+
+                        l_X = g_BeachCenter.x + (l_Radius * cos(l_Orientation));
+                        l_Y = g_BeachCenter.y + (l_Radius * sin(l_Orientation));
                         l_Z = l_Map->GetHeight(l_X, l_Y, MAX_HEIGHT);
 
                         if (me->IsWithinLOS(l_X, l_Y, l_Z) && CheckCreepingMossPosition(l_X, l_Y))
@@ -672,6 +682,20 @@ class boss_brackenspore : public CreatureScript
                 }
 
                 return true;
+            }
+
+            float GetSpawnRangeByOrientation(float p_Orientation, float p_MaxRadius = 80.0f) const
+            {
+                if (p_Orientation <= (M_PI / 4.0f))
+                    return p_MaxRadius;
+                else if (p_Orientation <= (3 * M_PI / 4.0f))
+                    return p_MaxRadius - 20.0f;
+                else if (p_Orientation <= (5 * M_PI / 4.0f))
+                    return p_MaxRadius;
+                else if (p_Orientation <= (2 * M_PI - M_PI / 4))
+                    return p_MaxRadius - 20.0f;
+                else
+                    return p_MaxRadius;
             }
 
             void DoSpecialAbility()
