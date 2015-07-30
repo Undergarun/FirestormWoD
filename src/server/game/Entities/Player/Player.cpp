@@ -17047,6 +17047,7 @@ void Player::ApplyEnchantment(Item* item, bool apply)
 
     //ApplyItemUpgrade(item, apply);
 }
+
 void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition)
 {
     if (!item || !item->IsEquipped())
@@ -17079,10 +17080,11 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
     // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
+    // If the socket is from an item bonus, it's a WoD item, so it can't be a "classical" enchant neither a prismatic enchant
     if ((slot == SOCK_ENCHANTMENT_SLOT || slot == SOCK_ENCHANTMENT_SLOT_2 || slot == SOCK_ENCHANTMENT_SLOT_3)
-        && !item->GetTemplate()->Socket[slot-SOCK_ENCHANTMENT_SLOT].Color)
+        && !item->GetTemplate()->Socket[slot-SOCK_ENCHANTMENT_SLOT].Color && !item->HasItemBonusType(ItemBonusType::ITEM_BONUS_ADD_SOCKET))
     {
-        // Check if the requirements for the prismatic socket are met before applying the gem stats
+         // Check if the requirements for the prismatic socket are met before applying the gem stats
          SpellItemEnchantmentEntry const* pPrismaticEnchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT));
          if (!pPrismaticEnchant || (pPrismaticEnchant->requiredSkill > 0 && pPrismaticEnchant->requiredSkillValue > GetSkillValue(pPrismaticEnchant->requiredSkill)))
              return;
