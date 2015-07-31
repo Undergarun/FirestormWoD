@@ -292,7 +292,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
     l_Data.FlushBits();
     l_Data.appendPackGUID(l_InviterGuid);
     l_Data.appendPackGUID(l_InviterBNetAccountID);
-    l_Data << uint16(l_Unk);
+    l_Data << uint16(l_Unk);                        ///< InviterVirtualRealmAddress
     l_Data << uint32(l_InviterCfgRealmID);
     l_Data.WriteBit(l_IsLocal);
     l_Data.WriteBit(false);   // UnkBit

@@ -17508,11 +17508,11 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
 
     l_Data.appendPackGUID(GetGUID());                       ///< Player GUID
     l_Data << uint8(p_Item->GetBagSlot());                  ///< Slot
-    l_Data << uint32(0);
+    l_Data << uint32(0);                                    ///< SlotInBag
 
     Item::BuildDynamicItemDatas(l_Data, p_Item);
 
-    l_Data << uint32(0);
+    l_Data << uint32(0);                                    ///< QuestLogItemID
     l_Data << uint32(p_Quantity);                           ///< Quantity
     l_Data << uint32(GetItemCount(p_Item->GetEntry()));     ///< count of items in inventory
     l_Data << uint32(0);                                    ///< Battle Pet Species ID
