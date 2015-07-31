@@ -5928,20 +5928,20 @@
       <primary>ID</primary>
     </index>
     <field type="int" name="ID" />
-    <field type="int" name="ActivityGroupID" />
-    <field type="int" name="field2" />
+    <field type="int" name="CategoryID" />
+    <field type="int" name="ActivityID" />
     <field type="int" name="field3" />
     <field type="int" name="minLevel" />
     <field type="int" name="maxLevel" />
     <field type="int" name="ReqiLevel" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
+    <field type="int" name="map" />
+    <field type="int" name="Difficulty" />
+    <field type="int" name="ZoneID" />
     <field type="int" name="field10" />
     <field type="int" name="field11" />
-    <field type="int" name="field12" />
+    <field type="int" name="maxplayers" />
     <field type="string" name="Name" />
-    <field type="string" name="Difficulty" />
+    <field type="string" name="DifficultyStr" />
   </GroupFinderActivity>
   <GroupFinderActivityGrp build="20182">
     <index>

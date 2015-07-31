@@ -985,7 +985,7 @@ class WorldSession
 
         void SendLfgListJoinResult(LFGListEntry const* p_Entry, uint8 p_Error);
         void SendLfgSearchResponse(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString);
-        void SendLfgListApplyForGroupResult(LFGListEntry const* p_LFGEntry, LFGListEntry::LFGListApplicationEntry const* p_Application, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus p_Status);
+        void SendLfgListApplyForGroupResult(LFGListEntry const* p_LFGEntry, LFGListEntry::LFGListApplicationEntry const* p_Application);
         void SendLfgListApplicantGroupInviteResponse(LFGListEntry::LFGListApplicationEntry const* p_Applicant);
 
         static void BuildLfgListRideTicket(WorldPacket* p_Data, LFGListEntry const* p_Entry);

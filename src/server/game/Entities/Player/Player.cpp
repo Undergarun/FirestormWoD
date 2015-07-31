@@ -27172,6 +27172,8 @@ void Player::SendInitialPacketsAfterAddToMap()
 
      if (Group* l_Group = GetGroup())
          l_Group->SendUpdate();
+
+     sLFGListMgr->OnPlayerLogin(this);
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()

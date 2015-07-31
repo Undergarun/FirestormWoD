@@ -727,20 +727,20 @@ struct GuildPerkSpellsEntry
 struct GroupFinderActivityEntry
 {
     uint32 ID;                                                      ///< 0
-    uint32 ActivityGroupID;                                         ///< 1
-    int32  Unk1;                                                    ///< 2
-    int32  Unk2;                                                    ///< 3
-    int32  Unk3;                                                    ///< 4
-    int32  Unk4;                                                    ///< 5
-    int32  Unk5;                                                    ///< 6
-    int32  Unk6;                                                    ///< 7
-    int32  Unk7;                                                    ///< 8
-    int32  Unk8;                                                    ///< 9
-    int32  Unk9;                                                    ///< 10
+    int32  CategoryID;                                              ///< 1
+    uint32 ActivityGroupID;                                         ///< 2
+    int32  Unk1;                                                    ///< 3
+    int32  MinLevel;                                                ///< 4
+    int32  MaxLevel;                                                ///< 5
+    int32  RequiredILvl;                                            ///< 6
+    int32  MapID;                                                   ///< 7
+    int32  Difficulty;                                              ///< 8
+    int32  ZoneID;                                                  ///< 9
+    int32  Type;                                                    ///< 10
     int32  Unk10;                                                   ///< 11
-    int32  Unk11;                                                   ///< 12
+    int32  MaxPlayers;                                              ///< 12
     LocalizedString const* Name;                                    ///< 13
-    LocalizedString const* Difficulty;                              ///< 14
+    LocalizedString const* DifficultyString;                        ///< 14
 };
 
 struct GroupFinderCategoryEntry

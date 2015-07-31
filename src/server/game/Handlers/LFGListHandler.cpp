@@ -62,7 +62,7 @@ void WorldSession::BuildLfgListRideTicket(WorldPacket* p_Data, LFGListEntry cons
 void WorldSession::BuildLfgListApplicationRideTicket(WorldPacket* p_Data, LFGListEntry::LFGListApplicationEntry const* p_Entry)
 {
     p_Data->appendPackGUID(MAKE_NEW_GUID(p_Entry->m_PlayerLowGuid, 0, HIGHGUID_PLAYER));
-    *p_Data << uint32(p_Entry->m_PlayerLowGuid);
+    *p_Data << uint32(p_Entry->m_ID);
     *p_Data << uint32(9);
     *p_Data << uint32(p_Entry->m_ApplicationTime);
 }
@@ -135,20 +135,28 @@ void WorldSession::BuildLfgListQueueUpdate(WorldPacket* p_Data, LFGListEntry con
 void WorldSession::HandleLfgListUpdateRequest(WorldPacket& p_RecvData)
 {
     uint32 l_NameLen, l_CommentLen, l_VoiceChatLen, l_ActivityId, l_ID;
-    std::string l_Name, l_Comment, l_VoiceChat;
     float l_ItemLevel;
-    bool l_AutoAccept;
 
     LFGListEntry* l_Entry = ReadLfgListRideTicketInfo(&p_RecvData, &l_ID);
+
+    if (!l_Entry)
+        return;
+
+    if (!l_Entry->m_Group->IsLeader(m_Player->GetGUID()))
+        return;
+
     p_RecvData >> l_ActivityId;
     p_RecvData >> l_ItemLevel;
     l_NameLen = p_RecvData.ReadBits(8);
     l_CommentLen = p_RecvData.ReadBits(11);
     l_VoiceChatLen = p_RecvData.ReadBits(8);
-    l_AutoAccept = p_RecvData.ReadBit();
-    l_Name = p_RecvData.ReadString(l_NameLen);
-    l_Comment = p_RecvData.ReadString(l_CommentLen);
-    l_VoiceChat = p_RecvData.ReadString(l_VoiceChatLen);
+    l_Entry->m_AutoAcceptInvites = p_RecvData.ReadBit();
+    l_Entry->m_Name = p_RecvData.ReadString(l_NameLen);
+    l_Entry->m_Comment = p_RecvData.ReadString(l_CommentLen);
+    l_Entry->m_VoiceChat = p_RecvData.ReadString(l_VoiceChatLen);
+
+    if (l_ItemLevel < sLFGListMgr->GetPlayerItemLevelForActivity(l_Entry->m_ActivityEntry, m_Player))
+        l_Entry->m_RequiredItemLevel = l_ItemLevel;
 
     if (!l_Entry)
         return;
@@ -244,8 +252,6 @@ LFGListEntry::LFGListApplicationEntry* WorldSession::ReadLfgListApplicanmtRideTi
     if (!p_ReferenceEntry)
         return nullptr;
 
-    printf("Count %i\n", p_ReferenceEntry->m_Applications.size());
-
     auto l_Iter = p_ReferenceEntry->m_Applications.find(l_ID);
 
     if (l_Iter != p_ReferenceEntry->m_Applications.end())
@@ -289,7 +295,7 @@ void WorldSession::HandleLfgListApplyForGroup(WorldPacket& p_RecvData)
     sLFGListMgr->OnPlayerApplyForGroup(l_Application, l_ID);
 }
 
-void WorldSession::SendLfgListApplyForGroupResult(LFGListEntry const* p_LFGEntry, LFGListEntry::LFGListApplicationEntry const* p_Application, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus p_Status)
+void WorldSession::SendLfgListApplyForGroupResult(LFGListEntry const* p_LFGEntry, LFGListEntry::LFGListApplicationEntry const* p_Application)
 {
     WorldPacket l_Packet(SMSG_LFG_LIST_APPLY_FOR_GROUP_RESULT, 0x200);
     BuildLfgListApplicationRideTicket(&l_Packet, p_Application);
@@ -298,7 +304,7 @@ void WorldSession::SendLfgListApplyForGroupResult(LFGListEntry const* p_LFGEntry
     l_Packet << uint32(p_Application->GetRemainingTimeoutTime());
     l_Packet << uint8(6);   ///< Seems to be always 6
     l_Packet << uint8(p_Application->m_RoleMask);
-    l_Packet.WriteBits(p_Status, 4);
+    l_Packet.WriteBits(p_Application->m_Status, 4);
     l_Packet.FlushBits();
     SendPacket(&l_Packet);
 }
@@ -326,17 +332,17 @@ void WorldSession::BuildLfgListApplicantListUpdate(WorldPacket* p_Data, LFGListE
         Player* l_Player = l_Applicant->GetPlayer();
 
         BuildLfgListApplicationRideTicket(p_Data, l_Applicant);
-        p_Data->appendPackGUID(l_Player->GetGUID());
+        p_Data->appendPackGUID(MAKE_NEW_GUID(l_Applicant->m_PlayerLowGuid, 0, HIGHGUID_PLAYER));
 
-        *p_Data << uint32(l_Applicant->m_Listed ? 1 : 0);    ///< 1 Player in queue - could also by a group - NYI
-        if (l_Applicant->m_Listed)
+        *p_Data << uint32(l_Player && l_Applicant->m_Listed ? 1 : 0);    ///< 1 Player in queue - could also by a group - NYI
+        if (l_Player && l_Applicant->m_Listed)
         {
             p_Data->appendPackGUID(l_Player->GetGUID());
             *p_Data << uint32(g_RealmID);
-            *p_Data << float(l_Player->GetAverageItemLevelTotal());
+            *p_Data << float(sLFGListMgr->GetPlayerItemLevelForActivity(p_Entry->m_ActivityEntry, l_Player));
             *p_Data << uint32(l_Player->getLevel());
-            *p_Data << uint8(l_Applicant->m_RoleMask);
-            *p_Data << uint8(0);
+            *p_Data << uint8(l_Applicant->m_RoleMask);  ///< Queued role
+            *p_Data << uint8(l_Applicant->m_RoleMask);  ///< Joined role
 
             *p_Data << uint32(0);    ///< Unk loop
         }
@@ -355,8 +361,8 @@ void WorldSession::BuilfLfgListApplicantGroupInvite(WorldPacket* p_Data, LFGList
     BuildLfgListApplicationRideTicket(p_Data, p_Applicant);
     BuildLfgListRideTicket(p_Data, p_Applicant->m_Owner);
     *p_Data << uint32(0);   ///< Unk
-    *p_Data << uint8(59);
-    *p_Data << uint8(0); ///< unk
+    *p_Data << uint8(p_Applicant->m_Error);
+    *p_Data << uint8(0);    ///< unk
     p_Data->WriteBits(p_Applicant->m_Status, 4);
     p_Data->FlushBits();
 }

@@ -444,6 +444,7 @@ class Group
         uint8 GetPartyIndex() const;
         uint8 GetPartyType()  const;
 
+        uint32 GetTeam() const { return m_Team; }
     protected:
         bool _setMembersGroup(uint64 guid, uint8 group);
         void _homebindIfInstance(Player* player);
@@ -481,6 +482,7 @@ class Group
         uint8               m_readyCheckCount;
         uint8               m_membersInInstance;
         bool                m_readyCheck;
+        uint32              m_Team;
 
         std::vector<RaidMarker> m_RaidMarkers;
 };
