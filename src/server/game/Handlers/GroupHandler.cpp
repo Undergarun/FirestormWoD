@@ -553,7 +553,7 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
 {
     uint8 l_PartyIndex = p_RecvData.read<uint8>();
 
-    Group* l_Group = GetPlayer()->GetGroup();
+    Group* l_Group = m_Player->GetGroup();
     if (!l_Group)
         return;
 
@@ -563,13 +563,10 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    /** error handling **/
-    /********************/
+    /// Everything's fine, do it
+    SendPartyResult(PARTY_CMD_LEAVE, m_Player->GetName(), ERR_PARTY_RESULT_OK);
 
-    // everything's fine, do it
-    SendPartyResult(PARTY_CMD_LEAVE, GetPlayer()->GetName(), ERR_PARTY_RESULT_OK);
-
-    GetPlayer()->RemoveFromGroup(GROUP_REMOVEMETHOD_LEAVE);
+    m_Player->RemoveFromGroup(GROUP_REMOVEMETHOD_LEAVE);
 }
 
 void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
