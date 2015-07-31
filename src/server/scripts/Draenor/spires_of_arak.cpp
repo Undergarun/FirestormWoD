@@ -36,7 +36,6 @@ class boss_rukhmar : public CreatureScript
             };
 
             EventMap m_Events;
-            EventMap m_MoveEvent;
             float m_ZRef;
             float m_ZNew;
             bool m_MovingUpToward;
@@ -45,13 +44,13 @@ class boss_rukhmar : public CreatureScript
             void Reset()
             {
                 m_ZRef               = 0.0f;
-                me->m_CombatDistance = 200.0f;
+                me->m_CombatDistance = 90.0f;
                 m_MovingUpToward     = false;
                 m_MovingDownToward   = false;
 
+                me->SetReactState(REACT_DEFENSIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->AddAura(SpiresOfArakSpells::SouthshoreMobScalingAura, me);
-                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1000);
                 m_Events.Reset();
             }
 
@@ -178,24 +177,13 @@ class boss_rukhmar : public CreatureScript
 
             void UpdateAI(const uint32 p_Diff) override
             {
-                m_Events.Update(p_Diff);
                 EnterEvadeIfOutOfCombatArea(p_Diff);
-
-
-                m_MoveEvent.Update(p_Diff);
-
-                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
-                {
-                    me->SetWalk(true);
-                    me->LoadPath(me->GetEntry());
-                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
-                    me->GetMotionMaster()->Initialize();
-                }
-
-                HandleHealthAndDamageScaling();
+                m_Events.Update(p_Diff);
 
                 if (!UpdateVictim())
                     return;
+
+                HandleHealthAndDamageScaling();
 
                 if (me->HasUnitState(UNIT_STATE_CASTING) || (m_MovingUpToward || m_MovingDownToward))
                 {
