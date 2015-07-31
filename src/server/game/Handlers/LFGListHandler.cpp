@@ -376,6 +376,9 @@ void WorldSession::HandleLfgListInviteApplicant(WorldPacket& p_RecvData)
     if (!l_Entry || !l_Application)
         return;
 
+    if (!m_Player->GetGroup()->IsAssistant(m_Player->GetGUID()))
+        return;
+
     sLFGListMgr->ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITED);
 }
 
@@ -410,6 +413,9 @@ void WorldSession::HandleLfgListInvitationAnswer(WorldPacket& p_RecvData)
     LFGListEntry::LFGListApplicationEntry* l_Applicant = ReadLfgListApplicanmtRideTicketInfo(&p_RecvData, nullptr);
 
     if (!l_Applicant)
+        return;
+
+    if (!m_Player->GetGroup()->IsAssistant(m_Player->GetGUID()))
         return;
 
     bool l_Accept = p_RecvData.ReadBit();
