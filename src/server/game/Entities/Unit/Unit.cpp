@@ -19466,33 +19466,33 @@ void Unit::CancelSpellVisual(int32 p_SpellVisualID)
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
-void Unit::ApplyResilience(Unit const* victim, int32* damage) const
+void Unit::ApplyResilience(Unit const* p_Victim, int32* p_Damage) const
 {
-    // player mounted on multi-passenger mount is also classified as vehicle
-    if (IsVehicle() && GetTypeId() != TYPEID_PLAYER)
+    /// Player mounted on multi-passenger mount is also classified as vehicle
+    if (IsVehicle() && GetTypeId() != TypeID::TYPEID_PLAYER)
         return;
 
-    if (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER)
+    if (p_Victim->IsVehicle() && p_Victim->GetTypeId() != TypeID::TYPEID_PLAYER)
         return;
 
-    // Resilience works only for players or pets against other players or pets
-    if (GetTypeId() != TYPEID_PLAYER && (GetOwner() && GetOwner()->GetTypeId() != TYPEID_PLAYER))
+    /// Resilience works only for players or pets against other players or pets
+    if (GetTypeId() != TypeID::TYPEID_PLAYER && (GetOwner() && GetOwner()->GetTypeId() != TypeID::TYPEID_PLAYER))
         return;
 
-    // Don't consider resilience if not in PvP - player or pet
+    /// Don't consider resilience if not in PvP - player or pet
     if (!GetCharmerOrOwnerPlayerOrPlayerItself())
         return;
 
-    Unit const* target = NULL;
-    if (victim->GetTypeId() == TYPEID_PLAYER)
-        target = victim;
-    else if (victim->GetTypeId() == TYPEID_UNIT && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-        target = victim->GetOwner();
+    Unit const* l_Target = nullptr;
+    if (p_Victim->GetTypeId() == TypeID::TYPEID_PLAYER)
+        l_Target = p_Victim;
+    else if (p_Victim->GetTypeId() == TypeID::TYPEID_UNIT && p_Victim->GetOwner() && p_Victim->GetOwner()->GetTypeId() == TypeID::TYPEID_PLAYER)
+        l_Target = p_Victim->GetOwner();
 
-    if (!target)
+    if (!l_Target)
         return;
 
-    *damage -= (int32)CalculatePct(float(*damage), -target->GetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT));
+    *p_Damage -= (int32)CalculatePct(float(*p_Damage), -l_Target->GetFloatValue(EPlayerFields::PLAYER_FIELD_MOD_RESILIENCE_PERCENT));
 }
 
 // Melee based spells can be miss, parry or dodge on this step
