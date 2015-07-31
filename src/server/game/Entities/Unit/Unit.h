@@ -1764,9 +1764,6 @@ class Unit : public WorldObject
         void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = WeaponAttackType::BaseAttack, bool crit = false);
         void DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss);
 
-        // player or player's pet resilience (-1%)
-        uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 100.0f, damage); }
-
         void ApplyResilience(const Unit* victim, int32 * damage) const;
 
         float CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature);
@@ -2795,7 +2792,6 @@ class Unit : public WorldObject
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;
-        uint32 GetCombatRatingDamageReduction(CombatRating cr, float cap, uint32 damage) const;
 
     protected:
         void SendMoveRoot(uint32 value);

@@ -19491,6 +19491,8 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 
     if (!target)
         return;
+
+    *damage -= (int32)CalculatePct(float(*damage), -target->GetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT));
 }
 
 // Melee based spells can be miss, parry or dodge on this step
@@ -19758,18 +19760,6 @@ float Unit::GetCombatRatingReduction(CombatRating cr) const
             return owner->GetRatingBonusValue(cr);
 
     return 0.0f;
-}
-
-uint32 Unit::GetCombatRatingDamageReduction(CombatRating cr, float cap, uint32 damage) const
-{
-    float percent = std::min(GetCombatRatingReduction(cr), cap);
-
-    if ((cr == CR_RESILIENCE_PLAYER_DAMAGE_TAKEN || cr == CR_RESILIENCE_CRIT_TAKEN) && ToPlayer())
-        percent -= ToPlayer()->GetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT);
-    else if ((cr == CR_RESILIENCE_PLAYER_DAMAGE_TAKEN || cr == CR_RESILIENCE_CRIT_TAKEN) && GetOwner() && GetOwner()->ToPlayer())
-        percent -= GetOwner()->ToPlayer()->GetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT);
-
-    return CalculatePct(damage, percent);
 }
 
 uint32 Unit::GetModelForForm(ShapeshiftForm form)
