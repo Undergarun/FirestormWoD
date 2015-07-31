@@ -452,6 +452,7 @@ namespace ProfessionBookSpells
         Cooking         = 160360
     };
 }
+
 namespace ProfessionBookSpellLearnSpells
 {
     uint32 AlchemyLearnedRecipes[] =
@@ -665,6 +666,32 @@ class spell_draenor_profession : public SpellScriptLoader
 
 };
 
+/// Eye of the Black Prince - 93403
+class item_eye_of_the_black_prince : public ItemScript
+{
+    public:
+        item_eye_of_the_black_prince() : ItemScript("item_eye_of_the_black_prince") { }
+
+        bool OnUse(Player* p_Player, Item* p_Item, SpellCastTargets const& p_Targets)
+        {
+            Item* l_ItemTarget = p_Targets.GetItemTarget();
+            if (l_ItemTarget == nullptr)
+            {
+                p_Player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, p_Item, NULL);
+                return true;
+            }
+
+            /// Cannot be used on WoD weapons
+            if (l_ItemTarget->GetTemplate() && l_ItemTarget->GetTemplate()->ItemLevel > 582)
+            {
+                p_Player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, p_Item, NULL);
+                return true;
+            }
+
+            return false;
+        }
+};
+
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
@@ -681,4 +708,5 @@ void AddSC_item_scripts()
     new item_sylvanas_music_box();
     new spell_draenor_profession();
     new player_draenor_profession();
+    new item_eye_of_the_black_prince();
 }

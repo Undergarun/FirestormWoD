@@ -305,7 +305,7 @@ void WorldSession::HandleGuildPermissionsQueryOpcode(WorldPacket& /* recvData */
         l_Guild->SendPermissions(this);
 }
 
-/// Called when clicking on Guild bank gameobject
+/// Called when clicking on Guild bank gameobject or Banker NpC
 void WorldSession::HandleGuildBankActivate(WorldPacket& p_Packet)
 {
     uint64 l_Banker   = 0;
