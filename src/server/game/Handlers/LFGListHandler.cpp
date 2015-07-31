@@ -168,7 +168,13 @@ void WorldSession::HandleLfgListUpdateRequest(WorldPacket& p_RecvData)
 void WorldSession::HandleLfgListLeave(WorldPacket& p_RecvData)
 {
     uint32 l_ID;
-    ReadLfgListRideTicketInfo(&p_RecvData, &l_ID);
+    LFGListEntry* l_Entry = ReadLfgListRideTicketInfo(&p_RecvData, &l_ID);
+
+    if (!l_Entry)
+        return;
+
+    if (!l_Entry->m_Group->IsLeader(GetPlayer()->GetGUID()))
+        return;
 
     sLFGListMgr->Remove(l_ID, GetPlayer());
 }
@@ -209,7 +215,7 @@ void WorldSession::SendLfgSearchResponse(uint32 p_ActivityCategory, uint32 p_Act
         return;
     }
 
-    std::list<LFGListEntry const*> l_LFGList = sLFGListMgr->GetFilteredList(p_ActivityCategory, p_ActivitySubCategory, p_FilterString);
+    std::list<LFGListEntry const*> l_LFGList = sLFGListMgr->GetFilteredList(p_ActivityCategory, p_ActivitySubCategory, p_FilterString, GetPlayer());
 
     l_Data << uint16(l_LFGList.size()); ///< Weird Blizz is weird blizz
     l_Data << uint32(l_LFGList.size());
@@ -362,7 +368,7 @@ void WorldSession::BuilfLfgListApplicantGroupInvite(WorldPacket* p_Data, LFGList
     BuildLfgListRideTicket(p_Data, p_Applicant->m_Owner);
     *p_Data << uint32(0);   ///< Unk
     *p_Data << uint8(p_Applicant->m_Error);
-    *p_Data << uint8(0);    ///< unk
+    *p_Data << uint8(p_Applicant->m_RoleMask);
     p_Data->WriteBits(p_Applicant->m_Status, 4);
     p_Data->FlushBits();
 }
@@ -376,7 +382,7 @@ void WorldSession::HandleLfgListInviteApplicant(WorldPacket& p_RecvData)
     if (!l_Entry || !l_Application)
         return;
 
-    if (!m_Player->GetGroup()->IsAssistant(m_Player->GetGUID()))
+    if (!m_Player->GetGroup()->IsAssistant(m_Player->GetGUID()) && !m_Player->GetGroup()->IsLeader(m_Player->GetGUID()))
         return;
 
     sLFGListMgr->ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITED);
@@ -388,6 +394,9 @@ void WorldSession::HandleLfgListRemoveApplicant(WorldPacket& p_RecvData)
     LFGListEntry::LFGListApplicationEntry* l_Application = ReadLfgListApplicanmtRideTicketInfo(&p_RecvData, l_Entry, nullptr);
 
     if (!l_Entry || !l_Application)
+        return;
+
+    if (!m_Player->GetGroup()->IsAssistant(m_Player->GetGUID()) && !m_Player->GetGroup()->IsLeader(m_Player->GetGUID()))
         return;
 
     sLFGListMgr->ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_DECLINED);
@@ -413,9 +422,6 @@ void WorldSession::HandleLfgListInvitationAnswer(WorldPacket& p_RecvData)
     LFGListEntry::LFGListApplicationEntry* l_Applicant = ReadLfgListApplicanmtRideTicketInfo(&p_RecvData, nullptr);
 
     if (!l_Applicant)
-        return;
-
-    if (!m_Player->GetGroup()->IsAssistant(m_Player->GetGUID()))
         return;
 
     bool l_Accept = p_RecvData.ReadBit();

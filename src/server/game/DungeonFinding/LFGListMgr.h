@@ -146,7 +146,7 @@ public:
     bool Remove(uint32 l_GroupGuidLow, Player* p_Requester = nullptr, bool l_Disband = true);
     void PlayerAddedToGroup(Player* p_Player, Group* p_Group);
     void PlayerRemoveFromGroup(Player* p_Player, Group* p_Group);
-    std::list<LFGListEntry const*> GetFilteredList(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString);
+    std::list<LFGListEntry const*> GetFilteredList(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString, Player* p_Player);
     LFGListEntry const* GetEntrybyGuidLow(uint32 p_ID);
     void OnPlayerApplyForGroup(LFGListEntry::LFGListApplicationEntry p_Application, uint32 p_GroupID);
     void ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_Application, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus p_Status, bool p_Notify = true);

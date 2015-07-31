@@ -143,6 +143,12 @@ bool LFGListMgr::Remove(uint32 l_GroupGuidLow, Player* p_Requester /* = nullptr 
     if (p_Requester && ((!l_Group->isRaidGroup() || !l_Group->IsAssistant(p_Requester->GetGUID())) && !l_Group->IsLeader(p_Requester->GetGUID())))
         return false;
 
+    for (auto& l_Itr = l_Iter->second->m_Applications.begin(); l_Itr != l_Iter->second->m_Applications.end();)
+    {
+        sLFGListMgr->ChangeApplicantStatus(&l_Itr->second, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_CANCELLED);
+        l_Itr = l_Iter->second->m_Applications.begin();
+    }
+
     LFGListEntry* l_Entry = l_Iter->second;
     m_LFGListQueue.erase(l_Iter);
     SendLFGListStatusUpdate(l_Entry, nullptr, false);
@@ -172,11 +178,11 @@ void LFGListMgr::PlayerRemoveFromGroup(Player* p_Player, Group* p_Group)
     SendLFGListStatusUpdate(l_Iter->second, p_Player->GetSession(), false);
 }
 
-std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString)
+std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString, Player* p_Player)
 {
     std::list<LFGListEntry const*> l_LFGFiltered;
 
-    for (auto l_Iter : m_LFGListQueue)
+    for (auto& l_Iter : m_LFGListQueue)
     {
         LFGListEntry const* l_ListEntry = l_Iter.second;
 
@@ -192,6 +198,9 @@ std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 p_ActivityCate
             if (l_UpperName.find(p_FilterString) == std::string::npos)
                 continue;
         }
+
+        if (CanQueueFor(l_Iter.second, p_Player, false) != LFG_LIST_STATUS_ERROR_NONE)
+            continue;
 
         l_LFGFiltered.push_back(l_ListEntry);
     }
@@ -451,16 +460,16 @@ LFGListMgr::LFGListStatus LFGListMgr::CanQueueFor(LFGListEntry* p_Entry, Player*
     GroupFinderActivityEntry const* l_Activity = p_Entry->m_ActivityEntry;
     float l_ILvl = sLFGListMgr->GetPlayerItemLevelForActivity(l_Activity, p_RequestingPlayer);
 
-    if (p_RequestingPlayer->GetTeam() == l_Group->GetTeam())
+    if (p_RequestingPlayer->GetTeam() != l_Group->GetTeam())
         return LFG_LIST_STATUS_ERR_LFG_LIST_INVALID_SLOT;   ///< Shouldnt be a problem, because its only for filters
 
-    if (l_ILvl < l_Activity->RequiredILvl || l_ILvl < p_Entry->m_RequiredItemLevel)
+    if ((l_Activity->RequiredILvl && l_ILvl < l_Activity->RequiredILvl) || l_ILvl < p_Entry->m_RequiredItemLevel)
         return LFG_LIST_STATUS_ERR_LFG_LIST_INVALID_SLOT;   ///< Same as above, filtered out
 
-    if ((int32)l_Group->GetMembersCount() >= l_Activity->MaxPlayers || l_Group->GetMembersCount() >= 40)
+    if ((l_Activity->MaxPlayers && (int32)l_Group->GetMembersCount() >= l_Activity->MaxPlayers) || l_Group->GetMembersCount() >= 40)
         return LFG_LIST_STATUS_ERR_LFG_LIST_TOO_MANY_MEMBERS;
 
-    if (p_RequestingPlayer->getLevel() < l_Activity->MinLevel || p_RequestingPlayer->getLevel() > l_Activity->MaxLevel)
+    if (p_RequestingPlayer->getLevel() < l_Activity->MinLevel || (l_Activity->MaxLevel && p_RequestingPlayer->getLevel() > l_Activity->MaxLevel))
         return LFG_LIST_STATUS_ERR_LFG_LIST_INVALID_SLOT;   ///< Filtered out
 
     if (p_Apply)
