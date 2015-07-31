@@ -13488,8 +13488,8 @@ void Unit::Dismount()
 
         WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16 + 2 + 4 + 4);
         l_Data.appendPackGUID(l_Guid);
-        l_Data << uint32(0);
-        l_Data << uint32(0);
+        l_Data << uint32(0);        ///< SequenceIndex
+        l_Data << uint32(0);        ///< VehicleRecID
         ToPlayer()->GetSession()->SendPacket(&l_Data);
 
         l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 4);
