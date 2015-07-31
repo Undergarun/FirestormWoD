@@ -11274,35 +11274,6 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     // use triggered flag only for items with many spell casts and for not first cast
     uint8 count = 0;
 
-    // item spells casted at use
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-    {
-        _Spell const& spellData = proto->Spells[i];
-
-        // no spell
-        if (!spellData.SpellId)
-            continue;
-
-        // wrong triggering type
-        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
-            continue;
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellData.SpellId);
-        if (!spellInfo)
-        {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring", proto->ItemId, spellData.SpellId);
-            continue;
-        }
-
-        Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
-        spell->m_CastItem = item;
-        spell->m_cast_count = cast_count;                   // set count of casts
-        spell->m_glyphIndex = glyphIndex;                   // glyph index
-        spell->prepare(&targets);
-
-        ++count;
-    }
-
     // Item enchantments spells casted at use
     for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
     {
@@ -11334,6 +11305,35 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
 
             ++count;
         }
+    }
+
+    // item spells casted at use
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    {
+        _Spell const& spellData = proto->Spells[i];
+
+        // no spell
+        if (!spellData.SpellId)
+            continue;
+
+        // wrong triggering type
+        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+            continue;
+
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellData.SpellId);
+        if (!spellInfo)
+        {
+            sLog->outError(LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring", proto->ItemId, spellData.SpellId);
+            continue;
+        }
+
+        Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
+        spell->m_CastItem = item;
+        spell->m_cast_count = cast_count;                   // set count of casts
+        spell->m_glyphIndex = glyphIndex;                   // glyph index
+        spell->prepare(&targets);
+
+        ++count;
     }
 }
 
