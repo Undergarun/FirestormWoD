@@ -6,16 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace BattlePay
-{
-    enum String
-    {
-        NeedToBeInGame    = 14090,
-        TooHighLevel      = 14091,
-        YouAlreadyOwnThat = 14092
-    };
-}
-
 template<uint32 t_Level> class BattlePay_Level : BattlePayProductScript
 {
     public:
@@ -36,13 +26,13 @@ template<uint32 t_Level> class BattlePay_Level : BattlePayProductScript
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::String::NeedToBeInGame, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::NeedToBeInGame, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 
             if (t_Level <= l_Player->getLevel())
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::String::TooHighLevel, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::TooHighLevel, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 
@@ -70,13 +60,14 @@ template<AtLoginFlags t_AtLogin> class BattlePay_CharacterService : BattlePayPro
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::String::NeedToBeInGame, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::NeedToBeInGame, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 
-            if (l_Player->HasAtLoginFlag(t_AtLogin))
+            /// Can't have two flags
+            if (l_Player->HasAtLoginFlag((AtLoginFlags)0xFFFFFFFF))
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::String::YouAlreadyOwnThat, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 
@@ -98,7 +89,7 @@ template <uint32 t_AccountServiceFlag> class BattlePay_AccountService : BattlePa
         {
             if (p_Session->HasServiceFlags(t_AccountServiceFlag))
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::String::YouAlreadyOwnThat, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 

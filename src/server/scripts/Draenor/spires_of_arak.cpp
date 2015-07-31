@@ -43,6 +43,7 @@ class boss_rukhmar : public CreatureScript
                 m_MovingUpToward     = false;
                 m_MovingDownToward   = false;
 
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->AddAura(SpiresOfArakSpells::SouthshoreMobScalingAura, me);
                 m_Events.Reset();
             }
@@ -103,6 +104,7 @@ class boss_rukhmar : public CreatureScript
             {
                 CreatureAI::EnterEvadeMode();
                 summons.DespawnAll();
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 m_Events.Reset();
 
                 std::list<Creature*> l_CreatureList;

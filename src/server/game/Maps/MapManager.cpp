@@ -289,10 +289,18 @@ void MapManager::Update(uint32 diff)
     /// - Start Achievement criteria update processing thread
     sAchievementMgr->PrepareCriteriaUpdateTaskThread();
 
-    if (m_updater.activated())
-        m_updater.schedule_specific(new AchievementCriteriaUpdateRequest(&m_updater));
-    else
-        AchievementCriteriaUpdateRequest(nullptr).call();
+    for (auto l_PlayerTask : sAchievementMgr->GetPlayersCriteriaTask())
+    {
+        if (m_updater.activated())
+            m_updater.schedule_specific(new AchievementCriteriaUpdateRequest(&m_updater, l_PlayerTask.second));
+        else
+        {
+            /// Process all task in synchrone way
+            auto l_Task = new AchievementCriteriaUpdateRequest(nullptr, l_PlayerTask.second);
+            l_Task->call();
+            delete l_Task;
+        }
+    }
 
     /// - Start map updater threads
     MapMapType::iterator iter = i_maps.begin();
@@ -306,6 +314,8 @@ void MapManager::Update(uint32 diff)
 
     if (m_updater.activated())
         m_updater.wait();
+
+    sAchievementMgr->ClearPlayersCriteriaTask();
 
     for (iter = i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));

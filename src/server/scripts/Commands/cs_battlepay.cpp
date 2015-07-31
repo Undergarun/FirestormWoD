@@ -31,7 +31,8 @@ class battlepay_commandscript: public CommandScript
 
             static ChatCommand g_CommandTable[] =
             {
-                 { "battlepay", SEC_ADMINISTRATOR, true, nullptr, "", g_BattlepayCommandTable }
+                 { "battlepay", SEC_ADMINISTRATOR, true, nullptr, "", g_BattlepayCommandTable },
+                 { nullptr, 0, false, nullptr, "", nullptr }
             };
 
             return g_CommandTable;

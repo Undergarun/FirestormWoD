@@ -322,17 +322,23 @@ class spell_pal_daybreak: public SpellScriptLoader
 
             enum Constants : int32
             {
-                FullHealTargetCount = 6, ///< After this amount of targets the spell will lose BasePoints% efficiency for each target
-                HealDecrease        = 5, ///< % of heal lost per target over FullHealTargetCount
-                MinimalHeal         = 5, ///< Minimal heal % applied on each target when a lot of target are hit
+                HealDecrease           = 5, ///< % of heal lost per target over FullHealTargetCount
+                MinimalHeal            = 5, ///< Minimal heal % applied on each target when a lot of target are hit
+                MaximumSecondaryTarget = 6  ///< Maximum Secondary Target
             };
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                m_TargetCount = p_Targets.size();
-
                 if (!GetCaster())
                     return;
+
+                if (p_Targets.size() > (MaximumSecondaryTarget + 1 /* Main Target */))
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(MaximumSecondaryTarget + 1 /* Main Target */);
+                }
+
+                m_TargetCount = p_Targets.size();
             }
 
             void HandleBeforeCast()
@@ -346,7 +352,7 @@ class spell_pal_daybreak: public SpellScriptLoader
                 m_TargetId = l_Target->GetGUID();
             }
 
-            void HandleOnHit()
+            void HandleHealSecondaryTarget(SpellEffIndex /*l_EffIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
                 Unit* l_Caster = GetCaster();
@@ -355,14 +361,10 @@ class spell_pal_daybreak: public SpellScriptLoader
                     return;
 
                 int32 l_HealValue = GetHitHeal();
-                if (l_Target->GetGUID() != m_TargetId)
-                {
-                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
-                    if (m_TargetCount > Constants::FullHealTargetCount)
-                        l_Pct = std::max(l_Pct - 5 * Constants::HealDecrease, static_cast<int32>(Constants::MinimalHeal));
+                int32 l_PctSecondaryTargets = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
 
-                    ApplyPct(l_HealValue, l_Pct);
-                }
+                if (l_Target->GetGUID() != m_TargetId)
+                    ApplyPct(l_HealValue, l_PctSecondaryTargets);
 
                 SetHitHeal(l_HealValue);
             }
@@ -382,7 +384,7 @@ class spell_pal_daybreak: public SpellScriptLoader
             {
                 AfterCast += SpellCastFn(spell_pal_daybreak_SpellScript::HandleAfterCast);
                 BeforeCast += SpellCastFn(spell_pal_daybreak_SpellScript::HandleBeforeCast);
-                OnHit += SpellHitFn(spell_pal_daybreak_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_daybreak_SpellScript::HandleHealSecondaryTarget, EFFECT_1, SPELL_EFFECT_HEAL);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_daybreak_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
@@ -520,8 +522,9 @@ class spell_pal_shield_of_the_righteous: public SpellScriptLoader
         }
 };
 
-// Selfless healer - 85804
-// Called by flash of light - 19750
+/// last update : 6.1.2 19802
+/// Selfless healer - 85804
+/// Called by flash of light - 19750
 class spell_pal_selfless_healer: public SpellScriptLoader
 {
     public:
@@ -533,24 +536,29 @@ class spell_pal_selfless_healer: public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*l_EffIndex*/)
             {
-                if (Player* l_Caster = GetCaster()->ToPlayer())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster->HasAura(PALADIN_SPELL_SELFLESS_HEALER))
-                            l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
-                        if (l_Caster->HasAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
-                        {
-                            int32 l_Charges = l_Caster->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
 
-                            if (l_Caster->IsValidAssistTarget(l_Target) && l_Target != l_Caster)
-                            {
-                                if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_PALADIN_HOLY)
-                                    SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_3].BasePoints / 100) * l_Charges)));
-                                else
-                                    SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_1].BasePoints / 100) * l_Charges)));
-                            }
-                        }
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Player->HasAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
+                {
+                    int32 l_Charges = l_Player->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
+
+                    if (l_Player->IsValidAssistTarget(l_Target) && l_Target != l_Player)
+                    {
+                        uint32 l_Heal = 0;
+
+                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY)
+                            l_Heal = int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_3].BasePoints / 100) * l_Charges));
+                        else
+                            l_Heal = int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_1].BasePoints / 100) * l_Charges));
+
+                        l_Heal = l_Player->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, EFFECT_0, HEAL);
+                        l_Heal = l_Target->SpellHealingBonusTaken(l_Player, GetSpellInfo(), l_Heal, HEAL);
+
+                        SetHitHeal(l_Heal);
                     }
                 }
             }
@@ -768,7 +776,8 @@ class spell_pal_art_of_war: public SpellScriptLoader
         }
 };
 
-// Seal of Insight - 20167
+/// last update : 6.1.2 19802
+/// Seal of Insight - 20167
 class spell_pal_seal_of_insight: public SpellScriptLoader
 {
     public:
@@ -778,14 +787,41 @@ class spell_pal_seal_of_insight: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_seal_of_insight_SpellScript);
 
-            void HandleOnHit(SpellEffIndex)
+            enum eSpells
             {
-                // Needs a glyph script later for now its disabled in spellmgr
+                GlyphoftheBattleHealer = 119477
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(1);
+                }
+            }
+
+            void OnSelfHeal(SpellEffIndex p_Idx)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphoftheBattleHealer))
+                    PreventHitEffect(p_Idx);
+            }
+
+            void OnRaidHeal(SpellEffIndex p_Idx)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphoftheBattleHealer))
+                    PreventHitEffect(p_Idx);
             }
 
             void Register()
             {
-            //    OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::HandleOnHit, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_seal_of_insight_SpellScript::FilterTargets, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnEffectLaunch += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnSelfHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectLaunch += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnRaidHeal, EFFECT_1, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -2128,7 +2164,7 @@ public:
 
 // Call by Templars Verdict 85256 - Divine storm 53385 - Eternal Flame 114163
 // Call by Word of Glory 85673 - Shield of Righteous 53600
-// Call by Light of dawn 85222
+// Call by Light of dawn 85222 - Final Verdict 157048
 // Divine Purpose - 86172
 class spell_pal_divine_purpose: public SpellScriptLoader
 {
@@ -2443,11 +2479,11 @@ class spell_pal_sanctified_wrath_bonus : public SpellScriptLoader
                     case EFFECT_0: //< Mod CD Holy Shock
                     case EFFECT_4: //< Crit chance
                         if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_HOLY)
-                            PreventHitAura();
+                            PreventHitEffect(p_EffIndex);
                         break;
                     case EFFECT_2: //< Mod CD Hammer of Wrath
                         if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
-                            PreventHitAura();
+                            PreventHitEffect(p_EffIndex);
                         break;
                     default:
                         break;

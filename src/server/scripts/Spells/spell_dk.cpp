@@ -31,9 +31,7 @@ enum DeathKnightSpells
 {
     DK_SPELL_RUNIC_POWER_ENERGIZE               = 49088,
     DK_SPELL_ANTI_MAGIC_SHELL_TALENT            = 51052,
-    DK_SPELL_SCOURGE_STRIKE_TRIGGERED           = 70890,
     DK_SPELL_BLOOD_BOIL_TRIGGERED               = 65658,
-    SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
     DK_SPELL_BLOOD_PLAGUE                       = 55078,
     DK_SPELL_FROST_FEVER                        = 55095,
     DK_SPELL_GHOUL_AS_GUARDIAN                  = 46585,
@@ -116,9 +114,14 @@ class spell_dk_glyph_of_death_and_decay: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
-                if (dest && GetCaster()->HasAura(DK_SPELL_GLYPH_OF_DEATH_AND_DECAY))
-                    GetCaster()->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(DeathKnightSpells::DK_SPELL_GLYPH_OF_DEATH_AND_DECAY))
+                    {
+                        if (WorldLocation const* dest = GetExplTargetDest())
+                            l_Caster->CastSpell(*dest, DeathKnightSpells::DK_SPELL_DEATH_AND_DECAY_DECREASE_SPEED, true);
+                    }
+                }
             }
 
             void Register()
@@ -445,7 +448,8 @@ class spell_dk_death_strike_heal: public SpellScriptLoader
         }
 };
 
-// Howling Blast - 49184
+/// last update : 6.1.2 19802
+/// Howling Blast - 49184
 class spell_dk_howling_blast: public SpellScriptLoader
 {
     public:
@@ -455,31 +459,39 @@ class spell_dk_howling_blast: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_howling_blast_SpellScript);
 
-            uint64 tar;
+            uint64 m_TargetGUID = 0;
+            bool m_HasAuraFrog = false;
 
             void HandleBeforeCast()
             {
-                Unit* target = GetExplTargetUnit();
-                Unit* caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+                Unit* l_Caster = GetCaster();
 
-                if (!caster || !target)
+                if (!l_Target)
                     return;
 
-                tar = target->GetGUID();
+                m_TargetGUID = l_Target->GetGUID();
+
+                if (l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
+                    m_HasAuraFrog = true;
             }
 
             void HandleOnHit()
             {
-                Unit* target = GetHitUnit();
-                Unit* caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
 
-                if (!caster || !target || !tar)
+                if (!l_Target || !m_TargetGUID)
                     return;
 
-                if (target->GetGUID() != tar)
+                if (l_Target->GetGUID() != m_TargetGUID)
                     SetHitDamage(GetHitDamage()/2);
 
-                caster->CastSpell(target, DK_SPELL_FROST_FEVER, true);
+                l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
+
+                /// When you have Freezing Fog active, your next Howling Blast will increase Frost damage taken on all targets by 10% for 8 sec.
+                if (m_HasAuraFrog && l_Caster->HasAura(DK_WOD_PVP_FROST_4P_BONUS))
+                    l_Caster->CastSpell(l_Target, DK_WOD_PVP_FROST_4P_BONUS_EFFECT, true);
             }
 
             void Register()
@@ -1819,10 +1831,6 @@ class spell_dk_empowered_obliterate_icy_touch : public SpellScriptLoader
 
                 if (m_HasAura && l_SpellInfo != nullptr)
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
-
-                /// When you have Freezing Fog active, your next Howling Blast will increase Frost damage taken on all targets by 10% for 8 sec.
-                if (m_HasAura && l_Caster->HasAura(DK_WOD_PVP_FROST_4P_BONUS))
-                    l_Caster->CastSpell(l_Target, DK_WOD_PVP_FROST_4P_BONUS_EFFECT, true);
             }
 
             void Register()
@@ -2752,6 +2760,45 @@ class spell_dk_glyph_of_icy_runes : public SpellScriptLoader
         }
 };
 
+/// Gargoyle Strike - 51963
+class spell_dk_gargoyle_strike : public SpellScriptLoader
+{
+public:
+    spell_dk_gargoyle_strike() : SpellScriptLoader("spell_dk_gargoyle_strike") { }
+
+    class spell_dk_gargoyle_strike_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_gargoyle_strike_SpellScript);
+
+        void HandleDamage(SpellEffIndex effIndex)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Owner = l_Caster->GetOwner())
+                {
+                    /// Gargoyle Strike damage is increased by DK mastery
+                    int32 l_HitDamage = GetHitDamage();
+                    float l_Mastery = l_Owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
+
+                    l_HitDamage += CalculatePct(l_HitDamage, l_Mastery);
+
+                    SetHitDamage(l_HitDamage);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_dk_gargoyle_strike_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dk_gargoyle_strike_SpellScript();
+    }
+};
+
 
 void AddSC_deathknight_spell_scripts()
 {
@@ -2808,6 +2855,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_will_of_the_necropolis();
     new spell_dk_glyph_of_icy_runes();
     new spell_dk_enhanced_death_coil();
+    new spell_dk_gargoyle_strike();
 
     /// Player script
     new PlayerScript_Blood_Tap();

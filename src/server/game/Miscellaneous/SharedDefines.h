@@ -437,7 +437,7 @@ enum SpellCategoryFlags
 {
     SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // Unused
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
-    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT        = 0x08
+    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
 };
 
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
@@ -722,7 +722,7 @@ enum SpellAttr7
     SPELL_ATTR7_ALLIANCE_ONLY                    = 0x00000200, //  9 Teleports, mounts and other spells.
     SPELL_ATTR7_DISPEL_CHARGES                   = 0x00000400, // 10 Dispel and Spellsteal individual charges instead of whole aura.
     SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER         = 0x00000800, // 11 Only non-player casts interrupt, though Feral Charge - Bear has it.
-    SPELL_ATTR7_UNK12                            = 0x00001000, // 12 Not set in 3.2.2a.
+    SPELL_ATTR7_SILENCE_ONLY_NONPLAYER           = 0x00001000, // 12 Not set in 3.2.2a.
     SPELL_ATTR7_UNK13                            = 0x00002000, // 13 Not set in 3.2.2a.
     SPELL_ATTR7_UNK14                            = 0x00004000, // 14 Only 52150 (Raise Dead - Pet) spell.
     SPELL_ATTR7_UNK15                            = 0x00008000, // 15 Exorcism. Usable on players? 100% crit chance on undead and demons?
@@ -810,7 +810,7 @@ enum SpellAttr9
     SPELL_ATTR9_UNK25                            = 0x02000000, // 25
     SPELL_ATTR9_UNK26                            = 0x04000000, // 26 Item - Mage T12 4P Bonus 99064
     SPELL_ATTR9_UNK27                            = 0x08000000, // 27 20707 Soulstone Resurrection, Quest Invis 9 102370
-    SPELL_ATTR9_UNK28                            = 0x10000000, // 28 Decimate, Unholy Frenzy, Spirit Link: all aoe reduce health
+    SPELL_ATTR9_UNK28                            = 0x10000000, // 28 Decimate, Spirit Link: all aoe reduce health
     SPELL_ATTR9_UNK29                            = 0x20000000, // 29 passive raid-wide auras
     SPELL_ATTR9_UNK30                            = 0x40000000, // 30
     SPELL_ATTR9_UNK31                            = 0x80000000  // 31 In Chains 88791
@@ -870,7 +870,7 @@ enum SpellAttr11
     SPELL_ATTR11_UNK13                            = 0x00002000, // 13
     SPELL_ATTR11_UNK14                            = 0x00004000, // 14
     SPELL_ATTR11_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR11_UNK16                            = 0x00010000, // 16
+    SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE     = 0x00010000, // 16
     SPELL_ATTR11_UNK17                            = 0x00020000, // 17
     SPELL_ATTR11_UNK18                            = 0x00040000, // 18
     SPELL_ATTR11_UNK19                            = 0x00080000, // 19

@@ -74,8 +74,6 @@ enum ShamanSpells
     SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE        = 118470,
     SPELL_SHA_UNLEASHED_FURY_WINDFURY           = 118472,
     SPELL_SHA_UNLEASHED_FURY_EARTHLIVING        = 118473,
-    SPELL_SHA_UNLEASHED_FURY_FROSTBRAND         = 118474,
-    SPELL_SHA_UNLEASHED_FURY_ROCKBITER          = 118475,
     SPELL_SHA_STONE_BULWARK_ABSORB              = 114893,
     SPELL_SHA_EARTHGRAB_IMMUNITY                = 116946,
     SPELL_SHA_EARTHBIND_FOR_EARTHGRAB_TOTEM     = 116947,
@@ -784,7 +782,7 @@ class spell_sha_earthgrab: public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Stone Bulwark - 114889
+/// Stone Bulwark Totem - 114889
 class spell_sha_stone_bulwark: public SpellScriptLoader
 {
     public:
@@ -813,10 +811,18 @@ class spell_sha_stone_bulwark: public SpellScriptLoader
                 int32 l_Amount = 0.875f * spellPower;
 
                 if (AuraPtr aura = l_Player->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
+                {
                     aura->GetEffect(EFFECT_0)->SetAmount(aura->GetEffect(EFFECT_0)->GetAmount() + l_Amount);
+                    aura->RefreshDuration();
+                }
                 else if (p_AurEff->GetTickNumber() == 1)
                 {
                     l_Amount *= 4.0f;
+                    if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Player))
+                        aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
+                }
+                else
+                {
                     if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Player))
                         aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
                 }
@@ -1064,6 +1070,7 @@ class spell_sha_lava_surge: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Healing Stream - 52042
 class spell_sha_healing_stream: public SpellScriptLoader
 {
@@ -1074,11 +1081,35 @@ class spell_sha_healing_stream: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_healing_stream_SpellScript);
 
+            enum eSpells
+            {
+                RushingStreams = 147074,
+                GlyphOfHealingStreamTotem = 55456
+            };
+
             bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHA_HEALING_STREAM))
                     return false;
                 return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (Unit* l_Owner = l_Caster->GetOwner())
+                    l_Caster = l_Owner;
+
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+
+                    if (l_Caster->HasAura(eSpells::RushingStreams)) ///< Your Healing Stream Totem now heals two targets 
+                        p_Targets.resize(2);
+                    else
+                        p_Targets.resize(1);
+                }
             }
 
             void HandleOnHit()
@@ -1091,14 +1122,15 @@ class spell_sha_healing_stream: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         /// Glyph of Healing Stream Totem
-                        if (l_Owner->HasAura(SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM))
-                            l_Owner->CastSpell(l_Target, SPELL_SHA_GLYPH_OF_HEALING_STREAM, true);
+                        if (l_Owner->HasAura(eSpells::GlyphOfHealingStreamTotem))
+                            l_Owner->CastSpell(l_Target, eSpells::GlyphOfHealingStreamTotem, true);
                     }
                 }
             }
 
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_stream_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
                 OnHit += SpellHitFn(spell_sha_healing_stream_SpellScript::HandleOnHit);
             }
         };
@@ -1366,7 +1398,7 @@ class spell_sha_healing_rain_heal : public SpellScriptLoader
         }
 };
 
-/// Ascendance - 114049
+/// Ascendance - 114049 - last update: 6.1.2 19865
 class spell_sha_ascendance: public SpellScriptLoader
 {
     public:
@@ -1378,61 +1410,64 @@ class spell_sha_ascendance: public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellEntry)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHA_ASCENDANCE))
+                if (!sSpellMgr->GetSpellInfo(ShamanSpells::SPELL_SHA_ASCENDANCE))
                     return false;
+
                 return true;
             }
 
             SpellCastResult CheckCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_NONE)
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_NONE)
                     {
-                        SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_SELECT_TALENT_SPECIAL);
-                        return SPELL_FAILED_CUSTOM_ERROR;
+                        SetCustomCastResultMessage(SpellCustomErrors::SPELL_CUSTOM_ERROR_MUST_SELECT_TALENT_SPECIAL);
+                        return SpellCastResult::SPELL_FAILED_CUSTOM_ERROR;
                     }
-                    else
-                        return SPELL_CAST_OK;
                 }
                 else
-                    return SPELL_FAILED_DONT_REPORT;
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
 
-                return SPELL_CAST_OK;
+                return SpellCastResult::SPELL_CAST_OK;
             }
 
             void HandleAfterCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    switch(_player->GetSpecializationId(_player->GetActiveSpec()))
+                    switch(l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
                     {
-                        case SPEC_SHAMAN_ELEMENTAL:
-                            _player->CastSpell(_player, SPELL_SHA_ASCENDANCE_ELEMENTAL, true);
-                            break;
-                        case SPEC_SHAMAN_ENHANCEMENT:
-                            _player->CastSpell(_player, SPELL_SHA_ASCENDANCE_ENHANCED, true);
+                        case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
+                            l_Player->CastSpell(l_Player, ShamanSpells::SPELL_SHA_ASCENDANCE_ELEMENTAL, true);
 
-                            if (_player->HasSpellCooldown(SPELL_SHA_STORMSTRIKE))
-                                _player->RemoveSpellCooldown(SPELL_SHA_STORMSTRIKE, true);
+                            if (l_Player->HasSpellCooldown(ShamanSpells::SPELL_SHA_LAVA_BURST))
+                                l_Player->RemoveSpellCooldown(ShamanSpells::SPELL_SHA_LAVA_BURST, true);
                             break;
-                        case SPEC_SHAMAN_RESTORATION:
-                            _player->CastSpell(_player, SPELL_SHA_ASCENDANCE_RESTORATION, true);
+                        case SpecIndex::SPEC_SHAMAN_ENHANCEMENT:
+                            l_Player->CastSpell(l_Player, ShamanSpells::SPELL_SHA_ASCENDANCE_ENHANCED, true);
+
+                            if (l_Player->HasSpellCooldown(ShamanSpells::SPELL_SHA_STORMSTRIKE))
+                                l_Player->RemoveSpellCooldown(ShamanSpells::SPELL_SHA_STORMSTRIKE, true);
                             break;
+                        case SpecIndex::SPEC_SHAMAN_RESTORATION:
+                            l_Player->CastSpell(l_Player, ShamanSpells::SPELL_SHA_ASCENDANCE_RESTORATION, true);
+                            break;
+
                         default:
                             break;
                     }
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_sha_ascendance_SpellScript::CheckCast);
                 AfterCast += SpellCastFn(spell_sha_ascendance_SpellScript::HandleAfterCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_sha_ascendance_SpellScript();
         }
@@ -2055,7 +2090,8 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
 
         enum eSpells
         {
-            SpiritHuntHeal = 58879
+            SpiritHuntHeal = 58879,
+            GlyphofFeralSpirit = 63271
         };
 
         class spell_sha_pet_spirit_hunt_AuraScript : public AuraScript
@@ -2079,6 +2115,10 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
                     return;
 
                 int32 l_HealAmount = CalculatePct(l_TakenDamage, p_AurEff->GetAmount());
+
+                if (AuraPtr l_GlyphofFeralSpirit = l_Owner->GetAura(eSpells::GlyphofFeralSpirit)) ///< Increases the healing done by your Feral Spirits' Spirit Hunt by 40%
+                    l_HealAmount += CalculatePct(l_HealAmount, l_GlyphofFeralSpirit->GetEffect(EFFECT_0)->GetAmount());
+
                 l_Caster->CastCustomSpell(l_Owner, eSpells::SpiritHuntHeal, &l_HealAmount, nullptr, nullptr, true);
                 l_Caster->CastCustomSpell(l_Caster, eSpells::SpiritHuntHeal, &l_HealAmount, nullptr, nullptr, true);
             }
@@ -2214,7 +2254,7 @@ class spell_sha_echo_of_elements: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_echo_of_elements_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_sha_echo_of_elements_AuraScript::OnProc, EFFECT_0, SPELL_AURA_MOD_MAX_CHARGES);
             }
         };
 

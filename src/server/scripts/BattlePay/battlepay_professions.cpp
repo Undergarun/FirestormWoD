@@ -49,14 +49,6 @@ namespace BattlePay
         { SkillType::SKILL_ARCHAEOLOGY,    ProfessionBookSpells::Archaeology    },
         { SkillType::SKILL_FISHING,        ProfessionBookSpells::Fishing        }
     };
-
-    enum String
-    {
-        Level90Required             = 14093,
-        ReachPrimaryProfessionLimit = 14094,
-        YouAlreadyOwnThat           = 14092,
-        NeedToBeInGame              = 14090,
-    };
 }
 
 template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePayProductScript
@@ -93,7 +85,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::String::NeedToBeInGame, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::NeedToBeInGame, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 
@@ -103,19 +95,19 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
 
             if (l_Player->getLevel() < 90)
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::String::Level90Required, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::Level90Required, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 
             if (IsPrimaryProfessionSkill(t_SkillID) && !l_Player->HasSkill(t_SkillID) && l_Player->GetFreePrimaryProfessionPoints() == 0)
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::String::ReachPrimaryProfessionLimit, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::ReachPrimaryProfessionLimit, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 
             if (l_Player->HasSkill(t_SkillID) && l_Player->GetSkillValue(t_SkillID) == t_Value)
             {
-                p_Reason = sObjectMgr->GetTrinityString(BattlePay::String::YouAlreadyOwnThat, p_Session->GetSessionDbLocaleIndex());
+                p_Reason = sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, p_Session->GetSessionDbLocaleIndex());
                 return false;
             }
 

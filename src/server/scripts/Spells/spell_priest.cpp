@@ -109,7 +109,6 @@ enum PriestSpells
     PRIEST_SPELL_SPIRIT_OF_REDEMPTION_SHAPESHIFT    = 27827,
     PRIEST_SPELL_LEVITATE                           = 111758,
     PRIEST_SPELL_VOID_TENDRILS_SUMMON               = 127665,
-    PRIEST_NPC_PSYFIEND                             = 59190,
     PRIEST_SPELL_SPECTRAL_GUISE_CHARGES             = 119030,
     PRIEST_SPELL_POWER_WORD_SHIELD                  = 17,
     PRIEST_SPELL_INNER_FOCUS_IMMUNITY               = 96267,
@@ -1183,108 +1182,81 @@ enum MasterySpells
 
 /// last update : 6.1.2 19802
 /// Power Word: Shield - 17
-class spell_pri_power_word_shield: public SpellScriptLoader
+class spell_pri_power_word_shield : public SpellScriptLoader
 {
-    public:
-        spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
+public:
+    spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
 
-        class spell_pri_power_word_shield_AuraScript : public AuraScript
+    class spell_pri_power_word_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+
+        int32 m_HealByGlyph = 0;
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
         {
-            PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
 
-            std::map<uint64, uint32> m_DmgByAttackerList;
-            int32 m_HealByGlyph = 0;
+            p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
 
-            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
             {
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
+                if (l_SpellInfo == nullptr)
                     return;
 
-                p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
-
-                if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
-                {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
-                    if (l_SpellInfo == nullptr)
-                        return;
-
-                    m_HealByGlyph = CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints);
-                    p_Amount -= m_HealByGlyph;
-                }
+                m_HealByGlyph = CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                p_Amount -= m_HealByGlyph;
             }
+        }
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+        void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Target = GetTarget();
+            Unit* l_Owner = GetUnitOwner();
+
+            if (l_Target == nullptr || l_Owner == nullptr)
+                return;
+
+            if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
+                l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
+        }
+
+        void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_ShieldValue*/)
+        {
+            Unit* l_Target = GetTarget();
+            Unit* l_Owner = GetUnitOwner();
+            if (l_Target == nullptr || l_Owner == nullptr)
+                return;
+
+            if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
             {
-                Unit* l_Target = GetTarget();
-                Unit* l_Owner = GetUnitOwner();
-
-                if (l_Target == nullptr || l_Owner == nullptr)
-                    return;
-
-                if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
-                    l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
-            }
-
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
-            {
-                Unit* l_Target = GetTarget();
-                Unit* l_Owner = GetUnitOwner();
-                if (l_Target == nullptr || l_Owner == nullptr)
-                    return;
-
-                if (l_Owner == l_Target)
+                if (l_Owner == l_Target && l_Owner->HasAura(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
                 {
                     if (AuraEffectPtr l_ReflectiveShield = l_Owner->GetAuraEffect(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, SpellEffIndex::EFFECT_0))
                     {
-                        for (auto l_It = m_DmgByAttackerList.begin(); l_It != m_DmgByAttackerList.end(); ++l_It)
-                        {
-                            if (l_It->first == l_Target->GetGUID())
-                                return;
-
-                            int32 l_Damage = CalculatePct(l_It->second, l_ReflectiveShield->GetAmount());
-                            l_Owner->CastCustomSpell(l_Target->GetUnit(*l_Target, l_It->first), PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
-                        }
+                        int32 l_Damage = CalculatePct(p_DmgInfo.GetAbsorb(), l_ReflectiveShield->GetAmount());
+                        l_Owner->CastCustomSpell(l_Attacker, PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
                     }
                 }
             }
-
-            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
-            {
-                Unit* l_Target = GetTarget();
-                Unit* l_Owner = GetUnitOwner();
-                if (l_Target == nullptr || l_Owner == nullptr)
-                    return;
-
-                if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
-                {
-                    if (l_Owner == l_Target && l_Owner->HasAura(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
-                    {
-                        uint64 l_GUID = l_Attacker->GetGUID();
-                        auto l_It = m_DmgByAttackerList.find(l_GUID);
-                        if (l_It != m_DmgByAttackerList.end())
-                            l_It->second += p_DmgInfo.GetDamage();
-                        else
-                            m_DmgByAttackerList[l_Attacker->GetGUID()] = p_DmgInfo.GetDamage();
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_power_word_shield_AuraScript();
         }
-};
 
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_power_word_shield_AuraScript();
+    }
+};
 // Smite - 585
 class spell_pri_smite: public SpellScriptLoader
 {
@@ -2345,7 +2317,7 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                                     
 
                                 int32 l_MaxDuration = l_PsychicHorror->GetMaxDuration();
-                                int32 l_NewDuration = l_MaxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed * IN_MILLISECONDS;
+                                int32 l_NewDuration = l_MaxDuration + (GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed) * IN_MILLISECONDS;
                                 l_PsychicHorror->SetDuration(l_NewDuration);
 
                                 if (l_NewDuration > l_MaxDuration)
@@ -3884,6 +3856,39 @@ class spell_pri_dispel_mass : public SpellScriptLoader
         }
 };
 
+/// Dominate Mind - 605
+/// last update: 19865
+class spell_pri_dominate_mind : public SpellScriptLoader
+{
+    public:
+        spell_pri_dominate_mind() : SpellScriptLoader("spell_pri_dominate_mind") { }
+
+        class spell_pri_dominate_mind_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_dominate_mind_SpellScript);
+
+            SpellCastResult CheckTarget()
+            {
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->ToCreature() && l_Target->ToCreature()->isWorldBoss())
+                        return SpellCastResult::SPELL_FAILED_IMMUNE;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pri_dominate_mind_SpellScript::CheckTarget);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pri_dominate_mind_SpellScript();
+        }
+};
 
 
 void AddSC_priest_spell_scripts()
@@ -3960,6 +3965,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_saving_grace();
     new spell_pri_glyph_of_the_inquisitor();
     new spell_pri_glyph_of_restored_faith();
+    new spell_pri_dominate_mind();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();

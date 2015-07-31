@@ -183,7 +183,6 @@ void Transport::Update(uint32 diff)
             GetMap()->InsertGameObjectModel(*m_model);
     }
 
-
     // Set position
     _positionChangeTimer.Update(diff);
     if (_positionChangeTimer.Passed())

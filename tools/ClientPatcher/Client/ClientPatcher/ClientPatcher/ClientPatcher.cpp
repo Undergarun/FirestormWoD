@@ -133,7 +133,8 @@ const struct RewriteItem Win32Patchs[] =
     { 0x0039E0DE, sizeof(addon2),                                addon2                                 },
     { 0x0039E3EF, sizeof(addon2),                                addon2                                 },
     { 0x0039E41E, sizeof(addon2),                                addon2                                 },
-    { 0x00407E6E, sizeof(addon3),                                addon3                                 }
+    { 0x00407E6E, sizeof(addon3),                                addon3                                 },
+    { 0x0007FEDE, sizeof(addon3),                                addon3                                 }   
 
 };
 
@@ -212,6 +213,7 @@ const uint8_t addon_1_win64[] = { 0x41, 0xb1, 0x02, 0x90 };
 const uint8_t addon_2_win64[] = { 0x02 };
 const uint8_t addon_3_win64[] = { 0x00 };
 const uint8_t addon_4_win64[] = { 0x41, 0xb1, 0x00, 0x90 };
+const uint8_t addon_5_win64[] = { 0x41, 0xb1, 0x00 };
 
 
 const struct RewriteItem Win64Patchs[] =
@@ -240,6 +242,7 @@ const struct RewriteItem Win64Patchs[] =
     { 0x006FBF26, sizeof(addon_3_win64),                         addon_3_win64                          },
     { 0x0003AAFB, sizeof(addon_4_win64),                         addon_4_win64                          },
     { 0x0003DF39, sizeof(addon_4_win64),                         addon_4_win64                          },
+    { 0x000C1069, sizeof(addon_5_win64),                         addon_5_win64                          }
 };
 
 const uint8_t client_packets_check_data_mac64[] = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x27, 0x01, 0x00, 0x00 };   ///< jmp to bypass socket check

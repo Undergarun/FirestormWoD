@@ -282,9 +282,6 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
 
         uint32 GetCreatedTime() const { return m_CreatedTime; }
 
-        float GetVisualRadius() const { return m_VisualRadius; }
-        void SetVisualRadius(float radius) { m_VisualRadius = radius; }
-
         uint32 GetUpdateInterval() const { return m_UpdateTimer.GetInterval(); }
         AreatriggerInterpolation GetTrajectory() const { return m_Trajectory; }
 
@@ -325,7 +322,6 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
     protected:
         int32 m_Duration;
         Unit* m_Caster;
-        float m_VisualRadius;
         uint32 m_CreatedTime;
         uint32 m_Flags;
         Position m_Source;

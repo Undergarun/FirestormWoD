@@ -3618,7 +3618,7 @@ class npc_fungal_growth : public CreatureScript
 
 #define BLOODWORM_BLOOD_GORGED  50453
 #define BLOODWORM_BLOOD_STACKS  81277
-#define BLOODWORM_BLOOD_BURST   81280
+#define BLOODWORM_BLOOD_BURST   81280 ///< @todo spell id removed
 
 class npc_bloodworm : public CreatureScript
 {
@@ -3718,21 +3718,6 @@ enum PastSelfSpells
     SPELL_ENCHANTED_REFLECTION_2    = 102288
 };
 
-struct auraData
-{
-    auraData(uint32 p_ID, int32 p_Duration, uint8 p_Charges, bool p_HasStackAmount) :
-        ID(p_ID), Duration(p_Duration), Charges(p_Charges), HasStackAmount(p_HasStackAmount)
-    {
-        memset(EffectAmounts, 0, sizeof(EffectAmounts));
-    }
-
-    uint32 ID;
-    int32 Duration;
-    int32 EffectAmounts[MAX_EFFECTS];
-    uint8 Charges;
-    bool HasStackAmount;
-};
-
 #define ACTION_ALTER_TIME   1
 
 class npc_past_self : public CreatureScript
@@ -3754,7 +3739,6 @@ class npc_past_self : public CreatureScript
 
             int32 m_Mana;
             int32 m_Health;
-            std::vector<std::unique_ptr<auraData>> m_SavedAuras;
 
             void Reset()
             {
@@ -3766,37 +3750,6 @@ class npc_past_self : public CreatureScript
             {
                 if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
                 {
-                    Unit::AuraApplicationMap const& appliedAuras = p_Owner->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::const_iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
-                    {
-                        if (AuraPtr aura = itr->second->GetBase())
-                        {
-                            SpellInfo const* auraInfo = aura->GetSpellInfo();
-                            if (!auraInfo)
-                                continue;
-
-                            if (auraInfo->Id == SPELL_ALTER_TIME)
-                                continue;
-
-                            if (auraInfo->IsPassive())
-                                continue;
-
-                            if (auraInfo->Id == 23333 || auraInfo->Id == 23335) ///< Horde Flag || Alliance Flag
-                                continue;
-
-                            bool l_Stack = aura->GetStackAmount();
-                            uint8 l_Charges = l_Stack ? aura->GetStackAmount() : aura->GetCharges();
-
-                            m_SavedAuras.emplace_back(new auraData(auraInfo->Id, aura->GetDuration(), l_Charges, l_Stack));
-
-                            for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
-                            {
-                                if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
-                                    m_SavedAuras.back()->EffectAmounts[l_I] = l_Effect->GetAmount();
-                            }
-                        }
-                    }
-
                     m_Mana = p_Owner->GetPower(Powers::POWER_MANA);
                     m_Health = p_Owner->GetHealth();
 
@@ -3819,32 +3772,6 @@ class npc_past_self : public CreatureScript
                             {
                                 if (!l_Owner->isAlive())
                                     return;
-
-                                l_Owner->RemoveNonPassivesAuras();
-
-                                for (const auto& l_AuraDataPtr : m_SavedAuras)
-                                {
-                                    /// Since we removed all non-passive aura and don't store passive ones, we can't already have that aura
-                                    AuraPtr l_Aura = l_Owner->AddAura(l_AuraDataPtr->ID, l_Owner);
-                                    if (l_Aura)
-                                    {
-                                        l_Aura->SetDuration(l_AuraDataPtr->Duration);
-                                        if (l_AuraDataPtr->HasStackAmount)
-                                            l_Aura->SetStackAmount(l_AuraDataPtr->Charges);
-                                        else
-                                            l_Aura->SetCharges(l_AuraDataPtr->Charges);
-
-                                        for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
-                                        {
-                                            if (AuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
-                                                l_Effect->ChangeAmount(l_AuraDataPtr->EffectAmounts[l_I]);
-                                        }
-
-                                        l_Aura->SetNeedClientUpdateForTargets();
-                                    }
-                                }
-
-                                m_SavedAuras.clear();
 
                                 l_Owner->SetPower(POWER_MANA, m_Mana);
                                 l_Owner->SetHealth(m_Health);
@@ -4013,102 +3940,6 @@ class npc_void_tendrils : public CreatureScript
         CreatureAI* GetAI(Creature *creature) const
         {
             return new npc_void_tendrilsAI(creature);
-        }
-};
-
-/*######
-## npc_psyfiend -- 59190
-######*/
-
-enum PsyfiendSpells
-{
-    SPELL_PSYCHIC_HORROR    = 113792,
-};
-
-enum PsyfiendEvents
-{
-    EVENT_FEAR = 1
-};
-
-class npc_psyfiend : public CreatureScript
-{
-    public:
-        npc_psyfiend() : CreatureScript("npc_psyfiend") { }
-
-        struct npc_psyfiendAI : public Scripted_NoMovementAI
-        {
-            npc_psyfiendAI(Creature* c) : Scripted_NoMovementAI(c)
-            {
-                me->SetReactState(REACT_AGGRESSIVE);
-                targetGUID = 0;
-            }
-
-            uint64 targetGUID;
-            uint32 psychicHorrorTimer;
-            EventMap m_Events;
-
-            void Reset()
-            {
-                if (!me->HasAura(SPELL_ROOT_FOR_EVER))
-                    me->AddAura(SPELL_ROOT_FOR_EVER, me);
-
-                m_Events.ScheduleEvent(EVENT_FEAR, 100);
-            }
-
-            void SetGUID(uint64 guid, int32)
-            {
-                targetGUID = guid;
-            }
-
-            uint64 GetGUID(int32 /*data*/)
-            {
-                return targetGUID;
-            }
-
-            void IsSummonedBy(Unit* owner)
-            {
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-                {
-                    me->SetLevel(owner->getLevel());
-                    me->SetMaxHealth(owner->GetMaxHealth() / 2);
-                    me->SetHealth(me->GetMaxHealth());
-                    // Set no damage
-                    me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 0.0f);
-                    me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 0.0f);
-
-                    me->AddAura(SPELL_ROOT_FOR_EVER, me);
-                }
-                else
-                    me->DespawnOrUnsummon();
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                m_Events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                switch (m_Events.ExecuteEvent())
-                {
-                    case EVENT_FEAR:
-                    {
-                        if (Unit* l_Target = me->SelectNearbyTarget(me->ToUnit(), 20.f, SPELL_PSYCHIC_HORROR))
-                        {
-                            if (me->IsValidAttackTarget(l_Target))
-                                me->CastSpell(l_Target, SPELL_PSYCHIC_HORROR, false);
-                        }
-
-                        m_Events.ScheduleEvent(EVENT_FEAR, 2000);
-                        break;
-                    }
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature *creature) const
-        {
-            return new npc_psyfiendAI(creature);
         }
 };
 
@@ -5020,7 +4851,6 @@ void AddSC_npcs_special()
     new npc_past_self();
     new npc_transcendence_spirit();
     new npc_void_tendrils();
-    new npc_psyfiend();
     new npc_spectral_guise();
     new npc_force_of_nature();
     new spell_special_swiftmend();

@@ -1,4 +1,4 @@
-#include "instance_bloodmaul.h"
+#include "instance_bloodmaul.hpp"
 
 namespace MS
 {

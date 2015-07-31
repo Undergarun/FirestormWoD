@@ -1541,6 +1541,9 @@ class spell_dru_cat_form: public SpellScriptLoader
                         if (AuraPtr l_SavageRoarNew = l_Player->GetAura(eSpells::SPELL_DRU_SAVAGE_ROAR))
                             l_SavageRoarNew->SetDuration(l_SavageRoarDuration);
                     }
+
+                    /// Fix Berserk - amount of energy after reshift
+                    l_Player->UpdateMaxPower(POWER_ENERGY);
                 }
             }
 
@@ -2040,6 +2043,11 @@ class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_on_desactivate_cat_form_AuraScript);
 
+            enum eSpells
+            {
+                GlyphOfCatForm = 47180
+            };
+
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
@@ -2068,10 +2076,33 @@ class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
                     l_DashAura->GetEffect(0)->SetAmount(sSpellMgr->GetSpellInfo(SPELL_DRUID_DASH)->Effects[EFFECT_0].BasePoints);
             }
 
+            void OnAfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (l_Caster->HasSpell(eSpells::GlyphOfCatForm) && l_Caster->HasAura(eSpells::GlyphOfCatForm))
+                    l_Caster->RemoveAura(eSpells::GlyphOfCatForm);
+            }
+
+            void OnAfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (l_Caster->HasSpell(eSpells::GlyphOfCatForm) && !l_Caster->HasAura(eSpells::GlyphOfCatForm))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfCatForm);
+            }
+
             void Register()
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
                 OnEffectApply += AuraEffectApplyFn(spell_dru_on_desactivate_cat_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnAfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_on_desactivate_cat_form_AuraScript::OnAfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -3409,6 +3440,50 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
         }
 };
 
+/// 159456 - Glyph of Travel
+/// Called by Travel Form - 165961
+class spell_dru_glyph_of_travel: public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_travel() : SpellScriptLoader("spell_dru_glyph_of_travel") { }
+
+        class spell_dru_glyph_of_travel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_travel_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfTravel = 159456
+            };
+
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (AuraEffectPtr l_GlyphOfTravel = l_Caster->GetAuraEffect(eSpells::GlyphOfTravel, EFFECT_0))
+                    if (!l_Caster->isInCombat() && !l_Player->InBattleground() && !l_Player->InArena())
+                        amount += l_GlyphOfTravel->GetAmount();
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_glyph_of_travel_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_SPEED_ALWAYS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_glyph_of_travel_AuraScript();
+        }
+};
+
+
 enum SpellsRake
 {
     SPELL_DRU_RAKE_STUNT = 163505,
@@ -3430,6 +3505,8 @@ class spell_dru_rake: public SpellScriptLoader
 
             enum eSpells
             {
+                Prowl           = 5215,
+                GlyphOfRake     = 54821,
                 KingOfTheJungle = 102543
             };
 
@@ -3449,6 +3526,11 @@ class spell_dru_rake: public SpellScriptLoader
                         else
                             l_ImprovedRake->GetEffect(1)->SetAmount(0);
                     }
+
+                    /// Default 0-5 yards, up to 0-12 yards (+7 yards)
+                    SpellInfo* l_RakeSpellInfo = (SpellInfo*)GetSpellInfo();
+                    if (l_RakeSpellInfo && l_Caster->HasAura(eSpells::GlyphOfRake) && l_Caster->HasAura(eSpells::Prowl))
+                        l_RakeSpellInfo->SetRangeIndex(294);
                 }
             }
 
@@ -3959,6 +4041,13 @@ enum EntanglingEnergySpells
     SPELL_DRUID_ENTANGLING_ENERGY = 164991
 };
 
+enum BalanceOfPowerSpells
+{
+    SPELL_DRUID_BALANCE_OF_POWER = 152220,
+    SPELL_DRUID_STARFIRE = 2912,
+    SPELL_DRUID_WRATH = 5176
+};
+
 /// Call by Starfire - 2912, Wrath - 5176
 /// Entangling Energy - 164991
 class spell_dru_entangling_energy : public SpellScriptLoader
@@ -3982,6 +4071,42 @@ class spell_dru_entangling_energy : public SpellScriptLoader
                 {
                     l_Caster->CastSpell(l_Target, EntanglingEnergySpells::SPELL_DRUID_ENTANGLING_ROOTS, true);
                     l_Caster->RemoveAura(EntanglingEnergySpells::SPELL_DRUID_ENTANGLING_ENERGY);
+                }
+
+                /// Balance of Power - 152220
+                if (l_Caster->HasAura(BalanceOfPowerSpells::SPELL_DRUID_BALANCE_OF_POWER))
+                {
+                    SpellInfo const* l_BalanceOfPowerSpells = sSpellMgr->GetSpellInfo(BalanceOfPowerSpells::SPELL_DRUID_BALANCE_OF_POWER);
+                    /// Your Starfires extend the duration of Moonfire by 6 sec.
+                    if (GetSpellInfo()->Id == BalanceOfPowerSpells::SPELL_DRUID_STARFIRE)
+                    {
+                        if (AuraPtr l_Moonfire = l_Target->GetAura(SPELL_DRUID_MOONFIRE_DAMAGE, l_Caster->GetGUID()))
+                        {
+                            int32 l_CurrentDuration = l_Moonfire->GetDuration();
+                            int32 l_MaxDuration = l_Moonfire->GetMaxDuration();
+                            int32 l_NewDuration = l_CurrentDuration + l_BalanceOfPowerSpells->Effects[0].BasePoints * IN_MILLISECONDS;
+
+                            if (l_NewDuration > l_MaxDuration)
+                                l_NewDuration = l_MaxDuration;
+
+                            l_Moonfire->SetDuration(l_NewDuration);
+                        }
+                    }
+                    /// Your Wraths extend the duration of Sunfire by 4 sec.
+                    else if (GetSpellInfo()->Id == BalanceOfPowerSpells::SPELL_DRUID_WRATH)
+                    {
+                        if (AuraPtr l_Sunfire = l_Target->GetAura(SPELL_DRUID_SUNFIRE_DAMAGE, l_Caster->GetGUID()))
+                        {
+                            int32 l_CurrentDuration = l_Sunfire->GetDuration();
+                            int32 l_MaxDuration = l_Sunfire->GetMaxDuration();
+                            int32 l_NewDuration = l_CurrentDuration + l_BalanceOfPowerSpells->Effects[1].BasePoints * IN_MILLISECONDS;
+
+                            if (l_NewDuration > l_MaxDuration)
+                                l_NewDuration = l_MaxDuration;
+
+                            l_Sunfire->SetDuration(l_NewDuration);
+                        }
+                    }
                 }
             }
 
@@ -4167,6 +4292,7 @@ class spell_dru_healing_touch: public SpellScriptLoader
         }
 };
 
+/// Last Update - 6.1.2 19802
 /// Starsurge - 78674
 class spell_dru_starsurge : public SpellScriptLoader
 {
@@ -4183,25 +4309,21 @@ class spell_dru_starsurge : public SpellScriptLoader
                 SolarEmpowerment = 164545
             };
 
-            void HandleDamage(SpellEffIndex)
+            void HandleBeforeCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
+                Unit* l_Caster = GetCaster();
 
-                        if (l_EclipseAmount < 0)
-                            l_Caster->CastSpell(l_Caster, eSpells::SolarEmpowerment, true);
-                        else if (l_EclipseAmount > 0)
-                            l_Caster->CastSpell(l_Caster, eSpells::LunarEmpowerment, true);
-                    }
-                }
+                double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
+
+                if (l_EclipseAmount < 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::SolarEmpowerment, true);
+                else if (l_EclipseAmount > 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::LunarEmpowerment, true);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dru_starsurge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                BeforeCast += SpellCastFn(spell_dru_starsurge_SpellScript::HandleBeforeCast);
             }
         };
 
@@ -4535,6 +4657,188 @@ class spell_dru_WodPvpBalance4pBonus : public SpellScriptLoader
         }
 };
 
+/// Item - Druid WoD PvP Balance 2P Bonus - 165701
+/// Called by Entangling Roots - 339
+class spell_dru_wod_pvp_balance_2p : public SpellScriptLoader
+{
+public:
+    spell_dru_wod_pvp_balance_2p() : SpellScriptLoader("spell_dru_wod_pvp_balance_2p") { }
+
+    class spell_dru_wod_pvp_balance_2p_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_wod_pvp_balance_2p_AuraScript);
+
+        enum eSpells
+        {
+            CategoryID = 1485,
+            STARSURGE = 78674,
+            DRUID_WOD_PVP_BALANCE_2P_BONUS = 165701
+        };
+
+        void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (l_Player->HasAura(eSpells::DRUID_WOD_PVP_BALANCE_2P_BONUS))
+                {
+                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                    /// When Entangling Roots is dispelled or broken by damage, you gain 1 charge of Starsurge.
+                    if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL)
+                    {
+                        if (ChargesData* l_Charges = l_Player->GetChargesData(eSpells::CategoryID))
+                            l_Player->RestoreCharge(eSpells::CategoryID);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectRemove += AuraEffectApplyFn(spell_dru_wod_pvp_balance_2p_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_ROOT_2, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_wod_pvp_balance_2p_AuraScript();
+    }
+};
+
+/// Lunar Inspiration - 155580
+class spell_dru_lunar_inspiration : public SpellScriptLoader
+{
+public:
+    spell_dru_lunar_inspiration() : SpellScriptLoader("spell_dru_lunar_inspiration") { }
+
+    class spell_dru_lunar_inspiration_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_lunar_inspiration_AuraScript);
+
+        enum eSpells
+        {
+            LunarInspirationOverride = 155627
+        };
+
+        void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            l_Caster->AddAura(eSpells::LunarInspirationOverride, l_Caster);
+        }
+
+        void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            l_Caster->RemoveAura(eSpells::LunarInspirationOverride);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_dru_lunar_inspiration_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            OnEffectRemove += AuraEffectRemoveFn(spell_dru_lunar_inspiration_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_lunar_inspiration_AuraScript();
+    }
+};
+
+/// 16914 - Hurricane
+class spell_dru_hurricane: public SpellScriptLoader
+{
+    public:
+        spell_dru_hurricane() : SpellScriptLoader("spell_dru_hurricane") { }
+
+        class spell_dru_hurricane_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_hurricane_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfHurricane = 54831
+            };
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (AuraEffectPtr l_GlyphOfHurricane = l_Caster->GetAuraEffect(eSpells::GlyphOfHurricane, EFFECT_0))
+                    p_Amount += l_GlyphOfHurricane->GetAmount();
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_hurricane_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_hurricane_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Glyph of the Flapping Owl - 164997
+class spell_dru_gyph_of_the_flapping_owl : public SpellScriptLoader
+{
+    public:
+        spell_dru_gyph_of_the_flapping_owl() : SpellScriptLoader("spell_dru_gyph_of_the_flapping_owl") { }
+
+        class spell_dru_gyph_of_the_flapping_owl_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_gyph_of_the_flapping_owl_AuraScript);
+
+            enum eSpells
+            {
+                Flap = 164862
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasSpell(eSpells::Flap))
+                    l_Player->learnSpell(eSpells::Flap, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::Flap))
+                    l_Player->removeSpell(eSpells::Flap, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_gyph_of_the_flapping_owl_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_gyph_of_the_flapping_owl_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_gyph_of_the_flapping_owl_AuraScript();
+        }
+};
 
 void AddSC_druid_spell_scripts()
 {
@@ -4593,6 +4897,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_travel_form_playerscript();
     new spell_dru_swift_flight_passive();
     new spell_dru_glyph_of_the_stag();
+    new spell_dru_glyph_of_travel();
     new spell_dru_rake();
     new spell_dru_rake_triggered();
     new spell_dru_shred();
@@ -4618,4 +4923,8 @@ void AddSC_druid_spell_scripts()
     new spell_dru_WodPvpBalance4pBonus();
     new spell_dru_empowered_moonkin();
     new spell_dru_ursa_major_aura();
+    new spell_dru_hurricane();
+    new spell_dru_wod_pvp_balance_2p();
+    new spell_dru_lunar_inspiration();
+    new spell_dru_gyph_of_the_flapping_owl();
 }

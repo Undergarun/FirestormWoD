@@ -34,7 +34,8 @@ Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(prop
 
 void Totem::Update(uint32 time)
 {
-    if (!m_owner->isAlive() || !isAlive())
+    Unit* l_Owner = GetSummoner();
+    if ((!l_Owner && !l_Owner->isAlive()) || !isAlive())
     {
         UnSummon();                                         // remove self
         return;
@@ -58,8 +59,10 @@ void Totem::InitStats(uint32 duration)
     uint32 spellId3 = 0;
     uint32 spellId4 = 0;
 
+    Unit* l_Owner = GetSummoner();
+
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
-    if (m_owner->GetTypeId() == TYPEID_PLAYER
+    if (l_Owner && l_Owner->GetTypeId() == TYPEID_PLAYER
         && m_Properties->Slot >= SUMMON_SLOT_TOTEM
         && m_Properties->Slot < MAX_TOTEM_SLOT)
     {
@@ -69,18 +72,18 @@ void Totem::InitStats(uint32 duration)
         data << uint32(duration);
         data << uint32(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
 
-        m_owner->ToPlayer()->SendDirectMessage(&data);
+        l_Owner->ToPlayer()->SendDirectMessage(&data);
 
         // set display id depending on caster's race
-        if (m_owner->getClass() == CLASS_SHAMAN)
-            SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
+        if (l_Owner->getClass() == CLASS_SHAMAN)
+            SetDisplayId(l_Owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
 
         // Light's Hammer
         if (GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) == 122773)
             SetDisplayId(11686);
 
         // Totemic Encirclement
-        if (m_owner->HasAura(58057)
+        if (l_Owner->HasAura(58057)
             && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120214
             && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120217
             && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120218
@@ -90,7 +93,7 @@ void Totem::InitStats(uint32 duration)
             {
                 if (i != m_Properties->Slot)
                 {
-                    if (Creature* totem = m_owner->GetMap()->GetCreature(m_owner->m_SummonSlot[i]))
+                    if (Creature* totem = l_Owner->GetMap()->GetCreature(l_Owner->m_SummonSlot[i]))
                     {
                         uint32 spell_id = totem->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
                         if (spell_id != 120214 && spell_id != 120217 && spell_id != 120218 && spell_id != 120219)
@@ -128,26 +131,26 @@ void Totem::InitStats(uint32 duration)
 
     m_duration = duration;
 
-    SetLevel(m_owner->getLevel());
+    SetLevel(l_Owner ? l_Owner->getLevel() : 1);
 
     // Totems must receive stamina from owner
     switch (GetEntry())
     {
         case STONECLAW_TOTEM_ENTRY:
-            SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.1f);
+            SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(l_Owner ? l_Owner->GetStat(STAT_STAMINA) : 1) * 0.1f);
             break;
         default:
             break;
     }
 
-    if (spellId1)
-        m_owner->CastSpell(m_owner, spellId1, true); // Fake Fire Totem
-    if (spellId2)
-        m_owner->CastSpell(m_owner, spellId2, true); // Fake Earth Totem
-    if (spellId3)
-        m_owner->CastSpell(m_owner, spellId3, true); // Fake Water Totem
-    if (spellId4)
-        m_owner->CastSpell(m_owner, spellId4, true); // Fake Wind Totem
+    if (spellId1 && l_Owner)
+        l_Owner->CastSpell(l_Owner, spellId1, true); // Fake Fire Totem
+    if (spellId2 && l_Owner)
+        l_Owner->CastSpell(l_Owner, spellId2, true); // Fake Earth Totem
+    if (spellId3 && l_Owner)
+        l_Owner->CastSpell(l_Owner, spellId3, true); // Fake Water Totem
+    if (spellId4 && l_Owner)
+        l_Owner->CastSpell(l_Owner, spellId4, true); // Fake Wind Totem
 }
 
 void Totem::InitSummon()
@@ -168,24 +171,29 @@ void Totem::UnSummon(uint32 msTime)
         return;
     }
 
+    Unit* l_Owner = GetSummoner();
+
     // Totemic Persistence
-    if (AuraEffectPtr totemicPersistence = m_owner->GetAuraEffect(108284, EFFECT_0))
+    if (l_Owner != nullptr)
     {
-        if (totemicPersistence->GetAmount() == 50)
+        if (AuraEffectPtr totemicPersistence = l_Owner->GetAuraEffect(108284, EFFECT_0))
         {
-            // Does not affect Fire totems
-            for (int i = SUMMON_SLOT_TOTEM + 1; i < MAX_TOTEM_SLOT; ++i)
+            if (totemicPersistence->GetAmount() == 50)
             {
-                if (m_owner->m_SummonSlot[i] == GetGUID())
+                // Does not affect Fire totems
+                for (int i = SUMMON_SLOT_TOTEM + 1; i < MAX_TOTEM_SLOT; ++i)
                 {
-                    m_owner->m_SummonSlot[i] = 0;
-                    totemicPersistence->SetAmount(GetEntry());
-                    return;
+                    if (l_Owner->m_SummonSlot[i] == GetGUID())
+                    {
+                        l_Owner->m_SummonSlot[i] = 0;
+                        totemicPersistence->SetAmount(GetEntry());
+                        return;
+                    }
                 }
             }
+            else if (totemicPersistence->GetAmount() == (int32)GetEntry())
+                totemicPersistence->SetAmount(50);
         }
-        else if (totemicPersistence->GetAmount() == (int32)GetEntry())
-            totemicPersistence->SetAmount(50);
     }
 
     CombatStop();
@@ -194,30 +202,34 @@ void Totem::UnSummon(uint32 msTime)
     // clear owner's totem slot
     for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
     {
-        if (m_owner->m_SummonSlot[i] == GetGUID())
+        if (l_Owner && l_Owner->m_SummonSlot[i] == GetGUID())
         {
-            m_owner->m_SummonSlot[i] = 0;
+            l_Owner->m_SummonSlot[i] = 0;
             break;
         }
     }
 
-    m_owner->RemoveAurasDueToSpell(GetSpell(), GetGUID());
+    if (l_Owner != nullptr)
+        l_Owner->RemoveAurasDueToSpell(GetSpell(), GetGUID());
 
     //remove aura all party members too
-    if (Player* owner = m_owner->ToPlayer())
+    if (l_Owner != nullptr)
     {
-        owner->SendAutoRepeatCancel(this);
-
-        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL)))
-            owner->SendCooldownEvent(spell, 0, NULL, false);
-
-        if (Group* group = owner->GetGroup())
+        if (Player* owner = l_Owner->ToPlayer())
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            owner->SendAutoRepeatCancel(this);
+
+            if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL)))
+                owner->SendCooldownEvent(spell, 0, NULL, false);
+
+            if (Group* group = owner->GetGroup())
             {
-                Player* target = itr->getSource();
-                if (target && group->SameSubGroup(owner, target))
-                    target->RemoveAurasDueToSpell(GetSpell(), GetGUID());
+                for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                {
+                    Player* target = itr->getSource();
+                    if (target && group->SameSubGroup(owner, target))
+                        target->RemoveAurasDueToSpell(GetSpell(), GetGUID());
+                }
             }
         }
     }

@@ -99,7 +99,7 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
 
         /// Check balance
         Field* l_Fields = p_Result->Fetch();
-        if (std::atoi(l_Fields[0].GetCString()) < l_Purchase->CurrentPrice)
+        if (std::atoi(l_Fields[0].GetCString()) < (int64)l_Purchase->CurrentPrice)
         {
             Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
             return;
@@ -128,6 +128,18 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
             {
                 std::ostringstream l_Data;
                 l_Data << l_Reason;
+                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                return;
+            }
+        }
+
+        for (auto l_ItemProduct : l_Product.Items)
+        {
+            if (sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, GetPlayer()))
+            {
+                std::ostringstream l_Data;
+                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, GetSessionDbLocaleIndex());;
                 GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
                 Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
                 return;
@@ -200,7 +212,7 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
 
         /// Check balance
         Field* l_Fields = p_Result->Fetch();
-        if (std::atoi(l_Fields[0].GetCString()) < l_Purchase->CurrentPrice)
+        if (std::atoi(l_Fields[0].GetCString()) < (int64)l_Purchase->CurrentPrice)
             return;
 
         /// Custom check (scripts)
@@ -227,6 +239,18 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
             {
                 std::ostringstream l_Data;
                 l_Data << sObjectMgr->GetTrinityString(Battlepay::String::NotEnoughFreeBagSlots, GetSessionDbLocaleIndex());
+                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                return;
+            }
+        }
+
+        for (auto l_ItemProduct : l_Product.Items)
+        {
+            if (sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, GetPlayer()))
+            {
+                std::ostringstream l_Data;
+                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, GetSessionDbLocaleIndex());;
                 GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
                 Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
                 return;
