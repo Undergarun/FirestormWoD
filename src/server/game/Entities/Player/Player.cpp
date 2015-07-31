@@ -11246,94 +11246,95 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
     }
 }
 
-void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 cast_count, uint32 glyphIndex)
+void Player::CastItemUseSpell(Item* p_Item, SpellCastTargets const& p_Targets, uint8 p_CastCount, uint32 p_GlyphIndex)
 {
-    ItemTemplate const* proto = item->GetTemplate();
-    // special learning case
-    if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
-    {
-        uint32 learn_spell_id    = proto->Spells[0].SpellId;
-        uint32 learning_spell_id = proto->Spells[1].SpellId;
+    ItemTemplate const* l_ItemTemplate = p_Item->GetTemplate();
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
-        if (!spellInfo)
+    /// Special learning case
+    if (l_ItemTemplate->Spells[0].SpellId == 483 || l_ItemTemplate->Spells[0].SpellId == 55884)
+    {
+        uint32 l_LearnedSpell   = l_ItemTemplate->Spells[0].SpellId;
+        uint32 l_LearningSpell  = l_ItemTemplate->Spells[1].SpellId;
+
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_LearnedSpell);
+        if (!l_SpellInfo)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring ", proto->ItemId, learn_spell_id);
-            SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, item, NULL);
+            sLog->outError(LogFilterType::LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring ", l_ItemTemplate->ItemId, l_LearnedSpell);
+            SendEquipError(InventoryResult::EQUIP_ERR_INTERNAL_BAG_ERROR, p_Item, nullptr);
             return;
         }
 
-        Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
-        spell->m_CastItem = item;
-        spell->m_cast_count = cast_count;                   //set count of casts
-        spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
-        spell->prepare(&targets);
+        Spell* l_Spell          = new Spell(this, l_SpellInfo, TriggerCastFlags::TRIGGERED_NONE);
+        l_Spell->m_CastItem     = p_Item;
+        l_Spell->m_cast_count   = p_CastCount;  ///< Set count of casts
+        l_Spell->SetSpellValue(SpellValueMod::SPELLVALUE_BASE_POINT0, l_LearningSpell);
+        l_Spell->prepare(&p_Targets);
         return;
     }
 
-    // use triggered flag only for items with many spell casts and for not first cast
-    uint8 count = 0;
+    /// Use triggered flag only for items with many spell casts and for not first cast
+    uint8 l_Count = 0;
 
-    // Item enchantments spells casted at use
-    for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
+    /// Item enchantments spells casted at use
+    for (uint8 l_Slot = 0; l_Slot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_Slot)
     {
-        if (e_slot > ENGINEERING_ENCHANTMENT_SLOT && e_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+        if (l_Slot > EnchantmentSlot::ENGINEERING_ENCHANTMENT_SLOT && l_Slot < EnchantmentSlot::PROP_ENCHANTMENT_SLOT_0)    ///< Not holding enchantment id
             continue;
 
-        uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
-        SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-        if (!pEnchant)
+        uint32 l_EnchantID = p_Item->GetEnchantmentId(EnchantmentSlot(l_Slot));
+        SpellItemEnchantmentEntry const* l_ItemEnchantEntry = sSpellItemEnchantmentStore.LookupEntry(l_EnchantID);
+        if (!l_ItemEnchantEntry)
             continue;
 
-        for (uint8 s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
+        for (uint8 l_I = 0; l_I < MAX_ENCHANTMENT_SPELLS; ++l_I)
         {
-            if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_USE_SPELL)
+            if (l_ItemEnchantEntry->type[l_I] != ItemEnchantmentType::ITEM_ENCHANTMENT_TYPE_USE_SPELL)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->spellid[s]);
-            if (!spellInfo)
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ItemEnchantEntry->spellid[l_I]);
+            if (!l_SpellInfo)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Player::CastItemUseSpell Enchant %i, cast unknown spell %i", pEnchant->ID, pEnchant->spellid[s]);
+                sLog->outError(LogFilterType::LOG_FILTER_PLAYER, "Player::CastItemUseSpell Enchant %i, cast unknown spell %i", l_ItemEnchantEntry->ID, l_ItemEnchantEntry->spellid[l_I]);
                 continue;
             }
 
-            Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
-            spell->m_CastItem = item;
-            spell->m_cast_count = cast_count;               // set count of casts
-            spell->m_glyphIndex = glyphIndex;               // glyph index
-            spell->prepare(&targets);
+            Spell* l_Spell          = new Spell(this, l_SpellInfo, (l_Count > 0) ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE);
+            l_Spell->m_CastItem     = p_Item;
+            l_Spell->m_cast_count   = p_CastCount;  ///< Set count of casts
+            l_Spell->m_glyphIndex   = p_GlyphIndex; ///< Glyph index
+            l_Spell->prepare(&p_Targets);
 
-            ++count;
+            ++l_Count;
         }
     }
 
-    // item spells casted at use
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    /// Item spells casted at use
+    for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
     {
-        _Spell const& spellData = proto->Spells[i];
+        _Spell const& l_SpellData = l_ItemTemplate->Spells[l_I];
 
-        // no spell
-        if (!spellData.SpellId)
+        /// No spell
+        if (!l_SpellData.SpellId)
             continue;
 
-        // wrong triggering type
-        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+        /// Wrong triggering type
+        if (l_SpellData.SpellTrigger != ItemSpelltriggerType::ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellData.SpellId);
-        if (!spellInfo)
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellData.SpellId);
+        if (!l_SpellInfo)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring", proto->ItemId, spellData.SpellId);
+            sLog->outError(LogFilterType::LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring", l_ItemTemplate->ItemId, l_SpellData.SpellId);
             continue;
         }
 
-        Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
-        spell->m_CastItem = item;
-        spell->m_cast_count = cast_count;                   // set count of casts
-        spell->m_glyphIndex = glyphIndex;                   // glyph index
-        spell->prepare(&targets);
+        Spell* l_Spell            = new Spell(this, l_SpellInfo, (l_Count > 0) ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE);
+        l_Spell->m_CastItem       = p_Item;
+        l_Spell->m_cast_count     = p_CastCount;    ///< set count of casts
+        l_Spell->m_glyphIndex     = p_GlyphIndex;   ///< glyph index
+        l_Spell->prepare(&p_Targets);
 
-        ++count;
+        ++l_Count;
     }
 }
 
