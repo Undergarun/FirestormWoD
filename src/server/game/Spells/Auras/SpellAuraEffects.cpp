@@ -1258,6 +1258,13 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
         l_TotalMod += l_Mastery;
     }
 
+    /// Fix Grace applying twice for Divine Aegis (as it affects both heal and absorption and Divine Aegis procs from heal)
+    if (GetId() == 47753) ///< Divine Aegis
+    {
+        if (AuraEffectPtr l_Grace = p_Caster->GetAuraEffect(47517, SpellEffIndex::EFFECT_1))
+            l_TotalMod -= l_Grace->GetAmount();
+    }
+
     p_Amount += CalculatePct(p_Amount, l_TotalMod);
 
     return p_Amount;
