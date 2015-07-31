@@ -21653,7 +21653,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                         if (l_Player == nullptr || l_Player->GetGUID() != l_PlayerGUID)
                             return;
 
-                        Item* l_ItemRetreive = l_Player->GetItemByGuid(itemGuid);
+                        Item* l_ItemRetreive = l_Player->GetItemByGuid(MAKE_NEW_GUID(itemGuid, 0, HIGHGUID_ITEM));
                         if (l_ItemRetreive == nullptr)
                             return;
 
@@ -21689,7 +21689,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     if (l_Player == nullptr || l_Player->GetGUID() != l_PlayerGUID)
                         return;
 
-                    Item* l_ItemRetreive = l_Player->GetItemByGuid(itemGuid);
+                    Item* l_ItemRetreive = l_Player->GetItemByGuid(MAKE_NEW_GUID(itemGuid, 0, HIGHGUID_ITEM));
                     if (l_ItemRetreive == nullptr)
                         return;
 
@@ -30643,7 +30643,7 @@ bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
 
 void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_ExtendedCost, uint8 p_Error)
 {
-    WorldPacket l_Data(SMSG_ITEM_PURCHASE_REFUND_RESULT);
+    WorldPacket l_Data(Opcodes::SMSG_ITEM_PURCHASE_REFUND_RESULT);
     l_Data.appendPackGUID(p_Item->GetGUID());
     l_Data << uint8(p_Error);
     l_Data.WriteBit(!p_Error);
@@ -30652,16 +30652,29 @@ void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_E
     {
         l_Data << uint32(p_Item->GetPaidMoney());
 
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
+        for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_ITEMS; ++l_I)
         {
-            l_Data << uint32(p_ExtendedCost->RequiredItem[i]);
-            l_Data << uint32(p_ExtendedCost->RequiredItemCount[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredItem[l_I]);
+            l_Data << uint32(p_ExtendedCost->RequiredItemCount[l_I]);
         }
 
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
         {
-            l_Data << uint32(p_ExtendedCost->RequiredCurrency[i]);
-            l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[i] / 100);
+            CurrencyTypesEntry const* l_CurrTemplate = sCurrencyTypesStore.LookupEntry(p_ExtendedCost->RequiredCurrency[l_I]);
+            if (l_CurrTemplate != nullptr)
+            {
+                l_Data << uint32(p_ExtendedCost->RequiredCurrency[l_I]);
+
+                if (l_CurrTemplate->Flags & CurrencyFlags::CURRENCY_FLAG_HIGH_PRECISION)
+                    l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[l_I]);
+                else
+                    l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[l_I] / 100);
+            }
+            else
+            {
+                l_Data << uint32(0);
+                l_Data << uint32(0);
+            }
         }
     }
 
