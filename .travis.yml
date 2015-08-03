@@ -9,6 +9,7 @@ branches:
   only:
     - wod
     - wod_ptr
+    - wod_621_ptr
 
 before_install:
   - sudo add-apt-repository ppa:kalakris/cmake -y
