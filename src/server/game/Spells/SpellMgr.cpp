@@ -6350,6 +6350,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159456: ///< Glyph of Travel
                 spellInfo->Stances = 0;
                 break;
+            case 167105: ///< Colossus Smash
+            case 12328:  ///< Sweeping Strikes
+            case 1719:   ///< Recklessness
+                /// Can be casted in Battle Stance AND in Defensive Stance
+                spellInfo->Stances |= ((uint64)1L << (ShapeshiftForm::FORM_DEFENSIVESTANCE - 1));
+                break;
             default:
                 break;
         }

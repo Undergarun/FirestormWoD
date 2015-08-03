@@ -57,7 +57,6 @@ enum WarriorSpells
     WARRIOR_SPELL_SPELL_REFLECTION_NOSHIELD     = 146120,
     WARRIOR_SPELL_SPELL_REFLECTION_HORDE        = 146122,
     WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE     = 147923,
-    WARRIOR_SPELL_INTERVENE_TRIGGERED           = 34784,
     WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
     WARRIOR_SPELL_DOUBLE_TIME_MARKER            = 124184,
     WARRIOR_ENHANCED_WHIRLWIND                  = 157473,
@@ -1365,6 +1364,11 @@ class spell_warr_intervene: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_intervene_SpellScript);
 
+            enum eSpells
+            {
+                InterveneAura = 34784
+            };
+
             SpellCastResult CheckCastRange()
             {
                 Unit* l_Caster = GetCaster();
@@ -1387,7 +1391,7 @@ class spell_warr_intervene: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
                 
-                l_Caster->CastSpell(l_Target, WarriorSpells::WARRIOR_SPELL_INTERVENE_TRIGGERED, true);
+                l_Caster->CastSpell(l_Target, eSpells::InterveneAura, true);
             }
 
             void Register()
@@ -2428,6 +2432,42 @@ public:
     }
 };
 
+/// Called by Colossus Smash - 86346, Sweeping Strikes - 12328 and Recklessness - 1719
+/// When theses abilities are casted while in Defensive Stance - 71, it should activate Battle Stance - 2457
+class spell_warr_activate_battle_stance : public SpellScriptLoader
+{
+    public:
+        spell_warr_activate_battle_stance() : SpellScriptLoader("spell_warr_activate_battle_stance") { }
+
+        class spell_warr_activate_battle_stance_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_activate_battle_stance_SpellScript);
+
+            enum eSpells
+            {
+                BattleStance = 2457
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->GetShapeshiftForm() == FORM_DEFENSIVESTANCE)
+                    l_Caster->CastSpell(l_Caster, eSpells::BattleStance, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_activate_battle_stance_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_activate_battle_stance_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_defensive_stance();
@@ -2479,6 +2519,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_blood_craze_aura();
     new spell_warr_glyph_of_die_by_the_sword();
     new spell_warr_single_minded_fury();
+    new spell_warr_activate_battle_stance();
 
     /// Playerscripts
     new PlayerScript_second_wind();
