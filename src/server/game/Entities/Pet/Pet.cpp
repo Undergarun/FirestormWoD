@@ -627,7 +627,7 @@ void Pet::Update(uint32 diff)
 
             if (isControlled())
             {
-                if (owner->GetPetGUID() != GetGUID() && !HasAura(130201)) // Stampede
+                if (owner->GetPetGUID() != GetGUID() && !m_Stampeded) // Stampede
                 {
                     sLog->outError(LOG_FILTER_PETS, "Pet %u is not pet of owner %s, removed", GetEntry(), m_owner->GetName());
                     Remove(getPetType() == HUNTER_PET ? PET_SLOT_DELETED : PET_SLOT_ACTUAL_PET_SLOT, true, m_Stampeded);
@@ -960,12 +960,16 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
     UpdateAllStats();
+
     if (l_Owner != nullptr)
     {
-        SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+        if (l_Owner->GetTypeId() == TYPEID_PLAYER && l_Owner->getClass() == CLASS_WARLOCK)
+            SetCreateHealth(l_Owner->GetMaxHealth() * 0.75f);
+        else
+            SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
         SetMaxHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
     }
-    
+
     SetFullHealth();
 
     if (IsWarlockPet())
@@ -975,7 +979,8 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
         CastSpell(this, 121916, true);
     else if (GetEntry() == ENTRY_GHOUL && l_Owner && l_Owner->HasAura(146652))     ///< Glyph of the Skeleton
         CastSpell(this, 147157, true);
-
+    if (l_PetType == HUNTER_PET) ///< All Hunter pet Get Combat Experience
+        CastSpell(this, 20782, true);
     return true;
 }
 
@@ -1052,7 +1057,7 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
 
             WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(petGuid);
-            data << uint8(1);
+            data << uint8(CooldownFlags::CooldownFlagNone);
             data << uint32(1);
             data << uint32(spell_id);
             data << uint32(uint32(db_time - curTime) * IN_MILLISECONDS);
@@ -1823,14 +1828,10 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
             continue;
         uint32 unSpellId = itr->first;
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
-        if (!spellInfo)
-        {
-            ASSERT(spellInfo);
-            continue;
-        }
+        ASSERT(spellInfo);
 
         // Not send cooldown for this spells
-        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
         if ((spellInfo->PreventionType & (SpellPreventionMask::Silence)) == 0)
@@ -1840,7 +1841,7 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         {
             WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(GetGUID());
-            data << uint8(1);
+            data << uint8(CooldownFlags::CooldownFlagNone);
             data << uint32(1);
             data << uint32(unSpellId);
             data << uint32(uint32(unTimeMs));

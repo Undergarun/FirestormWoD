@@ -795,32 +795,20 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_grimoire_of_sacrifice_AuraScript);
 
-            void CalculateEffectAmountDestruction(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
+            enum eSpells
+            {
+                SoulLink = 108415
+            };
+
+            void CalculateEffectAmountSoulLink(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Owner = GetUnitOwner();
 
                 if (l_Owner == nullptr)
                     return;
 
-                if (Player* l_Target = l_Owner->ToPlayer())
-                {
-                    if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
-                        p_Amount = 0;
-                }
-            }
-
-            void CalculateEffectAmountAffliction(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
-            {
-                Unit* l_Owner = GetUnitOwner();
-
-                if (l_Owner == nullptr)
-                    return;
-
-                if (Player* l_Target = l_Owner->ToPlayer())
-                {
-                    if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        p_Amount = 0;
-                }
+                if (!l_Owner->HasSpell(eSpells::SoulLink))
+                    p_Amount = 0;
             }
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -836,8 +824,7 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountDestruction, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountAffliction, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountSoulLink, EFFECT_2, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_grimoire_of_sacrifice_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -1955,7 +1942,7 @@ enum EmberTapSpells
     SPELL_WARL_ENHANCED_OF_EMBER_TAP = 157121
 };
 
-// Ember Tap - 114635
+/// Ember Tap - 114635
 class spell_warl_ember_tap: public SpellScriptLoader
 {
     public:
@@ -2547,11 +2534,8 @@ class spell_warl_fear: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_fear_SpellScript);
 
-            enum eConstants
+            enum eSpells
             {
-                FearDurationPVP = 6 * IN_MILLISECONDS, ///< http://wow.gamepedia.com/Diminishing_returns
-
-                /// Spells
                 GlyphOfFear       = 56244,
                 FearEffect        = 118699,
                 GlyphOfFearEffect = 130616,
@@ -2564,18 +2548,10 @@ class spell_warl_fear: public SpellScriptLoader
                 if (!l_Caster || !l_Target)
                     return;
 
-                uint32 l_SpellId = (l_Caster->HasAura(eConstants::GlyphOfFear)) ? eConstants::GlyphOfFearEffect : eConstants::FearEffect;
-
-                l_Caster->CastSpell(l_Target, l_SpellId, true);
-
-                if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
-                {
-                    if (AuraPtr l_FearAura = l_Target->GetAura(l_SpellId))
-                    {
-                        if (l_FearAura->GetDuration() > eConstants::FearDurationPVP)
-                            l_FearAura->SetDuration(eConstants::FearDurationPVP);
-                    }
-                }
+                if (l_Caster->HasAura(eSpells::GlyphOfFear))
+                    l_Caster->CastSpell(l_Target, eSpells::GlyphOfFearEffect, true);
+                else
+                    l_Caster->CastSpell(l_Target, eSpells::FearEffect, true);
             }
 
             void Register()

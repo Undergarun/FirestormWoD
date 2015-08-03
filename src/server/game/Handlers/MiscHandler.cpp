@@ -1501,7 +1501,7 @@ void WorldSession::HandleInspectRatedBGStatsOpcode(WorldPacket& p_RecvData)
     for (uint8 l_Iter = 0; l_Iter < MAX_ARENA_SLOT; ++l_Iter)
     {
         l_Data << int32(l_Player->GetArenaPersonalRating(l_Iter));
-        l_Data << int32(0);
+        l_Data << int32(0);                                 ///< Rank
         l_Data << int32(l_Player->GetWeekGames(l_Iter));
         l_Data << int32(l_Player->GetWeekWins(l_Iter));
         l_Data << int32(l_Player->GetSeasonGames(l_Iter));

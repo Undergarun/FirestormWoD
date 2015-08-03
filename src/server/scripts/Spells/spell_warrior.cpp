@@ -983,7 +983,8 @@ class spell_warr_bloodthirst_heal: public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphOfRagingBlow = 159747
+                GlyphOfRagingBlow        = 159740,
+                GlyphOfRagingBlowHealMod = 159747
             };
 
             void HandleHeal()
@@ -991,10 +992,10 @@ class spell_warr_bloodthirst_heal: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 int32 l_Heal = GetHitHeal();
 
-                if (AuraPtr l_GlyphOfRagingBlow = l_Caster->GetAura(eSpells::GlyphOfRagingBlow))
+                if (AuraPtr l_GlyphOfRagingBlow = l_Caster->GetAura(eSpells::GlyphOfRagingBlowHealMod))
                 {
                     AddPct(l_Heal, l_GlyphOfRagingBlow->GetEffect(EFFECT_0)->GetAmount());
-                    l_GlyphOfRagingBlow->Remove();
+                    l_Caster->RemoveAurasDueToSpell(eSpells::GlyphOfRagingBlow);
                 }
 
                 SetHitHeal(l_Heal);

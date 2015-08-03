@@ -413,62 +413,43 @@ class spell_sha_water_ascendant: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_water_ascendant_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
                 if (!GetCaster())
                     return;
 
-                Player* _player = GetCaster()->ToPlayer();
-                if (!_player)
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
                     return;
 
-                if (_player->HasSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS))
+                if (l_Player->HasSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS))
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != _player->GetGUID())
+                if (p_EventInfo.GetActor()->GetGUID() != l_Player->GetGUID())
                     return;
 
-                if (!eventInfo.GetDamageInfo()->GetSpellInfo())
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_RESTORATIVE_MISTS)
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_RESTORATIVE_MISTS)
                     return;
 
-                if (!(eventInfo.GetHealInfo()->GetHeal()))
+                if (!(p_EventInfo.GetHealInfo()->GetHeal()))
                     return;
 
-                if (!(eventInfo.GetDamageInfo()->GetSpellInfo()->IsPositive()))
+                if (!(p_EventInfo.GetDamageInfo()->GetSpellInfo()->IsPositive()))
                     return;
 
-                if (Unit* target = eventInfo.GetActionTarget())
+                if (Unit* l_Target = p_EventInfo.GetActionTarget())
                 {
-                    std::list<Unit*> tempList;
-                    std::list<Unit*> alliesList;
-                    target->GetAttackableUnitListInRange(tempList, 15.0f);
+                    int32 l_Bp = p_EventInfo.GetHealInfo()->GetHeal();
 
-                    for (auto itr : tempList)
-                    {
-                        if (!_player->IsWithinLOSInMap(itr))
-                            continue;
+                    if (l_Bp > 0)
+                        l_Player->CastCustomSpell(l_Target, SPELL_SHA_RESTORATIVE_MISTS, &l_Bp, NULL, NULL, true); //< Restorative Mists
 
-                        if (itr->IsHostileTo(_player))
-                            continue;
-
-                        alliesList.push_back(itr);
-                    }
-
-                    if (!alliesList.empty())
-                    {
-                        // Heal amount distribued for all allies, caster included
-                        int32 bp = eventInfo.GetHealInfo()->GetHeal() / alliesList.size();
-
-                        if (bp > 0)
-                            _player->CastCustomSpell((*alliesList.begin()), SPELL_SHA_RESTORATIVE_MISTS, &bp, NULL, NULL, true);   // Restorative Mists
-
-                        _player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, 1 * IN_MILLISECONDS);               // This prevent from multiple procs
-                    }
+                    l_Player->AddSpellCooldown(SPELL_SHA_RESTORATIVE_MISTS, 0, 1 * IN_MILLISECONDS); ///< This prevent from multiple procs
                 }
             }
 
@@ -481,6 +462,41 @@ class spell_sha_water_ascendant: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_sha_water_ascendant_AuraScript();
+        }
+};
+
+/// Water Ascendant (heal) - 114083
+class spell_sha_water_ascendant_heal : public SpellScriptLoader
+{
+    public:
+        spell_sha_water_ascendant_heal() : SpellScriptLoader("spell_sha_water_ascendant_heal") { }
+
+        class spell_sha_water_ascendant_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_water_ascendant_heal_SpellScript);
+
+            uint32 m_TargetSize = 0;
+
+            void OnEffectHeal(SpellEffIndex)
+            {
+                SetHitHeal(GetHitHeal() / m_TargetSize);
+            }
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                m_TargetSize = p_Targets.size();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_water_ascendant_heal_SpellScript::OnEffectHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_water_ascendant_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_water_ascendant_heal_SpellScript();
         }
 };
 
@@ -1408,6 +1424,11 @@ class spell_sha_ascendance: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_ascendance_SpellScript);
 
+            enum eSpells
+            {
+                LavaBurstCategoryID = 1537
+            };
+
             bool Validate(SpellInfo const* spellEntry)
             {
                 if (!sSpellMgr->GetSpellInfo(ShamanSpells::SPELL_SHA_ASCENDANCE))
@@ -1440,9 +1461,7 @@ class spell_sha_ascendance: public SpellScriptLoader
                     {
                         case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
                             l_Player->CastSpell(l_Player, ShamanSpells::SPELL_SHA_ASCENDANCE_ELEMENTAL, true);
-
-                            if (l_Player->HasSpellCooldown(ShamanSpells::SPELL_SHA_LAVA_BURST))
-                                l_Player->RemoveSpellCooldown(ShamanSpells::SPELL_SHA_LAVA_BURST, true);
+                            l_Player->RestoreCharge(eSpells::LavaBurstCategoryID);
                             break;
                         case SpecIndex::SPEC_SHAMAN_ENHANCEMENT:
                             l_Player->CastSpell(l_Player, ShamanSpells::SPELL_SHA_ASCENDANCE_ENHANCED, true);
@@ -2943,4 +2962,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_soothing_wind();
     new spell_sha_WoDPvPEnhancement2PBonus();
     new spell_sha_improved_chain_heal();
+    new spell_sha_water_ascendant_heal();
 }

@@ -789,7 +789,7 @@ class spell_mage_arcane_barrage: public SpellScriptLoader
                                 l_Target->CastCustomSpell(itr, SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED, &l_Basepoints, NULL, NULL, true, 0, NULLAURA_EFFECT, l_Player->GetGUID());
 
                             if (AuraPtr l_ArcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE, l_Player->GetGUID()))
-                                l_ArcaneCharge->ModStackAmount(-(l_ArcaneCharge->CalcMaxCharges() + 1));
+                                l_ArcaneCharge->ModStackAmount(-m_ChargeCount);
                         }
                     }
                 }

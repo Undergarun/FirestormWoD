@@ -1201,12 +1201,13 @@ class spell_rog_envenom: public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
 
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
 
                 int32 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
                 int32 l_Damage = 0;
-
-                l_Damage = l_Caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 if (l_ComboPoint)
                 {
@@ -1220,9 +1221,8 @@ class spell_rog_envenom: public SpellScriptLoader
                         l_SliceAndDice->RefreshDuration();
                 }
 
-                /// Because we do all the calculation, need also need to reapply spellmods if any
-                if (Player* l_ModOwner = l_Caster->GetSpellModOwner())
-                    l_ModOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_DAMAGE, l_Damage);
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
             }

@@ -1402,7 +1402,8 @@ class spell_monk_crackling_jade_lightning: public SpellScriptLoader
         }
 };
 
-// Touch of Karma - 122470
+/// last update : 6.1.2 19802
+/// Touch of Karma - 122470
 class spell_monk_touch_of_karma: public SpellScriptLoader
 {
     public:
@@ -1435,7 +1436,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                         totalAbsorbAmount += dmgInfo.GetDamage();
 
                         if (attacker->HasAura(aurEff->GetSpellInfo()->Id, caster->GetGUID()))
-                            caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (totalAbsorbAmount / 16), attacker);
+                            caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (totalAbsorbAmount / 6), attacker);
                     }
                 }
             }

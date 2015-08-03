@@ -5897,7 +5897,7 @@ void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
 
 void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 {
-    // remove cooldowns on spells that have <= 10 min CD
+    // remove cooldowns on spells that have < 10 min CD
 
     SpellCooldowns::iterator itr, next;
     for (itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); itr = next)
@@ -5905,10 +5905,10 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
         next = itr;
         ++next;
         SpellInfo const* entry = sSpellMgr->GetSpellInfo(itr->first);
-        // check if spellentry is present and if the cooldown is less or equal to 10 min
+        // check if spellentry is present and if the cooldown is less than 10 min
         if (entry &&
-            entry->RecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
-            entry->CategoryRecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
+            entry->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            entry->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
             (entry->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             // remove & notify
@@ -11281,94 +11281,95 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
     }
 }
 
-void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 cast_count, uint32 glyphIndex)
+void Player::CastItemUseSpell(Item* p_Item, SpellCastTargets const& p_Targets, uint8 p_CastCount, uint32 p_GlyphIndex)
 {
-    ItemTemplate const* proto = item->GetTemplate();
-    // special learning case
-    if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
-    {
-        uint32 learn_spell_id    = proto->Spells[0].SpellId;
-        uint32 learning_spell_id = proto->Spells[1].SpellId;
+    ItemTemplate const* l_ItemTemplate = p_Item->GetTemplate();
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
-        if (!spellInfo)
+    /// Special learning case
+    if (l_ItemTemplate->Spells[0].SpellId == 483 || l_ItemTemplate->Spells[0].SpellId == 55884)
+    {
+        uint32 l_LearnedSpell   = l_ItemTemplate->Spells[0].SpellId;
+        uint32 l_LearningSpell  = l_ItemTemplate->Spells[1].SpellId;
+
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_LearnedSpell);
+        if (!l_SpellInfo)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring ", proto->ItemId, learn_spell_id);
-            SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, item, NULL);
+            sLog->outError(LogFilterType::LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring ", l_ItemTemplate->ItemId, l_LearnedSpell);
+            SendEquipError(InventoryResult::EQUIP_ERR_INTERNAL_BAG_ERROR, p_Item, nullptr);
             return;
         }
 
-        Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
-        spell->m_CastItem = item;
-        spell->m_cast_count = cast_count;                   //set count of casts
-        spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
-        spell->prepare(&targets);
+        Spell* l_Spell          = new Spell(this, l_SpellInfo, TriggerCastFlags::TRIGGERED_NONE);
+        l_Spell->m_CastItem     = p_Item;
+        l_Spell->m_cast_count   = p_CastCount;  ///< Set count of casts
+        l_Spell->SetSpellValue(SpellValueMod::SPELLVALUE_BASE_POINT0, l_LearningSpell);
+        l_Spell->prepare(&p_Targets);
         return;
     }
 
-    // use triggered flag only for items with many spell casts and for not first cast
-    uint8 count = 0;
+    /// Use triggered flag only for items with many spell casts and for not first cast
+    uint8 l_Count = 0;
 
-    // item spells casted at use
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    /// Item enchantments spells casted at use
+    for (uint8 l_Slot = 0; l_Slot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_Slot)
     {
-        _Spell const& spellData = proto->Spells[i];
-
-        // no spell
-        if (!spellData.SpellId)
+        if (l_Slot > EnchantmentSlot::ENGINEERING_ENCHANTMENT_SLOT && l_Slot < EnchantmentSlot::PROP_ENCHANTMENT_SLOT_0)    ///< Not holding enchantment id
             continue;
 
-        // wrong triggering type
-        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+        uint32 l_EnchantID = p_Item->GetEnchantmentId(EnchantmentSlot(l_Slot));
+        SpellItemEnchantmentEntry const* l_ItemEnchantEntry = sSpellItemEnchantmentStore.LookupEntry(l_EnchantID);
+        if (!l_ItemEnchantEntry)
             continue;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellData.SpellId);
-        if (!spellInfo)
+        for (uint8 l_I = 0; l_I < MAX_ENCHANTMENT_SPELLS; ++l_I)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring", proto->ItemId, spellData.SpellId);
-            continue;
-        }
-
-        Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
-        spell->m_CastItem = item;
-        spell->m_cast_count = cast_count;                   // set count of casts
-        spell->m_glyphIndex = glyphIndex;                   // glyph index
-        spell->prepare(&targets);
-
-        ++count;
-    }
-
-    // Item enchantments spells casted at use
-    for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
-    {
-        if (e_slot > ENGINEERING_ENCHANTMENT_SLOT && e_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
-            continue;
-
-        uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
-        SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-        if (!pEnchant)
-            continue;
-
-        for (uint8 s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
-        {
-            if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_USE_SPELL)
+            if (l_ItemEnchantEntry->type[l_I] != ItemEnchantmentType::ITEM_ENCHANTMENT_TYPE_USE_SPELL)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->spellid[s]);
-            if (!spellInfo)
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ItemEnchantEntry->spellid[l_I]);
+            if (!l_SpellInfo)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Player::CastItemUseSpell Enchant %i, cast unknown spell %i", pEnchant->ID, pEnchant->spellid[s]);
+                sLog->outError(LogFilterType::LOG_FILTER_PLAYER, "Player::CastItemUseSpell Enchant %i, cast unknown spell %i", l_ItemEnchantEntry->ID, l_ItemEnchantEntry->spellid[l_I]);
                 continue;
             }
 
-            Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
-            spell->m_CastItem = item;
-            spell->m_cast_count = cast_count;               // set count of casts
-            spell->m_glyphIndex = glyphIndex;               // glyph index
-            spell->prepare(&targets);
+            Spell* l_Spell          = new Spell(this, l_SpellInfo, (l_Count > 0) ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE);
+            l_Spell->m_CastItem     = p_Item;
+            l_Spell->m_cast_count   = p_CastCount;  ///< Set count of casts
+            l_Spell->m_glyphIndex   = p_GlyphIndex; ///< Glyph index
+            l_Spell->prepare(&p_Targets);
 
-            ++count;
+            ++l_Count;
         }
+    }
+
+    /// Item spells casted at use
+    for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
+    {
+        _Spell const& l_SpellData = l_ItemTemplate->Spells[l_I];
+
+        /// No spell
+        if (!l_SpellData.SpellId)
+            continue;
+
+        /// Wrong triggering type
+        if (l_SpellData.SpellTrigger != ItemSpelltriggerType::ITEM_SPELLTRIGGER_ON_USE)
+            continue;
+
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellData.SpellId);
+        if (!l_SpellInfo)
+        {
+            sLog->outError(LogFilterType::LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring", l_ItemTemplate->ItemId, l_SpellData.SpellId);
+            continue;
+        }
+
+        Spell* l_Spell            = new Spell(this, l_SpellInfo, (l_Count > 0) ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE);
+        l_Spell->m_CastItem       = p_Item;
+        l_Spell->m_cast_count     = p_CastCount;    ///< set count of casts
+        l_Spell->m_glyphIndex     = p_GlyphIndex;   ///< glyph index
+        l_Spell->prepare(&p_Targets);
+
+        ++l_Count;
     }
 }
 
@@ -15407,7 +15408,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
                     WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
                     data.appendPackGUID(GetGUID());
-                    data << uint8(1);
+                    data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
                     data << uint32(1);
                     data << uint32(cooldownSpell);
                     data << uint32(0);
@@ -17088,6 +17089,7 @@ void Player::ApplyEnchantment(Item* item, bool apply)
 
     //ApplyItemUpgrade(item, apply);
 }
+
 void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition)
 {
     if (!item || !item->IsEquipped())
@@ -17120,10 +17122,11 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
     // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
+    // If the socket is from an item bonus, it's a WoD item, so it can't be a "classical" enchant neither a prismatic enchant
     if ((slot == SOCK_ENCHANTMENT_SLOT || slot == SOCK_ENCHANTMENT_SLOT_2 || slot == SOCK_ENCHANTMENT_SLOT_3)
-        && !item->GetTemplate()->Socket[slot-SOCK_ENCHANTMENT_SLOT].Color)
+        && !item->GetTemplate()->Socket[slot-SOCK_ENCHANTMENT_SLOT].Color && !item->HasItemBonusType(ItemBonusType::ITEM_BONUS_ADD_SOCKET))
     {
-        // Check if the requirements for the prismatic socket are met before applying the gem stats
+         // Check if the requirements for the prismatic socket are met before applying the gem stats
          SpellItemEnchantmentEntry const* pPrismaticEnchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT));
          if (!pPrismaticEnchant || (pPrismaticEnchant->requiredSkill > 0 && pPrismaticEnchant->requiredSkillValue > GetSkillValue(pPrismaticEnchant->requiredSkill)))
              return;
@@ -17547,11 +17550,11 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
 
     l_Data.appendPackGUID(GetGUID());                       ///< Player GUID
     l_Data << uint8(p_Item->GetBagSlot());                  ///< Slot
-    l_Data << uint32(0);
+    l_Data << uint32(0);                                    ///< SlotInBag
 
     Item::BuildDynamicItemDatas(l_Data, p_Item);
 
-    l_Data << uint32(0);
+    l_Data << uint32(0);                                    ///< QuestLogItemID
     l_Data << uint32(p_Quantity);                           ///< Quantity
     l_Data << uint32(GetItemCount(p_Item->GetEntry()));     ///< count of items in inventory
     l_Data << uint32(0);                                    ///< Battle Pet Species ID
@@ -21700,7 +21703,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                         if (l_Player == nullptr || l_Player->GetGUID() != l_PlayerGUID)
                             return;
 
-                        Item* l_ItemRetreive = l_Player->GetItemByGuid(itemGuid);
+                        Item* l_ItemRetreive = l_Player->GetItemByGuid(MAKE_NEW_GUID(itemGuid, 0, HIGHGUID_ITEM));
                         if (l_ItemRetreive == nullptr)
                             return;
 
@@ -21736,7 +21739,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     if (l_Player == nullptr || l_Player->GetGUID() != l_PlayerGUID)
                         return;
 
-                    Item* l_ItemRetreive = l_Player->GetItemByGuid(itemGuid);
+                    Item* l_ItemRetreive = l_Player->GetItemByGuid(MAKE_NEW_GUID(itemGuid, 0, HIGHGUID_ITEM));
                     if (l_ItemRetreive == nullptr)
                         return;
 
@@ -25432,7 +25435,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         }
 
         // Not send cooldown for this spells
-        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
         if ((spellInfo->PreventionType & (SpellPreventionMask::Silence)) == 0)
@@ -26277,7 +26280,7 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bo
     {
         WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
         data.appendPackGUID(GetGUID());
-        data << uint8(1);
+        data << uint8(CooldownFlags::CooldownFlagNone);
         data << uint32(1);
         data << uint32(spellid);
         data << uint32(end_time);
@@ -27279,7 +27282,7 @@ void Player::ApplyEquipCooldown(Item* p_Item)
         SpellCooldowns::iterator l_It = m_spellCooldowns.find(l_SpellData.SpellId);
 
         if (l_It != m_spellCooldowns.end() && l_It->second.itemid == p_Item->GetEntry() && l_It->second.end > uint64((time(NULL) + 30) * IN_MILLISECONDS))
-            break;
+            continue;
 
         AddSpellCooldown(l_SpellData.SpellId, p_Item->GetEntry(), 30 * IN_MILLISECONDS);
 
@@ -29062,25 +29065,29 @@ void Player::UpdateCharmedAI()
 
 uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 {
-    float cooldown = RUNE_BASE_COOLDOWN;
-    float hastePct = 0.0f;
+    float l_Cooldown = RUNE_BASE_COOLDOWN;
+    float l_HastePct = 0.0f;
 
-    AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_RUNES && RuneType((*i)->GetMiscValueB()) == runeType)
-            cooldown /= ((*i)->GetAmount() + 100.0f) / 100.0f;
+    AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (AuraEffectList::const_iterator l_Idx = l_RegenAura.begin(); l_Idx != l_RegenAura.end(); ++l_Idx)
+        if ((*l_Idx)->GetMiscValue() == POWER_RUNES && RuneType((*l_Idx)->GetMiscValueB()) == runeType)
+            l_Cooldown *= 1.0f - ((*l_Idx)->GetAmount() / 100.0f);
 
     // Runes cooldown are now affected by player's haste from equipment ...
-    hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
-    hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_RANGED_HASTE) / 10.0f;
+    l_HastePct = GetRatingBonusValue(CR_HASTE_MELEE);
+
+    // ... and some auras.
+    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
+    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_2);
+    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_3);
+    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_RANGED_HASTE) / 10.0f;
 
     if (AuraEffectPtr unholy = GetAuraEffect(48265, EFFECT_0))
-        hastePct += unholy->GetAmount();
+        l_HastePct += unholy->GetAmount();
 
-    cooldown *=  1.0f - (hastePct / 100.0f);
+    l_Cooldown *=  1.0f - (l_HastePct / 100.0f);
 
-    return cooldown;
+    return l_Cooldown;
 }
 
 void Player::RemoveRunesBySpell(uint32 spell_id)
@@ -29750,7 +29757,17 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
     GetAchievementMgr().CompletedAchievement(entry, this);
 }
 
-// TODO : Check cheat-hack issue with packet-editing
+static const uint8 k_LevelPerTier[7] =
+{
+    15,
+    30,
+    45,
+    60,
+    75,
+    90,
+    100
+};
+
 bool Player::LearnTalent(uint32 talentId)
 {
     uint32 CurTalentPoints = GetFreeTalentPoints();
@@ -29759,6 +29776,9 @@ bool Player::LearnTalent(uint32 talentId)
 
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
     if (!talentInfo)
+        return false;
+
+    if (k_LevelPerTier[talentInfo->TierID] > getLevel())
         return false;
 
     if (talentInfo->ClassID != getClass())
@@ -30677,7 +30697,7 @@ bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
 
 void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_ExtendedCost, uint8 p_Error)
 {
-    WorldPacket l_Data(SMSG_ITEM_PURCHASE_REFUND_RESULT);
+    WorldPacket l_Data(Opcodes::SMSG_ITEM_PURCHASE_REFUND_RESULT);
     l_Data.appendPackGUID(p_Item->GetGUID());
     l_Data << uint8(p_Error);
     l_Data.WriteBit(!p_Error);
@@ -30686,16 +30706,29 @@ void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_E
     {
         l_Data << uint32(p_Item->GetPaidMoney());
 
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
+        for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_ITEMS; ++l_I)
         {
-            l_Data << uint32(p_ExtendedCost->RequiredItem[i]);
-            l_Data << uint32(p_ExtendedCost->RequiredItemCount[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredItem[l_I]);
+            l_Data << uint32(p_ExtendedCost->RequiredItemCount[l_I]);
         }
 
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
         {
-            l_Data << uint32(p_ExtendedCost->RequiredCurrency[i]);
-            l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[i] / 100);
+            CurrencyTypesEntry const* l_CurrTemplate = sCurrencyTypesStore.LookupEntry(p_ExtendedCost->RequiredCurrency[l_I]);
+            if (l_CurrTemplate != nullptr)
+            {
+                l_Data << uint32(p_ExtendedCost->RequiredCurrency[l_I]);
+
+                if (l_CurrTemplate->Flags & CurrencyFlags::CURRENCY_FLAG_HIGH_PRECISION)
+                    l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[l_I]);
+                else
+                    l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[l_I] / 100);
+            }
+            else
+            {
+                l_Data << uint32(0);
+                l_Data << uint32(0);
+            }
         }
     }
 

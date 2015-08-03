@@ -3890,12 +3890,24 @@ class spell_gen_selfie_camera : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                GetCaster()->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    l_Caster->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                }
             }
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                GetCaster()->ToPlayer()->CancelSpellVisualKit(54168);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    l_Caster->ToPlayer()->CancelSpellVisualKit(54168);
+                }
             }
 
             void Register()
@@ -4261,6 +4273,109 @@ class spell_gen_sword_technique: public SpellScriptLoader
         }
 };
 
+/// Faction check for spells (seems to cause problems when applied to every spells)
+class spell_gen_check_faction : public SpellScriptLoader
+{
+    public:
+        spell_gen_check_faction() : SpellScriptLoader("spell_gen_check_faction") {}
+
+        class spell_gen_check_faction_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_check_faction_SpellScript);
+
+            SpellCastResult CheckFaction()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    uint32 l_RaceMask = l_Caster->getRaceMask();
+                    uint32 l_AttributeEx7 = GetSpellInfo()->AttributesEx7;
+
+                    if ((l_AttributeEx7 & SpellAttr7::SPELL_ATTR7_ALLIANCE_ONLY && ((l_RaceMask & RACEMASK_ALLIANCE) == 0)) ||
+                        (l_AttributeEx7 & SpellAttr7::SPELL_ATTR7_HORDE_ONLY && ((l_RaceMask & RACEMASK_HORDE) == 0)))
+                        return SpellCastResult::SPELL_FAILED_SPELL_UNAVAILABLE;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_check_faction_SpellScript::CheckFaction);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_check_faction_SpellScript();
+        }
+};
+
+/// Stoneform - 20594
+class spell_gen_stoneform_dwarf_racial : public SpellScriptLoader
+{
+    public:
+        spell_gen_stoneform_dwarf_racial() : SpellScriptLoader("spell_gen_stoneform_dwarf_racial") {}
+
+        class spell_gen_stoneform_dwarf_racial_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_stoneform_dwarf_racial_SpellScript);
+
+            enum eSpell
+            {
+                PvPTrinket = 42292
+            };
+
+            void HandleAfterCast()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    /// Patch note 6.1 : "Stoneform when used, now triggers a 30-second shared cooldown with other PvP trinkets that breaks crowd-control effects."
+                    l_Player->AddSpellCooldown(eSpell::PvPTrinket, 0, 30 * TimeConstants::IN_MILLISECONDS);
+
+                    if (Item* l_FirstTrinket = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_TRINKET1))
+                    {
+                        for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
+                        {
+                            _Spell const& l_SpellData = l_FirstTrinket->GetTemplate()->Spells[l_I];
+
+                            /// No spell or not which one we search
+                            if (!l_SpellData.SpellId || l_SpellData.SpellId != eSpell::PvPTrinket)
+                                continue;
+
+                            l_Player->ApplyEquipCooldown(l_FirstTrinket);
+                            break;
+                        }
+                    }
+
+                    if (Item* l_SecondTrinket = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_TRINKET2))
+                    {
+                        for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
+                        {
+                            _Spell const& l_SpellData = l_SecondTrinket->GetTemplate()->Spells[l_I];
+
+                            /// No spell or not which one we search
+                            if (!l_SpellData.SpellId || l_SpellData.SpellId != eSpell::PvPTrinket)
+                                continue;
+
+                            l_Player->ApplyEquipCooldown(l_SecondTrinket);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_gen_stoneform_dwarf_racial_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_stoneform_dwarf_racial_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_drums_of_fury();
@@ -4343,6 +4458,8 @@ void AddSC_generic_spell_scripts()
     new spell_taunt_flag_targeting();
     new spell_gen_raid_buff_stack();
     new spell_gen_sword_technique();
+    new spell_gen_check_faction();
+    new spell_gen_stoneform_dwarf_racial();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

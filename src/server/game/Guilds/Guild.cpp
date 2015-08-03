@@ -1508,9 +1508,9 @@ bool Guild::SwitchGuildLeader(uint64 newLeaderGuid)
             l_Data.FlushBits();
 
             l_Data.appendPackGUID(l_OldLeader->GetGUID());          ///< Old Leader GUID
-            l_Data << uint32(g_RealmID);                              ///< Old Leader Virtual Realm Address
+            l_Data << uint32(g_RealmID);                            ///< Old Leader Virtual Realm Address
             l_Data.appendPackGUID(l_NewLeader->GetGUID());          ///< New Leader GUID
-            l_Data << uint32(g_RealmID);                              ///< New Leader Virtual Realm Address
+            l_Data << uint32(g_RealmID);                            ///< New Leader Virtual Realm Address
 
             l_Data.WriteString(l_OldLeader->GetName());             ///< Old Leader Name
             l_Data.WriteString(l_NewLeader->GetName());             ///< New Leader Name

@@ -2535,26 +2535,42 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
     if (!spellInfo)
         return;
 
-    uint32 cooldown = spellInfo->GetRecoveryTime();
+    uint32 l_Cooldown = spellInfo->GetRecoveryTime();
 
-    /// If we're missing a cooldown but possessed by a player, default to 6s
-    if (cooldown == 0)
+    /// If we are possessed by a player, we have to send our cooldown to that player
+    if (CharmInfo* l_CharmInfo = GetCharmInfo())
     {
-        if (CharmInfo* l_CharmInfo = GetCharmInfo())
+        if (l_CharmInfo->GetCharmType() == CharmType::CHARM_TYPE_POSSESS)
         {
-            if (l_CharmInfo->GetCharmType() == CharmType::CHARM_TYPE_POSSESS)
-                cooldown = 6 * IN_MILLISECONDS;
+            /// If we're missing a cooldown but possessed by a player, default to 6s
+            if (l_Cooldown == 0)
+                l_Cooldown = 6 * IN_MILLISECONDS;
+
+            if (Unit* l_Charmer = GetCharmer())
+            {
+                if (Player* l_CharmerPlayer = l_Charmer->ToPlayer())
+                {
+                    WorldPacket data(Opcodes::SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
+                    data.appendPackGUID(GetGUID());
+                    data << uint8(CooldownFlags::CooldownFlagNone);
+                    data << uint32(1);
+                    data << uint32(spellid);
+                    data << uint32(l_Cooldown);
+
+                    l_CharmerPlayer->GetSession()->SendPacket(&data);
+                }
+            }
         }
     }
 
     if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellid, SPELLMOD_COOLDOWN, cooldown);
+        modOwner->ApplySpellMod(spellid, SpellModOp::SPELLMOD_COOLDOWN, l_Cooldown);
 
-    if (cooldown)
-        _AddCreatureSpellCooldown(spellid, time(NULL) + cooldown/IN_MILLISECONDS);
+    if (l_Cooldown)
+        _AddCreatureSpellCooldown(spellid, time(nullptr) + l_Cooldown/IN_MILLISECONDS);
 
     if (spellInfo->Category)
-        _AddCreatureCategoryCooldown(spellInfo->Category, time(NULL));
+        _AddCreatureCategoryCooldown(spellInfo->Category, time(nullptr));
 }
 
 bool Creature::HasCategoryCooldown(uint32 spell_id) const
@@ -2590,7 +2606,7 @@ void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs
         }
 
         // Not send cooldown for this spells
-        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
         if ((spellInfo->PreventionType & (SpellPreventionMask::Silence)) == 0)
