@@ -145,7 +145,7 @@ bool LFGListMgr::Remove(uint32 l_GroupGuidLow, Player* p_Requester /* = nullptr 
 
     for (auto& l_Itr = l_Iter->second->m_Applications.begin(); l_Itr != l_Iter->second->m_Applications.end();)
     {
-        sLFGListMgr->ChangeApplicantStatus(&l_Itr->second, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_CANCELLED);
+        sLFGListMgr->ChangeApplicantStatus(&l_Itr->second, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_CANCELLED);
         l_Itr = l_Iter->second->m_Applications.begin();
     }
 
@@ -235,14 +235,22 @@ void LFGListMgr::OnPlayerApplyForGroup(LFGListEntry::LFGListApplicationEntry p_A
 
     if (l_Application->m_Error != LFGListMgr::LFG_LIST_STATUS_ERROR_NONE)
     {
-        ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_FAILED);
+        ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_FAILED);
     }
     else
     {
         if (l_Entry->m_AutoAcceptInvites)
-            ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITED);
+        {
+            if (!l_Entry->m_Group->isRaidGroup() && GetMemeberCountInGroupIncludingInvite(l_Entry) == 5)
+            {
+                ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_APPLIED);
+                // Handled clientside -- OnAccept = function(self, applicantID) ConvertToRaid(); C_LFGList.InviteApplicant(applicantID) end,
+            }
+            else
+            ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_INVITED);
+        }
         else
-            ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_APPLIED);
+            ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_APPLIED);
     }
 }
 
@@ -286,7 +294,7 @@ void LFGListEntry::InviteApplicant(LFGListApplicationEntry const* l_Applicant)
 
 void LFGListEntry::LFGListApplicationEntry::ResetTimeout()
 {
-    m_Timeout = time(nullptr) + (m_Status == LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITED ? LFG_LIST_INVITE_TO_GROUP_TIMEOUT : LFG_LIST_APPLY_FOR_GROUP_TIMEOUT);
+    m_Timeout = time(nullptr) + (m_Status == LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_INVITED ? LFG_LIST_INVITE_TO_GROUP_TIMEOUT : LFG_LIST_APPLY_FOR_GROUP_TIMEOUT);
 }
 
 void LFGListEntry::ResetTimeout()
@@ -311,8 +319,8 @@ void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_
 
     switch (p_Status)
     {
-        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_APPLIED:
-        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITED:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_APPLIED:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_INVITED:
         {
             p_Application->ResetTimeout();
             p_Application->m_Owner->ResetTimeout();
@@ -322,10 +330,10 @@ void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_
             break;
         }
         case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_INVITEDECLINED:
-        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_DECLINED:
-        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_CANCELLED:
-        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_TIMEOUT:
-        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_FAILED:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_DECLINED:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_CANCELLED:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_TIMEOUT:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_FAILED:
         {
             p_Application->m_Listed = false;
             l_Remove = true;
@@ -334,8 +342,11 @@ void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_
                 p_Application->GetPlayer()->GetSession()->SendLfgListApplicantGroupInviteResponse(p_Application);
             break;
         }
-        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITEACCEPTED:
+        case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_INVITEACCEPTED:
         {
+            if (!p_Application->m_Owner->m_Group->isRaidGroup() && GetMemeberCountInGroupIncludingInvite(p_Application->m_Owner) >= 5)
+                break;
+
             p_Application->m_Listed = false;
             l_Remove = true;
             p_Application->m_Owner->m_Group->AddMember(p_Application->GetPlayer());
@@ -350,6 +361,8 @@ void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_
 
     if (l_Remove)
         p_Application->m_Owner->m_Applications.erase(p_Application->m_Owner->m_Applications.find(p_Application->m_ID));
+
+    AutoInviteApplicantsIfPossible(p_Application->m_Owner);
 }
 
 LFGListEntry::LFGListApplicationEntry* LFGListMgr::GetApplicationByID(uint32 p_ID)
@@ -374,7 +387,7 @@ void LFGListMgr::RemoveAllApplicationsByPlayer(uint32 l_PlayerGUID, bool p_Notif
         {
             if (l_Applicant.second.m_PlayerLowGuid == l_PlayerGUID)
             {
-                sLFGListMgr->ChangeApplicantStatus(&l_Applicant.second, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_CANCELLED, p_Notify);
+                sLFGListMgr->ChangeApplicantStatus(&l_Applicant.second, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_CANCELLED, p_Notify);
                 break;
             }
         }
@@ -421,7 +434,7 @@ void LFGListEntry::LFGListApplicationEntry::Update(uint32 const p_Diff)
 {
     if (m_Timeout <= time(nullptr)) ///< Bye bye
     {
-        sLFGListMgr->ChangeApplicantStatus(this, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_TIMEOUT);
+        sLFGListMgr->ChangeApplicantStatus(this, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_TIMEOUT);
     }
 }
 
@@ -525,5 +538,29 @@ float LFGListMgr::GetLowestItemLevelInGroup(LFGListEntry* p_Entry) const
         if (Player* l_Player = l_Ref->getSource())
             l_MinIlvl = std::min(l_MinIlvl, GetPlayerItemLevelForActivity(p_Entry->m_ActivityEntry, l_Player));
 
-    return l_MinIlvl != 100000.f ? l_MinIlvl : 0;
+    return l_MinIlvl != 100000.f ? l_MinIlvl : 0.f;
+}
+
+uint8 LFGListMgr::GetMemeberCountInGroupIncludingInvite(LFGListEntry* p_Entry)
+{
+    uint8 l_InviteCount = CountEntryApplicationsWithStatus(p_Entry, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_INVITEDECLINED);
+    return l_InviteCount + p_Entry->m_Group->GetMembersCount();
+}
+
+uint8 LFGListMgr::CountEntryApplicationsWithStatus(LFGListEntry* p_Entry, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus p_Status)
+{
+    return std::count_if(p_Entry->m_Applications.begin(), p_Entry->m_Applications.end(), [&](const std::pair<uint32, LFGListEntry::LFGListApplicationEntry>& l_Iter) { return l_Iter.second.m_Status == p_Status; });
+}
+
+void LFGListMgr::AutoInviteApplicantsIfPossible(LFGListEntry* p_Entry)
+{
+    if (!p_Entry->m_AutoAcceptInvites)
+        return;
+
+    if (!p_Entry->m_Group->isRaidGroup() && GetMemeberCountInGroupIncludingInvite(p_Entry) >= 5)
+        return;
+
+    for (auto& l_Applicant : p_Entry->m_Applications)
+        if (CanQueueFor(p_Entry, l_Applicant.second.GetPlayer()) == LFG_LIST_STATUS_ERROR_NONE)
+            ChangeApplicantStatus(&l_Applicant.second, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_INVITED);
 }

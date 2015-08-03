@@ -158,10 +158,7 @@ void WorldSession::HandleLfgListUpdateRequest(WorldPacket& p_RecvData)
     if (l_ItemLevel < sLFGListMgr->GetPlayerItemLevelForActivity(l_Entry->m_ActivityEntry, m_Player))
         l_Entry->m_RequiredItemLevel = l_ItemLevel;
 
-    if (!l_Entry)
-        return;
-
-    // @todo: implement changes here
+    sLFGListMgr->AutoInviteApplicantsIfPossible(l_Entry);
     sLFGListMgr->SendLFGListStatusUpdate(l_Entry, this);
 }
 
@@ -385,7 +382,7 @@ void WorldSession::HandleLfgListInviteApplicant(WorldPacket& p_RecvData)
     if (!m_Player->GetGroup()->IsAssistant(m_Player->GetGUID()) && !m_Player->GetGroup()->IsLeader(m_Player->GetGUID()))
         return;
 
-    sLFGListMgr->ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_INVITED);
+    sLFGListMgr->ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_INVITED);
 }
 
 void WorldSession::HandleLfgListRemoveApplicant(WorldPacket& p_RecvData)
@@ -399,7 +396,7 @@ void WorldSession::HandleLfgListRemoveApplicant(WorldPacket& p_RecvData)
     if (!m_Player->GetGroup()->IsAssistant(m_Player->GetGUID()) && !m_Player->GetGroup()->IsLeader(m_Player->GetGUID()))
         return;
 
-    sLFGListMgr->ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPICATION_STATUS_DECLINED);
+    sLFGListMgr->ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_DECLINED);
 }
 
 void WorldSession::HandleLfgListCancelApplication(WorldPacket& p_RecvData)
@@ -414,7 +411,7 @@ void WorldSession::HandleLfgListCancelApplication(WorldPacket& p_RecvData)
     if (!l_Applicant)
         return;
 
-    sLFGListMgr->ChangeApplicantStatus(l_Applicant, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus::LFG_LIST_APPICATION_STATUS_CANCELLED);
+    sLFGListMgr->ChangeApplicantStatus(l_Applicant, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus::LFG_LIST_APPLICATION_STATUS_CANCELLED);
 }
 
 void WorldSession::HandleLfgListInvitationAnswer(WorldPacket& p_RecvData)
@@ -425,5 +422,5 @@ void WorldSession::HandleLfgListInvitationAnswer(WorldPacket& p_RecvData)
         return;
 
     bool l_Accept = p_RecvData.ReadBit();
-    sLFGListMgr->ChangeApplicantStatus(l_Applicant, l_Accept ? LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus::LFG_LIST_APPICATION_STATUS_INVITEACCEPTED : LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus::LFG_LIST_APPLICATION_INVITEDECLINED);
+    sLFGListMgr->ChangeApplicantStatus(l_Applicant, l_Accept ? LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus::LFG_LIST_APPLICATION_STATUS_INVITEACCEPTED : LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus::LFG_LIST_APPLICATION_INVITEDECLINED);
 }

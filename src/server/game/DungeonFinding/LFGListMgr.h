@@ -25,15 +25,15 @@ struct LFGListEntry
     {
         enum LFGListApplicationStatus
         {
-            LFG_LIST_APPICATION_STATUS_CANCELLED        = 1,
+            LFG_LIST_APPLICATION_STATUS_CANCELLED        = 1,
             LFG_LIST_APPLICATION_INVITEDECLINED         = 2,
-            LFG_LIST_APPICATION_STATUS_APPLIED          = 5,
-            LFG_LIST_APPICATION_STATUS_DECLINED         = 8,
-            LFG_LIST_APPICATION_STATUS_INVITEACCEPTED   = 9,
-            LFG_LIST_APPICATION_STATUS_FAILED           = 12,
-            LFG_LIST_APPICATION_STATUS_TIMEOUT          = 13,
+            LFG_LIST_APPLICATION_STATUS_APPLIED          = 5,
+            LFG_LIST_APPLICATION_STATUS_DECLINED         = 8,
+            LFG_LIST_APPLICATION_STATUS_INVITEACCEPTED   = 9,
+            LFG_LIST_APPLICATION_STATUS_FAILED           = 12,
+            LFG_LIST_APPLICATION_STATUS_TIMEOUT          = 13,
             LFG_LIST_APPLICATION_STATUS_NONE            = 14,
-            LFG_LIST_APPICATION_STATUS_INVITED          = 15,
+            LFG_LIST_APPLICATION_STATUS_INVITED          = 15,
         };
 
         LFGListApplicationEntry(uint32 p_PlayerGuid, LFGListEntry* p_Owner);
@@ -161,6 +161,9 @@ public:
     float GetPlayerItemLevelForActivity(GroupFinderActivityEntry const* p_Activity, Player* p_Player) const;
     uint8 GetApplicationCountByPlayer(uint32 p_GUIDLow) const;
     float GetLowestItemLevelInGroup(LFGListEntry* p_Entry) const;
+    uint8 GetMemeberCountInGroupIncludingInvite(LFGListEntry* p_Entry);
+    uint8 CountEntryApplicationsWithStatus(LFGListEntry* p_Entry, LFGListEntry::LFGListApplicationEntry::LFGListApplicationStatus p_Status);
+    void AutoInviteApplicantsIfPossible(LFGListEntry* p_Entry);
 
 private:
     std::unordered_map<uint32, LFGListEntry *> m_LFGListQueue;
