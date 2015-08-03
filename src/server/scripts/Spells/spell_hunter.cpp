@@ -3161,17 +3161,17 @@ class spell_hun_tame_beast: public SpellScriptLoader
                         l_ResultId = PET_TAME_ERROR_NOT_TAMEABLE;
                 }
 
+                if (l_ResultId >= 0)
+                {
+                    l_Player->SendPetTameResult((PetTameResult) l_ResultId);
+                    return SPELL_FAILED_DONT_REPORT;
+                }
+
                 /// Chimaeron can be tamed but only at 20%
                 if (l_Target->GetEntry() == eCreature::Chimaeron && l_Target->GetHealthPct() > 20.0f)
                 {
                     SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CHIMAERON_IS_TOO_CALM_TO_TAME);
                     return SPELL_FAILED_CUSTOM_ERROR;
-                }
-
-                if (l_ResultId >= 0)
-                {
-                    l_Player->SendPetTameResult((PetTameResult) l_ResultId);
-                    return SPELL_FAILED_DONT_REPORT;
                 }
 
                 return SPELL_CAST_OK;
