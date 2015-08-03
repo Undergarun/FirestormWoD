@@ -143,7 +143,7 @@ bool LFGListMgr::Remove(uint32 l_GroupGuidLow, Player* p_Requester /* = nullptr 
     if (p_Requester && ((!l_Group->isRaidGroup() || !l_Group->IsAssistant(p_Requester->GetGUID())) && !l_Group->IsLeader(p_Requester->GetGUID())))
         return false;
 
-    for (auto& l_Itr = l_Iter->second->m_Applications.begin(); l_Itr != l_Iter->second->m_Applications.end();)
+    for (std::map<uint32, LFGListEntry::LFGListApplicationEntry>::iterator l_Itr = l_Iter->second->m_Applications.begin(); l_Itr != l_Iter->second->m_Applications.end();)
     {
         sLFGListMgr->ChangeApplicantStatus(&l_Itr->second, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_CANCELLED);
         l_Itr = l_Iter->second->m_Applications.begin();
