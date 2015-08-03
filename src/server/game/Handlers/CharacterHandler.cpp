@@ -1440,9 +1440,9 @@ void WorldSession::HandleSetFactionCheat(WorldPacket& /*recvData*/)
 
 enum TUTORIAL_ACTIONS
 {
-    TUTORIAL_ACTION_FLAG    = 0,
-    TUTORIAL_ACTION_CLEAR   = 1,
-    TUTORIAL_ACTION_RESET   = 2,
+    TUTORIAL_ACTION_RESET   = 1,
+    TUTORIAL_ACTION_CLEAR   = 2,
+    TUTORIAL_ACTION_FLAG    = 3,
 };
 
 void WorldSession::HandleTutorial(WorldPacket& p_RecvPacket)

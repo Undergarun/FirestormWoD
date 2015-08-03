@@ -17523,6 +17523,7 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
     l_Data << uint32(0);
     l_Data << uint32(p_Quantity);                           ///< Quantity
     l_Data << uint32(GetItemCount(p_Item->GetEntry()));     ///< count of items in inventory
+    l_Data << uint32(0);                                    ///< Dungeon Encounter ID
     l_Data << uint32(0);                                    ///< Battle Pet Species ID
     l_Data << uint32(0);                                    ///< Battle Pet Breed ID
     l_Data << uint32(0);                                    ///< Battle Pet Breed Quality
@@ -17531,8 +17532,9 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
 
     l_Data.WriteBit(p_Received);                            ///< Pushed
     l_Data.WriteBit(p_Created);                             ///< Created
-    l_Data.WriteBit(true);                                  ///< Display Text
+    l_Data.WriteBits(1, 2);                                 ///< Display Text
     l_Data.WriteBit(0);                                     ///< Is Bonus Roll
+    l_Data.WriteBit(0);                                     ///< Is Encounter Loot
     l_Data.FlushBits();
 
     if (p_Broadcast && GetGroup())

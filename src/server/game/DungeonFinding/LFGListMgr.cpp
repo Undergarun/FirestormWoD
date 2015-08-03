@@ -320,7 +320,7 @@ void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_
     switch (p_Status)
     {
         case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_INVITED:
-            if ((!p_Application->m_Owner->m_Group->isRaidGroup() && GetMemeberCountInGroupIncludingInvite(p_Application->m_Owner) >= 5) || CanQueueFor(p_Application->m_Owner, p_Application->GetPlayer() != LFG_LIST_STATUS_ERROR_NONE))
+            if ((!p_Application->m_Owner->m_Group->isRaidGroup() && GetMemeberCountInGroupIncludingInvite(p_Application->m_Owner) >= 5) || CanQueueFor(p_Application->m_Owner, p_Application->GetPlayer()) != LFG_LIST_STATUS_ERROR_NONE)
                 break;
 
         case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_APPLIED:
@@ -347,7 +347,7 @@ void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_
         }
         case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_INVITEACCEPTED:
         {
-            if ((!p_Application->m_Owner->m_Group->isRaidGroup() && GetMemeberCountInGroupIncludingInvite(p_Application->m_Owner) >= 5) || CanQueueFor(p_Application->m_Owner, p_Application->GetPlayer() != LFG_LIST_STATUS_ERROR_NONE))
+            if ((!p_Application->m_Owner->m_Group->isRaidGroup() && GetMemeberCountInGroupIncludingInvite(p_Application->m_Owner) >= 5) || CanQueueFor(p_Application->m_Owner, p_Application->GetPlayer()) != LFG_LIST_STATUS_ERROR_NONE)
                 break;
 
             p_Application->m_Listed = false;
