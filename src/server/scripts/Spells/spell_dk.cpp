@@ -2709,48 +2709,6 @@ class spell_dk_army_transform : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
-/// Glyph of Icy Runes - 159418
-class spell_dk_glyph_of_icy_runes : public SpellScriptLoader
-{
-    public:
-        spell_dk_glyph_of_icy_runes() : SpellScriptLoader("spell_dk_glyph_of_icy_runes") { }
-
-        class spell_dk_glyph_of_icy_runes_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_glyph_of_icy_runes_AuraScript);
-
-            enum eSpells
-            {
-                GlyphofIcyRunesProc = 159419
-            };
-
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
-            {
-                PreventDefaultAction();
-
-                Unit* l_Caster = GetCaster();
-
-                if (!l_Caster)
-                    return;
-
-                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != DK_SPELL_CHAINS_OF_ICE)
-                    return;
-
-                l_Caster->CastSpell(l_Caster, eSpells::GlyphofIcyRunesProc, true);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_dk_glyph_of_icy_runes_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_glyph_of_icy_runes_AuraScript();
-        }
-};
 
 /// Gargoyle Strike - 51963
 class spell_dk_gargoyle_strike : public SpellScriptLoader
@@ -2845,7 +2803,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_improved_death_grip();
     new spell_dk_glyph_of_deaths_embrace();
     new spell_dk_will_of_the_necropolis();
-    new spell_dk_glyph_of_icy_runes();
     new spell_dk_enhanced_death_coil();
     new spell_dk_gargoyle_strike();
 
