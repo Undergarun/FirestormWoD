@@ -7793,15 +7793,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     break;
                 }
             }
-
-            switch (dummySpell->Id)
-            {
-                case 82661: // Aspect of the Fox
-                {
-                    EnergizeBySpell(this, 82661, 2, POWER_FOCUS);
-                    break;
-                }
-            }
+            
             break;
         }
         case SPELLFAMILY_PALADIN:
