@@ -3480,6 +3480,9 @@ class spell_pri_chakra_sanctuary : public SpellScriptLoader
                 if (!p_EventInfo.GetDamageInfo()->GetSpellInfo()->IsHealingSpell())
                     return;
 
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == PRIEST_HOLY_WORD_SANCTUARY_HEAL) ///< tick of Holy Word: Sanctuary can't trigger this effect
+                    return;
+
                 if (l_Player->HasSpellCooldown(PRIEST_SPELL_CIRCLE_OF_HEALING))
                     l_Player->ReduceSpellCooldown(PRIEST_SPELL_CIRCLE_OF_HEALING, p_AurEff->GetAmount());
             }
