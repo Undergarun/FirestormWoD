@@ -1746,10 +1746,6 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     else if (GetTypeId() == TYPEID_UNIT && (victim->GetTypeId() == TYPEID_PLAYER || victim->IsPetGuardianStuff()))
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
-    /// Apply Versatility damage bonus done/taken
-    if (victim->GetSpellModOwner())
-        damage -= CalculatePct(damage, victim->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
     {
@@ -13294,6 +13290,12 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (victim->HasAuraState(AuraStateType((*i)->GetMiscValue())))
             AddPct(DoneTotalMod, (*i)->GetAmount());
 
+    if (GetSpellModOwner())
+    {
+        if (GetSpellModOwner())
+            DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+    }
+
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
     if (spellProto)
         AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
@@ -13417,6 +13419,10 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
             AddPct(TakenTotalMod, u_mult);
         }
     }
+
+    /// Apply Versatility damage bonus taken
+    if (GetSpellModOwner())
+        AddPct(TakenTotalMod, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     float tmpDamage = 0.0f;
 
