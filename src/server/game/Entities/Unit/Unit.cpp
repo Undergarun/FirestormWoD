@@ -5641,7 +5641,7 @@ void Unit::AddGameObject(GameObject* gameObj)
     {
         SpellInfo const* createBySpell = sSpellMgr->GetSpellInfo(gameObj->GetSpellId());
         // Need disable spell use for owner
-        if (createBySpell && createBySpell->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (createBySpell && createBySpell->IsCooldownStartedOnEvent())
             // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
             ToPlayer()->AddSpellAndCategoryCooldowns(createBySpell, 0, NULL, true);
     }
@@ -5672,7 +5672,7 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
         {
             SpellInfo const* createBySpell = sSpellMgr->GetSpellInfo(spellid);
             // Need activate spell use for owner
-            if (createBySpell && createBySpell->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+            if (createBySpell && createBySpell->IsCooldownStartedOnEvent())
                 // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
                 ToPlayer()->SendCooldownEvent(createBySpell);
         }
@@ -6878,7 +6878,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (effIndex != 0)
                         return false;
 
-                    if (!damage)
+                    if (!damage && !(procEx & PROC_EX_ABSORB))
                         return false;
 
                     if (!procSpell)
@@ -10940,7 +10940,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
             // Send infinity cooldown - client does that automatically but after relog cooldown needs to be set again
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(minion->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
 
-            if (spellInfo && (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE))
+            if (spellInfo && spellInfo->IsCooldownStartedOnEvent())
                 ToPlayer()->AddSpellAndCategoryCooldowns(spellInfo, 0, NULL, true);
         }
     }
@@ -10988,7 +10988,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(minion->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
             // Remove infinity cooldown
-            if (spellInfo && (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE))
+            if (spellInfo && spellInfo->IsCooldownStartedOnEvent())
                 ToPlayer()->SendCooldownEvent(spellInfo);
         }
 
@@ -11544,18 +11544,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
                 DoneTotal += CalculatePct(pdamage, Mastery);
             }
         }
-    }
-
-    // 77492 - Mastery : Total Eclipse
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE) && HasAura(77492) && HasAura(48517)) // Solar Eclipse
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.87f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-    else if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_ARCANE) && HasAura(77492) && HasAura(48518)) // Lunar Eclipse
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.87f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
     // Chaos Bolt - 116858, Chaos Bolt (Fire and Brimstone) - 157701 and Soul Fire - 6353
@@ -13500,8 +13488,8 @@ void Unit::Dismount()
 
         WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16 + 2 + 4 + 4);
         l_Data.appendPackGUID(l_Guid);
-        l_Data << uint32(0);
-        l_Data << uint32(0);
+        l_Data << uint32(0);        ///< SequenceIndex
+        l_Data << uint32(0);        ///< VehicleRecID
         ToPlayer()->GetSession()->SendPacket(&l_Data);
 
         l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 4);
@@ -19478,31 +19466,33 @@ void Unit::CancelSpellVisual(int32 p_SpellVisualID)
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
-void Unit::ApplyResilience(Unit const* victim, int32* damage) const
+void Unit::ApplyResilience(Unit const* p_Victim, int32* p_Damage) const
 {
-    // player mounted on multi-passenger mount is also classified as vehicle
-    if (IsVehicle() && GetTypeId() != TYPEID_PLAYER)
+    /// Player mounted on multi-passenger mount is also classified as vehicle
+    if (IsVehicle() && GetTypeId() != TypeID::TYPEID_PLAYER)
         return;
 
-    if (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER)
+    if (p_Victim->IsVehicle() && p_Victim->GetTypeId() != TypeID::TYPEID_PLAYER)
         return;
 
-    // Resilience works only for players or pets against other players or pets
-    if (GetTypeId() != TYPEID_PLAYER && (GetOwner() && GetOwner()->GetTypeId() != TYPEID_PLAYER))
+    /// Resilience works only for players or pets against other players or pets
+    if (GetTypeId() != TypeID::TYPEID_PLAYER && (GetOwner() && GetOwner()->GetTypeId() != TypeID::TYPEID_PLAYER))
         return;
 
-    // Don't consider resilience if not in PvP - player or pet
+    /// Don't consider resilience if not in PvP - player or pet
     if (!GetCharmerOrOwnerPlayerOrPlayerItself())
         return;
 
-    Unit const* target = NULL;
-    if (victim->GetTypeId() == TYPEID_PLAYER)
-        target = victim;
-    else if (victim->GetTypeId() == TYPEID_UNIT && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-        target = victim->GetOwner();
+    Unit const* l_Target = nullptr;
+    if (p_Victim->GetTypeId() == TypeID::TYPEID_PLAYER)
+        l_Target = p_Victim;
+    else if (p_Victim->GetTypeId() == TypeID::TYPEID_UNIT && p_Victim->GetOwner() && p_Victim->GetOwner()->GetTypeId() == TypeID::TYPEID_PLAYER)
+        l_Target = p_Victim->GetOwner();
 
-    if (!target)
+    if (!l_Target)
         return;
+
+    *p_Damage -= (int32)CalculatePct(float(*p_Damage), -l_Target->GetFloatValue(EPlayerFields::PLAYER_FIELD_MOD_RESILIENCE_PERCENT));
 }
 
 // Melee based spells can be miss, parry or dodge on this step
@@ -19770,18 +19760,6 @@ float Unit::GetCombatRatingReduction(CombatRating cr) const
             return owner->GetRatingBonusValue(cr);
 
     return 0.0f;
-}
-
-uint32 Unit::GetCombatRatingDamageReduction(CombatRating cr, float cap, uint32 damage) const
-{
-    float percent = std::min(GetCombatRatingReduction(cr), cap);
-
-    if ((cr == CR_RESILIENCE_PLAYER_DAMAGE_TAKEN || cr == CR_RESILIENCE_CRIT_TAKEN) && ToPlayer())
-        percent -= ToPlayer()->GetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT);
-    else if ((cr == CR_RESILIENCE_PLAYER_DAMAGE_TAKEN || cr == CR_RESILIENCE_CRIT_TAKEN) && GetOwner() && GetOwner()->ToPlayer())
-        percent -= GetOwner()->ToPlayer()->GetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT);
-
-    return CalculatePct(damage, percent);
 }
 
 uint32 Unit::GetModelForForm(ShapeshiftForm form)

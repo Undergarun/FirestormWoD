@@ -2552,7 +2552,7 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
                 {
                     WorldPacket data(Opcodes::SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
                     data.appendPackGUID(GetGUID());
-                    data << uint8(1);
+                    data << uint8(CooldownFlags::CooldownFlagNone);
                     data << uint32(1);
                     data << uint32(spellid);
                     data << uint32(l_Cooldown);
@@ -2606,7 +2606,7 @@ void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs
         }
 
         // Not send cooldown for this spells
-        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
         if ((spellInfo->PreventionType & (SpellPreventionMask::Silence)) == 0)

@@ -1230,7 +1230,7 @@ namespace MS { namespace Garrison
             l_Data << uint32(l_Mission->OfferTime);
             l_Data << uint32(l_Mission->OfferMaxDuration);
             l_Data << uint32(l_Mission->StartTime);
-            l_Data << uint32(0);
+            l_Data << uint32(0);                            ///< TravelDuration
             l_Data << uint32(l_MissionTemplate->Duration);
             l_Data << uint32(l_Mission->State);
 

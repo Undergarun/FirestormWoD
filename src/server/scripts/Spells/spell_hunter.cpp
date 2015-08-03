@@ -272,7 +272,7 @@ class spell_hun_enhanced_basic_attacks : public SpellScriptLoader
 
                         WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
                         l_Data.appendPackGUID(l_Caster->GetGUID());
-                        l_Data << uint8(1);
+                        l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
                         l_Data << uint32(1);
                         l_Data << uint32(l_SpellID);
                         l_Data << uint32(0);
@@ -3129,6 +3129,11 @@ class spell_hun_tame_beast: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_tame_beast_SpellScript);
 
+            enum eCreature
+            {
+                Chimaeron = 43296
+            };
+
             SpellCastResult CheckCast()
             {
                 int8 l_ResultId = -1;
@@ -3154,6 +3159,13 @@ class spell_hun_tame_beast: public SpellScriptLoader
                         l_ResultId = PET_TAME_ERROR_CANT_CONTROL_EXOTIC;
                     else if (!l_Target->GetCreatureTemplate()->isTameable(l_Player->CanTameExoticPets()))
                         l_ResultId = PET_TAME_ERROR_NOT_TAMEABLE;
+                }
+
+                /// Chimaeron can be tamed but only at 20%
+                if (l_Target->GetEntry() == eCreature::Chimaeron && l_Target->GetHealthPct() > 20.0f)
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CHIMAERON_IS_TOO_CALM_TO_TAME);
+                    return SPELL_FAILED_CUSTOM_ERROR;
                 }
 
                 if (l_ResultId >= 0)

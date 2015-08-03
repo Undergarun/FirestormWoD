@@ -305,22 +305,30 @@ void WorldSession::HandleGuildPermissionsQueryOpcode(WorldPacket& /* recvData */
         l_Guild->SendPermissions(this);
 }
 
-/// Called when clicking on Guild bank gameobject
+/// Called when clicking on Guild bank gameobject or Banker NpC
 void WorldSession::HandleGuildBankActivate(WorldPacket& p_Packet)
 {
-    uint64 l_Banker = 0;
+    uint64 l_Banker   = 0;
     bool l_FullUpdate = false;
 
     p_Packet.readPackGUID(l_Banker);
     l_FullUpdate = p_Packet.ReadBit();  ///< 0 = only slots updated in last operation are shown. 1 = all slots updated
 
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+    if (IS_GAMEOBJECT_GUID(l_Banker))
     {
-        if (Guild* l_Guild = _GetPlayerGuild(this))
-            l_Guild->SendBankList(this, 0, true, true);
-        else
-            Guild::SendCommandResult(this, GUILD_BANK, ERR_GUILD_PLAYER_NOT_IN_GUILD);
+        if (!m_Player->GetGameObjectIfCanInteractWith(l_Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+            return;
     }
+    else if (IS_UNIT_GUID(l_Banker))
+    {
+        if (!m_Player->GetNPCIfCanInteractWith(l_Banker, UNIT_NPC_FLAG_GUILD_BANKER))
+            return;
+    }
+
+    if (Guild* l_Guild = _GetPlayerGuild(this))
+        l_Guild->SendBankList(this, 0, true, true);
+    else
+        Guild::SendCommandResult(this, GUILD_BANK, ERR_GUILD_PLAYER_NOT_IN_GUILD);
 }
 
 // Called when opening guild bank tab only (first one)
@@ -600,11 +608,11 @@ void WorldSession::HandleRequestGuildRewardsListOpcode(WorldPacket& p_Packet)
 
         for (uint32 l_Iter = 0; l_Iter < l_Rewards.size(); l_Iter++)
         {
-            l_Data << uint32(l_Rewards[l_Iter].Entry);                      ///<
-            l_Data << uint32(0);                                            ///<
+            l_Data << uint32(l_Rewards[l_Iter].Entry);                      ///< ItemID
+            l_Data << uint32(0);                                            ///< Unk
             l_Data << uint32(l_Rewards[l_Iter].AchievementId > 0 ? 1 : 0);  ///< AchievementsRequired
             l_Data << uint32(l_Rewards[l_Iter].Racemask);                   ///< RaceMask
-            l_Data << uint32(0);                                            ///<
+            l_Data << uint32(0);                                            ///< MinGuildLevel
             l_Data << uint32(l_Rewards[l_Iter].Standing);                   ///< MinGuildRep
             l_Data << uint64(l_Rewards[l_Iter].Price);                      ///< Cost
 

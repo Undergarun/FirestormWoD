@@ -2317,6 +2317,29 @@ bool Item::HasItemBonus(uint32 p_ItemBonusId) const
     return false;
 }
 
+bool Item::HasItemBonusType(ItemBonusType p_Type) const
+{
+    std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
+    for (auto& l_Bonus : l_BonusList)
+    {
+        std::vector<ItemBonusEntry const*> const* l_Bonuses = GetItemBonusesByID(l_Bonus);
+        if (l_Bonuses == nullptr)
+            continue;
+
+        for (uint32 l_I = 0; l_I < l_Bonuses->size(); ++l_I)
+        {
+            ItemBonusEntry const* l_ItemSubBonus = (*l_Bonuses)[l_I];
+            if (!l_ItemSubBonus)
+                continue;
+
+            if (l_ItemSubBonus->Type == p_Type)
+                return true;
+        }
+    }
+
+    return false;
+}
+
 bool Item::RemoveItemBonus(uint32 p_ItemBonusId)
 {
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();

@@ -602,7 +602,7 @@ bool Group::AddMember(Player* p_Player)
     return true;
 }
 
-bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_REMOVEMETHOD_DEFAULT*/, uint64 p_Kicker /*= 0*/, const char * p_Reason /*= NULL*/)
+bool Group::RemoveMember(uint64 p_Guid, RemoveMethod const& p_Method /*= GROUP_REMOVEMETHOD_DEFAULT*/, uint64 p_Kicker /*= 0*/, char const* p_Reason /*= NULL*/)
 {
     BroadcastGroupUpdate();
 
@@ -756,9 +756,11 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
     /// If group size before player removal <= 2 then disband it
     else
     {
-        Disband();
+        /// Don't display "You have been removed from group" if player removes himself
+        Disband(p_Method == RemoveMethod::GROUP_REMOVEMETHOD_LEAVE);
         return false;
     }
+
     return true;
 }
 

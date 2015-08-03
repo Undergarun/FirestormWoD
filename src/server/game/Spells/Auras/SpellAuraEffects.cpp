@@ -875,6 +875,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     int32 l_Combo = caster->GetPower(Powers::POWER_COMBO_POINT);
                     float l_AttackPower = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
+                    /// 1 tick = Combo Points * (0.0685 * Attack power) * 0.5
                     amount += l_Combo * int32(l_AttackPower * 0.0685f); ///< last update 6.1.2 Build 19865
                 }
                 case 15407: // Mind Flay
@@ -1253,8 +1254,15 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
     /// Apply Mastery: Discipline Shield
     if (p_Caster->HasAura(77484))
     {
-        float l_Mastery = p_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+        float l_Mastery = p_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f; ///< last update: 6.1.2
         l_TotalMod += l_Mastery;
+    }
+
+    /// Fix Grace applying twice for Divine Aegis (as it affects both heal and absorption and Divine Aegis procs from heal)
+    if (GetId() == 47753) ///< Divine Aegis
+    {
+        if (AuraEffectPtr l_Grace = p_Caster->GetAuraEffect(47517, SpellEffIndex::EFFECT_1))
+            l_TotalMod -= l_Grace->GetAmount();
     }
 
     p_Amount += CalculatePct(p_Amount, l_TotalMod);
@@ -5039,7 +5047,7 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
             l_Player->UpdateManaRegen();
             break;
         case POWER_RUNES:
-            l_Player->UpdateAllRunesRegen();
+            l_Player->UpdateRuneRegen(RuneType(GetMiscValueB()));
             break;
         case POWER_ENERGY:
             l_Player->UpdateEnergyRegen();

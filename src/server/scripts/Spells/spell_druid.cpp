@@ -2397,16 +2397,13 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster || l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
-
                 if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(Eclipse::Spell::Eclipse, EFFECT_0))
                 {
                     float l_BonusSolarSpells = 0.0f;
                     float l_BonusLunarSpells = 0.0f;
                     float l_DamageModPCT = l_Aura->GetAmount();
-
-                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_1))
-                        l_DamageModPCT += l_Caster->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * (l_AurEff->GetAmount() / 100);
-
+                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_0))
+                        l_DamageModPCT += (float)l_AurEff->GetAmount();
                     float l_Eclipse = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
 
                     /// Eclipse amount egal 0, each school have the same bonus
@@ -2489,8 +2486,8 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                     float l_BonusLunarSpells = 0.0f;
                     float l_DamageModPCT = l_Aura->GetAmount();
 
-                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_1))
-                        l_DamageModPCT += l_Caster->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * (l_AurEff->GetAmount() / 100);
+                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_0))
+                        l_DamageModPCT += l_AurEff->GetAmount();
 
                     float l_Eclipse = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
 
