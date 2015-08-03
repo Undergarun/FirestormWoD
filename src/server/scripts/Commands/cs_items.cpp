@@ -16,10 +16,10 @@ class items_commandscript : public CommandScript
         {
             static ChatCommand s_ItemCommandTable[] =
             {
-                { "getslots",       SEC_ADMINISTRATOR,  false, &HandleItemGetSlotsCommand,          "", NULL },
-                { "addbonus",       SEC_ADMINISTRATOR,  false, &HandleItemAddBonusCommand,          "", NULL },
-                { "removebonus",    SEC_ADMINISTRATOR,  false, &HandleItemRemoveBonusCommand,       "", NULL },
-                { "clearbonuses",   SEC_ADMINISTRATOR,  false, &HandleItemClearBonusesCommand,      "", NULL },
+                { "getslots",       SEC_GAMEMASTER,  false, &HandleItemGetSlotsCommand,          "", NULL },
+                { "addbonus",       SEC_GAMEMASTER,  false, &HandleItemAddBonusCommand,          "", NULL },
+                { "removebonus",    SEC_GAMEMASTER,  false, &HandleItemRemoveBonusCommand,       "", NULL },
+                { "clearbonuses",   SEC_GAMEMASTER,  false, &HandleItemClearBonusesCommand,      "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                                "", NULL }
             };
             
