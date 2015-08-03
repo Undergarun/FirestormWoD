@@ -1224,9 +1224,32 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             amount = AbsorbBonusDone(caster, amount);
             amount = AbsorbBonusTaken(caster, amount);
 
+            bool l_IsCrit = false;
+
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
+            {
+                l_IsCrit = true;
                 amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
+            }
+
+            /// Multistrike
+            Player* l_ModOwner = caster->GetSpellModOwner();
+
+            if (caster->IsSpellMultistrike(m_spellInfo) &&
+                (m_spellInfo->Id == 17 || m_spellInfo->Id == 152118 || m_spellInfo->Id == 114908))
+            {
+                uint8 l_ProcTimes = ((caster->GetMap() && caster->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
+                for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
+                {
+                    uint32 l_MultistrikeAbsorbAmount = caster->GetMultistrikeBasePoints(amount);
+
+                    if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
+                        l_MultistrikeAbsorbAmount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
+
+                    amount += l_MultistrikeAbsorbAmount;
+                }
+            }
         }
     }
 
