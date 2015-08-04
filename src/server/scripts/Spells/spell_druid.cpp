@@ -3489,18 +3489,17 @@ class spell_dru_rake: public SpellScriptLoader
 
             void HandleOnPrepare()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->HasAura(eSpells::KingOfTheJungle) || l_Caster->HasStealthAura())
-                        m_isStealthedOrKingOfTheJungle = true;
+                Unit* l_Caster = GetCaster();
 
-                    if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
-                    {
-                        if (m_isStealthedOrKingOfTheJungle)
-                            l_ImprovedRake->GetEffect(1)->SetAmount(1);
-                        else
-                            l_ImprovedRake->GetEffect(1)->SetAmount(0);
-                    }
+                if (l_Caster->HasAura(eSpells::KingOfTheJungle) || l_Caster->HasStealthAura())
+                    m_isStealthedOrKingOfTheJungle = true;
+
+                if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
+                {
+                    if (m_isStealthedOrKingOfTheJungle)
+                        l_ImprovedRake->GetEffect(EFFECT_1)->SetAmount(1);
+                    else
+                        l_ImprovedRake->GetEffect(EFFECT_1)->SetAmount(0);
                 }
             }
 
@@ -3508,41 +3507,29 @@ class spell_dru_rake: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+                if (!l_Caster || !l_Target)
+                    return;
 
-                if (l_Target && l_Caster)
+                if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
                 {
-                    if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
-                    {
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BloodTalons->GetEffect(EFFECT_0)->GetAmount()));
-                        l_BloodTalons->DropCharge();
-                    }
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BloodTalons->GetEffect(EFFECT_0)->GetAmount()));
+                    l_BloodTalons->DropCharge();
                 }
 
-                if (l_Target && l_Caster)
+                if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
                 {
-                    if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
-                    {
-                        if (m_isStealthedOrKingOfTheJungle)
-                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetEffect(0)->GetAmount()));
-                    }
+                    if (m_isStealthedOrKingOfTheJungle)
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetEffect(EFFECT_0)->GetAmount()));
                 }
 
-                if (l_Target && l_Caster && m_isStealthedOrKingOfTheJungle)
+                if (m_isStealthedOrKingOfTheJungle)
                 {
                     l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                    {
-                        uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                        l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
-
-                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
-
-                        l_Caster->ClearComboPoints();
-                        l_Caster->AddComboPoints(l_ComboPointsBefore);
-                    }
+                        if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
+                            l_SavageRoar->SetDuration(l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS);
                 }
-
             }
 
             void Register()
@@ -3700,15 +3687,8 @@ class spell_dru_shred: public SpellScriptLoader
                         l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_3].BasePoints);
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                    {
-                        uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                        l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
-
-                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
-
-                        l_Caster->ClearComboPoints();
-                        l_Caster->AddComboPoints(l_ComboPointsBefore);
-                    }
+                        if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
+                            l_SavageRoar->SetDuration(l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS);
                 }
 
                 if (l_Target && l_Target->HasAuraState(AURA_STATE_BLEEDING) && sSpellMgr->GetSpellInfo(eSpells::Swipe))
