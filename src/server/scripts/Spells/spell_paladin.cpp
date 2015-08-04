@@ -2729,6 +2729,7 @@ class spell_pal_sword_of_light : public SpellScriptLoader
 /// last update : 6.1.2 19802
 /// Call by Hand of Freedom - 1044
 /// Glyph of the Liberator - 159573
+/// Glyph of Hand of Freedom - 159583
 class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
 {
     public:
@@ -2740,7 +2741,8 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphoftheLiberator = 159573
+                GlyphoftheLiberator = 159573,
+                GlyphofHandofFreedom = 159583
             };
 
             void HandleAfterHit()
@@ -2751,10 +2753,7 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
                 if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
-                if (!l_Player->HasAura(eSpells::GlyphoftheLiberator))
-                    return;
-
-                if (l_Target->GetGUID() != l_Player->GetGUID())
+                if (l_Player->HasAura(eSpells::GlyphoftheLiberator) && l_Target->GetGUID() != l_Player->GetGUID())
                 {
                     if (!l_Player->HasSpellCooldown(GetSpellInfo()->Id))
                         return;
@@ -2762,6 +2761,9 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
                     if (AuraEffectPtr l_AuraEffect = l_Player->GetAuraEffect(eSpells::GlyphoftheLiberator, EFFECT_0))
                         l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
                 }
+
+                if (l_Player->HasAura(eSpells::GlyphofHandofFreedom))
+                    l_Player->CastSpell(l_Target, eSpells::GlyphofHandofFreedom, true);
             }
 
             void Register()
