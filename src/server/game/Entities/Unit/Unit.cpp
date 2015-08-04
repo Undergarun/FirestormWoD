@@ -12062,12 +12062,17 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
 
 bool Unit::IsSpellMultistrike(SpellInfo const* p_SpellProto) const
 {
+    if (GetTypeId() != TYPEID_PLAYER)
+        return false;
     /// Pet can multistrike too with same chance as owner
     return roll_chance_f(GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE));
 }
 
 uint32 Unit::GetMultistrikeBasePoints(uint32 p_Damage) const
 {
+    if (GetTypeId() != TYPEID_PLAYER)
+        return 0;
+
     return (p_Damage * GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT));
 }
 
