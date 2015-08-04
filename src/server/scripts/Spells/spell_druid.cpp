@@ -3531,18 +3531,15 @@ class spell_dru_rake: public SpellScriptLoader
                 {
                     l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
 
-                    if (!l_Caster->HasAura(eSpells::KingOfTheJungle))
+                    if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                     {
-                        if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                        {
-                            uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                            l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
+                        uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                        l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
 
-                            l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
 
-                            l_Caster->ClearComboPoints();
-                            l_Caster->AddComboPoints(l_ComboPointsBefore);
-                        }
+                        l_Caster->ClearComboPoints();
+                        l_Caster->AddComboPoints(l_ComboPointsBefore);
                     }
                 }
 
@@ -3702,18 +3699,15 @@ class spell_dru_shred: public SpellScriptLoader
                     if (l_SpellInfo != nullptr)
                         l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_3].BasePoints);
 
-                    if (!l_Caster->HasAura(eSpells::KingOfTheJungle))
+                    if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                     {
-                        if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                        {
-                            uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                            l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
+                        uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                        l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
 
-                            l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
 
-                            l_Caster->ClearComboPoints();
-                            l_Caster->AddComboPoints(l_ComboPointsBefore);
-                        }
+                        l_Caster->ClearComboPoints();
+                        l_Caster->AddComboPoints(l_ComboPointsBefore);
                     }
                 }
 
