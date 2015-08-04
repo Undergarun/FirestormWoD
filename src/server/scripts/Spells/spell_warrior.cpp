@@ -1366,24 +1366,11 @@ class spell_warr_intervene: public SpellScriptLoader
 
             enum eSpells
             {
-                InterveneAura = 34784
+                InterveneAura = 34784,
+                InterveneCharge = 147833
             };
 
-            SpellCastResult CheckCastRange()
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-
-                if (l_Target == nullptr)
-                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
-
-                if (l_Caster->GetDistance(l_Target) > GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend)
-                    return SpellCastResult::SPELL_FAILED_OUT_OF_RANGE;
-
-                return SpellCastResult::SPELL_CAST_OK;
-            }
-
-            void HandleOnHit()
+            void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -1392,12 +1379,12 @@ class spell_warr_intervene: public SpellScriptLoader
                     return;
                 
                 l_Caster->CastSpell(l_Target, eSpells::InterveneAura, true);
+                l_Caster->CastSpell(l_Target, eSpells::InterveneCharge, true);
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_warr_intervene_SpellScript::CheckCastRange);
-                OnHit += SpellHitFn(spell_warr_intervene_SpellScript::HandleOnHit);
+                OnCast += SpellCastFn(spell_warr_intervene_SpellScript::HandleOnCast);
             }
         };
 
