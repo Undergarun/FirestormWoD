@@ -6,6 +6,9 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ScriptMgr.h"
+#include "Chat.h"
+
 class items_commandscript : public CommandScript
 {
     public:
