@@ -11568,11 +11568,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
-    // Sword of Light - 53503
-    // Increases damage of Hammer of Wrath and Judgement too
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && (spellProto->Id == 20271 || spellProto->Id == 24275 || spellProto->Id == 158392))
-         DoneTotal += CalculatePct(pdamage, 25);
-
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
 
     // done scripted mod (take it from owner)
@@ -12062,7 +12057,7 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
 
 bool Unit::IsSpellMultistrike(SpellInfo const* p_SpellProto) const
 {
-    if (GetTypeId() != TYPEID_PLAYER)
+    if (GetSpellModOwner() == nullptr)
         return false;
     /// Pet can multistrike too with same chance as owner
     return roll_chance_f(GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE));
@@ -12070,7 +12065,7 @@ bool Unit::IsSpellMultistrike(SpellInfo const* p_SpellProto) const
 
 uint32 Unit::GetMultistrikeBasePoints(uint32 p_Damage) const
 {
-    if (GetTypeId() != TYPEID_PLAYER)
+    if (GetSpellModOwner() == nullptr)
         return 0;
 
     return (p_Damage * GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT));

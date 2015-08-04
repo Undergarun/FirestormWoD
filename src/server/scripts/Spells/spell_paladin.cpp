@@ -2681,6 +2681,51 @@ class spell_pal_gyph_of_contemplation : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Sword of Light - 53503
+class spell_pal_sword_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_sword_of_light() : SpellScriptLoader("spell_pal_sword_of_light") { }
+
+        class spell_pal_sword_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_sword_of_light_AuraScript);
+
+            enum eSpells
+            {
+                SwordOfLightBonus = 20113
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (!l_Target->HasAura(eSpells::SwordOfLightBonus))
+                    l_Target->CastSpell(l_Target, eSpells::SwordOfLightBonus, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::SwordOfLightBonus))
+                    l_Target->RemoveAurasDueToSpell(eSpells::SwordOfLightBonus);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sword_of_light_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sword_of_light_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_sword_of_light_AuraScript();
+        }
+};
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -2761,6 +2806,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sanctified_wrath_bonus();
     new spell_pal_selfless_healer_proc();
     new spell_pal_gyph_of_contemplation();
+    new spell_pal_sword_of_light();
 
     // Player Script
     new PlayerScript_empowered_divine_storm();
