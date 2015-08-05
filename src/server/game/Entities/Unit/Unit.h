@@ -2392,6 +2392,7 @@ class Unit : public WorldObject
         bool   IsSpellMultistrike(SpellInfo const* p_SpellProto) const;
         uint32 GetMultistrikeBasePoints(uint32 p_Damage) const;
         void   ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType = WeaponAttackType::BaseAttack, SpellInfo const* p_ProcAura = NULL, constAuraEffectPtr p_OwnerAuraEffect = NULL);
+        void   ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int32& p_Amount);
         bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
         bool   IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolMask) const;
         float  GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;

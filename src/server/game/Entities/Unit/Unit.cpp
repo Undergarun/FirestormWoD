@@ -12077,6 +12077,26 @@ uint32 Unit::GetMultistrikeBasePoints(uint32 p_Damage) const
     return (p_Damage * GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT));
 }
 
+void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int32& p_Amount)
+{
+    Player* l_ModOwner = GetSpellModOwner();
+
+    if (IsSpellMultistrike(p_ProcSpell) &&
+        (p_ProcSpell->Id == 17 || p_ProcSpell->Id == 152118 || p_ProcSpell->Id == 114908))
+    {
+        uint8 l_ProcTimes = (p_Target->GetSpellModOwner() != nullptr) ? 1 : 2;
+        for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
+        {
+            uint32 l_MultistrikeAbsorbAmount = GetMultistrikeBasePoints(p_Amount);
+
+            if (IsAuraAbsorbCrit(p_ProcSpell, p_ProcSpell->GetSchoolMask()))
+                l_MultistrikeAbsorbAmount = SpellCriticalAuraAbsorbBonus(p_ProcSpell, p_Amount);
+
+            p_Amount += l_MultistrikeAbsorbAmount;
+        }
+    }
+}
+
 void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType /* = WeaponAttackType::BaseAttack*/ , SpellInfo const* p_ProcAura /*= NULL*/, constAuraEffectPtr p_OwnerAuraEffect /*= NULL*/)
 {
     /// ...the chance to activate up to two extra times (depending if PvE or PvP) at X% of normal effectiveness
