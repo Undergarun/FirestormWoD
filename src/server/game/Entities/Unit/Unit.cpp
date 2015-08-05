@@ -2394,6 +2394,13 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
             dmgInfo.AbsorbDamage(splitDamage);
 
+            // check if caster is immune to damage
+            if (caster->IsImmunedToDamage(schoolMask))
+            {
+                victim->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                continue;
+            }
+
             // don't damage caster if he has immunity
             if (caster->IsImmunedToDamage((*itr)->GetSpellInfo()))
                 continue;
