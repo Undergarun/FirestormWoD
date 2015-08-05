@@ -2762,17 +2762,19 @@ class spell_dru_shooting_stars : public SpellScriptLoader
 
             enum eSpells
             {
-                CategoryID = 1485
+                Starsurge = 78674
             };
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    /// Recover one charge of Starfall and Starsurge (share same charges category)
-                    if (ChargesData* l_Charges = l_Player->GetChargesData(eSpells::CategoryID))
-                        l_Player->RestoreCharge(eSpells::CategoryID);
-                }
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                /// Shooting Stars restores 1 charge of Starsurge and Starfall. (share same charges category)
+                if (SpellInfo const* l_Starsurge = sSpellMgr->GetSpellInfo(eSpells::Starsurge))
+                    if (SpellCategoriesEntry const* l_StarsurgeCategories = l_Starsurge->GetSpellCategories())
+                        l_Player->RestoreCharge(l_StarsurgeCategories->ChargesCategory);
             }
 
             void Register()
@@ -4621,26 +4623,26 @@ public:
 
         enum eSpells
         {
-            CategoryID = 1485,
-            STARSURGE = 78674,
-            DRUID_WOD_PVP_BALANCE_2P_BONUS = 165701
+            Starsurge = 78674,
+            WoDPvPBalance2PBonus = 165701
         };
 
         void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-            {
-                if (l_Player->HasAura(eSpells::DRUID_WOD_PVP_BALANCE_2P_BONUS))
-                {
-                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    /// When Entangling Roots is dispelled or broken by damage, you gain 1 charge of Starsurge.
-                    if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL)
-                    {
-                        if (ChargesData* l_Charges = l_Player->GetChargesData(eSpells::CategoryID))
-                            l_Player->RestoreCharge(eSpells::CategoryID);
-                    }
-                }
-            }
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            if (!l_Player->HasAura(eSpells::WoDPvPBalance2PBonus))
+                return;
+
+            /// When Entangling Roots is dispelled or broken by damage, you gain 1 charge of Starsurge.
+            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+                return;
+
+            if (SpellInfo const* l_Starsurge = sSpellMgr->GetSpellInfo(eSpells::Starsurge))
+                if (SpellCategoriesEntry const* l_StarsurgeCategories = l_Starsurge->GetSpellCategories())
+                    l_Player->RestoreCharge(l_StarsurgeCategories->ChargesCategory);
         }
 
         void Register()

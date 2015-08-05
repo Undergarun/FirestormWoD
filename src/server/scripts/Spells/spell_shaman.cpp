@@ -48,7 +48,6 @@ enum ShamanSpells
     SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE       = 26364,
     SPELL_SHA_HEALING_STREAM                    = 52042,
     SPELL_SHA_GLYPH_OF_HEALING_STREAM           = 119523,
-    SPELL_SHA_LAVA_SURGE_CAST_TIME              = 77762,
     SPELL_SHA_FULMINATION                       = 88766,
     SPELL_SHA_FULMINATION_TRIGGERED             = 88767,
     SPELL_SHA_FULMINATION_INFO                  = 95774,
@@ -1135,9 +1134,9 @@ class spell_sha_lava_surge: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_lava_surge_AuraScript);
 
-            enum eData
+            enum eSpells
             {
-                CategoryID = 1536
+                LavaBurst = 51505
             };
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
@@ -1149,7 +1148,9 @@ class spell_sha_lava_surge: public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                l_Player->RestoreCharge(eData::CategoryID);
+                if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
+                    if (SpellCategoriesEntry const* l_LavaBurstCategories = l_LavaBurst->GetSpellCategories())
+                        l_Player->RestoreCharge(l_LavaBurstCategories->ChargesCategory);
             }
 
             void Register()
@@ -2031,9 +2032,9 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_improoved_flame_shock_AuraScript);
 
-            enum eData
+            enum eSpells
             {
-                CategoryIDLavaLash = 1538
+                LavaLash = 60103
             };
 
             void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -2041,7 +2042,6 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* l_Caster = GetCaster();
-
                 if (l_Caster == nullptr)
                     return;
 
@@ -2052,11 +2052,12 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
                     return;
 
                 Player* l_Player = l_Caster->ToPlayer();
-
                 if (l_Player == nullptr)
                     return;;
 
-                l_Player->RestoreCharge(eData::CategoryIDLavaLash);
+                if (SpellInfo const* l_LavaLash = sSpellMgr->GetSpellInfo(eSpells::LavaLash))
+                    if (SpellCategoriesEntry const* l_LavaLashCategories = l_LavaLash->GetSpellCategories())
+                        l_Player->RestoreCharge(l_LavaLashCategories->ChargesCategory);
             }
 
             void Register()
@@ -2446,6 +2447,11 @@ class spell_sha_lava_burst: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_lava_burst_SpellScript);
 
+            enum eSpells
+            {
+                LavaSurge = 77762
+            };
+
             void HitTarget(SpellEffIndex)
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -2475,12 +2481,12 @@ class spell_sha_lava_burst: public SpellScriptLoader
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
-
-                if (l_Player == nullptr)
+                if (!l_Player)
                     return;
 
-                if (l_Player->HasAura(SPELL_SHA_LAVA_SURGE_CAST_TIME))
-                    l_Player->RestoreCharge(1536);
+                if (SpellInfo const* l_LavaSurge = sSpellMgr->GetSpellInfo(eSpells::LavaSurge))
+                    if (SpellCategoriesEntry const* l_LavaSurgeCategories = l_LavaSurge->GetSpellCategories())
+                        l_Player->RestoreCharge(l_LavaSurgeCategories->ChargesCategory);
             }
 
             void Register()

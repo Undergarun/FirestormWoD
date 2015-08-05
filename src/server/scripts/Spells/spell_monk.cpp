@@ -1879,21 +1879,24 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
 
             enum eSpells
             {
-                PoolOfMists = 173841,
-                JadeMists = 165397,
-                CatergoryID = 1517
+                RenewingMist = 115151,
+                JadeMists    = 165397,
+                PoolOfMists  = 173841
             };
 
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
-
                 if (l_Player == nullptr)
                     return;
 
                 /// Your Renewing Mist have a chance equal to your multistrike chance to not go on cooldown when used
                 if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
-                    l_Player->RestoreCharge(eSpells::CatergoryID);
+                {
+                    if (SpellInfo const* l_RenewingMist = sSpellMgr->GetSpellInfo(eSpells::RenewingMist))
+                        if (SpellCategoriesEntry const* l_RenewingMistCategories = l_RenewingMist->GetSpellCategories())
+                            l_Player->RestoreCharge(l_RenewingMistCategories->ChargesCategory);
+                }
             }
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
@@ -4321,20 +4324,23 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
             enum eSpells
             {
-                JadeMists = 165397,
-                CatergoryID = 1518
+                RisingSunKick = 107428,
+                JadeMists     = 165397
             };
 
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
-
                 if (l_Player == nullptr)
                     return;
-                
+
                 /// Your Rising Sun Kick have a chance equal to your multistrike chance to not go on cooldown when used
                 if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
-                    l_Player->RestoreCharge(eSpells::CatergoryID);
+                {
+                    if (SpellInfo const* l_RisingSunKick = sSpellMgr->GetSpellInfo(eSpells::RisingSunKick))
+                        if (SpellCategoriesEntry const* l_RisingSunKickCategories = l_RisingSunKick->GetSpellCategories())
+                            l_Player->RestoreCharge(l_RisingSunKickCategories->ChargesCategory);
+                }
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
@@ -5068,22 +5074,21 @@ public:
 
         enum eSpells
         {
-            CatergoryID = 1365
+            Roll = 109132
         };
 
         void OnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& /*p_EventInfo*/)
         {
-            Unit* l_Caster = GetCaster();
-
-            if (l_Caster == nullptr)
+            if (GetCaster() == nullptr)
                 return;
 
             Player* l_Player = l_Caster->ToPlayer();
-
             if (l_Player == nullptr)
                 return;
 
-            l_Player->RestoreCharge(eSpells::CatergoryID);
+            if (SpellInfo const* l_Roll = sSpellMgr->GetSpellInfo(eSpells::Roll))
+                if (SpellCategoriesEntry const* l_RollCategories = l_Roll->GetSpellCategories())
+                    l_Player->RestoreCharge(l_RollCategories->ChargesCategory);
         }
 
         void Register()
