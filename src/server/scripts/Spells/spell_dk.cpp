@@ -2001,6 +2001,8 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                     return;
 
                 Player* l_Player = l_Caster->ToPlayer();
+                if (!l_Player)
+                    return;
 
                 if (l_Caster->GetGUID() == l_Target->GetGUID() && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DK_BLOOD)
                     l_Caster->CastSpell(l_Caster, DK_SPELL_NECROTIC_PLAGUE_ENERGIZE, true);
