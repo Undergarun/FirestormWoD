@@ -1774,11 +1774,23 @@ class spell_monk_enveloping_mist: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_enveloping_mist_SpellScript);
 
+            enum eSpells
+            {
+                MonkWoDPvPMistweaver2PBonus = 170799,
+                MonkWoDPvPMistweaver2PBonusEffect = 170808
+            };
+
             void HandleAfterCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetExplTargetUnit())
-                        _player->CastSpell(target, SPELL_MONK_ENVELOPING_MIST_HEAL, true);
+                Unit* l_Caster = GetCaster();
+
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                       l_Caster->CastSpell(l_Target, SPELL_MONK_ENVELOPING_MIST_HEAL, true);
+                       if (l_Caster->HasAura(eSpells::MonkWoDPvPMistweaver2PBonus))
+                           l_Caster->CastSpell(l_Target, eSpells::MonkWoDPvPMistweaver2PBonusEffect, true);
+
+                }
             }
 
             void HandleOnPrepare()
