@@ -5082,7 +5082,7 @@ public:
             if (GetCaster() == nullptr)
                 return;
 
-            Player* l_Player = l_Caster->ToPlayer();
+            Player* l_Player = GetCaster()->ToPlayer();
             if (l_Player == nullptr)
                 return;
 
