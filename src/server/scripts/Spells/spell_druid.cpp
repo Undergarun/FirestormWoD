@@ -3717,7 +3717,8 @@ enum SpellsFerociousBite
     SPELL_DRUID_RAKE_TRIGGERED = 155722,
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE = 67598,
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024,
-    SPELL_DRUID_BERSEK = 106951
+    SPELL_DRUID_BERSEK = 106951,
+    SPELL_DRUID_RIP = 1079
 };
 
 /// Ferocious Bite - 22568
@@ -3770,8 +3771,8 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
 
                 /// if target is under 25% of life, also reset rake duration
                 if (l_Target && l_Target->GetHealthPct() <= 25.0f)
-                if (AuraPtr l_Rake = l_Target->GetAura(SPELL_DRUID_RAKE_TRIGGERED))
-                    l_Rake->RefreshDuration();
+                if (AuraPtr l_Rip = l_Target->GetAura(SPELL_DRUID_RIP))
+                    l_Rip->RefreshDuration();
             }
 
             void Register()
