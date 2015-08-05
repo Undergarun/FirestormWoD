@@ -22990,7 +22990,7 @@ void Player::SaveToDB(bool create /*=false*/)
     SQLTransaction accountTrans = LoginDatabase.BeginTransaction();
 
     trans->Append(stmt);
-    
+
     if (m_Garrison)
         m_Garrison->Save(trans);    
 
