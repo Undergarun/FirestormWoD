@@ -798,7 +798,7 @@ enum SpellAttr9
     SPELL_ATTR9_SLAM                             = 0x00002000, // 13 Slam 1464, used in cast time calculation
     SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS    = 0x00004000, // 14 Can be used in Rated Battlegrounds
     SPELL_ATTR9_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS      = 0x00010000, // 16 Aimed Shot 19434, Steady Shot 56641, Cobra Shot 77767
+    SPELL_ATTR9_CAN_BE_CAST_WHILE_MOVING         = 0x00010000, // 16 Aimed Shot 19434, Steady Shot 56641, Cobra Shot 77767
     SPELL_ATTR9_UNK17                            = 0x00020000, // 17
     SPELL_ATTR9_UNK18                            = 0x00040000, // 18
     SPELL_ATTR9_UNK19                            = 0x00080000, // 19

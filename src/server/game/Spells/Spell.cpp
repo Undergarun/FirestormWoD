@@ -3582,7 +3582,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
     //Prevent casting at cast another spell (ServerSide check)
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count && (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster))
-        && (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (((m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS) == 0) || GetSpellInfo()->CalcCastTime(m_caster))))
+        && (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (GetSpellInfo()->CalcCastTime(m_caster))))
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
         finish(false);
@@ -5988,7 +5988,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
         // Can cast triggered (by aura only?) spells while have this flag
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY) &&
-            (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : ((m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS) == 0 || GetSpellInfo()->CalcCastTime(m_caster))) &&
+            (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (GetSpellInfo()->CalcCastTime(m_caster))) &&
             (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 
