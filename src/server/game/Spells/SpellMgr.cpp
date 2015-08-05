@@ -5270,6 +5270,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
                 spellInfo->OverrideSpellList.push_back(114029); ///< Add Safeguard to override spell list of Intervene
                 break;
+            case 157590: ///< Breath of the Serpent
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ALLY;
+                break;
             case 114029: ///< Safeguard
                 spellInfo->Effects[2].BasePoints = 100;
                 break;

@@ -1764,7 +1764,7 @@ class spell_monk_mana_tea_stacks: public SpellScriptLoader
         }
 };
 
-// Enveloping Mist - 124682
+/// Enveloping Mist - 124682
 class spell_monk_enveloping_mist: public SpellScriptLoader
 {
     public:
@@ -5103,8 +5103,123 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Breath of the Serpent - 157535
+class spell_monk_breath_of_the_serpent : public SpellScriptLoader
+{
+    public:
+        spell_monk_breath_of_the_serpent() : SpellScriptLoader("spell_monk_breath_of_the_serpent") { }
+
+        class spell_monk_breath_of_the_serpent_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_breath_of_the_serpent_SpellScript);
+
+            enum eSpells
+            {
+                BreathoftheSerpentHeal = 157590
+            };
+            
+            enum eNPCs
+            {
+                SerpentStatue = 60849
+            };
+
+            void HandleCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                std::list<Creature*> l_TempList;
+                std::list<Creature*> l_StatueList;
+                Creature* l_Statue = nullptr;
+
+                l_Player->GetCreatureListWithEntryInGrid(l_TempList, eNPCs::SerpentStatue, 100.0f);
+                l_Player->GetCreatureListWithEntryInGrid(l_StatueList, eNPCs::SerpentStatue, 100.0f);
+
+                /// Remove other players jade statue
+                for (std::list<Creature*>::iterator i = l_TempList.begin(); i != l_TempList.end(); ++i)
+                {
+                    Unit* l_Owner = (*i)->GetOwner();
+                    if (l_Owner && l_Owner->GetGUID() == l_Player->GetGUID() && (*i)->isSummon())
+                        continue;
+
+                    l_StatueList.remove((*i));
+                }
+
+                if (l_StatueList.size() == 1)
+                {
+                    for (auto itrBis : l_StatueList)
+                        l_Statue = itrBis;
+
+                    if (l_Statue && (l_Statue->isPet() || l_Statue->isGuardian()))
+                    {
+                        if (l_Statue->GetOwner() && l_Statue->GetOwner()->GetGUID() == l_Player->GetGUID())
+                        {
+                            l_Statue->SetOrientation(l_Statue->GetAngle(l_Player));
+                            l_Statue->CastSpell(l_Statue, eSpells::BreathoftheSerpentHeal, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_breath_of_the_serpent_SpellScript::HandleCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_breath_of_the_serpent_SpellScript();
+        }
+};
+
+/// Breath of the Serpent - 157590
+class spell_monk_breath_of_the_serpent_heal : public SpellScriptLoader
+{
+public:
+    spell_monk_breath_of_the_serpent_heal() : SpellScriptLoader("spell_monk_breath_of_the_serpent_heal") { }
+
+    class spell_monk_breath_of_the_serpent_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_breath_of_the_serpent_heal_SpellScript);
+
+        void HandleHeal(SpellEffIndex p_EffIndex)
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+
+            if (l_Target == nullptr)
+                return;
+
+            if (Unit* l_Owner = l_Caster->GetOwner())
+            {
+                int32 l_Heal = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC);
+                l_Heal = l_Owner->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, p_EffIndex, HEAL);
+                l_Heal = l_Target->SpellHealingBonusTaken(l_Owner, GetSpellInfo(), l_Heal, HEAL);
+                SetHitHeal(l_Heal);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monk_breath_of_the_serpent_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_breath_of_the_serpent_heal_SpellScript();
+    }
+};
+
+
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_breath_of_the_serpent_heal();
+    new spell_monk_breath_of_the_serpent();
     new spell_monk_glyph_of_victory_roll();
     new spell_monk_uplift();
     new spell_monk_rising_sun_kick();
