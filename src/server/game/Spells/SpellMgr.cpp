@@ -5285,6 +5285,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
+            case 13812: ///< Explosive Trap
+            case 3355: ///< Freezing Trap
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
+                break;
             case 84745: ///< Shallow Insight
             case 84746: ///< Moderate Insight
             case 84747: ///< Deep Insight
