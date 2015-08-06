@@ -7788,7 +7788,7 @@ void Spell::Delayed()
 
     /// Check pushback reduce
     /// Spellcasting delay is normally 500ms
-    int32 l_DelayTime = 150;
+    int32 l_DelayTime = 500;
 
     /// Must be initialized to 100 for percent modifiers
     int32 l_DelayReduce = 100;
