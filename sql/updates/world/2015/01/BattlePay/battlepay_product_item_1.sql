@@ -1,1 +1,0 @@
-ALTER TABLE `battlepay_product_item` DROP COLUMN `HasPet`; 

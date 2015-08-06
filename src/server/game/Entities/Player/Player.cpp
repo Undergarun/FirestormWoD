@@ -22727,9 +22727,6 @@ void Player::SaveToDB(bool create /*=false*/)
     PreparedStatement* stmt = NULL;
     uint8 index = 0;
 
-    if (m_Garrison)
-        m_Garrison->Save();
-
     if (create)
     {
         //! Insert query
@@ -22994,6 +22991,9 @@ void Player::SaveToDB(bool create /*=false*/)
     SQLTransaction accountTrans = LoginDatabase.BeginTransaction();
 
     trans->Append(stmt);
+
+    if (m_Garrison)
+        m_Garrison->Save(trans);    
 
     if (m_mailsUpdated)                                     //save mails only when needed
         _SaveMail(trans);
@@ -26295,6 +26295,8 @@ void Player::UpdatePotionCooldown(Spell* spell)
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else
         SendCooldownEvent(spell->m_spellInfo, m_lastPotionId, spell);
+
+    m_lastPotionId = 0;
 }
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)

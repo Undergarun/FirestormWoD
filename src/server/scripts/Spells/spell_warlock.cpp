@@ -1934,14 +1934,6 @@ class spell_warl_rain_of_fire_despawn: public SpellScriptLoader
         }
 };
 
-enum EmberTapSpells
-{
-    SPELL_WARL_EMBER_TAP = 114635,
-    SPELL_WARL_GLYPH_OF_EMBER_TAP = 63304,
-    SPELL_WARL_SEARING_FLAMES = 174848,
-    SPELL_WARL_ENHANCED_OF_EMBER_TAP = 157121
-};
-
 /// Ember Tap - 114635
 class spell_warl_ember_tap: public SpellScriptLoader
 {
@@ -1952,42 +1944,51 @@ class spell_warl_ember_tap: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_ember_tap_SpellScript);
 
+            enum eSpells
+            {
+                GlyphOfEmberTap   = 63304,
+                MasteryEmberstorm = 77220,
+                EnhancedEmberTap  = 157121,
+                SearingFlames     = 174848
+            };
+
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                if (!GetHitUnit())
-                return;
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                /// No instant heal with Glyph of Ember tap
+                if (AuraPtr l_GlyphOfEmberTap = l_Caster->GetAura(eSpells::GlyphOfEmberTap))
+                    return;
+
+                int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), GetEffectValue());
+
+                if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
                 {
-                    float pct = (float)(GetSpellInfo()->Effects[EFFECT_0].BasePoints) / 100;
+                    float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
+                    l_HealAmount += CalculatePct(l_HealAmount, l_MasteryPct);
+                }
 
-                    /// No instant heal with Glyph of Ember tap
-                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
-                        pct = 0;
+                if (AuraEffectPtr l_SearingFlames = l_Caster->GetAuraEffect(eSpells::SearingFlames, EFFECT_0))
+                {
+                    l_HealAmount += CalculatePct(l_HealAmount, l_SearingFlames->GetAmount());
+                    /// ManaCost == 0, wrong way to retrieve cost ?
+                    ///l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                    l_Caster->ModifyPower(POWER_BURNING_EMBERS, 5);
+                }
 
-                    int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
+                SetHitHeal(l_HealAmount);
 
-                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY);
-                    healAmount += CalculatePct(healAmount, Mastery);
+                /// Your Ember Tap also heals your pet demon for 20% as much.
+                if (AuraEffectPtr l_EnhancedEmberTap = l_Caster->GetAuraEffect(eSpells::EnhancedEmberTap, EFFECT_0))
+                {
+                    Player* l_Player = l_Caster->ToPlayer();
+                    if (!l_Player)
+                        return;
 
-                    if (AuraPtr l_SearingFlames = l_Player->GetAura(SPELL_WARL_SEARING_FLAMES))
-                    {
-                        healAmount *= 1 + (l_SearingFlames->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100.0f);
-
-                        /// ManaCost == 0, wrong way to retrieve cost ?
-                        ///l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
-                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5);
-                    }
-
-                    if (l_Player->HasAura(SPELL_WARL_ENHANCED_OF_EMBER_TAP))
-                    {
-                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_ENHANCED_OF_EMBER_TAP);
-                        Pet* l_Pet = l_Player->GetPet();
-
-                        if (l_Pet != nullptr && l_SpellInfo != nullptr)
-                            l_Player->HealBySpell(l_Pet, sSpellMgr->GetSpellInfo(139967), CalculatePct(healAmount, l_SpellInfo->Effects[EFFECT_0].BasePoints * 2), false, false);
-                    }
-                    SetHitHeal(healAmount);
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Player->HealBySpell(l_Pet, sSpellMgr->GetSpellInfo(139967), CalculatePct(l_HealAmount, l_EnhancedEmberTap->GetAmount()), false, false);
                 }
             }
 
@@ -2007,47 +2008,52 @@ class spell_warl_ember_tap: public SpellScriptLoader
 /// With Glyph of Ember Tap - 63304
 class spell_warl_ember_tap_glyph : public SpellScriptLoader
 {
-public:
-    spell_warl_ember_tap_glyph() : SpellScriptLoader("spell_warl_ember_tap_glyph") { }
+    public:
+        spell_warl_ember_tap_glyph() : SpellScriptLoader("spell_warl_ember_tap_glyph") { }
 
-    class spell_warl_ember_tap_glyph_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warl_ember_tap_glyph_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
+        class spell_warl_ember_tap_glyph_AuraScript : public AuraScript
         {
-            Unit* l_Caster = GetCaster();
+            PrepareAuraScript(spell_warl_ember_tap_glyph_AuraScript);
 
-            if (l_Caster == nullptr)
-                return;
-
-            /// Add amount of stackable % to health regen
-            if (AuraPtr l_EmberTap = l_Caster->GetAura(SPELL_WARL_EMBER_TAP, l_Caster->GetGUID()))
+            enum eSpells
             {
-                uint8 l_AmountStack = 0;
+                EmberTap = 114635
+            };
 
-                uint32 l_Duration = l_EmberTap->GetDuration();
-                uint32 l_BasePoints = l_EmberTap->GetEffect(2)->GetAmount();
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
 
-                if (l_Duration >= 6 * IN_MILLISECONDS)
-                    l_AmountStack = 2;
-                else
-                    l_AmountStack = 1;
+                if (l_Caster == nullptr)
+                    return;
 
-                p_Amount = l_BasePoints + l_AmountStack;
+                /// Add amount of stackable % to health regen
+                if (AuraPtr l_EmberTap = l_Caster->GetAura(eSpells::EmberTap, l_Caster->GetGUID()))
+                {
+                    uint8 l_AmountStack = 0;
+
+                    uint32 l_Duration = l_EmberTap->GetDuration();
+                    uint32 l_BasePoints = l_EmberTap->GetEffect(EFFECT_2)->GetAmount();
+
+                    if (l_Duration >= 6 * IN_MILLISECONDS)
+                        l_AmountStack = 2;
+                    else
+                        l_AmountStack = 1;
+
+                    p_Amount = l_BasePoints + l_AmountStack;
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_ember_tap_glyph_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_ember_tap_glyph_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH);
+            return new spell_warl_ember_tap_glyph_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warl_ember_tap_glyph_AuraScript();
-    }
 };
 
 /// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685

@@ -1622,9 +1622,10 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
     {
         if (m_spellAura->GetEffect(i) && m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_SCHOOL_ABSORB)
         {
-            int currentValue = m_spellAura->GetEffect(i)->GetAmount();
+            int32 l_CurrentValue = m_spellAura->GetEffect(i)->GetAmount();
+            m_caster->ProcAuraMultistrike(m_spellInfo, unitTarget, l_CurrentValue);
 
-            m_spellAura->GetEffect(i)->SetAmount(currentValue);
+            m_spellAura->GetEffect(i)->SetAmount(l_CurrentValue);
         }
     }
 

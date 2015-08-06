@@ -2681,6 +2681,103 @@ class spell_pal_gyph_of_contemplation : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Sword of Light - 53503
+class spell_pal_sword_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_sword_of_light() : SpellScriptLoader("spell_pal_sword_of_light") { }
+
+        class spell_pal_sword_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_sword_of_light_AuraScript);
+
+            enum eSpells
+            {
+                SwordOfLightBonus = 20113
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (!l_Target->HasAura(eSpells::SwordOfLightBonus))
+                    l_Target->CastSpell(l_Target, eSpells::SwordOfLightBonus, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::SwordOfLightBonus))
+                    l_Target->RemoveAurasDueToSpell(eSpells::SwordOfLightBonus);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sword_of_light_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sword_of_light_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_sword_of_light_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Call by Hand of Freedom - 1044
+/// Glyph of the Liberator - 159573
+/// Glyph of Hand of Freedom - 159583
+class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_the_liberator() : SpellScriptLoader("spell_pal_glyph_of_the_liberator") { }
+
+        class spell_pal_glyph_of_the_liberator_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_glyph_of_the_liberator_SpellScript);
+
+            enum eSpells
+            {
+                GlyphoftheLiberator = 159573,
+                GlyphofHandofFreedom = 159583
+            };
+
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eSpells::GlyphoftheLiberator) && l_Target->GetGUID() != l_Player->GetGUID())
+                {
+                    if (!l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                        return;
+
+                    if (AuraEffectPtr l_AuraEffect = l_Player->GetAuraEffect(eSpells::GlyphoftheLiberator, EFFECT_0))
+                        l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
+                }
+
+                if (l_Player->HasAura(eSpells::GlyphofHandofFreedom))
+                    l_Player->CastSpell(l_Target, eSpells::GlyphofHandofFreedom, true);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_pal_glyph_of_the_liberator_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_glyph_of_the_liberator_SpellScript();
+        }
+};
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -2761,6 +2858,8 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sanctified_wrath_bonus();
     new spell_pal_selfless_healer_proc();
     new spell_pal_gyph_of_contemplation();
+    new spell_pal_sword_of_light();
+    new spell_pal_glyph_of_the_liberator();
 
     // Player Script
     new PlayerScript_empowered_divine_storm();
