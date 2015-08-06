@@ -12,7 +12,7 @@ namespace TanaanQuests
     enum
     {
         QuestStartDraenor                    = 36881,
-        QuestDarkPortal                      = 34398,
+        QuestAzerothLastStand                = 35933,
         QuestOnslaughtEnd                    = 34392,
         QuestThePortalPower                  = 34393,
         QuestBledDryAlly                     = 35240,
@@ -37,7 +37,8 @@ namespace TanaanQuests
         QuestYrelTanaan                      = 34434,
         QuestTheBattleOfTheForge             = 34439,
         QuestTakingATripToTheTopOfTheTank    = 35747,
-        QuestGaNarOfTheFrostwolf             = 34442
+        QuestGaNarOfTheFrostwolf             = 34442,
+        QuestShadowOfTheWorldbreaker         = 34958
     };
 }
 
@@ -147,7 +148,7 @@ namespace TanaanKillCredits
         CreditEscortThaelin                  = 80887,
         CreditBoatsReached                   = 81024,
         CreditEnterWorldbreakerTurret        = 80929,
-        CreditMakeShiftPlunger               = 112323,
+        CreditMakeShiftPlunger               = 80520,
         CreditMainCannonTrigger              = 232538
     };
 }
