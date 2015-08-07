@@ -106,6 +106,18 @@ WHERE entry = 81809;
 
 UPDATE creature_model_info SET bounding_radius = 1.05, combat_reach = 5.25 WHERE modelid = 56639;
 
+# Phantasmal Weapon
+UPDATE creature_template SET
+    minlevel       = 102,
+    maxlevel       = 102,
+    faction        = 14,
+    dmg_multiplier = 4,
+    unit_class     = 8,
+    ScriptName     = 'npc_highmaul_phantasmal_weapon'
+WHERE entry = 87293;
+
+UPDATE creature_model_info SET bounding_radius = 1.125, combat_reach = 2.25 WHERE modelid = 60239;
+
 # Councilor Magknor <Gorian War Council>
 UPDATE creature_template SET
     minlevel       = 102,
@@ -125,7 +137,7 @@ UPDATE creature_template SET
     faction        = 14,
     unit_flags     = 33555200,
     unit_flags2    = 2048,
-    modelid1       = 11686;
+    modelid1       = 11686,
     modelid2       = 0,
     ScriptName     = 'npc_highmaul_arcane_torrent'
 WHERE entry = 87256;
@@ -165,8 +177,10 @@ WHERE entry = 77428;
 
 UPDATE creature_model_info SET bounding_radius = 1.2, combat_reach = 6 WHERE modelid = 54329;
 
+UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, flags_extra = 128 WHERE entry = 89185;
+
 # Equipments
-DELETE FROM creature_equip_template WHERE entry IN (87619, 87910, 81269, 86256, 81806, 81780, 81807, 81809, 81808, 81810, 81811);
+DELETE FROM creature_equip_template WHERE entry IN (87619, 87910, 81269, 86256, 81806, 81780, 81807, 81809, 81808, 81810, 81811, 87293);
 INSERT INTO creature_equip_template VALUES
 (87619, 1, 110457, 110457, 0),
 (87910, 1, 111046, 0, 0),
@@ -178,15 +192,17 @@ INSERT INTO creature_equip_template VALUES
 (81809, 1, 111743, 0, 0),
 (81808, 1, 111743, 0, 0),
 (81810, 1, 111743, 0, 0),
-(81811, 1, 111743, 0, 0);
+(81811, 1, 111743, 0, 0),
+(87293, 1, 79006, 79006, 0);
 
 DELETE FROM areatrigger_template WHERE spell_id = 175047;
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags, ScriptName) VALUE
 (175047, 0, 175047, 2, 1, 1, 0x4000, 'areatrigger_highmaul_arcane_residue');
 
-DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_unstable_tempest');
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_unstable_tempest', 'spell_highmaul_time_stop');
 INSERT INTO spell_script_names VALUES
-(174981, 'spell_highmaul_unstable_tempest');
+(174981, 'spell_highmaul_unstable_tempest'),
+(174939, 'spell_highmaul_time_stop');
 
 DELETE FROM creature_text WHERE entry IN (81811, 77428);
 INSERT INTO creature_text VALUES

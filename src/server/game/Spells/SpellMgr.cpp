@@ -3787,6 +3787,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160425: ///< Call of the Tides (Brackenspore)
                 spellInfo->MaxAffectedTargets = 2;
                 break;
+            case 174627: ///< Fixate (Phantasmal Weapon)
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
             case 154901: ///< Seal Conduit (third)
                 spellInfo->MaxAffectedTargets = 3;
                 break;

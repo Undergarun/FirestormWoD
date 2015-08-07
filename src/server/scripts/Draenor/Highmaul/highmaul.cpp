@@ -3296,11 +3296,14 @@ class npc_highmaul_councilor_gorluk : public CreatureScript
 
         enum eSpells
         {
-            KneelCosmeticForced = 130491
+            KneelCosmeticForced     = 130491,
+
+            ConjurePhantasmalWeapon = 174608
         };
 
-        enum eEvents
+        enum eEvent
         {
+            EventPhantasmalWeapon = 1
         };
 
         struct npc_highmaul_councilor_gorlukAI : public MS::AI::CosmeticAI
@@ -3318,6 +3321,7 @@ class npc_highmaul_councilor_gorluk : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                m_Events.ScheduleEvent(eEvent::EventPhantasmalWeapon, 7 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -3334,6 +3338,10 @@ class npc_highmaul_councilor_gorluk : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case eEvent::EventPhantasmalWeapon:
+                        me->CastSpell(me, eSpells::ConjurePhantasmalWeapon, false);
+                        m_Events.ScheduleEvent(eEvent::EventPhantasmalWeapon, 7 * TimeConstants::IN_MILLISECONDS);
+                        break;
                     default:
                         break;
                 }
@@ -3348,6 +3356,52 @@ class npc_highmaul_councilor_gorluk : public CreatureScript
         }
 };
 
+/// Phantasmal Weapon - 87293
+class npc_highmaul_phantasmal_weapon : public CreatureScript
+{
+    public:
+        npc_highmaul_phantasmal_weapon() : CreatureScript("npc_highmaul_phantasmal_weapon") { }
+
+        enum eSpells
+        {
+            PhantasmalWeaponsSpawn  = 174605,
+            Focused                 = 174719,
+            Fixated                 = 174627
+        };
+
+        struct npc_highmaul_phantasmal_weaponAI : public ScriptedAI
+        {
+            npc_highmaul_phantasmal_weaponAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpells::PhantasmalWeaponsSpawn, true);
+                me->CastSpell(me, eSpells::Focused, true);
+                me->CastSpell(me, eSpells::Fixated, true);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::Fixated:
+                        AttackStart(p_Target);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_phantasmal_weaponAI(p_Creature);
+        }
+};
+
 /// Councilor Nouk <Gorian War Council> - 81807
 class npc_highmaul_councilor_nouk : public CreatureScript
 {
@@ -3356,11 +3410,14 @@ class npc_highmaul_councilor_nouk : public CreatureScript
 
         enum eSpells
         {
-            KneelCosmeticForced = 130491
+            KneelCosmeticForced = 130491,
+
+            TimeStop            = 174939
         };
 
-        enum eEvents
+        enum eEvent
         {
+            EventTimeStop = 1
         };
 
         struct npc_highmaul_councilor_noukAI : public MS::AI::CosmeticAI
@@ -3378,6 +3435,9 @@ class npc_highmaul_councilor_nouk : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->CastSpell(me, eSpells::TimeStop, false);
+
+                m_Events.ScheduleEvent(eEvent::EventTimeStop, 4 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -3394,6 +3454,10 @@ class npc_highmaul_councilor_nouk : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case eEvent::EventTimeStop:
+                        me->CastSpell(me, eSpells::TimeStop, false);
+                        m_Events.ScheduleEvent(eEvent::EventTimeStop, 4 * TimeConstants::IN_MILLISECONDS);
+                        break;
                     default:
                         break;
                 }
@@ -4223,6 +4287,39 @@ class spell_highmaul_unstable_tempest : public SpellScriptLoader
         }
 };
 
+/// Time Stop - 174939
+class spell_highmaul_time_stop : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_time_stop() : SpellScriptLoader("spell_highmaul_time_stop") { }
+
+        enum eSpells
+        {
+            TimeStopStun = 174961
+        };
+
+        class spell_highmaul_time_stop_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_time_stop_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->CastSpell(l_Target, eSpells::TimeStopStun, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_time_stop_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_time_stop_AuraScript();
+        }
+};
+
 /// Rune of Disintegration - 175648
 class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScript
 {
@@ -4339,6 +4436,7 @@ void AddSC_highmaul()
     new npc_highmaul_councilor_magknor();
     new npc_highmaul_arcane_torrent();
     new npc_highmaul_councilor_gorluk();
+    new npc_highmaul_phantasmal_weapon();
     new npc_highmaul_councilor_nouk();
     new npc_highmaul_high_councilor_malgris();
 
@@ -4360,6 +4458,7 @@ void AddSC_highmaul()
     new spell_highmaul_arcane_barrage();
     new spell_highmaul_decimate();
     new spell_highmaul_unstable_tempest();
+    new spell_highmaul_time_stop();
 
     /// AreaTriggers
     new areatrigger_highmaul_rune_of_disintegration();
