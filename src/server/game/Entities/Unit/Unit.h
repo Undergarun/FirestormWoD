@@ -619,7 +619,7 @@ enum WeaponAttackType
 // Last check : 6.0.3
 enum CombatRating
 {
-    CR_WEAPON_SKILL                     = 0,    //< Deprecated, CR_UNUSED_1 in PaperDollFrame.lua
+    CR_UNUSED_1                         = 0,    //< Deprecated, CR_UNUSED_1 in PaperDollFrame.lua previously CR_WEAPON_SKILL
     CR_DEFENSE_SKILL                    = 1,    //< Deprecated
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
@@ -640,12 +640,12 @@ enum CombatRating
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
     CR_AVOIDANCE                        = 20,
-    CR_WEAPON_SKILL_OFFHAND             = 21,   //< Deprecated, CR_UNUSED_2 in PaperDollFrame.lua
+    CR_UNUSED_2                         = 21,   //< Deprecated, CR_UNUSED_2 in PaperDollFrame.lua previously CR_WEAPON_SKILL_OFFHAND
     CR_WEAPON_SKILL_RANGED              = 22,   //< Deprecated
     CR_EXPERTISE                        = 23,   //< Deprecated
     CR_ARMOR_PENETRATION                = 24,   //< Deprecated
     CR_MASTERY                          = 25,
-    CR_PVP_POWER                        = 26,   //< WoD item doesn't have pvp power, and blizz has removed pvp power from the paper doll, but i think the stat still exist for MoP items ...
+    CR_PVP_POWER                        = 26,   //< romoved since from the paper doll, but the stat still exist for MoP items
     CR_UNUSED_4                         = 27,   //< CR_UNUSED_4 in PaperDollFrame.lua
     CR_VERSATILITY_DAMAGE_DONE          = 28,
     CR_VERSATILITY_DAMAGE_TAKEN         = 30,
@@ -1291,7 +1291,7 @@ enum ActionBarIndex
 
 #define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
 
-struct CharmInfo
+class CharmInfo
 {
     public:
         explicit CharmInfo(Unit* unit);
@@ -1340,14 +1340,17 @@ struct CharmInfo
         void SaveStayPosition();
         void GetStayPosition(float &x, float &y, float &z);
 
+        CharmType GetCharmType() const { return m_CharmType; }
+
     private:
 
         Unit* m_unit;
         UnitActionBarEntry PetActionBar[MAX_UNIT_ACTION_BAR_INDEX];
-        CharmSpellInfo m_charmspells[4];
-        CommandStates   m_CommandState;
-        uint32          m_petnumber;
-        bool            m_barInit;
+        CharmSpellInfo     m_charmspells[4];
+        CommandStates      m_CommandState;
+        uint32             m_petnumber;
+        bool               m_barInit;
+        CharmType          m_CharmType;
 
         //for restoration after charmed
         ReactStates     m_oldReactState;
@@ -1584,6 +1587,7 @@ class Unit : public WorldObject
         void AddUnitState(uint32 f) { m_state |= f; }
         bool HasUnitState(const uint32 f) const { return (m_state & f); }
         void ClearUnitState(uint32 f) { m_state &= ~f; }
+        void ClearAllUnitState() { m_state = 0; }
         bool CanFreeMove() const
         {
             return !HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING | UNIT_STATE_IN_FLIGHT |
@@ -1759,9 +1763,6 @@ class Unit : public WorldObject
 
         void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = WeaponAttackType::BaseAttack, bool crit = false);
         void DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss);
-
-        // player or player's pet resilience (-1%)
-        uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 100.0f, damage); }
 
         void ApplyResilience(const Unit* victim, int32 * damage) const;
 
@@ -2388,6 +2389,10 @@ class Unit : public WorldObject
 
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = WeaponAttackType::BaseAttack);
         bool   isBlockCritical();
+        bool   IsSpellMultistrike(SpellInfo const* p_SpellProto) const;
+        uint32 GetMultistrikeBasePoints(uint32 p_Damage) const;
+        void   ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType = WeaponAttackType::BaseAttack, SpellInfo const* p_ProcAura = NULL, constAuraEffectPtr p_OwnerAuraEffect = NULL);
+        void   ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int32& p_Amount);
         bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
         bool   IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolMask) const;
         float  GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
@@ -2407,6 +2412,8 @@ class Unit : public WorldObject
         void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
         void ApplySpellDispelImmunity(const SpellInfo* spellProto, DispelType type, bool apply);
         virtual bool IsImmunedToSpell(SpellInfo const* spellInfo);
+        uint32 GetSchoolImmunityMask() const;
+        uint32 GetMechanicImmunityMask() const;
                                                             // redefined in Creature
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask);
         bool IsImmunedToDamage(SpellInfo const* spellInfo);
@@ -2789,7 +2796,6 @@ class Unit : public WorldObject
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;
-        uint32 GetCombatRatingDamageReduction(CombatRating cr, float cap, uint32 damage) const;
 
     protected:
         void SendMoveRoot(uint32 value);

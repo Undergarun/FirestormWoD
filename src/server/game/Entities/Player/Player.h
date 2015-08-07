@@ -2360,6 +2360,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
         void _SaveChargesCooldowns(SQLTransaction& p_Transaction);
+        uint32 GetLastPotionId() { return m_lastPotionId; }
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
@@ -2590,6 +2591,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateAllRatings();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage, bool l_NoLongerDualWields = false);
+        void CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon);
 
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float OCTRegenMPPerSpirit();
@@ -3516,10 +3518,12 @@ class Player : public Unit, public GridObject<Player>
         void SendClearSpellCharges(uint32 p_CategoryID);
 
         void RestoreCharge(uint32 p_CategoryID);
-        bool CanUseCharge(uint32 p_CategoryID) const;
+        uint32 CalcMaxCharges(SpellCategoryEntry const* p_Category) const;
+        bool CanUseCharge(SpellCategoryEntry const* p_Category) const;
         void UpdateCharges(uint32 const p_Time);
-        void ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Category);
+        void ConsumeCharge(SpellCategoryEntry const* p_Category);
         ChargesData* GetChargesData(uint32 p_CategoryID);
+        int32 GetChargeRecoveryTime(SpellCategoryEntry const* p_Category) const;
         //////////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////////
@@ -3626,6 +3630,11 @@ class Player : public Unit, public GridObject<Player>
 
             return m_CharacterWorldStates.at(p_Index).Value;
         }
+
+        /// Send custom message with system message (addon, custom interfaces ...etc)
+        void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
+
+        uint32 GetBagsFreeSlots() const;
 
     protected:
         void OnEnterPvPCombat();

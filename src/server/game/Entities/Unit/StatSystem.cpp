@@ -308,14 +308,6 @@ void Player::UpdateArmor()
             l_Armor += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
     }
 
-    // Custom MoP Script
-    // 77494 - Mastery : Nature's Guardian
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(77494))
-    {
-        float l_Mastery = 1.0f + GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
-        l_Armor *= l_Mastery;
-    }
-
     SetArmor(int32(l_Armor));
 
     if (Pet* l_Pet = GetPet())
@@ -418,13 +410,6 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
-
-    /// 76857  - Mastery : Critical Block
-    /// 117906 - Mastery: Elusive Brawler
-    /// 77513  - Mastery: Blood Shield
-    /// 155783 - Mastery: Primal Tenacity
-    if (GetTypeId() == TYPEID_PLAYER && (HasAura(76857) || HasAura(117906) || HasAura(77513) || HasAura(155783)))
-        attPowerMultiplier += GetFloatValue(PLAYER_FIELD_MASTERY) / 100;
 
     //add dynamic flat mods
     if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
@@ -529,13 +514,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_normalized_min = weapon_mindamage + attackPower / 3.5f * att_speed * dualWieldModifier;
     float weapon_normalized_max = weapon_maxdamage + attackPower / 3.5f * att_speed * dualWieldModifier;
 
-    /// Special damage calculate for Hunter spells that should deal normalized weapon damage
-    if (getClass() == CLASS_HUNTER && normalized)
-    {
-        weapon_normalized_min = weapon_mindamage + (attackPower / 3.5f * 2.8f);
-        weapon_normalized_max = weapon_maxdamage + (attackPower / 3.5f * 2.8f);
-    }
-
     if (IsInFeralForm())
     {
         float weaponSpeed = BASE_ATTACK_TIME / 1000.0f;
@@ -565,27 +543,47 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
-    /// Hack fix : Single-Minded Fury
-    if (addTotalPct && l_UsedWeapon)
+    /// Normalized Weapon Damage
+    if (normalized && getClass() != CLASS_MONK && getClass() != CLASS_DRUID) ///< Monks and Druids have their own damage calculation
     {
-        if (getClass() == CLASS_WARRIOR && GetSpecializationId() == SPEC_WARRIOR_FURY)
+        CalculateNormalizedWeaponDamage(attType, min_damage, max_damage, attackPower, weapon_mindamage, weapon_maxdamage, l_UsedWeapon);
+        min_damage = (min_damage * base_pct + total_value) * total_pct;
+        max_damage = (max_damage * base_pct + total_value) * total_pct;
+    }
+    /// Damage based on auto-attack
+    else
+    {
+        min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
+        max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
+
+        uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
+        AddPct(min_damage, autoAttacksPctBonus);
+        AddPct(max_damage, autoAttacksPctBonus);
+    }
+}
+
+void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
+{
+    float l_NormalizedSpeedCoef = 1.0f;
+
+    /// Speed coefficients from http://wowwiki.wikia.com/Normalization - tested on official server, information is correct
+    if (l_UsedWeapon && l_UsedWeapon->GetTemplate())
+    {
+        if (l_UsedWeapon->GetTemplate()->IsOneHanded())
         {
-            /// Two-Handed weapon
-            /// We should remove Single-Minded Fury bonus, it should work just for one hand weapons
-            if (l_UsedWeapon->GetTemplate() && l_UsedWeapon->GetTemplate()->Sheath == 1)
-                total_pct = total_pct / 1.2f;
+            if (l_UsedWeapon->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                l_NormalizedSpeedCoef = 1.7f;
+            else
+                l_NormalizedSpeedCoef = 2.4f;
         }
+        else if (l_UsedWeapon->GetTemplate()->IsTwoHandedWeapon())
+            l_NormalizedSpeedCoef = 3.3f;
+        else if (l_UsedWeapon->GetTemplate()->IsRangedWeapon())
+            l_NormalizedSpeedCoef = 2.8f;
     }
 
-    /// Apply Versatility rating to damage calculation
-    base_pct += (ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)) / 100.0f;
-
-    min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
-    max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
-
-    uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
-    AddPct(min_damage, autoAttacksPctBonus);
-    AddPct(max_damage, autoAttacksPctBonus);
+    min_damage = weapon_mindamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
+    max_damage = weapon_maxdamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
 }
 
 void Player::UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields)
@@ -830,15 +828,6 @@ void Player::UpdateBlockPercentage()
         // apply diminishing formula to diminishing dodge chance
         value = nondiminishing + (diminishing * blockCap[pClass] / (diminishing + blockCap[pClass] * k_constant[pClass]));
 
-        // Custom MoP Script
-        // 76671 - Mastery : Divine Bulwark - Block Percentage
-        if (GetTypeId() == TYPEID_PLAYER && HasAura(76671))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY);
-
-        // 76857 - Mastery : Critical Block - Block Percentage
-        if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY) * 0.5f;
-
         if (value < 0.0f)
             value = 0.0f;
 
@@ -889,19 +878,6 @@ void Player::UpdateMasteryPercentage()
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
 
-    /// 117906 - Mastery: Elusive Brawler - Update attack power
-    /// 155783 - Mastery: Primal Tenacity - Update attack power
-    if (HasAura(117906) || HasAura(155783))
-        UpdateAttackPowerAndDamage();
-    // Custom MoP Script
-    // 76671 - Mastery : Divine Bulwark - Update Block Percentage
-    // 76857 - Mastery : Critical Block - Update Block Percentage
-    if (HasAura(76671) || HasAura(76857))
-        UpdateBlockPercentage();
-    // 77494 - Mastery : Nature's Guardian - Update Armor
-    if (HasAura(77494))
-        UpdateArmor();
-
     /// Update some mastery spells
     AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
     for (auto l_Iter : l_AppliedAuras)
@@ -915,7 +891,13 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+                    if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
+                        || l_SpellInfo->Id == 76856) ///< Mastery : Unshackled Fury
+                        l_AurEff->ChangeAmount(0, true, true);
+                    else
+                    {
+                        l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+                    }
                 }
             }
         }
@@ -1112,27 +1094,27 @@ void Player::UpdateFocusRegen()
     SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
 }
 
-void Player::UpdateRuneRegen(RuneType rune)
+void Player::UpdateRuneRegen(RuneType p_Rune)
 {
-    if (rune > NUM_RUNE_TYPES)
+    if (p_Rune > NUM_RUNE_TYPES)
         return;
 
-    uint32 cooldown = 0;
-    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+    uint32 l_Cooldown = 0;
 
-    for (uint32 i = 0; i < MAX_RUNES; ++i)
-        if (GetBaseRune(i) == rune)
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+        if (GetBaseRune(i) == p_Rune)
         {
-            cooldown = GetRuneBaseCooldown(i);
+            l_Cooldown = GetRuneBaseCooldown(i);
             break;
         }
 
-    if (cooldown <= 0)
+    if (l_Cooldown <= 0)
         return;
 
-    float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
-    regen *= HastePct;
-    SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(rune), regen);
+    float l_Regen = float(1 * IN_MILLISECONDS) / float(l_Cooldown);
+    l_Regen *= 2.f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+
+    SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(p_Rune), l_Regen);
 }
 
 void Player::UpdateAllRunesRegen()
@@ -1140,19 +1122,17 @@ void Player::UpdateAllRunesRegen()
     if (getClass() != Classes::CLASS_DEATH_KNIGHT)
         return;
 
-    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
-
     for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
-        if (uint32 cooldown = GetRuneTypeBaseCooldown(RuneType(i)))
+        if (uint32 l_Cooldown = GetRuneTypeBaseCooldown(RuneType(i)))
         {
-            float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
+            float l_Regen = float(1 * IN_MILLISECONDS) / float(l_Cooldown);
+            l_Regen *= 2.f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
-            if (regen < 0.0099999998f)
-                regen = 0.01f;
+            if (l_Regen < 0.0099999998f)
+                l_Regen = 0.01f;
 
-            regen *= HastePct;
-            SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, regen);
+            SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, l_Regen);
         }
     }
 
@@ -1166,7 +1146,7 @@ float Player::GetRegenForPower(Powers p_Power)
     switch (p_Power)
     {
         case Powers::POWER_FOCUS:
-            l_BaseRegen = 5.0f;
+            l_BaseRegen = 4.0f;
             break;
         case Powers::POWER_ENERGY:
         case Powers::POWER_RUNES:
@@ -1184,11 +1164,29 @@ float Player::GetRegenForPower(Powers p_Power)
             l_Pct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+    float l_HastePct = 1.0f;
+    float l_Total = 1.0f;
 
-    float l_Total = l_BaseRegen * l_HastePct;
+    /// I don't know how energy/runes regen should be calculated, but for focus it should be this way
+    if (p_Power == Powers::POWER_FOCUS)
+    {
+        l_HastePct = 1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE);
+        /// TODO
+        /// Not finished fix, i don't know how to fix it atm.
+        /// UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER by default for hunter is 5 * haste pct. For example, if we have 10% haste: 5 * 1.1 = 5.5, but on WOD base regen for hunters is 4.
+        /// So we should have 4 * 1.1 = 4.4 regen.
+        /// If we just calculate correct regen here, we receive: 5 * haste pct + 4 * haste pct.
+        /// I've tried to remove 5 * haste_pct from this field here, but it's not correct yet.
+        /// If someone has some ideas how to make it exactly 4 * haste pct - help.
+        l_Total = ((l_BaseRegen * l_HastePct) - (5.f * l_HastePct)) * l_Pct;
+    }
+    else
+    {
+        l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+        l_Total = l_BaseRegen * l_HastePct * l_Pct;
+    }
 
-    return l_Total * l_Pct;
+    return l_Total;
 }
 
 void Player::_ApplyAllStatBonuses()
@@ -1380,8 +1378,11 @@ bool Guardian::UpdateStats(Stats p_Stat)
     ApplyStatBuffMod(p_Stat, m_statFromOwner[p_Stat], false);
     float l_OwnersBonus = 0.0f;
 
-    Unit* l_Owner = GetOwner();
+    Unit* l_Owner = GetSummoner();
 
+    if (!l_Owner)
+        return false;
+    
     float l_Mod = 0.75f;
 
     switch (p_Stat)
@@ -1519,11 +1520,15 @@ void Guardian::UpdateResistances(uint32 p_School)
 // WoD updated
 void Guardian::UpdateArmor()
 {
+    Unit* l_Owner = GetSummoner();
+    if (l_Owner == nullptr)
+        return;
+
     UnitMods l_InitMod = UNIT_MOD_ARMOR;
     PetStatInfo const* l_PetStat = GetPetStat();
 
     /// - Since 6.x, armor of pet are always percentage of owner armor (default 1)
-    float l_Value = m_owner->GetArmor() * (l_PetStat != nullptr ? l_PetStat->m_ArmorCoef : 1.0f);
+    float l_Value = l_Owner->GetArmor() * (l_PetStat != nullptr ? l_PetStat->m_ArmorCoef : 1.0f);
 
     /// - Apply mods
     {
@@ -1531,7 +1536,7 @@ void Guardian::UpdateArmor()
         l_Value *= GetModifierValue(l_InitMod, TOTAL_PCT);
 
         float l_Amount = 0;
-        AuraEffectList const& l_ModPetStats = m_owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+        AuraEffectList const& l_ModPetStats = l_Owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
         for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
         {
             if ((*l_Iterator)->GetMiscValue() == INCREASE_ARMOR_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
@@ -1547,17 +1552,21 @@ void Guardian::UpdateArmor()
 // WoD updated
 void Guardian::UpdateMaxHealth()
 {
+    Unit* l_Owner = GetSummoner();
+    if (l_Owner == nullptr)
+        return;
+
     UnitMods l_UnitMod = UNIT_MOD_HEALTH;
     PetStatInfo const* l_PetStat = GetPetStat();
 
-    float l_Value = (l_PetStat != nullptr) ? m_owner->GetMaxHealth() * GetPetStat()->m_HealthCoef : GetModifierValue(l_UnitMod, BASE_VALUE) + GetCreateHealth();
+    float l_Value = (l_PetStat != nullptr) ? l_Owner->GetMaxHealth() * GetPetStat()->m_HealthCoef : GetModifierValue(l_UnitMod, BASE_VALUE) + GetCreateHealth();
 
     l_Value *= GetModifierValue(l_UnitMod, BASE_PCT);
     l_Value += GetModifierValue(l_UnitMod, TOTAL_VALUE);
     l_Value *= GetModifierValue(l_UnitMod, TOTAL_PCT);
 
     float l_Amount = 0;
-    AuraEffectList const& l_ModPetStats = m_owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
+    AuraEffectList const& l_ModPetStats = l_Owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
     for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
     {
         if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
@@ -1574,6 +1583,10 @@ void Guardian::UpdateMaxPower(Powers p_Power)
     UnitMods l_UnitMod = UnitMods(UNIT_MOD_POWER_START + p_Power);
     PetStatInfo const* l_PetStat = GetPetStat();
 
+    Unit* l_Owner = GetSummoner();
+    if (l_Owner == nullptr)
+        return;
+
     float l_AddValue = ((l_PetStat != nullptr) && p_Power == l_PetStat->m_Power) ? 0.0f : GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT);
     float l_Multiplicator = 15.0f;
 
@@ -1589,7 +1602,7 @@ void Guardian::UpdateMaxPower(Powers p_Power)
                 l_Value = l_PetStat->m_CreatePower * -1;
             // Positive number, it's percentage of owner power
             else
-                l_Value = float(m_owner->GetMaxPower(m_owner->getPowerType()) * l_PetStat->m_CreatePower);
+                l_Value = float(l_Owner->GetMaxPower(l_Owner->getPowerType()) * l_PetStat->m_CreatePower);
         }
     }
 
@@ -1606,6 +1619,10 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
     if (p_Ranged)
         return;
 
+    Unit* l_Owner = GetSummoner();
+    if (l_Owner == nullptr)
+        return;
+
     UnitMods l_UnitMod = UNIT_MOD_ATTACK_POWER;
     float l_BaseValue  = std::max(0.0f, 2 * GetStat(STAT_STRENGTH) - 20.0f);
 
@@ -1619,12 +1636,12 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
         switch (l_PetStat->m_PowerStat)
         {
             case PetStatInfo::PowerStatBase::AttackPower:
-                l_BaseValue       = m_owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * l_PetStat->m_APSPCoef;
+                l_BaseValue       = l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * l_PetStat->m_APSPCoef;
                 l_BaseAttackPower = l_BaseValue;
                 l_SpellPower      = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
             case PetStatInfo::PowerStatBase::SpellPower:
-                l_BaseValue       = m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * l_PetStat->m_APSPCoef;
+                l_BaseValue       = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * l_PetStat->m_APSPCoef;
                 l_SpellPower      = l_BaseValue;
                 l_BaseAttackPower = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
@@ -1635,8 +1652,8 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, l_BaseAttackPower);
 
-    if (m_owner->GetTypeId() == TYPEID_PLAYER)
-        m_owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, l_SpellPower);
+    if (l_Owner->GetTypeId() == TYPEID_PLAYER)
+        l_Owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, l_SpellPower);
 
     l_BaseAttackPower      *= GetModifierValue(l_UnitMod, BASE_PCT);
     l_AttackPowerMultiplier = GetModifierValue(l_UnitMod, TOTAL_PCT) - 1.0f;

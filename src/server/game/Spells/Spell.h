@@ -586,7 +586,7 @@ public:
     SpellCastResult CheckPower();
     SpellCastResult CheckRuneCost(uint32 runeCostID);
     SpellCastResult CheckCasterAuras() const;
-    SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
+    SpellCastResult CheckArenaAndRatedBattlegroundCastRules(Battleground const* p_Battleground);
 
     int32 CalculateDamage(uint8 i, Unit const* target) const
     {

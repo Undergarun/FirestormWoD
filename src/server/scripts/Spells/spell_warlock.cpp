@@ -32,9 +32,6 @@ enum WarlockSpells
     WARLOCK_DEMONIC_CIRCLE_TELEPORT         = 48020,
     WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 62388,
     WARLOCK_UNSTABLE_AFFLICTION_DISPEL      = 31117,
-    WARLOCK_GLYPH_OF_FEAR                   = 56244,
-    WARLOCK_FEAR_EFFECT                     = 118699,
-    WARLOCK_GLYPH_OF_FEAR_EFFECT            = 130616,
     WARLOCK_CREATE_HEALTHSTONE              = 23517,
     WARLOCK_SOULBURN_AURA                   = 74434,
     WARLOCK_CORRUPTION                      = 146739,
@@ -798,32 +795,20 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_grimoire_of_sacrifice_AuraScript);
 
-            void CalculateEffectAmountDestruction(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
+            enum eSpells
+            {
+                SoulLink = 108415
+            };
+
+            void CalculateEffectAmountSoulLink(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Owner = GetUnitOwner();
 
                 if (l_Owner == nullptr)
                     return;
 
-                if (Player* l_Target = l_Owner->ToPlayer())
-                {
-                    if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
-                        p_Amount = 0;
-                }
-            }
-
-            void CalculateEffectAmountAffliction(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
-            {
-                Unit* l_Owner = GetUnitOwner();
-
-                if (l_Owner == nullptr)
-                    return;
-
-                if (Player* l_Target = l_Owner->ToPlayer())
-                {
-                    if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        p_Amount = 0;
-                }
+                if (!l_Owner->HasSpell(eSpells::SoulLink))
+                    p_Amount = 0;
             }
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -839,8 +824,7 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountDestruction, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountAffliction, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountSoulLink, EFFECT_2, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_grimoire_of_sacrifice_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -1490,7 +1474,8 @@ class spell_warl_twilight_ward_s12: public SpellScriptLoader
         }
 };
 
-// Hellfire - 1949
+/// last update : 6.1.2 19802
+/// Hellfire - 1949
 class spell_warl_hellfire_periodic: public SpellScriptLoader
 {
     public:
@@ -1500,39 +1485,68 @@ class spell_warl_hellfire_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_hellfire_periodic_AuraScript);
 
-            std::list<Unit*> targetList;
-
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTickOnCaster(constAuraEffectPtr /*p_AurEff*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_2].BasePoints, POWER_DEMONIC_FURY);
-                    caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
-                }
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_2].BasePoints, POWER_DEMONIC_FURY);
             }
 
-            void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
+            void OnTickOnAreaEnemy(constAuraEffectPtr /*p_AurEff*/)
             {
-                aurEff->GetTargetList(targetList);
-
-                if (Unit* caster = GetCaster())
-                    for (auto itr : targetList)
-                        caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_3].BasePoints, POWER_DEMONIC_FURY);
-
-                targetList.clear();
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, WARLOCK_HELLFIRE_DAMAGE, true);
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-                OnEffectUpdate += AuraEffectUpdateFn(spell_warl_hellfire_periodic_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTickOnAreaEnemy, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_hellfire_periodic_AuraScript::OnTickOnCaster, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_hellfire_periodic_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Hellfire (area enemy damage)- 5857
+class spell_warl_hellfire_damage_area : public SpellScriptLoader
+{
+    public:
+        spell_warl_hellfire_damage_area() : SpellScriptLoader("spell_warl_hellfire_damage_area") { }
+
+        class spell_warl_hellfire_damage_area_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_hellfire_damage_area_SpellScript);
+
+            enum eSpells
+            {
+                hellfireTick = 1949
+            };
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::hellfireTick);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                l_Caster->EnergizeBySpell(l_Caster, l_SpellInfo->Id, l_SpellInfo->Effects[EFFECT_3].BasePoints, POWER_DEMONIC_FURY);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_hellfire_damage_area_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_hellfire_damage_area_SpellScript();
         }
 };
 
@@ -1920,15 +1934,7 @@ class spell_warl_rain_of_fire_despawn: public SpellScriptLoader
         }
 };
 
-enum EmberTapSpells
-{
-    SPELL_WARL_EMBER_TAP = 114635,
-    SPELL_WARL_GLYPH_OF_EMBER_TAP = 63304,
-    SPELL_WARL_SEARING_FLAMES = 174848,
-    SPELL_WARL_ENHANCED_OF_EMBER_TAP = 157121
-};
-
-// Ember Tap - 114635
+/// Ember Tap - 114635
 class spell_warl_ember_tap: public SpellScriptLoader
 {
     public:
@@ -1938,42 +1944,51 @@ class spell_warl_ember_tap: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_ember_tap_SpellScript);
 
+            enum eSpells
+            {
+                GlyphOfEmberTap   = 63304,
+                MasteryEmberstorm = 77220,
+                EnhancedEmberTap  = 157121,
+                SearingFlames     = 174848
+            };
+
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                if (!GetHitUnit())
-                return;
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                /// No instant heal with Glyph of Ember tap
+                if (AuraPtr l_GlyphOfEmberTap = l_Caster->GetAura(eSpells::GlyphOfEmberTap))
+                    return;
+
+                int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), GetEffectValue());
+
+                if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
                 {
-                    float pct = (float)(GetSpellInfo()->Effects[EFFECT_0].BasePoints) / 100;
+                    float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
+                    l_HealAmount += CalculatePct(l_HealAmount, l_MasteryPct);
+                }
 
-                    /// No instant heal with Glyph of Ember tap
-                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
-                        pct = 0;
+                if (AuraEffectPtr l_SearingFlames = l_Caster->GetAuraEffect(eSpells::SearingFlames, EFFECT_0))
+                {
+                    l_HealAmount += CalculatePct(l_HealAmount, l_SearingFlames->GetAmount());
+                    /// ManaCost == 0, wrong way to retrieve cost ?
+                    ///l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                    l_Caster->ModifyPower(POWER_BURNING_EMBERS, 5);
+                }
 
-                    int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
+                SetHitHeal(l_HealAmount);
 
-                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY);
-                    healAmount += CalculatePct(healAmount, Mastery);
+                /// Your Ember Tap also heals your pet demon for 20% as much.
+                if (AuraEffectPtr l_EnhancedEmberTap = l_Caster->GetAuraEffect(eSpells::EnhancedEmberTap, EFFECT_0))
+                {
+                    Player* l_Player = l_Caster->ToPlayer();
+                    if (!l_Player)
+                        return;
 
-                    if (AuraPtr l_SearingFlames = l_Player->GetAura(SPELL_WARL_SEARING_FLAMES))
-                    {
-                        healAmount *= 1 + (l_SearingFlames->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100.0f);
-
-                        /// ManaCost == 0, wrong way to retrieve cost ?
-                        ///l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
-                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5);
-                    }
-
-                    if (l_Player->HasAura(SPELL_WARL_ENHANCED_OF_EMBER_TAP))
-                    {
-                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_ENHANCED_OF_EMBER_TAP);
-                        Pet* l_Pet = l_Player->GetPet();
-
-                        if (l_Pet != nullptr && l_SpellInfo != nullptr)
-                            l_Player->HealBySpell(l_Pet, sSpellMgr->GetSpellInfo(139967), CalculatePct(healAmount, l_SpellInfo->Effects[EFFECT_0].BasePoints * 2), false, false);
-                    }
-                    SetHitHeal(healAmount);
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Player->HealBySpell(l_Pet, sSpellMgr->GetSpellInfo(139967), CalculatePct(l_HealAmount, l_EnhancedEmberTap->GetAmount()), false, false);
                 }
             }
 
@@ -1993,50 +2008,55 @@ class spell_warl_ember_tap: public SpellScriptLoader
 /// With Glyph of Ember Tap - 63304
 class spell_warl_ember_tap_glyph : public SpellScriptLoader
 {
-public:
-    spell_warl_ember_tap_glyph() : SpellScriptLoader("spell_warl_ember_tap_glyph") { }
+    public:
+        spell_warl_ember_tap_glyph() : SpellScriptLoader("spell_warl_ember_tap_glyph") { }
 
-    class spell_warl_ember_tap_glyph_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warl_ember_tap_glyph_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
+        class spell_warl_ember_tap_glyph_AuraScript : public AuraScript
         {
-            Unit* l_Caster = GetCaster();
+            PrepareAuraScript(spell_warl_ember_tap_glyph_AuraScript);
 
-            if (l_Caster == nullptr)
-                return;
-
-            /// Add amount of stackable % to health regen
-            if (AuraPtr l_EmberTap = l_Caster->GetAura(SPELL_WARL_EMBER_TAP, l_Caster->GetGUID()))
+            enum eSpells
             {
-                uint8 l_AmountStack = 0;
+                EmberTap = 114635
+            };
 
-                uint32 l_Duration = l_EmberTap->GetDuration();
-                uint32 l_BasePoints = l_EmberTap->GetEffect(2)->GetAmount();
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
 
-                if (l_Duration >= 6 * IN_MILLISECONDS)
-                    l_AmountStack = 2;
-                else
-                    l_AmountStack = 1;
+                if (l_Caster == nullptr)
+                    return;
 
-                p_Amount = l_BasePoints + l_AmountStack;
+                /// Add amount of stackable % to health regen
+                if (AuraPtr l_EmberTap = l_Caster->GetAura(eSpells::EmberTap, l_Caster->GetGUID()))
+                {
+                    uint8 l_AmountStack = 0;
+
+                    uint32 l_Duration = l_EmberTap->GetDuration();
+                    uint32 l_BasePoints = l_EmberTap->GetEffect(EFFECT_2)->GetAmount();
+
+                    if (l_Duration >= 6 * IN_MILLISECONDS)
+                        l_AmountStack = 2;
+                    else
+                        l_AmountStack = 1;
+
+                    p_Amount = l_BasePoints + l_AmountStack;
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_ember_tap_glyph_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_ember_tap_glyph_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH);
+            return new spell_warl_ember_tap_glyph_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warl_ember_tap_glyph_AuraScript();
-    }
 };
 
-// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
+/// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 class spell_warl_conflagrate_aura: public SpellScriptLoader
 {
     public:
@@ -2055,7 +2075,7 @@ class spell_warl_conflagrate_aura: public SpellScriptLoader
                         if (!target->HasAura(WARLOCK_IMMOLATE) && !caster->HasAura(WARLOCK_GLYPH_OF_CONFLAGRATE))
                             if (AuraPtr conflagrate = target->GetAura(WARLOCK_CONFLAGRATE))
                                 target->RemoveAura(WARLOCK_CONFLAGRATE);
-                        if (!target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
+                            if (!target->HasAura(WARLOCK_IMMOLATE))
                             if (AuraPtr conflagrate = target->GetAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE))
                                 target->RemoveAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE);
                     }
@@ -2520,23 +2540,29 @@ class spell_warl_fear: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_fear_SpellScript);
 
-            void HandleAfterHit()
+            enum eSpells
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Player->HasAura(WARLOCK_GLYPH_OF_FEAR))
-                            l_Player->CastSpell(l_Target, WARLOCK_GLYPH_OF_FEAR_EFFECT, true);
-                        else
-                            l_Player->CastSpell(l_Target, WARLOCK_FEAR_EFFECT, true);
-                    }
-                }
+                GlyphOfFear       = 56244,
+                FearEffect        = 118699,
+                GlyphOfFearEffect = 130616,
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Caster || !l_Target)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::GlyphOfFear))
+                    l_Caster->CastSpell(l_Target, eSpells::GlyphOfFearEffect, true);
+                else
+                    l_Caster->CastSpell(l_Target, eSpells::FearEffect, true);
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_warl_fear_SpellScript::HandleAfterHit);
+                OnHit += SpellHitFn(spell_warl_fear_SpellScript::HandleOnHit);
             }
         };
 
@@ -2758,7 +2784,7 @@ class spell_warl_demonic_circle_summon: public SpellScriptLoader
         }
 };
 
-// Demonic Circle : Teleport - 48020 and Soulburn : Demonic Circle : Teleport - 114794
+// Demonic Circle : Teleport - 48020, Soulburn : Demonic Circle : Teleport - 114794 and Metamorphosis : Demonic Circle : Teleport - 104136
 class spell_warl_demonic_circle_teleport: public SpellScriptLoader
 {
     public:
@@ -2856,7 +2882,8 @@ enum ImmolateSpells
     SpellEmpoweredImmolate = 157114
 };
 
-// Soulburn : Immolate - 348
+/// last update : 6.1.2 19802
+/// Soulburn : Immolate - 348, Immolate (Fire and Brimstone override) - 108686
 class spell_warl_immolate : public SpellScriptLoader
 {
     public:
@@ -3589,6 +3616,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_hand_of_guldan_damage();
     new spell_warl_twilight_ward_s12();
     new spell_warl_hellfire_periodic();
+    new spell_warl_hellfire_damage_area();
     new spell_warl_demonic_leap_jump();
     new spell_warl_demonic_leap();
     new spell_warl_soul_swap_soulburn();

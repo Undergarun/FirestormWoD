@@ -883,18 +883,29 @@ class spell_generic_clone: public SpellScriptLoader
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 spellId = uint32(GetSpellInfo()->Effects[effIndex].CalcValue());
-                GetHitUnit()->CastSpell(GetCaster(), spellId, true);
+                Unit* l_Caster = GetCaster();
+
+                if (Unit* l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target,  uint32(GetEffectValue()), true);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                /// Nightmare Figment Mirror Image
+                if (m_scriptSpellId == 57528)
+                {
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
+                }
+                else
+                {
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                }
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_generic_clone_SpellScript();
         }
@@ -924,26 +935,22 @@ class spell_generic_clone_weapon: public SpellScriptLoader
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                Unit* caster = GetCaster();
+                Unit* l_Caster = GetCaster();
 
-                if (Unit* target = GetHitUnit())
-                {
-
-                    uint32 spellId = uint32(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
-                    caster->CastSpell(target, spellId, true);
-                }
+                if (Unit* l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target,  uint32(GetEffectValue()), true);
             }
 
-                    void Register()
-                    {
-                        OnEffectHitTarget += SpellEffectFn(spell_generic_clone_weapon_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                    }
-                };
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_weapon_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
 
-                SpellScript* GetSpellScript() const
-                {
-                    return new spell_generic_clone_weapon_SpellScript();
-                }
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_generic_clone_weapon_SpellScript();
+        }
 };
 
 class spell_gen_clone_weapon_aura: public SpellScriptLoader
@@ -959,8 +966,12 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
 
                 bool Validate(SpellInfo const* /*spellEntry*/)
                 {
-                    if (!sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_2_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_3_AURA)
-                        || !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_2_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_RANGED_AURA))
+                    if (!sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_AURA) ||
+                        !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_2_AURA) ||
+                        !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_3_AURA) ||
+                        !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_AURA) ||
+                        !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_2_AURA) ||
+                        !sSpellMgr->GetSpellInfo(SPELL_COPY_RANGED_AURA))
                         return false;
                     return true;
                 }
@@ -979,48 +990,46 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                         case SPELL_COPY_WEAPON_2_AURA:
                         case SPELL_COPY_WEAPON_3_AURA:
                         {
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
 
-                        prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
-                        if (Player* player = caster->ToPlayer())
-
+                            if (Player* player = caster->ToPlayer())
+                            {
+                                if (Item* mainItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, mainItem->GetEntry());
+                            }
+                            else
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID));
+                            break;
+                        case SPELL_COPY_OFFHAND_AURA:
+                        case SPELL_COPY_OFFHAND_2_AURA:
                         {
-                            if (Item* mainItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, mainItem->GetEntry());
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
 
+                            if (Player* player = caster->ToPlayer())
+                            {
+                                if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
+                            }
+                            else
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
+                            break;
                         }
-                        else
-                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID));
-                        break;
-                    }
-                    case SPELL_COPY_OFFHAND_AURA:
-                    case SPELL_COPY_OFFHAND_2_AURA:
-                    {
-                        prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
-
-                        if (Player* player = caster->ToPlayer())
+                        case SPELL_COPY_RANGED_AURA:
                         {
-                            if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
-                        }
-                        else
-                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
-                        break;
-                    }
-                    case SPELL_COPY_RANGED_AURA:
-                    {
-                        prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2);
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2);
 
-                        if (Player* player = caster->ToPlayer())
-                        {
-                            if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, rangedItem->GetEntry());
+                            if (Player* player = caster->ToPlayer())
+                            {
+                                if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, rangedItem->GetEntry());
+                            }
+                            else
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2));
+                            break;
                         }
-                        else
-                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2));
-                        break;
+                        default:
+                            break;
                     }
-                    default:
-                        break;
                 }
             }
 
@@ -1033,19 +1042,15 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                     case SPELL_COPY_WEAPON_AURA:
                     case SPELL_COPY_WEAPON_2_AURA:
                     case SPELL_COPY_WEAPON_3_AURA:
-                    {
                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, prevItem);
                        break;
-                    }
                     case SPELL_COPY_OFFHAND_AURA:
                     case SPELL_COPY_OFFHAND_2_AURA:
-                    {
                         target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, prevItem);
-                    }
+                        break;
                     case SPELL_COPY_RANGED_AURA:
-                    {
                         target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, prevItem);
-                    }
+                        break;
                     default:
                         break;
                 }
@@ -1059,57 +1064,9 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
 
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_gen_clone_weapon_auraScript();
-        }
-};
-
-enum SeaforiumSpells
-{
-    SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT = 60937,
-};
-
-class spell_gen_seaforium_blast: public SpellScriptLoader
-{
-    public:
-        spell_gen_seaforium_blast() : SpellScriptLoader("spell_gen_seaforium_blast") {}
-
-        class spell_gen_seaforium_blast_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_seaforium_blast_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT))
-                    return false;
-                return true;
-            }
-
-            bool Load()
-            {
-                // OriginalCaster is always available in Spell::prepare
-                return GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void AchievementCredit(SpellEffIndex /*effIndex*/)
-            {
-                // but in effect handling OriginalCaster can become NULL
-                if (Unit* originalCaster = GetOriginalCaster())
-                    if (GameObject* go = GetHitGObj())
-                        if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
-                            originalCaster->CastSpell(originalCaster, SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT, true);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_seaforium_blast_SpellScript::AchievementCredit, EFFECT_1, SPELL_EFFECT_GAMEOBJECT_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_gen_seaforium_blast_SpellScript();
         }
 };
 
@@ -1208,7 +1165,7 @@ class spell_gen_magic_rooster: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_magic_rooster_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_magic_rooster_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -3933,12 +3890,24 @@ class spell_gen_selfie_camera : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                GetCaster()->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    l_Caster->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                }
             }
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                GetCaster()->ToPlayer()->CancelSpellVisualKit(54168);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    l_Caster->ToPlayer()->CancelSpellVisualKit(54168);
+                }
             }
 
             void Register()
@@ -4267,6 +4236,146 @@ class spell_gen_raid_buff_stack : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Sword Technique - 177189
+class spell_gen_sword_technique: public SpellScriptLoader
+{
+    public:
+        spell_gen_sword_technique() : SpellScriptLoader("spell_gen_sword_technique") { }
+
+        class spell_gen_sword_technique_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_sword_technique_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if ((l_Player->GetMap() && l_Player->GetMap()->IsBattlegroundOrArena()) || l_Player->IsInPvPCombat())
+                    p_Amount -= CalculatePct(p_Amount, 40);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_sword_technique_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_sword_technique_AuraScript();
+        }
+};
+
+/// Faction check for spells (seems to cause problems when applied to every spells)
+class spell_gen_check_faction : public SpellScriptLoader
+{
+    public:
+        spell_gen_check_faction() : SpellScriptLoader("spell_gen_check_faction") {}
+
+        class spell_gen_check_faction_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_check_faction_SpellScript);
+
+            SpellCastResult CheckFaction()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    uint32 l_RaceMask = l_Caster->getRaceMask();
+                    uint32 l_AttributeEx7 = GetSpellInfo()->AttributesEx7;
+
+                    if ((l_AttributeEx7 & SpellAttr7::SPELL_ATTR7_ALLIANCE_ONLY && ((l_RaceMask & RACEMASK_ALLIANCE) == 0)) ||
+                        (l_AttributeEx7 & SpellAttr7::SPELL_ATTR7_HORDE_ONLY && ((l_RaceMask & RACEMASK_HORDE) == 0)))
+                        return SpellCastResult::SPELL_FAILED_SPELL_UNAVAILABLE;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_check_faction_SpellScript::CheckFaction);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_check_faction_SpellScript();
+        }
+};
+
+/// Stoneform - 20594
+class spell_gen_stoneform_dwarf_racial : public SpellScriptLoader
+{
+    public:
+        spell_gen_stoneform_dwarf_racial() : SpellScriptLoader("spell_gen_stoneform_dwarf_racial") {}
+
+        class spell_gen_stoneform_dwarf_racial_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_stoneform_dwarf_racial_SpellScript);
+
+            enum eSpell
+            {
+                PvPTrinket = 42292
+            };
+
+            void HandleAfterCast()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    /// Patch note 6.1 : "Stoneform when used, now triggers a 30-second shared cooldown with other PvP trinkets that breaks crowd-control effects."
+                    l_Player->AddSpellCooldown(eSpell::PvPTrinket, 0, 30 * TimeConstants::IN_MILLISECONDS);
+
+                    if (Item* l_FirstTrinket = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_TRINKET1))
+                    {
+                        for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
+                        {
+                            _Spell const& l_SpellData = l_FirstTrinket->GetTemplate()->Spells[l_I];
+
+                            /// No spell or not which one we search
+                            if (!l_SpellData.SpellId || l_SpellData.SpellId != eSpell::PvPTrinket)
+                                continue;
+
+                            l_Player->ApplyEquipCooldown(l_FirstTrinket);
+                            break;
+                        }
+                    }
+
+                    if (Item* l_SecondTrinket = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_TRINKET2))
+                    {
+                        for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
+                        {
+                            _Spell const& l_SpellData = l_SecondTrinket->GetTemplate()->Spells[l_I];
+
+                            /// No spell or not which one we search
+                            if (!l_SpellData.SpellId || l_SpellData.SpellId != eSpell::PvPTrinket)
+                                continue;
+
+                            l_Player->ApplyEquipCooldown(l_SecondTrinket);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_gen_stoneform_dwarf_racial_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_stoneform_dwarf_racial_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_drums_of_fury();
@@ -4290,7 +4399,6 @@ void AddSC_generic_spell_scripts()
     new spell_generic_clone();
     new spell_generic_clone_weapon();
     new spell_gen_clone_weapon_aura();
-    new spell_gen_seaforium_blast();
     new spell_gen_turkey_marker();
     new spell_gen_magic_rooster();
     new spell_gen_allow_cast_from_item_only();
@@ -4349,6 +4457,9 @@ void AddSC_generic_spell_scripts()
     new spell_inherit_master_threat_list();
     new spell_taunt_flag_targeting();
     new spell_gen_raid_buff_stack();
+    new spell_gen_sword_technique();
+    new spell_gen_check_faction();
+    new spell_gen_stoneform_dwarf_racial();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

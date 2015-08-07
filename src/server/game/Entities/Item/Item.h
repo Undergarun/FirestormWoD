@@ -476,6 +476,7 @@ class Item : public Object
         bool AddItemBonus(uint32 p_ItemBonusId);
         void AddItemBonuses(std::vector<uint32> const& p_ItemBonuses);
         bool HasItemBonus(uint32 p_ItemBonusId) const;
+        bool HasItemBonusType(ItemBonusType p_Type) const;
         bool RemoveItemBonus(uint32 p_ItemBonusId);
         void RemoveAllItemBonuses();
         uint32 GetItemLevelBonusFromItemBonuses() const;

@@ -121,7 +121,9 @@ enum MageSpells
     SPELL_MAGE_WOD_PVP_FIRE_2P_BONUS_EFFECT      = 165979,
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS             = 171169,
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS_EFFECT      = 171170,
-    SPELL_MAGE_POLYMORPH_CRITTERMORPH            = 120091
+    SPELL_MAGE_POLYMORPH_CRITTERMORPH            = 120091,
+    SPELL_MAGE_DRAGON_BREATH                     = 31661,
+    SPELL_MAGE_PRESENCE_OF_MIND                  = 12043
 };
 
 /// Item - Mage WoD PvP Frost 2P Bonus - 180723
@@ -787,7 +789,7 @@ class spell_mage_arcane_barrage: public SpellScriptLoader
                                 l_Target->CastCustomSpell(itr, SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED, &l_Basepoints, NULL, NULL, true, 0, NULLAURA_EFFECT, l_Player->GetGUID());
 
                             if (AuraPtr l_ArcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE, l_Player->GetGUID()))
-                                l_ArcaneCharge->ModStackAmount(-(l_ArcaneCharge->CalcMaxCharges() + 1));
+                                l_ArcaneCharge->ModStackAmount(-m_ChargeCount);
                         }
                     }
                 }
@@ -1180,40 +1182,38 @@ class spell_mage_combustion: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_combustion_SpellScript);
 
-            enum eSpell
+            enum eSpells
             {
-                CategoryID = 1500
+                InfernoBlast = 108853
             };
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Player || !l_Target)
+                    return;
+
+                if (SpellInfo const* l_InfernoBlast = sSpellMgr->GetSpellInfo(eSpells::InfernoBlast))
+                    if (SpellCategoriesEntry const* l_InfernoBlastCategories = l_InfernoBlast->GetSpellCategories())
+                        l_Player->RestoreCharge(l_InfernoBlastCategories->ChargesCategory);
+
+                int32 combustionBp = 0;
+
+                Unit::AuraEffectList const& aurasPereodic = l_Target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for (Unit::AuraEffectList::const_iterator i = aurasPereodic.begin(); i !=  aurasPereodic.end(); ++i)
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (l_Player->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT))
-                            l_Player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
+                    if ((*i)->GetCasterGUID() != l_Player->GetGUID() || (*i)->GetSpellInfo()->SchoolMask != SPELL_SCHOOL_MASK_FIRE)
+                        continue;
 
-                        l_Player->RestoreCharge(eSpell::CategoryID);
+                    if (!(*i)->GetAmplitude())
+                        continue;
 
-                        int32 combustionBp = 0;
-
-                        Unit::AuraEffectList const& aurasPereodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-                        for (Unit::AuraEffectList::const_iterator i = aurasPereodic.begin(); i !=  aurasPereodic.end(); ++i)
-                        {
-                            if ((*i)->GetCasterGUID() != l_Player->GetGUID() || (*i)->GetSpellInfo()->SchoolMask != SPELL_SCHOOL_MASK_FIRE)
-                                continue;
-
-                            if (!(*i)->GetAmplitude())
-                                continue;
-
-                            combustionBp += l_Player->SpellDamageBonusDone(target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
-                        }
-
-                        if (combustionBp)
-                            l_Player->CastCustomSpell(target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
-                    }
+                    combustionBp += l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
                 }
+
+                if (combustionBp)
+                    l_Player->CastCustomSpell(l_Target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
             }
 
             void Register()
@@ -1538,7 +1538,7 @@ class spell_mage_alter_time: public SpellScriptLoader
                         return;
 
                     std::list<Creature*> mirrorList;
-                    _player->GetCreatureListWithEntryInGrid(mirrorList, NPC_PAST_SELF, 50.0f);
+                    _player->GetCreatureListWithEntryInGrid(mirrorList, NPC_PAST_SELF, 100.0f);
 
                     if (mirrorList.empty())
                         return;
@@ -1581,12 +1581,18 @@ class spell_mage_cold_snap: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Player* player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     // Resets cooldown of Ice Block, Frost Nova and Cone of Cold
-                    player->RemoveSpellCooldown(SPELL_MAGE_ICE_BLOCK, true);
-                    player->RemoveSpellCooldown(SPELL_MAGE_FROST_NOVA, true);
-                    player->RemoveSpellCooldown(SPELL_MAGE_CONE_OF_COLD, true);
+                    l_Player->RemoveSpellCooldown(SPELL_MAGE_ICE_BLOCK, true);
+                    l_Player->RemoveSpellCooldown(SPELL_MAGE_FROST_NOVA, true);
+
+                    if (l_Player->GetSpecializationId() == SPEC_MAGE_FROST)
+                        l_Player->RemoveSpellCooldown(SPELL_MAGE_CONE_OF_COLD, true);
+                    if (l_Player->GetSpecializationId() == SPEC_MAGE_FIRE)
+                        l_Player->RemoveSpellCooldown(SPELL_MAGE_DRAGON_BREATH, true);
+                    if (l_Player->GetSpecializationId() == SPEC_MAGE_ARCANE)
+                        l_Player->RemoveSpellCooldown(SPELL_MAGE_PRESENCE_OF_MIND, true);
                 }
             }
 

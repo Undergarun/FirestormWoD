@@ -1468,8 +1468,8 @@ void WorldSession::HandleSocketOpcode(WorldPacket& p_RecvData)
         // Tried to put gem in socket where no socket exists (take care about prismatic sockets)
         if (!l_ItemProto->Socket[l_Iter].Color)
         {
-            // No prismatic socket
-            if (!l_ItemTarget->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
+            // No prismatic socket and no prismatic socket from bonus
+            if (!l_ItemTarget->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT) && !l_ItemTarget->HasItemBonusType(ItemBonusType::ITEM_BONUS_ADD_SOCKET))
                 return;
 
             // Not first not-colored (not normaly used) socket
@@ -1641,11 +1641,11 @@ void WorldSession::HandleSocketOpcode(WorldPacket& p_RecvData)
     for (uint8 l_Iter = 0; l_Iter < MAX_GEM_SOCKETS; ++l_Iter)
     {
         if (l_GemEnchants[l_Iter])
-            m_Player->GetSession()->SendEnchantmentLog(l_ItemTarget->GetGUID(), m_Player->GetGUID(), l_ItemTarget->GetEntry(), l_GemEnchants[l_Iter], SOCK_ENCHANTMENT_SLOT + l_Iter);
+            SendEnchantmentLog(l_ItemTarget->GetGUID(), m_Player->GetGUID(), l_ItemTarget->GetEntry(), l_GemEnchants[l_Iter], SOCK_ENCHANTMENT_SLOT + l_Iter);
     }
 
     if (l_SocketBonus)
-        m_Player->GetSession()->SendEnchantmentLog(l_ItemTarget->GetGUID(), m_Player->GetGUID(), l_ItemTarget->GetEntry(), l_SocketBonus, BONUS_ENCHANTMENT_SLOT);
+        SendEnchantmentLog(l_ItemTarget->GetGUID(), m_Player->GetGUID(), l_ItemTarget->GetEntry(), l_SocketBonus, BONUS_ENCHANTMENT_SLOT);
 
     WorldPacket l_Data(SMSG_SOCKET_GEMS, 4 * 4 + 8);
     l_Data.appendPackGUID(l_ItemGUID);
@@ -1660,7 +1660,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& p_RecvData)
 
     l_Data << uint32(l_SocketBonus);
 
-    GetPlayer()->GetSession()->SendPacket(&l_Data);
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)

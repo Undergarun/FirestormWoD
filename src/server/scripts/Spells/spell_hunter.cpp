@@ -272,7 +272,7 @@ class spell_hun_enhanced_basic_attacks : public SpellScriptLoader
 
                         WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
                         l_Data.appendPackGUID(l_Caster->GetGUID());
-                        l_Data << uint8(1);
+                        l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
                         l_Data << uint32(1);
                         l_Data << uint32(l_SpellID);
                         l_Data << uint32(0);
@@ -469,7 +469,7 @@ class spell_hun_glyph_of_mirrored_blades : public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_glyph_of_mirrored_blades_AuraScript::CalculateAmount, EFFECT_9, SPELL_AURA_REFLECT_SPELLS);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_glyph_of_mirrored_blades_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_REFLECT_SPELLS);
             }
         };
 
@@ -2610,7 +2610,7 @@ class spell_hun_kill_command: public SpellScriptLoader
         }
 };
 
-// Kill Command - 83381
+/// Kill Command - 83381
 class spell_hun_kill_command_proc : public SpellScriptLoader
 {
     public:
@@ -2624,7 +2624,7 @@ class spell_hun_kill_command_proc : public SpellScriptLoader
             {
                 if (Unit* l_Owner = GetCaster()->GetOwner())
                 {
-                    int32 l_Damage = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f);
+                    int32 l_Damage = int32(1.5 * (l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f));
                     l_Damage = GetCaster()->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                     l_Damage = GetHitUnit()->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
@@ -2912,47 +2912,6 @@ class spell_hun_masters_call: public SpellScriptLoader
         }
 };
 
-/// Removed in 6.0.2 (still exist on wowhead) ? www.gamepedia.com/Scatter_Shot 
-// Scatter Shot - 37506
-class spell_hun_scatter_shot: public SpellScriptLoader
-{
-    public:
-        spell_hun_scatter_shot() : SpellScriptLoader("spell_hun_scatter_shot") { }
-
-        class spell_hun_scatter_shot_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_scatter_shot_SpellScript);
-
-            bool Load()
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                // break Auto Shot and autohit
-                caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-                caster->AttackStop();
-                caster->SendAttackSwingCancelAttack();
-
-                if (caster->HasAura(HUNTER_SPELL_GLYPH_OF_COLLAPSE))
-                    if (Unit* target = GetHitUnit())
-                        target->RemoveAllAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_scatter_shot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_scatter_shot_SpellScript();
-        }
-};
-
 class spell_hun_pet_heart_of_the_phoenix: public SpellScriptLoader
 {
     public:
@@ -3170,6 +3129,11 @@ class spell_hun_tame_beast: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_tame_beast_SpellScript);
 
+            enum eCreature
+            {
+                Chimaeron = 43296
+            };
+
             SpellCastResult CheckCast()
             {
                 int8 l_ResultId = -1;
@@ -3201,6 +3165,13 @@ class spell_hun_tame_beast: public SpellScriptLoader
                 {
                     l_Player->SendPetTameResult((PetTameResult) l_ResultId);
                     return SPELL_FAILED_DONT_REPORT;
+                }
+
+                /// Chimaeron can be tamed but only at 20%
+                if (l_Target->GetEntry() == eCreature::Chimaeron && l_Target->GetHealthPct() > 20.0f)
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CHIMAERON_IS_TOO_CALM_TO_TAME);
+                    return SPELL_FAILED_CUSTOM_ERROR;
                 }
 
                 return SPELL_CAST_OK;
@@ -3335,7 +3306,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         /// Reduce damage by armor
                         if (l_Pet->IsDamageReducedByArmor(SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo()))
                             l_Damage = l_Pet->CalcArmorReducedDamage(GetHitUnit(), l_Damage, GetSpellInfo(), BaseAttack);
-
                         SetHitDamage(l_Damage);
                     }
                 }
@@ -3410,12 +3380,18 @@ class spell_hun_spirit_mend : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_spirit_mend_SpellScript);
 
-            void HandleHeal(SpellEffIndex)
+            void HandleHeal(SpellEffIndex l_Idx)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    SetHitHeal(int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f));
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Heal = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f);
+                l_Heal = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, l_Idx, SPELL_DIRECT_DAMAGE);
+                l_Heal = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Heal, SPELL_DIRECT_DAMAGE);
+                SetHitHeal(l_Heal);
             }
 
             void Register()
@@ -3645,6 +3621,72 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Adaptation - 152244
+class spell_hun_adaptation : public SpellScriptLoader
+{
+    public:
+        spell_hun_adaptation() : SpellScriptLoader("spell_hun_adaptation") { }
+
+        class spell_hun_adaptation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_adaptation_AuraScript);
+
+            enum eSpells
+            {
+                CombatExperienceAdaptation = 156843,
+                CombatExperience = 20782
+            };
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+                 
+                if (l_Caster == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                    {
+                        if (l_Pet->HasAura(eSpells::CombatExperience))
+                            l_Pet->RemoveAura(eSpells::CombatExperience);
+                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperienceAdaptation, true);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                    {
+                        l_Pet->RemoveAura(eSpells::CombatExperienceAdaptation);
+                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_adaptation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_PET_SPECS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_adaptation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_PET_SPECS, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_adaptation_AuraScript();
+        }
+};
+
+
 // Aimed Shot - 19434
 class spell_hun_aimed_shot : public SpellScriptLoader
 {
@@ -3735,7 +3777,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_chimaera_shot_damage();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
-    new spell_hun_scatter_shot();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
@@ -3746,6 +3787,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_explosive_shot();
     new spell_hun_aimed_shot();
     new spell_hun_poisoned_ammo();
+    new spell_hun_adaptation();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();

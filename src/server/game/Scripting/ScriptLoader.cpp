@@ -88,8 +88,9 @@ void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 void AddSC_garrison_commandscript();
 void AddSC_hotfix_commandscript();
+void AddSC_battlepay_commandscript();
+void AddSC_items_commandscript();
 
-#ifdef SCRIPTS
 //world
 void AddSC_areatrigger_scripts();
 void AddSC_generic_creature();
@@ -104,6 +105,10 @@ void AddSC_npc_companions();
 void AddSC_achievement_scripts();
 void AddSC_PlayerConditions();
 
+// player
+void AddSC_chat_log();
+
+#ifdef SCRIPTS
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
 void AddSC_boss_balinda();
@@ -778,6 +783,9 @@ void AddSC_boss_megaera();
 void AddSC_boss_ji_kun();
 void AddSC_boss_primordius();
 void AddSC_boss_dark_animus();
+void AddSC_boss_iron_qon();
+void AddSC_boss_twin_consorts();
+void AddSC_boss_lei_shen();
 void AddSC_instance_siege_of_orgrimmar();           // Siege of Orgrimmar
 void AddSC_siege_of_orgrimmar();
 void AddSC_immerseus();
@@ -875,6 +883,15 @@ void AddSC_Nyami();
 void AddSC_azzakel();
 void AddSC_teronogoer();
 
+/// Everbloom
+void AddSC_the_everbloom();
+void AddSC_instance_everbloom();
+void AddSC_boss_ancient_protectors();
+void AddSC_boss_witherbark();
+void AddSC_boss_xeritac();
+void AddSC_boss_sol();
+void AddSC_boss_yalnu();
+
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
@@ -894,18 +911,21 @@ void AddSC_AshranAreaTrigger();
 void AddSC_AshranNPCNeutral();
 void AddSC_AshranQuest();
 
-// player
-void AddSC_chat_log();
+/// BattlePay
+void AddSC_BattlePay_Services();
+void AddSC_BattlePay_Golds();
+void AddSC_BattlePay_Professions();
+
 #endif
 
 void AddScripts()
 {
     AddSpellScripts();
-    AddSC_SmartSCripts();
     AddCommandScripts();
-    sAnticheatMgr->StartScripts();
-#ifdef SCRIPTS
     AddWorldScripts();
+    sAnticheatMgr->StartScripts();
+    AddSC_SmartSCripts();
+#ifdef SCRIPTS
     AddEasternKingdomsScripts();
     AddKalimdorScripts();
     AddOutlandScripts();
@@ -915,7 +935,16 @@ void AddScripts()
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
-    AddSC_DuelReset();
+    AddBattlePayScripts();
+#endif
+}
+
+void AddBattlePayScripts()
+{
+#ifdef SCRIPTS
+    AddSC_BattlePay_Services();
+    AddSC_BattlePay_Golds();
+    AddSC_BattlePay_Professions();
 #endif
 }
 
@@ -984,11 +1013,12 @@ void AddCommandScripts()
     AddSC_wp_commandscript();
     AddSC_garrison_commandscript();
     AddSC_hotfix_commandscript();
+    AddSC_battlepay_commandscript();
+    AddSC_items_commandscript();
 }
 
 void AddWorldScripts()
 {
-#ifdef SCRIPTS
     AddSC_areatrigger_scripts();
     AddSC_generic_creature();
     AddSC_go_scripts();
@@ -1001,7 +1031,6 @@ void AddWorldScripts()
     AddSC_achievement_scripts();
     AddSC_chat_log();
     AddSC_PlayerConditions();
-#endif
 }
 
 void AddEasternKingdomsScripts()
@@ -1696,6 +1725,9 @@ void AddPandarieScripts()
     AddSC_boss_durumu();
     AddSC_boss_primordius();
     AddSC_boss_dark_animus();
+    AddSC_boss_iron_qon();
+    AddSC_boss_twin_consorts();
+    AddSC_boss_lei_shen();
     AddSC_instance_siege_of_orgrimmar();            // Siege of Orgrimmar
     AddSC_siege_of_orgrimmar();
     AddSC_immerseus();
@@ -1798,6 +1830,15 @@ void AddDraenorScripts()
     AddSC_azzakel();
     AddSC_teronogoer();
 
+    /// Everbloom
+    AddSC_the_everbloom();
+    AddSC_instance_everbloom();
+    AddSC_boss_ancient_protectors();
+    AddSC_boss_witherbark();
+    AddSC_boss_xeritac();
+    AddSC_boss_sol();
+    AddSC_boss_yalnu();
+
     /// Battlegrounds strongbox
     AddSC_item_strongboxes();
 #endif
@@ -1843,5 +1884,6 @@ void AddCustomScripts()
     AddSC_first_time_connexion();
     AddSC_user_reporting();
     AddSC_warning_update_client();
+    AddSC_DuelReset();
 #endif
 }

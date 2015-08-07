@@ -1036,7 +1036,7 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 Guild::Guild() : m_id(0), m_leaderGuid(0), m_createdDate(0), m_accountsNumber(0), m_bankMoney(0), m_eventLog(NULL),
     m_achievementMgr(this), _newsLog(this)
 {
-    for (uint8 l_Type = 0; l_Type < CHALLENGE_MAX; l_Type++)
+    for (uint8 l_Type = 0; l_Type < ChallengeMax; l_Type++)
         m_ChallengeCount[l_Type] = 0;
 
     memset(&m_bankEventLog, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(LogHolder*));
@@ -1116,7 +1116,7 @@ bool Guild::Create(Player * p_Leader, const std::string & p_Name)
     if (l_Result)
         sScriptMgr->OnGuildCreate(this, p_Leader, p_Name);
 
-    for (int8 l_Itr = 1; l_Itr < CHALLENGE_MAX; l_Itr++)
+    for (int8 l_Itr = 1; l_Itr < ChallengeMax; l_Itr++)
     {
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INIT_GUILD_CHALLENGES);
         l_Statement->setInt32(0, GetId());
@@ -1508,9 +1508,9 @@ bool Guild::SwitchGuildLeader(uint64 newLeaderGuid)
             l_Data.FlushBits();
 
             l_Data.appendPackGUID(l_OldLeader->GetGUID());          ///< Old Leader GUID
-            l_Data << uint32(g_RealmID);                              ///< Old Leader Virtual Realm Address
+            l_Data << uint32(g_RealmID);                            ///< Old Leader Virtual Realm Address
             l_Data.appendPackGUID(l_NewLeader->GetGUID());          ///< New Leader GUID
-            l_Data << uint32(g_RealmID);                              ///< New Leader Virtual Realm Address
+            l_Data << uint32(g_RealmID);                            ///< New Leader Virtual Realm Address
 
             l_Data.WriteString(l_OldLeader->GetName());             ///< Old Leader Name
             l_Data.WriteString(l_NewLeader->GetName());             ///< New Leader Name
@@ -1650,12 +1650,21 @@ void Guild::HandleInviteMember(WorldSession* p_Session, const std::string& p_Nam
         SendCommandResult(p_Session, GUILD_INVITE_S, ERR_GUILD_NOT_ALLIED, p_Name);
         return;
     }
+    
     /// Invited player cannot be invited
     if (p_Invitee->GetGuildIdInvited())
     {
         SendCommandResult(p_Session, GUILD_INVITE_S, ERR_ALREADY_INVITED_TO_GUILD_S, p_Name);
         return;
     }
+    
+    /// Player already in guild cannot be invited
+    if (p_Invitee->GetGuildId())
+    {
+        SendCommandResult(p_Session, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, p_Name);
+        return;
+    }    
+
     /// Inviting player must have rights to invite
     if (!_HasRankRight(l_Player, GR_RIGHT_INVITE))
     {
@@ -2479,7 +2488,7 @@ bool Guild::LoadGuildChallengesFromDB(Field* p_Fields)
     int32 l_ChallengeType = p_Fields[1].GetInt32();
     int32 l_ChallengeCount = p_Fields[2].GetInt32();
 
-    if (l_ChallengeType >= CHALLENGE_MAX)
+    if (l_ChallengeType >= ChallengeMax)
         return false;
 
     m_ChallengeCount[l_ChallengeType] = l_ChallengeCount;
@@ -3344,7 +3353,7 @@ bool Guild::_DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError
     if (swap)
         pSrc->StoreItem(trans, pDestItem);
 
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.DirectCommitTransaction(trans);
     return true;
 }
 
@@ -3496,7 +3505,7 @@ void Guild::SendGuildRanksUpdate(uint64 p_OfficierGUID, uint64 p_OtherGUID, uint
 
 void Guild::CompleteGuildChallenge(int32 p_ChallengeType)
 {
-    if (p_ChallengeType >= CHALLENGE_MAX)
+    if (p_ChallengeType >= ChallengeMax)
         return;
 
     GuildChallengeRewardData const& l_RewardDatas = sObjectMgr->GetGuildChallengeRewardData();

@@ -31,7 +31,6 @@
 #include "zlib.h"
 #include "Config.h"
 
-#define DUMP_TABLE_COUNT 33
 
 struct DumpTable
 {
@@ -40,7 +39,7 @@ struct DumpTable
     std::vector<std::string> columns;
 };
 
-static DumpTable g_DumpTables[DUMP_TABLE_COUNT] =
+static DumpTable g_DumpTables[] =
 {
     { "account_achievement",              DTT_ACC_ACH    , {}},
     { "account_achievement_progress",     DTT_ACC_ACH_PRO, {}},
@@ -48,6 +47,9 @@ static DumpTable g_DumpTables[DUMP_TABLE_COUNT] =
     { "characters",                       DTT_CHARACTER  , {}},
     { "character_achievement",            DTT_CHAR_TABLE , {}},
     { "character_achievement_progress",   DTT_CHAR_TABLE , {}},
+    { "character_archaeology",            DTT_CHAR_TABLE , {}},
+    { "character_archaeology_projects",   DTT_CHAR_TABLE , {}},
+    { "character_archaeology_sites",      DTT_CHAR_TABLE , {}},
     { "character_action",                 DTT_CHAR_TABLE , {}},
     { "character_aura",                   DTT_CHAR_TABLE , {}},
     { "character_aura_effect",            DTT_CHAR_TABLE , {}},
@@ -67,6 +69,11 @@ static DumpTable g_DumpTables[DUMP_TABLE_COUNT] =
     { "character_spell",                  DTT_CHAR_TABLE , {}},
     { "character_spell_cooldown",         DTT_CHAR_TABLE , {}},
     { "character_talent",                 DTT_CHAR_TABLE , {}},
+    { "character_garrison",               DTT_GARR_MAIN  , {}},
+    { "character_garrison_building",      DTT_GARR_B     , {}},
+    { "character_garrison_follower",      DTT_GARR_F     , {}},
+    { "character_garrison_mission",       DTT_GARR_M     , {}},
+    { "character_garrison_work_order",    DTT_GARR_WO    , {}},
     { "character_void_storage",           DTT_VS_TABLE   , {}},
     { "item_instance",                    DTT_ITEM       , {}},
     { "mail",                             DTT_MAIL       , {}},
@@ -76,6 +83,8 @@ static DumpTable g_DumpTables[DUMP_TABLE_COUNT] =
     { "pet_spell",                        DTT_PET_TABLE  , {}},
     { "pet_spell_cooldown",               DTT_PET_TABLE  , {}},
 };
+
+#define DUMP_TABLE_COUNT (sizeof(g_DumpTables) / sizeof(g_DumpTables[0]))
 
 // Low level functions
 static bool findtoknth(std::string &str, int n, std::string::size_type &s, std::string::size_type &e)
@@ -234,7 +243,7 @@ std::string CreateDumpString(uint32 type, char const* tableName, QueryResult res
 
     std::list<uint32> l_SkipIndex;
 
-    for (int l_I = 0; l_I < columns.size(); l_I++)
+    for (int32 l_I = 0; l_I < (int32)columns.size(); l_I++)
     {
         if (ashran &&
             ((std::string(tableName) == "characters" && columns[l_I] == "instance_mode_mask")
@@ -353,7 +362,7 @@ uint32 GetFieldIndexFromColumn(std::string p_ColumnName, std::vector<std::string
 }
 
 // Writing - High-level functions
-bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, uint32 account, char const*tableFrom, char const*tableTo, DumpTableType type, std::vector<std::string> const& columns, bool ashran)
+bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, uint32 account, char const*tableFrom, char const*tableTo, DumpTableType type, std::vector<std::string> const& columns, bool ashran, uint32& p_GarrisonID)
 {
     GUIDs const* guids = NULL;
     char const* fieldname = NULL;
@@ -389,6 +398,15 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, uint32 account,
         case DTT_ACC_ACH_PRO:
             fieldname = "account";
             break;
+        case DTT_GARR_MAIN:
+            fieldname = "character_guid";
+            break;
+        case DTT_GARR_B:
+        case DTT_GARR_F:
+        case DTT_GARR_M:
+        case DTT_GARR_WO:
+            fieldname = "garrison_id";
+            break;
         default:
             fieldname = "guid";
             break;
@@ -414,6 +432,8 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, uint32 account,
             wherestr = GenerateWhereStr(fieldname, account);
         else if (guids) // set case, get next guids string
             wherestr = GenerateWhereStr(fieldname, *guids, guids_itr);
+        else if (fieldname == "garrison_id")
+            wherestr = GenerateWhereStr(fieldname, p_GarrisonID);
         else
             // not set case, get single guid string
             wherestr = GenerateWhereStr(fieldname, guid);
@@ -469,6 +489,15 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, uint32 account,
                         return false;
                     break;
                 }
+                case DTT_GARR_MAIN:
+                {
+                    uint32 l_Idx = GetFieldIndexFromColumn("id", columns);
+                    if (l_Idx == -1)
+                        return false;
+
+                    p_GarrisonID = result->Fetch()[l_Idx].GetUInt32();
+
+                }
                 default:
                     break;
             }
@@ -492,9 +521,10 @@ bool PlayerDumpWriter::GetDump(uint32 guid, uint32 account, std::string &dump, b
     dump +=
             "IMPORTANT NOTE: DO NOT apply it directly - it will irreversibly DAMAGE and CORRUPT your database! You have been warned!\n\n";
 
+    uint32 l_GarrisonID = 0xFFFFFFFF;
     for (int i = 0; i < DUMP_TABLE_COUNT; ++i)
     {
-        if (!DumpTable(dump, guid, account, g_DumpTables[i].name, g_DumpTables[i].name, g_DumpTables[i].type, g_DumpTables[i].columns, ashran))
+        if (!DumpTable(dump, guid, account, g_DumpTables[i].name, g_DumpTables[i].name, g_DumpTables[i].type, g_DumpTables[i].columns, ashran, l_GarrisonID))
             return false;
     }
 
@@ -568,7 +598,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
         return DUMP_FILE_OPEN_ERROR;
 
     QueryResult result = QueryResult(NULL);
-    char newguid[20], chraccount[20], newpetid[20], currpetid[20], lastpetid[20], atLogin[20];
+    char newguid[20], chraccount[20], newpetid[20], currpetid[20], lastpetid[20], atLogin[20], l_NewGarrisonID[20];
 
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
@@ -593,6 +623,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
     snprintf(newpetid, 20, "%u", sObjectMgr->GeneratePetNumber());
     snprintf(lastpetid, 20, "%u", 0);
     snprintf(atLogin, 20, "%u", p_AtLogin);
+    snprintf(l_NewGarrisonID, 20, "%u", sObjectMgr->GetNewGarrisonID());
 
     std::map<uint32, uint32> items;
     std::map<uint32, uint32> mails;
@@ -761,6 +792,96 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                 if (!changenth(l_Line, l_Index, newguid))                               ///< character_*.guid update
                 {
                     sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [12]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+                break;
+            }
+            case DTT_GARR_MAIN:
+            {
+                uint32 l_Index = GetFieldIndexFromColumn("id", l_Columns) + 1;
+                if (!changenth(l_Line, l_Index, l_NewGarrisonID))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [DTT_GARR_MAIN]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+
+                l_Index = GetFieldIndexFromColumn("character_guid", l_Columns) + 1;
+                if (!changenth(l_Line, l_Index, newguid))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [DTT_GARR_MAIN]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+
+                break;
+            }
+            case DTT_GARR_B:
+            {
+                uint32 l_Index = GetFieldIndexFromColumn("id", l_Columns) + 1;
+                auto l_StrValue = std::to_string(sObjectMgr->GetNewGarrisonBuildingID());
+                if (!changenth(l_Line, l_Index, l_StrValue.c_str()))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [DTT_GARR_B]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+
+                l_Index = GetFieldIndexFromColumn("garrison_id", l_Columns) + 1;
+                if (!changenth(l_Line, l_Index, l_NewGarrisonID))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [DTT_GARR_B]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+                break;
+            }
+            case DTT_GARR_F:
+            {
+                uint32 l_Index = GetFieldIndexFromColumn("id", l_Columns) + 1;
+                auto l_StrValue = std::to_string(sObjectMgr->GetNewGarrisonFollowerID());
+                if (!changenth(l_Line, l_Index, l_StrValue.c_str()))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [DTT_GARR_F]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+
+                l_Index = GetFieldIndexFromColumn("garrison_id", l_Columns) + 1;
+                if (!changenth(l_Line, l_Index, l_NewGarrisonID))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [DTT_GARR_F]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+                break;
+            }
+            case DTT_GARR_M:
+            {
+                uint32 l_Index = GetFieldIndexFromColumn("id", l_Columns) + 1;
+                auto l_StrValue = std::to_string(sObjectMgr->GetNewGarrisonMissionID());
+                if (!changenth(l_Line, l_Index, l_StrValue.c_str()))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [DTT_GARR_M]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+
+                l_Index = GetFieldIndexFromColumn("garrison_id", l_Columns) + 1;
+                if (!changenth(l_Line, l_Index, l_NewGarrisonID))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [DTT_GARR_M]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+                break;
+            }
+            case DTT_GARR_WO:
+            {
+                uint32 l_Index = GetFieldIndexFromColumn("id", l_Columns) + 1;
+                auto l_StrValue = std::to_string(sObjectMgr->GetNewGarrisonWorkOrderID());
+                if (!changenth(l_Line, l_Index, l_StrValue.c_str()))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [DTT_GARR_WO]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+
+                l_Index = GetFieldIndexFromColumn("garrison_id", l_Columns) + 1;
+                if (!changenth(l_Line, l_Index, l_NewGarrisonID))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [DTT_GARR_WO]");
                     ROLLBACK(DUMP_FILE_BROKEN);
                 }
                 break;

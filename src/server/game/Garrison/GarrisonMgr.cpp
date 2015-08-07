@@ -491,7 +491,7 @@ namespace MS { namespace Garrison
     }
 
     /// Save this garrison to DB
-    void Manager::Save()
+    void Manager::Save(SQLTransaction& p_Transaction)
     {
         std::ostringstream l_KnownBluePrintsStr;
 
@@ -521,8 +521,8 @@ namespace MS { namespace Garrison
         l_Stmt->setUInt32(l_Index++, m_NumFollowerActivationRegenTimestamp);
         l_Stmt->setUInt32(l_Index++, m_CacheLastUsage);
         l_Stmt->setUInt32(l_Index++, m_ID);
-
-        CharacterDatabase.AsyncQuery(l_Stmt);
+        
+        p_Transaction->Append(l_Stmt);
 
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         {
@@ -539,7 +539,7 @@ namespace MS { namespace Garrison
             l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].DatabaseID);
             l_Stmt->setUInt32(l_Index++, m_ID);
 
-            CharacterDatabase.AsyncQuery(l_Stmt);
+            p_Transaction->Append(l_Stmt);
         }
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
@@ -558,13 +558,13 @@ namespace MS { namespace Garrison
                 l_Stmt->setUInt32(l_Index++, m_Missions[l_I].DatabaseID);
                 l_Stmt->setUInt32(l_Index++, m_ID);
 
-                CharacterDatabase.AsyncQuery(l_Stmt);
+                p_Transaction->Append(l_Stmt);
             }
             else
             {
                 PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
                 l_Stmt->setUInt32(0, m_Missions[l_I].DatabaseID);
-                CharacterDatabase.AsyncQuery(l_Stmt);
+                p_Transaction->Append(l_Stmt);
             }
         }
 
@@ -592,7 +592,7 @@ namespace MS { namespace Garrison
             l_Stmt->setUInt32(l_Index++, m_Followers[l_I].DatabaseID);
             l_Stmt->setUInt32(l_Index++, m_ID);
 
-            CharacterDatabase.AsyncQuery(l_Stmt);
+            p_Transaction->Append(l_Stmt);
         }
     }
 
@@ -1230,7 +1230,7 @@ namespace MS { namespace Garrison
             l_Data << uint32(l_Mission->OfferTime);
             l_Data << uint32(l_Mission->OfferMaxDuration);
             l_Data << uint32(l_Mission->StartTime);
-            l_Data << uint32(0);
+            l_Data << uint32(0);                            ///< TravelDuration
             l_Data << uint32(l_MissionTemplate->Duration);
             l_Data << uint32(l_Mission->State);
 

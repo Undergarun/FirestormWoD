@@ -474,7 +474,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         reason = 1;
     else if (GetPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR))
         reason = 3;                                         // is jumping or falling
-    else if (GetPlayer()->m_Duel || GetPlayer()->HasAura(9454)) // is dueling or frozen by GM via freeze command
+    else if (GetPlayer()->m_Duel || GetPlayer()->InArena() ||GetPlayer()->HasAura(9454)) ///< is dueling, in arena or frozen by GM via freeze command
         reason = 2;                                         // FIXME - Need the correct value
 
     if (reason)
@@ -1501,7 +1501,7 @@ void WorldSession::HandleInspectRatedBGStatsOpcode(WorldPacket& p_RecvData)
     for (uint8 l_Iter = 0; l_Iter < MAX_ARENA_SLOT; ++l_Iter)
     {
         l_Data << int32(l_Player->GetArenaPersonalRating(l_Iter));
-        l_Data << int32(0);
+        l_Data << int32(0);                                 ///< Rank
         l_Data << int32(l_Player->GetWeekGames(l_Iter));
         l_Data << int32(l_Player->GetWeekWins(l_Iter));
         l_Data << int32(l_Player->GetSeasonGames(l_Iter));

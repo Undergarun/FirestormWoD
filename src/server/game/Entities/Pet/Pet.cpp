@@ -627,7 +627,7 @@ void Pet::Update(uint32 diff)
 
             if (isControlled())
             {
-                if (owner->GetPetGUID() != GetGUID() && !HasAura(130201)) // Stampede
+                if (owner->GetPetGUID() != GetGUID() && !m_Stampeded) // Stampede
                 {
                     sLog->outError(LOG_FILTER_PETS, "Pet %u is not pet of owner %s, removed", GetEntry(), m_owner->GetName());
                     Remove(getPetType() == HUNTER_PET ? PET_SLOT_DELETED : PET_SLOT_ACTUAL_PET_SLOT, true, m_Stampeded);
@@ -866,9 +866,11 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     // Determine pet type
     PetType l_PetType = MAX_PET_TYPE;
-    if (isPet() && m_owner->GetTypeId() == TYPEID_PLAYER)
+
+    Unit* l_Owner = GetSummoner();
+    if (l_Owner && isPet() && l_Owner->GetTypeId() == TYPEID_PLAYER)
     {
-        switch (m_owner->getClass())
+        switch (l_Owner->getClass())
         {
             case CLASS_WARLOCK:
             case CLASS_MONK:
@@ -883,7 +885,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
                 m_unitTypeMask |= UNIT_MASK_HUNTER_PET;
                 break;
             default:
-                sLog->outError(LOG_FILTER_PETS, "Unknown type pet %u is summoned by player class %u", GetEntry(), m_owner->getClass());
+                sLog->outError(LOG_FILTER_PETS, "Unknown type pet %u is summoned by player class %u", GetEntry(), l_Owner->getClass());
                 break;
         }
     }
@@ -900,7 +902,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     SetMeleeDamageSchool(SpellSchools(l_CreatureTemplate->dmgschool));
 
-    SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, m_owner->GetArmor() * l_PetStat->m_ArmorCoef);
+    SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, (l_Owner ? l_Owner->GetArmor() : 1) * l_PetStat->m_ArmorCoef);
 
     SetAttackTime(WeaponAttackType::BaseAttack,   l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
     SetAttackTime(WeaponAttackType::OffAttack,    l_PetStat->m_AttackSpeed * IN_MILLISECONDS);
@@ -914,10 +916,10 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     if (l_PetType == HUNTER_PET)
     {
-        if (sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
+        if (sObjectMgr->GetCreatureModelInfo(GetDisplayId()) && l_Owner)
         {
-            SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, m_owner->GetFloatValue(UNIT_FIELD_BOUNDING_RADIUS));
-            SetFloatValue(UNIT_FIELD_COMBAT_REACH, m_owner->GetFloatValue(UNIT_FIELD_COMBAT_REACH));
+            SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, l_Owner->GetFloatValue(UNIT_FIELD_BOUNDING_RADIUS));
+            SetFloatValue(UNIT_FIELD_COMBAT_REACH, l_Owner->GetFloatValue(UNIT_FIELD_COMBAT_REACH));
         }
     }
 
@@ -940,8 +942,8 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
         if (l_PetStat->m_CreatePower < 0.0f)
             l_CreatePower = l_PetStat->m_CreatePower * -1;
         // Positive number, it's percentage of owner power
-        else
-            l_CreatePower = float(m_owner->GetMaxPower(m_owner->getPowerType()) * l_PetStat->m_CreatePower);
+        else if (l_Owner != nullptr)
+            l_CreatePower = float(l_Owner->GetMaxPower(l_Owner->getPowerType()) * l_PetStat->m_CreatePower);
     }
 
     SetCreateMana(l_PetPower == Powers::POWER_MANA ? l_CreatePower : 0);
@@ -959,18 +961,26 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     UpdateAllStats();
 
-    SetCreateHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
-    SetMaxHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    if (l_Owner != nullptr)
+    {
+        if (l_Owner->GetTypeId() == TYPEID_PLAYER && l_Owner->getClass() == CLASS_WARLOCK)
+            SetCreateHealth(l_Owner->GetMaxHealth() * 0.75f);
+        else
+            SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+        SetMaxHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    }
+
     SetFullHealth();
 
     if (IsWarlockPet())
         CastSpell(this, 123746, true);  ///< Fel Energy
 
-    if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(58640))           ///< Glyph of the Geist
+    if (GetEntry() == ENTRY_GHOUL && l_Owner && l_Owner->HasAura(58640))           ///< Glyph of the Geist
         CastSpell(this, 121916, true);
-    else if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(146652))     ///< Glyph of the Skeleton
+    else if (GetEntry() == ENTRY_GHOUL && l_Owner && l_Owner->HasAura(146652))     ///< Glyph of the Skeleton
         CastSpell(this, 147157, true);
-
+    if (l_PetType == HUNTER_PET) ///< All Hunter pet Get Combat Experience
+        CastSpell(this, 20782, true);
     return true;
 }
 
@@ -1047,7 +1057,7 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
 
             WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(petGuid);
-            data << uint8(1);
+            data << uint8(CooldownFlags::CooldownFlagNone);
             data << uint32(1);
             data << uint32(spell_id);
             data << uint32(uint32(db_time - curTime) * IN_MILLISECONDS);
@@ -1818,14 +1828,10 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
             continue;
         uint32 unSpellId = itr->first;
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
-        if (!spellInfo)
-        {
-            ASSERT(spellInfo);
-            continue;
-        }
+        ASSERT(spellInfo);
 
         // Not send cooldown for this spells
-        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
         if ((spellInfo->PreventionType & (SpellPreventionMask::Silence)) == 0)
@@ -1835,7 +1841,7 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         {
             WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(GetGUID());
-            data << uint8(1);
+            data << uint8(CooldownFlags::CooldownFlagNone);
             data << uint32(1);
             data << uint32(unSpellId);
             data << uint32(uint32(unTimeMs));
