@@ -2231,21 +2231,21 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
 
     if (HasAccountAchieved(p_Achievement->ID))
     {
-        m_CompletedAchievmentsLock.acquire();
+        m_CompletedAchievementsLock.acquire();
         CompletedAchievementData& l_Data = m_completedAchievements[p_Achievement->ID];
         l_Data.completedByThisCharacter = true;
         l_Data.changed = true;
-        m_CompletedAchievmentsLock.release();
+        m_CompletedAchievementsLock.release();
         return;
     }
 
-    m_CompletedAchievmentsLock.acquire();        
+    m_CompletedAchievementsLock.acquire();        
     CompletedAchievementData& l_Data = m_completedAchievements[p_Achievement->ID];
     l_Data.completedByThisCharacter = true;
     l_Data.date = time(NULL);
     l_Data.first_guid = MAKE_NEW_GUID(GetOwner()->GetGUIDLow(), 0, HIGHGUID_PLAYER);
     l_Data.changed = true;
-    m_CompletedAchievmentsLock.release();
+    m_CompletedAchievementsLock.release();
 
     sAchievementMgr->SetRealmCompleted(p_Achievement, GetInstanceId(GetOwner()));
 

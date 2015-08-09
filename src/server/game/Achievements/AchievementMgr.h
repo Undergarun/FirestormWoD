@@ -649,7 +649,7 @@ class AchievementMgr
         T* _owner;
         CriteriaProgressMap m_criteriaProgress;
         CompletedAchievementMap m_completedAchievements;
-        ACE_Thread_Mutex m_CompletedAchievementsLock;
+        mutable ACE_Thread_Mutex m_CompletedAchievementsLock;
         typedef ACE_Based::LockedMap<uint32, uint32> TimedAchievementMap;
         TimedAchievementMap m_timedAchievements;      // Criteria id/time left in MS
         uint32 _achievementPoints;
