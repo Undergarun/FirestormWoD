@@ -623,6 +623,7 @@ class AchievementMgr
         uint32 GetAchievementPoints() const { return _achievementPoints; }
 
         CompletedAchievementMap const& GetCompletedAchivements() const { return m_completedAchievements; }
+        ACE_Thread_Mutex& GetCompletedAchievementLock() { return m_CompletedAchievementsLock; }
 
     private:
         enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
@@ -648,7 +649,8 @@ class AchievementMgr
         T* _owner;
         CriteriaProgressMap m_criteriaProgress;
         CompletedAchievementMap m_completedAchievements;
-        typedef std::map<uint32, uint32> TimedAchievementMap;
+        ACE_Thread_Mutex m_CompletedAchievmentsLock;
+        typedef ACE_Based::LockedMap<uint32, uint32> TimedAchievementMap;
         TimedAchievementMap m_timedAchievements;      // Criteria id/time left in MS
         uint32 _achievementPoints;
         bool m_NeedDBSync;
