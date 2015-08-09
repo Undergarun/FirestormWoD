@@ -38,7 +38,7 @@ struct ItemSetEffect
     SpellInfo const* spells[8];
 };
 
-#define MAX_ITEM_BONUS 5
+#define MAX_ITEM_BONUS 6
 
 enum ItemBonusType
 {
