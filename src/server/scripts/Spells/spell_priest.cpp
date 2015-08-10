@@ -2660,34 +2660,92 @@ class spell_pri_levitate: public SpellScriptLoader
 // Spirit Shell - 109964
 class spell_pri_spirit_shell: public SpellScriptLoader
 {
-public:
-    spell_pri_spirit_shell() : SpellScriptLoader("spell_pri_spirit_shell") { }
+    public:
+        spell_pri_spirit_shell() : SpellScriptLoader("spell_pri_spirit_shell") { }
 
-    class spell_pri_spirit_shell_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_spirit_shell_SpellScript);
-
-        void HandleHeal(SpellEffIndex /*effIndex*/)
+        class spell_pri_spirit_shell_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
-            if (l_Caster->GetAura(PRIEST_SPELL_SPIRIT_SHELL_AURA))
+            PrepareSpellScript(spell_pri_spirit_shell_SpellScript);
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                int32 l_Absorb = GetHitHeal();
-                l_Caster->CastCustomSpell(GetHitUnit(), PRIEST_SPELL_SPIRIT_SHELL_PROC, &l_Absorb, NULL, NULL, true);
-                SetHitHeal(0);
+                if (Unit* l_Caster = GetCaster())
+                if (l_Caster->GetAura(PRIEST_SPELL_SPIRIT_SHELL_AURA))
+                {
+                    int32 l_Absorb = GetHitHeal();
+                    l_Caster->CastCustomSpell(GetHitUnit(), PRIEST_SPELL_SPIRIT_SHELL_PROC, &l_Absorb, NULL, NULL, true);
+                    SetHitHeal(0);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_spirit_shell_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_pri_spirit_shell_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            return new spell_pri_spirit_shell_SpellScript();
         }
-    };
+};
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_spirit_shell_SpellScript();
-    }
+/// Last Update 6.1.2 19802
+/// Spirit Shell - 114908
+class spell_pri_spirit_shell_effect : public SpellScriptLoader
+{
+    public:
+        spell_pri_spirit_shell_effect() : SpellScriptLoader("spell_pri_spirit_shell_effect") { }
+
+        class spell_pri_spirit_shell_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_spirit_shell_effect_SpellScript);
+
+            int32 m_AmountPreviousShield = 0;
+
+            void HandleBeforeHit()
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (constAuraEffectPtr l_PreviousShield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                    m_AmountPreviousShield = l_PreviousShield->GetAmount();
+            }
+
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_Shield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                {
+                    int32 l_Bp = m_AmountPreviousShield + l_Shield->GetAmount();
+
+                    int32 l_MaxStackAmount = CalculatePct(l_Player->GetMaxHealth(), 60); ///< Stack up to a maximum of 60% of the casting Priest's health
+
+                    if (l_Bp > l_MaxStackAmount)
+                        l_Bp = l_MaxStackAmount;
+
+                    l_Shield->SetAmount(l_Bp);
+                }
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_pri_spirit_shell_effect_SpellScript::HandleBeforeHit);
+                AfterHit += SpellHitFn(spell_pri_spirit_shell_effect_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_spirit_shell_effect_SpellScript();
+        }
 };
 
 // Flash heal - 2061
@@ -3969,6 +4027,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_glyph_of_the_inquisitor();
     new spell_pri_glyph_of_restored_faith();
     new spell_pri_dominate_mind();
+    new spell_pri_spirit_shell_effect();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();
