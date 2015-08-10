@@ -1236,6 +1236,8 @@ class instance_ulduar : public InstanceMapScript
 
             void Update(uint32 diff)
             {
+                UpdateOperations(diff);
+
                 if (_events.Empty())
                     return;
 

@@ -221,7 +221,18 @@ void InstanceScript::UpdateDoorState(GameObject* door)
         }
     }
 
-    door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+    /// Delay Door closing, like retail
+    if (!open)
+    {
+        uint64 l_DoorGuid = door->GetGUID();
+        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [l_DoorGuid]() -> void
+        {
+            if (GameObject* l_Door = sObjectAccessor->FindGameObject(l_DoorGuid))
+                l_Door->SetGoState(GOState::GO_STATE_READY);
+        });
+    }
+    else
+        door->SetGoState(GOState::GO_STATE_ACTIVE);
 }
 
 void InstanceScript::AddDoor(GameObject* door, bool add)
