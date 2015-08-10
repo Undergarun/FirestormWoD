@@ -1746,10 +1746,6 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     else if (GetTypeId() == TYPEID_UNIT && (victim->GetTypeId() == TYPEID_PLAYER || victim->IsPetGuardianStuff()))
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
-    /// Apply Versatility damage bonus done/taken
-    if (victim->GetSpellModOwner())
-        damage -= CalculatePct(damage, victim->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
     {
@@ -2397,6 +2393,13 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             splitDamage = RoundToInterval(splitDamage, uint32(0), uint32(dmgInfo.GetDamage()));
 
             dmgInfo.AbsorbDamage(splitDamage);
+
+            // check if caster is immune to damage
+            if (caster->IsImmunedToDamage(schoolMask))
+            {
+                victim->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                continue;
+            }
 
             // don't damage caster if he has immunity
             if (caster->IsImmunedToDamage((*itr)->GetSpellInfo()))
@@ -3437,7 +3440,6 @@ void Unit::SetCurrentCastedSpell(Spell* pSpell)
 
     // break same type spell if it is not delayed
     if (Spell* l_CurrentSpell = GetCurrentSpell(CSpellType))
-        if (!(l_CurrentSpell->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS))
             InterruptSpell(CSpellType, false);
 
     // special breakage effects:
@@ -5767,7 +5769,6 @@ void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 SpellID, uint32 Damag
     log.resist = Resist;
     log.physicalLog = PhysicalDamage;
     log.blocked = Blocked;
-    log.HitInfo = SPELL_HIT_TYPE_UNK1 | SPELL_HIT_TYPE_UNK3 | SPELL_HIT_TYPE_UNK6;
     if (CriticalHit)
         log.HitInfo |= SPELL_HIT_TYPE_CRIT;
     SendSpellNonMeleeDamageLog(&log);
@@ -6432,7 +6433,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     if (GetEntry() == 62982 || GetEntry() == 67236) // Mindbender
                     {
-                        target->EnergizeBySpell(target, 123051, int32(0.013f * target->GetPower(POWER_MANA)), POWER_MANA);
+                        target->EnergizeBySpell(target, 123051, int32(0.0075f * target->GetPower(POWER_MANA)), POWER_MANA);
                         return false;
                     }
 
@@ -11578,11 +11579,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
-    // Sword of Light - 53503
-    // Increases damage of Hammer of Wrath and Judgement too
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && (spellProto->Id == 20271 || spellProto->Id == 24275 || spellProto->Id == 158392))
-         DoneTotal += CalculatePct(pdamage, 25);
-
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
 
     // done scripted mod (take it from owner)
@@ -12068,6 +12064,156 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
             TakenAdvertisedBenefit += (*i)->GetAmount();
 
     return TakenAdvertisedBenefit;
+}
+
+bool Unit::IsSpellMultistrike(SpellInfo const* p_SpellProto) const
+{
+    if (GetSpellModOwner() == nullptr)
+        return false;
+    /// Pet can multistrike too with same chance as owner
+    return roll_chance_f(GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE));
+}
+
+uint32 Unit::GetMultistrikeBasePoints(uint32 p_Damage) const
+{
+    if (GetSpellModOwner() == nullptr)
+        return 0;
+
+    return (p_Damage * GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT));
+}
+
+void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int32& p_Amount)
+{
+    Player* l_ModOwner = GetSpellModOwner();
+
+    if (IsSpellMultistrike(p_ProcSpell) &&
+        (p_ProcSpell->Id == 17 || p_ProcSpell->Id == 152118 || p_ProcSpell->Id == 114908))
+    {
+        uint8 l_ProcTimes = (p_Target->GetSpellModOwner() != nullptr) ? 1 : 2;
+        for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
+        {
+            uint32 l_MultistrikeAbsorbAmount = GetMultistrikeBasePoints(p_Amount);
+
+            if (IsAuraAbsorbCrit(p_ProcSpell, p_ProcSpell->GetSchoolMask()))
+                l_MultistrikeAbsorbAmount = SpellCriticalAuraAbsorbBonus(p_ProcSpell, p_Amount);
+
+            p_Amount += l_MultistrikeAbsorbAmount;
+        }
+    }
+}
+
+void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType /* = WeaponAttackType::BaseAttack*/ , SpellInfo const* p_ProcAura /*= NULL*/, constAuraEffectPtr p_OwnerAuraEffect /*= NULL*/)
+{
+    /// ...the chance to activate up to two extra times (depending if PvE or PvP) at X% of normal effectiveness
+    uint8 l_ProcTimes = (p_Target->GetSpellModOwner() != nullptr) ? 1 : 2;
+    for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
+    {
+        if (IsSpellMultistrike(p_ProcSpell))
+        {
+            bool l_IsCrit = false;
+
+            uint32 l_MultistrikeDamage = GetMultistrikeBasePoints(p_Damage);
+
+            if (p_ProcSpell && roll_chance_f(GetUnitSpellCriticalChance(p_Target, p_ProcSpell, p_ProcSpell->GetSchoolMask())))
+                l_IsCrit = true;
+            else if (!p_ProcSpell && roll_chance_f(GetUnitCriticalChance(p_AttType, p_Target)))
+                l_IsCrit = true;
+
+            if (l_IsCrit && p_ProcSpell)
+                l_MultistrikeDamage = SpellCriticalDamageBonus(p_ProcSpell, l_MultistrikeDamage, p_Target);
+            else if (l_IsCrit && !p_ProcSpell)
+                l_MultistrikeDamage = MeleeCriticalDamageBonus(nullptr, l_MultistrikeDamage, p_Target, p_AttType);
+
+            if (p_ProcExtra & PROC_EX_CRITICAL_HIT)
+                l_IsCrit = true;
+
+            uint32 l_DoneProcFlag = p_ProcFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK;
+            uint32 l_TakenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
+            uint32 l_ExFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE;
+
+            if (l_IsCrit)
+                l_ExFlag |= PROC_EX_CRITICAL_HIT;
+            else
+                l_ExFlag |= PROC_EX_NORMAL_HIT;
+
+            if (p_ProcFlag & PROC_FLAG_DONE_MELEE_AUTO_ATTACK)
+                l_TakenProcFlag |= PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
+
+            if (p_ProcFlag & PROC_FLAG_DONE_RANGED_AUTO_ATTACK)
+                l_TakenProcFlag |= PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK;
+
+            if (p_ProcFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS)
+                l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS;
+
+            if (p_ProcFlag & PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS)
+                l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS;
+
+            if (p_ProcFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
+                l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS;
+
+            if (p_ProcFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
+                l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG;
+
+            if (p_ProcFlag & PROC_FLAG_DONE_PERIODIC)
+                l_TakenProcFlag |= PROC_FLAG_TAKEN_PERIODIC;
+
+            if (p_ProcSpell && IsFriendlyTo(p_Target)) ///< Spell Heal
+            {
+                HealBySpell(p_Target, p_ProcSpell, l_MultistrikeDamage, l_IsCrit, true);
+                ProcDamageAndSpell(p_Target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, l_MultistrikeDamage, 0, p_AttType, p_ProcSpell);
+            }
+            else if (p_ProcSpell) ///< Spell Damage
+            {
+                if (p_Target->GetHealth() > p_Damage)
+                {
+                    SpellNonMeleeDamage damageInfo(this, p_Target, p_ProcSpell->Id, p_ProcSpell->SchoolMask);
+
+                    if (l_IsCrit)
+                        damageInfo.HitInfo |= SPELL_HIT_TYPE_CRIT;
+
+                    damageInfo.HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
+                    damageInfo.damage = l_MultistrikeDamage;
+
+                    CalcAbsorbResist(p_Target, p_ProcSpell->GetSchoolMask(), p_ProcFlag & PROC_FLAG_DONE_PERIODIC ? DOT : SPELL_DIRECT_DAMAGE, p_Damage, &damageInfo.absorb, &damageInfo.resist, p_ProcSpell);
+                    DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
+                    DealSpellDamage(&damageInfo, true);
+
+                    if (p_OwnerAuraEffect)
+                    {
+                        int32 overkill = damageInfo.damage - p_Target->GetHealth() > 0 ? damageInfo.damage - p_Target->GetHealth() : 0;
+                        SpellPeriodicAuraLogInfo pInfo(p_OwnerAuraEffect, damageInfo.damage, overkill, damageInfo.absorb, damageInfo.resist, 0.0f, l_IsCrit, true);
+                        p_Target->SendPeriodicAuraLog(&pInfo);
+                    }
+                    else
+                        SendSpellNonMeleeDamageLog(&damageInfo);
+
+                    if (p_Target->isDead())
+                    {
+                        l_DoneProcFlag |= PROC_FLAG_KILL;
+                        l_TakenProcFlag |= (PROC_FLAG_KILLED | PROC_FLAG_DEATH);
+                    }
+
+                    ProcDamageAndSpell(p_Target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.absorb, p_AttType, p_ProcSpell, p_ProcAura);
+                }
+            }
+            else ///< Auto Attack
+            {
+                CalcDamageInfo damageInfo;
+                CalculateMeleeDamage(p_Target, 0, &damageInfo, p_AttType);
+
+                if (l_IsCrit)
+                    damageInfo.HitInfo |= HITINFO_CRITICALHIT;
+
+                damageInfo.HitInfo |= HITINFO_MULTISTRIKE;
+                damageInfo.damage = l_MultistrikeDamage;
+
+                DealDamageMods(p_Target, damageInfo.damage, &damageInfo.absorb);
+                DealMeleeDamage(&damageInfo, true);
+                SendAttackStateUpdate(&damageInfo);
+                ProcDamageAndSpell(damageInfo.target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.attackType);
+            }
+        }
+    }
 }
 
 bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
@@ -13062,14 +13208,14 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             if ((*i)->GetMiscValue() == INCREASE_MELEE_DAMAGE_PERCENT)
                 amount += float((*i)->GetAmount());
 
-        AddPct(DoneTotalMod, amount);
+            DoneTotalMod += CalculatePct(1.0, amount);
     }
 
     // Apply Power PvP damage bonus
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
         float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE);
-        AddPct(DoneTotalMod, PvPPower);
+        DoneTotalMod += CalculatePct(1.0, PvPPower);
     }
     
     // Custom MoP Script
@@ -13079,7 +13225,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (HasAura(76856) && HasAuraState(AURA_STATE_ENRAGE))
         {
             float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.375f;
-            AddPct(DoneTotalMod, Mastery);
+            DoneTotalMod += CalculatePct(1.0, Mastery);
         }
     }
 
@@ -13106,7 +13252,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             if (owner->HasAura(76613) && owner->GetTypeId() == TYPEID_PLAYER)
             {
                 float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-                AddPct(DoneTotalMod, Mastery);
+                DoneTotalMod += CalculatePct(1.0, Mastery);
             }
         }
     }
@@ -13115,7 +13261,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     if (GetTypeId() == TYPEID_UNIT && HasAura(91342))
         if (AuraPtr stacks = GetAura(91342))
             if (AuraEffectPtr shadowInfusion = stacks->GetEffect(0))
-                AddPct(DoneTotalMod, shadowInfusion->GetAmount());
+                DoneTotalMod += CalculatePct(1.0, shadowInfusion->GetAmount());
 
     bool weaponAttack = false;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -13147,11 +13293,11 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                 if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
                 {
                     if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
-                        AddPct(DoneTotalMod, (*i)->GetAmount());
+                        DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
                     else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
-                        AddPct(DoneTotalMod, (*i)->GetAmount());
+                        DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
                     else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
-                        AddPct(DoneTotalMod, (*i)->GetAmount());
+                        DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
                 }
             }
         }
@@ -13161,23 +13307,29 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     {
         AuraEffectList const& mModDamagePercentDone = GetSpellModOwner()->GetAuraEffectsByType(SPELL_AURA_MOD_PET_DAMAGE_DONE);
         for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
-            AddPct(DoneTotalMod, (*i)->GetAmount());
+            DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
     }
 
     AuraEffectList const& mDamageDoneVersus = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
     for (AuraEffectList::const_iterator i = mDamageDoneVersus.begin(); i != mDamageDoneVersus.end(); ++i)
         if (creatureTypeMask & uint32((*i)->GetMiscValue()))
-            AddPct(DoneTotalMod, (*i)->GetAmount());
+            DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
 
     // bonus against aurastate
     AuraEffectList const& mDamageDoneVersusAurastate = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS_AURASTATE);
     for (AuraEffectList::const_iterator i = mDamageDoneVersusAurastate.begin(); i != mDamageDoneVersusAurastate.end(); ++i)
         if (victim->HasAuraState(AuraStateType((*i)->GetMiscValue())))
-            AddPct(DoneTotalMod, (*i)->GetAmount());
+            DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
+
+    if (GetSpellModOwner())
+    {
+        if (GetSpellModOwner())
+            DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+    }
 
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
     if (spellProto)
-        AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
+        DoneTotalMod += CalculatePct(1.0, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
 
     // done scripted mod (take it from owner)
     Unit* owner = GetOwner() ? GetOwner() : this;
@@ -13241,11 +13393,11 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
                 {
                     // Vendetta, should affect to all damage
                     case 79140:
-                        AddPct(TakenTotalMod, (*i)->GetAmount());
+                        TakenTotalMod += CalculatePct(1.0, (*i)->GetAmount());
                         break;
                     default:
                         if ((*i)->IsAffectingSpell(spellProto))
-                            AddPct(TakenTotalMod, (*i)->GetAmount());
+                            TakenTotalMod += CalculatePct(1.0, (*i)->GetAmount());
                         break;
                 }
             }
@@ -13262,7 +13414,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
             AuraEffectList const& mDamageDoneMechanic = GetAuraEffectsByType(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT);
             for (AuraEffectList::const_iterator i = mDamageDoneMechanic.begin(); i != mDamageDoneMechanic.end(); ++i)
                 if (mechanicMask & uint32(1<<((*i)->GetMiscValue())))
-                    AddPct(TakenTotalMod, (*i)->GetAmount());
+                    TakenTotalMod += CalculatePct(1.0, (*i)->GetAmount());
         }
     }
     else
@@ -13271,7 +13423,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
         {
             if ((*i)->GetCaster() == attacker)
-                AddPct(TakenTotalMod, (*i)->GetAmount());
+                TakenTotalMod += CalculatePct(1.0, (*i)->GetAmount());
         }
     }
 
@@ -13279,25 +13431,29 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     {
         AuraEffectList const& mModMeleeDamageTakenPercent = GetAuraEffectsByType(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT);
         for (AuraEffectList::const_iterator i = mModMeleeDamageTakenPercent.begin(); i != mModMeleeDamageTakenPercent.end(); ++i)
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0, (*i)->GetAmount());
     }
     else
     {
         AuraEffectList const& mModRangedDamageTakenPercent = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT);
         for (AuraEffectList::const_iterator i = mModRangedDamageTakenPercent.begin(); i != mModRangedDamageTakenPercent.end(); ++i)
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0, (*i)->GetAmount());
     }
 
     if (spellProto && spellProto->IsTargetingArea())
     {
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
-        AddPct(TakenTotalMod, mult);
+        TakenTotalMod += CalculatePct(1.0, mult);
         if (attacker->GetTypeId() == TYPEID_UNIT)
         {
             int32 u_mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
-            AddPct(TakenTotalMod, u_mult);
+            TakenTotalMod += CalculatePct(1.0, u_mult);
         }
     }
+
+    /// Apply Versatility damage bonus taken
+    if (GetSpellModOwner())
+        TakenTotalMod -= CalculatePct(1.0, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     float tmpDamage = 0.0f;
 
@@ -16514,127 +16670,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     // Player is loaded now - do not allow passive spell casts to proc
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())
         return;
-
-    // Multistrike...
+    /// Multistrike...
     if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL) &&
         damage && target && GetSpellModOwner() && !(procSpell && !procSpell->IsPositive() && target->GetGUID() == GetGUID()))
-    {
-        // ...grants your spells, abilities, and auto-attacks...
-        if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
         {
-            // ...the chance to activate up to two extra times (depending if PvE or PvP) at X% of normal effectiveness
-            uint8 l_ProcTimes = (target->GetSpellModOwner() != nullptr) ? 1 : 2;
-            for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
-            {
-                if (roll_chance_f(GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
-                {
-                    bool l_IsCrit = false;
-
-                    uint32 l_MultistrikeDamage = damage * GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
-
-                    if (procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask())))
-                        l_IsCrit = true;
-                    else if (!procSpell && roll_chance_f(GetUnitCriticalChance(attType, target)))
-                        l_IsCrit = true;
-
-                    if (l_IsCrit && procSpell)
-                        l_MultistrikeDamage = SpellCriticalDamageBonus(procSpell, l_MultistrikeDamage, target);
-                    else if (l_IsCrit && !procSpell)
-                        l_MultistrikeDamage = MeleeCriticalDamageBonus(nullptr, l_MultistrikeDamage, target, attType);
-
-                    if (procExtra & PROC_EX_CRITICAL_HIT)
-                        l_IsCrit = true;
-
-                    uint32 l_DoneProcFlag = procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK;
-                    uint32 l_TakenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
-                    uint32 l_ExFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE;
-
-                    if (l_IsCrit)
-                        l_ExFlag |= PROC_EX_CRITICAL_HIT;
-                    else
-                        l_ExFlag |= PROC_EX_NORMAL_HIT;
-
-                    if (procFlag & PROC_FLAG_DONE_MELEE_AUTO_ATTACK)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
-
-                    if (procFlag & PROC_FLAG_DONE_RANGED_AUTO_ATTACK)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK;
-
-                    if (procFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS;
-
-                    if (procFlag & PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS;
-
-                    if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS;
-
-                    if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG;
-
-                    if (procFlag & PROC_FLAG_DONE_PERIODIC)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_PERIODIC;
-
-                    // Spell Heal
-                    if (procSpell && IsFriendlyTo(target))
-                    {
-                        HealBySpell(target, procSpell, l_MultistrikeDamage, l_IsCrit, true);
-                        ProcDamageAndSpell(target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, l_MultistrikeDamage, 0, attType, procSpell);
-                    }
-                    else if (procSpell) // Spell Damage
-                    {
-                        if (target->GetHealth() > damage)
-                        {
-                            SpellNonMeleeDamage damageInfo(this, target, procSpell->Id, procSpell->SchoolMask);
-
-                            if (l_IsCrit)
-                                damageInfo.HitInfo |= SPELL_HIT_TYPE_CRIT;
-
-                            damageInfo.HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
-                            damageInfo.damage = l_MultistrikeDamage;
-
-                            CalcAbsorbResist(target, procSpell->GetSchoolMask(), procFlag & PROC_FLAG_DONE_PERIODIC ? DOT : SPELL_DIRECT_DAMAGE, damage, &damageInfo.absorb, &damageInfo.resist, procSpell);
-                            DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
-                            DealSpellDamage(&damageInfo, true);
-
-                            if (ownerAuraEffect)
-                            {
-                                int32 overkill = damageInfo.damage - target->GetHealth() > 0 ? damageInfo.damage - target->GetHealth() : 0;
-                                SpellPeriodicAuraLogInfo pInfo(ownerAuraEffect, damageInfo.damage, overkill, damageInfo.absorb, damageInfo.resist, 0.0f, l_IsCrit, true);
-                                target->SendPeriodicAuraLog(&pInfo);
-                            }
-                            else
-                                SendSpellNonMeleeDamageLog(&damageInfo);
-
-                            if (target->isDead())
-                            {
-                                l_DoneProcFlag |= PROC_FLAG_KILL;
-                                l_TakenProcFlag |= (PROC_FLAG_KILLED | PROC_FLAG_DEATH);
-                            }
-
-                            ProcDamageAndSpell(target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.absorb, attType, procSpell, procAura);
-                        }
-                    }
-                    else // Auto Attack
-                    {
-                        CalcDamageInfo damageInfo;
-                        CalculateMeleeDamage(target, 0, &damageInfo, attType);
-
-                        if (l_IsCrit)
-                            damageInfo.HitInfo |= HITINFO_CRITICALHIT;
-
-                        damageInfo.HitInfo |= HITINFO_MULTISTRIKE;
-                        damageInfo.damage = l_MultistrikeDamage;
-
-                        DealDamageMods(target, damageInfo.damage, &damageInfo.absorb);
-                        DealMeleeDamage(&damageInfo, true);
-                        SendAttackStateUpdate(&damageInfo);
-                        ProcDamageAndSpell(damageInfo.target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.attackType);
-                    }
-                }
-            }
+        /// ...grants your spells, abilities, and auto-attacks...
+        if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
+            ProcMultistrike(procSpell, target, procFlag, procExtra, damage, attType, procAura, ownerAuraEffect);
         }
-    }
 
     // For melee/ranged based attack need update skills and set some Aura states if victim present
     if (procFlag & MELEE_BASED_TRIGGER_MASK && target)

@@ -5270,6 +5270,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
                 spellInfo->OverrideSpellList.push_back(114029); ///< Add Safeguard to override spell list of Intervene
                 break;
+            case 157590: ///< Breath of the Serpent
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ALLY;
+                break;
             case 114029: ///< Safeguard
                 spellInfo->Effects[2].BasePoints = 100;
                 break;
@@ -5284,6 +5287,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
                 spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+                break;
+            case 13812: ///< Explosive Trap
+            case 3355: ///< Freezing Trap
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 84745: ///< Shallow Insight
             case 84746: ///< Moderate Insight
@@ -6349,6 +6356,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 159456: ///< Glyph of Travel
                 spellInfo->Stances = 0;
+                break;
+            case 167105: ///< Colossus Smash
+            case 12328:  ///< Sweeping Strikes
+            case 1719:   ///< Recklessness
+                /// Can be casted in Battle Stance AND in Defensive Stance
+                spellInfo->Stances |= ((uint64)1L << (ShapeshiftForm::FORM_DEFENSIVESTANCE - 1));
                 break;
             default:
                 break;

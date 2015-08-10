@@ -1182,40 +1182,38 @@ class spell_mage_combustion: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_combustion_SpellScript);
 
-            enum eSpell
+            enum eSpells
             {
-                CategoryID = 1500
+                InfernoBlast = 108853
             };
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Player || !l_Target)
+                    return;
+
+                if (SpellInfo const* l_InfernoBlast = sSpellMgr->GetSpellInfo(eSpells::InfernoBlast))
+                    if (SpellCategoriesEntry const* l_InfernoBlastCategories = l_InfernoBlast->GetSpellCategories())
+                        l_Player->RestoreCharge(l_InfernoBlastCategories->ChargesCategory);
+
+                int32 combustionBp = 0;
+
+                Unit::AuraEffectList const& aurasPereodic = l_Target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for (Unit::AuraEffectList::const_iterator i = aurasPereodic.begin(); i !=  aurasPereodic.end(); ++i)
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (l_Player->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT))
-                            l_Player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
+                    if ((*i)->GetCasterGUID() != l_Player->GetGUID() || (*i)->GetSpellInfo()->SchoolMask != SPELL_SCHOOL_MASK_FIRE)
+                        continue;
 
-                        l_Player->RestoreCharge(eSpell::CategoryID);
+                    if (!(*i)->GetAmplitude())
+                        continue;
 
-                        int32 combustionBp = 0;
-
-                        Unit::AuraEffectList const& aurasPereodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-                        for (Unit::AuraEffectList::const_iterator i = aurasPereodic.begin(); i !=  aurasPereodic.end(); ++i)
-                        {
-                            if ((*i)->GetCasterGUID() != l_Player->GetGUID() || (*i)->GetSpellInfo()->SchoolMask != SPELL_SCHOOL_MASK_FIRE)
-                                continue;
-
-                            if (!(*i)->GetAmplitude())
-                                continue;
-
-                            combustionBp += l_Player->SpellDamageBonusDone(target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
-                        }
-
-                        if (combustionBp)
-                            l_Player->CastCustomSpell(target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
-                    }
+                    combustionBp += l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
                 }
+
+                if (combustionBp)
+                    l_Player->CastCustomSpell(l_Target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
             }
 
             void Register()

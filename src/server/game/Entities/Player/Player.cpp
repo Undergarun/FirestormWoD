@@ -19469,7 +19469,8 @@ void Player::RemoveActiveQuest(uint32 quest_id)
         if (m_Garrison && IsInGarrison())
             m_Garrison->OnQuestAbandon(l_Quest);
 
-        sScriptMgr->OnQuestAbandon(this, l_Quest);
+        if (!IsQuestRewarded(quest_id))
+            sScriptMgr->OnQuestAbandon(this, l_Quest);
 
         return;
     }

@@ -1524,7 +1524,7 @@ class spell_monk_eminence_heal : public SpellScriptLoader
             {
                 if ((*l_Itr) == nullptr || (*l_Itr)->ToUnit() == nullptr || !(*l_Itr)->ToUnit()->IsInRaidWith(l_Caster) || 
                     ((*l_Itr)->ToUnit()->GetGUID() == l_Caster->GetGUID() && GetSpellInfo()->Id != SPELL_MONK_EMINENCE_HEAL) ||
-                    !l_Caster->IsValidAssistTarget((*l_Itr)->ToUnit()))
+                    l_Caster->IsHostileTo((*l_Itr)->ToUnit()))
                     l_Itr = p_Targets.erase(l_Itr);
                else
                    l_Itr++;
@@ -1764,7 +1764,7 @@ class spell_monk_mana_tea_stacks: public SpellScriptLoader
         }
 };
 
-// Enveloping Mist - 124682
+/// Enveloping Mist - 124682
 class spell_monk_enveloping_mist: public SpellScriptLoader
 {
     public:
@@ -1774,11 +1774,23 @@ class spell_monk_enveloping_mist: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_enveloping_mist_SpellScript);
 
+            enum eSpells
+            {
+                MonkWoDPvPMistweaver2PBonus = 170799,
+                MonkWoDPvPMistweaver2PBonusEffect = 170808
+            };
+
             void HandleAfterCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetExplTargetUnit())
-                        _player->CastSpell(target, SPELL_MONK_ENVELOPING_MIST_HEAL, true);
+                Unit* l_Caster = GetCaster();
+
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                       l_Caster->CastSpell(l_Target, SPELL_MONK_ENVELOPING_MIST_HEAL, true);
+                       if (l_Caster->HasAura(eSpells::MonkWoDPvPMistweaver2PBonus))
+                           l_Caster->CastSpell(l_Target, eSpells::MonkWoDPvPMistweaver2PBonusEffect, true);
+
+                }
             }
 
             void HandleOnPrepare()
@@ -1879,21 +1891,24 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
 
             enum eSpells
             {
-                PoolOfMists = 173841,
-                JadeMists = 165397,
-                CatergoryID = 1517
+                RenewingMist = 115151,
+                JadeMists    = 165397,
+                PoolOfMists  = 173841
             };
 
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
-
                 if (l_Player == nullptr)
                     return;
 
                 /// Your Renewing Mist have a chance equal to your multistrike chance to not go on cooldown when used
                 if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
-                    l_Player->RestoreCharge(eSpells::CatergoryID);
+                {
+                    if (SpellInfo const* l_RenewingMist = sSpellMgr->GetSpellInfo(eSpells::RenewingMist))
+                        if (SpellCategoriesEntry const* l_RenewingMistCategories = l_RenewingMist->GetSpellCategories())
+                            l_Player->RestoreCharge(l_RenewingMistCategories->ChargesCategory);
+                }
             }
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
@@ -2129,14 +2144,15 @@ class spell_monk_zen_sphere: public SpellScriptLoader
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
                 if (l_Target->GetHealthPct() < (float)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
                     p_AurEff->GetBase()->SetDuration(0);
 
-                l_Target->CastSpell(l_Target, eSpells::ZenSphereTick, true);
+                l_Caster->CastSpell(l_Target, eSpells::ZenSphereTick, true);
             }
 
             void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2176,20 +2192,31 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_zen_sphere_tick_SpellScript);
 
+            Unit* m_TargetPrincipal = nullptr;
+
+            void GetTargetPrincipal(std::list<WorldObject*>& p_Targets)
+            {
+                for (auto itr : p_Targets)
+                    m_TargetPrincipal = itr->ToUnit();
+            }
+
             void FilterTargetsAlly(std::list<WorldObject*>& p_Targets)
             {
                 Unit* l_Caster = GetCaster();
 
-                if (AuraEffectPtr l_ZenSphereAura = l_Caster->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                if (m_TargetPrincipal == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_ZenSphereAura = m_TargetPrincipal->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
                     {
-                        p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                        p_Targets.remove_if([this](WorldObject* p_Object) -> bool
                         {
                             if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
                                 return true;
 
-                            if (p_Object->GetGUID() != l_Caster->GetGUID())
+                            if (p_Object->GetGUID() != m_TargetPrincipal->GetGUID())
                                 return true;
 
                             return false;
@@ -2202,13 +2229,16 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                if (AuraEffectPtr l_ZenSphereAura = l_Caster->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                if (m_TargetPrincipal == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_ZenSphereAura = m_TargetPrincipal->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
                         SetHitHeal(GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
                     else
                     {
-                        l_Caster->CastSpell(l_Caster, eSpells::ZenSphereDetonateHeal, true);
+                        l_Caster->CastSpell(m_TargetPrincipal, eSpells::ZenSphereDetonateHeal, true);
                         PreventHitHeal();
                     }
                 }
@@ -2219,10 +2249,10 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || m_TargetPrincipal == nullptr)
                     return;
 
-                if (AuraEffectPtr l_ZenSphereAura = l_Caster->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                if (AuraEffectPtr l_ZenSphereAura = m_TargetPrincipal->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
                     {
@@ -2234,7 +2264,7 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
                     else
                     {
                         int32 l_DamageExplosion = GetSpellInfo()->Effects[EFFECT_3].AttackPowerMultiplier * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-                        l_Caster->CastCustomSpell(l_Caster, eSpells::ZenSphereDetonateDamage, &l_DamageExplosion, NULL, NULL, true);
+                        l_Caster->CastCustomSpell(l_Target, eSpells::ZenSphereDetonateDamage, &l_DamageExplosion, NULL, NULL, true);
                         PreventHitDamage();
                     }
                 }
@@ -2245,6 +2275,7 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_monk_zen_sphere_tick_SpellScript::HandleHealExplosion, EFFECT_2, SPELL_EFFECT_HEAL);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_zen_sphere_tick_SpellScript::HandleDamageExplosion, EFFECT_3, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_zen_sphere_tick_SpellScript::FilterTargetsAlly, EFFECT_2, TARGET_UNIT_DEST_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_zen_sphere_tick_SpellScript::GetTargetPrincipal, EFFECT_0, TARGET_UNIT_TARGET_ALLY);
             }
         };
 
@@ -4305,20 +4336,23 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
             enum eSpells
             {
-                JadeMists = 165397,
-                CatergoryID = 1518
+                RisingSunKick = 107428,
+                JadeMists     = 165397
             };
 
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
-
                 if (l_Player == nullptr)
                     return;
-                
+
                 /// Your Rising Sun Kick have a chance equal to your multistrike chance to not go on cooldown when used
                 if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
-                    l_Player->RestoreCharge(eSpells::CatergoryID);
+                {
+                    if (SpellInfo const* l_RisingSunKick = sSpellMgr->GetSpellInfo(eSpells::RisingSunKick))
+                        if (SpellCategoriesEntry const* l_RisingSunKickCategories = l_RisingSunKick->GetSpellCategories())
+                            l_Player->RestoreCharge(l_RisingSunKickCategories->ChargesCategory);
+                }
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
@@ -5052,22 +5086,21 @@ public:
 
         enum eSpells
         {
-            CatergoryID = 1365
+            Roll = 109132
         };
 
         void OnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& /*p_EventInfo*/)
         {
-            Unit* l_Caster = GetCaster();
-
-            if (l_Caster == nullptr)
+            if (GetCaster() == nullptr)
                 return;
 
-            Player* l_Player = l_Caster->ToPlayer();
-
+            Player* l_Player = GetCaster()->ToPlayer();
             if (l_Player == nullptr)
                 return;
 
-            l_Player->RestoreCharge(eSpells::CatergoryID);
+            if (SpellInfo const* l_Roll = sSpellMgr->GetSpellInfo(eSpells::Roll))
+                if (SpellCategoriesEntry const* l_RollCategories = l_Roll->GetSpellCategories())
+                    l_Player->RestoreCharge(l_RollCategories->ChargesCategory);
         }
 
         void Register()
@@ -5082,8 +5115,123 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Breath of the Serpent - 157535
+class spell_monk_breath_of_the_serpent : public SpellScriptLoader
+{
+    public:
+        spell_monk_breath_of_the_serpent() : SpellScriptLoader("spell_monk_breath_of_the_serpent") { }
+
+        class spell_monk_breath_of_the_serpent_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_breath_of_the_serpent_SpellScript);
+
+            enum eSpells
+            {
+                BreathoftheSerpentHeal = 157590
+            };
+            
+            enum eNPCs
+            {
+                SerpentStatue = 60849
+            };
+
+            void HandleCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                std::list<Creature*> l_TempList;
+                std::list<Creature*> l_StatueList;
+                Creature* l_Statue = nullptr;
+
+                l_Player->GetCreatureListWithEntryInGrid(l_TempList, eNPCs::SerpentStatue, 100.0f);
+                l_Player->GetCreatureListWithEntryInGrid(l_StatueList, eNPCs::SerpentStatue, 100.0f);
+
+                /// Remove other players jade statue
+                for (std::list<Creature*>::iterator i = l_TempList.begin(); i != l_TempList.end(); ++i)
+                {
+                    Unit* l_Owner = (*i)->GetOwner();
+                    if (l_Owner && l_Owner->GetGUID() == l_Player->GetGUID() && (*i)->isSummon())
+                        continue;
+
+                    l_StatueList.remove((*i));
+                }
+
+                if (l_StatueList.size() == 1)
+                {
+                    for (auto itrBis : l_StatueList)
+                        l_Statue = itrBis;
+
+                    if (l_Statue && (l_Statue->isPet() || l_Statue->isGuardian()))
+                    {
+                        if (l_Statue->GetOwner() && l_Statue->GetOwner()->GetGUID() == l_Player->GetGUID())
+                        {
+                            l_Statue->SetOrientation(l_Statue->GetAngle(l_Player));
+                            l_Statue->CastSpell(l_Statue, eSpells::BreathoftheSerpentHeal, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_breath_of_the_serpent_SpellScript::HandleCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_breath_of_the_serpent_SpellScript();
+        }
+};
+
+/// Breath of the Serpent - 157590
+class spell_monk_breath_of_the_serpent_heal : public SpellScriptLoader
+{
+public:
+    spell_monk_breath_of_the_serpent_heal() : SpellScriptLoader("spell_monk_breath_of_the_serpent_heal") { }
+
+    class spell_monk_breath_of_the_serpent_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_breath_of_the_serpent_heal_SpellScript);
+
+        void HandleHeal(SpellEffIndex p_EffIndex)
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+
+            if (l_Target == nullptr)
+                return;
+
+            if (Unit* l_Owner = l_Caster->GetOwner())
+            {
+                int32 l_Heal = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC);
+                l_Heal = l_Owner->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, p_EffIndex, HEAL);
+                l_Heal = l_Target->SpellHealingBonusTaken(l_Owner, GetSpellInfo(), l_Heal, HEAL);
+                SetHitHeal(l_Heal);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monk_breath_of_the_serpent_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_breath_of_the_serpent_heal_SpellScript();
+    }
+};
+
+
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_breath_of_the_serpent_heal();
+    new spell_monk_breath_of_the_serpent();
     new spell_monk_glyph_of_victory_roll();
     new spell_monk_uplift();
     new spell_monk_rising_sun_kick();
