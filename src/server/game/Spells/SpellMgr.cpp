@@ -5756,10 +5756,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_AURAS;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
                 break;
-            case 33891:  ///< Tree form
-            case 114282: ///< Tree form
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);
-                break;
             case 147362: ///< Counter Shot
                 spellInfo->Speed = 0;
                 break;
