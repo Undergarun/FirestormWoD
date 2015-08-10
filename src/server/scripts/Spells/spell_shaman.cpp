@@ -615,42 +615,6 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
         }
 };
 
-/// Purge - 370
-class spell_sha_purge : public SpellScriptLoader
-{
-    public:
-        spell_sha_purge() : SpellScriptLoader("spell_sha_purge") { }
-
-        class spell_sha_purge_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_purge_SpellScript);
-
-            enum eSpells
-            {
-                GlyphOfPurging  = 147762,
-                MaelstromWeapon = 53817
-            };
-
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-                
-                if (l_Caster->HasAura(eSpells::GlyphOfPurging))
-                    l_Caster->CastSpell(l_Caster, eSpells::MaelstromWeapon, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_sha_purge_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_purge_SpellScript();
-        }
-};
-
 /// Called by Ghost Wolf - 2645
 /// Glyph of Lakestrider - 55448
 class spell_sha_glyph_of_lakestrider: public SpellScriptLoader
@@ -2960,7 +2924,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_chain_heal();
     new spell_sha_glyph_of_eternal_earth();
     new spell_sha_flame_shock();
-    new spell_sha_purge();
     new spell_sha_healing_wave();
     new spell_sha_riptide();
     new spell_sha_maelstrom_weapon();
