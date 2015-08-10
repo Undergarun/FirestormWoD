@@ -3280,10 +3280,10 @@ void Player::RegenerateAll()
         m_holyPowerRegenTimerCount -= 10000;
     }
 
-    if (m_chiPowerRegenTimerCount >= 10000 && l_Class == CLASS_MONK)
+    if (m_chiPowerRegenTimerCount >= 15000 && l_Class == CLASS_MONK)
     {
         Regenerate(POWER_CHI);
-        m_chiPowerRegenTimerCount -= 10000;
+        m_chiPowerRegenTimerCount -= 15000;
     }
 
     if (m_demonicFuryPowerRegenTimerCount >= 100 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY))
