@@ -1224,9 +1224,14 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             amount = AbsorbBonusDone(caster, amount);
             amount = AbsorbBonusTaken(caster, amount);
 
+            bool l_IsCrit = false;
+
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
+            {
+                l_IsCrit = true;
                 amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
+            }
         }
     }
 

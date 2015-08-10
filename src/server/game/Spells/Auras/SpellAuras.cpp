@@ -1093,7 +1093,7 @@ void Aura::RefreshTimers()
                     minAmplitude = std::min(ampl, minAmplitude);
 
         // If only one tick remaining, roll it over into new duration
-        if (GetDuration() <= minAmplitude)
+        if (GetDuration() <= CalculatePct(m_maxDuration, 30))
         {
             m_maxDuration += GetDuration();
             resetPeriodic = false;

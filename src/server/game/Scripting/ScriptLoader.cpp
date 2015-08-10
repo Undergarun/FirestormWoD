@@ -90,6 +90,7 @@ void AddSC_wp_commandscript();
 void AddSC_garrison_commandscript();
 void AddSC_hotfix_commandscript();
 void AddSC_battlepay_commandscript();
+void AddSC_items_commandscript();
 
 //world
 void AddSC_areatrigger_scripts();
@@ -1024,6 +1025,7 @@ void AddCommandScripts()
     AddSC_garrison_commandscript();
     AddSC_hotfix_commandscript();
     AddSC_battlepay_commandscript();
+    AddSC_items_commandscript();
 }
 
 void AddWorldScripts()

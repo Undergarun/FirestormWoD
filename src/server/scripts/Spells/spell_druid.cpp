@@ -2762,17 +2762,19 @@ class spell_dru_shooting_stars : public SpellScriptLoader
 
             enum eSpells
             {
-                CategoryID = 1485
+                Starsurge = 78674
             };
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    /// Recover one charge of Starfall and Starsurge (share same charges category)
-                    if (ChargesData* l_Charges = l_Player->GetChargesData(eSpells::CategoryID))
-                        l_Player->RestoreCharge(eSpells::CategoryID);
-                }
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                /// Shooting Stars restores 1 charge of Starsurge and Starfall. (share same charges category)
+                if (SpellInfo const* l_Starsurge = sSpellMgr->GetSpellInfo(eSpells::Starsurge))
+                    if (SpellCategoriesEntry const* l_StarsurgeCategories = l_Starsurge->GetSpellCategories())
+                        l_Player->RestoreCharge(l_StarsurgeCategories->ChargesCategory);
             }
 
             void Register()
@@ -3489,18 +3491,17 @@ class spell_dru_rake: public SpellScriptLoader
 
             void HandleOnPrepare()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->HasAura(eSpells::KingOfTheJungle) || l_Caster->HasStealthAura())
-                        m_isStealthedOrKingOfTheJungle = true;
+                Unit* l_Caster = GetCaster();
 
-                    if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
-                    {
-                        if (m_isStealthedOrKingOfTheJungle)
-                            l_ImprovedRake->GetEffect(1)->SetAmount(1);
-                        else
-                            l_ImprovedRake->GetEffect(1)->SetAmount(0);
-                    }
+                if (l_Caster->HasAura(eSpells::KingOfTheJungle) || l_Caster->HasStealthAura())
+                    m_isStealthedOrKingOfTheJungle = true;
+
+                if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
+                {
+                    if (m_isStealthedOrKingOfTheJungle)
+                        l_ImprovedRake->GetEffect(EFFECT_1)->SetAmount(1);
+                    else
+                        l_ImprovedRake->GetEffect(EFFECT_1)->SetAmount(0);
                 }
             }
 
@@ -3508,41 +3509,29 @@ class spell_dru_rake: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+                if (!l_Caster || !l_Target)
+                    return;
 
-                if (l_Target && l_Caster)
+                if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
                 {
-                    if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
-                    {
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BloodTalons->GetEffect(EFFECT_0)->GetAmount()));
-                        l_BloodTalons->DropCharge();
-                    }
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BloodTalons->GetEffect(EFFECT_0)->GetAmount()));
+                    l_BloodTalons->DropCharge();
                 }
 
-                if (l_Target && l_Caster)
+                if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
                 {
-                    if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
-                    {
-                        if (m_isStealthedOrKingOfTheJungle)
-                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetEffect(0)->GetAmount()));
-                    }
+                    if (m_isStealthedOrKingOfTheJungle)
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetEffect(EFFECT_0)->GetAmount()));
                 }
 
-                if (l_Target && l_Caster && m_isStealthedOrKingOfTheJungle)
+                if (m_isStealthedOrKingOfTheJungle)
                 {
                     l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                    {
-                        uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                        l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
-
-                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
-
-                        l_Caster->ClearComboPoints();
-                        l_Caster->AddComboPoints(l_ComboPointsBefore);
-                    }
+                        if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
+                            l_SavageRoar->SetDuration(l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS);
                 }
-
             }
 
             void Register()
@@ -3700,15 +3689,8 @@ class spell_dru_shred: public SpellScriptLoader
                         l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_3].BasePoints);
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                    {
-                        uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                        l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
-
-                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
-
-                        l_Caster->ClearComboPoints();
-                        l_Caster->AddComboPoints(l_ComboPointsBefore);
-                    }
+                        if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
+                            l_SavageRoar->SetDuration(l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS);
                 }
 
                 if (l_Target && l_Target->HasAuraState(AURA_STATE_BLEEDING) && sSpellMgr->GetSpellInfo(eSpells::Swipe))
@@ -3735,7 +3717,8 @@ enum SpellsFerociousBite
     SPELL_DRUID_RAKE_TRIGGERED = 155722,
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE = 67598,
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024,
-    SPELL_DRUID_BERSEK = 106951
+    SPELL_DRUID_BERSEK = 106951,
+    SPELL_DRUID_RIP = 1079
 };
 
 /// Ferocious Bite - 22568
@@ -3788,8 +3771,8 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
 
                 /// if target is under 25% of life, also reset rake duration
                 if (l_Target && l_Target->GetHealthPct() <= 25.0f)
-                if (AuraPtr l_Rake = l_Target->GetAura(SPELL_DRUID_RAKE_TRIGGERED))
-                    l_Rake->RefreshDuration();
+                if (AuraPtr l_Rip = l_Target->GetAura(SPELL_DRUID_RIP))
+                    l_Rip->RefreshDuration();
             }
 
             void Register()
@@ -4641,26 +4624,26 @@ public:
 
         enum eSpells
         {
-            CategoryID = 1485,
-            STARSURGE = 78674,
-            DRUID_WOD_PVP_BALANCE_2P_BONUS = 165701
+            Starsurge = 78674,
+            WoDPvPBalance2PBonus = 165701
         };
 
         void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-            {
-                if (l_Player->HasAura(eSpells::DRUID_WOD_PVP_BALANCE_2P_BONUS))
-                {
-                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    /// When Entangling Roots is dispelled or broken by damage, you gain 1 charge of Starsurge.
-                    if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL)
-                    {
-                        if (ChargesData* l_Charges = l_Player->GetChargesData(eSpells::CategoryID))
-                            l_Player->RestoreCharge(eSpells::CategoryID);
-                    }
-                }
-            }
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            if (!l_Player->HasAura(eSpells::WoDPvPBalance2PBonus))
+                return;
+
+            /// When Entangling Roots is dispelled or broken by damage, you gain 1 charge of Starsurge.
+            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+                return;
+
+            if (SpellInfo const* l_Starsurge = sSpellMgr->GetSpellInfo(eSpells::Starsurge))
+                if (SpellCategoriesEntry const* l_StarsurgeCategories = l_Starsurge->GetSpellCategories())
+                    l_Player->RestoreCharge(l_StarsurgeCategories->ChargesCategory);
         }
 
         void Register()
