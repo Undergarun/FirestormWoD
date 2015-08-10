@@ -51,6 +51,10 @@ class DatabaseWorkerPool
         _queue(new ACE_Activation_Queue())
         {
             memset(_connectionCount, 0, sizeof(_connectionCount));
+            
+            /// Update queue size limit, 16 kb is not enough
+            _queue->queue()->high_water_mark(8 * 1024 * 1024);
+            _queue->queue()->low_water_mark(8 * 1024 * 1024);            
 
             WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
         }

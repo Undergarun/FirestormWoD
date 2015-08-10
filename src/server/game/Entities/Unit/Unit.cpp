@@ -5001,6 +5001,12 @@ uint32 Unit::GetAuraCount(uint32 spellId) const
 
 bool Unit::HasAura(uint32 spellId, uint64 casterGUID, uint64 itemCasterGUID, uint32 reqEffMask) const
 {
+    if (this == nullptr)
+    {
+        sLog->outAshran("Unit::HasAura(spellId: %u) this == nullptr", spellId);
+        return false;
+    }
+
     if (GetAuraApplication(spellId, casterGUID, itemCasterGUID, reqEffMask))
         return true;
     return false;
