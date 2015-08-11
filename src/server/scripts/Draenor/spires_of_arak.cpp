@@ -47,11 +47,27 @@ class boss_rukhmar : public CreatureScript
                 me->m_CombatDistance = 90.0f;
                 m_MovingUpToward     = false;
                 m_MovingDownToward   = false;
+                me->SetCanFly(true);
+                m_Events.Reset();
 
                 me->SetReactState(REACT_DEFENSIVE);
+
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
+
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->AddAura(SpiresOfArakSpells::SouthshoreMobScalingAura, me);
-                m_Events.Reset();
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -75,7 +91,6 @@ class boss_rukhmar : public CreatureScript
 
                 return false;
             }
-
 
             void LaunchGroundEvents()
             {
@@ -177,7 +192,6 @@ class boss_rukhmar : public CreatureScript
 
             void UpdateAI(const uint32 p_Diff) override
             {
-                EnterEvadeIfOutOfCombatArea(p_Diff);
                 m_Events.Update(p_Diff);
 
                 if (!UpdateVictim())

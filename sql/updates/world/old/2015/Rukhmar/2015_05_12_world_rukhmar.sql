@@ -5,7 +5,7 @@
 	UPDATE
 		`creature_template`
 	SET
-		`InhabitType` = 7,
+		`InhabitType` = 4,
 		`movementtype` = 0,
 		`speed_walk` = 2,
 		`speed_run` = 2,
