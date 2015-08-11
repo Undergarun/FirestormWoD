@@ -2450,6 +2450,8 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
 
         enum eSpells
         {
+            AvengingWrathHoly    = 31842,
+            AvengingWrathRet     = 31884,
             SanctifiedWrath      = 53376,
             SanctifiedWrathBonus = 114232
         };
@@ -2480,9 +2482,19 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
 
             void Register()
             {
-                /// Effect 3 is commun to both spells for holy and ret
-                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_3, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_3, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+                switch (m_scriptSpellId)
+                {
+                case eSpells::AvengingWrathHoly:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::AvengingWrathRet:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL); 
+                    break;
+                default:
+                    break;
+                }
             }
         };
 
