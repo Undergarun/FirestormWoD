@@ -2778,6 +2778,53 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Call by Lay on Hands - 633
+/// Flash of Light - 19750
+/// Holy Shock - 25914
+/// Holy Light - 82326
+/// Holy Radiance - 82327
+/// Light of Dawn - 85222
+/// Word of Glory - 85673, 130551, 136494
+/// Holy Prism - 114165, 114852, 114862, 114870, 114871
+/// Stay of Execution - 114917
+/// Arcing Light - 119952
+/// Holy Prism - 121551, 121552
+/// Glyph of Flash Light - 54957
+class spell_pal_glyph_of_flash_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_flash_light() : SpellScriptLoader("spell_pal_glyph_of_flash_light") { }
+
+        class spell_pal_glyph_of_flash_light_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_glyph_of_flash_light_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofFlashLight = 54957
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphofFlashLight))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::GlyphofFlashLight);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_pal_glyph_of_flash_light_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_glyph_of_flash_light_SpellScript();
+        }
+};
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -2860,6 +2907,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_gyph_of_contemplation();
     new spell_pal_sword_of_light();
     new spell_pal_glyph_of_the_liberator();
+    new spell_pal_glyph_of_flash_light();
 
     // Player Script
     new PlayerScript_empowered_divine_storm();
