@@ -2404,6 +2404,42 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Avenging Wrath (holy) - 31842 and Avenging Wrath (ret) - 31884
+class spell_pal_avenging_wrath : public SpellScriptLoader
+{
+    public:
+        spell_pal_avenging_wrath() : SpellScriptLoader("spell_pal_avenging_wrath") { }
+
+        class spell_pal_avenging_wrath_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_avenging_wrath_SpellScript);
+
+            enum eSpells
+            {
+                GlyphoftheFallingAvenger = 115931
+            };
+
+            void HandleTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphoftheFallingAvenger))
+                    PreventHitAura();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_avenging_wrath_SpellScript::HandleTarget, EFFECT_3, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_avenging_wrath_SpellScript();
+        }
+};
+
 /// Sanctified Wrath - 53376
 /// Called by Avenging Wrath (holy) - 31842 and Avenging Wrath (ret) - 31884
 /// last update : 6.1.2 19802
@@ -2908,6 +2944,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sword_of_light();
     new spell_pal_glyph_of_the_liberator();
     new spell_pal_glyph_of_flash_light();
+    new spell_pal_avenging_wrath();
 
     // Player Script
     new PlayerScript_empowered_divine_storm();
