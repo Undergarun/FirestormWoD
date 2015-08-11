@@ -24031,7 +24031,7 @@ void Player::SendResetInstanceSuccess(uint32 p_MapID)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendResetInstanceFailed(uint32 p_Reason, uint32 p_MapID)
+void Player::SendResetInstanceFailed(ResetFailedReason p_Reason, uint32 p_MapID)
 {
     /*reasons for instance reset failure:
     // 0: There are players inside the instance.
