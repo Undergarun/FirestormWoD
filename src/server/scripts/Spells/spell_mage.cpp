@@ -854,7 +854,10 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
             enum eSpells
             {
-                WoDPvPFrost4PBonus = 180741
+                WoDPvPFrost4PBonus = 180741,
+                WaterJet           = 135029,
+                FingerFrost        = 44544,
+                FingerFrostVisual = 126084
             };
 
             SpellCastResult CheckTarget()
@@ -912,15 +915,29 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                    l_Player->CastSpell(l_Player, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet == nullptr)
+                    return;
+
+                if (l_Target->HasAura(eSpells::WaterJet, l_Pet->GetGUID()))
                 {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE);
-
-                    if (l_SpellInfo == nullptr)
-                        return;
-
-                    if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-                        l_Caster->CastSpell(l_Caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                    l_Player->CastSpell(l_Player, eSpells::FingerFrost, true);  ///< Fingers of frost proc
+                    l_Player->CastSpell(l_Player, eSpells::FingerFrostVisual, true); ///< Fingers of frost visual
                 }
             }
 
