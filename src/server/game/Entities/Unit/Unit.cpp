@@ -5001,6 +5001,12 @@ uint32 Unit::GetAuraCount(uint32 spellId) const
 
 bool Unit::HasAura(uint32 spellId, uint64 casterGUID, uint64 itemCasterGUID, uint32 reqEffMask) const
 {
+    if (this == nullptr)
+    {
+        sLog->outAshran("Unit::HasAura(spellId: %u) this == nullptr", spellId);
+        return false;
+    }
+
     if (GetAuraApplication(spellId, casterGUID, itemCasterGUID, reqEffMask))
         return true;
     return false;
@@ -17659,7 +17665,7 @@ void Unit::GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Ra
     l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, p_Range);
 }
 
-Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/) const
+Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/, bool p_ExcludeStealthVictim /*=false*/) const
 {
     std::list<Unit*> l_Targets;
     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -17680,6 +17686,8 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_
     for (std::list<Unit*>::iterator tIter = l_Targets.begin(); tIter != l_Targets.end();)
     {
         if (!IsWithinLOSInMap(*tIter) || (*tIter)->isTotem() || (*tIter)->isSpiritService() || (*tIter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
+            l_Targets.erase(tIter++);
+        else if (p_ExcludeStealthVictim && (*tIter)->HasStealthAura()) ///< Remove Stealth victim
             l_Targets.erase(tIter++);
         else
             ++tIter;

@@ -4135,6 +4135,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 139139: ///< Insanity
                 spellInfo->ProcChance = 0;
                 break;
+            case 152222: ///< Euphoria
+                spellInfo->Effects[2].BasePoints = -50;
+                break;
             case 32409: ///< Shadow Word: Death (triggered)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
                 spellInfo->Effects[0].ApplyAuraName = 0;
@@ -5752,10 +5755,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_AURAS;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
-                break;
-            case 33891:  ///< Tree form
-            case 114282: ///< Tree form
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);
                 break;
             case 147362: ///< Counter Shot
                 spellInfo->Speed = 0;

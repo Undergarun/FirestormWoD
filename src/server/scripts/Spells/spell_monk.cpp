@@ -2329,7 +2329,8 @@ enum ChiBurstSpells
     SPELL_MONK_CHI_BURST_HEAL             = 130654,
 };
 
-// Chi Burst - 123986
+/// last update : 6.1.2 19802
+/// Chi Burst - 123986
 class spell_monk_chi_burst: public SpellScriptLoader
 {
     public:
@@ -2350,8 +2351,8 @@ class spell_monk_chi_burst: public SpellScriptLoader
                         float l_DmgMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER) ? 1.2f : 1.0f;
                         float l_HealMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT) ? 1.2f : 1.0f;
 
-                        int32 l_Damage = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_DAMAGE)->Effects[EFFECT_0].BasePoints + l_DmgMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.036f;
-                        int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.00f;
+                        int32 l_Damage = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_DAMAGE)->Effects[EFFECT_0].BasePoints + l_DmgMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
+                        int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
 
                         // Chi Burst will always heal the Monk, but not heal twice if Monk targets himself
                         if (l_Target->GetGUID() != l_Player->GetGUID())

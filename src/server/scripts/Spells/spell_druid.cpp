@@ -4499,7 +4499,9 @@ class spell_dru_empowered_moonkin : public SpellScriptLoader
 
             enum eSpells
             {
-                EmpoweredMoonkin = 157228
+                EmpoweredMoonkin = 157228,
+                EnhancedStarsurge = 157232,
+                Starsurge = 78674
             };
 
             bool m_HasAuraBeforeCast = false;
@@ -4520,6 +4522,10 @@ class spell_dru_empowered_moonkin : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
 
                 if (l_Caster == nullptr)
+                    return;
+
+                /// Starsurge is already instant with Enhanced Starsurge, so we will not consume the aura
+                if (l_Caster->HasAura(eSpells::EnhancedStarsurge) && GetSpellInfo()->Id == eSpells::Starsurge)
                     return;
 
                 if (l_Caster->HasAura(eSpells::EmpoweredMoonkin) && m_HasAuraBeforeCast)
