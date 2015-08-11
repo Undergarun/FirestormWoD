@@ -3090,6 +3090,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case 62344: // Fists of Stone
                 case 62478: // Frozen Blows (Hodir)
                 case 63512: // Frozen Blows (Hodir)
+                case 73523: // Rigor Mortis
                     return true;
                 default:
                     break;
