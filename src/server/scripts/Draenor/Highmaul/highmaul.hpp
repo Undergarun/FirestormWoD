@@ -161,6 +161,7 @@ enum eHighmaulGameobjects
 
     /// Imperator Margokk Door
     ThroneRoomDoor      = 231938,
+    StairBlockingDoor   = 236210,
 
     /// Misc
     Teleporter          = 231776

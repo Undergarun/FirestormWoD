@@ -3138,7 +3138,7 @@ class npc_highmaul_councilor_daglat : public CreatureScript
                 {
                     case eEvent::EventArcaneDestruction:
                         me->CastSpell(me, eSpells::TeleportSearcher, true);
-                        m_Events.ScheduleEvent(eEvent::EventArcaneDestruction, 5 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvent::EventArcaneDestruction, 6 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -4304,6 +4304,9 @@ class spell_highmaul_time_stop : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr p_AurEff)
             {
+                if (p_AurEff->GetTickNumber() % 3)
+                    return;
+
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpells::TimeStopStun, true);
             }
