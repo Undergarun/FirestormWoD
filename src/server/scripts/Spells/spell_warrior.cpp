@@ -1373,7 +1373,7 @@ class spell_warr_intervene: public SpellScriptLoader
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
+                Unit* l_Target = GetExplTargetUnit();
 
                 if (l_Target == nullptr)
                     return;
