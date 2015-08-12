@@ -156,23 +156,24 @@ class spell_monk_combo_breaker: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                const SpellInfo *l_CombotBeaker = sSpellMgr->GetSpellInfo(SPELL_MONK_COMBO_BREAKER_AURA);
+
+                if (l_Target == nullptr || l_CombotBeaker == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(SPELL_MONK_COMBO_BREAKER_AURA))
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (roll_chance_i(l_CombotBeaker->Effects[EFFECT_0].BasePoints))
                     {
-                        if (caster->HasAura(SPELL_MONK_COMBO_BREAKER_AURA))
-                        {
-                            if (roll_chance_i(12))
-                            {
-                                if (urand(0, 1))
-                                    caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
-                                else
-                                    if (caster->HasSpell(SPELL_MONK_CHI_EXPLOSION_WINWALKER))
-                                        caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION, true);
-                                    else
-                                        caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
-                            }
-                        }
+                        if (urand(0, 1))
+                            l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
+                        else
+                        if (l_Caster->HasSpell(SPELL_MONK_CHI_EXPLOSION_WINWALKER))
+                            l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION, true);
+                        else
+                            l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
                     }
                 }
             }
