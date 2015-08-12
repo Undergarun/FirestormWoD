@@ -19,6 +19,7 @@ class boss_imperator_margok : public CreatureScript
             /// Cosmetic
             CosmeticSitThrone           = 88648,
             TeleportOffThrone           = 166090,
+            EncounterEvent              = 181089,   ///< Sniffed, don't know why, related to phases switch ?
             /// Mark of Chaos
             MarkOfChaosAura             = 158605,
             /// AcceleratedAssault
@@ -27,9 +28,20 @@ class boss_imperator_margok : public CreatureScript
             SummonArcaneAberrationCast  = 156471,
             SummonArcaneAberrationCosm  = 164318,   ///< Sniffed, but I don't know why
             /// Destructive Resonance
+            DestructiveResonanceDebuff  = 159200,
             DestructiveResonanceSearch  = 156467,
             DestructiveResonanceCosm    = 164074,   ///< Sniffed, but I don't know why
-            DestructiveResonanceSummon  = 156734
+            DestructiveResonanceSummon  = 156734,
+            /// Arcane Wrath
+            ArcaneWrathSearcher         = 156238,
+            ArcaneWrathCosmetic         = 163968,   ///< Sniffed, but I don't know why
+            ArcaneWrathBranded          = 156225,
+            /// Force Nova
+            ForceNovaCasting            = 157349,   ///< CastTime
+            ForceNovaScriptEffect       = 164227,   ///< Sniffed, but I don't know why
+            ForceNovaDummy              = 157320,   ///< Visual effect of the nova
+            ForceNovaDoT                = 157353,
+            ForceNovaKnockBack          = 157325
         };
 
         enum eEvents
@@ -80,9 +92,12 @@ class boss_imperator_margok : public CreatureScript
         {
         };
 
-        enum eData
+        enum eDatas
         {
-            MaxVisualPoint = 8
+            /// Values datas
+            BrandedStacks,
+            /// Misc
+            MaxVisualPoint  = 8
         };
 
         enum ePhases
@@ -119,6 +134,12 @@ class boss_imperator_margok : public CreatureScript
 
             uint64 m_MeleeTargetGuid;
 
+            uint8 m_BrandedStacks;
+
+            bool m_IsInNova;
+            uint32 m_NovaTime;
+            Position m_NovaPos;
+
             Vehicle* m_Vehicle;
             InstanceScript* m_Instance;
 
@@ -133,6 +154,14 @@ class boss_imperator_margok : public CreatureScript
                 m_Phase = ePhases::MightOfTheCrown;
                 m_Events.SetPhase(m_Phase);
 
+                m_MeleeTargetGuid = 0;
+
+                m_BrandedStacks = 0;
+
+                m_IsInNova = false;
+                m_NovaTime = 0;
+                m_NovaPos  = Position();
+
                 me->RemoveAura(eSpells::AcceleratedAssault);
                 me->RemoveAura(eHighmaulSpells::Berserker);
 
@@ -142,7 +171,7 @@ class boss_imperator_margok : public CreatureScript
                 {
                     me->CastSpell(me, eSpells::CosmeticSitThrone, true);
 
-                    for (uint8 l_I = 0; l_I < eData::MaxVisualPoint; ++l_I)
+                    for (uint8 l_I = 0; l_I < eDatas::MaxVisualPoint; ++l_I)
                     {
                         if (Creature* l_Creature = me->SummonCreature(eCreature::SorcererKingVisualPoint, *me))
                             l_Creature->EnterVehicle(me);
@@ -270,6 +299,8 @@ class boss_imperator_margok : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfChaosAura);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::DestructiveResonanceDebuff);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ArcaneWrathBranded);
 
                     if (IsLFR())
                     {
@@ -314,6 +345,10 @@ class boss_imperator_margok : public CreatureScript
                     m_Instance->SetBossState(eHighmaulDatas::BossImperatorMargok, EncounterState::FAIL);
 
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfChaosAura);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::DestructiveResonanceDebuff);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ArcaneWrathBranded);
                 }
             }
 
@@ -321,6 +356,8 @@ class boss_imperator_margok : public CreatureScript
             {
                 switch (p_ID)
                 {
+                    case eDatas::BrandedStacks:
+                        return m_BrandedStacks;
                     default:
                         break;
                 }
@@ -332,6 +369,49 @@ class boss_imperator_margok : public CreatureScript
             {
                 switch (p_ID)
                 {
+                    case eDatas::BrandedStacks:
+                    {
+                        if (p_Value)
+                            ++m_BrandedStacks;
+                        else
+                            m_BrandedStacks = 0;
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            {
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::ForceNovaCasting:
+                    {
+                        /// This spell should knock back players in melee range
+                        me->CastSpell(me, eSpells::ForceNovaKnockBack, true);
+                        me->CastSpell(me, eSpells::ForceNovaDummy, true);
+
+                        m_IsInNova  = true;
+                        m_NovaTime  = 0;
+                        m_NovaPos   = *me;
+                        break;
+                    }
+                    case eSpells::DestructiveResonanceSearch:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                            me->CastSpell(l_Target, eSpells::DestructiveResonanceSummon, true);
+
+                        break;
+                    }
+                    case eSpells::ArcaneWrathSearcher:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                            me->CastSpell(l_Target, eSpells::ArcaneWrathBranded, true);
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -344,9 +424,12 @@ class boss_imperator_margok : public CreatureScript
 
                 switch (p_SpellInfo->Id)
                 {
-                    case eSpells::DestructiveResonanceSearch:
+                    case eSpells::ArcaneWrathBranded:
                     {
-                        me->CastSpell(*p_Target, eSpells::DestructiveResonanceSummon, true);
+                        /// m_BrandedStacks only counts the jumps, we must add 1
+                        if (AuraPtr l_Branded = p_Target->GetAura(eSpells::ArcaneWrathBranded, me->GetGUID()))
+                            l_Branded->SetStackAmount(m_BrandedStacks + 1);
+
                         break;
                     }
                     default:
@@ -360,7 +443,7 @@ class boss_imperator_margok : public CreatureScript
 
                 if (!m_InCombat)
                 {
-                    if (Player* l_Player = me->FindNearestPlayer(18.0f))
+                    if (Player* l_Player = me->FindNearestPlayer(20.0f))
                     {
                         me->CastSpell(me, eSpells::TeleportOffThrone, true);
                         m_InCombat = true;
@@ -373,6 +456,9 @@ class boss_imperator_margok : public CreatureScript
                         });
                     }
                 }
+
+                if (m_IsInNova)
+                    UpdateNovaTargets(p_Diff);
 
                 if (!UpdateVictim())
                     return;
@@ -395,13 +481,32 @@ class boss_imperator_margok : public CreatureScript
                     }
                     case eEvents::EventForceNova:
                     {
+                        me->CastSpell(me, eSpells::ForceNovaCasting, false);
+                        me->CastSpell(me, eSpells::ForceNovaScriptEffect, true);
+
                         Talk(eTalks::ForceNova);
-                        m_Events.ScheduleEvent(eEvents::EventForceNova, 50 * TimeConstants::IN_MILLISECONDS, 0, ePhases::MightOfTheCrown);
+
+                        m_Events.ScheduleEvent(eEvents::EventForceNova, 45 * TimeConstants::IN_MILLISECONDS, 0, ePhases::MightOfTheCrown);
+
+                        /// Force Nova has a radius of 100 yards and moves with a speed of 7 yards per second
+                        uint32 l_Time = float(100.0f / 7.0f) * float(TimeConstants::IN_MILLISECONDS);
+                        AddTimedDelayedOperation(l_Time, [this]() -> void
+                        {
+                            m_IsInNova = false;
+                            m_NovaTime = 0;
+                            m_NovaPos  = Position();
+
+                            if (m_Instance)
+                                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ForceNovaDoT);
+                        });
+
                         break;
                     }
                     case eEvents::EventArcaneWrath:
                     {
                         Talk(eTalks::ArcaneWrath);
+                        me->CastSpell(me, eSpells::ArcaneWrathSearcher, false);
+                        me->CastSpell(me, eSpells::ArcaneWrathCosmetic, true);
                         m_Events.ScheduleEvent(eEvents::EventArcaneWrath, 50 * TimeConstants::IN_MILLISECONDS, 0, ePhases::MightOfTheCrown);
                         break;
                     }
@@ -431,6 +536,37 @@ class boss_imperator_margok : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            void UpdateNovaTargets(uint32 const p_Diff)
+            {
+                m_NovaTime += p_Diff;
+
+                float l_YardsPerMs  = 7.0f / (float)TimeConstants::IN_MILLISECONDS;
+                /// Base min radius is 10 yards, which is increased depending on time passed
+                float l_MinRadius   = 8.0f;
+                float l_InnerRange  = 5.0f;
+
+                l_MinRadius += (l_YardsPerMs * m_NovaTime);
+
+                std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                for (HostileReference* l_Ref : l_ThreatList)
+                {
+                    if (Player* l_Player = Player::GetPlayer(*me, l_Ref->getUnitGuid()))
+                    {
+                        if (l_Player->GetDistance(m_NovaPos) >= (l_MinRadius - l_InnerRange) &&
+                            l_Player->GetDistance(m_NovaPos) <= l_MinRadius)
+                        {
+                            if (!l_Player->HasAura(eSpells::ForceNovaDoT))
+                                me->CastSpell(l_Player, eSpells::ForceNovaDoT, true);
+                        }
+                        else
+                        {
+                            if (l_Player->HasAura(eSpells::ForceNovaDoT))
+                                l_Player->RemoveAura(eSpells::ForceNovaDoT);
+                        }
+                    }
+                }
             }
         };
 
@@ -670,6 +806,134 @@ class spell_highmaul_destructive_resonance : public SpellScriptLoader
         }
 };
 
+/// Branded - 156225
+class spell_highmaul_branded : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_branded() : SpellScriptLoader("spell_highmaul_branded") { }
+
+        enum eSpells
+        {
+            ArcaneWrathDamage = 156239
+        };
+
+        enum eData
+        {
+            BrandedStacks
+        };
+
+        class spell_highmaul_branded_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_branded_AuraScript);
+
+            void OnAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
+                    return;
+
+                /// Caster is Mar'gok
+                if (Creature* l_Margok = GetCaster()->ToCreature())
+                {
+                    if (!l_Margok->IsAIEnabled)
+                        return;
+
+                    if (Unit* l_Target = GetTarget())
+                    {
+                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
+
+                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
+                        float l_JumpRange = 200.0f;
+                        l_JumpRange -= CalculatePct(l_JumpRange, float(l_Stacks * 50.0f));
+
+                        if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
+                        {
+                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
+
+                            /// Increase jump count
+                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+                        }
+
+                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
+                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_branded_AuraScript::OnAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_branded_AuraScript();
+        }
+};
+
+/// Arcane Wrath (damage) - 156239
+class spell_highmaul_arcane_wrath_damage : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_arcane_wrath_damage() : SpellScriptLoader("spell_highmaul_arcane_wrath_damage") { }
+
+        class spell_highmaul_arcane_wrath_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_arcane_wrath_damage_SpellScript);
+
+            enum eData
+            {
+                BrandedStacks
+            };
+
+            uint8 m_Stacks;
+
+            bool Load()
+            {
+                m_Stacks = 0;
+
+                /// We must save the stacks amount before the spell hit the player
+                /// It'll be reset before if it doesn't jump anymore
+                if (GetCaster() == nullptr)
+                    return false;
+
+                if (Creature* l_Margok = GetCaster()->ToCreature())
+                {
+                    if (!l_Margok->IsAIEnabled)
+                        return false;
+
+                    m_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+                    return true;
+                }
+
+                return false;
+            }
+
+            void HandleDamage()
+            {
+                /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
+                int32 l_Damage = GetHitDamage();
+                AddPct(l_Damage, int32(25 * m_Stacks));
+
+                SetHitDamage(l_Damage);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_highmaul_arcane_wrath_damage_SpellScript::HandleDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_arcane_wrath_damage_SpellScript();
+        }
+};
+
 void AddSC_boss_imperator_margok()
 {
     /// Boss
@@ -683,6 +947,8 @@ void AddSC_boss_imperator_margok()
     /// Spells
     new spell_highmaul_mark_of_chaos();
     new spell_highmaul_destructive_resonance();
+    new spell_highmaul_branded();
+    new spell_highmaul_arcane_wrath_damage();
 
     /// AreaTriggers
 }

@@ -240,12 +240,22 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, sca
 (175047, 0, 175047, 2, 1, 1, 0x4000, 'areatrigger_highmaul_arcane_residue'),
 (156469, 0, 6387, 2, 1, 1, 0x4000, '');
 
-DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_unstable_tempest', 'spell_highmaul_time_stop', 'spell_highmaul_mark_of_chaos', 'spell_highmaul_destructive_resonance');
+DELETE FROM spell_script_names WHERE ScriptName IN
+(
+    'spell_highmaul_unstable_tempest',
+    'spell_highmaul_time_stop',
+    'spell_highmaul_mark_of_chaos',
+    'spell_highmaul_destructive_resonance',
+    'spell_highmaul_branded',
+    'spell_highmaul_arcane_wrath_damage'
+);
 INSERT INTO spell_script_names VALUES
 (174981, 'spell_highmaul_unstable_tempest'),
 (174939, 'spell_highmaul_time_stop'),
 (158605, 'spell_highmaul_mark_of_chaos'),
-(174116, 'spell_highmaul_destructive_resonance');
+(174116, 'spell_highmaul_destructive_resonance'),
+(156225, 'spell_highmaul_branded'),
+(156239, 'spell_highmaul_arcane_wrath_damage');
 
 DELETE FROM spell_proc_event WHERE entry IN (174116);
 INSERT INTO spell_proc_event (entry, procFlags) VALUE
