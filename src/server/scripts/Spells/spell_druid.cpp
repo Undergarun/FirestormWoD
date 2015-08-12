@@ -3530,7 +3530,7 @@ class spell_dru_rake: public SpellScriptLoader
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                         if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
-                            l_SavageRoar->SetDuration(l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS);
+                            l_SavageRoar->SetDuration((l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS) + 12 * IN_MILLISECONDS);
                 }
             }
 
@@ -3690,7 +3690,7 @@ class spell_dru_shred: public SpellScriptLoader
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                         if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
-                            l_SavageRoar->SetDuration(l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS);
+                            l_SavageRoar->SetDuration((l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS) + 12 * IN_MILLISECONDS);
                 }
 
                 if (l_Target && l_Target->HasAuraState(AURA_STATE_BLEEDING) && sSpellMgr->GetSpellInfo(eSpells::Swipe))
