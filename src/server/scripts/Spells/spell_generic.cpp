@@ -4376,8 +4376,52 @@ class spell_gen_stoneform_dwarf_racial : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Touch of the Grave - 5227
+class spell_dru_touch_of_the_grave : public SpellScriptLoader
+{
+    public:
+        spell_dru_touch_of_the_grave() : SpellScriptLoader("spell_dru_touch_of_the_grave") { }
+
+        class spell_dru_touch_of_the_grave_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_touch_of_the_grave_AuraScript);
+
+            enum eSpells
+            {
+                TouchoftheGraveEffect = 127802
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
+                if (l_Attacker == nullptr || l_Caster == nullptr)
+                    return;
+
+                if (l_Attacker->GetGUID() == l_Caster->GetGUID())
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::TouchoftheGraveEffect, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_touch_of_the_grave_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_touch_of_the_grave_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_dru_touch_of_the_grave();
     new spell_gen_drums_of_fury();
     new spell_gen_absorb0_hitlimit1();
     new spell_gen_aura_of_anger();
