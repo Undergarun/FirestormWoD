@@ -543,30 +543,30 @@ class spell_dru_swipe: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_swipe_SpellScript);
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = GetHitDamage();
+
+                /// Award 1 combot point
+                l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                /// Swipe and Maul deals 20% more damage if target is bleeding
+                if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        int32 l_Damage = GetHitDamage();
-
-                        /// Award 1 combot point
-                        l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-
-                        /// Swipe and Maul deals 20% more damage if target is bleeding
-                        if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
-                        {
-                            AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                            SetHitDamage(l_Damage);
-                        }
-                    }
+                    AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                    SetHitDamage(l_Damage);
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dru_swipe_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_swipe_SpellScript::HandleDamage, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
 
