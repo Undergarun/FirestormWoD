@@ -791,7 +791,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     // Stagger handler
-    if (victim && victim->ToPlayer() && victim->getClass() == CLASS_MONK)
+    if (victim && victim->ToPlayer() && victim->getClass() == CLASS_MONK && damagetype != DamageEffectType::SELF_DAMAGE)
     {
         if (!victim->HasSpell(157533))
         {
