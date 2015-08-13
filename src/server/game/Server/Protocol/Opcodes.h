@@ -1283,6 +1283,7 @@ enum Opcodes
     CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x1C8D, ///< 6.1.2 19783
     CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x10F9, ///< 6.1.2 19783
     CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x1D89, ///< 6.1.2 19783
+    CMSG_CHAT_ADDON_MESSAGE_CHANNEL             = 0x1199, ///< 6.1.2 19865
     CMSG_ADDON_REGISTERED_PREFIXES              = 0x1D2A, ///< 6.1.2 19783
 
     /// Chat

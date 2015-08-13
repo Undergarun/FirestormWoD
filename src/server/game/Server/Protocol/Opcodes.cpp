@@ -1326,13 +1326,14 @@ void InitOpcodes()
     /// Chat
     //////////////////////////////////////////////////////////////////////////
     /// Addon chat
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT,                STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_WHISPER,                      STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_GUILD,                        STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_OFFICER,                      STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_RAID,                         STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_PARTY,                        STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
-    DEFINE_OPCODE_HANDLER(CMSG_ADDON_REGISTERED_PREFIXES,                       STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonRegisteredPrefixesOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT,                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_WHISPER,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_GUILD,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_OFFICER,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_RAID,                         STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_PARTY,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_CHANNEL,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_ADDON_REGISTERED_PREFIXES,                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonRegisteredPrefixesOpcode);
 
     /// Chat
     DEFINE_OPCODE_HANDLER(CMSG_CHAT_MESSAGE_RAID_WARNING,                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMessagechatOpcode          );
