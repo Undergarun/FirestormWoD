@@ -197,6 +197,7 @@ UPDATE creature_template SET InhabitType = 4 WHERE entry = 68553;
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry = 89081;
 
 # Arcane Aberration
+# Displacing Arcane Aberration
 UPDATE creature_template SET
     minlevel       = 102,
     maxlevel       = 102,
@@ -204,7 +205,7 @@ UPDATE creature_template SET
     unit_class     = 8,
     dmg_multiplier = 4,
     ScriptName     = 'npc_highmaul_arcane_aberration'
-WHERE entry = 77809;
+WHERE entry IN (77809, 77879);
 
 UPDATE creature_model_info SET bounding_radius = 0.7, combat_reach = 5 WHERE modelid = 55131;
 
@@ -235,10 +236,9 @@ INSERT INTO creature_equip_template VALUES
 (87293, 1, 79006, 79006, 0),
 (77428, 1, 115015, 0, 0);
 
-DELETE FROM areatrigger_template WHERE spell_id IN (175047, 156469);
+DELETE FROM areatrigger_template WHERE spell_id IN (175047);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags, ScriptName) VALUE
-(175047, 0, 175047, 2, 1, 1, 0x4000, 'areatrigger_highmaul_arcane_residue'),
-(156469, 0, 6387, 2, 1, 1, 0x4000, '');
+(175047, 0, 175047, 2, 1, 1, 0x4000, 'areatrigger_highmaul_arcane_residue');
 
 DELETE FROM spell_script_names WHERE ScriptName IN
 (
@@ -247,7 +247,10 @@ DELETE FROM spell_script_names WHERE ScriptName IN
     'spell_highmaul_mark_of_chaos',
     'spell_highmaul_destructive_resonance',
     'spell_highmaul_branded',
-    'spell_highmaul_arcane_wrath_damage'
+    'spell_highmaul_branded_displacement',
+    'spell_highmaul_arcane_wrath_damage',
+    'spell_highmaul_transition_visuals',
+    'spell_highmaul_berserker_rush_damage'
 );
 INSERT INTO spell_script_names VALUES
 (174981, 'spell_highmaul_unstable_tempest'),
@@ -255,15 +258,19 @@ INSERT INTO spell_script_names VALUES
 (158605, 'spell_highmaul_mark_of_chaos'),
 (174116, 'spell_highmaul_destructive_resonance'),
 (156225, 'spell_highmaul_branded'),
-(156239, 'spell_highmaul_arcane_wrath_damage');
+(164004, 'spell_highmaul_branded_displacement'),
+(156239, 'spell_highmaul_arcane_wrath_damage'),
+(176580, 'spell_highmaul_transition_visuals'),
+(159002, 'spell_highmaul_berserker_rush_damage');
 
 DELETE FROM spell_proc_event WHERE entry IN (174116);
 INSERT INTO spell_proc_event (entry, procFlags) VALUE
 (174116, 0x800AAAA8);
 
-DELETE FROM spell_target_position WHERE id = 166090;
+DELETE FROM spell_target_position WHERE id IN (166090, 164336);
 INSERT INTO spell_target_position VALUE
-(166090, 0, 1228, 3878.66, 8593.54, 565.314, 6.192306);
+(166090, 0, 1228, 3878.66, 8593.54, 565.314, 6.192306),
+(164336, 0, 1228, 3944.7, 8616.53, 565.314, 0.715585);
 
 DELETE FROM creature_text WHERE entry IN (81811, 77428);
 INSERT INTO creature_text VALUES

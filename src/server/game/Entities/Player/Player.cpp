@@ -1470,6 +1470,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 CompleteQuest(quest->GetQuestId());
         }
     }
+
+    SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
     return true;
 }
 
