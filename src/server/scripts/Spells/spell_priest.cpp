@@ -968,8 +968,9 @@ class spell_pri_prayer_of_mending_divine_insight: public SpellScriptLoader
         }
 };
 
-// Called by Greater Heal - 2060 and Prayer of Healing - 596
-// Divine Insight (Holy) - 109175
+/// last update : 6.1.2 19802
+/// Called by Greater Heal - 2060, Prayer of Healing - 596 and Clarity of Purpose - 155245
+/// Divine Insight (Holy) - 109175
 class spell_pri_divine_insight_holy: public SpellScriptLoader
 {
     public:
@@ -979,13 +980,28 @@ class spell_pri_divine_insight_holy: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_divine_insight_holy_SpellScript);
 
+            enum eSpells
+            {
+                DivineInsightHoly       = 109175,
+                DivineInsightHolyProc   = 123267
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_TALENT))
-                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_HOLY)
-                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
-                                _player->CastSpell(_player, PRIEST_SPELL_DIVINE_INSIGHT_HOLY, true);
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::DivineInsightHoly);
+
+                if (l_SpellInfo == nullptr || l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasAura(eSpells::DivineInsightHoly))
+                    return;
+
+                if (!(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_HOLY))
+                    return;
+
+                if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                    l_Player->CastSpell(l_Player, eSpells::DivineInsightHolyProc, true);
             }
 
             void Register()

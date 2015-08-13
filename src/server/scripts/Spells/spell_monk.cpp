@@ -156,23 +156,24 @@ class spell_monk_combo_breaker: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                const SpellInfo *l_CombotBeaker = sSpellMgr->GetSpellInfo(SPELL_MONK_COMBO_BREAKER_AURA);
+
+                if (l_Target == nullptr || l_CombotBeaker == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(SPELL_MONK_COMBO_BREAKER_AURA))
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (roll_chance_i(l_CombotBeaker->Effects[EFFECT_0].BasePoints))
                     {
-                        if (caster->HasAura(SPELL_MONK_COMBO_BREAKER_AURA))
-                        {
-                            if (roll_chance_i(12))
-                            {
-                                if (urand(0, 1))
-                                    caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
-                                else
-                                    if (caster->HasSpell(SPELL_MONK_CHI_EXPLOSION_WINWALKER))
-                                        caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION, true);
-                                    else
-                                        caster->CastSpell(caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
-                            }
-                        }
+                        if (urand(0, 1))
+                            l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_TIGER_PALM, true);
+                        else
+                        if (l_Caster->HasSpell(SPELL_MONK_CHI_EXPLOSION_WINWALKER))
+                            l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION, true);
+                        else
+                            l_Caster->CastSpell(l_Caster, SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK, true);
                     }
                 }
             }
@@ -4285,6 +4286,49 @@ class spell_monk_detox: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_detox_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                DispelChargesList l_DispelList;
+                uint32 l_DispelMask = 0;
+
+                /// Create dispel mask by dispel type
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                {
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER && i == EFFECT_2)
+                        continue;
+
+                    if (GetSpellInfo()->Effects[i].IsEffect())
+                    {
+                        uint32 l_Dispel_type = GetSpellInfo()->Effects[i].MiscValue;
+                        l_DispelMask = GetSpellInfo()->GetDispelMask(DispelType(l_Dispel_type));
+                        l_Target->GetDispellableAuraList(l_Player, l_DispelMask, l_DispelList);
+                    }
+                }
+
+                DispelChargesList l_TempDispelList = l_DispelList;
+
+                for (auto itr : l_TempDispelList)
+                {
+                    if (AuraPtr l_Aura = itr.first)
+                    {
+                        AuraApplication * aurApp = l_Aura->GetApplicationOfTarget(l_Target->GetGUID());
+                        if (aurApp->IsPositive())
+                            l_DispelList.remove(itr);
+                    }
+                }
+
+                if (l_DispelList.empty())
+                    return SPELL_FAILED_NOTHING_TO_DISPEL;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDispel(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -4309,6 +4353,7 @@ class spell_monk_detox: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_monk_detox_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleDispel, EFFECT_2, SPELL_EFFECT_DISPEL);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleHeal, EFFECT_3, SPELL_EFFECT_HEAL_PCT);
             }

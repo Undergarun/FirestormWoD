@@ -1,0 +1,20 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_pal_glyph_of_flash_light';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(633,'spell_pal_glyph_of_flash_light'),
+(19750,'spell_pal_glyph_of_flash_light'),
+(25914,'spell_pal_glyph_of_flash_light'),
+(82326,'spell_pal_glyph_of_flash_light'),
+(82327,'spell_pal_glyph_of_flash_light'),
+(85222,'spell_pal_glyph_of_flash_light'),
+(85673,'spell_pal_glyph_of_flash_light'),
+(130551,'spell_pal_glyph_of_flash_light'),
+(136494,'spell_pal_glyph_of_flash_light'),
+(114165,'spell_pal_glyph_of_flash_light'),
+(114852,'spell_pal_glyph_of_flash_light'),
+(115862,'spell_pal_glyph_of_flash_light'),
+(114870,'spell_pal_glyph_of_flash_light'),
+(114871,'spell_pal_glyph_of_flash_light'),
+(114917,'spell_pal_glyph_of_flash_light'),
+(119952,'spell_pal_glyph_of_flash_light'),
+(121551,'spell_pal_glyph_of_flash_light'),
+(121552,'spell_pal_glyph_of_flash_light');
