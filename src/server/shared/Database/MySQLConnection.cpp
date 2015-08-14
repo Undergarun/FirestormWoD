@@ -66,6 +66,7 @@ MySQLConnection::~MySQLConnection()
     for (PreparedStatementMap::const_iterator itr = m_queries.begin(); itr != m_queries.end(); ++itr)
         free((void *)m_queries[itr->first].first);
 
+    /// This a esthetic fake delete condition to avoid ASAN error
     mysql_close(m_Mysql);
     m_Mysql = nullptr;
 
