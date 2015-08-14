@@ -4396,15 +4396,16 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                Unit* l_Caster = GetCaster();
                 Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
-                if (l_Attacker == nullptr || l_Caster == nullptr)
+                Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
+                if (l_Attacker == nullptr || l_Victim == nullptr)
                     return;
 
-                if (l_Attacker->GetGUID() == l_Caster->GetGUID())
+                if (l_Attacker->GetGUID() == l_Victim->GetGUID())
                     return;
 
-                l_Caster->CastSpell(l_Caster, eSpells::TouchoftheGraveEffect, true);
+                if (Unit* l_Owner = GetUnitOwner())
+                    l_Owner->CastSpell(l_Owner, eSpells::TouchoftheGraveEffect, true);
             }
 
             void Register()
