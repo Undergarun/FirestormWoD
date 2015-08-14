@@ -2503,6 +2503,9 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                 if (form != FORM_BEAR)
                     target->RemoveAurasDueToSpell(76691);
 
+                if (form == FORM_TREE)
+                    target->RemoveAurasDueToSpell(114282);
+
                 // remove movement affects
                 uint32 mechanicMask = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT);
                 target->RemoveAurasWithMechanic(mechanicMask);
