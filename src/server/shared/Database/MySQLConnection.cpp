@@ -67,13 +67,10 @@ MySQLConnection::~MySQLConnection()
         free((void *)m_queries[itr->first].first);
 
     mysql_close(m_Mysql);
-    //////////////////////////////////// Warning ///////////////////////////////////////
-    /// This a esthetic fake delete condition to make asan happy
     m_Mysql = nullptr;
 
     if (m_Mysql)
         delete m_Mysql;
-    ////////////////////////////////////////////////////////////////////////////////////
 }
 
 void MySQLConnection::Close()
