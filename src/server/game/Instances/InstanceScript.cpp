@@ -612,6 +612,22 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
     }
 }
 
+void InstanceScript::DoRemoveForcedMovementsOnPlayers(uint64 p_Source)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (!l_PlayerList.isEmpty())
+    {
+        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+        {
+            if (Player* l_Player = l_Iter->getSource())
+            {
+                if (l_Player->HasMovementForce(p_Source))
+                    l_Player->SendApplyMovementForce(p_Source, false, Position());
+            }
+        }
+    }
+}
+
 // Cast spell on all players in instance
 void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
 {

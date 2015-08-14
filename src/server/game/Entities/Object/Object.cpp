@@ -3326,9 +3326,8 @@ GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float
 
 Player* WorldObject::FindNearestPlayer(float range, bool alive)
 {
-    /// @TODO fix alive player search
     Player* player = NULL;
-    JadeCore::AnyPlayerInObjectRangeCheck check(this, range);
+    JadeCore::AnyPlayerInObjectRangeCheck check(this, range, alive);
     JadeCore::PlayerSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(this, player, check);
     VisitNearbyWorldObject(range, searcher);
     return player;

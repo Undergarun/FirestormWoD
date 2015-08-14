@@ -267,12 +267,13 @@ DELETE FROM spell_proc_event WHERE entry IN (174116);
 INSERT INTO spell_proc_event (entry, procFlags) VALUE
 (174116, 0x800AAAA8);
 
-DELETE FROM spell_target_position WHERE id IN (166090, 164336);
+DELETE FROM spell_target_position WHERE id IN (166090, 164336, 164751);
 INSERT INTO spell_target_position VALUE
 (166090, 0, 1228, 3878.66, 8593.54, 565.314, 6.192306),
-(164336, 0, 1228, 3944.7, 8616.53, 565.314, 0.715585);
+(164336, 0, 1228, 3944.7, 8616.53, 565.314, 0.715585),
+(164751, 0, 1228, 3894.11, 8568.27, 565.314, 3.735005);
 
-DELETE FROM creature_text WHERE entry IN (81811, 77428);
+DELETE FROM creature_text WHERE entry IN (81811, 77428, 77637);
 INSERT INTO creature_text VALUES
 (81811, 0, 0, 'My liege, the city is lost! We must abandon the palace!', 14, 0, 100, 0, 0, 45106, 'MalgrisIntro1'),
 (81811, 1, 0, 'The gates have been breached! They have come for the stones!', 14, 0, 100, 0, 0, 45107, 'MalgrisIntro2'),
@@ -289,20 +290,22 @@ INSERT INTO creature_text VALUES
 (77428, 7, 0, 'The arcane bends to my will, as shall you!', 14, 0, 100, 0, 0, 42035, 'MargokArcaneAberration'),
 (77428, 8, 0, 'Look upon the tools of your demise! The ancient stones grant me unimaginable power!', 14, 0, 100, 0, 0, 42018, 'MargokRuneOfDisplacement'),
 (77428, 9, 0, 'You have seen but a fraction of my power. Behold the ancient magics unearthed by my empire!', 14, 0, 100, 0, 0, 42019, 'MargokRuneOfFortification1'),
-(77428, 9, 1, 'King''s guard, to my side! I must focus my power and awaken the stone!', 14, 0, 100, 0, 0, 42020, 'MargokRuneOfFortification2'),
-(77428, 9, 2, 'Such power! It takes form to destroy you!', 14, 0, 100, 0, 0, 42021, 'MargokRuneOfFortification3'),
-(77428, 9, 3, 'Its energy overflows! Soon it will be unleashed!', 14, 0, 100, 0, 0, 42022, 'MargokRuneOfFortification4'),
-(77428, 9, 4, 'The boundless power of the stones flows through me! Your destruction comes!',14, 0, 100, 0, 0, 42023, 'MargokRuneOfFortification5'),
-(77428, 10, 0, 'Enough! Long have the Sorcerer Kings guarded these chambers. Today you will see our secret power.', 14, 0, 100, 0, 0, 42024, 'MargokRuneOfReplication1'),
-(77428, 10, 1, 'Guards, remove these peasants.', 14, 0, 100, 0, 0, 42025, 'MargokRuneOfReplication2'),
-(77428, 10, 2, 'Its power grows beyond comprehension!', 14, 0, 100, 0, 0, 42026, 'MargokRuneOfReplication3'),
-(77428, 10, 3, 'You can never challenge my rule! I command the power of the stones and know no equal!', 14, 0, 100, 0, 0, 42027, 'MargokRuneOfReplication4'),
-(77428, 11, 0, 'Your presence bores me.', 14, 0, 100, 0, 0, 42032, 'MargokSlay1'),
-(77428, 11, 1, 'Learn your place.', 14, 0, 100, 0, 0, 42031, 'MargokSlay2'),
-(77428, 12, 0, 'I tire of this. Begone!', 14, 0, 100, 0, 0, 42016, 'MargokBerserk'),
-(77428, 13, 0, 'I... am... king...', 14, 0, 100, 0, 0, 42017, 'MargokDeath');
+(77428, 10, 0, 'King''s guard, to my side! I must focus my power and awaken the stone!', 14, 0, 100, 0, 0, 42020, 'MargokRuneOfFortification2'),
+(77428, 11, 0, 'Such power! It takes form to destroy you!', 14, 0, 100, 0, 0, 42021, 'MargokRuneOfFortification3'),
+(77428, 12, 0, 'Its energy overflows! Soon it will be unleashed!', 14, 0, 100, 0, 0, 42022, 'MargokRuneOfFortification4'),
+(77428, 13, 0, 'The boundless power of the stones flows through me! Your destruction comes!',14, 0, 100, 0, 0, 42023, 'MargokRuneOfFortification5'),
+(77428, 14, 0, 'Enough! Long have the Sorcerer Kings guarded these chambers. Today you will see our secret power.', 14, 0, 100, 0, 0, 42024, 'MargokRuneOfReplication1'),
+(77428, 14, 1, 'Guards, remove these peasants.', 14, 0, 100, 0, 0, 42025, 'MargokRuneOfReplication2'),
+(77428, 14, 2, 'Its power grows beyond comprehension!', 14, 0, 100, 0, 0, 42026, 'MargokRuneOfReplication3'),
+(77428, 14, 3, 'You can never challenge my rule! I command the power of the stones and know no equal!', 14, 0, 100, 0, 0, 42027, 'MargokRuneOfReplication4'),
+(77428, 15, 0, 'Your presence bores me.', 14, 0, 100, 0, 0, 42032, 'MargokSlay1'),
+(77428, 15, 1, 'Learn your place.', 14, 0, 100, 0, 0, 42031, 'MargokSlay2'),
+(77428, 16, 0, 'I tire of this. Begone!', 14, 0, 100, 0, 0, 42016, 'MargokBerserk'),
+(77428, 17, 0, 'I... am... king...', 14, 0, 100, 0, 0, 42017, 'MargokDeath'),
 
-DELETE FROM locales_creature_text WHERE entry IN (81811, 77428);
+(77637, 0, 0, '$n detonated Destructive Resonance!', 10, 0, 100, 0, 0, 0, 'MargokDestructiveResonance');
+
+DELETE FROM locales_creature_text WHERE entry IN (81811, 77428, 77637);
 --                                                       French     German     Spanish    Russian
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
 (
@@ -404,86 +407,93 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Это лишь часть моей мощи! А теперь узрите древнюю магию моей империи!'
 ),
 (
-    77428, 9, 1,
+    77428, 10, 0,
     'Gardes du roi, défendez-moi ! Je dois concentrer mon énergie et réveiller la pierre !',
     'Königswache, zu mir. Ich muss mich konzentrieren, um den Stein zu erwecken!',
     '¡Guardias reales, a mi lado! Debo concentrar mi poder y despertar a la piedra.',
     'Гвардия, защищайте меня! Я должен пробудить силу камня!'
 ),
 (
-    77428, 9, 2,
+    77428, 11, 0,
     'Tant de puissance ! Elle prend forme pour vous annihiler !',
     'Welch eine Macht! Sie nimmt Gestalt an, um euch zu zerstören!',
     '¡Tanto poder! Toma forma para destruirte.',
     'Какая мощь! И она уничтожит вас!'
 ),
 (
-    77428, 9, 3,
+    77428, 12, 0,
     'Son énergie déborde ! Bientôt, elle sera libérée !',
     'Ihre Energie quillt über. Bald schon wird sie entfesselt!',
     '¡Su poder se desborda! ¡Pronto será liberado!',
     'Он полон энергии. И скоро она высвободится!'
 ),
 (
-    77428, 9, 4,
+    77428, 13, 0,
     'La puissance infinie des pierres déferle dans mes veines ! Je vais vous pulvériser !',
     'Die grenzenlose Energie der Steine erfüllt mich! Die Zeit eurer Vernichtung naht!',
     '¡El poder sin límites de las piedras fluye a través de mí! ¡Su destrucción se acerca!',
     'По моим жилам бежит бесконечная мощь камней! Близится ваша погибель!'
 ),
 (
-    77428, 10, 0,
+    77428, 14, 0,
     'Assez ! Les rois-sorciers protègent ces salles depuis la nuit des temps. Aujourd''hui, vous allez découvrir leur puissance cachée.',
     'Genug! Lange schon hüten die Zaubererkönige diese Hallen. Heute werdet ihr Zeuge unserer geheimen Macht.',
     '¡Suficiente! Los Reyes hechiceros han protegido estas cámaras por mucho tiempo. Hoy verán nuestro poder secreto.',
     'Хватит! Короли-чародеи веками охраняли эти залы. И сейчас вы узнаете, почему.'
 ),
 (
-    77428, 10, 1,
+    77428, 14, 1,
     'Gardes, débarrassez-vous de ces paysans.',
     'Wache, entfernt diesen Pöbel.',
     'Guardias, llévense a estos campesinos.',
     'Стража! Убрать это отребье!'
 ),
 (
-    77428, 10, 2,
+    77428, 14, 2,
     'Son pouvoir grandit au-delà de toute compréhension !',
     'Die Macht wächst ins Unermessliche.',
     '¡Su poder va más allá de la comprensión!',
     'Эта сила беспредельна!'
 ),
 (
-    77428, 10, 3,
+    77428, 14, 3,
     'Mon règne est absolu ! Je commande la puissance des pierres ; nul ne peut rivaliser avec moi !',
     'Zweifelt niemals meine Herrschaft an! Ich beherrsche die Macht der Steine! Niemand ist mir ebenbürtig!',
     '¡No podrán jamás desafiar mi mando! ¡Comando el poder de las piedras y no hay nadie igual!',
     'Вам не удастся меня свергнуть! Я повелеваю силой камней! Мне нет равных!'
 ),
 (
-    77428, 11, 0,
+    77428, 15, 0,
     'Votre présence m''assomme.',
     'Eure Anwesenheit langweilt mich.',
     'Su presencia me molesta.',
     'Ты утомляешь меня.'
 ),
 (
-    77428, 11, 1,
+    77428, 15, 1,
     'Mon pouvoir n''a aucune limite !',
     'Meine Macht kennt keine Grenzen!',
     '¡Mi poder no conoce límite!',
     'Моя сила безгранична!'
 ),
 (
-    77428, 12, 0,
+    77428, 16, 0,
     'Vous me fatiguez. Fichez le camp !',
     'Ich habe genug. Hinfort mit euch!',
     'Me aburre esto. ¡Largo!',
     'Я устал. Прочь!'
 ),
 (
-    77428, 13, 0,
+    77428, 17, 0,
     'Je... suis... le roi...',
     'Ich... bin... der König...',
     'Yo... soy... rey...',
     'Я... Король...'
+),
+(
+    77637, 0, 0,
+    '$n a fait exploser la résonance destructrice !',
+    '$n hat destruktive Resonanz detonieren lassen!',
+    '¡$n detonó Resonancia destructiva!',
+    '$n вызывает взрыв Разрушительного резонанса!'
 );

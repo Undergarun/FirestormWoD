@@ -233,6 +233,9 @@ class InstanceScript : public ZoneScript
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 
+        /// Remove movement forces on all players for the specified source
+        void DoRemoveForcedMovementsOnPlayers(uint64 p_Source);
+
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell);
 

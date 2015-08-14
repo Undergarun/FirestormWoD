@@ -3790,6 +3790,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 174627: ///< Fixate (Phantasmal Weapon)
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
                 break;
+            case 157278: ///< Awaken Runestone (Imperator Mar'gok)
+                spellInfo->InterruptFlags = 0;
+                spellInfo->ChannelInterruptFlags = 0;
+                spellInfo->AuraInterruptFlags = 0;
+                break;
             case 154901: ///< Seal Conduit (third)
                 spellInfo->MaxAffectedTargets = 3;
                 break;
