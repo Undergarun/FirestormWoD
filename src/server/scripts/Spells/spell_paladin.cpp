@@ -2420,12 +2420,12 @@ class spell_pal_avenging_wrath : public SpellScriptLoader
                 GlyphoftheFallingAvenger = 115931
             };
 
-            void HandleTarget(SpellEffIndex)
+            void HandleTarget(SpellEffIndex p_Effect)
             {
                 Unit* l_Caster = GetCaster();
 
                 if (!l_Caster->HasAura(eSpells::GlyphoftheFallingAvenger))
-                    PreventHitAura();
+                    PreventHitEffect(p_Effect);
             }
 
             void Register()
