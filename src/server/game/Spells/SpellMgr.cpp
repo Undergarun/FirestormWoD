@@ -4135,9 +4135,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 139139: ///< Insanity
                 spellInfo->ProcChance = 0;
                 break;
-            case 152222: ///< Euphoria
-                spellInfo->Effects[2].BasePoints = -50;
-                break;
             case 32409: ///< Shadow Word: Death (triggered)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
                 spellInfo->Effects[0].ApplyAuraName = 0;
