@@ -4405,7 +4405,7 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                     return;
 
                 if (Unit* l_Owner = GetUnitOwner())
-                    l_Owner->CastSpell(l_Owner, eSpells::TouchoftheGraveEffect, true);
+                    l_Owner->CastSpell(l_Victim, eSpells::TouchoftheGraveEffect, true);
             }
 
             void Register()
