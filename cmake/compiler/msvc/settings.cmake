@@ -61,11 +61,7 @@ endif()
 string(REGEX REPLACE "/Zm[0-9]+ *" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
 if(WIN32)
-# Windows 8 = 6.2 But also Win 10 ? WTF cmake ? ....
-  if (${CMAKE_SYSTEM_VERSION} EQUAL 6.2)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm361" CACHE STRING "" FORCE)
-    message(${CMAKE_SYSTEM_VERSION})
-  endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm500" CACHE STRING "" FORCE)
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm2000" CACHE STRING "" FORCE)
  endif()
