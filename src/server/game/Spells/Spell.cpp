@@ -7788,7 +7788,9 @@ void Spell::Delayed()
 
     /// Check pushback reduce
     /// Spellcasting delay is normally 500ms
-    int32 l_DelayTime = 500;
+    /// http://www.mmo-champion.com/content/3981-Warlords-of-Draenor-Skies-Blizzcon-Tickets-on-Saturday-Blue-Tweets-Wildstar-Beta
+    /// "We removed the passives, and reduced all pushback, game-wide, by 70%. (Celestalon)"
+    int32 l_DelayTime = 150;
 
     /// Must be initialized to 100 for percent modifiers
     int32 l_DelayReduce = 100;
