@@ -3648,6 +3648,8 @@ class Player : public Unit, public GridObject<Player>
         void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
 
         uint32 GetBagsFreeSlots() const;
+        
+        ACE_Thread_Mutex m_DeleteLock;
 
     protected:
         void OnEnterPvPCombat();

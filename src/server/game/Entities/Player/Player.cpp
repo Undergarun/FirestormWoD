@@ -1000,6 +1000,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
 Player::~Player()
 {
+    m_DeleteLock.acquire();
+
     if (m_Garrison)
         delete m_Garrison;
 
@@ -1054,6 +1056,7 @@ Player::~Player()
     ClearResurrectRequestData();
 
     sWorld->DecreasePlayerCount();
+    m_DeleteLock.release();
 }
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)
@@ -3302,10 +3305,10 @@ void Player::RegenerateAll()
         m_holyPowerRegenTimerCount -= 10000;
     }
 
-    if (m_chiPowerRegenTimerCount >= 10000 && l_Class == CLASS_MONK)
+    if (m_chiPowerRegenTimerCount >= 15000 && l_Class == CLASS_MONK)
     {
         Regenerate(POWER_CHI);
-        m_chiPowerRegenTimerCount -= 10000;
+        m_chiPowerRegenTimerCount -= 15000;
     }
 
     if (m_demonicFuryPowerRegenTimerCount >= 100 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY))
@@ -29737,6 +29740,8 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         Player* l_Player = HashMapHolder<Player>::Find(p_PlayerGuid);
         if (l_Player == nullptr)
             return;
+            
+        l_Player->m_DeleteLock.acquire();
 
         /// Same for the unit
         Unit* l_Unit = p_UnitGUID ? Unit::GetUnit(*l_Player, p_UnitGUID) : nullptr;
@@ -29746,10 +29751,15 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         // Update only individual achievement criteria here, otherwise we may get multiple updates
         // from a single boss kill
         if (sAchievementMgr->IsGroupCriteriaType(p_Type))
+        {
+            l_Player->m_DeleteLock.release();
             return;
+        }
 
         if (Guild* l_Guild = sGuildMgr->GetGuildById(l_Player->GetGuildId()))
             l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player, p_LoginCheck);
+        
+        l_Player->m_DeleteLock.release();
     };
 
     sAchievementMgr->AddCriteriaUpdateTask(l_Task);
@@ -33671,6 +33681,7 @@ void Player::ApplyWargameItemModifications()
 
 void Player::RewardCompletedAchievementsIfNeeded()
 {
+    GetAchievementMgr().GetCompletedAchievementLock().acquire();
     for (auto l_Iterator : GetAchievementMgr().GetCompletedAchivements())
     {
         AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievement(l_Iterator.first);
@@ -33771,6 +33782,8 @@ void Player::RewardCompletedAchievementsIfNeeded()
             CharacterDatabase.CommitTransaction(l_Transaction);
         }
     }
+    
+    GetAchievementMgr().GetCompletedAchievementLock().release();
 }
 
 void Player::DeleteInvalidSpells()
