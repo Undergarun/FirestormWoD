@@ -566,42 +566,52 @@ class spell_warr_raging_blow: public SpellScriptLoader
         }
 };
 
-/// Called by Devastate - 20243
-/// Sword and Board - 46953
-class spell_warr_sword_and_board: public SpellScriptLoader
+/// last update : 6.1.2 19802
+/// Devastate - 20243
+class spell_warr_devaste: public SpellScriptLoader
 {
     public:
-        spell_warr_sword_and_board() : SpellScriptLoader("spell_warr_sword_and_board") { }
+        spell_warr_devaste() : SpellScriptLoader("spell_warr_devaste") { }
 
-        class spell_warr_sword_and_board_SpellScript : public SpellScript
+        class spell_warr_devaste_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_sword_and_board_SpellScript);
+            PrepareSpellScript(spell_warr_devaste_SpellScript);
+
+            enum eSpells
+            {
+                UnyieldingStrikesAura = 169685,
+                UnyieldingStrikesProc = 169686,
+                SwordandBoard = 46953
+            };
 
             void HandleOnHit()
             {
-                if (!GetHitUnit())
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
                     return;
 
-                // Fix Sword and Board
-                if (Player* player = GetCaster()->ToPlayer())
+                const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::SwordandBoard);
+
+                if (l_SpellInfo && l_Player->HasAura(eSpells::SwordandBoard) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
                 {
-                    if (roll_chance_i(30))
-                    {
-                        player->CastSpell(player, WARRIOR_SPELL_SWORD_AND_BOARD, true);
-                        player->RemoveSpellCooldown(WARRIOR_SPELL_SHIELD_SLAM, true);
-                    }
+                    l_Player->CastSpell(l_Player, WARRIOR_SPELL_SWORD_AND_BOARD, true);
+                    l_Player->RemoveSpellCooldown(WARRIOR_SPELL_SHIELD_SLAM, true);
                 }
+
+                if (l_Player->HasAura(eSpells::UnyieldingStrikesAura))
+                    l_Player->CastSpell(l_Player, eSpells::UnyieldingStrikesProc, true);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_sword_and_board_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_warr_devaste_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_warr_sword_and_board_SpellScript();
+            return new spell_warr_devaste_SpellScript();
         }
 };
 
@@ -2455,8 +2465,38 @@ class spell_warr_activate_battle_stance : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Unyielding Strikes - 169685
+class spell_warr_unyielding_strikes : public SpellScriptLoader
+{
+    public:
+        spell_warr_unyielding_strikes() : SpellScriptLoader("spell_warr_unyielding_strikes") { }
+
+        class spell_warr_unyielding_strikes_Aurascript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_unyielding_strikes_Aurascript);
+
+            void HandleOnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& /*p_ProcInfos*/)
+            {
+                PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_unyielding_strikes_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_unyielding_strikes_Aurascript();
+        }
+};
+
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_unyielding_strikes();
     new spell_warr_defensive_stance();
     new spell_warr_glyph_of_shattering_throw();
     new spell_warr_shattering_throw();
@@ -2475,7 +2515,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_enrage();
     new spell_warr_mocking_banner();
     new spell_warr_raging_blow();
-    new spell_warr_sword_and_board();
+    new spell_warr_devaste();
     new spell_warr_mortal_strike();
     new spell_warr_rallying_cry();
     new spell_warr_heroic_leap_damage();
