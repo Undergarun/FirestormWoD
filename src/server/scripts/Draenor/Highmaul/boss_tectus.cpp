@@ -89,6 +89,7 @@ class boss_tectus : public CreatureScript
             /// Arrow visual on player
             SpellCrystallineBarrage     = 162346,
             CrystallineBarrageSummon    = 162371,
+            CrystallineBarrageDoT       = 162370,
             /// +5% damage done
             Accretion                   = 162288,
             Petrification               = 163809,
@@ -393,7 +394,9 @@ class boss_tectus : public CreatureScript
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellCrystallineBarrage);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrystallineBarrageDoT);
 
                     Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
                     if (l_PlayerList.isEmpty())
@@ -448,7 +451,11 @@ class boss_tectus : public CreatureScript
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SetBossState(eHighmaulDatas::BossTectus, EncounterState::FAIL);
+
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellCrystallineBarrage);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrystallineBarrageDoT);
                 }
 
                 std::list<Creature*> l_Motes;
