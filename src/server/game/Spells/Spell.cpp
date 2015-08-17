@@ -3581,8 +3581,9 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(1));
 
     //Prevent casting at cast another spell (ServerSide check)
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count && (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster))
-        && (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (GetSpellInfo()->CalcCastTime(m_caster))))
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count &&
+        (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (GetSpellInfo()->CalcCastTime(m_caster))) &&
+        (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
         finish(false);
@@ -5984,15 +5985,26 @@ SpellCastResult Spell::CheckCast(bool strict)
     // Check cooldowns to prevent cheating
     if (m_caster->GetTypeId() == TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE))
     {
-        Player* player = m_caster->ToPlayer();
+        Player* l_Player = m_caster->ToPlayer();
 
-        // Can cast triggered (by aura only?) spells while have this flag
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY) &&
+        SpellInfo const* l_SpellInfo = nullptr;
+        if (m_caster->HasAura(46924)) ///< Bladestorm
+            l_SpellInfo = sSpellMgr->GetSpellInfo(46924);
+
+        Unit::AuraEffectList const& l_AuraEffects = m_caster->GetAuraEffectsByType(SPELL_AURA_ALLOW_ONLY_ABILITY);
+        for (Unit::AuraEffectList::const_iterator l_AuraEffect = l_AuraEffects.begin(); l_AuraEffect != l_AuraEffects.end(); ++l_AuraEffect)
+        {
+            if (l_SpellInfo && (*l_AuraEffect)->IsAffectingSpell(m_spellInfo))
+                _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_IGNORE_CASTER_AURASTATE);
+        }
+
+        //can cast triggered (by aura only?) spells while have this flag
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && l_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY) &&
             (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (GetSpellInfo()->CalcCastTime(m_caster))) &&
             (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 
-        if (player->HasSpellCooldown(m_spellInfo->Id) && !player->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
+        if (l_Player->HasSpellCooldown(m_spellInfo->Id) && !l_Player->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
         {
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
@@ -6004,12 +6016,12 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (categories && categories->ChargesCategory != 0)
         {
             auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-            if (category && !player->CanUseCharge(category))
+            if (category && !l_Player->CanUseCharge(category))
                 return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
         }
 
         // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
-        if (m_caster->ToPlayer()->GetLastPotionId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
+        if (l_Player->GetLastPotionId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
             return SPELL_FAILED_NOT_READY;
     }
 
