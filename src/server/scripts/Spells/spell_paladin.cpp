@@ -2873,6 +2873,59 @@ class spell_pal_glyph_of_flash_light : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Shining Protector - 159374
+class spell_pal_shining_protector : public SpellScriptLoader
+{
+    public:
+        spell_pal_shining_protector() : SpellScriptLoader("spell_pal_shining_protector") { }
+
+        class spell_pal_shining_protector_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_shining_protector_AuraScript);
+
+            enum eSpells
+            {
+                ShiningProtectorHeal = 159375
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::ShiningProtectorHeal)
+                    return;
+
+                if (!p_EventInfo.GetHealInfo()->GetHeal())
+                    return;
+
+                for (uint8 l_Chance_number = 0; l_Chance_number < 2; ++l_Chance_number)
+                {
+                    if (l_Caster->IsSpellMultistrike(p_EventInfo.GetDamageInfo()->GetSpellInfo()))
+                    {
+                        int32 l_Heal = CalculatePct(p_EventInfo.GetHealInfo()->GetHeal(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                        l_Caster->CastCustomSpell(l_Caster, eSpells::ShiningProtectorHeal, &l_Heal, NULL, NULL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_shining_protector_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_shining_protector_AuraScript();
+        }
+};
+
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -2901,6 +2954,7 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_shining_protector();
     new spell_pal_turn_evil();
     new spell_pal_denounce();
     new spell_pal_enhanced_holy_shock();
