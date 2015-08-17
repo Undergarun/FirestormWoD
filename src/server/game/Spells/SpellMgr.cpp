@@ -5210,7 +5210,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 11371: ///< Arthas's Gift
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
-            case 33891:  ///< Tree form
+            case 33891:  ///< Incarnation: Tree of Life
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);
                 break;
             case 146950: ///< Glyph of Targeted Expulsion
