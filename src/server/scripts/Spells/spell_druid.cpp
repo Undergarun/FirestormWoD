@@ -1541,15 +1541,11 @@ class spell_dru_cat_form: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->RemoveMovementImpairingAuras();
-            }
-
-            void HandleAfterHit()
-            {
                 Player* l_Player = GetCaster()->ToPlayer();
                 if (!l_Player)
                     return;
+
+                l_Player->RemoveMovementImpairingAuras();
 
                 /// Fix Berserk - amount of energy after reshift
                 l_Player->UpdateMaxPower(POWER_ENERGY);
