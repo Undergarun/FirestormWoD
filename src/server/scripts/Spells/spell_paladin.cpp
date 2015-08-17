@@ -2577,9 +2577,6 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
                 if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_JUDGMENT)
                     return;
 
-                if (!p_EventInfo.GetDamageInfo()->GetDamage())
-                    return;
-
                 l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
             }
 
