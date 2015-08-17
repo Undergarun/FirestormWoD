@@ -5210,6 +5210,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 11371: ///< Arthas's Gift
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
+            case 33891:  ///< Tree form
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);
+                break;
             case 146950: ///< Glyph of Targeted Expulsion
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
