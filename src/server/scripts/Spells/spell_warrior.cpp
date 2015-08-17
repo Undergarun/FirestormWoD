@@ -2493,9 +2493,45 @@ class spell_warr_unyielding_strikes : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Heroic Strike - 78
+class spell_warr_heroic_strike : public SpellScriptLoader
+{
+    public:
+        spell_warr_heroic_strike() : SpellScriptLoader("spell_warr_heroic_strike") { }
+
+        class spell_warr_heroic_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_heroic_strike_SpellScript);
+
+            enum eSpells
+            {
+                UnyieldingStrikesProc = 169686
+            };
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::UnyieldingStrikesProc))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::UnyieldingStrikesProc);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_warr_heroic_strike_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_heroic_strike_SpellScript();
+        }
+};
 
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_heroic_strike();
     new spell_warr_unyielding_strikes();
     new spell_warr_defensive_stance();
     new spell_warr_glyph_of_shattering_throw();
