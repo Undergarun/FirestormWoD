@@ -317,7 +317,7 @@ class boss_koragh : public CreatureScript
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(eMove::MoveToCenter, g_CenterPos);
 
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfCharging, 30 * TimeConstants::IN_MILLISECONDS);
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfCharging, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eActions::ActionSuppressionField:
