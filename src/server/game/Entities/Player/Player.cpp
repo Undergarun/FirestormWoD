@@ -8802,6 +8802,27 @@ void Player::SendMovieStart(uint32 MovieId)
     CurrentPlayedMovie = MovieId;
 }
 
+bool Player::CanMountAsPassenger(Player* l_DriverPlayer) const
+{
+    // Crossfaction mount
+    if (GetTeam() != l_DriverPlayer->GetTeam())
+    {
+        if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ALLOW_TWO_SIDE_INTERACTION_MOUNT))
+            return false;
+
+        if (AreaTableEntry const* l_Zone = GetAreaEntryByAreaID(l_DriverPlayer->GetZoneId()))
+        {
+            if (l_Zone->Flags & AreaFlags::AREA_FLAG_CAPITAL && !l_Zone->IsSanctuary())
+            {
+                if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ALLOW_TWO_SIDE_INTERACTION_MOUNT_CAPITALS))
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 void Player::CheckAreaExploreAndOutdoor()
 {
     if (!isAlive())

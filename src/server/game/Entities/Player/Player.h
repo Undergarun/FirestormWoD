@@ -3191,6 +3191,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SendMovieStart(uint32 MovieId);
 
+        bool CanMountAsPassenger(Player* l_DriverPlayer) const;
+
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
