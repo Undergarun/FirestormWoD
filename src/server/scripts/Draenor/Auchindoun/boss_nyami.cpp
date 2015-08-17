@@ -142,11 +142,11 @@ public:
                                 Warden->SummonCreature(CREATURE_FELBORNE_ABYSSAL, Warden->GetPositionX(), Warden->GetPositionY(), Warden->GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN);
 
                                 Warden->SetReactState(REACT_PASSIVE);
-                                Warden->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                                Warden->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
                                 Warden->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                                 Warden->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                                 Warden->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                                Warden->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                                Warden->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
 
                                 Warden->AI()->Talk(AUCHENAI_WARDEN_2);
                                 break;
@@ -878,7 +878,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
 
             Reset();
             me->Respawn(true);

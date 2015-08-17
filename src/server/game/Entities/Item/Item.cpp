@@ -804,7 +804,7 @@ void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item)
     }
 
     std::vector<uint32> l_Bonuses = p_Item->GetAllItemBonuses();
-    std::vector<uint32> l_Modifications = p_Item->GetDynamicValues(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS);
+    std::vector<uint32> l_Modifications = p_Item->GetDynamicValues(EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS);
 
     p_Datas << uint32(p_Item->GetEntry());                  ///< Item ID
     p_Datas << uint32(p_Item->GetItemSuffixFactor());       ///< Random Properties Seed
@@ -845,7 +845,7 @@ void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, Item const* p_Item)
     }
 
     std::vector<uint32> l_Bonuses = p_Item->GetAllItemBonuses();
-    std::vector<uint32> l_Modifications = p_Item->GetDynamicValues(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS);
+    std::vector<uint32> l_Modifications = p_Item->GetDynamicValues(EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS);
 
     p_Datas << uint32(p_Item->GetEntry());                  ///< Item ID
     p_Datas << uint32(p_Item->GetItemSuffixFactor());       ///< Random Properties Seed
@@ -2293,7 +2293,7 @@ bool Item::AddItemBonus(uint32 p_ItemBonusId)
     if (HasItemBonus(p_ItemBonusId))
         return false;
 
-    SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, GetAllItemBonuses().size(), p_ItemBonusId);
+    SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUS_LIST_IDS, GetAllItemBonuses().size(), p_ItemBonusId);
     return true;
 }
 
@@ -2323,7 +2323,7 @@ bool Item::RemoveItemBonus(uint32 p_ItemBonusId)
     {
         if (l_BonusList[i] == p_ItemBonusId && p_ItemBonusId)
         {
-            RemoveDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i);
+            RemoveDynamicValue(ITEM_DYNAMIC_FIELD_BONUS_LIST_IDS, i);
             return true;
         }
     }
@@ -2341,7 +2341,7 @@ void Item::RemoveAllItemBonuses()
 
 std::vector<uint32> const& Item::GetAllItemBonuses() const
 {
-    return GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
+    return GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUS_LIST_IDS);
 }
 
 uint32 Item::GetItemLevelBonusFromItemBonuses() const
@@ -2374,7 +2374,7 @@ uint32 Item::GetAppearanceModID() const
 {
     uint32 l_Appearance = 0;
 
-    for (uint32 l_Bonus : GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS))
+    for (uint32 l_Bonus : GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUS_LIST_IDS))
     {
         std::vector<ItemBonusEntry const*> const* l_Bonuses = GetItemBonusesByID(l_Bonus);
         if (l_Bonuses == nullptr)

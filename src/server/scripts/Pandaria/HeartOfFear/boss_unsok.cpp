@@ -177,7 +177,7 @@ class boss_unsok : public CreatureScript
                 checkMutated = false;
                 introDone = false;
 
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_UNSOK);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_UNSOK);
                 me->SetReactState(REACT_PASSIVE);
             }
 

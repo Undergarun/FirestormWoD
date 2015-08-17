@@ -3825,7 +3825,7 @@ class npc_transcendence_spirit : public CreatureScript
             {
                 me->CastSpell(me, SPELL_MEDITATE, true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
 
             void IsSummonedBy(Unit* owner)
@@ -4479,7 +4479,7 @@ class npc_rogue_decoy : public CreatureScript
             {
                 m_DespawnTimer = 0;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_RENAME);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
 
             void IsSummonedBy(Unit* p_Owner) override
@@ -4633,7 +4633,7 @@ class npc_training_dummy_damage : public CreatureScript
                 me->ReenableHealthRegen();
 
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);        ///< Immune to knock aways like blast wave
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);   ///< Immune to knock back effects like Whiplash

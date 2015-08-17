@@ -992,7 +992,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
     {
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
-            flags = ItemUpdateFieldFlags;
+            flags = ContainerUpdateFieldFlags;
             if (((Item*)this)->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
             break;
@@ -1000,7 +1000,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
         case TYPEID_PLAYER:
         {
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
-            flags = UnitUpdateFieldFlags;
+            flags = PlayerUpdateFieldFlags;
             if (ToUnit()->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
 
@@ -1053,7 +1053,7 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
     {
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
-            flags = ItemDynamicUpdateFieldFlags;
+            flags = ContainerDynamicUpdateFieldFlags;
             if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
             break;
@@ -1061,7 +1061,7 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
         case TYPEID_PLAYER:
         {
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
-            flags = UnitDynamicUpdateFieldFlags;
+            flags = PlayerDynamicUpdateFieldFlags;
             if (ToUnit()->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
 
@@ -3238,7 +3238,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     ///   maybe is more useful for understand                                                          ///
     /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
     if (p_GarrisonPlotObject)
-        go->SetDynamicValue(GAMEOBJECT_DYNAMIC_ENABLE_DOODAD_SETS, 0, 1);
+        go->SetDynamicValue(GAMEOBJECT_DYNAMIC_FIELD_ENABLE_DOODAD_SETS, 0, 1);
 
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
         ToUnit()->AddGameObject(go);

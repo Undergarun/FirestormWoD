@@ -42,7 +42,7 @@ namespace MS { namespace Garrison
         : CreatureAI(p_Creature)
     {
         HasRope = false;
-        me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+        me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
     }
 
     //////////////////////////////////////////////////////////////////////////

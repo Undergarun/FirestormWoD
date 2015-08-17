@@ -303,7 +303,7 @@ public:
             windBombScheduled = false;
             inCombat = false;
             me->RemoveAllDynObjects();
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TAYAK_MELJARAK);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TAYAK_MELJARAK);
 
             if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
                 DoCast(me, SPELL_BROWN_MANTID_WINGS);
@@ -802,7 +802,7 @@ public:
         {
             inCombat = false;
             respawn = true;
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_5);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_5);
             if (!me->HasAura(SPELL_BROWN_MANTID_WINGS))
                 DoCast(me, SPELL_BROWN_MANTID_WINGS);
         }
@@ -942,8 +942,8 @@ public:
             events.Reset();
             inCombat = false;
             respawn = true;
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_9);
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, EQUIP_TRASH_9);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_9);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, EQUIP_TRASH_9);
             if (!me->HasAura(SPELL_RED_MANTID_WINGS))
                 DoCast(SPELL_RED_MANTID_WINGS);
         }
@@ -1103,7 +1103,7 @@ public:
             events.Reset();
             inCombat = false;
             respawn = true;
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_ZORLOK);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_ZORLOK);
             if (!me->HasAura(SPELL_BLUE_MANTID_WINGS))
                 DoCast(me, SPELL_BLUE_MANTID_WINGS);
         }

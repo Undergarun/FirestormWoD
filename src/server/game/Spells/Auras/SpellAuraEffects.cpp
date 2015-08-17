@@ -2948,17 +2948,17 @@ void AuraEffect::HandleAuraCloneCaster(AuraApplication const* aurApp, uint8 mode
         // What must be cloned? at least display and scale
         target->SetDisplayId(caster->GetDisplayId());
 
-        uint32 l_MainHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_MAINHAND * 2)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
-        uint32 l_OffHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_OFFHAND * 2)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
+        uint32 l_MainHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_MAINHAND * 2)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS);
+        uint32 l_OffHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_OFFHAND * 2)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1);
 
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, l_MainHand);
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_OffHand);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, l_MainHand);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, l_OffHand);
 
     }
     else
     {
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 0);
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, 0);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 0);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, 0);
         target->SetDisplayId(target->GetNativeDisplayId());
     }
 }
@@ -2976,10 +2976,10 @@ void AuraEffect::HandleAuraInitializeImages(AuraApplication const* aurApp, uint8
         if (!caster || caster == target)
             return;
 
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
     }
     else
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
 }
 
 void AuraEffect::HandleAuraEnableBossUnitFrame(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
@@ -3050,7 +3050,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
                                                             // blizz like 2.0.x
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
                                                             // blizz like 2.0.x
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
                                                             // blizz like 2.0.x
         target->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
 
@@ -3065,7 +3065,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
                                                             // blizz like 2.0.x
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
                                                             // blizz like 2.0.x
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
                                                             // blizz like 2.0.x
         target->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
 
@@ -3120,13 +3120,13 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* p_AurApp, uint8 p_Mo
             l_AttType = WeaponAttackType::BaseAttack;
             break;
         case SPELL_AURA_MOD_DISARM_OFFHAND:
-            l_Field   = UNIT_FIELD_FLAGS2;
+            l_Field   = UNIT_FIELD_FLAGS_2;
             l_Flag    = UNIT_FLAG2_DISARM_OFFHAND;
             l_Slot    = EQUIPMENT_SLOT_OFFHAND;
             l_AttType = WeaponAttackType::OffAttack;
             break;
         case SPELL_AURA_MOD_DISARM_RANGED:
-            /*field=UNIT_FIELD_FLAGS2;
+            /*field=UNIT_FIELD_FLAGS_2;
             flag=UNIT_FLAG2_DISARM_RANGED;
             slot=EQUIPMENT_SLOT_MAINHAND;
             attType=RANGED_ATTACK;
@@ -3680,13 +3680,13 @@ void AuraEffect::HandleForceMoveForward(AuraApplication const* aurApp, uint8 mod
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
     else
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (target->HasAuraType(GetAuraType()))
             return;
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
     }
 }
 
@@ -6644,13 +6644,13 @@ void AuraEffect::HandleComprehendLanguage(AuraApplication const* aurApp, uint8 m
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_COMPREHEND_LANG);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_COMPREHEND_LANG);
     else
     {
         if (target->HasAuraType(GetAuraType()))
             return;
 
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_COMPREHEND_LANG);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_COMPREHEND_LANG);
     }
 }
 

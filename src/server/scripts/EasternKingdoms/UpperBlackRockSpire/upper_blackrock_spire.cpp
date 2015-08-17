@@ -1310,7 +1310,7 @@ class mob_leeroy_jenkins : public CreatureScript
 
                     me->SetFullHealth();
                     me->RemoveAura(Spells::PermanentFeignDeath);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                     me->SetUInt32Value(EUnitFields::UNIT_FIELD_INTERACT_SPELL_ID, 0);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
                     me->RemoveFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);

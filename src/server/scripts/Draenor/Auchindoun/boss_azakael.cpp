@@ -116,7 +116,7 @@ public:
 
             me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
         }
 
         InstanceScript* instance = me->GetInstanceScript();

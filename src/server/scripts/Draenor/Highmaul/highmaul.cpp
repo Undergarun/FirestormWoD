@@ -1886,7 +1886,7 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
 
                 me->RemoveAura(eSpells::AtArms);
                 me->RemoveAura(eSpells::ShieldCharge);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             }
 
             void JustDied(Unit* p_Killer) override
@@ -1931,7 +1931,7 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
                             m_ChargeTarget = l_Target->GetGUID();
                             me->SetFacingTo(me->GetAngle(l_Target));
                             me->CastSpell(l_Target, eSpells::ShieldBlocking, false);
-                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                             me->AddUnitState(UnitState::UNIT_STATE_ROOT);
                         }
 
@@ -2041,7 +2041,7 @@ class npc_highmaul_ogron_earthshaker : public CreatureScript
                     {
                         AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         });
                     }
                 }
@@ -2090,7 +2090,7 @@ class npc_highmaul_ogron_earthshaker : public CreatureScript
                             m_SlamCount = 0;
                             me->SetFacingTo(m_Orientation);
                             me->CastSpell(l_Target, eSpells::EarthdevastatingSlam, true);
-                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventEarthdevastatingSlam, 60 * TimeConstants::IN_MILLISECONDS);

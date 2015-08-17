@@ -824,19 +824,19 @@ class spell_npc_warr_ravager : public CreatureScript
                     if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_MAINHAND))
                     {
                         /// Display Transmogrifications on player's clone
-                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, l_Proto->ItemId);
+                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, l_Proto->ItemId);
                         else
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, l_Item->GetTemplate()->ItemId);
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, l_Item->GetTemplate()->ItemId);
                     }
 
                     if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_OFFHAND))
                     {
                         /// Display Transmogrifications on player's clone
-                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_Proto->ItemId);
+                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 1, l_Proto->ItemId);
                         else
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_Item->GetTemplate()->ItemId);
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 1, l_Item->GetTemplate()->ItemId);
                     }
                 }
             }

@@ -962,7 +962,7 @@ public:
                     obj->RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
                     obj->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                    obj->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                    obj->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                     obj->RemoveAura(SPELL_TRANSCEND);
                     break;
                 }
@@ -994,7 +994,7 @@ public:
                     {
                         player->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                         player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                        player->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                        player->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                         player->AddAura(SPELL_TRANSCEND, player);
                         player->m_Events.AddEvent(new auchindon_soul_transportation_event(player, 0), player->m_Events.CalculateTime(1000));
                         return true;
@@ -1022,7 +1022,7 @@ public:
                     {
                         player->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                         player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                        player->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                        player->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                         player->AddAura(SPELL_TRANSCEND, player);
                         player->m_Events.AddEvent(new auchindon_soul_transportation_event(player, 4), player->m_Events.CalculateTime(1000));
                         return true;
@@ -1050,7 +1050,7 @@ public:
                     {
                         player->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                         player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                        player->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                        player->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                         player->AddAura(SPELL_TRANSCEND, player);
                         player->m_Events.AddEvent(new auchindon_soul_transportation_event(player, 7), player->m_Events.CalculateTime(1000));
                         return true;
@@ -1078,7 +1078,7 @@ public:
                     {
                         player->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                         player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                        player->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                        player->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                         player->AddAura(SPELL_TRANSCEND, player);
                         player->m_Events.AddEvent(new auchindon_soul_transportation_event(player, 10), player->m_Events.CalculateTime(1000));
                         return true;

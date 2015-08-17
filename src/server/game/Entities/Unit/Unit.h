@@ -700,7 +700,7 @@ enum eUnitFlags
     UNIT_FLAG_UNK_31                = 0x80000000
 };
 
-// Value masks for UNIT_FIELD_FLAGS2
+// Value masks for UNIT_FIELD_FLAGS_2
 enum eUnitFlags2
 {
     UNIT_FLAG2_FEIGN_DEATH                  = 0x00000001,
@@ -1786,8 +1786,8 @@ class Unit : public WorldObject
             switch (attacktype)
             {
                 case WeaponAttackType::BaseAttack: return !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
-                case WeaponAttackType::OffAttack: return !HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISARM_OFFHAND);
-                case WeaponAttackType::RangedAttack: return !HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISARM_RANGED);
+                case WeaponAttackType::OffAttack: return !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISARM_OFFHAND);
+                case WeaponAttackType::RangedAttack: return !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISARM_RANGED);
             }
             return true;
         }

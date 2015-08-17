@@ -1148,7 +1148,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         SetByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_PVP);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     }
-    SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+    SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);               // fix cast time showed in spell tooltip on client
     SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
@@ -4191,7 +4191,7 @@ void Player::SetGameMaster(bool p_On)
         m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
         setFaction(35);
         SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GM);
-        SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
+        SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
         if (Pet* l_Pet = GetPet())
         {
@@ -4213,7 +4213,7 @@ void Player::SetGameMaster(bool p_On)
         m_ExtraFlags &= ~PLAYER_EXTRA_GM_ON;
         setFactionForRace(getRace());
         RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GM);
-        RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
+        RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
         if (Pet* l_Pet = GetPet())
         {
@@ -4904,7 +4904,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
         UNIT_FLAG_SKINNABLE      | UNIT_FLAG_MOUNT        | UNIT_FLAG_TAXI_FLIGHT      );
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);   // must be set
 
-    SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);// must be set
+    SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);// must be set
 
     // cleanup player flags (will be re-applied if need at aura load), to avoid have ghost flag without ghost aura, for example.
     RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AFK | PLAYER_FLAGS_DND | PLAYER_FLAGS_GM | PLAYER_FLAGS_GHOST | PLAYER_ALLOW_ONLY_ABILITY);
@@ -20828,7 +20828,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT, 0);
     SetCreatorGUID(0);
 
-    RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
+    RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
 
     // reset some aura modifiers before aura apply
     SetUInt32Value(PLAYER_FIELD_TRACK_CREATURE_MASK, 0);
@@ -22078,7 +22078,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
             m_dailyQuestStorage.insert(quest_id);
             if (++quest_daily_idx < DynamicFields::Count)
-                SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx++, quest_id);
+                SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS_COMPLETED, quest_daily_idx++, quest_id);
 
             if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
                 SetQuestBit(questBit , true);
@@ -27509,7 +27509,7 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
             m_DailyQuestChanged = true;
 
             if (m_dailyQuestStorage.size() - 1 < DynamicFields::Count)
-                SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, m_dailyQuestStorage.size() - 1, quest_id);
+                SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS_COMPLETED, m_dailyQuestStorage.size() - 1, quest_id);
         }
         else
         {
@@ -27546,7 +27546,7 @@ void Player::ResetDailyQuestStatus()
 {
     m_dailyQuestStorage.clear();
 
-    std::vector<uint32> l_Dailies = GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
+    std::vector<uint32> l_Dailies = GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS_COMPLETED);
     if (!l_Dailies.empty())
     {
         std::vector<uint32> l_QuestBits;
@@ -27560,7 +27560,7 @@ void Player::ResetDailyQuestStatus()
             ClearQuestBits(l_QuestBits);
     }
 
-    ClearDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
+    ClearDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS_COMPLETED);
     m_DFQuests.clear(); // Dungeon Finder Quests.
 
     // DB data deleted in caller
@@ -32355,7 +32355,7 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     l_CurrentPet->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PETBATTLE);
 
     GetMap()->AddToMap(l_CurrentPet->ToCreature());
@@ -33434,7 +33434,7 @@ bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLe
     uint32 l_HeirloomFlags = (1 << p_UpgradeLevel) - 1;
 
     SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Index, p_HeirloomEntry->ItemID);
-    SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Index, l_HeirloomFlags);
+    SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, l_Index, l_HeirloomFlags);
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, l_Index + 1);
 
@@ -33493,7 +33493,7 @@ void Player::_LoadHeirloomCollection(PreparedQueryResult p_Result)
 
         uint32 l_Index = GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS).size();
         SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Index, l_HeirloomEntry->ItemID);
-        SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Index, l_HeirloomFlags);
+        SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, l_Index, l_HeirloomFlags);
     }
     while (p_Result->NextRow());
 
@@ -33512,7 +33512,7 @@ uint32 Player::GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) con
         if (l_Heirlooms[l_I] == p_HeirloomEntry->ItemID)
         {
             for (int l_X = p_HeirloomEntry->MaxHeirloomUpgrade + 1; l_X != 0; --l_X)
-                if (GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS)[l_I] & (1 << (l_X - 1)))
+                if (GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS)[l_I] & (1 << (l_X - 1)))
                     return l_X;
             return 0;
         }

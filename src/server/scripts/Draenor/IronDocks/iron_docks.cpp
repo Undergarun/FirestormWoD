@@ -832,7 +832,7 @@ class iron_docks_mob_iron_star : public CreatureScript
                     case eAction::ActionQuietDeath:
                         me->setFaction(35);
                         me->SetSpeed(UnitMoveType::MOVE_RUN, 12.0f, true);
-                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);
                         DoAction(eAction::ActionQuietDeath);
                         break;
                     default:
@@ -1551,7 +1551,7 @@ class iron_docks_spell_charge_forward : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    l_Caster->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);
+                    l_Caster->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);
 
                     if (l_Caster->IsAIEnabled)
                         l_Caster->GetAI()->DoAction(eAction::ActionQuietDeath);

@@ -3205,7 +3205,7 @@ namespace MS { namespace Garrison
                         if (l_Crea)
                         {
                             l_Crea->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DISABLE_CLIENT_SIDE);
-                            l_Crea->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK1);
+                            l_Crea->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1);
 
                             UpdateData l_UpdateData(m_Owner->GetMapId());
                             WorldPacket l_UpdatePacket;

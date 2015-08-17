@@ -2084,7 +2084,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
                         if (!player->GetWeaponForAttack(WeaponAttackType::BaseAttack) || !player->IsUseEquipedWeapon(true))
                             return SPELL_FAILED_TARGET_NO_WEAPONS;
                     }
-                    else if (!unitTarget->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID) && Id != 64058) // Custom MoP Script - Hack Fix Psychic Horror
+                    else if (!unitTarget->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS) && Id != 64058) // Custom MoP Script - Hack Fix Psychic Horror
                         return SPELL_FAILED_TARGET_NO_WEAPONS;
                 }
             }

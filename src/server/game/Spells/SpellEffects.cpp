@@ -814,10 +814,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (Item* offItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
+                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, offItem->GetEntry());
                     }
                     else
-                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
+                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1));
                     break;
                 }
                 case 41055: // Copy Mainhand Weapon
@@ -831,10 +831,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (Item* mainItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, mainItem->GetEntry());
+                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, mainItem->GetEntry());
                     }
                     else
-                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID));
+                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS));
                     break;
                 }
                 default:
@@ -7082,7 +7082,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
             if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (SLOT_MAIN_HAND * 2)))
             {
                 summon->SetDisplayId(11686);
-                summon->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, weapon);
+                summon->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, weapon);
             }
             else
                 summon->SetDisplayId(1126);
@@ -8225,7 +8225,7 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
     {
         if (l_Heirlooms[l_I] == l_HeirloomEntry->ItemID)
         {
-            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_I, l_UpgradeFlags);
+            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, l_I, l_UpgradeFlags);
             break;
         }
     }

@@ -364,11 +364,11 @@ public:
                                    if (corpses)
                                    {
                                        corpses->SetReactState(REACT_PASSIVE);
-                                       corpses->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                                       corpses->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
                                        corpses->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                                        corpses->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                                        corpses->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                                       corpses->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                                       corpses->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
 
                                        dispeonsor.push_back(corpses);
                                    }
@@ -408,7 +408,7 @@ public:
                                         prisoners->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                                         prisoners->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                                         prisoners->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                                        prisoners->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);   
+                                        prisoners->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);   
                                         dispeonsor.push_back(prisoners);
                                     }
                                 }
@@ -420,11 +420,11 @@ public:
                                     if (prisonerstwelve)
                                     {
                                         prisonerstwelve->SetReactState(REACT_PASSIVE);
-                                        prisonerstwelve->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                                        prisonerstwelve->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
                                         prisonerstwelve->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                                         prisonerstwelve->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                                         prisonerstwelve->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                                        prisonerstwelve->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                                        prisonerstwelve->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                                         dispeonsor.push_back(prisonerstwelve);
                                     }
                                 }
@@ -947,7 +947,7 @@ public:
             me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
             me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
 
             instance = creature->GetInstanceScript();          
         }

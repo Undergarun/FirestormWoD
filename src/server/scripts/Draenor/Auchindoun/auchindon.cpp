@@ -374,7 +374,7 @@ public:
                     vigiliant->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                     vigiliant->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                     vigiliant->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                    vigiliant->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                    vigiliant->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
 
                     dispensor.push_back(vigiliant);
                 }
@@ -562,7 +562,7 @@ public:
                                 tuulina->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                                 tuulina->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                                 tuulina->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                                tuulina->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                                tuulina->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
 
                                 tuulina->AI()->Talk(TUULANI_TALK_7);
                                 tuulina->GetMotionMaster()->MovePoint(10, TuulaniMovement10th.GetPositionX(), TuulaniMovement10th.GetPositionY(), TuulaniMovement10th.GetPositionZ());   

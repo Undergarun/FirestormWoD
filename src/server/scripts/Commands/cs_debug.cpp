@@ -2486,7 +2486,7 @@ class debug_commandscript: public CommandScript
                 return false;
 
             player->_RemoveAllItemMods();
-            item->SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, 0, mod);
+            item->SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUS_LIST_IDS, 0, mod);
             player->_ApplyAllItemMods();
             handler->SendSysMessage("Item sucesfully modified");
             return true;
@@ -2545,7 +2545,7 @@ class debug_commandscript: public CommandScript
             int32 l_Flags = atoi(arg2);
 
             l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS).size(), l_ID);
-            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS).size(), l_Flags);
+            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS).size(), l_Flags);
 
             return true;
         }
