@@ -543,30 +543,30 @@ class spell_dru_swipe: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_swipe_SpellScript);
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = GetHitDamage();
+
+                /// Award 1 combot point
+                l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                /// Swipe and Maul deals 20% more damage if target is bleeding
+                if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        int32 l_Damage = GetHitDamage();
-
-                        /// Award 1 combot point
-                        l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-
-                        /// Swipe and Maul deals 20% more damage if target is bleeding
-                        if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
-                        {
-                            AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                            SetHitDamage(l_Damage);
-                        }
-                    }
+                    AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                    SetHitDamage(l_Damage);
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dru_swipe_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_swipe_SpellScript::HandleDamage, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
 
@@ -3530,7 +3530,7 @@ class spell_dru_rake: public SpellScriptLoader
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                         if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
-                            l_SavageRoar->SetDuration(l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS);
+                            l_SavageRoar->SetDuration((l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS) + 12 * IN_MILLISECONDS);
                 }
             }
 
@@ -3690,7 +3690,7 @@ class spell_dru_shred: public SpellScriptLoader
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                         if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
-                            l_SavageRoar->SetDuration(l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS);
+                            l_SavageRoar->SetDuration((l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS) + 12 * IN_MILLISECONDS);
                 }
 
                 if (l_Target && l_Target->HasAuraState(AURA_STATE_BLEEDING) && sSpellMgr->GetSpellInfo(eSpells::Swipe))
@@ -4499,7 +4499,9 @@ class spell_dru_empowered_moonkin : public SpellScriptLoader
 
             enum eSpells
             {
-                EmpoweredMoonkin = 157228
+                EmpoweredMoonkin = 157228,
+                EnhancedStarsurge = 157232,
+                Starsurge = 78674
             };
 
             bool m_HasAuraBeforeCast = false;
@@ -4520,6 +4522,10 @@ class spell_dru_empowered_moonkin : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
 
                 if (l_Caster == nullptr)
+                    return;
+
+                /// Starsurge is already instant with Enhanced Starsurge, so we will not consume the aura
+                if (l_Caster->HasAura(eSpells::EnhancedStarsurge) && GetSpellInfo()->Id == eSpells::Starsurge)
                     return;
 
                 if (l_Caster->HasAura(eSpells::EmpoweredMoonkin) && m_HasAuraBeforeCast)

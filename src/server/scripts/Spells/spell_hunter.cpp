@@ -309,6 +309,8 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 ExplosiveShot   = 53301
             };
 
+            bool m_AlreadyProcLockAndLoad = false;
+
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (GetCaster() == nullptr)
@@ -318,6 +320,11 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 {
                     if (!roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
                         return;
+
+                    if (m_AlreadyProcLockAndLoad)
+                        return;
+
+                    m_AlreadyProcLockAndLoad = true;
 
                     if (l_Player->HasSpellCooldown(eSpells::ExplosiveShot))
                         l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot, true);

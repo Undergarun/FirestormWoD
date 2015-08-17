@@ -854,7 +854,10 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
             enum eSpells
             {
-                WoDPvPFrost4PBonus = 180741
+                WoDPvPFrost4PBonus = 180741,
+                WaterJet           = 135029,
+                FingerFrost        = 44544,
+                FingerFrostVisual = 126084
             };
 
             SpellCastResult CheckTarget()
@@ -912,15 +915,29 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                    l_Player->CastSpell(l_Player, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet == nullptr)
+                    return;
+
+                if (l_Target->HasAura(eSpells::WaterJet, l_Pet->GetGUID()))
                 {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE);
-
-                    if (l_SpellInfo == nullptr)
-                        return;
-
-                    if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-                        l_Caster->CastSpell(l_Caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                    l_Player->CastSpell(l_Player, eSpells::FingerFrost, true);  ///< Fingers of frost proc
+                    l_Player->CastSpell(l_Player, eSpells::FingerFrostVisual, true); ///< Fingers of frost visual
                 }
             }
 
@@ -2169,21 +2186,6 @@ class spell_mage_WoDPvPFrost2PBonus : public SpellScriptLoader
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
-
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
-                    return;
-
-                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
-                    return;
-
-                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ConeOfCold)
-                    return;
-
-                l_Caster->CastSpell(l_Caster, eSpells::PvpFrost2PBonusTrigger, true);
             }
 
             void Register()
@@ -2195,6 +2197,42 @@ class spell_mage_WoDPvPFrost2PBonus : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_mage_WoDPvPFrost2PBonus_AuraScript();
+        }
+};
+
+/// Cone of Frost - 120
+class spell_mage_cone_of_frost : public SpellScriptLoader
+{
+    public:
+        spell_mage_cone_of_frost() : SpellScriptLoader("spell_mage_cone_of_frost") { }
+
+        class spell_mage_cone_of_frost_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_cone_of_frost_SpellScript);
+
+            enum eSpells
+            {
+                PvpFrost2PBonusTrigger = 180723,
+                WoDPvPFrost2PBonus = 180721
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::WoDPvPFrost2PBonus))
+                    l_Caster->CastSpell(l_Caster, eSpells::PvpFrost2PBonusTrigger, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_mage_cone_of_frost_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_cone_of_frost_SpellScript();
         }
 };
 
@@ -2772,6 +2810,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_arcane_power();
     new spell_mage_polymorph();
     new spell_ring_of_frost_freeze();
+    new spell_mage_cone_of_frost();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

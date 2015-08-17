@@ -2503,6 +2503,9 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                 if (form != FORM_BEAR)
                     target->RemoveAurasDueToSpell(76691);
 
+                if (form == FORM_TREE)
+                    target->RemoveAurasDueToSpell(114282);
+
                 // remove movement affects
                 uint32 mechanicMask = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT);
                 target->RemoveAurasWithMechanic(mechanicMask);
@@ -3600,6 +3603,12 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
         if (target->HasAuraType(GetAuraType()))
             return;
     }
+
+    /// Hackfix @ Glyph of the Falling Avenger
+    /// Since preventing the aura effect in a spell script doesn't work
+    /// A better way to fix this would be to remember which effects are prevented to prevent re-application
+    if (m_spellInfo->Id == 31842 && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
+        return;
 
     if (apply)
         target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
