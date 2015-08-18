@@ -198,6 +198,7 @@ UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry = 89081;
 
 # Arcane Aberration
 # Displacing Arcane Aberration
+# Fortified Arcane Aberration
 UPDATE creature_template SET
     minlevel       = 102,
     maxlevel       = 102,
@@ -205,9 +206,9 @@ UPDATE creature_template SET
     unit_class     = 8,
     dmg_multiplier = 4,
     ScriptName     = 'npc_highmaul_arcane_aberration'
-WHERE entry IN (77809, 77879);
+WHERE entry IN (77809, 77879, 77878);
 
-UPDATE creature_model_info SET bounding_radius = 0.7, combat_reach = 5 WHERE modelid = 55131;
+UPDATE creature_model_info SET bounding_radius = 0.7, combat_reach = 5 WHERE modelid IN (55131, 55142, 55143);
 
 # Destructive Resonance
 UPDATE creature_template SET
@@ -219,8 +220,32 @@ UPDATE creature_template SET
     ScriptName     = 'npc_highmaul_destructive_resonance'
 WHERE entry = 77637;
 
+# Gorian Warmage
+UPDATE creature_template SET
+    minlevel       = 102,
+    maxlevel       = 102,
+    faction        = 16,
+    unit_class     = 8,
+    dmg_multiplier = 4,
+    ScriptName     = 'npc_highmaul_gorian_warmage'
+WHERE entry = 78121;
+
+UPDATE creature_model_info SET bounding_radius = 0.9, combat_reach = 4.5 WHERE modelid = 54330;
+
+# Volatile Anomaly
+UPDATE creature_template SET
+    minlevel       = 102,
+    maxlevel       = 102,
+    faction        = 16,
+    unit_class     = 8,
+    dmg_multiplier = 4,
+    ScriptName     = 'npc_highmaul_volatile_anomaly'
+WHERE entry = 78077;
+
+UPDATE creature_model_info SET bounding_radius = 0.465, combat_reach = 1.5 WHERE modelid = 54282;
+
 # Equipments
-DELETE FROM creature_equip_template WHERE entry IN (87619, 87910, 81269, 86256, 81806, 81780, 81807, 81809, 81808, 81810, 81811, 87293, 77428);
+DELETE FROM creature_equip_template WHERE entry IN (87619, 87910, 81269, 86256, 81806, 81780, 81807, 81809, 81808, 81810, 81811, 87293, 77428, 78121);
 INSERT INTO creature_equip_template VALUES
 (87619, 1, 110457, 110457, 0),
 (87910, 1, 111046, 0, 0),
@@ -234,7 +259,8 @@ INSERT INTO creature_equip_template VALUES
 (81810, 1, 111743, 0, 0),
 (81811, 1, 111743, 0, 0),
 (87293, 1, 79006, 79006, 0),
-(77428, 1, 115015, 0, 0);
+(77428, 1, 115015, 0, 0),
+(78121, 1, 108761, 108761, 0);
 
 DELETE FROM areatrigger_template WHERE spell_id IN (175047);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags, ScriptName) VALUE
@@ -248,20 +274,26 @@ DELETE FROM spell_script_names WHERE ScriptName IN
     'spell_highmaul_destructive_resonance',
     'spell_highmaul_branded',
     'spell_highmaul_branded_displacement',
+    'spell_highmaul_branded_fortification',
     'spell_highmaul_arcane_wrath_damage',
     'spell_highmaul_transition_visuals',
-    'spell_highmaul_berserker_rush_damage'
+    'spell_highmaul_berserker_rush_damage',
+    'spell_highmaul_dominance_aura'
 );
 INSERT INTO spell_script_names VALUES
 (174981, 'spell_highmaul_unstable_tempest'),
 (174939, 'spell_highmaul_time_stop'),
 (158605, 'spell_highmaul_mark_of_chaos'),
+(164176, 'spell_highmaul_mark_of_chaos'),
+(164178, 'spell_highmaul_mark_of_chaos'),
 (174116, 'spell_highmaul_destructive_resonance'),
 (156225, 'spell_highmaul_branded'),
 (164004, 'spell_highmaul_branded_displacement'),
+(164005, 'spell_highmaul_branded_fortification'),
 (156239, 'spell_highmaul_arcane_wrath_damage'),
 (176580, 'spell_highmaul_transition_visuals'),
-(159002, 'spell_highmaul_berserker_rush_damage');
+(159002, 'spell_highmaul_berserker_rush_damage'),
+(174126, 'spell_highmaul_dominance_aura');
 
 DELETE FROM spell_proc_event WHERE entry IN (174116);
 INSERT INTO spell_proc_event (entry, procFlags) VALUE

@@ -3615,7 +3615,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     */
 }
 
-void WorldObject::MovePosition(Position &pos, float dist, float angle)
+void WorldObject::MovePosition(Position &pos, float dist, float angle, bool p_CheckLos /*= true*/)
 {
     angle += GetOrientation();
     float destx, desty, destz, ground, floor;
@@ -3647,7 +3647,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
             destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
         }
         // we have correct destz now
-        else if (IsWithinLOS(destx, desty, destz))
+        else if (!p_CheckLos || IsWithinLOS(destx, desty, destz))
         {
             pos.Relocate(destx, desty, destz);
             break;

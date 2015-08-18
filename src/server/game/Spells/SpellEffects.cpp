@@ -275,7 +275,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectResurectPetBattles,                       //200 SPELL_EFFECT_RESURECT_BATTLE_PETS    Battle pet Healing  125439, 125801
     &Spell::EffectCanPetBattle,                             //201 SPELL_EFFECT_CAN_PETBATTLE           Battle pet first slot and track
     &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202                     Unk 5.4.0
-    &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203                     Unk 5.4.0
+    &Spell::EffectCancelAura,                               //203 SPELL_EFFECT_CANCEL_AURA
     &Spell::EffectNULL,                                     //204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
     &Spell::EffectNULL,                                     //205 SPELL_EFFECT_LAUNCH_QUEST_CHOICE
     &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206                     used for TimelessIsle 5.4.0
@@ -7105,6 +7105,11 @@ void Spell::EffectRemoveAura(SpellEffIndex effIndex)
         return;
     // there may be need of specifying casterguid of removed auras
     unitTarget->RemoveAurasDueToSpell(m_spellInfo->Effects[effIndex].TriggerSpell);
+}
+
+void Spell::EffectCancelAura(SpellEffIndex p_EffIndex)
+{
+    EffectRemoveAura(p_EffIndex);
 }
 
 void Spell::EffectDamageFromMaxHealthPCT(SpellEffIndex /*effIndex*/)

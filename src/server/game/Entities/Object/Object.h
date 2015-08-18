@@ -849,11 +849,11 @@ class WorldObject : public Object, public WorldLocation
             // angle calculated from current orientation
             GetNearPoint(NULL, x, y, z, size, distance2d, GetOrientation() + angle);
         }
-        void MovePosition(Position &pos, float dist, float angle);
-        void GetNearPosition(Position &pos, float dist, float angle)
+        void MovePosition(Position &pos, float dist, float angle, bool p_CheckLos = true);
+        void GetNearPosition(Position &pos, float dist, float angle, bool p_CheckLos = true)
         {
             GetPosition(&pos);
-            MovePosition(pos, dist, angle);
+            MovePosition(pos, dist, angle, p_CheckLos);
         }
         void MovePositionToFirstCollision(Position &pos, float dist, float angle);
         void GetFirstCollisionPosition(Position &pos, float dist, float angle)
@@ -867,10 +867,10 @@ class WorldObject : public Object, public WorldLocation
             GetPosition(&pos);
             MovePositionToCollisionBetween(pos, distMin, distMax, angle);
         }
-        void GetRandomNearPosition(Position &pos, float radius)
+        void GetRandomNearPosition(Position &pos, float radius, bool p_CheckLos = true)
         {
             GetPosition(&pos);
-            MovePosition(pos, radius * (float)rand_norm(), (float)rand_norm() * static_cast<float>(2 * M_PI));
+            MovePosition(pos, radius * (float)rand_norm(), (float)rand_norm() * static_cast<float>(2 * M_PI), p_CheckLos);
         }
 
         void GetContactPoint(const WorldObject* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const

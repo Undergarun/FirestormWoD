@@ -3795,6 +3795,16 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ChannelInterruptFlags = 0;
                 spellInfo->AuraInterruptFlags = 0;
                 break;
+            case 157763: ///< Fixate (Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].Effect = 0;
+                break;
+            case 158512: ///< Volatile Anomalies (Imperator Mar'gok)
+            case 159158: ///< Volatile Anomalies (Imperator Mar'gok)
+            case 159159: ///< Volatile Anomalies (Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_CASTER_FRONT;
+                spellInfo->Effects[EFFECT_0].SetRadiusIndex(18);    ///< 15 yards
+                break;
             case 154901: ///< Seal Conduit (third)
                 spellInfo->MaxAffectedTargets = 3;
                 break;
