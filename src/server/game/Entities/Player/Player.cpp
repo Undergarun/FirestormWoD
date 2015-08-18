@@ -26177,13 +26177,15 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
 
         if (int32 l_CooldownMod = GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN_BY_HASTE))
         {
-            if (HasSpell(p_SpellInfo->Id))
-            {
-                l_NeedsCooldownPacket = true;
+            float l_Haste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
 
-                float l_Haste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
+            if (l_Cooldown > 0)
                 l_Cooldown *= ApplyPct(l_Haste, l_CooldownMod);
-            }
+
+            if (l_CategoryCooldown > 0)
+                l_CategoryCooldown *= ApplyPct(l_Haste, l_CooldownMod);
+
+            l_NeedsCooldownPacket = true;
         }
 
         if (l_CategoryId)
@@ -26236,7 +26238,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
                 if (*i_scset == p_SpellInfo->Id)                    // skip main spell, already handled above
                     continue;
 
-                AddSpellCooldown(*i_scset, p_ItemId, l_CategoryCooldown);
+                AddSpellCooldown(*i_scset, p_ItemId, l_CategoryCooldown, l_NeedsCooldownPacket);
             }
         }
     }
