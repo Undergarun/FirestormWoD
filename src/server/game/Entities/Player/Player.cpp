@@ -33118,6 +33118,39 @@ void Player::RestoreCharge(uint32 p_CategoryID)
     SendSetSpellCharges(p_CategoryID);
 }
 
+void Player::ReduceChargeCooldown(uint32 p_CategoryID, uint64 p_Reductiontime)
+{
+    SpellChargesMap::iterator l_Iter = m_SpellChargesMap.find(p_CategoryID);
+    if (l_Iter == m_SpellChargesMap.end())
+        return;
+
+    ChargesData* l_Charges = GetChargesData(l_Iter->first);
+
+    std::vector<uint64> l_ChargesCooldown = l_Charges->GetChargesCooldown();
+
+    if (!l_ChargesCooldown.empty())
+    {
+        uint64 l_Cooldown = l_ChargesCooldown.at(l_ChargesCooldown.size() - 1);
+
+        if (l_Cooldown <= p_Reductiontime)
+        {
+            if (l_Charges->m_ConsumedCharges <= 1)
+            {
+                l_Iter = m_SpellChargesMap.erase(l_Iter);
+                SendSetSpellCharges(p_CategoryID);
+                return;
+            }
+
+            l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
+            --l_Charges->m_ConsumedCharges;
+            return;
+        }
+        else
+            l_Charges->DecreaseCooldown(l_ChargesCooldown.size() - 1, p_Reductiontime);
+    }
+    SendSetSpellCharges(p_CategoryID);
+}
+
 uint32 Player::CalcMaxCharges(SpellCategoryEntry const* p_Category) const
 {
     if (p_Category == nullptr)
