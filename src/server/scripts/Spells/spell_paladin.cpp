@@ -555,9 +555,6 @@ class spell_pal_selfless_healer: public SpellScriptLoader
                         else
                             l_Heal = int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_1].BasePoints / 100) * l_Charges));
 
-                        l_Heal = l_Player->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, EFFECT_0, HEAL);
-                        l_Heal = l_Target->SpellHealingBonusTaken(l_Player, GetSpellInfo(), l_Heal, HEAL);
-
                         SetHitHeal(l_Heal);
                     }
                 }
