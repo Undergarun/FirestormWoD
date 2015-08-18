@@ -5174,7 +5174,8 @@ class spell_monk_breath_of_the_serpent : public SpellScriptLoader
 
             enum eSpells
             {
-                BreathoftheSerpentHeal = 157590
+                BreathoftheSerpentHeal = 157590,
+                BreathoftheSerpentPeriodic = 157627
             };
             
             enum eNPCs
@@ -5214,10 +5215,7 @@ class spell_monk_breath_of_the_serpent : public SpellScriptLoader
                     if (l_Statue && (l_Statue->isPet() || l_Statue->isGuardian()))
                     {
                         if (l_Statue->GetOwner() && l_Statue->GetOwner()->GetGUID() == l_Player->GetGUID())
-                        {
-                            l_Statue->SetOrientation(l_Statue->GetAngle(l_Player));
-                            l_Statue->CastSpell(l_Statue, eSpells::BreathoftheSerpentHeal, true);
-                        }
+                            l_Statue->CastSpell(l_Statue, eSpells::BreathoftheSerpentPeriodic, true);
                     }
                 }
             }
@@ -5237,45 +5235,85 @@ class spell_monk_breath_of_the_serpent : public SpellScriptLoader
 /// Breath of the Serpent - 157590
 class spell_monk_breath_of_the_serpent_heal : public SpellScriptLoader
 {
-public:
-    spell_monk_breath_of_the_serpent_heal() : SpellScriptLoader("spell_monk_breath_of_the_serpent_heal") { }
+    public:
+        spell_monk_breath_of_the_serpent_heal() : SpellScriptLoader("spell_monk_breath_of_the_serpent_heal") { }
 
-    class spell_monk_breath_of_the_serpent_heal_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_breath_of_the_serpent_heal_SpellScript);
-
-        void HandleHeal(SpellEffIndex p_EffIndex)
+        class spell_monk_breath_of_the_serpent_heal_SpellScript : public SpellScript
         {
-            Unit* l_Caster = GetCaster();
-            Unit* l_Target = GetHitUnit();
+            PrepareSpellScript(spell_monk_breath_of_the_serpent_heal_SpellScript);
 
-            if (l_Target == nullptr)
-                return;
-
-            if (Unit* l_Owner = l_Caster->GetOwner())
+            void HandleHeal(SpellEffIndex p_EffIndex)
             {
-                int32 l_Heal = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC);
-                l_Heal = l_Owner->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, p_EffIndex, HEAL);
-                l_Heal = l_Target->SpellHealingBonusTaken(l_Owner, GetSpellInfo(), l_Heal, HEAL);
-                SetHitHeal(l_Heal);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (Unit* l_Owner = l_Caster->GetOwner())
+                {
+                    int32 l_Heal = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC);
+                    l_Heal = l_Owner->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, p_EffIndex, HEAL);
+                    l_Heal = l_Target->SpellHealingBonusTaken(l_Owner, GetSpellInfo(), l_Heal, HEAL);
+                    SetHitHeal(l_Heal);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_breath_of_the_serpent_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_monk_breath_of_the_serpent_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            return new spell_monk_breath_of_the_serpent_heal_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_breath_of_the_serpent_heal_SpellScript();
-    }
 };
 
+/// Breath of the Serpent (tick) - 157627
+class spell_monk_breath_of_the_serpent_tick : public SpellScriptLoader
+{
+    public:
+        spell_monk_breath_of_the_serpent_tick() : SpellScriptLoader("spell_monk_breath_of_the_serpent_tick") { }
+
+        class spell_monk_breath_of_the_serpent_tick_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_breath_of_the_serpent_tick_AuraScript);
+
+            enum eSpells
+            {
+                BreathoftheSerpentHeal = 157590
+            };
+
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                /* Get SPELL_ATTR1_CHANNEL_TRACK_TARGET, so normally statue has to follow owner but doen't */
+                /*l_Target->SetOrientation(l_Target->GetAngle(l_Caster));*/
+                l_Target->CastSpell(l_Target, eSpells::BreathoftheSerpentHeal, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_breath_of_the_serpent_tick_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_breath_of_the_serpent_tick_AuraScript();
+        }
+};
 
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_breath_of_the_serpent_tick();
     new spell_monk_breath_of_the_serpent_heal();
     new spell_monk_breath_of_the_serpent();
     new spell_monk_glyph_of_victory_roll();
