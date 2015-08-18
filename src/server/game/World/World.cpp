@@ -1535,13 +1535,13 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SkillLineAbilityMultiMap Data...");
     sSpellMgr->LoadSkillLineAbilityMap();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell custom attributes...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Research Site Zones...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Archeology research site zones...");
     sObjectMgr->LoadResearchSiteZones();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Research Site Loot...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Archeology research site loot...");
     sObjectMgr->LoadResearchSiteLoot();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
@@ -3857,6 +3857,7 @@ void World::LoadCharacterNameData()
     }
 
     uint32 count = 0;
+    uint32 l_OldMSTime = getMSTime();
 
     do
     {
@@ -3867,7 +3868,7 @@ void World::LoadCharacterNameData()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters", count);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters in %u ms.", count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, uint32 p_AccountID)

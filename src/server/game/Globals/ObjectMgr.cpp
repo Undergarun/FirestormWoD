@@ -9497,7 +9497,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
 
 void ObjectMgr::LoadResearchSiteZones()
 {
-    uint32 counter = 0;
+    uint32 l_OldMSTime = getMSTime();
 
     for (auto itr : sResearchSiteSet)
     {
@@ -9526,13 +9526,11 @@ void ObjectMgr::LoadResearchSiteZones()
                         break;
                     }
                 }
-
-                ++counter;
             }
         }
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u research site zones.", counter);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Archeology research site zones in %u ms.", (unsigned long)sResearchSiteSet.size(), GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadResearchSiteLoot()
@@ -9540,11 +9538,11 @@ void ObjectMgr::LoadResearchSiteLoot()
     QueryResult result = WorldDatabase.Query("SELECT site_id, x, y, z, race FROM research_loot");
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 research loot. DB table `research_loot` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Archeology site loot. DB table `research_loot` is empty.");
         return;
     }
 
-    uint32 counter = 0;
+    uint32 l_OldMSTime = getMSTime();
 
     do
     {
@@ -9560,11 +9558,10 @@ void ObjectMgr::LoadResearchSiteLoot()
         }
 
         _researchLoot.push_back(dg);
-        ++counter;
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u research site loot.", counter);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Archeology research site loot in %u ms.", (unsigned long)_researchLoot.size(), GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadSkipUpdateZone()
