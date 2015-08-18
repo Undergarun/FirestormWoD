@@ -33156,9 +33156,11 @@ void Player::UpdateCharges(uint32 const p_Time)
 
         std::vector<uint64> l_ChargesCooldown = l_Charges->GetChargesCooldown();
         bool l_MustContinue = false;
-        uint8 l_Count = 0;
-        for (uint64 l_Cooldown : l_ChargesCooldown)
+
+        if (!l_ChargesCooldown.empty())
         {
+            uint64 l_Cooldown = l_ChargesCooldown.front();
+
             if (l_Cooldown <= p_Time)
             {
                 if (l_Charges->m_ConsumedCharges <= 1)
@@ -33168,14 +33170,13 @@ void Player::UpdateCharges(uint32 const p_Time)
                     break;
                 }
 
-                l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin() + l_Count);
+                l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
                 --l_Charges->m_ConsumedCharges;
+                SendSetSpellCharges(l_Iter->first);
                 continue;
             }
             else
-                l_Charges->DecreaseCooldown(l_Count, p_Time);
-
-            ++l_Count;
+                l_Charges->DecreaseCooldown(0, p_Time);
         }
 
         if (l_MustContinue)
