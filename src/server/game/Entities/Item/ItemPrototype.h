@@ -129,103 +129,137 @@ enum ItemBondingType
 
 #define MAX_BIND_TYPE                             6
 
-enum ItemProtoFlags
-{
-    ITEM_PROTO_FLAG_UNK1                        = 0x00000001, // ?
-    ITEM_PROTO_FLAG_CONJURED                    = 0x00000002, // Conjured item
-    ITEM_PROTO_FLAG_OPENABLE                    = 0x00000004, // Item can be right clicked to open for loot
-    ITEM_PROTO_FLAG_HEROIC                      = 0x00000008, // Makes green "Heroic" text appear on item
-    ITEM_PROTO_FLAG_DEPRECATED                  = 0x00000010, // Cannot equip or use
-    ITEM_PROTO_FLAG_INDESTRUCTIBLE              = 0x00000020, // Item can not be destroyed, except by using spell (item can be reagent for spell)
-    ITEM_PROTO_FLAG_UNK2                        = 0x00000040, // ?
-    ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN           = 0x00000080, // No default 30 seconds cooldown when equipped
-    ITEM_PROTO_FLAG_UNK3                        = 0x00000100, // ?
-    ITEM_PROTO_FLAG_WRAPPER                     = 0x00000200, // Item can wrap other items
-    ITEM_PROTO_FLAG_IGNORE_BAG_SPACE            = 0x00000400, ///< ? source: SimulationCraft
-    ITEM_PROTO_FLAG_PARTY_LOOT                  = 0x00000800, // Looting this item does not remove it from available loot
-    ITEM_PROTO_FLAG_REFUNDABLE                  = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
-    ITEM_PROTO_FLAG_CHARTER                     = 0x00002000, // Item is guild or arena charter
-    ITEM_PROTO_FLAG_UNK5                        = 0x00004000, // Only readable items have this (but not all)
-    ITEM_PROTO_FLAG_UNK6                        = 0x00008000, // ?
-    ITEM_PROTO_FLAG_UNK7                        = 0x00010000, // ?
-    ITEM_PROTO_FLAG_UNK8                        = 0x00020000, // ?
-    ITEM_PROTO_FLAG_PROSPECTABLE                = 0x00040000, // Item can be prospected
-    ITEM_PROTO_FLAG_UNIQUE_EQUIPPED             = 0x00080000, // You can only equip one of these
-    ITEM_PROTO_FLAG_UNK9                        = 0x00100000, // ?
-    ITEM_PROTO_FLAG_USEABLE_IN_ARENA            = 0x00200000, // Item can be used during arena match
-    ITEM_PROTO_FLAG_THROWABLE                   = 0x00400000, // Some Thrown weapons have it (and only Thrown) but not all
-    ITEM_PROTO_FLAG_USABLE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms
-    ITEM_PROTO_FLAG_UNK10                       = 0x01000000, // ?
-    ITEM_PROTO_FLAG_SMART_LOOT                  = 0x02000000, // Profession recipes: can only be looted if you meet requirements and don't already know it
-    ITEM_PROTO_FLAG_NOT_USEABLE_IN_ARENA        = 0x04000000, // Item cannot be used in arena
-    ITEM_PROTO_FLAG_BIND_TO_ACCOUNT             = 0x08000000, // Item binds to account and can be sent only to your own characters
-    ITEM_PROTO_FLAG_TRIGGERED_CAST              = 0x10000000, // Spell is cast with triggered flag
-    ITEM_PROTO_FLAG_MILLABLE                    = 0x20000000, // Item can be milled
-    ITEM_PROTO_FLAG_UNK11                       = 0x40000000, // ?
-    ITEM_PROTO_FLAG_BOP_TRADEABLE               = 0x80000000  // bound item that can be traded
-};
-
 enum ItemFieldFlags
 {
-    ITEM_FLAG_SOULBOUND     = 0x00000001, // Item is soulbound and cannot be traded <<--
-    ITEM_FLAG_TRANSLATED    = 0x00000002, // Item text will not read as garbage when player does not know the language
-    ITEM_FLAG_UNLOCKED      = 0x00000004, // Item had lock but can be opened now
-    ITEM_FLAG_WRAPPED       = 0x00000008, // Item is wrapped and contains another item
-    ITEM_FLAG_DISABLE       = 0x00000010, // Item is disable (red filter)
-    ITEM_FLAG_UNK3          = 0x00000020, // ?
-    ITEM_FLAG_UNK4          = 0x00000040, // ?
-    ITEM_FLAG_UNK5          = 0x00000080, // ?
-    ITEM_FLAG_BOP_TRADEABLE = 0x00000100, // Allows trading soulbound items
-    ITEM_FLAG_READABLE      = 0x00000200, // Opens text page when right clicked
-    ITEM_FLAG_UNK6          = 0x00000400, // ?
-    ITEM_FLAG_UNK7          = 0x00000800, // ?
-    ITEM_FLAG_REFUNDABLE    = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
-    ITEM_FLAG_UNK8          = 0x00002000, // ?
-    ITEM_FLAG_UNK9          = 0x00004000, // ?
-    ITEM_FLAG_UNK10         = 0x00008000, // ?
-    ITEM_FLAG_UNK11         = 0x00010000, // ?
-    ITEM_FLAG_UNK12         = 0x00020000, // ?
-    ITEM_FLAG_UNK13         = 0x00040000, // ?
-    ITEM_FLAG_UNK14         = 0x00080000, // ?
-    ITEM_FLAG_UNK15         = 0x00100000, // ?
-    ITEM_FLAG_UNK16         = 0x00200000, // ?
-    ITEM_FLAG_UNK17         = 0x00400000, // ?
-    ITEM_FLAG_UNK18         = 0x00800000, // ?
-    ITEM_FLAG_UNK19         = 0x01000000, // ?
-    ITEM_FLAG_UNK20         = 0x02000000, // ?
-    ITEM_FLAG_UNK21         = 0x04000000, // ?
-    ITEM_FLAG_UNK22         = 0x08000000, // ?
-    ITEM_FLAG_UNK23         = 0x10000000, // ?
-    ITEM_FLAG_UNK24         = 0x20000000, // ?
-    ITEM_FLAG_UNK25         = 0x40000000, // ?
-    ITEM_FLAG_UNK26         = 0x80000000, // ?
+    ITEM_FIELD_FLAG_SOULBOUND     = 0x00000001, // Item is soulbound and cannot be traded <<--
+    ITEM_FIELD_FLAG_TRANSLATED    = 0x00000002, // Item text will not read as garbage when player does not know the language
+    ITEM_FIELD_FLAG_UNLOCKED      = 0x00000004, // Item had lock but can be opened now
+    ITEM_FIELD_FLAG_WRAPPED       = 0x00000008, // Item is wrapped and contains another item
+    ITEM_FIELD_FLAG_DISABLE       = 0x00000010, // Item is disable (red filter)
+    ITEM_FIELD_FLAG_UNK3          = 0x00000020, // ?
+    ITEM_FIELD_FLAG_UNK4          = 0x00000040, // ?
+    ITEM_FIELD_FLAG_UNK5          = 0x00000080, // ?
+    ITEM_FIELD_FLAG_BOP_TRADEABLE = 0x00000100, // Allows trading soulbound items
+    ITEM_FIELD_FLAG_READABLE      = 0x00000200, // Opens text page when right clicked
+    ITEM_FIELD_FLAG_UNK6          = 0x00000400, // ?
+    ITEM_FIELD_FLAG_UNK7          = 0x00000800, // ?
+    ITEM_FIELD_FLAG_REFUNDABLE    = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
+    ITEM_FIELD_FLAG_UNK8          = 0x00002000, // ?
+    ITEM_FIELD_FLAG_UNK9          = 0x00004000, // ?
+    ITEM_FIELD_FLAG_UNK10         = 0x00008000, // ?
+    ITEM_FIELD_FLAG_UNK11         = 0x00010000, // ?
+    ITEM_FIELD_FLAG_UNK12         = 0x00020000, // ?
+    ITEM_FIELD_FLAG_UNK13         = 0x00040000, // ?
+    ITEM_FIELD_FLAG_UNK14         = 0x00080000, // ?
+    ITEM_FIELD_FLAG_UNK15         = 0x00100000, // ?
+    ITEM_FIELD_FLAG_UNK16         = 0x00200000, // ?
+    ITEM_FIELD_FLAG_UNK17         = 0x00400000, // ?
+    ITEM_FIELD_FLAG_UNK18         = 0x00800000, // ?
+    ITEM_FIELD_FLAG_UNK19         = 0x01000000, // ?
+    ITEM_FIELD_FLAG_UNK20         = 0x02000000, // ?
+    ITEM_FIELD_FLAG_UNK21         = 0x04000000, // ?
+    ITEM_FIELD_FLAG_UNK22         = 0x08000000, // ?
+    ITEM_FIELD_FLAG_UNK23         = 0x10000000, // ?
+    ITEM_FIELD_FLAG_UNK24         = 0x20000000, // ?
+    ITEM_FIELD_FLAG_UNK25         = 0x40000000, // ?
+    ITEM_FIELD_FLAG_UNK26         = 0x80000000, // ?
 
-    ITEM_FLAG_MAIL_TEXT_MASK = ITEM_FLAG_READABLE | ITEM_FLAG_UNK13 | ITEM_FLAG_UNK14,
+    ITEM_FIELD_FLAG_MAIL_TEXT_MASK = ITEM_FIELD_FLAG_READABLE | ITEM_FIELD_FLAG_UNK13 | ITEM_FIELD_FLAG_UNK14,
 };
 
-enum ItemFlagsExtra
+enum ItemFlags
 {
-    ITEM_FLAGS_EXTRA_HORDE_ONLY              = 0x00000001,
-    ITEM_FLAGS_EXTRA_ALLIANCE_ONLY           = 0x00000002,
-    ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD  = 0x00000004, // when item uses extended cost, gold is also required
-    ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED      = 0x00000100,
-    ITEM_FLAGS_EXTRA_CASTER_WEAPON           = 0x00000200,
-    ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE        = 0x00004000,
-    ITEM_FLAGS_EXTRA_BNET_ACCOUNT_BOUND      = 0x00020000,
-    ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG      = 0x00200000,
-    ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG         = 0x00400000,
-    ITEM_FLAGS_EXTRA_CAN_TRANSMOG            = 0x00800000,
-    ITEM_FLAGS_EXTRA_HEROIC                  = 0x40000000,  ///< Source Simulationcraft (MoP Heroic item)
-    ITEM_FLAGS_EXTRA_CRAFTING_REAGENT        = 0x80000000
+    ITEM_FLAG_UNK1                        = 0x00000001, // ?
+    ITEM_FLAG_CONJURED                    = 0x00000002, // Conjured item
+    ITEM_FLAG_OPENABLE                    = 0x00000004, // Item can be right clicked to open for loot
+    ITEM_FLAG_HEROIC                      = 0x00000008, // Makes green "Heroic" text appear on item
+    ITEM_FLAG_DEPRECATED                  = 0x00000010, // Cannot equip or use
+    ITEM_FLAG_INDESTRUCTIBLE              = 0x00000020, // Item can not be destroyed, except by using spell (item can be reagent for spell)
+    ITEM_FLAG_UNK2                        = 0x00000040, // ?
+    ITEM_FLAG_NO_EQUIP_COOLDOWN           = 0x00000080, // No default 30 seconds cooldown when equipped
+    ITEM_FLAG_UNK3                        = 0x00000100, // ?
+    ITEM_FLAG_WRAPPER                     = 0x00000200, // Item can wrap other items
+    ITEM_FLAG_IGNORE_BAG_SPACE            = 0x00000400, ///< ? source: SimulationCraft
+    ITEM_FLAG_PARTY_LOOT                  = 0x00000800, // Looting this item does not remove it from available loot
+    ITEM_FLAG_REFUNDABLE                  = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
+    ITEM_FLAG_CHARTER                     = 0x00002000, // Item is guild or arena charter
+    ITEM_FLAG_UNK5                        = 0x00004000, // Only readable items have this (but not all)
+    ITEM_FLAG_UNK6                        = 0x00008000, // ?
+    ITEM_FLAG_UNK7                        = 0x00010000, // ?
+    ITEM_FLAG_UNK8                        = 0x00020000, // ?
+    ITEM_FLAG_PROSPECTABLE                = 0x00040000, // Item can be prospected
+    ITEM_FLAG_UNIQUE_EQUIPPED             = 0x00080000, // You can only equip one of these
+    ITEM_FLAG_UNK9                        = 0x00100000, // ?
+    ITEM_FLAG_USEABLE_IN_ARENA            = 0x00200000, // Item can be used during arena match
+    ITEM_FLAG_THROWABLE                   = 0x00400000, // Some Thrown weapons have it (and only Thrown) but not all
+    ITEM_FLAG_USABLE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms
+    ITEM_FLAG_UNK10                       = 0x01000000, // ?
+    ITEM_FLAG_SMART_LOOT                  = 0x02000000, // Profession recipes: can only be looted if you meet requirements and don't already know it
+    ITEM_FLAG_NOT_USEABLE_IN_ARENA        = 0x04000000, // Item cannot be used in arena
+    ITEM_FLAG_BIND_TO_ACCOUNT             = 0x08000000, // Item binds to account and can be sent only to your own characters
+    ITEM_FLAG_TRIGGERED_CAST              = 0x10000000, // Spell is cast with triggered flag
+    ITEM_FLAG_MILLABLE                    = 0x20000000, // Item can be milled
+    ITEM_FLAG_UNK11                       = 0x40000000, // ?
+    ITEM_FLAG_BOP_TRADEABLE               = 0x80000000  // bound item that can be traded
+};
+
+enum ItemFlags2
+{
+    ITEM_FLAG2_HORDE_ONLY              = 0x00000001,
+    ITEM_FLAG2_ALLIANCE_ONLY           = 0x00000002,
+    ITEM_FLAG2_EXT_COST_REQUIRES_GOLD  = 0x00000004, // when item uses extended cost, gold is also required
+    ITEM_FLAG2_UNK1                    = 0x00000008,
+    ITEM_FLAG2_UNK2                    = 0x00000010,
+    ITEM_FLAG2_UNK3                    = 0x00000020,
+    ITEM_FLAG2_UNK4                    = 0x00000040,
+    ITEM_FLAG2_UNK5                    = 0x00000080,
+    ITEM_FLAG2_NEED_ROLL_DISABLED      = 0x00000100,
+    ITEM_FLAG2_CASTER_WEAPON           = 0x00000200,
+    ITEM_FLAG2_UNK6                    = 0x00000400,
+    ITEM_FLAG2_UNK7                    = 0x00000800,
+    ITEM_FLAG2_UNK8                    = 0x00001000,
+    ITEM_FLAG2_UNK9                    = 0x00002000,
+    ITEM_FLAG2_HAS_NORMAL_PRICE        = 0x00004000,
+    ITEM_FLAG2_UNK10                   = 0x00008000,
+    ITEM_FLAG2_UNK11                   = 0x00010000,
+    ITEM_FLAG2_BNET_ACCOUNT_BOUND      = 0x00020000,
+    ITEM_FLAG2_UNK12                   = 0x00040000,
+    ITEM_FLAG2_UNK13                   = 0x00080000,
+    ITEM_FLAG2_UNK14                   = 0x00100000,
+    ITEM_FLAG2_CANNOT_BE_TRANSMOG      = 0x00200000,
+    ITEM_FLAG2_CANNOT_TRANSMOG         = 0x00400000,
+    ITEM_FLAG2_CAN_TRANSMOG            = 0x00800000,
+    ITEM_FLAG2_UNK15                   = 0x01000000,
+    ITEM_FLAG2_UNK16                   = 0x02000000,
+    ITEM_FLAG2_UNK17                   = 0x04000000,
+    ITEM_FLAG2_UNK18                   = 0x08000000,
+    ITEM_FLAG2_UNK19                   = 0x10000000,
+    ITEM_FLAG2_UNK20                   = 0x20000000,
+    ITEM_FLAG2_HEROIC                  = 0x40000000,  ///< Source Simulationcraft (MoP Heroic item)
+    ITEM_FLAG2_CRAFTING_MATERIAL       = 0x80000000
 };
 
 enum ItemFlags3
 {
-    ITEM_FLAG3_IGNORE_ITEM_LEVEL_DELTAS     = 0x0080,   // Ignore item level adjustments from PLAYER_FIELD_ITEM_LEVEL_DELTA
-    ITEM_FLAG3_IGNORE_PVP_ITEM_LEVEL_CAP    = 0x0100,
-    ITEM_FLAG3_HEIRLOOM_QUALITY             = 0x0200,   // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
-    ITEM_FLAG3_DOESNT_APPEAR_IN_GUILD_NEWS  = 0x1000,   // Item is not included in the guild news panel
-    ITEM_FLAG3_WARGAME_ONLY                 = 0x2000,
+    ITEM_FLAG3_UNK1                        = 0x00000001,
+    ITEM_FLAG3_UNK2                        = 0x00000002,
+    ITEM_FLAG3_UNK3                        = 0x00000004,
+    ITEM_FLAG3_UNK4                        = 0x00000008,
+    ITEM_FLAG3_UNK5                        = 0x00000010,
+    ITEM_FLAG3_UNK6                        = 0x00000020,
+    ITEM_FLAG3_UNK7                        = 0x00000040,
+    ITEM_FLAG3_IGNORE_ITEM_LEVEL_DELTAS    = 0x00000080, // Ignore item level adjustments from PLAYER_FIELD_ITEM_LEVEL_DELTA
+    ITEM_FLAG3_IGNORE_PVP_ITEM_LEVEL_CAP   = 0x00000100,
+    ITEM_FLAG3_HEIRLOOM_QUALITY            = 0x00000200, // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
+    ITEM_FLAG3_UNK8                        = 0x00000400,
+    ITEM_FLAG3_UNK9                        = 0x00000800,
+    ITEM_FLAG3_DOESNT_APPEAR_IN_GUILD_NEWS = 0x00001000, // Item is not included in the guild news panel
+    ITEM_FLAG3_WARGAME_ONLY                = 0x00002000,
+    ITEM_FLAG3_UNK11                       = 0x00004000,
+    ITEM_FLAG3_UNK12                       = 0x00008000,
+    ITEM_FLAG3_UNK13                       = 0x00010000,
+    ITEM_FLAG3_UNK14                       = 0x00020000,
+    ITEM_FLAG3_UNK15                       = 0x00040000
 };
 
 enum ItemFlagsCustom
@@ -239,19 +273,19 @@ enum ItemFlagsCustom
 
 enum CurrencyCategory
 {
-    CURRENCY_CATEGORY_MISC              = 1,       // Miscellaneous
-    CURRENCY_CATEGORY_PVP               = 2,        //Player vs. Player
-    CURRENCY_CATEGORY_UNUSED            = 3,        //Unused
-    CURRENCY_CATEGORY_CLASSIC           = 4,        //Classic
-    CURRENCY_CATEGORY_WOTLK             = 21,       //Wrath of the Lich King
-    CURRENCY_CATEGORY_DUNGEON_AND_RAID  = 22,       //Dungeon and Raid
-    CURRENCY_CATEGORY_BC                = 23,       //Burning Crusade
-    CURRENCY_CATEGORY_TEST              = 41,       //Test
-    CURRENCY_CATEGORY_CATACLYSM         = 81,       //Cataclysm
-    CURRENCY_CATEGORY_ARCHAEOLOGY       = 82,       //Archaeology
-    CURRENCY_CATEGORY_META_CONQUEST     = 89,       //Meta
-    CURRENCY_CATEGORY_MOP               = 133,      //Mists of Pandaria
-    CURRENCY_CATEGORY_WOD               = 137       //Warlords of Draenor
+    CURRENCY_CATEGORY_MISC              = 1,   ///< Miscellaneous
+    CURRENCY_CATEGORY_PVP               = 2,   ///< Player vs. Player
+    CURRENCY_CATEGORY_UNUSED            = 3,   ///< Unused
+    CURRENCY_CATEGORY_CLASSIC           = 4,   ///< Classic
+    CURRENCY_CATEGORY_WOTLK             = 21,  ///< Wrath of the Lich King
+    CURRENCY_CATEGORY_DUNGEON_AND_RAID  = 22,  ///< Dungeon and Raid
+    CURRENCY_CATEGORY_BC                = 23,  ///< Burning Crusade
+    CURRENCY_CATEGORY_TEST              = 41,  ///< Test
+    CURRENCY_CATEGORY_CATACLYSM         = 81,  ///< Cataclysm
+    CURRENCY_CATEGORY_ARCHAEOLOGY       = 82,  ///< Archaeology
+    CURRENCY_CATEGORY_META_CONQUEST     = 89,  ///< Meta
+    CURRENCY_CATEGORY_MOP               = 133, ///< Mists of Pandaria
+    CURRENCY_CATEGORY_WOD               = 137  ///< Warlords of Draenor
 };
 
 enum ItemVendorType
@@ -838,7 +872,7 @@ struct ItemTemplate
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && (SubClass == ITEM_SUBCLASS_POTION || SubClass == ITEM_SUBCLASS_FOOD_DRINK); }
     bool IsVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ENCHANTMENT; }
-    bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_PROTO_FLAG_CONJURED); }
+    bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAG_CONJURED); }
 
     bool IsRangedWeapon() const
     {
@@ -940,7 +974,7 @@ struct ItemTemplate
         if (Class == ITEM_CLASS_WEAPON && SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
             return false;
 
-        if (Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
+        if (Flags2 & ITEM_FLAG2_CANNOT_BE_TRANSMOG)
             return false;
 
         return true;
@@ -948,7 +982,7 @@ struct ItemTemplate
 
     bool CanTransmogrify() const
     {
-        if (Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
+        if (Flags2 & ITEM_FLAG2_CANNOT_TRANSMOG)
             return false;
 
         /// Custom removed for selling old legendary item
@@ -963,7 +997,7 @@ struct ItemTemplate
         if (Class == ITEM_CLASS_WEAPON && SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
             return false;
 
-        if (Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+        if (Flags2 & ITEM_FLAG2_CAN_TRANSMOG)
             return true;
 
         return true;
