@@ -278,7 +278,8 @@ DELETE FROM spell_script_names WHERE ScriptName IN
     'spell_highmaul_arcane_wrath_damage',
     'spell_highmaul_transition_visuals',
     'spell_highmaul_berserker_rush_damage',
-    'spell_highmaul_dominance_aura'
+    'spell_highmaul_dominance_aura',
+    'spell_highmaul_force_nova_fortified'
 );
 INSERT INTO spell_script_names VALUES
 (174981, 'spell_highmaul_unstable_tempest'),
@@ -293,17 +294,19 @@ INSERT INTO spell_script_names VALUES
 (156239, 'spell_highmaul_arcane_wrath_damage'),
 (176580, 'spell_highmaul_transition_visuals'),
 (159002, 'spell_highmaul_berserker_rush_damage'),
-(174126, 'spell_highmaul_dominance_aura');
+(174126, 'spell_highmaul_dominance_aura'),
+(157323, 'spell_highmaul_force_nova_fortified');
 
 DELETE FROM spell_proc_event WHERE entry IN (174116);
 INSERT INTO spell_proc_event (entry, procFlags) VALUE
 (174116, 0x800AAAA8);
 
-DELETE FROM spell_target_position WHERE id IN (166090, 164336, 164751);
+DELETE FROM spell_target_position WHERE id IN (166090, 164336, 164751, 164810);
 INSERT INTO spell_target_position VALUE
 (166090, 0, 1228, 3878.66, 8593.54, 565.314, 6.192306),
 (164336, 0, 1228, 3944.7, 8616.53, 565.314, 0.715585),
-(164751, 0, 1228, 3894.11, 8568.27, 565.314, 3.735005);
+(164751, 0, 1228, 3894.11, 8568.27, 565.314, 3.735005),
+(164810, 0, 1228, 3898.19, 8618.52, 565.341, 2.443461);
 
 DELETE FROM creature_text WHERE entry IN (81811, 77428, 77637);
 INSERT INTO creature_text VALUES
@@ -327,15 +330,16 @@ INSERT INTO creature_text VALUES
 (77428, 12, 0, 'Its energy overflows! Soon it will be unleashed!', 14, 0, 100, 0, 0, 42022, 'MargokRuneOfFortification4'),
 (77428, 13, 0, 'The boundless power of the stones flows through me! Your destruction comes!',14, 0, 100, 0, 0, 42023, 'MargokRuneOfFortification5'),
 (77428, 14, 0, 'Enough! Long have the Sorcerer Kings guarded these chambers. Today you will see our secret power.', 14, 0, 100, 0, 0, 42024, 'MargokRuneOfReplication1'),
-(77428, 14, 1, 'Guards, remove these peasants.', 14, 0, 100, 0, 0, 42025, 'MargokRuneOfReplication2'),
-(77428, 14, 2, 'Its power grows beyond comprehension!', 14, 0, 100, 0, 0, 42026, 'MargokRuneOfReplication3'),
-(77428, 14, 3, 'You can never challenge my rule! I command the power of the stones and know no equal!', 14, 0, 100, 0, 0, 42027, 'MargokRuneOfReplication4'),
-(77428, 15, 0, 'Your presence bores me.', 14, 0, 100, 0, 0, 42032, 'MargokSlay1'),
-(77428, 15, 1, 'Learn your place.', 14, 0, 100, 0, 0, 42031, 'MargokSlay2'),
-(77428, 16, 0, 'I tire of this. Begone!', 14, 0, 100, 0, 0, 42016, 'MargokBerserk'),
-(77428, 17, 0, 'I... am... king...', 14, 0, 100, 0, 0, 42017, 'MargokDeath'),
+(77428, 15, 0, 'Guards, remove these peasants.', 14, 0, 100, 0, 0, 42025, 'MargokRuneOfReplication2'),
+(77428, 16, 0, 'Its power grows beyond comprehension!', 14, 0, 100, 0, 0, 42026, 'MargokRuneOfReplication3'),
+(77428, 17, 0, 'You can never challenge my rule! I command the power of the stones and know no equal!', 14, 0, 100, 0, 0, 42027, 'MargokRuneOfReplication4'),
+(77428, 18, 0, 'Your presence bores me.', 14, 0, 100, 0, 0, 42032, 'MargokSlay1'),
+(77428, 18, 1, 'Learn your place.', 14, 0, 100, 0, 0, 42031, 'MargokSlay2'),
+(77428, 19, 0, 'I tire of this. Begone!', 14, 0, 100, 0, 0, 42016, 'MargokBerserk'),
+(77428, 20, 0, 'I... am... king...', 14, 0, 100, 0, 0, 42017, 'MargokDeath'),
+(77428, 21, 0, '|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t You have been branded by |cFFF00000|Hspell:156238|h[Arcane Wrath]|h|r!', 41, 0, 100, 0, 0, 0, 'MargokBranded'),
 
-(77637, 0, 0, '$n detonated Destructive Resonance!', 10, 0, 100, 0, 0, 0, 'MargokDestructiveResonance');
+(77637, 0, 0, '$n detonated Destructive Resonance!', 16, 0, 100, 0, 0, 0, 'MargokDestructiveResonance');
 
 DELETE FROM locales_creature_text WHERE entry IN (81811, 77428, 77637);
 --                                                       French     German     Spanish    Russian
@@ -474,21 +478,21 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Хватит! Короли-чародеи веками охраняли эти залы. И сейчас вы узнаете, почему.'
 ),
 (
-    77428, 14, 1,
+    77428, 15, 0,
     'Gardes, débarrassez-vous de ces paysans.',
     'Wache, entfernt diesen Pöbel.',
     'Guardias, llévense a estos campesinos.',
     'Стража! Убрать это отребье!'
 ),
 (
-    77428, 14, 2,
+    77428, 16, 0,
     'Son pouvoir grandit au-delà de toute compréhension !',
     'Die Macht wächst ins Unermessliche.',
     '¡Su poder va más allá de la comprensión!',
     'Эта сила беспредельна!'
 ),
 (
-    77428, 14, 3,
+    77428, 17, 0,
     'Mon règne est absolu ! Je commande la puissance des pierres ; nul ne peut rivaliser avec moi !',
     'Zweifelt niemals meine Herrschaft an! Ich beherrsche die Macht der Steine! Niemand ist mir ebenbürtig!',
     '¡No podrán jamás desafiar mi mando! ¡Comando el poder de las piedras y no hay nadie igual!',
@@ -521,6 +525,13 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Ich... bin... der König...',
     'Yo... soy... rey...',
     'Я... Король...'
+),
+(
+    77428, 21, 0,
+    '|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t Vous avez été $gmarqué:marquée; par |cFFF00000|Hspell:156238|h[Colère des Arcanes]|h|r !',
+    '|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t Ihr wurdet von |cFFF00000|Hspell:156238|h[Arkanem Zorn]|h|r gebrandmarkt!',
+    '¡|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t Te ha marcado |cFFF00000|Hspell:156238|h[Cólera Arcana]|h|r!',
+    '|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t Вы отмечены заклинанием |cFFF00000|Hspell:156238|h[\"Чародейский гнев\"]|h|r!'
 ),
 (
     77637, 0, 0,
