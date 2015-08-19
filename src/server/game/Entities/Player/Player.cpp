@@ -10597,7 +10597,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
         if (!rescaleToItemLevel)
         {
             statType = proto->ItemStat[i].ItemStatType;
-            val = proto->CalculateStatScaling(i, ilvl);
+            val = (ilvl == 1 && rescaleToItemLevel == 0) ? proto->ItemStat[i].ItemStatValue : proto->CalculateStatScaling(i, ilvl);
         }
         else
         {
