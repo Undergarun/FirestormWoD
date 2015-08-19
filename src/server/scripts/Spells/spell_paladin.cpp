@@ -2824,7 +2824,8 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Call by Lay on Hands - 633
+/// Call by :
+/// Lay on Hands - 633
 /// Flash of Light - 19750
 /// Holy Shock - 25914
 /// Holy Light - 82326
