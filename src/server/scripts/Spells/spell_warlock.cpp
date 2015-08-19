@@ -32,7 +32,6 @@ enum WarlockSpells
     WARLOCK_DEMONIC_CIRCLE_TELEPORT         = 48020,
     WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 62388,
     WARLOCK_UNSTABLE_AFFLICTION_DISPEL      = 31117,
-    WARLOCK_CREATE_HEALTHSTONE              = 23517,
     WARLOCK_SOULBURN_AURA                   = 74434,
     WARLOCK_CORRUPTION                      = 146739,
     WARLOCK_AGONY                           = 980,
@@ -2627,34 +2626,6 @@ class spell_warl_banish: public SpellScriptLoader
         }
 };
 
-// Create Healthstone - 6201
-class spell_warl_create_healthstone: public SpellScriptLoader
-{
-    public:
-        spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
-
-        class spell_warl_create_healthstone_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_create_healthstone_SpellScript);
-
-            void HandleAfterCast()
-            {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, WARLOCK_CREATE_HEALTHSTONE, true);
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_warl_create_healthstone_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_create_healthstone_SpellScript();
-        }
-};
-
 // Seed of Corruption (detonation) - 27285
 class spell_warl_seed_of_corruption: public SpellScriptLoader
 {
@@ -3576,6 +3547,73 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
         }
 };
 
+/// Create Healthstone - 6201
+class spell_warl_create_healthstone: public SpellScriptLoader
+{
+    public:
+        spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
+
+        class spell_warl_create_healthstone_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_create_healthstone_SpellScript);
+
+            enum eSpells
+            {
+                CreateHealthstone = 23517
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, CreateHealthstone, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_warl_create_healthstone_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_create_healthstone_SpellScript();
+        }
+};
+
+/// Healthstone - 6262
+class spell_warl_healthstone : public SpellScriptLoader
+{
+    public:
+        spell_warl_healthstone() : SpellScriptLoader("spell_warl_healthstone") { }
+
+        class spell_warl_healthstone_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_healthstone_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfHealthstone = 56224
+            };
+
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (GetCaster()->HasAura(eSpells::GlyphOfHealthstone))
+                    PreventHitHeal();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_healthstone_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_healthstone_SpellScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_demonic_servitude();
@@ -3636,7 +3674,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_life_tap();
     new spell_warl_fear();
     new spell_warl_banish();
-    new spell_warl_create_healthstone();
     new spell_warl_seed_of_corruption();
     new spell_warl_soulshatter();
     new spell_warl_demonic_circle_summon();
@@ -3652,6 +3689,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_doom_bolt();
     new spell_warl_grimoire_of_synergy();
     new spell_warl_grimoire_of_supremacy_effect();
-
     new PlayerScript_WoDPvPDemonology2PBonus();
+    new spell_warl_create_healthstone();
+    new spell_warl_healthstone();
 }

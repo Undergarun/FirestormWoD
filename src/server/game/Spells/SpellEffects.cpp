@@ -1972,10 +1972,6 @@ void Spell::EffectHealPct(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-        case 6262:  // Healthstone
-            if (m_caster->HasAura(56224)) // Glyph of Healthstone
-                return;
-            break;
         case 59754: // Rune Tap - Party
             if (unitTarget == m_caster)
                 return;

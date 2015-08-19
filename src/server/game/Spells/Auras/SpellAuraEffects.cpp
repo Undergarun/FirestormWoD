@@ -1092,20 +1092,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             break;
         }
-        case SPELL_AURA_OBS_MOD_HEALTH:
-        {
-            switch (GetId())
-            {
-                case 6262:  // Healthstone
-                    if (caster && !caster->HasAura(56224)) // Glyph of Healthstone
-                        amount = 0;
-                    break;
-                default:
-                    break;
-            }
-
-            break;
-        }
         case SPELL_AURA_MOD_DECREASE_SPEED:
         {
             /// Custom WoD Script - Glyph of Runic Power (159429)
