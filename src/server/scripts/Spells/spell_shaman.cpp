@@ -2049,9 +2049,9 @@ class spell_sha_feral_spirit: public SpellScriptLoader
             void OnLaunch(SpellEffIndex effIndex)
             {
                 // Broken spellproc
-                if (Unit* caster = GetCaster())
-                    if (AuraPtr aura = caster->GetAura(SPELL_SHA_PVP_BONUS_WOD_2))
-                        caster->CastSpell(caster, aura->GetSpellInfo()->Effects[0].TriggerSpell);
+                if (Unit* l_Caster = GetCaster())
+                    if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(SPELL_SHA_PVP_BONUS_WOD_2, EFFECT_0))
+                        l_Caster->CastSpell(l_Caster, l_Aura->GetTriggerSpell());
             }
 
             void Register()
@@ -2265,7 +2265,7 @@ class spell_sha_liquid_magma: public SpellScriptLoader
                 Unit* l_Target = l_Caster->SelectNearbyTarget(nullptr, 40, 0, false, true, true);
 
                 if (l_Target)
-                    l_Caster->CastSpell(l_Target, GetSpellInfo()->Effects[p_AurEff->GetEffIndex()].TriggerSpell);
+                    l_Caster->CastSpell(l_Target, p_AurEff->GetTriggerSpell());
             }
 
             void Register()

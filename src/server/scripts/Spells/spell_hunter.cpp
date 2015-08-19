@@ -427,7 +427,7 @@ class spell_hun_glyph_of_aspect_of_the_cheetah : public SpellScriptLoader
                     if (l_Caster->HasAura(eSpells::GlyphOfAspectOfTheCheetah))
                         p_AurEff->GetBase()->Remove();
                     else
-                        l_Caster->CastSpell(l_Caster, GetSpellInfo()->Effects[EFFECT_1].TriggerSpell, true);
+                        l_Caster->CastSpell(l_Caster, p_AurEff->GetTriggerSpell(), true);
                 }
             }
 
