@@ -1950,6 +1950,12 @@ class spell_monk_renewing_mist: public SpellScriptLoader
             uint32 update;
             uint8  spreadCount;
 
+            enum eSpells
+            {
+                GlyphofRenewedTea = 159496
+            };
+
+
             bool Validate(SpellInfo const* /*spell*/)
             {
                 update = 0;
@@ -2014,20 +2020,21 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
             {
-                if (GetCaster())
-                {
-                    if (AuraPtr uplift = GetCaster()->GetAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, GetCaster()->GetGUID()))
-                        GetCaster()->RemoveAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, GetCaster()->GetGUID());
+                Unit* l_Caster = GetCaster();
 
-                    if (GetCaster()->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER))
-                    {
-                        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                        if (removeMode == AURA_REMOVE_BY_EXPIRE)
-                        {
-                            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_MANA_TEA_STACKS, true);
-                            GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PLUS_ONE_MANA_TEA, true);
-                        }
-                    }
+                if (l_Caster == nullptr)
+                    return;
+
+                if (AuraPtr uplift = l_Caster->GetAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster->GetGUID()))
+                    l_Caster->RemoveAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster->GetGUID());
+
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+
+                if (l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE ||
+                    l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_ENEMY_SPELL)
+                {
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);
                 }
             }
 
@@ -4520,32 +4527,32 @@ class spell_monk_uplift : public SpellScriptLoader
 // Glyph of rapid rolling - 146951
 class spell_monk_glyph_of_rapid_rolling : public SpellScriptLoader
 {
-public:
-    spell_monk_glyph_of_rapid_rolling() : SpellScriptLoader("spell_monk_glyph_of_rapid_rolling") { }
+    public:
+        spell_monk_glyph_of_rapid_rolling() : SpellScriptLoader("spell_monk_glyph_of_rapid_rolling") { }
 
-    class spell_monk_glyph_of_rapid_rolling_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_glyph_of_rapid_rolling_SpellScript);
-
-        void HandleAfterCast()
+        class spell_monk_glyph_of_rapid_rolling_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareSpellScript(spell_monk_glyph_of_rapid_rolling_SpellScript);
+
+            void HandleAfterCast()
             {
-                if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_RAPID_ROLLING))
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_RAPID_ROLLING, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_RAPID_ROLLING))
+                        l_Caster->CastSpell(l_Caster, SPELL_MONK_RAPID_ROLLING, true);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_monk_glyph_of_rapid_rolling_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterCast += SpellCastFn(spell_monk_glyph_of_rapid_rolling_SpellScript::HandleAfterCast);
+            return new spell_monk_glyph_of_rapid_rolling_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_glyph_of_rapid_rolling_SpellScript();
-    }
 };
 
 enum AfterLifeSpells
