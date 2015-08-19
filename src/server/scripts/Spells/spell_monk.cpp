@@ -2151,6 +2151,7 @@ class spell_monk_zen_sphere: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr p_AurEff)
             {
+                Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
 
                 if (l_Target == nullptr)
@@ -2159,7 +2160,7 @@ class spell_monk_zen_sphere: public SpellScriptLoader
                 if (l_Target->GetHealthPct() < (float)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
                     p_AurEff->GetBase()->SetDuration(0);
 
-                l_Target->CastSpell(l_Target, eSpells::ZenSphereTick, true);
+                l_Caster->CastSpell(l_Target, eSpells::ZenSphereTick, true);
             }
 
             void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2202,17 +2203,21 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
             void FilterTargetsAlly(std::list<WorldObject*>& p_Targets)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_FirstTarget = GetExplTargetUnit();
 
-                if (AuraEffectPtr l_ZenSphereAura = l_Caster->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                if (l_FirstTarget == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_ZenSphereAura = l_FirstTarget->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
                     {
-                        p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                        p_Targets.remove_if([this, l_FirstTarget](WorldObject* p_Object) -> bool
                         {
                             if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
                                 return true;
 
-                            if (p_Object->GetGUID() != l_Caster->GetGUID())
+                            if (p_Object->GetGUID() != l_FirstTarget->GetGUID())
                                 return true;
 
                             return false;
@@ -2224,8 +2229,12 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
             void HandleHealExplosion(SpellEffIndex p_EffIndex)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_FirstTarget = GetExplTargetUnit();
 
-                if (AuraEffectPtr l_ZenSphereAura = l_Caster->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                if (l_FirstTarget == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_ZenSphereAura = l_FirstTarget->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
                         SetHitHeal(GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
@@ -2241,11 +2250,12 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+                Unit* l_FirstTarget = GetExplTargetUnit();
 
-                if (l_Target == nullptr)
+                if (l_FirstTarget == nullptr || l_Target == nullptr)
                     return;
 
-                if (AuraEffectPtr l_ZenSphereAura = l_Caster->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                if (AuraEffectPtr l_ZenSphereAura = l_FirstTarget->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
                     {
