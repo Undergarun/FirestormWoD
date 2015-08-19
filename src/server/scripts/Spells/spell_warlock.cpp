@@ -1959,7 +1959,10 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
                 /// No instant heal with Glyph of Ember tap
                 if (AuraPtr l_GlyphOfEmberTap = l_Caster->GetAura(eSpells::GlyphOfEmberTap))
+                {
+                    SetHitHeal(0);
                     return;
+                }
 
                 int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), GetEffectValue());
 
