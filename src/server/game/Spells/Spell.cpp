@@ -3222,9 +3222,18 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         DiminishingReturnsType type = GetDiminishingReturnsGroupType(m_diminishGroup);
         // Increase Diminishing on unit, current informations for actually casts will use values above
         if ((type == DRTYPE_PLAYER &&
-             (unit->GetCharmerOrOwnerPlayerOrPlayerItself() || (unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))) ||
+            (unit->GetCharmerOrOwnerPlayerOrPlayerItself() || (unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))) ||
             type == DRTYPE_ALL)
+        {
             unit->IncrDiminishing(m_diminishGroup);
+
+            /// Hack Fix Wod - Hunter WoD PvP Beast Mastery 4P Bonus
+            /// Pet and owner are sharing same diminishing return
+            if (unit->isPet() && unit->GetOwner() && unit->GetOwner()->HasAura(171478))
+                unit->GetOwner()->IncrDiminishing(m_diminishGroup);
+            else if (unit->HasAura(171478) && unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->GetPet())
+                unit->ToPlayer()->GetPet()->IncrDiminishing(m_diminishGroup);
+        }
     }
 
     uint32 aura_effmask = 0;
