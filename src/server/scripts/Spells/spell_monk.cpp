@@ -4524,7 +4524,8 @@ class spell_monk_uplift : public SpellScriptLoader
         }
 };
 
-// Glyph of rapid rolling - 146951
+/// Call by Roll - 107427 and Chi Torpedo - 115008
+/// Glyph of rapid rolling - 146951
 class spell_monk_glyph_of_rapid_rolling : public SpellScriptLoader
 {
     public:
