@@ -929,6 +929,58 @@ class spell_warr_shockwave: public SpellScriptLoader
         }
 };
 
+/// Glyph of Raging Blow - 159740
+class spell_warr_glyph_of_raging_blow: public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_raging_blow() : SpellScriptLoader("spell_warr_glyph_of_raging_blow") { }
+
+        class spell_warr_glyph_of_raging_blow_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_glyph_of_raging_blow_AuraScript);
+
+            enum eSpells
+            {
+                RagingBlow = 96103,
+                RagingBlowOffHand = 85384
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcEventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                SpellInfo const* l_TriggeredBySpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
+                if (!l_TriggeredBySpell)
+                    return;
+
+                /// Should proc when Raging Blow (main hand and offhand)...
+                if (l_TriggeredBySpell->Id != eSpells::RagingBlow)
+                    return;
+
+                /// ...are both critical
+                if (!(p_ProcEventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                    return;
+
+                l_Caster->CastSpell(l_Caster, p_AurEff->GetTriggerSpell(), true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_glyph_of_raging_blow_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_glyph_of_raging_blow_AuraScript();
+        }
+};
+
+
 /// Bloodthirst - 23881
 class spell_warr_bloodthirst: public SpellScriptLoader
 {
@@ -2556,6 +2608,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_heroic_leap_damage();
     new spell_warr_heroic_leap();
     new spell_warr_shockwave();
+    new spell_warr_glyph_of_raging_blow();
     new spell_warr_bloodthirst();
     new spell_warr_bloodthirst_heal();
     new spell_warr_victory_rush();

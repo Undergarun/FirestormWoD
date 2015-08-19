@@ -6347,6 +6347,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159740: ///< Glyph of Raging Blow
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TriggerSpell = 159747;
                 break;
+            case 159747: ///< Glyph of Raging Blow (heal mod)
+                spellInfo->ProcFlags = 0;
+                break;
             case 84721: ///< Frozen Orb damage
                 spellInfo->AttributesEx2 |= SpellAttr2::SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;

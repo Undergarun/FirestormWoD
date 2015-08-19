@@ -22,3 +22,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (121551,'spell_pal_glyph_of_flash_light'),
 (121552,'spell_pal_glyph_of_flash_light'),
 (54957,'spell_pal_glyph_of_flash_light');
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_warr_glyph_of_raging_blow';
+INSERT INTO `spell_script_names` VALUES (159740, 'spell_warr_glyph_of_raging_blow');
