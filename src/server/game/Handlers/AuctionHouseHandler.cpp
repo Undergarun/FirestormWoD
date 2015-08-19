@@ -430,7 +430,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& p_RecvData)
 
     if (!l_Player->HasEnoughMoney(l_Price))
     {
-        SendAuctionCommandResult(nullptr, AUCTION_PLACE_BID, ERR_AUCTION_OK);
+        SendAuctionCommandResult(nullptr, AUCTION_PLACE_BID, ERR_AUCTION_NOT_ENOUGHT_MONEY);
         return;
     }
 
