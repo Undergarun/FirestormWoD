@@ -499,28 +499,28 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Вам не удастся меня свергнуть! Я повелеваю силой камней! Мне нет равных!'
 ),
 (
-    77428, 15, 0,
+    77428, 18, 0,
     'Votre présence m''assomme.',
     'Eure Anwesenheit langweilt mich.',
     'Su presencia me molesta.',
     'Ты утомляешь меня.'
 ),
 (
-    77428, 15, 1,
+    77428, 18, 1,
     'Mon pouvoir n''a aucune limite !',
     'Meine Macht kennt keine Grenzen!',
     '¡Mi poder no conoce límite!',
     'Моя сила безгранична!'
 ),
 (
-    77428, 16, 0,
+    77428, 19, 0,
     'Vous me fatiguez. Fichez le camp !',
     'Ich habe genug. Hinfort mit euch!',
     'Me aburre esto. ¡Largo!',
     'Я устал. Прочь!'
 ),
 (
-    77428, 17, 0,
+    77428, 20, 0,
     'Je... suis... le roi...',
     'Ich... bin... der König...',
     'Yo... soy... rey...',
