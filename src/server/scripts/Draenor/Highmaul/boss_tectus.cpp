@@ -719,9 +719,6 @@ class boss_tectus : public CreatureScript
                             me->SummonCreature(eCreatures::EarthenPillarStalker, l_X, l_Y, me->GetPositionZ());
                         }
 
-                        if (!m_Events.HasEvent(eEvents::EventEarthenPillar))
-                            m_Events.ScheduleEvent(eEvents::EventEarthenPillar, 60 * TimeConstants::IN_MILLISECONDS);
-
                         Talk(eTalks::EarthenPillar);
                         break;
                     }
@@ -1277,7 +1274,16 @@ class npc_highmaul_earthen_pillar_stalker : public CreatureScript
                     if (GameObject* l_Pillar = GameObject::GetGameObject(*me, m_PillarGuid))
                         l_Pillar->Delete();
 
-                    me->SummonGameObject(eGameObject::GoBEarthenPillar, *me, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                    if (GameObject* l_Pillar = me->SummonGameObject(eGameObject::GoBEarthenPillar, *me, 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                        m_PillarGuid = l_Pillar->GetGUID();
+                });
+
+                AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (GameObject* l_Pillar = GameObject::GetGameObject(*me, m_PillarGuid))
+                        l_Pillar->Delete();
+
+                    me->DespawnOrUnsummon();
                 });
             }
         };
@@ -1575,14 +1581,29 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
                     if (!l_Target->isInCombat())
                         return;
 
+                    uint32 l_OldPower = l_Target->GetPower(Powers::POWER_ENERGY);
                     l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, GetEnergyGainFromHealth(l_Target->GetHealthPct()), Powers::POWER_ENERGY);
+                    uint32 l_NewPower = l_Target->GetPower(Powers::POWER_ENERGY);
 
                     if (l_Target->IsAIEnabled)
                     {
-                        if (l_Target->GetPower(Powers::POWER_ENERGY) >= 100)
+                        if (l_NewPower >= 100)
                             l_Target->AI()->DoAction(eActions::ScheduleTectonicUpheaval);
-                        else if (l_Target->GetPower(Powers::POWER_ENERGY) >= 25)
-                            l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
+                        else
+                        {
+                            /// On Mythic difficulty, Tectus also uses this ability at 50 Energy.
+                            if (l_Target->GetMap()->IsMythic())
+                            {
+                                if ((l_OldPower < 25 && (l_OldPower + l_NewPower) >= 25) ||
+                                    (l_OldPower < 50 && (l_OldPower + l_NewPower) >= 50))
+                                    l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
+                            }
+                            else
+                            {
+                                if (l_OldPower < 25 && (l_OldPower + l_NewPower) >= 25)
+                                    l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
+                            }
+                        }
                     }
                 }
             }
