@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Player.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
@@ -697,8 +698,15 @@ void Creature::Regenerate(Powers power)
         case POWER_FOCUS:
         {
             // For hunter pets - Pets regen focus 125% more faster than owners
-            addvalue += (24.0f + CalculatePct(24.0f, rangedHaste)) * sWorld->getRate(RATE_POWER_FOCUS);
-            addvalue *= 1.25f;
+            if (GetOwner())
+            {
+                /// Calculate owners haste
+                float l_OwnerHastePct = 1.f / GetOwner()->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+                float l_OwnerBaseRegen = 4.0f;
+                /// Calculate regenerate for 1 second and multiply for update interval
+                addvalue += (l_OwnerBaseRegen * l_OwnerHastePct) * PET_FOCUS_REGEN_INTERVAL / IN_MILLISECONDS * sWorld->getRate(RATE_POWER_FOCUS);
+                addvalue *= 1.25f;
+            }
             break;
         }
         case POWER_ENERGY:
