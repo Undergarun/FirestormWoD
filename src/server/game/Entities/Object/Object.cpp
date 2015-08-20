@@ -352,7 +352,6 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     if (p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE && !l_Unit)
         p_Flags = p_Flags & ~UPDATEFLAG_HAS_VEHICLE_CREATE;
 
-    printf("Exists: %i\n", l_WorldObject != 0);
     if (l_WorldObject->GetAIAnimKitId() || l_WorldObject->GetMovementAnimKitId() || l_WorldObject->GetMeleeAnimKitId())
         p_Flags |= UPDATEFLAG_HAS_ANIMKITS_CREATE;
 

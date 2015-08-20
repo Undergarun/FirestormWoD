@@ -1036,14 +1036,14 @@ enum Opcodes
     CMSG_REQUEST_PET_INFO                       = 0x0000, ///<
     CMSG_STAND_STATE_CHANGE                     = 0x1B4F, ///< 6.2.2 20395
     CMSG_BINDER_ACTIVATE                        = 0x0D5A, ///< 6.2.2 20395
-    CMSG_REQUEST_FORCED_REACTIONS               = 0x1E69, ///< 6.2.2 20395
+    CMSG_REQUEST_FORCED_REACTIONS               = 0x1C9D, ///< 6.2.2 20395
     CMSG_DESTROY_ITEM                           = 0x09E9, ///< 6.2.2 20395
     CMSG_OPEN_ITEM                              = 0x1310, ///< 6.2.2 20395
     CMSG_SET_TITLE                              = 0x0039, ///< 6.2.2 20395
     CMSG_PLAYED_TIME                            = 0x0158, ///< 6.2.2 20395
     CMSG_SAVE_EQUIPMENT_SET                     = 0x06DA, ///< 6.2.2 20395
     CMSG_USE_EQUIPMENT_SET                      = 0x0599, ///< 6.2.2 20395
-    CMSG_DELETE_EQUIPMENT_SET                   = 0x0699, ///< 6.2.2 20395
+    CMSG_DELETE_EQUIPMENT_SET                   = 0x1E69, ///< 6.2.2 20395
     CMSG_WHO                                    = 0x0829, ///< 6.2.2 20395
     CMSG_SOCKET_GEMS                            = 0x0F9A, ///< 6.2.2 20395
     CMSG_RESURRECT_RESPONSE                     = 0x01E3, ///< 6.2.2 20395
@@ -1200,7 +1200,7 @@ enum Opcodes
     CMSG_REQUEST_RESEARCH_HISTORY               = 0x0265, ///< 6.2.2 20395
     CMSG_SUMMON_RESPONSE                        = 0x0874, ///< 6.2.2 20395
     CMSG_SET_FACTION_ATWAR                      = 0x060A, ///< 6.2.2 20395
-    CMSG_UNSET_FACTION_ATWAR                    = 0x1C9D, ///< 6.2.2 20395
+    CMSG_UNSET_FACTION_ATWAR                    = 0x0699, ///< 6.2.2 20395
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
