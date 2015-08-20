@@ -478,21 +478,25 @@ class instance_highmaul : public InstanceMapScript
                     p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
 
-                    uint64 l_Guid = p_Player->GetGUID();
-                    AddTimedDelayedOperation(200, [this, l_Guid]() -> void
+                    /// We don't need to update the enter pos if player is summoned by his allies
+                    if (!p_Player->IsSummoned())
                     {
-                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                        uint64 l_Guid = p_Player->GetGUID();
+                        AddTimedDelayedOperation(200, [this, l_Guid]() -> void
                         {
-                            if (GetBossState(eHighmaulDatas::BossKoragh) == EncounterState::DONE)
-                                l_Player->NearTeleportTo(eHighmaulLocs::FelBreakerRoom);
-                            else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
-                                l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
-                            else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
-                                l_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
-                            else
-                                l_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
-                        }
-                    });
+                            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                            {
+                                if (GetBossState(eHighmaulDatas::BossKoragh) == EncounterState::DONE)
+                                    l_Player->NearTeleportTo(eHighmaulLocs::FelBreakerRoom);
+                                else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
+                                    l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                                else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
+                                    l_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
+                                else
+                                    l_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
+                            }
+                        });
+                    }
                 }
                 else
                 {
@@ -527,6 +531,9 @@ class instance_highmaul : public InstanceMapScript
                             if (Creature* l_Koragh = sObjectAccessor->FindCreature(m_KoraghGuid))
                                 l_Koragh->setFaction(35);
 
+                            if (Creature* l_Margok = sObjectAccessor->FindCreature(m_ImperatorMargokGuid))
+                                l_Margok->setFaction(35);
+
                             break;
                         }
                         case eHighmaulDungeons::ArcaneSanctum:
@@ -540,10 +547,34 @@ class instance_highmaul : public InstanceMapScript
                             if (Creature* l_Brackenspore = sObjectAccessor->FindCreature(m_BrackensporeGuid))
                                 l_Brackenspore->setFaction(35);
 
+                            if (Creature* l_Margok = sObjectAccessor->FindCreature(m_ImperatorMargokGuid))
+                                l_Margok->setFaction(35);
+
                             break;
                         }
                         case eHighmaulDungeons::ImperatorsFall:
                         {
+                            if (Creature* l_Kargath = sObjectAccessor->FindCreature(m_KargathBladefistGuid))
+                                l_Kargath->setFaction(35);
+
+                            if (Creature* l_Butcher = sObjectAccessor->FindCreature(m_TheButcherGuid))
+                                l_Butcher->setFaction(35);
+
+                            if (Creature* l_Brackenspore = sObjectAccessor->FindCreature(m_BrackensporeGuid))
+                                l_Brackenspore->setFaction(35);
+
+                            if (Creature* l_Tectus = sObjectAccessor->FindCreature(m_TectusGuid))
+                                l_Tectus->setFaction(35);
+
+                            if (Creature* l_Pol = sObjectAccessor->FindCreature(m_PolGuid))
+                                l_Pol->setFaction(35);
+
+                            if (Creature* l_Phemos = sObjectAccessor->FindCreature(m_PhemosGuid))
+                                l_Phemos->setFaction(35);
+
+                            if (Creature* l_Koragh = sObjectAccessor->FindCreature(m_KoraghGuid))
+                                l_Koragh->setFaction(35);
+
                             break;
                         }
                         default:

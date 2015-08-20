@@ -895,6 +895,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_IsBGRandomWinner = false;
 
     // Player summoning
+    m_Summoned = false;
     m_summon_expire = 0;
     m_summon_mapid = 0;
     m_summon_x = 0.0f;
@@ -27834,6 +27835,7 @@ void Player::SummonIfPossible(bool agree)
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS, 1);
 
+    m_Summoned = true;
     TeleportTo(m_summon_mapid, m_summon_x, m_summon_y, m_summon_z, GetOrientation());
 }
 
