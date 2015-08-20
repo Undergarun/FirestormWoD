@@ -3697,6 +3697,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166185:///< Rending Slash (Highmaul Conscript)
             case 158026:///< Enfeebling Roar - Debuff (Phemos - Twin Ogron)
             case 163134:///< Nullification Barrier - Abosrb (Ko'ragh)
+            case 161345:///< Suppression Field - DoT (Ko'ragh)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 166199:///< Arcane Volatility (Gorian Arcanist)
@@ -3714,6 +3715,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161242:///< Caustic Energy - DoT (Ko'ragh)
             case 172813:///< Expel Magic: Frost - Decrease Speed (Ko'ragh)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 172685:///< Expel Magic: Fire (Ko'ragh)
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
@@ -3726,11 +3728,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161381:///< Volatile Anomalies - Missile 3 (Ko'ragh)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_CASTER_RANDOM;
-                break;
-            case 161345:///< Suppression Field - DoT (Ko'ragh)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 162595:///< Suppression Field - Silence (Ko'ragh)
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
@@ -3762,9 +3759,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 64381: ///< Strength of the Pack (Auriaya)
             case 166289:///< Arcane Force (Gorian Arcanist)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-                break;
-            case 20167: ///< Seal of Insight
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
                 break;
             case 150055:///< Volcanic Tantrum
             case 149963:///< Shatter Earth
@@ -4190,12 +4184,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 148908: ///< Mark of Salvation
                 spellInfo->Effects[0].BasePoints = 963;
                 break;
-            case 128997: ///< Spirit Beast Blessing
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                break;
             case 53390: ///< Tidal Waves
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;
+                break;
+            case 146951: ///< Glyph of rapid rolling
+            case 147364: ///< Glyph of rapid rolling
+                spellInfo->ProcFlags = 0;
                 break;
             case 164991: ///< Entangling Energy
             case 15286: ///< Vampiric Embrace
@@ -4912,10 +4907,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 88767: ///< Fulmination (triggered)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
-            case 130616: ///< Glyph of Fear effect
-            case 117961: ///< Impervious Shield
             case 117837: ///< Delirious
-            case 117697: ///< Shield of Darkness
                 spellInfo->Dispel = DISPEL_MAGIC;
                 break;
             case 125972: ///< Felin Grace
@@ -5104,6 +5096,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 91021: ///< Find Weakness
                 spellInfo->Effects[0].BasePoints = 100;
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 118699: ///< Fear Effect
                 spellInfo->Dispel = DISPEL_MAGIC;
@@ -5160,6 +5153,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(114163); ///< Replace World of glory by Eternal Flame
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
+            case 136494: ///< Word of Glory (overide by Glyph of Harsh Words)
             case 20066: ///< Repentance
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
@@ -5258,13 +5252,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 11371: ///< Arthas's Gift
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
-            case 41055: ///< Copy Weapon Spells
-            case 45206:
-            case 63416:
-            case 69891:
-            case 69892:
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
-                spellInfo->Mechanic = 0;
+            case 33891:  ///< Incarnation: Tree of Life
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);
                 break;
             case 146950: ///< Glyph of Targeted Expulsion
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -5326,6 +5315,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
                 spellInfo->OverrideSpellList.push_back(114029); ///< Add Safeguard to override spell list of Intervene
                 break;
+            case 157590: ///< Breath of the Serpent
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ALLY;
+                break;
             case 114029: ///< Safeguard
                 spellInfo->Effects[2].BasePoints = 100;
                 break;
@@ -5340,6 +5332,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
                 spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+                break;
+            case 13812: ///< Explosive Trap
+            case 3355: ///< Freezing Trap
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 84745: ///< Shallow Insight
             case 84746: ///< Moderate Insight
@@ -5516,6 +5512,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             /// All spells - ProcFlags = 0
             case 58372:  ///< Glyph of Rude Interruption
+            case 166061: ///< Item - Death Knight WoD PvP Unholy 4P Bonus
             case 170848: ///< Item - Druid WoD PvP Feral 2P Bonus
             case 170853: ///< Item - Druid WoD PvP Restoration 2P Bonus
             case 165691: ///< Item - Monk WoD PvP Windwalker/Brewmaster 2P Bonus
@@ -5697,6 +5694,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 124974: ///< Nature's Vigil
                 spellInfo->AttributesEx7 &= ~SPELL_ATTR7_ALLIANCE_ONLY;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
+                break;
             case 120552: ///< Mantid Munition Explosion
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
                 break;
@@ -5799,10 +5798,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_AURAS;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
                 break;
-            case 33891:  ///< Tree form
-            case 114282: ///< Tree form
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);
-                break;
             case 147362: ///< Counter Shot
                 spellInfo->Speed = 0;
                 break;
@@ -5876,11 +5871,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 92328: ///< Heart's Judgment, Heart of Ignacious trinket (heroic)
                 spellInfo->CasterAuraSpell = 92325;
-                break;
-            case 56244: ///< Glyph of Fear
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                spellInfo->Effects[EFFECT_0].BasePoints = 5000;
-                spellInfo->Effects[EFFECT_0].MiscValue = SPELLMOD_COOLDOWN;
                 break;
             case 45182: ///< Cheat Death
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
@@ -6347,10 +6337,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// Blizzard use -300%, idk why
                 spellInfo->Effects[EFFECT_1].BasePoints = -100;
                 break;
-            case 103985: ///< Stance of the Fierce Tiger
-                spellInfo->Effects[EFFECT_4].Effect = SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
-                spellInfo->Effects[EFFECT_4].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
-                break;
             case 125050: ///< Fetch (Glyph)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
@@ -6403,6 +6389,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159740: ///< Glyph of Raging Blow
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TriggerSpell = 159747;
                 break;
+            case 159747: ///< Glyph of Raging Blow (heal mod)
+                spellInfo->ProcFlags = 0;
+                break;
             case 84721: ///< Frozen Orb damage
                 spellInfo->AttributesEx2 |= SpellAttr2::SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
@@ -6411,6 +6400,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 159456: ///< Glyph of Travel
                 spellInfo->Stances = 0;
+                break;
+            case 167105: ///< Colossus Smash
+            case 12328:  ///< Sweeping Strikes
+            case 1719:   ///< Recklessness
+                /// Can be casted in Battle Stance AND in Defensive Stance
+                spellInfo->Stances |= ((uint64)1L << (ShapeshiftForm::FORM_DEFENSIVESTANCE - 1));
                 break;
             default:
                 break;

@@ -235,14 +235,13 @@ enum GuildNews
 
 enum GuildChallengeType
 {
-    CHALLENGE_NONE              = 0,
-    CHALLENGE_DUNGEON           = 1,
-    CHALLENGE_SCENARIO          = 2,
-    CHALLENGE_DUNGEON_CHALLENGE = 3,
-    CHALLENGE_RAID              = 4,
-    CHALLENGE_RATED_BG          = 5,
-
-    CHALLENGE_MAX
+    ChallengeNone,
+    ChallengeDungeon,
+    ChallengeScenario,
+    ChallengeDungeonChallenge,
+    ChallengeRaid,
+    ChallengeRatedBG,
+    ChallengeMax
 };
 
 struct GuildNewsEntry
@@ -837,7 +836,7 @@ class Guild
         std::string m_motd;
         std::string m_info;
         time_t m_createdDate;
-        int32 m_ChallengeCount[CHALLENGE_MAX];
+        int32 m_ChallengeCount[ChallengeMax];
 
         EmblemInfo m_emblemInfo;
         uint32 m_accountsNumber;

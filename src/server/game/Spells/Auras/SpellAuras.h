@@ -50,10 +50,10 @@ class AuraApplication
         Unit* const _target;
         constAuraPtr _base;
         AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
-        uint8 m_Slot;                                   // Aura slot on unit
+        uint8 m_Slot;                                  // Aura slot on unit
         uint8 _flags;                                  // Aura info flag
         uint32 _effectMask;
-        uint32 _effectsToApply;                         // Used only at spell hit to determine which effect should be applied
+        uint32 _effectsToApply;                        // Used only at spell hit to determine which effect should be applied
         bool _needClientUpdate:1;
 
         explicit AuraApplication(Unit* target, Unit* caster, AuraPtr base, uint32 effMask);
@@ -107,8 +107,8 @@ class Aura : public std::enable_shared_from_this<Aura>
         uint64 GetCasterGUID() const { return m_casterGuid; }
         Unit* GetCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
-        Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
-        DynamicObject* GetDynobjOwner() const { ASSERT(GetType() == DYNOBJ_AURA_TYPE); return (DynamicObject*)m_owner; }
+        Unit* GetUnitOwner() const { return (GetType() == UNIT_AURA_TYPE) ? (Unit*)m_owner : nullptr; }
+        DynamicObject* GetDynobjOwner() const { return (GetType() == DYNOBJ_AURA_TYPE) ? (DynamicObject*)m_owner : nullptr; }
 
         AuraObjectType GetType() const;
 

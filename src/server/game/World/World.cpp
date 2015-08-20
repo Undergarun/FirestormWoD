@@ -84,6 +84,9 @@
 #include "WildBattlePet.h"
 #include "PlayerDump.h"
 #include "TransportMgr.h"
+#include "BattlepayMgr.h"
+
+uint32 gOnlineGameMaster = 0;
 #include "GarrisonShipmentManager.hpp"
 #include "ChatLexicsCutter.h"
 
@@ -712,20 +715,22 @@ void World::LoadConfigSettings(bool reload)
     else
         m_int_configs[CONFIG_REALM_ZONE] = ConfigMgr::GetIntDefault("RealmZone", REALM_ZONE_DEVELOPMENT);
 
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_ACCOUNTS]            = ConfigMgr::GetBoolDefault("AllowTwoSide.Accounts", true);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CALENDAR]= ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Calendar", false);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT]    = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Chat", false);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL] = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Channel", false);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP]   = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Group", false);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD]   = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Guild", false);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION] = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Auction", false);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_MAIL]    = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Mail", false);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_WHO_LIST]            = ConfigMgr::GetBoolDefault("AllowTwoSide.WhoList", false);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND]          = ConfigMgr::GetBoolDefault("AllowTwoSide.AddFriend", false);
-    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_TRADE]               = ConfigMgr::GetBoolDefault("AllowTwoSide.trade", false);
-    m_int_configs[CONFIG_STRICT_PLAYER_NAMES]                 = ConfigMgr::GetIntDefault ("StrictPlayerNames",  0);
-    m_int_configs[CONFIG_STRICT_CHARTER_NAMES]                = ConfigMgr::GetIntDefault ("StrictCharterNames", 0);
-    m_int_configs[CONFIG_STRICT_PET_NAMES]                    = ConfigMgr::GetIntDefault ("StrictPetNames",     0);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_ACCOUNTS]                   = ConfigMgr::GetBoolDefault("AllowTwoSide.Accounts", true);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CALENDAR]       = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Calendar", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT]           = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Chat", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL]        = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Channel", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP]          = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Group", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD]          = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Guild", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION]        = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Auction", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_MAIL]           = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Mail", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_MOUNT]          = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.Mount", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_MOUNT_CAPITALS] = ConfigMgr::GetBoolDefault("AllowTwoSide.Interaction.MountInCapitals", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_WHO_LIST]                   = ConfigMgr::GetBoolDefault("AllowTwoSide.WhoList", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND]                 = ConfigMgr::GetBoolDefault("AllowTwoSide.AddFriend", false);
+    m_bool_configs[CONFIG_ALLOW_TWO_SIDE_TRADE]                      = ConfigMgr::GetBoolDefault("AllowTwoSide.trade", false);
+    m_int_configs[CONFIG_STRICT_PLAYER_NAMES]                        = ConfigMgr::GetIntDefault ("StrictPlayerNames",  0);
+    m_int_configs[CONFIG_STRICT_CHARTER_NAMES]                       = ConfigMgr::GetIntDefault ("StrictCharterNames", 0);
+    m_int_configs[CONFIG_STRICT_PET_NAMES]                           = ConfigMgr::GetIntDefault ("StrictPetNames",     0);
 
     m_int_configs[CONFIG_MIN_PLAYER_NAME]                     = ConfigMgr::GetIntDefault ("MinPlayerName",  2);
     if (m_int_configs[CONFIG_MIN_PLAYER_NAME] < 1 || m_int_configs[CONFIG_MIN_PLAYER_NAME] > MAX_PLAYER_NAME)
@@ -1132,8 +1137,11 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX]              = ConfigMgr::GetIntDefault("Challenge.Mode.Item.Level.Max", 630);
 
     m_int_configs[CONFIG_LAST_CLIENT_BUILD]                          = ConfigMgr::GetIntDefault("LastClientBuild", 19342);
-
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = ConfigMgr::GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
+
+    /// BattlePay configs
+    m_int_configs[CONFIG_BATTLEPAY_MIN_SECURITY] = ConfigMgr::GetIntDefault("BattlePay.Security", 0);
+    m_bool_configs[CONFIG_BATTLEPAY_ENABLE]      = ConfigMgr::GetBoolDefault("BattlePay.Enable", true);
 
     if (int32 clientCacheId = ConfigMgr::GetIntDefault("ClientCacheVersion", 0))
     {
@@ -1412,6 +1420,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ACHIEVEMENT_DISABLE] = ConfigMgr::GetBoolDefault("Achievement.disable", false);
 
     m_bool_configs[CONFIG_MOP_TRANSFER_ENABLE] = ConfigMgr::GetBoolDefault("MopTransfer.enable", false);
+    m_bool_configs[CONFIG_WEB_DATABASE_ENABLE] = ConfigMgr::GetBoolDefault("WebDatabase.enable", false);
 
     m_bool_configs[CONFIG_LOG_PACKETS] = ConfigMgr::GetBoolDefault("LogPackets", true);
 
@@ -1526,13 +1535,13 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SkillLineAbilityMultiMap Data...");
     sSpellMgr->LoadSkillLineAbilityMap();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell custom attributes...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Research Site Zones...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Archeology research site zones...");
     sObjectMgr->LoadResearchSiteZones();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Research Site Loot...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Archeology research site loot...");
     sObjectMgr->LoadResearchSiteLoot();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
@@ -2155,6 +2164,8 @@ void World::SetInitialWorldSettings()
     sGarrisonShipmentManager->Init();
 
     PlayerDump::LoadColumnsName();
+
+    sBattlepayMgr->LoadFromDatabase();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
@@ -3840,7 +3851,7 @@ void World::LoadCharacterNameData()
 {
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character name data");
 
-    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class, level FROM characters WHERE deleteDate IS NULL OR deleteDate = 0");
+    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class, level, account FROM characters WHERE deleteDate IS NULL OR deleteDate = 0");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "No character name data loaded, empty query");
@@ -3848,20 +3859,21 @@ void World::LoadCharacterNameData()
     }
 
     uint32 count = 0;
+    uint32 l_OldMSTime = getMSTime();
 
     do
     {
         Field* fields = result->Fetch();
         AddCharacterNameData(fields[0].GetUInt32(), fields[1].GetString(),
-            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/);
+            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/, fields[6].GetUInt32() /*accountid*/);
         ++count;
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters", count);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters in %u ms.", count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
-void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, uint32 p_AccountID)
 {
     CharacterNameData& data = _characterNameDataMap[guid];
     data.m_name = name;
@@ -3869,6 +3881,7 @@ void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gen
     data.m_gender = gender;
     data.m_class = playerClass;
     data.m_level = level;
+    data.m_AccountId = p_AccountID;
 }
 
 void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)

@@ -207,7 +207,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
         }
 
         if (sAuctionMgr->GetAItem(l_Item->GetGUIDLow()) || !l_Item->CanBeTraded() || l_Item->IsNotEmptyBag() ||
-            l_Item->GetTemplate()->Flags & ITEM_PROTO_FLAG_CONJURED || l_Item->GetUInt32Value(ITEM_FIELD_EXPIRATION) ||
+            l_Item->GetTemplate()->Flags & ITEM_FLAG_CONJURED || l_Item->GetUInt32Value(ITEM_FIELD_EXPIRATION) ||
             l_Item->GetCount() < l_CountOfItems[l_Iter])
         {
             SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);

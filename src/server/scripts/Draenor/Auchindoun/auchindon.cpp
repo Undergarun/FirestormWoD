@@ -1,6 +1,6 @@
 
 #include "ScriptedCreature.h"
-#include "auchindon.h"
+#include "auchindon.hpp"
 
 #define cooldown_mind_spike urand(2000, 5000)
 #define cooldown_sever_tendon urand(2000, 5000)

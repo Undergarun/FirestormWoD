@@ -791,6 +791,32 @@ bool Master::_StartDB()
         }
     }
 
+    if (ConfigMgr::GetBoolDefault("WebDatabase.enable", false))
+    {
+        dbstring = ConfigMgr::GetStringDefault("WebDatabaseInfo", "");
+        if (dbstring.empty())
+        {
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Web database not specified in configuration file");
+            return false;
+        }
+
+        async_threads = ConfigMgr::GetIntDefault("WebDatabaseInfo.WorkerThreads", 1);
+        if (async_threads < 1 || async_threads > 32)
+        {
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Web database: invalid number of worker threads specified. "
+                "Please pick a value between 1 and 32.");
+            return false;
+        }
+
+        synch_threads = ConfigMgr::GetIntDefault("WebDatabaseInfo.SynchThreads", 1);
+        ///- Initialize the login database
+        if (!WebDatabase.Open(dbstring, async_threads, synch_threads))
+        {
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to web database %s", dbstring.c_str());
+            return false;
+        }
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 

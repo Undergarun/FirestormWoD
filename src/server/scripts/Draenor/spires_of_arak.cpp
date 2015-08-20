@@ -30,6 +30,11 @@ class boss_rukhmar : public CreatureScript
 
             float GetDataZ() { return m_ZRef; }
 
+            enum eEvents
+            {
+                EventMove = 1
+            };
+
             EventMap m_Events;
             float m_ZRef;
             float m_ZNew;
@@ -39,12 +44,30 @@ class boss_rukhmar : public CreatureScript
             void Reset()
             {
                 m_ZRef               = 0.0f;
-                me->m_CombatDistance = 200.0f;
+                me->m_CombatDistance = 90.0f;
                 m_MovingUpToward     = false;
                 m_MovingDownToward   = false;
-
-                me->AddAura(SpiresOfArakSpells::SouthshoreMobScalingAura, me);
+                me->SetCanFly(true);
                 m_Events.Reset();
+
+                me->SetReactState(REACT_DEFENSIVE);
+
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
+
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->AddAura(SpiresOfArakSpells::SouthshoreMobScalingAura, me);
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -69,7 +92,6 @@ class boss_rukhmar : public CreatureScript
                 return false;
             }
 
-
             void LaunchGroundEvents()
             {
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 3000);
@@ -81,6 +103,7 @@ class boss_rukhmar : public CreatureScript
 
             void EnterCombat(Unit* p_Who) override
             {
+                me->SetHomePosition(*me);
                 me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
                 LaunchGroundEvents();
             }
@@ -103,6 +126,7 @@ class boss_rukhmar : public CreatureScript
             {
                 CreatureAI::EnterEvadeMode();
                 summons.DespawnAll();
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 m_Events.Reset();
 
                 std::list<Creature*> l_CreatureList;
@@ -169,11 +193,11 @@ class boss_rukhmar : public CreatureScript
             void UpdateAI(const uint32 p_Diff) override
             {
                 m_Events.Update(p_Diff);
-                EnterEvadeIfOutOfCombatArea(p_Diff);
-                HandleHealthAndDamageScaling();
 
                 if (!UpdateVictim())
                     return;
+
+                HandleHealthAndDamageScaling();
 
                 if (me->HasUnitState(UNIT_STATE_CASTING) || (m_MovingUpToward || m_MovingDownToward))
                 {

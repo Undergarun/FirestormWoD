@@ -329,6 +329,12 @@ class npc_highmaul_imperator_margok : public CreatureScript
 
             InstanceScript* m_Instance;
 
+            void Reset() override
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+            }
+
             void DoAction(int32 const p_Action) override
             {
                 switch (p_Action)

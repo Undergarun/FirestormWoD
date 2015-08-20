@@ -1350,6 +1350,22 @@ AllowTwoSide.Interaction.Auction = 1
 AllowTwoSide.Interaction.Mail = 1
 
 #
+#    AllowTwoSide.Interaction.Mount
+#        Description: Allow mounting between factions.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+AllowTwoSide.Interaction.Mount = 1
+
+#
+#    AllowTwoSide.Interaction.Mount
+#        Description: Allow mounting in capitals between factions.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+AllowTwoSide.Interaction.MountInCapitals = 0
+
+#
 #    AllowTwoSide.WhoList
 #        Description: Show characters from both factions in the /who list.
 #        Default:     0 - (Disabled)

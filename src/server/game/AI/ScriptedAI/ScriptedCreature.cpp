@@ -401,7 +401,9 @@ enum eNPCs
     NPC_SARTHARION  = 28860,
     NPC_BLOOD_QUEEN = 37955,
     NPC_GARFROST    = 36494,
-    NPC_RUKHMAR     = 83746
+    NPC_RUKHMAR     = 83746,
+    NPC_PHEMOS      = 78237,
+    NPC_POL         = 78238
 };
 
 // Hacklike storage used for misc creatures that are expected to evade of outside of a certain area.
@@ -425,10 +427,6 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
 
     switch (me->GetEntry())
     {
-        case NPC_RUKHMAR:
-            if (me->GetZoneId() == 6722)
-                return false;
-            break;
         case NPC_BLOOD_QUEEN:
             if (z > 390.0f)
                 return false;
@@ -453,6 +451,16 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
             if (x > 3218.86f && x < 3275.69f && y < 572.40f && y > 484.68f)
                 return false;
             break;
+        case NPC_PHEMOS:
+        case NPC_POL:
+        {
+            Position l_Pos = *me;
+            Position l_Home = me->GetHomePosition();
+            if (l_Pos.IsNearPosition(&l_Home, 250.0f))
+                return false;
+
+            break;
+        }
         default: // For most of creatures that certain area is their home area.
             sLog->outInfo(LOG_FILTER_GENERAL, "TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition. Using the default one.", me->GetEntry());
             uint32 homeAreaId = me->GetMap()->GetAreaId(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), me->GetHomePosition().GetPositionZ());

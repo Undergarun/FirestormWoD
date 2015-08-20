@@ -139,6 +139,8 @@ enum LoginDatabaseStatements
     LOGIN_SEL_TRANSFERT_DUMP,
     LOGIN_SEL_TRANSFERT_LOAD,
 
+    LOGIN_SEL_BATTLEPAY_POINTS,
+
     //////////////////////////////////////////////////////////////////////////
     /// Heirloom Colleciton
     LOGIN_SEL_HEIRLOOM_COLLECTION,
@@ -154,6 +156,7 @@ enum LoginDatabaseStatements
     //////////////////////////////////////////////////////////////////////////
     /// Services
     LOGIN_REMOVE_ACCOUNT_SERVICE,
+    LOGIN_SET_ACCOUNT_SERVICE,
     //////////////////////////////////////////////////////////////////////////
 
     MAX_LOGINDATABASE_STATEMENTS

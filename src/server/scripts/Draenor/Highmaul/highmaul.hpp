@@ -25,6 +25,24 @@
 
 Position const g_PlayScenePos = { 3448.069f, 7573.542f, 55.30419f, 0.3921495f };
 
+static void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
+{
+    if (p_Map == nullptr)
+        return;
+
+    Map::PlayerList const& l_Players = p_Map->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+        {
+            if (p_Caster != nullptr)
+                p_Caster->CastSpell(l_Player, p_SpellID, p_Triggered);
+            else
+                l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
+        }
+    }
+}
+
 enum eHighmaulDatas
 {
     /// Bosses
@@ -167,6 +185,13 @@ enum eHighmaulLocs
     FelBreakerRoom      = 4786,
     ImperatorsRise      = 4787,
     CityBaseTeleporter  = 4788
+};
+
+enum eHighmaulDungeons
+{
+    WalledCity      = 849,
+    ArcaneSanctum   = 850,
+    ImperatorsFall  = 851
 };
 
 #endif

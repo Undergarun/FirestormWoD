@@ -189,6 +189,7 @@ public:
             { "follow",         SEC_GAMEMASTER,     false, NULL,              "", npcFollowCommandTable },
             { "set",            SEC_GAMEMASTER,     false, NULL,                 "", npcSetCommandTable },
             { "groupscaling",   SEC_GAMEMASTER,     false, &HandleNpcGroupScaling,             "", NULL },
+            { "listaggro",      SEC_GAMEMASTER,     false, &HandleNpcListAggro,                "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -1802,6 +1803,27 @@ public:
         }
 
         l_Creature->UpdateGroupSizeStats();
+        return true;
+    }
+
+    static bool HandleNpcListAggro(ChatHandler* p_Handler, char const* /*p_Args*/)
+    {
+        if (Creature* l_Creature = p_Handler->getSelectedCreature())
+        {
+            std::list<HostileReference*> l_Aggro = l_Creature->getThreatManager().GetThreatList();
+
+            for (auto l_Threat : l_Aggro)
+            {
+                if (l_Threat->getSource())
+                {
+                    if (Unit* l_Attacker = l_Threat->getTarget())
+                        p_Handler->PSendSysMessage("Name : %s, Aggro : %f", l_Attacker->GetName(), l_Threat->getThreat());
+                }
+            }
+        }
+        else
+            p_Handler->PSendSysMessage("Please select some creature !");
+
         return true;
     }
 };

@@ -1166,7 +1166,7 @@ struct SpellCategoryEntry
     uint32  m_UsesPerWeek;                                  // 2        m_UsesPerWeek           (byte)
     char*   Description;                                    // 3        m_NameLang
     uint32  MaxCharges;                                     // 4        m_MaxCharges
-    uint32  ChargeRegenTime;                                // 5        m_ChargeRecoveryTime
+    uint32  ChargeRecoveryTime;                             // 5        m_ChargeRecoveryTime
 };
 
 typedef std::set<uint32> SpellCategorySet;

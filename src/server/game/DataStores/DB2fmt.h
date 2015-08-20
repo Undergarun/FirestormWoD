@@ -84,6 +84,16 @@ const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
 const char VignetteEntryfmt[] = "nsiiff";
 const char SpecializationSpellsfmt[] = "nixiix";
 const char MailTemplateEntryfmt[]= "ns";
+const char WbAccessControlListfmt[] = "nsiiii";
+const char WbCertWhitelistfmt[] =
+{
+    FT_INDEX,
+    FT_STRING,
+    FT_BYTE,
+    FT_BYTE,
+    FT_INT,
+    FT_END
+};
 
 const char GlyphRequiredSpecfmt[] =
 {

@@ -1168,6 +1168,62 @@ class spell_npc_warr_mocking_banner : public CreatureScript
         }
 };
 
+class spell_npc_searing_totem : public CreatureScript
+{
+    public:
+        spell_npc_searing_totem() : CreatureScript("spell_npc_searing_totem") { }
+
+        enum eSpells
+        {
+            Sear = 39592
+        };
+
+        struct spell_npc_searing_totemAI : public ScriptedAI
+        {
+            spell_npc_searing_totemAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                if (me->GetOwner())
+                if (me->GetOwner()->getVictim())
+                    AttackStart(me->GetOwner()->getVictim());
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                Unit* l_Owner = me->GetOwner();
+                if (!l_Owner)
+                    return;
+
+                if (!UpdateVictim())
+                {
+                    Unit* l_OwnerTarget = nullptr;
+                    if (Player* l_Player = l_Owner->ToPlayer())
+                        l_OwnerTarget = l_Player->GetSelectedUnit();
+                    else
+                        l_OwnerTarget = l_Owner->getVictim();
+
+                    if (l_OwnerTarget)
+                        AttackStart(l_OwnerTarget);
+
+                    return;
+                }
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                me->CastSpell(me->getVictim(), eSpells::Sear, false);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_searing_totemAI(creature);
+        }
+};
 
 void AddSC_npc_spell_scripts()
 {
@@ -1185,6 +1241,7 @@ void AddSC_npc_spell_scripts()
     new spell_npc_sha_fire_elemental();
     new spell_npc_sha_earth_elemental();
     new spell_npc_sha_feral_spirit();
+    new spell_npc_searing_totem();
 
     /// Warrior NPC
     new spell_npc_warr_ravager();

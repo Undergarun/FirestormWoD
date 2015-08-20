@@ -96,7 +96,9 @@ class boss_tectus : public CreatureScript
             FractureSearcher            = 163214,   ///< Must trigger 163208
             FractureMissile             = 163208,   ///< Missile: 163209
             /// Tectonic Upheaval
-            SpellTectonicUpheaval       = 162475    ///< 2s cast time, triggers 162510 each 1.5s
+            SpellTectonicUpheaval       = 162475,    ///< 2s cast time, triggers 162510 each 1.5s
+            /// Loot
+            TectusBonus                 = 177523
         };
 
         enum eEvents
@@ -339,6 +341,12 @@ class boss_tectus : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (!AllGardiansDead())
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 _EnterCombat();
 
                 m_Events.ScheduleEvent(eEvents::EventCrystallineBarrage, 5 * TimeConstants::IN_MILLISECONDS);
@@ -400,6 +408,8 @@ class boss_tectus : public CreatureScript
                                 l_Player->CombatStop();
                         }
                     }
+
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::TectusBonus, true);
 
                     if (IsLFR())
                     {
@@ -612,7 +622,7 @@ class boss_tectus : public CreatureScript
                     case eEvents::EventCrystallineBarrage:
                     {
                         /// Crystalline Barrage should not select Main Tank or Off Tank
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
                         {
                             Talk(eTalks::CrystallineBarrage, l_Target->GetGUID());
 
@@ -794,19 +804,17 @@ class boss_tectus : public CreatureScript
 
             void SpawnAdd(uint32 p_Entry)
             {
-                uint32 l_RefGoB = urand(eHighmaulGameobjects::Earthwall1, eHighmaulGameobjects::Earthwall4);
-                if (GameObject* l_Wall = me->FindNearestGameObject(l_RefGoB, 200.0f))
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
                 {
-                    float l_Orientation = l_Wall->GetAngle(me);
-                    float l_Range = 7.0f;
-
-                    float l_X = l_Wall->GetPositionX() + (l_Range * cos(l_Orientation));
-                    float l_Y = l_Wall->GetPositionY() + (l_Range * sin(l_Orientation));
+                    float l_O = frand(0, 2 * M_PI);
+                    float l_Range = 5.0f;
+                    float l_X = l_Target->GetPositionX() + (l_Range * cos(l_O));
+                    float l_Y = l_Target->GetPositionY() + (l_Range * sin(l_O));
 
                     if (Creature* l_Add = me->SummonCreature(p_Entry, l_X, l_Y, me->GetPositionZ()))
                     {
-                        if (l_Add->IsAIEnabled && me->getVictim())
-                            l_Add->AI()->AttackStart(me->getVictim());
+                        if (l_Add->IsAIEnabled)
+                            l_Add->AI()->AttackStart(l_Target);
                     }
                 }
             }
@@ -1217,9 +1225,14 @@ class npc_highmaul_earthen_pillar_stalker : public CreatureScript
     public:
         npc_highmaul_earthen_pillar_stalker() : CreatureScript("npc_highmaul_earthen_pillar_stalker") { }
 
-        struct npc_highmaul_earthen_pillar_stalkerAI: public ScriptedAI
+        struct npc_highmaul_earthen_pillar_stalkerAI: public MS::AI::CosmeticAI
         {
-            npc_highmaul_earthen_pillar_stalkerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_earthen_pillar_stalkerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_PillarGuid = 0;
+            }
+
+            uint64 m_PillarGuid;
 
             enum eSpells
             {
@@ -1241,7 +1254,8 @@ class npc_highmaul_earthen_pillar_stalker : public CreatureScript
 
                 me->CastSpell(me, eSpells::EarthenPillarTimer, true);
 
-                me->SummonGameObject(eGameObject::GoBEarthenPillar, *me, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0, nullptr, 100, 0, false, true);
+                if (GameObject* l_Pillar = me->SummonGameObject(eGameObject::GoBEarthenPillar, *me, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0, nullptr, 100, 0, false, true))
+                    m_PillarGuid = l_Pillar->GetGUID();
             }
 
             void DoAction(int32 const p_Action) override
@@ -1250,6 +1264,14 @@ class npc_highmaul_earthen_pillar_stalker : public CreatureScript
                     return;
 
                 me->CastSpell(me, eSpells::EarthenPillarKill, true);
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (GameObject* l_Pillar = GameObject::GetGameObject(*me, m_PillarGuid))
+                        l_Pillar->Delete();
+
+                    me->SummonGameObject(eGameObject::GoBEarthenPillar, *me, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                });
             }
         };
 
@@ -1909,8 +1931,11 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
                 for (Unit* l_Unit : l_TargetList)
                 {
                     if (l_Unit->GetDistance(p_AreaTrigger) <= 2.0f)
-                        l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
-                    else
+                    {
+                        if (!l_Unit->HasAura(eSpell::CrystallineBarrage))
+                            l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
+                    }
+                    else if (l_Unit->HasAura(eSpell::CrystallineBarrage))
                         l_Unit->RemoveAura(eSpell::CrystallineBarrage);
                 }
             }

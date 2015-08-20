@@ -72,7 +72,7 @@ namespace MS
 
                     /// Create automatic remove events.
                     BGQueueRemoveEvent* l_RemoveEvent = new BGQueueRemoveEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, l_BgQueueTypeId, p_GroupInfo->m_RemoveInviteTime);
-                    m_Events.AddEvent(l_RemoveEvent, m_Events.CalculateTime(INVITE_ACCEPT_WAIT_TIME));
+                    l_Player->m_Events.AddEvent(l_RemoveEvent, m_Events.CalculateTime(INVITE_ACCEPT_WAIT_TIME));
 
                     uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(p_GroupInfo->m_BgTypeId == BattlegroundType::RandomBattleground ? BattlegroundType::RandomBattleground : p_GroupInfo->m_BgTypeId);
 
@@ -106,6 +106,9 @@ namespace MS
                 if (p_GroupInfo->m_IsRatedBG)
                     l_TeamIndex = BG_TEAM_HORDE; /// For rated arenas use BG_TEAM_HORDE.
             }
+
+            if (l_TeamIndex >= TeamsCount::Value || p_BracketId >= Brackets::Count)
+                sLog->outAshran("BattlegroundInvitationsMgr: TeamIndex: %u, BracketId: %u", l_TeamIndex, p_BracketId);
 
             /// Store pointer to arrayindex of player that was added first.
             uint32* l_LastPlayerAddedPointer = &(m_WaitTimeLastPlayer[l_TeamIndex][p_BracketId]);
@@ -346,7 +349,8 @@ namespace MS
         /// we must remove player in the 5. case even if battleground object doesn't exist!
         bool BGQueueRemoveEvent::Execute(uint64 /*p_Time*/, uint32 /*p_Time*/)
         {
-            sLog->outAshran("BGQueueRemoveEvent::Execute 0");
+            sLog->outAshran("BGQueueRemoveEvent::Execute m_PlayerGuid: %u, m_BgInstanceGUID : %u, m_BgTypeId : %u, m_BgType : %u",
+                m_PlayerGuid, m_BgInstanceGUID, m_BgTypeId, m_BgType);
 
             Player* l_Player = ObjectAccessor::FindPlayer(m_PlayerGuid);
 
@@ -357,30 +361,30 @@ namespace MS
             /// Battleground can be deleted already when we are removing queue info
             /// Bg pointer can be NULL! so use it carefully!
 
-            sLog->outAshran("BGQueueRemoveEvent::Execute 1");
+            //sLog->outAshran("BGQueueRemoveEvent::Execute 1");
 
             uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(m_BgType);
             if (l_QueueSlot < PLAYER_MAX_BATTLEGROUND_QUEUES) /// Player is in queue, or in Battleground.
             {
-                sLog->outAshran("BGQueueRemoveEvent::Execute 2");
+                //sLog->outAshran("BGQueueRemoveEvent::Execute 2");
 
                 /// Check if player is in queue for this BG and if we are removing his invite event.
                 BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
                 if (l_InvitationsMgr.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
                 {
-                    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: removing player %u from bg queue for instance %u because of not pressing enter battle in time.", l_Player->GetGUIDLow(), m_BgInstanceGUID);
-                    sLog->outAshran("BGQueueRemoveEvent::Execute 3");
+                    //sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: removing player %u from bg queue for instance %u because of not pressing enter battle in time.", l_Player->GetGUIDLow(), m_BgInstanceGUID);
+                    //sLog->outAshran("BGQueueRemoveEvent::Execute 3");
 
                     l_Player->RemoveBattlegroundQueueId(m_BgType);
                     l_InvitationsMgr.RemovePlayer(m_PlayerGuid, true, Battlegrounds::GetSchedulerType(m_BgTypeId));
-                    sLog->outAshran("BGQueueRemoveEvent::Execute 4");
+                    //sLog->outAshran("BGQueueRemoveEvent::Execute 4");
 
 
                     WorldPacket l_Data;
                     PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_NONE, l_Player->GetBattlegroundQueueJoinTime(GetSchedulerType(m_BgTypeId)), 0, 0, false);
                     l_Player->GetSession()->SendPacket(&l_Data);
 
-                    sLog->outAshran("BGQueueRemoveEvent::Execute 5");
+                    //sLog->outAshran("BGQueueRemoveEvent::Execute 5");
                 }
             }
 

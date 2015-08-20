@@ -2281,7 +2281,7 @@ void ObjectMgr::LoadChallengeRewards()
     uint32 l_OldMSTime = getMSTime();
     uint32 l_Count = 0;
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT map_id, none_money, bronze_money, silver_money, gold_money FROM challenge_mode_rewards");
+    QueryResult l_Result = WorldDatabase.Query("SELECT map_id, none_money, bronze_money, silver_money, gold_money, title FROM challenge_mode_rewards");
     if (!l_Result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 challenge rewards. DB table `challenge_mode_rewards` is empty.");
@@ -2296,10 +2296,12 @@ void ObjectMgr::LoadChallengeRewards()
 
         ChallengeReward& l_Rewards = m_ChallengeRewardsMap[l_MapID];
 
-        l_Rewards.m_MapID = l_MapID;
+        l_Rewards.MapID = l_MapID;
 
         for (uint8 l_I = 0; l_I < 4; ++l_I)
-            l_Rewards.m_MoneyReward[l_I] = l_Fields[l_Index++].GetUInt32();
+            l_Rewards.MoneyReward[l_I] = l_Fields[l_Index++].GetUInt32();
+
+        l_Rewards.TitleID = l_Fields[l_Index++].GetUInt32();
 
         ++l_Count;
     }
@@ -2325,7 +2327,7 @@ void FillItemDamageFields(float* minDamage, float* maxDamage, float* dps, uint32
             store = &sItemDamageAmmoStore;
             break;
         case INVTYPE_2HWEAPON:
-            if (flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
+            if (flags2 & ITEM_FLAG2_CASTER_WEAPON)
                 store = &sItemDamageTwoHandCasterStore;
             else
                 store = &sItemDamageTwoHandStore;
@@ -2353,7 +2355,7 @@ void FillItemDamageFields(float* minDamage, float* maxDamage, float* dps, uint32
         case INVTYPE_WEAPON:
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
-            if (flags2 & ITEM_FLAGS_EXTRA_CASTER_WEAPON)
+            if (flags2 & ITEM_FLAG2_CASTER_WEAPON)
                 store = &sItemDamageOneHandCasterStore;
             else
                 store = &sItemDamageOneHandStore;
@@ -2499,7 +2501,7 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
 {
     *disenchantID = 0;
     *(int32*)requiredDisenchantSkill = -1;
-    if ((itemTemplate.Flags & (ITEM_PROTO_FLAG_CONJURED | ITEM_PROTO_FLAG_UNK6)) ||
+    if ((itemTemplate.Flags & (ITEM_FLAG_CONJURED | ITEM_FLAG_UNK6)) ||
         itemTemplate.Bonding == BIND_QUEST_ITEM || itemTemplate.Area || itemTemplate.Map ||
         itemTemplate.Stackable > 1 ||
         itemTemplate.Quality < ITEM_QUALITY_UNCOMMON || itemTemplate.Quality > ITEM_QUALITY_EPIC ||
@@ -2711,7 +2713,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
             case 120356: //Bronze Strongbox A
             case 120353: //Steel Strongbox A
             case 118065: ///< Gleaming Ashmaul Strongbox (A)
-                l_ItemTemplate.Flags2 |= ITEM_FLAGS_EXTRA_ALLIANCE_ONLY;
+                l_ItemTemplate.Flags2 |= ITEM_FLAG2_ALLIANCE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
             case 111598: //Gold Strongbox H
@@ -2719,7 +2721,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
             case 111600: //Bronze Strongbox H
             case 119330: //Steel StrongBox H
             case 120151: ///< Gleaming Ashmaul Strongbox (H)
-                l_ItemTemplate.Flags2 |= ITEM_FLAGS_EXTRA_HORDE_ONLY;
+                l_ItemTemplate.Flags2 |= ITEM_FLAG2_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
         }
@@ -9495,7 +9497,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
 
  void ObjectMgr::LoadResearchSiteZones()
 {
-    uint32 counter = 0;
+    uint32 l_OldMSTime = getMSTime();
 
     for (auto itr : sResearchSiteSet)
     {
@@ -9524,13 +9526,11 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
                         break;
                     }
                 }
-
-                ++counter;
             }
         }
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u research site zones.", counter);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Archeology research site zones in %u ms.", (unsigned long)sResearchSiteSet.size(), GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadResearchSiteLoot()
@@ -9538,11 +9538,11 @@ void ObjectMgr::LoadResearchSiteLoot()
     QueryResult result = WorldDatabase.Query("SELECT site_id, x, y, z, race FROM research_loot");
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 research loot. DB table `research_loot` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Archeology site loot. DB table `research_loot` is empty.");
         return;
     }
 
-    uint32 counter = 0;
+    uint32 l_OldMSTime = getMSTime();
 
     do
     {
@@ -9558,11 +9558,10 @@ void ObjectMgr::LoadResearchSiteLoot()
         }
 
         _researchLoot.push_back(dg);
-        ++counter;
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u research site loot.", counter);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Archeology research site loot in %u ms.", (unsigned long)_researchLoot.size(), GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadSkipUpdateZone()
@@ -9764,7 +9763,7 @@ void ObjectMgr::LoadGuildChallengeRewardInfo()
         Field* fields = result->Fetch();
 
         uint32 type = fields[0].GetUInt32();
-        if (type >= CHALLENGE_MAX)
+        if (type >= ChallengeMax)
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> guild_challenge_reward has unknown challenge type %u, skip.", type);
             continue;

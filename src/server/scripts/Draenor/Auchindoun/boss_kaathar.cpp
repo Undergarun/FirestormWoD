@@ -2,7 +2,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "auchindon.h"
+#include "auchindon.hpp"
 
 Position KaatharCombatJump = { 1911.47f, 3152.13f, 30.972f, 1.550403f };
 Position NyamiEscape5 = { 1801.23f, 3178.36f, 35.139f };

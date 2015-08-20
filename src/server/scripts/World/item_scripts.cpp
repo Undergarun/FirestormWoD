@@ -34,6 +34,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellScript.h"
+#include "Vehicle.h"
 
 /*#####
 # item_only_for_flight
@@ -452,6 +453,7 @@ namespace ProfessionBookSpells
         Cooking         = 160360
     };
 }
+
 namespace ProfessionBookSpellLearnSpells
 {
     uint32 AlchemyLearnedRecipes[] =
@@ -665,6 +667,54 @@ class spell_draenor_profession : public SpellScriptLoader
 
 };
 
+/// Eye of the Black Prince - 93403
+class item_eye_of_the_black_prince : public ItemScript
+{
+    public:
+        item_eye_of_the_black_prince() : ItemScript("item_eye_of_the_black_prince") { }
+
+        bool OnUse(Player* p_Player, Item* p_Item, SpellCastTargets const& p_Targets)
+        {
+            Item* l_ItemTarget = p_Targets.GetItemTarget();
+            if (l_ItemTarget == nullptr)
+            {
+                p_Player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, p_Item, NULL);
+                return true;
+            }
+
+            /// Cannot be used on WoD weapons
+            if (l_ItemTarget->GetTemplate() && l_ItemTarget->GetTemplate()->ItemLevel > 582)
+            {
+                p_Player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, p_Item, NULL);
+                return true;
+            }
+
+            return false;
+        }
+};
+
+/// Regular check about passengers (allows checks for crossfaction mount)
+class PlayerScript_VehicleCheck : public PlayerScript
+{
+    public:
+        PlayerScript_VehicleCheck() : PlayerScript("PlayerScript_VehicleCheck") {}
+
+        void OnUpdateZone(Player* p_Player, uint32 /*p_NewZoneID*/, uint32 /*p_OldZoneID*/, uint32 /*p_NewAreaID*/) override
+        {
+            if (Vehicle* l_Vehicle = p_Player->GetVehicle())
+            {
+                if (Unit* l_Driver = l_Vehicle->GetBase())
+                {
+                    if (Player* l_DriverPlayer = l_Driver->ToPlayer())
+                    {
+                        if (!p_Player->CanMountAsPassenger(l_DriverPlayer))
+                            p_Player->ExitVehicle();
+                    }
+                }
+            }
+        }
+};
+
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
@@ -681,4 +731,7 @@ void AddSC_item_scripts()
     new item_sylvanas_music_box();
     new spell_draenor_profession();
     new player_draenor_profession();
+    new item_eye_of_the_black_prince();
+
+    new PlayerScript_VehicleCheck();
 }

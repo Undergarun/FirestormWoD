@@ -505,8 +505,14 @@ enum Opcodes
         SMSG_CHALLENGE_MODE_START                               = 0x0000, ///< This opcode is wrong and not existing
         SMSG_CHALLENGE_MODE_COMPLETE                            = 0x0AE2, ///< 6.2.2 20395
         SMSG_CHALLENGE_MOD_REWARDS                              = 0x0000, ///< (NYI)
+        /// Battlepay
+        SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE               = 0x0CE1, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE              = 0x02C0, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE          = 0x120E, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE                 = 0x0F04, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_PURCHASE_UPDATE                         = 0x1639, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_CONFIRM_PURCHASE                        = 0x1716, ///< 6.1.2 19783
 
-        /// BlackMarket
         SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x0063, ///< 6.2.2 20395
         SMSG_BLACK_MARKET_OUTBID                                = 0x0A97, ///< 6.2.2 20395
         SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x0BEB, ///< 6.2.2 20395
@@ -1536,6 +1542,9 @@ enum Opcodes
     /// Battle pay
     //////////////////////////////////////////////////////////////////////////
     CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x03A3, ///< 6.2.2 20395
+    CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY         = 0x0A1D, ///< 6.1.2 19783
+    CMSG_BATTLE_PAY_START_PURCHASE                 = 0x173F, ///< 6.1.2 19783
+    CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE      = 0x1A1F, ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// LFG

@@ -3618,7 +3618,7 @@ class npc_fungal_growth : public CreatureScript
 
 #define BLOODWORM_BLOOD_GORGED  50453
 #define BLOODWORM_BLOOD_STACKS  81277
-#define BLOODWORM_BLOOD_BURST   81280
+#define BLOODWORM_BLOOD_BURST   81280 ///< @todo spell id removed
 
 class npc_bloodworm : public CreatureScript
 {
@@ -3940,102 +3940,6 @@ class npc_void_tendrils : public CreatureScript
         CreatureAI* GetAI(Creature *creature) const
         {
             return new npc_void_tendrilsAI(creature);
-        }
-};
-
-/*######
-## npc_psyfiend -- 59190
-######*/
-
-enum PsyfiendSpells
-{
-    SPELL_PSYCHIC_HORROR    = 113792,
-};
-
-enum PsyfiendEvents
-{
-    EVENT_FEAR = 1
-};
-
-class npc_psyfiend : public CreatureScript
-{
-    public:
-        npc_psyfiend() : CreatureScript("npc_psyfiend") { }
-
-        struct npc_psyfiendAI : public Scripted_NoMovementAI
-        {
-            npc_psyfiendAI(Creature* c) : Scripted_NoMovementAI(c)
-            {
-                me->SetReactState(REACT_AGGRESSIVE);
-                targetGUID = 0;
-            }
-
-            uint64 targetGUID;
-            uint32 psychicHorrorTimer;
-            EventMap m_Events;
-
-            void Reset()
-            {
-                if (!me->HasAura(SPELL_ROOT_FOR_EVER))
-                    me->AddAura(SPELL_ROOT_FOR_EVER, me);
-
-                m_Events.ScheduleEvent(EVENT_FEAR, 100);
-            }
-
-            void SetGUID(uint64 guid, int32)
-            {
-                targetGUID = guid;
-            }
-
-            uint64 GetGUID(int32 /*data*/)
-            {
-                return targetGUID;
-            }
-
-            void IsSummonedBy(Unit* owner)
-            {
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-                {
-                    me->SetLevel(owner->getLevel());
-                    me->SetMaxHealth(owner->GetMaxHealth() / 2);
-                    me->SetHealth(me->GetMaxHealth());
-                    // Set no damage
-                    me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 0.0f);
-                    me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 0.0f);
-
-                    me->AddAura(SPELL_ROOT_FOR_EVER, me);
-                }
-                else
-                    me->DespawnOrUnsummon();
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                m_Events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                switch (m_Events.ExecuteEvent())
-                {
-                    case EVENT_FEAR:
-                    {
-                        if (Unit* l_Target = me->SelectNearbyTarget(me->ToUnit(), 20.f, SPELL_PSYCHIC_HORROR))
-                        {
-                            if (me->IsValidAttackTarget(l_Target))
-                                me->CastSpell(l_Target, SPELL_PSYCHIC_HORROR, false);
-                        }
-
-                        m_Events.ScheduleEvent(EVENT_FEAR, 2000);
-                        break;
-                    }
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature *creature) const
-        {
-            return new npc_psyfiendAI(creature);
         }
 };
 
@@ -4947,7 +4851,6 @@ void AddSC_npcs_special()
     new npc_past_self();
     new npc_transcendence_spirit();
     new npc_void_tendrils();
-    new npc_psyfiend();
     new npc_spectral_guise();
     new npc_force_of_nature();
     new spell_special_swiftmend();

@@ -1,5 +1,5 @@
 #include "ScriptedCreature.h"
-#include "auchindon.h"
+#include "auchindon.hpp"
 
 enum AzzakelSpells
 {

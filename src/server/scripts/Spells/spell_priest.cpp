@@ -109,7 +109,6 @@ enum PriestSpells
     PRIEST_SPELL_SPIRIT_OF_REDEMPTION_SHAPESHIFT    = 27827,
     PRIEST_SPELL_LEVITATE                           = 111758,
     PRIEST_SPELL_VOID_TENDRILS_SUMMON               = 127665,
-    PRIEST_NPC_PSYFIEND                             = 59190,
     PRIEST_SPELL_SPECTRAL_GUISE_CHARGES             = 119030,
     PRIEST_SPELL_POWER_WORD_SHIELD                  = 17,
     PRIEST_SPELL_INNER_FOCUS_IMMUNITY               = 96267,
@@ -969,8 +968,9 @@ class spell_pri_prayer_of_mending_divine_insight: public SpellScriptLoader
         }
 };
 
-// Called by Greater Heal - 2060 and Prayer of Healing - 596
-// Divine Insight (Holy) - 109175
+/// last update : 6.1.2 19802
+/// Called by Greater Heal - 2060, Prayer of Healing - 596 and Clarity of Purpose - 155245
+/// Divine Insight (Holy) - 109175
 class spell_pri_divine_insight_holy: public SpellScriptLoader
 {
     public:
@@ -980,13 +980,28 @@ class spell_pri_divine_insight_holy: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_divine_insight_holy_SpellScript);
 
+            enum eSpells
+            {
+                DivineInsightHoly       = 109175,
+                DivineInsightHolyProc   = 123267
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_TALENT))
-                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_HOLY)
-                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
-                                _player->CastSpell(_player, PRIEST_SPELL_DIVINE_INSIGHT_HOLY, true);
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::DivineInsightHoly);
+
+                if (l_SpellInfo == nullptr || l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasAura(eSpells::DivineInsightHoly))
+                    return;
+
+                if (!(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_HOLY))
+                    return;
+
+                if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                    l_Player->CastSpell(l_Player, eSpells::DivineInsightHolyProc, true);
             }
 
             void Register()
@@ -1183,82 +1198,81 @@ enum MasterySpells
 
 /// last update : 6.1.2 19802
 /// Power Word: Shield - 17
-class spell_pri_power_word_shield: public SpellScriptLoader
+class spell_pri_power_word_shield : public SpellScriptLoader
 {
-    public:
-        spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
+public:
+    spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
 
-        class spell_pri_power_word_shield_AuraScript : public AuraScript
+    class spell_pri_power_word_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+
+        int32 m_HealByGlyph = 0;
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
         {
-            PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
 
-            int32 m_HealByGlyph = 0;
+            p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
 
-            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
             {
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
+                if (l_SpellInfo == nullptr)
                     return;
 
-                p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
-
-                if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
-                {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
-                    if (l_SpellInfo == nullptr)
-                        return;
-
-                    m_HealByGlyph = CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints);
-                    p_Amount -= m_HealByGlyph;
-                }
+                m_HealByGlyph = CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                p_Amount -= m_HealByGlyph;
             }
+        }
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+        void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Target = GetTarget();
+            Unit* l_Owner = GetUnitOwner();
+
+            if (l_Target == nullptr || l_Owner == nullptr)
+                return;
+
+            if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
+                l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
+        }
+
+        void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_ShieldValue*/)
+        {
+            Unit* l_Target = GetTarget();
+            Unit* l_Owner = GetUnitOwner();
+            if (l_Target == nullptr || l_Owner == nullptr)
+                return;
+
+            if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
             {
-                Unit* l_Target = GetTarget();
-                Unit* l_Owner = GetUnitOwner();
-
-                if (l_Target == nullptr || l_Owner == nullptr)
-                    return;
-
-                if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
-                    l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
-            }
-
-            void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_ShieldValue*/)
-            {
-                Unit* l_Target = GetTarget();
-                Unit* l_Owner = GetUnitOwner();
-                if (l_Target == nullptr || l_Owner == nullptr)
-                    return;
-
-                if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
+                if (l_Owner == l_Target && l_Owner->HasAura(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
                 {
-                    if (l_Owner == l_Target && l_Owner->HasAura(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
+                    if (AuraEffectPtr l_ReflectiveShield = l_Owner->GetAuraEffect(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, SpellEffIndex::EFFECT_0))
                     {
-                        if (AuraEffectPtr l_ReflectiveShield = l_Owner->GetAuraEffect(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, SpellEffIndex::EFFECT_0))
-                        {
-                            int32 l_Damage = CalculatePct(p_DmgInfo.GetAbsorb(), l_ReflectiveShield->GetAmount());
-                            l_Owner->CastCustomSpell(l_Attacker, PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
-                        }
+                        int32 l_Damage = CalculatePct(p_DmgInfo.GetAbsorb(), l_ReflectiveShield->GetAmount());
+                        l_Owner->CastCustomSpell(l_Attacker, PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
                     }
                 }
             }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_power_word_shield_AuraScript();
         }
-};
 
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_power_word_shield_AuraScript();
+    }
+};
 // Smite - 585
 class spell_pri_smite: public SpellScriptLoader
 {
@@ -2319,7 +2333,7 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                                     
 
                                 int32 l_MaxDuration = l_PsychicHorror->GetMaxDuration();
-                                int32 l_NewDuration = l_MaxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed * IN_MILLISECONDS;
+                                int32 l_NewDuration = l_MaxDuration + (GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed) * IN_MILLISECONDS;
                                 l_PsychicHorror->SetDuration(l_NewDuration);
 
                                 if (l_NewDuration > l_MaxDuration)
@@ -2662,34 +2676,92 @@ class spell_pri_levitate: public SpellScriptLoader
 // Spirit Shell - 109964
 class spell_pri_spirit_shell: public SpellScriptLoader
 {
-public:
-    spell_pri_spirit_shell() : SpellScriptLoader("spell_pri_spirit_shell") { }
+    public:
+        spell_pri_spirit_shell() : SpellScriptLoader("spell_pri_spirit_shell") { }
 
-    class spell_pri_spirit_shell_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_spirit_shell_SpellScript);
-
-        void HandleHeal(SpellEffIndex /*effIndex*/)
+        class spell_pri_spirit_shell_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
-            if (l_Caster->GetAura(PRIEST_SPELL_SPIRIT_SHELL_AURA))
+            PrepareSpellScript(spell_pri_spirit_shell_SpellScript);
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                int32 l_Absorb = GetHitHeal();
-                l_Caster->CastCustomSpell(GetHitUnit(), PRIEST_SPELL_SPIRIT_SHELL_PROC, &l_Absorb, NULL, NULL, true);
-                SetHitHeal(0);
+                if (Unit* l_Caster = GetCaster())
+                if (l_Caster->GetAura(PRIEST_SPELL_SPIRIT_SHELL_AURA))
+                {
+                    int32 l_Absorb = GetHitHeal();
+                    l_Caster->CastCustomSpell(GetHitUnit(), PRIEST_SPELL_SPIRIT_SHELL_PROC, &l_Absorb, NULL, NULL, true);
+                    SetHitHeal(0);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_spirit_shell_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_pri_spirit_shell_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            return new spell_pri_spirit_shell_SpellScript();
         }
-    };
+};
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_spirit_shell_SpellScript();
-    }
+/// Last Update 6.1.2 19802
+/// Spirit Shell - 114908
+class spell_pri_spirit_shell_effect : public SpellScriptLoader
+{
+    public:
+        spell_pri_spirit_shell_effect() : SpellScriptLoader("spell_pri_spirit_shell_effect") { }
+
+        class spell_pri_spirit_shell_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_spirit_shell_effect_SpellScript);
+
+            int32 m_AmountPreviousShield = 0;
+
+            void HandleBeforeHit()
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (constAuraEffectPtr l_PreviousShield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                    m_AmountPreviousShield = l_PreviousShield->GetAmount();
+            }
+
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_Shield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                {
+                    int32 l_Bp = m_AmountPreviousShield + l_Shield->GetAmount();
+
+                    int32 l_MaxStackAmount = CalculatePct(l_Player->GetMaxHealth(), 60); ///< Stack up to a maximum of 60% of the casting Priest's health
+
+                    if (l_Bp > l_MaxStackAmount)
+                        l_Bp = l_MaxStackAmount;
+
+                    l_Shield->SetAmount(l_Bp);
+                }
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_pri_spirit_shell_effect_SpellScript::HandleBeforeHit);
+                AfterHit += SpellHitFn(spell_pri_spirit_shell_effect_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_spirit_shell_effect_SpellScript();
+        }
 };
 
 // Flash heal - 2061
@@ -3482,6 +3554,9 @@ class spell_pri_chakra_sanctuary : public SpellScriptLoader
                 if (!p_EventInfo.GetDamageInfo()->GetSpellInfo()->IsHealingSpell())
                     return;
 
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == PRIEST_HOLY_WORD_SANCTUARY_HEAL) ///< tick of Holy Word: Sanctuary can't trigger this effect
+                    return;
+
                 if (l_Player->HasSpellCooldown(PRIEST_SPELL_CIRCLE_OF_HEALING))
                     l_Player->ReduceSpellCooldown(PRIEST_SPELL_CIRCLE_OF_HEALING, p_AurEff->GetAmount());
             }
@@ -3858,6 +3933,39 @@ class spell_pri_dispel_mass : public SpellScriptLoader
         }
 };
 
+/// Dominate Mind - 605
+/// last update: 19865
+class spell_pri_dominate_mind : public SpellScriptLoader
+{
+    public:
+        spell_pri_dominate_mind() : SpellScriptLoader("spell_pri_dominate_mind") { }
+
+        class spell_pri_dominate_mind_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_dominate_mind_SpellScript);
+
+            SpellCastResult CheckTarget()
+            {
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->ToCreature() && l_Target->ToCreature()->isWorldBoss())
+                        return SpellCastResult::SPELL_FAILED_IMMUNE;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pri_dominate_mind_SpellScript::CheckTarget);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pri_dominate_mind_SpellScript();
+        }
+};
 
 
 void AddSC_priest_spell_scripts()
@@ -3934,6 +4042,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_saving_grace();
     new spell_pri_glyph_of_the_inquisitor();
     new spell_pri_glyph_of_restored_faith();
+    new spell_pri_dominate_mind();
+    new spell_pri_spirit_shell_effect();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();

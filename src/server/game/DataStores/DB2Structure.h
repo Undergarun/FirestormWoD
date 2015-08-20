@@ -1684,6 +1684,25 @@ typedef std::map<uint32, SpellTotem> SpellTotemMap;
 /// Transport DB2
 ////////////////////////////////////////////////////////////////////
 
+struct WbAccessControlListEntry
+{
+    uint32 ID;
+    char*  Url;
+    uint32 AccessFlags;
+    uint32 Unk1;
+    uint32 Restricted;
+    uint32 Region;
+};
+
+struct WbCertWhitelistEntry
+{
+    uint32 ID;
+    char*  Url;
+    uint8  Unk1;
+    uint8  Unk2;
+    uint32 Unk3;
+};
+
 struct TransportAnimationEntry
 {
     //uint32  Id;                                                   ///< 0

@@ -30,6 +30,7 @@
 #include "QueryResult.h"
 #include "QueryHolder.h"
 #include "AdhocStatement.h"
+#include "MSCallback.hpp"
 
 class PingOperation : public SQLOperation
 {
@@ -50,6 +51,10 @@ class DatabaseWorkerPool
         _queue(new ACE_Activation_Queue())
         {
             memset(_connectionCount, 0, sizeof(_connectionCount));
+            
+            /// Update queue size limit, 16 kb is not enough
+            _queue->queue()->high_water_mark(8 * 1024 * 1024);
+            _queue->queue()->low_water_mark(8 * 1024 * 1024);            
 
             WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
         }
@@ -360,7 +365,7 @@ class DatabaseWorkerPool
 
         //! Enqueues a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
         //! were appended to the transaction will be respected during execution.
-        void CommitTransaction(SQLTransaction transaction)
+        void CommitTransaction(SQLTransaction transaction, MS::Utilities::CallBackPtr p_Callback = nullptr)
         {
             #ifdef TRINITY_DEBUG
             //! Only analyze transaction weaknesses in Debug mode.
@@ -379,7 +384,7 @@ class DatabaseWorkerPool
             }
             #endif // TRINITY_DEBUG
 
-            Enqueue(new TransactionTask(transaction));
+            Enqueue(new TransactionTask(transaction, p_Callback));
         }
 
         //! Directly executes a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations

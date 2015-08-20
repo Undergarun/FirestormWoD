@@ -285,9 +285,7 @@ void TempSummon::RemoveFromWorld()
 }
 
 Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : TempSummon(properties, owner, isWorldObject)
-, m_owner(owner)
 {
-    ASSERT(m_owner);
     m_unitTypeMask |= UNIT_MASK_MINION;
     m_followAngle = PET_FOLLOW_ANGLE;
 }
@@ -298,10 +296,13 @@ void Minion::InitStats(uint32 duration)
 
     SetReactState(REACT_PASSIVE);
 
-    SetCreatorGUID(m_owner->GetGUID());
-    setFaction(m_owner->getFaction());
+    SetCreatorGUID(GetOwnerGUID());
 
-    m_owner->SetMinion(this, true, PET_SLOT_UNK_SLOT, ToPet() ? ToPet()->m_Stampeded : false);
+    if (Unit* l_Owner = GetSummoner())
+    {
+        setFaction(l_Owner->getFaction());
+        l_Owner->SetMinion(this, true, PET_SLOT_UNK_SLOT, ToPet() ? ToPet()->m_Stampeded : false);
+    }
 }
 
 void Minion::RemoveFromWorld()
@@ -309,7 +310,9 @@ void Minion::RemoveFromWorld()
     if (!IsInWorld())
         return;
 
-    m_owner->SetMinion(this, false, PET_SLOT_UNK_SLOT, ToPet() ? ToPet()->m_Stampeded : false);
+    if (Unit* l_Owner = GetSummoner())
+        l_Owner->SetMinion(this, false, PET_SLOT_UNK_SLOT, ToPet() ? ToPet()->m_Stampeded : false);
+
     TempSummon::RemoveFromWorld();
 }
 
@@ -334,10 +337,13 @@ void Guardian::InitStats(uint32 duration)
 {
     Minion::InitStats(duration);
 
-    InitStatsForLevel(m_owner->getLevel());
+    if (Unit* l_Owner = GetSummoner())
+    {
+        InitStatsForLevel(l_Owner->getLevel());
 
-    if (m_owner->GetTypeId() == TYPEID_PLAYER && HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
-        m_charmInfo->InitCharmCreateSpells();
+        if (l_Owner->GetTypeId() == TYPEID_PLAYER && HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
+            m_charmInfo->InitCharmCreateSpells();
+    }
 
     SetReactState(REACT_AGGRESSIVE);
 }
@@ -346,10 +352,14 @@ void Guardian::InitSummon()
 {
     TempSummon::InitSummon();
 
-    if (m_owner->GetTypeId() == TYPEID_PLAYER
-        && m_owner->GetMinionGUID() == GetGUID()
-        && !m_owner->GetCharmGUID())
-        m_owner->ToPlayer()->CharmSpellInitialize();
+    Unit* l_Owner = GetSummoner();
+    if (l_Owner == nullptr)
+        return;
+
+    if (l_Owner->GetTypeId() == TYPEID_PLAYER
+        && l_Owner->GetMinionGUID() == GetGUID()
+        && !l_Owner->GetCharmGUID())
+        l_Owner->ToPlayer()->CharmSpellInitialize();
 }
 
 PetStatInfo const* Guardian::GetPetStat(bool p_Force) const

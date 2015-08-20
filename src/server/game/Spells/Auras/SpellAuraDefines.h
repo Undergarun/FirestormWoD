@@ -469,7 +469,7 @@ enum AuraType
     SPELL_AURA_408                                          = 408,  // 5.0.5 unk aura
     SPELL_AURA_ALLOW_MOVE_WHILE_FALLING                     = 409,  // SPELL_AURA_ALLOW_MOVE_WHILE_FALLING
     SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET                    = 410,  // SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET
-    SPELL_AURA_MOD_CHARGES                                  = 411,  // SPELL_AURA_MOD_CHARGES
+    SPELL_AURA_MOD_MAX_CHARGES                              = 411,  // SPELL_AURA_MOD_MAX_CHARGES
     SPELL_AURA_MOD_MANA_REGEN_BY_HASTE                      = 412,  // SPELL_AURA_MOD_MANA_REGEN_BY_HASTE
     SPELL_AURA_413                                          = 413,  // 5.0.5 unk aura
     SPELL_AURA_414                                          = 414,  // 5.0.5 unk aura

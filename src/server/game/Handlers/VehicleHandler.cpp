@@ -152,15 +152,23 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket& p_RecvData)
 
     if (Player* l_Player = ObjectAccessor::FindPlayer(l_Guid))
     {
-        if (!l_Player->GetVehicleKit() || m_Player->GetVehicleKit())
-            return;
-        if (!l_Player->IsInRaidWith(m_Player))
-            return;
-        if (!l_Player->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE))
+        /// Already in a vehicle or target not in a vehicle
+        if (m_Player->GetVehicleKit() || !l_Player->GetVehicleKit())
             return;
 
-        m_Player->EnterVehicle(l_Player);
-        SendCancelVehicleRideAura();
+        /// Only players in a group/raid can mount as passengers
+        if (!m_Player->IsInRaidWith(l_Player))
+            return;
+
+        /// Distance check
+        if (!m_Player->IsWithinDistInMap(l_Player, INTERACTION_DISTANCE))
+            return;
+
+        if (m_Player->CanMountAsPassenger(l_Player))
+        {
+            m_Player->EnterVehicle(l_Player);
+            SendCancelVehicleRideAura();
+        }
     }
 }
 

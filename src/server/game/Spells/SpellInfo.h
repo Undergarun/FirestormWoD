@@ -342,7 +342,8 @@ public:
     uint32 AttributesEx9;
     uint32 AttributesEx10;
     uint32 AttributesEx11;
-    uint32 AttributesEx12;                                  // new 5.4.0
+    uint32 AttributesEx12;
+    uint32 AttributesEx13;
     uint32 AttributesCu;
     uint64 Stances;
     uint64 StancesNot;
@@ -496,6 +497,7 @@ public:
     bool IsStackableWithRanks() const;
     bool IsPassiveStackableWithRanks() const;
     bool IsMultiSlotAura() const;
+    bool IsCooldownStartedOnEvent() const;
     bool IsDeathPersistent() const;
     bool IsRequiringDeadTarget() const;
     bool IsAllowingDeadTarget() const;
@@ -538,6 +540,7 @@ public:
     inline bool HasAttribute(SpellAttr10 attribute) const { return AttributesEx10 & attribute; }
     inline bool HasAttribute(SpellAttr11 attribute) const { return AttributesEx11 & attribute; }
     inline bool HasAttribute(SpellAttr12 attribute) const { return AttributesEx12 & attribute; }
+    inline bool HasAttribute(SpellAttr13 attribute) const { return AttributesEx13 & attribute; }
     inline bool HasCustomAttribute(SpellCustomAttributes customAttribute) const { return AttributesCu & customAttribute; }
 
     SpellCastResult CheckShapeshift(uint32 form) const;
