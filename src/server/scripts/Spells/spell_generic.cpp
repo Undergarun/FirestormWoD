@@ -4310,71 +4310,114 @@ class spell_gen_check_faction : public SpellScriptLoader
         }
 };
 
-/// Stoneform - 20594
-class spell_gen_stoneform_dwarf_racial : public SpellScriptLoader
+/// Stoneform - 20594 and Will of the Forsaken - 7744
+class spell_gen_pvp_trinket_cooldown : public SpellScriptLoader
 {
-    public:
-        spell_gen_stoneform_dwarf_racial() : SpellScriptLoader("spell_gen_stoneform_dwarf_racial") {}
+public:
+    spell_gen_pvp_trinket_cooldown() : SpellScriptLoader("spell_gen_pvp_trinket_cooldown") {}
 
-        class spell_gen_stoneform_dwarf_racial_SpellScript : public SpellScript
+    class spell_gen_pvp_trinket_cooldown_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_pvp_trinket_cooldown_SpellScript);
+
+        enum eSpell
         {
-            PrepareSpellScript(spell_gen_stoneform_dwarf_racial_SpellScript);
+            PvPTrinket = 42292
+        };
 
-            enum eSpell
+        void HandleAfterCast()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
             {
-                PvPTrinket = 42292
-            };
+                /// Patch note 6.1 : "Stoneform when used, now triggers a 30-second shared cooldown with other PvP trinkets that breaks crowd-control effects."
+                l_Player->AddSpellCooldown(eSpell::PvPTrinket, 0, 30 * TimeConstants::IN_MILLISECONDS);
 
-            void HandleAfterCast()
-            {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Item* l_FirstTrinket = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_TRINKET1))
                 {
-                    /// Patch note 6.1 : "Stoneform when used, now triggers a 30-second shared cooldown with other PvP trinkets that breaks crowd-control effects."
-                    l_Player->AddSpellCooldown(eSpell::PvPTrinket, 0, 30 * TimeConstants::IN_MILLISECONDS);
-
-                    if (Item* l_FirstTrinket = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_TRINKET1))
+                    for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
                     {
-                        for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
-                        {
-                            _Spell const& l_SpellData = l_FirstTrinket->GetTemplate()->Spells[l_I];
+                        _Spell const& l_SpellData = l_FirstTrinket->GetTemplate()->Spells[l_I];
 
-                            /// No spell or not which one we search
-                            if (!l_SpellData.SpellId || l_SpellData.SpellId != eSpell::PvPTrinket)
-                                continue;
+                        /// No spell or not which one we search
+                        if (!l_SpellData.SpellId || l_SpellData.SpellId != eSpell::PvPTrinket)
+                            continue;
 
-                            l_Player->ApplyEquipCooldown(l_FirstTrinket);
-                            break;
-                        }
+                        l_Player->ApplyEquipCooldown(l_FirstTrinket);
+                        break;
                     }
+                }
 
-                    if (Item* l_SecondTrinket = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_TRINKET2))
+                if (Item* l_SecondTrinket = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_TRINKET2))
+                {
+                    for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
                     {
-                        for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
-                        {
-                            _Spell const& l_SpellData = l_SecondTrinket->GetTemplate()->Spells[l_I];
+                        _Spell const& l_SpellData = l_SecondTrinket->GetTemplate()->Spells[l_I];
 
-                            /// No spell or not which one we search
-                            if (!l_SpellData.SpellId || l_SpellData.SpellId != eSpell::PvPTrinket)
-                                continue;
+                        /// No spell or not which one we search
+                        if (!l_SpellData.SpellId || l_SpellData.SpellId != eSpell::PvPTrinket)
+                            continue;
 
-                            l_Player->ApplyEquipCooldown(l_SecondTrinket);
-                            break;
-                        }
+                        l_Player->ApplyEquipCooldown(l_SecondTrinket);
+                        break;
                     }
                 }
             }
+        }
 
-            void Register() override
-            {
-                AfterCast += SpellCastFn(spell_gen_stoneform_dwarf_racial_SpellScript::HandleAfterCast);
-            }
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_gen_pvp_trinket_cooldown_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_pvp_trinket_cooldown_SpellScript();
+    }
+};
+
+/// PvP Trinket - 42292
+class spell_gen_cooldown_from_pvp_trinket : public SpellScriptLoader
+{
+public:
+    spell_gen_cooldown_from_pvp_trinket() : SpellScriptLoader("spell_gen_cooldown_from_pvp_trinket") {}
+
+    class spell_gen_cooldown_from_pvp_trinket_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_cooldown_from_pvp_trinket_SpellScript);
+
+        enum eSpell
+        {
+            Stoneform = 20594,
+            WillOfTheForsaken = 7744
         };
 
-        SpellScript* GetSpellScript() const override
+        void HandleAfterCast()
         {
-            return new spell_gen_stoneform_dwarf_racial_SpellScript();
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                uint8 l_CurrentRace = l_Player->getRace();
+
+                if (l_CurrentRace == RACE_UNDEAD_PLAYER)
+                    l_Player->AddSpellCooldown(eSpell::WillOfTheForsaken, 0, 30 * TimeConstants::IN_MILLISECONDS, true);
+                else if (l_CurrentRace == RACE_DWARF)
+                    l_Player->AddSpellCooldown(eSpell::Stoneform, 0, 30 * TimeConstants::IN_MILLISECONDS, true);
+
+            }
         }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_gen_cooldown_from_pvp_trinket_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_cooldown_from_pvp_trinket_SpellScript();
+    }
 };
+
 
 /// last update : 6.1.2 19802
 /// Touch of the Grave - 5227
@@ -4504,7 +4547,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_raid_buff_stack();
     new spell_gen_sword_technique();
     new spell_gen_check_faction();
-    new spell_gen_stoneform_dwarf_racial();
+    new spell_gen_pvp_trinket_cooldown();
+    new spell_gen_cooldown_from_pvp_trinket();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

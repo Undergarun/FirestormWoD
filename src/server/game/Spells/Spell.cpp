@@ -2897,6 +2897,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             m_caster->ToCreature()->AI()->SpellMissTarget(unit, m_spellInfo, missInfo);
     }
 
+    /// Custom WoD Script - Shadowmeld
+    if (unitTarget->HasAura(58984) && !m_caster->IsFriendlyTo(unitTarget))
+        return;
+
     if (spellHitTarget)
     {
         SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
