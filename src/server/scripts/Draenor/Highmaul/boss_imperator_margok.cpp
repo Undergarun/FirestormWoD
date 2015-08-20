@@ -8,6 +8,8 @@
 
 # include "highmaul.hpp"
 
+Position const g_GorianReaverPos = { 4026.755f, 8584.76f, 572.6546f, 3.138298f };
+
 /// Imperator Mar'gok <Sorcerer King> - 77428
 class boss_imperator_margok : public CreatureScript
 {
@@ -35,12 +37,12 @@ class boss_imperator_margok : public CreatureScript
             DisplacementTransform2                  = 174023,
             ArcaneProtection                        = 174057,
             AwakenRunestone                         = 157278,
-            AwakenRunestonePhase4                   = 158025,
             FortificationBaseVisual                 = 174043,
             FortificationAchievement                = 143809,
             FortificationRuneActive                 = 166429,
             ReplicationBaseVisual                   = 174044,
             ReplicationAchievement                  = 166391,
+            ReplicationRuneActive                   = 174085,
             SummonRuneVisual                        = 160351,
             SummonWarmage                           = 160366,
             VolatileAnomalies                       = 157265,
@@ -341,7 +343,7 @@ class boss_imperator_margok : public CreatureScript
                     }
                     case eMoves::MoveDown:
                     {
-                        AddTimedDelayedOperation(100, [this]() -> void
+                        AddTimedDelayedOperation(200, [this]() -> void
                         {
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
@@ -359,8 +361,21 @@ class boss_imperator_margok : public CreatureScript
                             {
                                 l_Rune->RemoveAura(eSpells::TransitionVisualPeriodic);
 
-                                if (m_Phase == ePhases::DormantRunestones)
-                                    l_Rune->CastSpell(l_Rune, eSpells::FortificationRuneActive, true);
+                                switch (m_Phase)
+                                {
+                                    case ePhases::DormantRunestones:
+                                    {
+                                        l_Rune->CastSpell(l_Rune, eSpells::FortificationRuneActive, true);
+                                        break;
+                                    }
+                                    case ePhases::LineageOfPower:
+                                    {
+                                        l_Rune->CastSpell(l_Rune, eSpells::ReplicationRuneActive, true);
+                                        break;
+                                    }
+                                    default:
+                                        break;
+                                }
                             }
 
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
@@ -657,13 +672,34 @@ class boss_imperator_margok : public CreatureScript
                         /// Should have only two triggers, the base one and the large one
                         for (Creature* l_Trigger : l_TriggerList)
                         {
-                            /// Small gaze for base visual
-                            if (l_Trigger->HasAura(eSpells::FortificationBaseVisual))
-                                continue;
+                            switch (m_Phase)
+                            {
+                                case ePhases::DormantRunestones:
+                                {
+                                    /// Small gaze for base visual
+                                    if (l_Trigger->HasAura(eSpells::FortificationBaseVisual))
+                                        continue;
 
-                            /// Big gaze for large visual during activation
-                            l_Trigger->CastSpell(l_Trigger, eSpells::FortificationAchievement, true);
-                            l_Trigger->CastSpell(l_Trigger, eSpells::VolatileAnomalies, true);
+                                    /// Big gaze for large visual during activation
+                                    l_Trigger->CastSpell(l_Trigger, eSpells::FortificationAchievement, true);
+                                    l_Trigger->CastSpell(l_Trigger, eSpells::VolatileAnomalies, true);
+                                    break;
+                                }
+                                case ePhases::LineageOfPower:
+                                {
+                                    /// Small gaze for base visual
+                                    if (l_Trigger->HasAura(eSpells::ReplicationBaseVisual))
+                                        continue;
+
+                                    /// Big gaze for large visual during activation
+                                    l_Trigger->CastSpell(l_Trigger, eSpells::ReplicationAchievement, true);
+                                    l_Trigger->CastSpell(l_Trigger, eSpells::VolatileAnomalies, true);
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+
                             break;
                         }
 
@@ -707,26 +743,6 @@ class boss_imperator_margok : public CreatureScript
                         });
 
                         ++m_NovaCount;
-                        break;
-                    }
-                    case eSpells::AwakenRunestonePhase4:
-                    {
-                        std::list<Creature*> l_TriggerList;
-                        me->GetCreatureListWithEntryInGrid(l_TriggerList, eHighmaulGameobjects::SLGGenericMoPLargeAoI, 30.0f);
-
-                        /// Should have only two triggers, the base one and the large one
-                        for (Creature* l_Trigger : l_TriggerList)
-                        {
-                            /// Small gaze for base visual
-                            if (l_Trigger->HasAura(eSpells::ReplicationBaseVisual))
-                                continue;
-
-                            /// Big gaze for large visual during activation
-                            l_Trigger->CastSpell(l_Trigger, eSpells::ReplicationAchievement, true);
-                            l_Trigger->CastSpell(l_Trigger, eSpells::VolatileAnomalies, true);
-                            break;
-                        }
-
                         break;
                     }
                     default:
@@ -1270,9 +1286,9 @@ class boss_imperator_margok : public CreatureScript
 
                 AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
-                    me->CastSpell(me, eSpells::AwakenRunestonePhase4, false);
-
                     Talk(eTalks::TalkRuneOfReplication2);
+
+                    me->CastSpell(me, eSpells::AwakenRunestone, false);
 
                     std::list<Creature*> l_TriggerList;
                     me->GetCreatureListWithEntryInGrid(l_TriggerList, eCreatures::WarmageSummonStalker, 150.0f);
@@ -1292,7 +1308,8 @@ class boss_imperator_margok : public CreatureScript
                 {
                     me->RemoveAura(eSpells::AwakenRunestone);
 
-                    me->RemoveAura(eSpells::DisplacementTransform);
+                    me->RemoveAura(eSpells::FortificationTransform);
+                    me->RemoveAura(eSpells::ArcaneProtection);
                     me->CastSpell(me, eSpells::DisplacementTransform2, true);
 
                     me->RemoveAura(eSpells::PowerOfFortification);
@@ -1336,6 +1353,7 @@ class boss_imperator_margok : public CreatureScript
                 for (Creature* l_Trigger : l_TriggerList)
                 {
                     l_Trigger->RemoveAura(eSpells::FortificationAchievement);
+                    l_Trigger->RemoveAura(eSpells::ReplicationAchievement);
                     l_Trigger->RemoveAura(eSpells::VolatileAnomalies);
                 }
 
@@ -1344,7 +1362,10 @@ class boss_imperator_margok : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(l_TriggerList, eCreatures::NpcRuneOfDisplacement, 200.0f);
 
                 for (Creature* l_Trigger : l_TriggerList)
+                {
                     l_Trigger->RemoveAura(eSpells::FortificationRuneActive);
+                    l_Trigger->RemoveAura(eSpells::ReplicationRuneActive);
+                }
             }
         };
 
