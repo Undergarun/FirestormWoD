@@ -495,6 +495,15 @@ int WorldSocket::ReadPacketHeader()
 
     ExtractOpcodeAndSize(reinterpret_cast<ClientPktHeader*>(m_HeaderBuffer.rd_ptr()), l_Opcode, l_Size);
 
+#ifdef WIN32
+
+    if (m_Initialized &&sWorld->getBoolConfig(CONFIG_LOG_PACKETS))
+    {
+        std::string l_OopcodeName = GetOpcodeNameForLogging((Opcodes)l_Opcode, WOW_CLIENT_TO_SERVER);
+        printf("Receive opcode %s 0x%08.8X size : %u \n", l_OopcodeName.c_str(), l_Opcode, l_Size);
+    }
+#endif
+
     if (!ClientPktHeader::IsValidSize(l_Size) || (m_Initialized && !ClientPktHeader::IsValidOpcode(l_Opcode)))
     {
         Player* _player = m_Session ? m_Session->GetPlayer() : NULL;
