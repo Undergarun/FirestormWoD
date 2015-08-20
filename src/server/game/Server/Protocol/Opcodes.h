@@ -1039,7 +1039,7 @@ enum Opcodes
     CMSG_REQUEST_FORCED_REACTIONS               = 0x1C9D, ///< 6.2.2 20395
     CMSG_DESTROY_ITEM                           = 0x09E9, ///< 6.2.2 20395
     CMSG_OPEN_ITEM                              = 0x1310, ///< 6.2.2 20395
-    CMSG_SET_TITLE                              = 0x0039, ///< 6.2.2 20395
+    CMSG_SET_TITLE                              = 0x11CF, ///< 6.2.2 20395
     CMSG_PLAYED_TIME                            = 0x0158, ///< 6.2.2 20395
     CMSG_SAVE_EQUIPMENT_SET                     = 0x06DA, ///< 6.2.2 20395
     CMSG_USE_EQUIPMENT_SET                      = 0x0599, ///< 6.2.2 20395
@@ -1159,7 +1159,7 @@ enum Opcodes
     CMSG_RECLAIM_CORPSE                         = 0x0C39, ///< 6.2.2 20395
     CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT      = 0x09A1, ///< 6.2.2 20395
     CMSG_QUERY_CORPSE_TRANSPORT                 = 0x0559, ///< 6.2.2 20395
-    CMSG_RETURN_TO_GRAVEYARD                    = 0x1ED2, ///< 6.2.2 20395
+    CMSG_RETURN_TO_GRAVEYARD                    = 0x0A17, ///< 6.2.2 20395
     CMSG_CLOSE_INTERACTION                      = 0x0E98, ///< 6.2.2 20395
     CMSG_ITEM_REFUND_INFO                       = 0x061E, ///< 6.2.2 20395
     CMSG_FAR_SIGHT                              = 0x0E97, ///< 6.2.2 20395
@@ -1369,10 +1369,10 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Group
     //////////////////////////////////////////////////////////////////////////
-    CMSG_PARTY_INVITE                           = 0x02B1, ///< 6.2.2 20395
-    CMSG_PARTY_INVITE_RESPONSE                  = 0x036B, ///< 6.2.2 20395
+    CMSG_PARTY_INVITE                           = 0x0974, //< 6.2.2 20395
+    CMSG_PARTY_INVITE_RESPONSE                  = 0x02B1, ///< 6.2.2 20395
     CMSG_LEAVE_GROUP                            = 0x02E2, ///< 6.2.2 20395
-    CMSG_PARTY_UNINVITE                         = 0x08A2, ///< 6.2.2 20395
+    CMSG_PARTY_UNINVITE                         = 0x02B1, ///< 6.2.2 20395
     CMSG_SET_PARTY_LEADER                       = 0x037A, ///< 6.2.2 20395
     CMSG_SET_ROLE                               = 0x02F3, ///< 6.2.2 20395
     CMSG_MINIMAP_PING                           = 0x09BC, ///< 6.2.2 20395
@@ -1383,7 +1383,7 @@ enum Opcodes
     CMSG_READY_CHECK_RESPONSE                   = 0x0061, ///< 6.2.2 20395
     CMSG_INITIATE_ROLE_POLL                     = 0x02BA, ///< 6.2.2 20395
     CMSG_REQUEST_RAID_INFO                      = 0x01B4, ///< 6.2.2 20395
-    CMSG_SET_EVERYONE_IS_ASSISTANT              = 0x0974, ///< 6.2.2 20395
+    CMSG_SET_EVERYONE_IS_ASSISTANT              = 0x08A2, ///< 6.2.2 20395
     CMSG_CLEAR_RAID_MARKER                      = 0x19DE, ///< 6.2.2 20395
     CMSG_GROUP_ASSISTANT_LEADER                 = 0x03B4, ///< 6.2.2 20395
     CMSG_GROUP_ASSIGNMENT                       = 0x0329, ///< 6.2.2 20395
@@ -1459,21 +1459,21 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Guild
     //////////////////////////////////////////////////////////////////////////
-    CMSG_GUILD_INVITE_BY_NAME                      = 0x0071, ///< 6.2.2 20395
+    CMSG_GUILD_INVITE_BY_NAME                      = 0x023B, ///< 6.2.2 20395
     CMSG_ACCEPT_GUILD_INVITE                       = 0x08E3, ///< 6.2.2 20395
     CMSG_GUILD_DECLINE_INVITATION                  = 0x00AE, ///< 6.2.2 20395
-    CMSG_GUILD_OFFICER_REMOVE_MEMBER               = 0x0ABD, ///< 6.2.2 20395
-    CMSG_GUILD_SET_GUILD_MASTER                    = 0x0ED8, ///< 6.2.2 20395
+    CMSG_GUILD_OFFICER_REMOVE_MEMBER               = 0x1ED2, ///< 6.2.2 20395
+    CMSG_GUILD_SET_GUILD_MASTER                    = 0x0071, ///< 6.2.2 20395
     CMSG_GUILD_LEAVE                               = 0x08B8, ///< 6.2.2 20395
     CMSG_GUILD_DELETE                              = 0x122E, ///< 6.2.2 20395
-    CMSG_GUILD_UPDATE_MOTD_TEXT                    = 0x11CF, ///< 6.2.2 20395
+    CMSG_GUILD_UPDATE_MOTD_TEXT                    = 0x0ED8, ///< 6.2.2 20395
     CMSG_GUILD_UPDATE_INFO_TEXT                    = 0x002D, ///< 6.2.2 20395
-    CMSG_GUILD_GET_RANKS                           = 0x02AF, ///< 6.2.2 20395
+    CMSG_GUILD_GET_RANKS                           = 0x0ED2, ///< 6.2.2 20395
     CMSG_GUILD_ADD_RANK                            = 0x102E, ///< 6.2.2 20395
-    CMSG_GUILD_DELETE_RANK                         = 0x105F, ///< 6.2.2 20395
+    CMSG_GUILD_DELETE_RANK                         = 0x1A3E, ///< 6.2.2 20395
     CMSG_GUILD_SET_RANK_PERMISSIONS                = 0x0ABE, ///< 6.2.2 20395
     CMSG_GUILD_SHIFT_RANK                          = 0x0C52, ///< 6.2.2 20395
-    CMSG_GUILD_ASSIGN_MEMBER_RANK                  = 0x10B0, ///< 6.2.2 20395
+    CMSG_GUILD_ASSIGN_MEMBER_RANK                  = 0x02AF, ///< 6.2.2 20395
     CMSG_GUILD_GET_ROSTER                          = 0x082E, ///< 6.2.2 20395
     CMSG_GUILD_BANK_ACTIVATE                       = 0x0E18, ///< 6.2.2 20395
     CMSG_GUILD_BANK_BUY_TAB                        = 0x0619, ///< 6.2.2 20395
@@ -1489,16 +1489,16 @@ enum Opcodes
     CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS             = 0x0000, ///< (unused)
     CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT             = 0x0D5E, ///< 6.2.2 20395
     CMSG_GUILD_SET_ACHIEVEMENT_TRACKING            = 0x0000, ///< (unused)
-    CMSG_GUILD_SET_MEMBER_NOTE                     = 0x007D, ///< 6.2.2 20395
+    CMSG_GUILD_SET_MEMBER_NOTE                     = 0x00A6, ///< 6.2.2 20395
     CMSG_GUILD_CHALLENGE_UPDATE_REQUEST            = 0x087D, ///< 6.2.2 20395
     CMSG_REQUEST_GUILD_PARTY_STATE                 = 0x1ADD, ///< 6.2.2 20395
-    CMSG_REQUEST_GUILD_REWARDS_LIST                = 0x10A8, ///< 6.2.2 20395
+    CMSG_REQUEST_GUILD_REWARDS_LIST                = 0x105F, ///< 6.2.2 20395
     CMSG_GUILD_REPLACE_GUILD_MASTER                = 0x0C53, ///< 6.2.2 20395
     CMSG_GUILD_CHANGE_NAME_REQUEST                 = 0x0000, ///<  (unused)
     CMSG_GUILD_PERMISSIONS_QUERY                   = 0x003E, ///< 6.2.2 20395
     CMSG_GUILD_EVENT_LOG_QUERY                     = 0x0AA6, ///< 6.2.2 20395
     CMSG_GUILD_NEWS_UPDATE_STICKY                  = 0x00AD, ///< 6.2.2 20395
-    CMSG_GUILD_QUERY_NEWS                          = 0x1A3E, ///< 6.2.2 20395
+    CMSG_GUILD_QUERY_NEWS                          = 0x10B0, ///< 6.2.2 20395
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x0000, ///< (unused)
     CMSG_QUERY_GUILD_MEMBER_RECIPES                = 0x0000, ///< (unused)
     CMSG_QUERY_GUILD_RECIPES                       = 0x022E, ///< 6.2.2 20395
