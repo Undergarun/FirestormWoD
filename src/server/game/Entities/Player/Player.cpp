@@ -3570,45 +3570,18 @@ void Player::RegenerateHealth()
 
 void Player::ResetAllPowers()
 {
+    ClearComboPoints();
     SetHealth(GetMaxHealth());
-    switch (getPowerType())
-    {
-        case POWER_MANA:
-            SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
-            break;
-        case POWER_RAGE:
-            SetPower(POWER_RAGE, 0);
-            break;
-        case POWER_ENERGY:
-            SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
-            break;
-        case POWER_COMBO_POINT:
-            ClearComboPoints();
-            break;
-        case POWER_RUNIC_POWER:
-            SetPower(POWER_RUNIC_POWER, 0);
-            break;
-        case POWER_ECLIPSE:
-            SetPower(POWER_ECLIPSE, 0);
-            break;
-        case POWER_DEMONIC_FURY:
-            SetPower(POWER_DEMONIC_FURY, 200);
-            break;
-        case POWER_BURNING_EMBERS:
-            SetPower(POWER_BURNING_EMBERS, 10);
-            break;
-        case POWER_SOUL_SHARDS:
-            SetPower(POWER_SOUL_SHARDS, 100);
-            break;
-        case POWER_SHADOW_ORB:
-            SetPower(POWER_SHADOW_ORB, 0);
-            break;
-        case POWER_CHI:
-            SetPower(POWER_CHI, 0);
-            break;
-        default:
-            break;
-    }
+    SetPower(POWER_BURNING_EMBERS, 10);
+    SetPower(POWER_CHI, 0);
+    SetPower(POWER_DEMONIC_FURY, 200);
+    SetPower(POWER_ECLIPSE, 0);
+    SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
+    SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+    SetPower(POWER_RAGE, 0);
+    SetPower(POWER_RUNIC_POWER, 0);
+    SetPower(POWER_SHADOW_ORB, 0);
+    SetPower(POWER_SOUL_SHARDS, 100);
 }
 
 bool Player::CanInteractWithQuestGiver(Object* questGiver)
