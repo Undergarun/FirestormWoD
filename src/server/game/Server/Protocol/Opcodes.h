@@ -47,7 +47,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamProtocol
         /// Opcodes
-        SMSG_AUTH_CHALLENGE                         = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x1028
+        SMSG_AUTH_CHALLENGE                         = 0x1028, ///< 6.2.2 20426
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
