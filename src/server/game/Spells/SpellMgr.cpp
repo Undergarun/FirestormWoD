@@ -3119,34 +3119,18 @@ void SpellMgr::LoadSpellInfoStore()
             continue;
 
         // unk0 always exists and has same values as l_Entry->Unk != 0 -- could be difficulty ???
-        if (!l_Entry->SpellId || l_Entry->Unk1 != 0 || l_Entry->SpellId >= sSpellStore.GetNumRows())
+        if (!l_Entry->SpellId || l_Entry->SpellId >= sSpellStore.GetNumRows())
             continue;
 
-        for (int l_Diff = 0; l_Diff < Difficulty::MaxDifficulties; l_Diff++)
-        {
-            SpellInfo* l_SpellInfo = mSpellInfoMap[l_Diff][l_Entry->SpellId];
+        SpellInfo* l_SpellInfo = mSpellInfoMap[l_Entry->DifficultyID][l_Entry->SpellId];
 
-            if (!l_SpellInfo)
-                continue;
+        if (!l_SpellInfo)
+            continue;
 
-            for (int l_I = 0; l_I < MAX_SPELL_VISUAL + 50; l_I++)
-            {
-                if (l_I >= MAX_SPELL_VISUAL)
-                {
-                    sLog->outAshran("MAX_SPELL_VISUAL too low, needs to be increased for spell %i!\n", l_Entry->SpellId);
-                    assert(false && "MAX_SPELL_VISUAL too low, needs to be increased");
-                }
+        for (int l_I = 0; l_I < MAX_SPELL_VISUAL; ++l_I)
+            l_SpellInfo->SpellVisual[l_I] = l_Entry->VisualID[l_I];
 
-                if (!l_SpellInfo->SpellVisual[l_I])
-                {
-                    if (l_I == 0)
-                        l_SpellInfo->FirstSpellXSpellVIsualID = l_ID;
-
-                    l_SpellInfo->SpellVisual[l_I] = l_Entry->VisualID;
-                    break;
-                }
-            }
-        }
+        l_SpellInfo->FirstSpellXSpellVIsualID = l_Entry->Id;
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell info store in %u ms", GetMSTimeDiffToNow(oldMSTime));

@@ -1069,7 +1069,7 @@ enum Team
     TEAM_OTHER           = 0            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
 
-#define MAX_SPELL_VISUAL 30
+#define MAX_SPELL_VISUAL 2
 
 enum SpellEffects
 {

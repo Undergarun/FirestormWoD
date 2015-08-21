@@ -1552,12 +1552,11 @@ struct SpellXSpellVisualEntry
 {
     uint32 Id;
     uint32 SpellId;
-    uint32 Unk1;
-    uint32 VisualID;
-    //uint32 Unk2;
+    uint32 DifficultyID;
+    uint32 VisualID[MAX_SPELL_VISUAL];
     float Scale;
-    //uint32 Unk4;
-    //uint32 Unk5;
+    uint32 ConditionID;
+    uint32 Flags;
 };
 
 ////////////////////////////////////////////////////////////////////
