@@ -3134,7 +3134,7 @@ void SpellMgr::LoadSpellInfoStore()
                 if (l_I >= MAX_SPELL_VISUAL)
                 {
                     sLog->outAshran("MAX_SPELL_VISUAL too low, needs to be increased for spell %i!\n", l_Entry->SpellId);
-                    assert(false);
+                    assert(false && "MAX_SPELL_VISUAL too low, needs to be increased");
                 }
 
                 if (!l_SpellInfo->SpellVisual[l_I])

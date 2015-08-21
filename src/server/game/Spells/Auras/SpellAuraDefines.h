@@ -544,7 +544,12 @@ enum AuraType
     SPELL_AURA_483                                          = 483,  // 6.1.2 Rated PvP Transform Suppression
     SPELL_AURA_484                                          = 484,  // 6.2.0 Value is SpellID
     SPELL_AURA_485                                          = 485,  // 6.2.0
-    TOTAL_AURAS                                             = 486   // 6.2.0
+    SPELL_AURA_486                                          = 486,  // 6.2.2
+    SPELL_AURA_487                                          = 487,  // 6.2.2
+    SPELL_AURA_488                                          = 488,  // 6.2.2
+    SPELL_AURA_489                                          = 489,  // 6.2.2
+    SPELL_AURA_490                                          = 490,  // 6.2.2
+    TOTAL_AURAS                                             = 491   // 6.2.2
 };
 
 enum AuraObjectType
