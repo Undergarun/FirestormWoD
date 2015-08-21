@@ -1194,7 +1194,7 @@ struct PlayerConditionEntry
     int32  Explored[2];                                             ///< 66-67
     int32  Time[2];                                                 ///< 68-69
     int32  AuraSpellLogic;                                          ///< 70
-    int32  AuraSpellID[4];                                          ///< 71-74
+    int32  AuraSpellID[5];                                          ///< 71-74
     int32  WorldStateExpressionID;                                  ///< 75
     int32  WeatherID;                                               ///< 76
     int32  PartyStatus;                                             ///< 77
