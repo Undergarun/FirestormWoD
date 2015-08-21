@@ -3129,7 +3129,7 @@ void SpellMgr::LoadSpellInfoStore()
             if (!l_SpellInfo)
                 continue;
 
-            for (int l_I = 0; l_I < MAX_SPELL_VISUAL + 1; l_I++)
+            for (int l_I = 0; l_I < MAX_SPELL_VISUAL + 50; l_I++)
             {
                 if (l_I >= MAX_SPELL_VISUAL)
                 {
