@@ -34,6 +34,11 @@ std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, s
 std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
 std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 
+DB2Storage <AchievementEntry>               sAchievementStore(Achievementfmt);
+DB2Storage <CriteriaEntry>                  sCriteriaStore(Criteriafmt);
+DB2Storage <CriteriaTreeEntry>              sCriteriaTreeStore(CriteriaTreefmt);
+DB2Storage <ModifierTreeEntry>              sModifierTreeStore(ModifierTreefmt);
+
 DB2Storage <CurrencyTypesEntry>             sCurrencyTypesStore(CurrencyTypesfmt);
 DB2Storage <CurvePointEntry>                sCurvePointStore(CurvePointEntryfmt);
 DB2Storage <GroupFinderActivityEntry>       sGroupFinderActivityStore(GroupFinderActivityfmt);
@@ -266,6 +271,11 @@ void LoadDB2Stores(const std::string& dataPath)
     std::string db2Path = dataPath + "dbc/";
 
     StoreProblemList1 bad_db2_files;
+
+    LoadDB2(bad_db2_files, sAchievementStore,            db2Path, "Achievement.db2");
+    LoadDB2(bad_db2_files, sModifierTreeStore,           db2Path, "ModifierTree.db2");
+    LoadDB2(bad_db2_files, sCriteriaStore,               db2Path, "Criteria.db2");
+    LoadDB2(bad_db2_files, sCriteriaTreeStore,           db2Path, "CriteriaTree.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Misc DB2

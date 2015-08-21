@@ -727,17 +727,7 @@ class AchievementGlobalMgr
             return &m_SubCriteriaTreeListById[p_ID];
         }
 
-        AchievementEntry const* _GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* p_Criteria) const
-        {
-            while (true)
-            {
-                if (!p_Criteria->Parent || p_Criteria->Parent == p_Criteria->ID)
-                    return m_AchievementEntryByCriteriaTree[p_Criteria->ID];
-
-                p_Criteria = sCriteriaTreeStore.LookupEntry(p_Criteria->Parent);
-            }
-            return NULL;
-        }
+        AchievementEntry const* _GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* p_Criteria) const;
 
         AchievementEntry const* GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* p_Criteria) const
         {

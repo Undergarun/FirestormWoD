@@ -22,11 +22,7 @@
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
 // n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
 
-const char Achievementfmt[]                   = "niiissiiiiisiii";
-const std::string CustomAchievementfmt        = "pppaaaapapaappa";
-const std::string CustomAchievementIndex      = "ID";
 char const AnimKitfmt[] = "nxxx";
-const char AchievementCriteriafmt[]           = "niiiixiiiisiiiiixxiiiii";
 const char AreaTableEntryfmt[]                = "iiinixxxxxxxisiiiiixxxxxxxxxx";
 const char AreaTriggerEntryfmt[]              = "nifffxxxfffffxxxx";
 const char ArmorLocationfmt[]                 = "nfffff";
@@ -75,9 +71,6 @@ const char ItemArmorShieldfmt[]               = "nifffffff";
 const char ItemArmorTotalfmt[]                = "niffff";
 const char ItemDamagefmt[]                    = "nfffffffi";
 const char gtItemSocketCostPerLevelfmt[]      = "df";
-const char CriteriaTreefmt[]                  = "niiiiiis";
-const char Criteriafmt[]                      = "niiiiiiiiiii";
-const char ModifierTreefmt[]                  = "niiiiii";
 //const char ItemDisplayInfoEntryfmt[]        = "nxxxxxxxxxxxxxxxxxxxxxx";
 const char ItemSetEntryfmt[]                  = "dsiiiiiiiiiiiiiiiiiii";
 const char LFGDungeonEntryfmt[]               = "nxiiiiiiiiixxixixiiiixxxxixxxx";

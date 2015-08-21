@@ -3864,14 +3864,15 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     /// @TODO : Time
 
     #pragma region AuraSpellLogic, AuraSpellID
-    if (l_Entry->AuraSpellID[0] || l_Entry->AuraSpellID[1] || l_Entry->AuraSpellID[2] || l_Entry->AuraSpellID[3])
+    if (l_Entry->AuraSpellID[0] || l_Entry->AuraSpellID[1] || l_Entry->AuraSpellID[2] || l_Entry->AuraSpellID[3]|| l_Entry->AuraSpellID[4])
     {
-        bool l_Matches[4] { true, true, true, true };
+        bool l_Matches[] { true, true, true, true, true };
 
         if (l_Entry->AuraSpellID[0] != 0) l_Matches[0] = HasAura(l_Entry->AuraSpellID[0]);
         if (l_Entry->AuraSpellID[1] != 0) l_Matches[1] = HasAura(l_Entry->AuraSpellID[1]);
         if (l_Entry->AuraSpellID[2] != 0) l_Matches[2] = HasAura(l_Entry->AuraSpellID[2]);
         if (l_Entry->AuraSpellID[3] != 0) l_Matches[3] = HasAura(l_Entry->AuraSpellID[3]);
+        if (l_Entry->AuraSpellID[4] != 0) l_Matches[4] = HasAura(l_Entry->AuraSpellID[4]);
 
         if (!EvalMatch(l_Matches, l_Entry->AuraSpellLogic))
             return std::pair<bool, std::string>(false, "Failed on AuraSpellID");
@@ -3948,7 +3949,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     #pragma endregion AreaLogic, AreaID
 
     #pragma region CurrencyLogic, CurrencyID, CurrencyCount
-    if (l_Entry->CurrencyID[0] || l_Entry->CurrencyID[1] || l_Entry->AuraSpellID[2] || l_Entry->AuraSpellID[3])
+    if (l_Entry->CurrencyID[0] || l_Entry->CurrencyID[1] || l_Entry->CurrencyID[2] || l_Entry->CurrencyID[3])
     {
         bool l_Matches[4] { true, true, true, true };
 

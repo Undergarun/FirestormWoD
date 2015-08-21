@@ -28,6 +28,11 @@
 extern std::map<uint32, DB2StorageBase*> sDB2PerHash;
 extern std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 
+extern DB2Storage <AchievementEntry>                sAchievementStore;
+extern DB2Storage <CriteriaEntry>                   sCriteriaStore;
+extern DB2Storage <CriteriaTreeEntry>               sCriteriaTreeStore;
+extern DB2Storage <ModifierTreeEntry>               sModifierTreeStore;
+
 extern DB2Storage <AreaGroupEntry>                  sAreaGroupStore;
 extern DB2Storage <AreaGroupMemberEntry>            sAreaGroupMemberStore;
 extern DB2Storage <SoundEntriesEntry>               sSoundEntriesStore;

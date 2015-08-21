@@ -61,7 +61,6 @@ static AreaFlagByMapID                    sAreaFlagByMapID;                    /
 
 static WMOAreaInfoByTripple               sWMOAreaInfoByTripple;
 
-DBCStorage <AchievementEntry>             sAchievementStore(Achievementfmt);
 DBCStorage <AnimKitEntry>                 sAnimKitStore(AnimKitfmt);
 DBCStorage <AreaTriggerEntry>             sAreaTriggerStore(AreaTriggerEntryfmt);
 DBCStorage <ArmorLocationEntry>           sArmorLocationStore(ArmorLocationfmt);
@@ -78,9 +77,6 @@ DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore(Creatu
 DBCStorage <CreatureFamilyEntry>          sCreatureFamilyStore(CreatureFamilyfmt);
 DBCStorage <CreatureModelDataEntry>       sCreatureModelDataStore(CreatureModelDatafmt);
 DBCStorage <CreatureSpellDataEntry>       sCreatureSpellDataStore(CreatureSpellDatafmt);
-DBCStorage <CriteriaEntry>                sCriteriaStore(Criteriafmt);
-DBCStorage <CriteriaTreeEntry>            sCriteriaTreeStore(CriteriaTreefmt);
-DBCStorage <ModifierTreeEntry>            sModifierTreeStore(ModifierTreefmt);
 
 DBCStorage <DifficultyEntry>              sDifficultyStore(DifficultyEntryfmt);
 
@@ -279,7 +275,6 @@ void LoadDBCStores(const std::string& dataPath)
         }
     }
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore,            dbcPath, "Achievement.dbc", &CustomAchievementfmt, &CustomAchievementIndex);  // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sAnimKitStore,                dbcPath, "AnimKit.dbc");                                                      // 19865
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");                                                  // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sArmorLocationStore,          dbcPath, "ArmorLocation.dbc");                                                // 17399
@@ -301,8 +296,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesStore,                 dbcPath, "Emotes.dbc");                                                       // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesTextStore,             dbcPath, "EmotesText.dbc");                                                   // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sFactionStore,                dbcPath, "Faction.dbc");                                                      // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore,               dbcPath, "Criteria.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaTreeStore,           dbcPath, "CriteriaTree.dbc");                                                 // 17399
 
     for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)
     {
@@ -329,7 +322,6 @@ void LoadDBCStores(const std::string& dataPath)
         }
     }
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sModifierTreeStore,           dbcPath, "ModifierTree.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sGemPropertiesStore,          dbcPath, "GemProperties.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGlyphPropertiesStore,        dbcPath, "GlyphProperties.dbc");                                              // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sgtArmorMitigationByLvlStore, dbcPath, "gtArmorMitigationByLvl.dbc");                                       // 17399

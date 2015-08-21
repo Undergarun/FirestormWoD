@@ -39,6 +39,11 @@ char const LocationEntryfmt[] =
     FT_END
 };
 
+const char Achievementfmt[] = "niiissiiiiisiii";
+const char AchievementCriteriafmt[] = "niiiixiiiisiiiiixxiiiii";
+const char CriteriaTreefmt[] = "niiiiiis";
+const char Criteriafmt[] = "niiiiiiiiiii";
+const char ModifierTreefmt[] = "niiiiii";
 const char CurrencyTypesfmt[] = "nisssiiiiiis";
 char const CurvePointEntryfmt[] = "niiff";
 const char GroupFinderActivityfmt[] = "niiiiiiiiiiiiss";
@@ -80,7 +85,7 @@ const char SoundEntriesfmt[] = "nisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiififfi
 const char MapChallengeModeEntryfmt[] = "niiiiiiiii";
 const char QuestPackageItemEntryfmt[] = "niiii";
 const char MountEntryfmt[] = "niiisssiii";
-const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
+const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 const char VignetteEntryfmt[] = "nsiiff";
 const char SpecializationSpellsfmt[] = "nixiix";
 const char MailTemplateEntryfmt[]= "ns";

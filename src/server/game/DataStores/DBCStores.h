@@ -76,7 +76,6 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, Bracket::Id i
 typedef std::unordered_map<uint32, std::list<ItemSetSpellEntry const*> > ItemSetSpellsByItemID;
 extern ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 
-extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AnimKitEntry>                 sAnimKitStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
@@ -93,9 +92,6 @@ extern DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore
 extern DBCStorage <CreatureFamilyEntry>          sCreatureFamilyStore;
 extern DBCStorage <CreatureModelDataEntry>       sCreatureModelDataStore;
 extern DBCStorage <CreatureSpellDataEntry>       sCreatureSpellDataStore;
-extern DBCStorage <CriteriaEntry>                sCriteriaStore;
-extern DBCStorage <CriteriaTreeEntry>            sCriteriaTreeStore;
-extern DBCStorage <ModifierTreeEntry>            sModifierTreeStore;
 extern DBCStorage <DifficultyEntry>              sDifficultyStore;
 extern DBCStorage <DungeonEncounterEntry>        sDungeonEncounterStore;
 extern DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore;
