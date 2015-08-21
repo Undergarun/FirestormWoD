@@ -3805,6 +3805,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_CASTER_FRONT;
                 spellInfo->Effects[EFFECT_0].SetRadiusIndex(18);    ///< 15 yards
                 break;
+            case 156799: ///< Destructive Resonance (Other - Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
             case 154901: ///< Seal Conduit (third)
                 spellInfo->MaxAffectedTargets = 3;
                 break;

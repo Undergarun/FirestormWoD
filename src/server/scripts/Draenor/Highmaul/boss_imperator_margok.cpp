@@ -52,6 +52,8 @@ class boss_imperator_margok : public CreatureScript
             MarkOfChaosDisplacementAura             = 164176,
             MarkOfChaosFortificationAura            = 164178,
             FetterMarkOfChaosRootAura               = 158619,
+            MarkOfChaosReplicationAura              = 164191,
+            OrbsOfChaosDummyAura                    = 160447,
             /// AcceleratedAssault
             AcceleratedAssault                      = 159515,
             /// Arcane Aberration
@@ -59,6 +61,7 @@ class boss_imperator_margok : public CreatureScript
             SummonArcaneAberrationCosmetic          = 164318,   ///< Sniffed, but I don't know why
             SummonDisplacingArcaneAberration        = 164299,
             SummonFortifiedArcaneAberration         = 164301,
+            SummonReplicatingArcaneAberration       = 164303,
             /// Destructive Resonance
             DestructiveResonanceDebuff              = 159200,
             DestructiveResonanceSearcher            = 156467,
@@ -66,6 +69,7 @@ class boss_imperator_margok : public CreatureScript
             DestructiveResonanceSummon              = 156734,
             DestructiveResonanceDisplacementSearch  = 164075,
             DestructiveResonanceFortificationSearch = 164076,
+            DestructiveResonanceReplicationSearch   = 164077,
             /// Arcane Wrath
             ArcaneWrathSearcher                     = 156238,
             ArcaneWrathCosmetic                     = 163968,   ///< Sniffed, but I don't know why
@@ -74,6 +78,8 @@ class boss_imperator_margok : public CreatureScript
             ArcaneWrathBrandedDisplacement          = 164004,
             ArcaneWrathFortificationSearcher        = 163989,
             ArcaneWrathBrandedFortification         = 164005,
+            ArcaneWrathReplicationSearcher          = 163990,
+            ArcaneWrathBrandedReplication           = 164006,
             /// Force Nova
             ForceNovaCasting                        = 157349,   ///< CastTime
             ForceNovaScriptEffect                   = 164227,   ///< Sniffed, but I don't know why
@@ -85,7 +91,9 @@ class boss_imperator_margok : public CreatureScript
             ForceNovaAreaTrigger                    = 157327,   ///< Triggers knock back too
             ForceNovaFortificationCasting           = 164235,   ///< Cast Time
             ForceNovaFortifiedPeriodicAura          = 157323,   ///< 8s periodic for Phase 3
-            ForceNovaFortificationDummy             = 164253
+            ForceNovaFortificationDummy             = 164253,
+            ForceNovaReplicationCasting             = 164240,   ///< CastTime
+            ForceNovaReplicationDummy               = 164254    ///< Visual effect
         };
 
         enum eEvents
@@ -108,6 +116,12 @@ class boss_imperator_margok : public CreatureScript
             EventArcaneWrathFortification,
             EventDestructiveResonanceFortification,
             EventArcaneAberrationFortification,
+            /// Phase 4
+            EventMarkOfChaosReplication,
+            EventForceNovaReplication,
+            EventArcaneWrathReplication,
+            EventDestructiveResonanceReplication,
+            EventArcaneAberrationReplication,
             EventBerserk
         };
 
@@ -119,7 +133,8 @@ class boss_imperator_margok : public CreatureScript
         enum eActions
         {
             ActionIntro,
-            ActionFinishIntro
+            ActionFinishIntro,
+            ActionTalkOrbsOfChaos
         };
 
         enum eCreatures
@@ -130,7 +145,9 @@ class boss_imperator_margok : public CreatureScript
             SLGGenericMoPLargeAoI   = 68553,
             WarmageSummonStalker    = 77682,
             GorianWarmage           = 78121,
-            VolatileAnomaly         = 78077
+            VolatileAnomaly         = 78077,
+            GorianReaver            = 78549,
+            ArcaneRemnant           = 79388
         };
 
         enum eTalks
@@ -156,7 +173,8 @@ class boss_imperator_margok : public CreatureScript
             Slay,
             Berserk,
             Death,
-            Branded
+            Branded,
+            OrbsOfChaos
         };
 
         enum eAnimKit
@@ -275,18 +293,7 @@ class boss_imperator_margok : public CreatureScript
                 });
 
                 ResetRunes();
-
-                std::list<Creature*> l_CreatureList;
-                me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::GorianWarmage, 200.0f);
-
-                for (Creature* l_Iter : l_CreatureList)
-                    l_Iter->DespawnOrUnsummon();
-
-                l_CreatureList.clear();
-                me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::VolatileAnomaly, 200.0f);
-
-                for (Creature* l_Iter : l_CreatureList)
-                    l_Iter->DespawnOrUnsummon();
+                DespawnAdds();
             }
 
             void JustReachedHome() override
@@ -320,6 +327,11 @@ class boss_imperator_margok : public CreatureScript
                     case eActions::ActionFinishIntro:
                     {
                         Talk(eTalks::Intro3);
+                        break;
+                    }
+                    case eActions::ActionTalkOrbsOfChaos:
+                    {
+                        Talk(eTalks::OrbsOfChaos);
                         break;
                     }
                     default:
@@ -473,6 +485,9 @@ class boss_imperator_margok : public CreatureScript
 
                 Talk(eTalks::Death);
 
+                ResetRunes();
+                DespawnAdds();
+
                 summons.DespawnAll();
 
                 if (m_Instance != nullptr)
@@ -481,10 +496,15 @@ class boss_imperator_margok : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfChaosAura);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfChaosDisplacementAura);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfChaosFortificationAura);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfChaosReplicationAura);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::DestructiveResonanceDebuff);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ArcaneWrathBranded);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ArcaneWrathBrandedDisplacement);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ArcaneWrathBrandedFortification);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ArcaneWrathBrandedReplication);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::FetterMarkOfChaosRootAura);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::OrbsOfChaosDummyAura);
 
                     if (IsLFR())
                     {
@@ -540,10 +560,15 @@ class boss_imperator_margok : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfChaosAura);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfChaosDisplacementAura);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfChaosFortificationAura);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfChaosReplicationAura);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::DestructiveResonanceDebuff);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ArcaneWrathBranded);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ArcaneWrathBrandedDisplacement);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ArcaneWrathBrandedFortification);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ArcaneWrathBrandedReplication);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::FetterMarkOfChaosRootAura);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::OrbsOfChaosDummyAura);
                 }
             }
 
@@ -620,6 +645,7 @@ class boss_imperator_margok : public CreatureScript
                     case eSpells::DestructiveResonanceSearcher:
                     case eSpells::DestructiveResonanceDisplacementSearch:
                     case eSpells::DestructiveResonanceFortificationSearch:
+                    case eSpells::DestructiveResonanceReplicationSearch:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
                             me->CastSpell(l_Target, eSpells::DestructiveResonanceSummon, true);
@@ -745,6 +771,37 @@ class boss_imperator_margok : public CreatureScript
                         ++m_NovaCount;
                         break;
                     }
+                    case eSpells::ArcaneWrathReplicationSearcher:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                            me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedReplication, true);
+
+                        break;
+                    }
+                    case eSpells::ForceNovaReplicationCasting:
+                    {
+                        /// This spell should knock back players in melee range
+                        me->CastSpell(me, eSpells::ForceNovaKnockBack, true);
+                        me->CastSpell(me, eSpells::ForceNovaReplicationDummy, true);
+
+                        m_IsInNova = true;
+                        m_NovaTime = 0;
+                        m_NovaPos = *me;
+
+                        /// Force Nova has a radius of 100 yards and moves with a speed of 7 yards per second
+                        uint32 l_Time = float(100.0f / 7.0f) * float(TimeConstants::IN_MILLISECONDS);
+                        AddTimedDelayedOperation(l_Time, [this]() -> void
+                        {
+                            m_IsInNova = false;
+                            m_NovaTime = 0;
+                            m_NovaPos = Position();
+
+                            if (m_Instance)
+                                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ForceNovaDoT);
+                        });
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -802,6 +859,20 @@ class boss_imperator_margok : public CreatureScript
                     case eSpells::MarkOfChaosFortificationAura:
                     {
                         me->CastSpell(p_Target, eSpells::FetterMarkOfChaosRootAura, true);
+                        break;
+                    }
+                    case eSpells::ArcaneWrathBrandedReplication:
+                    {
+                        /// m_BrandedStacks only counts the jumps, we must add 1
+                        if (AuraPtr l_Branded = p_Target->GetAura(eSpells::ArcaneWrathBrandedFortification, me->GetGUID()))
+                            l_Branded->SetStackAmount(m_BrandedStacks + 1);
+
+                        Talk(eTalks::Branded, p_Target->GetGUID());
+                        break;
+                    }
+                    case eSpells::MarkOfChaosReplicationAura:
+                    {
+                        me->CastSpell(p_Target, eSpells::OrbsOfChaosDummyAura, true);
                         break;
                     }
                     default:
@@ -996,6 +1067,52 @@ class boss_imperator_margok : public CreatureScript
                         me->CastSpell(me, eSpells::SummonArcaneAberrationCosmetic, true);
                         Talk(eTalks::ArcaneAberration);
                         m_Events.ScheduleEvent(eEvents::EventArcaneAberrationFortification, 45 * TimeConstants::IN_MILLISECONDS, 0, ePhases::RuneOfFortification);
+                        break;
+                    }
+                    /// Phase 4
+                    case eEvents::EventMarkOfChaosReplication:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        {
+                            me->CastSpell(l_Target, eSpells::MarkOfChaosReplicationAura, false);
+                            me->CastSpell(l_Target, eSpells::MarkOfChaosCosmetic, true);
+                        }
+
+                        Talk(eTalks::MarkOfChaos);
+                        m_Events.ScheduleEvent(eEvents::EventMarkOfChaosReplication, 51 * TimeConstants::IN_MILLISECONDS, 0, ePhases::RuneOfReplication);
+                        break;
+                    }
+                    case eEvents::EventForceNovaReplication:
+                    {
+                        me->CastSpell(me, eSpells::ForceNovaReplicationCasting, false);
+                        me->CastSpell(me, eSpells::ForceNovaScriptEffect, true);
+
+                        Talk(eTalks::ForceNova);
+
+                        m_Events.ScheduleEvent(eEvents::EventForceNovaReplication, 45 * TimeConstants::IN_MILLISECONDS, 0, ePhases::RuneOfReplication);
+                        break;
+                    }
+                    case eEvents::EventArcaneWrathReplication:
+                    {
+                        Talk(eTalks::ArcaneWrath);
+                        me->CastSpell(me, eSpells::ArcaneWrathReplicationSearcher, false);
+                        me->CastSpell(me, eSpells::ArcaneWrathCosmetic, true);
+                        m_Events.ScheduleEvent(eEvents::EventArcaneWrathReplication, 50 * TimeConstants::IN_MILLISECONDS, 0, ePhases::RuneOfReplication);
+                        break;
+                    }
+                    case eEvents::EventDestructiveResonanceReplication:
+                    {
+                        me->CastSpell(me, eSpells::DestructiveResonanceReplicationSearch, false);
+                        me->CastSpell(me, eSpells::DestructiveResonanceCosmetic, true);
+                        m_Events.ScheduleEvent(eEvents::EventDestructiveResonanceReplication, 15 * TimeConstants::IN_MILLISECONDS, 0, ePhases::RuneOfReplication);
+                        break;
+                    }
+                    case eEvents::EventArcaneAberrationReplication:
+                    {
+                        me->CastSpell(me, eSpells::SummonReplicatingArcaneAberration, false);
+                        me->CastSpell(me, eSpells::SummonArcaneAberrationCosmetic, true);
+                        Talk(eTalks::ArcaneAberration);
+                        m_Events.ScheduleEvent(eEvents::EventArcaneAberrationReplication, 45 * TimeConstants::IN_MILLISECONDS, 0, ePhases::RuneOfReplication);
                         break;
                     }
                     case eEvents::EventBerserk:
@@ -1297,6 +1414,8 @@ class boss_imperator_margok : public CreatureScript
                         l_Stalker->CastSpell(l_Stalker, eSpells::SummonRuneVisual, true);
 
                     m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventSummonWarmages, 1 * TimeConstants::IN_MILLISECONDS);
+
+                    me->SummonCreature(eCreatures::GorianReaver, g_GorianReaverPos);
                 });
 
                 AddTimedDelayedOperation(41 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -1328,20 +1447,20 @@ class boss_imperator_margok : public CreatureScript
 
                     m_Events.SetPhase(m_Phase);
 
-                    /*uint32 l_Time = m_Events.GetEventTime(eEvents::EventMarkOfChaosDisplacement);
-                    m_Events.ScheduleEvent(eEvents::EventMarkOfChaosFortification, l_Time, 0, ePhases::RuneOfFortification);
+                    uint32 l_Time = m_Events.GetEventTime(eEvents::EventMarkOfChaosFortification);
+                    m_Events.ScheduleEvent(eEvents::EventMarkOfChaosReplication, l_Time, 0, ePhases::RuneOfReplication);
 
-                    l_Time = m_Events.GetEventTime(eEvents::EventForceNovaDisplacement);
-                    m_Events.ScheduleEvent(eEvents::EventForceNovaFortification, l_Time, 0, ePhases::RuneOfFortification);
+                    l_Time = m_Events.GetEventTime(eEvents::EventForceNovaFortification);
+                        ///m_Events.ScheduleEvent(eEvents::EventForceNovaReplication, l_Time, 0, ePhases::RuneOfReplication);
 
-                    l_Time = m_Events.GetEventTime(eEvents::EventArcaneWrathDisplacement);
-                    m_Events.ScheduleEvent(eEvents::EventArcaneWrathFortification, l_Time, 0, ePhases::RuneOfFortification);
+                    l_Time = m_Events.GetEventTime(eEvents::EventArcaneWrathFortification);
+                    ///m_Events.ScheduleEvent(eEvents::EventArcaneWrathReplication, l_Time, 0, ePhases::RuneOfReplication);
 
-                    l_Time = m_Events.GetEventTime(eEvents::EventDestructiveResonanceDisplacement);
-                    m_Events.ScheduleEvent(eEvents::EventDestructiveResonanceFortification, l_Time, 0, ePhases::RuneOfFortification);
+                    l_Time = m_Events.GetEventTime(eEvents::EventDestructiveResonanceFortification);
+                        ///m_Events.ScheduleEvent(eEvents::EventDestructiveResonanceReplication, l_Time, 0, ePhases::RuneOfReplication);
 
-                    l_Time = m_Events.GetEventTime(eEvents::EventArcaneAberrationDisplacement);
-                    m_Events.ScheduleEvent(eEvents::EventArcaneAberrationFortification, l_Time, 0, ePhases::RuneOfFortification);*/
+                    l_Time = m_Events.GetEventTime(eEvents::EventArcaneAberrationFortification);
+                        ///m_Events.ScheduleEvent(eEvents::EventArcaneAberrationReplication, l_Time, 0, ePhases::RuneOfReplication);
                 });
             }
 
@@ -1366,6 +1485,27 @@ class boss_imperator_margok : public CreatureScript
                     l_Trigger->RemoveAura(eSpells::FortificationRuneActive);
                     l_Trigger->RemoveAura(eSpells::ReplicationRuneActive);
                 }
+            }
+
+            void DespawnAdds()
+            {
+                std::list<Creature*> l_CreatureList;
+                me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::GorianWarmage, 200.0f);
+
+                for (Creature* l_Iter : l_CreatureList)
+                    l_Iter->DespawnOrUnsummon();
+
+                l_CreatureList.clear();
+                me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::VolatileAnomaly, 200.0f);
+
+                for (Creature* l_Iter : l_CreatureList)
+                    l_Iter->DespawnOrUnsummon();
+
+                l_CreatureList.clear();
+                me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::ArcaneRemnant, 200.0f);
+
+                for (Creature* l_Iter : l_CreatureList)
+                    l_Iter->DespawnOrUnsummon();
             }
         };
 
@@ -1403,6 +1543,7 @@ class npc_highmaul_rune_of_displacement : public CreatureScript
 /// Arcane Aberration - 77809
 /// Displacing Arcane Aberration - 77879
 /// Fortified Arcane Aberration - 77878
+/// Replicating Arcane Aberration - 77877
 class npc_highmaul_arcane_aberration : public CreatureScript
 {
     public:
@@ -1418,7 +1559,10 @@ class npc_highmaul_arcane_aberration : public CreatureScript
             DisplacerCharge         = 157254,
             ImpactfulPulse          = 160367,
             /// Phase  3
-            Fortified               = 157252
+            Fortified               = 157252,
+            /// Phase 4
+            Replicator              = 157249,
+            Replicate               = 160341
         };
 
         enum eCreatures
@@ -1435,6 +1579,11 @@ class npc_highmaul_arcane_aberration : public CreatureScript
             DisplacingAberration    = 45790,
             FortifiedAberration     = 45791,
             ReplicatingAberration   = 45792
+        };
+
+        enum eData
+        {
+            MaxRemnants = 7
         };
 
         struct npc_highmaul_arcane_aberrationAI : public MS::AI::CosmeticAI
@@ -1465,6 +1614,11 @@ class npc_highmaul_arcane_aberration : public CreatureScript
                         /// The Arcane Aberrations are now Fortified Icon Fortified, having 75% more health
                         /// And being immune to all crowd-control effects.
                         me->CastSpell(me, eSpells::Fortified, true);
+                        break;
+                    }
+                    case eCreatures::ReplicatingArcaneAberration:
+                    {
+                        me->CastSpell(me, eSpells::Replicator, true);
                         break;
                     }
                     default:
@@ -1535,6 +1689,14 @@ class npc_highmaul_arcane_aberration : public CreatureScript
                         me->CastSpell(me, eSpells::ImpactfulPulse, true);
                         break;
                     }
+                    case eCreatures::ReplicatingArcaneAberration:
+                    {
+                        /// Upon death, Replicating Arcane Aberrations split into 7 Arcane Remnants.
+                        for (uint8 l_I = 0; l_I < eData::MaxRemnants; ++l_I)
+                            me->CastSpell(me, eSpells::Replicate, true);
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1578,7 +1740,12 @@ class npc_highmaul_destructive_resonance : public CreatureScript
             /// Destructive Resonance: Fortification
             DestructiveResonanceFortificationAura   = 164088,
             FortificationMineVisualAura             = 156958,
-            FortificationVisualAura                 = 156982
+            FortificationVisualAura                 = 156982,
+            /// Destructive Resonance: Replication
+            DestructiveResonanceReplicationAura     = 164096,
+            ReplicationMineVisualAura               = 156957,
+            ReplicationVisualAura                   = 156977,
+            DestructiveResonanceReplicating         = 156799
         };
 
         enum eVisuals
@@ -1589,9 +1756,11 @@ class npc_highmaul_destructive_resonance : public CreatureScript
             DestructiveResonanceReplicationDespawn  = 45693
         };
 
-        enum eData
+        enum eDatas
         {
-            PhaseID = 1
+            PhaseID = 1,
+            /// Misc
+            ReplicationDupliCount = 2
         };
 
         enum ePhases
@@ -1621,7 +1790,7 @@ class npc_highmaul_destructive_resonance : public CreatureScript
                     if (Creature* l_Margok = Creature::GetCreature(*p_Creature, l_Script->GetData64(eHighmaulCreatures::ImperatorMargok)))
                     {
                         if (l_Margok->IsAIEnabled)
-                            m_Phase = l_Margok->AI()->GetData(eData::PhaseID);
+                            m_Phase = l_Margok->AI()->GetData(eDatas::PhaseID);
                     }
                 }
             }
@@ -1699,6 +1868,22 @@ class npc_highmaul_destructive_resonance : public CreatureScript
 
                         return;
                     }
+                    case ePhases::RuneOfReplication:
+                    {
+                        me->CastSpell(me, eSpells::DestructiveResonanceReplicationAura, true);
+
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->RemoveAura(eSpells::DestructiveResonanceReplicationAura);
+
+                            me->CastSpell(me, eSpells::ReplicationMineVisualAura, true);
+                            me->CastSpell(me, eSpells::ReplicationVisualAura, true);
+
+                            m_CanExplode = true;
+                        });
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1772,12 +1957,129 @@ class npc_highmaul_destructive_resonance : public CreatureScript
             {
                 me->RemoveAllAuras();
                 me->DespawnOrUnsummon();
+
+                /// In addition to Destructive Resonance's normal effects, two additional Destructive Resonances are created nearby when it detonates or expires.
+                if (m_Phase == ePhases::RuneOfReplication)
+                {
+                    if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
+                    {
+                        if (Creature* l_Margok = Creature::GetCreature(*me, l_InstanceScript->GetData64(eHighmaulCreatures::ImperatorMargok)))
+                        {
+                            float l_Radius = 8.0f;
+                            Position l_Pos = *me;
+
+                            for (uint8 l_I = 0; l_I < eDatas::ReplicationDupliCount; ++l_I)
+                            {
+                                float l_O = frand(0, 2 * M_PI);
+                                float l_X = l_Pos.m_positionX + (l_Radius * cos(l_O));
+                                float l_Y = l_Pos.m_positionY + (l_Radius * sin(l_O));
+
+                                l_Margok->CastSpell(l_X, l_Y, l_Pos.m_positionZ, eSpells::DestructiveResonanceReplicating, true);
+                            }
+                        }
+                    }
+                }
             }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_highmaul_destructive_resonanceAI(p_Creature);
+        }
+};
+
+/// Destructive Resonance (Replication) - 77681
+class npc_highmaul_destructive_resonance_replication : public CreatureScript
+{
+    public:
+        npc_highmaul_destructive_resonance_replication() : CreatureScript("npc_highmaul_destructive_resonance_replication") { }
+
+        enum eSpells
+        {
+            DestructiveResonanceDebuff              = 159200,
+            DestructiveResonanceDamage              = 156673,
+            /// Destructive Resonance: Replication
+            DestructiveResonanceReplicationAura     = 164096,
+            ReplicationMineVisualAura               = 156957,
+            ReplicationVisualAura                   = 156977,
+            DestructiveResonanceReplicating         = 156799
+        };
+
+        enum eVisual
+        {
+            DestructiveResonanceReplicationDespawn = 45693
+        };
+
+        enum eTalk
+        {
+            DestructiveResonance
+        };
+
+        struct npc_highmaul_destructive_resonance_replicationAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_destructive_resonance_replicationAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_CanExplode = false;
+            }
+
+            bool m_CanExplode;
+
+            void Reset() override
+            {
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                me->CastSpell(me, eSpells::DestructiveResonanceReplicationAura, true);
+
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->RemoveAura(eSpells::DestructiveResonanceReplicationAura);
+
+                    me->CastSpell(me, eSpells::ReplicationMineVisualAura, true);
+                    me->CastSpell(me, eSpells::ReplicationVisualAura, true);
+
+                    m_CanExplode = true;
+                });
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!m_CanExplode)
+                    return;
+
+                float l_Radius = 3.0f;
+
+                if (Player* l_Player = me->FindNearestPlayer(l_Radius))
+                {
+                    me->CastSpell(l_Player, eSpells::DestructiveResonanceDebuff, true);
+                    me->CastSpell(l_Player, eSpells::DestructiveResonanceDamage, true);
+
+                    me->SendPlaySpellVisualKit(eVisual::DestructiveResonanceReplicationDespawn, 0);
+
+                    Talk(eTalk::DestructiveResonance, l_Player->GetGUID());
+
+                    Despawn();
+
+                    m_CanExplode = false;
+                }
+            }
+
+            void Despawn()
+            {
+                me->RemoveAllAuras();
+                me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_destructive_resonance_replicationAI(p_Creature);
         }
 };
 
@@ -1818,6 +2120,8 @@ class npc_highmaul_gorian_warmage : public CreatureScript
 
             void Reset() override
             {
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
                 m_FixateTarget = 0;
 
                 me->CastSpell(me, eSpells::DominanceAura, true);
@@ -1947,9 +2251,159 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
         }
 };
 
+/// Gorian Reaver - 78549
+class npc_highmaul_gorian_reaver : public CreatureScript
+{
+    public:
+        npc_highmaul_gorian_reaver() : CreatureScript("npc_highmaul_gorian_reaver") { }
+
+        enum eSpells
+        {
+            DevastatingShockwave    = 158547,
+            CrushArmor              = 158553,
+            KickToTheFace           = 158563
+        };
+
+        enum eEvents
+        {
+            EventCrushArmor = 1,
+            EventKickToTheFace,
+            EventDevastatingShockwave
+        };
+
+        struct npc_highmaul_gorian_reaverAI : public ScriptedAI
+        {
+            npc_highmaul_gorian_reaverAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                if (Player* l_Target = me->SelectNearestPlayerNotGM(200.0f))
+                    AttackStart(l_Target);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
+
+                m_Events.Reset();
+
+                m_Events.ScheduleEvent(eEvents::EventCrushArmor, 22 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventKickToTheFace, 41 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventDevastatingShockwave, 12 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventCrushArmor:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::CrushArmor, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventCrushArmor, 11 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventKickToTheFace:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        {
+                            me->CastSpell(l_Target, eSpells::KickToTheFace, true);
+                            me->getThreatManager().modifyThreatPercent(l_Target, -100);
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventKickToTheFace, 25 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventDevastatingShockwave:
+                    {
+                        me->CastSpell(me, eSpells::DevastatingShockwave, true);
+                        m_Events.ScheduleEvent(eEvents::EventDevastatingShockwave, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_gorian_reaverAI(p_Creature);
+        }
+};
+
+/// Arcane Remnant - 79388
+class npc_highmaul_arcane_remnant : public CreatureScript
+{
+    public:
+        npc_highmaul_arcane_remnant() : CreatureScript("npc_highmaul_arcane_remnant") { }
+
+        enum eSpell
+        {
+            ReverseDeath = 157099
+        };
+
+        struct npc_highmaul_arcane_remnantAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_arcane_remnantAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpell::ReverseDeath, true);
+
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (Player* l_Target = me->SelectNearestPlayerNotGM(50.0f))
+                        AttackStart(l_Target);
+                });
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_arcane_remnantAI(p_Creature);
+        }
+};
+
 /// Mark of Chaos - 158605
 /// Mark of Chaos: Displacement - 164176
 /// Mark of Chaos: Fortification - 164178
+/// Mark of Chaos: Replication - 164191
 class spell_highmaul_mark_of_chaos : public SpellScriptLoader
 {
     public:
@@ -2332,7 +2786,7 @@ class spell_highmaul_transition_visuals : public SpellScriptLoader
     public:
         spell_highmaul_transition_visuals() : SpellScriptLoader("spell_highmaul_transition_visuals") { }
 
-        enum eSpell
+        enum eSpells
         {
             TransitionVisualMissileP1   = 176581,
             TransitionVisualMissileP2   = 176582,
@@ -2378,21 +2832,21 @@ class spell_highmaul_transition_visuals : public SpellScriptLoader
                             case ePhases::RuneOfDisplacement:
                             {
                                 for (uint8 l_I = 0; l_I < eDatas::MissileCountP1; ++l_I)
-                                    l_Target->CastSpell(l_Margok, eSpell::TransitionVisualMissileP1, true);
+                                    l_Target->CastSpell(l_Margok, eSpells::TransitionVisualMissileP1, true);
 
                                 break;
                             }
                             case ePhases::DormantRunestones:
                             {
                                 for (uint8 l_I = 0; l_I < eDatas::MissileCountP2; ++l_I)
-                                    l_Target->CastSpell(l_Margok, eSpell::TransitionVisualMissileP2, true);
+                                    l_Target->CastSpell(l_Margok, eSpells::TransitionVisualMissileP2, true);
 
                                 break;
                             }
                             case ePhases::LineageOfPower:
                             {
                                 for (uint8 l_I = 0; l_I < eDatas::MissileCountP3; ++l_I)
-                                    l_Target->CastSpell(l_Margok, eSpell::TransitionVisualMissileP3, true);
+                                    l_Target->CastSpell(l_Margok, eSpells::TransitionVisualMissileP3, true);
 
                                 break;
                             }
@@ -2530,6 +2984,192 @@ class spell_highmaul_force_nova_fortified : public SpellScriptLoader
         }
 };
 
+/// Devastating Shockwave - 158547
+class spell_highmaul_devastating_shockwave : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_devastating_shockwave() : SpellScriptLoader("spell_highmaul_devastating_shockwave") { }
+
+        class spell_highmaul_devastating_shockwave_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_devastating_shockwave_SpellScript);
+
+            enum eSpell
+            {
+                TargetRestrict = 19856
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Angle = 2 * M_PI / 360 * l_Restriction->ConeAngle;
+                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster, l_Angle))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_devastating_shockwave_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_devastating_shockwave_SpellScript();
+        }
+};
+
+/// Force Nova (DoT) - 157353
+class spell_highmaul_force_nova_dot : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_force_nova_dot() : SpellScriptLoader("spell_highmaul_force_nova_dot") { }
+
+        enum eSpell
+        {
+            ForceNovaReplicationAoEDamage = 178416  ///< Damaging spell for allies
+        };
+
+        enum eData
+        {
+            PhaseID = 1
+        };
+
+        enum ePhase
+        {
+            RuneOfReplication = 6
+        };
+
+        class spell_highmaul_force_nova_dot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_force_nova_dot_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (Creature* l_Margok = l_Target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 40.0f))
+                    {
+                        if (!l_Margok->IsAIEnabled)
+                            return;
+
+                        uint8 l_Phase = l_Margok->AI()->GetData(eData::PhaseID);
+                        if (l_Phase != ePhase::RuneOfReplication)
+                            return;
+
+                        l_Target->CastSpell(l_Target, eSpell::ForceNovaReplicationAoEDamage, true);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_force_nova_dot_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_force_nova_dot_AuraScript();
+        }
+};
+
+/// Orbs of Chaos (Dummy aura) - 160447
+class spell_highmaul_orbs_of_chaos_aura : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_orbs_of_chaos_aura() : SpellScriptLoader("spell_highmaul_orbs_of_chaos_aura") { }
+
+        enum eSpells
+        {
+            OrbsOfChaosSummoning = 158639
+        };
+
+        enum eAction
+        {
+            ActionTalkOrbsOfChaos = 2
+        };
+
+        class spell_highmaul_orbs_of_chaos_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_orbs_of_chaos_aura_AuraScript);
+
+            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT)
+                    return;
+
+                if (Unit* l_Target = GetTarget())
+                {
+                    l_Target->CastSpell(l_Target, eSpells::OrbsOfChaosSummoning, true);
+
+                    if (Creature* l_Margok = l_Target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 300.0f))
+                    {
+                        if (!l_Margok->IsAIEnabled)
+                            return;
+
+                        l_Margok->AI()->DoAction(eAction::ActionTalkOrbsOfChaos);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_orbs_of_chaos_aura_AuraScript::AfterAuraRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_orbs_of_chaos_aura_AuraScript();
+        }
+};
+
+/// Orb of Chaos - 158639
+class areatrigger_highmaul_orb_of_chaos : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_orb_of_chaos() : AreaTriggerEntityScript("areatrigger_highmaul_orb_of_chaos") { }
+
+        enum eSpell
+        {
+            OrbOfChaosDamage = 158648
+        };
+
+        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        {
+            p_AreaTrigger->SetTimeToTarget(30 * TimeConstants::IN_MILLISECONDS);
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_orb_of_chaos();
+        }
+};
+
 void AddSC_boss_imperator_margok()
 {
     /// Boss
@@ -2539,8 +3179,11 @@ void AddSC_boss_imperator_margok()
     new npc_highmaul_rune_of_displacement();
     new npc_highmaul_arcane_aberration();
     new npc_highmaul_destructive_resonance();
+    new npc_highmaul_destructive_resonance_replication();
     new npc_highmaul_gorian_warmage();
     new npc_highmaul_volatile_anomaly();
+    new npc_highmaul_gorian_reaver();
+    new npc_highmaul_arcane_remnant();
 
     /// Spells
     new spell_highmaul_mark_of_chaos();
@@ -2552,6 +3195,10 @@ void AddSC_boss_imperator_margok()
     new spell_highmaul_transition_visuals();
     new spell_highmaul_dominance_aura();
     new spell_highmaul_force_nova_fortified();
+    new spell_highmaul_devastating_shockwave();
+    new spell_highmaul_force_nova_dot();
+    new spell_highmaul_orbs_of_chaos_aura();
 
     /// AreaTriggers
+    new areatrigger_highmaul_orb_of_chaos();
 }

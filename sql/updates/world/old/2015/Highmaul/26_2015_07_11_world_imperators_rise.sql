@@ -199,6 +199,7 @@ UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry = 89081;
 # Arcane Aberration
 # Displacing Arcane Aberration
 # Fortified Arcane Aberration
+# Replicating Arcane Aberration
 UPDATE creature_template SET
     minlevel       = 102,
     maxlevel       = 102,
@@ -206,9 +207,9 @@ UPDATE creature_template SET
     unit_class     = 8,
     dmg_multiplier = 4,
     ScriptName     = 'npc_highmaul_arcane_aberration'
-WHERE entry IN (77809, 77879, 77878);
+WHERE entry IN (77809, 77879, 77878, 77877);
 
-UPDATE creature_model_info SET bounding_radius = 0.7, combat_reach = 5 WHERE modelid IN (55131, 55142, 55143);
+UPDATE creature_model_info SET bounding_radius = 0.7, combat_reach = 5 WHERE modelid IN (55131, 55142, 55143, 55144);
 
 # Destructive Resonance
 UPDATE creature_template SET
@@ -219,6 +220,16 @@ UPDATE creature_template SET
     faction        = 14,
     ScriptName     = 'npc_highmaul_destructive_resonance'
 WHERE entry = 77637;
+
+# Destructive Resonance (Replication)
+UPDATE creature_template SET
+    modelid1       = 11686,
+    modelid2       = 0,
+    minlevel       = 102,
+    maxlevel       = 102,
+    faction        = 14,
+    ScriptName     = 'npc_highmaul_destructive_resonance_replication'
+WHERE entry = 77681;
 
 # Gorian Warmage
 UPDATE creature_template SET
@@ -244,8 +255,30 @@ WHERE entry = 78077;
 
 UPDATE creature_model_info SET bounding_radius = 0.465, combat_reach = 1.5 WHERE modelid = 54282;
 
+# Gorian Reaver
+UPDATE creature_template SET
+    minlevel       = 102,
+    maxlevel       = 102,
+    faction        = 16,
+    dmg_multiplier = 4,
+    ScriptName     = 'npc_highmaul_gorian_reaver'
+WHERE entry = 78549;
+
+UPDATE creature_model_info SET bounding_radius = 1.125, combat_reach = 5.625 WHERE modelid = 54586;
+
+# Arcane Remnant
+UPDATE creature_template SET
+    minlevel       = 102,
+    maxlevel       = 102,
+    faction        = 16,
+    dmg_multiplier = 2,
+    ScriptName     = 'npc_highmaul_arcane_remnant'
+WHERE entry = 79388;
+
+UPDATE creature_model_info SET bounding_radius = 0.2625, combat_reach = 1.875 WHERE modelid = 55373;
+
 # Equipments
-DELETE FROM creature_equip_template WHERE entry IN (87619, 87910, 81269, 86256, 81806, 81780, 81807, 81809, 81808, 81810, 81811, 87293, 77428, 78121);
+DELETE FROM creature_equip_template WHERE entry IN (87619, 87910, 81269, 86256, 81806, 81780, 81807, 81809, 81808, 81810, 81811, 87293, 77428, 78121, 78549);
 INSERT INTO creature_equip_template VALUES
 (87619, 1, 110457, 110457, 0),
 (87910, 1, 111046, 0, 0),
@@ -260,11 +293,28 @@ INSERT INTO creature_equip_template VALUES
 (81811, 1, 111743, 0, 0),
 (87293, 1, 79006, 79006, 0),
 (77428, 1, 115015, 0, 0),
-(78121, 1, 108761, 108761, 0);
+(78121, 1, 108761, 108761, 0),
+(78549, 1, 107737, 0, 0);
 
-DELETE FROM areatrigger_template WHERE spell_id IN (175047);
-INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags, ScriptName) VALUE
-(175047, 0, 175047, 2, 1, 1, 0x4000, 'areatrigger_highmaul_arcane_residue');
+DELETE FROM areatrigger_template WHERE spell_id IN (175047, 158639);
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags, move_curve_id, ScriptName) VALUE
+(175047, 0, 175047, 2, 1, 1, 0x4000, 0, 'areatrigger_highmaul_arcane_residue'),
+(158639, 0, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 1, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 2, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 3, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 4, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 5, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 6, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 7, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 8, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 9, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 10, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 11, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 12, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 13, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 14, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 15, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos');
 
 DELETE FROM spell_script_names WHERE ScriptName IN
 (
@@ -279,7 +329,9 @@ DELETE FROM spell_script_names WHERE ScriptName IN
     'spell_highmaul_transition_visuals',
     'spell_highmaul_berserker_rush_damage',
     'spell_highmaul_dominance_aura',
-    'spell_highmaul_force_nova_fortified'
+    'spell_highmaul_force_nova_fortified',
+    'spell_highmaul_devastating_shockwave',
+    'spell_highmaul_force_nova_dot'
 );
 INSERT INTO spell_script_names VALUES
 (174981, 'spell_highmaul_unstable_tempest'),
@@ -287,6 +339,7 @@ INSERT INTO spell_script_names VALUES
 (158605, 'spell_highmaul_mark_of_chaos'),
 (164176, 'spell_highmaul_mark_of_chaos'),
 (164178, 'spell_highmaul_mark_of_chaos'),
+(164191, 'spell_highmaul_mark_of_chaos'),
 (174116, 'spell_highmaul_destructive_resonance'),
 (156225, 'spell_highmaul_branded'),
 (164004, 'spell_highmaul_branded_displacement'),
@@ -295,7 +348,9 @@ INSERT INTO spell_script_names VALUES
 (176580, 'spell_highmaul_transition_visuals'),
 (159002, 'spell_highmaul_berserker_rush_damage'),
 (174126, 'spell_highmaul_dominance_aura'),
-(157323, 'spell_highmaul_force_nova_fortified');
+(157323, 'spell_highmaul_force_nova_fortified'),
+(158547, 'spell_highmaul_devastating_shockwave'),
+(157353, 'spell_highmaul_force_nova_dot');
 
 DELETE FROM spell_proc_event WHERE entry IN (174116);
 INSERT INTO spell_proc_event (entry, procFlags) VALUE
@@ -338,6 +393,7 @@ INSERT INTO creature_text VALUES
 (77428, 19, 0, 'I tire of this. Begone!', 14, 0, 100, 0, 0, 42016, 'MargokBerserk'),
 (77428, 20, 0, 'I... am... king...', 14, 0, 100, 0, 0, 42017, 'MargokDeath'),
 (77428, 21, 0, '|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t You have been branded by |cFFF00000|Hspell:156238|h[Arcane Wrath]|h|r!', 41, 0, 100, 0, 0, 0, 'MargokBranded'),
+(77428, 22, 0, '|TINTERFACE\\ICONS\\spell_Mage_NetherTempest.blp:20|t |cFFF00000|Hspell:158648|h[Orbs of Chaos]|h|r explode from $n!', 41, 0, 100, 0, 0, 0, 'MargokOrbsOfChaos'),
 
 (77637, 0, 0, '$n detonated Destructive Resonance!', 16, 0, 100, 0, 0, 0, 'MargokDestructiveResonance');
 
@@ -532,6 +588,13 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     '|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t Ihr wurdet von |cFFF00000|Hspell:156238|h[Arkanem Zorn]|h|r gebrandmarkt!',
     '¡|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t Te ha marcado |cFFF00000|Hspell:156238|h[Cólera Arcana]|h|r!',
     '|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t Вы отмечены заклинанием |cFFF00000|Hspell:156238|h[\"Чародейский гнев\"]|h|r!'
+),
+(
+    77428, 22, 0,
+    '|TINTERFACE\\ICONS\\spell_Mage_NetherTempest.blp:20|t Des |cFFF00000|Hspell:158648|h[Orbes du chaos]|h|r jaillissent de $n !',
+    '|TINTERFACE\\ICONS\\spell_Mage_NetherTempest.blp:20|t |cFFF00000|Hspell:158648|h[Kugeln des Chaos]|h|r explodieren aus $n!',
+    '¡|TINTERFACE\\ICONS\\spell_Mage_NetherTempest.blp:20|t |cFFF00000|Hspell:158648|h[Orbe del caos]|h|r explotó por $n!',
+    '|TINTERFACE\\ICONS\\spell_Mage_NetherTempest.blp:20|t |cFFF00000|Hspell:158648|h[Сферы хаоса]|h|r взрываются вокруг |3-1($n)!'
 ),
 (
     77637, 0, 0,
