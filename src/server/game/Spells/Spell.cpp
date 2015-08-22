@@ -5342,7 +5342,7 @@ void Spell::SendChannelUpdate(uint32 p_Time)
     if (p_Time == 0)
     {
         //m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
-        m_caster->SetChannelSpellID(uint32(0));
+        m_caster->SetChannelSpellID(nullptr);
     }
 
     WorldPacket l_Data(SMSG_SPELL_CHANNEL_UPDATE, 16 + 2 + 4);
