@@ -3526,7 +3526,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(10); ///< from 15.0f (RangeEntry.ID 11) to 40.0f
                 break;
             case 144757: /// Increased All Resist 05
-                spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
+                spellInfo->AttributesEx11 &= ~SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL;
                 break;
             case 170893:///< Kronus: Fracture
             case 177607:///< Fangraal: Entangling Roots
