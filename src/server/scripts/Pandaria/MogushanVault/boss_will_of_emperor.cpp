@@ -1212,7 +1212,7 @@ class mob_woe_add_generic : public CreatureScript
 
                                             me->CastSpell(target, SPELL_FOCALISED_DEFENSE, false);
                                             me->AddAura(SPELL_FOCALISED_ENERGY, target);
-                                            me->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, SPELL_FOCALISED_DEFENSE);
+                                            me->SetChannelSpellID(SPELL_FOCALISED_DEFENSE);
                                         }
                                     }
                                 }

@@ -5342,7 +5342,7 @@ void Spell::SendChannelUpdate(uint32 p_Time)
     if (p_Time == 0)
     {
         //m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
-        m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
+        m_caster->SetChannelSpellID(uint32(0));
     }
 
     WorldPacket l_Data(SMSG_SPELL_CHANNEL_UPDATE, 16 + 2 + 4);
@@ -5400,7 +5400,7 @@ void Spell::SendChannelStart(uint32 p_Duration)
 
     /// 101546 Spinning Crane Kick
     if (m_spellInfo->Id != 101546)
-        m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, m_spellInfo->Id);
+        m_caster->SetChannelSpellID(m_spellInfo->Id);
 }
 
 void Spell::SendResurrectRequest(Player* p_Target)

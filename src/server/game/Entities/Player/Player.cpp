@@ -20838,6 +20838,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     // clear channel spell data (if saved at channel spell casting)
     SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
     SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
+    SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, 0);
 
     // clear charm/summon related fields
     SetOwnerGUID(0);

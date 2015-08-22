@@ -692,7 +692,6 @@ public:
 
     WorldLocation* GetDestTarget() const { return destTarget; }
     uint32 GetUnitTargetCount() const { return m_UniqueTargetInfo.size(); }
-
 protected:
     bool HasGlobalCooldown() const;
     void TriggerGlobalCooldown();

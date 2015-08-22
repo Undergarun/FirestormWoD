@@ -2670,6 +2670,8 @@ class Unit : public WorldObject
         ///     LowGuid          SpellIDs
         std::map<uint32, std::set<uint32>> m_PoisonTargets;
 
+        void SetChannelSpellID(uint32 p_SpellID);
+        void SetChannelSpellID(SpellInfo const* p_SpellInfo);
     public:
         uint64 _petBattleId;
 

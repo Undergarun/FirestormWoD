@@ -1862,7 +1862,7 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
         creature->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, creature->GetGUID());
         // aura
         // casting visual effect
-        creature->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
+        creature->SetChannelSpellID(SPELL_SPIRIT_HEAL_CHANNEL);
         // correct cast speed
         creature->SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
         creature->SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);

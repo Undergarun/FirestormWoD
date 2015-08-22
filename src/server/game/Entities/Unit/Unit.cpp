@@ -22053,3 +22053,22 @@ void Unit::ClearPoisonTargets()
 {
     m_PoisonTargets.clear();
 }
+
+void Unit::SetChannelSpellID(uint32 p_SpellID)
+{
+    SetChannelSpellID(sSpellMgr->GetSpellInfo(p_SpellID));
+}
+
+void Unit::SetChannelSpellID(SpellInfo const* p_SpellInfo)
+{
+    if (p_SpellInfo)
+    {
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, p_SpellInfo->Id);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, p_SpellInfo->FirstSpellXSpellVIsualID);
+    }
+    else
+    {
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, 0);
+    }
+}
