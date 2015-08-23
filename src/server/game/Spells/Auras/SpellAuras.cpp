@@ -479,8 +479,7 @@ AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* o
 Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, uint64 casterGUID) :
 m_spellInfo(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()),
 m_castItemGuid(castItem ? castItem->GetGUID() : 0), m_applyTime(time(NULL)),
-m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
-m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
+m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
 {
     for (auto itr : m_spellInfo->SpellPowers)
@@ -496,6 +495,19 @@ m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
     m_duration = m_maxDuration;
     m_procCharges = CalcMaxCharges(caster);
     m_isUsingCharges = m_procCharges != 0;
+
+    if (castItem && caster)
+    {
+        if (Player* l_Player = caster->ToPlayer())
+        {
+            if (m_spellInfo->AttributesEx11 & SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL)
+                m_casterLevel = l_Player->GetEquipItemLevelFor(castItem->GetTemplate(), castItem);
+                
+        }
+    }
+    else
+        m_casterLevel = caster ? caster->getLevel() : m_spellInfo->SpellLevel;
+ 
     // m_casterLevel = cast item level/caster level, caster level should be saved to db, confirmed with sniffs
 }
 
