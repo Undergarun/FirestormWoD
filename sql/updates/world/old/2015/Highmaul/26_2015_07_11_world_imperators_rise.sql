@@ -607,3 +607,28 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     '¡$n detonó Resonancia destructiva!',
     '$n вызывает взрыв Разрушительного резонанса!'
 );
+
+SET @REF_MARGOK_NHM = 77428;
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_MARGOK_NHM;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_MARGOK_NHM, 113848, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113849, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113850, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113851, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113852, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113853, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113854, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113855, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113856, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113857, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113858, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113859, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113860, 0, 1, 1, 1, 1),
+(@REF_MARGOK_NHM, 113861, 0, 1, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_MARGOK_NHM WHERE `entry`= @REF_MARGOK_NHM;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_MARGOK_NHM;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_MARGOK_NHM, 1, 100, 1, 0, -@REF_MARGOK_NHM, 6);
