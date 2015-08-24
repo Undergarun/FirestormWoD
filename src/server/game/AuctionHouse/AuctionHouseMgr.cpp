@@ -216,7 +216,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
 }
 
 //this function sends mail to old bidder
-void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans)
+void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint64 newPrice, Player* newBidder, SQLTransaction& trans)
 {
     uint64 oldBidder_guid = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
     Player* oldBidder = ObjectAccessor::FindPlayer(oldBidder_guid);
@@ -673,7 +673,7 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt32(2, itemGUIDLow);
     stmt->setUInt32(3, owner);
     stmt->setUInt64(4, buyout);
-    stmt->setUInt64(5, uint64(expire_time));
+    stmt->setUInt32(5, expire_time);
     stmt->setUInt32(6, bidder);
     stmt->setUInt64(7, bid);
     stmt->setUInt64(8, startbid);

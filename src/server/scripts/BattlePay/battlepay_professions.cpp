@@ -71,7 +71,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
             std::list<SkillLineAbilityEntry const*> l_Abilities = sSpellMgr->GetTradeSpellFromSkill(t_SkillID);
             for (auto l_Abilitie : l_Abilities)
             {
-                if (l_Abilitie->min_value > 600)
+                if (l_Abilitie->spellId > 155748)   ///< last 5.4.7 spellid
                     continue;
 
                 l_Player->learnSpell(l_Abilitie->spellId, false);
