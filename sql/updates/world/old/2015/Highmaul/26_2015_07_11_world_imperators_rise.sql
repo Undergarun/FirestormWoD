@@ -299,21 +299,21 @@ INSERT INTO creature_equip_template VALUES
 DELETE FROM areatrigger_template WHERE spell_id IN (175047, 158639);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags, move_curve_id, ScriptName) VALUE
 (175047, 0, 175047, 2, 1, 1, 0x4000, 0, 'areatrigger_highmaul_arcane_residue'),
-(158639, 0, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 1, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 2, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 3, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 4, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 5, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 6, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 7, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 8, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 9, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 10, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 11, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 12, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 13, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
-(158639, 14, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 0, 6644, 2, 2, 2, 0x4080, 605, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 1, 6644, 2, 2, 2, 0x4080, 606, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 2, 6644, 2, 2, 2, 0x4080, 607, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 3, 6644, 2, 2, 2, 0x4080, 608, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 4, 6644, 2, 2, 2, 0x4080, 609, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 5, 6644, 2, 2, 2, 0x4080, 610, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 6, 6644, 2, 2, 2, 0x4080, 611, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 7, 6644, 2, 2, 2, 0x4080, 612, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 8, 6644, 2, 2, 2, 0x4080, 613, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 9, 6644, 2, 2, 2, 0x4080, 614, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 10, 6644, 2, 2, 2, 0x4080, 615, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 11, 6644, 2, 2, 2, 0x4080, 616, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 12, 6644, 2, 2, 2, 0x4080, 617, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 13, 6644, 2, 2, 2, 0x4080, 618, 'areatrigger_highmaul_orb_of_chaos'),
+(158639, 14, 6644, 2, 2, 2, 0x4080, 619, 'areatrigger_highmaul_orb_of_chaos'),
 (158639, 15, 6644, 2, 2, 2, 0x4080, 620, 'areatrigger_highmaul_orb_of_chaos');
 
 DELETE FROM spell_script_names WHERE ScriptName IN
@@ -325,13 +325,15 @@ DELETE FROM spell_script_names WHERE ScriptName IN
     'spell_highmaul_branded',
     'spell_highmaul_branded_displacement',
     'spell_highmaul_branded_fortification',
+    'spell_highmaul_branded_replication',
     'spell_highmaul_arcane_wrath_damage',
     'spell_highmaul_transition_visuals',
     'spell_highmaul_berserker_rush_damage',
     'spell_highmaul_dominance_aura',
     'spell_highmaul_force_nova_fortified',
     'spell_highmaul_devastating_shockwave',
-    'spell_highmaul_force_nova_dot'
+    'spell_highmaul_force_nova_dot',
+    'spell_highmaul_orbs_of_chaos_aura'
 );
 INSERT INTO spell_script_names VALUES
 (174981, 'spell_highmaul_unstable_tempest'),
@@ -344,13 +346,15 @@ INSERT INTO spell_script_names VALUES
 (156225, 'spell_highmaul_branded'),
 (164004, 'spell_highmaul_branded_displacement'),
 (164005, 'spell_highmaul_branded_fortification'),
+(164006, 'spell_highmaul_branded_replication'),
 (156239, 'spell_highmaul_arcane_wrath_damage'),
 (176580, 'spell_highmaul_transition_visuals'),
 (159002, 'spell_highmaul_berserker_rush_damage'),
 (174126, 'spell_highmaul_dominance_aura'),
 (157323, 'spell_highmaul_force_nova_fortified'),
 (158547, 'spell_highmaul_devastating_shockwave'),
-(157353, 'spell_highmaul_force_nova_dot');
+(157353, 'spell_highmaul_force_nova_dot'),
+(160447, 'spell_highmaul_orbs_of_chaos_aura');
 
 DELETE FROM spell_proc_event WHERE entry IN (174116);
 INSERT INTO spell_proc_event (entry, procFlags) VALUE

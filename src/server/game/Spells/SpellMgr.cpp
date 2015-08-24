@@ -3808,6 +3808,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156799: ///< Destructive Resonance (Other - Imperator Mar'gok)
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
+            case 158639: ///< Orbs of Chaos (1 - Imperator Mar'gok)
+            case 178415: ///< Orbs of Chaos (2 - Imperator Mar'gok)
+                for (uint8 l_I = EFFECT_4; l_I < MAX_EFFECTS; ++l_I)
+                    spellInfo->Effects[l_I].Effect = 0;
+
+                break;
             case 154901: ///< Seal Conduit (third)
                 spellInfo->MaxAffectedTargets = 3;
                 break;

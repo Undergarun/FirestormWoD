@@ -119,7 +119,8 @@ enum eHighmaulCreatures
     VolatileAnomaly         = 79956,
     /// Throne of the Imperator
     ImperatorMargok         = 77428,
-    HighCouncilorMalgris    = 81811
+    HighCouncilorMalgris    = 81811,
+    KingPrison              = 89185
 };
 
 enum eHighmaulGameobjects

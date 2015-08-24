@@ -46,6 +46,7 @@ class boss_imperator_margok : public CreatureScript
             SummonRuneVisual                        = 160351,
             SummonWarmage                           = 160366,
             VolatileAnomalies                       = 157265,
+            ImperatorMargokBonus                    = 177528,
             /// Mark of Chaos
             MarkOfChaosAura                         = 158605,
             MarkOfChaosCosmetic                     = 164161,
@@ -133,15 +134,13 @@ class boss_imperator_margok : public CreatureScript
         enum eActions
         {
             ActionIntro,
-            ActionFinishIntro,
-            ActionTalkOrbsOfChaos
+            ActionFinishIntro
         };
 
         enum eCreatures
         {
             SorcererKingVisualPoint = 89081,
             NpcRuneOfDisplacement   = 77429,
-            KingPrison              = 89185,
             SLGGenericMoPLargeAoI   = 68553,
             WarmageSummonStalker    = 77682,
             GorianWarmage           = 78121,
@@ -173,8 +172,7 @@ class boss_imperator_margok : public CreatureScript
             Slay,
             Berserk,
             Death,
-            Branded,
-            OrbsOfChaos
+            Branded
         };
 
         enum eAnimKit
@@ -193,6 +191,7 @@ class boss_imperator_margok : public CreatureScript
             /// Values datas
             BrandedStacks,
             PhaseID,
+            OrbOfChaosAngle,
             /// Misc
             MaxVisualPoint  = 8,
             MaxNovaPhase3   = 3
@@ -245,6 +244,8 @@ class boss_imperator_margok : public CreatureScript
             uint32 m_NovaTimePhase3[eDatas::MaxNovaPhase3];
             Position m_NovaPosPhase3[eDatas::MaxNovaPhase3];
 
+            uint8 m_OrbCount;
+
             Vehicle* m_Vehicle;
             InstanceScript* m_Instance;
 
@@ -275,6 +276,8 @@ class boss_imperator_margok : public CreatureScript
                     m_NovaTimePhase3[l_I] = 0;
                     m_NovaPosPhase3[l_I]  = Position();
                 }
+
+                m_OrbCount = 0;
 
                 me->RemoveAura(eSpells::AcceleratedAssault);
                 me->RemoveAura(eHighmaulSpells::Berserker);
@@ -327,11 +330,6 @@ class boss_imperator_margok : public CreatureScript
                     case eActions::ActionFinishIntro:
                     {
                         Talk(eTalks::Intro3);
-                        break;
-                    }
-                    case eActions::ActionTalkOrbsOfChaos:
-                    {
-                        Talk(eTalks::OrbsOfChaos);
                         break;
                     }
                     default:
@@ -506,6 +504,8 @@ class boss_imperator_margok : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::FetterMarkOfChaosRootAura);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::OrbsOfChaosDummyAura);
 
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::ImperatorMargokBonus, true);
+
                     if (IsLFR())
                     {
                         Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
@@ -580,6 +580,8 @@ class boss_imperator_margok : public CreatureScript
                         return m_BrandedStacks;
                     case eDatas::PhaseID:
                         return m_Phase;
+                    case eDatas::OrbOfChaosAngle:
+                        return m_OrbCount;
                     default:
                         break;
                 }
@@ -598,6 +600,11 @@ class boss_imperator_margok : public CreatureScript
                         else
                             m_BrandedStacks = 0;
 
+                        break;
+                    }
+                    case eDatas::OrbOfChaosAngle:
+                    {
+                        m_OrbCount = p_Value;
                         break;
                     }
                     default:
@@ -835,7 +842,7 @@ class boss_imperator_margok : public CreatureScript
                     case eSpells::MarkOfChaosDisplacementAura:
                     {
                         /// In addition to Mark of Chaos' normal effects, the target is teleported to a random location.
-                        if (Creature* l_Prison = me->FindNearestCreature(eCreatures::KingPrison, 150.0f))
+                        if (Creature* l_Prison = me->FindNearestCreature(eHighmaulCreatures::KingPrison, 150.0f))
                         {
                             float l_Range       = frand(15.0f, 50.0f);
                             float l_Orientation = frand(0.0f, 2 * M_PI);
@@ -872,6 +879,7 @@ class boss_imperator_margok : public CreatureScript
                     }
                     case eSpells::MarkOfChaosReplicationAura:
                     {
+                        m_OrbCount = 0;
                         me->CastSpell(p_Target, eSpells::OrbsOfChaosDummyAura, true);
                         break;
                     }
@@ -1451,16 +1459,16 @@ class boss_imperator_margok : public CreatureScript
                     m_Events.ScheduleEvent(eEvents::EventMarkOfChaosReplication, l_Time, 0, ePhases::RuneOfReplication);
 
                     l_Time = m_Events.GetEventTime(eEvents::EventForceNovaFortification);
-                        ///m_Events.ScheduleEvent(eEvents::EventForceNovaReplication, l_Time, 0, ePhases::RuneOfReplication);
+                    m_Events.ScheduleEvent(eEvents::EventForceNovaReplication, l_Time, 0, ePhases::RuneOfReplication);
 
                     l_Time = m_Events.GetEventTime(eEvents::EventArcaneWrathFortification);
-                    ///m_Events.ScheduleEvent(eEvents::EventArcaneWrathReplication, l_Time, 0, ePhases::RuneOfReplication);
+                    m_Events.ScheduleEvent(eEvents::EventArcaneWrathReplication, l_Time, 0, ePhases::RuneOfReplication);
 
                     l_Time = m_Events.GetEventTime(eEvents::EventDestructiveResonanceFortification);
-                        ///m_Events.ScheduleEvent(eEvents::EventDestructiveResonanceReplication, l_Time, 0, ePhases::RuneOfReplication);
+                    m_Events.ScheduleEvent(eEvents::EventDestructiveResonanceReplication, l_Time, 0, ePhases::RuneOfReplication);
 
                     l_Time = m_Events.GetEventTime(eEvents::EventArcaneAberrationFortification);
-                        ///m_Events.ScheduleEvent(eEvents::EventArcaneAberrationReplication, l_Time, 0, ePhases::RuneOfReplication);
+                    m_Events.ScheduleEvent(eEvents::EventArcaneAberrationReplication, l_Time, 0, ePhases::RuneOfReplication);
                 });
             }
 
@@ -2720,6 +2728,98 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
         }
 };
 
+/// Branded: Replication - 164006
+class spell_highmaul_branded_replication : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_branded_replication() : SpellScriptLoader("spell_highmaul_branded_replication") { }
+
+        enum eSpells
+        {
+            ArcaneWrathDamage = 156239
+        };
+
+        enum eData
+        {
+            BrandedStacks
+        };
+
+        class spell_highmaul_branded_replication_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_branded_replication_AuraScript);
+
+            void OnAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
+                    return;
+
+                /// Caster is Mar'gok
+                if (Creature* l_Margok = GetCaster()->ToCreature())
+                {
+                    if (!l_Margok->IsAIEnabled)
+                        return;
+
+                    if (Unit* l_Target = GetTarget())
+                    {
+                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
+
+                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+
+                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
+                        float l_JumpRange = 200.0f;
+                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
+                            l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
+
+                        /// In addition to Arcane Wrath's normal effects, a second player will be Branded the first time Arcane Wrath jumps.
+                        if (!l_Stacks)
+                        {
+                            std::list<Player*> l_PlrList;
+                            l_Target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
+
+                            if (l_PlrList.size() > 2)
+                            {
+                                l_PlrList.sort(JadeCore::ObjectDistanceOrderPred(l_Target));
+                                JadeCore::RandomResizeList(l_PlrList, 2);
+                            }
+
+                            /// Increase jump count
+                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+
+                            for (Player* l_Player : l_PlrList)
+                                l_Margok->CastSpell(l_Player, GetSpellInfo()->Id, true);
+
+                            return;
+                        }
+
+                        if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
+                        {
+                            /// Increase jump count
+                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+
+                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
+                            return;
+                        }
+
+                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
+                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_branded_replication_AuraScript::OnAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_branded_replication_AuraScript();
+        }
+};
+
 /// Arcane Wrath (damage) - 156239
 class spell_highmaul_arcane_wrath_damage : public SpellScriptLoader
 {
@@ -3103,9 +3203,14 @@ class spell_highmaul_orbs_of_chaos_aura : public SpellScriptLoader
             OrbsOfChaosSummoning = 158639
         };
 
-        enum eAction
+        enum eTalk
         {
-            ActionTalkOrbsOfChaos = 2
+            OrbsOfChaos = 22
+        };
+
+        enum eData
+        {
+            OrbOfChaosAngle = 2
         };
 
         class spell_highmaul_orbs_of_chaos_aura_AuraScript : public AuraScript
@@ -3127,7 +3232,18 @@ class spell_highmaul_orbs_of_chaos_aura : public SpellScriptLoader
                         if (!l_Margok->IsAIEnabled)
                             return;
 
-                        l_Margok->AI()->DoAction(eAction::ActionTalkOrbsOfChaos);
+                        l_Margok->AI()->SetData(eData::OrbOfChaosAngle, 0);
+                        l_Margok->AI()->Talk(eTalk::OrbsOfChaos, l_Target->GetGUID());
+
+                        if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
+                        {
+                            uint64 l_Guid = l_Target->GetGUID();
+                            l_AI->AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [l_AI, l_Guid]() -> void
+                            {
+                                if (Unit* l_Target = Unit::GetUnit(*l_AI->me, l_Guid))
+                                    l_Target->CastSpell(l_Target, eSpells::OrbsOfChaosSummoning, true);
+                            });
+                        }
                     }
                 }
             }
@@ -3148,20 +3264,98 @@ class spell_highmaul_orbs_of_chaos_aura : public SpellScriptLoader
 class areatrigger_highmaul_orb_of_chaos : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_highmaul_orb_of_chaos() : AreaTriggerEntityScript("areatrigger_highmaul_orb_of_chaos") { }
+        areatrigger_highmaul_orb_of_chaos() : AreaTriggerEntityScript("areatrigger_highmaul_orb_of_chaos")
+        {
+            m_DamageTimer = 0;
+        }
 
         enum eSpell
         {
             OrbOfChaosDamage = 158648
         };
 
+        enum eData
+        {
+            OrbOfChaosAngle = 2
+        };
+
+        uint32 m_DamageTimer;
+
         void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
         {
             p_AreaTrigger->SetTimeToTarget(30 * TimeConstants::IN_MILLISECONDS);
+
+            m_DamageTimer = 1 * TimeConstants::IN_MILLISECONDS;
+
+            if (InstanceScript* l_InstanceScript = p_Caster->GetInstanceScript())
+            {
+                if (Creature* l_Margok = Creature::GetCreature(*p_Caster, l_InstanceScript->GetData64(eHighmaulCreatures::ImperatorMargok)))
+                {
+                    if (!l_Margok->IsAIEnabled)
+                        return;
+
+                    float l_Angle = 0.0f;
+
+                    if (Creature* l_Prison = p_Caster->FindNearestCreature(eHighmaulCreatures::KingPrison, 150.0f))
+                        l_Angle = p_Caster->GetAngle(l_Prison);
+
+                    uint8 l_Count = l_Margok->AI()->GetData(eData::OrbOfChaosAngle);
+                    bool l_Reset = false;
+                    switch (l_Count)
+                    {
+                        case 0:
+                            l_Angle += -(2.0f * M_PI / 6.0f);
+                            break;
+                        case 1:
+                            l_Angle += -(M_PI / 6.0f);
+                            break;
+                        case 2:
+                            l_Angle += M_PI / 6.0f;
+                            break;
+                        case 3:
+                            l_Angle += 2.0f * M_PI / 6.0f;
+                            l_Reset = true;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (l_Reset)
+                        l_Margok->AI()->SetData(eData::OrbOfChaosAngle, 0);
+                    else
+                        l_Margok->AI()->SetData(eData::OrbOfChaosAngle, ++l_Count);
+
+                    float l_Radius = 250.0f;
+                    p_DestinationPosition.m_positionX = p_DestinationPosition.m_positionX + (l_Radius * cos(l_Angle));
+                    p_DestinationPosition.m_positionY = p_DestinationPosition.m_positionY + (l_Radius * sin(l_Angle));
+                }
+            }
         }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                if (m_DamageTimer)
+                {
+                    if (m_DamageTimer <= p_Time)
+                    {
+                        std::list<Player*> l_TargetList;
+                        float l_Radius = 1.5f;
+
+                        JadeCore::AnyPlayerInObjectRangeCheck l_Check(p_AreaTrigger, l_Radius);
+                        JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                        p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                        for (Player* l_Player : l_TargetList)
+                            l_Player->CastSpell(l_Player, eSpell::OrbOfChaosDamage, true);
+
+                        m_DamageTimer = 1 * TimeConstants::IN_MILLISECONDS;
+                    }
+                    else
+                        m_DamageTimer -= p_Time;
+                }
+            }
         }
 
         AreaTriggerEntityScript* GetAI() const override
@@ -3191,6 +3385,7 @@ void AddSC_boss_imperator_margok()
     new spell_highmaul_branded();
     new spell_highmaul_branded_displacement();
     new spell_highmaul_branded_fortification();
+    new spell_highmaul_branded_replication();
     new spell_highmaul_arcane_wrath_damage();
     new spell_highmaul_transition_visuals();
     new spell_highmaul_dominance_aura();
