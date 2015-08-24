@@ -31652,6 +31652,14 @@ namespace ProfessionBookSpells
     };
 }
 
+namespace ProfessionAdditionalSpells
+{
+    enum
+    {
+        Prospecting = 31252,
+    };
+}
+
 void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
 {
     if (!p_Result)
@@ -31711,6 +31719,13 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
                 learnSpell(l_Abilitie->spellId, false);
             }
         }
+
+        if (l_SkillID == SkillType::SKILL_JEWELCRAFTING)
+            learnSpell(ProfessionAdditionalSpells::Prospecting, false);             ///< Prospecting
+
+        /// We also need to learn it for herbalism
+        if (l_SkillID == SkillType::SKILL_HERBALISM)
+            learnSpell(l_SpellID, false);
 
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_STORE_PROFESSION);
         l_Statement->setUInt32(0, GetGUIDLow());
