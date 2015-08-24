@@ -479,17 +479,6 @@ class EventMap : private std::map<uint32, uint32>
             return false;
         }
 
-        uint32 GetEventTime(uint32 p_EventID) const
-        {
-            for (const_iterator l_Iter = begin(); l_Iter != end(); ++l_Iter)
-            {
-                if ((l_Iter->second & 0x0000FFFF) == p_EventID)
-                    return l_Iter->first;
-            }
-
-            return 0;
-        }
-
         // Cancel events with specified id
         void CancelEvent(uint32 eventId)
         {

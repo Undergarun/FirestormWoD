@@ -404,8 +404,6 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
             void Update(uint32 diff)
             {
-                UpdateOperations(diff);
-
                 if(GetData(DATA_ZOMBIEFEST) == IN_PROGRESS)
                 {
                     if (_zombieTimer <= diff)

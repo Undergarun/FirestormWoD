@@ -322,12 +322,6 @@ class BossAI : public ScriptedAI
         /// Do whatever you want
         virtual void LastOperationCalled() { }
 
-        void ClearDelayedOperations()
-        {
-            m_TimedDelayedOperations.clear();
-            m_EmptyWarned = false;
-        }
-
         std::vector<std::pair<int32, std::function<void()>>>    m_TimedDelayedOperations;   ///< Delayed operations
         bool                                                    m_EmptyWarned;              ///< Warning when there are no more delayed operations
 

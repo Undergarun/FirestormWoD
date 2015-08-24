@@ -298,8 +298,6 @@ class instance_zulaman : public InstanceMapScript
 
             void Update(uint32 diff)
             {
-                UpdateOperations(diff);
-
                 if (QuestMinute)
                 {
                     if (QuestTimer <= diff)

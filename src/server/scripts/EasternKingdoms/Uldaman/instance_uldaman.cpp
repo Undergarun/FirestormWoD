@@ -304,8 +304,6 @@ class instance_uldaman : public InstanceMapScript
             }
             void Update(uint32 diff)
             {
-                UpdateOperations(diff);
-
                 if (!bKeystoneCheck)
                     return;
 

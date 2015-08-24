@@ -347,8 +347,6 @@ public:
 
         void Update(uint32 diff)
         {
-            UpdateOperations(diff);
-
             if (auiEncounter[0] == SPECIAL)
                 if (uiEngageTimer <= diff)
                 {

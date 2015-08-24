@@ -439,8 +439,6 @@ class instance_stratholme : public InstanceMapScript
 
             void Update(uint32 diff)
             {
-                UpdateOperations(diff);
-
                 events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())

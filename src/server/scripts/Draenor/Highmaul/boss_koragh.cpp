@@ -317,7 +317,7 @@ class boss_koragh : public CreatureScript
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(eMove::MoveToCenter, g_CenterPos);
 
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfCharging, 15 * TimeConstants::IN_MILLISECONDS);
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfCharging, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eActions::ActionSuppressionField:
@@ -1284,8 +1284,7 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
                 {
                     l_Boss->SetPower(Powers::POWER_ALTERNATE_POWER, 0);
 
-                    AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
-                    if (l_Boss->IsAIEnabled && l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_DEATH)
+                    if (l_Boss->IsAIEnabled)
                         l_Boss->AI()->DoAction(eAction::CancelBreakersStrength);
                 }
             }

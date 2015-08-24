@@ -277,8 +277,6 @@ public:
 
         virtual void Update(uint32 diff)
         {
-            InstanceScript::Update(diff);
-
             //LOREWALKER STONESTEP: If Wipe, we must clean the event.
             if (wipeTimer <= diff
                 && eventStatus_lorewalkter_stonestep >= STATUS_LOREWALKER_STONESTEP_INTRO

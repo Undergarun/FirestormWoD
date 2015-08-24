@@ -23,10 +23,6 @@ DoorData const g_DoorData[] =
     { eHighmaulGameobjects::TwinOgronExit,      eHighmaulDatas::BossTwinOgron,          DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::FelBreakerEntrance, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::FelBreakerExitDoor, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
-    { eHighmaulGameobjects::ThroneRoomDoor,     eHighmaulDatas::BossImperatorMargok,    DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
-    { eHighmaulGameobjects::StairBlockingDoor,  eHighmaulDatas::BossImperatorMargok,    DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
-    { eHighmaulGameobjects::StairBlockingDoor,  eHighmaulDatas::BossImperatorMargok,    DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
-    { eHighmaulGameobjects::StairBlockingDoor,  eHighmaulDatas::BossImperatorMargok,    DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { 0,                                        0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -40,7 +36,6 @@ class instance_highmaul : public InstanceMapScript
             instance_highmaul_InstanceMapScript(Map* p_Map) : InstanceScript(p_Map)
             {
                 m_Initialized               = false;
-                m_ForTests                  = false;
 
                 m_ArenaMasterGuid           = 0;
 
@@ -77,7 +72,6 @@ class instance_highmaul : public InstanceMapScript
             }
 
             bool m_Initialized;
-            bool m_ForTests;
 
             uint64 m_ArenaMasterGuid;
 
@@ -112,10 +106,6 @@ class instance_highmaul : public InstanceMapScript
 
             /// Chamber of Nullification
             uint64 m_KoraghGuid;
-
-            /// Throne of the Imperator
-            uint64 m_ImperatorMargokGuid;
-            uint64 m_HighCouncilorMalgris;
 
             /// Phasing
             std::map<uint32, uint32> m_PlayerPhases;
@@ -202,12 +192,6 @@ class instance_highmaul : public InstanceMapScript
                         p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
                         p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                         break;
-                    case eHighmaulCreatures::ImperatorMargok:
-                        m_ImperatorMargokGuid = p_Creature->GetGUID();
-                        break;
-                    case eHighmaulCreatures::HighCouncilorMalgris:
-                        m_HighCouncilorMalgris = p_Creature->GetGUID();
-                        break;
                     default:
                         break;
                 }
@@ -270,8 +254,6 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::TwinOgronExit:
                     case eHighmaulGameobjects::FelBreakerEntrance:
                     case eHighmaulGameobjects::FelBreakerExitDoor:
-                    case eHighmaulGameobjects::ThroneRoomDoor:
-                    case eHighmaulGameobjects::StairBlockingDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eHighmaulGameobjects::ArenaElevator:
@@ -318,8 +300,6 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::TwinOgronExit:
                     case eHighmaulGameobjects::FelBreakerEntrance:
                     case eHighmaulGameobjects::FelBreakerExitDoor:
-                    case eHighmaulGameobjects::ThroneRoomDoor:
-                    case eHighmaulGameobjects::StairBlockingDoor:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -357,33 +337,8 @@ class instance_highmaul : public InstanceMapScript
                 switch (p_Type)
                 {
                     case eHighmaulDatas::ElevatorActivated:
-                    {
                         m_ArenaElevatorActivated = p_Data;
                         break;
-                    }
-                    case eHighmaulDatas::TestsActivated:
-                    {
-                        m_ForTests = p_Data != 0;
-
-                        /// Open all doors for tests
-                        if (m_ForTests)
-                        {
-                            for (uint8 l_I = 0; l_I < eHighmaulDatas::MaxHighmaulBosses; ++l_I)
-                            {
-                                BossInfo* l_BossInfos = GetBossInfo(l_I);
-                                if (l_BossInfos != nullptr)
-                                {
-                                    for (uint32 l_Type = 0; l_Type < DoorType::MAX_DOOR_TYPES; ++l_Type)
-                                    {
-                                        for (DoorSet::iterator l_Iter = l_BossInfos->door[l_Type].begin(); l_Iter != l_BossInfos->door[l_Type].end(); ++l_Iter)
-                                            (*l_Iter)->SetGoState(GOState::GO_STATE_ACTIVE);
-                                    }
-                                }
-                            }
-                        }
-
-                        break;
-                    }
                     default:
                         break;
                 }
@@ -395,8 +350,6 @@ class instance_highmaul : public InstanceMapScript
                 {
                     case eHighmaulDatas::ElevatorActivated:
                         return m_ArenaElevatorActivated;
-                    case eHighmaulDatas::TestsActivated:
-                        return m_ForTests;
                     default:
                         return 0;
                 }
@@ -450,10 +403,6 @@ class instance_highmaul : public InstanceMapScript
                         return m_PolGuid;
                     case eHighmaulCreatures::Koragh:
                         return m_KoraghGuid;
-                    case eHighmaulCreatures::ImperatorMargok:
-                        return m_ImperatorMargokGuid;
-                    case eHighmaulCreatures::HighCouncilorMalgris:
-                        return m_HighCouncilorMalgris;
                     default:
                         break;
                 }
@@ -463,10 +412,6 @@ class instance_highmaul : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 p_BossID, Player const* p_Player = nullptr) const override
             {
-                /// Bypass required bosses for PTR tests
-                if (m_ForTests)
-                    return true;
-
                 if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                     return false;
 
@@ -511,25 +456,21 @@ class instance_highmaul : public InstanceMapScript
                     p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
 
-                    /// We don't need to update the enter pos if player is summoned by his allies
-                    if (!p_Player->IsSummoned())
+                    uint64 l_Guid = p_Player->GetGUID();
+                    AddTimedDelayedOperation(200, [this, l_Guid]() -> void
                     {
-                        uint64 l_Guid = p_Player->GetGUID();
-                        AddTimedDelayedOperation(200, [this, l_Guid]() -> void
+                        if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
                         {
-                            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
-                            {
-                                if (GetBossState(eHighmaulDatas::BossKoragh) == EncounterState::DONE)
-                                    l_Player->NearTeleportTo(eHighmaulLocs::FelBreakerRoom);
-                                else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
-                                    l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
-                                else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
-                                    l_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
-                                else
-                                    l_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
-                            }
-                        });
-                    }
+                            if (GetBossState(eHighmaulDatas::BossKoragh) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::FelBreakerRoom);
+                            else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                            else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
+                                l_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
+                            else
+                                l_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
+                        }
+                    });
                 }
                 else
                 {
@@ -564,9 +505,6 @@ class instance_highmaul : public InstanceMapScript
                             if (Creature* l_Koragh = sObjectAccessor->FindCreature(m_KoraghGuid))
                                 l_Koragh->setFaction(35);
 
-                            if (Creature* l_Margok = sObjectAccessor->FindCreature(m_ImperatorMargokGuid))
-                                l_Margok->setFaction(35);
-
                             break;
                         }
                         case eHighmaulDungeons::ArcaneSanctum:
@@ -580,34 +518,10 @@ class instance_highmaul : public InstanceMapScript
                             if (Creature* l_Brackenspore = sObjectAccessor->FindCreature(m_BrackensporeGuid))
                                 l_Brackenspore->setFaction(35);
 
-                            if (Creature* l_Margok = sObjectAccessor->FindCreature(m_ImperatorMargokGuid))
-                                l_Margok->setFaction(35);
-
                             break;
                         }
                         case eHighmaulDungeons::ImperatorsFall:
                         {
-                            if (Creature* l_Kargath = sObjectAccessor->FindCreature(m_KargathBladefistGuid))
-                                l_Kargath->setFaction(35);
-
-                            if (Creature* l_Butcher = sObjectAccessor->FindCreature(m_TheButcherGuid))
-                                l_Butcher->setFaction(35);
-
-                            if (Creature* l_Brackenspore = sObjectAccessor->FindCreature(m_BrackensporeGuid))
-                                l_Brackenspore->setFaction(35);
-
-                            if (Creature* l_Tectus = sObjectAccessor->FindCreature(m_TectusGuid))
-                                l_Tectus->setFaction(35);
-
-                            if (Creature* l_Pol = sObjectAccessor->FindCreature(m_PolGuid))
-                                l_Pol->setFaction(35);
-
-                            if (Creature* l_Phemos = sObjectAccessor->FindCreature(m_PhemosGuid))
-                                l_Phemos->setFaction(35);
-
-                            if (Creature* l_Koragh = sObjectAccessor->FindCreature(m_KoraghGuid))
-                                l_Koragh->setFaction(35);
-
                             break;
                         }
                         default:

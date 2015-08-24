@@ -594,8 +594,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
 {
-    Player* l_Sender = GetPlayer();
-    ChatMsg l_Type;
+    Player *    l_Sender = GetPlayer();
+    ChatMsg     l_Type;
 
     switch (p_RecvData.GetOpcode())
     {
@@ -617,9 +617,6 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
         case CMSG_CHAT_ADDON_MESSAGE_WHISPER:
             l_Type = CHAT_MSG_WHISPER;
             break;
-        case CMSG_CHAT_ADDON_MESSAGE_CHANNEL:
-            l_Type = CHAT_MSG_CHANNEL;
-            break;
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", p_RecvData.GetOpcode());
             p_RecvData.hexlike();
@@ -633,10 +630,9 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
     switch (l_Type)
     {
         case CHAT_MSG_WHISPER:
-        case CHAT_MSG_CHANNEL:
         {
             uint32 l_TargetNameLenght   = p_RecvData.ReadBits(9);
-            uint32 l_AddonPrefixLenght  = p_RecvData.ReadBits(5);
+            uint32 l_AddonPrefixLenght  = p_RecvData.ReadBits(7);
             uint32 l_AddonMessageLenght = p_RecvData.ReadBits(8);
             l_TargetName    = p_RecvData.ReadString(l_TargetNameLenght);
             l_AddonMessage  = p_RecvData.ReadString(l_AddonMessageLenght);
@@ -649,7 +645,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
         case CHAT_MSG_PARTY:
         case CHAT_MSG_INSTANCE_CHAT:
         {
-            uint32 l_AddonPrefixLenght  = p_RecvData.ReadBits(5);
+            uint32 l_AddonPrefixLenght  = p_RecvData.ReadBits(7);
             uint32 l_AddonMessageLenght = p_RecvData.ReadBits(8);
             l_AddonPrefix  = p_RecvData.ReadString(l_AddonPrefixLenght);
             l_AddonMessage = p_RecvData.ReadString(l_AddonMessageLenght);
@@ -677,7 +673,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
     {
         case CHAT_MSG_INSTANCE_CHAT:
         {
-            Group* l_Group = l_Sender->GetGroup();
+            Group * l_Group = l_Sender->GetGroup();
             if (!l_Group || !l_Group->isBGGroup())
                 return;
 
@@ -692,10 +688,8 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
         case CHAT_MSG_OFFICER:
         {
             if (l_Sender->GetGuildId())
-            {
                 if (Guild* l_Guild = sGuildMgr->GetGuildById(l_Sender->GetGuildId()))
                     l_Guild->BroadcastAddonToGuild(this, l_Type == CHAT_MSG_OFFICER, l_AddonMessage, l_AddonPrefix);
-            }
 
             break;
         }
@@ -716,7 +710,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
         case CHAT_MSG_PARTY:
         case CHAT_MSG_RAID:
         {
-            Group* l_Group = l_Sender->GetGroup();
+            Group * l_Group = l_Sender->GetGroup();
 
             if (!l_Group || l_Group->isBGGroup())
                 break;

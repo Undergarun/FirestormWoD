@@ -3326,8 +3326,9 @@ GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float
 
 Player* WorldObject::FindNearestPlayer(float range, bool alive)
 {
+    /// @TODO fix alive player search
     Player* player = NULL;
-    JadeCore::AnyPlayerInObjectRangeCheck check(this, range, alive);
+    JadeCore::AnyPlayerInObjectRangeCheck check(this, range);
     JadeCore::PlayerSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(this, player, check);
     VisitNearbyWorldObject(range, searcher);
     return player;
@@ -3615,7 +3616,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     */
 }
 
-void WorldObject::MovePosition(Position &pos, float dist, float angle, bool p_CheckLos /*= true*/)
+void WorldObject::MovePosition(Position &pos, float dist, float angle)
 {
     angle += GetOrientation();
     float destx, desty, destz, ground, floor;
@@ -3647,7 +3648,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle, bool p_Ch
             destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
         }
         // we have correct destz now
-        else if (!p_CheckLos || IsWithinLOS(destx, desty, destz))
+        else if (IsWithinLOS(destx, desty, destz))
         {
             pos.Relocate(destx, desty, destz);
             break;
@@ -4023,22 +4024,5 @@ void WorldObject::SetMeleeAnimKitId(uint16 p_AnimKitID)
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint16(p_AnimKitID);
 
-    SendMessageToSet(&l_Data, true);
-}
-
-void WorldObject::SetAnimTier(uint32 p_Tier)
-{
-    WorldPacket l_Data(Opcodes::SMSG_SET_ANIM_TIER);
-    l_Data.appendPackGUID(GetGUID());
-    l_Data << int32(p_Tier);
-    SendMessageToSet(&l_Data, true);
-}
-
-void WorldObject::SetPlayerHoverAnim(bool p_Apply)
-{
-    WorldPacket l_Data(Opcodes::SMSG_SET_ANIM_TIER);
-    l_Data.appendPackGUID(GetGUID());
-    l_Data.WriteBit(p_Apply);
-    l_Data.FlushBits();
     SendMessageToSet(&l_Data, true);
 }
