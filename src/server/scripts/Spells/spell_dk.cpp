@@ -89,13 +89,6 @@ enum DeathKnightSpells
     DK_WOD_PVP_FROST_4P_BONUS_EFFECT            = 166057
 };
 
-enum DeathKnightPresence
-{
-    BloodPresence   = 48263,
-    UnholyPresence  = 48265,
-    FrostPresence   = 48266
-};
-
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
 
 /// Glyph of Death and Decay - 58629
@@ -2226,13 +2219,19 @@ class spell_dk_dark_succor : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_dark_succor_AuraScript);
 
+            enum eSpells
+            {
+                UnholyPresence = 48265,
+                FrostPresence  = 48266
+            };
+
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                   if (l_Caster->HasAura(DeathKnightPresence::FrostPresence) || l_Caster->HasAura(DeathKnightPresence::UnholyPresence))
+                   if (l_Caster->HasAura(FrostPresence) || l_Caster->HasAura(UnholyPresence))
                         l_Caster->CastSpell(l_Caster, 101568, true);
                 }
             }
@@ -2866,6 +2865,61 @@ class spell_dk_control_undead : public SpellScriptLoader
         }
 };
 
+/// Improved Presences
+/// Called by Unholy Presence (48265)
+class spell_dk_improved_presences : public SpellScriptLoader
+{
+    public:
+        spell_dk_improved_presences() : SpellScriptLoader("spell_dk_improved_presences") { }
+
+        class spell_dk_improved_presences_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_improved_presences_AuraScript);
+
+            enum eSpells
+            {
+                UnholyPresence         = 48265,
+                ImprovedUnholyPresence = 50392
+            };
+
+            void OnApplyUnholyPresence(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (GetSpellInfo()->Id != UnholyPresence)
+                    return;
+
+                Player* l_Target = GetCaster()->ToPlayer();
+                if (!l_Target)
+                    return;
+
+                if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_UNHOLY && !l_Target->HasAura(ImprovedUnholyPresence))
+                {
+                    l_Target->CastSpell(l_Target, ImprovedUnholyPresence, true);
+                    p_AurEff->GetBase()->RefreshSpellMods();
+                    GetEffect(EFFECT_0)->SetCanBeRecalculated(true);
+                    GetEffect(EFFECT_0)->RecalculateAmount(true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(ImprovedUnholyPresence))
+                    l_Target->RemoveAura(ImprovedUnholyPresence);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dk_improved_presences_AuraScript::OnApplyUnholyPresence, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dk_improved_presences_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_improved_presences_AuraScript();
+        }
+};
 
 void AddSC_deathknight_spell_scripts()
 {
@@ -2925,6 +2979,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_gargoyle_strike();
     new spell_dk_blood_rites();
     new spell_dk_control_undead();
+    new spell_dk_improved_presences();
 
     new PlayerScript_Blood_Tap();
 }
