@@ -946,7 +946,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 200 SPELL_EFFECT_RESURECT_BATTLE_PETS
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 201 SPELL_EFFECT_CAN_PETBATTLE
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 202 SPELL_EFFECT_202
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 203 SPELL_EFFECT_203
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 203 SPELL_EFFECT_CANCEL_AURA
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 204 SPELL_EFFECT_204
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 205 SPELL_EFFECT_205
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 206 SPELL_EFFECT_206
@@ -1569,7 +1569,7 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
         return true;
 
     // these spells (Cyclone for example) can pierce all...         // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
-    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH)))
+    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH || aura->Id == 48707))) ///< ...nor Anti-Magic Shell
         return true;
 
     return false;

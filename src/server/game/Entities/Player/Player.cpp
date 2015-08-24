@@ -895,6 +895,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_IsBGRandomWinner = false;
 
     // Player summoning
+    m_Summoned = false;
     m_summon_expire = 0;
     m_summon_mapid = 0;
     m_summon_x = 0.0f;
@@ -1473,6 +1474,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 CompleteQuest(quest->GetQuestId());
         }
     }
+
+    SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
     return true;
 }
 
@@ -27831,6 +27834,7 @@ void Player::SummonIfPossible(bool agree)
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS, 1);
 
+    m_Summoned = true;
     TeleportTo(m_summon_mapid, m_summon_x, m_summon_y, m_summon_z, GetOrientation());
 }
 
@@ -31879,14 +31883,6 @@ void Player::SetEmoteState(uint32 anim_id)
 
 void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/)
 {
-/* Removed because some Unit* can also be source of movement force
-    if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
-    {
-        sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
-        return;
-    }
-*/
-
     if (p_Apply)
     {
         uint32 l_TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
@@ -31895,7 +31891,6 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 1 + 8 + 7 * 4);
         l_Data.appendPackGUID(GetGUID());               ///< Mover GUID
         l_Data << uint32(0);                            ///< Sequence Index
-
         l_Data.appendPackGUID(p_Source);                ///< Movement ForceID
         l_Data << float(p_Direction.GetPositionX());    ///< Direction X
         l_Data << float(p_Direction.GetPositionY());    ///< Direction Y

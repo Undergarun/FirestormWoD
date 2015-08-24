@@ -57,6 +57,7 @@ enum eHighmaulDatas
 
     /// Instance datas
     ElevatorActivated = 0,
+    TestsActivated,
 
     /// Misc values
     /// Global
@@ -80,81 +81,93 @@ enum eHighmaulDatas
 enum eHighmaulCreatures
 {
     /// Walled City
-    GhargArenaMaster    = 84971,
-    GorianEnforcer      = 88724,
+    GhargArenaMaster        = 84971,
+    GorianEnforcer          = 88724,
     /// The Coliseum
-    KargathBladefist    = 78714,
-    JhornTheMad         = 83377,
-    ThoktarIronskull    = 83378,
-    Vulgor              = 80048,
-    BladespireSorcerer  = 80071,
-    CrowdAreatrigger    = 79260,
-    MargokCosmetic      = 83268,
-    IronBomberSpawner   = 79712,
-    IronBomber          = 78926,
-    DrunkenBileslinger  = 78954,
-    HighmaulSweeper     = 88874,
+    KargathBladefist        = 78714,
+    JhornTheMad             = 83377,
+    ThoktarIronskull        = 83378,
+    Vulgor                  = 80048,
+    BladespireSorcerer      = 80071,
+    CrowdAreatrigger        = 79260,
+    MargokCosmetic          = 83268,
+    IronBomberSpawner       = 79712,
+    IronBomber              = 78926,
+    DrunkenBileslinger      = 78954,
+    HighmaulSweeper         = 88874,
     /// The Underbelly
-    TheButcher          = 77404,
+    TheButcher              = 77404,
     /// Gorian Strands
-    IronGrunt           = 88118,
-    BlackrockGrunt      = 86610,
-    LowBatchDeadPale    = 86283,
-    NightTwistedPaleVis = 82694,
-    CosmeticGorianWarr  = 82690,
-    GorianCivilian      = 85371,
-    Brackenspore        = 78491,
-    BFC9000             = 81403,
+    IronGrunt               = 88118,
+    BlackrockGrunt          = 86610,
+    LowBatchDeadPale        = 86283,
+    NightTwistedPaleVis     = 82694,
+    CosmeticGorianWarr      = 82690,
+    GorianCivilian          = 85371,
+    Brackenspore            = 78491,
+    BFC9000                 = 81403,
     /// The Market
-    Tectus              = 78948,
-    Rokka               = 86071,
-    Oro                 = 86072,
-    Lokk                = 86073,
+    Tectus                  = 78948,
+    Rokka                   = 86071,
+    Oro                     = 86072,
+    Lokk                    = 86073,
     /// The Gorthenon
-    Phemos              = 78237,
-    Pol                 = 78238,
+    Phemos                  = 78237,
+    Pol                     = 78238,
     /// Chamber of Nullification
-    Koragh              = 79015,
-    RuneOfNullification = 79559,
-    VolatileAnomaly     = 79956
+    Koragh                  = 79015,
+    RuneOfNullification     = 79559,
+    VolatileAnomaly         = 79956,
+    /// Throne of the Imperator
+    ImperatorMargok         = 77428,
+    HighCouncilorMalgris    = 81811,
+    KingPrison              = 89185
 };
 
 enum eHighmaulGameobjects
 {
-    ArenaElevator       = 233098,
-    CollisionWall       = 234299,
-    InstancePortal2     = 231770,
+    ArenaElevator           = 233098,
+    CollisionWall           = 234299,
+    InstancePortal2         = 231770,
 
     /// Kargath's Doors
-    GateArenaExit       = 231781,
-    GateArenaInner      = 231780,
+    GateArenaExit           = 231781,
+    GateArenaInner          = 231780,
 
     /// The Butcher's Doors
-    EarthenPillar       = 239110,
+    EarthenPillar           = 239110,
 
     /// Brackenspore's Doors
-    FungalGiantDoor     = 239124,
-    WindDoor            = 236703,
+    FungalGiantDoor         = 239124,
+    WindDoor                = 236703,
 
     /// Kargath Bladefist
-    RaidGrate1          = 232368,
-    RaidGrate2          = 232369,
-    RaidGrate3          = 232370,
-    RaidGrate4          = 232371,
+    RaidGrate1              = 232368,
+    RaidGrate2              = 232369,
+    RaidGrate3              = 232370,
+    RaidGrate4              = 232371,
 
     /// Tectus's Doors
-    Earthwall1          = 237777,
-    Earthwall2          = 237778,
-    Earthwall3          = 237779,
-    Earthwall4          = 237780,
+    Earthwall1              = 237777,
+    Earthwall2              = 237778,
+    Earthwall3              = 237779,
+    Earthwall4              = 237780,
 
     /// Twin Ogron's Doors
-    TwinOgronEntrance   = 236211,
-    TwinOgronExit       = 236212,
+    TwinOgronEntrance       = 236211,
+    TwinOgronExit           = 236212,
 
     /// Ko'ragh's Doors
-    FelBreakerEntrance  = 236213,
-    FelBreakerExitDoor  = 236214
+    FelBreakerEntrance      = 236213,
+    FelBreakerExitDoor      = 236214,
+
+    /// Imperator Margokk Door
+    ThroneRoomDoor          = 231938,
+    StairBlockingDoor       = 236210,
+
+    /// Misc
+    Teleporter              = 231776,
+    SLGGenericMoPLargeAoI   = 68553
 };
 
 enum eHighmaulWorldStates

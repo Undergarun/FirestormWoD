@@ -2799,8 +2799,8 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
     if (i_data)
         i_data->OnPlayerEnter(player);
 
+    player->FinishSummon();
     SendInstanceGroupSizeChanged();
-
     return true;
 }
 

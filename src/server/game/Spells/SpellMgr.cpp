@@ -3787,6 +3787,33 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160425: ///< Call of the Tides (Brackenspore)
                 spellInfo->MaxAffectedTargets = 2;
                 break;
+            case 174627: ///< Fixate (Phantasmal Weapon)
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
+            case 157278: ///< Awaken Runestone (Imperator Mar'gok)
+                spellInfo->InterruptFlags = 0;
+                spellInfo->ChannelInterruptFlags = 0;
+                spellInfo->AuraInterruptFlags = 0;
+                break;
+            case 157763: ///< Fixate (Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].Effect = 0;
+                break;
+            case 158512: ///< Volatile Anomalies (Imperator Mar'gok)
+            case 159158: ///< Volatile Anomalies (Imperator Mar'gok)
+            case 159159: ///< Volatile Anomalies (Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_CASTER_FRONT;
+                spellInfo->Effects[EFFECT_0].SetRadiusIndex(18);    ///< 15 yards
+                break;
+            case 156799: ///< Destructive Resonance (Other - Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 158639: ///< Orbs of Chaos (1 - Imperator Mar'gok)
+            case 178415: ///< Orbs of Chaos (2 - Imperator Mar'gok)
+                for (uint8 l_I = EFFECT_4; l_I < MAX_EFFECTS; ++l_I)
+                    spellInfo->Effects[l_I].Effect = 0;
+
+                break;
             case 154901: ///< Seal Conduit (third)
                 spellInfo->MaxAffectedTargets = 3;
                 break;
@@ -5457,6 +5484,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 124915:///< Chaos Wave
             case 157695:///< Demonbolt
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
+                break;
+            case 83381: ///< Kill Kommand (damage)
+                spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)

@@ -221,7 +221,18 @@ void InstanceScript::UpdateDoorState(GameObject* door)
         }
     }
 
-    door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+    /// Delay Door closing, like retail
+    if (!open)
+    {
+        uint64 l_DoorGuid = door->GetGUID();
+        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [l_DoorGuid]() -> void
+        {
+            if (GameObject* l_Door = sObjectAccessor->FindGameObject(l_DoorGuid))
+                l_Door->SetGoState(GOState::GO_STATE_READY);
+        });
+    }
+    else
+        door->SetGoState(GOState::GO_STATE_ACTIVE);
 }
 
 void InstanceScript::AddDoor(GameObject* door, bool add)
@@ -596,6 +607,22 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
                 player->RemoveAurasDueToSpell(spell);
                 if (Pet* pet = player->GetPet())
                     pet->RemoveAurasDueToSpell(spell);
+            }
+        }
+    }
+}
+
+void InstanceScript::DoRemoveForcedMovementsOnPlayers(uint64 p_Source)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (!l_PlayerList.isEmpty())
+    {
+        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+        {
+            if (Player* l_Player = l_Iter->getSource())
+            {
+                if (l_Player->HasMovementForce(p_Source))
+                    l_Player->SendApplyMovementForce(p_Source, false, Position());
             }
         }
     }

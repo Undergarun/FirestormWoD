@@ -223,6 +223,8 @@ public:
 
         virtual void Update(uint32 diff)
         {
+            InstanceScript::Update(diff);
+
             switch (PyramidPhase)
             {
                 case PYRAMID_NOT_STARTED:

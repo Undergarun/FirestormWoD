@@ -171,6 +171,8 @@ enum Opcodes
         SMSG_PLAY_ONE_SHOT_ANIM_KIT                 = 0x0FB6, ///< 6.1.2 19783
         SMSG_SET_AI_ANIM_KIT                        = 0x1295, ///< 6.1.2 19783
         SMSG_SET_MELEE_ANIM_KIT                     = 0x0BB5, ///< 6.1.2 19783
+        SMSG_SET_ANIM_TIER                          = 0x0317, ///< 6.1.2 19865
+        SMSG_SET_PLAY_HOVER_ANIM                    = 0x0F9E, ///< 6.1.2 19865
         SMSG_SET_MOVEMENT_ANIM_KIT                  = 0x0D25, ///< 6.1.2 19783
         SMSG_PLAYER_BOUND                           = 0x1935, ///< 6.1.2 19783
         SMSG_OVERRIDE_LIGHT                         = 0x0936, ///< 6.1.2 19783
@@ -1283,6 +1285,7 @@ enum Opcodes
     CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x1C8D, ///< 6.1.2 19783
     CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x10F9, ///< 6.1.2 19783
     CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x1D89, ///< 6.1.2 19783
+    CMSG_CHAT_ADDON_MESSAGE_CHANNEL             = 0x1199, ///< 6.1.2 19865
     CMSG_ADDON_REGISTERED_PREFIXES              = 0x1D2A, ///< 6.1.2 19783
 
     /// Chat
@@ -1914,7 +1917,6 @@ enum Opcodes
     SMSG_SERVER_INFO_RESPONSE                           = 0x0000,
     SMSG_SERVER_PERF                                    = 0x0000,
     SMSG_SET_DF_FAST_LAUNCH_RESULT                      = 0x0000,
-    SMSG_SET_PLAY_HOVER_ANIM                            = 0x0000,
     SMSG_SHOW_RATINGS                                   = 0x0000,
     SMSG_SOR_START_EXPERIENCE_INCOMPLETE                = 0x0000,
     SMSG_STREAMING_MOVIES                               = 0x0000,
