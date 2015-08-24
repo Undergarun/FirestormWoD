@@ -241,7 +241,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& p_Packet)
         uint64 l_SignerGUID = MAKE_NEW_GUID(l_LowGUID, 0, HIGHGUID_PLAYER);
 
         l_Data.appendPackGUID(l_SignerGUID);
-        l_Data << uint32(0);
+        l_Data << uint32(0);    ///< Sinature Choice
 
         l_Result->NextRow();
     }
@@ -591,7 +591,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & p_Packet)
         uint64 l_SignerGUID = MAKE_NEW_GUID(l_LowGUID, 0, HIGHGUID_PLAYER);
 
         l_Data.appendPackGUID(l_SignerGUID);
-        l_Data << uint32(0);
+        l_Data << uint32(0); ///< Signature Choice
 
         l_Result->NextRow();
     }

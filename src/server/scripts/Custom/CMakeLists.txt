@@ -16,6 +16,7 @@ set(scripts_STAT_SRCS
 	Custom/first_time_connexion.cpp
 	Custom/user_reporting.cpp
 	Custom/warning_update_client.cpp
+	Custom/npc_custom.cpp
 )
 
 message("  -> Prepared: Custom")

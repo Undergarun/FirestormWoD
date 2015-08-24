@@ -292,7 +292,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
     l_Data.FlushBits();
     l_Data.appendPackGUID(l_InviterGuid);
     l_Data.appendPackGUID(l_InviterBNetAccountID);
-    l_Data << uint16(l_Unk);
+    l_Data << uint16(l_Unk);                        ///< InviterVirtualRealmAddress
     l_Data << uint32(l_InviterCfgRealmID);
     l_Data.WriteBit(l_IsLocal);
     l_Data.WriteBit(false);   // UnkBit
@@ -553,7 +553,7 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
 {
     uint8 l_PartyIndex = p_RecvData.read<uint8>();
 
-    Group* l_Group = GetPlayer()->GetGroup();
+    Group* l_Group = m_Player->GetGroup();
     if (!l_Group)
         return;
 
@@ -563,13 +563,10 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    /** error handling **/
-    /********************/
+    /// Everything's fine, do it
+    SendPartyResult(PARTY_CMD_LEAVE, m_Player->GetName(), ERR_PARTY_RESULT_OK);
 
-    // everything's fine, do it
-    SendPartyResult(PARTY_CMD_LEAVE, GetPlayer()->GetName(), ERR_PARTY_RESULT_OK);
-
-    GetPlayer()->RemoveFromGroup(GROUP_REMOVEMETHOD_LEAVE);
+    m_Player->RemoveFromGroup(GROUP_REMOVEMETHOD_LEAVE);
 }
 
 void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)

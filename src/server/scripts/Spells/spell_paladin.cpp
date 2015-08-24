@@ -555,9 +555,6 @@ class spell_pal_selfless_healer: public SpellScriptLoader
                         else
                             l_Heal = int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_1].BasePoints / 100) * l_Charges));
 
-                        l_Heal = l_Player->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, EFFECT_0, HEAL);
-                        l_Heal = l_Target->SpellHealingBonusTaken(l_Player, GetSpellInfo(), l_Heal, HEAL);
-
                         SetHitHeal(l_Heal);
                     }
                 }
@@ -1526,7 +1523,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
                         else if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
                             l_Player->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
 
-                        if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Player->GetGUID() != l_Target->GetGUID())
+                        if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Player))
                         {
                             AuraPtr l_Aura = l_Player->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Player);
 
@@ -2404,6 +2401,42 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Avenging Wrath (holy) - 31842 and Avenging Wrath (ret) - 31884
+class spell_pal_avenging_wrath : public SpellScriptLoader
+{
+    public:
+        spell_pal_avenging_wrath() : SpellScriptLoader("spell_pal_avenging_wrath") { }
+
+        class spell_pal_avenging_wrath_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_avenging_wrath_SpellScript);
+
+            enum eSpells
+            {
+                GlyphoftheFallingAvenger = 115931
+            };
+
+            void HandleTarget(SpellEffIndex p_Effect)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphoftheFallingAvenger))
+                    PreventHitEffect(p_Effect);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_avenging_wrath_SpellScript::HandleTarget, EFFECT_3, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_avenging_wrath_SpellScript();
+        }
+};
+
 /// Sanctified Wrath - 53376
 /// Called by Avenging Wrath (holy) - 31842 and Avenging Wrath (ret) - 31884
 /// last update : 6.1.2 19802
@@ -2414,6 +2447,9 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
 
         enum eSpells
         {
+            AvengingWrathHoly    = 31842,
+            AvengingWrathRet     = 31884,
+            SanctifiedWrath      = 53376,
             SanctifiedWrathBonus = 114232
         };
 
@@ -2427,7 +2463,8 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Caster, eSpells::SanctifiedWrathBonus, true);
+                if (l_Caster->HasAura(eSpells::SanctifiedWrath))
+                    l_Caster->CastSpell(l_Caster, eSpells::SanctifiedWrathBonus, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2442,9 +2479,19 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
 
             void Register()
             {
-                /// Effect 3 is commun to both spells for holy and ret
-                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_3, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_3, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+                switch (m_scriptSpellId)
+                {
+                case eSpells::AvengingWrathHoly:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::AvengingWrathRet:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL); 
+                    break;
+                default:
+                    break;
+                }
             }
         };
 
@@ -2525,9 +2572,6 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
                     return;
 
                 if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_JUDGMENT)
-                    return;
-
-                if (!p_EventInfo.GetDamageInfo()->GetDamage())
                     return;
 
                 l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
@@ -2628,6 +2672,258 @@ class spell_pal_turn_evil : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of Contemplation - 125043
+class spell_pal_gyph_of_contemplation : public SpellScriptLoader
+{
+    public:
+        spell_pal_gyph_of_contemplation() : SpellScriptLoader("spell_pal_gyph_of_contemplation") { }
+
+        class spell_pal_gyph_of_contemplation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_gyph_of_contemplation_AuraScript);
+
+            enum eSpells
+            {
+                Contemplation = 121183
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasSpell(eSpells::Contemplation))
+                    l_Player->learnSpell(eSpells::Contemplation, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::Contemplation))
+                    l_Player->removeSpell(eSpells::Contemplation, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_gyph_of_contemplation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_gyph_of_contemplation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_gyph_of_contemplation_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Sword of Light - 53503
+class spell_pal_sword_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_sword_of_light() : SpellScriptLoader("spell_pal_sword_of_light") { }
+
+        class spell_pal_sword_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_sword_of_light_AuraScript);
+
+            enum eSpells
+            {
+                SwordOfLightBonus = 20113
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (!l_Target->HasAura(eSpells::SwordOfLightBonus))
+                    l_Target->CastSpell(l_Target, eSpells::SwordOfLightBonus, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::SwordOfLightBonus))
+                    l_Target->RemoveAurasDueToSpell(eSpells::SwordOfLightBonus);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sword_of_light_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sword_of_light_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_sword_of_light_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Call by Hand of Freedom - 1044
+/// Glyph of the Liberator - 159573
+/// Glyph of Hand of Freedom - 159583
+class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_the_liberator() : SpellScriptLoader("spell_pal_glyph_of_the_liberator") { }
+
+        class spell_pal_glyph_of_the_liberator_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_glyph_of_the_liberator_SpellScript);
+
+            enum eSpells
+            {
+                GlyphoftheLiberator = 159573,
+                GlyphofHandofFreedom = 159583
+            };
+
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eSpells::GlyphoftheLiberator) && l_Target->GetGUID() != l_Player->GetGUID())
+                {
+                    if (AuraEffectPtr l_AuraEffect = l_Player->GetAuraEffect(eSpells::GlyphoftheLiberator, EFFECT_0))
+                    {
+                        if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                            l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
+
+                        if (SpellCategoriesEntry const* l_HandofFreedomCategories = GetSpellInfo()->GetSpellCategories())
+                            l_Player->ReduceChargeCooldown(l_HandofFreedomCategories->ChargesCategory, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
+                    }
+                }
+
+                if (l_Player->HasAura(eSpells::GlyphofHandofFreedom))
+                    l_Player->CastSpell(l_Target, eSpells::GlyphofHandofFreedom, true);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_pal_glyph_of_the_liberator_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_glyph_of_the_liberator_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Call by :
+/// Lay on Hands - 633
+/// Flash of Light - 19750
+/// Holy Shock - 25914
+/// Holy Light - 82326
+/// Holy Radiance - 82327
+/// Light of Dawn - 85222
+/// Word of Glory - 85673, 130551, 136494
+/// Holy Prism - 114165, 114852, 114862, 114870, 114871
+/// Stay of Execution - 114917
+/// Arcing Light - 119952
+/// Holy Prism - 121551, 121552
+/// Glyph of Flash Light - 54957
+class spell_pal_glyph_of_flash_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_flash_light() : SpellScriptLoader("spell_pal_glyph_of_flash_light") { }
+
+        class spell_pal_glyph_of_flash_light_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_glyph_of_flash_light_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofFlashLight = 54957
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphofFlashLight))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::GlyphofFlashLight);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_pal_glyph_of_flash_light_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_glyph_of_flash_light_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Shining Protector - 159374
+class spell_pal_shining_protector : public SpellScriptLoader
+{
+    public:
+        spell_pal_shining_protector() : SpellScriptLoader("spell_pal_shining_protector") { }
+
+        class spell_pal_shining_protector_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_shining_protector_AuraScript);
+
+            enum eSpells
+            {
+                ShiningProtectorHeal = 159375
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::ShiningProtectorHeal)
+                    return;
+
+                if (!p_EventInfo.GetHealInfo()->GetHeal())
+                    return;
+
+                for (uint8 l_Chance_number = 0; l_Chance_number < 2; ++l_Chance_number)
+                {
+                    if (l_Caster->IsSpellMultistrike(p_EventInfo.GetDamageInfo()->GetSpellInfo()))
+                    {
+                        int32 l_Heal = CalculatePct(p_EventInfo.GetHealInfo()->GetHeal(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                        l_Caster->CastCustomSpell(l_Caster, eSpells::ShiningProtectorHeal, &l_Heal, NULL, NULL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_shining_protector_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_shining_protector_AuraScript();
+        }
+};
+
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -2656,6 +2952,7 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_shining_protector();
     new spell_pal_turn_evil();
     new spell_pal_denounce();
     new spell_pal_enhanced_holy_shock();
@@ -2707,6 +3004,11 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sanctified_wrath();
     new spell_pal_sanctified_wrath_bonus();
     new spell_pal_selfless_healer_proc();
+    new spell_pal_gyph_of_contemplation();
+    new spell_pal_sword_of_light();
+    new spell_pal_glyph_of_the_liberator();
+    new spell_pal_glyph_of_flash_light();
+    new spell_pal_avenging_wrath();
 
     // Player Script
     new PlayerScript_empowered_divine_storm();

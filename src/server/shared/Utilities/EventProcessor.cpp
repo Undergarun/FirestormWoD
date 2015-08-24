@@ -31,31 +31,44 @@ EventProcessor::~EventProcessor()
 
 void EventProcessor::Update(uint32 p_time)
 {
-    // update time
-    m_time += p_time;
-
-    // main event loop
-    EventList::iterator i;
-    while (((i = m_events.begin()) != m_events.end()) && i->first <= m_time)
-    {
+    auto d = [this](BasicEvent* Event) {
+        Event->Abort(m_time);
+        delete Event;
+    };
+    auto c = [this](BasicEvent* Event, uint32 p_time) {
+        if (Event->Execute(m_time, p_time))
+        {
+            // completely destroy event if it is not re-added
+            delete Event;
+        }
+    };
+    auto b = [this, &c, &d](EventList::iterator i, uint32 p_time) {
         // get and remove event from queue
         BasicEvent* Event = i->second;
         m_events.erase(i);
 
         if (!Event->to_Abort)
         {
-            if (Event->Execute(m_time, p_time))
-            {
-                // completely destroy event if it is not re-added
-                delete Event;
-            }
+            c(Event, p_time);
         }
         else
         {
-            Event->Abort(m_time);
-            delete Event;
+            d(Event);
         }
-    }
+    };
+    auto a = [this, &b](uint32 p_time) {
+        // main event loop
+        EventList::iterator i;
+        while (((i = m_events.begin()) != m_events.end()) && i->first <= m_time)
+        {
+            b(i, p_time);
+        }
+    };
+
+    // update time
+    m_time += p_time;
+
+    a(p_time);
 }
 
 void EventProcessor::KillAllEvents(bool force)
