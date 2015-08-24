@@ -86,7 +86,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
             }
 
             if (t_SkillID == SkillType::SKILL_JEWELCRAFTING)
-                l_Player->learnSpell(ProfessionAdditionalSpells::Prospecting, false);             ///< Prospecting
+                l_Player->learnSpell(BattlePay::ProfessionAdditionalSpells::Prospecting, false);             ///< Prospecting
 
             /// We also need to learn it for herbalism
             if (t_SkillID == SkillType::SKILL_HERBALISM)
