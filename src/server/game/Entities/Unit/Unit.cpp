@@ -2419,6 +2419,11 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         }
     }
 
+    // If damage is absorbed we need to remove all auras breakable by damage
+    if (dmgInfo.GetDamage() == 0 && dmgInfo.GetAbsorb() > 0)
+        victim->RemoveAurasBreakableByDamage();
+
+
     *resist = dmgInfo.GetResist();
     *absorb = dmgInfo.GetAbsorb();
 }
@@ -2896,10 +2901,15 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
-            int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
-            tmp+=deflect_chance;
+            int32 l_DeflectChance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
+            tmp += l_DeflectChance;
             if (roll < tmp)
                 return SPELL_MISS_DEFLECT;
+
+            int32 l_DodgeChance = victim->GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT) * 100;
+            tmp += l_DodgeChance;
+            if (roll < tmp)
+                return SPELL_MISS_DODGE;
         }
         return SPELL_MISS_NONE;
     }
@@ -12282,10 +12292,10 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             else if (GetTypeId() == TYPEID_PLAYER)
                 crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(schoolMask));
             else
-            {
-                crit_chance = (float)m_baseSpellCritChance;
                 crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
-            }
+            
+            crit_chance += (float)m_baseSpellCritChance;
+
             // taken
             if (victim)
             {
@@ -19556,8 +19566,9 @@ float Unit::MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell,
     // Calculate miss chance
     float l_MissChance = p_Victim->GetUnitMissChancePhysical(this, p_AttType);
 
-    if (p_Spell && !p_Spell->Id && haveOffhandWeapon())
-        l_MissChance += 17;
+    /// Auto-attacks with dual-wield weapons have increased miss chance
+    if (!p_Spell && haveOffhandWeapon())
+        l_MissChance += 19.0f;
 
     // Calculate hit chance
     float l_HitChance = 100.0f;

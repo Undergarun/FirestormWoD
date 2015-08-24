@@ -35,7 +35,7 @@ enum DetectionTypes
 };
 
 // GUIDLow is the key.
-typedef std::map<uint32, AnticheatData> AnticheatPlayersDataMap;
+typedef ACE_Based::LockedMap<uint32, AnticheatData> AnticheatPlayersDataMap;
 
 class AnticheatMgr
 {

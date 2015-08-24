@@ -2154,7 +2154,7 @@ class spell_monk_zen_sphere: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
                 if (l_Target->GetHealthPct() < (float)GetSpellInfo()->Effects[EFFECT_1].BasePoints)

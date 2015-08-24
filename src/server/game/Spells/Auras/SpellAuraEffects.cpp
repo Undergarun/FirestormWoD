@@ -2250,6 +2250,10 @@ void AuraEffect::HandleModStealth(const AuraApplication * p_AuraApplication, uin
             else
                 ++l_Itr;
         }
+
+        /// Shadowmeld (58984) should stop combat
+        if (p_AuraApplication->GetBase()->GetSpellInfo()->Id == 58984)
+            l_Target->CombatStop();
     }
     else
     {

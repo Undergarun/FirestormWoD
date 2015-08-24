@@ -654,6 +654,13 @@ struct FactionTemplateEntry
     bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD); }
 };
 
+struct FileDataEntry
+{
+    uint32 Id;
+    char*  FileName;
+    char*  Path;
+};
+
 struct GameObjectDisplayInfoEntry
 {
     uint32  Displayid;                                      // 0        m_ID
