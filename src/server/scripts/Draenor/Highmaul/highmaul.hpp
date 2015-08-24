@@ -57,6 +57,7 @@ enum eHighmaulDatas
 
     /// Instance datas
     ElevatorActivated = 0,
+    TestsActivated,
 
     /// Misc values
     /// Global

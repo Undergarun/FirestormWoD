@@ -40,6 +40,7 @@ class instance_highmaul : public InstanceMapScript
             instance_highmaul_InstanceMapScript(Map* p_Map) : InstanceScript(p_Map)
             {
                 m_Initialized               = false;
+                m_ForTests                  = false;
 
                 m_ArenaMasterGuid           = 0;
 
@@ -76,6 +77,7 @@ class instance_highmaul : public InstanceMapScript
             }
 
             bool m_Initialized;
+            bool m_ForTests;
 
             uint64 m_ArenaMasterGuid;
 
@@ -355,8 +357,33 @@ class instance_highmaul : public InstanceMapScript
                 switch (p_Type)
                 {
                     case eHighmaulDatas::ElevatorActivated:
+                    {
                         m_ArenaElevatorActivated = p_Data;
                         break;
+                    }
+                    case eHighmaulDatas::TestsActivated:
+                    {
+                        m_ForTests = p_Data != 0;
+
+                        /// Open all doors for tests
+                        if (m_ForTests)
+                        {
+                            for (uint8 l_I = 0; l_I < eHighmaulDatas::MaxHighmaulBosses; ++l_I)
+                            {
+                                BossInfo* l_BossInfos = GetBossInfo(l_I);
+                                if (l_BossInfos != nullptr)
+                                {
+                                    for (uint32 l_Type = 0; l_Type < DoorType::MAX_DOOR_TYPES; ++l_Type)
+                                    {
+                                        for (DoorSet::iterator l_Iter = l_BossInfos->door[l_Type].begin(); l_Iter != l_BossInfos->door[l_Type].end(); ++l_Iter)
+                                            (*l_Iter)->SetGoState(GOState::GO_STATE_ACTIVE);
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -368,6 +395,8 @@ class instance_highmaul : public InstanceMapScript
                 {
                     case eHighmaulDatas::ElevatorActivated:
                         return m_ArenaElevatorActivated;
+                    case eHighmaulDatas::TestsActivated:
+                        return m_ForTests;
                     default:
                         return 0;
                 }
@@ -434,6 +463,10 @@ class instance_highmaul : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 p_BossID, Player const* p_Player = nullptr) const override
             {
+                /// Bypass required bosses for PTR tests
+                if (m_ForTests)
+                    return true;
+
                 if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                     return false;
 

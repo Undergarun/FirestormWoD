@@ -465,6 +465,14 @@ class InstanceScript : public ZoneScript
         void UpdatePhasing();
         void UpdateCreatureGroupSizeStats();
 
+        BossInfo* GetBossInfo(uint32 p_ID)
+        {
+            if (p_ID < m_Bosses.size())
+                return &m_Bosses[p_ID];
+
+            return nullptr;
+        }
+
     protected:
         void SetBossNumber(uint32 p_Number);
         void LoadDoorData(DoorData const* data);

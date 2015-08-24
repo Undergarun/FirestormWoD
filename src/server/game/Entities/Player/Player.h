@@ -3643,6 +3643,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsSummoned() const { return m_Summoned; }
         void FinishSummon() { m_Summoned = false; }
+        void BeginSummon() { m_Summoned = true; }
 
     protected:
         void OnEnterPvPCombat();
