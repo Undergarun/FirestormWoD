@@ -583,10 +583,10 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
     l_Data << uint32(p_Quest->GetSuggestedPlayers());                                           ///< Suggested Group Num
     l_Data << uint32(p_Quest->GetNextQuestInChain());                                           ///< Next Quest In Chain
     l_Data << uint32(p_Quest->GetXPId());                                                       ///< Reward XP Difficulty
-    l_Data << float(0);                                                                         ///< Unk
+    l_Data << float(0);                                                                         ///< XPMultiplier in TC
     l_Data << uint32(l_HideItemReward ? 0 : p_Quest->GetRewMoney());                            ///< Reward Money
     l_Data << uint32(p_Quest->GetRewMoneyMaxLevel());                                           ///< Reward Money Difficulty
-    l_Data << float(0);                                                                         ///< Unk
+    l_Data << float(0);                                                                         ///< RewardMoneyMultiplier in TC
     l_Data << uint32(0);                                                                        ///< RewardBonusMoney in TC
     l_Data << uint32(p_Quest->GetRewSpell());                                                   ///< Reward Display Spell, this spell will display (icon) (casted if RewSpellCast == 0)
     l_Data << int32(p_Quest->GetRewSpellCast());                                                ///< Reward Spell
@@ -638,7 +638,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
     l_Data << uint32(p_Quest->GetPointOpt());                                                   ///< POI Priority
     l_Data << uint32(p_Quest->GetCharTitleId());                                                ///< Reward Title
     l_Data << uint32(p_Quest->GetRewArenaPoints());                                             ///< Reward Arena Points
-    l_Data << uint32(0);                                                                        ///< Unk
+    l_Data << uint32(0);                                                                        ///< RewardSkillLineID in TC
     l_Data << uint32(p_Quest->GetRewardSkillId());                                              ///< Reward Skill Line ID
     l_Data << uint32(p_Quest->GetRewardSkillPoints());                                          ///< Reward NumS kill Ups
     l_Data << uint32(p_Quest->GetQuestGiverPortrait());                                         ///< Portrait Giver

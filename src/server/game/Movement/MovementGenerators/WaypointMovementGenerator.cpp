@@ -38,6 +38,9 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature &creature)
     if (!path_id)
         path_id = creature.GetWaypointPath();
 
+    if (!path_id)
+        return;
+
     i_path = sWaypointMgr->GetPath(path_id);
 
     if (!i_path)

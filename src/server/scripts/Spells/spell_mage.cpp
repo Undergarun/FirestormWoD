@@ -789,7 +789,7 @@ class spell_mage_arcane_barrage: public SpellScriptLoader
                                 l_Target->CastCustomSpell(itr, SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED, &l_Basepoints, NULL, NULL, true, 0, NULLAURA_EFFECT, l_Player->GetGUID());
 
                             if (AuraPtr l_ArcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE, l_Player->GetGUID()))
-                                l_ArcaneCharge->ModStackAmount(-(l_ArcaneCharge->CalcMaxCharges() + 1));
+                                l_ArcaneCharge->ModStackAmount(-m_ChargeCount);
                         }
                     }
                 }
@@ -854,7 +854,10 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
             enum eSpells
             {
-                WoDPvPFrost4PBonus = 180741
+                WoDPvPFrost4PBonus = 180741,
+                WaterJet           = 135029,
+                FingerFrost        = 44544,
+                FingerFrostVisual = 126084
             };
 
             SpellCastResult CheckTarget()
@@ -912,15 +915,29 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                    l_Player->CastSpell(l_Player, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet == nullptr)
+                    return;
+
+                if (l_Target->HasAura(eSpells::WaterJet, l_Pet->GetGUID()))
                 {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE);
-
-                    if (l_SpellInfo == nullptr)
-                        return;
-
-                    if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-                        l_Caster->CastSpell(l_Caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                    l_Player->CastSpell(l_Player, eSpells::FingerFrost, true);  ///< Fingers of frost proc
+                    l_Player->CastSpell(l_Player, eSpells::FingerFrostVisual, true); ///< Fingers of frost visual
                 }
             }
 
@@ -1182,40 +1199,38 @@ class spell_mage_combustion: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_combustion_SpellScript);
 
-            enum eSpell
+            enum eSpells
             {
-                CategoryID = 1500
+                InfernoBlast = 108853
             };
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Player || !l_Target)
+                    return;
+
+                if (SpellInfo const* l_InfernoBlast = sSpellMgr->GetSpellInfo(eSpells::InfernoBlast))
+                    if (SpellCategoriesEntry const* l_InfernoBlastCategories = l_InfernoBlast->GetSpellCategories())
+                        l_Player->RestoreCharge(l_InfernoBlastCategories->ChargesCategory);
+
+                int32 combustionBp = 0;
+
+                Unit::AuraEffectList const& aurasPereodic = l_Target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for (Unit::AuraEffectList::const_iterator i = aurasPereodic.begin(); i !=  aurasPereodic.end(); ++i)
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (l_Player->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT))
-                            l_Player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
+                    if ((*i)->GetCasterGUID() != l_Player->GetGUID() || (*i)->GetSpellInfo()->SchoolMask != SPELL_SCHOOL_MASK_FIRE)
+                        continue;
 
-                        l_Player->RestoreCharge(eSpell::CategoryID);
+                    if (!(*i)->GetAmplitude())
+                        continue;
 
-                        int32 combustionBp = 0;
-
-                        Unit::AuraEffectList const& aurasPereodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-                        for (Unit::AuraEffectList::const_iterator i = aurasPereodic.begin(); i !=  aurasPereodic.end(); ++i)
-                        {
-                            if ((*i)->GetCasterGUID() != l_Player->GetGUID() || (*i)->GetSpellInfo()->SchoolMask != SPELL_SCHOOL_MASK_FIRE)
-                                continue;
-
-                            if (!(*i)->GetAmplitude())
-                                continue;
-
-                            combustionBp += l_Player->SpellDamageBonusDone(target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
-                        }
-
-                        if (combustionBp)
-                            l_Player->CastCustomSpell(target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
-                    }
+                    combustionBp += l_Player->SpellDamageBonusDone(l_Target, (*i)->GetSpellInfo(), (*i)->GetAmount(), (*i)->GetEffIndex(), DOT) * 1000 / (*i)->GetAmplitude();
                 }
+
+                if (combustionBp)
+                    l_Player->CastCustomSpell(l_Target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
             }
 
             void Register()
@@ -2171,21 +2186,6 @@ class spell_mage_WoDPvPFrost2PBonus : public SpellScriptLoader
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
-
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
-                    return;
-
-                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
-                    return;
-
-                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ConeOfCold)
-                    return;
-
-                l_Caster->CastSpell(l_Caster, eSpells::PvpFrost2PBonusTrigger, true);
             }
 
             void Register()
@@ -2197,6 +2197,42 @@ class spell_mage_WoDPvPFrost2PBonus : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_mage_WoDPvPFrost2PBonus_AuraScript();
+        }
+};
+
+/// Cone of Frost - 120
+class spell_mage_cone_of_frost : public SpellScriptLoader
+{
+    public:
+        spell_mage_cone_of_frost() : SpellScriptLoader("spell_mage_cone_of_frost") { }
+
+        class spell_mage_cone_of_frost_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_cone_of_frost_SpellScript);
+
+            enum eSpells
+            {
+                PvpFrost2PBonusTrigger = 180723,
+                WoDPvPFrost2PBonus = 180721
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::WoDPvPFrost2PBonus))
+                    l_Caster->CastSpell(l_Caster, eSpells::PvpFrost2PBonusTrigger, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_mage_cone_of_frost_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_cone_of_frost_SpellScript();
         }
 };
 
@@ -2774,6 +2810,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_arcane_power();
     new spell_mage_polymorph();
     new spell_ring_of_frost_freeze();
+    new spell_mage_cone_of_frost();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

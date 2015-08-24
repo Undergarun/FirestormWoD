@@ -690,7 +690,7 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp
     // set infinity cooldown state for spells
     if (caster && caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (m_spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+        if (m_spellInfo->IsCooldownStartedOnEvent())
         {
             Item* castItem = m_castItemGuid ? caster->ToPlayer()->GetItemByGuid(m_castItemGuid) : NULL;
             caster->ToPlayer()->AddSpellAndCategoryCooldowns(m_spellInfo, castItem ? castItem->GetEntry() : 0, NULL, true);
@@ -737,7 +737,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraA
     // reset cooldown state for spells
     if (caster && caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (GetSpellInfo()->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE && !(GetSpellInfo()->Id == 34477 && caster->HasAura(56829) && (caster->GetPetGUID() == target->GetGUID())))
+        if (m_spellInfo->IsCooldownStartedOnEvent() && !(GetSpellInfo()->Id == 34477 && caster->HasAura(56829) && (caster->GetPetGUID() == target->GetGUID())))
             // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
             caster->ToPlayer()->SendCooldownEvent(GetSpellInfo());
     }
@@ -1093,7 +1093,7 @@ void Aura::RefreshTimers()
                     minAmplitude = std::min(ampl, minAmplitude);
 
         // If only one tick remaining, roll it over into new duration
-        if (GetDuration() <= minAmplitude)
+        if (GetDuration() <= CalculatePct(m_maxDuration, 30))
         {
             m_maxDuration += GetDuration();
             resetPeriodic = false;
@@ -1355,7 +1355,9 @@ bool Aura::CanBeSentToClient() const
         HasEffectType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT)         ||
         HasEffectType(SPELL_AURA_MOD_MAX_CHARGES)               ||
         HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD)           ||
-        HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER))
+        HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER)    ||
+        HasEffectType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE)         ||
+        HasEffectType(SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE))
         return true;
 
     return false;

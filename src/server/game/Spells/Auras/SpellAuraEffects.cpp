@@ -687,7 +687,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MOD_RATING:
         {
             // Heart's Judgment, Heart of Ignacious trinket (Heroic)
-            if (m_spellInfo->Id == 92328)
+            if (m_spellInfo->Id == 92328 && caster)
             {
                 if (AuraPtr pAura = caster->GetAura(92325))
                     amount *= pAura->GetStackAmount();
@@ -774,7 +774,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MOD_RATING:
         {
             // Heart's Judgment, Heart of Ignacious trinket (Heroic)
-            if (m_spellInfo->Id == 92328)
+            if (m_spellInfo->Id == 92328 && caster)
             {
                 if (AuraPtr pAura = caster->GetAura(92325))
                     amount *= pAura->GetStackAmount();
@@ -1092,20 +1092,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             break;
         }
-        case SPELL_AURA_OBS_MOD_HEALTH:
-        {
-            switch (GetId())
-            {
-                case 6262:  // Healthstone
-                    if (caster && !caster->HasAura(56224)) // Glyph of Healthstone
-                        amount = 0;
-                    break;
-                default:
-                    break;
-            }
-
-            break;
-        }
         case SPELL_AURA_MOD_DECREASE_SPEED:
         {
             /// Custom WoD Script - Glyph of Runic Power (159429)
@@ -1224,9 +1210,14 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             amount = AbsorbBonusDone(caster, amount);
             amount = AbsorbBonusTaken(caster, amount);
 
+            bool l_IsCrit = false;
+
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
+            {
+                l_IsCrit = true;
                 amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
+            }
         }
     }
 
@@ -1254,8 +1245,15 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
     /// Apply Mastery: Discipline Shield
     if (p_Caster->HasAura(77484))
     {
-        float l_Mastery = p_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+        float l_Mastery = p_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f; ///< last update: 6.1.2
         l_TotalMod += l_Mastery;
+    }
+
+    /// Fix Grace applying twice for Divine Aegis (as it affects both heal and absorption and Divine Aegis procs from heal)
+    if (GetId() == 47753) ///< Divine Aegis
+    {
+        if (AuraEffectPtr l_Grace = p_Caster->GetAuraEffect(47517, SpellEffIndex::EFFECT_1))
+            l_TotalMod -= l_Grace->GetAmount();
     }
 
     p_Amount += CalculatePct(p_Amount, l_TotalMod);
@@ -2491,6 +2489,9 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                 if (form != FORM_BEAR)
                     target->RemoveAurasDueToSpell(76691);
 
+                if (form == FORM_TREE)
+                    target->RemoveAurasDueToSpell(114282);
+
                 // remove movement affects
                 uint32 mechanicMask = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT);
                 target->RemoveAurasWithMechanic(mechanicMask);
@@ -3588,6 +3589,12 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
         if (target->HasAuraType(GetAuraType()))
             return;
     }
+
+    /// Hackfix @ Glyph of the Falling Avenger
+    /// Since preventing the aura effect in a spell script doesn't work
+    /// A better way to fix this would be to remember which effects are prevented to prevent re-application
+    if (m_spellInfo->Id == 31842 && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
+        return;
 
     if (apply)
         target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
@@ -5040,7 +5047,7 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
             l_Player->UpdateManaRegen();
             break;
         case POWER_RUNES:
-            l_Player->UpdateAllRunesRegen();
+            l_Player->UpdateRuneRegen(RuneType(GetMiscValueB()));
             break;
         case POWER_ENERGY:
             l_Player->UpdateEnergyRegen();
@@ -7894,6 +7901,9 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
 void AuraEffect::HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const
 {
     Powers powerType = Powers(GetMiscValue());
+
+    if (target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() != powerType && !(m_spellInfo->AttributesEx7 & SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER))
+        return;
 
     if (!target->isAlive() || !target->GetMaxPower(powerType))
         return;

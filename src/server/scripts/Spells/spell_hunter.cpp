@@ -272,7 +272,7 @@ class spell_hun_enhanced_basic_attacks : public SpellScriptLoader
 
                         WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
                         l_Data.appendPackGUID(l_Caster->GetGUID());
-                        l_Data << uint8(1);
+                        l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
                         l_Data << uint32(1);
                         l_Data << uint32(l_SpellID);
                         l_Data << uint32(0);
@@ -309,6 +309,8 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 ExplosiveShot   = 53301
             };
 
+            bool m_AlreadyProcLockAndLoad = false;
+
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (GetCaster() == nullptr)
@@ -318,6 +320,11 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 {
                     if (!roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
                         return;
+
+                    if (m_AlreadyProcLockAndLoad)
+                        return;
+
+                    m_AlreadyProcLockAndLoad = true;
 
                     if (l_Player->HasSpellCooldown(eSpells::ExplosiveShot))
                         l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot, true);
@@ -420,7 +427,7 @@ class spell_hun_glyph_of_aspect_of_the_cheetah : public SpellScriptLoader
                     if (l_Caster->HasAura(eSpells::GlyphOfAspectOfTheCheetah))
                         p_AurEff->GetBase()->Remove();
                     else
-                        l_Caster->CastSpell(l_Caster, GetSpellInfo()->Effects[EFFECT_1].TriggerSpell, true);
+                        l_Caster->CastSpell(l_Caster, p_AurEff->GetTriggerSpell(), true);
                 }
             }
 
@@ -776,12 +783,16 @@ class spell_hun_lone_wolf : public SpellScriptLoader
                     }
                     else
                     {
-                        l_Player->CastSpell(l_Player, LoneWolfes::LoneWolfAura, true);
+                        /// We don't need to update values and cast this aura every time on update, just if we don't have it yet
+                        if (!l_Player->HasAura(LoneWolfes::LoneWolfAura))
+                        {
+                            l_Player->CastSpell(l_Player, LoneWolfes::LoneWolfAura, true);
 
-                        p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
+                            p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
 
-                        if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
-                            l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
+                            if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                                l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
+                        }
                     }
                 }
             }
@@ -3129,6 +3140,11 @@ class spell_hun_tame_beast: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_tame_beast_SpellScript);
 
+            enum eCreature
+            {
+                Chimaeron = 43296
+            };
+
             SpellCastResult CheckCast()
             {
                 int8 l_ResultId = -1;
@@ -3160,6 +3176,13 @@ class spell_hun_tame_beast: public SpellScriptLoader
                 {
                     l_Player->SendPetTameResult((PetTameResult) l_ResultId);
                     return SPELL_FAILED_DONT_REPORT;
+                }
+
+                /// Chimaeron can be tamed but only at 20%
+                if (l_Target->GetEntry() == eCreature::Chimaeron && l_Target->GetHealthPct() > 20.0f)
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CHIMAERON_IS_TOO_CALM_TO_TAME);
+                    return SPELL_FAILED_CUSTOM_ERROR;
                 }
 
                 return SPELL_CAST_OK;
@@ -3294,7 +3317,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         /// Reduce damage by armor
                         if (l_Pet->IsDamageReducedByArmor(SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo()))
                             l_Damage = l_Pet->CalcArmorReducedDamage(GetHitUnit(), l_Damage, GetSpellInfo(), BaseAttack);
-
                         SetHitDamage(l_Damage);
                     }
                 }
@@ -3623,7 +3645,8 @@ class spell_hun_adaptation : public SpellScriptLoader
 
             enum eSpells
             {
-                CombatExperience = 156843
+                CombatExperienceAdaptation = 156843,
+                CombatExperience = 20782
             };
 
             void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
@@ -3636,7 +3659,11 @@ class spell_hun_adaptation : public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (Pet* l_Pet = l_Player->GetPet())
-                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
+                    {
+                        if (l_Pet->HasAura(eSpells::CombatExperience))
+                            l_Pet->RemoveAura(eSpells::CombatExperience);
+                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperienceAdaptation, true);
+                    }
                 }
             }
 
@@ -3650,7 +3677,10 @@ class spell_hun_adaptation : public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (Pet* l_Pet = l_Player->GetPet())
-                        l_Pet->RemoveAura(eSpells::CombatExperience);
+                    {
+                        l_Pet->RemoveAura(eSpells::CombatExperienceAdaptation);
+                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
+                    }
                 }
             }
 

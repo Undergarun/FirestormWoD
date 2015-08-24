@@ -407,6 +407,8 @@ class boss_twin_ogron_pol : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
+                EnterEvadeIfOutOfCombatArea(p_Diff);
+
                 if (!UpdateVictim())
                     return;
 
@@ -869,6 +871,8 @@ class boss_twin_ogron_phemos : public CreatureScript
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
+
+                EnterEvadeIfOutOfCombatArea(p_Diff);
 
                 m_CosmeticEvents.Update(p_Diff);
 

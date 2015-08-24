@@ -1574,7 +1574,7 @@ class Unit : public WorldObject
         void StopAttackFaction(uint32 faction_id);
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
         void GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Range) const;
-        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true, bool p_Alive = true) const;
+        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true, bool p_Alive = true, bool p_ExcludeStealthVictim = false) const;
         Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
         void SendMeleeAttackStart(Unit* victim);
@@ -1587,6 +1587,7 @@ class Unit : public WorldObject
         void AddUnitState(uint32 f) { m_state |= f; }
         bool HasUnitState(const uint32 f) const { return (m_state & f); }
         void ClearUnitState(uint32 f) { m_state &= ~f; }
+        void ClearAllUnitState() { m_state = 0; }
         bool CanFreeMove() const
         {
             return !HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING | UNIT_STATE_IN_FLIGHT |
@@ -1762,9 +1763,6 @@ class Unit : public WorldObject
 
         void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = WeaponAttackType::BaseAttack, bool crit = false);
         void DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss);
-
-        // player or player's pet resilience (-1%)
-        uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 100.0f, damage); }
 
         void ApplyResilience(const Unit* victim, int32 * damage) const;
 
@@ -2391,6 +2389,10 @@ class Unit : public WorldObject
 
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = WeaponAttackType::BaseAttack);
         bool   isBlockCritical();
+        bool   IsSpellMultistrike(SpellInfo const* p_SpellProto) const;
+        uint32 GetMultistrikeBasePoints(uint32 p_Damage) const;
+        void   ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType = WeaponAttackType::BaseAttack, SpellInfo const* p_ProcAura = NULL, constAuraEffectPtr p_OwnerAuraEffect = NULL);
+        void   ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int32& p_Amount);
         bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
         bool   IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolMask) const;
         float  GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
@@ -2794,7 +2796,6 @@ class Unit : public WorldObject
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;
-        uint32 GetCombatRatingDamageReduction(CombatRating cr, float cap, uint32 damage) const;
 
     protected:
         void SendMoveRoot(uint32 value);

@@ -5,8 +5,8 @@
 	UPDATE
 		`creature_template`
 	SET
-		`InhabitType` = 7,
-		`movementtype` = 2,
+		`InhabitType` = 4,
+		`movementtype` = 0,
 		`speed_walk` = 2,
 		`speed_run` = 2,
 		`speed_fly` = 2,
@@ -20,7 +20,7 @@
 
 	DELETE FROM creature WHERE id = @RUKHMAR;
 	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUE ('83746','1116','6722','6722','1','1','0','0','131.766','2506.42','135.821','2.64288','900','0','0','43331200','0','2','0','0','0','2176','0','0','0','0',NULL);
-	insert into creature_addon (guid, path_id) value ((select distinct guid from creature where id = @RUKHMAR), @RUKHMAR);
+--	insert into creature_addon (guid, path_id) value ((select distinct guid from creature where id = @RUKHMAR), @RUKHMAR);
 
 
 #83769/NPC - Energized Phoenix
@@ -47,7 +47,7 @@
 -- Waypoints
 
 DELETE FROM waypoint_data WHERE id = 83746;
-insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('83746','1','109.04','2529.92','98.394','0','0','0','0','100','0');
+/*insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('83746','1','109.04','2529.92','98.394','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('83746','2','46.0705','2607.37','96.1203','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('83746','3','-75.2959','2574.59','60.547','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('83746','4','-282.416','2402.54','58.2095','0','0','0','0','100','0');
@@ -65,3 +65,4 @@ insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('83746','16','143.84','2333.23','128.493','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('83746','17','209.969','2448.18','41.7817','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('83746','18','147.927','2489.04','88.0799','0','0','0','0','100','0');
+*/

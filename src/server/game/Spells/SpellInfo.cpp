@@ -625,14 +625,14 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
             {
                 if (l_AttackPower == 0.f)
                     l_AttackPower = p_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-                if ((l_AttackPower == 0.f || p_Caster->isSummon()) && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
+                if (l_AttackPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
                     l_AttackPower = p_Caster->GetOwner()->GetTotalAttackPowerValue(l_AttType);
             }
 
             {
                 if (l_SpellPower == 0.f)
                     l_SpellPower = p_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
-                if ((l_AttackPower == 0.f || p_Caster->isSummon()) && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
+                if (l_SpellPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
                     l_SpellPower = p_Caster->GetOwner()->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
             }
 
@@ -1119,16 +1119,11 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     AttributesEx9 = _misc ? _misc->AttributesEx9 : 0;
     AttributesEx10 = _misc ? _misc->AttributesEx10 : 0;
     AttributesEx11 = _misc ? _misc->AttributesEx11 : 0;
-    AttributesEx12 = _misc ? _misc->AttributesEx12 : 0;     // new 5.4.0
-
-    uint32 castingTimeIndex = _misc ? _misc->CastingTimeIndex : 0;
-    uint32 durationIndex = _misc ? _misc->DurationIndex : 0;
-    uint32 rangeIndex = _misc ? _misc->rangeIndex : 0;
-
-    CastTimeEntry = sSpellCastTimesStore.LookupEntry(castingTimeIndex);
-    DurationEntry = sSpellDurationStore.LookupEntry(durationIndex);
-    //PowerType = spellEntry->powerType; WTF
-    RangeEntry = sSpellRangeStore.LookupEntry(rangeIndex);
+    AttributesEx12 = _misc ? _misc->AttributesEx12 : 0;
+    AttributesEx13 = _misc ? _misc->AttributesEx13 : 0;
+    CastTimeEntry = _misc ? (_misc->CastingTimeIndex ? sSpellCastTimesStore.LookupEntry(_misc->CastingTimeIndex) : NULL) : NULL;
+    DurationEntry = _misc ? (_misc->DurationIndex ? sSpellDurationStore.LookupEntry(_misc->DurationIndex) : NULL) : NULL;
+    RangeEntry = _misc ? (_misc->rangeIndex ? sSpellRangeStore.LookupEntry(_misc->rangeIndex) : NULL) : NULL;
     Speed = _misc ? _misc->speed : 1.00f;
     for (uint8 i = 0; i < 2; ++i)
         SpellVisual[i] = _misc ? _misc->SpellVisual[i] : 0;
@@ -1437,6 +1432,11 @@ bool SpellInfo::IsPassiveStackableWithRanks() const
 bool SpellInfo::IsMultiSlotAura() const
 {
     return (IsPassive() || Id == 55849 || Id == 40075 || Id == 44413) && Id != 76856;
+}
+
+bool SpellInfo::IsCooldownStartedOnEvent() const
+{
+    return Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE || (Category && (CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT));
 }
 
 bool SpellInfo::IsDeathPersistent() const
