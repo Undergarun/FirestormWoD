@@ -822,7 +822,7 @@ class AchievementGlobalMgr
         AchievementCriteriaTreeByCriteriaId m_AchievementCriteriaTreeByCriteriaId;
         AchievementEntryByCriteriaTree m_AchievementEntryByCriteriaTree;
         ModifierTreeEntryByTreeId m_ModifierTreeEntryByTreeId;
-        typedef std::map<uint32 /*achievementId*/, uint32 /*instanceId*/> AllCompletedAchievements;
+        typedef ACE_Based::LockedMap<uint32 /*achievementId*/, uint32 /*instanceId*/> AllCompletedAchievements;
         AllCompletedAchievements m_allCompletedAchievements;
         SubCriteriaTreeListById m_SubCriteriaTreeListById;
 
