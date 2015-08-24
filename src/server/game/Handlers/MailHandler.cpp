@@ -134,7 +134,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
         if (item)
         {
             ItemTemplate const* itemProto = item->GetTemplate();
-            if (!itemProto || !(itemProto->Flags & ITEM_PROTO_FLAG_BIND_TO_ACCOUNT))
+            if (!itemProto || !(itemProto->Flags & ITEM_FLAG_BIND_TO_ACCOUNT))
             {
                 accountBound = false;
                 break;
@@ -177,13 +177,13 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
             return;
         }
 
-        if (item->GetTemplate()->Flags & ITEM_PROTO_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_EXPIRATION))
+        if (item->GetTemplate()->Flags & ITEM_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_EXPIRATION))
         {
             m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
             return;
         }
 
-        if (l_COD && item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))
+        if (l_COD && item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
         {
             m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_CANT_SEND_WRAPPED_COD);
             return;
@@ -727,7 +727,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & p_Packet)
         l_BodyItem->SetText(l_Mail->body);
 
     l_BodyItem->SetGuidValue(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(l_Mail->sender, 0, HIGHGUID_PLAYER));
-    l_BodyItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
+    l_BodyItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_MAIL_TEXT_MASK);
 
     ItemPosCountVec l_Destinatiopn;
     uint8 l_Msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, l_Destinatiopn, l_BodyItem, false);

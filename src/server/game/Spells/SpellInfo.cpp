@@ -1119,16 +1119,11 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     AttributesEx9 = _misc ? _misc->AttributesEx9 : 0;
     AttributesEx10 = _misc ? _misc->AttributesEx10 : 0;
     AttributesEx11 = _misc ? _misc->AttributesEx11 : 0;
-    AttributesEx12 = _misc ? _misc->AttributesEx12 : 0;     // new 5.4.0
-
-    uint32 castingTimeIndex = _misc ? _misc->CastingTimeIndex : 0;
-    uint32 durationIndex = _misc ? _misc->DurationIndex : 0;
-    uint32 rangeIndex = _misc ? _misc->rangeIndex : 0;
-
-    CastTimeEntry = sSpellCastTimesStore.LookupEntry(castingTimeIndex);
-    DurationEntry = sSpellDurationStore.LookupEntry(durationIndex);
-    //PowerType = spellEntry->powerType; WTF
-    RangeEntry = sSpellRangeStore.LookupEntry(rangeIndex);
+    AttributesEx12 = _misc ? _misc->AttributesEx12 : 0;
+    AttributesEx13 = _misc ? _misc->AttributesEx13 : 0;
+    CastTimeEntry = _misc ? (_misc->CastingTimeIndex ? sSpellCastTimesStore.LookupEntry(_misc->CastingTimeIndex) : NULL) : NULL;
+    DurationEntry = _misc ? (_misc->DurationIndex ? sSpellDurationStore.LookupEntry(_misc->DurationIndex) : NULL) : NULL;
+    RangeEntry = _misc ? (_misc->rangeIndex ? sSpellRangeStore.LookupEntry(_misc->rangeIndex) : NULL) : NULL;
     Speed = _misc ? _misc->speed : 1.00f;
     for (uint8 i = 0; i < 2; ++i)
         SpellVisual[i] = _misc ? _misc->SpellVisual[i] : 0;

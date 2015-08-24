@@ -1541,15 +1541,11 @@ class spell_dru_cat_form: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->RemoveMovementImpairingAuras();
-            }
-
-            void HandleAfterHit()
-            {
                 Player* l_Player = GetCaster()->ToPlayer();
                 if (!l_Player)
                     return;
+
+                l_Player->RemoveMovementImpairingAuras();
 
                 /// Fix Berserk - amount of energy after reshift
                 l_Player->UpdateMaxPower(POWER_ENERGY);
@@ -4846,8 +4842,114 @@ class spell_dru_glyph_of_rake: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Celestial Alignment - 112071
+class spell_dru_celestial_alignement : public SpellScriptLoader
+{
+    public:
+        spell_dru_celestial_alignement() : SpellScriptLoader("spell_dru_celestial_alignement") { }
+
+        class spell_dru_celestial_alignement_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_celestial_alignement_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofCelestialAlignment = 159445,
+                GlyphofCelestialAlignmentMarker = 160373
+            };
+
+            void HandleBeforeCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasGlyph(eSpells::GlyphofCelestialAlignment))
+                    return;
+
+                l_Player->CastSpell(l_Player, eSpells::GlyphofCelestialAlignment, true);
+            }
+
+            void HandleApplyAura(SpellEffIndex /*p_EffIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasGlyph(eSpells::GlyphofCelestialAlignment))
+                    return;
+
+                /// Reinit charges of marker if it's already apply
+                if (l_Player->HasAura(eSpells::GlyphofCelestialAlignmentMarker))
+                    l_Player->RemoveAurasDueToSpell(GlyphofCelestialAlignmentMarker);
+
+                /// Apply Marker of 8 charges
+                l_Player->CastSpell(l_Player, eSpells::GlyphofCelestialAlignmentMarker, true);
+
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_dru_celestial_alignement_SpellScript::HandleBeforeCast);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_celestial_alignement_SpellScript::HandleApplyAura, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_celestial_alignement_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Celestial Alignment (Marker) - 160373
+class spell_dru_celestial_alignement_marker : public SpellScriptLoader
+{
+    public:
+        spell_dru_celestial_alignement_marker() : SpellScriptLoader("spell_dru_celestial_alignement_marker") { }
+
+        class spell_dru_celestial_alignement_marker_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_celestial_alignement_marker_AuraScript);
+
+            enum eSpells
+            {
+                GlyphofCelestialAlignment = 159445,
+                GlyphofCelestialAlignmentMarker = 160373,
+                CelestialAlignment = 112071
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (p_AurEff->GetBase()->GetCharges() <= 1)
+                {
+                    l_Target->RemoveAurasDueToSpell(eSpells::GlyphofCelestialAlignmentMarker);
+                    l_Target->RemoveAurasDueToSpell(eSpells::GlyphofCelestialAlignment);
+                    l_Target->RemoveAurasDueToSpell(eSpells::CelestialAlignment);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_celestial_alignement_marker_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_celestial_alignement_marker_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_celestial_alignement_marker();
+    new spell_dru_celestial_alignement();
     new spell_dru_yseras_gift_ally_proc();
     new spell_dru_glyph_of_enchanted_bark();
     new spell_dru_pulverize();

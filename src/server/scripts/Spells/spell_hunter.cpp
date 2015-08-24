@@ -427,7 +427,7 @@ class spell_hun_glyph_of_aspect_of_the_cheetah : public SpellScriptLoader
                     if (l_Caster->HasAura(eSpells::GlyphOfAspectOfTheCheetah))
                         p_AurEff->GetBase()->Remove();
                     else
-                        l_Caster->CastSpell(l_Caster, GetSpellInfo()->Effects[EFFECT_1].TriggerSpell, true);
+                        l_Caster->CastSpell(l_Caster, p_AurEff->GetTriggerSpell(), true);
                 }
             }
 
@@ -783,12 +783,16 @@ class spell_hun_lone_wolf : public SpellScriptLoader
                     }
                     else
                     {
-                        l_Player->CastSpell(l_Player, LoneWolfes::LoneWolfAura, true);
+                        /// We don't need to update values and cast this aura every time on update, just if we don't have it yet
+                        if (!l_Player->HasAura(LoneWolfes::LoneWolfAura))
+                        {
+                            l_Player->CastSpell(l_Player, LoneWolfes::LoneWolfAura, true);
 
-                        p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
+                            p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
 
-                        if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
-                            l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
+                            if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                                l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
+                        }
                     }
                 }
             }

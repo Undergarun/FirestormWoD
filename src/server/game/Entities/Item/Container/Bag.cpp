@@ -88,7 +88,7 @@ bool Bag::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
 
-    SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_UNK11 | ITEM_FLAG_UNK12);
+    SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_UNK11 | ITEM_FIELD_FLAG_UNK12);
 
     // Setting the number of Slots the Container has
     SetUInt32Value(CONTAINER_FIELD_NUM_SLOTS, itemProto->ContainerSlots);

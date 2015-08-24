@@ -1145,8 +1145,11 @@ float Player::GetRegenForPower(Powers p_Power)
 
     switch (p_Power)
     {
+        /// Last Update: 6.1.2 19865
+        /// Client calculate this value itself, i don't know how, it has base value 5, but it should be 4, so just -1.0f
+        /// I've done some tests and now it's fine, please don't touch, just if server version is changed and client-part value is fixed
         case Powers::POWER_FOCUS:
-            l_BaseRegen = 4.0f;
+            return -1.0f;
             break;
         case Powers::POWER_ENERGY:
         case Powers::POWER_RUNES:
@@ -1167,24 +1170,8 @@ float Player::GetRegenForPower(Powers p_Power)
     float l_HastePct = 1.0f;
     float l_Total = 1.0f;
 
-    /// I don't know how energy/runes regen should be calculated, but for focus it should be this way
-    if (p_Power == Powers::POWER_FOCUS)
-    {
-        l_HastePct = 1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE);
-        /// TODO
-        /// Not finished fix, i don't know how to fix it atm.
-        /// UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER by default for hunter is 5 * haste pct. For example, if we have 10% haste: 5 * 1.1 = 5.5, but on WOD base regen for hunters is 4.
-        /// So we should have 4 * 1.1 = 4.4 regen.
-        /// If we just calculate correct regen here, we receive: 5 * haste pct + 4 * haste pct.
-        /// I've tried to remove 5 * haste_pct from this field here, but it's not correct yet.
-        /// If someone has some ideas how to make it exactly 4 * haste pct - help.
-        l_Total = ((l_BaseRegen * l_HastePct) - (5.f * l_HastePct)) * l_Pct;
-    }
-    else
-    {
-        l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
-        l_Total = l_BaseRegen * l_HastePct * l_Pct;
-    }
+    l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+    l_Total = l_BaseRegen * l_HastePct * l_Pct;
 
     return l_Total;
 }
