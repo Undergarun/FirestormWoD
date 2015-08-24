@@ -634,8 +634,6 @@ class instance_mogu_shan_vault : public InstanceMapScript
 
             void Update(uint32 diff)
             {
-                UpdateOperations(diff);
-
                 if (GetBossState(DATA_WILL_OF_EMPEROR) != IN_PROGRESS)
                     return;
 

@@ -3514,59 +3514,6 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
         }
 };
 
-/// Berserker Rush (damage) - 159002
-class spell_highmaul_berserker_rush_damage : public SpellScriptLoader
-{
-    public:
-        spell_highmaul_berserker_rush_damage() : SpellScriptLoader("spell_highmaul_berserker_rush_damage") { }
-
-        class spell_highmaul_berserker_rush_damage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_highmaul_berserker_rush_damage_SpellScript);
-
-            enum eSpell
-            {
-                TargetRestrict = 19994
-            };
-
-            void CorrectTargets(std::list<WorldObject*>& p_Targets)
-            {
-                if (p_Targets.empty())
-                    return;
-
-                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
-                if (l_Restriction == nullptr)
-                    return;
-
-                Unit* l_Caster = GetCaster();
-                if (l_Caster == nullptr)
-                    return;
-
-                float l_Angle = 2 * M_PI / 360 * l_Restriction->ConeAngle;
-                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
-                {
-                    if (p_Object == nullptr)
-                        return true;
-
-                    if (!p_Object->isInFront(l_Caster, l_Angle))
-                        return true;
-
-                    return false;
-                });
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_berserker_rush_damage_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_110);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_highmaul_berserker_rush_damage_SpellScript();
-        }
-};
-
 /// Molten Bomb - 161634
 class areatrigger_highmaul_molten_bomb : public AreaTriggerEntityScript
 {
@@ -3751,7 +3698,6 @@ void AddSC_boss_kargath_bladefist()
     new spell_highmaul_berserker_rush_periodic();
     new spell_highmaul_blade_dance();
     new spell_highmaul_correct_searchers();
-    new spell_highmaul_berserker_rush_damage();
 
     /// AreaTriggers
     new areatrigger_highmaul_molten_bomb();

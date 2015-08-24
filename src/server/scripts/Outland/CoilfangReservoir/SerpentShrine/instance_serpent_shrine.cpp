@@ -122,8 +122,6 @@ class instance_serpent_shrine : public InstanceMapScript
 
             void Update(uint32 diff)
             {
-                UpdateOperations(diff);
-
                 //Water checks
                 if (WaterCheckTimer <= diff)
                 {

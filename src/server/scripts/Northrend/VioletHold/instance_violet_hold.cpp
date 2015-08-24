@@ -668,8 +668,6 @@ public:
 
         void Update(uint32 diff)
         {
-            UpdateOperations(diff);
-
             if (!instance->HavePlayers())
                 return;
 

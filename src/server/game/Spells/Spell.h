@@ -496,7 +496,6 @@ public:
     void EffectActivateSpec(SpellEffIndex effIndex);
     void EffectPlaySound(SpellEffIndex effIndex);
     void EffectRemoveAura(SpellEffIndex effIndex);
-    void EffectCancelAura(SpellEffIndex p_EffIndex);
     void EffectDamageFromMaxHealthPCT(SpellEffIndex effIndex);
     void EffectCastButtons(SpellEffIndex effIndex);
     void EffectRechargeManaGem(SpellEffIndex effIndex);

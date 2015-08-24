@@ -298,6 +298,10 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
                 return true;
             }
 
+            void Update(uint32 diff)
+            {
+            }
+
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
             {
                 if (!InstanceScript::CheckRequiredBosses(bossId, player))

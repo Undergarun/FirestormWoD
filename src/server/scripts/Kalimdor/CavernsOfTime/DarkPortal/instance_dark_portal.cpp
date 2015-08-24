@@ -319,8 +319,6 @@ public:
 
         void Update(uint32 diff)
         {
-            UpdateOperations(diff);
-
             if (m_auiEncounter[1] != IN_PROGRESS)
                 return;
 

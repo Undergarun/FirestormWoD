@@ -1037,9 +1037,9 @@ void WorldSession::HandleAcceptWarGameInvite(WorldPacket& p_Packet)
 
     uint32 l_BattlegroundTypeId = l_QueueID & 0xFFFF;
 
-    BattlegroundTypeId l_BGTypeID   = BattlegroundTypeId(l_BattlegroundTypeId);
-    auto l_BGQueueTypeID            = MS::Battlegrounds::GetSchedulerType((BattlegroundTypeId)l_BattlegroundTypeId);
-    ArenaType l_ArenaType           = ArenaType::None;
+    BattlegroundTypeId l_BGTypeID = BattlegroundTypeId(l_BattlegroundTypeId);
+    auto l_BGQueueTypeID          = MS::Battlegrounds::GetSchedulerType((BattlegroundTypeId)l_BattlegroundTypeId);
+    ArenaType l_ArenaType         = ArenaType::None;
 
     if (MS::Battlegrounds::IsArenaType(l_BGQueueTypeID))
     {
@@ -1081,9 +1081,6 @@ void WorldSession::HandleAcceptWarGameInvite(WorldPacket& p_Packet)
         return;
 
     /// Create the new battleground.
-    if (l_BGQueueTypeID == MS::Battlegrounds::BattlegroundType::Type::AllArenas)
-        l_BGQueueTypeID = (MS::Battlegrounds::BattlegroundType::Type)urand(MS::Battlegrounds::BattlegroundType::Type::TigersPeaks, MS::Battlegrounds::BattlegroundType::Type::NagrandArena);
-
     Battleground* l_BattlegroundInstance = sBattlegroundMgr->CreateNewBattleground(l_BGQueueTypeID, MS::Battlegrounds::Brackets::RetreiveFromId(l_BracketEntry->m_Id), l_ArenaType, false, true, l_Request->TournamentRules);
     if (l_BattlegroundInstance == nullptr)
         return;

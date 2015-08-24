@@ -76,10 +76,8 @@ public:
             }
         }
 
-        void Update(uint32 diff)
+        void Update(uint32 /*diff*/)
         {
-            UpdateOperations(diff);
-
             if (WardKeeperDeath == WARD_KEEPERS_NR)
                 if (GameObject* go = instance->GetGameObject(DoorWardGUID))
                 {

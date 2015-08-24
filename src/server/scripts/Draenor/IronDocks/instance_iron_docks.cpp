@@ -364,7 +364,6 @@ class instance_iron_docks : public InstanceMapScript
 
             void Update(uint32 p_Diff) override
             {
-                UpdateOperations(p_Diff);
                 ScheduleBeginningTimeUpdate(p_Diff);
                 ScheduleChallengeStartup(p_Diff);
                 ScheduleChallengeTimeUpdate(p_Diff);

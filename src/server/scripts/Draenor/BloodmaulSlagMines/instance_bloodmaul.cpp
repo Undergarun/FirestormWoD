@@ -318,8 +318,6 @@ namespace MS
 
                         void Update(uint32 p_Diff)
                         {
-                            UpdateOperations(p_Diff);
-
                             CheckPositionZForPlayers(p_Diff);
                             ScheduleBeginningTimeUpdate(p_Diff);
                             ScheduleChallengeStartup(p_Diff);

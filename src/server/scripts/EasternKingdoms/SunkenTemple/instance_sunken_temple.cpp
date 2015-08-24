@@ -107,10 +107,8 @@ public:
             }
         }
 
-         virtual void Update(uint32 diff) // correct order goes form 1-6
+         virtual void Update(uint32 /*diff*/) // correct order goes form 1-6
          {
-             InstanceScript::Update(diff);
-
              switch (State)
              {
              case GO_ATALAI_STATUE1:

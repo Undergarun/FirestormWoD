@@ -66,8 +66,6 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
 
             void Update(uint32 diff)
             {
-                UpdateOperations(diff);
-
                 if (BarimIsDone)
                 {
                     if (uiUpdateTimer <= diff)

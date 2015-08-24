@@ -89,7 +89,6 @@ class boss_tectus : public CreatureScript
             /// Arrow visual on player
             SpellCrystallineBarrage     = 162346,
             CrystallineBarrageSummon    = 162371,
-            CrystallineBarrageDoT       = 162370,
             /// +5% damage done
             Accretion                   = 162288,
             Petrification               = 163809,
@@ -394,9 +393,7 @@ class boss_tectus : public CreatureScript
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
-
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellCrystallineBarrage);
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrystallineBarrageDoT);
 
                     Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
                     if (l_PlayerList.isEmpty())
@@ -451,11 +448,7 @@ class boss_tectus : public CreatureScript
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SetBossState(eHighmaulDatas::BossTectus, EncounterState::FAIL);
-
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
-
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellCrystallineBarrage);
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrystallineBarrageDoT);
                 }
 
                 std::list<Creature*> l_Motes;
@@ -718,6 +711,9 @@ class boss_tectus : public CreatureScript
                             float l_Y = l_Target->GetPositionY();
                             me->SummonCreature(eCreatures::EarthenPillarStalker, l_X, l_Y, me->GetPositionZ());
                         }
+
+                        if (!m_Events.HasEvent(eEvents::EventEarthenPillar))
+                            m_Events.ScheduleEvent(eEvents::EventEarthenPillar, 60 * TimeConstants::IN_MILLISECONDS);
 
                         Talk(eTalks::EarthenPillar);
                         break;
@@ -1274,16 +1270,7 @@ class npc_highmaul_earthen_pillar_stalker : public CreatureScript
                     if (GameObject* l_Pillar = GameObject::GetGameObject(*me, m_PillarGuid))
                         l_Pillar->Delete();
 
-                    if (GameObject* l_Pillar = me->SummonGameObject(eGameObject::GoBEarthenPillar, *me, 0.0f, 0.0f, 0.0f, 0.0f, 0))
-                        m_PillarGuid = l_Pillar->GetGUID();
-                });
-
-                AddTimedDelayedOperation(60 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                {
-                    if (GameObject* l_Pillar = GameObject::GetGameObject(*me, m_PillarGuid))
-                        l_Pillar->Delete();
-
-                    me->DespawnOrUnsummon();
+                    me->SummonGameObject(eGameObject::GoBEarthenPillar, *me, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                 });
             }
         };
@@ -1581,29 +1568,14 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
                     if (!l_Target->isInCombat())
                         return;
 
-                    uint32 l_OldPower = l_Target->GetPower(Powers::POWER_ENERGY);
                     l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, GetEnergyGainFromHealth(l_Target->GetHealthPct()), Powers::POWER_ENERGY);
-                    uint32 l_NewPower = l_Target->GetPower(Powers::POWER_ENERGY);
 
                     if (l_Target->IsAIEnabled)
                     {
-                        if (l_NewPower >= 100)
+                        if (l_Target->GetPower(Powers::POWER_ENERGY) >= 100)
                             l_Target->AI()->DoAction(eActions::ScheduleTectonicUpheaval);
-                        else
-                        {
-                            /// On Mythic difficulty, Tectus also uses this ability at 50 Energy.
-                            if (l_Target->GetMap()->IsMythic())
-                            {
-                                if ((l_OldPower < 25 && (l_OldPower + l_NewPower) >= 25) ||
-                                    (l_OldPower < 50 && (l_OldPower + l_NewPower) >= 50))
-                                    l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
-                            }
-                            else
-                            {
-                                if (l_OldPower < 25 && (l_OldPower + l_NewPower) >= 25)
-                                    l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
-                            }
-                        }
+                        else if (l_Target->GetPower(Powers::POWER_ENERGY) >= 25)
+                            l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
                     }
                 }
             }

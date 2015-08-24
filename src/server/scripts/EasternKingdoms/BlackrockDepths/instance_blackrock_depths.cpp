@@ -429,8 +429,6 @@ public:
         }
         void Update(uint32 diff)
         {
-            UpdateOperations(diff);
-
             if (TombEventStarterGUID && GhostKillCount < 7)
             {
                 if (TombTimer <= diff)

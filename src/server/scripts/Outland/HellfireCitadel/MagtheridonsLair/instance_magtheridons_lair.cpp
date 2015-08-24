@@ -220,8 +220,6 @@ class instance_magtheridons_lair : public InstanceMapScript
 
             void Update(uint32 diff)
             {
-                UpdateOperations(diff);
-
                 if (CageTimer)
                 {
                     if (CageTimer <= diff)
