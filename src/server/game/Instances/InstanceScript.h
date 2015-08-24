@@ -233,6 +233,9 @@ class InstanceScript : public ZoneScript
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 
+        /// Remove movement forces on all players for the specified source
+        void DoRemoveForcedMovementsOnPlayers(uint64 p_Source);
+
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell);
 
@@ -461,6 +464,14 @@ class InstanceScript : public ZoneScript
 
         void UpdatePhasing();
         void UpdateCreatureGroupSizeStats();
+
+        BossInfo* GetBossInfo(uint32 p_ID)
+        {
+            if (p_ID < m_Bosses.size())
+                return &m_Bosses[p_ID];
+
+            return nullptr;
+        }
 
     protected:
         void SetBossNumber(uint32 p_Number);

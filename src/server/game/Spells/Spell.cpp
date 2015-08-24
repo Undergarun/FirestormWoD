@@ -1680,7 +1680,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
     if (targetType.GetTarget() == TARGET_DEST_CASTER_FRONT_LEAP)
         m_caster->GetFirstCollisionPosition(pos, dist, angle);
     else
-        m_caster->GetNearPosition(pos, dist, angle);
+        m_caster->GetNearPosition(pos, dist, angle, !(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS));
     m_targets.SetDst(*m_caster);
     m_targets.ModDst(pos);
 }
@@ -4033,6 +4033,9 @@ void Spell::cast(bool skipCheck)
     }
 
     CallScriptAfterCastHandlers();
+
+    if (m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
+        m_caster->ToCreature()->AI()->OnSpellCasted(m_spellInfo);
 
     // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed 
     if (m_caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && m_caster->isMoving() && !m_caster->HasAura(119048) && m_spellInfo->CalcCastTime(m_caster) > 0)
