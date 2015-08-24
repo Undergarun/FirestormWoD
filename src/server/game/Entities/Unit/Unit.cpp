@@ -10810,6 +10810,14 @@ Unit* Unit::GetOwner() const
     return NULL;
 }
 
+Unit* Unit::GetOwnerOrUnitItself() const
+{
+    if (Unit* l_Owner = GetOwner())
+        return l_Owner;
+
+    return const_cast<Unit*>(this);
+}
+
 Unit* Unit::GetCharmer() const
 {
     if (uint64 charmerid = GetCharmerGUID())
@@ -12842,7 +12850,9 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     float TakenTotalMod = 1.0f;
 
     /// Dampening, must be calculated off the raw amount
-    if (AuraEffectPtr l_AurEff = GetAuraEffect(110310, EFFECT_0))
+    Unit* l_OwnerOrSelf = GetOwnerOrUnitItself();
+
+    if (AuraEffectPtr l_AurEff = l_OwnerOrSelf->GetAuraEffect(110310, EFFECT_0))
         healamount = CalculatePct(healamount, 100 - l_AurEff->GetAmount());
 
     // No bonus for Eminence (statue) and Eminence

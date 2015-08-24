@@ -2005,6 +2005,8 @@ class Unit : public WorldObject
         Player* GetSpellModOwner() const;
 
         Unit* GetOwner() const;
+        Unit* GetOwnerOrUnitItself() const;
+
         Guardian *GetGuardianPet() const;
         Minion *GetFirstMinion() const;
         Unit* GetCharmer() const;
