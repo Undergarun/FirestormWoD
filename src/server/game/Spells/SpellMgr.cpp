@@ -5805,9 +5805,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_DEST_AREA_ALLY;
                 spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_DEST_AREA_ALLY;
                 break;
-            case 50385: ///< Improved Frost Presence (Rank 1/2)
-                spellInfo->Effects[EFFECT_1].SpellClassMask = 0;
-                break;
             case 81262: ///< Efflorensence
             case 88685: ///< Holy World: Sanctuary
                 spellInfo->AttributesEx5 &= ~SPELL_ATTR5_START_PERIODIC_AT_APPLY;

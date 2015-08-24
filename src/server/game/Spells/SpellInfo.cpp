@@ -2611,7 +2611,8 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
-            if (Id == 48266 || Id == 48263 || Id == 48265)
+            /// Blood Presence, Unholy Presence, Frost Presence
+            if (Id == 48263 || Id == 48265 || Id == 48266)
                 return SpellSpecificType::SpellSpecificPresence;
             break;
         case SPELLFAMILY_ROGUE:

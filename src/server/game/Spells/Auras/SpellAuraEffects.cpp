@@ -6451,16 +6451,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         {
             if (!(mode & AURA_EFFECT_HANDLE_REAL))
                 break;
-            // Improved Frost Presence
-            if (m_spellInfo->SpellIconID == 2636)
-            {
-                if (apply)
-                {
-                    if (!target->HasAura(48266) && !target->HasAura(63611))
-                        target->CastSpell(target, 63611, true);
-                }
-                else
-                    target->RemoveAurasDueToSpell(63611);
+
             break;
         }
         case SPELLFAMILY_WARLOCK:
