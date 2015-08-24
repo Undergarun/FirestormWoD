@@ -12414,6 +12414,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
+        {
             if (victim)
             {
                 crit_chance += GetUnitCriticalChance(attackType, victim);
@@ -12465,6 +12466,8 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     }
                 }
             }
+            break;
+        }
         case SPELL_DAMAGE_CLASS_RANGED:
         {
             if (victim)

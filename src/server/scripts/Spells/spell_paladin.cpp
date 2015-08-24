@@ -555,9 +555,6 @@ class spell_pal_selfless_healer: public SpellScriptLoader
                         else
                             l_Heal = int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_1].BasePoints / 100) * l_Charges));
 
-                        l_Heal = l_Player->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, EFFECT_0, HEAL);
-                        l_Heal = l_Target->SpellHealingBonusTaken(l_Player, GetSpellInfo(), l_Heal, HEAL);
-
                         SetHitHeal(l_Heal);
                     }
                 }
@@ -1526,7 +1523,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
                         else if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
                             l_Player->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
 
-                        if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Player->GetGUID() != l_Target->GetGUID())
+                        if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Player))
                         {
                             AuraPtr l_Aura = l_Player->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Player);
 
@@ -2577,9 +2574,6 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
                 if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_JUDGMENT)
                     return;
 
-                if (!p_EventInfo.GetDamageInfo()->GetDamage())
-                    return;
-
                 l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
             }
 
@@ -2803,11 +2797,14 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
 
                 if (l_Player->HasAura(eSpells::GlyphoftheLiberator) && l_Target->GetGUID() != l_Player->GetGUID())
                 {
-                    if (!l_Player->HasSpellCooldown(GetSpellInfo()->Id))
-                        return;
-
                     if (AuraEffectPtr l_AuraEffect = l_Player->GetAuraEffect(eSpells::GlyphoftheLiberator, EFFECT_0))
-                        l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
+                    {
+                        if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                            l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
+
+                        if (SpellCategoriesEntry const* l_HandofFreedomCategories = GetSpellInfo()->GetSpellCategories())
+                            l_Player->ReduceChargeCooldown(l_HandofFreedomCategories->ChargesCategory, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
+                    }
                 }
 
                 if (l_Player->HasAura(eSpells::GlyphofHandofFreedom))
@@ -2827,7 +2824,8 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Call by Lay on Hands - 633
+/// Call by :
+/// Lay on Hands - 633
 /// Flash of Light - 19750
 /// Holy Shock - 25914
 /// Holy Light - 82326
@@ -2873,6 +2871,59 @@ class spell_pal_glyph_of_flash_light : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Shining Protector - 159374
+class spell_pal_shining_protector : public SpellScriptLoader
+{
+    public:
+        spell_pal_shining_protector() : SpellScriptLoader("spell_pal_shining_protector") { }
+
+        class spell_pal_shining_protector_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_shining_protector_AuraScript);
+
+            enum eSpells
+            {
+                ShiningProtectorHeal = 159375
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::ShiningProtectorHeal)
+                    return;
+
+                if (!p_EventInfo.GetHealInfo()->GetHeal())
+                    return;
+
+                for (uint8 l_Chance_number = 0; l_Chance_number < 2; ++l_Chance_number)
+                {
+                    if (l_Caster->IsSpellMultistrike(p_EventInfo.GetDamageInfo()->GetSpellInfo()))
+                    {
+                        int32 l_Heal = CalculatePct(p_EventInfo.GetHealInfo()->GetHeal(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                        l_Caster->CastCustomSpell(l_Caster, eSpells::ShiningProtectorHeal, &l_Heal, NULL, NULL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_shining_protector_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_shining_protector_AuraScript();
+        }
+};
+
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -2901,6 +2952,7 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_shining_protector();
     new spell_pal_turn_evil();
     new spell_pal_denounce();
     new spell_pal_enhanced_holy_shock();

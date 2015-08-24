@@ -34,6 +34,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellScript.h"
+#include "Vehicle.h"
 
 /*#####
 # item_only_for_flight
@@ -692,6 +693,28 @@ class item_eye_of_the_black_prince : public ItemScript
         }
 };
 
+/// Regular check about passengers (allows checks for crossfaction mount)
+class PlayerScript_VehicleCheck : public PlayerScript
+{
+    public:
+        PlayerScript_VehicleCheck() : PlayerScript("PlayerScript_VehicleCheck") {}
+
+        void OnUpdateZone(Player* p_Player, uint32 /*p_NewZoneID*/, uint32 /*p_OldZoneID*/, uint32 /*p_NewAreaID*/) override
+        {
+            if (Vehicle* l_Vehicle = p_Player->GetVehicle())
+            {
+                if (Unit* l_Driver = l_Vehicle->GetBase())
+                {
+                    if (Player* l_DriverPlayer = l_Driver->ToPlayer())
+                    {
+                        if (!p_Player->CanMountAsPassenger(l_DriverPlayer))
+                            p_Player->ExitVehicle();
+                    }
+                }
+            }
+        }
+};
+
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
@@ -709,4 +732,6 @@ void AddSC_item_scripts()
     new spell_draenor_profession();
     new player_draenor_profession();
     new item_eye_of_the_black_prince();
+
+    new PlayerScript_VehicleCheck();
 }

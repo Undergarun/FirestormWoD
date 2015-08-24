@@ -566,42 +566,52 @@ class spell_warr_raging_blow: public SpellScriptLoader
         }
 };
 
-/// Called by Devastate - 20243
-/// Sword and Board - 46953
-class spell_warr_sword_and_board: public SpellScriptLoader
+/// last update : 6.1.2 19802
+/// Devastate - 20243
+class spell_warr_devaste: public SpellScriptLoader
 {
     public:
-        spell_warr_sword_and_board() : SpellScriptLoader("spell_warr_sword_and_board") { }
+        spell_warr_devaste() : SpellScriptLoader("spell_warr_devaste") { }
 
-        class spell_warr_sword_and_board_SpellScript : public SpellScript
+        class spell_warr_devaste_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_sword_and_board_SpellScript);
+            PrepareSpellScript(spell_warr_devaste_SpellScript);
+
+            enum eSpells
+            {
+                UnyieldingStrikesAura = 169685,
+                UnyieldingStrikesProc = 169686,
+                SwordandBoard = 46953
+            };
 
             void HandleOnHit()
             {
-                if (!GetHitUnit())
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
                     return;
 
-                // Fix Sword and Board
-                if (Player* player = GetCaster()->ToPlayer())
+                const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::SwordandBoard);
+
+                if (l_SpellInfo && l_Player->HasAura(eSpells::SwordandBoard) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
                 {
-                    if (roll_chance_i(30))
-                    {
-                        player->CastSpell(player, WARRIOR_SPELL_SWORD_AND_BOARD, true);
-                        player->RemoveSpellCooldown(WARRIOR_SPELL_SHIELD_SLAM, true);
-                    }
+                    l_Player->CastSpell(l_Player, WARRIOR_SPELL_SWORD_AND_BOARD, true);
+                    l_Player->RemoveSpellCooldown(WARRIOR_SPELL_SHIELD_SLAM, true);
                 }
+
+                if (l_Player->HasAura(eSpells::UnyieldingStrikesAura))
+                    l_Player->CastSpell(l_Player, eSpells::UnyieldingStrikesProc, true);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_sword_and_board_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_warr_devaste_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_warr_sword_and_board_SpellScript();
+            return new spell_warr_devaste_SpellScript();
         }
 };
 
@@ -919,6 +929,58 @@ class spell_warr_shockwave: public SpellScriptLoader
         }
 };
 
+/// Glyph of Raging Blow - 159740
+class spell_warr_glyph_of_raging_blow: public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_raging_blow() : SpellScriptLoader("spell_warr_glyph_of_raging_blow") { }
+
+        class spell_warr_glyph_of_raging_blow_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_glyph_of_raging_blow_AuraScript);
+
+            enum eSpells
+            {
+                RagingBlow = 96103,
+                RagingBlowOffHand = 85384
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcEventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                SpellInfo const* l_TriggeredBySpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
+                if (!l_TriggeredBySpell)
+                    return;
+
+                /// Should proc when Raging Blow (main hand and offhand)...
+                if (l_TriggeredBySpell->Id != eSpells::RagingBlow)
+                    return;
+
+                /// ...are both critical
+                if (!(p_ProcEventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                    return;
+
+                l_Caster->CastSpell(l_Caster, p_AurEff->GetTriggerSpell(), true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_glyph_of_raging_blow_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_glyph_of_raging_blow_AuraScript();
+        }
+};
+
+
 /// Bloodthirst - 23881
 class spell_warr_bloodthirst: public SpellScriptLoader
 {
@@ -982,7 +1044,6 @@ class spell_warr_bloodthirst_heal: public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphOfRagingBlow        = 159740,
                 GlyphOfRagingBlowHealMod = 159747
             };
 
@@ -991,10 +1052,10 @@ class spell_warr_bloodthirst_heal: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 int32 l_Heal = GetHitHeal();
 
-                if (AuraPtr l_GlyphOfRagingBlow = l_Caster->GetAura(eSpells::GlyphOfRagingBlowHealMod))
+                if (AuraEffectPtr l_GlyphOfRagingBlow = l_Caster->GetAuraEffect(eSpells::GlyphOfRagingBlowHealMod, EFFECT_0))
                 {
-                    AddPct(l_Heal, l_GlyphOfRagingBlow->GetEffect(EFFECT_0)->GetAmount());
-                    l_Caster->RemoveAurasDueToSpell(eSpells::GlyphOfRagingBlow);
+                    AddPct(l_Heal, l_GlyphOfRagingBlow->GetBaseAmount());
+                    l_GlyphOfRagingBlow->GetBase()->Remove();
                 }
 
                 SetHitHeal(l_Heal);
@@ -2455,8 +2516,74 @@ class spell_warr_activate_battle_stance : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Unyielding Strikes - 169685
+class spell_warr_unyielding_strikes : public SpellScriptLoader
+{
+    public:
+        spell_warr_unyielding_strikes() : SpellScriptLoader("spell_warr_unyielding_strikes") { }
+
+        class spell_warr_unyielding_strikes_Aurascript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_unyielding_strikes_Aurascript);
+
+            void HandleOnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& /*p_ProcInfos*/)
+            {
+                PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_unyielding_strikes_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_unyielding_strikes_Aurascript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Heroic Strike - 78
+class spell_warr_heroic_strike : public SpellScriptLoader
+{
+    public:
+        spell_warr_heroic_strike() : SpellScriptLoader("spell_warr_heroic_strike") { }
+
+        class spell_warr_heroic_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_heroic_strike_SpellScript);
+
+            enum eSpells
+            {
+                UnyieldingStrikesProc = 169686
+            };
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::UnyieldingStrikesProc))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::UnyieldingStrikesProc);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_warr_heroic_strike_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_heroic_strike_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_heroic_strike();
+    new spell_warr_unyielding_strikes();
     new spell_warr_defensive_stance();
     new spell_warr_glyph_of_shattering_throw();
     new spell_warr_shattering_throw();
@@ -2475,12 +2602,13 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_enrage();
     new spell_warr_mocking_banner();
     new spell_warr_raging_blow();
-    new spell_warr_sword_and_board();
+    new spell_warr_devaste();
     new spell_warr_mortal_strike();
     new spell_warr_rallying_cry();
     new spell_warr_heroic_leap_damage();
     new spell_warr_heroic_leap();
     new spell_warr_shockwave();
+    new spell_warr_glyph_of_raging_blow();
     new spell_warr_bloodthirst();
     new spell_warr_bloodthirst_heal();
     new spell_warr_victory_rush();
