@@ -389,7 +389,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & p_Packet)
         return;
     }
 
-    if (l_Item->GetTemplate()->Flags & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
+    if (l_Item->GetTemplate()->Flags & ITEM_FLAG_INDESTRUCTIBLE)
     {
         m_Player->SendEquipError(EQUIP_ERR_DROP_BOUND_ITEM, NULL, NULL);
         return;
@@ -517,7 +517,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
         // prevent selling item for sellprice when the item is still refundable
         // this probably happens when right clicking a refundable item, the client sends both
         // CMSG_SELL_ITEM and CMSG_REFUND_ITEM (unverified)
-        if (l_PlayerItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+        if (l_PlayerItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
             return; // Therefore, no feedback to client
 
         // pervent sell item with expiration
@@ -820,8 +820,8 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
                     continue;
 
                 // Only display items in vendor lists for the team the player is on
-                if ((l_ItemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && m_Player->GetTeam() == ALLIANCE) ||
-                    (l_ItemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && m_Player->GetTeam() == HORDE))
+                if ((l_ItemTemplate->Flags2 & ITEM_FLAG2_HORDE_ONLY && m_Player->GetTeam() == ALLIANCE) ||
+                    (l_ItemTemplate->Flags2 & ITEM_FLAG2_ALLIANCE_ONLY && m_Player->GetTeam() == HORDE))
                     continue;
 
                 std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
@@ -1310,7 +1310,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (!(gift->GetTemplate()->Flags & ITEM_PROTO_FLAG_WRAPPER)) // cheating: non-wrapper wrapper
+    if (!(gift->GetTemplate()->Flags & ITEM_FLAG_WRAPPER)) // cheating: non-wrapper wrapper
     {
         m_Player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, NULL);
         return;
@@ -1401,7 +1401,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
     }
 
     item->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, m_Player->GetGUID());
-    item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED);
+    item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, m_Player);
 
     if (item->GetState() == ITEM_NEW)                          // save new item, to have alway for `character_gifts` record in `item_instance`
@@ -1515,7 +1515,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& p_RecvData)
         ItemTemplate const* l_GemProto = l_Gems[l_Iter]->GetTemplate();
 
         // Unique item (for new and already placed bit removed enchantments
-        if (l_GemProto->Flags & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
+        if (l_GemProto->Flags & ITEM_FLAG_UNIQUE_EQUIPPED)
         {
             for (uint8 l_Index = 0; l_Index < MAX_GEM_SOCKETS; ++l_Index)
             {

@@ -615,42 +615,6 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
         }
 };
 
-/// Purge - 370
-class spell_sha_purge : public SpellScriptLoader
-{
-    public:
-        spell_sha_purge() : SpellScriptLoader("spell_sha_purge") { }
-
-        class spell_sha_purge_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_purge_SpellScript);
-
-            enum eSpells
-            {
-                GlyphOfPurging  = 147762,
-                MaelstromWeapon = 53817
-            };
-
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-                
-                if (l_Caster->HasAura(eSpells::GlyphOfPurging))
-                    l_Caster->CastSpell(l_Caster, eSpells::MaelstromWeapon, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_sha_purge_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_purge_SpellScript();
-        }
-};
-
 /// Called by Ghost Wolf - 2645
 /// Glyph of Lakestrider - 55448
 class spell_sha_glyph_of_lakestrider: public SpellScriptLoader
@@ -1236,6 +1200,7 @@ class spell_sha_healing_stream: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Elemental Blast - 117014
 class spell_sha_elemental_blast: public SpellScriptLoader
 {
@@ -1253,18 +1218,6 @@ class spell_sha_elemental_blast: public SpellScriptLoader
                 return true;
             }
 
-            void HandleAfterCast()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetExplTargetUnit())
-                    {
-                        caster->CastSpell(target, SPELL_SHA_ELEMENTAL_BLAST_FROST_VISUAL, true);
-                        caster->CastSpell(target, SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL, true);
-                    }
-                }
-            }
-
             void HandleOnHit()
             {
                 std::vector<uint32> l_SpellsToCast =
@@ -1275,20 +1228,21 @@ class spell_sha_elemental_blast: public SpellScriptLoader
                     SPELL_SHA_ELEMENTAL_BLAST_MULTISTRIKE_BONUS
                 };
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_ENHANCEMENT)
-                        l_SpellsToCast.push_back(SPELL_SHA_ELEMENTAL_BLAST_AGILITY_BONUS);
-                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION)
-                        l_Player->CastSpell(l_Player, SPELL_SHA_ELEMENTAL_BLAST_SPIRIT_BONUS);
-                }
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                GetCaster()->CastSpell(GetCaster(), l_SpellsToCast[urand(0, l_SpellsToCast.size() - 1)], true);
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_ENHANCEMENT)
+                    l_SpellsToCast.push_back(SPELL_SHA_ELEMENTAL_BLAST_AGILITY_BONUS);
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION)
+                    l_Player->CastSpell(l_Player, SPELL_SHA_ELEMENTAL_BLAST_SPIRIT_BONUS, true);
+
+                l_Player->CastSpell(GetCaster(), l_SpellsToCast[urand(0, l_SpellsToCast.size() - 1)], true);
             }
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_sha_elemental_blast_SpellScript::HandleAfterCast);
                 OnHit += SpellHitFn(spell_sha_elemental_blast_SpellScript::HandleOnHit);
             }
         };
@@ -2075,9 +2029,9 @@ class spell_sha_feral_spirit: public SpellScriptLoader
             void OnLaunch(SpellEffIndex effIndex)
             {
                 // Broken spellproc
-                if (Unit* caster = GetCaster())
-                    if (AuraPtr aura = caster->GetAura(SPELL_SHA_PVP_BONUS_WOD_2))
-                        caster->CastSpell(caster, aura->GetSpellInfo()->Effects[0].TriggerSpell);
+                if (Unit* l_Caster = GetCaster())
+                    if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(SPELL_SHA_PVP_BONUS_WOD_2, EFFECT_0))
+                        l_Caster->CastSpell(l_Caster, l_Aura->GetTriggerSpell());
             }
 
             void Register()
@@ -2288,10 +2242,10 @@ class spell_sha_liquid_magma: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 // hardcoded in the tooltip - no DBC data here
-                Unit* l_Target = l_Caster->SelectNearbyTarget(nullptr, 40, 0, false);
+                Unit* l_Target = l_Caster->SelectNearbyTarget(nullptr, 40, 0, false, true, true);
 
                 if (l_Target)
-                    l_Caster->CastSpell(l_Target, GetSpellInfo()->Effects[p_AurEff->GetEffIndex()].TriggerSpell);
+                    l_Caster->CastSpell(l_Target, p_AurEff->GetTriggerSpell());
             }
 
             void Register()
@@ -2950,7 +2904,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_chain_heal();
     new spell_sha_glyph_of_eternal_earth();
     new spell_sha_flame_shock();
-    new spell_sha_purge();
     new spell_sha_healing_wave();
     new spell_sha_riptide();
     new spell_sha_maelstrom_weapon();

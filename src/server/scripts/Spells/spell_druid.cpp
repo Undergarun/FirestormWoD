@@ -543,30 +543,30 @@ class spell_dru_swipe: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_swipe_SpellScript);
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = GetHitDamage();
+
+                /// Award 1 combot point
+                l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                /// Swipe and Maul deals 20% more damage if target is bleeding
+                if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        int32 l_Damage = GetHitDamage();
-
-                        /// Award 1 combot point
-                        l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-
-                        /// Swipe and Maul deals 20% more damage if target is bleeding
-                        if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
-                        {
-                            AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                            SetHitDamage(l_Damage);
-                        }
-                    }
+                    AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                    SetHitDamage(l_Damage);
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dru_swipe_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_swipe_SpellScript::HandleDamage, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
 
@@ -1541,15 +1541,11 @@ class spell_dru_cat_form: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->RemoveMovementImpairingAuras();
-            }
-
-            void HandleAfterHit()
-            {
                 Player* l_Player = GetCaster()->ToPlayer();
                 if (!l_Player)
                     return;
+
+                l_Player->RemoveMovementImpairingAuras();
 
                 /// Fix Berserk - amount of energy after reshift
                 l_Player->UpdateMaxPower(POWER_ENERGY);
@@ -3530,7 +3526,7 @@ class spell_dru_rake: public SpellScriptLoader
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                         if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
-                            l_SavageRoar->SetDuration(l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS);
+                            l_SavageRoar->SetDuration((l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS) + 12 * IN_MILLISECONDS);
                 }
             }
 
@@ -3690,7 +3686,7 @@ class spell_dru_shred: public SpellScriptLoader
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                         if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
-                            l_SavageRoar->SetDuration(l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS);
+                            l_SavageRoar->SetDuration((l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS) + 12 * IN_MILLISECONDS);
                 }
 
                 if (l_Target && l_Target->HasAuraState(AURA_STATE_BLEEDING) && sSpellMgr->GetSpellInfo(eSpells::Swipe))
@@ -4499,7 +4495,9 @@ class spell_dru_empowered_moonkin : public SpellScriptLoader
 
             enum eSpells
             {
-                EmpoweredMoonkin = 157228
+                EmpoweredMoonkin = 157228,
+                EnhancedStarsurge = 157232,
+                Starsurge = 78674
             };
 
             bool m_HasAuraBeforeCast = false;
@@ -4520,6 +4518,10 @@ class spell_dru_empowered_moonkin : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
 
                 if (l_Caster == nullptr)
+                    return;
+
+                /// Starsurge is already instant with Enhanced Starsurge, so we will not consume the aura
+                if (l_Caster->HasAura(eSpells::EnhancedStarsurge) && GetSpellInfo()->Id == eSpells::Starsurge)
                     return;
 
                 if (l_Caster->HasAura(eSpells::EmpoweredMoonkin) && m_HasAuraBeforeCast)
@@ -4840,8 +4842,114 @@ class spell_dru_glyph_of_rake: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Celestial Alignment - 112071
+class spell_dru_celestial_alignement : public SpellScriptLoader
+{
+    public:
+        spell_dru_celestial_alignement() : SpellScriptLoader("spell_dru_celestial_alignement") { }
+
+        class spell_dru_celestial_alignement_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_celestial_alignement_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofCelestialAlignment = 159445,
+                GlyphofCelestialAlignmentMarker = 160373
+            };
+
+            void HandleBeforeCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasGlyph(eSpells::GlyphofCelestialAlignment))
+                    return;
+
+                l_Player->CastSpell(l_Player, eSpells::GlyphofCelestialAlignment, true);
+            }
+
+            void HandleApplyAura(SpellEffIndex /*p_EffIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasGlyph(eSpells::GlyphofCelestialAlignment))
+                    return;
+
+                /// Reinit charges of marker if it's already apply
+                if (l_Player->HasAura(eSpells::GlyphofCelestialAlignmentMarker))
+                    l_Player->RemoveAurasDueToSpell(GlyphofCelestialAlignmentMarker);
+
+                /// Apply Marker of 8 charges
+                l_Player->CastSpell(l_Player, eSpells::GlyphofCelestialAlignmentMarker, true);
+
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_dru_celestial_alignement_SpellScript::HandleBeforeCast);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_celestial_alignement_SpellScript::HandleApplyAura, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_celestial_alignement_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Celestial Alignment (Marker) - 160373
+class spell_dru_celestial_alignement_marker : public SpellScriptLoader
+{
+    public:
+        spell_dru_celestial_alignement_marker() : SpellScriptLoader("spell_dru_celestial_alignement_marker") { }
+
+        class spell_dru_celestial_alignement_marker_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_celestial_alignement_marker_AuraScript);
+
+            enum eSpells
+            {
+                GlyphofCelestialAlignment = 159445,
+                GlyphofCelestialAlignmentMarker = 160373,
+                CelestialAlignment = 112071
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (p_AurEff->GetBase()->GetCharges() <= 1)
+                {
+                    l_Target->RemoveAurasDueToSpell(eSpells::GlyphofCelestialAlignmentMarker);
+                    l_Target->RemoveAurasDueToSpell(eSpells::GlyphofCelestialAlignment);
+                    l_Target->RemoveAurasDueToSpell(eSpells::CelestialAlignment);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_celestial_alignement_marker_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_celestial_alignement_marker_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_celestial_alignement_marker();
+    new spell_dru_celestial_alignement();
     new spell_dru_yseras_gift_ally_proc();
     new spell_dru_glyph_of_enchanted_bark();
     new spell_dru_pulverize();

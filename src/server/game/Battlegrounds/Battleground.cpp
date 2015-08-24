@@ -1573,16 +1573,18 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
+        uint32 playerTeam = GetPlayerTeam(guid);
+        uint32 otherTeam = GetOtherTeam(playerTeam);
+
         // drop flag and handle other cleanups
-        RemovePlayer(player, guid, GetPlayerTeam(guid));
+        RemovePlayer(player, guid, playerTeam);
 
         if (player && IsRatedBG())
             player->setFactionForRace(player->getRace());
 
         // 1 player is logging out, if it is the last, then end arena!
-        if (isArena())
-            if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
-                EndBattleground(GetOtherTeam(player->GetTeam()));
+        if (isArena() && GetAlivePlayersCountByTeam(playerTeam) <= 1 && GetPlayersCountByTeam(otherTeam))
+            EndBattleground(otherTeam);
     }
 }
 

@@ -304,6 +304,8 @@ void WildBattlePetMgr::Load()
     }
 
     uint32 l_Count = 0;
+    uint32 l_OldMSTime = getMSTime();
+
     do
     {
         Field* l_Fields = l_Result->Fetch();
@@ -350,7 +352,7 @@ void WildBattlePetMgr::Load()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u species definitions.", l_Count);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u species definitions in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 //////////////////////////////////////////////////////////////////////////

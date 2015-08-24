@@ -2664,60 +2664,100 @@ public:
 /// Find Weakness - 91023
 class spell_rog_find_weakness : public SpellScriptLoader
 {
-public:
-    spell_rog_find_weakness() : SpellScriptLoader("spell_rog_find_weakness") { }
+    public:
+        spell_rog_find_weakness() : SpellScriptLoader("spell_rog_find_weakness") { }
 
-    class spell_rog_find_weakness_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_rog_find_weakness_AuraScript);
-
-        enum eSpells
+        class spell_rog_find_weakness_AuraScript : public AuraScript
         {
-            Ambush = 8676,
-            Garrote = 703,
-            CheapShot = 1833
-        };
+            PrepareAuraScript(spell_rog_find_weakness_AuraScript);
 
-        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
-        {
-            PreventDefaultAction();
-
-            SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
-            if (l_SpellInfo == nullptr)
-                return;
-
-            int32 l_ProcSpells[] = { eSpells::Ambush, eSpells::Garrote, eSpells::CheapShot };
-
-            if (Unit* l_Caster = GetCaster())
+            enum eSpells
             {
-                if (Unit* l_Target = p_EventInfo.GetActionTarget())
-                {
-                    if (l_Caster->GetGUID() == l_Target->GetGUID())
-                        return;
+                Ambush = 8676,
+                Garrote = 703,
+                CheapShot = 1833
+            };
 
-                    for (int l_I = 0; l_I < sizeof(l_ProcSpells) / sizeof(int); l_I++)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                int32 l_ProcSpells[] = { eSpells::Ambush, eSpells::Garrote, eSpells::CheapShot };
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = p_EventInfo.GetActionTarget())
                     {
-                        if (l_SpellInfo->Id == l_ProcSpells[l_I])
-                            l_Caster->AddAura(ROGUE_SPELL_FIND_WEAKNESS_PROC, l_Target);
+                        if (l_Caster->GetGUID() == l_Target->GetGUID())
+                            return;
+
+                        for (int l_I = 0; l_I < sizeof(l_ProcSpells) / sizeof(int); l_I++)
+                        {
+                            if (l_SpellInfo->Id == l_ProcSpells[l_I])
+                                l_Caster->AddAura(ROGUE_SPELL_FIND_WEAKNESS_PROC, l_Target);
+                        }
                     }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_find_weakness_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectProc += AuraEffectProcFn(spell_rog_find_weakness_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            return new spell_rog_find_weakness_AuraScript();
         }
-    };
+};
 
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_rog_find_weakness_AuraScript();
-    }
+/// Call by Leech Vitality - 116921
+/// Glyph of Recovery - 146625
+class spell_rog_glyph_of_recovery : public SpellScriptLoader
+{
+    public:
+        spell_rog_glyph_of_recovery() : SpellScriptLoader("spell_rog_glyph_of_recovery") { }
+
+        class spell_rog_glyph_of_recovery_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_glyph_of_recovery_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofRecovery = 146625
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphofRecovery))
+                    return;
+
+                if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::GlyphofRecovery))
+                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_Aura->GetEffect(EFFECT_0)->GetAmount()));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_glyph_of_recovery_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_glyph_of_recovery_SpellScript();
+        }
 };
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_glyph_of_recovery();
     new spell_rog_anticipation();
     new spell_rog_venom_rush();
     new spell_rog_death_from_above_return();

@@ -4171,6 +4171,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;
                 break;
+            case 146951: ///< Glyph of rapid rolling
+            case 147364: ///< Glyph of rapid rolling
+                spellInfo->ProcFlags = 0;
+                break;
             case 164991: ///< Entangling Energy
             case 15286: ///< Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -5231,6 +5235,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 11371: ///< Arthas's Gift
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
+            case 33891:  ///< Incarnation: Tree of Life
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);
+                break;
             case 146950: ///< Glyph of Targeted Expulsion
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -5773,10 +5780,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_AURAS;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
-                break;
-            case 33891:  ///< Tree form
-            case 114282: ///< Tree form
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);
                 break;
             case 147362: ///< Counter Shot
                 spellInfo->Speed = 0;
@@ -6368,6 +6371,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 159740: ///< Glyph of Raging Blow
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TriggerSpell = 159747;
+                break;
+            case 159747: ///< Glyph of Raging Blow (heal mod)
+                spellInfo->ProcFlags = 0;
                 break;
             case 84721: ///< Frozen Orb damage
                 spellInfo->AttributesEx2 |= SpellAttr2::SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;

@@ -35,10 +35,8 @@ namespace MS { namespace Garrison
 
             /// Create the garrison
             void Create();
-            
             /// Load
             bool Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult, PreparedQueryResult p_WorkOrderResult);
-            
             /// Save this garrison to DB
             void Save(SQLTransaction& p_Transaction);
 
@@ -53,7 +51,6 @@ namespace MS { namespace Garrison
 
             /// Reward garrison cache content
             void RewardGarrisonCache();
-            
             /// Get garrison cache token count
             uint32 GetGarrisonCacheTokenCount() const;
 

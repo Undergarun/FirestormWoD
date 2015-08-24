@@ -1092,20 +1092,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             break;
         }
-        case SPELL_AURA_OBS_MOD_HEALTH:
-        {
-            switch (GetId())
-            {
-                case 6262:  // Healthstone
-                    if (caster && !caster->HasAura(56224)) // Glyph of Healthstone
-                        amount = 0;
-                    break;
-                default:
-                    break;
-            }
-
-            break;
-        }
         case SPELL_AURA_MOD_DECREASE_SPEED:
         {
             /// Custom WoD Script - Glyph of Runic Power (159429)
@@ -2503,6 +2489,9 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                 if (form != FORM_BEAR)
                     target->RemoveAurasDueToSpell(76691);
 
+                if (form == FORM_TREE)
+                    target->RemoveAurasDueToSpell(114282);
+
                 // remove movement affects
                 uint32 mechanicMask = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT);
                 target->RemoveAurasWithMechanic(mechanicMask);
@@ -3600,6 +3589,12 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
         if (target->HasAuraType(GetAuraType()))
             return;
     }
+
+    /// Hackfix @ Glyph of the Falling Avenger
+    /// Since preventing the aura effect in a spell script doesn't work
+    /// A better way to fix this would be to remember which effects are prevented to prevent re-application
+    if (m_spellInfo->Id == 31842 && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
+        return;
 
     if (apply)
         target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
@@ -7906,6 +7901,9 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
 void AuraEffect::HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const
 {
     Powers powerType = Powers(GetMiscValue());
+
+    if (target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() != powerType && !(m_spellInfo->AttributesEx7 & SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER))
+        return;
 
     if (!target->isAlive() || !target->GetMaxPower(powerType))
         return;

@@ -1001,6 +1001,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
 Player::~Player()
 {
+    m_DeleteLock.acquire();
+
     if (m_Garrison)
         delete m_Garrison;
 
@@ -1055,6 +1057,7 @@ Player::~Player()
     ClearResurrectRequestData();
 
     sWorld->DecreasePlayerCount();
+    m_DeleteLock.release();
 }
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)
@@ -3280,10 +3283,10 @@ void Player::RegenerateAll()
         m_holyPowerRegenTimerCount -= 10000;
     }
 
-    if (m_chiPowerRegenTimerCount >= 10000 && l_Class == CLASS_MONK)
+    if (m_chiPowerRegenTimerCount >= 15000 && l_Class == CLASS_MONK)
     {
         Regenerate(POWER_CHI);
-        m_chiPowerRegenTimerCount -= 10000;
+        m_chiPowerRegenTimerCount -= 15000;
     }
 
     if (m_demonicFuryPowerRegenTimerCount >= 100 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY))
@@ -3570,45 +3573,18 @@ void Player::RegenerateHealth()
 
 void Player::ResetAllPowers()
 {
+    ClearComboPoints();
     SetHealth(GetMaxHealth());
-    switch (getPowerType())
-    {
-        case POWER_MANA:
-            SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
-            break;
-        case POWER_RAGE:
-            SetPower(POWER_RAGE, 0);
-            break;
-        case POWER_ENERGY:
-            SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
-            break;
-        case POWER_COMBO_POINT:
-            ClearComboPoints();
-            break;
-        case POWER_RUNIC_POWER:
-            SetPower(POWER_RUNIC_POWER, 0);
-            break;
-        case POWER_ECLIPSE:
-            SetPower(POWER_ECLIPSE, 0);
-            break;
-        case POWER_DEMONIC_FURY:
-            SetPower(POWER_DEMONIC_FURY, 200);
-            break;
-        case POWER_BURNING_EMBERS:
-            SetPower(POWER_BURNING_EMBERS, 10);
-            break;
-        case POWER_SOUL_SHARDS:
-            SetPower(POWER_SOUL_SHARDS, 100);
-            break;
-        case POWER_SHADOW_ORB:
-            SetPower(POWER_SHADOW_ORB, 0);
-            break;
-        case POWER_CHI:
-            SetPower(POWER_CHI, 0);
-            break;
-        default:
-            break;
-    }
+    SetPower(POWER_BURNING_EMBERS, 10);
+    SetPower(POWER_CHI, 0);
+    SetPower(POWER_DEMONIC_FURY, 200);
+    SetPower(POWER_ECLIPSE, 0);
+    SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
+    SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+    SetPower(POWER_RAGE, 0);
+    SetPower(POWER_RUNIC_POWER, 0);
+    SetPower(POWER_SHADOW_ORB, 0);
+    SetPower(POWER_SOUL_SHARDS, 100);
 }
 
 bool Player::CanInteractWithQuestGiver(Object* questGiver)
@@ -8802,6 +8778,27 @@ void Player::SendMovieStart(uint32 MovieId)
     CurrentPlayedMovie = MovieId;
 }
 
+bool Player::CanMountAsPassenger(Player* l_DriverPlayer) const
+{
+    // Crossfaction mount
+    if (GetTeam() != l_DriverPlayer->GetTeam())
+    {
+        if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ALLOW_TWO_SIDE_INTERACTION_MOUNT))
+            return false;
+
+        if (AreaTableEntry const* l_Zone = GetAreaEntryByAreaID(l_DriverPlayer->GetZoneId()))
+        {
+            if (l_Zone->Flags & AreaFlags::AREA_FLAG_CAPITAL && !l_Zone->IsSanctuary())
+            {
+                if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ALLOW_TWO_SIDE_INTERACTION_MOUNT_CAPITALS))
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 void Player::CheckAreaExploreAndOutdoor()
 {
     if (!isAlive())
@@ -10576,7 +10573,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
         if (!rescaleToItemLevel)
         {
             statType = proto->ItemStat[i].ItemStatType;
-            val = proto->CalculateStatScaling(i, ilvl);
+            val = (ilvl == 1 && rescaleToItemLevel == 0) ? proto->ItemStat[i].ItemStatValue : proto->CalculateStatScaling(i, ilvl);
         }
         else
         {
@@ -14882,7 +14879,7 @@ InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVe
     if (!pProto)
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
 
-    if ((pProto->Flags2 & ITEM_FLAGS_EXTRA_CRAFTING_REAGENT) == 0)
+    if ((pProto->Flags2 & ITEM_FLAG2_CRAFTING_MATERIAL) == 0)
         return EQUIP_ERR_WRONG_SLOT;
 
     if (pItem->IsBindedNotWith(this))
@@ -14996,10 +14993,10 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
 
     if (proto)
     {
-        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetTeam() != HORDE)
+        if ((proto->Flags2 & ITEM_FLAG2_HORDE_ONLY) && GetTeam() != HORDE)
             return EQUIP_ERR_CANT_EQUIP_EVER;
 
-        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
+        if ((proto->Flags2 & ITEM_FLAG2_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
             return EQUIP_ERR_CANT_EQUIP_EVER;
 
         if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getRaceMask()) == 0)
@@ -15328,10 +15325,10 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
     if (pItem->GetTemplate()->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
     {
         if (!GetBattleground() || !GetBattleground()->IsWargame())
-            pItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+            pItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FIELD_FLAG_DISABLE);
     }
     else if (GetBattleground() && GetBattleground()->UseTournamentRules())
-        pItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+        pItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FIELD_FLAG_DISABLE);
 
     AddEnchantmentDurations(pItem);
     AddItemDurations(pItem);
@@ -15708,7 +15705,7 @@ void Player::MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool 
         pLastItem->SetState(in_characterInventoryDB ? ITEM_CHANGED : ITEM_NEW, this);
     }
 
-    if (pLastItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+    if (pLastItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
         AddTradeableItem(pLastItem);
 }
 
@@ -15724,7 +15721,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
             for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
                 DestroyItem(slot, i, update);
 
-        if (pItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))
+        if (pItem->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
 
@@ -21623,13 +21620,13 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 remove = true;
             }
             // "Conjured items disappear if you are logged out for more than 15 minutes"
-            else if (timeDiff > 15 * MINUTE && proto->Flags & ITEM_PROTO_FLAG_CONJURED)
+            else if (timeDiff > 15 * MINUTE && proto->Flags & ITEM_FLAG_CONJURED)
             {
                 sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s', diff: %u) has conjured item (GUID: %u, entry: %u) with expired lifetime (15 minutes). Deleting item.",
                     GetGUIDLow(), GetName(), timeDiff, item->GetGUIDLow(), item->GetEntry());
                 remove = true;
             }
-            else if (item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+            else if (item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
             {
                 if (item->GetPlayedTime() > (2 * HOUR))
                 {
@@ -21640,7 +21637,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     stmt->setUInt32(0, item->GetGUIDLow());
                     trans->Append(stmt);
 
-                    item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
+                    item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
                 }
                 else
                 {
@@ -21673,12 +21670,12 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                         {
                             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with refundable flags, but without data in item_refund_instance. Removing flag.",
                                 l_Player->GetGUIDLow(), l_Player->GetName(), l_ItemRetreive->GetGUIDLow(), l_ItemRetreive->GetEntry());
-                            l_ItemRetreive->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
+                            l_ItemRetreive->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
                         }
                     }, l_FuturResult), true);
                 }
             }
-            else if (item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+            else if (item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
             {
                 PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_BOP_TRADE);
                 l_Statement->setUInt32(0, item->GetGUIDLow());
@@ -21710,9 +21707,9 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     }
                     else
                     {
-                        sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with ITEM_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
+                        sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with ITEM_FIELD_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
                             l_Player->GetGUIDLow(), l_Player->GetName(), l_ItemRetreive->GetGUIDLow(), l_ItemRetreive->GetEntry());
-                        l_ItemRetreive->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
+                        l_ItemRetreive->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
                     }
                 }, l_FuturResult), true);
             }
@@ -25587,9 +25584,9 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         if (!bStore)
             AutoUnequipOffhandIfNeed();
 
-        if (pProto->Flags & ITEM_PROTO_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
+        if (pProto->Flags & ITEM_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {
-            it->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
+            it->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
             it->SetUInt32Value(ITEM_FIELD_CONTEXT, 14);
             it->SetRefundRecipient(GetGUIDLow());
             it->SetPaidMoney(price);
@@ -26156,13 +26153,15 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
 
         if (int32 l_CooldownMod = GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN_BY_HASTE))
         {
-            if (HasSpell(p_SpellInfo->Id))
-            {
-                l_NeedsCooldownPacket = true;
+            float l_Haste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
 
-                float l_Haste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
+            if (l_Cooldown > 0)
                 l_Cooldown *= ApplyPct(l_Haste, l_CooldownMod);
-            }
+
+            if (l_CategoryCooldown > 0)
+                l_CategoryCooldown *= ApplyPct(l_Haste, l_CooldownMod);
+
+            l_NeedsCooldownPacket = true;
         }
 
         if (l_CategoryId)
@@ -26215,7 +26214,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
                 if (*i_scset == p_SpellInfo->Id)                    // skip main spell, already handled above
                     continue;
 
-                AddSpellCooldown(*i_scset, p_ItemId, l_CategoryCooldown);
+                AddSpellCooldown(*i_scset, p_ItemId, l_CategoryCooldown, l_NeedsCooldownPacket);
             }
         }
     }
@@ -27220,7 +27219,7 @@ void Player::SendInstanceGroupSizeChanged(uint32 p_Size)
 
 void Player::ApplyEquipCooldown(Item* p_Item)
 {
-    if (p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN))
+    if (p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_NO_EQUIP_COOLDOWN))
         return;
 
     for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
@@ -29592,7 +29591,7 @@ InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limi
 InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot, uint32 limit_count) const
 {
     // check unique-equipped on item
-    if (itemProto->Flags & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
+    if (itemProto->Flags & ITEM_FLAG_UNIQUE_EQUIPPED)
     {
         // there is an equip limit on this item
         if (HasItemOrGemWithIdEquipped(itemProto->ItemId, 1, except_slot))
@@ -29688,6 +29687,8 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         Player* l_Player = HashMapHolder<Player>::Find(p_PlayerGuid);
         if (l_Player == nullptr)
             return;
+            
+        l_Player->m_DeleteLock.acquire();
 
         /// Same for the unit
         Unit* l_Unit = p_UnitGUID ? Unit::GetUnit(*l_Player, p_UnitGUID) : nullptr;
@@ -29697,10 +29698,15 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         // Update only individual achievement criteria here, otherwise we may get multiple updates
         // from a single boss kill
         if (sAchievementMgr->IsGroupCriteriaType(p_Type))
+        {
+            l_Player->m_DeleteLock.release();
             return;
+        }
 
         if (Guild* l_Guild = sGuildMgr->GetGuildById(l_Player->GetGuildId()))
             l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player, p_LoginCheck);
+        
+        l_Player->m_DeleteLock.release();
     };
 
     sAchievementMgr->AddCriteriaUpdateTask(l_Task);
@@ -30582,7 +30588,7 @@ void Player::SendRefundInfo(Item* p_Item)
     /// This function call unset ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
     p_Item->UpdatePlayedTime(this);
 
-    if (!p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
         return;
 
     if (GetGUIDLow() != p_Item->GetRefundRecipient()) ///< Formerly refundable item got traded
@@ -30691,7 +30697,7 @@ void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_E
 
 void Player::RefundItem(Item* p_Item)
 {
-    if (!p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
         return;
 
     if (p_Item->IsRefundExpired())    ///< Item refund has expired
@@ -33080,6 +33086,39 @@ void Player::RestoreCharge(uint32 p_CategoryID)
     SendSetSpellCharges(p_CategoryID);
 }
 
+void Player::ReduceChargeCooldown(uint32 p_CategoryID, uint64 p_Reductiontime)
+{
+    SpellChargesMap::iterator l_Iter = m_SpellChargesMap.find(p_CategoryID);
+    if (l_Iter == m_SpellChargesMap.end())
+        return;
+
+    ChargesData* l_Charges = GetChargesData(l_Iter->first);
+
+    std::vector<uint64> l_ChargesCooldown = l_Charges->GetChargesCooldown();
+
+    if (!l_ChargesCooldown.empty())
+    {
+        uint64 l_Cooldown = l_ChargesCooldown.at(l_ChargesCooldown.size() - 1);
+
+        if (l_Cooldown <= p_Reductiontime)
+        {
+            if (l_Charges->m_ConsumedCharges <= 1)
+            {
+                l_Iter = m_SpellChargesMap.erase(l_Iter);
+                SendSetSpellCharges(p_CategoryID);
+                return;
+            }
+
+            l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
+            --l_Charges->m_ConsumedCharges;
+            return;
+        }
+        else
+            l_Charges->DecreaseCooldown(l_ChargesCooldown.size() - 1, p_Reductiontime);
+    }
+    SendSetSpellCharges(p_CategoryID);
+}
+
 uint32 Player::CalcMaxCharges(SpellCategoryEntry const* p_Category) const
 {
     if (p_Category == nullptr)
@@ -33118,9 +33157,11 @@ void Player::UpdateCharges(uint32 const p_Time)
 
         std::vector<uint64> l_ChargesCooldown = l_Charges->GetChargesCooldown();
         bool l_MustContinue = false;
-        uint8 l_Count = 0;
-        for (uint64 l_Cooldown : l_ChargesCooldown)
+
+        if (!l_ChargesCooldown.empty())
         {
+            uint64 l_Cooldown = l_ChargesCooldown.front();
+
             if (l_Cooldown <= p_Time)
             {
                 if (l_Charges->m_ConsumedCharges <= 1)
@@ -33130,14 +33171,13 @@ void Player::UpdateCharges(uint32 const p_Time)
                     break;
                 }
 
-                l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin() + l_Count);
+                l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
                 --l_Charges->m_ConsumedCharges;
+                SendSetSpellCharges(l_Iter->first);
                 continue;
             }
             else
-                l_Charges->DecreaseCooldown(l_Count, p_Time);
-
-            ++l_Count;
+                l_Charges->DecreaseCooldown(0, p_Time);
         }
 
         if (l_MustContinue)
@@ -33573,15 +33613,15 @@ void Player::ApplyWargameItemModifications()
             {
                 if (l_Item->GetTemplate()->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
                 {
-                    if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                    if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FIELD_FLAG_DISABLE))
                     {
-                        l_Item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+                        l_Item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FIELD_FLAG_DISABLE);
                         l_UpdateItemMods = true;
                     }
                 }
-                else if (l_TournamentRules && !l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                else if (l_TournamentRules && !l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FIELD_FLAG_DISABLE))
                 {
-                    l_Item->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+                    l_Item->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FIELD_FLAG_DISABLE);
                     l_UpdateItemMods = true;
                 }
             }
@@ -33589,15 +33629,15 @@ void Player::ApplyWargameItemModifications()
             {
                 if (l_Item->GetTemplate()->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
                 {
-                    if (!l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                    if (!l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FIELD_FLAG_DISABLE))
                     {
-                        l_Item->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+                        l_Item->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FIELD_FLAG_DISABLE);
                         l_UpdateItemMods = true;
                     }
                 }
-                else if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                else if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FIELD_FLAG_DISABLE))
                 {
-                    l_Item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+                    l_Item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FIELD_FLAG_DISABLE);
                     l_UpdateItemMods = true;
                 }
             }
@@ -33613,6 +33653,7 @@ void Player::ApplyWargameItemModifications()
 
 void Player::RewardCompletedAchievementsIfNeeded()
 {
+    GetAchievementMgr().GetCompletedAchievementLock().acquire();
     for (auto l_Iterator : GetAchievementMgr().GetCompletedAchivements())
     {
         AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievement(l_Iterator.first);
@@ -33713,6 +33754,8 @@ void Player::RewardCompletedAchievementsIfNeeded()
             CharacterDatabase.CommitTransaction(l_Transaction);
         }
     }
+    
+    GetAchievementMgr().GetCompletedAchievementLock().release();
 }
 
 void Player::DeleteInvalidSpells()
