@@ -830,69 +830,6 @@ class spell_dk_death_siphon: public SpellScriptLoader
         }
 };
 
-// Improved Blood Presence - 50371
-class spell_dk_improved_blood_presence: public SpellScriptLoader
-{
-    public:
-        spell_dk_improved_blood_presence() : SpellScriptLoader("spell_dk_improved_blood_presence") { }
-
-        class spell_dk_improved_blood_presence_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_improved_blood_presence_SpellScript);
-
-            void HandleAfterCast()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->UpdateAllRunesRegen();
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_dk_improved_blood_presence_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_improved_blood_presence_SpellScript();
-        }
-};
-
-// Unholy Presence - 48265
-class spell_dk_unholy_presence: public SpellScriptLoader
-{
-    public:
-        spell_dk_unholy_presence() : SpellScriptLoader("spell_dk_unholy_presence") { }
-
-        class spell_dk_unholy_presence_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_unholy_presence_AuraScript);
-
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->UpdateAllRunesRegen();
-            }
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->UpdateAllRunesRegen();
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_dk_unholy_presence_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_dk_unholy_presence_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_unholy_presence_AuraScript();
-        }
-};
-
 // Death Strike - 49998
 class spell_dk_death_strike: public SpellScriptLoader
 {
@@ -2950,8 +2887,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_pillar_of_frost();
     new spell_dk_blood_tap();
     new spell_dk_death_siphon();
-    new spell_dk_improved_blood_presence();
-    new spell_dk_unholy_presence();
     new spell_dk_death_strike();
     new spell_dk_purgatory();
     new spell_dk_purgatory_absorb();

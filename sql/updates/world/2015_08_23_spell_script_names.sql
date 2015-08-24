@@ -11,3 +11,5 @@ INSERT INTO `spell_script_names` VALUES (20594, 'spell_gen_pvp_trinket_cooldown'
 INSERT INTO `spell_script_names` VALUES (7744, 'spell_gen_pvp_trinket_cooldown');
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_gen_cooldown_from_pvp_trinket';
 INSERT INTO `spell_script_names` VALUES (42292, 'spell_gen_cooldown_from_pvp_trinket');
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_dk_unholy_presence', 'spell_dk_improved_blood_presence');
