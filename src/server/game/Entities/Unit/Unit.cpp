@@ -12107,7 +12107,7 @@ void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int
     if (IsSpellMultistrike(p_ProcSpell) &&
         (p_ProcSpell->Id == 17 || p_ProcSpell->Id == 152118 || p_ProcSpell->Id == 114908))
     {
-        uint8 l_ProcTimes = (p_Target->GetSpellModOwner() != nullptr) ? 1 : 2;
+        uint8 l_ProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
         for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
         {
             uint32 l_MultistrikeAbsorbAmount = GetMultistrikeBasePoints(p_Amount);
