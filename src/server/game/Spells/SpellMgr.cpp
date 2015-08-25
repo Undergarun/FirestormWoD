@@ -4672,6 +4672,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 break;
             case 114635:///< Ember Tap
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_PERIODIC_HEAL;
             case 31803: ///< Censure
             case 77489: ///< Echo of Light
             case 99002: ///< Fiery Claws, Item - Druid T12 Feral 2P Bonus
@@ -6487,6 +6488,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 106113:///< Touch of Nothingness
                     spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
                     break;
+                case 78675:///< Solar beam
                 case 106112:///< Release Doubt
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_DEST_LOCATION;
                     break;
