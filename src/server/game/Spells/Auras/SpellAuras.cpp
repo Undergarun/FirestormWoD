@@ -1086,13 +1086,19 @@ void Aura::RefreshTimers()
 {
     m_maxDuration = CalcMaxDuration();
     bool resetPeriodic = true;
+    bool l_IsAffectedByPandemic = false;
+
     if (m_spellInfo->AttributesEx8 & SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER)
     {
-        int32 minAmplitude = m_maxDuration;
+        int32 l_MinAmplitude = m_maxDuration;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (constAuraEffectPtr eff = GetEffect(i))
-                if (int32 ampl = eff->GetAmplitude())
-                    minAmplitude = std::min(ampl, minAmplitude);
+        {
+            if (constAuraEffectPtr l_Effect = GetEffect(i))
+            {
+                if (int32 l_Amplitude = l_Effect->GetAmplitude())
+                    l_MinAmplitude = std::min(l_Amplitude, l_MinAmplitude);
+            }
+        }
 
         // If only one tick remaining, roll it over into new duration
         if (GetDuration() <= CalculatePct(m_maxDuration, 30))
@@ -1100,6 +1106,31 @@ void Aura::RefreshTimers()
             m_maxDuration += GetDuration();
             resetPeriodic = false;
         }
+    }
+
+    /// In WoD blizzards have made "Pandemic" system for all auras
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (constAuraEffectPtr l_Effect = GetEffect(i))
+        {
+            /// If it's a DoT or a HoT we should apply "Pandemic" system for it
+            if (l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE || l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
+                l_IsAffectedByPandemic = true;
+        }
+    }
+
+    if (l_IsAffectedByPandemic)
+    {
+        int32 l_LeftDuration = GetDuration();
+        int32 l_MaxDuration = m_maxDuration;
+
+        /// Max duration of reapplied aura should be 130% of base max duration
+        int32 l_MaxAllowedDuration = CalculatePct(l_MaxDuration, 130);
+
+        if (l_LeftDuration + l_MaxDuration < l_MaxAllowedDuration)
+            m_maxDuration = l_LeftDuration + l_MaxDuration;
+        else
+            m_maxDuration = l_MaxAllowedDuration;
     }
 
     if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER)

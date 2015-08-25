@@ -7550,6 +7550,23 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     bool crit = CanPeriodicTickCrit(target, caster);
 
+    /// In WoD blizzards have implemented system of "not full finaly tick damage"
+    if (AuraPtr l_Aura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
+    {
+        int32 l_LeftDuration = l_Aura->GetDuration();
+        int32 l_MaxDuration = l_Aura->GetMaxDuration();
+        int32 l_Amplitude = GetAmplitude();
+        int32 l_MaxTicksCount = int32(l_MaxDuration / l_Amplitude);
+
+        /// If it was last tick, we should deal instant damage, according to left duration
+        if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0)
+        {
+            uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
+            caster->DealDamage(target, l_LeftDamage, NULL, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+            caster->SendSpellNonMeleeDamageLog(target, GetSpellInfo()->Id, l_LeftDamage, GetSpellInfo()->GetSchoolMask(), 0, 0, false, 0, false);
+        }
+    }
+
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
 

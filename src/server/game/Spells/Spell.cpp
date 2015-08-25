@@ -3320,19 +3320,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         // Haste modifies duration of channeled spells
                         if (m_spellInfo->IsChanneled())
                             m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
-                        else if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
-                        {
-                            int32 origDuration = duration;
-                            duration = 0;
-                            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                                if (constAuraEffectPtr eff = m_spellAura->GetEffect(i))
-                                    if (int32 amplitude = eff->GetAmplitude())  // amplitude is hastened by UNIT_FIELD_MOD_CASTING_SPEED
-                                        duration = int32(origDuration * (2.0f - m_originalCaster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED)));
-
-                            // if there is no periodic effect
-                            if (!duration)
-                                duration = int32(origDuration * (2.0f - m_originalCaster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED)));
-                        }
                     }
 
                     if (duration != m_spellAura->GetMaxDuration())
@@ -7815,9 +7802,7 @@ void Spell::Delayed()
         return;
 
     /// Check pushback reduce
-    /// Spellcasting delay is normally 500ms
-    /// http://www.mmo-champion.com/content/3981-Warlords-of-Draenor-Skies-Blizzcon-Tickets-on-Saturday-Blue-Tweets-Wildstar-Beta
-    /// "We removed the passives, and reduced all pushback, game-wide, by 70%. (Celestalon)"
+    /// Spellcasting delay is normally 150ms since WOD
     int32 l_DelayTime = 150;
 
     /// Must be initialized to 100 for percent modifiers
