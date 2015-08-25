@@ -2393,7 +2393,8 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
             enum eSpells
             {
-                LavaSurge = 77762
+                LavaSurge = 77762,
+                LavaBurst = 51505,
             };
 
             void HitTarget(SpellEffIndex)
@@ -2429,8 +2430,19 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     return;
 
                 if (SpellInfo const* l_LavaSurge = sSpellMgr->GetSpellInfo(eSpells::LavaSurge))
+                {
                     if (SpellCategoriesEntry const* l_LavaSurgeCategories = l_LavaSurge->GetSpellCategories())
                         l_Player->RestoreCharge(l_LavaSurgeCategories->ChargesCategory);
+                }
+
+                if (l_Player->HasAura(eSpells::LavaSurge))
+                {
+                    if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
+                    {
+                        if (SpellCategoriesEntry const* l_LavaBurstCategories = l_LavaBurst->GetSpellCategories())
+                            l_Player->RestoreCharge(l_LavaBurstCategories->ChargesCategory);
+                    }
+                }
             }
 
             void Register()
