@@ -507,8 +507,10 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
         {
             m_effects[i] = AuraEffectPtr(new AuraEffect(shared_from_this(), i, baseAmount ? baseAmount + i : NULL, caster));
 
+            /// @todo: the following should be in AuraEffect::AuraEffect, but something is worng with shared_ptr
             m_effects[i]->CalculatePeriodic(caster, true, false);
             m_effects[i]->SetAmount(m_effects[i]->CalculateAmount(caster));
+            m_effects[i]->SetCanBeRecalculated(true); ///< Because of SetAmount() we force the variable to true like it never happen
             m_effects[i]->CalculateSpellMod();
         }
         else

@@ -2897,12 +2897,9 @@ class spell_dk_improved_presences : public SpellScriptLoader
 
                 if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_BLOOD && !l_Target->HasAura(ImprovedBloodPresence))
                 {
-                    l_Target->CastSpell(l_Target, ImprovedBloodPresence, true);
-                    p_AurEff->GetBase()->RefreshSpellMods();
-                    GetEffect(EFFECT_0)->SetCanBeRecalculated(true);
-                    GetEffect(EFFECT_0)->RecalculateAmount(true);
-                    GetEffect(EFFECT_1)->SetCanBeRecalculated(true);
-                    GetEffect(EFFECT_1)->RecalculateAmount(true);
+                    l_Target->CastSpell(l_Target, ImprovedBloodPresence, true, nullptr, p_AurEff);
+                    //GetEffect(EFFECT_0)->RecalculateAmount(true);
+                    //GetEffect(EFFECT_1)->RecalculateAmount(true);
                 }
             }
 
@@ -2916,12 +2913,7 @@ class spell_dk_improved_presences : public SpellScriptLoader
                     return;
 
                 if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_UNHOLY && !l_Target->HasAura(ImprovedUnholyPresence))
-                {
-                    l_Target->CastSpell(l_Target, ImprovedUnholyPresence, true);
-                    p_AurEff->GetBase()->RefreshSpellMods();
-                    GetEffect(EFFECT_0)->SetCanBeRecalculated(true);
-                    GetEffect(EFFECT_0)->RecalculateAmount(true);
-                }
+                    l_Target->CastSpell(l_Target, ImprovedUnholyPresence, true, nullptr, p_AurEff);
             }
 
             void OnApplyFrostPresence(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
@@ -2935,9 +2927,7 @@ class spell_dk_improved_presences : public SpellScriptLoader
 
                 if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_FROST && !l_Target->HasAura(ImprovedFrostPresence))
                 {
-                    l_Target->CastSpell(l_Target, ImprovedFrostPresence, true);
-                    p_AurEff->GetBase()->RefreshSpellMods();
-                    GetEffect(EFFECT_2)->SetCanBeRecalculated(true);
+                    l_Target->CastSpell(l_Target, ImprovedFrostPresence, true, nullptr, p_AurEff);
                     GetEffect(EFFECT_2)->RecalculateAmount(true);
                 }
             }
