@@ -396,6 +396,12 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     }
 
                     m_EncounterTime = 0;
+
+                    /// Bloodlust, Heroism, Temporal Displacement and Insanity debuffs are removed at the end of an encounter
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::HunterInsanity);
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::MageTemporalDisplacement);
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::ShamanExhaustion);
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::ShamanSated);
                     break;
                 }
                 case EncounterState::IN_PROGRESS:
