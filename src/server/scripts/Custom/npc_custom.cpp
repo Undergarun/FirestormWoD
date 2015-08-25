@@ -29,7 +29,7 @@
 #include "Vehicle.h"
 #include "Player.h"
 #include "SpellScript.h"
-#include "ScriptedCosmeticAI.hpp"
+#include "MapManager.h"
 
 /// 300007 - World Boss Teleporter
 /// No SQL commit with this script, must stay on PTR.
@@ -219,13 +219,47 @@ Position const g_HighmaulDests[eHighmaulDests::MaxHighmaulDests] =
     { 4067.41f, 8582.56f, 572.6f, 3.084f }  ///< Imperator Mar'gok
 };
 
+/// This class is used to activate tests for Highmaul
+class HighmaulTestEnable : public BasicEvent
+{
+    enum eHighmaulData
+    {
+        TestsActivated = 1
+    };
+
+    public:
+        HighmaulTestEnable(uint64 p_Guid) : m_Guid(p_Guid) { }
+        virtual ~HighmaulTestEnable() {}
+
+        virtual bool Execute(uint64 p_EndTime, uint32 p_Time)
+        {
+            if (Player* l_Player = HashMapHolder<Player>::Find(m_Guid))
+            {
+                if (InstanceScript* l_Highmaul = l_Player->GetInstanceScript())
+                {
+                    if (l_Highmaul->GetData(eHighmaulData::TestsActivated))
+                        return false;
+
+                    l_Highmaul->SetData(eHighmaulData::TestsActivated, true);
+                }
+            }
+
+            return true;
+        }
+
+        virtual void Abort(uint64 p_EndTime) { }
+
+    private:
+        uint64 m_Guid;
+};
+
 /// 300008 - Highmaul Tests Manager
 /// No SQL commit with this script, must stay on PTR.
 /// REPLACE INTO creature_template VALUE ('300008','0','0','35231','0','0','0','Highmaul Tests Manager','','','','0','103','103','6','0','35','1','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','1','518','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','0','0','1','0','0','0','npc_highmaul_tests_manager','1');
 /// DELETE FROM creature WHERE id = 300008;
 /// INSERT INTO creature (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES
 /// ('300008','0','12','7486','1','4294967295','0','0','-8932.997','537.873413','94.678825','0.676821','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
-/// ('300008','1','14','4982','1','4294967295','0','0','16070.0178','-4383.114746','20.779654','3.948','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
+/// ('300008','1','1637','5170','1','4294967295','0','0','1606.946167','-4384.196289','20.702406','3.469189','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
 /// ('300008','1116','6755','7367','1','4294967295','0','0','3477.581543','7437.905762','31.542486','4.521338','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
 /// ('300008','1228','6996','7395','1','4294967295','0','0','3486.217041','7592.922852','10.485300','1.551457','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL);
 /// REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc2`) VALUE ('14112','Hey, great adventurer, come to me in your faction capital, to access fastly our last testable content ! Newest raids, bosses, get directly teleported to the destination you are looking for.','Hé, cher aventurier, venez me voir dans la capitale de votre faction, pour accéder rapidement à notre dernier contenu testable ! Derniers raids, boss, soyez directement téléporté à la destination de votre choix.');
@@ -258,11 +292,6 @@ class npc_highmaul_tests_manager : public CreatureScript
         enum eData
         {
             HighmaulMapID = 1228
-        };
-
-        enum eHighmaulData
-        {
-            TestsActivated = 1
         };
 
         bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
@@ -352,9 +381,9 @@ class npc_highmaul_tests_manager : public CreatureScript
             return true;
         }
 
-        struct npc_highmaul_tests_managerAI : public MS::AI::CosmeticAI
+        struct npc_highmaul_tests_managerAI : public ScriptedAI
         {
-            npc_highmaul_tests_managerAI(Creature* creature) : MS::AI::CosmeticAI(creature)
+            npc_highmaul_tests_managerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_YellTimer = 300 * IN_MILLISECONDS;
             }
@@ -363,8 +392,6 @@ class npc_highmaul_tests_manager : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
-                MS::AI::CosmeticAI::UpdateAI(p_Diff);
-
                 if (m_YellTimer)
                 {
                     if (m_YellTimer <= p_Diff)
@@ -387,20 +414,7 @@ class npc_highmaul_tests_manager : public CreatureScript
                 p_Player->BeginSummon();
                 p_Player->TeleportTo(eData::HighmaulMapID, g_HighmaulDests[p_Destination]);
 
-                uint64 l_Guid = p_Player->GetGUID();
-                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
-                {
-                    if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
-                    {
-                        if (InstanceScript* l_Highmaul = l_Player->GetInstanceScript())
-                        {
-                            if (l_Highmaul->GetData(eHighmaulData::TestsActivated))
-                                return;
-
-                            l_Highmaul->SetData(eHighmaulData::TestsActivated, true);
-                        }
-                    }
-                });
+                p_Player->m_Events.AddEvent(new HighmaulTestEnable(p_Player->GetGUID()), 3 * TimeConstants::IN_MILLISECONDS);
             }
 
             void TeleportGroup(Player* p_Player, uint8 p_Destination)
@@ -422,9 +436,9 @@ class npc_highmaul_tests_manager : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
-            return new npc_highmaul_tests_managerAI(creature);
+            return new npc_highmaul_tests_managerAI(p_Creature);
         }
 };
 

@@ -168,12 +168,13 @@ UPDATE creature_model_info SET bounding_radius = 1.05, combat_reach = 5.25 WHERE
 
 # Imperator Margok <Sorcerer King>
 UPDATE creature_template SET
-    minlevel       = 103,
-    maxlevel       = 103,
-    faction        = 16,
-    dmg_multiplier = 8,
-    VehicleId      = 3971,
-    ScriptName     = 'boss_imperator_margok'
+    minlevel                = 103,
+    maxlevel                = 103,
+    faction                 = 16,
+    dmg_multiplier          = 8,
+    VehicleId                = 3971,
+    ScriptName              = 'boss_imperator_margok',
+    mechanic_immune_mask    = 617299839
 WHERE entry = 77428;
 
 UPDATE creature_model_info SET bounding_radius = 1.2, combat_reach = 6 WHERE modelid = 54329;
@@ -233,12 +234,13 @@ WHERE entry = 77681;
 
 # Gorian Warmage
 UPDATE creature_template SET
-    minlevel       = 102,
-    maxlevel       = 102,
-    faction        = 16,
-    unit_class     = 8,
-    dmg_multiplier = 4,
-    ScriptName     = 'npc_highmaul_gorian_warmage'
+    minlevel                = 102,
+    maxlevel                = 102,
+    faction                 = 16,
+    unit_class              = 8,
+    dmg_multiplier          = 4,
+    ScriptName              = 'npc_highmaul_gorian_warmage',
+    mechanic_immune_mask    = 617299839
 WHERE entry = 78121;
 
 UPDATE creature_model_info SET bounding_radius = 0.9, combat_reach = 4.5 WHERE modelid = 54330;

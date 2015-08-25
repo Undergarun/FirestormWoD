@@ -10,6 +10,11 @@
 
 Position const g_GorianReaverPos = { 4026.755f, 8584.76f, 572.6546f, 3.138298f };
 
+/// For position Z periodical check
+float const g_MinAllowedZ = 560.0f;
+
+Position const g_CenterPos = { 3917.63f, 8590.89f, 565.341f, 0.0f };
+
 /// Imperator Mar'gok <Sorcerer King> - 77428
 class boss_imperator_margok : public CreatureScript
 {
@@ -128,7 +133,8 @@ class boss_imperator_margok : public CreatureScript
 
         enum eCosmeticEvents
         {
-            EventSummonWarmages = 1
+            EventSummonWarmages = 1,
+            EventCheckPlayerZ
         };
 
         enum eActions
@@ -416,6 +422,8 @@ class boss_imperator_margok : public CreatureScript
 
                 if (IsLFR())
                     m_Events.ScheduleEvent(eEvents::EventBerserk, 900 * TimeConstants::IN_MILLISECONDS);
+
+                m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckPlayerZ, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
@@ -480,6 +488,9 @@ class boss_imperator_margok : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 _JustDied();
+
+                m_Events.Reset();
+                m_CosmeticEvents.Reset();
 
                 Talk(eTalks::Death);
 
@@ -842,15 +853,8 @@ class boss_imperator_margok : public CreatureScript
                     case eSpells::MarkOfChaosDisplacementAura:
                     {
                         /// In addition to Mark of Chaos' normal effects, the target is teleported to a random location.
-                        if (Creature* l_Prison = me->FindNearestCreature(eHighmaulCreatures::KingPrison, 150.0f))
-                        {
-                            float l_Range       = frand(15.0f, 50.0f);
-                            float l_Orientation = frand(0.0f, 2 * M_PI);
-                            float l_X           = me->GetPositionX() + (l_Range * cos(l_Orientation));
-                            float l_Y           = me->GetPositionY() + (l_Range * sin(l_Orientation));
-
-                            p_Target->NearTeleportTo(l_X, l_Y, me->GetPositionZ(), p_Target->GetOrientation());
-                        }
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                            p_Target->NearTeleportTo(*l_Target);
 
                         break;
                     }
@@ -923,6 +927,21 @@ class boss_imperator_margok : public CreatureScript
                         for (Creature* l_Stalker : l_TriggerList)
                             l_Stalker->CastSpell(l_Stalker, eSpells::SummonWarmage, true);
 
+                        break;
+                    }
+                    case eCosmeticEvents::EventCheckPlayerZ:
+                    {
+                        std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                        for (HostileReference* l_Ref : l_ThreatList)
+                        {
+                            if (Player* l_Player = Player::GetPlayer(*me, l_Ref->getUnitGuid()))
+                            {
+                                if (l_Player->GetPositionZ() <= g_MinAllowedZ)
+                                    l_Player->NearTeleportTo(g_CenterPos);
+                            }
+                        }
+
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckPlayerZ, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1815,7 +1834,7 @@ class npc_highmaul_destructive_resonance : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 switch (m_Phase)
@@ -2038,7 +2057,7 @@ class npc_highmaul_destructive_resonance_replication : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 me->CastSpell(me, eSpells::DestructiveResonanceReplicationAura, true);
@@ -2169,7 +2188,7 @@ class npc_highmaul_gorian_warmage : public CreatureScript
                 {
                     case eEvents::EventFixate:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true, -eSpells::Fixate))
                         {
                             m_FixateTarget = l_Target->GetGUID();
                             me->CastSpell(l_Target, eSpells::Fixate, true);
@@ -2513,7 +2532,7 @@ class spell_highmaul_branded : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_AuraScript);
 
-            void OnAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2554,7 +2573,7 @@ class spell_highmaul_branded : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_branded_AuraScript::OnAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_branded_AuraScript::AfterAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2573,6 +2592,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
         enum eSpells
         {
             ArcaneWrathDamage   = 156239,
+            ArcaneWrathZoneVisu = 160369,
             ArcaneWrathTeleport = 160370
         };
 
@@ -2590,7 +2610,11 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
             void OnAuraApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
+                {
+                    /// Visual area during 4s to see where you can go without being teleported
+                    l_Target->CastSpell(l_Target, eSpells::ArcaneWrathZoneVisu, true);
                     m_MarkPos = *l_Target;
+                }
             }
 
             void OnTick(constAuraEffectPtr p_AurEff)
@@ -2604,7 +2628,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                 }
             }
 
-            void OnAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2647,7 +2671,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
             {
                 OnEffectApply += AuraEffectApplyFn(spell_highmaul_branded_displacement_AuraScript::OnAuraApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_branded_displacement_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_branded_displacement_AuraScript::OnAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_branded_displacement_AuraScript::AfterAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2677,7 +2701,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_fortification_AuraScript);
 
-            void OnAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2718,7 +2742,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_branded_fortification_AuraScript::OnAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_branded_fortification_AuraScript::AfterAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2748,7 +2772,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_replication_AuraScript);
 
-            void OnAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2793,13 +2817,25 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                             return;
                         }
 
-                        if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
-                        {
-                            /// Increase jump count
-                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+                        std::list<Player*> l_PlrList;
+                        l_Target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
 
-                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
-                            return;
+                        /// It cannot jumps twice on the same player at the same time
+                        if (!l_PlrList.empty())
+                            l_PlrList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
+
+                        if (!l_PlrList.empty())
+                        {
+                            l_PlrList.sort(JadeCore::ObjectDistanceOrderPred(l_Target));
+
+                            if (Player* l_OtherPlayer = l_PlrList.front())
+                            {
+                                /// Increase jump count
+                                l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+
+                                l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
+                                return;
+                            }
                         }
 
                         /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
@@ -2810,7 +2846,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_branded_replication_AuraScript::OnAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_branded_replication_AuraScript::AfterAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -3350,7 +3386,7 @@ class areatrigger_highmaul_orb_of_chaos : public AreaTriggerEntityScript
                         for (Player* l_Player : l_TargetList)
                             l_Player->CastSpell(l_Player, eSpell::OrbOfChaosDamage, true);
 
-                        m_DamageTimer = 1 * TimeConstants::IN_MILLISECONDS;
+                        m_DamageTimer = 200;
                     }
                     else
                         m_DamageTimer -= p_Time;

@@ -3796,7 +3796,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AuraInterruptFlags = 0;
                 break;
             case 157763: ///< Fixate (Imperator Mar'gok)
-                spellInfo->Effects[EFFECT_0].Effect = 0;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
             case 158512: ///< Volatile Anomalies (Imperator Mar'gok)
             case 159158: ///< Volatile Anomalies (Imperator Mar'gok)
@@ -4539,6 +4540,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 72293:  ///< Mark of the Fallen Champion (Deathbringer Saurfang)
             case 159178: ///< Open Wounds (Kargath Bladefist)
             case 156152: ///< Gushing Wounds (The Butcher)
+            case 158553: ///< Crush Armor (Imperator Mar'gok)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
             case 116711: ///< Draw Flame
