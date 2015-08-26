@@ -2865,97 +2865,47 @@ class spell_dk_control_undead : public SpellScriptLoader
         }
 };
 
-/// Improved Presences
+/// DK Presences
 /// Called by Blood Presence (48263), Unholy Presence (48265), Frost Presence (48266)
-class spell_dk_improved_presences : public SpellScriptLoader
+class spell_dk_presences : public SpellScriptLoader
 {
     public:
-        spell_dk_improved_presences() : SpellScriptLoader("spell_dk_improved_presences") { }
+        spell_dk_presences() : SpellScriptLoader("spell_dk_presences") { }
 
-        class spell_dk_improved_presences_AuraScript : public AuraScript
+        class spell_dk_presences_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dk_improved_presences_AuraScript);
+            PrepareAuraScript(spell_dk_presences_AuraScript);
 
             enum eSpells
             {
-                BloodPresence          = 48263,
-                UnholyPresence         = 48265,
-                FrostPresence          = 48266,
                 ImprovedBloodPresence  = 50371,
                 ImprovedFrostPresence  = 50385,
                 ImprovedUnholyPresence = 50392
             };
 
-            void OnApplyBloodPresence(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (GetSpellInfo()->Id != BloodPresence)
-                    return;
-
                 Player* l_Target = GetCaster()->ToPlayer();
                 if (!l_Target)
                     return;
 
                 if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_BLOOD && !l_Target->HasAura(ImprovedBloodPresence))
-                {
                     l_Target->CastSpell(l_Target, ImprovedBloodPresence, true, nullptr, p_AurEff);
-                    //GetEffect(EFFECT_0)->RecalculateAmount(true);
-                    //GetEffect(EFFECT_1)->RecalculateAmount(true);
-                }
-            }
-
-            void OnApplyUnholyPresence(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
-            {
-                if (GetSpellInfo()->Id != UnholyPresence)
-                    return;
-
-                Player* l_Target = GetCaster()->ToPlayer();
-                if (!l_Target)
-                    return;
-
                 if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_UNHOLY && !l_Target->HasAura(ImprovedUnholyPresence))
                     l_Target->CastSpell(l_Target, ImprovedUnholyPresence, true, nullptr, p_AurEff);
-            }
-
-            void OnApplyFrostPresence(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
-            {
-                if (GetSpellInfo()->Id != FrostPresence)
-                    return;
-
-                Player* l_Target = GetCaster()->ToPlayer();
-                if (!l_Target)
-                    return;
-
                 if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_FROST && !l_Target->HasAura(ImprovedFrostPresence))
-                {
                     l_Target->CastSpell(l_Target, ImprovedFrostPresence, true, nullptr, p_AurEff);
-                    GetEffect(EFFECT_2)->RecalculateAmount(true);
-                }
-            }
-
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-            {
-                Unit* l_Target = GetTarget();
-
-                if (l_Target->HasAura(ImprovedBloodPresence))
-                    l_Target->RemoveAura(ImprovedBloodPresence);
-                if (l_Target->HasAura(ImprovedUnholyPresence))
-                    l_Target->RemoveAura(ImprovedUnholyPresence);
-                if (l_Target->HasAura(ImprovedFrostPresence))
-                    l_Target->RemoveAura(ImprovedFrostPresence);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_dk_improved_presences_AuraScript::OnApplyBloodPresence, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectApply += AuraEffectApplyFn(spell_dk_improved_presences_AuraScript::OnApplyUnholyPresence, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectApply += AuraEffectApplyFn(spell_dk_improved_presences_AuraScript::OnApplyFrostPresence, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dk_improved_presences_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_dk_presences_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new spell_dk_improved_presences_AuraScript();
+            return new spell_dk_presences_AuraScript();
         }
 };
 
@@ -3017,7 +2967,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_gargoyle_strike();
     new spell_dk_blood_rites();
     new spell_dk_control_undead();
-    new spell_dk_improved_presences();
+    new spell_dk_presences();
 
     new PlayerScript_Blood_Tap();
 }
