@@ -2292,6 +2292,11 @@ class Player : public Unit, public GridObject<Player>
         void ResetSpec(bool p_NoCost = false);
         void ResetAllSpecs();
 
+        /*
+         * Ensure all talent spell are in talent map, otherwise unlearn them.
+         */
+        void CheckTalentSpells();
+
         // Dual Spec
         void UpdateSpecCount(uint8 count);
         void ActivateSpec(uint8 spec);
