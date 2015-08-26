@@ -6366,20 +6366,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         target->RemoveAurasDueToSpell(50322);
                     break;
                 }
-                case 78675: // Solar Beam
-                {
-                    if (apply && caster)
-                    {
-                        if (AuraPtr aur = caster->AddAura(81261, target))
-                        {
-                            aur->SetMaxDuration(GetBase()->GetDuration());
-                            aur->SetDuration(GetBase()->GetDuration());
-                        }
-                    }
-                    else
-                        target->RemoveAura(81261);
-                    break;
-                }
             }
             // Predatory Strikes
             if (target->GetTypeId() == TYPEID_PLAYER && GetSpellInfo()->SpellIconID == 1563)
