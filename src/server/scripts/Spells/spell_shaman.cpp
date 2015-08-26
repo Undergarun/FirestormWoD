@@ -2490,8 +2490,9 @@ public:
     }
 };
 
-/// 2645 Chain Heal
-class spell_sha_chain_heal: public SpellScriptLoader
+/// Last updated : 6.1.2 19802
+/// Chain Heal - 1064
+class spell_sha_chain_heal : public SpellScriptLoader
 {
     public:
         spell_sha_chain_heal() : SpellScriptLoader("spell_sha_chain_heal") { }
@@ -2508,11 +2509,12 @@ class spell_sha_chain_heal: public SpellScriptLoader
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-                if (!l_Target)
+                Unit* l_FirstTarget = GetExplTargetUnit();
+
+                if (l_FirstTarget == nullptr)
                     return;
 
-                if (l_Target->HasAura(eSpells::Riptide))
+                if (l_FirstTarget->HasAura(eSpells::Riptide))
                 {
                     uint32 l_Heal = GetHitHeal();
 
