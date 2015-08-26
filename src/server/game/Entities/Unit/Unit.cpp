@@ -16767,6 +16767,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
+    /// Runic Strikes
+    if ((procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && HasAura(165394) && GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsTwoHandUsed() && procSpell == nullptr)
+        CastSpell(this, 163948, true);
+
     // Dematerialize
     if (target && !isVictim && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(122464) && procSpell && procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN))
     {
