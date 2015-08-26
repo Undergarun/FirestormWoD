@@ -1883,6 +1883,12 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_necrotic_plague_aura_AuraScript);
 
+            enum eSpells
+            {
+                NecroticPlagueAura = 155159,
+                NecroticPlagueEnergize = 155165
+            };
+
             void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -1891,13 +1897,16 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
-                if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Caster->GetGUID()))
+                if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
                     l_AuraNecroticPlague->ModStackAmount(1);
 
                 std::list<Unit*> l_TargetList;
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(l_Target, l_Target, 8.0f);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(l_Target, l_TargetList, u_check);
-                l_Target->VisitNearbyObject(8.0f, searcher);
+                float l_Radius = 8.0f;
+
+                /// Friendly target for the target (your target) not for you
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Ucheck(l_Target, l_Target, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_TargetList, l_Ucheck);
+                l_Target->VisitNearbyObject(l_Radius, l_Searcher);
 
                 l_TargetList.remove_if([this, l_Caster, l_Target](Unit* p_Unit) -> bool
                 {
@@ -1917,7 +1926,7 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                     return;
 
                 if (Unit* l_NewTarget = JadeCore::Containers::SelectRandomContainerElement(l_TargetList))
-                    l_Caster->CastSpell(l_NewTarget, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, true);
+                    l_Caster->CastSpell(l_NewTarget, NecroticPlagueAura, true);
             }
 
             void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -1934,8 +1943,11 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 if (!l_Player)
                     return;
 
-                if (l_Caster->GetGUID() == l_Target->GetGUID() && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DK_BLOOD)
-                    l_Caster->CastSpell(l_Caster, DK_SPELL_NECROTIC_PLAGUE_ENERGIZE, true);
+                if (l_Caster->GetGUID() != l_Target->GetGUID())
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DK_BLOOD)
+                    l_Caster->CastSpell(l_Caster, NecroticPlagueEnergize, true);
             }
 
             bool CanRefreshProcDummy()
@@ -1946,8 +1958,8 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_necrotic_plague_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                CanRefreshProc += AuraCanRefreshProcFn(spell_dk_necrotic_plague_aura_AuraScript::CanRefreshProcDummy);
                 OnEffectProc += AuraEffectProcFn(spell_dk_necrotic_plague_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                CanRefreshProc += AuraCanRefreshProcFn(spell_dk_necrotic_plague_aura_AuraScript::CanRefreshProcDummy);
             }
         };
 
