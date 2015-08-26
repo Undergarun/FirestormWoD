@@ -1541,33 +1541,33 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
                         for (uint8 i = 0; i<MAX_SPELL_EFFECTS; ++i)
                         {
                             if (AuraEffectPtr aurEff = aura->GetEffect(i))
-                                aurEff->RecalculateAmount();
+                                aurEff->RecalculateAmount(true);
                         }
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT1)
                     {
                        if (AuraEffectPtr aurEff = aura->GetEffect(0))
-                            aurEff->RecalculateAmount();
+                            aurEff->RecalculateAmount(true);
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT2)
                     {
                        if (AuraEffectPtr aurEff = aura->GetEffect(1))
-                            aurEff->RecalculateAmount();
+                            aurEff->RecalculateAmount(true);
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT3)
                     {
                        if (AuraEffectPtr aurEff = aura->GetEffect(2))
-                            aurEff->RecalculateAmount();
+                            aurEff->RecalculateAmount(true);
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT4)
                     {
                         if (AuraEffectPtr aurEff = aura->GetEffect(3))
-                            aurEff->RecalculateAmount();
+                            aurEff->RecalculateAmount(true);
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT5)
                     {
                         if (AuraEffectPtr aurEff = aura->GetEffect(4))
-                            aurEff->RecalculateAmount();
+                            aurEff->RecalculateAmount(true);
                     }
                 }
             }
