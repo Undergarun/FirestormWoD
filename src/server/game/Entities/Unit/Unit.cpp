@@ -16018,9 +16018,6 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
-    if (p_Regen)
-        m_lastRegenTime[l_PowerIndex] = getMSTime();
-
     if (!p_Regen || l_RegenDiff > 2000)
         SetInt32Value(UNIT_FIELD_POWER + l_PowerIndex, p_PowerValue);
 
@@ -16036,6 +16033,8 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
         l_Data << uint8(p_PowerType);
 
         SendMessageToSet(&l_Data, GetTypeId() == TYPEID_PLAYER ? true : false);
+
+        m_lastRegenTime[l_PowerIndex] = getMSTime();
     }
 
     /// Custom MoP Script
