@@ -501,9 +501,6 @@ class spell_sha_ascendance_water : public SpellScriptLoader
                 if (!l_Player)
                     return;
 
-                if (l_Player->HasSpellCooldown(eSpells::RestorativeMists))
-                    return;
-
                 if (p_EventInfo.GetActor()->GetGUID() != l_Player->GetGUID())
                     return;
 
@@ -525,8 +522,6 @@ class spell_sha_ascendance_water : public SpellScriptLoader
 
                     if (l_Bp > 0)
                         l_Player->CastCustomSpell(l_Target, eSpells::RestorativeMists, &l_Bp, NULL, NULL, true); //< Restorative Mists
-
-                    l_Player->AddSpellCooldown(eSpells::RestorativeMists, 0, 1 * IN_MILLISECONDS); ///< This prevent from multiple procs
                 }
             }
 
