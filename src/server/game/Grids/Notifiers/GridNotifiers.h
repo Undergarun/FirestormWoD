@@ -1000,6 +1000,36 @@ namespace JadeCore
             uint32 i_spellid;
     };
 
+    class AnyGroupedPlayerInObjectRangeCheck
+    {
+        public:
+            AnyGroupedPlayerInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid) : _source(obj), _refUnit(funit), _range(range), _raid(raid) {}
+            bool operator()(Unit* u)
+            {
+                if (G3D::fuzzyEq(_range, 0))
+                    return false;
+
+                if (!u->ToPlayer())
+                    return false;
+
+                if (_raid)
+                {
+                    if (!_refUnit->IsInRaidWith(u))
+                        return false;
+                }
+                else if (!_refUnit->IsInPartyWith(u))
+                    return false;
+
+                return !_refUnit->IsHostileTo(u) && u->isAlive() && _source->IsWithinDistInMap(u, _range);
+            }
+
+        private:
+            WorldObject const* _source;
+            Unit const* _refUnit;
+            float _range;
+            bool _raid;
+    };
+
     class AnyGroupedUnitInObjectRangeCheck
     {
         public:

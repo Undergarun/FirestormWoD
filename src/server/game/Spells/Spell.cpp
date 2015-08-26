@@ -1871,7 +1871,11 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex p_EffIndex, SpellImp
                             if ((*l_Iterator))
                             {
                                 if (Unit* unitTarget = (*l_Iterator)->ToUnit())
-                                    l_UnitTargets.push_back(unitTarget);
+                                {
+                                    /// Raid buffs work just on Players
+                                    if (unitTarget->ToPlayer())
+                                        l_UnitTargets.push_back(unitTarget);
+                                }
                             }
                         }
                     }
