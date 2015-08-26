@@ -665,8 +665,8 @@ class boss_imperator_margok : public CreatureScript
                     case eSpells::DestructiveResonanceFortificationSearch:
                     case eSpells::DestructiveResonanceReplicationSearch:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
-                            me->CastSpell(l_Target, eSpells::DestructiveResonanceSummon, true);
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true))
+                            me->CastSpell(*l_Target, eSpells::DestructiveResonanceSummon, true);
 
                         break;
                     }
