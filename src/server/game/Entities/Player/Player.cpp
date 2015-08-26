@@ -756,6 +756,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_RegenPowerTimer = 0;
     m_regenTimerCount = 0;
     m_holyPowerRegenTimerCount = 0;
+    m_runicPowerRegenTimerCount = 0;
     m_chiPowerRegenTimerCount = 0;
     m_demonicFuryPowerRegenTimerCount = 0;
     m_soulShardsRegenTimerCount = 0;
@@ -3227,6 +3228,8 @@ void Player::RegenerateAll()
         }
         case Classes::CLASS_DEATH_KNIGHT:   ///< Runes act as cooldowns, and they don't need to send any data
         {
+            m_runicPowerRegenTimerCount += m_RegenPowerTimer;
+
             for (uint8 l_I = 0; l_I < MAX_RUNES; l_I += 2)
             {
                 uint8 l_RuneToRegen = l_I;
@@ -3271,9 +3274,6 @@ void Player::RegenerateAll()
 
         Regenerate(POWER_RAGE);
 
-        if (l_Class == CLASS_DEATH_KNIGHT)
-            Regenerate(POWER_RUNIC_POWER);
-
         m_regenTimerCount -= 2000;
     }
 
@@ -3281,6 +3281,12 @@ void Player::RegenerateAll()
     {
         Regenerate(POWER_HOLY_POWER);
         m_holyPowerRegenTimerCount -= 10000;
+    }
+
+    if (m_runicPowerRegenTimerCount >= 1000 && l_Class == CLASS_DEATH_KNIGHT)
+    {
+        Regenerate(POWER_RUNIC_POWER);
+        m_runicPowerRegenTimerCount -= 1000;
     }
 
     if (m_chiPowerRegenTimerCount >= 15000 && l_Class == CLASS_MONK)
@@ -3368,11 +3374,13 @@ void Player::Regenerate(Powers power)
             /// Regenerate Runic Power
             case POWER_RUNIC_POWER:
             {
+                float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
                 if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
                 {
-                    float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                    addvalue += (-30 * RunicPowerDecreaseRate / HastePct); ///< 3 RunicPower by tick
+                    addvalue += (-15 * RunicPowerDecreaseRate / HastePct); ///< 1.5 RunicPower by tick
                 }
+                if (isInCombat() && HasAura(50029))
+                    addvalue += 10.0f * RunicPowerDecreaseRate; ///< 1 RunicPower by tick
 
                 break;
             }
@@ -29027,8 +29035,10 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 
     AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator l_Idx = l_RegenAura.begin(); l_Idx != l_RegenAura.end(); ++l_Idx)
+    {
         if ((*l_Idx)->GetMiscValue() == POWER_RUNES && RuneType((*l_Idx)->GetMiscValueB()) == runeType)
             l_Cooldown *= 1.0f - ((*l_Idx)->GetAmount() / 100.0f);
+    }
 
     // Runes cooldown are now affected by player's haste from equipment ...
     l_HastePct = GetRatingBonusValue(CR_HASTE_MELEE);
