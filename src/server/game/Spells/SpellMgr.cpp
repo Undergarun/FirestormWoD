@@ -5116,9 +5116,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157319: ///< Greater Storm Elemental
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SUMMON_PET;
                 break;
-            case 114942: ///< Healing Tide
-                spellInfo->MaxAffectedTargets = 5;
-                break;
             case 62099: ///< Shamanism
                 spellInfo->Effects[0].SpellClassMask[2] |= 0x8000;
                 break;
