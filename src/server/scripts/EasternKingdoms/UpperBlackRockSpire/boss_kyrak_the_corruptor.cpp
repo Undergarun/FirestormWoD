@@ -57,9 +57,6 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 m_Instance = p_Creature->GetInstanceScript();
                 m_InitializeAdds = 2000;
                 m_DrakonidMonstrosityGuids.resize(2);
-
-                if (m_Instance)
-                    m_Instance->SetBossState(DATA_KYRAK_THE_CORRUPTOR, TO_BE_DECIDED);
             }
 
             std::vector<uint64> m_DrakonidMonstrosityGuids;
@@ -75,9 +72,6 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 ResetAdds();
-
-                if (m_Instance)
-                    m_Instance->SetBossState(DATA_KYRAK_THE_CORRUPTOR, NOT_STARTED);
 
                 m_Events.Reset();
             }
@@ -95,10 +89,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 Talk(TALK_AGGRO);
 
                 if (m_Instance)
-                {
-                    m_Instance->SetBossState(DATA_KYRAK_THE_CORRUPTOR, IN_PROGRESS);
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                }
 
                 m_Events.ScheduleEvent(EVENT_DEBILITATING_FIXATION, 8000);
                 m_Events.ScheduleEvent(EVENT_REJUVENATING_SERUM, 26000);
@@ -113,10 +104,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
             void JustReachedHome()
             {
                 if (m_Instance)
-                {
-                    m_Instance->SetBossState(DATA_KYRAK_THE_CORRUPTOR, FAIL);
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
             }
 
             void JustDied(Unit* p_Killer)
@@ -126,10 +114,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 Talk(TALK_DEATH);
 
                 if (m_Instance)
-                {
-                    m_Instance->SetBossState(DATA_KYRAK_THE_CORRUPTOR, DONE);
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
 
                 me->RemoveAllAreasTrigger();
             }

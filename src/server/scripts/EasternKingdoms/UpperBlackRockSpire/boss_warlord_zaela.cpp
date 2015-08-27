@@ -97,6 +97,7 @@ static Position const g_BurningBridgePos[eMisc::MaxBurningBridge] =
     { 7.769579f, -194.1159f, 101.4526f, 4.591072f }
 };
 
+Position const g_IntroPos = { 147.5021f, -444.0213f, 121.9753f, 1.6032f };
 static Position const g_SpawnPos = { 22.1094f, -103.059f, 97.7569f, 4.711267f };
 static Position const g_IronflightSpawnPos = { 20.5842f, -46.9536f, 107.4032f, 4.7185f };
 static Position const g_IronflightSecondPos = { 21.342f, -173.01f, 117.342f, 1.551f };
@@ -170,7 +171,10 @@ class boss_warlord_zaela : public CreatureScript
                     me->NearTeleportTo(m_JumpPos.m_positionX, m_JumpPos.m_positionY, m_JumpPos.m_positionZ, m_JumpPos.m_orientation);
                 }
                 else
-                    me->NearTeleportTo(g_SpawnPos.m_positionX, g_SpawnPos.m_positionY, g_SpawnPos.m_positionZ, g_SpawnPos.m_orientation);
+                {
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                    me->NearTeleportTo(g_IntroPos.m_positionX, g_IntroPos.m_positionY, g_IntroPos.m_positionZ, g_IntroPos.m_orientation);
+                }
 
                 m_Phase = eMisc::PhaseGround;
                 m_BurningBreathCount = 0;
@@ -537,6 +541,7 @@ class boss_warlord_zaela : public CreatureScript
                             l_Tharbek->AI()->DoAction(eActions::ActionTharbekTalk4);
                     }
 
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                     me->NearTeleportTo(g_SpawnPos.m_positionX, g_SpawnPos.m_positionY, g_SpawnPos.m_positionZ, g_SpawnPos.m_orientation);
                 }
                 else

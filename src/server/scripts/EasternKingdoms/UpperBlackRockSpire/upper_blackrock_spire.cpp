@@ -30,6 +30,7 @@ enum eSpells
     SPELL_REJUVENATING_SERUM        = 155498,
     ///< Drakonid Monstrosity
     SPELL_ERUPTION                  = 155037,
+    SPELL_MONSTRUOUS_CLAWS          = 155032,
     ///< Black Iron Veteran
     SPELL_SUNDER_ARMOR              = 155581,
     SPELL_SHIELD_SMASH              = 155575,
@@ -164,7 +165,7 @@ class mob_black_iron_grunt : public CreatureScript
                         m_Events.ScheduleEvent(EVENT_DEVASTATE, 8000);
                         break;
                     case EVENT_RALLYING_BANNER:
-                        me->MonsterTextEmote(LANG_RALLYING_BANNER_SUMMONED, 0, true);
+                        me->MonsterTextEmote(LANG_RALLYING_BANNER_SUMMONED, me->GetGUID(), true);
                         me->CastSpell(me, SPELL_RALLYING_BANNER, false);
                         m_Events.ScheduleEvent(EVENT_RALLYING_BANNER, 15000);
                         break;
@@ -680,6 +681,8 @@ class mob_drakonid_monstrosity : public CreatureScript
             void Reset()
             {
                 me->ReenableEvadeMode();
+
+                me->CastSpell(me, eSpells::SPELL_MONSTRUOUS_CLAWS, true);
             }
 
             void EnterCombat(Unit* p_Attacker)
@@ -701,7 +704,7 @@ class mob_drakonid_monstrosity : public CreatureScript
                 {
                     case EVENT_ERUPTION:
                         me->CastSpell(me, SPELL_ERUPTION, false);
-                        m_Events.ScheduleEvent(EVENT_DEBILITATING_RAY, 15000);
+                        m_Events.ScheduleEvent(EVENT_ERUPTION, 15000);
                         break;
                     default:
                         break;
@@ -2019,28 +2022,38 @@ class spell_eruption: public SpellScriptLoader
         {
             PrepareSpellScript(spell_eruption_SpellScript);
 
+            enum eSpell
+            {
+                TargetRestrict = 20473
+            };
+
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
                 if (p_Targets.empty())
                     return;
 
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
                     return;
 
-                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Angle = 2 * M_PI / 360 * l_Restriction->ConeAngle;
+                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
                 {
-                    if (!p_Object)
+                    if (p_Object == nullptr)
                         return true;
 
-                    if (!l_Caster->isInFront(p_Object, M_PI / 12.f))
+                    if (!p_Object->isInFront(l_Caster, l_Angle))
                         return true;
 
                     return false;
                 });
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
@@ -2048,7 +2061,7 @@ class spell_eruption: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_eruption_SpellScript();
         }

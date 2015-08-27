@@ -156,6 +156,25 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                         break;
                 }
             }
+
+            void OnGameObjectRemove(GameObject* p_Gameobject) override
+            {
+                switch (p_Gameobject->GetEntry())
+                {
+                    case GOB_OREBENDER_ENTRANCE:
+                    case GOB_OREBENDER_EXIT:
+                    case GOB_KYRAK_EXIT_01:
+                    case GOB_KYRAK_EXIT_02:
+                    case GOB_THARBEK_EXIT:
+                    case GOB_THARBEK_EXIT_SECOND:
+                    case GOB_RAGEWING_ENTRANCE:
+                    case GOB_RAGEWING_EXIT:
+                        AddDoor(p_Gameobject, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
             
             bool SetBossState(uint32 p_ID, EncounterState p_State)
             {
