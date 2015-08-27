@@ -3698,42 +3698,95 @@ class spell_hun_adaptation : public SpellScriptLoader
 };
 
 
-// Aimed Shot - 19434
+/// Aimed Shot - 19434
 class spell_hun_aimed_shot : public SpellScriptLoader
 {
-public:
-    spell_hun_aimed_shot() : SpellScriptLoader("spell_hun_aimed_shot") { }
+    public:
+        spell_hun_aimed_shot() : SpellScriptLoader("spell_hun_aimed_shot") { }
 
-    class spell_hun_aimed_shot_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_hun_aimed_shot_SpellScript);
-
-        void HandleAfterCast()
+        class spell_hun_aimed_shot_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_hun_aimed_shot_SpellScript);
+
+            void HandleAfterCast()
             {
-                if (l_Player->HasAura(HUNTER_SPELL_ITEM_WOD_PVP_MM_4P_BONUS))
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (l_Player->HasSpellCooldown(HUNTER_SPELL_RAPID_FIRE))
-                        l_Player->ReduceSpellCooldown(HUNTER_SPELL_RAPID_FIRE, 5000);
+                    if (l_Player->HasAura(HUNTER_SPELL_ITEM_WOD_PVP_MM_4P_BONUS))
+                    {
+                        if (l_Player->HasSpellCooldown(HUNTER_SPELL_RAPID_FIRE))
+                            l_Player->ReduceSpellCooldown(HUNTER_SPELL_RAPID_FIRE, 5000);
+                    }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_hun_aimed_shot_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterCast += SpellCastFn(spell_hun_aimed_shot_SpellScript::HandleAfterCast);
+            return new spell_hun_aimed_shot_SpellScript();
         }
-    };
+};
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_hun_aimed_shot_SpellScript();
-    }
+/// last update : 6.1.2 19802
+/// Thick Hide - 160057
+class spell_hun_thick_hide : public SpellScriptLoader
+{
+    public:
+        spell_hun_thick_hide() : SpellScriptLoader("spell_hun_thick_hide") { }
+
+        class spell_hun_thick_hide_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_thick_hide_AuraScript);
+
+            enum eSpells
+            {
+                thickHideEffect = 160058
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Pet* l_Pet = l_Caster->ToPet();
+
+                if (l_Pet == nullptr)
+                    return;
+
+                if (l_Pet->HasSpellCooldown(eSpells::thickHideEffect))
+                    return;
+
+                if (l_Pet->GetHealthPct() > (float)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                    return;
+
+                l_Pet->CastSpell(l_Pet, eSpells::thickHideEffect, true);
+                l_Pet->_AddCreatureSpellCooldown(eSpells::thickHideEffect, time(nullptr) + GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_thick_hide_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_thick_hide_AuraScript();
+        }
 };
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_thick_hide();
     new spell_hun_lesser_proportion();
     new spell_hun_glyph_of_lesser_proportion();
     new spell_hun_enhanced_basic_attacks();
