@@ -62,6 +62,10 @@ namespace MS
 
                         uint32 m_CheckZPosTimer;
 
+                        uint64 m_CromanGuid;
+                        uint64 m_CromanRealGuid;
+                        uint64 m_SteelSwordGuid;
+
                         instance_BloodmaulInstanceMapScript(Map* p_Map)
                             : InstanceScript(p_Map),
                             m_CreatureKilled(0),
@@ -73,7 +77,10 @@ namespace MS
                             m_SlagnaSpawned(false),
                             m_GugrokkGuid(0),
                             m_UnstableSlagKilled(0),
-                            m_CheckZPosTimer(1000)
+                            m_CheckZPosTimer(1000),
+                            m_CromanGuid(0),
+                            m_CromanRealGuid(0),
+                            m_SteelSwordGuid(0)
                         {
                             SetBossNumber(MaxEncounter::Number);
                             LoadDoorData(k_DoorData);
@@ -116,6 +123,12 @@ namespace MS
                                 case uint32(MobEntries::Gugrokk):
                                     m_GugrokkGuid = p_Creature->GetGUID();
                                     break;
+                                case uint32(MobEntries::CromanTheBarbarian):
+                                    m_CromanGuid = p_Creature->GetGUID();
+                                    break;
+                                case uint32(MobEntries::CromanTheBarbarianReal):
+                                    m_CromanRealGuid = p_Creature->GetGUID();
+                                    break;
                                 default:
                                     break;
                             }
@@ -132,6 +145,23 @@ namespace MS
                                     break;
                                 case GameObjects::ChallengeDoor:
                                     m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                                    break;
+                                case GameObjects::SteelSword:
+                                    m_SteelSwordGuid = p_GameObject->GetGUID();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
+                        void OnGameObjectRemove(GameObject* p_GameObject) override
+                        {
+                            switch (p_GameObject->GetEntry())
+                            {
+                                case GameObjects::RoltallBridge:
+                                case GameObjects::RoltallEntranceWall:
+                                case GameObjects::RoltallExitWall:
+                                    AddDoor(p_GameObject, false);
                                     break;
                                 default:
                                     break;
@@ -231,7 +261,30 @@ namespace MS
                                                 l_CapturedMiner->SetReactState(ReactStates::REACT_PASSIVE);
                                             }
                                         }
+
+                                        if (Creature* l_Croman = sObjectAccessor->FindCreature(m_CromanGuid))
+                                        {
+                                            if (!l_Croman->IsAIEnabled)
+                                                break;
+
+                                            l_Croman->AI()->DoAction(0);    ///< ActionEnableClick
+                                        }
                                     }
+                                    break;
+                                }
+                                case BossIds::BossForgemasterGogduh:
+                                {
+                                    if (p_State != EncounterState::DONE)
+                                        break;
+
+                                    if (Creature* l_Croman = sObjectAccessor->FindCreature(m_CromanRealGuid))
+                                    {
+                                        if (!l_Croman->IsAIEnabled)
+                                            break;
+
+                                        l_Croman->AI()->DoAction(0);    ///< ActionPickUpSword
+                                    }
+
                                     break;
                                 }
                                 case BossIds::BossGugrokk:
@@ -240,6 +293,18 @@ namespace MS
                                         m_UnstableSlagKilled = 0;
                                     else if (p_State == EncounterState::DONE && m_UnstableSlagKilled == 0 && instance->IsHeroic())
                                         DoCompleteAchievement(eAchievements::IsDraenorOnFire);
+
+                                    if (p_State != EncounterState::DONE)
+                                        break;
+
+                                    if (Creature* l_Croman = sObjectAccessor->FindCreature(m_CromanRealGuid))
+                                    {
+                                        if (!l_Croman->IsAIEnabled)
+                                            break;
+
+                                        l_Croman->AI()->DoAction(1);    ///< ActionFreed
+                                    }
+
                                     break;
                                 }
                                 default:
@@ -309,6 +374,12 @@ namespace MS
                             {
                                 case uint32(MobEntries::Gugrokk):
                                     return m_GugrokkGuid;
+                                case uint32(MobEntries::CromanTheBarbarian):
+                                    return m_CromanGuid;
+                                case uint32(MobEntries::CromanTheBarbarianReal):
+                                    return m_CromanRealGuid;
+                                case GameObjects::SteelSword:
+                                    return m_SteelSwordGuid;
                                 default:
                                     break;
                             }

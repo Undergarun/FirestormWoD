@@ -4546,6 +4546,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158553: ///< Crush Armor (Imperator Mar'gok)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
+            case 151272: ///< Wheel of Pain Knockback
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
             case 116711: ///< Draw Flame
                 spellInfo->ChannelInterruptFlags = 0x0;
                 spellInfo->AuraInterruptFlags = 0x0;

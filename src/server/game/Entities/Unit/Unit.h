@@ -225,6 +225,7 @@ enum UnitBytes1_Flags
     UNIT_BYTE1_FLAG_ALWAYS_STAND    = 0x01,
     UNIT_BYTE1_FLAG_HOVER           = 0x02,
     UNIT_BYTE1_FLAG_UNK_3           = 0x04,
+    UNIT_BYTE1_FLAG_KNEEL           = 0x08,
     UNIT_BYTE1_FLAG_ALL             = 0xFF
 };
 

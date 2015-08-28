@@ -113,6 +113,9 @@ class CreatureAI : public UnitAI
         // Called when the killer is rewarded with currencies
         virtual void CurrenciesRewarder(bool& result) { }
 
+        /// Called when check interact distance (for example: gossips)
+        virtual bool CanByPassDistanceCheck() const { return false; }
+
         // Called when check LOS
         virtual bool CanBeTargetedOutOfLOS() { return false; }
         virtual bool CanTargetOutOfLOS() { return false; }

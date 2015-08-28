@@ -4014,55 +4014,65 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     return std::pair<bool, std::string>(true, "");
 }
 
-Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
+Creature* Player::GetNPCIfCanInteractWith(uint64 p_Guid, uint32 p_NpcFlagMask)
 {
-    // unit checks
-    if (!guid)
-        return NULL;
+    /// Unit checks
+    if (!p_Guid)
+        return nullptr;
 
     if (!IsInWorld())
-        return NULL;
+        return nullptr;
 
     if (isInFlight())
-        return NULL;
+        return nullptr;
 
-    // exist (we need look pets also for some interaction (quest/etc)
-    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
-    if (!creature)
-        return NULL;
+    /// Exist (we need look pets also for some interaction (quest/etc)
+    Creature* l_Creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, p_Guid);
+    if (!l_Creature)
+        return nullptr;
 
-    // Deathstate checks
-    if (!isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_GHOST))
-        return NULL;
+    /// Deathstate checks
+    if (!isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPEFLAGS_GHOST))
+        return nullptr;
 
-    // alive or spirit healer
-    if (!creature->isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_DEAD_INTERACT))
-        return NULL;
+    /// Alive or spirit healer
+    if (!l_Creature->isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPEFLAGS_DEAD_INTERACT))
+        return nullptr;
 
-    // appropriate npc type
-    if (npcflagmask && !creature->HasFlag(UNIT_FIELD_NPC_FLAGS, npcflagmask))
-        return NULL;
+    /// Appropriate npc type
+    if (p_NpcFlagMask && !l_Creature->HasFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, p_NpcFlagMask))
+        return nullptr;
 
-    // not allow interaction under control, but allow with own pets
-    if (creature->GetCharmerGUID())
-        return NULL;
+    /// Not allow interaction under control, but allow with own pets
+    if (l_Creature->GetCharmerGUID())
+        return nullptr;
 
-    // not enemy
-    if (creature->IsHostileTo(this))
-        return NULL;
+    /// Not enemy
+    if (l_Creature->IsHostileTo(this))
+        return nullptr;
 
-    // not unfriendly
-    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(creature->getFaction()))
-        if (factionTemplate->Faction)
-            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->Faction))
-                if (faction->ReputationIndex >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
-                    return NULL;
+    /// Not unfriendly
+    if (FactionTemplateEntry const* l_FactionTemplate = sFactionTemplateStore.LookupEntry(l_Creature->getFaction()))
+    {
+        if (l_FactionTemplate->Faction)
+        {
+            if (FactionEntry const* l_Faction = sFactionStore.LookupEntry(l_FactionTemplate->Faction))
+            {
+                if (l_Faction->ReputationIndex >= 0 && GetReputationMgr().GetRank(l_Faction) <= ReputationRank::REP_UNFRIENDLY)
+                    return nullptr;
+            }
+        }
+    }
 
-    // not too far
-    if (!creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
-        return NULL;
+    /// Not too far
+    bool l_ByPassDist = false;
+    if (l_Creature->IsAIEnabled)
+        l_ByPassDist = l_Creature->AI()->CanByPassDistanceCheck();
 
-    return creature;
+    if (!l_ByPassDist && !l_Creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
+        return nullptr;
+
+    return l_Creature;
 }
 
 Creature* Player::GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask)
