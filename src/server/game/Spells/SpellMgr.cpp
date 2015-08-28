@@ -4550,6 +4550,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
+            case 101184: ///< Leyara's Locket
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                break;
             case 116711: ///< Draw Flame
                 spellInfo->ChannelInterruptFlags = 0x0;
                 spellInfo->AuraInterruptFlags = 0x0;
