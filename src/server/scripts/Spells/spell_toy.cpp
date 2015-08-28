@@ -108,8 +108,45 @@ class spell_toy_warsong_orc_costume : public SpellScriptLoader
         }
 };
 
+/// Flip It - 129339
+class spell_toy_flippable_table : public SpellScriptLoader
+{
+    public:
+        spell_toy_flippable_table() : SpellScriptLoader("spell_toy_flippable_table") { }
+
+        enum eSpell
+        {
+            FlipIt = 129338
+        };
+
+        class spell_toy_flippable_table_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_toy_flippable_table_SpellScript);
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpell::FlipIt, false);
+            }
+
+            void Register() override
+            {
+                OnEffectLaunch += SpellEffectFn(spell_toy_flippable_table_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_toy_flippable_table_SpellScript();
+        }
+};
+
 void AddSC_spell_toy()
 {
     new spell_toy_stonebound();
     new spell_toy_warsong_orc_costume();
+    new spell_toy_flippable_table();
 }
