@@ -6280,10 +6280,25 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_caster->IsMounted() && m_caster->GetTypeId() == TYPEID_PLAYER && !(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE) &&
         !m_spellInfo->IsPassive() && !(m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_MOUNTED))
     {
-        if (m_caster->isInFlight())
-            return SPELL_FAILED_NOT_ON_TAXI;
+        /// Herb Gathering
+        if (m_spellInfo->Id == 2369)
+        {
+            /// This is used for Sky Golem (Flying Mount) which allow you to gather herbs (and only herbs) without being dismounted.
+            if (!m_caster->HasFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED))
+            {
+                if (m_caster->isInFlight())
+                    return SPELL_FAILED_NOT_ON_TAXI;
+                else
+                    return SPELL_FAILED_NOT_MOUNTED;
+            }
+        }
         else
-            return SPELL_FAILED_NOT_MOUNTED;
+        {
+            if (m_caster->isInFlight())
+                return SPELL_FAILED_NOT_ON_TAXI;
+            else
+                return SPELL_FAILED_NOT_MOUNTED;
+        }
     }
 
     SpellCastResult castResult = SPELL_CAST_OK;
