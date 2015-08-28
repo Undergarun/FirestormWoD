@@ -6468,6 +6468,8 @@ void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_L
 
     if (Group* l_Group = GetGroup())
         l_Group->OnChangeMemberSpec(GetGUID(), p_Specialization);
+
+    SaveToDB();
 }
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
@@ -21204,6 +21206,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
     RewardCompletedAchievementsIfNeeded();
+    CheckTalentSpells();
     l_Times.push_back(getMSTime() - l_StartTime);
 
     if ((getMSTime() - l_StartTime) > 50)
@@ -31705,6 +31708,14 @@ namespace ProfessionBookSpells
     };
 }
 
+namespace ProfessionAdditionalSpells
+{
+    enum
+    {
+        Prospecting = 31252,
+    };
+}
+
 void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
 {
     if (!p_Result)
@@ -31764,6 +31775,13 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
                 learnSpell(l_Abilitie->spellId, false);
             }
         }
+
+        if (l_SkillID == SkillType::SKILL_JEWELCRAFTING)
+            learnSpell(ProfessionAdditionalSpells::Prospecting, false);             ///< Prospecting
+
+        /// We also need to learn it for herbalism
+        if (l_SkillID == SkillType::SKILL_HERBALISM)
+            learnSpell(l_SpellID, false);
 
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_STORE_PROFESSION);
         l_Statement->setUInt32(0, GetGUIDLow());
@@ -33892,4 +33910,34 @@ uint32 Player::GetBagsFreeSlots() const
     }
 
     return l_FreeBagSlots;
+}
+
+void Player::CheckTalentSpells()
+{
+    std::set<uint32> l_Talents;
+    uint8 l_SpeCount = std::min(GetSpecsCount(), (uint8)MAX_TALENT_SPECS);
+
+    for (uint8 l_SpecIdx = 0; l_SpecIdx < l_SpeCount; l_SpecIdx++)
+    {
+        PlayerTalentMap& l_PlayerTalent = *GetTalentMap(l_SpecIdx);
+        for (PlayerTalentMap::iterator l_TalentItr = l_PlayerTalent.begin(); l_TalentItr != l_PlayerTalent.end(); ++l_TalentItr)
+            l_Talents.insert(l_TalentItr->first);
+    }
+
+    for (PlayerSpellMap::iterator l_Itr = m_spells.begin(); l_Itr != m_spells.end();)
+    {
+        if (!l_Itr->second)
+            continue;
+
+        if (l_Itr->second->state != PlayerSpellState::PLAYERSPELL_REMOVED
+            && sSpellMgr->IsTalent(l_Itr->first)
+            && l_Talents.find(l_Itr->first) == l_Talents.end())
+        {
+            removeSpell(l_Itr->first);
+            l_Itr = m_spells.begin();
+            continue;
+        }
+
+        ++l_Itr;
+    }
 }

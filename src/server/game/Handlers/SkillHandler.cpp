@@ -85,6 +85,7 @@ void WorldSession::HandleLearnTalents(WorldPacket& p_RecvPacket)
         m_Player->LearnTalent(l_TalentID);
     }
 
+    m_Player->SaveToDB();
     m_Player->SendTalentsInfoData(false);
 }
 

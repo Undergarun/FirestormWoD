@@ -13840,7 +13840,10 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 
     for (Unit::ControlList::iterator l_Iter = m_Controlled.begin(); l_Iter != m_Controlled.end(); ++l_Iter)
-        (*l_Iter)->SetInCombatState(p_IsPVP, p_Enemy, true);
+    {
+        if ((*l_Iter) != nullptr)
+            (*l_Iter)->SetInCombatState(p_IsPVP, p_Enemy, true);
+    }
 
     RemoveAura(121308); ///< Glyph of Disguise, only out of combat
 
