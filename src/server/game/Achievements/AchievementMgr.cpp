@@ -526,6 +526,7 @@ void AchievementMgr<T>::SaveToDB(SQLTransaction& /*trans*/)
 template<>
 void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 {
+    m_CompletedAchievementsLock.acquire();
     if (!m_completedAchievements.empty())
     {
         bool need_execute = false;
@@ -607,6 +608,8 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
             trans->Append(ssCharIns.str().c_str());
         }
     }
+    
+    m_CompletedAchievementsLock.release();
 
     CriteriaProgressMap* progressMap = GetCriteriaProgressMap();
     if (!progressMap)
@@ -856,11 +859,13 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             if (achievement->Flags & ACHIEVEMENT_FLAG_GUILD)
                 continue;
 
+            m_CompletedAchievementsLock.acquire();
             CompletedAchievementData& ca = m_completedAchievements[achievementid];
             ca.date = time_t(fields[2].GetUInt32());
             ca.changed = false;
             ca.first_guid = MAKE_NEW_GUID(first_guid, 0, HIGHGUID_PLAYER);
             ca.completedByThisCharacter = false;
+            m_CompletedAchievementsLock.release();
 
             _achievementPoints += achievement->Points;
 
@@ -925,13 +930,20 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementid);
             if (!achievement)
                 continue;
+                
+            m_CompletedAchievementsLock.acquire();
 
             // Achievement in character_achievement but not in account_achievement, there is a problem.
             if (m_completedAchievements.find(achievementid) == m_completedAchievements.end())
+            {
+                m_CompletedAchievementsLock.release();
                 continue;
+            }
 
             CompletedAchievementData& ca = m_completedAchievements[achievementid];
             ca.completedByThisCharacter = true;
+            
+            m_CompletedAchievementsLock.release();
             _achievementPoints += achievement->Points;
 
         }
@@ -1058,6 +1070,7 @@ void AchievementMgr<T>::Reset()
 template<>
 void AchievementMgr<Player>::Reset()
 {
+    m_CompletedAchievementsLock.acquire();
     for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
     {
         WorldPacket data(SMSG_ACHIEVEMENT_DELETED, 4);
@@ -1065,6 +1078,7 @@ void AchievementMgr<Player>::Reset()
         data << uint32(0);
         SendPacket(&data);
     }
+    m_CompletedAchievementsLock.release();
 
     CriteriaProgressMap* criteriaProgress = GetCriteriaProgressMap();
 
@@ -1078,7 +1092,10 @@ void AchievementMgr<Player>::Reset()
         SendPacket(&data);
     }
 
+    m_CompletedAchievementsLock.acquire();
     m_completedAchievements.clear();
+    m_CompletedAchievementsLock.release();
+
     _achievementPoints = 0;
     criteriaProgress->clear();
     DeleteFromDB(GetOwner()->GetGUIDLow());
@@ -2214,17 +2231,21 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
 
     if (HasAccountAchieved(p_Achievement->ID))
     {
+        m_CompletedAchievementsLock.acquire();
         CompletedAchievementData& l_Data = m_completedAchievements[p_Achievement->ID];
         l_Data.completedByThisCharacter = true;
         l_Data.changed = true;
+        m_CompletedAchievementsLock.release();
         return;
     }
 
+    m_CompletedAchievementsLock.acquire();        
     CompletedAchievementData& l_Data = m_completedAchievements[p_Achievement->ID];
     l_Data.completedByThisCharacter = true;
     l_Data.date = time(NULL);
     l_Data.first_guid = MAKE_NEW_GUID(GetOwner()->GetGUIDLow(), 0, HIGHGUID_PLAYER);
     l_Data.changed = true;
+    m_CompletedAchievementsLock.release();
 
     sAchievementMgr->SetRealmCompleted(p_Achievement, GetInstanceId(GetOwner()));
 
@@ -2346,6 +2367,8 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
 
     VisibleAchievementPred l_IsVisible;
     size_t l_CriteriaCount = l_ProgressMap->size();
+    
+    m_CompletedAchievementsLock.acquire();
     size_t l_AchievementCount = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), l_IsVisible);
 
     WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA, 200 * 1024);
@@ -2364,6 +2387,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
         data << uint32(g_RealmID);                                  ///< Virtual Realm Address
         data << uint32(g_RealmID);                                  ///< Native Realm Address
     }
+    m_CompletedAchievementsLock.release();
 
     for (CriteriaProgressMap::const_iterator itr = l_ProgressMap->begin(); itr != l_ProgressMap->end(); ++itr)
     {
@@ -2414,6 +2438,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* p_Receiver, uint32 /*p_
 
     VisibleAchievementPred l_IsVisible;
     size_t l_CriteriaCount = l_ProgressMap->size();
+    m_CompletedAchievementsLock.acquire();
     size_t l_AchievementCount = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), l_IsVisible);
 
     WorldPacket l_Data(SMSG_RESPOND_INSPECT_ACHIEVEMENTS, 80 * 1024);
@@ -2433,6 +2458,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* p_Receiver, uint32 /*p_
         l_Data << uint32(g_RealmID);
         l_Data << uint32(g_RealmID);
     }
+    m_CompletedAchievementsLock.release();
 
     for (CriteriaProgressMap::const_iterator l_Iter = l_ProgressMap->begin(); l_Iter != l_ProgressMap->end(); ++l_Iter)
     {
@@ -2496,16 +2522,25 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* p_Receiver, uint32 p_Ach
 template<class T>
 bool AchievementMgr<T>::HasAchieved(uint32 achievementId) const
 {
-    return m_completedAchievements.find(achievementId) != m_completedAchievements.end();
+    m_CompletedAchievementsLock.acquire();
+    bool l_Result = m_completedAchievements.find(achievementId) != m_completedAchievements.end();
+    m_CompletedAchievementsLock.release();
+    
+    return l_Result;
 }
 
 template<>
 bool AchievementMgr<Player>::HasAchieved(uint32 achievementId) const
 {
+    m_CompletedAchievementsLock.acquire();
     CompletedAchievementMap::const_iterator itr = m_completedAchievements.find(achievementId);
 
     if (itr == m_completedAchievements.end())
+    {
+        m_CompletedAchievementsLock.release();
         return false;
+    } 
+    m_CompletedAchievementsLock.release();
 
     return (*itr).second.completedByThisCharacter;
 }
@@ -2513,16 +2548,26 @@ bool AchievementMgr<Player>::HasAchieved(uint32 achievementId) const
 template<class T>
 bool AchievementMgr<T>::HasAccountAchieved(uint32 achievementId) const
 {
-    return m_completedAchievements.find(achievementId) != m_completedAchievements.end();
+    m_CompletedAchievementsLock.acquire();
+    bool l_Result = m_completedAchievements.find(achievementId) != m_completedAchievements.end();
+    m_CompletedAchievementsLock.release();
+    
+    return l_Result;
 }
 
 template<class T>
 uint64 AchievementMgr<T>::GetFirstAchievedCharacterOnAccount(uint32 achievementId) const
 {
+    m_CompletedAchievementsLock.acquire();
     CompletedAchievementMap::const_iterator itr = m_completedAchievements.find(achievementId);
 
     if (itr == m_completedAchievements.end())
+    {
+        m_CompletedAchievementsLock.release();
         return 0LL;
+    }
+        
+    m_CompletedAchievementsLock.release();
 
     return (*itr).second.first_guid;
 }
@@ -2682,8 +2727,13 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+            m_CompletedAchievementsLock.acquire();
             if (m_completedAchievements.find(p_Criteria->complete_achievement.linkedAchievement) == m_completedAchievements.end())
+            {
+                m_CompletedAchievementsLock.release();
                 return false;
+            }
+            m_CompletedAchievementsLock.release();
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
             if (!p_MiscValue1 || !p_ReferencePlayer || p_Criteria->win_bg.MapID != p_ReferencePlayer->GetMapId())
@@ -4064,29 +4114,28 @@ bool AchievementMgr<T>::RequiresScript(CriteriaEntry const* p_Criteria)
 void AchievementGlobalMgr::PrepareCriteriaUpdateTaskThread()
 {
     AchievementCriteriaUpdateTask l_Task;
-    while (m_AchievementCriteriaUpdateTaskStoreQueue.next(l_Task))
-        m_AchievementCriteriaUpdateTaskProcessQueue.push(l_Task);
-}
-
-void AchievementGlobalMgr::ProcessAllCriteriaUpdateTask()
-{
-    while (!m_AchievementCriteriaUpdateTaskProcessQueue.empty())
+    for (auto l_Iterator = m_LockedPlayersAchievementCriteriaTask.begin(); l_Iterator != m_LockedPlayersAchievementCriteriaTask.end(); l_Iterator++)
     {
-        AchievementCriteriaUpdateTask& l_Task = m_AchievementCriteriaUpdateTaskProcessQueue.front();
-        l_Task.Task(l_Task.PlayerGUID, l_Task.UnitGUID);
-        m_AchievementCriteriaUpdateTaskProcessQueue.pop();
+        while ((*l_Iterator).second.next(l_Task))
+            m_PlayersAchievementCriteriaTask[(*l_Iterator).first].push(l_Task);
     }
 }
 
-
-AchievementCriteriaUpdateRequest::AchievementCriteriaUpdateRequest(MapUpdater* p_Updater)
-    : MapUpdaterTask(p_Updater)
+AchievementCriteriaUpdateRequest::AchievementCriteriaUpdateRequest(MapUpdater* p_Updater, AchievementCriteriaTaskQueue p_TaskQueue)
+: MapUpdaterTask(p_Updater), m_CriteriaUpdateTasks(p_TaskQueue)
 {
 
 }
 
 void AchievementCriteriaUpdateRequest::call()
 {
-    sAchievementMgr->ProcessAllCriteriaUpdateTask();
+    AchievementCriteriaUpdateTask l_Task;
+    while (!m_CriteriaUpdateTasks.empty())
+    {
+        l_Task = m_CriteriaUpdateTasks.front();
+        l_Task.Task(l_Task.PlayerGUID, l_Task.UnitGUID);
+        m_CriteriaUpdateTasks.pop();
+    }
+
     UpdateFinished();
 }

@@ -1,0 +1,1 @@
+UPDATE spell_proc_event SET SchoolMask = 1, procFlags = 2429268 WHERE entry = 5227;

@@ -42,6 +42,8 @@ namespace Battlepay
         if (!l_Result)
             return;
 
+        uint32 l_OldMSTime = getMSTime();
+
         do 
         {
             Field* l_Fields = l_Result->Fetch();
@@ -55,8 +57,10 @@ namespace Battlepay
             l_DisplayInfo.Flags                 = l_Fields[6].GetUInt32();
 
             m_DisplayInfos.insert(std::make_pair(l_Fields[0].GetUInt32(), l_DisplayInfo));
-        } 
+        }
         while (l_Result->NextRow());
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Battlepay display info in %u ms.", (unsigned long)m_DisplayInfos.size(), GetMSTimeDiffToNow(l_OldMSTime));
     }
 
     void Manager::LoadProductGroups()
@@ -67,7 +71,9 @@ namespace Battlepay
         if (!l_Result)
             return;
 
-        do 
+        uint32 l_OldMSTime = getMSTime();
+
+        do
         {
             Field* l_Fields = l_Result->Fetch();
 
@@ -79,8 +85,10 @@ namespace Battlepay
             l_ProductGroup.Ordering       = l_Fields[4].GetInt32();
 
             m_ProductGroups.push_back(l_ProductGroup);
-        } 
+        }
         while (l_Result->NextRow());
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Battlepay product groups in %u ms", (unsigned long)m_ProductGroups.size(), GetMSTimeDiffToNow(l_OldMSTime));
     }
 
     void Manager::LoadProduct()
@@ -90,6 +98,8 @@ namespace Battlepay
         QueryResult l_Result = WorldDatabase.PQuery("SELECT ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID, ClassMask, ScriptName FROM battlepay_product");
         if (!l_Result)
             return;
+
+        uint32 l_OldMSTime = getMSTime();
 
         do
         {
@@ -107,7 +117,7 @@ namespace Battlepay
             l_Product.ScriptName             = l_Fields[8].GetString();
 
             m_Products.insert(std::make_pair(l_Product.ProductID, l_Product));
-        } 
+        }
         while (l_Result->NextRow());
 
         l_Result = WorldDatabase.PQuery("SELECT ID, ProductID, ItemID, Quantity, DisplayID, PetResult FROM battlepay_product_item");
@@ -138,8 +148,10 @@ namespace Battlepay
                 continue;
 
             m_Products[l_ProductID].Items.push_back(l_ProductItem);
-        } 
+        }
         while (l_Result->NextRow());
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Battlepay products in %u ms", (unsigned long)m_Products.size(), GetMSTimeDiffToNow(l_OldMSTime));
     }
 
     void Manager::LoadShopEntires()
@@ -149,6 +161,9 @@ namespace Battlepay
         QueryResult l_Result = WorldDatabase.PQuery("SELECT EntryID, GroupID, ProductID, Ordering, Flags, BannerType, DisplayInfoID FROM battlepay_shop_entry");
         if (!l_Result)
             return;
+
+        uint32 l_Counter = 0;
+        uint32 l_OldMSTime = getMSTime();
 
         do
         {
@@ -164,8 +179,11 @@ namespace Battlepay
             l_ShopEntry.DisplayInfoID = l_Fields[6].GetUInt32();
 
             m_ShopEntries.push_back(l_ShopEntry);
-        } 
+            ++l_Counter;
+        }
         while (l_Result->NextRow());
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Battlepay shop entries in %u ms", (unsigned long)m_ProductGroupLocales.size(), GetMSTimeDiffToNow(l_OldMSTime));
     }
 
     void Manager::LoadProductGroupLocales()
@@ -190,7 +208,7 @@ namespace Battlepay
         }
         while (l_Result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu battlepay_product_group locale strings in %u ms", (unsigned long)m_ProductGroupLocales.size(), GetMSTimeDiffToNow(l_OldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Battlepay product group locales strings in %u ms", (unsigned long)m_ProductGroupLocales.size(), GetMSTimeDiffToNow(l_OldMSTime));
     }
 
     void Manager::LoadDisplayInfoLocales()
@@ -222,7 +240,7 @@ namespace Battlepay
         }
         while (l_Result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu battlepay_product_group locale strings in %u ms", (unsigned long)m_ProductGroupLocales.size(), GetMSTimeDiffToNow(l_OldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Battlepay display info locales strings in %u ms", (unsigned long)m_ProductGroupLocales.size(), GetMSTimeDiffToNow(l_OldMSTime));
     }
 
     /// @TODO
@@ -235,7 +253,7 @@ namespace Battlepay
 
     bool Manager::IsAvailable(WorldSession* p_Session) const
     {
-        return sWorld->getBoolConfig(CONFIG_BATTLEPAY_ENABLE) && (int)p_Session->GetSecurity() >= sWorld->getIntConfig(CONFIG_BATTLEPAY_MIN_SECURITY);
+        return sWorld->getBoolConfig(CONFIG_BATTLEPAY_ENABLE) && (int)p_Session->GetSecurity() >= (int)sWorld->getIntConfig(CONFIG_BATTLEPAY_MIN_SECURITY);
     }
 
     void Manager::SavePurchase(WorldSession* p_Session, Battlepay::Purchase* p_Purchase)

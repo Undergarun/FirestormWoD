@@ -207,7 +207,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
         }
 
         if (sAuctionMgr->GetAItem(l_Item->GetGUIDLow()) || !l_Item->CanBeTraded() || l_Item->IsNotEmptyBag() ||
-            l_Item->GetTemplate()->Flags & ITEM_PROTO_FLAG_CONJURED || l_Item->GetUInt32Value(ITEM_FIELD_EXPIRATION) ||
+            l_Item->GetTemplate()->Flags & ITEM_FLAG_CONJURED || l_Item->GetUInt32Value(ITEM_FIELD_EXPIRATION) ||
             l_Item->GetCount() < l_CountOfItems[l_Iter])
         {
             SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
@@ -401,20 +401,41 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& p_RecvData)
     AuctionEntry* l_Auction = l_AuctionHouse->GetAuction(l_AuctionID);
     Player* l_Player = GetPlayer();
 
-    if (!l_Auction || l_Auction->owner == l_Player->GetGUIDLow())
+    if (!l_Auction)
+    {
+        SendAuctionCommandResult(nullptr, AUCTION_PLACE_BID, ERR_AUCTION_DATABASE_ERROR);
         return;
+    }
+
+    if (l_Auction->owner == l_Player->GetGUIDLow())
+    {
+        SendAuctionCommandResult(nullptr, AUCTION_PLACE_BID, ERR_AUCTION_BID_OWN);
+        return;
+    }
 
     // Cheating
     if (l_Price <= l_Auction->bid || l_Price < l_Auction->startbid)
+    {
+        SendAuctionCommandResult(nullptr, AUCTION_PLACE_BID, ERR_AUCTION_HIGHER_BID);
         return;
+    }
 
     // Price too low for next bid if not buyout
     if ((l_Price < l_Auction->buyout || l_Auction->buyout == 0) &&
         l_Price < l_Auction->bid + l_Auction->GetAuctionOutBid())
+    {
+        SendAuctionCommandResult(nullptr, AUCTION_PLACE_BID, ERR_AUCTION_HIGHER_BID);
         return;
+    }
 
     if (!l_Player->HasEnoughMoney(l_Price))
+    {
+        SendAuctionCommandResult(nullptr, AUCTION_PLACE_BID, ERR_AUCTION_NOT_ENOUGHT_MONEY);
         return;
+    }
+
+    if (l_Price > MAX_MONEY_AMOUNT)
+        l_Price = MAX_MONEY_AMOUNT;
 
     SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
@@ -434,14 +455,14 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& p_RecvData)
         else
             l_Player->ModifyMoney(-int64(l_Price));
 
-        SendAuctionCommandResult(NULL, AUCTION_PLACE_BID, ERR_AUCTION_OK);
+        SendAuctionCommandResult(nullptr, AUCTION_PLACE_BID, ERR_AUCTION_OK);
         l_Auction->bidder = l_Player->GetGUIDLow();
         l_Auction->bid = l_Price;
         GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, l_Price);
 
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
         l_Statement->setUInt32(0, l_Auction->bidder);
-        l_Statement->setUInt32(1, l_Auction->bid);
+        l_Statement->setUInt64(1, l_Auction->bid);
         l_Statement->setUInt32(2, l_Auction->Id);
         l_Transaction->Append(l_Statement);
     }
@@ -457,7 +478,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& p_RecvData)
                 sAuctionMgr->SendAuctionOutbiddedMail(l_Auction, l_Auction->buyout, GetPlayer(), l_Transaction);
         }
 
-        SendAuctionCommandResult(NULL, AUCTION_PLACE_BID, ERR_AUCTION_OK);
+        SendAuctionCommandResult(nullptr, AUCTION_PLACE_BID, ERR_AUCTION_OK);
         l_Auction->bidder = l_Player->GetGUIDLow();
         l_Auction->bid = l_Auction->buyout;
         GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, l_Auction->buyout);

@@ -390,7 +390,7 @@ LootItem::LootItem(LootStoreItem const& p_LootItem, ItemContext p_Context, Loot*
     else
     {
         auto l_ItemTemplate = sObjectMgr->GetItemTemplate(itemid);
-        freeforall          = l_ItemTemplate && (l_ItemTemplate->Flags & ITEM_PROTO_FLAG_PARTY_LOOT);
+        freeforall          = l_ItemTemplate && (l_ItemTemplate->Flags & ITEM_FLAG_PARTY_LOOT);
         follow_loot_rules   = l_ItemTemplate && (l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
         needs_quest         = p_LootItem.needs_quest;
         randomSuffix        = GenerateEnchSuffixFactor(itemid);
@@ -428,14 +428,14 @@ bool LootItem::AllowedForPlayer(Player const* p_Player) const
             return false;
 
         // not show loot for players without profession or those who already know the recipe
-        if ((l_ItemTemplate->Flags & ITEM_PROTO_FLAG_SMART_LOOT) && (!p_Player->HasSkill(l_ItemTemplate->RequiredSkill) || p_Player->HasSpell(l_ItemTemplate->Spells[1].SpellId)))
+        if ((l_ItemTemplate->Flags & ITEM_FLAG_SMART_LOOT) && (!p_Player->HasSkill(l_ItemTemplate->RequiredSkill) || p_Player->HasSpell(l_ItemTemplate->Spells[1].SpellId)))
             return false;
 
         // not show loot for not own team
-        if ((l_ItemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && p_Player->GetTeam() != HORDE)
+        if ((l_ItemTemplate->Flags2 & ITEM_FLAG2_HORDE_ONLY) && p_Player->GetTeam() != HORDE)
             return false;
 
-        if ((l_ItemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && p_Player->GetTeam() != ALLIANCE)
+        if ((l_ItemTemplate->Flags2 & ITEM_FLAG2_ALLIANCE_ONLY) && p_Player->GetTeam() != ALLIANCE)
             return false;
 
         if (currentLoot)
@@ -514,7 +514,7 @@ void Loot::AddItem(LootStoreItem const & item)
         if (item.conditions.empty() && item.type == LOOT_ITEM_TYPE_ITEM)
         {
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.itemid);
-            if (!proto || (proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT) == 0)
+            if (!proto || (proto->Flags & ITEM_FLAG_PARTY_LOOT) == 0)
                 ++UnlootedCount;
         }
     }
@@ -2235,7 +2235,7 @@ void LoadLootTemplates_Item()
     // remove real entries and check existence loot
     ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
     for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
-        if (lootIdSet.find(itr->second.ItemId) != lootIdSet.end() && itr->second.Flags & ITEM_PROTO_FLAG_OPENABLE)
+        if (lootIdSet.find(itr->second.ItemId) != lootIdSet.end() && itr->second.Flags & ITEM_FLAG_OPENABLE)
             lootIdSet.erase(itr->second.ItemId);
 
     // output error for any still listed (not referenced from appropriate table) ids
@@ -2260,7 +2260,7 @@ void LoadLootTemplates_Milling()
     ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
     for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        if (!(itr->second.Flags & ITEM_PROTO_FLAG_MILLABLE))
+        if (!(itr->second.Flags & ITEM_FLAG_MILLABLE))
             continue;
 
         if (lootIdSet.find(itr->second.ItemId) != lootIdSet.end())
@@ -2323,7 +2323,7 @@ void LoadLootTemplates_Prospecting()
     ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
     for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        if (!(itr->second.Flags & ITEM_PROTO_FLAG_PROSPECTABLE))
+        if (!(itr->second.Flags & ITEM_FLAG_PROSPECTABLE))
             continue;
 
         if (lootIdSet.find(itr->second.ItemId) != lootIdSet.end())

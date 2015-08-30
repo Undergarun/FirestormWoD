@@ -2292,6 +2292,11 @@ class Player : public Unit, public GridObject<Player>
         void ResetSpec(bool p_NoCost = false);
         void ResetAllSpecs();
 
+        /*
+         * Ensure all talent spell are in talent map, otherwise unlearn them.
+         */
+        void CheckTalentSpells();
+
         // Dual Spec
         void UpdateSpecCount(uint8 count);
         void ActivateSpec(uint8 spec);
@@ -2360,6 +2365,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
         void _SaveChargesCooldowns(SQLTransaction& p_Transaction);
+        uint32 GetLastPotionId() { return m_lastPotionId; }
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
@@ -3190,6 +3196,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SendMovieStart(uint32 MovieId);
 
+        bool CanMountAsPassenger(Player* l_DriverPlayer) const;
+
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
@@ -3517,11 +3525,13 @@ class Player : public Unit, public GridObject<Player>
         void SendClearSpellCharges(uint32 p_CategoryID);
 
         void RestoreCharge(uint32 p_CategoryID);
+        void ReduceChargeCooldown(uint32 p_CategoryID, uint64 p_Reductiontime);
         uint32 CalcMaxCharges(SpellCategoryEntry const* p_Category) const;
-        bool CanUseCharge(uint32 p_CategoryID) const;
+        bool CanUseCharge(SpellCategoryEntry const* p_Category) const;
         void UpdateCharges(uint32 const p_Time);
-        void ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Category);
+        void ConsumeCharge(SpellCategoryEntry const* p_Category);
         ChargesData* GetChargesData(uint32 p_CategoryID);
+        int32 GetChargeRecoveryTime(SpellCategoryEntry const* p_Category) const;
         //////////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////////
@@ -3633,6 +3643,8 @@ class Player : public Unit, public GridObject<Player>
         void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
 
         uint32 GetBagsFreeSlots() const;
+        
+        ACE_Thread_Mutex m_DeleteLock;
 
     protected:
         void OnEnterPvPCombat();

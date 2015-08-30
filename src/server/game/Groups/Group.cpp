@@ -602,7 +602,7 @@ bool Group::AddMember(Player* p_Player)
     return true;
 }
 
-bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_REMOVEMETHOD_DEFAULT*/, uint64 p_Kicker /*= 0*/, const char * p_Reason /*= NULL*/)
+bool Group::RemoveMember(uint64 p_Guid, RemoveMethod const& p_Method /*= GROUP_REMOVEMETHOD_DEFAULT*/, uint64 p_Kicker /*= 0*/, char const* p_Reason /*= NULL*/)
 {
     BroadcastGroupUpdate();
 
@@ -756,9 +756,11 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
     /// If group size before player removal <= 2 then disband it
     else
     {
-        Disband();
+        /// Don't display "You have been removed from group" if player removes himself
+        Disband(p_Method == RemoveMethod::GROUP_REMOVEMETHOD_LEAVE);
         return false;
     }
+
     return true;
 }
 
@@ -1324,7 +1326,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
                 if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
                     r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
 
-                if (item->Flags2 & ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED)
+                if (item->Flags2 & ITEM_FLAG2_NEED_ROLL_DISABLED)
                     r->rollVoteMask &= ~ROLL_FLAG_TYPE_NEED;
 
                 loot->Items[itemSlot].is_blocked = true;

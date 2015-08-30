@@ -23,10 +23,11 @@ class battlepay_commandscript: public CommandScript
         {
             static ChatCommand g_BattlepayCommandTable[] =
             {
-                { "dumpwebshopcategory",    SEC_ADMINISTRATOR, false, &HandleDumpWebShopCategory,   "", nullptr },
+                { "dumpwebshopcategory",    SEC_ADMINISTRATOR, false, &HandleDumpWebShopCategory,     "", nullptr },
                 { "dumppack",               SEC_ADMINISTRATOR, false, &HandleDumpWebShopPackCategory, "", nullptr },
-                { "reload",                 SEC_ADMINISTRATOR, false, &HandleReloadBattlePay,       "", nullptr },
-                { nullptr,                  0,                 false, nullptr,                       "", nullptr }
+                { "reload",                 SEC_ADMINISTRATOR, false, &HandleReloadBattlePay,         "", nullptr },
+                { "dumpiteminfo",           SEC_ADMINISTRATOR, false, &HandleDumpItemInfo,            "", nullptr },
+                { nullptr,                  0,                 false, nullptr,                        "", nullptr }
             };
 
             static ChatCommand g_CommandTable[] =
@@ -190,8 +191,6 @@ class battlepay_commandscript: public CommandScript
 
                 uint32 l_CreatureDisplayInfoID = 0;
 
-
-
                 l_StrBuilder << "INSERT INTO `battlepay_shop_entry` (GroupID, ProductID, Ordering, Flags, BannerType, DisplayInfoID) VALUES (" << l_Group << ",@PRODUCTID, @ORDER, 0, 0, 0);" << std::endl;
                 l_StrBuilder << "INSERT INTO `battlepay_product` (ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID, ClassMask) VALUES (" << "@PRODUCTID" << "," << l_Price << "," << l_FakePrice << ",0,2,47," << "@DISPLAYINFOID," << l_ClassMask <<  ");" << std::endl;
                 l_StrBuilder << "INSERT INTO `battlepay_display_info` (DisplayInfoId, CreatureDisplayInfoID, FileDataID, Name1, Name2, Name3, Flags) VALUES (" << "@DISPLAYINFOID" << "," << l_CreatureDisplayInfoID << "," << l_FileDataID << ",\"" << l_Name << "\", '',\"" << "" << "\", 0);" << std::endl;
@@ -235,6 +234,59 @@ class battlepay_commandscript: public CommandScript
         static bool HandleReloadBattlePay(ChatHandler* p_ChatHandler, char const* p_Args)
         {
             sBattlepayMgr->LoadFromDatabase();
+            return true;
+        }
+
+        static bool HandleDumpItemInfo(ChatHandler* p_ChatHandler, char const* p_Args)
+        {
+            FILE* l_Output = fopen("./iteminfo.sql", "w+");
+            if (!l_Output)
+                return false;
+
+            std::ostringstream l_StrBuilder;
+
+            for (uint32 l_ItemID = 0; l_ItemID < sItemStore.GetNumRows(); l_ItemID++)
+            {
+                auto l_Item = sObjectMgr->GetItemTemplate(l_ItemID);
+                if (l_Item == nullptr)
+                    continue;
+
+                uint32 l_FileDataID = 0;
+                if (g_ItemFileDataId.find(l_ItemID) != g_ItemFileDataId.end())
+                    l_FileDataID = g_ItemFileDataId[l_ItemID];
+
+                if (l_FileDataID == 0)
+                {
+                    ItemEntry const* l_ItemEntry = sItemStore.LookupEntry(l_ItemID);
+                    if (l_ItemEntry != nullptr)
+                        l_FileDataID = l_ItemEntry->DisplayId;
+                }
+
+                auto l_FileDataEntry = sFileDataStore.LookupEntry(l_FileDataID);
+                if (l_FileDataEntry == nullptr)
+                    continue;
+
+                std::string l_IconBuffer = l_FileDataEntry->FileName;
+                std::transform(l_IconBuffer.begin(), l_IconBuffer.end(), l_IconBuffer.begin(), ::tolower);
+
+                std::string l_Icon = "";
+                for (uint32 l_Index = 0; l_Index < l_IconBuffer.size(); l_Index++)
+                {
+                    if (l_IconBuffer[l_Index] == '.')
+                        break;
+
+                    l_Icon += l_IconBuffer[l_Index];
+                }
+
+                l_StrBuilder << "INSERT INTO item_webapi (Entry, Display, Quality, InventoryType, ItemLevel, AllowableClass, AllowableRace, Class, SubClass, Icon) VALUES (";
+                l_StrBuilder << l_Item->ItemId << "," << l_Item->DisplayInfoID << "," << l_Item->Quality << "," << l_Item->InventoryType << "," << l_Item->ItemLevel << "," << l_Item->AllowableClass << "," << l_Item->AllowableRace << "," << l_Item->Class << "," << l_Item->SubClass << ",'" << l_Icon << "'";
+                l_StrBuilder << ");" << std::endl;
+            }
+
+            fwrite(l_StrBuilder.str().c_str(), l_StrBuilder.str().length(), 1, l_Output);
+            fflush(l_Output);
+            fclose(l_Output);
+
             return true;
         }
 };

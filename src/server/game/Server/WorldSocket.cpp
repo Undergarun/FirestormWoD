@@ -925,19 +925,18 @@ void WorldSocket::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_Q
 
     if (p_AuthResult == AUTH_OK)
     {
-        l_Data << uint32(0);
-        l_Data << uint32(0);
-        l_Data << uint32(0);
-        l_Data << uint32(0);
-        l_Data << uint32(0);
-        l_Data << uint8(Expansion());
-        l_Data << uint8(Expansion());
-        l_Data << uint32(0);
-        l_Data << uint32(l_RealmClassCount);
-        l_Data << uint32(l_RealmRaceCount);
-        l_Data << uint32(0);
-        l_Data << uint32(0);
-
+        l_Data << uint32(0);                    ///< VirtualRealmAddress
+        l_Data << uint32(0);                    ///< VirtualRealms
+        l_Data << uint32(0);                    ///< TimeRemain
+        l_Data << uint32(0);                    ///< TimeOptions
+        l_Data << uint32(0);                    ///< TimeRested
+        l_Data << uint8(Expansion());           ///< ActiveExpansionLevel
+        l_Data << uint8(Expansion());           ///< AccountExpansionLevel
+        l_Data << uint32(0);                    ///< TimeSecondsUntilPCKick
+        l_Data << uint32(l_RealmClassCount);    ///< AvailableRaces
+        l_Data << uint32(l_RealmRaceCount);     ///< AvailableClasses
+        l_Data << uint32(0);                    ///< Templates
+        l_Data << uint32(0);                    ///< CurrencyID
 
         for (uint32 l_I = 0; l_I < l_RealmRaceCount; l_I++)
         {
@@ -1057,11 +1056,11 @@ void WorldSocket::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_Q
             }
         }
 
-        l_Data.WriteBit(0);
-        l_Data.WriteBit(0);
-        l_Data.WriteBit(0);
-        l_Data.WriteBit(0);
-        l_Data.WriteBit(0);
+        l_Data.WriteBit(0);                     ///< IsExpansionTrial
+        l_Data.WriteBit(0);                     ///< ForceCharacterTemplate
+        l_Data.WriteBit(0);                     ///< NumPlayersHorde
+        l_Data.WriteBit(0);                     ///< NumPlayersAlliance
+        l_Data.WriteBit(0);                     ///< IsVeteranTrial
         l_Data.FlushBits();
     }
 

@@ -790,6 +790,8 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
         z += player->GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
 
     player->Relocate(x, y, z, orientation);
+    player->m_movementInfo.pos.Relocate(x, y, z, orientation);
+
     if (player->IsVehicle())
         player->GetVehicleKit()->RelocatePassengers();
 

@@ -237,7 +237,7 @@ void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
     l_Data.appendPackGUID(p_NpcGUID);
 
     l_Data << uint32(l_Unit->GetCreatureTemplate()->trainer_type);
-    l_Data << uint32(1); // different value for each trainer, also found in CMSG_TRAINER_BUY_SPELL
+    l_Data << uint32(1); // different value for each trainer, also found in CMSG_TRAINER_BUY_SPELL ///< TrainerID
     l_Data << uint32(l_TrainerSpellCount);
 
     l_Data.append(l_TrainerList);

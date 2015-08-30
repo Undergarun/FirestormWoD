@@ -72,7 +72,7 @@ namespace MS
 
                     /// Create automatic remove events.
                     BGQueueRemoveEvent* l_RemoveEvent = new BGQueueRemoveEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, l_BgQueueTypeId, p_GroupInfo->m_RemoveInviteTime);
-                    m_Events.AddEvent(l_RemoveEvent, m_Events.CalculateTime(INVITE_ACCEPT_WAIT_TIME));
+                    l_Player->m_Events.AddEvent(l_RemoveEvent, m_Events.CalculateTime(INVITE_ACCEPT_WAIT_TIME));
 
                     uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(p_GroupInfo->m_BgTypeId == BattlegroundType::RandomBattleground ? BattlegroundType::RandomBattleground : p_GroupInfo->m_BgTypeId);
 
@@ -106,6 +106,9 @@ namespace MS
                 if (p_GroupInfo->m_IsRatedBG)
                     l_TeamIndex = BG_TEAM_HORDE; /// For rated arenas use BG_TEAM_HORDE.
             }
+
+            if (l_TeamIndex >= TeamsCount::Value || p_BracketId >= Brackets::Count)
+                sLog->outAshran("BattlegroundInvitationsMgr: TeamIndex: %u, BracketId: %u", l_TeamIndex, p_BracketId);
 
             /// Store pointer to arrayindex of player that was added first.
             uint32* l_LastPlayerAddedPointer = &(m_WaitTimeLastPlayer[l_TeamIndex][p_BracketId]);

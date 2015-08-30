@@ -623,6 +623,7 @@ class AchievementMgr
         uint32 GetAchievementPoints() const { return _achievementPoints; }
 
         CompletedAchievementMap const& GetCompletedAchivements() const { return m_completedAchievements; }
+        ACE_Thread_Mutex& GetCompletedAchievementLock() { return m_CompletedAchievementsLock; }
 
     private:
         enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
@@ -648,7 +649,8 @@ class AchievementMgr
         T* _owner;
         CriteriaProgressMap m_criteriaProgress;
         CompletedAchievementMap m_completedAchievements;
-        typedef std::map<uint32, uint32> TimedAchievementMap;
+        mutable ACE_Thread_Mutex m_CompletedAchievementsLock;
+        typedef ACE_Based::LockedMap<uint32, uint32> TimedAchievementMap;
         TimedAchievementMap m_timedAchievements;      // Criteria id/time left in MS
         uint32 _achievementPoints;
         bool m_NeedDBSync;
@@ -660,6 +662,12 @@ struct AchievementCriteriaUpdateTask
     uint64 UnitGUID;
     std::function<void(uint64, uint64)> Task;
 };
+
+using LockedAchievementCriteriaTaskQueue   = ACE_Based::LockedQueue<AchievementCriteriaUpdateTask, ACE_Thread_Mutex>;
+using LockedPlayersAchievementCriteriaTask = ACE_Based::LockedMap<uint32, LockedAchievementCriteriaTaskQueue>;
+
+using AchievementCriteriaTaskQueue   = std::queue<AchievementCriteriaUpdateTask>;
+using PlayersAchievementCriteriaTask = std::map<uint32, AchievementCriteriaTaskQueue>;
 
 class AchievementGlobalMgr
 {
@@ -784,11 +792,20 @@ class AchievementGlobalMgr
         CriteriaEntry const* GetAchievementCriteria(uint32 achievementId) const;
 
         void PrepareCriteriaUpdateTaskThread();
-        void ProcessAllCriteriaUpdateTask();
 
         void AddCriteriaUpdateTask(AchievementCriteriaUpdateTask const& p_Task)
         {
-            m_AchievementCriteriaUpdateTaskStoreQueue.add(p_Task);
+            m_LockedPlayersAchievementCriteriaTask[p_Task.PlayerGUID].add(p_Task);
+        }
+
+        PlayersAchievementCriteriaTask const& GetPlayersCriteriaTask() const
+        {
+            return m_PlayersAchievementCriteriaTask;
+        }
+
+        void ClearPlayersCriteriaTask()
+        {
+            m_PlayersAchievementCriteriaTask.clear();
         }
 
     private:
@@ -805,7 +822,7 @@ class AchievementGlobalMgr
         AchievementCriteriaTreeByCriteriaId m_AchievementCriteriaTreeByCriteriaId;
         AchievementEntryByCriteriaTree m_AchievementEntryByCriteriaTree;
         ModifierTreeEntryByTreeId m_ModifierTreeEntryByTreeId;
-        typedef std::map<uint32 /*achievementId*/, uint32 /*instanceId*/> AllCompletedAchievements;
+        typedef ACE_Based::LockedMap<uint32 /*achievementId*/, uint32 /*instanceId*/> AllCompletedAchievements;
         AllCompletedAchievements m_allCompletedAchievements;
         SubCriteriaTreeListById m_SubCriteriaTreeListById;
 
@@ -814,8 +831,8 @@ class AchievementGlobalMgr
         AchievementRewards m_achievementRewards;
         AchievementRewardLocales m_achievementRewardLocales;
 
-        ACE_Based::LockedQueue<AchievementCriteriaUpdateTask, ACE_Thread_Mutex> m_AchievementCriteriaUpdateTaskStoreQueue;   ///< All criteria update task are first storing here
-        std::queue<AchievementCriteriaUpdateTask> m_AchievementCriteriaUpdateTaskProcessQueue;                               ///< Before thread process, all task stored will be move here
+        LockedPlayersAchievementCriteriaTask m_LockedPlayersAchievementCriteriaTask;  ///< All criteria update task are first storing here
+        PlayersAchievementCriteriaTask       m_PlayersAchievementCriteriaTask;        ///< Before thread process, all task stored will be move here
 };
 
 #define sAchievementMgr ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance()
@@ -824,8 +841,11 @@ class MapUpdater;
 class AchievementCriteriaUpdateRequest : public MapUpdaterTask
 {
     public:
-        AchievementCriteriaUpdateRequest(MapUpdater* p_Updater);
+        AchievementCriteriaUpdateRequest(MapUpdater* p_Updater, AchievementCriteriaTaskQueue p_TaskQueue);
         virtual void call() override;
+
+    private:
+        AchievementCriteriaTaskQueue m_CriteriaUpdateTasks;
 
 };
 

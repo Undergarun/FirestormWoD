@@ -572,7 +572,7 @@ void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntr
     WorldPacket l_Data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + l_ItemCount * (4 + 4 + 4));
     l_Data << uint32(rdungeonEntry);                            ///< Queue Slot
     l_Data << uint32(sdungeonEntry);                            ///< Actual Slot
-    l_Data << uint32(p_Quest->GetRewMoney());              ///< Reward money
+    l_Data << uint32(p_Quest->GetRewMoney());                   ///< Reward money
     l_Data << uint32(p_Quest->XPValue(GetPlayer()));            ///< Added XP
     l_Data << uint32(l_ItemCount);                              ///< Reward count
 

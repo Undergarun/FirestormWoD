@@ -437,7 +437,7 @@ enum SpellCategoryFlags
 {
     SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // Unused
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
-    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT        = 0x08
+    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
 };
 
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
@@ -615,7 +615,7 @@ enum SpellAttr4
     SPELL_ATTR4_SPELL_VS_EXTEND_COST             = 0x00000400, // 10 Rogue Shiv have this flag
     SPELL_ATTR4_UNK11                            = 0x00000800, // 11
     SPELL_ATTR4_UNK12                            = 0x00001000, // 12
-    SPELL_ATTR4_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR4_COMBAT_LOG_NO_CASTER             = 0x00002000, // 13 No caster object is sent to client combat log
     SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS        = 0x00004000, // 14 doesn't break auras by damage from these spells
     SPELL_ATTR4_UNK15                            = 0x00008000, // 15
     SPELL_ATTR4_NOT_USABLE_IN_ARENA_OR_RATED_BG  = 0x00010000, // 16 Cannot be used in both Arenas or Rated Battlegrounds
@@ -726,7 +726,7 @@ enum SpellAttr7
     SPELL_ATTR7_UNK13                            = 0x00002000, // 13 Not set in 3.2.2a.
     SPELL_ATTR7_UNK14                            = 0x00004000, // 14 Only 52150 (Raise Dead - Pet) spell.
     SPELL_ATTR7_UNK15                            = 0x00008000, // 15 Exorcism. Usable on players? 100% crit chance on undead and demons?
-    SPELL_ATTR7_UNK16                            = 0x00010000, // 16 Druid spells (29166, 54833, 64372, 68285).
+    SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER      = 0x00010000, // 16 These spells can replenish a powertype, which is not the current powertype.
     SPELL_ATTR7_UNK17                            = 0x00020000, // 17 Only 27965 (Suicide) spell.
     SPELL_ATTR7_HAS_CHARGE_EFFECT                = 0x00040000, // 18 Only spells that have Charge among effects.
     SPELL_ATTR7_ZONE_TELEPORT                    = 0x00080000, // 19 Teleports to specific zones.
@@ -798,7 +798,7 @@ enum SpellAttr9
     SPELL_ATTR9_SLAM                             = 0x00002000, // 13 Slam 1464, used in cast time calculation
     SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS    = 0x00004000, // 14 Can be used in Rated Battlegrounds
     SPELL_ATTR9_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS      = 0x00010000, // 16 Aimed Shot 19434, Steady Shot 56641, Cobra Shot 77767
+    SPELL_ATTR9_CAN_BE_CAST_WHILE_MOVING         = 0x00010000, // 16 Aimed Shot 19434, Steady Shot 56641, Cobra Shot 77767
     SPELL_ATTR9_UNK17                            = 0x00020000, // 17
     SPELL_ATTR9_UNK18                            = 0x00040000, // 18
     SPELL_ATTR9_UNK19                            = 0x00080000, // 19
@@ -810,7 +810,7 @@ enum SpellAttr9
     SPELL_ATTR9_UNK25                            = 0x02000000, // 25
     SPELL_ATTR9_UNK26                            = 0x04000000, // 26 Item - Mage T12 4P Bonus 99064
     SPELL_ATTR9_UNK27                            = 0x08000000, // 27 20707 Soulstone Resurrection, Quest Invis 9 102370
-    SPELL_ATTR9_UNK28                            = 0x10000000, // 28 Decimate, Unholy Frenzy, Spirit Link: all aoe reduce health
+    SPELL_ATTR9_UNK28                            = 0x10000000, // 28 Decimate, Spirit Link: all aoe reduce health
     SPELL_ATTR9_UNK29                            = 0x20000000, // 29 passive raid-wide auras
     SPELL_ATTR9_UNK30                            = 0x40000000, // 30
     SPELL_ATTR9_UNK31                            = 0x80000000  // 31 In Chains 88791
@@ -2188,17 +2188,17 @@ enum SpellMissInfo
     SPELL_MISS_MISFIRED                = 12 // Added in 4.3.4, we don't know when we must use it instead of SPELL_MISS_MISS
 };
 
-/// @TODO CGLCD::DisplayRangedStats (internal client)
+/// CGLCD::DisplayRangedStats (internal client)
 enum SpellHitType
 {
-    SPELL_HIT_TYPE_UNK1                = 0x00001,
+    SPELL_HIT_TYPE_CRIT_DEBUG          = 0x00001,
     SPELL_HIT_TYPE_CRIT                = 0x00002,
-    SPELL_HIT_TYPE_UNK3                = 0x00004,
-    SPELL_HIT_TYPE_UNK4                = 0x00008,
-    SPELL_HIT_TYPE_UNK5                = 0x00010,   // replace caster?
-    SPELL_HIT_TYPE_UNK6                = 0x00020,
-    SPELL_HIT_TYPE_UNK7                = 0x00040,
-    SPELL_HIT_TYPE_UNK8                = 0x00080,
+    SPELL_HIT_TYPE_HIT_DEBUG           = 0x00004,
+    SPELL_HIT_TYPE_SPLIT               = 0x00008,
+    SPELL_HIT_TYPE_VICTIM_IS_ATTACKER  = 0x00010,
+    SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG  = 0x00020,
+    SPELL_HIT_TYPE_UNK                 = 0x00040,
+    SPELL_HIT_TYPE_NO_ATTACKER         = 0x00080,
     SPELL_HIT_TYPE_MULTISTRIKE         = 0x00100,
 };
 

@@ -3890,12 +3890,24 @@ class spell_gen_selfie_camera : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                GetCaster()->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    l_Caster->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                }
             }
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                GetCaster()->ToPlayer()->CancelSpellVisualKit(54168);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    l_Caster->ToPlayer()->CancelSpellVisualKit(54168);
+                }
             }
 
             void Register()
@@ -4224,8 +4236,193 @@ class spell_gen_raid_buff_stack : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Sword Technique - 177189
+class spell_gen_sword_technique: public SpellScriptLoader
+{
+    public:
+        spell_gen_sword_technique() : SpellScriptLoader("spell_gen_sword_technique") { }
+
+        class spell_gen_sword_technique_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_sword_technique_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if ((l_Player->GetMap() && l_Player->GetMap()->IsBattlegroundOrArena()) || l_Player->IsInPvPCombat())
+                    p_Amount -= CalculatePct(p_Amount, 40);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_sword_technique_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_sword_technique_AuraScript();
+        }
+};
+
+/// Faction check for spells (seems to cause problems when applied to every spells)
+class spell_gen_check_faction : public SpellScriptLoader
+{
+    public:
+        spell_gen_check_faction() : SpellScriptLoader("spell_gen_check_faction") {}
+
+        class spell_gen_check_faction_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_check_faction_SpellScript);
+
+            SpellCastResult CheckFaction()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    uint32 l_RaceMask = l_Caster->getRaceMask();
+                    uint32 l_AttributeEx7 = GetSpellInfo()->AttributesEx7;
+
+                    if ((l_AttributeEx7 & SpellAttr7::SPELL_ATTR7_ALLIANCE_ONLY && ((l_RaceMask & RACEMASK_ALLIANCE) == 0)) ||
+                        (l_AttributeEx7 & SpellAttr7::SPELL_ATTR7_HORDE_ONLY && ((l_RaceMask & RACEMASK_HORDE) == 0)))
+                        return SpellCastResult::SPELL_FAILED_SPELL_UNAVAILABLE;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_check_faction_SpellScript::CheckFaction);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_check_faction_SpellScript();
+        }
+};
+
+/// Stoneform - 20594
+class spell_gen_stoneform_dwarf_racial : public SpellScriptLoader
+{
+    public:
+        spell_gen_stoneform_dwarf_racial() : SpellScriptLoader("spell_gen_stoneform_dwarf_racial") {}
+
+        class spell_gen_stoneform_dwarf_racial_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_stoneform_dwarf_racial_SpellScript);
+
+            enum eSpell
+            {
+                PvPTrinket = 42292
+            };
+
+            void HandleAfterCast()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    /// Patch note 6.1 : "Stoneform when used, now triggers a 30-second shared cooldown with other PvP trinkets that breaks crowd-control effects."
+                    l_Player->AddSpellCooldown(eSpell::PvPTrinket, 0, 30 * TimeConstants::IN_MILLISECONDS);
+
+                    if (Item* l_FirstTrinket = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_TRINKET1))
+                    {
+                        for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
+                        {
+                            _Spell const& l_SpellData = l_FirstTrinket->GetTemplate()->Spells[l_I];
+
+                            /// No spell or not which one we search
+                            if (!l_SpellData.SpellId || l_SpellData.SpellId != eSpell::PvPTrinket)
+                                continue;
+
+                            l_Player->ApplyEquipCooldown(l_FirstTrinket);
+                            break;
+                        }
+                    }
+
+                    if (Item* l_SecondTrinket = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_TRINKET2))
+                    {
+                        for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
+                        {
+                            _Spell const& l_SpellData = l_SecondTrinket->GetTemplate()->Spells[l_I];
+
+                            /// No spell or not which one we search
+                            if (!l_SpellData.SpellId || l_SpellData.SpellId != eSpell::PvPTrinket)
+                                continue;
+
+                            l_Player->ApplyEquipCooldown(l_SecondTrinket);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_gen_stoneform_dwarf_racial_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_stoneform_dwarf_racial_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Touch of the Grave - 5227
+class spell_dru_touch_of_the_grave : public SpellScriptLoader
+{
+    public:
+        spell_dru_touch_of_the_grave() : SpellScriptLoader("spell_dru_touch_of_the_grave") { }
+
+        class spell_dru_touch_of_the_grave_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_touch_of_the_grave_AuraScript);
+
+            enum eSpells
+            {
+                TouchoftheGraveEffect = 127802
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
+                Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
+                if (l_Attacker == nullptr || l_Victim == nullptr)
+                    return;
+
+                if (l_Attacker->GetGUID() == l_Victim->GetGUID())
+                    return;
+
+                if (Unit* l_Owner = GetUnitOwner())
+                    l_Owner->CastSpell(l_Victim, eSpells::TouchoftheGraveEffect, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_touch_of_the_grave_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_touch_of_the_grave_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_dru_touch_of_the_grave();
     new spell_gen_drums_of_fury();
     new spell_gen_absorb0_hitlimit1();
     new spell_gen_aura_of_anger();
@@ -4305,6 +4502,9 @@ void AddSC_generic_spell_scripts()
     new spell_inherit_master_threat_list();
     new spell_taunt_flag_targeting();
     new spell_gen_raid_buff_stack();
+    new spell_gen_sword_technique();
+    new spell_gen_check_faction();
+    new spell_gen_stoneform_dwarf_racial();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

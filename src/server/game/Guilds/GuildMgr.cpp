@@ -472,7 +472,7 @@ void GuildMgr::LoadGuilds()
 
                 if (!l_GuildFound)
                 {
-                    for (uint8 l_Itr = 1; l_Itr < CHALLENGE_MAX; ++l_Itr)
+                    for (uint8 l_Itr = 1; l_Itr < ChallengeMax; ++l_Itr)
                     {
                         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INIT_GUILD_CHALLENGES);
                         l_Statement->setInt32(0, l_GuildId);
