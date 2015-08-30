@@ -3644,8 +3644,6 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 GetBagsFreeSlots() const;
         
-        ACE_Thread_Mutex m_DeleteLock;
-
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
