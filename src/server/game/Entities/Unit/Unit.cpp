@@ -9260,21 +9260,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                         target = this;
                         break;
                     }
-                    case 30881: // Nature's Guardian Rank 1
-                    case 30883: // Nature's Guardian Rank 2
-                    case 30884: // Nature's Guardian Rank 3
-                    {
-                        if (HealthBelowPctDamaged(30, damage))
-                        {
-                            target = this;
-                            trigger_spell_id = 31616;
-                            if (victim && victim->isAlive())
-                                victim->getThreatManager().modifyThreatPercent(this, -10);
-                        }
-                        else
-                            return false;
-                        break;
-                    }
                 }
                 break;
             }
