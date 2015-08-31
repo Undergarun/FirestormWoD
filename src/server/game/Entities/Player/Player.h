@@ -3644,6 +3644,10 @@ class Player : public Unit, public GridObject<Player>
         void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
 
         uint32 GetBagsFreeSlots() const;
+
+        bool IsSummoned() const { return m_Summoned; }
+        void FinishSummon() { m_Summoned = false; }
+        void BeginSummon() { m_Summoned = true; }
         
     protected:
         void OnEnterPvPCombat();
@@ -3939,6 +3943,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_lastpetnumber;
 
         // Player summoning
+        bool   m_Summoned;
         time_t m_summon_expire;
         uint32 m_summon_mapid;
         float  m_summon_x;
