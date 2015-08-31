@@ -20490,53 +20490,45 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         }
         case FORM_MOONKIN:
         {
-            bool chosenOfElune = HasAura(102560);
-            if (Player::TeamForRace(getRace()) == HORDE)
+            /// Glyph of Stars
+            if (HasAura(114301))
             {
-                // Glyph of Stars
-                if (HasAura(114301))
-                {
-                    CastSpell(this, 114302, true); // Astral Form
-                    return 0;
-                }
-                else if (getRace() == RACE_TROLL)
-                {
-                    if (chosenOfElune)
-                        return 43789;
-                    else
-                        return 37174;
-                }
-                else if (getRace() == RACE_TAUREN)
-                {
-                    if (chosenOfElune)
-                        return 43786;
-                    else
-                        return 15375;
-                }
+                CastSpell(this, 114302, true); ///< Astral Form
+                return 0;
             }
-            else if (Player::TeamForRace(getRace()) == ALLIANCE)
+
+            bool l_ChosenOfElune = HasAura(102560);
+
+            switch (getRace())
             {
-                // Glyph of Stars
-                if (HasAura(114301))
+                case RACE_NIGHTELF:
                 {
-                    CastSpell(this, 114302, true); // Astral Form
-                    return 0;
-                }
-                if (getRace() == RACE_NIGHTELF)
-                {
-                    if (chosenOfElune)
+                    if (l_ChosenOfElune)
                         return 43790;
-                    else
-                        return 15374;
+                    return 15374;
                 }
-                else if (getRace() == RACE_WORGEN)
+                case RACE_TAUREN:
                 {
-                    if (chosenOfElune)
-                        return 43787;
-                    else
-                        return 37173;
+                    if (l_ChosenOfElune)
+                        return 43786;
+                    return 15375;
                 }
+                case RACE_WORGEN:
+                {
+                    if (l_ChosenOfElune)
+                        return 43787;
+                    return 37173;
+                }
+                case RACE_TROLL:
+                {
+                    if (l_ChosenOfElune)
+                        return 43789;
+                    return 37174;
+                }
+                default:
+                    break;
             }
+            break;
         }
         case FORM_AQUA:
         {
