@@ -197,10 +197,9 @@ ACE_Message_Block* WorldSocket::WritePacketToBuffer(WorldPacket const& p_Packet)
     else
         ACE_NEW_RETURN(l_Buffer, ACE_Message_Block(l_TotalSize), nullptr);
 
-    ServerPktHeader l_Header;
     CompressedWorldPacket l_CompressedPacket;
+    ServerPktHeader* l_HeaderPointer = reinterpret_cast<ServerPktHeader*>(l_Buffer->wr_ptr());
 
-    char* l_HeaderPointer = l_Buffer->wr_ptr();
     l_Buffer->wr_ptr(l_SizeOfHeader);
 
     if (l_PacketSize > 0x400 && m_CompressionStream)
@@ -229,17 +228,16 @@ ACE_Message_Block* WorldSocket::WritePacketToBuffer(WorldPacket const& p_Packet)
 
     if (m_Crypt.IsInitialized())
     {
-        l_Header.Normal.m_Size = l_PacketSize;
-        l_Header.Normal.m_Command = l_Opcode;
-        m_Crypt.EncryptSend((uint8*)&l_Header, l_SizeOfHeader);
+        l_HeaderPointer->Normal.m_Size = l_PacketSize;
+        l_HeaderPointer->Normal.m_Command = l_Opcode;
+        m_Crypt.EncryptSend((uint8*)l_HeaderPointer, l_SizeOfHeader);
     }
     else
     {
-        l_Header.Setup.m_Size = l_PacketSize + 4;
-        l_Header.Setup.m_Command = l_Opcode;
+        l_HeaderPointer->Setup.m_Size = l_PacketSize + 4;
+        l_HeaderPointer->Setup.m_Command = l_Opcode;
     }
 
-    memcpy(l_HeaderPointer, &l_Header, l_SizeOfHeader);
     return l_Buffer;
 }
 
