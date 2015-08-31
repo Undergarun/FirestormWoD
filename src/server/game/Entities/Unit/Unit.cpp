@@ -20521,7 +20521,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     else
                         return 37174;
                 }
-                else if (getRace() == RACE_TAUREN)
+      git add               else if (getRace() == RACE_TAUREN)
                 {
                     if (chosenOfElune)
                         return 43786;
