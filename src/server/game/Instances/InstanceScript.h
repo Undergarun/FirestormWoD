@@ -234,6 +234,9 @@ class InstanceScript : public ZoneScript
         void DoStartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
         void DoStopTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
 
+        /// Remove movement forces on all players for the specified source
+        void DoRemoveForcedMovementsOnPlayers(uint64 p_Source);
+
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 
@@ -465,6 +468,14 @@ class InstanceScript : public ZoneScript
 
         void UpdatePhasing();
         void UpdateCreatureGroupSizeStats();
+
+        BossInfo* GetBossInfo(uint32 p_ID)
+        {
+            if (p_ID < m_Bosses.size())
+                return &m_Bosses[p_ID];
+
+            return nullptr;
+        }
 
     protected:
         void SetBossNumber(uint32 p_Number);
