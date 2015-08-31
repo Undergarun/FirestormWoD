@@ -2154,7 +2154,7 @@ class spell_monk_zen_sphere: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
                 if (l_Target->GetHealthPct() < (float)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
@@ -2237,7 +2237,10 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
                 if (AuraEffectPtr l_ZenSphereAura = l_FirstTarget->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
-                        SetHitHeal(GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
+                    {
+                        uint32 l_Heal = l_FirstTarget->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), DOT);
+                        SetHitHeal(l_Heal);
+                    }
                     else
                     {
                         l_Caster->CastSpell(l_Caster, eSpells::ZenSphereDetonateHeal, true);
@@ -4079,6 +4082,8 @@ class spell_monk_expel_harm: public SpellScriptLoader
                 SpellInfo const* l_GlyphTargetedExpulsion = sSpellMgr->GetSpellInfo(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION);
                 if (l_Player->HasAura(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION) && l_Target->GetGUID() != l_Player->GetGUID() && l_GlyphTargetedExpulsion != nullptr)
                     l_Heal = CalculatePct(l_Heal, l_GlyphTargetedExpulsion->Effects[EFFECT_1].BasePoints);
+
+                l_Heal = l_Target->SpellHealingBonusTaken(l_Player, GetSpellInfo(), l_Heal, HEAL);
 
                 SetHitHeal(l_Heal);
 

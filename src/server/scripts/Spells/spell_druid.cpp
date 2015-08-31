@@ -4660,52 +4660,53 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
 /// Lunar Inspiration - 155580
 class spell_dru_lunar_inspiration : public SpellScriptLoader
 {
-public:
-    spell_dru_lunar_inspiration() : SpellScriptLoader("spell_dru_lunar_inspiration") { }
+    public:
+        spell_dru_lunar_inspiration() : SpellScriptLoader("spell_dru_lunar_inspiration") { }
 
-    class spell_dru_lunar_inspiration_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_lunar_inspiration_AuraScript);
-
-        enum eSpells
+        class spell_dru_lunar_inspiration_AuraScript : public AuraScript
         {
-            LunarInspirationOverride = 155627
+            PrepareAuraScript(spell_dru_lunar_inspiration_AuraScript);
+
+            enum eSpells
+            {
+                LunarInspirationOverride = 155627
+            };
+
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->AddAura(eSpells::LunarInspirationOverride, l_Caster);
+            }
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveAura(eSpells::LunarInspirationOverride);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_lunar_inspiration_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_lunar_inspiration_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
         };
 
-        void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+        AuraScript* GetAuraScript() const
         {
-            Unit* l_Caster = GetCaster();
-
-            if (l_Caster == nullptr)
-                return;
-
-            l_Caster->AddAura(eSpells::LunarInspirationOverride, l_Caster);
+            return new spell_dru_lunar_inspiration_AuraScript();
         }
-
-        void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* l_Caster = GetCaster();
-
-            if (l_Caster == nullptr)
-                return;
-
-            l_Caster->RemoveAura(eSpells::LunarInspirationOverride);
-        }
-
-        void Register()
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_dru_lunar_inspiration_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            OnEffectRemove += AuraEffectRemoveFn(spell_dru_lunar_inspiration_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_lunar_inspiration_AuraScript();
-    }
 };
 
 /// 16914 - Hurricane

@@ -1431,6 +1431,20 @@ class spell_warr_intervene: public SpellScriptLoader
                 InterveneCharge = 147833
             };
 
+            SpellCastResult CheckCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (!l_Player || !l_Target)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->GetDistance(l_Target) >= 25.0f)
+                    return SPELL_FAILED_OUT_OF_RANGE;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -1445,6 +1459,7 @@ class spell_warr_intervene: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warr_intervene_SpellScript::CheckCast);
                 OnCast += SpellCastFn(spell_warr_intervene_SpellScript::HandleOnCast);
             }
         };

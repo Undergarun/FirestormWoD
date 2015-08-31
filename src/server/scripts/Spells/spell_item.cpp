@@ -2570,6 +2570,47 @@ class spell_item_ancient_knowledge : public SpellScriptLoader
         }
 };
 
+/// Sky Golem - 134359
+class spell_item_sky_golem : public SpellScriptLoader
+{
+    public:
+        spell_item_sky_golem() : SpellScriptLoader("spell_item_sky_golem") { }
+
+        class spell_item_sky_golem_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_sky_golem_AuraScript);
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
+                        l_Target->ToPlayer()->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
+                        l_Target->ToPlayer()->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, false);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_item_sky_golem_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_sky_golem_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_sky_golem_AuraScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2632,4 +2673,5 @@ void AddSC_item_spell_scripts()
     new spell_item_yak_s_milk();
     new spell_item_throw_mantra();
     new spell_item_ancient_knowledge();
+    new spell_item_sky_golem();
 }

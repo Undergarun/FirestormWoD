@@ -351,7 +351,8 @@ struct PlayerInfo
     uint16 displayId_m;
     uint16 displayId_f;
     PlayerCreateInfoItems item;
-    PlayerCreateInfoSpells spell;
+    PlayerCreateInfoSpells customSpells;
+    PlayerCreateInfoSpells castSpells;
     PlayerCreateInfoActions action;
 
     PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
@@ -2293,6 +2294,11 @@ class Player : public Unit, public GridObject<Player>
         void ResetSpec(bool p_NoCost = false);
         void ResetAllSpecs();
 
+        /*
+         * Ensure all talent spell are in talent map, otherwise unlearn them.
+         */
+        void CheckTalentSpells();
+
         // Dual Spec
         void UpdateSpecCount(uint8 count);
         void ActivateSpec(uint8 spec);
@@ -3652,8 +3658,6 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 GetBagsFreeSlots() const;
         
-        ACE_Thread_Mutex m_DeleteLock;
-
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3679,6 +3683,7 @@ class Player : public Unit, public GridObject<Player>
         WhisperListContainer WhisperList;
         uint32 m_regenTimerCount;
         uint32 m_holyPowerRegenTimerCount;
+        uint32 m_runicPowerRegenTimerCount;
         uint32 m_chiPowerRegenTimerCount;
         uint32 m_soulShardsRegenTimerCount;
         uint32 m_focusRegenTimerCount;

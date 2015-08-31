@@ -3787,6 +3787,37 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160425: ///< Call of the Tides (Brackenspore)
                 spellInfo->MaxAffectedTargets = 2;
                 break;
+            case 174627: ///< Fixate (Phantasmal Weapon)
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
+            case 157278: ///< Awaken Runestone (Imperator Mar'gok)
+                spellInfo->InterruptFlags = 0;
+                spellInfo->ChannelInterruptFlags = 0;
+                spellInfo->AuraInterruptFlags = 0;
+                break;
+            case 157763: ///< Fixate (Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+                break;
+            case 156734: ///< Destructive Resonance - Summon (Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 158512: ///< Volatile Anomalies (Imperator Mar'gok)
+            case 159158: ///< Volatile Anomalies (Imperator Mar'gok)
+            case 159159: ///< Volatile Anomalies (Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_CASTER_FRONT;
+                spellInfo->Effects[EFFECT_0].SetRadiusIndex(18);    ///< 15 yards
+                break;
+            case 156799: ///< Destructive Resonance (Other - Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 158639: ///< Orbs of Chaos (1 - Imperator Mar'gok)
+            case 178415: ///< Orbs of Chaos (2 - Imperator Mar'gok)
+                for (uint8 l_I = EFFECT_4; l_I < MAX_EFFECTS; ++l_I)
+                    spellInfo->Effects[l_I].Effect = 0;
+
+                break;
             case 154901: ///< Seal Conduit (third)
                 spellInfo->MaxAffectedTargets = 3;
                 break;
@@ -4512,7 +4543,17 @@ void SpellMgr::LoadSpellCustomAttr()
             case 72293:  ///< Mark of the Fallen Champion (Deathbringer Saurfang)
             case 159178: ///< Open Wounds (Kargath Bladefist)
             case 156152: ///< Gushing Wounds (The Butcher)
+            case 158553: ///< Crush Armor (Imperator Mar'gok)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+                break;
+            case 151272: ///< Wheel of Pain Knockback
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 101184: ///< Leyara's Locket
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_2].Effect = 0;
                 break;
             case 116711: ///< Draw Flame
                 spellInfo->ChannelInterruptFlags = 0x0;
@@ -4643,6 +4684,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 break;
             case 114635:///< Ember Tap
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_PERIODIC_HEAL;
             case 31803: ///< Censure
             case 77489: ///< Echo of Light
             case 99002: ///< Fiery Claws, Item - Druid T12 Feral 2P Bonus
@@ -4747,6 +4789,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 86704: ///< Ancient Fury
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
+                break;
+            case 155627: ///< Lunar Inspiration
+                spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
                 break;
             case 2818: ///< Deadly Poison
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
@@ -5078,9 +5124,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 118323: ///< Greater Earth Elemental
             case 157319: ///< Greater Storm Elemental
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SUMMON_PET;
-                break;
-            case 114942: ///< Healing Tide
-                spellInfo->MaxAffectedTargets = 5;
                 break;
             case 62099: ///< Shamanism
                 spellInfo->Effects[0].SpellClassMask[2] |= 0x8000;
@@ -5775,9 +5818,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_DEST_AREA_ALLY;
                 spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_DEST_AREA_ALLY;
                 break;
-            case 50385: ///< Improved Frost Presence (Rank 1/2)
-                spellInfo->Effects[EFFECT_1].SpellClassMask = 0;
-                break;
             case 81262: ///< Efflorensence
             case 88685: ///< Holy World: Sanctuary
                 spellInfo->AttributesEx5 &= ~SPELL_ATTR5_START_PERIODIC_AT_APPLY;
@@ -6454,6 +6494,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 106113:///< Touch of Nothingness
                     spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
                     break;
+                case 78675:///< Solar beam
                 case 106112:///< Release Doubt
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_DEST_LOCATION;
                     break;

@@ -1933,6 +1933,7 @@ class spell_warl_rain_of_fire_despawn: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Ember Tap - 114635
 class spell_warl_ember_tap: public SpellScriptLoader
 {
@@ -1951,11 +1952,9 @@ class spell_warl_ember_tap: public SpellScriptLoader
                 SearingFlames     = 174848
             };
 
-            void HandleHeal(SpellEffIndex /*effIndex*/)
+            void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
 
                 /// No instant heal with Glyph of Ember tap
                 if (AuraPtr l_GlyphOfEmberTap = l_Caster->GetAura(eSpells::GlyphOfEmberTap))
@@ -1964,8 +1963,8 @@ class spell_warl_ember_tap: public SpellScriptLoader
                     return;
                 }
 
-                int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), GetEffectValue());
-
+                int32 l_HealAmount = GetHitHeal();
+                
                 if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
                 {
                     float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
@@ -1981,7 +1980,6 @@ class spell_warl_ember_tap: public SpellScriptLoader
                 }
 
                 SetHitHeal(l_HealAmount);
-
                 /// Your Ember Tap also heals your pet demon for 20% as much.
                 if (AuraEffectPtr l_EnhancedEmberTap = l_Caster->GetAuraEffect(eSpells::EnhancedEmberTap, EFFECT_0))
                 {
@@ -1996,7 +1994,8 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warl_ember_tap_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+                OnHit += SpellHitFn(spell_warl_ember_tap_SpellScript::HandleOnHit);
+                /*OnEffectHitTarget += SpellEffectFn(spell_warl_ember_tap_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);*/
             }
         };
 
@@ -2006,6 +2005,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Ember Tap - 114635
 /// With Glyph of Ember Tap - 63304
 class spell_warl_ember_tap_glyph : public SpellScriptLoader
@@ -2019,36 +2019,50 @@ class spell_warl_ember_tap_glyph : public SpellScriptLoader
 
             enum eSpells
             {
-                EmberTap = 114635
+                MasteryEmberstorm = 77220,
+                GlyphOfEmberTap = 63304,
+                EmberTap = 114635,
+                SearingFlames = 174848
             };
 
             void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfEmberTap);
 
-                if (l_Caster == nullptr)
+                if (l_Caster == nullptr || l_SpellInfo == nullptr)
                     return;
 
-                /// Add amount of stackable % to health regen
-                if (AuraPtr l_EmberTap = l_Caster->GetAura(eSpells::EmberTap, l_Caster->GetGUID()))
+                if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap))
                 {
-                    uint8 l_AmountStack = 0;
-
-                    uint32 l_Duration = l_EmberTap->GetDuration();
-                    uint32 l_BasePoints = l_EmberTap->GetEffect(EFFECT_2)->GetAmount();
-
-                    if (l_Duration >= 6 * IN_MILLISECONDS)
-                        l_AmountStack = 2;
-                    else
-                        l_AmountStack = 1;
-
-                    p_Amount = l_BasePoints + l_AmountStack;
+                    p_Amount = 0;
+                    return;
                 }
+
+                int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_SpellInfo->Effects[EFFECT_2].BasePoints);
+
+                if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
+                {
+                    float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
+                    l_TotalHeal += CalculatePct(l_TotalHeal, l_MasteryPct);
+                }
+                if (AuraEffectPtr l_SearingFlames = l_Caster->GetAuraEffect(eSpells::SearingFlames, EFFECT_0))
+                {
+                    l_TotalHeal += CalculatePct(l_TotalHeal, l_SearingFlames->GetAmount());
+                    /// ManaCost == 0, wrong way to retrieve cost ?
+                    ///l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                    l_Caster->ModifyPower(POWER_BURNING_EMBERS, 5);
+                }
+
+                if (!p_AurEff->GetAmplitude())
+                    return;
+
+                p_Amount = l_TotalHeal / (p_AurEff->GetBase()->GetMaxDuration() / p_AurEff->GetAmplitude());
             }
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_ember_tap_glyph_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_ember_tap_glyph_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_PERIODIC_HEAL);
             }
         };
 
@@ -2492,7 +2506,7 @@ class spell_warl_life_tap: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 amount = int32(caster->GetMaxHealth() * GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100);
+                    int32 amount = int32(caster->GetHealthPct() * GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100);
                     caster->EnergizeBySpell(caster, WARLOCK_LIFE_TAP, amount, POWER_MANA);
                 }
             }
@@ -3282,6 +3296,7 @@ public:
         {
             AfterCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleAfterCast);
         }
+
     };
 
     SpellScript* GetSpellScript() const

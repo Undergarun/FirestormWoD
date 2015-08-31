@@ -89,13 +89,6 @@ enum DeathKnightSpells
     DK_WOD_PVP_FROST_4P_BONUS_EFFECT            = 166057
 };
 
-enum DeathKnightPresence
-{
-    BloodPresence   = 48263,
-    UnholyPresence  = 48265,
-    FrostPresence   = 48266
-};
-
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
 
 /// Glyph of Death and Decay - 58629
@@ -827,69 +820,6 @@ class spell_dk_death_siphon: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_death_siphon_SpellScript();
-        }
-};
-
-// Improved Blood Presence - 50371
-class spell_dk_improved_blood_presence: public SpellScriptLoader
-{
-    public:
-        spell_dk_improved_blood_presence() : SpellScriptLoader("spell_dk_improved_blood_presence") { }
-
-        class spell_dk_improved_blood_presence_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_improved_blood_presence_SpellScript);
-
-            void HandleAfterCast()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->UpdateAllRunesRegen();
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_dk_improved_blood_presence_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_improved_blood_presence_SpellScript();
-        }
-};
-
-// Unholy Presence - 48265
-class spell_dk_unholy_presence: public SpellScriptLoader
-{
-    public:
-        spell_dk_unholy_presence() : SpellScriptLoader("spell_dk_unholy_presence") { }
-
-        class spell_dk_unholy_presence_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_unholy_presence_AuraScript);
-
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->UpdateAllRunesRegen();
-            }
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->UpdateAllRunesRegen();
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_dk_unholy_presence_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_dk_unholy_presence_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_unholy_presence_AuraScript();
         }
 };
 
@@ -1953,6 +1883,12 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_necrotic_plague_aura_AuraScript);
 
+            enum eSpells
+            {
+                NecroticPlagueAura = 155159,
+                NecroticPlagueEnergize = 155165
+            };
+
             void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -1961,13 +1897,16 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
-                if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Caster->GetGUID()))
+                if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
                     l_AuraNecroticPlague->ModStackAmount(1);
 
                 std::list<Unit*> l_TargetList;
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(l_Target, l_Target, 8.0f);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(l_Target, l_TargetList, u_check);
-                l_Target->VisitNearbyObject(8.0f, searcher);
+                float l_Radius = 8.0f;
+
+                /// Friendly target for the target (your target) not for you
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Ucheck(l_Target, l_Target, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_TargetList, l_Ucheck);
+                l_Target->VisitNearbyObject(l_Radius, l_Searcher);
 
                 l_TargetList.remove_if([this, l_Caster, l_Target](Unit* p_Unit) -> bool
                 {
@@ -1987,7 +1926,7 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                     return;
 
                 if (Unit* l_NewTarget = JadeCore::Containers::SelectRandomContainerElement(l_TargetList))
-                    l_Caster->CastSpell(l_NewTarget, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, true);
+                    l_Caster->CastSpell(l_NewTarget, NecroticPlagueAura, true);
             }
 
             void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -2004,8 +1943,11 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 if (!l_Player)
                     return;
 
-                if (l_Caster->GetGUID() == l_Target->GetGUID() && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DK_BLOOD)
-                    l_Caster->CastSpell(l_Caster, DK_SPELL_NECROTIC_PLAGUE_ENERGIZE, true);
+                if (l_Caster->GetGUID() != l_Target->GetGUID())
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DK_BLOOD)
+                    l_Caster->CastSpell(l_Caster, NecroticPlagueEnergize, true);
             }
 
             bool CanRefreshProcDummy()
@@ -2016,8 +1958,8 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_necrotic_plague_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                CanRefreshProc += AuraCanRefreshProcFn(spell_dk_necrotic_plague_aura_AuraScript::CanRefreshProcDummy);
                 OnEffectProc += AuraEffectProcFn(spell_dk_necrotic_plague_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                CanRefreshProc += AuraCanRefreshProcFn(spell_dk_necrotic_plague_aura_AuraScript::CanRefreshProcDummy);
             }
         };
 
@@ -2203,19 +2145,6 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
-
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = p_EventInfo.GetProcTarget())
-                    {
-                        if (SpellInfo const* l_ProcSpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo())
-                        {
-                            if (l_ProcSpellInfo->GetSchoolMask() & SpellSchoolMask::SPELL_SCHOOL_MASK_FROST && 
-                                l_ProcSpellInfo->Id != DeathKnightSpells::DK_SPELL_CHILBLAINS_TRIGGER) ///< Prevent infinite loop
-                                l_Caster->CastSpell(l_Target, DeathKnightSpells::DK_SPELL_CHILBLAINS_TRIGGER, true);
-                        }
-                    }
-                }
             }
 
             void Register()
@@ -2227,6 +2156,47 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dk_chilblains_aura_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Frost Fever - 55095
+class spell_dk_frost_fever : public SpellScriptLoader
+{
+    public:
+        spell_dk_frost_fever() : SpellScriptLoader("spell_dk_frost_fever") { }
+
+        class spell_dk_frost_fever_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_frost_fever_AuraScript);
+
+            enum eSpells
+            {
+                chilbrains = 50041,
+                chilbrainsAura = 50435
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::chilbrains))
+                    l_Caster->CastSpell(l_Target, eSpells::chilbrainsAura, true);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dk_frost_fever_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY));
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_frost_fever_AuraScript();
         }
 };
 
@@ -2289,13 +2259,19 @@ class spell_dk_dark_succor : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_dark_succor_AuraScript);
 
+            enum eSpells
+            {
+                UnholyPresence = 48265,
+                FrostPresence  = 48266
+            };
+
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                   if (l_Caster->HasAura(DeathKnightPresence::FrostPresence) || l_Caster->HasAura(DeathKnightPresence::UnholyPresence))
+                   if (l_Caster->HasAura(FrostPresence) || l_Caster->HasAura(UnholyPresence))
                         l_Caster->CastSpell(l_Caster, 101568, true);
                 }
             }
@@ -2929,9 +2905,53 @@ class spell_dk_control_undead : public SpellScriptLoader
         }
 };
 
+/// DK Presences
+/// Called by Blood Presence (48263), Unholy Presence (48265), Frost Presence (48266)
+class spell_dk_presences : public SpellScriptLoader
+{
+    public:
+        spell_dk_presences() : SpellScriptLoader("spell_dk_presences") { }
+
+        class spell_dk_presences_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_presences_AuraScript);
+
+            enum eSpells
+            {
+                ImprovedBloodPresence  = 50371,
+                ImprovedFrostPresence  = 50385,
+                ImprovedUnholyPresence = 50392
+            };
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Target = GetCaster()->ToPlayer();
+                if (!l_Target)
+                    return;
+
+                if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_BLOOD && !l_Target->HasAura(ImprovedBloodPresence))
+                    l_Target->CastSpell(l_Target, ImprovedBloodPresence, true, nullptr, p_AurEff);
+                if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_UNHOLY && !l_Target->HasAura(ImprovedUnholyPresence))
+                    l_Target->CastSpell(l_Target, ImprovedUnholyPresence, true, nullptr, p_AurEff);
+                if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_FROST && !l_Target->HasAura(ImprovedFrostPresence))
+                    l_Target->CastSpell(l_Target, ImprovedFrostPresence, true, nullptr, p_AurEff);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dk_presences_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_presences_AuraScript();
+        }
+};
 
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_frost_fever();
     new spell_dk_death_coil();
     new spell_dk_empowered_obliterate_icy_touch();
     new spell_dk_empowered_obliterate_howling_blast();
@@ -2950,8 +2970,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_pillar_of_frost();
     new spell_dk_blood_tap();
     new spell_dk_death_siphon();
-    new spell_dk_improved_blood_presence();
-    new spell_dk_unholy_presence();
     new spell_dk_death_strike();
     new spell_dk_purgatory();
     new spell_dk_purgatory_absorb();
@@ -2990,6 +3008,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_gargoyle_strike();
     new spell_dk_blood_rites();
     new spell_dk_control_undead();
+    new spell_dk_presences();
 
     new PlayerScript_Blood_Tap();
 }

@@ -1541,33 +1541,33 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
                         for (uint8 i = 0; i<MAX_SPELL_EFFECTS; ++i)
                         {
                             if (AuraEffectPtr aurEff = aura->GetEffect(i))
-                                aurEff->RecalculateAmount();
+                                aurEff->RecalculateAmount(true);
                         }
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT1)
                     {
                        if (AuraEffectPtr aurEff = aura->GetEffect(0))
-                            aurEff->RecalculateAmount();
+                            aurEff->RecalculateAmount(true);
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT2)
                     {
                        if (AuraEffectPtr aurEff = aura->GetEffect(1))
-                            aurEff->RecalculateAmount();
+                            aurEff->RecalculateAmount(true);
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT3)
                     {
                        if (AuraEffectPtr aurEff = aura->GetEffect(2))
-                            aurEff->RecalculateAmount();
+                            aurEff->RecalculateAmount(true);
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT4)
                     {
                         if (AuraEffectPtr aurEff = aura->GetEffect(3))
-                            aurEff->RecalculateAmount();
+                            aurEff->RecalculateAmount(true);
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT5)
                     {
                         if (AuraEffectPtr aurEff = aura->GetEffect(4))
-                            aurEff->RecalculateAmount();
+                            aurEff->RecalculateAmount(true);
                     }
                 }
             }
@@ -6362,20 +6362,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         target->RemoveAurasDueToSpell(50322);
                     break;
                 }
-                case 78675: // Solar Beam
-                {
-                    if (apply && caster)
-                    {
-                        if (AuraPtr aur = caster->AddAura(81261, target))
-                        {
-                            aur->SetMaxDuration(GetBase()->GetDuration());
-                            aur->SetDuration(GetBase()->GetDuration());
-                        }
-                    }
-                    else
-                        target->RemoveAura(81261);
-                    break;
-                }
             }
             // Predatory Strikes
             if (target->GetTypeId() == TYPEID_PLAYER && GetSpellInfo()->SpellIconID == 1563)
@@ -6447,30 +6433,20 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         {
             if (!(mode & AURA_EFFECT_HANDLE_REAL))
                 break;
-            // Improved Frost Presence
-            if (m_spellInfo->SpellIconID == 2636)
-            {
-                if (apply)
-                {
-                    if (!target->HasAura(48266) && !target->HasAura(63611))
-                        target->CastSpell(target, 63611, true);
-                }
-                else
-                    target->RemoveAurasDueToSpell(63611);
+
             break;
         }
         case SPELLFAMILY_WARLOCK:
+        {
+            switch (GetId())
             {
-                switch(GetId())
-                {
-                    // Demonic Pact
+                // Demonic Pact
                 case 47236:
                     if (caster)
                         caster->CastSpell(caster, 53646, true);
-                    break;
-                }
                 break;
             }
+            break;
         }
     }
 }
@@ -7555,6 +7531,54 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
 
     bool crit = CanPeriodicTickCrit(target, caster);
+
+    /// In WoD blizzards have implemented system of "not full finaly tick damage"
+    if (AuraPtr l_Aura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
+    {
+        int32 l_LeftDuration = l_Aura->GetDuration();
+        int32 l_MaxDuration = l_Aura->GetMaxDuration();
+        int32 l_Amplitude = GetAmplitude();
+        int32 l_MaxTicksCount = int32(l_MaxDuration / l_Amplitude);
+
+        /// If it was last tick, we should deal instant damage, according to left duration
+        if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0)
+        {
+            uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
+
+            bool l_CritAdditional = CanPeriodicTickCrit(target, caster);
+            uint32 l_AbsorbAdditional = 0;
+            uint32 l_ResistAdditional = 0;
+
+            if (l_CritAdditional)
+                damage = caster->SpellCriticalDamageBonus(m_spellInfo, l_LeftDamage, target);
+
+            caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, GetSpellInfo());
+
+            caster->DealDamageMods(target, damage, &l_AbsorbAdditional);
+
+            // Set trigger flag for additional proc
+            uint32 l_ProcAttacker = PROC_FLAG_DONE_PERIODIC;
+            uint32 l_ProcVictim = PROC_FLAG_TAKEN_PERIODIC;
+            uint32 l_ProcEx = (l_CritAdditional ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_DOT;
+            if (l_AbsorbAdditional)
+                l_ProcEx |= PROC_EX_ABSORB;
+
+            l_LeftDamage = (l_LeftDamage <= l_AbsorbAdditional + l_ResistAdditional) ? 0 : (l_LeftDamage - l_AbsorbAdditional - l_ResistAdditional);
+            if (l_LeftDamage)
+                l_ProcVictim |= PROC_FLAG_TAKEN_DAMAGE;
+
+            int32 l_OverkillAdditional = l_LeftDamage - target->GetHealth();
+            if (l_OverkillAdditional < 0)
+                l_OverkillAdditional = 0;
+
+            SpellPeriodicAuraLogInfo pInfo(CONST_CAST(AuraEffect, shared_from_this()), l_LeftDamage, l_OverkillAdditional, l_AbsorbAdditional, l_ResistAdditional, 0.0f, l_CritAdditional);
+            target->SendPeriodicAuraLog(&pInfo);
+
+            caster->ProcDamageAndSpell(target, l_ProcAttacker, l_ProcVictim, l_ProcEx, l_LeftDamage, l_AbsorbAdditional, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
+
+            caster->DealDamage(target, l_LeftDamage, NULL, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+        }
+    }
 
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);

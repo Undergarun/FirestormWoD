@@ -1340,7 +1340,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     }
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
+    {
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
+
+        PlayerInfo const* l_Info = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass());
+        for (uint32 l_SpellId : l_Info->castSpells)
+            pCurrChar->CastSpell(pCurrChar, l_SpellId, true);
+    }
 
     // show time before shutdown if shutdown planned.
     if (sWorld->IsShuttingDown())

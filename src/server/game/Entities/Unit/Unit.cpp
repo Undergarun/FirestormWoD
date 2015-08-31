@@ -10800,6 +10800,14 @@ Unit* Unit::GetOwner() const
     return NULL;
 }
 
+Unit* Unit::GetOwnerOrUnitItself() const
+{
+    if (Unit* l_Owner = GetOwner())
+        return l_Owner;
+
+    return const_cast<Unit*>(this);
+}
+
 Unit* Unit::GetCharmer() const
 {
     if (uint64 charmerid = GetCharmerGUID())
@@ -12089,7 +12097,7 @@ void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int
     if (IsSpellMultistrike(p_ProcSpell) &&
         (p_ProcSpell->Id == 17 || p_ProcSpell->Id == 152118 || p_ProcSpell->Id == 114908))
     {
-        uint8 l_ProcTimes = (p_Target->GetSpellModOwner() != nullptr) ? 1 : 2;
+        uint8 l_ProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
         for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
         {
             uint32 l_MultistrikeAbsorbAmount = GetMultistrikeBasePoints(p_Amount);
@@ -12832,7 +12840,9 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     float TakenTotalMod = 1.0f;
 
     /// Dampening, must be calculated off the raw amount
-    if (AuraEffectPtr l_AurEff = GetAuraEffect(110310, EFFECT_0))
+    Unit* l_OwnerOrSelf = GetOwnerOrUnitItself();
+
+    if (AuraEffectPtr l_AurEff = l_OwnerOrSelf->GetAuraEffect(110310, EFFECT_0))
         healamount = CalculatePct(healamount, 100 - l_AurEff->GetAmount());
 
     // No bonus for Eminence (statue) and Eminence
@@ -13840,7 +13850,10 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 
     for (Unit::ControlList::iterator l_Iter = m_Controlled.begin(); l_Iter != m_Controlled.end(); ++l_Iter)
-        (*l_Iter)->SetInCombatState(p_IsPVP, p_Enemy, true);
+    {
+        if ((*l_Iter) != nullptr)
+            (*l_Iter)->SetInCombatState(p_IsPVP, p_Enemy, true);
+    }
 
     RemoveAura(121308); ///< Glyph of Disguise, only out of combat
 
@@ -15998,9 +16011,6 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
-    if (p_Regen)
-        m_lastRegenTime[l_PowerIndex] = getMSTime();
-
     if (!p_Regen || l_RegenDiff > 2000)
         SetInt32Value(UNIT_FIELD_POWER + l_PowerIndex, p_PowerValue);
 
@@ -16016,6 +16026,8 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
         l_Data << uint8(p_PowerType);
 
         SendMessageToSet(&l_Data, GetTypeId() == TYPEID_PLAYER ? true : false);
+
+        m_lastRegenTime[l_PowerIndex] = getMSTime();
     }
 
     /// Custom MoP Script
@@ -16746,6 +16758,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             ToPlayer()->AddSpellCooldown(68285, 0, 6 * IN_MILLISECONDS); // 6s ICD
         }
     }
+
+    /// Runic Strikes
+    if ((procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && HasAura(165394) && GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsTwoHandUsed() && procSpell == nullptr)
+        CastSpell(this, 163948, true);
 
     // Dematerialize
     if (target && !isVictim && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(122464) && procSpell && procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN))

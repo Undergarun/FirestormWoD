@@ -300,7 +300,7 @@ class SpellScript : public _SpellScript
         HookList<CheckInterruptHandler> OnCheckInterrupt;
         #define SpellCheckInterruptFn(F) CheckInterruptHandlerFunction(&F)
 
-        // example: OnPrepare += SpellCheckInterruptFn();
+        // example: OnPrepare += SpellOnPrepareFn();
         // where function is bool function()
         HookList<OnPrepareHandler> OnPrepare;
         #define SpellOnPrepareFn(F) OnPrepareHandlerFunction(&F)

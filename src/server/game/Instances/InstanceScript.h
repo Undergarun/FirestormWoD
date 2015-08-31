@@ -161,7 +161,11 @@ enum eChallengeMedals
 
 enum eInstanceSpells
 {
-    SpellDetermination = 139068
+    SpellDetermination          = 139068,
+    ShamanSated                 = 57724,
+    HunterInsanity              = 95809,
+    MageTemporalDisplacement    = 80354,
+    ShamanExhaustion            = 57723
 };
 
 class InstanceScript : public ZoneScript

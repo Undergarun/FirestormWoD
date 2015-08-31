@@ -216,6 +216,72 @@ class spell_at_druid_ursol_vortex : public AreaTriggerEntityScript
         }
 };
 
+/// last update : 6.1.2 19802
+/// Solar Beam - 78675
+class spell_at_druid_solar_beam : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_druid_solar_beam() : AreaTriggerEntityScript("spell_at_druid_solar_beam") { }
+
+        std::list<Unit*> m_TargetList;
+
+        enum eSpells
+        {
+            solarBeamSilence = 81261
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_NewTargetList;
+            float l_Radius = 5.0f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+            for (auto itr : l_NewTargetList)
+            {
+                if (itr != nullptr && l_Caster->IsValidAttackTarget(itr) && std::find(m_TargetList.begin(), m_TargetList.end(), itr) == m_TargetList.end())
+                {
+                    m_TargetList.push_back(itr);
+                    l_Caster->CastSpell(itr, eSpells::solarBeamSilence, true);
+                    if (AuraPtr l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
+                        l_SolarBeamSilence->SetDuration(p_AreaTrigger->GetDuration());
+                }
+            }
+
+            for (std::list<Unit*>::iterator itr = m_TargetList.begin(); itr != m_TargetList.end();)
+            {
+                if ((*itr) == nullptr || (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), (*itr)) == l_NewTargetList.end()))
+                {
+                    if ((*itr) != nullptr && (*itr)->HasAura(eSpells::solarBeamSilence))
+                        (*itr)->RemoveAura(eSpells::solarBeamSilence);
+                    itr = m_TargetList.erase(itr);
+                }
+                else
+                    itr++;
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        {
+            for (auto itr : m_TargetList)
+            {
+                if (itr != nullptr && itr->HasAura(eSpells::solarBeamSilence))
+                    itr->RemoveAura(eSpells::solarBeamSilence);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_druid_solar_beam();
+        }
+};
+
 /// Binding Shot - 109248
 class spell_at_hun_binding_shot : public AreaTriggerEntityScript
 {
@@ -1101,6 +1167,7 @@ void AddSC_areatrigger_spell_scripts()
     /// Druid Area Trigger
     new spell_at_druid_fungal_growth();
     new spell_at_druid_ursol_vortex();
+    new spell_at_druid_solar_beam();
 
     /// Hunter Area Trigger
     new spell_at_hun_binding_shot();
