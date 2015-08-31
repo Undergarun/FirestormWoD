@@ -20455,21 +20455,10 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         }
         case FORM_FLIGHT_EPIC:
         {
-            if (Player::TeamForRace(getRace()) == HORDE)
-            {
-                if (getRace() == RACE_TROLL)
-                    return 37730;
-                else if (getRace() == RACE_TAUREN)
-                    return 21244;
-            }
-            else if (Player::TeamForRace(getRace()) == ALLIANCE)
-            {
-                if (getRace() == RACE_NIGHTELF)
-                    return 21243;
-                else if (getRace() == RACE_WORGEN)
-                    return 37729;
-            }
-
+            if (Player::TeamForRace(getRace()) == ALLIANCE)
+                return (getRace() == RACE_WORGEN ? 37729 : 21243);
+            if (getRace() == RACE_TROLL)
+                return 37730;
             return 21244;
         }
         case FORM_STAG:
@@ -20482,11 +20471,13 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 case RACE_NIGHTELF:
                 case RACE_WORGEN:
                     return 40816;
-
                 case RACE_TROLL:
                 case RACE_TAUREN:
                     return 45339;
+                default:
+                    break;
             }
+            break;
         }
         case FORM_MOONKIN:
         {
