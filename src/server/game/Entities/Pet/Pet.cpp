@@ -968,16 +968,12 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
     UpdateAllStats();
-
     if (l_Owner != nullptr)
     {
-        if (l_Owner->GetTypeId() == TYPEID_PLAYER && l_Owner->getClass() == CLASS_WARLOCK)
-            SetCreateHealth(l_Owner->GetMaxHealth() * 0.75f);
-        else
-            SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+        SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
         SetMaxHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
     }
-
+    
     SetFullHealth();
 
     if (IsWarlockPet())
