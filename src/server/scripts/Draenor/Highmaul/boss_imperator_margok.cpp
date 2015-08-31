@@ -1291,22 +1291,22 @@ class boss_imperator_margok : public CreatureScript
                     Position l_Pos = *me;
                     l_Pos.m_positionZ -= 16.0f;
                     me->GetMotionMaster()->MovePoint(eMoves::MoveDown, l_Pos);
+
+                    uint32 l_Time = m_Events.GetEventTime(eEvents::EventMarkOfChaos);
+                    m_Events.ScheduleEvent(eEvents::EventMarkOfChaosDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
+
+                    l_Time = m_Events.GetEventTime(eEvents::EventForceNova);
+                    m_Events.ScheduleEvent(eEvents::EventForceNovaDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
+
+                    l_Time = m_Events.GetEventTime(eEvents::EventArcaneWrath);
+                    m_Events.ScheduleEvent(eEvents::EventArcaneWrathDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
+
+                    l_Time = m_Events.GetEventTime(eEvents::EventDestructiveResonance);
+                    m_Events.ScheduleEvent(eEvents::EventDestructiveResonanceDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
+
+                    l_Time = m_Events.GetEventTime(eEvents::EventArcaneAberration) + 13 * TimeConstants::IN_MILLISECONDS;
+                    m_Events.ScheduleEvent(eEvents::EventArcaneAberrationDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
                 });
-
-                uint32 l_Time = m_Events.GetEventTime(eEvents::EventMarkOfChaos) + 13 * TimeConstants::IN_MILLISECONDS;
-                m_Events.ScheduleEvent(eEvents::EventMarkOfChaosDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
-
-                l_Time = m_Events.GetEventTime(eEvents::EventForceNova) + 13 * TimeConstants::IN_MILLISECONDS;
-                m_Events.ScheduleEvent(eEvents::EventForceNovaDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
-
-                l_Time = m_Events.GetEventTime(eEvents::EventArcaneWrath) + 13 * TimeConstants::IN_MILLISECONDS;
-                m_Events.ScheduleEvent(eEvents::EventArcaneWrathDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
-
-                l_Time = m_Events.GetEventTime(eEvents::EventDestructiveResonance) + 13 * TimeConstants::IN_MILLISECONDS;
-                m_Events.ScheduleEvent(eEvents::EventDestructiveResonanceDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
-
-                l_Time = m_Events.GetEventTime(eEvents::EventArcaneAberration) + 13 * TimeConstants::IN_MILLISECONDS;
-                m_Events.ScheduleEvent(eEvents::EventArcaneAberrationDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
             }
 
             void ScheduleFirstTransitionPhase()
