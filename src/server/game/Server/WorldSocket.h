@@ -45,6 +45,7 @@
 class ACE_Message_Block;
 class WorldPacket;
 class WorldSession;
+struct z_stream_s;
 
 /// Handler that can communicate over stream sockets.
 typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> WorldHandler;
@@ -112,15 +113,22 @@ union ServerPktHeader
 {
     struct
     {
-        uint16 Size;
-        uint32 Command;
+        uint16 m_Size;
+        uint32 m_Command;
     } Setup;
 
     struct
     {
-        uint32 Command : 13;
-        uint32 Size : 19;
+        uint32 m_Command : 13;
+        uint32 m_Size : 19;
     } Normal;
+};
+
+struct CompressedWorldPacket
+{
+    uint32 m_UncompressedSize;
+    uint32 m_UncompressedAdler;
+    uint32 m_CompressedAdler;
 };
 
 #pragma pack(pop)
@@ -155,8 +163,11 @@ class WorldSocket : public WorldHandler
         /// @return -1 of failure
         int SendPacket(const WorldPacket& pct);
 
-        /// Write packet to the specified buffer
-        void WritePacketToBuffer(WorldPacket const& p_Packet, ACE_Message_Block* p_Buffer);
+        /// Write packet and return specific buffer
+        ACE_Message_Block* WritePacketToBuffer(WorldPacket const& p_Packet);
+
+        /// Compress the buffer and return size
+        uint32 CompressPacket(char* p_Buffer, WorldPacket const& p_Packet);
 
         /// Add reference to this object.
         long AddReference (void);
@@ -264,6 +275,9 @@ class WorldSocket : public WorldHandler
 
         ///  Set to true after receiving "CLIENT TO SERVER" string
         bool m_Initialized;
+
+        /// Defalte compression stream
+        z_stream_s* m_CompressionStream;
 };
 
 #endif  /* _WORLDSOCKET_H */

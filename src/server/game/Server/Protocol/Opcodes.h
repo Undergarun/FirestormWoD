@@ -40,7 +40,8 @@ enum Opcodes
     NUM_OPCODE_HANDLERS                               = MAX_OPCODE + 1,
     UNKNOWN_OPCODE                                    = (0xFFFF+1),
     NULL_OPCODE                                       = 0,
-    COMPRESSED_OPCODE_MASK                            = 0x8000,
+
+    SMSG_COMPRESSED_PACKET                            = 0x0827, ///< 6.2.2 20426
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Protocol

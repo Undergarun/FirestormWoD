@@ -469,8 +469,6 @@ class WorldSession
             return true;
         }
 
-        z_stream_s* GetCompressionStream() { return _compressionStream; }
-
         void SetClientBuild(uint16 p_ClientBuild) { m_ClientBuild = p_ClientBuild; }
         uint16 GetClientBuild() const { return m_ClientBuild; }
 
@@ -1344,7 +1342,6 @@ class WorldSession
         uint32 m_uiAntispamMailSentTimer;
 
         uint8 m_PlayerLoginCounter;
-        z_stream_s* _compressionStream;
 
         uint32 m_ServiceFlags;
         time_t m_LoginTime;
