@@ -1116,6 +1116,9 @@ class WorldObject : public Object, public WorldLocation
         uint16 GetMeleeAnimKitId() const { return m_MeleeAnimKitId; }
         void SetMeleeAnimKitId(uint16 animKitId);
 
+        void SetAnimTier(uint32 p_Tier);
+        void SetPlayerHoverAnim(bool p_Apply);
+
         // Personal visibility system
         bool MustBeVisibleOnlyForSomePlayers() const { return !_visibilityPlayerList.empty(); }
         void GetMustBeVisibleForPlayersList(std::list<uint64/* guid*/>& playerList) { playerList = _visibilityPlayerList; }
