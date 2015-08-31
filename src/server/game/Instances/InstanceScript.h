@@ -234,6 +234,9 @@ class InstanceScript : public ZoneScript
         void DoStartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
         void DoStopTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
 
+        /// Remove movement forces on all players for the specified source
+        void DoRemoveForcedMovementsOnPlayers(uint64 p_Source);
+
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 
