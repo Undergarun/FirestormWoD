@@ -218,6 +218,17 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (!Create(guid, map, owner->GetPhaseMask(), petentry, pet_number))
         return false;
 
+    float px, py, pz;
+    owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
+    Relocate(px, py, pz, owner->GetOrientation());
+
+    if (!IsPositionValid())
+    {
+        sLog->outError(LOG_FILTER_PETS, "Pet (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
+            GetGUIDLow(), GetEntry(), GetPositionX(), GetPositionY());
+        return false;
+    }
+
     setPetType(pet_type);
     setFaction(owner->getFaction());
     SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, summon_spell_id);
@@ -225,17 +236,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     CreatureTemplate const* cinfo = GetCreatureTemplate();
     if (cinfo->type == CREATURE_TYPE_CRITTER)
     {
-        float px, py, pz;
-        owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
-        Relocate(px, py, pz, owner->GetOrientation());
-
-        if (!IsPositionValid())
-        {
-            sLog->outError(LOG_FILTER_PETS, "Pet (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
-                           GetGUIDLow(), GetEntry(), GetPositionX(), GetPositionY());
-            return false;
-        }
-
         map->AddToMap(this->ToCreature());
         return true;
     }
