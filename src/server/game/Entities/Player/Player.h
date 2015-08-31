@@ -351,7 +351,8 @@ struct PlayerInfo
     uint16 displayId_m;
     uint16 displayId_f;
     PlayerCreateInfoItems item;
-    PlayerCreateInfoSpells spell;
+    PlayerCreateInfoSpells customSpells;
+    PlayerCreateInfoSpells castSpells;
     PlayerCreateInfoActions action;
 
     PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
@@ -3656,9 +3657,11 @@ class Player : public Unit, public GridObject<Player>
         void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
 
         uint32 GetBagsFreeSlots() const;
-        
-        ACE_Thread_Mutex m_DeleteLock;
 
+        bool IsSummoned() const { return m_Summoned; }
+        void FinishSummon() { m_Summoned = false; }
+        void BeginSummon() { m_Summoned = true; }
+        
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3684,6 +3687,7 @@ class Player : public Unit, public GridObject<Player>
         WhisperListContainer WhisperList;
         uint32 m_regenTimerCount;
         uint32 m_holyPowerRegenTimerCount;
+        uint32 m_runicPowerRegenTimerCount;
         uint32 m_chiPowerRegenTimerCount;
         uint32 m_soulShardsRegenTimerCount;
         uint32 m_focusRegenTimerCount;
@@ -3952,6 +3956,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_lastpetnumber;
 
         // Player summoning
+        bool   m_Summoned;
         time_t m_summon_expire;
         uint32 m_summon_mapid;
         float  m_summon_x;

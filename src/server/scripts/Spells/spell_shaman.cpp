@@ -501,9 +501,6 @@ class spell_sha_ascendance_water : public SpellScriptLoader
                 if (!l_Player)
                     return;
 
-                if (l_Player->HasSpellCooldown(eSpells::RestorativeMists))
-                    return;
-
                 if (p_EventInfo.GetActor()->GetGUID() != l_Player->GetGUID())
                     return;
 
@@ -525,8 +522,6 @@ class spell_sha_ascendance_water : public SpellScriptLoader
 
                     if (l_Bp > 0)
                         l_Player->CastCustomSpell(l_Target, eSpells::RestorativeMists, &l_Bp, NULL, NULL, true); //< Restorative Mists
-
-                    l_Player->AddSpellCooldown(eSpells::RestorativeMists, 0, 1 * IN_MILLISECONDS); ///< This prevent from multiple procs
                 }
             }
 
@@ -2403,7 +2398,8 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
             enum eSpells
             {
-                LavaSurge = 77762
+                LavaSurge = 77762,
+                LavaBurst = 51505,
             };
 
             void HitTarget(SpellEffIndex)
@@ -2439,8 +2435,19 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     return;
 
                 if (SpellInfo const* l_LavaSurge = sSpellMgr->GetSpellInfo(eSpells::LavaSurge))
+                {
                     if (SpellCategoriesEntry const* l_LavaSurgeCategories = l_LavaSurge->GetSpellCategories())
                         l_Player->RestoreCharge(l_LavaSurgeCategories->ChargesCategory);
+                }
+
+                if (l_Player->HasAura(eSpells::LavaSurge))
+                {
+                    if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
+                    {
+                        if (SpellCategoriesEntry const* l_LavaBurstCategories = l_LavaBurst->GetSpellCategories())
+                            l_Player->RestoreCharge(l_LavaBurstCategories->ChargesCategory);
+                    }
+                }
             }
 
             void Register()
@@ -2488,8 +2495,9 @@ public:
     }
 };
 
-/// 2645 Chain Heal
-class spell_sha_chain_heal: public SpellScriptLoader
+/// Last updated : 6.1.2 19802
+/// Chain Heal - 1064
+class spell_sha_chain_heal : public SpellScriptLoader
 {
     public:
         spell_sha_chain_heal() : SpellScriptLoader("spell_sha_chain_heal") { }
@@ -2506,11 +2514,12 @@ class spell_sha_chain_heal: public SpellScriptLoader
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-                if (!l_Target)
+                Unit* l_FirstTarget = GetExplTargetUnit();
+
+                if (l_FirstTarget == nullptr)
                     return;
 
-                if (l_Target->HasAura(eSpells::Riptide))
+                if (l_FirstTarget->HasAura(eSpells::Riptide))
                 {
                     uint32 l_Heal = GetHitHeal();
 

@@ -161,7 +161,11 @@ enum eChallengeMedals
 
 enum eInstanceSpells
 {
-    SpellDetermination = 139068
+    SpellDetermination          = 139068,
+    ShamanSated                 = 57724,
+    HunterInsanity              = 95809,
+    MageTemporalDisplacement    = 80354,
+    ShamanExhaustion            = 57723
 };
 
 class InstanceScript : public ZoneScript
@@ -229,6 +233,9 @@ class InstanceScript : public ZoneScript
         // Start/Stop Timed Achievement Criteria for all players in instance
         void DoStartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
         void DoStopTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+
+        /// Remove movement forces on all players for the specified source
+        void DoRemoveForcedMovementsOnPlayers(uint64 p_Source);
 
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
@@ -461,6 +468,14 @@ class InstanceScript : public ZoneScript
 
         void UpdatePhasing();
         void UpdateCreatureGroupSizeStats();
+
+        BossInfo* GetBossInfo(uint32 p_ID)
+        {
+            if (p_ID < m_Bosses.size())
+                return &m_Bosses[p_ID];
+
+            return nullptr;
+        }
 
     protected:
         void SetBossNumber(uint32 p_Number);

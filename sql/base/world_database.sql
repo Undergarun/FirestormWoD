@@ -1,7 +1,7 @@
 #
 # SQL Export
-# Created by Querious (974)
-# Created: May 13, 2015 at 11:50:31 AM CDT
+# Created by Querious (996)
+# Created: August 24, 2015 at 5:58:57 PM CDT
 # Encoding: Unicode (UTF-8)
 #
 
@@ -58,7 +58,6 @@ DROP TABLE IF EXISTS `quest_template`;
 DROP TABLE IF EXISTS `quest_start_scripts`;
 DROP TABLE IF EXISTS `quest_poi_points`;
 DROP TABLE IF EXISTS `quest_poi`;
-DROP TABLE IF EXISTS `quest_package_item_hotfix`;
 DROP TABLE IF EXISTS `quest_end_scripts`;
 DROP TABLE IF EXISTS `prospecting_loot_template`;
 DROP TABLE IF EXISTS `pool_template`;
@@ -70,6 +69,7 @@ DROP TABLE IF EXISTS `points_of_interest`;
 DROP TABLE IF EXISTS `playercreateinfo_spell_custom`;
 DROP TABLE IF EXISTS `playercreateinfo_spell`;
 DROP TABLE IF EXISTS `playercreateinfo_item`;
+DROP TABLE IF EXISTS `playercreateinfo_cast_spell`;
 DROP TABLE IF EXISTS `playercreateinfo_action`;
 DROP TABLE IF EXISTS `playercreateinfo`;
 DROP TABLE IF EXISTS `player_levelstats`;
@@ -92,7 +92,6 @@ DROP TABLE IF EXISTS `npc_trainer`;
 DROP TABLE IF EXISTS `npc_text`;
 DROP TABLE IF EXISTS `npc_spellclick_spells`;
 DROP TABLE IF EXISTS `milling_loot_template`;
-DROP TABLE IF EXISTS `map_challenge_mode_hotfixes`;
 DROP TABLE IF EXISTS `mail_loot_template`;
 DROP TABLE IF EXISTS `mail_level_reward`;
 DROP TABLE IF EXISTS `locales_quest_template_objective`;
@@ -105,6 +104,8 @@ DROP TABLE IF EXISTS `locales_gossip_menu_option`;
 DROP TABLE IF EXISTS `locales_gameobject`;
 DROP TABLE IF EXISTS `locales_creature_text`;
 DROP TABLE IF EXISTS `locales_creature`;
+DROP TABLE IF EXISTS `locales_battlepay_product_group`;
+DROP TABLE IF EXISTS `locales_battlepay_display_info`;
 DROP TABLE IF EXISTS `locales_achievement_reward`;
 DROP TABLE IF EXISTS `linked_respawn`;
 DROP TABLE IF EXISTS `lfr_access_requirement`;
@@ -120,7 +121,6 @@ DROP TABLE IF EXISTS `item_bonus_group`;
 DROP TABLE IF EXISTS `ip2nationCountries`;
 DROP TABLE IF EXISTS `ip2nation`;
 DROP TABLE IF EXISTS `instance_template`;
-DROP TABLE IF EXISTS `hotfix_data`;
 DROP TABLE IF EXISTS `guild_rewards`;
 DROP TABLE IF EXISTS `guild_challenge_reward`;
 DROP TABLE IF EXISTS `gossip_menu_option`;
@@ -193,6 +193,11 @@ DROP TABLE IF EXISTS `character_template`;
 DROP TABLE IF EXISTS `challenge_mode_rewards`;
 DROP TABLE IF EXISTS `blackmarket_template`;
 DROP TABLE IF EXISTS `battlepet_template`;
+DROP TABLE IF EXISTS `battlepay_shop_entry`;
+DROP TABLE IF EXISTS `battlepay_product_item`;
+DROP TABLE IF EXISTS `battlepay_product_group`;
+DROP TABLE IF EXISTS `battlepay_product`;
+DROP TABLE IF EXISTS `battlepay_display_info`;
 DROP TABLE IF EXISTS `battlemaster_entry`;
 DROP TABLE IF EXISTS `battleground_template`;
 DROP TABLE IF EXISTS `areatrigger_template`;
@@ -364,6 +369,65 @@ CREATE TABLE `battlemaster_entry` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+CREATE TABLE `battlepay_display_info` (
+  `DisplayInfoId` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `CreatureDisplayInfoID` int(11) unsigned NOT NULL DEFAULT '0',
+  `FileDataID` int(11) unsigned DEFAULT NULL,
+  `Name1` varchar(255) NOT NULL,
+  `Name2` varchar(255) NOT NULL,
+  `Name3` text NOT NULL,
+  `Flags` int(11) unsigned NOT NULL DEFAULT '0',
+  UNIQUE KEY `DisplayInfoId` (`DisplayInfoId`)
+) ENGINE=InnoDB AUTO_INCREMENT=287 DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `battlepay_product` (
+  `ProductID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `NormalPriceFixedPoint` bigint(20) unsigned NOT NULL,
+  `CurrentPriceFixedPoint` bigint(20) unsigned NOT NULL,
+  `Type` tinyint(3) unsigned NOT NULL,
+  `ChoiceType` tinyint(3) unsigned NOT NULL,
+  `Flags` int(11) unsigned NOT NULL,
+  `DisplayInfoID` int(11) unsigned NOT NULL,
+  `ScriptName` text NOT NULL,
+  `ClassMask` int(12) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ProductID`)
+) ENGINE=InnoDB AUTO_INCREMENT=287 DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `battlepay_product_group` (
+  `GroupID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) NOT NULL,
+  `IconFileDataID` int(11) NOT NULL,
+  `DisplayType` tinyint(3) unsigned NOT NULL,
+  `Ordering` int(11) NOT NULL,
+  PRIMARY KEY (`GroupID`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `battlepay_product_item` (
+  `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `ProductID` int(11) unsigned NOT NULL,
+  `ItemID` int(11) unsigned NOT NULL,
+  `Quantity` int(11) unsigned NOT NULL,
+  `DisplayID` int(11) DEFAULT NULL,
+  `PetResult` tinyint(2) unsigned NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=570 DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `battlepay_shop_entry` (
+  `EntryID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `GroupID` int(11) unsigned NOT NULL,
+  `ProductID` int(11) unsigned NOT NULL,
+  `Ordering` int(11) NOT NULL,
+  `Flags` int(11) unsigned NOT NULL DEFAULT '0',
+  `BannerType` tinyint(3) unsigned NOT NULL,
+  `DisplayInfoID` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`EntryID`)
+) ENGINE=InnoDB AUTO_INCREMENT=287 DEFAULT CHARSET=utf8;
+
+
 CREATE TABLE `battlepet_template` (
   `species` int(10) unsigned NOT NULL,
   `breed` int(10) unsigned NOT NULL,
@@ -391,6 +455,7 @@ CREATE TABLE `challenge_mode_rewards` (
   `bronze_money` int(10) unsigned NOT NULL DEFAULT '0',
   `silver_money` int(10) unsigned NOT NULL DEFAULT '0',
   `gold_money` int(10) unsigned NOT NULL DEFAULT '0',
+  `title` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`map_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -441,7 +506,7 @@ CREATE TABLE `character_template_spell` (
 CREATE TABLE `command` (
   `name` varchar(50) NOT NULL DEFAULT '',
   `security` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `help` longtext,
+  `help` longtext NOT NULL,
   PRIMARY KEY (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Chat System';
 
@@ -497,17 +562,18 @@ CREATE TABLE `creature` (
   PRIMARY KEY (`guid`),
   KEY `idx_map` (`map`),
   KEY `idx_id` (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=6294150 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System';
+) ENGINE=MyISAM AUTO_INCREMENT=1529839 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System';
 
 
 CREATE TABLE `creature_addon` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guid` int(10) unsigned NOT NULL,
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes2` int(10) unsigned NOT NULL DEFAULT '0',
   `emote` int(10) unsigned NOT NULL DEFAULT '0',
   `auras` text,
+  `animkit` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -561,11 +627,12 @@ CREATE TABLE `creature_formations` (
 
 
 CREATE TABLE `creature_groupsizestats` (
-  `entry` int(11) DEFAULT NULL,
-  `difficulty` int(11) DEFAULT NULL,
-  `groupSize` int(11) DEFAULT NULL,
-  `health` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `entry` int(11) unsigned NOT NULL,
+  `difficulty` int(11) unsigned NOT NULL,
+  `groupSize` int(11) unsigned NOT NULL,
+  `health` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`entry`,`difficulty`,`groupSize`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 CREATE TABLE `creature_loot_currency` (
@@ -761,6 +828,7 @@ CREATE TABLE `creature_template_addon` (
   `bytes2` int(10) unsigned NOT NULL DEFAULT '0',
   `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `auras` text,
+  `animkit` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -1088,7 +1156,7 @@ CREATE TABLE `creature_text` (
 
 
 CREATE TABLE `creature_transport` (
-  `guid` int(11) NOT NULL AUTO_INCREMENT COMMENT 'GUID of NPC on transport - not the same as creature.guid',
+  `guid` int(10) unsigned NOT NULL COMMENT 'GUID of NPC on transport - not the same as creature.guid',
   `transport_entry` int(11) NOT NULL COMMENT 'Transport entry',
   `npc_entry` int(11) NOT NULL COMMENT 'NPC entry',
   `TransOffsetX` float NOT NULL DEFAULT '0',
@@ -1096,7 +1164,7 @@ CREATE TABLE `creature_transport` (
   `TransOffsetZ` float NOT NULL DEFAULT '0',
   `TransOffsetO` float NOT NULL DEFAULT '0',
   `emote` int(11) NOT NULL,
-  PRIMARY KEY (`transport_entry`,`guid`),
+  PRIMARY KEY (`guid`,`transport_entry`),
   UNIQUE KEY `entry` (`transport_entry`,`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -1251,6 +1319,7 @@ CREATE TABLE `game_event_condition` (
 
 
 CREATE TABLE `game_event_creature` (
+  `NewGuid` int(10) unsigned NOT NULL,
   `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event. Put negative entry to remove during event.',
   `guid` int(10) unsigned NOT NULL,
   PRIMARY KEY (`guid`,`eventEntry`)
@@ -1359,7 +1428,7 @@ CREATE TABLE `game_tele` (
   `map` smallint(5) unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2127 DEFAULT CHARSET=utf8 COMMENT='Tele Command';
+) ENGINE=MyISAM AUTO_INCREMENT=5423569 DEFAULT CHARSET=utf8 COMMENT='Tele Command';
 
 
 CREATE TABLE `game_weather` (
@@ -1388,7 +1457,7 @@ CREATE TABLE `gameobject` (
   `zoneId` smallint(8) unsigned NOT NULL DEFAULT '0',
   `areaId` smallint(8) unsigned NOT NULL DEFAULT '0',
   `spawnMask` int(8) DEFAULT NULL,
-  `phaseMask` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `phaseMask` int(10) unsigned NOT NULL DEFAULT '1',
   `position_x` float NOT NULL DEFAULT '0',
   `position_y` float NOT NULL DEFAULT '0',
   `position_z` float NOT NULL DEFAULT '0',
@@ -1401,10 +1470,11 @@ CREATE TABLE `gameobject` (
   `animprogress` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `state` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `isActive` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `custom_flags` int(10) unsigned NOT NULL DEFAULT '0',
   `protect_anti_doublet` int(255) DEFAULT NULL,
   PRIMARY KEY (`guid`),
   KEY `x` (`position_x`,`position_y`,`position_z`)
-) ENGINE=MyISAM AUTO_INCREMENT=8489640 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
+) ENGINE=MyISAM AUTO_INCREMENT=9883412 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
 
 
 CREATE TABLE `gameobject_loot_template` (
@@ -1556,7 +1626,7 @@ CREATE TABLE `garrison_plot_content` (
   `z` float NOT NULL DEFAULT '0',
   `o` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=479 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=498 DEFAULT CHARSET=latin1;
 
 
 CREATE TABLE `gossip_menu` (
@@ -1601,14 +1671,6 @@ CREATE TABLE `guild_rewards` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `hotfix_data` (
-  `entry` int(10) unsigned NOT NULL,
-  `type` int(10) unsigned NOT NULL DEFAULT '0',
-  `hotfixDate` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`entry`,`type`,`hotfixDate`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
 CREATE TABLE `instance_template` (
   `map` smallint(5) unsigned NOT NULL,
   `parent` smallint(5) unsigned NOT NULL,
@@ -1641,13 +1703,13 @@ CREATE TABLE `ip2nationCountries` (
 CREATE TABLE `item_bonus_group` (
   `id` int(11) DEFAULT NULL,
   `bonus` blob
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 CREATE TABLE `item_bonus_group_linked` (
   `itemEntry` int(11) DEFAULT NULL,
   `itemBonusGroup` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 CREATE TABLE `item_enchantment_template` (
@@ -1872,7 +1934,7 @@ CREATE TABLE `lfr_access_requirement` (
   `quest_failed_text` text,
   `comment` text,
   PRIMARY KEY (`dungeon_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 CREATE TABLE `linked_respawn` (
@@ -1906,6 +1968,48 @@ CREATE TABLE `locales_achievement_reward` (
   `text_loc9` text,
   `text_loc10` text,
   PRIMARY KEY (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `locales_battlepay_display_info` (
+  `DisplayInfoId` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Name_loc1` varchar(1024) NOT NULL DEFAULT '',
+  `Name_loc2` varchar(1024) NOT NULL DEFAULT '',
+  `Name_loc3` varchar(1024) NOT NULL DEFAULT '',
+  `Name_loc4` varchar(1024) NOT NULL DEFAULT '',
+  `Name_loc5` varchar(1024) NOT NULL DEFAULT '',
+  `Name_loc6` varchar(1024) NOT NULL DEFAULT '',
+  `Name_loc7` varchar(1024) NOT NULL DEFAULT '',
+  `Name_loc8` varchar(1024) NOT NULL DEFAULT '',
+  `Name_loc9` varchar(1024) NOT NULL DEFAULT '',
+  `Name_loc10` varchar(1024) NOT NULL DEFAULT '',
+  `Description_loc1` text NOT NULL,
+  `Description_loc2` text NOT NULL,
+  `Description_loc3` text NOT NULL,
+  `Description_loc4` text NOT NULL,
+  `Description_loc5` text NOT NULL,
+  `Description_loc6` text NOT NULL,
+  `Description_loc7` text NOT NULL,
+  `Description_loc8` text NOT NULL,
+  `Description_loc9` text NOT NULL,
+  `Description_loc10` text NOT NULL,
+  PRIMARY KEY (`DisplayInfoId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `locales_battlepay_product_group` (
+  `GroupID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Name_loc1` text,
+  `Name_loc2` text,
+  `Name_loc3` text,
+  `Name_loc4` text,
+  `Name_loc5` text,
+  `Name_loc6` text,
+  `Name_loc7` text,
+  `Name_loc8` text,
+  `Name_loc9` text,
+  `Name_loc10` text,
+  PRIMARY KEY (`GroupID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
@@ -2426,21 +2530,6 @@ CREATE TABLE `mail_loot_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
 
-CREATE TABLE `map_challenge_mode_hotfixes` (
-  `id` int(10) unsigned NOT NULL DEFAULT '0',
-  `map_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `field2` int(10) unsigned NOT NULL DEFAULT '0',
-  `field3` int(10) unsigned NOT NULL DEFAULT '0',
-  `field4` int(10) unsigned NOT NULL DEFAULT '0',
-  `bronze_time` int(10) unsigned NOT NULL DEFAULT '0',
-  `silver_time` int(10) unsigned NOT NULL DEFAULT '0',
-  `gold_time` int(10) unsigned NOT NULL DEFAULT '0',
-  `field8` int(10) unsigned NOT NULL DEFAULT '0',
-  `field9` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`,`map_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
 CREATE TABLE `milling_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `item` mediumint(8) NOT NULL DEFAULT '0',
@@ -2545,7 +2634,7 @@ CREATE TABLE `npc_text` (
   `em7_3` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em7_4` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em7_5` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `WDBVerified` smallint(5) DEFAULT '1',
+  `BuildVerified` smallint(6) DEFAULT '1',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -2757,6 +2846,14 @@ CREATE TABLE `playercreateinfo_action` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+CREATE TABLE `playercreateinfo_cast_spell` (
+  `raceMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `classMask` int(10) unsigned NOT NULL DEFAULT '0',
+  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `note` varchar(255) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
 CREATE TABLE `playercreateinfo_item` (
   `race` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `class` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2797,6 +2894,7 @@ CREATE TABLE `points_of_interest` (
 
 
 CREATE TABLE `pool_creature` (
+  `NewGuid` int(10) unsigned NOT NULL,
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `chance` float unsigned NOT NULL DEFAULT '0',
@@ -2867,15 +2965,6 @@ CREATE TABLE `quest_end_scripts` (
   `z` float NOT NULL DEFAULT '0',
   `o` float NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE `quest_package_item_hotfix` (
-  `Id` mediumint(8) unsigned NOT NULL,
-  `PackageID` mediumint(8) unsigned NOT NULL,
-  `ItemId` mediumint(8) unsigned NOT NULL,
-  `Count` mediumint(8) unsigned NOT NULL,
-  `Type` smallint(3) unsigned NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE `quest_poi` (
@@ -3076,8 +3165,9 @@ CREATE TABLE `quest_template_objective` (
   `Description` text,
   `VisualEffects` text,
   `BuildVerified` smallint(6) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=289998 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`ID`),
+  KEY `idx_QuestID` (`QuestID`)
+) ENGINE=InnoDB AUTO_INCREMENT=290001 DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE `reference_loot_template` (
@@ -3401,7 +3491,7 @@ CREATE TABLE `spell_group_stack_rules` (
 
 CREATE TABLE `spell_invalid` (
   `spellid` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 CREATE TABLE `spell_learn_spell` (
@@ -3724,7 +3814,3 @@ CREATE TABLE `zone_skip_update` (
   `zone` int(11) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`zone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='latin1_swedish_ci';
-
-
-
-

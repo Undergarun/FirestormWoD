@@ -385,6 +385,12 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     }
 
                     m_EncounterTime = 0;
+
+                    /// Bloodlust, Heroism, Temporal Displacement and Insanity debuffs are removed at the end of an encounter
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::HunterInsanity);
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::MageTemporalDisplacement);
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::ShamanExhaustion);
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::ShamanSated);
                     break;
                 }
                 case EncounterState::IN_PROGRESS:
@@ -596,6 +602,22 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
                 player->RemoveAurasDueToSpell(spell);
                 if (Pet* pet = player->GetPet())
                     pet->RemoveAurasDueToSpell(spell);
+            }
+        }
+    }
+}
+
+void InstanceScript::DoRemoveForcedMovementsOnPlayers(uint64 p_Source)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (!l_PlayerList.isEmpty())
+    {
+        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+        {
+            if (Player* l_Player = l_Iter->getSource())
+            {
+                if (l_Player->HasMovementForce(p_Source))
+                    l_Player->SendApplyMovementForce(p_Source, false, Position());
             }
         }
     }

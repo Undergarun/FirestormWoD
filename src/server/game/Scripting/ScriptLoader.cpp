@@ -875,6 +875,7 @@ void AddSC_boss_brackenspore();
 void AddSC_boss_tectus();
 void AddSC_boss_twin_ogron();
 void AddSC_boss_koragh();
+void AddSC_boss_imperator_margok();
 
 /// Auchindon
 void AddSC_instance_auchindon();
@@ -1832,6 +1833,7 @@ void AddDraenorScripts()
     AddSC_boss_tectus();
     AddSC_boss_twin_ogron();
     AddSC_boss_koragh();
+    AddSC_boss_imperator_margok();
 
     /// Auchindoun
     AddSC_instance_auchindon();

@@ -2127,6 +2127,7 @@ class spell_rog_internal_bleeding_damage : public SpellScriptLoader
         }
 };
 
+/// Last Upadate 6.1.2
 /// Fan of Knives - 51723
 class spell_rog_fan_of_knives: public SpellScriptLoader
 {
@@ -2137,15 +2138,22 @@ class spell_rog_fan_of_knives: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_fan_of_knives_SpellScript);
 
-            void HandleAfterCast()
+            bool m_HasAlredyBenefitOfBonus = false;
+
+            void HandleAfterHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                Unit* l_Caster = GetCaster();
+
+                if (m_HasAlredyBenefitOfBonus)
+                    return;
+
+                l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                m_HasAlredyBenefitOfBonus = true;
             }
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_rog_fan_of_knives_SpellScript::HandleAfterCast);
+                AfterHit += SpellHitFn(spell_rog_fan_of_knives_SpellScript::HandleAfterHit);
             }
         };
 

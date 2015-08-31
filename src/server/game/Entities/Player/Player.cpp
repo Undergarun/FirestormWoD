@@ -756,6 +756,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_RegenPowerTimer = 0;
     m_regenTimerCount = 0;
     m_holyPowerRegenTimerCount = 0;
+    m_runicPowerRegenTimerCount = 0;
     m_chiPowerRegenTimerCount = 0;
     m_demonicFuryPowerRegenTimerCount = 0;
     m_soulShardsRegenTimerCount = 0;
@@ -1000,8 +1001,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
 Player::~Player()
 {
-    m_DeleteLock.acquire();
-
     if (m_Garrison)
         delete m_Garrison;
 
@@ -1056,7 +1055,6 @@ Player::~Player()
     ClearResurrectRequestData();
 
     sWorld->DecreasePlayerCount();
-    m_DeleteLock.release();
 }
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)
@@ -1488,6 +1486,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 CompleteQuest(quest->GetQuestId());
         }
     }
+
+    SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
     return true;
 }
 
@@ -3249,6 +3249,8 @@ void Player::RegenerateAll()
         }
         case Classes::CLASS_DEATH_KNIGHT:   ///< Runes act as cooldowns, and they don't need to send any data
         {
+            m_runicPowerRegenTimerCount += m_RegenPowerTimer;
+
             for (uint8 l_I = 0; l_I < MAX_RUNES; l_I += 2)
             {
                 uint8 l_RuneToRegen = l_I;
@@ -3293,9 +3295,6 @@ void Player::RegenerateAll()
 
         Regenerate(POWER_RAGE);
 
-        if (l_Class == CLASS_DEATH_KNIGHT)
-            Regenerate(POWER_RUNIC_POWER);
-
         m_regenTimerCount -= 2000;
     }
 
@@ -3303,6 +3302,12 @@ void Player::RegenerateAll()
     {
         Regenerate(POWER_HOLY_POWER);
         m_holyPowerRegenTimerCount -= 10000;
+    }
+
+    if (m_runicPowerRegenTimerCount >= 1000 && l_Class == CLASS_DEATH_KNIGHT)
+    {
+        Regenerate(POWER_RUNIC_POWER);
+        m_runicPowerRegenTimerCount -= 1000;
     }
 
     if (m_chiPowerRegenTimerCount >= 15000 && l_Class == CLASS_MONK)
@@ -3390,11 +3395,13 @@ void Player::Regenerate(Powers power)
             /// Regenerate Runic Power
             case POWER_RUNIC_POWER:
             {
+                float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
                 if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
                 {
-                    float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                    addvalue += (-30 * RunicPowerDecreaseRate / HastePct); ///< 3 RunicPower by tick
+                    addvalue += (-15 * RunicPowerDecreaseRate / HastePct); ///< 1.5 RunicPower by tick
                 }
+                if (isInCombat() && HasAura(50029))
+                    addvalue += 10.0f * RunicPowerDecreaseRate; ///< 1 RunicPower by tick
 
                 break;
             }
@@ -4028,55 +4035,65 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     return std::pair<bool, std::string>(true, "");
 }
 
-Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
+Creature* Player::GetNPCIfCanInteractWith(uint64 p_Guid, uint32 p_NpcFlagMask)
 {
-    // unit checks
-    if (!guid)
-        return NULL;
+    /// Unit checks
+    if (!p_Guid)
+        return nullptr;
 
     if (!IsInWorld())
-        return NULL;
+        return nullptr;
 
     if (isInFlight())
-        return NULL;
+        return nullptr;
 
-    // exist (we need look pets also for some interaction (quest/etc)
-    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
-    if (!creature)
-        return NULL;
+    /// Exist (we need look pets also for some interaction (quest/etc)
+    Creature* l_Creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, p_Guid);
+    if (!l_Creature)
+        return nullptr;
 
-    // Deathstate checks
-    if (!isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_GHOST))
-        return NULL;
+    /// Deathstate checks
+    if (!isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPEFLAGS_GHOST))
+        return nullptr;
 
-    // alive or spirit healer
-    if (!creature->isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_DEAD_INTERACT))
-        return NULL;
+    /// Alive or spirit healer
+    if (!l_Creature->isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPEFLAGS_DEAD_INTERACT))
+        return nullptr;
 
-    // appropriate npc type
-    if (npcflagmask && !creature->HasFlag(UNIT_FIELD_NPC_FLAGS, npcflagmask))
-        return NULL;
+    /// Appropriate npc type
+    if (p_NpcFlagMask && !l_Creature->HasFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, p_NpcFlagMask))
+        return nullptr;
 
-    // not allow interaction under control, but allow with own pets
-    if (creature->GetCharmerGUID())
-        return NULL;
+    /// Not allow interaction under control, but allow with own pets
+    if (l_Creature->GetCharmerGUID())
+        return nullptr;
 
-    // not enemy
-    if (creature->IsHostileTo(this))
-        return NULL;
+    /// Not enemy
+    if (l_Creature->IsHostileTo(this))
+        return nullptr;
 
-    // not unfriendly
-    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(creature->getFaction()))
-        if (factionTemplate->Faction)
-            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->Faction))
-                if (faction->ReputationIndex >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
-                    return NULL;
+    /// Not unfriendly
+    if (FactionTemplateEntry const* l_FactionTemplate = sFactionTemplateStore.LookupEntry(l_Creature->getFaction()))
+    {
+        if (l_FactionTemplate->Faction)
+        {
+            if (FactionEntry const* l_Faction = sFactionStore.LookupEntry(l_FactionTemplate->Faction))
+            {
+                if (l_Faction->ReputationIndex >= 0 && GetReputationMgr().GetRank(l_Faction) <= ReputationRank::REP_UNFRIENDLY)
+                    return nullptr;
+            }
+        }
+    }
 
-    // not too far
-    if (!creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
-        return NULL;
+    /// Not too far
+    bool l_ByPassDist = false;
+    if (l_Creature->IsAIEnabled)
+        l_ByPassDist = l_Creature->AI()->CanByPassDistanceCheck();
 
-    return creature;
+    if (!l_ByPassDist && !l_Creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
+        return nullptr;
+
+    return l_Creature;
 }
 
 Creature* Player::GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask)
@@ -27352,7 +27369,7 @@ void Player::learnDefaultSpells()
 {
     // learn default race/class spells
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
-    for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); itr != info->spell.end(); ++itr)
+    for (PlayerCreateInfoSpells::const_iterator itr = info->customSpells.begin(); itr != info->customSpells.end(); ++itr)
     {
         uint32 tspell = *itr;
         sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "PLAYER (Class: %u Race: %u): Adding initial spell, id = %u", uint32(getClass()), uint32(getRace()), tspell);
@@ -29075,8 +29092,10 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 
     AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator l_Idx = l_RegenAura.begin(); l_Idx != l_RegenAura.end(); ++l_Idx)
+    {
         if ((*l_Idx)->GetMiscValue() == POWER_RUNES && RuneType((*l_Idx)->GetMiscValueB()) == runeType)
             l_Cooldown *= 1.0f - ((*l_Idx)->GetAmount() / 100.0f);
+    }
 
     // Runes cooldown are now affected by player's haste from equipment ...
     l_HastePct = GetRatingBonusValue(CR_HASTE_MELEE);
@@ -29739,8 +29758,6 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         Player* l_Player = HashMapHolder<Player>::Find(p_PlayerGuid);
         if (l_Player == nullptr)
             return;
-            
-        l_Player->m_DeleteLock.acquire();
 
         /// Same for the unit
         Unit* l_Unit = p_UnitGUID ? Unit::GetUnit(*l_Player, p_UnitGUID) : nullptr;
@@ -29750,15 +29767,11 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         // Update only individual achievement criteria here, otherwise we may get multiple updates
         // from a single boss kill
         if (sAchievementMgr->IsGroupCriteriaType(p_Type))
-        {
-            l_Player->m_DeleteLock.release();
             return;
-        }
 
         if (Guild* l_Guild = sGuildMgr->GetGuildById(l_Player->GetGuildId()))
             l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player, p_LoginCheck);
         
-        l_Player->m_DeleteLock.release();
     };
 
     sAchievementMgr->AddCriteriaUpdateTask(l_Task);

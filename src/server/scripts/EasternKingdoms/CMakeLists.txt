@@ -8,8 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+file(GLOB_RECURSE sources_UBRS EasternKingdoms/UpperBlackRockSpire/*.hpp EasternKingdoms/UpperBlackRockSpire/*.cpp EasternKingdoms/UpperBlackRockSpire/*.hxx)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  ${sources_UBRS}
   EasternKingdoms/ghostlands.cpp
   EasternKingdoms/eversong_woods.cpp
   EasternKingdoms/elwynn_forest.cpp
@@ -240,14 +243,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BlackrockCaverns/instance_blackrock_caverns.cpp
   EasternKingdoms/BlackrockCaverns/blackrock_caverns_teleport.cpp
   EasternKingdoms/BlackrockCaverns/blackrock_caverns.h
-  EasternKingdoms/UpperBlackRockSpire/upper_blackrock_spire.h
-  EasternKingdoms/UpperBlackRockSpire/upper_blackrock_spire.cpp
-  EasternKingdoms/UpperBlackRockSpire/instance_upper_blackrock_spire.cpp
-  EasternKingdoms/UpperBlackRockSpire/boss_orebender_gorashan.cpp
-  EasternKingdoms/UpperBlackRockSpire/boss_kyrak_the_corruptor.cpp
-  EasternKingdoms/UpperBlackRockSpire/boss_commander_tharbek.cpp
-  EasternKingdoms/UpperBlackRockSpire/boss_ragewing_the_untamed.cpp
-  EasternKingdoms/UpperBlackRockSpire/boss_warlord_zaela.cpp
 )
 
 message("  -> Prepared: Eastern Kingdoms")
