@@ -256,24 +256,24 @@ namespace MS
                     for (int8 l_I = 0; l_I < TeamsCount::Value; ++l_I)
                     {
                         int32 l_RatingChange = p_BG->GetArenaTeamRatingChangeByIndex(l_I);
-                        uint32 l_Prematch = l_RatingChange < 0 ? -l_RatingChange : 0;
+                        int32 l_Prematch = l_RatingChange < 0 ? -l_RatingChange : 0;
 
-                        *p_Data << uint32(l_Prematch);                      ///< Rating Lost
+                        *p_Data << int32(l_Prematch);                      ///< Rating Lost
                     }
 
                     for (int8 l_I = 0; l_I < TeamsCount::Value; ++l_I)
                     {
                         int32 l_RatingChange = p_BG->GetArenaTeamRatingChangeByIndex(l_I);
-                        uint32 l_Postmatch = l_RatingChange > 0 ? l_RatingChange : 0;
+                        int32 l_Postmatch = l_RatingChange > 0 ? l_RatingChange : 0;
 
-                        *p_Data << uint32(l_Postmatch);                    ///< Rating Lost
+                        *p_Data << int32(l_Postmatch);                    ///< Rating Lost
                     }
 
                     for (int8 l_I = 0; l_I < TeamsCount::Value; ++l_I)
                     {
-                        uint32 l_PrematchMMR = p_BG->GetArenaMatchmakerRatingByIndex(l_I);
+                        int32 l_PrematchMMR = p_BG->GetArenaMatchmakerRatingByIndex(l_I);
 
-                        *p_Data << uint32(l_PrematchMMR);                   ///< Matchmaking Value
+                        *p_Data << int32(l_PrematchMMR);                   ///< Matchmaking Value
                     }
                 }
 

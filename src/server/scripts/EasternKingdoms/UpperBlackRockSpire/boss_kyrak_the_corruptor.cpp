@@ -1,28 +1,12 @@
-/*
-* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
+////////////////////////////////////////////////////////////////////////////////
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "upper_blackrock_spire.h"
+# include "upper_blackrock_spire.hpp"
 
 enum eSpells
 {
@@ -73,9 +57,6 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 m_Instance = p_Creature->GetInstanceScript();
                 m_InitializeAdds = 2000;
                 m_DrakonidMonstrosityGuids.resize(2);
-
-                if (m_Instance)
-                    m_Instance->SetBossState(DATA_KYRAK_THE_CORRUPTOR, TO_BE_DECIDED);
             }
 
             std::vector<uint64> m_DrakonidMonstrosityGuids;
@@ -91,9 +72,6 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 ResetAdds();
-
-                if (m_Instance)
-                    m_Instance->SetBossState(DATA_KYRAK_THE_CORRUPTOR, NOT_STARTED);
 
                 m_Events.Reset();
             }
@@ -111,10 +89,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 Talk(TALK_AGGRO);
 
                 if (m_Instance)
-                {
-                    m_Instance->SetBossState(DATA_KYRAK_THE_CORRUPTOR, IN_PROGRESS);
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                }
 
                 m_Events.ScheduleEvent(EVENT_DEBILITATING_FIXATION, 8000);
                 m_Events.ScheduleEvent(EVENT_REJUVENATING_SERUM, 26000);
@@ -129,10 +104,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
             void JustReachedHome()
             {
                 if (m_Instance)
-                {
-                    m_Instance->SetBossState(DATA_KYRAK_THE_CORRUPTOR, FAIL);
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
             }
 
             void JustDied(Unit* p_Killer)
@@ -142,10 +114,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 Talk(TALK_DEATH);
 
                 if (m_Instance)
-                {
-                    m_Instance->SetBossState(DATA_KYRAK_THE_CORRUPTOR, DONE);
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                }
 
                 me->RemoveAllAreasTrigger();
             }

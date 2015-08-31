@@ -10,6 +10,8 @@
 # define INSTANCE_BLOODMAUL_H
 
 # include "ScriptUtils.h"
+# include "ScriptedCosmeticAI.hpp"
+# include "ScriptedFollowerAI.h"
 
 namespace MS
 {
@@ -27,6 +29,9 @@ namespace MS
 
             enum MobEntries
             {
+                CromanTheBarbarian      = 75242,
+                CromanTheBarbarianReal  = 81032,
+
                 MinesBat                = 75374,
                 BloodmaulEnforcer       = 84978,
                 BloodmaulOverseer       = 75426,
@@ -70,7 +75,8 @@ namespace MS
                 RoltallEntranceWall = 224643,
                 RoltallExitWall     = 225693,
                 RoltallBridge       = 224487,
-                ChallengeDoor       = 211992
+                ChallengeDoor       = 211992,
+                SteelSword          = 231648
             };
 
             enum Data
