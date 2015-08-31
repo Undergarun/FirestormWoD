@@ -1623,13 +1623,13 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
         switch (l_PetStat->m_PowerStat)
         {
             case PetStatInfo::PowerStatBase::AttackPower:
-                l_BaseValue       = l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * l_PetStat->m_APSPCoef;
-                l_BaseAttackPower = l_BaseValue;
+                l_BaseValue       = l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                l_BaseAttackPower = l_BaseValue * l_PetStat->m_APSPCoef;
                 l_SpellPower      = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
             case PetStatInfo::PowerStatBase::SpellPower:
-                l_BaseValue       = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * l_PetStat->m_APSPCoef;
-                l_SpellPower      = l_BaseValue;
+                l_BaseValue       = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+                l_SpellPower      = l_BaseValue * l_PetStat->m_APSPCoef;
                 l_BaseAttackPower = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
             default:
