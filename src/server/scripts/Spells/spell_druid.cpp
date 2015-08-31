@@ -162,6 +162,7 @@ enum GenesisSpells
     SPELL_DRUID_GENESIS_HEAL = 162359
 };
 
+/// last update : 6.1.2 19802
 /// Genesis - 145518
 class spell_dru_genesis: public SpellScriptLoader
 {
@@ -171,36 +172,49 @@ class spell_dru_genesis: public SpellScriptLoader
         class spell_dru_genesis_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_genesis_SpellScript);
+            
+            enum eSpells
+            {
+                RejuvenationAura = 774,
+                GerminationAura = 155777,
+                GenersisHeal = 162359
+            };
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (!GetCaster())
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* l_GenesisHeal = sSpellMgr->GetSpellInfo(eSpells::GenersisHeal);
+
+                if (l_Player == nullptr || l_GenesisHeal == nullptr)
                     return;
 
-                if (Player* plr = GetCaster()->ToPlayer())
-                {
                     std::list<Unit*> partyMembers;
-                    plr->GetRaidMembers(partyMembers);
+                    l_Player->GetRaidMembers(partyMembers);
+                    int l_Rejuvenations[2] = { eSpells::RejuvenationAura, eSpells::GerminationAura };
 
-                    for (auto itr : partyMembers)
+                    for (auto l_Target : partyMembers)
                     {
-                        if (!itr->IsWithinDist(plr, 60.0f) || !itr->IsWithinLOSInMap(plr))
+                        if (!l_Target->IsWithinDist(l_Player, 60.0f) || !l_Target->IsWithinLOSInMap(l_Player))
                             continue;
 
-                        if (AuraPtr rejuvenation = itr->GetAura(SPELL_DRUID_REJUVENATION, plr->GetGUID()))
+                        int32 l_HealAmount = 0;
+                        bool l_AtListOne = false;
+                        for (uint8 i = 0; i < 2; ++i)
                         {
-                            /// Calculate left heal from rejuvenation (1 tick on the aura applying, so we add it)
-                            int8 l_TicksLeft = uint8(rejuvenation->GetDuration() / rejuvenation->GetEffect(0)->GetAmplitude()) + 1;
-                            int32 l_HealAmount = rejuvenation->GetEffect(0)->GetAmount();
-                            /// Per tick heal for our Genesis spell
-                            int32 l_NewHeal = uint32(l_TicksLeft * l_HealAmount / 5);
-                            plr->CastCustomSpell(itr, SPELL_DRUID_GENESIS_HEAL, &l_NewHeal, NULL, NULL, true);
-                            itr->RemoveAura(SPELL_DRUID_REJUVENATION);
+                            if (AuraPtr l_Rejuvenation = l_Target->GetAura(l_Rejuvenations[i], l_Player->GetGUID()))
+                            {
+                                int8 l_TicksLeft = uint8(l_Rejuvenation->GetDuration() / l_Rejuvenation->GetEffect(0)->GetAmplitude()) + 1;
 
-                            //itr->SetHealth(itr->GetHealth() + plr->GetHealingDoneInPastSecs(3));
+                                if (l_GenesisHeal->Effects[0].Amplitude)
+                                    l_HealAmount += uint32((l_TicksLeft * l_Rejuvenation->GetEffect(0)->GetAmount()) / (l_GenesisHeal->GetMaxDuration() / l_GenesisHeal->Effects[0].Amplitude));
+
+                                l_Target->RemoveAura(l_Rejuvenations[i]);
+                                l_AtListOne = true;
+                            }
                         }
+                        if (l_AtListOne)
+                            l_Player->CastCustomSpell(l_Target, SPELL_DRUID_GENESIS_HEAL, &l_HealAmount, NULL, NULL, true);
                     }
-                }
             }
 
             void Register()
