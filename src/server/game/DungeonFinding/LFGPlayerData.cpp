@@ -48,7 +48,10 @@ void LfgPlayerData::ClearState()
 
 void LfgPlayerData::SetLockedDungeons(const LfgLockMap& lockStatus)
 {
-    m_LockedDungeons = lockStatus;
+    m_LockedDungeons.clear();
+
+    for (auto l_Iter : lockStatus)
+        m_LockedDungeons.insert(l_Iter);
 }
 
 void LfgPlayerData::SetRoles(uint8 roles)

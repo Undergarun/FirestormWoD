@@ -142,6 +142,9 @@ class CreatureAI : public UnitAI
         /// Called when spell miss a target
         virtual void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) { }
 
+        /// Called when successful cast a spell
+        virtual void OnSpellCasted(SpellInfo const* p_SpellInfo) { }
+
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         //virtual void AttackedBy(Unit* attacker);
         virtual bool IsEscorted() { return false; }
