@@ -2144,11 +2144,16 @@ class spell_rog_fan_of_knives: public SpellScriptLoader
 
             bool m_HasAlredyBenefitOfBonus = false;
 
+            enum eSpells
+            {
+                EmpoweredFanofKnives = 157671
+            };
+
             void HandleAfterHit()
             {
                 Unit* l_Caster = GetCaster();
 
-                if (m_HasAlredyBenefitOfBonus)
+                if (m_HasAlredyBenefitOfBonus && !l_Caster->HasAura(eSpells::EmpoweredFanofKnives))
                     return;
 
                 l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
