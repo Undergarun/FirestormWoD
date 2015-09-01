@@ -1815,7 +1815,7 @@ class areatrigger_highmaul_suppression_field : public AreaTriggerEntityScript
                     if (Unit* l_Caster = p_AreaTrigger->GetCaster())
                     {
                         std::list<Unit*> l_TargetList;
-                        float l_Radius = 10.0f;
+                        float l_Radius = 15.0f;
 
                         JadeCore::AnyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Radius);
                         JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
