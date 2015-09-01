@@ -4963,8 +4963,64 @@ class spell_dru_celestial_alignement_marker : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Incarnation: Tree of Life - 33891
+class spell_dru_incarnation_tree_of_life : public SpellScriptLoader
+{
+    public:
+        spell_dru_incarnation_tree_of_life() : SpellScriptLoader("spell_dru_incarnation_tree_of_life") { }
+
+        class spell_dru_incarnation_tree_of_life_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_incarnation_tree_of_life_AuraScript);
+
+            enum eSpells
+            {
+                Incarnation = 117679
+            };
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (AuraPtr l_Aura = l_Target->GetAura(eSpells::Incarnation))
+                {
+                    p_AurEff->GetBase()->SetDuration(l_Aura->GetDuration());
+                    l_Target->RemoveAura(eSpells::Incarnation);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes mode)
+            {
+                Unit* l_Target = GetTarget();
+
+
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_CANCEL)
+                    return;
+
+                if (p_AurEff->GetBase()->GetDuration())
+                    l_Target->CastSpell(l_Target, eSpells::Incarnation, true);
+
+                if (AuraPtr l_Aura = l_Target->GetAura(eSpells::Incarnation))
+                    l_Aura->SetDuration(p_AurEff->GetBase()->GetDuration());
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_incarnation_tree_of_life_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_incarnation_tree_of_life_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_incarnation_tree_of_life_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_incarnation_tree_of_life();
     new spell_dru_celestial_alignement_marker();
     new spell_dru_celestial_alignement();
     new spell_dru_yseras_gift_ally_proc();
