@@ -4875,6 +4875,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 131361:///< Vanish - Improved Stealth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); ///< 3s
                 break;
+            case 129197:///< Insanity
+                spellInfo->Effects[0].BonusMultiplier *= 2.0f;
+                break;
             case 116784:///< Wildfire Spark - Boss Feng
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
