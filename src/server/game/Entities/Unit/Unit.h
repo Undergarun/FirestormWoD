@@ -1577,6 +1577,7 @@ class Unit : public WorldObject
         void GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Range) const;
         Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true, bool p_Alive = true, bool p_ExcludeStealthVictim = false) const;
         Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
+        Unit* SelectNearbyMostInjuredAlly(Unit* p_Exculde = nullptr, float p_Dist = NOMINAL_MELEE_RANGE) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
         void SendMeleeAttackStart(Unit* victim);
         bool IsVisionObscured(Unit* victim, SpellInfo const* spellInfo);

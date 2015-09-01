@@ -10,7 +10,10 @@
 
 DoorData const g_DoorData[] =
 {
-    { 0, 0, DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE } ///< End
+    { eFoundryGameObjects::GruulSpikeDoor,              eFoundryDatas::DataGruul,           DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BKFoundrySpikeTrapGate,      eFoundryDatas::DataOregorger,       DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BlastFurnaceEncounterDoor,   eFoundryDatas::DataBlastFurnace,    DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE },
+    { 0,                                                0,                                  DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE } ///< End
 };
 
 class instance_blackrock_foundry : public InstanceMapScript
@@ -21,6 +24,10 @@ class instance_blackrock_foundry : public InstanceMapScript
         struct instance_blackrock_foundryMapScript : public InstanceScript
         {
             instance_blackrock_foundryMapScript(Map* p_Map) : InstanceScript(p_Map) { }
+
+            /// Slagworks
+            uint64 m_GruulGuid;
+            uint64 m_OregorgerGuid;
 
             void Initialize() override
             {
@@ -35,6 +42,12 @@ class instance_blackrock_foundry : public InstanceMapScript
             {
                 switch (p_Creature->GetEntry())
                 {
+                    case eFoundryCreatures::BossGruul:
+                        m_GruulGuid = p_Creature->GetGUID();
+                        break;
+                    case eFoundryCreatures::BossOregorger:
+                        m_OregorgerGuid = p_Creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -53,6 +66,11 @@ class instance_blackrock_foundry : public InstanceMapScript
             {
                 switch (p_GameObject->GetEntry())
                 {
+                    case eFoundryGameObjects::GruulSpikeDoor:
+                    case eFoundryGameObjects::BKFoundrySpikeTrapGate:
+                    case eFoundryGameObjects::BlastFurnaceEncounterDoor:
+                        AddDoor(p_GameObject, true);
+                        break;
                     default:
                         break;
                 }
@@ -62,6 +80,11 @@ class instance_blackrock_foundry : public InstanceMapScript
             {
                 switch (p_GameObject->GetEntry())
                 {
+                    case eFoundryGameObjects::GruulSpikeDoor:
+                    case eFoundryGameObjects::BKFoundrySpikeTrapGate:
+                    case eFoundryGameObjects::BlastFurnaceEncounterDoor:
+                        AddDoor(p_GameObject, false);
+                        break;
                     default:
                         break;
                 }
@@ -103,6 +126,10 @@ class instance_blackrock_foundry : public InstanceMapScript
             {
                 switch (p_Type)
                 {
+                    case eFoundryCreatures::BossGruul:
+                        return m_GruulGuid;
+                    case eFoundryCreatures::BossOregorger:
+                        return m_OregorgerGuid;
                     default:
                         break;
                 }

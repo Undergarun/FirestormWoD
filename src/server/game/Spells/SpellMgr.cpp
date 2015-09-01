@@ -4349,6 +4349,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163140:///< Mind Fungus
             case 163590:///< Creeping Moss (damage)
             case 165494:///< Creeping Moss (healing)
+            case 175643:///< Spinning Blade (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
@@ -4549,6 +4550,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 151272: ///< Wheel of Pain Knockback
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 175638: ///< Spinning Blade
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
+            case 175091: ///< Animate Slag
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             case 101184: ///< Leyara's Locket
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
