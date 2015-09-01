@@ -4654,12 +4654,14 @@ public:
                 return;
 
             /// When Entangling Roots is dispelled or broken by damage, you gain 1 charge of Starsurge.
-            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+            if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
                 return;
 
             if (SpellInfo const* l_Starsurge = sSpellMgr->GetSpellInfo(eSpells::Starsurge))
+            {
                 if (SpellCategoriesEntry const* l_StarsurgeCategories = l_Starsurge->GetSpellCategories())
                     l_Player->RestoreCharge(l_StarsurgeCategories->ChargesCategory);
+            }
         }
 
         void Register()
