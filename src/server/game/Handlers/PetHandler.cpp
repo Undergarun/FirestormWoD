@@ -503,8 +503,10 @@ bool WorldSession::CheckStableMaster(uint64 guid)
 
 void WorldSession::HandlePetSetAction(WorldPacket & p_RecvPacket)
 {
+    bool l_SwapCommand = false;
+
     uint64 l_PetGUID;
-    uint32 l_Action; 
+    uint32 l_Action;
     uint32 l_Index;
 
     p_RecvPacket.readPackGUID(l_PetGUID);
@@ -525,52 +527,47 @@ void WorldSession::HandlePetSetAction(WorldPacket & p_RecvPacket)
         return;
     }
 
-    uint8 l_ActState = UNIT_ACTION_BUTTON_TYPE(l_Action);
-
-    //ignore invalid position
+    /// ignore invalid position
     if (l_Index >= MAX_UNIT_ACTION_BAR_INDEX)
         return;
 
-    uint8 l_ActState0 = UNIT_ACTION_BUTTON_TYPE(l_Action);
-    if ((l_ActState0 == ACT_COMMAND && UNIT_ACTION_BUTTON_ACTION(l_Action) != COMMAND_MOVE_TO) || l_ActState0 == ACT_REACTION)
-    {
-        uint32 l_SpellID0 = UNIT_ACTION_BUTTON_ACTION(l_Action);
-        UnitActionBarEntry const* actionEntry_1 = l_CharmInfo->GetActionBarEntry(l_Index);
-        if (!actionEntry_1 || l_SpellID0 != actionEntry_1->GetAction() ||
-            l_ActState0 != actionEntry_1->GetType())
-            return;
-    }
+    uint32 l_SpellIdOrAction = UNIT_ACTION_BUTTON_ACTION(l_Action);
+    uint8 l_ActState = UNIT_ACTION_BUTTON_TYPE(l_Action);
 
-    uint32 l_SpellID = UNIT_ACTION_BUTTON_ACTION(l_Action);
+    /// in the normal case, command and reaction buttons can only be moved, not removed
+    /// ignore attempt to remove command|reaction buttons (not possible at normal case)
+    UnitActionBarEntry const* l_ActionEntry = l_CharmInfo->GetActionBarEntry(l_Index);
+    if ((l_ActionEntry->GetType() == ACT_COMMAND || l_ActionEntry->GetType() == ACT_REACTION) && l_ActState == 0 && l_SpellIdOrAction == 0)
+        l_SwapCommand = true;
 
     //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
-    if (!((l_ActState == ACT_ENABLED || l_ActState == ACT_DISABLED || l_ActState == ACT_PASSIVE) && l_SpellID && !l_Pet->HasSpell(l_SpellID)))
+    if (!l_SwapCommand && !((l_ActState == ACT_ENABLED || l_ActState == ACT_DISABLED || l_ActState == ACT_PASSIVE) && l_SpellIdOrAction && !l_Pet->HasSpell(l_SpellIdOrAction)))
     {
-        if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID))
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(l_SpellIdOrAction))
         {
             //sign for autocast
             if (l_ActState == ACT_ENABLED)
             {
                 if (l_Pet->GetTypeId() == TYPEID_UNIT && l_Pet->ToCreature()->isPet())
-                    ((Pet*)l_Pet)->ToggleAutocast(l_SpellInfo, true);
+                    ((Pet*)l_Pet)->ToggleAutocast(spellInfo, true);
                 else
-                    for (Unit::ControlList::iterator l_Itr = GetPlayer()->m_Controlled.begin(); l_Itr != GetPlayer()->m_Controlled.end(); ++l_Itr)
-                        if ((*l_Itr)->GetEntry() == l_Pet->GetEntry())
-                            (*l_Itr)->GetCharmInfo()->ToggleCreatureAutocast(l_SpellInfo, true);
+                    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+                        if ((*itr)->GetEntry() == l_Pet->GetEntry())
+                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, true);
             }
             //sign for no/turn off autocast
             else if (l_ActState == ACT_DISABLED)
             {
                 if (l_Pet->GetTypeId() == TYPEID_UNIT && l_Pet->ToCreature()->isPet())
-                    ((Pet*)l_Pet)->ToggleAutocast(l_SpellInfo, false);
+                    ((Pet*)l_Pet)->ToggleAutocast(spellInfo, false);
                 else
                     for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
                         if ((*itr)->GetEntry() == l_Pet->GetEntry())
-                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(l_SpellInfo, false);
+                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, false);
             }
         }
 
-        l_CharmInfo->SetActionBar(l_Index, l_SpellID, ActiveStates(l_ActState));
+        l_CharmInfo->SetActionBar(l_Index, l_SpellIdOrAction, ActiveStates(l_ActState));
     }
 }
 

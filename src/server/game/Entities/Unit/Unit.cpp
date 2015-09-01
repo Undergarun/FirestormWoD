@@ -16291,26 +16291,18 @@ void CharmInfo::RestoreState()
 void CharmInfo::InitPetActionBar()
 {
     // the first 3 SpellOrActions are attack, follow and move-to
+    CommandStates l_Commands[] = { COMMAND_ATTACK, COMMAND_FOLLOW, COMMAND_MOVE_TO };
     for (uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_START - ACTION_BAR_INDEX_START; ++i)
-    {
-        if (i < 2)
-            SetActionBar(ACTION_BAR_INDEX_START + i, COMMAND_ATTACK - i, ACT_COMMAND);
-        else
-            SetActionBar(ACTION_BAR_INDEX_START + i, COMMAND_MOVE_TO, ACT_COMMAND);
-    }
+        SetActionBar(ACTION_BAR_INDEX_START + i, l_Commands[i], ACT_COMMAND);
 
     // middle 4 SpellOrActions are spells/special attacks/abilities
     for (uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_END-ACTION_BAR_INDEX_PET_SPELL_START; ++i)
         SetActionBar(ACTION_BAR_INDEX_PET_SPELL_START + i, 0, ACT_PASSIVE);
 
     // last 3 SpellOrActions are reactions
+    ReactStates l_Reactions[] = { REACT_HELPER, REACT_DEFENSIVE, REACT_PASSIVE };
     for (uint32 i = 0; i < ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_PET_SPELL_END; ++i)
-    {
-        if (i == 0)
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER, ACT_REACTION);
-        else
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_AGGRESSIVE - i, ACT_REACTION);
-    }
+        SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, l_Reactions[i], ACT_REACTION);
 
     m_CharmType = CharmType::CHARM_TYPE_CHARM;
 }
