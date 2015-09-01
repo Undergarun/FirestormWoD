@@ -16,7 +16,7 @@ DoorData const g_DoorData[] =
 class instance_blackrock_foundry : public InstanceMapScript
 {
     public:
-        instance_blackrock_foundry() : InstanceMapScript("instance_blackrock_foundry", 1228) { }
+        instance_blackrock_foundry() : InstanceMapScript("instance_blackrock_foundry", 1205) { }
 
         struct instance_blackrock_foundryMapScript : public InstanceScript
         {
@@ -24,7 +24,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
             void Initialize() override
             {
-                SetBossNumber(0);
+                SetBossNumber(eFoundryDatas::MaxBossData);
 
                 LoadDoorData(g_DoorData);
 
