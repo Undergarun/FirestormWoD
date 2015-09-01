@@ -1330,7 +1330,7 @@ class spell_dru_lifebloom: public SpellScriptLoader
             {
                 if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
                 {
-                    Unit* l_Target = p_DispelInfo->GetDispeller();
+                    Unit* l_Target = GetTarget();
                     Unit* l_Caster = GetCaster();
 
                     if (!l_Caster)
