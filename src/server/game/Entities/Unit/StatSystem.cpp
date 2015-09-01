@@ -1679,20 +1679,19 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
             break;
     }
 
-    /// For hunter pets damage calculation we don't need take their attack speed time, it's always 2.0f
-    float l_AttackSpeed = isHunterPet() ? 2.0f : float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
+    float l_AttackSpeed = float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
-
-    PetStatInfo const* l_PetStat = GetPetStat();
-    if (l_PetStat != nullptr)
-        l_BaseValue += GetTotalAttackPowerValue(p_AttType) * l_PetStat->m_DamageCoef;
-    else
-        l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 14.0f * l_AttackSpeed;
 
     /// Special calculation for hunter pets - WoD
     /// Last Update 6.1.2 19802
     if (isHunterPet())
-        l_BaseValue = GetTotalAttackPowerValue(p_AttType) / 3.5f * l_AttackSpeed;
+        l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 3.5f * l_AttackSpeed;
+    else
+        l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 14.0f * l_AttackSpeed;
+
+    PetStatInfo const* l_PetStat = GetPetStat();
+    if (l_PetStat != nullptr)
+        l_BaseValue *= l_PetStat->m_DamageCoef;
 
     float l_BasePct    = GetModifierValue(l_UnitMod, BASE_PCT);
     float l_TotalValue = GetModifierValue(l_UnitMod, TOTAL_VALUE);
