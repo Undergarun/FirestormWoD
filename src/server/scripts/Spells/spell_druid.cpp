@@ -1305,10 +1305,10 @@ class spell_dru_lifebloom: public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                Unit* l_Target = GetTarget();
+                Unit* l_Target = GetUnitOwner();
                 Unit* l_Caster = GetCaster();
 
-                if (!l_Caster)
+                if (!l_Caster || !l_Target)
                     return;
 
                 SpellInfo const* l_LifebloomFinalHeal = sSpellMgr->GetSpellInfo(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL);
@@ -1330,10 +1330,10 @@ class spell_dru_lifebloom: public SpellScriptLoader
             {
                 if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
                 {
-                    Unit* l_Target = GetTarget();
+                    Unit* l_Target = GetUnitOwner();
                     Unit* l_Caster = GetCaster();
 
-                    if (!l_Caster)
+                    if (!l_Caster || !l_Target)
                         return;
 
                     SpellInfo const* l_LifebloomFinalHeal = sSpellMgr->GetSpellInfo(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL);
@@ -1367,7 +1367,7 @@ class spell_dru_lifebloom: public SpellScriptLoader
             void Register()
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
-                AfterDispel += AuraDispelFn(spell_dru_lifebloom_AuraScript::HandleDispel);
+                OnDispel += AuraDispelFn(spell_dru_lifebloom_AuraScript::HandleDispel);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_lifebloom_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
