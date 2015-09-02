@@ -1291,22 +1291,22 @@ class boss_imperator_margok : public CreatureScript
                     Position l_Pos = *me;
                     l_Pos.m_positionZ -= 16.0f;
                     me->GetMotionMaster()->MovePoint(eMoves::MoveDown, l_Pos);
+
+                    uint32 l_Time = m_Events.GetEventTime(eEvents::EventMarkOfChaos);
+                    m_Events.ScheduleEvent(eEvents::EventMarkOfChaosDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
+
+                    l_Time = m_Events.GetEventTime(eEvents::EventForceNova);
+                    m_Events.ScheduleEvent(eEvents::EventForceNovaDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
+
+                    l_Time = m_Events.GetEventTime(eEvents::EventArcaneWrath);
+                    m_Events.ScheduleEvent(eEvents::EventArcaneWrathDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
+
+                    l_Time = m_Events.GetEventTime(eEvents::EventDestructiveResonance);
+                    m_Events.ScheduleEvent(eEvents::EventDestructiveResonanceDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
+
+                    l_Time = m_Events.GetEventTime(eEvents::EventArcaneAberration) + 13 * TimeConstants::IN_MILLISECONDS;
+                    m_Events.ScheduleEvent(eEvents::EventArcaneAberrationDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
                 });
-
-                uint32 l_Time = m_Events.GetEventTime(eEvents::EventMarkOfChaos) + 13 * TimeConstants::IN_MILLISECONDS;
-                m_Events.ScheduleEvent(eEvents::EventMarkOfChaosDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
-
-                l_Time = m_Events.GetEventTime(eEvents::EventForceNova) + 13 * TimeConstants::IN_MILLISECONDS;
-                m_Events.ScheduleEvent(eEvents::EventForceNovaDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
-
-                l_Time = m_Events.GetEventTime(eEvents::EventArcaneWrath) + 13 * TimeConstants::IN_MILLISECONDS;
-                m_Events.ScheduleEvent(eEvents::EventArcaneWrathDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
-
-                l_Time = m_Events.GetEventTime(eEvents::EventDestructiveResonance) + 13 * TimeConstants::IN_MILLISECONDS;
-                m_Events.ScheduleEvent(eEvents::EventDestructiveResonanceDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
-
-                l_Time = m_Events.GetEventTime(eEvents::EventArcaneAberration) + 13 * TimeConstants::IN_MILLISECONDS;
-                m_Events.ScheduleEvent(eEvents::EventArcaneAberrationDisplacement, l_Time, 0, ePhases::RuneOfDisplacement);
             }
 
             void ScheduleFirstTransitionPhase()
@@ -2546,27 +2546,41 @@ class spell_highmaul_branded : public SpellScriptLoader
 
                     if (Unit* l_Target = GetTarget())
                     {
-                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
-
-                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
-
-                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
-                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
-                        float l_JumpRange = 200.0f;
-                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
-                            l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
-
-                        if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
+                        if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
-                            /// Increase jump count
-                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+                            uint64 l_Guid = l_Target->GetGUID();
+                            uint64 l_MeGuid = l_Margok->GetGUID();
+                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+                            {
+                                if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
+                                {
+                                    if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
+                                    {
+                                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
-                            return;
+                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+
+                                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
+                                        float l_JumpRange = 200.0f;
+                                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
+                                            l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
+
+                                        if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
+                                        {
+                                            /// Increase jump count
+                                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+
+                                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
+                                            return;
+                                        }
+
+                                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
+                                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
+                                    }
+                                }
+                            });
                         }
-
-                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
-                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
                     }
                 }
             }
@@ -2642,27 +2656,41 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
 
                     if (Unit* l_Target = GetTarget())
                     {
-                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
-
-                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
-
-                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
-                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
-                        float l_JumpRange = 200.0f;
-                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
-                            l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
-
-                        if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
+                        if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
-                            /// Increase jump count
-                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+                            uint64 l_Guid = l_Target->GetGUID();
+                            uint64 l_MeGuid = l_Margok->GetGUID();
+                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+                            {
+                                if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
+                                {
+                                    if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
+                                    {
+                                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
-                            return;
+                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+
+                                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
+                                        float l_JumpRange = 200.0f;
+                                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
+                                            l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
+
+                                        if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
+                                        {
+                                            /// Increase jump count
+                                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+
+                                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
+                                            return;
+                                        }
+
+                                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
+                                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
+                                    }
+                                }
+                            });
                         }
-
-                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
-                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
                     }
                 }
             }
@@ -2715,27 +2743,41 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
 
                     if (Unit* l_Target = GetTarget())
                     {
-                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
-
-                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
-
-                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
-                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
-                        float l_JumpRange = 200.0f;
-                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
-                            l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
-
-                        if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
+                        if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
-                            /// Increase jump count
-                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+                            uint64 l_Guid = l_Target->GetGUID();
+                            uint64 l_MeGuid = l_Margok->GetGUID();
+                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+                            {
+                                if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
+                                {
+                                    if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
+                                    {
+                                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
-                            return;
+                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+
+                                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
+                                        float l_JumpRange = 200.0f;
+                                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
+                                            l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
+
+                                        if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
+                                        {
+                                            /// Increase jump count
+                                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+
+                                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
+                                            return;
+                                        }
+
+                                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
+                                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
+                                    }
+                                }
+                            });
                         }
-
-                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
-                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
                     }
                 }
             }
@@ -2786,60 +2828,74 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
 
                     if (Unit* l_Target = GetTarget())
                     {
-                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
-
-                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
-
-                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
-                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
-                        float l_JumpRange = 200.0f;
-                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
-                            l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
-
-                        /// In addition to Arcane Wrath's normal effects, a second player will be Branded the first time Arcane Wrath jumps.
-                        if (!l_Stacks)
+                        if (boss_imperator_margok::boss_imperator_margokAI* l_AI = CAST_AI(boss_imperator_margok::boss_imperator_margokAI, l_Margok->GetAI()))
                         {
-                            std::list<Player*> l_PlrList;
-                            l_Target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
-
-                            if (l_PlrList.size() > 2)
+                            uint64 l_Guid = l_Target->GetGUID();
+                            uint64 l_MeGuid = l_Margok->GetGUID();
+                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
                             {
-                                l_PlrList.sort(JadeCore::ObjectDistanceOrderPred(l_Target));
-                                JadeCore::RandomResizeList(l_PlrList, 2);
-                            }
+                                if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
+                                {
+                                    if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
+                                    {
+                                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                            /// Increase jump count
-                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
 
-                            for (Player* l_Player : l_PlrList)
-                                l_Margok->CastSpell(l_Player, GetSpellInfo()->Id, true);
+                                        /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
+                                        /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
+                                        float l_JumpRange = 200.0f;
+                                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
+                                            l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
 
-                            return;
+                                        /// In addition to Arcane Wrath's normal effects, a second player will be Branded the first time Arcane Wrath jumps.
+                                        if (!l_Stacks)
+                                        {
+                                            std::list<Player*> l_PlrList;
+                                            l_Target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
+
+                                            if (l_PlrList.size() > 2)
+                                            {
+                                                l_PlrList.sort(JadeCore::ObjectDistanceOrderPred(l_Target));
+                                                JadeCore::RandomResizeList(l_PlrList, 2);
+                                            }
+
+                                            /// Increase jump count
+                                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+
+                                            for (Player* l_Player : l_PlrList)
+                                                l_Margok->CastSpell(l_Player, GetSpellInfo()->Id, true);
+
+                                            return;
+                                        }
+
+                                        std::list<Player*> l_PlrList;
+                                        l_Target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
+
+                                        /// It cannot jumps twice on the same player at the same time
+                                        if (!l_PlrList.empty())
+                                            l_PlrList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
+
+                                        if (!l_PlrList.empty())
+                                        {
+                                            l_PlrList.sort(JadeCore::ObjectDistanceOrderPred(l_Target));
+
+                                            if (Player* l_OtherPlayer = l_PlrList.front())
+                                            {
+                                                /// Increase jump count
+                                                l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+
+                                                l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
+                                                return;
+                                            }
+                                        }
+
+                                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
+                                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
+                                    }
+                                }
+                            });
                         }
-
-                        std::list<Player*> l_PlrList;
-                        l_Target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
-
-                        /// It cannot jumps twice on the same player at the same time
-                        if (!l_PlrList.empty())
-                            l_PlrList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
-
-                        if (!l_PlrList.empty())
-                        {
-                            l_PlrList.sort(JadeCore::ObjectDistanceOrderPred(l_Target));
-
-                            if (Player* l_OtherPlayer = l_PlrList.front())
-                            {
-                                /// Increase jump count
-                                l_Margok->AI()->SetData(eData::BrandedStacks, 1);
-
-                                l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
-                                return;
-                            }
-                        }
-
-                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
-                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
                     }
                 }
             }
