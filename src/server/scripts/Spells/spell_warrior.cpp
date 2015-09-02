@@ -2003,21 +2003,24 @@ class spell_warr_blood_bath : public SpellScriptLoader
 
                 int32 l_Damage = (p_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100;
 
+                int32 l_PreviousTotalDamage = 0;
+
                 if (AuraEffectPtr l_PreviousBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                 {
                     int32 l_PeriodicDamage = l_PreviousBloodBath->GetAmount();
                     int32 l_Duration = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID())->GetDuration();
                     int32 l_Amplitude = l_PreviousBloodBath->GetAmplitude();
 
-                    int32 l_PreviousTotalDamage = 0;
-
                     if (l_Amplitude)
                         l_PreviousTotalDamage = l_PeriodicDamage * (l_Duration / l_Amplitude);
-                    l_Damage += l_PreviousTotalDamage;
+
+                    l_PreviousTotalDamage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
                 }
 
                 if (l_SpellInfoDamage->Effects[EFFECT_0].Amplitude)
                     l_Damage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
+
+                l_Damage += l_PreviousTotalDamage;
 
                 l_Caster->CastSpell(l_Target, eSpells::BloodBathSnare, true);
                 l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage, true);
