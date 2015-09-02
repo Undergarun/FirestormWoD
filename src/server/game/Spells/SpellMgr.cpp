@@ -6412,6 +6412,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// Can be casted in Battle Stance AND in Defensive Stance
                 spellInfo->Stances |= ((uint64)1L << (ShapeshiftForm::FORM_DEFENSIVESTANCE - 1));
                 break;
+            case 91809: ///< Leap
+                spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
+                break;
+            case 91802: ///< Shambling Rush
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 0;
+                break;
             default:
                 break;
         }
