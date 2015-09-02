@@ -5175,6 +5175,7 @@ void AuraEffect::HandleAuraModIncreaseEnergy(AuraApplication const* aurApp, uint
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
+    target->SetCanModifyStats(true);
     target->HandleStatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
 }
 
@@ -5192,6 +5193,8 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
     // inside effect handlers is not a good idea
     //if (int32(powerType) != GetMiscValue())
     //    return;
+
+    target->SetCanModifyStats(true);
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
     float amount = float(GetAmount());

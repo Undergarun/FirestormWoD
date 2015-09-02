@@ -1574,10 +1574,10 @@ void Guardian::UpdateMaxPower(Powers p_Power)
     if (l_Owner == nullptr)
         return;
 
-    float l_AddValue = ((l_PetStat != nullptr) && p_Power == l_PetStat->m_Power) ? 0.0f : GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT);
+    float l_AddValue = (l_PetStat != nullptr && l_PetStat->m_Power == p_Power) ? 0.0f : GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT);
     float l_Multiplicator = 15.0f;
 
-    float l_Value = GetModifierValue(l_UnitMod, BASE_VALUE) + GetCreatePowers(p_Power);
+    float l_Value = 0.0f;
     if (l_PetStat != nullptr)
     {
         if (l_PetStat->m_CreatePower == -1)
@@ -1593,6 +1593,7 @@ void Guardian::UpdateMaxPower(Powers p_Power)
         }
     }
 
+    l_Value += GetModifierValue(l_UnitMod, BASE_VALUE);
     l_Value *= GetModifierValue(l_UnitMod, BASE_PCT);
     l_Value += GetModifierValue(l_UnitMod, TOTAL_VALUE) + l_AddValue * l_Multiplicator;
     l_Value *= GetModifierValue(l_UnitMod, TOTAL_PCT);
