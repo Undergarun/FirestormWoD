@@ -223,7 +223,7 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
     public:
         spell_at_druid_solar_beam() : AreaTriggerEntityScript("spell_at_druid_solar_beam") { }
 
-        std::list<Unit*> m_TargetList;
+        std::list<uint64> m_TargetList;
 
         enum eSpells
         {
@@ -232,47 +232,50 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            std::list<Unit*> l_NewTargetList;
             float l_Radius = 5.0f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
 
             if (l_Caster == nullptr)
                 return;
 
+            std::list<Unit*> l_NewTargetList;
             JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
             p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
 
-            for (auto itr : l_NewTargetList)
+            for (Unit* l_Target : l_NewTargetList)
             {
-                if (itr != nullptr && l_Caster->IsValidAttackTarget(itr) && std::find(m_TargetList.begin(), m_TargetList.end(), itr) == m_TargetList.end())
+                if (l_Caster->IsValidAttackTarget(l_Target) && std::find(m_TargetList.begin(), m_TargetList.end(), l_Target->GetGUID()) == m_TargetList.end())
                 {
-                    m_TargetList.push_back(itr);
-                    l_Caster->CastSpell(itr, eSpells::solarBeamSilence, true);
+                    m_TargetList.push_back(l_Target->GetGUID());
+                    l_Caster->CastSpell(l_Target, eSpells::solarBeamSilence, true);
                     if (AuraPtr l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
                         l_SolarBeamSilence->SetDuration(p_AreaTrigger->GetDuration());
                 }
             }
 
-            for (std::list<Unit*>::iterator itr = m_TargetList.begin(); itr != m_TargetList.end();)
+            for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end(); )
             {
-                if ((*itr) == nullptr || (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), (*itr)) == l_NewTargetList.end()))
+                Unit* l_Target = ObjectAccessor::FindUnit(*l_It);
+                if (!l_Target || (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end()))
                 {
-                    if ((*itr) != nullptr && (*itr)->HasAura(eSpells::solarBeamSilence))
-                        (*itr)->RemoveAura(eSpells::solarBeamSilence);
-                    itr = m_TargetList.erase(itr);
+                    if (l_Target)
+                        l_Target->RemoveAura(eSpells::solarBeamSilence);
+
+                    l_It = m_TargetList.erase(l_It);
                 }
                 else
-                    itr++;
+                    ++l_It;
             }
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
-            for (auto itr : m_TargetList)
+            for (uint64 l_TargetGUID : m_TargetList)
             {
-                if (itr != nullptr && itr->HasAura(eSpells::solarBeamSilence))
-                    itr->RemoveAura(eSpells::solarBeamSilence);
+                Unit* l_Target = ObjectAccessor::FindUnit(l_TargetGUID);
+                if (l_Target)
+                    l_Target->RemoveAura(eSpells::solarBeamSilence);
             }
         }
 
