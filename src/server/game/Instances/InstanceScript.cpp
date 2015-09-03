@@ -45,6 +45,7 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_ScenarioID = 0;
     m_ScenarioStep = 0;
     m_EncounterTime = 0;
+    m_DisabledMask = 0;
 }
 
 void InstanceScript::SaveToDB()
@@ -693,9 +694,13 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
     return false;
 }
 
-bool InstanceScript::CheckRequiredBosses(uint32 /*bossId*/, Player const* player) const
+bool InstanceScript::CheckRequiredBosses(uint32 p_ID, Player const* p_Player) const
 {
-    if (player && player->isGameMaster())
+    /// Disable case (for LFR)
+    if (m_DisabledMask & (1 << p_ID))
+        return false;
+
+    if (p_Player && p_Player->isGameMaster())
         return true;
 
     if (instance->GetPlayersCountExceptGMs() > instance->ToInstanceMap()->GetMaxPlayers())
