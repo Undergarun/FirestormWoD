@@ -631,7 +631,7 @@ class boss_koragh : public CreatureScript
                     }
                     case eEvents::EventSuppressionField:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM/*, 0, -10.0f*/))
                         {
                             m_SuppressionFieldTarget = l_Target->GetGUID();
                             me->CastSpell(me, eSpells::SuppressionFieldAura, false);
@@ -1841,19 +1841,11 @@ class areatrigger_highmaul_suppression_field : public AreaTriggerEntityScript
                             }
                             else
                             {
-                                if (l_Unit->GetEntry() == eHighmaulCreatures::VolatileAnomaly)
-                                {
-                                    if (l_Unit->HasAura(eSpells::SuppressionFieldSilence))
-                                        l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
-                                }
-                                else
-                                {
-                                    if (l_Unit->HasAura(eSpells::SuppressionFieldDoT))
-                                        l_Unit->RemoveAura(eSpells::SuppressionFieldDoT);
+                                if (l_Unit->HasAura(eSpells::SuppressionFieldDoT))
+                                    l_Unit->RemoveAura(eSpells::SuppressionFieldDoT);
 
-                                    if (l_Unit->HasAura(eSpells::SuppressionFieldSilence))
-                                        l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
-                                }
+                                if (l_Unit->HasAura(eSpells::SuppressionFieldSilence))
+                                    l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
                             }
                         }
                     }

@@ -1316,7 +1316,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
+        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetNativeDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
         {
             m_CompletedEncounters |= 1 << (*l_Iter)->dbcEntry->Bit;
 
