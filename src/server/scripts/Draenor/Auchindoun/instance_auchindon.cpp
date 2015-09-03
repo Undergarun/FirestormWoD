@@ -1,344 +1,503 @@
-/*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "auchindon.hpp"
 
-class instance_auchindon : public InstanceMapScript
+class clapping : public BasicEvent
 {
 public:
-	instance_auchindon()
-		: InstanceMapScript("instance_auchindon", 1182)
-	{
-	}
-	struct instance_auchindon_InstanceMapScript : public InstanceScript
-	{
-		instance_auchindon_InstanceMapScript(Map* map) : InstanceScript(map) {}
+    explicit clapping(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    {
+    }
 
-        InstanceScript* instance = this;
-		uint32 m_auiEncounter[4];
-        // Creatures
-        uint64 Nyami;
-        uint64 Tuulani;
-        uint64 Warden;
-        uint64 Gromtash;
-        uint64 Durag;
-        uint64 Gulkosh;
-        // Bosses
-        uint64 Kaathar;
-        uint64 Nyamiboss;
-        uint64 Azzakel;
-        uint64 Teronogor;
-        // Objects
-        uint64 HolyBarrierKathaarObject;
-        uint64 CrystalKaathar;
-        uint64 Window;
-        uint64 FelBarrierAzzakelObject;
-        uint64 FelPortal;
-        uint64 soultransportstart;
-        uint64 soultransport1;
-        uint64 soultransport2;
-        uint64 soultransport3;
-        // Triggers
-        uint64 TriggerBubbleMiddleNyami;
-        uint64 TriggerAzzakelFelPortal;
-
-		void Initialize()
-		{           
-            // Creatures
-            Nyami = 0;
-            Tuulani = 0;
-            Warden = 0;
-            Gromtash = 0;
-            Durag = 0;
-            Gulkosh = 0;
-            // Bosses
-            Kaathar = 0;
-            Nyamiboss = 0;
-            Azzakel = 0;
-            Teronogor = 0;
-            // Objects
-            HolyBarrierKathaarObject = 0;
-            CrystalKaathar = 0;
-            Window = 0;
-            soultransportstart = 0;
-            soultransport1 = 0;
-            soultransport2 = 0;
-            soultransport3 = 0;
-            // Triggers
-            TriggerBubbleMiddleNyami = 0;
-		}
-		void OnGameObjectCreate(GameObject* go)
-		{
-			switch (go->GetEntry())
-			{
-            case GAMEOBJECT_HOLY_BARRIER:
-                HolyBarrierKathaarObject = go->GetGUID();
-                break;          
-            case GAMEOBJECT_AUCHINDON_WINDOW:
-                Window = go->GetGUID();
-                break;
-            case GAMEOBJECT_FEL_BARRIER:
-                 FelBarrierAzzakelObject = go->GetGUID();
-                break;
-            //case GAMEOBJECT_DEMONIC_PORTAL:
-               //// FelPortal = go->GetGUID();
-               // break;
-            case GAMEOBJECT_SOUL_TRANSPORT_START:
-                soultransportstart = go->GetGUID();
-                //go->SetLootState(GO_READY);
-               // go->UseDoorOrButton();
-                break;
-            case GAMEOBJECT_SOUL_TRANSPORT_1:
-                soultransport1 = go->GetGUID();
-                //go->SetLootState(GO_READY);
-                //go->UseDoorOrButton();
-                break;
-            case GAMEOBJECT_SOUL_TRANSPORT_2:
-                soultransport2 = go->GetGUID();
-              //  go->SetLootState(GO_READY);
-               // go->UseDoorOrButton();
-                break;
-            case GAMEOBJECT_SOUL_TRANSPORT_3:
-                soultransport3 = go->GetGUID();
-              //  go->SetLootState(GO_READY);
-              //  go->UseDoorOrButton();
-                break;
-			}
-		}
-		void OnCreatureCreate(Creature* creature)
-		{
-			switch (creature->GetEntry())
-			{
-            case BOSS_KAATHAR:
-                Kaathar = creature->GetGUID();
-                break;
-            case BOSS_NYAMI:
-                Nyamiboss = creature->GetGUID();
-                break;
-            case BOSS_AZAAKEL:
-                Azzakel = creature->GetGUID();
-                break;
-            case BOSS_TERONOGOR:
-                Teronogor = creature->GetGUID();
-                break;
-            case CREATURE_SOUL_BINDER_TUULANI:
-                Tuulani = creature->GetGUID();
-                break;
-            case CREATURE_SOUL_BINDER_NYAMI:
-                Nyami = creature->GetGUID();
-                break;
-            case TRIGGER_SHIELD_SPOT:
-                TriggerBubbleMiddleNyami = creature->GetGUID();
-                break;
-            case CREATURE_WARDEN_AZZAKAEL:
-                Warden = creature->GetGUID();
-                break;
-            case TRIGGER_DEMONS_SUMMONER:
-                TriggerAzzakelFelPortal = creature->GetGUID();
-                break;
-            case CREATURE_GULKOSH:
-                Gulkosh = creature->GetGUID();
-                break;
-            case CREATURE_GROMTASH_THE_DESTRUCTOR:
-                Gromtash = creature->GetGUID();
-                break;
-            case CREATURE_DURAG_THE_DOMINATOR:
-                Durag = creature->GetGUID();
-                break;
-			}
-		}
-        void OnUnitDeath(Unit* unit)
+    bool Execute(uint64 /*currTime*/, uint32 /*p_Diff*/)
+    {
+        if (m_Obj)
         {
-            Creature* creature = unit->ToCreature();
-            if (!creature)
-                return;
-
-            switch (creature->GetEntry())
+            if (InstanceScript* l_Instance = m_Obj->GetInstanceScript())
             {
-                case BOSS_KAATHAR:
+                switch (m_Modifier)
                 {
-                    if (GameObject* holybarrier = instance->instance->GetGameObject(instance->GetData64(DATA_HOLY_BARRIER)))
+                case 0:
+                    if (Player* nearest = m_Obj->FindNearestPlayer(50.0f, true))
                     {
-                        holybarrier->Delete();
-                    }
-                }
-                case BOSS_AZAAKEL:
-                {
-                    if (GameObject* felbarrier = instance->instance->GetGameObject(instance->GetData64(DATA_FEL_BARRIER)))
-                    {
-                        felbarrier->Delete();
-                    }
-                    if (GameObject* soultransport = instance->instance->GetGameObject(instance->GetData64(DATA_SOUL_TRANSPORT_START)))
-                    {
-                        if (Creature* teronogor = instance->instance->GetCreature(instance->GetData64(DATA_TERONOGOR)))
-                        {
-                            teronogor->GetAI()->DoAction(ACTION_SOUL_MOVE_1);
-                        }
-                    }
-                }
-                break;
-                // Soul Transport
-                case CREATURE_GROMTASH_THE_DESTRUCTOR:
-                    if (GameObject* soultransport = instance->instance->GetGameObject(instance->GetData64(DATA_SOUL_TRANSPORT_3)))
-                    {
-                        if (Creature* teronogor = instance->instance->GetCreature(instance->GetData64(DATA_TERONOGOR)))
-                        {
-                           teronogor->GetAI()->DoAction(ACTION_SOUL_MOVE_4);
-                        }
+                        m_Obj->SetFacingToObject(nearest);
+                        m_Obj->CastSpell(m_Obj, eAuchindonSpells::SpellApplaud);
+
+                        m_Obj->m_Events.AddEvent(new clapping(m_Obj, 1), m_Obj->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
                     }
                     break;
-                case CREATURE_GULKOSH:
-                    if (GameObject* soultransport = instance->instance->GetGameObject(instance->GetData64(DATA_SOUL_TRANSPORT_2)))
-                    {
-                        if (Creature* teronogor = instance->instance->GetCreature(instance->GetData64(DATA_TERONOGOR)))
-                        {
-                            teronogor->GetAI()->DoAction(ACTION_SOUL_MOVE_3);
-                        }
-                    }
-                    break;
-                case CREATURE_DURAG_THE_DOMINATOR:
+                case 1:
                 {
-                    if (GameObject* soultransport = instance->instance->GetGameObject(instance->GetData64(DATA_SOUL_TRANSPORT_1)))
-                    {
-                        if (Creature* teronogor = instance->instance->GetCreature(instance->GetData64(DATA_TERONOGOR)))
-                        {
-                            teronogor->GetAI()->DoAction(ACTION_SOUL_MOVE_2);
-                        }
-                    }
+                    m_Obj->RemoveAllAuras();
                     break;
                 }
-                case BOSS_TERONOGOR:
+                }
+            }
+        }
+        return true;
+    }
+
+private:
+    Unit* m_Obj;
+    int m_Modifier;
+    int m_Event;
+};
+
+class ArcaneBombEvent : public BasicEvent
+{
+public:
+    explicit ArcaneBombEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    {
+    }
+
+    bool Execute(uint64 /*currTime*/, uint32 /*p_Diff*/)
+    {
+        if (m_Obj)
+        {
+            if (InstanceScript* m_Instance = m_Obj->GetInstanceScript())
+            {
+                switch (m_Modifier)
                 {
-                    if (creature->GetMap()->IsHeroic())
+                case 0:
+                    if (Creature* l_Nearest = m_Obj->FindNearestCreature(eAuchindonCreatures::CreatureArcaneBomb, 50.0f, true))
                     {
-                        DoCompleteAchievement(9049);
+                        m_Obj->CastSpell(l_Nearest, eAuchindonSpells::SpellArcaneBombAreaTrigger);
+                        m_Obj->m_Events.AddEvent(new ArcaneBombEvent(m_Obj, 0), m_Obj->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
                     }
-                    else
-                    {
-                        DoCompleteAchievement(9039);
-                    }
-
-                    // Curtain flames achievement, No Tags Backs! (9552)
-                    UnitList targets;
-                    JadeCore::AnyUnitHavingBuffInObjectRangeCheck u_check(creature, creature, 100, 153392, true);
-                    JadeCore::UnitListSearcher<JadeCore::AnyUnitHavingBuffInObjectRangeCheck> searcher(creature, targets, u_check);
-                    creature->VisitNearbyObject(100, searcher);
-
-                    if (targets.empty())
-                        return;
-                    else
-                    {
-                        DoCompleteAchievement(9552);
-                    }
-
                     break;
                 }
             }
         }
-		void SetData(uint32 type, uint32 data)
+        return true;
+    }
+
+private:
+    Unit* m_Obj;
+    int m_Modifier;
+    int Event;
+};
+
+class instance_auchindon : public InstanceMapScript
+{
+public:
+	instance_auchindon()
+        : InstanceMapScript("instance_auchindon", 1182)
+	{
+	}
+
+	struct instance_auchindon_InstanceMapScript : public InstanceScript
+	{
+		instance_auchindon_InstanceMapScript(Map* map) : InstanceScript(map) {}
+
+        InstanceScript* m_Instance = this;
+
+		uint32 m_auiEncounter[4];
+        // Creatures
+        uint64 m_Nyami;
+        uint64 m_Tuulani;
+        uint64 m_Warden;
+        uint64 m_Gromtash;
+        uint64 m_Durag;
+        uint64 m_Gulkosh;
+        // Bosses
+        uint64 m_Kaathar;
+        uint64 m_Nyamiboss;
+        uint64 m_Azzakel;
+        uint64 m_Teronogor;
+        // Objects
+        uint64 m_HolyBarrierKathaarObject;
+        uint64 m_CrystalKaathar;
+        uint64 m_Window;
+        uint64 m_FelBarrierAzzakelObject;
+        uint64 m_FelPortal;
+        uint64 m_SoulTransportStart;
+        uint64 m_SoulTransport01;
+        uint64 m_SoulTransport02;
+        uint64 m_SoulTransport03;
+        // Triggers
+        uint64 m_TriggerBubbleMiddleNyami;
+        uint64 m_TriggerAzzakelFelPortal;
+
+        // Dispensor
+        std::list<uint64> m_Dispensor;
+
+		void Initialize() override
+		{           
+            // Creatures
+            m_Nyami = 0;
+            m_Tuulani = 0;
+            m_Warden = 0;
+            m_Gromtash = 0;
+            m_Durag = 0;
+            m_Gulkosh = 0;
+            // Bosses
+            m_Kaathar = 0;
+            m_Nyamiboss = 0;
+            m_Azzakel = 0;
+            m_Teronogor = 0;
+            // Objects
+            m_HolyBarrierKathaarObject = 0;
+            m_CrystalKaathar = 0;
+            m_Window = 0;
+            m_SoulTransportStart = 0;
+            m_SoulTransport01 = 0;
+            m_SoulTransport02 = 0;
+            m_SoulTransport03 = 0;
+            // Triggers
+            m_TriggerBubbleMiddleNyami = 0;
+
+            LaunchSpawning();
+		}
+
+        void LaunchSpawning()
+        {
+            if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossTeronogor)))
+            {
+                for (int32 i = 0; i <= 5; i++)
+                {                  
+                    if (Creature* l_Guard = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionGuards[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Guard->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 505);
+                    }
+                }
+                // Auchindon Summon Clappers
+                for (int32 i = 0; i < 2; i++)
+                {
+                    if(Creature* l_Clapper = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionGuards2nd[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                        l_Clapper->m_Events.AddEvent(new clapping(l_Clapper, 0), l_Clapper->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
+                }
+
+                // Cicrular Mobs - Magus
+                for (int32 i = 0; i < 3; i++)
+                {                
+                    if (Creature* l_Magus = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionCircularMages[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Magus->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, );
+                    }
+                }
+                // Cicrular Mobs - Priest
+                for (int32 i = 0; i < 2; i++)
+                {
+                    if (Creature* l_Priest = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniSoulPriest, g_PositionCircularPriests[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Priest->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, SpellKneel);
+                    }
+                }
+                // Cicrular Mobs - Cleric
+                for (int32 i = 0; i < 2; i++)
+                {
+                    if (Creature* l_Cleric = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniCleric, g_PositionCircularHolies[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Cleric->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, SpellKneel);
+                    }
+                }
+
+                // Hovering Magus near preacher
+                for (int32 i = 0; i < 2; i++)
+                {             
+                    if (Creature* l_Magus = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionAuchenaiMagus2nd[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Magus->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, SpellKneel);
+                    }
+                }
+                // Preacher near 2 magus             
+                if (Creature* l_Preacher = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniArbiter, g_PositionAuchenaiReader1st, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Preacher->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, SpellKneel);
+                }
+
+                for (int32 i = 0; i < 4; i++)
+                {
+                    if (Creature* l_Vigilant = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniVigiliant, g_PositionAuchenaiVigilant[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Vigilant->CastSpell(l_Vigilant, eAuchindonSpells::SpellGuard);
+                        l_Vigilant->SetCurrentEquipmentId(1);
+
+                        l_Vigilant->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                        l_Vigilant->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
+                        l_Vigilant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                        l_Vigilant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                    }
+                }
+                for (int32 i = 0; i < 2; i++)
+                {
+                    // Two Guarding Hopilite
+                    if (Creature* l_Hopilite = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniHoplite, g_PositionHopilliteGuardState[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Hopilite->CastSpell(l_Hopilite, eAuchindonSpells::SpellGuard);
+                    }
+                }
+                // Defender that reads near two guarding hopilite
+                if (Creature* l_Defender = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionDefenderWhoReadsNearTwoHopilite, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Defender->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteRead);
+                }
+                // Priest who meditates
+                if (Creature* l_Priest = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureSargeriSoulPriest, g_PositionSoulPriestWhoMeditates, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Priest->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteHover);
+                }
+                // Magus who cast arcane bomb near hovering priest.
+                if (Creature* l_Mage = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionMagusWhoCastArcane, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Mage->CastSpell(l_Mage, SpellArcaneChanneling);
+                    l_Mage->m_Events.AddEvent(new ArcaneBombEvent(l_Mage, 0), l_Mage->m_Events.CalculateTime(20 * TimeConstants::IN_MILLISECONDS));
+                }
+                // Magus who talk to defender
+                if (Creature* l_Magus = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionMagusWhoTalksToDefender, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Magus->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteTalk);
+                }
+                // Soul Priest who talks to defenders
+                if (Creature* l_SoulPriest = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniSoulPriest, g_PositionSoulPriestTalksToTwoDefender, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_SoulPriest->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteTalk);
+                }
+            }
+        }
+
+        void OnGameObjectCreate(GameObject* go) override
 		{
-			switch (type)
+			switch (go->GetEntry())
 			{
+            case eAuchindonObjects::GameobjectHolyBarrier:
+                    m_HolyBarrierKathaarObject = go->GetGUID();
+                    break;          
+            case eAuchindonObjects::GameobjectAuchindonWindow:
+                    m_Window = go->GetGUID();
+                    break;
+            case eAuchindonObjects::GameobjectFelBarrier:
+                    m_FelBarrierAzzakelObject = go->GetGUID();
+                    break;
+            case eAuchindonObjects::GameobjectSoulTransportStart:
+                    m_SoulTransportStart = go->GetGUID();
+                    break;
+            case eAuchindonObjects::GameobjectSoulTransport1:
+                    m_SoulTransport01 = go->GetGUID();
+                    break;
+            case eAuchindonObjects::GameobjectSoulTransport2:
+                    m_SoulTransport02 = go->GetGUID();
+                    break;
+            case eAuchindonObjects::GameobjectSoulTransport3:
+                    m_SoulTransport03 = go->GetGUID();
+                    break;
 			}
 		}
-		uint32 GetData(uint32 type)
+
+        void OnCreatureCreate(Creature* p_Creature) override
 		{
-			switch (type)
+            switch (p_Creature->GetEntry())
 			{
+                case eAuchindonBosses::BossKaathar:
+                    m_Kaathar = p_Creature->GetGUID();
+                        break;
+                case eAuchindonBosses::BossNyami:
+                    m_Nyamiboss = p_Creature->GetGUID();
+                        break;
+                case eAuchindonBosses::BossAzaakel:
+                    m_Azzakel = p_Creature->GetGUID();
+                        break;
+                case eAuchindonBosses::BossTeronogor:
+                    m_Teronogor = p_Creature->GetGUID();
+                        break;
+                case eAuchindonCreatures::CreatureSoulBinderTuulani:
+                    m_Tuulani = p_Creature->GetGUID();
+                        break;
+                case eAuchindonCreatures::CreatureSoulBinderNyami:
+                    m_Nyami = p_Creature->GetGUID();
+                        break;
+                case eAuchindonCreatures::CreatureShieldSpot:
+                    m_TriggerBubbleMiddleNyami = p_Creature->GetGUID();
+                        break;
+                case eAuchindonCreatures::CreatureWardenAzzakael:
+                    m_Warden = p_Creature->GetGUID();
+                        break;
+                case eAuchindonCreatures::CreatureDemonsSummoner:
+                    m_TriggerAzzakelFelPortal = p_Creature->GetGUID();
+                        break;
+                case eAuchindonCreatures::CreatureGulkosh:
+                    m_Gulkosh = p_Creature->GetGUID();
+                        break;
+                case eAuchindonCreatures::CreatureGromtashTheDestructor:
+                    m_Gromtash = p_Creature->GetGUID();
+                        break;
+                case eAuchindonCreatures::CreatureDuragTheDominator:
+                    m_Durag = p_Creature->GetGUID();
+                        break;
 			}
-			return 0;
 		}
-		uint64 GetData64(uint32 data)
+
+        void OnUnitDeath(Unit* p_Unit) override
+        {
+            Creature* p_Creature = p_Unit->ToCreature();
+            if (!p_Creature)
+                return;
+
+            switch (p_Creature->GetEntry())
+            {
+                case eAuchindonBosses::BossKaathar:
+                    {
+                        if (GameObject* l_Holybarrier = instance->GetGameObject(GetData64(DataHolyBarrier)))
+                        {
+                            l_Holybarrier->Delete();
+                        }
+                    }
+                case eAuchindonBosses::BossAzaakel:
+                    {
+                        if (GameObject* felbarrier = instance->GetGameObject(GetData64(DataFelBarrier)))
+                        {
+                            felbarrier->Delete();
+                        }
+                        if (GameObject* l_SoulTransport = instance->GetGameObject(GetData64(DataSoulTransportStart)))
+                        {
+                            if (Creature* l_Teronogor = instance->GetCreature(GetData64(DataBossTeronogor)))
+                            {
+                                if (l_Teronogor->GetAI())
+                                l_Teronogor->GetAI()->DoAction(ActionSoulMove1);
+                            }
+                        }
+                    }
+                    break;
+                    // Soul Transport
+                 case eAuchindonCreatures::CreatureGromtashTheDestructor:
+                     if (GameObject* l_SoulTransport = instance->GetGameObject(GetData64(DataSoulTransport3)))
+                        {
+                            if (Creature* l_Teronogor = instance->GetCreature(GetData64(DataBossTeronogor)))
+                            {
+                                if (l_Teronogor->GetAI())
+                                    l_Teronogor->GetAI()->DoAction(ActionSoulMove4);
+                            }
+                        }
+                        break;
+                 case eAuchindonCreatures::CreatureGulkosh:
+                     if (GameObject* l_SoulTransport = instance->GetGameObject(GetData64(DataSoulTransport2)))
+                        {
+                            if (Creature* l_Teronogor = instance->GetCreature(GetData64(DataBossTeronogor)))
+                            {
+                                if (l_Teronogor->GetAI())
+                                l_Teronogor->GetAI()->DoAction(ActionSoulMove3);
+                            }
+                        }
+                        break;
+                 case eAuchindonCreatures::CreatureDuragTheDominator:
+                    {
+                        if (GameObject* l_SoulTransport = instance->GetGameObject(GetData64(DataSoulTransport1)))
+                        {
+                            if (Creature* l_Teronogor = instance->GetCreature(GetData64(DataBossTeronogor)))
+                            {
+                                if (l_Teronogor->GetAI())
+                                l_Teronogor->GetAI()->DoAction(ActionSoulMove2);
+                            }
+                        }
+                        break;
+                    }
+                 case eAuchindonBosses::BossTeronogor:
+                    {
+                        if (p_Creature->GetMap() && p_Creature->GetMap()->IsHeroic())
+                        {
+                            DoCompleteAchievement(eAuchindonAchievements::AchievementAuchindonHeroic);
+                        }
+                        else
+                        {
+                            DoCompleteAchievement(eAuchindonAchievements::AchievementAuchindonNormal);
+                        }
+
+                        // Curtain flames achievement, No Tags Backs! (9552)
+                        UnitList l_Targets;
+                        JadeCore::AnyUnitHavingBuffInObjectRangeCheck u_check(p_Creature, p_Creature, 100, 153392, true);
+                        JadeCore::UnitListSearcher<JadeCore::AnyUnitHavingBuffInObjectRangeCheck> searcher(p_Creature, l_Targets, u_check);
+                        p_Creature->VisitNearbyObject(100, searcher);
+
+                        if (l_Targets.empty())
+                            return;
+                        else
+                        {
+                            DoCompleteAchievement(9552);
+                        }
+
+                        break;
+                    }
+            }
+        }
+
+        uint64 GetData64(uint32 p_Data) override
 		{
-			switch (data)
+            switch (p_Data)
 			{
-                // Objects
-            case DATA_SOUL_TRANSPORT_START:
-                return soultransportstart;
-                break;
-            case DATA_SOUL_TRANSPORT_1:
-                return soultransport1;
-                break;
-            case DATA_SOUL_TRANSPORT_2:
-                return soultransport2;
-                break;
-            case DATA_SOUL_TRANSPORT_3:
-                return soultransport3;
-                break;
-            case DATA_HOLY_BARRIER:
-                return HolyBarrierKathaarObject;
-                break;
-            case DATA_AUCHINDON_WINDOW:
-                return Window;
-                break;
-            case DATA_FEL_BARRIER:
-                return FelBarrierAzzakelObject;
-                break;
-            case DATA_FEL_PORTAL:
-                return FelPortal;
-                break;
-                // Bosses
-            case DATA_KATHAAR:
-                return Kaathar;
-                break;
-            case DATA_AZZAKAEL:
-                return Azzakel;
-                break;
-            case DATA_BOSS_NYAMI:
-                return Nyamiboss;
-                break;
-            case DATA_TERONOGOR:
-                return Teronogor;
-                break;
-                // Creatures
-            case DATA_NYAMI:
-                return Nyami;
-                break;
-            case DATA_TUULANI:
-                return Tuulani;
-                break;  
-            case DATA_WARDEN:
-                return Warden;
-                break;
-            case DATA_GULKOSH:
-                return Gulkosh;
-                break;
-            case DATA_GROMTASH:
-                return Gromtash;
-                break;
-            case DATA_DURAG:
-                return Durag;
-                break;
-                // Triggers
-            case DATA_TRIGGER_MIDDLE_NYAMI_FIGHT_BUBBLE:
-                return TriggerBubbleMiddleNyami;
-                break;
-            case DATA_TRIGGER_AZZAKEL_CONTROLLER:
-                return TriggerAzzakelFelPortal;
-                break;
+            case eDataAuchindonDatas::DataSoulTransportStart:
+                    return m_SoulTransportStart;
+                    break;
+            case eDataAuchindonDatas::DataSoulTransport1:
+                    return m_SoulTransport01;
+                    break;
+            case eDataAuchindonDatas::DataSoulTransport2:
+                    return m_SoulTransport02;
+                    break;
+            case eDataAuchindonDatas::DataSoulTransport3:
+                    return m_SoulTransport03;
+                    break;
+            case eDataAuchindonDatas::DataHolyBarrier:
+                    return m_HolyBarrierKathaarObject;
+                    break;
+            case eDataAuchindonDatas::DataAuchindonWindow:
+                    return m_Window;
+                    break;
+            case eDataAuchindonDatas::DataFelBarrier:
+                    return m_FelBarrierAzzakelObject;
+                    break;
+            case eDataAuchindonDatas::DataFelPortal:
+                    return m_FelPortal;
+                    break;
+            case eDataAuchindonDatas::DataBossKathaar:
+                    return m_Kaathar;
+                    break;
+            case eDataAuchindonDatas::DataBossAzzakael:
+                    return m_Azzakel;
+                    break;
+            case eDataAuchindonDatas::DataBossNyami:
+                    return m_Nyamiboss;
+                    break;
+            case eDataAuchindonDatas::DataBossTeronogor:
+                    return m_Teronogor;
+                    break;
+            case eDataAuchindonDatas::DataNyami:
+                    return m_Nyami;
+                    break;
+            case eDataAuchindonDatas::DataTuulani:
+                    return m_Tuulani;
+                    break;  
+            case eDataAuchindonDatas::DataWarden:
+                    return m_Warden;
+                    break;
+            case eDataAuchindonDatas::DataGulkosh:
+                    return m_Gulkosh;
+                    break;
+            case eDataAuchindonDatas::DataGromtash:
+                    return m_Gromtash;
+                    break;
+            case eDataAuchindonDatas::DataDurag:
+                    return m_Durag;
+                    break;
+            case eDataAuchindonDatas::DataTriggerMiddleNyamiFightBubble:
+                    return m_TriggerBubbleMiddleNyami;
+                    break;
+            case eDataAuchindonDatas::DataTriggerAzzakelController:
+                    return m_TriggerAzzakelFelPortal;
+                    break;
 			}
 			return 0;
 		}
 	};
 
-	InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
 	{
 		return new instance_auchindon_InstanceMapScript(map);
 	}
