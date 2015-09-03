@@ -3237,7 +3237,7 @@ class spell_highmaul_force_nova_dot : public SpellScriptLoader
 
         enum eSpell
         {
-            ForceNovaReplicationAoEDamage = 178416  ///< Damaging spell for allies
+            ForceNovaReplicationAoEDamage = 157357  ///< Damaging spell for allies
         };
 
         enum eData
