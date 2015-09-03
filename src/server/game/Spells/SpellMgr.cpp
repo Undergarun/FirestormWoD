@@ -6482,6 +6482,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 default:
                     break;
             }
+
+            /// Our targetting system is weird as fuck - would need a full rewrite for this to work properly, do not touch - hours of debugging
+            if (spellInfo->HasEffect(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL))
+                spellInfo->ExplicitTargetMask = TARGET_FLAG_NONE;
         }
     }
 

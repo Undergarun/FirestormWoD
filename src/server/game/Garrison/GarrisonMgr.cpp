@@ -2259,7 +2259,7 @@ namespace MS { namespace Garrison
             return false;
 
         GarrisonFollower l_Follower;
-        l_Follower.DatabaseID                = sObjectMgr->GetNewGarrisonFollowerID();
+        l_Follower.DatabaseID           = sObjectMgr->GetNewGarrisonFollowerID();
         l_Follower.FollowerID           = p_FollowerID;
         l_Follower.Level                = l_Entry->Level;
         l_Follower.XP                   = 0;
@@ -2429,6 +2429,45 @@ namespace MS { namespace Garrison
     uint32 Manager::GetNumFollowerActivationsRemaining() const
     {
         return m_NumFollowerActivation;
+    }
+
+    SpellCastResult Manager::CanUpgradeItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo) const
+    {
+        auto l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerID](GarrisonFollower const& p_Follower) { return p_Follower.FollowerID == p_FollowerID; });
+
+        if (l_It == m_Followers.end())
+            return SPELL_FAILED_BAD_TARGETS;
+
+        GarrisonFollower const* l_Follower = &(*l_It);
+        SpellEffectInfo const* l_SpellEffect = p_SpellInfo->GetEffectByType(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL);
+
+        if (!l_SpellEffect)
+            return SPELL_FAILED_ERROR;
+
+        SpellEffectInfo const* l_Dummy = p_SpellInfo->GetEffectByType(SPELL_EFFECT_DUMMY);
+        int32 l_Cap = l_Dummy ? l_Dummy->BasePoints : Globals::MaxFollowerItemLevel;
+        int32 l_Ilvl = l_SpellEffect->MiscValue ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
+
+        if (l_Ilvl >= l_Cap)
+            return SPELL_FAILED_GARRISON_FOLLOWER_MAX_ITEM_LEVEL;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Manager::UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo)
+    {
+        if (CanUpgradeItemLevelWith(p_FollowerID, p_SpellInfo) != SPELL_CAST_OK)
+            return;
+
+        auto l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerID](GarrisonFollower const& p_Follower) { return p_Follower.FollowerID == p_FollowerID; });
+        GarrisonFollower* l_Follower = const_cast<GarrisonFollower*>(&(*l_It));
+
+        SpellEffectInfo const* l_SpellEffect = p_SpellInfo->GetEffectByType(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL);
+        SpellEffectInfo const* l_Dummy = p_SpellInfo->GetEffectByType(SPELL_EFFECT_DUMMY);
+        int32 l_Cap = l_Dummy ? l_Dummy->BasePoints : Globals::MaxFollowerItemLevel;
+        int32 &l_Ilvl = l_SpellEffect->MiscValue ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
+
+        l_Ilvl = std::min(l_Cap, l_Ilvl + l_SpellEffect->BasePoints);
     }
 
     //////////////////////////////////////////////////////////////////////////

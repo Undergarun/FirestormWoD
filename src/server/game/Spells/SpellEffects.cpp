@@ -7782,35 +7782,7 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
     if (!l_Player || !l_Player->GetGarrison())
         return;
 
-    bool l_IsArmor = !!m_spellInfo->Effects[p_EffIndex].MiscValue;
-    uint32 l_FollowerEntry = m_glyphIndex;
-    uint32 l_NewValue = 0;
-
-    printf("Follower entry %u \n", m_glyphIndex);
-    if (m_spellInfo->Effects[EFFECT_1].Effect == SPELL_EFFECT_DUMMY)
-    {
-        l_NewValue = m_spellInfo->Effects[EFFECT_1].BasePoints;
-    }
-    else
-    {
-        if (l_IsArmor)
-            l_NewValue = /*OldArmorValue*/0 + m_spellInfo->Effects[p_EffIndex].BasePoints;
-        else
-            l_NewValue = /*OldWeponValue*/0 + m_spellInfo->Effects[p_EffIndex].BasePoints;
-    }
-
-    uint32 l_Value = m_spellInfo->Effects[p_EffIndex].MiscValueB;
-
-    /// Armor case
-    if (l_IsArmor)
-    {
-
-    }
-    /// Weapon case
-    else
-    {
-
-    }
+    l_Player->GetGarrison()->UpgradeFollowerItemLevelWith(m_AdditionalData[0], GetSpellInfo());
 }
 
 void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)

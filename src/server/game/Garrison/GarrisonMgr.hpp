@@ -146,6 +146,10 @@ namespace MS { namespace Garrison
             uint32 GetActivatedFollowerCount() const;
             /// Get num follower activation remaining
             uint32 GetNumFollowerActivationsRemaining() const;
+            /// Returns error message of upgrade attempt
+            SpellCastResult CanUpgradeItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo) const;
+            /// Upgrades follower with spell
+            void UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo);
 
             /// Can build building X at slot instance Y
             bool IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID) const;

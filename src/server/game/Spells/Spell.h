@@ -643,6 +643,7 @@ public:
     uint32 m_CastItemEntry;
     uint32 m_glyphIndex;
     uint32 m_preCastSpell;
+    uint32 m_AdditionalData[2];
     SpellCastTargets m_targets;
     int8 m_comboPointGain;
     SpellCustomErrors m_customError;

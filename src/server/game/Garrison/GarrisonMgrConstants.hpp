@@ -24,6 +24,7 @@ namespace MS { namespace Garrison
             MaxFollowerPerMission           = 3,
             MaxFollowerLevel                = 100,
             MaxActiveFollower               = 20,
+            MaxFollowerItemLevel            = 675,
             FollowerActivationCost          = (250 * GOLD),
             FollowerActivationMaxStack      = 1,
             BaseMap                         = 1116,

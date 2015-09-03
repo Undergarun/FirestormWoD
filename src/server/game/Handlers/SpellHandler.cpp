@@ -82,6 +82,8 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     uint8 l_Slot            = 0;
     uint8 l_PackSlot        = 0;
 
+    uint32 l_AdditionalData[2];
+
     bool l_HasSourceTarget      = false;
     bool l_HasDestinationTarget = false;
     bool l_HasUnkFloat          = false;
@@ -97,7 +99,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_CastCount;
 
     for (int l_I = 0; l_I < 2; l_I++)
-        p_RecvPacket.read_skip<uint32>();
+        p_RecvPacket >> l_AdditionalData[l_I];
 
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
@@ -296,7 +298,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     if (!sScriptMgr->OnItemUse(pUser, pItem, targets))
     {
         // no script or script not process request by self
-        pUser->CastItemUseSpell(pItem, targets, l_CastCount, l_Misc);
+        pUser->CastItemUseSpell(pItem, targets, l_CastCount, l_Misc, l_AdditionalData[0], l_AdditionalData[1]);
     }
 }
 

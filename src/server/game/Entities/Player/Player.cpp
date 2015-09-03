@@ -11273,7 +11273,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
     }
 }
 
-void Player::CastItemUseSpell(Item* p_Item, SpellCastTargets const& p_Targets, uint8 p_CastCount, uint32 p_GlyphIndex)
+void Player::CastItemUseSpell(Item* p_Item, SpellCastTargets const& p_Targets, uint8 p_CastCount, uint32 p_GlyphIndex, uint32 p_AdditionalData1, uint32 p_AdditionalData2)
 {
     ItemTemplate const* l_ItemTemplate = p_Item->GetTemplate();
 
@@ -11295,6 +11295,8 @@ void Player::CastItemUseSpell(Item* p_Item, SpellCastTargets const& p_Targets, u
         l_Spell->m_CastItem     = p_Item;
         l_Spell->m_cast_count   = p_CastCount;  ///< Set count of casts
         l_Spell->SetSpellValue(SpellValueMod::SPELLVALUE_BASE_POINT0, l_LearningSpell);
+        l_Spell->m_AdditionalData[0] = p_AdditionalData1;
+        l_Spell->m_AdditionalData[1] = p_AdditionalData2;
         l_Spell->prepare(&p_Targets);
         return;
     }
@@ -11329,6 +11331,8 @@ void Player::CastItemUseSpell(Item* p_Item, SpellCastTargets const& p_Targets, u
             l_Spell->m_CastItem     = p_Item;
             l_Spell->m_cast_count   = p_CastCount;  ///< Set count of casts
             l_Spell->m_glyphIndex   = p_GlyphIndex; ///< Glyph index
+            l_Spell->m_AdditionalData[0] = p_AdditionalData1;
+            l_Spell->m_AdditionalData[1] = p_AdditionalData2;
             l_Spell->prepare(&p_Targets);
 
             ++l_Count;
@@ -11359,6 +11363,8 @@ void Player::CastItemUseSpell(Item* p_Item, SpellCastTargets const& p_Targets, u
         l_Spell->m_CastItem       = p_Item;
         l_Spell->m_cast_count     = p_CastCount;    ///< set count of casts
         l_Spell->m_glyphIndex     = p_GlyphIndex;   ///< glyph index
+        l_Spell->m_AdditionalData[0] = p_AdditionalData1;
+        l_Spell->m_AdditionalData[1] = p_AdditionalData2;
         l_Spell->prepare(&p_Targets);
 
         ++l_Count;
