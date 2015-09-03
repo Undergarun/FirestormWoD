@@ -1203,6 +1203,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
 
+    if (GetId() == 122355) ///< Don't stack amount of molten core
+        return amount;
+
     if (caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
         if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
@@ -5172,6 +5175,7 @@ void AuraEffect::HandleAuraModIncreaseEnergy(AuraApplication const* aurApp, uint
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
+    target->SetCanModifyStats(true);
     target->HandleStatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
 }
 
@@ -5189,6 +5193,8 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
     // inside effect handlers is not a good idea
     //if (int32(powerType) != GetMiscValue())
     //    return;
+
+    target->SetCanModifyStats(true);
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
     float amount = float(GetAmount());

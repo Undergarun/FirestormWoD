@@ -1570,17 +1570,21 @@ class spell_rog_deadly_poison_instant_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_deadly_poison_instant_damage_SpellScript);
 
-            void HandleOnCast()
+            void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetExplTargetUnit())
-                        if (target->HasAura(ROGUE_SPELL_DEADLY_POISON_DOT, caster->GetGUID()))
-                            caster->CastSpell(target, ROGUE_SPELL_DEADLY_POISON_INSTANT_DAMAGE, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(ROGUE_SPELL_DEADLY_POISON_DOT, l_Caster->GetGUID()))
+                    l_Caster->CastSpell(l_Target, ROGUE_SPELL_DEADLY_POISON_INSTANT_DAMAGE, true);
             }
 
             void Register()
             {
-                OnCast += SpellCastFn(spell_rog_deadly_poison_instant_damage_SpellScript::HandleOnCast);
+                AfterHit += SpellHitFn(spell_rog_deadly_poison_instant_damage_SpellScript::HandleAfterHit);
             }
         };
 
@@ -2140,11 +2144,16 @@ class spell_rog_fan_of_knives: public SpellScriptLoader
 
             bool m_HasAlredyBenefitOfBonus = false;
 
+            enum eSpells
+            {
+                EmpoweredFanofKnives = 157671
+            };
+
             void HandleAfterHit()
             {
                 Unit* l_Caster = GetCaster();
 
-                if (m_HasAlredyBenefitOfBonus)
+                if (m_HasAlredyBenefitOfBonus && !l_Caster->HasAura(eSpells::EmpoweredFanofKnives))
                     return;
 
                 l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_1].BasePoints);

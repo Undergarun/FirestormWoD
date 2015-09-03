@@ -345,7 +345,7 @@ void Guild::RankInfo::SetBankTabSlotsAndRights(uint8 tabId, GuildBankRightsAndSl
         stmt->setUInt32(4, m_bankTabRightsAndSlots[tabId].slots);
         trans->Append(stmt);
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RANK_BANK_TIME0 + tabId);
+        stmt = CharacterDatabase.GetPreparedStatement(CharacterDatabaseStatements(CHAR_UPD_GUILD_RANK_BANK_TIME0 + tabId));
         stmt->setUInt32(0, m_guildId);
         stmt->setUInt8 (1, m_rankId);
         trans->Append(stmt);
@@ -621,7 +621,7 @@ void Guild::Member::DecreaseBankRemainingValue(SQLTransaction& trans, uint8 tabI
 {
     m_bankRemaining[tabId].value -= amount;
 
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS0 + tabId);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CharacterDatabaseStatements(CHAR_UPD_GUILD_MEMBER_BANK_REM_SLOTS0 + tabId));
     l_Statement->setUInt32(0, m_bankRemaining[tabId].value);
     l_Statement->setUInt32(1, m_guildId);
     l_Statement->setUInt32(2, GUID_LOPART(m_guid));
@@ -659,7 +659,7 @@ uint32 Guild::Member::GetBankRemainingValue(uint8 tabId, const Guild* guild) con
         rv.resetTime = curTime;
         rv.value = guild->_GetRankBankTabSlotsPerDay(m_rankId, tabId);
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS0 + tabId);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CharacterDatabaseStatements(CHAR_UPD_GUILD_MEMBER_BANK_TIME_REM_SLOTS0 + tabId));
         stmt->setUInt32(0, m_bankRemaining[tabId].resetTime);
         stmt->setUInt32(1, m_bankRemaining[tabId].value);
         stmt->setUInt32(2, m_guildId);

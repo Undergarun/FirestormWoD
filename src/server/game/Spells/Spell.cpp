@@ -2611,12 +2611,6 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
                 targetInfo.timeDelay = 100LL;
                 m_delayMoment = 100LL;
             }
-        /// Comet Storm
-        else if (m_spellInfo->Id == 153596)
-        {
-            targetInfo.timeDelay = 200LL;
-            m_delayMoment = 200LL;
-        }
         }
     }
     // Removing Death Grip cooldown
@@ -3582,7 +3576,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
     //Prevent casting at cast another spell (ServerSide check)
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count &&
-        (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_BE_CAST_WHILE_MOVING) || (GetSpellInfo()->CalcCastTime(m_caster))) &&
+        m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) &&
         (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
@@ -6003,7 +5997,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
         //can cast triggered (by aura only?) spells while have this flag
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && l_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY) &&
-            (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (GetSpellInfo()->CalcCastTime(m_caster))) &&
+            m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) &&
             (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 

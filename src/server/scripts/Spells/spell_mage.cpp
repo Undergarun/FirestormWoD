@@ -309,7 +309,8 @@ class spell_mage_prysmatic_crystal_damage : public SpellScriptLoader
         }
 };
 
-/// Comet Storm - 153595 and Comet Storm damage spel - 153596
+/// last update : 6.1.2 19802
+/// Comet Storm - 153595 and Comet Storm (damage) - 153596
 class spell_mage_comet_storm : public SpellScriptLoader
 {
     public:
@@ -322,33 +323,37 @@ class spell_mage_comet_storm : public SpellScriptLoader
             enum eCometDatas
             {
                 MaxComets   = 7,
-                CometStorm  = 153596
+                CometStormDamage  = 153596,
+                CometStorm = 153595,
             };
 
-            void HandleOnHit()
+            bool m_AlreadyHit = false;
+
+            void HandleAfterCast()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (WorldLocation const* l_Dest = GetExplTargetDest())
                     {
-                        int32 l_AmountOfUsedComets = l_Caster->GetAmountOfComets();
-                        if (GetSpellInfo()->Id == 153596 && l_AmountOfUsedComets >= 1 && l_AmountOfUsedComets <= 7)
-                        {
-                            l_Caster->SetAmountOfComets(l_AmountOfUsedComets + 1);
-                            /// It's done, all comets are used
-                            if (l_AmountOfUsedComets >= 7)
-                                l_Caster->SetAmountOfComets(0);
-                            else
-                            {
-                                float l_X = l_Caster->GetCometStartCoordinateX() + frand(-4.0f, 4.0f);
-                                float l_Y = l_Caster->GetCometStartCoordinateY() + frand(-4.0f, 4.0f);
-
-                                l_Caster->CastSpell(l_X, l_Y, l_Dest->m_positionZ, eCometDatas::CometStorm, true);
-                            }
-                        }
+                        /// Store launch information
+                        l_Caster->SetAmountOfComets(1);
+                        l_Caster->SetCometStartCoordinateX(l_Dest->m_positionX);
+                        l_Caster->SetCometStartCoordinateY(l_Dest->m_positionY);
+                        /// First comet
+                        l_Caster->CastSpell(l_Dest->m_positionX, l_Dest->m_positionY, l_Dest->m_positionZ, eCometDatas::CometStormDamage, true);
                     }
                 }
-                if (GetSpellInfo()->Id == eCometDatas::CometStorm)
+            }
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                WorldLocation const* l_Dest = GetExplTargetDest();
+
+                if (l_Dest == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == eCometDatas::CometStormDamage)
                 {
                     int32 l_Damage = GetHitDamage();;
 
@@ -364,29 +369,47 @@ class spell_mage_comet_storm : public SpellScriptLoader
                 }
             }
 
-            void HandleAfterCast()
+            void HandleAfterHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                WorldLocation const* l_Dest = GetExplTargetDest();
+
+                if (l_Dest == nullptr)
+                    return;
+
+                int32 l_AmountOfUsedComets = l_Caster->GetAmountOfComets();
+
+                if (l_AmountOfUsedComets >= 1 && l_AmountOfUsedComets <= 7 && !m_AlreadyHit)
                 {
-                    if (WorldLocation const* l_Dest = GetExplTargetDest())
+                    l_Caster->SetAmountOfComets(l_AmountOfUsedComets + 1);
+                    /// It's done, all comets are used
+                    if (l_AmountOfUsedComets >= 7)
+                        l_Caster->SetAmountOfComets(0);
+                    else
                     {
-                        if (GetSpellInfo()->Id == 153595)
-                        {
-                            /// Store launch information
-                            l_Caster->SetAmountOfComets(1);
-                            l_Caster->SetCometStartCoordinateX(l_Dest->m_positionX);
-                            l_Caster->SetCometStartCoordinateY(l_Dest->m_positionY);
-                            /// First comet
-                            l_Caster->CastSpell(l_Dest->m_positionX, l_Dest->m_positionY, l_Dest->m_positionZ, eCometDatas::CometStorm, true);
-                        }
+                        float l_X = l_Caster->GetCometStartCoordinateX() + frand(-4.0f, 4.0f);
+                        float l_Y = l_Caster->GetCometStartCoordinateY() + frand(-4.0f, 4.0f);
+
+                        l_Caster->CastSpell(l_X, l_Y, l_Dest->m_positionZ, eCometDatas::CometStormDamage, true);
                     }
+                    m_AlreadyHit = true;
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mage_comet_storm_SpellScript::HandleOnHit);
-                AfterCast += SpellCastFn(spell_mage_comet_storm_SpellScript::HandleAfterCast);
+                switch (m_scriptSpellId)
+                {
+                case eCometDatas::CometStormDamage:
+                    OnHit += SpellHitFn(spell_mage_comet_storm_SpellScript::HandleOnHit);
+                    AfterHit += SpellHitFn(spell_mage_comet_storm_SpellScript::HandleAfterHit);
+                    break;
+                case eCometDatas::CometStorm:
+                    AfterCast += SpellCastFn(spell_mage_comet_storm_SpellScript::HandleAfterCast);
+                    break;
+                default:
+                    break;
+                }
             }
         };
 

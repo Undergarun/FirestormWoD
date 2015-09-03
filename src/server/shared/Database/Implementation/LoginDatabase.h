@@ -21,19 +21,6 @@
 #include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-class LoginDatabaseConnection : public MySQLConnection
-{
-    public:
-        //- Constructors for sync and async connections
-        LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) {}
-        LoginDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
-
-        //- Loads database type specific prepared statements
-        void DoPrepareStatements();
-};
-
-typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;
-
 enum LoginDatabaseStatements
 {
     /*  Naming standard for defines:
@@ -161,5 +148,20 @@ enum LoginDatabaseStatements
 
     MAX_LOGINDATABASE_STATEMENTS
 };
+
+class LoginDatabaseConnection : public MySQLConnection
+{
+public:
+    typedef LoginDatabaseStatements Statements;
+
+    //- Constructors for sync and async connections
+    LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) {}
+    LoginDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
+
+    //- Loads database type specific prepared statements
+    void DoPrepareStatements() override;
+};
+
+typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;
 
 #endif

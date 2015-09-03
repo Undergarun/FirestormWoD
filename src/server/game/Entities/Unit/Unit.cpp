@@ -9260,21 +9260,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                         target = this;
                         break;
                     }
-                    case 30881: // Nature's Guardian Rank 1
-                    case 30883: // Nature's Guardian Rank 2
-                    case 30884: // Nature's Guardian Rank 3
-                    {
-                        if (HealthBelowPctDamaged(30, damage))
-                        {
-                            target = this;
-                            trigger_spell_id = 31616;
-                            if (victim && victim->isAlive())
-                                victim->getThreatManager().modifyThreatPercent(this, -10);
-                        }
-                        else
-                            return false;
-                        break;
-                    }
                 }
                 break;
             }
@@ -13335,10 +13320,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
 
     if (GetSpellModOwner())
-    {
-        if (GetSpellModOwner())
-            DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-    }
+        DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
     if (spellProto)
@@ -16306,26 +16288,18 @@ void CharmInfo::RestoreState()
 void CharmInfo::InitPetActionBar()
 {
     // the first 3 SpellOrActions are attack, follow and move-to
+    CommandStates l_Commands[] = { COMMAND_ATTACK, COMMAND_FOLLOW, COMMAND_MOVE_TO };
     for (uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_START - ACTION_BAR_INDEX_START; ++i)
-    {
-        if (i < 2)
-            SetActionBar(ACTION_BAR_INDEX_START + i, COMMAND_ATTACK - i, ACT_COMMAND);
-        else
-            SetActionBar(ACTION_BAR_INDEX_START + i, COMMAND_MOVE_TO, ACT_COMMAND);
-    }
+        SetActionBar(ACTION_BAR_INDEX_START + i, l_Commands[i], ACT_COMMAND);
 
     // middle 4 SpellOrActions are spells/special attacks/abilities
     for (uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_END-ACTION_BAR_INDEX_PET_SPELL_START; ++i)
         SetActionBar(ACTION_BAR_INDEX_PET_SPELL_START + i, 0, ACT_PASSIVE);
 
     // last 3 SpellOrActions are reactions
+    ReactStates l_Reactions[] = { REACT_HELPER, REACT_DEFENSIVE, REACT_PASSIVE };
     for (uint32 i = 0; i < ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_PET_SPELL_END; ++i)
-    {
-        if (i == 0)
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER, ACT_REACTION);
-        else
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_AGGRESSIVE - i, ACT_REACTION);
-    }
+        SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, l_Reactions[i], ACT_REACTION);
 
     m_CharmType = CharmType::CHARM_TYPE_CHARM;
 }
@@ -20499,21 +20473,10 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         }
         case FORM_FLIGHT_EPIC:
         {
-            if (Player::TeamForRace(getRace()) == HORDE)
-            {
-                if (getRace() == RACE_TROLL)
-                    return 37730;
-                else if (getRace() == RACE_TAUREN)
-                    return 21244;
-            }
-            else if (Player::TeamForRace(getRace()) == ALLIANCE)
-            {
-                if (getRace() == RACE_NIGHTELF)
-                    return 21243;
-                else if (getRace() == RACE_WORGEN)
-                    return 37729;
-            }
-
+            if (Player::TeamForRace(getRace()) == ALLIANCE)
+                return (getRace() == RACE_WORGEN ? 37729 : 21243);
+            if (getRace() == RACE_TROLL)
+                return 37730;
             return 21244;
         }
         case FORM_STAG:
@@ -20526,61 +20489,55 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 case RACE_NIGHTELF:
                 case RACE_WORGEN:
                     return 40816;
-
                 case RACE_TROLL:
                 case RACE_TAUREN:
                     return 45339;
+                default:
+                    break;
             }
+            break;
         }
         case FORM_MOONKIN:
         {
-            bool chosenOfElune = HasAura(102560);
-            if (Player::TeamForRace(getRace()) == HORDE)
+            /// Glyph of Stars
+            if (HasAura(114301))
             {
-                // Glyph of Stars
-                if (HasAura(114301))
-                {
-                    CastSpell(this, 114302, true); // Astral Form
-                    return 0;
-                }
-                else if (getRace() == RACE_TROLL)
-                {
-                    if (chosenOfElune)
-                        return 43789;
-                    else
-                        return 37174;
-                }
-                else if (getRace() == RACE_TAUREN)
-                {
-                    if (chosenOfElune)
-                        return 43786;
-                    else
-                        return 15375;
-                }
+                CastSpell(this, 114302, true); ///< Astral Form
+                return 0;
             }
-            else if (Player::TeamForRace(getRace()) == ALLIANCE)
+
+            bool l_ChosenOfElune = HasAura(102560);
+
+            switch (getRace())
             {
-                // Glyph of Stars
-                if (HasAura(114301))
+                case RACE_NIGHTELF:
                 {
-                    CastSpell(this, 114302, true); // Astral Form
-                    return 0;
-                }
-                if (getRace() == RACE_NIGHTELF)
-                {
-                    if (chosenOfElune)
+                    if (l_ChosenOfElune)
                         return 43790;
-                    else
-                        return 15374;
+                    return 15374;
                 }
-                else if (getRace() == RACE_WORGEN)
+                case RACE_TAUREN:
                 {
-                    if (chosenOfElune)
-                        return 43787;
-                    else
-                        return 37173;
+                    if (l_ChosenOfElune)
+                        return 43786;
+                    return 15375;
                 }
+                case RACE_WORGEN:
+                {
+                    if (l_ChosenOfElune)
+                        return 43787;
+                    return 37173;
+                }
+                case RACE_TROLL:
+                {
+                    if (l_ChosenOfElune)
+                        return 43789;
+                    return 37174;
+                }
+                default:
+                    break;
             }
+            break;
         }
         case FORM_AQUA:
         {
