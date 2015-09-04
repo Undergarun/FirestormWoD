@@ -441,7 +441,6 @@ public:
     {
         the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            Reset();
             m_Instance = me->GetInstanceScript();
         }
 
