@@ -531,7 +531,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& p_RecvData)
         {
             if (l_Auction->bidder > 0)                        // If we have a bidder, we have to send him the money he paid
             {
-                uint32 l_AuctionCut = l_Auction->GetAuctionCut();
+                uint64 l_AuctionCut = l_Auction->GetAuctionCut();
                 if (!l_Player->HasEnoughMoney((uint64)l_AuctionCut))          //player doesn't have enough money, maybe message needed
                     return;
                 sAuctionMgr->SendAuctionCancelledToBidderMail(l_Auction, l_Trans, l_Item);

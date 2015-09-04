@@ -6117,6 +6117,10 @@ uint32 Player::GetNextResetTalentsCost() const
         {
             // This cost will be reduced by a rate of 5 gold per month
             int32 new_cost = int32(GetTalentResetCost() - 5*GOLD*months);
+
+            // 50 gold cap
+            new_cost = std::min(new_cost, 50 * GOLD);
+
             // to a minimum of 10 gold.
             return (new_cost < 10*GOLD ? 10*GOLD : new_cost);
         }

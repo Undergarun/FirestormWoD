@@ -45,6 +45,7 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_ScenarioID = 0;
     m_ScenarioStep = 0;
     m_EncounterTime = 0;
+    m_DisabledMask = 0;
 }
 
 void InstanceScript::SaveToDB()
@@ -693,9 +694,13 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
     return false;
 }
 
-bool InstanceScript::CheckRequiredBosses(uint32 /*bossId*/, Player const* player) const
+bool InstanceScript::CheckRequiredBosses(uint32 p_ID, Player const* p_Player) const
 {
-    if (player && player->isGameMaster())
+    /// Disable case (for LFR)
+    if (m_DisabledMask & (1 << p_ID))
+        return false;
+
+    if (p_Player && p_Player->isGameMaster())
         return true;
 
     if (instance->GetPlayersCountExceptGMs() > instance->ToInstanceMap()->GetMaxPlayers())
@@ -1316,7 +1321,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
+        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetNativeDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
         {
             m_CompletedEncounters |= 1 << (*l_Iter)->dbcEntry->Bit;
 

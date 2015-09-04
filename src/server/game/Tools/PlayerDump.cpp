@@ -205,7 +205,7 @@ uint32 registerNewGuid(uint32 oldGuid, std::map<uint32, uint32> &guidMap, uint32
 bool changeGuid(std::string &str, int n, std::map<uint32, uint32> &guidMap, uint32 hiGuid, bool nonzero = false)
 {
     char chritem[20];
-    uint32 oldGuid = atoi(getnth(str, n).c_str());
+    uint32 oldGuid = atoll(getnth(str, n).c_str());
     if (nonzero && oldGuid == 0)
         return true; // not an error
 
@@ -218,7 +218,7 @@ bool changeGuid(std::string &str, int n, std::map<uint32, uint32> &guidMap, uint
 bool changetokGuid(std::string &str, int n, std::map<uint32, uint32> &guidMap, uint32 hiGuid, bool nonzero = false)
 {
     char chritem[20];
-    uint32 oldGuid = atoi(gettoknth(str, n).c_str());
+    uint32 oldGuid = atoll(gettoknth(str, n).c_str());
     if (nonzero && oldGuid == 0)
         return true; // not an error
 
@@ -342,7 +342,7 @@ void StoreGUID(QueryResult result, uint32 data, uint32 field, std::set<uint32>& 
 {
     Field* fields = result->Fetch();
     std::string dataStr = fields[data].GetString();
-    uint32 guid = atoi(gettoknth(dataStr, field).c_str());
+    uint32 guid = atoll(gettoknth(dataStr, field).c_str());
     if (guid)
         guids.insert(guid);
 }
