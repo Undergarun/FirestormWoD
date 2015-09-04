@@ -128,28 +128,6 @@ public:
         boss_witherbarkAI(Creature* p_Creature) : BossAI(p_Creature, eEverbloomData::DataWitherbark)
         {
             m_Instance = me->GetInstanceScript();
-
-            SolarVisual();
-            Reset();
-
-            m_Counting = 0;
-            m_Intro = false;
-
-            me->AddAura(eWitherbarkSpells::SpellBrittleBarkAura, me);
-            me->setFaction(FriendlyFaction);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-
-            if(Creature* l_Follower = me->SummonCreature(eEverbloomCreature::CreatureEverbloomNaturalist, l_PositionNaturalistFollower, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-            {
-                if (Creature* l_Tender = me->SummonCreature(eEverbloomCreature::CreatureEverbloomMender, l_PositionNaturalistFollower, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                {
-                    l_Follower->GetMotionMaster()->MovePoint(5, l_PositionNaturalistFollowerMov[2].GetPositionX(), l_PositionNaturalistFollowerMov[2].GetPositionY(), l_PositionNaturalistFollowerMov[2].GetPositionZ());
-                    l_Tender->GetMotionMaster()->MoveFollow(l_Follower, 60.0f, 4.0f, MOTION_SLOT_ACTIVE);
-                }
-            }
-
-            if (me->GetMap())
-            me->GetMap()->SetObjectVisibility(1000.0f);
         }
 
         uint32 m_Counting;
@@ -174,6 +152,24 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
 
             me->AddAura(eWitherbarkSpells::SpellPertifiedBark, me);
+
+            SolarVisual();
+
+            m_Counting = 0;
+            m_Intro = false;
+
+            me->AddAura(eWitherbarkSpells::SpellBrittleBarkAura, me);
+            me->setFaction(FriendlyFaction);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+            if (Creature* l_Follower = me->SummonCreature(eEverbloomCreature::CreatureEverbloomNaturalist, l_PositionNaturalistFollower, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                if (Creature* l_Tender = me->SummonCreature(eEverbloomCreature::CreatureEverbloomMender, l_PositionNaturalistFollower, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Follower->GetMotionMaster()->MovePoint(5, l_PositionNaturalistFollowerMov[2].GetPositionX(), l_PositionNaturalistFollowerMov[2].GetPositionY(), l_PositionNaturalistFollowerMov[2].GetPositionZ());
+                    l_Tender->GetMotionMaster()->MoveFollow(l_Follower, 60.0f, 4.0f, MOTION_SLOT_ACTIVE);
+                }
+            }
         }
 
         void SolarVisual()

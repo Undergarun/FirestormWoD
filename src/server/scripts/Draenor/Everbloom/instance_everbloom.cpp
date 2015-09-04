@@ -61,6 +61,8 @@ public:
             // Objects
             YalnuDoor = 0;
             WebDoor = 0;
+
+            instance->SetObjectVisibility(1000.0f);
         }
 
         void OnCreatureCreate(Creature* l_Creature) override
