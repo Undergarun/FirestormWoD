@@ -3577,7 +3577,9 @@ void Player::RegenerateHealth()
 
 void Player::ResetAllPowers()
 {
-    ClearComboPoints();
+    if (getPowerType() == POWER_COMBO_POINT)
+        ClearComboPoints();
+
     SetHealth(GetMaxHealth());
     SetPower(POWER_BURNING_EMBERS, 10);
     SetPower(POWER_CHI, 0);
