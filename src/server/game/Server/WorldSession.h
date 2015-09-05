@@ -1150,6 +1150,7 @@ class WorldSession
         void HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData);
         void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData);
         void HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData);
@@ -1163,6 +1164,7 @@ class WorldSession
 
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
+        void SendGarrisonSetMissionNpc(uint64 p_CreatureGUID);
 
         // Pet Battle System
         void HandlePetBattleSetAbility(WorldPacket& p_RecvData);

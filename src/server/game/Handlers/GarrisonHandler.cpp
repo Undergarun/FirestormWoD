@@ -231,6 +231,31 @@ void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
     SendGarrisonOpenMissionNpc(l_NpcGUID);
 }
 
+void WorldSession::HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData)
+{
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64 l_NpcGUID = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonRequestSetMissionNPC - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    SendGarrisonSetMissionNpc(l_NpcGUID);
+}
+
 void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -809,11 +834,19 @@ void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
     if (!l_Garrison)
         return;
 
-    WorldPacket l_Data(SMSG_GARRISON_OPEN_MISSION_NPC, 18);
-    l_Data << uint32(1);
+    WorldPacket l_Data(SMSG_GARRISON_OPEN_MISSION_NPC, 9);
+    l_Data << uint32(0);
     l_Data << uint32(0);
     l_Data.WriteBit(false);
     l_Data.FlushBits();
 
+    SendPacket(&l_Data);
+}
+
+void WorldSession::SendGarrisonSetMissionNpc(uint64 p_CreatureGUID)
+{
+    WorldPacket l_Data(SMSG_GARRISON_SET_MISSION_NPC, 19);
+    l_Data.appendPackGUID(p_CreatureGUID);
+    l_Data << uint32(1); // 1 == Regular - 2 == Ship
     SendPacket(&l_Data);
 }
