@@ -1,12 +1,19 @@
+////////////////////////////////////////////////////////////////////////////////
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptedCreature.h"
 #include "auchindon.hpp"
 
 /// 1st STarting Event
-class tuulani_1st_event : public BasicEvent
+class EventTuulaniIntroduction : public BasicEvent
 {
 public:
-    explicit tuulani_1st_event(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    explicit EventTuulaniIntroduction(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
     {
     }
 
@@ -20,154 +27,153 @@ public:
                 {
                     if (Creature* l_Nyami = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataNyami)))
                     {
-                        if (l_Nyami->GetAI() && l_Tuulina->GetAI())
+                        if (Creature* l_Guard = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataGuard)))
                         {
-                            switch (m_Modifier)
+
+                            if (l_Nyami->GetAI() && l_Tuulina->GetAI())
                             {
-                                case 0: // TUULINA         
+                                switch (m_Modifier)
                                 {
-                                    l_Nyami->AddAura(eAuchindonSpells::SpellDarkFire, l_Nyami);
-                                    l_Nyami->AddAura(eAuchindonSpells::SpellLevitateNyami, l_Nyami);
-                                    l_Nyami->SetReactState(ReactStates::REACT_PASSIVE);
-                                    l_Nyami->CastSpell(l_Nyami, eAuchindonSpells::SpellPrisonAura);
-
-                                    l_Tuulina->GetAI()->DoAction(eAuchindonGeneralActions::ActionConfirmTuulaniEvent);
-
-                                    if (Creature* l_Trigger = l_Nyami->FindNearestCreature(100055, 40.0f, true))
+                                    case 0: // TUULINA         
                                     {
-                                        l_Trigger->AddAura(eAuchindonSpells::SpellVoidFormTriggerBuff, l_Trigger);
-                                        l_Nyami->CastSpell(l_Trigger, eAuchindonSpells::SpellShadowBeam);
-                                    }
+                                        l_Nyami->AddAura(eAuchindonSpells::SpellDarkFire, l_Nyami);
+                                        l_Nyami->AddAura(eAuchindonSpells::SpellLevitateNyami, l_Nyami);
+                                        l_Nyami->SetReactState(ReactStates::REACT_PASSIVE);
+                                        l_Nyami->CastSpell(l_Nyami, eAuchindonSpells::SpellPrisonAura);
 
-                                    Creature* l_Guard = m_Obj->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, l_PositionGuardPositionTalker, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                                    if (l_Guard)
-                                        l_Guard->CastSpell(l_Guard, eAuchindonSpells::SpellKneel);
+                                        l_Tuulina->GetAI()->DoAction(eAuchindonGeneralActions::ActionConfirmTuulaniEvent);
 
-                                    l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK2);
-                                    l_Tuulina->GetMotionMaster()->MovePoint(1, l_PositionTuulaniPreMovement02.GetPositionX(), l_PositionTuulaniPreMovement02.GetPositionY(), l_PositionTuulaniPreMovement02.GetPositionZ());
-                                    break;
-                                }
-                                case 1: // TUULINA
-                                {
-                                    l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK3);
-                                    l_Tuulina->GetMotionMaster()->MovePoint(2, l_PositionTuulaniPreMovement03.GetPositionX(), l_PositionTuulaniPreMovement03.GetPositionY(), l_PositionTuulaniPreMovement03.GetPositionZ());
-                                    break;
-                                }
-                                case 3: // GUARD
-                                {
-                                    Creature* l_Guard = m_Obj->ToCreature();
-                                    if (l_Guard && l_Guard->GetAI())
-                                    {
-                                        l_Guard->RemoveAura(eAuchindonSpells::SpellKneel);
-                                        l_Guard->AI()->Talk(eAuchindonTalk::AUCHENAIDEFENDERTALK1);
-                                        l_Guard->SetFacingToObject(l_Tuulina);
+                                        if (Creature* l_Trigger = l_Nyami->FindNearestCreature(100055, 40.0f, true))
+                                        {
+                                            l_Trigger->AddAura(eAuchindonSpells::SpellVoidFormTriggerBuff, l_Trigger);
+                                            l_Nyami->CastSpell(l_Trigger, eAuchindonSpells::SpellShadowBeam);
+                                        }
 
-                                        l_Guard->m_Events.AddEvent(new tuulani_1st_event(l_Guard, 4), l_Guard->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                        l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK2);
+                                        l_Tuulina->GetMotionMaster()->MovePoint(1, g_PositionTuulaniPreMovement02.GetPositionX(), g_PositionTuulaniPreMovement02.GetPositionY(), g_PositionTuulaniPreMovement02.GetPositionZ());
                                         break;
                                     }
-                                }
-                                case 4: // TUULANI
-                                {
-                                    l_Tuulina->GetMotionMaster()->MovePoint(3, l_PositionTuulaniMovement000.GetPositionX(), l_PositionTuulaniMovement000.GetPositionY(), l_PositionTuulaniMovement000.GetPositionZ());
-                                    break;
-                                }
-                                case 5: // TUULANI                    
-                                {
-                                    l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK4);
-                                    l_Tuulina->m_Events.AddEvent(new tuulani_1st_event(l_Tuulina, 6), l_Tuulina->m_Events.CalculateTime(4 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 6:
-                                {
-                                    l_Tuulina->CastSpell(l_Tuulina, eAuchindonSpells::SpellTuulaniUnlock);
-                                    l_Tuulina->m_Events.AddEvent(new tuulani_1st_event(l_Tuulina, 7), l_Tuulina->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 7:
-                                {
-                                    if (GameObject* nearestdoor = l_Tuulina->FindNearestGameObject(, 60.0f))
+                                    case 1: // TUULINA
                                     {
-                                        nearestdoor->Delete();
+                                        l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK3);
+                                        l_Tuulina->GetMotionMaster()->MovePoint(2, g_PositionTuulaniPreMovement03.GetPositionX(), g_PositionTuulaniPreMovement03.GetPositionY(), g_PositionTuulaniPreMovement03.GetPositionZ());
+                                        break;
                                     }
+                                    case 3: // GUARD
+                                    {
+                                        if (l_Guard->GetAI())
+                                        {
+                                            l_Guard->RemoveAura(eAuchindonSpells::SpellKneel);
+                                            l_Guard->AI()->Talk(eAuchindonTalk::AUCHENAIDEFENDERTALK1);
+                                            l_Guard->SetFacingToObject(l_Tuulina);
 
-                                    l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK2);
-                                    l_Tuulina->GetMotionMaster()->MovePoint(4, l_PositionTuulaniMovement04.GetPositionX(), l_PositionTuulaniMovement04.GetPositionY(), l_PositionTuulaniMovement04.GetPositionZ());
-                                    break;
-                                }
-                                case 8:
-                                {
-                                    l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK5);
-                                    l_Tuulina->GetMotionMaster()->MovePoint(5, l_PositionTuulaniMovement05.GetPositionX(), l_PositionTuulaniMovement05.GetPositionY(), l_PositionTuulaniMovement05.GetPositionZ());
-                                    break;
-                                }
-                                case 9:
-                                {
-                                    l_Tuulina->GetMotionMaster()->MovePoint(6, l_PositionTuulaniMovement06.GetPositionX(), l_PositionTuulaniMovement06.GetPositionY(), l_PositionTuulaniMovement06.GetPositionZ());
-                                    break;
-                                }
-                                case 10:
-                                {
-                                    l_Tuulina->GetMotionMaster()->MovePoint(7, l_PositionTuulaniMovement07.GetPositionX(), l_PositionTuulaniMovement07.GetPositionY(), l_PositionTuulaniMovement07.GetPositionZ());
-                                    break;
-                                }
-                                case 11:
-                                {
-                                    l_Tuulina->GetMotionMaster()->MovePoint(8, l_PositionTuulaniMovement08.GetPositionX(), l_PositionTuulaniMovement08.GetPositionY(), l_PositionTuulaniMovement08.GetPositionZ());
-                                    break;
-                                }
-                                case 12:
-                                {
-                                    l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK6);
-                                    l_Tuulina->GetMotionMaster()->MovePoint(9, l_PositionTuulaniPreMovement03.GetPositionX(), l_PositionTuulaniMovement09.GetPositionY(), l_PositionTuulaniMovement09.GetPositionZ());
-                                    break;
-                                }
-                                case 13:
-                                {
-                                    l_Tuulina->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                                    l_Tuulina->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
-                                    l_Tuulina->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                                    l_Tuulina->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                                    l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK7);
+                                            l_Guard->m_Events.AddEvent(new EventTuulaniIntroduction(l_Guard, 4), l_Guard->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                            break;
+                                        }
+                                    }
+                                    case 4: // TUULANI
+                                    {
+                                        l_Tuulina->GetMotionMaster()->MovePoint(3, g_PositionTuulaniMovement000.GetPositionX(), g_PositionTuulaniMovement000.GetPositionY(), g_PositionTuulaniMovement000.GetPositionZ());
+                                        break;
+                                    }
+                                    case 5: // TUULANI                    
+                                    {
+                                        l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK4);
+                                        l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 6), l_Tuulina->m_Events.CalculateTime(4 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    }
+                                    case 6:
+                                    {
+                                        l_Tuulina->CastSpell(l_Tuulina, eAuchindonSpells::SpellTuulaniUnlock);
+                                        l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 7), l_Tuulina->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    }
+                                    case 7:
+                                    {
+                                        if (GameObject* l_NearestHolyWall = l_Tuulina->FindNearestGameObject(eAuchindonObjects::GameobjectHolyWall, 60.0f))
+                                        {
+                                            l_NearestHolyWall->Delete();
+                                        }
 
-                                    l_Tuulina->GetMotionMaster()->MovePoint(10, l_PositionTuulaniMovement10th.GetPositionX(), l_PositionTuulaniMovement10th.GetPositionY(), l_PositionTuulaniMovement10th.GetPositionZ());
-                                    l_Tuulina->m_Events.AddEvent(new tuulani_1st_event(l_Tuulina, 15), l_Tuulina->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 15:
-                                {
-                                    l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK1);
-                                    l_Tuulina->m_Events.AddEvent(new tuulani_1st_event(l_Tuulina, 16), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 16:
-                                {
-                                    l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK2);
-                                    l_Tuulina->m_Events.AddEvent(new tuulani_1st_event(l_Tuulina, 17), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 17:
-                                {
-                                    l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK3);
-                                    l_Tuulina->m_Events.AddEvent(new tuulani_1st_event(l_Tuulina, 18), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 18:
-                                {
-                                    l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK4);
-                                    l_Tuulina->m_Events.AddEvent(new tuulani_1st_event(l_Tuulina, 19), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 19:
-                                {
-                                    l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK8);
-                                    l_Tuulina->m_Events.AddEvent(new tuulani_1st_event(l_Tuulina, 20), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
-                                    break;
-                                }
-                                case 20:
-                                {
-                                    l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK5);
-                                    l_Tuulina->m_Events.AddEvent(new tuulani_1st_event(l_Tuulina, 21), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
-                                    break;
+                                        l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK2);
+                                        l_Tuulina->GetMotionMaster()->MovePoint(4, g_PositionTuulaniMovement04.GetPositionX(), g_PositionTuulaniMovement04.GetPositionY(), g_PositionTuulaniMovement04.GetPositionZ());
+                                        break;
+                                    }
+                                    case 8:
+                                    {
+                                        l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK5);
+                                        l_Tuulina->GetMotionMaster()->MovePoint(5, g_PositionTuulaniMovement05.GetPositionX(), g_PositionTuulaniMovement05.GetPositionY(), g_PositionTuulaniMovement05.GetPositionZ());
+                                        break;
+                                    }
+                                    case 9:
+                                    {
+                                        l_Tuulina->GetMotionMaster()->MovePoint(6, g_PositionTuulaniMovement06.GetPositionX(), g_PositionTuulaniMovement06.GetPositionY(), g_PositionTuulaniMovement06.GetPositionZ());
+                                        break;
+                                    }
+                                    case 10:
+                                    {
+                                        l_Tuulina->GetMotionMaster()->MovePoint(7, g_PositionTuulaniMovement07.GetPositionX(), g_PositionTuulaniMovement07.GetPositionY(), g_PositionTuulaniMovement07.GetPositionZ());
+                                        break;
+                                    }
+                                    case 11:
+                                    {
+                                        l_Tuulina->GetMotionMaster()->MovePoint(8, g_PositionTuulaniMovement08.GetPositionX(), g_PositionTuulaniMovement08.GetPositionY(), g_PositionTuulaniMovement08.GetPositionZ());
+                                        break;
+                                    }
+                                    case 12:
+                                    {
+                                        l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK6);
+                                        l_Tuulina->GetMotionMaster()->MovePoint(9, g_PositionTuulaniPreMovement03.GetPositionX(), g_PositionTuulaniMovement09.GetPositionY(), g_PositionTuulaniMovement09.GetPositionZ());
+                                        break;
+                                    }
+                                    case 13:
+                                    {
+                                        l_Tuulina->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                                        l_Tuulina->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
+                                        l_Tuulina->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                                        l_Tuulina->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                                        l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK7);
+
+                                        l_Tuulina->GetMotionMaster()->MovePoint(10, g_PositionTuulaniMovement10th.GetPositionX(), g_PositionTuulaniMovement10th.GetPositionY(), g_PositionTuulaniMovement10th.GetPositionZ());
+                                        l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15), l_Tuulina->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    }
+                                    case 15:
+                                    {
+                                        l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK1);
+                                        l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 16), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    }
+                                    case 16:
+                                    {
+                                        l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK2);
+                                        l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 17), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    }
+                                    case 17:
+                                    {
+                                        l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK3);
+                                        l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 18), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    }
+                                    case 18:
+                                    {
+                                        l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK4);
+                                        l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 19), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    }
+                                    case 19:
+                                    {
+                                        l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK8);
+                                        l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 20), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    }
+                                    case 20:
+                                    {
+                                        l_Nyami->AI()->Talk(eAuchindonTalk::NYAMITALK5);
+                                        l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 21), l_Tuulina->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -184,7 +190,7 @@ private:
     int m_Event;
 };
 
-/// Tuulani - 
+/// Tuulani - 79248
 class auchindon_creature_tuulani : public CreatureScript
 {
 public:
@@ -215,13 +221,13 @@ public:
             {
                 m_First = false;
 
-                me->setFaction(35);
+                me->setFaction(eAuchindonInformation::InformationFriendlyFaction);
                 Talk(eAuchindonTalk::TUULANITALK1);
                 me->SetSpeed(UnitMoveType::MOVE_RUN, 1.5f, true);
                 me->SetSpeed(UnitMoveType::MOVE_WALK, 1.5f, true);
-                me->GetMotionMaster()->MovePoint(0, l_PositionTuulaniPreMovement01.GetPositionX(), l_PositionTuulaniPreMovement01.GetPositionY(), l_PositionTuulaniPreMovement01.GetPositionZ());
+                me->GetMotionMaster()->MovePoint(0, g_PositionTuulaniPreMovement01.GetPositionX(), g_PositionTuulaniPreMovement01.GetPositionY(), g_PositionTuulaniPreMovement01.GetPositionZ());
 
-                events.ScheduleEvent(EventBeginRp, 4 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eAuchindonEvents::EventBeginRp, 4 * TimeConstants::IN_MILLISECONDS);
             }
         }
 
@@ -240,35 +246,35 @@ public:
             switch (p_Id)
             {
                 case eAuchindonMovementInform::MovementInformTuulani01:
-                       me->m_Events.AddEvent(new tuulani_1st_event(me, 0), me->m_Events.CalculateTime(200));
+                       me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 0), me->m_Events.CalculateTime(200));
                        break;
                 case eAuchindonMovementInform::MovementInformTuulani02:
-                        me->m_Events.AddEvent(new tuulani_1st_event(me, 1), me->m_Events.CalculateTime(200));
+                        me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 1), me->m_Events.CalculateTime(200));
                         break;
                 case eAuchindonMovementInform::MovementInformTuulani03:
                         if (Creature* l_Guard = me->FindNearestCreature(eAuchindonCreatures::CreatureAucheniDefender, 10.0F, true))
-                            l_Guard->m_Events.AddEvent(new tuulani_1st_event(l_Guard, 3), l_Guard->m_Events.CalculateTime(200));
+                            l_Guard->m_Events.AddEvent(new EventTuulaniIntroduction(l_Guard, 3), l_Guard->m_Events.CalculateTime(200));
                         break;
                 case eAuchindonMovementInform::MovementInformTuulani04:
-                        me->m_Events.AddEvent(new tuulani_1st_event(me, 5), me->m_Events.CalculateTime(200));
+                        me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 5), me->m_Events.CalculateTime(200));
                         break;
                 case eAuchindonMovementInform::MovementInformTuulani05:
-                        me->m_Events.AddEvent(new tuulani_1st_event(me, 8), me->m_Events.CalculateTime(200));
+                        me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 8), me->m_Events.CalculateTime(200));
                         break;
                 case eAuchindonMovementInform::MovementInformTuulani06:
-                        me->m_Events.AddEvent(new tuulani_1st_event(me, 9), me->m_Events.CalculateTime(200));
+                        me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 9), me->m_Events.CalculateTime(200));
                         break;
                 case eAuchindonMovementInform::MovementInformTuulani07:
-                        me->m_Events.AddEvent(new tuulani_1st_event(me, 10), me->m_Events.CalculateTime(200));
+                        me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 10), me->m_Events.CalculateTime(200));
                         break;
                 case eAuchindonMovementInform::MovementInformTuulani08:
-                        me->m_Events.AddEvent(new tuulani_1st_event(me, 11), me->m_Events.CalculateTime(200));
+                        me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 11), me->m_Events.CalculateTime(200));
                         break;
                 case eAuchindonMovementInform::MovementInformTuulani09:
-                        me->m_Events.AddEvent(new tuulani_1st_event(me, 12), me->m_Events.CalculateTime(200));
+                        me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 12), me->m_Events.CalculateTime(200));
                         break;
                 case eAuchindonMovementInform::MovementInformTuulani10:
-                        me->m_Events.AddEvent(new tuulani_1st_event(me, 13), me->m_Events.CalculateTime(200));
+                        me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 13), me->m_Events.CalculateTime(200));
                         break;
             }
         }
@@ -279,16 +285,16 @@ public:
 
             if (!m_StartEvent)
             {
-                me->m_Events.AddEvent(new tuulani_1st_event(me, 0), me->m_Events.CalculateTime(0));
+                me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 0), me->m_Events.CalculateTime(0));
             }
 
             switch (events.ExecuteEvent())
             {
-            case EventBeginRp:
-                    m_StartEvent = false;
-                    break;
-                default:
-                    break;
+                case eAuchindonEvents::EventBeginRp:
+                        m_StartEvent = false;
+                        break;
+                    default:
+                        break;
             }
         }
     };
@@ -299,7 +305,7 @@ public:
     }
 };
 
-/// Sargerei Soulbinder
+/// Sargerei Soulbinder - 
 class auchindon_creature_sargerei_soulbinder : public CreatureScript
 {
 public:
@@ -370,7 +376,7 @@ public:
     }
 };
 
-/// Sargerei Cleric - 
+/// Sargerei Cleric - 77134
 class auchindon_creature_sargerei_cleric : public CreatureScript
 {
 public:
@@ -432,7 +438,7 @@ public:
     }
 };
 
-/// Sargerei Ritualist - 
+/// Sargerei Ritualist - 77130
 class auchindon_creature_sargerei_ritualist : public CreatureScript
 {
 public:
@@ -451,7 +457,7 @@ public:
         {
             me->AddAura(eAuchindonSpells::SpellDarkFire, me);
 
-            if (Creature* l_Trigger = me->SummonCreature(100055, l_PositionKaatharCrystalPosition, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* l_Trigger = me->SummonCreature(100055, g_PositionKaatharCrystalPosition, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
             {
                 me->CastSpell(l_Trigger, eAuchindonSpells::SpellShadowBeam); // bind triggers      
             }
@@ -503,7 +509,7 @@ public:
     }
 };
 
-/// Sargerei Zealot - 
+/// Sargerei Zealot - 77132
 class auchindon_creature_sargerei_zealot : public CreatureScript
 {
 public:
@@ -518,17 +524,23 @@ public:
 
         InstanceScript* m_Instance;
 
+
+        void Reset() override
+        {
+            events.Reset();
+        }
+
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eAuchindonEvents::Event_Sever_Tendom, 5 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAuchindonEvents::EventSeverTendom, 5 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
         {
-            if (Creature* Kaathar = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::Data_Boss_Kathaar)))
+            if (Creature* Kaathar = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossKathaar)))
             {
                 if (Kaathar->isAlive())
-                    Kaathar->AI()->DoAction(eAuchindonGeneralActions::Action_Count_Pre_1St_Boss_Kill);
+                    Kaathar->AI()->DoAction(eAuchindonGeneralActions::ActionCountPre1StBossKill);
             }
         }
 
@@ -544,11 +556,11 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eAuchindonEvents::Event_Sever_Tendom:
+                case eAuchindonEvents::EventSeverTendom:
                         if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(target, 157165); // sever tendon
+                            me->CastSpell(target, eAuchindonSpells::SpellSeverTendonAura); 
 
-                        events.ScheduleEvent(eAuchindonEvents::Event_Sever_Tendom, urand(11 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
+                        events.ScheduleEvent(eAuchindonEvents::EventSeverTendom, urand(11 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
                         break;
             }
 
@@ -562,7 +574,7 @@ public:
     }
 };
 
-/// Sargerei Spirit Tender -
+/// Sargerei Spirit Tender - 77131
 class auchindon_creature_sargerei_spirit_tender : public CreatureScript
 {
 public:
@@ -584,16 +596,16 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eAuchindonEvents::Event_Void_Mending, 10 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eAuchindonEvents::Event_Void_Shift, 16 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAuchindonEvents::EventVoidMending, 10 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAuchindonEvents::EventVoidShift, 16 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
         {
-            if (Creature* l_Kaathar = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::Data_Boss_Kathaar)))
+            if (Creature* l_Kaathar = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossKathaar)))
             {
                 if (l_Kaathar->isAlive() && l_Kaathar->GetAI())
-                    l_Kaathar->AI()->DoAction(eAuchindonGeneralActions::Action_Count_Pre_1St_Boss_Kill);
+                    l_Kaathar->AI()->DoAction(eAuchindonGeneralActions::ActionCountPre1StBossKill);
             }
         }
 
@@ -609,15 +621,15 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eAuchindonEvents::Event_Void_Mending:
+                case eAuchindonEvents::EventVoidMending:
                         if (Unit* friendUnit = DoSelectLowestHpFriendly(85)) // heal
-                            me->CastSpell(friendUnit, eAuchindonSpells::Spell_Void_Mending_Dummy);
+                            me->CastSpell(friendUnit, eAuchindonSpells::SpellVoidMendingDummy);
 
-                        events.ScheduleEvent(eAuchindonEvents::Event_Void_Mending, 10 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eAuchindonEvents::EventVoidMending, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
-                case eAuchindonEvents::Event_Void_Shift:
-                        me->CastSpell(me, eAuchindonSpells::Spell_Void_Shift_Dummy);
-                        events.ScheduleEvent(eAuchindonEvents::Event_Void_Shift, 16 * TimeConstants::IN_MILLISECONDS);
+                case eAuchindonEvents::EventVoidShift:
+                        me->CastSpell(me, eAuchindonSpells::SpellVoidShiftDummy);
+                        events.ScheduleEvent(eAuchindonEvents::EventVoidShift, 16 * TimeConstants::IN_MILLISECONDS);
                         break;
             }
 
@@ -631,7 +643,7 @@ public:
     };
 };
 
-/// Sargerei Hopilite - 
+/// Sargerei Hopilite - 77133
 class auchindon_creature_sargerei_hopilite : public CreatureScript
 {
 public:
@@ -653,16 +665,16 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eAuchindonEvents::Event_Shield_Bash, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eAuchindonEvents::Event_Void_Strikes, 18 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAuchindonEvents::EventShieldBash, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eAuchindonEvents::EventVoidStrikes, 18 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
         {
-            if (Creature* Kaathar = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::Data_Boss_Kathaar)))
+            if (Creature* Kaathar = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossKathaar)))
             {
                 if (Kaathar->isAlive() && Kaathar->GetAI())
-                Kaathar->AI()->DoAction(eAuchindonGeneralActions::Action_Count_Pre_1St_Boss_Kill);
+                Kaathar->AI()->DoAction(eAuchindonGeneralActions::ActionCountPre1StBossKill);
             }
         }
 
@@ -678,17 +690,17 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eAuchindonEvents::Event_Shield_Bash:
+                case eAuchindonEvents::EventShieldBash:
                     if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eAuchindonSpells::Spell_Shield_Bash);
+                        me->CastSpell(l_Target, eAuchindonSpells::SpellShieldBash);
      
-                    events.ScheduleEvent(eAuchindonEvents::Event_Shield_Bash, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                    events.ScheduleEvent(eAuchindonEvents::EventShieldBash, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                         break;
-                case eAuchindonEvents::Event_Void_Strikes:
+                case eAuchindonEvents::EventVoidStrikes:
                     if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eAuchindonSpells::Spell_Void_Strikes);
+                        me->CastSpell(l_Target, eAuchindonSpells::SpellVoidStrikes);
 
-                        events.ScheduleEvent(eAuchindonEvents::Event_Void_Strikes, 18 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eAuchindonEvents::EventVoidStrikes, 18 * TimeConstants::IN_MILLISECONDS);
                         break;
             }
 
@@ -702,7 +714,7 @@ public:
     }
 };
 
-/// Sargerei Defender - 
+/// Sargerei Defender - 77042
 class auchindon_creature_sargerei_defender : public CreatureScript
 {
 public:
@@ -717,10 +729,16 @@ public:
 
         InstanceScript* m_Instance;
 
+
+        void Reset() override
+        {
+            events.Reset();
+        }
+
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(EVENT_AVENGERS_SHIELD, urand(10 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_CRUSADER_STIRKE, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eAuchindonEvents::EventAvengersShield, urand(10 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eAuchindonEvents::EventCrusaderStirke, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -732,20 +750,21 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case EVENT_AVENGERS_SHIELD:
-                    if (Unit* random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    {
-                        me->CastSpell(random, SPELL_AVENGERS_SHIELD);
-                        events.ScheduleEvent(EVENT_AVENGERS_SHIELD, urand(10 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
-                    }
-                    break;
-                case EVENT_CRUSADER_STIRKE:
-                    if (Unit* random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    {
-                        me->CastSpell(random, SPELL_CRUSADER_STIRKE);
-                        events.ScheduleEvent(EVENT_CRUSADER_STIRKE, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-                    }
-                    break;
+                case eAuchindonEvents::EventAvengersShield:
+                        if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        {
+                            me->CastSpell(l_Random,  eAuchindonSpells::SpellAvengersShield);
+                            events.ScheduleEvent(eAuchindonEvents::EventAvengersShield, urand(10 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+                        }
+                        break;
+                case eAuchindonEvents::EventCrusaderStirke:
+                        if (Unit* l_Target = me->getVictim())
+                        {
+                            me->CastSpell(l_Target, eAuchindonSpells::SpellCrusaderStirke);
+
+                            events.ScheduleEvent(eAuchindonEvents::EventCrusaderStirke, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+                        }
+                        break;
             }
 
             DoMeleeAttackIfReady();
@@ -758,7 +777,7 @@ public:
     }
 };
 
-/// Sargerei Magus - 
+/// Sargerei Magus - 76263
 class auchindon_creature_sargerei_magus : public CreatureScript
 {
 public:
@@ -773,9 +792,17 @@ public:
 
         InstanceScript* m_Instance;
 
+
+        void Reset() override
+        {
+            events.Reset();
+
+            me->CastSpell(me, eAuchindonSpells::SpellArcaneChanneling);
+        }
+
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(EventArcaneBomb, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eAuchindonEvents::EventArcaneBomb, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
 
             std::list<Creature*> l_CreaturesPrisoners;
             me->GetCreatureListWithEntryInGrid(l_CreaturesPrisoners, CreatureAucheniSoulPriest, 20.0f);
@@ -786,8 +813,8 @@ public:
             for (auto itr : l_CreaturesPrisoners)
             {
                 itr->RemoveAllAuras();
+                itr->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
                 itr->SetCanFly(false);
-                itr->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
 
                 itr->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
                 itr->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
@@ -804,9 +831,9 @@ public:
      
             switch (events.ExecuteEvent())
             {
-                case EventArcaneBomb:
-                    me->CastSpell(me, SpellArcaneBombDummy);
-                    events.ScheduleEvent(EventArcaneBomb, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+            case eAuchindonEvents::EventArcaneBomb:
+                    me->CastSpell(me, eAuchindonSpells::SpellArcaneBombDummy);
+                    events.ScheduleEvent(eAuchindonEvents::EventArcaneBomb, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
                     break;
             }
 
@@ -820,7 +847,7 @@ public:
     }
 };
 
-/// Sargerei Warden - 
+/// Sargerei Warden - 77935
 class auchindon_creature_sargeri_warden : public CreatureScript
 {
 public:
@@ -835,10 +862,15 @@ public:
 
         InstanceScript* m_Instance;
 
+        void Reset() override
+        {
+            events.Reset();
+        }
+
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(EventWardenHammer, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(EventWardenChain, 5 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAuchindonEvents::EventWardenHammer, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eAuchindonEvents::EventWardenChain, 5 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -850,23 +882,22 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case EventWardenHammer:
+                case eAuchindonEvents::EventWardenHammer:
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                     {
-                        me->CastSpell(l_Random, SpellWardenThrowHammer);
-                        events.ScheduleEvent(EventWardenHammer, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+                        me->CastSpell(l_Random, eAuchindonSpells::SpellWardenThrowHammer);
+                        events.ScheduleEvent(eAuchindonEvents::EventWardenHammer, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
-                case EventWardenChain:
+                case eAuchindonEvents::EventWardenChain:
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                     {
-                        me->CastSpell(l_Random, 154831);
-                        l_Random->CastSpell(me, 154639);
-                        l_Random->AddAura(154263, l_Random);
+                        me->CastSpell(l_Random, eAuchindonSpells::SpellWardenChainDot);
                     }
-                    events.ScheduleEvent(EventWardenChain, 20 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eAuchindonEvents::EventWardenChain, 20 * TimeConstants::IN_MILLISECONDS);
                     break;
             }
+
             DoMeleeAttackIfReady();
         }
     };
@@ -877,7 +908,7 @@ public:
     }
 };
 
-// Felborne Abyssal
+/// Felborne Abyssal - 77905
 class auchindon_creature_felborne_abyssal : public CreatureScript
 {
 public:
@@ -892,28 +923,33 @@ public:
 
         InstanceScript* m_Instance;
         bool m_Fixated;
+        uint64 m_FixatedTargetGUID;
 
         void Reset() override
         {
+            events.Reset();
+
+            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
             m_Fixated = false;
+            m_FixatedTargetGUID = NULL;
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(EventFixate, urand(16 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eAuchindonEvents::EventFixate, urand(16 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
         }
 
         void DoAction(int32 const action) override
         {
             switch (action)
             {
-                case ActionDeactivateFixation:
-                    m_Fixated = false;
-                    break;
+                case eAuchindonGeneralActions::ActionDeactivateFixation:
+                        m_Fixated = false;
+                        break;
             }
         }
 
-        void OnAddThreat(Unit* p_Victim, float& p_fThreat, SpellSchoolMask /*p_SchoolMask*/, SpellInfo const /*p_ThreatSpell*/) 
+        void OnAddThreat(Unit* p_Victim, float& p_fThreat, SpellSchoolMask /*p_SchoolMask*/, SpellInfo const /*p_ThreatSpell*/)  
         {
             if (m_Fixated)
                 p_fThreat = 0;
@@ -927,18 +963,32 @@ public:
             if (!UpdateVictim())
                 return;
 
+            if (m_Fixated)
+            {
+                if (m_FixatedTargetGUID != NULL)
+                {
+                    if (Unit* l_Target = sObjectAccessor->GetUnit(me*, m_FixatedTargetGUID))
+                    {
+                        me->AddThreat(l_Target, 500.0f);
+                    }
+                }
+            }
+
             switch (events.ExecuteEvent())
             {
-            case EventFixate:
-                if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                {
-                    me->CastSpell(l_Random, SpellFixate);
-                    m_Fixated = true;
+                case eAuchindonEvents::EventFixate:
+                    if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    {
+                        m_FixatedTargetGUID = l_Random->GetGUID();
 
-                    events.ScheduleEvent(EventFixate, urand(16 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                }
-                break;
+                        me->CastSpell(l_Random, eAuchindonSpells::SpellFixate);
+                        m_Fixated = true;
+
+                        events.ScheduleEvent(eAuchindonEvents::EventFixate, urand(16 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                    }
+                    break;
             }
+
             DoMeleeAttackIfReady();
         }
     };
@@ -949,7 +999,7 @@ public:
     }
 };
 
-/// Cackling Pyrmoaniac - 
+/// Cackling Pyrmoaniac - 76260
 class auchindon_creature_cackling_pyromaniac : public CreatureScript
 {
 public:
@@ -966,19 +1016,25 @@ public:
 
         void Reset() override
         {
-            me->CastSpell(me, SpellAbyssalVisual);
+            events.Reset();
+
+            me->CastSpell(me, eAuchindonSpells::SpellAbyssalVisual);
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(EventFelblast, 10 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAuchindonEvents::EventFelblast, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
         {
-            if (Creature* Trigger = m_Instance->instance->GetCreature(m_Instance->GetData64(DataTriggerAzzakelController)))
-                if (Trigger->IsWithinDistInMap(me, 30.0f))
-                    Trigger->AI()->DoAction(ActionCountPre3StBossKill);
+            if (Creature* l_Azzakel = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossAzzakael)))
+                if (l_Azzakel->isInCombat() && l_Azzakel->isAlive())
+                    l_Azzakel->GetAI()->DoAction(eAuchindonGeneralActions::ActionDemonSoulsAchievement);
+
+            if (Creature* l_Trigger = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataTriggerAzzakelController)))
+                if (l_Trigger->IsWithinDistInMap(me, 30.0f) && l_Trigger->GetAI())
+                    l_Trigger->AI()->DoAction(eAuchindonGeneralActions::ActionCountPre3StBossKill);
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -990,11 +1046,11 @@ public:
 
             switch (events.ExecuteEvent())
             {
-            case EventFelblast:
+            case eAuchindonEvents::EventFelblast:
                     if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, SpellFelblast);
+                        me->CastSpell(l_Target, eAuchindonSpells::SpellFelblast);
 
-                    events.ScheduleEvent(EventFelblast, 10 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eAuchindonEvents::EventFelblast, 10 * TimeConstants::IN_MILLISECONDS);
                     break;
             }
 
@@ -1008,11 +1064,11 @@ public:
     }
 };
 
-/// Blazing Pyrmoaniac - 
-class auchindon_creature_blazing_pyromaniac : public CreatureScript
+/// Blazing Trickster - 79511
+class auchindon_creature_blazing_trickster : public CreatureScript
 {
 public:
-    auchindon_creature_blazing_pyromaniac() : CreatureScript("auchindon_creature_blazing_pyromaniac") { }
+    auchindon_creature_blazing_trickster() : CreatureScript("auchindon_creature_blazing_trickster") { }
 
     struct auchindon_creatures : public ScriptedAI
     {
@@ -1025,8 +1081,19 @@ public:
 
         void Reset() override
         {
-            events.ScheduleEvent(EVENT_RANDOM_MOVE, 2 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CONFLIGRATE, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+            events.Reset();
+
+            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+            me->SetDefaultMovementType(MovementGeneratorType::RANDOM_MOTION_TYPE);
+
+            events.ScheduleEvent(eAuchindonEvents::EventConfligrate, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+        }
+
+        void JustDied(Unit* /*p_Killer*/) override
+        {
+            if (Creature* l_Azzakel = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossAzzakael)))
+                if (l_Azzakel->isInCombat() && l_Azzakel->isAlive())
+                l_Azzakel->GetAI()->DoAction(eAuchindonGeneralActions::ActionDemonSoulsAchievement);
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -1038,14 +1105,10 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case EVENT_RANDOM_MOVE:
-                    me->GetMotionMaster()->MoveRandom(3.5f);
-                    events.ScheduleEvent(EVENT_RANDOM_MOVE, 3 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                case EVENT_CONFLIGRATE:
-                    me->CastSpell(me, SPELL_CONFLIGIRATE);
-                    events.ScheduleEvent(EVENT_CONFLIGRATE, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
-                    break;
+                case eAuchindonEvents::EventConfligrate:
+                        me->CastSpell(me, eAuchindonSpells::SpellConfligirate);
+                        events.ScheduleEvent(eAuchindonEvents::EventConfligrate, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+                        break;
             }
 
             DoMeleeAttackIfReady();
@@ -1074,16 +1137,26 @@ public:
 
         InstanceScript* m_Instance;
 
+        void Reset() override
+        {
+            events.Reset();
+            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+        }
+
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(eAuchindonEvents::EventFelStomp, 16 * TimeConstants::IN_MILLISECONDS);
+           events.ScheduleEvent(eAuchindonEvents::EventFelStomp, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
         {
-            if (Creature* Trigger = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataTriggerAzzakelController)))
-                    if (Trigger->IsWithinDistInMap(me, 30.0f))
-                        Trigger->AI()->DoAction(eAuchindonGeneralActions::ActionCountPre3StBossKill);
+            if (Creature* l_Azzakel = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossAzzakael)))
+                if (l_Azzakel->isInCombat() && l_Azzakel->isAlive())
+                    l_Azzakel->GetAI()->DoAction(eAuchindonGeneralActions::ActionDemonSoulsAchievement);
+
+            if (Creature* l_Trigger = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataTriggerAzzakelController)))
+                if (l_Trigger->IsWithinDistInMap(me, 30.0f) && l_Trigger->GetAI())
+                    l_Trigger->AI()->DoAction(eAuchindonGeneralActions::ActionCountPre3StBossKill);
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -1099,7 +1172,7 @@ public:
                         if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
                             me->CastSpell(l_Random, eAuchindonSpells::SpellFelStomp);
-                            events.ScheduleEvent(eAuchindonEvents::EventFelStomp, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+                            events.ScheduleEvent(eAuchindonEvents::EventFelStomp, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                         }
                         break;
             }
@@ -1111,378 +1184,6 @@ public:
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new auchindon_creatures(p_Creature);
-    }
-};
-
-/// Void Mending - 
-class auchindon_spell_void_mending : public SpellScriptLoader
-{
-public:
-    auchindon_spell_void_mending() : SpellScriptLoader("auchindon_spell_void_mending") { }
-
-    class everbloom_spells : public SpellScript
-    {
-        PrepareSpellScript(everbloom_spells);
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (Unit* l_Target = GetHitUnit())
-                {
-                    l_Caster->AddAura(SPELL_VOID_MENDING_AURA, l_Target);
-                }
-            }
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(everbloom_spells::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new everbloom_spells();
-    }
-};
-
-/// Void Shift - 
-class auchindoun_void_shift : public SpellScriptLoader
-{
-public:
-    auchindoun_void_shift() : SpellScriptLoader("auchindoun_void_shift") { }
-
-    class auchindoun_spells : public SpellScript
-    {
-        PrepareSpellScript(auchindoun_spells);
-
-        void HandleDummy(SpellEffIndex effIndex)
-        {
-            if (!GetCaster())
-                return;
-
-            Unit* l_Caster = GetCaster();
-            std::list<Unit*> l_ListPlayers;
-            int32 l_CalcDamage = NULL;
-
-            JadeCore::AnyUnitInObjectRangeCheck check(GetCaster(), 30.0f);
-            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(l_Caster, l_ListPlayers, check);
-            l_Caster->VisitNearbyObject(30.0f, searcher);
-
-            if (l_ListPlayers.empty())
-                return;
-
-            for (std::list<Unit*>::const_iterator it = l_ListPlayers.begin(); it != l_ListPlayers.end(); ++it)
-            {
-                if (!(*it))
-                    return;
-
-                if ((*it)->GetTypeId() == TypeID::TYPEID_PLAYER)
-                {
-                    l_CalcDamage = 5000;
-                    GetCaster()->CastCustomSpell((*it), SPELL_VOID_SHIFT_DAMAGE, &l_CalcDamage, NULL, NULL, true, NULL);
-                }
-                else
-                {
-                    l_CalcDamage = 8000;
-                    GetCaster()->CastCustomSpell((*it), SPELL_VOID_SHIFT_HEALO, &l_CalcDamage, NULL, NULL, true, NULL);
-                }
-            }
-        }
-
-        void Register()
-        {
-            OnEffectLaunch += SpellEffectFn(auchindoun_spells::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new auchindoun_spells();
-    }
-};
-
-/// Arcane Bomb - 157652,
-class auchindon_spell_arcane_bomb_dummy : public SpellScriptLoader
-{
-public:
-    auchindon_spell_arcane_bomb_dummy() : SpellScriptLoader("auchindon_spell_arcane_bomb_dummy") { }
-
-    class auchindon_spells : public AuraScript
-    {
-        PrepareAuraScript(auchindon_spells);
-
-        bool Load()
-        {
-            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
-            spell->Effects[0].TriggerSpell = 157791;
-            return true;
-        }
-
-        void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
-        {
-        }
-
-        void Register()
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(auchindon_spells::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new auchindon_spells();
-    }
-};
-
-/// Void Shell - 
-class auchindon_spell_void_shell_filter : public SpellScriptLoader
-{
-public:
-    auchindon_spell_void_shell_filter() : SpellScriptLoader("auchindon_spell_void_shell_filter") { }
-
-    class spells_auchindon : public SpellScript
-    {
-        PrepareSpellScript(spells_auchindon);
-
-        void CorrectTargets(std::list<WorldObject*>& targets)
-        {
-            if (!GetCaster())
-                return;
-
-            Unit* l_Caster = GetCaster();
-
-            targets.clear();
-
-            std::list<Unit*> l_TargetList;
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(l_Caster, l_Caster, 10.0f);
-            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(l_Caster, l_TargetList, u_check);
-            l_Caster->VisitNearbyObject(10.0f, searcher);
-
-            if (!l_TargetList.empty())
-            {
-                for (auto itr : l_TargetList)
-                {
-                    if (itr->GetTypeId() == TYPEID_PLAYER)
-                        return;
-
-                    if (itr && itr->IsInWorld())
-                    targets.push_back(itr);
-                }
-            }
-        }
-
-        void Register()
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spells_auchindon::CorrectTargets, EFFECT_0, TARGET_UNIT_TARGET_ANY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spells_auchindon();
-    }
-};
-
-/// Fixate - 
-class auchindon_spell_fixate : public SpellScriptLoader
-{
-public:
-    auchindon_spell_fixate() : SpellScriptLoader("auchindon_spell_fixate") { }
-
-    class spell_auchindons : public AuraScript
-    {
-        PrepareAuraScript(spell_auchindons);
-
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (Unit* l_Target = GetTarget())
-                {
-                    l_Caster->GetMotionMaster()->MoveFollow(l_Target, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
-                    l_Caster->AddThreat(l_Target, 400.0f);
-                }
-            }
-        }
-
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (Unit* l_Target = GetTarget())
-                {
-                    l_Caster->GetMotionMaster()->MovePoint(0, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ());
-                }
-            }
-        }
-
-        void Register()
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_auchindons::OnApply,    EFFECT_0, SPELL_AURA_MOD_POSSESS_PET, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_auchindons::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS_PET, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_auchindons();
-    }
-};
-
-/// Arcane Bomb trigger
-class auchindon_areatrigger_arcane_bomb : public AreaTriggerEntityScript
-{
-public:
-    auchindon_areatrigger_arcane_bomb() : AreaTriggerEntityScript("auchindon_areatrigger_arcane_bomb")
-    {
-    }
-
-    int m_Diff = 9 * TimeConstants::IN_MILLISECONDS;
-     
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
-    {
-        if (m_Diff <= p_Time)
-        {
-            Position l_Pos;
-            p_AreaTrigger->GetPosition(&l_Pos);
-
-            p_AreaTrigger->SummonCreature(TRIGGER_ARCANE_BOMB_EXPLOSION_NPC, l_Pos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-
-            m_Diff = 20 * TimeConstants::IN_MILLISECONDS;
-        }
-        else
-        {
-            m_Diff -= p_Time;
-        }
-    }
-
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
-    {
-        // Does nothing.
-    }
-
-    auchindon_areatrigger_arcane_bomb* GetAI() const override
-    {
-        return new auchindon_areatrigger_arcane_bomb();
-    }
-};
-
-/// Tuulani Unlock Gate - 
-class auchindon_spell_tuulani_unlock : public SpellScriptLoader
-{
-public:
-    auchindon_spell_tuulani_unlock() : SpellScriptLoader("auchindon_spell_tuulani_unlock") { }
-
-    class auchindon_spells : public SpellScript
-    {
-        PrepareSpellScript(auchindon_spells);
-
-        void CorrectTargets(std::list<WorldObject*>& targets)
-        {
-            // Clears all targets at start, fetching new ones
-            targets.clear();
-
-            std::list<Creature*> l_ListTriggerWall;
-            GetCaster()->GetCreatureListWithEntryInGrid(l_ListTriggerWall, , 15.0f);
-
-            if (l_ListTriggerWall.empty())
-                return;
-
-            for (auto itr : l_ListTriggerWall)
-            {
-                if (itr && itr->IsInWorld())
-                {
-                    targets.push_back(itr->ToUnit());
-                }
-            }
-        }
-
-        void Register()
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(auchindon_spells::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new auchindon_spells();
-    }
-};
-
-// 150905, 158565, 
-class auchindon_spell_beam_cosmetic : public SpellScriptLoader
-{
-public:
-    auchindon_spell_beam_cosmetic() : SpellScriptLoader("auchindon_spell_beam_cosmetic") { }
-
-    class spells_auchindon : public SpellScript
-    {
-        PrepareSpellScript(spells_auchindon);
-
-        bool Load()
-        {
-            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
-            spell->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-            spell->Effects[0].TargetB = 0;
-            spell->AttributesEx9 = 0;
-            spell->AttributesEx6 = 0;
-            spell->AttributesEx5 = 0;
-            spell->AttributesEx4 = 0;
-            return true;
-        }
-
-        void CorrectTargets(std::list<WorldObject*>& targets)
-        {
-            if (!GetCaster())
-                return;
-
-            targets.clear();
-
-            if (Creature* shadowbeamtrigger = GetCaster()->FindNearestCreature(CreatureShadowBeam, 200.0f, true))
-                targets.push_back(shadowbeamtrigger);
-        }
-
-        void Register()
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spells_auchindon::CorrectTargets, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spells_auchindon();
-    }
-};
-
-/// Arcane Bomb Trigger - 
-class auchindon_trigger_arcane_bomb_npc_explosion : public CreatureScript
-{
-public:
-    auchindon_trigger_arcane_bomb_npc_explosion() : CreatureScript("auchindon_trigger_arcane_bomb_npc_explosion") { }
-
-    struct auchinond_creaturesAI : public Scripted_NoMovementAI
-    {
-        auchinond_creaturesAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
-        {
-            Reset();
-            me->Respawn(true);
-        }
-
-        void Reset() override
-        {
-            me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
-
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-            me->setFaction(eAuchindonInformation::InformationHostileFaction);
-            me->CastSpell(me, SpellArcaneBombDmg, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new auchinond_creaturesAI(p_Creature);
     }
 };
 
@@ -1534,6 +1235,444 @@ public:
     }
 };
 
+/// Void Mending - 154623 
+class auchindon_spell_void_mending : public SpellScriptLoader
+{
+public:
+    auchindon_spell_void_mending() : SpellScriptLoader("auchindon_spell_void_mending") { }
+
+    class everbloom_spells : public SpellScript
+    {
+        PrepareSpellScript(everbloom_spells);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    l_Caster->AddAura(eAuchindonSpells::SpellVoidMendingAura, l_Target);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(everbloom_spells::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new everbloom_spells();
+    }
+};
+
+/// Warden's Chain - 154683 
+class auchindon_spell_warden_chain : public SpellScriptLoader
+{
+public:
+    auchindon_spell_warden_chain() : SpellScriptLoader("auchindon_spell_warden_chain") { }
+
+    class auchindon_spells : public SpellScript
+    {
+        PrepareSpellScript(auchindon_spells);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    l_Caster->AddAura(eAuchindonSpells::SpellWardenChainJump, l_Target);
+                    l_Caster->AddAura(eAuchindonSpells::SpellWardenChainDot, l_Target);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(auchindon_spells::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new auchindon_spells();
+    }
+};
+
+/// Warden Chain Aura - 154831 
+class auchindon_warden_chain_aura : public SpellScriptLoader
+{
+public:
+    auchindon_warden_chain_aura() : SpellScriptLoader("auchindon_warden_chain_aura") { }
+
+    class auchindon_auras : public AuraScript
+    {
+        PrepareAuraScript(auchindon_auras);
+
+        void HandlePeriodic(constAuraEffectPtr p_AurEff)
+        {
+            if (Unit* l_Target = GetTarget())
+            {
+                l_Target->AddAura(SpellWardenChainRoot, l_Target);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(auchindon_auras::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new auchindon_auras();
+    }
+};
+
+/// Void Shift - 
+class auchindoun_void_shift : public SpellScriptLoader
+{
+public:
+    auchindoun_void_shift() : SpellScriptLoader("auchindoun_void_shift") { }
+
+    class auchindoun_spells : public SpellScript
+    {
+        PrepareSpellScript(auchindoun_spells);
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            if (!GetCaster())
+                return;
+
+            Unit* l_Caster = GetCaster();
+            std::list<Unit*> l_ListPlayers;
+            int32 l_CalcDamage = 8000;
+
+            JadeCore::AnyUnitInObjectRangeCheck check(GetCaster(), 30.0f);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(l_Caster, l_ListPlayers, check);
+            l_Caster->VisitNearbyObject(30.0f, searcher);
+
+            if (l_ListPlayers.empty())
+                return;
+
+            for (std::list<Unit*>::const_iterator it = l_ListPlayers.begin(); it != l_ListPlayers.end(); ++it)
+            {
+                if (!(*it))
+                    return;
+
+                if ((*it)->GetTypeId() == TypeID::TYPEID_PLAYER)
+                {
+                    GetCaster()->CastCustomSpell((*it), eAuchindonSpells::SpellVoidShiftDamage, &l_CalcDamage, NULL, NULL, true, NULL);
+                }
+                else
+                {
+                    GetCaster()->CastCustomSpell((*it), eAuchindonSpells::SpellVoidShiftHeal,   &l_CalcDamage, NULL, NULL, true, NULL);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectLaunch += SpellEffectFn(auchindoun_spells::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new auchindoun_spells();
+    }
+};
+
+/// Arcane Bomb - 157652,
+class auchindon_spell_arcane_bomb_dummy : public SpellScriptLoader
+{
+public:
+    auchindon_spell_arcane_bomb_dummy() : SpellScriptLoader("auchindon_spell_arcane_bomb_dummy") { }
+
+    class auchindon_spells : public AuraScript
+    {
+        PrepareAuraScript(auchindon_spells);
+
+        bool Load()
+        {
+            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
+            spell->Effects[0].TriggerSpell = eAuchindonSpells::SpellArcaneBombTriggerMissile;
+            return true;
+        }
+
+        void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+        {
+            // Nothing yet.
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(auchindon_spells::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new auchindon_spells();
+    }
+};
+
+/// Void Shell - 
+class auchindon_spell_void_shell_filter : public SpellScriptLoader
+{
+public:
+    auchindon_spell_void_shell_filter() : SpellScriptLoader("auchindon_spell_void_shell_filter") { }
+
+    class spells_auchindon : public SpellScript
+    {
+        PrepareSpellScript(spells_auchindon);
+
+        void CorrectTargets(std::list<WorldObject*>& targets)
+        {
+            if (!GetCaster())
+                return;
+
+            Unit* l_Caster = GetCaster();
+
+            targets.clear();
+
+            std::list<Unit*> l_TargetList;
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(l_Caster, l_Caster, 10.0f);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(l_Caster, l_TargetList, u_check);
+            l_Caster->VisitNearbyObject(10.0f, searcher);
+
+            if (!l_TargetList.empty())
+            {
+                for (auto itr : l_TargetList)
+                {
+                    if (itr->GetTypeId() == TypeID::TYPEID_PLAYER)
+                        return;
+
+                    if (itr && itr->IsInWorld())
+                    targets.push_back(itr);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spells_auchindon::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_TARGET_ANY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spells_auchindon();
+    }
+};
+
+/// Fixate - 
+class auchindon_spell_fixate : public SpellScriptLoader
+{
+public:
+    auchindon_spell_fixate() : SpellScriptLoader("auchindon_spell_fixate") { }
+
+    class spell_auchindons : public AuraScript
+    {
+        PrepareAuraScript(spell_auchindons);
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    l_Caster->GetMotionMaster()->MoveFollow(l_Target, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
+                    l_Caster->AddThreat(l_Target, 400.0f);
+                }
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    l_Caster->GetMotionMaster()->MovePoint(0, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ());
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_auchindons::OnApply,    SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_POSSESS_PET, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_auchindons::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_POSSESS_PET, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_auchindons();
+    }
+};
+
+/// Tuulani Unlock Gate - 
+class auchindon_spell_tuulani_unlock : public SpellScriptLoader
+{
+public:
+    auchindon_spell_tuulani_unlock() : SpellScriptLoader("auchindon_spell_tuulani_unlock") { }
+
+    class auchindon_spells : public SpellScript
+    {
+        PrepareSpellScript(auchindon_spells);
+
+        void CorrectTargets(std::list<WorldObject*>& targets)
+        {
+            // Clears all targets at start, fetching new ones
+            targets.clear();
+
+            std::list<Creature*> l_ListTriggerWall;
+            GetCaster()->GetCreatureListWithEntryInGrid(l_ListTriggerWall, , 15.0f);
+
+            if (l_ListTriggerWall.empty())
+                return;
+
+            for (auto itr : l_ListTriggerWall)
+            {
+                if (itr && itr->IsInWorld())
+                {
+                    targets.push_back(itr->ToUnit());
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(auchindon_spells::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_DEST_AREA_ENTRY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new auchindon_spells();
+    }
+};
+
+// 150905, 158565, 
+class auchindon_spell_beam_cosmetic : public SpellScriptLoader
+{
+public:
+    auchindon_spell_beam_cosmetic() : SpellScriptLoader("auchindon_spell_beam_cosmetic") { }
+
+    class spells_auchindon : public SpellScript
+    {
+        PrepareSpellScript(spells_auchindon);
+
+        bool Load()
+        {
+            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
+            spell->Effects[0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
+            spell->Effects[0].TargetB = 0;
+            spell->AttributesEx9 = 0;
+            spell->AttributesEx6 = 0;
+            spell->AttributesEx5 = 0;
+            spell->AttributesEx4 = 0;
+            return true;
+        }
+
+        void CorrectTargets(std::list<WorldObject*>& targets)
+        {
+            if (!GetCaster())
+                return;
+
+            targets.clear();
+
+            if (Creature* l_Trigger = GetCaster()->FindNearestCreature(eAuchindonCreatures::CreatureShadowBeam, 200.0f, true))
+                targets.push_back(l_Trigger);
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spells_auchindon::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_NEARBY_ENTRY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spells_auchindon();
+    }
+};
+
+/// Arcane Bomb Trigger - 
+class auchindon_trigger_arcane_bomb_npc_explosion : public CreatureScript
+{
+public:
+    auchindon_trigger_arcane_bomb_npc_explosion() : CreatureScript("auchindon_trigger_arcane_bomb_npc_explosion") { }
+
+    struct auchinond_creaturesAI : public Scripted_NoMovementAI
+    {
+        auchinond_creaturesAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        {
+            /*
+            Reset();
+            me->Respawn(true);
+            */
+        }
+
+        void Reset() override
+        {
+            me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
+
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+            me->setFaction(eAuchindonInformation::InformationHostileFaction);
+            me->CastSpell(me, eAuchindonSpells::SpellArcaneBombDmg, true);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new auchinond_creaturesAI(p_Creature);
+    }
+};
+
+/// Arcane Bomb trigger
+class auchindon_areatrigger_arcane_bomb : public AreaTriggerEntityScript
+{
+public:
+    auchindon_areatrigger_arcane_bomb() : AreaTriggerEntityScript("auchindon_areatrigger_arcane_bomb")
+    {
+    }
+
+    int m_Diff = 9 * TimeConstants::IN_MILLISECONDS;
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+    {
+        if (m_Diff <= p_Time)
+        {
+            Position l_Pos;
+            p_AreaTrigger->GetPosition(&l_Pos);
+
+            p_AreaTrigger->SummonCreature(eAuchindonCreatures::CreatureArcaneBombExplosionNpc, l_Pos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+
+            m_Diff = 20 * TimeConstants::IN_MILLISECONDS;
+        }
+        else
+        {
+            m_Diff -= p_Time;
+        }
+    }
+
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+    {
+        // Does nothing.
+    }
+
+    auchindon_areatrigger_arcane_bomb* GetAI() const override
+    {
+        return new auchindon_areatrigger_arcane_bomb();
+    }
+};
+
+
 void AddSC_auchindoun()
 {
     new auchindon_creature_tuulani();
@@ -1546,7 +1685,7 @@ void AddSC_auchindoun()
     new auchindon_creature_felborne_abyssal();
     new auchindon_creature_felguard();
     new auchindon_creature_cackling_pyromaniac();
-    new auchindon_creature_blazing_pyromaniac();
+    new auchindon_creature_blazing_trickster();
     new auchindon_creature_sargeri_warden();
     new auchindon_creature_sargerei_magus();
     new auchindon_creature_sargerei_defender();

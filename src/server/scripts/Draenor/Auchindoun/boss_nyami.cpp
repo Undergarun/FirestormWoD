@@ -29,12 +29,15 @@ enum eNyamiSpells
     SpellRadiantDamage              = 154301,
     SpellRadiantFuryJump            = 154262,
     SpellCrusaderStrike             = 176931,
-    SpellArcaneBolt                 = 154235
+    SpellArcaneBolt                 = 154235,
+
+    SpellStrangulateState           = 78037,
 };
 
 enum eNyamiEvents
 {
     EventShadowWordPain = 1,
+    EventMindSpikeNyami,
     EventSoulVessel,
     EventTornSpirit,
     EventTornSpiritNyamiEffect,
@@ -66,6 +69,7 @@ enum eNyamiTalks
 enum eNyamiActions
 {
     ActionSummonSpirits = 1,
+    ActionBreakLoose,
 };
 
 enum eNyamiCreatures
@@ -79,7 +83,7 @@ enum eNyamiCreatures
 
 Position g_PositionSafeZoneVessel       = { 1658.81f, 2957.50f, 34.291f, 5.099889f };
 Position g_PositionBubble               = { 1660.65f, 2953.06f, 34.291f, 1.542292f };
-Position g_PositionWardenSpawnPoint     = { 1660.97f, 2918.35f, 34.763f, 1.672848f };
+Position g_PositionWardenSpawnPoint     = { 1660.96f, 2918.35f, 48.036f, 1.672848f };
 Position g_PositionWardenPosition1st    = { 1686.05f, 2840.95f, 35.140f };
 Position g_PositionDeadGuards[4]        =
 {
@@ -90,10 +94,10 @@ Position g_PositionDeadGuards[4]        =
 };
 
 /// Nyami after death event
-class nyami_after_fight_pre_azzakel_event : public BasicEvent
+class EventPostNyamiFight : public BasicEvent
 {
 public:
-    explicit nyami_after_fight_pre_azzakel_event(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value)
+    explicit EventPostNyamiFight(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value)
     {
     }
 
@@ -109,8 +113,19 @@ public:
                     {
                         switch (m_Modifier)
                         {
+                            case 10:
+                            {
+                                l_Warden->RemoveAllAuras();
+                                l_Warden->SetDisableGravity(false);
+                                l_Warden->SetCanFly(false);
+
+                                l_Warden->AddAura(eAuchindonSpells::SpellKneel, l_Warden);
+                                l_Warden->m_Events.AddEvent(new EventPostNyamiFight(l_Warden, 1), l_Warden->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
+                                break;
+                            }
                             case 0:
                             {
+
                                 l_Warden->AI()->Talk(eNyamiTalks::Auchenaiwarden1);
                                 l_Warden->RemoveAura(eAuchindonSpells::SpellKneel);
 
@@ -118,7 +133,6 @@ public:
                                     l_Door->Delete();
 
                                 l_Warden->GetMotionMaster()->MovePoint(0, g_PositionWardenPosition1st);
-                                //Warden->m_Events.AddEvent(new nyami_after_fight_pre_azzakel_event(Warden, 1), Warden->m_Events.CalculateTime(7000));
                                 break;
                             }
                             case 1:
@@ -127,7 +141,7 @@ public:
                                 {
                                     // Activate
                                     l_Door->SetLootState(LootState::GO_READY);
-                                    l_Door->UseDoorOrButton(10000000);
+                                    l_Door->UseDoorOrButton(500000);
                                 }
 
                                 // fel bourne
@@ -158,7 +172,7 @@ private:
     int m_Event;
 };
 
-// Warden - 
+/// Warden - 76572
 class auchindon_mob_warden_cosmetic : public CreatureScript
 {
 public:
@@ -168,7 +182,10 @@ public:
     {
         mob_wardenAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {           
-            me->AddAura(eAuchindonSpells::SpellKneel, me);
+            me->SetCanFly(true);
+            me->SetDisableGravity(true);
+            me->CastSpell(me, eNyamiSpells::SpellStrangulateState);
+            me->SetReactState(ReactStates::REACT_PASSIVE);
         }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
@@ -176,7 +193,7 @@ public:
             switch (p_Id)
             {
                 case 0:
-                    me->m_Events.AddEvent(new nyami_after_fight_pre_azzakel_event(me, 1), me->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
+                    me->m_Events.AddEvent(new EventPostNyamiFight(me, 1), me->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
                     break;
             }
         }
@@ -193,7 +210,7 @@ public:
     }
 };
 
-/// Nyami - 
+/// Nyami - 76177
 class auchindon_boss_nyami : public CreatureScript
 {
 public:
@@ -205,8 +222,8 @@ public:
         {
             m_Instance = me->GetInstanceScript();
 
+            me->SummonCreature(eAuchindonCreatures::CreatureWardenAzzakael, );
             me->SetRespawnTime(6000000);
-            Reset();
         }
 
         InstanceScript* m_Instance;
@@ -254,7 +271,7 @@ public:
 
             Talk(eNyamiTalks::NyamiAggro);
 
-            events.ScheduleEvent(EventMindSpike, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(EventMindSpikeNyami, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(EventShadowWordPain, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(EventSoulVessel, 20 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(EventTornSpirit, 35 * TimeConstants::IN_MILLISECONDS);
@@ -275,10 +292,9 @@ public:
             {
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);;
                 m_Instance->SetBossState(eDataAuchindonDatas::DataBossNyami, EncounterState::DONE);
-            }
+            } 
 
-            me->SummonCreature(eAuchindonCreatures::CreatureWardenAzzakael, g_PositionWardenSpawnPoint, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-            me->m_Events.AddEvent(new nyami_after_fight_pre_azzakel_event(me, 0), me->m_Events.CalculateTime(10 * TimeConstants::IN_MILLISECONDS));
+            me->m_Events.AddEvent(new EventPostNyamiFight(me, 10), me->m_Events.CalculateTime(10 * TimeConstants::IN_MILLISECONDS));
         }
 
         void HandleNonCombatVisuals(uint32 const p_Diff)
@@ -333,11 +349,11 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case EventMindSpike:
+                case EventMindSpikeNyami:
                     if (Unit * l_Target = me->getVictim())
                         me->CastSpell(l_Target, SpellMindSpike);
 
-                    events.ScheduleEvent(EventMindSpike, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                    events.ScheduleEvent(EventMindSpikeNyami, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
                     break;
                 case EventShadowWordPain:
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 200.0f, true))

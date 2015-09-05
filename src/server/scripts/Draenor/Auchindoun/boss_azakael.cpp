@@ -53,7 +53,7 @@ enum eAzzakelTalks
     AzzakelSpell01 = 41,  ///< Come Forth, Servants!(46779)
     AzzakelKill01  = 42,  ///< The Masters Blase Your Soul! (46777)
     AzzakelKill02  = 43,  ///< Burn! (46778)
-    AzzakelDeath   = 44  ///< (46775)
+    AzzakelDeath   = 44   ///< (46775)
 };
 
 enum eAzzakelTriggers
@@ -193,7 +193,7 @@ public:
     }
 };
 
-/// Azzakael - 
+/// Azzakael - 75927
 class auchindon_boss_azzakel : public CreatureScript
 {
 public:
@@ -213,6 +213,7 @@ public:
         uint32 m_Interval;
         bool m_Intro;
         bool m_Argus;
+        bool m_Achievement;
 
         void Reset() override
         {
@@ -240,6 +241,9 @@ public:
         {
             switch (p_Action)
             {
+                case eAuchindonGeneralActions::ActionDemonSoulsAchievement:
+                    m_Achievement = false;
+                    break;
                 case eAzzakelActions::ActionBoolDeactivate:
                     m_Argus = false;
                     me->GetMotionMaster()->Clear();
@@ -326,20 +330,27 @@ public:
         void JustDied(Unit* /*p_Killer*/) override
         {
             _JustDied();
-
             Talk(eAzzakelTalks::AzzakelDeath);
 
             if (m_Instance != nullptr)
             {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);;
-                instance->SetBossState(eDataAuchindonDatas::DataBossAzzakael, EncounterState::DONE);
+                m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);;
+                m_Instance->SetBossState(eDataAuchindonDatas::DataBossAzzakael, EncounterState::DONE);
+
+                if (m_Achievement)
+                {
+                    if (me->GetMap() && me->GetMap()->IsHeroic())
+                    {
+                        m_Instance->DoCompleteAchievement(eAuchindonAchievements::AchievementDemonSouls);
+                    }
+                }
             }
 
             uint32 l_Entries[3] = { CreatureCacklingPyromaniac, CreatureBlazingTrickster, CreatureFelguard };
             for (int32 i = 0; i < 4; i++)
             {
                 DespawnCreaturesInArea(l_Entries[i], me);
-            }
+            }       
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -439,7 +450,7 @@ public:
     }
 };
 
-/// Curtain of Flames - 
+/// Curtain of Flames - 153392
 class auchindon_azzakel_spell_curtain_flames : public SpellScriptLoader
 {
 public:
@@ -488,7 +499,7 @@ public:
     }
 };
 
-/// Claw of Flames Loader - 
+/// Claw of Flames Loader - 153764
 class auchindon_azzakel_spell_claws_of_argus : public SpellScriptLoader
 {
 public:
@@ -583,7 +594,7 @@ public:
     }
 };
 
-/// Fel Spark - 
+/// Fel Spark - 153725
 class auchindon_azzakel_fel_spark_area_trigger : public AreaTriggerEntityScript
 {
 public:
@@ -642,7 +653,7 @@ public:
     }
 };
 
-/// Fel Pool - 
+/// Fel Pool - 326526
 class auchindon_azzakel_fel_pool_trigger : public CreatureScript
 {
 public:
@@ -694,41 +705,6 @@ public:
     }
 };
 
-/// Fel Spark
-class auchindon_azzakel_fel_spark_trigger : public CreatureScript
-{
-public:
-    auchindon_azzakel_fel_spark_trigger() : CreatureScript("auchindon_azzakel_fel_spark_trigger") {}
-
-    struct auchindon_triggers : public Scripted_NoMovementAI
-    {
-        auchindon_triggers(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
-        {
-            me->SetDisplayId(eAuchindonInformation::InformationDisplayIdInvis);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-
-            me->Respawn(true);
-            me->GetAI()->Reset();
-        }
-
-        void Reset() override
-        {
-            me->AddAura(eAzzakelSpells::SpellFelSparkPerioidicCreation, me);
-            me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
-
-            Position l_Position;
-            me->GetRandomNearPosition(l_Position, 15.0f);
-
-            me->GetMotionMaster()->MovePoint(0, l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetPositionZ());
-        }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new auchindon_triggers(p_Creature);
-    }
-};
-
 void AddSC_azzakel()
 {
     new auchindon_boss_azzakel();
@@ -736,6 +712,5 @@ void AddSC_azzakel()
     new auchindon_azzakel_spell_curtain_flames();
     new auchindon_azzakel_spell_claws_of_argus();
     new auchindon_azzakel_fel_spark_area_trigger();
-    new auchindon_azzakel_fel_spark_trigger();
     new auchindon_azzakel_fel_pool_trigger();
 }

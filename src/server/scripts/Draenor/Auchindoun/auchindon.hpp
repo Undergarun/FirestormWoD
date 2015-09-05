@@ -113,6 +113,94 @@ Position g_PositionHopilliteGuardState[2] =
     { 1691.04f, 3062.77f, 35.223f, 2.610810f },
     { 1693.10f, 3066.61f, 35.140f, 2.546201f }
 };
+Position g_PositionNep_WhomePosition = { 1908.63f, 3163.94f, 30.799f, 1.498386f };
+Position g_PositionKaatharCombatJump = { 1911.47f, 3152.13f, 30.972f, 1.550403f };
+Position g_PositionMageSpawning = { 1857.07f, 3167.93f, 29.422f, 0.275066f };
+Position g_PositionTuulaniGobjectPortalSpawn = { 1912.11f, 3183.67f, 30.799f, 3.173182f };
+Position g_PositionNyamiSpawn = { 1660.17f, 2953.36f, 34.291f, 1.413091f };
+Position g_PositionWardenAndGuards = { 1666.69f, 3015.78f, 35.145f, 1.302555f };
+Position g_PositionMagusp_WhoControlFootmans = { 1708.01f, 3107.09f, 35.139f, 6.217793f };
+Position g_PositionWallInMiddleFromNyami = { 1689.59f, 2953.11f, 35.613f, 3.139696f };
+Position g_PositionWallInBackFromNyami = { 1628.76f, 2952.63f, 35.613f, 6.231408f };
+Position g_PositionNyamiEscape05 = { 1801.23f, 3178.36f, 35.139f };
+Position g_PositionNyamiEscape04 = { 1912.99f, 3165.06f, 48.221f };
+Position g_PositionNyamiEscape03 = { 1891.66f, 3184.09f, 49.976f };
+Position g_PositionNyamiEscape02 = { 1911.14f, 3211.44f, 51.915f };
+Position g_PositionNyamiEscape01 = { 1935.88f, 3185.43f, 44.528f };
+Position g_PositionMageMoveTo = { 1895.09f, 3183.77f, 30.799f };
+
+Position g_PositionThreeCorpses[2] =
+{
+    { 1749.40f, 3145.85f, 35.140f, 3.690412f },
+    { 1751.31f, 3141.03f, 35.140f, 3.278078f },
+};
+Position g_PositionMagusAndDefenderHostile[2] =
+{
+    { 1735.47f, 3139.28f, 35.140f, 0.185946f },
+    { 1738.86f, 3145.71f, 35.140f, 5.495237f },
+};
+Position g_PositionSargereiDefenders[2] =
+{
+    { 1713.76f, 3104.75f, 35.140f, 0.902229f },
+    { 1710.27f, 3108.19f, 35.140f, 0.815836f },
+};
+Position g_PositionThreePrisoners[3] =
+{
+    { 1700.59f, 3097.08f, 40.908f, 0.701154f },
+    { 1707.98f, 3103.10f, 42.982f, 1.499199f },
+    { 1714.57f, 3111.26f, 43.196f, 3.066774f },
+};
+Position g_PositionThreeHostileArbitrerMagusSoulPriest[3] =
+{
+    { 1679.36f, 3072.41f, 35.139f, 0.420260f },
+    { 1691.86f, 3065.93f, 35.139f, 1.459343f },
+    { 1688.90f, 3070.54f, 35.139f, 1.441278f },
+};
+Position g_PositionCorpsesNearNyomi[12] =
+{
+    { 1673.98f, 2971.02f, 35.151f, 4.399558f },
+    { 1671.73f, 2971.23f, 35.200f, 4.517365f },
+    { 1674.24f, 2967.03f, 35.194f, 4.327302f },
+    { 1648.88f, 2967.87f, 35.211f, 4.877079f },
+    { 1651.50f, 2968.30f, 35.219f, 4.888861f },
+    { 1649.75f, 2937.92f, 35.215f, 1.334930f },
+    { 1644.28f, 2937.78f, 35.173f, 1.460592f },
+    { 1672.23f, 2938.41f, 35.208f, 1.825676f },
+    { 1674.24f, 2933.18f, 35.131f, 1.916782f },
+    { 1669.27f, 2931.85f, 34.764f, 1.751064f },
+};
+Position g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[5] =
+{
+    { 1846.22f, 3198.23f, 29.424f, 6.066411f },
+    { 1849.56f, 3203.73f, 29.424f, 6.023211f },
+    { 1844.11f, 3170.28f, 29.410f, 6.176361f },
+    { 1848.42f, 3162.75f, 29.423f, 0.003129f },
+};
+Position g_PositionAfterKaatharDeathForFourMages[4] =
+{
+    { 1879.55f, 3201.58f, 34.418f },
+    { 1876.59f, 3191.82f, 31.418f },
+    { 1876.75f, 3171.40f, 31.418f },
+    { 1877.25f, 3165.11f, 31.418f },
+};
+Position g_PositionGuardsAndWardens[2] =
+{
+    { 1672.54f, 3012.73f, 35.139f, 1.318899f },
+    { 1659.39f, 3016.55f, 35.165f, 1.212869f },
+};
+Position g_PositionDefenderBehindMiddleWallOfNyami[4] =
+{
+    { 1696.44f, 2957.14f, 35.613f, 3.265362f },
+    { 2952.62f, 2952.80f, 35.613f, 3.120063f },
+    { 1695.18f, 2947.33f, 35.613f, 3.040738f },
+    { 1692.70f, 2953.55f, 35.613f, 3.140484f },
+};
+Position g_PositionDefenderBehindBackWallOfNyami[2] =
+{
+    { 1621.08f, 2949.12f, 35.193f, 0.044038f },
+    { 1621.33f, 2958.54f, 35.612f, 6.217269f },
+};
+
 
 enum eAuchindonInformation
 {
@@ -132,6 +220,7 @@ enum eDataAuchindonDatas
     DataTuulani,
     DataWarden,
     DataGulkosh,
+    DataGuard,
     DataDurag,
     DataIruun,
     DataJorra,
@@ -149,7 +238,7 @@ enum eDataAuchindonDatas
     DataSoulTransport1,
     DataSoulTransport2,
     DataSoulTransport3,
-    DataSoulTransport4
+    DataSoulTransport4,
 };
 
 enum eAuchindonBosses
@@ -162,6 +251,8 @@ enum eAuchindonBosses
 
 enum eAuchindonCreatures
 {
+    CreatureSoulBinderTuulani01    = 322521,
+    CreatureAuchenaiDefenderUnique = 76632,
     CreatureSoulBinderNyami        = 77810,
     CreatureSoulBinderTuulani      = 79248,
     CreatureAucheniDefender        = 77693,
@@ -241,7 +332,8 @@ enum eAuchindonGeneralActions
     ActionSoulMove2,
     ActionSoulMove3,
     ActionSoulMove4,
-    ActionConfirmTuulaniEvent
+    ActionConfirmTuulaniEvent,
+    ActionDemonSoulsAchievement,
 };
 
 enum eAuchindonTalk
@@ -277,6 +369,11 @@ enum eAuchindonTalk
 
 enum eAuchindonSpells
 {
+    SpellArcaneChanneling               = 161383,
+    SpellArcaneBombTriggerMissile       = 157791,
+    SpellWardenChainRoot                = 154263,
+    SpellWardenChainJump                = 154639,
+    SpellWardenChainDot                 = 154831,
     SpellApplaud                        = 106301,
     SpellGuard                          = 156893,
     SpellShadowBeam                     = 156862,
@@ -293,7 +390,6 @@ enum eAuchindonSpells
     SpellTuulaniCapturedVoidPrison      = 154840,
     SpellCrystalEarthquake              = 150209,
     SpellVoidChannel                    = 170677,
-    SpellArcaneChanneling               = 77855,
     SpellPrisonAura                     = 167081,
     SpellStrangulate                    = 78037,
     SpellDrainSoulVisual                = 156862,
@@ -378,6 +474,10 @@ enum eAuchindonAchievements
 {
     AchievementAuchindonNormal = 9039,
     AchievementAuchindonHeroic = 9049,
+    AchievementAuchindonMythic = 10080,
+    AchievementDemonSouls      = 9551,
+    AchievementNoTagBacks      = 9552,
 };
+
 #endif
 

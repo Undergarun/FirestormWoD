@@ -10,10 +10,10 @@
 #include "InstanceScript.h"
 #include "auchindon.hpp"
 
-class clapping : public BasicEvent
+class ClappingEvent : public BasicEvent
 {
 public:
-    explicit clapping(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    explicit ClappingEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
     {
     }
 
@@ -31,7 +31,7 @@ public:
                         m_Obj->SetFacingToObject(nearest);
                         m_Obj->CastSpell(m_Obj, eAuchindonSpells::SpellApplaud);
 
-                        m_Obj->m_Events.AddEvent(new clapping(m_Obj, 1), m_Obj->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
+                        m_Obj->m_Events.AddEvent(new ClappingEvent(m_Obj, 1), m_Obj->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
                     }
                     break;
                 case 1:
@@ -101,30 +101,36 @@ public:
 
 		uint32 m_auiEncounter[4];
         // Creatures
-        uint64 m_Nyami;
-        uint64 m_Tuulani;
-        uint64 m_Warden;
-        uint64 m_Gromtash;
-        uint64 m_Durag;
-        uint64 m_Gulkosh;
+        uint64 m_NyamiGuid;
+        uint64 m_UniqueGuardGuid;
+        uint64 m_TuulaniGuid;
+        uint64 m_WardenGuid;
+        uint64 m_GromtashGuid;
+        uint64 m_DuragGuid;
+        uint64 m_GulkoshGuid;
+        uint64 m_ElumGuid;
+        uint64 m_IruunGuid;
+        uint64 m_JoraGuid;
         // Bosses
-        uint64 m_Kaathar;
-        uint64 m_Nyamiboss;
-        uint64 m_Azzakel;
-        uint64 m_Teronogor;
+        uint64 m_KaatharGuid;
+        uint64 m_NyamibossGuid;
+        uint64 m_AzzakelGuid;
+        uint64 m_TeronogorGuid;
         // Objects
-        uint64 m_HolyBarrierKathaarObject;
-        uint64 m_CrystalKaathar;
-        uint64 m_Window;
-        uint64 m_FelBarrierAzzakelObject;
-        uint64 m_FelPortal;
-        uint64 m_SoulTransportStart;
-        uint64 m_SoulTransport01;
-        uint64 m_SoulTransport02;
-        uint64 m_SoulTransport03;
+        uint64 m_HolyBarrierKathaarObjectGuid;
+        uint64 m_CrystalKaatharGuid;
+        uint64 m_WindowGuid;
+        uint64 m_FelBarrierAzzakelObjectGuid;
+        uint64 m_FelPortalGuid;
+        uint64 m_SoulTransportStartGuid;
+        uint64 m_SoulTransport01Guid;
+        uint64 m_SoulTransport02Guid;
+        uint64 m_SoulTransport03Guid;
         // Triggers
-        uint64 m_TriggerBubbleMiddleNyami;
-        uint64 m_TriggerAzzakelFelPortal;
+        uint64 m_TriggerBubbleMiddleNyamiGuid;
+        uint64 m_TriggerAzzakelFelPortalGuid;
+
+        bool m_KaatharDied;
 
         // Dispensor
         std::list<uint64> m_Dispensor;
@@ -132,30 +138,44 @@ public:
 		void Initialize() override
 		{           
             // Creatures
-            m_Nyami = 0;
-            m_Tuulani = 0;
-            m_Warden = 0;
-            m_Gromtash = 0;
-            m_Durag = 0;
-            m_Gulkosh = 0;
+            m_NyamiGuid = 0;
+            m_UniqueGuardGuid = 0;
+            m_TuulaniGuid = 0;
+            m_WardenGuid = 0;
+            m_GromtashGuid = 0;
+            m_DuragGuid = 0;
+            m_GulkoshGuid = 0;
+            m_ElumGuid = 0;
+            m_IruunGuid = 0;
+            m_JoraGuid = 0;
             // Bosses
-            m_Kaathar = 0;
-            m_Nyamiboss = 0;
-            m_Azzakel = 0;
-            m_Teronogor = 0;
+            m_KaatharGuid = 0;
+            m_NyamibossGuid = 0;
+            m_AzzakelGuid = 0;
+            m_TeronogorGuid = 0;
             // Objects
-            m_HolyBarrierKathaarObject = 0;
-            m_CrystalKaathar = 0;
-            m_Window = 0;
-            m_SoulTransportStart = 0;
-            m_SoulTransport01 = 0;
-            m_SoulTransport02 = 0;
-            m_SoulTransport03 = 0;
+            m_HolyBarrierKathaarObjectGuid = 0;
+            m_CrystalKaatharGuid = 0;
+            m_WindowGuid = 0;
+            m_SoulTransportStartGuid = 0;
+            m_SoulTransport01Guid = 0;
+            m_SoulTransport02Guid = 0;
+            m_SoulTransport03Guid = 0;
             // Triggers
-            m_TriggerBubbleMiddleNyami = 0;
+            m_TriggerBubbleMiddleNyamiGuid = 0;
+
+            m_KaatharDied = false;
 
             LaunchSpawning();
 		}
+
+        void OnPlayerEnter(Player* p_Player)
+        {
+            if (m_KaatharDied)
+            {
+                p_Player->TeleportTo(1182, 1904.29f, 3185.111f, 30.799f, 3.34086f);
+;           }
+        }
 
         void LaunchSpawning()
         {
@@ -172,7 +192,7 @@ public:
                 for (int32 i = 0; i < 2; i++)
                 {
                     if(Creature* l_Clapper = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionGuards2nd[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                        l_Clapper->m_Events.AddEvent(new clapping(l_Clapper, 0), l_Clapper->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
+                        l_Clapper->m_Events.AddEvent(new ClappingEvent(l_Clapper, 0), l_Clapper->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
                 }
 
                 // Cicrular Mobs - Magus
@@ -219,7 +239,6 @@ public:
                     if (Creature* l_Vigilant = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniVigiliant, g_PositionAuchenaiVigilant[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                     {
                         l_Vigilant->CastSpell(l_Vigilant, eAuchindonSpells::SpellGuard);
-                        l_Vigilant->SetCurrentEquipmentId(1);
 
                         l_Vigilant->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                         l_Vigilant->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
@@ -268,27 +287,27 @@ public:
 		{
 			switch (go->GetEntry())
 			{
-            case eAuchindonObjects::GameobjectHolyBarrier:
-                    m_HolyBarrierKathaarObject = go->GetGUID();
-                    break;          
-            case eAuchindonObjects::GameobjectAuchindonWindow:
-                    m_Window = go->GetGUID();
-                    break;
-            case eAuchindonObjects::GameobjectFelBarrier:
-                    m_FelBarrierAzzakelObject = go->GetGUID();
-                    break;
-            case eAuchindonObjects::GameobjectSoulTransportStart:
-                    m_SoulTransportStart = go->GetGUID();
-                    break;
-            case eAuchindonObjects::GameobjectSoulTransport1:
-                    m_SoulTransport01 = go->GetGUID();
-                    break;
-            case eAuchindonObjects::GameobjectSoulTransport2:
-                    m_SoulTransport02 = go->GetGUID();
-                    break;
-            case eAuchindonObjects::GameobjectSoulTransport3:
-                    m_SoulTransport03 = go->GetGUID();
-                    break;
+                case eAuchindonObjects::GameobjectHolyBarrier:
+                    m_HolyBarrierKathaarObjectGuid = go->GetGUID();
+                        break;          
+                case eAuchindonObjects::GameobjectAuchindonWindow:
+                    m_WindowGuid = go->GetGUID();
+                        break;
+                case eAuchindonObjects::GameobjectFelBarrier:
+                    m_FelBarrierAzzakelObjectGuid = go->GetGUID();
+                        break;
+                case eAuchindonObjects::GameobjectSoulTransportStart:
+                    m_SoulTransportStartGuid = go->GetGUID();
+                        break;
+                case eAuchindonObjects::GameobjectSoulTransport1:
+                    m_SoulTransport01Guid = go->GetGUID();
+                        break;
+                case eAuchindonObjects::GameobjectSoulTransport2:
+                    m_SoulTransport02Guid = go->GetGUID();
+                        break;
+                case eAuchindonObjects::GameobjectSoulTransport3:
+                    m_SoulTransport03Guid = go->GetGUID();
+                        break;
 			}
 		}
 
@@ -296,41 +315,53 @@ public:
 		{
             switch (p_Creature->GetEntry())
 			{
+                case eAuchindonCreatures::CreatureIruun:
+                    m_IruunGuid = p_Creature->GetGUID();
+                    break;
+                case eAuchindonCreatures::CreatureJoraa:
+                    m_JoraGuid = p_Creature->GetGUID();
+                    break;
+                case eAuchindonCreatures::CreatureDurem:
+                    m_ElumGuid = p_Creature->GetGUID();
+                    break;
+                case eAuchindonCreatures::CreatureAuchenaiDefenderUnique:
+                    m_UniqueGuardGuid = p_Creature->GetGUID();
+                    break;
                 case eAuchindonBosses::BossKaathar:
-                    m_Kaathar = p_Creature->GetGUID();
+                    m_KaatharGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonBosses::BossNyami:
-                    m_Nyamiboss = p_Creature->GetGUID();
+                    m_NyamibossGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonBosses::BossAzaakel:
-                    m_Azzakel = p_Creature->GetGUID();
+                    m_AzzakelGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonBosses::BossTeronogor:
-                    m_Teronogor = p_Creature->GetGUID();
+                    m_TeronogorGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonCreatures::CreatureSoulBinderTuulani:
-                    m_Tuulani = p_Creature->GetGUID();
+                    m_TuulaniGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonCreatures::CreatureSoulBinderNyami:
-                    m_Nyami = p_Creature->GetGUID();
+                    m_NyamiGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonCreatures::CreatureShieldSpot:
-                    m_TriggerBubbleMiddleNyami = p_Creature->GetGUID();
+                    m_TriggerBubbleMiddleNyamiGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonCreatures::CreatureWardenAzzakael:
-                    m_Warden = p_Creature->GetGUID();
+                    m_WardenGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonCreatures::CreatureDemonsSummoner:
-                    m_TriggerAzzakelFelPortal = p_Creature->GetGUID();
+                    m_TriggerAzzakelFelPortalGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonCreatures::CreatureGulkosh:
-                    m_Gulkosh = p_Creature->GetGUID();
+                    m_GulkoshGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonCreatures::CreatureGromtashTheDestructor:
-                    m_Gromtash = p_Creature->GetGUID();
+                    m_GromtashGuid = p_Creature->GetGUID();
                         break;
                 case eAuchindonCreatures::CreatureDuragTheDominator:
-                    m_Durag = p_Creature->GetGUID();
+                    m_DuragGuid = p_Creature->GetGUID();
                         break;
 			}
 		}
@@ -348,6 +379,8 @@ public:
                         if (GameObject* l_Holybarrier = instance->GetGameObject(GetData64(DataHolyBarrier)))
                         {
                             l_Holybarrier->Delete();
+
+                            m_KaatharDied = true;
                         }
                     }
                 case eAuchindonBosses::BossAzaakel:
@@ -420,7 +453,7 @@ public:
                             return;
                         else
                         {
-                            DoCompleteAchievement(9552);
+                            DoCompleteAchievement(eAuchindonAchievements::AchievementNoTagBacks);
                         }
 
                         break;
@@ -429,71 +462,83 @@ public:
         }
 
         uint64 GetData64(uint32 p_Data) override
-		{
+        {
             switch (p_Data)
-			{
-            case eDataAuchindonDatas::DataSoulTransportStart:
-                    return m_SoulTransportStart;
+            {
+                case eDataAuchindonDatas::DataGuard:
+                    return m_UniqueGuardGuid;
                     break;
-            case eDataAuchindonDatas::DataSoulTransport1:
-                    return m_SoulTransport01;
+                case eDataAuchindonDatas::DataElum:
+                    return m_ElumGuid;
                     break;
-            case eDataAuchindonDatas::DataSoulTransport2:
-                    return m_SoulTransport02;
+                case eDataAuchindonDatas::DataIruun:
+                    return m_IruunGuid;
                     break;
-            case eDataAuchindonDatas::DataSoulTransport3:
-                    return m_SoulTransport03;
+                case eDataAuchindonDatas::DataJorra:
+                    return m_JoraGuid;
                     break;
-            case eDataAuchindonDatas::DataHolyBarrier:
-                    return m_HolyBarrierKathaarObject;
+                case eDataAuchindonDatas::DataSoulTransportStart:
+                    return m_SoulTransportStartGuid;
                     break;
-            case eDataAuchindonDatas::DataAuchindonWindow:
-                    return m_Window;
+                case eDataAuchindonDatas::DataSoulTransport1:
+                    return m_SoulTransport01Guid;
                     break;
-            case eDataAuchindonDatas::DataFelBarrier:
-                    return m_FelBarrierAzzakelObject;
+                case eDataAuchindonDatas::DataSoulTransport2:
+                    return m_SoulTransport02Guid;
                     break;
-            case eDataAuchindonDatas::DataFelPortal:
-                    return m_FelPortal;
+                case eDataAuchindonDatas::DataSoulTransport3:
+                    return m_SoulTransport03Guid;
                     break;
-            case eDataAuchindonDatas::DataBossKathaar:
-                    return m_Kaathar;
+                case eDataAuchindonDatas::DataHolyBarrier:
+                    return m_HolyBarrierKathaarObjectGuid;
                     break;
-            case eDataAuchindonDatas::DataBossAzzakael:
-                    return m_Azzakel;
+                case eDataAuchindonDatas::DataAuchindonWindow:
+                    return m_WindowGuid;
                     break;
-            case eDataAuchindonDatas::DataBossNyami:
-                    return m_Nyamiboss;
+                case eDataAuchindonDatas::DataFelBarrier:
+                    return m_FelBarrierAzzakelObjectGuid;
                     break;
-            case eDataAuchindonDatas::DataBossTeronogor:
-                    return m_Teronogor;
+                case eDataAuchindonDatas::DataFelPortal:
+                    return m_FelPortalGuid;
                     break;
-            case eDataAuchindonDatas::DataNyami:
-                    return m_Nyami;
+                case eDataAuchindonDatas::DataBossKathaar:
+                    return m_KaatharGuid;
                     break;
-            case eDataAuchindonDatas::DataTuulani:
-                    return m_Tuulani;
-                    break;  
-            case eDataAuchindonDatas::DataWarden:
-                    return m_Warden;
+                case eDataAuchindonDatas::DataBossAzzakael:
+                    return m_AzzakelGuid;
                     break;
-            case eDataAuchindonDatas::DataGulkosh:
-                    return m_Gulkosh;
+                case eDataAuchindonDatas::DataBossNyami:
+                    return m_NyamibossGuid;
                     break;
-            case eDataAuchindonDatas::DataGromtash:
-                    return m_Gromtash;
+                case eDataAuchindonDatas::DataBossTeronogor:
+                    return m_TeronogorGuid;
                     break;
-            case eDataAuchindonDatas::DataDurag:
-                    return m_Durag;
+                case eDataAuchindonDatas::DataNyami:
+                    return m_NyamiGuid;
                     break;
-            case eDataAuchindonDatas::DataTriggerMiddleNyamiFightBubble:
-                    return m_TriggerBubbleMiddleNyami;
+                case eDataAuchindonDatas::DataTuulani:
+                    return m_TuulaniGuid;
                     break;
-            case eDataAuchindonDatas::DataTriggerAzzakelController:
-                    return m_TriggerAzzakelFelPortal;
+                case eDataAuchindonDatas::DataWarden:
+                    return m_WardenGuid;
                     break;
-			}
-			return 0;
+                case eDataAuchindonDatas::DataGulkosh:
+                    return m_GulkoshGuid;
+                    break;
+                case eDataAuchindonDatas::DataGromtash:
+                    return m_GromtashGuid;
+                    break;
+                case eDataAuchindonDatas::DataDurag:
+                    return m_DuragGuid;
+                    break;
+                case eDataAuchindonDatas::DataTriggerMiddleNyamiFightBubble:
+                    return m_TriggerBubbleMiddleNyamiGuid;
+                    break;
+                case eDataAuchindonDatas::DataTriggerAzzakelController:
+                    return m_TriggerAzzakelFelPortalGuid;
+                    break;
+            }
+            return 0;
 		}
 	};
 

@@ -7,6 +7,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+
 #include "ScriptedCreature.h"
 #include "auchindon.hpp"
 
@@ -160,10 +161,10 @@ Position g_Positiondead_souls[3] =
     { 1963.11f, 3003.42f, 22.359f, 3.904775f },
 };
 
-class teronogor_secondphase_transformation : public BasicEvent
+class EventTeronogorTransform : public BasicEvent
 {
 public:
-    explicit teronogor_secondphase_transformation(Unit* p_Unit, int32 p_Value, int32 p_TransformationType) : m_Obj(p_Unit), m_Modifier(p_Value), m_tType(p_TransformationType)
+    explicit EventTeronogorTransform(Unit* p_Unit, int32 p_Value, int32 p_TransformationType) : m_Obj(p_Unit), m_Modifier(p_Value), m_tType(p_TransformationType)
     {
     }
 
@@ -193,14 +194,14 @@ public:
                                                     l_Teronogor->CastSpell(l_Elum, SpellDrainSoulVisual);
                                                     break;
                                                 case eTeronogorTransformations::TransformationDestruction:
-                                                    l_Teronogor->CastSpell(l_Elum, SpellDrainSoulVisual);
+                                                    l_Teronogor->CastSpell(l_Jorra, SpellDrainSoulVisual);
                                                     break;
                                                 case eTeronogorTransformations::TransformationDemonology:
-                                                    l_Teronogor->CastSpell(l_Elum, SpellDrainSoulVisual);
+                                                    l_Teronogor->CastSpell(l_Iruun, SpellDrainSoulVisual);
                                                     break;
                                             }
 
-                                            l_Teronogor->m_Events.AddEvent(new teronogor_secondphase_transformation(l_Teronogor, eTeronogorTransformations::TransformationOccur, 0), l_Teronogor->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
+                                            l_Teronogor->m_Events.AddEvent(new EventTeronogorTransform(l_Teronogor, eTeronogorTransformations::TransformationOccur, 0), l_Teronogor->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
                                             break;
                                         }
                                         case eTeronogorTransformations::TransformationOccur:
@@ -242,7 +243,40 @@ private:
     int32 m_Event;
 };
 
-/// Teronogor - 
+
+class EventTeronogorTransform : public BasicEvent
+{
+public:
+    explicit EventTeronogorTransform(Unit* p_Unit, int32 p_Value, int32 p_TransformationType) : m_Obj(p_Unit), m_Modifier(p_Value), m_tType(p_TransformationType)
+    {
+    }
+
+    bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_p_Diff*/)
+    {
+        if (m_Obj)
+        {
+            if (InstanceScript* l_Instance = m_Obj->GetInstanceScript())
+            {
+                switch (m_Modifier)
+                {
+                    case 0:
+                    
+                        break;
+                }
+
+                return true;
+            }
+        }
+    }
+
+private:
+    Unit* m_Obj;
+    int32 m_Modifier;
+    int32 m_tType;
+    int32 m_Event;
+};
+
+/// Teron'gor <Shadow Council> - 77734
 class auchindon_boss_terongor : public CreatureScript
 {
 public:
@@ -250,7 +284,7 @@ public:
 
     struct boss_terongorAI : public BossAI
     {
-        boss_terongorAI(Creature* p_Creature) : BossAI(p_Creature, DataBossTeronogor)
+        boss_terongorAI(Creature* p_Creature) : BossAI(p_Creature, eDataAuchindonDatas::DataBossTeronogor)
         {
             m_Instance = me->GetInstanceScript();
             m_Intro = false;
@@ -281,14 +315,13 @@ public:
             _Reset();
             events.Reset();
           
-            me->SetReactState(REACT_DEFENSIVE);
-            me->SetCurrentEquipmentId(1);
+            me->SetReactState(ReactStates::REACT_DEFENSIVE);
             m_SecondPhase = false;
 
             me->CastSpell(me, eTerongorSpells::SpellDemonicCircleVisual); 
             me->AddAura(eTerongorSpells::SpellTeronogorShield, me);
        
-            if (Creature* l_Jorra = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataJorra)))
+            if (Creature* l_Jorra = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataIruun)))
             {
                 me->CastSpell(l_Jorra, eAuchindonSpells::SpellDrainSoulVisual);
             }
@@ -332,19 +365,19 @@ public:
         {
             switch (p_Action)
             {
-                case ActionSoulMove1:
+            case eAuchindonGeneralActions::ActionSoulMove1:
                     m_SoulTransport01 = true;
                     break;
-                case ActionSoulMove2:
+            case eAuchindonGeneralActions::ActionSoulMove2:
                     m_SoulTransport02 = true;
                     break;
-                case ActionSoulMove3:
+            case eAuchindonGeneralActions::ActionSoulMove3:
                     m_SoulTransport03 = true;
                     break;
-                case ActionSoulMove4:
+            case eAuchindonGeneralActions::ActionSoulMove4:
                     m_SoulTransport04 = true;
                     break;
-                case ActionChoosePower:
+            case eTeronogorActions::ActionChoosePower:
                     events.Reset();
 
                     switch (urand(eTeronogorTransformations::TransformationAffliction, eTeronogorTransformations::TransformationDemonology))
@@ -357,7 +390,7 @@ public:
                             events.ScheduleEvent(eTerongorEvents::EventDrainLife, urand(13 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
                             events.ScheduleEvent(eTerongorEvents::EventUnstableAffliction, 20 * TimeConstants::IN_MILLISECONDS);
 
-                            me->m_Events.AddEvent(new teronogor_secondphase_transformation(me, eTeronogorTransformations::TransformationPreChannel, 0), me->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
+                            me->m_Events.AddEvent(new EventTeronogorTransform(me, eTeronogorTransformations::TransformationPreChannel, 0), me->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
                             Talk(eTerongorTalks::TERONGOR_EVENT_03);
                             break;
                         case eTeronogorTransformations::TransformationDestruction: // Arcanist Jorra's - destruction
@@ -367,7 +400,7 @@ public:
                             events.ScheduleEvent(eTerongorEvents::EventRainOfFire, 24 * TimeConstants::IN_MILLISECONDS);
                             events.ScheduleEvent(eTerongorEvents::EventIncinrate, 16 * TimeConstants::IN_MILLISECONDS);
 
-                            me->m_Events.AddEvent(new teronogor_secondphase_transformation(me, eTeronogorTransformations::TransformationPreChannel, 1), me->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
+                            me->m_Events.AddEvent(new EventTeronogorTransform(me, eTeronogorTransformations::TransformationPreChannel, 1), me->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
                             Talk(eTerongorTalks::TERONGOR_EVENT_01);
                             break;
                         case eTeronogorTransformations::TransformationDemonology: // Vindication Iruun's - demonology
@@ -378,7 +411,7 @@ public:
                             events.ScheduleEvent(eTerongorEvents::EventChaosBolt, 25 * TimeConstants::IN_MILLISECONDS);
                             events.ScheduleEvent(eTerongorEvents::EventTouchOfChaos, 16 * TimeConstants::IN_MILLISECONDS);
 
-                            me->m_Events.AddEvent(new teronogor_secondphase_transformation(me, eTeronogorTransformations::TransformationPreChannel, 2), me->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
+                            me->m_Events.AddEvent(new EventTeronogorTransform(me, eTeronogorTransformations::TransformationPreChannel, 2), me->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
                             Talk(eTerongorTalks::TERONGOR_EVENT_02);
                             break;
                 }
@@ -407,7 +440,7 @@ public:
                     Position l_Position;
                     me->GetRandomNearPosition(l_Position, 10.0f);
 
-                    me->SummonCreature(TriggerSummonAbyssal, l_Position, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                    me->SummonCreature(eTreonogorTriggers::TriggerSummonAbyssal, l_Position, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                 }
             }
 
@@ -427,11 +460,12 @@ public:
             if (m_Instance != nullptr)
                 m_Instance->SetBossState(eDataAuchindonDatas::DataBossTeronogor, EncounterState::DONE);
 
-
-            DespawnCreaturesInArea(eAuchindonCreatures::CreatureFelborneAbyssal, me); 
             Talk(eTerongorTalks::TERONGOR_DEATH);
+            DespawnCreaturesInArea(eAuchindonCreatures::CreatureFelborneAbyssal, me);
 
-            me->SummonGameObject(GameobjectChestAucheni, 1891.84f, 2973.80f, 16.844f, 5.664811f, 0,0,0,0,0);
+
+            me->SummonCreature(eAuchindonCreatures::CreatureSoulBinderTuulani01, 1911.65f, 2757.72f, 30.799f, 1.566535f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+            me->SummonGameObject(eAuchindonObjects::GameobjectChestAucheni, 1891.84f, 2973.80f, 16.844f, 5.664811f, 0,0,0,0,0);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -446,144 +480,144 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                    case EventShadowBolt:
+            case eTerongorEvents::EventShadowBolt:
                     {
                         if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, SpellShadowBolt);
+                            me->CastSpell(l_Target, eTerongorSpells::SpellShadowBolt);
 
-                        events.ScheduleEvent(EventShadowBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                        events.ScheduleEvent(eTerongorEvents::EventShadowBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
-                    case EventCorruption:
+            case eTerongorEvents::EventCorruption:
                     {
                         if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
-                            me->CastSpell(l_Random, SpellCorruptionDummy);
+                            me->CastSpell(l_Random, eTerongorSpells::SpellCorruptionDummy);
 
-                            events.ScheduleEvent(EventCorruption, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                            events.ScheduleEvent(eTerongorEvents::EventCorruption, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
                         }
                         break;
                     }
-                    case EventDrainLife:
+            case eTerongorEvents::EventDrainLife:
                     {
                         if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, SpellDrainLife);
+                            me->CastSpell(l_Target, eTerongorSpells::SpellDrainLife);
 
-                        events.ScheduleEvent(EventDrainLife, 16 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eTerongorEvents::EventDrainLife, 16 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
-                    case EventCurseOfExhaustion:
+            case eTerongorEvents::EventCurseOfExhaustion:
                     {
                         if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
-                            me->CastSpell(l_Random, SpellCurseOfExhaustionDebuff);
+                            me->CastSpell(l_Random, eTerongorSpells::SpellCurseOfExhaustionDebuff);
 
-                            events.ScheduleEvent(EventCurseOfExhaustion, 13 * TimeConstants::IN_MILLISECONDS);
+                            events.ScheduleEvent(eTerongorEvents::EventCurseOfExhaustion, 13 * TimeConstants::IN_MILLISECONDS);
                         }
                         break;
                     }
-                    case EventAgony:
+            case eTerongorEvents::EventAgony:
                     {
                         if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
-                            me->CastSpell(l_Random, SpellAgony);
+                            me->CastSpell(l_Random, eTerongorSpells::SpellAgony);
 
-                            events.ScheduleEvent(EventAgony, 16 * TimeConstants::IN_MILLISECONDS);
+                            events.ScheduleEvent(eTerongorEvents::EventAgony, 16 * TimeConstants::IN_MILLISECONDS);
                         }
                         break;
                     }
-                    case EventUnstableAffliction:
+            case eTerongorEvents::EventUnstableAffliction:
                     {
                         if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
-                            me->CastSpell(l_Random, SpellUnstableAffliction);
-                            events.ScheduleEvent(EventUnstableAffliction, 20 * TimeConstants::IN_MILLISECONDS);
+                            me->CastSpell(l_Random, eTerongorSpells::SpellUnstableAffliction);
+                            events.ScheduleEvent(eTerongorEvents::EventUnstableAffliction, 20 * TimeConstants::IN_MILLISECONDS);
                         }
                         break;
                     }
-                    case EventSeedOfMalevolence:
+            case eTerongorEvents::EventSeedOfMalevolence:
                     {
                         if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
-                            me->CastSpell(l_Random, SpellSeedOfMalevolenceApplyAura);
-                            events.ScheduleEvent(EventSeedOfMalevolence, urand(22 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                            me->CastSpell(l_Random, eTerongorSpells::SpellSeedOfMalevolenceApplyAura);
+                            events.ScheduleEvent(eTerongorEvents::EventSeedOfMalevolence, urand(22 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
                         }
                         break;
                     }
-                    case EventChaosBolt:
+            case eTerongorEvents::EventChaosBolt:
                     {
                         if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(me->getVictim(), SpellChaosBolt);
+                            me->CastSpell(me->getVictim(), eTerongorSpells::SpellChaosBolt);
 
-                        events.ScheduleEvent(EventChaosBolt, 20 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eTerongorEvents::EventChaosBolt, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
-                    case EventImmolate:
+            case eTerongorEvents::EventImmolate:
                     {
                         if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
-                            me->CastSpell(l_Random, SpellImmolate);
-                            events.ScheduleEvent(EventImmolate, 20 * TimeConstants::IN_MILLISECONDS);
+                            me->CastSpell(l_Random, eTerongorSpells::SpellImmolate);
+                            events.ScheduleEvent(eTerongorEvents::EventImmolate, 20 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
                     }
-                    case EventConflagrate:
+            case eTerongorEvents::EventConflagrate:
                     {
                         if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, SpellConflagrate);
+                            me->CastSpell(l_Target, eTerongorSpells::SpellConflagrate);
 
-                        events.ScheduleEvent(EventConflagrate, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                        events.ScheduleEvent(eTerongorEvents::EventConflagrate, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
-                    case EventIncinrate:
+            case eTerongorEvents::EventIncinrate:
                     {
                         if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, SpellIncinrate);
+                            me->CastSpell(l_Target, eTerongorSpells::SpellIncinrate);
 
-                        events.ScheduleEvent(EventIncinrate, 16 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eTerongorEvents::EventIncinrate, 16 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
-                    case EventRainOfFire:
+            case eTerongorEvents::EventRainOfFire:
                         if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
-                            me->CastSpell(l_Random, SpellRainOfFire);
+                            me->CastSpell(l_Random, eTerongorSpells::SpellRainOfFire);
 
-                            events.ScheduleEvent(EventRainOfFire, 25 * TimeConstants::IN_MILLISECONDS);
+                            events.ScheduleEvent(eTerongorEvents::EventRainOfFire, 25 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
-                    case EventDoom:
-                    {
-                        if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        {
-                            me->CastSpell(l_Random, SpellDoomBuff);
-                            events.ScheduleEvent(EventDoom, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                            break;
-                        }
-                    }
-                    case EventDemonicLeap:
+            case eTerongorEvents::EventDoom:
                     {
                         if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
-                            me->CastSpell(l_Random, SpellDemonicLeapDummy);
-
-                            events.ScheduleEvent(EventDemonicLeap, urand(18 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
+                            me->CastSpell(l_Random, eTerongorSpells::SpellDoomBuff);
+                            events.ScheduleEvent(eTerongorEvents::EventDoom, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                             break;
                         }
                     }
-                    case EventChaosWave:
+            case eTerongorEvents::EventDemonicLeap:
+                    {
+                        if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        {
+                            me->CastSpell(l_Random, eTerongorSpells::SpellDemonicLeapDummy);
+
+                            events.ScheduleEvent(eTerongorEvents::EventDemonicLeap, urand(18 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        }
+                    }
+            case eTerongorEvents::EventChaosWave:
                     {
                         if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, SpellChaosWaveDummy);
+                            me->CastSpell(l_Target, eTerongorSpells::SpellChaosWaveDummy);
 
-                        events.ScheduleEvent(EventChaosWave, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+                        events.ScheduleEvent(eTerongorEvents::EventChaosWave, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
-                    case EventTouchOfChaos:
+            case eTerongorEvents::EventTouchOfChaos:
                     {
                         if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, SpellTouchOfChaosDummy);
+                            me->CastSpell(l_Target, eTerongorSpells::SpellTouchOfChaosDummy);
 
-                        events.ScheduleEvent(EventTouchOfChaos, 16 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eTerongorEvents::EventTouchOfChaos, 16 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                 }
@@ -598,7 +632,7 @@ public:
     }
 };
 
-/// Durag - 
+/// Durag The Dominator <Shadow Council> - 77890
 class auchindon_teronogor_durag : public CreatureScript
 {
 public:
@@ -626,7 +660,7 @@ public:
             // Cosmetic channel - 
             if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossTeronogor)))
             {
-                
+                me->CastSpell(l_Teronogor, eAuchindonSpells::SpellDrainSoulVisual);
             }
         }
 
@@ -678,7 +712,7 @@ public:
     }
 };
 
-/// Gulkosh - 
+/// Gulkosh <Shadow Council> - 78437
 class auchindon_teronogor_gulkosh : public CreatureScript
 {
 public:
@@ -703,6 +737,7 @@ public:
 
             if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossTeronogor)))
             {
+                me->CastSpell(l_Teronogor, eAuchindonSpells::SpellDrainSoulVisual);
             }
         }
 
@@ -751,7 +786,7 @@ public:
     }
 };
 
-/// Shaduum - 
+/// Shaduum - 78728
 class auchindon_teronogor_shaadum : public CreatureScript
 {
 public:
@@ -807,7 +842,7 @@ public:
     }
 };
 
-/// Gromkash - 
+/// Gromtash The Destructor <Shadow Council> - 
 class auchindon_teronogor_gromkash : public CreatureScript
 {
 public:
@@ -831,9 +866,9 @@ public:
 
             if (m_Instance != nullptr)
             {
-                if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(DataBossTeronogor)))
+                if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossTeronogor)))
                 {
-
+                    me->CastSpell(l_Teronogor, eAuchindonSpells::SpellDrainSoulVisual);
                 }
             }
 
@@ -885,13 +920,13 @@ public:
                         events.ScheduleEvent(eTerongorEvents::EventIncinrate, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                     }
                     break;
-            case eTerongorEvents::EventRainOfFire:
+                case eTerongorEvents::EventRainOfFire:
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                     {
                         me->CastSpell(l_Random, eTerongorSpells::SpellRainOfFire);
                         events.ScheduleEvent(eTerongorEvents::EventRainOfFire, 18 * TimeConstants::IN_MILLISECONDS);
                         break;
-                }
+                    }
             }
         }
     };
@@ -977,7 +1012,7 @@ public:
     {
         PrepareSpellScript(auchindon_spells);
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex p_EffIndex)
         {
             if (!GetCaster() && !GetExplTargetUnit())
                 return;
@@ -1051,25 +1086,16 @@ public:
                         break;
                     case 1:
                         m_Obj->GetMotionMaster()->MoveCharge(g_PositionFirstPlatormSecondMove.GetPositionX(), g_PositionFirstPlatormSecondMove.GetPositionY(), g_PositionFirstPlatormSecondMove.GetPositionZ(), 60.0f);
-                        m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(obj, 2), obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
+                        m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(m_Obj, 2), m_Obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
                         break;
                     case 2:
                         m_Obj->GetMotionMaster()->MoveCharge(g_PositionFirstPlatformThirdMove.GetPositionX(), g_PositionFirstPlatformThirdMove.GetPositionY(), g_PositionFirstPlatformThirdMove.GetPositionZ(), 60.0f);
-                        m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(obj, 100), obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
+                        m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(m_Obj, 100), m_Obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
                         break;
 
                         // second soul transport
                     case 4:
                         m_Obj->GetMotionMaster()->MoveCharge(g_PositionSecondPlatformFirstMove.GetPositionX(), g_PositionSecondPlatformFirstMove.GetPositionY(), g_PositionSecondPlatformFirstMove.GetPositionZ(), 60.0f);
-                        m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(m_Obj, 5), m_Obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case 5:
-                        m_Obj->GetMotionMaster()->MoveCharge(g_PositionSecondPlatformSecondMove.GetPositionX(), g_PositionSecondPlatformSecondMove.GetPositionY(), g_PositionSecondPlatformSecondMove.GetPositionZ(), 60.0f);
-                        m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(m_Obj, 6), m_Obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case 6:
-                        m_Obj->GetMotionMaster()->MoveCharge(g_PositionSecondPlatformThirdMove.GetPositionX(), g_PositionSecondPlatformThirdMove.GetPositionY(), g_PositionSecondPlatformThirdMove.GetPositionZ(), 60.0f);
-                        m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(m_Obj, 100), m_Obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
                         break;
 
                         // third soul transport
@@ -1096,7 +1122,7 @@ public:
 
                         m_Obj->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                         m_Obj->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                        m_Obj->RemoveAura(SpellTranscend);
+                        m_Obj->RemoveAura(eTerongorSpells::SpellTranscend);
                         break;
                 }
             }
