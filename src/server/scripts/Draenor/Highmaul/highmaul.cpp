@@ -2602,7 +2602,12 @@ class npc_highmaul_warden_thultok : public CreatureScript
 
         struct npc_highmaul_warden_thultokAI : public ScriptedAI
         {
-            npc_highmaul_warden_thultokAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_warden_thultokAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                /// Summon portal in case of this mob is dead at the instance creation
+                if (!p_Creature->isAlive())
+                    me->SummonGameObject(eHighmaulGameobjects::Teleporter, g_TeleporterSpawnPos, 0.0f, 0.0f, 0.0f, 0.0f, 0);
+            }
 
             EventMap m_Events;
 

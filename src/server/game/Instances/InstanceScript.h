@@ -469,6 +469,8 @@ class InstanceScript : public ZoneScript
         void UpdatePhasing();
         void UpdateCreatureGroupSizeStats();
 
+        void SetDisabledBosses(uint32 p_DisableMask) { m_DisabledMask = p_DisableMask; }
+
         BossInfo* GetBossInfo(uint32 p_ID)
         {
             if (p_ID < m_Bosses.size())
@@ -498,5 +500,6 @@ class InstanceScript : public ZoneScript
         MinionInfoMap minions;
         uint32 m_CompletedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
         uint32 m_EncounterTime;
+        uint32 m_DisabledMask;
 };
 #endif
