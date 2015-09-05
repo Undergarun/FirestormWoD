@@ -2468,6 +2468,11 @@ namespace MS { namespace Garrison
         int32 &l_Ilvl = l_SpellEffect->MiscValue ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
 
         l_Ilvl = std::min(l_Cap, l_Ilvl + l_SpellEffect->BasePoints);
+
+        WorldPacket l_Data(SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL, 4 + 4 + 4 + 1);
+        l_Follower->Write(l_Data);
+        m_Owner->SendDirectMessage(&l_Data);
+        
     }
 
     //////////////////////////////////////////////////////////////////////////

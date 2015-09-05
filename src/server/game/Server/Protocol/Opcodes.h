@@ -939,21 +939,21 @@ enum Opcodes
         SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x0712, ///< 6.2.2 20426
         SMSG_GARRISON_REMOVE_FOLLOWER_RESULT                            = 0x0000,
         SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT                       = 0x0000,
-        SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT                  = 0x0747, ///< 6.2.2 20426
-        SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x0BC1, ///< 6.2.2 20426
-        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x03D1, ///< 6.2.2 20426
-        SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x0000,
+        SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT                  = 0x0745, ///< 6.2.2 20426
+        SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x0747, ///< 6.2.2 20426
+        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x0BC1, ///< 6.2.2 20426
+        SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x0757, ///< 6.2.2 20444
         SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x0352, ///< 6.2.2 20426
         SMSG_GARRISON_START_MISSION_RESULT                              = 0x0B05, ///< 6.2.2 20426
-        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x07D2, ///< 6.2.2 20426
+        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x0B48, ///< 6.2.2 20426
         SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x0742, ///< 6.2.2 20426
         SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x0000,
         SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,
-        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0358, ///< 6.2.2 20426
-        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0F07, ///< 6.2.2 20426
-        SMSG_GARRISON_OPEN_TRADESKILL_NPC                               = 0x0BC6, ///< 6.2.2 20426
+        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0F07, ///< 6.2.2 20426
+        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0705, ///< 6.2.2 20426
+        SMSG_GARRISON_OPEN_TRADESKILL_NPC                               = 0x0311, ///< 6.2.2 20426
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
