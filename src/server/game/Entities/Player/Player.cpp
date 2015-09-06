@@ -4954,7 +4954,8 @@ void Player::SendKnownSpells()
         if (!l_It->second)
             continue;
 
-        if (l_It->second->state == PLAYERSPELL_REMOVED)
+        if (l_It->second->state == PlayerSpellState::PLAYERSPELL_REMOVED
+            || l_It->second->state == PlayerSpellState::PLAYERSPELL_TEMPORARY)
             continue;
 
         if (!l_It->second->active || l_It->second->disabled)
