@@ -1022,12 +1022,6 @@ namespace MS { namespace Garrison
         if (l_Count)
             return false;
 
-        if (l_MissionEntry->RequiredLevel > (int32)m_Owner->getLevel())
-            return false;
-
-        if (l_MissionEntry->RequiredItemLevel > (int32)m_Owner->GetAverageItemLevelEquipped())
-            return false;
-
         GarrisonMission l_Mission;
         l_Mission.DatabaseID        = sObjectMgr->GetNewGarrisonMissionID();
         l_Mission.MissionID         = p_MissionRecID;
@@ -1053,6 +1047,8 @@ namespace MS { namespace Garrison
 
         WorldPacket l_AddMissionResult(SMSG_GARRISON_ADD_MISSION_RESULT, 40);
         l_AddMissionResult << uint32(PurchaseBuildingResults::Ok);
+        l_AddMissionResult << uint8(l_Mission.State);
+
         l_AddMissionResult << uint64(l_Mission.DatabaseID);
         l_AddMissionResult << uint32(l_Mission.MissionID);
         l_AddMissionResult << uint32(l_Mission.OfferTime);
@@ -1061,6 +1057,9 @@ namespace MS { namespace Garrison
         l_AddMissionResult << uint32(0);   ///< Travel duration
         l_AddMissionResult << uint32(0);   ///< Mission duration
         l_AddMissionResult << uint32(l_Mission.State);
+
+        l_AddMissionResult.WriteBit(false);
+        l_AddMissionResult.FlushBits();
 
         m_Owner->SendDirectMessage(&l_AddMissionResult);
 
@@ -3587,13 +3586,13 @@ namespace MS { namespace Garrison
     }
 
     /// Update mission distribution
-    void Manager::UpdateMissionDistribution()
+    void Manager::UpdateMissionDistribution(bool p_Force /* = false */, uint32 p_ForcedCount /* = 0 */)
     {
         /// Do ramdom mission distribution
-        if ((time(0) - m_MissionDistributionLastUpdate) > Globals::MissionDistributionInterval)
+        if (p_Force || ((time(0) - m_MissionDistributionLastUpdate) > Globals::MissionDistributionInterval))
         {
             /// Random, no detail about how blizzard do
-            uint32 l_MaxMissionCount         = ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
+            uint32 l_MaxMissionCount         = p_ForcedCount ? p_ForcedCount : ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
             uint32 l_CurrentAvailableMission = 0;
 
             std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
@@ -3644,8 +3643,15 @@ namespace MS { namespace Garrison
                     {
                         GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_RewardIT);
 
-                        if (l_RewardEntry && l_RewardEntry->MissionID == l_Entry->MissionRecID)
+                        if (l_RewardEntry)
                             l_RewardCount++;
+
+                        /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
+                        if (l_RewardEntry->ItemID == 115510 || l_RewardEntry->ItemID == 115280)
+                        {
+                            l_RewardCount = 0;
+                            break;
+                        }
                     }
 
                     /// All missions should have a reward
@@ -3658,6 +3664,17 @@ namespace MS { namespace Garrison
 
                     if (l_Entry->RequiredItemLevel > (int32)l_MaxFollowerItemLevel)
                         continue;
+
+                    /// Ships NYI
+                    if (l_Entry->FollowerType != MS::Garrison::FollowerType::NPC)
+                        continue;
+
+                    /// We are getting too many rare missions compared to retail
+                    if (l_Entry->Flags & MS::Garrison::MissionFlags::Rare)
+                    {
+                        if (urand(0, 100) >= 20)
+                            continue;
+                    }
 
                     l_Candidates.push_back(l_Entry);
                 }

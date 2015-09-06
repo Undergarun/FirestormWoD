@@ -134,8 +134,8 @@ const char GarrSiteLevelPlotInstEntryfmt[] = "niiffi";
 const char GarrPlotInstanceEntryfmt[] = "nis";
 const char GarrPlotEntryfmt[] = "niiisiiii";
 const char GarrPlotUICategoryEntryfmt[] = "nsi";
-const char GarrMissionEntryfmt[] = "niiiiiiixixsssiiiixiiixxx";
-const char GarrMissionRewardEntryfmt[] = "niiiiiiiiix";
+const char GarrMissionEntryfmt[] = "niiiiiiiiiiisssiiiiiiiiii";
+const char GarrMissionRewardEntryfmt[] = "niiiiiiiiii";
 const char GarrMissionXEncouterEntryfmt[] =
 {
     FT_INDEX,

@@ -59,6 +59,15 @@ namespace MS { namespace Garrison
         };
     }
 
+    namespace FollowerType
+    {
+        enum : uint32
+        {
+            NPC     = 1,
+            Ship    = 2
+        };
+    }
+
     namespace MissionFlags
     {
         enum : uint8

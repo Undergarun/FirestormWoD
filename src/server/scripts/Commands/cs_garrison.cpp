@@ -44,6 +44,7 @@ class garrison_commandscript: public CommandScript
             {
                 { "add",            SEC_GAMEMASTER, true, &HandleMissionAddCommand, "", NULL },
                 { "completeall",    SEC_GAMEMASTER, true, &HandleMissionCompleteAllCommand, "", NULL },
+                { "reroll",         SEC_GAMEMASTER, true, &HandleMissionRerollCommand, "", NULL },
                 { NULL,        0,               false,  NULL, "", NULL }
             };
 
@@ -711,6 +712,21 @@ class garrison_commandscript: public CommandScript
             l_TargetPlayer->GetGarrison()->SetAllInProgressMissionAsComplete();
 
             return true;
+        }
+
+        static bool HandleMissionRerollCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            uint32 l_MissionCount = std::min(p_Args ? atoi(p_Args) : 0, 30);
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_TargetPlayer->GetGarrison()->UpdateMissionDistribution(true, l_MissionCount);
         }
 };
 

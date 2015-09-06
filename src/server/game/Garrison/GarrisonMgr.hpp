@@ -201,6 +201,9 @@ namespace MS { namespace Garrison
             /// Get work orders
             std::vector<GarrisonWorkOrder> GetWorkOrders() const;
 
+            /// Update mission distribution
+            void UpdateMissionDistribution(bool p_Force = false, uint32 p_ForcedCount = 0);
+
         public:
             /// Replace garrison script
             void _SetGarrisonScript(Interfaces::GarrisonSite * p_Script)
@@ -231,8 +234,6 @@ namespace MS { namespace Garrison
             void UpdateFollowers();
             /// Update cache
             void UpdateCache();
-            /// Update mission distribution
-            void UpdateMissionDistribution();
             /// Update garrison ability
             void UpdateGarrisonAbility();
             /// Update work order
