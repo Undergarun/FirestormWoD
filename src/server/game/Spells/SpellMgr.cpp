@@ -5442,6 +5442,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 50273: ///< Arcane Barrage
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
+            case 153596:///< Comet Storm
+                spellInfo->Speed = 0;
+                break;
             case 12654: ///< Ignite
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 break;
