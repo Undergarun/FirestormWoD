@@ -845,7 +845,7 @@ void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
 
 void WorldSession::SendGarrisonSetMissionNpc(uint64 p_CreatureGUID)
 {
-    WorldPacket l_Data(SMSG_GARRISON_SET_MISSION_NPC, 19);
+    WorldPacket l_Data(SMSG_GARRISON_SET_MISSION_NPC, 22);
     l_Data.appendPackGUID(p_CreatureGUID);
     l_Data << uint32(1); // 1 == Regular - 2 == Ship
     SendPacket(&l_Data);

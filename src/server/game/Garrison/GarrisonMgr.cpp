@@ -2446,7 +2446,7 @@ namespace MS { namespace Garrison
 
         SpellEffectInfo const* l_Dummy = p_SpellInfo->GetEffectByType(SPELL_EFFECT_DUMMY);
         int32 l_Cap = l_Dummy ? l_Dummy->BasePoints : Globals::MaxFollowerItemLevel;
-        int32 l_Ilvl = l_SpellEffect->MiscValue ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
+        int32 l_Ilvl = l_SpellEffect->MiscValue == 1 || l_SpellEffect->MiscValue == 3 ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
 
         if (l_Ilvl >= l_Cap)
             return SPELL_FAILED_GARRISON_FOLLOWER_MAX_ITEM_LEVEL;
@@ -2465,7 +2465,7 @@ namespace MS { namespace Garrison
         SpellEffectInfo const* l_SpellEffect = p_SpellInfo->GetEffectByType(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL);
         SpellEffectInfo const* l_Dummy = p_SpellInfo->GetEffectByType(SPELL_EFFECT_DUMMY);
         int32 l_Cap = l_Dummy ? l_Dummy->BasePoints : Globals::MaxFollowerItemLevel;
-        int32 &l_Ilvl = l_SpellEffect->MiscValue ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
+        int32 &l_Ilvl = l_SpellEffect->MiscValue == 1 || l_SpellEffect->MiscValue == 3 ? l_Follower->ItemLevelArmor : l_Follower->ItemLevelWeapon;
 
         l_Ilvl = std::min(l_Cap, l_Ilvl + l_SpellEffect->BasePoints);
 
