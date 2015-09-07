@@ -2876,9 +2876,62 @@ class spell_sha_WoDPvPEnhancement2PBonus : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Nature's Guardian - 30884
+class spell_sha_natures_guardian : public SpellScriptLoader
+{
+    public:
+        spell_sha_natures_guardian() : SpellScriptLoader("spell_sha_natures_guardian") { }
+
+        class spell_sha_natures_guardian_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_natures_guardian_AuraScript);
+
+            enum eSpells
+            {
+                NaturesGuardian = 31616
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetCaster())
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (!(p_EventInfo.GetDamageInfo()->GetDamage()))
+                    return;
+
+                if (l_Player->HasSpellCooldown(eSpells::NaturesGuardian))
+                    return;
+
+                if ((int32)l_Player->GetHealthPct() < GetSpellInfo()->Effects[EFFECT_1].BasePoints &&
+                    (int32)(100.f * (l_Player->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) >= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                {
+                    l_Player->CastSpell(l_Player, eSpells::NaturesGuardian, true);
+                    l_Player->AddSpellCooldown(eSpells::NaturesGuardian, 0, 30 * IN_MILLISECONDS);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_natures_guardian_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_natures_guardian_AuraScript();
+        }
+};
 
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_natures_guardian();
     new spell_sha_unleashed_fury();
     new spell_sha_high_tide();
     new spell_sha_tidal_waves();

@@ -80,6 +80,8 @@ bool GmTicket::LoadFromDB(Field* p_Fields)
     m_EscalatedStatus   = GMTicketEscalationStatus(p_Fields[++l_Index].GetUInt8());
     m_Viewed            = p_Fields[++l_Index].GetBool();
     m_HaveTicket        = p_Fields[++l_Index].GetBool();
+    m_Response          = p_Fields[++l_Index].GetString();
+
     return true;
 }
 
@@ -106,6 +108,7 @@ void GmTicket::SaveToDB(SQLTransaction& p_Transaction) const
     l_Statement->setUInt8 (++l_Index, uint8(m_EscalatedStatus));
     l_Statement->setBool  (++l_Index, m_Viewed);
     l_Statement->setBool  (++l_Index, m_HaveTicket);
+    l_Statement->setString(++l_Index, m_Response);
 
     CharacterDatabase.ExecuteOrAppend(p_Transaction, l_Statement);
 }

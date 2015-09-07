@@ -1574,10 +1574,10 @@ void Guardian::UpdateMaxPower(Powers p_Power)
     if (l_Owner == nullptr)
         return;
 
-    float l_AddValue = ((l_PetStat != nullptr) && p_Power == l_PetStat->m_Power) ? 0.0f : GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT);
+    float l_AddValue = (l_PetStat != nullptr && l_PetStat->m_Power == p_Power) ? 0.0f : GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT);
     float l_Multiplicator = 15.0f;
 
-    float l_Value = GetModifierValue(l_UnitMod, BASE_VALUE) + GetCreatePowers(p_Power);
+    float l_Value = 0.0f;
     if (l_PetStat != nullptr)
     {
         if (l_PetStat->m_CreatePower == -1)
@@ -1593,6 +1593,7 @@ void Guardian::UpdateMaxPower(Powers p_Power)
         }
     }
 
+    l_Value += GetModifierValue(l_UnitMod, BASE_VALUE);
     l_Value *= GetModifierValue(l_UnitMod, BASE_PCT);
     l_Value += GetModifierValue(l_UnitMod, TOTAL_VALUE) + l_AddValue * l_Multiplicator;
     l_Value *= GetModifierValue(l_UnitMod, TOTAL_PCT);
@@ -1623,13 +1624,13 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
         switch (l_PetStat->m_PowerStat)
         {
             case PetStatInfo::PowerStatBase::AttackPower:
-                l_BaseValue       = l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * l_PetStat->m_APSPCoef;
-                l_BaseAttackPower = l_BaseValue;
+                l_BaseValue       = l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                l_BaseAttackPower = l_BaseValue * l_PetStat->m_APSPCoef;
                 l_SpellPower      = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
             case PetStatInfo::PowerStatBase::SpellPower:
-                l_BaseValue       = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * l_PetStat->m_APSPCoef;
-                l_SpellPower      = l_BaseValue;
+                l_BaseValue       = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+                l_SpellPower      = l_BaseValue * l_PetStat->m_APSPCoef;
                 l_BaseAttackPower = l_BaseValue * l_PetStat->m_SecondaryStatCoef;
                 break;
             default:
@@ -1663,61 +1664,31 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     if (p_AttType > WeaponAttackType::BaseAttack)
         return;
 
-    UnitMods l_UnitMod;
+    UnitMods l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
-    switch (p_AttType)
-    {
-        case WeaponAttackType::BaseAttack:
-        default:
-            l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
-            break;
-        case WeaponAttackType::OffAttack:
-            l_UnitMod = UNIT_MOD_DAMAGE_OFFHAND;
-            break;
-        case WeaponAttackType::RangedAttack:
-            l_UnitMod = UNIT_MOD_DAMAGE_RANGED;
-            break;
-    }
+    float l_AttackSpeed = float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
+    /// Hunter's pets got 2.8 from normalized ranged weapons speed
+    if (isHunterPet())
+        l_AttackSpeed = 2.8f;
 
-    /// For hunter pets damage calculation we don't need take their attack speed time, it's always 2.0f
-    float l_AttackSpeed = isHunterPet() ? 2.0f : float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
+
+    l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 3.5f * l_AttackSpeed;
 
     PetStatInfo const* l_PetStat = GetPetStat();
     if (l_PetStat != nullptr)
-        l_BaseValue += GetTotalAttackPowerValue(p_AttType) * l_PetStat->m_DamageCoef;
-    else
-        l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 14.0f * l_AttackSpeed;
-
-    /// Special calculation for hunter pets - WoD
-    /// Last Update 6.1.2 19802
-    if (isHunterPet())
-        l_BaseValue = GetTotalAttackPowerValue(p_AttType) / 3.5f * l_AttackSpeed;
+        l_BaseValue *= l_PetStat->m_DamageCoef;
 
     float l_BasePct    = GetModifierValue(l_UnitMod, BASE_PCT);
     float l_TotalValue = GetModifierValue(l_UnitMod, TOTAL_VALUE);
     float l_TotalPct   = GetModifierValue(l_UnitMod, TOTAL_PCT);
 
-    float l_WeaponMinDamage = 0.0f;
-    float l_WeaponMaxDamage = 1.0f;
+    float l_WeaponMinDamage = GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE);
+    float l_WeaponMaxDamage = GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE);
 
     float l_MinDamage = ((l_BaseValue + l_WeaponMinDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
     float l_MaxDamage = ((l_BaseValue + l_WeaponMaxDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
 
-    switch (p_AttType)
-    {
-        case WeaponAttackType::BaseAttack:
-        default:
-            SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
-            SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
-            break;
-        case WeaponAttackType::OffAttack:
-            SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MinDamage / 2);
-            SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, l_MaxDamage / 2);
-            break;
-        case WeaponAttackType::RangedAttack:
-            SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, l_MinDamage);
-            SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, l_MaxDamage);
-            break;
-    }
+    SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
+    SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
 }

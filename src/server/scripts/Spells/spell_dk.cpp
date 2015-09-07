@@ -980,57 +980,70 @@ class spell_dk_plague_leech: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_plague_leech_SpellScript);
 
+            enum eSpells
+            {
+                NecroticPlague = 152281,
+                NecroticPlagueAura = 155159,
+                BloodPlague = 55078,
+                FrostEver = 55095
+            };
+
             std::list<uint8> m_LstRunesUsed;
 
             SpellCastResult CheckRunes()
             {
-                if (GetCaster() && GetCaster()->ToPlayer())
-                {
-                    for (uint8 i = 0; i < MAX_RUNES; ++i)
-                        if (GetCaster()->ToPlayer()->GetRuneCooldown(i))
-                            m_LstRunesUsed.push_back(i);
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetExplTargetUnit();
 
-                    if (m_LstRunesUsed.size() < 2)
-                        return SPELL_FAILED_DONT_REPORT;
-                    else
-                        return SPELL_CAST_OK;
-
-                    if (Unit* target = GetExplTargetUnit())
-                    {
-                        if (!target->HasAura(DK_SPELL_BLOOD_PLAGUE) || !target->HasAura(DK_SPELL_FROST_FEVER))
-                            return SPELL_FAILED_DONT_REPORT;
-                        else
-                            return SPELL_CAST_OK;
-                    }
-                }
-                else
+                if (l_Player == nullptr || l_Target == nullptr)
                     return SPELL_FAILED_DONT_REPORT;
+
+                for (uint8 i = 0; i < MAX_RUNES; ++i)
+                {
+                    if (l_Player->GetRuneCooldown(i))
+                        m_LstRunesUsed.push_back(i);
+                }
+
+                if (m_LstRunesUsed.size() < 2)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->HasSpell(eSpells::NecroticPlague) && !l_Target->HasAura(eSpells::NecroticPlagueAura, l_Player->GetGUID()))
+                    return SPELL_FAILED_DONT_REPORT;
+                else if (!l_Target->HasAura(eSpells::BloodPlague, l_Player->GetGUID()) || !l_Target->HasAura(eSpells::FrostEver, l_Player->GetGUID()))
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
             }
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(eSpells::NecroticPlagueAura, l_Player->GetGUID()))
+                    l_Target->RemoveAura(eSpells::NecroticPlagueAura, l_Player->GetGUID());
+                else
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        l_Target->RemoveAura(DK_SPELL_FROST_FEVER);
-                        l_Target->RemoveAura(DK_SPELL_BLOOD_PLAGUE);
-
-                        for (uint8 l_I = 0; l_I < 2; l_I++)
-                        {
-                            uint8 l_RuneRandom = JadeCore::Containers::SelectRandomContainerElement(m_LstRunesUsed);
-
-                            if (l_Player->GetRuneCooldown(l_RuneRandom))
-                            {
-                                l_Player->SetRuneCooldown(l_RuneRandom, 0);
-                                l_Player->ConvertRune(l_RuneRandom, RUNE_DEATH);
-                            }
-
-                            m_LstRunesUsed.remove(l_RuneRandom);
-                        }
-                        l_Player->ResyncRunes(MAX_RUNES);
-                    }
+                    l_Target->RemoveAura(eSpells::FrostEver, l_Player->GetGUID());
+                    l_Target->RemoveAura(eSpells::BloodPlague, l_Player->GetGUID());
                 }
+
+                for (uint8 l_I = 0; l_I < 2; l_I++)
+                {
+                    uint8 l_RuneRandom = JadeCore::Containers::SelectRandomContainerElement(m_LstRunesUsed);
+
+                    if (l_Player->GetRuneCooldown(l_RuneRandom))
+                    {
+                        l_Player->SetRuneCooldown(l_RuneRandom, 0);
+                        l_Player->ConvertRune(l_RuneRandom, RUNE_DEATH);
+                    }
+
+                    m_LstRunesUsed.remove(l_RuneRandom);
+                }
+                l_Player->ResyncRunes(MAX_RUNES);
             }
 
             void Register()

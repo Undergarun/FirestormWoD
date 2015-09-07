@@ -3577,7 +3577,9 @@ void Player::RegenerateHealth()
 
 void Player::ResetAllPowers()
 {
-    ClearComboPoints();
+    if (getPowerType() == POWER_COMBO_POINT)
+        ClearComboPoints();
+
     SetHealth(GetMaxHealth());
     SetPower(POWER_BURNING_EMBERS, 10);
     SetPower(POWER_CHI, 0);
@@ -23722,7 +23724,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
                     && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
-                    stmt = CharacterDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
+                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, itr->first);
                     stmt->setUInt32(1, GetSession()->GetAccountId());
                     accountTrans->Append(stmt);

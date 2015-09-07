@@ -2003,21 +2003,24 @@ class spell_warr_blood_bath : public SpellScriptLoader
 
                 int32 l_Damage = (p_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100;
 
+                int32 l_PreviousTotalDamage = 0;
+
                 if (AuraEffectPtr l_PreviousBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                 {
                     int32 l_PeriodicDamage = l_PreviousBloodBath->GetAmount();
                     int32 l_Duration = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID())->GetDuration();
                     int32 l_Amplitude = l_PreviousBloodBath->GetAmplitude();
 
-                    int32 l_PreviousTotalDamage = 0;
-
                     if (l_Amplitude)
                         l_PreviousTotalDamage = l_PeriodicDamage * (l_Duration / l_Amplitude);
-                    l_Damage += l_PreviousTotalDamage;
+
+                    l_PreviousTotalDamage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
                 }
 
                 if (l_SpellInfoDamage->Effects[EFFECT_0].Amplitude)
                     l_Damage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
+
+                l_Damage += l_PreviousTotalDamage;
 
                 l_Caster->CastSpell(l_Target, eSpells::BloodBathSnare, true);
                 l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage, true);
@@ -2595,8 +2598,50 @@ class spell_warr_heroic_strike : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Call by Commanding Shout - 469, Battle Shout - 6673
+/// Glyph of Mystic Shout - 58095
+class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_mystic_shout() : SpellScriptLoader("spell_warr_glyph_of_mystic_shout") { }
+
+        class spell_warr_glyph_of_mystic_shout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_mystic_shout_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofMystucShout = 58095,
+                GlyphofMystucShoutAura = 121186
+            };
+
+            void HandleOnCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasGlyph(eSpells::GlyphofMystucShout))
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofMystucShoutAura, true);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_warr_glyph_of_mystic_shout_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_mystic_shout_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_glyph_of_mystic_shout();
     new spell_warr_heroic_strike();
     new spell_warr_unyielding_strikes();
     new spell_warr_defensive_stance();

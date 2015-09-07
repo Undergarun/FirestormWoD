@@ -3963,11 +3963,7 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
                 // Base damage
-                int32 l_Damage = int32(frand(5.375f * l_Low, 5.375f * l_High));
-                l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
-
-                SetHitDamage(l_Damage);
+                int32 l_Damage = int32(frand(6.4f * l_Low, 6.4f * l_High));
 
                 // Add additionnal stuff depending on spec
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
@@ -4010,6 +4006,11 @@ class spell_monk_blackout_kick: public SpellScriptLoader
 
                 if (l_Player->HasAura(116768))
                     l_Player->RemoveAurasDueToSpell(116768);
+
+                l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
             }
 
             void Register()
