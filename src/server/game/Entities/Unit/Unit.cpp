@@ -13261,27 +13261,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             if (AuraEffectPtr shadowInfusion = stacks->GetEffect(0))
                 DoneTotalMod += CalculatePct(1.0, shadowInfusion->GetAmount());
 
-    bool weaponAttack = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (!spellProto)
-            break;
-
-        switch (spellProto->Effects[i].Effect)
-        {
-            case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-            case SPELL_EFFECT_WEAPON_DAMAGE:
-            case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-                weaponAttack = true;
-                break;
-            default:
-                break;
-        }
-    }
-
-    // Some spells don't benefit from pct done mods
-    if (spellProto && !weaponAttack)
+    if (spellProto)
     {
         if (!(spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
         {
