@@ -2347,44 +2347,18 @@ class spell_monk_chi_burst: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        std::list<Unit*> l_TempUnitMap;
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
 
-                        float l_DmgMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER) ? 1.2f : 1.0f;
-                        float l_HealMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT) ? 1.2f : 1.0f;
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return;
 
-                        int32 l_Damage = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_DAMAGE)->Effects[EFFECT_0].BasePoints + l_DmgMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
-                        int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
+                float l_HealMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT) ? 1.2f : 1.0f;
 
-                        // Chi Burst will always heal the Monk, but not heal twice if Monk targets himself
-                        if (l_Target->GetGUID() != l_Player->GetGUID())
-                            l_Player->CastCustomSpell(l_Player, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
+                int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
 
-                        if (l_Player->IsValidAttackTarget(l_Target))
-                            l_Player->CastCustomSpell(l_Target, SPELL_MONK_CHI_BURST_DAMAGE, &l_Damage, NULL, NULL, true);
-                        else
-                            l_Player->CastCustomSpell(l_Target, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
-
-                        l_Player->GetAttackableUnitListInRange(l_TempUnitMap, l_Player->GetDistance(l_Target));
-                        for (auto l_Itr : l_TempUnitMap)
-                        {
-                            if (l_Itr->GetGUID() == l_Player->GetGUID())
-                                continue;
-
-                            if (!l_Itr->IsInBetween(l_Player, l_Target, 3.0f))
-                                continue;
-
-                            if (l_Player->IsValidAttackTarget(l_Itr))
-                                l_Player->CastCustomSpell(l_Itr, SPELL_MONK_CHI_BURST_DAMAGE, &l_Damage, NULL, NULL, true);
-                            else
-                                l_Player->CastCustomSpell(l_Itr, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
-
-                        }
-                    }
-                }
+                if (l_Target->GetGUID() != l_Player->GetGUID())
+                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
             }
 
             void Register()
