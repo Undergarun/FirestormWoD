@@ -1664,31 +1664,16 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     if (p_AttType > WeaponAttackType::BaseAttack)
         return;
 
-    UnitMods l_UnitMod;
-
-    switch (p_AttType)
-    {
-        case WeaponAttackType::BaseAttack:
-        default:
-            l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
-            break;
-        case WeaponAttackType::OffAttack:
-            l_UnitMod = UNIT_MOD_DAMAGE_OFFHAND;
-            break;
-        case WeaponAttackType::RangedAttack:
-            l_UnitMod = UNIT_MOD_DAMAGE_RANGED;
-            break;
-    }
+    UnitMods l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
     float l_AttackSpeed = float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
+    /// Hunter's pets got 2.8 from normalized ranged weapons speed
+    if (isHunterPet())
+        l_AttackSpeed = 2.8f;
+
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 
-    /// Special calculation for hunter pets - WoD
-    /// Last Update 6.1.2 19802
-    if (isHunterPet())
-        l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 3.5f * l_AttackSpeed;
-    else
-        l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 14.0f * l_AttackSpeed;
+    l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 3.5f * l_AttackSpeed;
 
     PetStatInfo const* l_PetStat = GetPetStat();
     if (l_PetStat != nullptr)
@@ -1698,26 +1683,12 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     float l_TotalValue = GetModifierValue(l_UnitMod, TOTAL_VALUE);
     float l_TotalPct   = GetModifierValue(l_UnitMod, TOTAL_PCT);
 
-    float l_WeaponMinDamage = 0.0f;
-    float l_WeaponMaxDamage = 1.0f;
+    float l_WeaponMinDamage = GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE);
+    float l_WeaponMaxDamage = GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE);
 
     float l_MinDamage = ((l_BaseValue + l_WeaponMinDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
     float l_MaxDamage = ((l_BaseValue + l_WeaponMaxDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
 
-    switch (p_AttType)
-    {
-        case WeaponAttackType::BaseAttack:
-        default:
-            SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
-            SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
-            break;
-        case WeaponAttackType::OffAttack:
-            SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MinDamage / 2);
-            SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, l_MaxDamage / 2);
-            break;
-        case WeaponAttackType::RangedAttack:
-            SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, l_MinDamage);
-            SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, l_MaxDamage);
-            break;
-    }
+    SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
+    SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
 }

@@ -221,48 +221,67 @@ public:
 
         uint32 l_Id  = atoi(l_CharID);
 
-        Player* l_Character = p_Handler->GetSession()->GetPlayer();
-        float x = l_Character->GetPositionX();
-        float y = l_Character->GetPositionY();
-        float z = l_Character->GetPositionZ();
-        float o = l_Character->GetOrientation();
-        Map* l_Map = l_Character->GetMap();
-
-        if (Transport* l_Transport = l_Character->GetTransport())
-        {
-            uint32 l_Guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
-            CreatureData& l_Data = sObjectMgr->NewOrExistCreatureData(l_Guid);
-            l_Data.id = l_Id;
-            l_Data.phaseMask = l_Character->GetPhaseMgr().GetPhaseMaskForSpawn();
-            l_Data.posX = l_Character->GetTransOffsetX();
-            l_Data.posY = l_Character->GetTransOffsetY();
-            l_Data.posZ = l_Character->GetTransOffsetZ();
-            l_Data.orientation = l_Character->GetTransOffsetO();
-
-            Creature* l_Creature = l_Transport->CreateNPCPassenger(l_Guid, &l_Data);
-            l_Creature->SaveToDB(l_Transport->GetGOInfo()->moTransport.mapID, 1 << l_Map->GetSpawnMode(), l_Character->GetPhaseMgr().GetPhaseMaskForSpawn());
-            return true;
-        }
-
-        Creature* l_Creature = new Creature();
-        if (!l_Creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), l_Map, l_Character->GetPhaseMgr().GetPhaseMaskForSpawn(), l_Id, 0, (uint32)l_Teamval, x, y, z, o))
-        {
-            delete l_Creature;
+        if (p_Handler->GetSession()->GetPlayer() == nullptr)
             return false;
-        }
 
-        l_Creature->SaveToDB(l_Map->GetId(), (1 << l_Map->GetSpawnMode()), l_Character->GetPhaseMgr().GetPhaseMaskForSpawn());
+        uint64 l_CharacterGuid = p_Handler->GetSession()->GetPlayer()->GetGUID();
 
-        uint32 l_DbGuid = l_Creature->GetDBTableGUIDLow();
+        PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(WORLD_SEL_MAX_CREATURE_GUID);
+        auto l_Futur = WorldDatabase.AsyncQuery(l_Statement);
 
-        // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-        if (!l_Creature->LoadCreatureFromDB(l_DbGuid, l_Map))
+        p_Handler->GetSession()->AddPrepareStatementCallback(std::make_pair([l_Id, l_Teamval, l_CharacterGuid](PreparedQueryResult p_Result) -> void
         {
-            delete l_Creature;
-            return false;
-        }
+            if (!p_Result)
+                return;
 
-        sObjectMgr->AddCreatureToGrid(l_DbGuid, sObjectMgr->GetCreatureData(l_DbGuid));
+            Player* l_Character = sObjectAccessor->FindPlayer(l_CharacterGuid);
+            if (l_Character == nullptr)
+                return;
+
+            float x = l_Character->GetPositionX();
+            float y = l_Character->GetPositionY();
+            float z = l_Character->GetPositionZ();
+            float o = l_Character->GetOrientation();
+            Map* l_Map = l_Character->GetMap();
+
+            if (Transport* l_Transport = l_Character->GetTransport())
+            {
+                uint32 l_Guid = p_Result->Fetch()[0].GetUInt32() + 1;
+                CreatureData& l_Data = sObjectMgr->NewOrExistCreatureData(l_Guid);
+                l_Data.id = l_Id;
+                l_Data.phaseMask = l_Character->GetPhaseMgr().GetPhaseMaskForSpawn();
+                l_Data.posX = l_Character->GetTransOffsetX();
+                l_Data.posY = l_Character->GetTransOffsetY();
+                l_Data.posZ = l_Character->GetTransOffsetZ();
+                l_Data.orientation = l_Character->GetTransOffsetO();
+
+                Creature* l_Creature = l_Transport->CreateNPCPassenger(l_Guid, &l_Data);
+                l_Creature->SaveToDB(l_Transport->GetGOInfo()->moTransport.mapID, 1 << l_Map->GetSpawnMode(), l_Character->GetPhaseMgr().GetPhaseMaskForSpawn());
+                return;
+            }
+
+            Creature* l_Creature = new Creature();
+            if (!l_Creature->Create(p_Result->Fetch()[0].GetUInt32() + 1, l_Map, l_Character->GetPhaseMgr().GetPhaseMaskForSpawn(), l_Id, 0, (uint32)l_Teamval, x, y, z, o))
+            {
+                delete l_Creature;
+                return;
+            }
+
+            l_Creature->SaveToDB(l_Map->GetId(), (1 << l_Map->GetSpawnMode()), l_Character->GetPhaseMgr().GetPhaseMaskForSpawn());
+
+            uint32 l_DbGuid = l_Creature->GetDBTableGUIDLow();
+
+            // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
+            if (!l_Creature->LoadCreatureFromDB(l_DbGuid, l_Map))
+            {
+                delete l_Creature;
+                return;
+            }
+
+            sObjectMgr->AddCreatureToGrid(l_DbGuid, sObjectMgr->GetCreatureData(l_DbGuid));
+
+        }, l_Futur));
+
         return true;
     }
 

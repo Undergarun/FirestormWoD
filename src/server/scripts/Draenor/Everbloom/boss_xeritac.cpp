@@ -205,9 +205,6 @@ public:
         boss_xeritacAI(Creature* pCreature) : BossAI(pCreature, eEverbloomData::DataXeritac)
         {
             m_Instance = me->GetInstanceScript();
-            Reset();
-
-            WebDoor();
 
             m_Intro = false;
         }
@@ -223,6 +220,8 @@ public:
 
         void Reset() override
         {
+            WebDoor();
+
             events.Reset();
             summons.DespawnAll();
 

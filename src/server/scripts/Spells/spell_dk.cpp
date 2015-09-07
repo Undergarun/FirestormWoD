@@ -2938,6 +2938,9 @@ class spell_dk_presences : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
+                if (GetCaster() == nullptr)
+                    return;
+
                 Player* l_Target = GetCaster()->ToPlayer();
                 if (!l_Target)
                     return;

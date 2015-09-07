@@ -2238,7 +2238,7 @@ class npc_highmaul_ogre_grunt_second : public CreatureScript
 
             void LastOperationCalled() override
             {
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 8)]); });
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
             }
 
             void UpdateAI(uint32 const p_Diff) override
