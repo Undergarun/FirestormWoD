@@ -5796,7 +5796,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 60206: ///< Ram
                 spellInfo->Effects[2].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
                 break;
-            case 70890:  ///< Scourge Strike triggered part
             case 96172:  ///< Hand of Light
             case 101085: ///< Wrath of Tarecgosa
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
