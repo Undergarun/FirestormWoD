@@ -3381,6 +3381,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 170687: ///< Killing Spree
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
                 break;
+            case 155077: ///< Overwhelming Blows (Gruul)
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 167650: ///< Loose Quills (Rukhmar)
             case 167630: ///< Blaze of Glory (Rukhmar)

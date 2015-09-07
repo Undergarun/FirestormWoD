@@ -15,13 +15,15 @@ INSERT INTO areatrigger_teleport VALUE
 (10241, 'Blackrock Foundry - Entrance', 1205, 131.171875, 3429.481, 319.8291, 0.00135),
 (10242, 'Blackrock Foundry - Exit Target', 1116, 8074.5845, 859.86652, 34.3671, 2.8979);
 
-DELETE FROM spell_script_names WHERE spell_id IN (175624, 175644, 175752, 175088, 169402);
+DELETE FROM spell_script_names WHERE spell_id IN (175624, 175644, 175752, 175088, 169402, 155534, 155080);
 INSERT INTO spell_script_names VALUES
 (175624, 'spell_foundry_grievous_mortal_wounds'),
 (175644, 'spell_foundry_spinning_blade'),
 (175752, 'spell_foundry_slag_breath'),
 (175088, 'spell_foundry_animate_slag'),
-(169402, 'spell_foundry_gronnling_smash');
+(169402, 'spell_foundry_gronnling_smash'),
+(155534, 'spell_foundry_rage_regeneration'),
+(155080, 'spell_foundry_inferno_slice');
 
 DELETE FROM areatrigger_template WHERE spell_id IN (175644);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags) VALUES
@@ -50,7 +52,9 @@ INSERT INTO creature_text VALUES
 (@REF_GRUUL, 4, 0, 'GRUUL CRUSH YOU NOW!!!', 14, 0, 100, 0, 0, 45031, 'GruulBerserk'),
 (@REF_GRUUL, 5, 0, 'Unworthy.', 14, 0, 100, 0, 0, 45034, 'GruulSlay1'),
 (@REF_GRUUL, 5, 1, 'No more.', 14, 0, 100, 0, 0, 45035, 'GruulSlay2'),
-(@REF_GRUUL, 6, 0, 'Gruul... Fall... Down?', 14, 0, 100, 0, 0, 45032, 'GruulDeath');
+(@REF_GRUUL, 6, 0, 'Gruul... Fall... Down?', 14, 0, 100, 0, 0, 45032, 'GruulDeath'),
+(@REF_GRUUL, 7, 0, '%s goes into a |cFFFF0404|Hspell:155539|h[Destructive Rampage]|h|r!', 41, 0, 100, 0, 0, 0, 'GruulDestructiveRampageStart'),
+(@REF_GRUUL, 8, 0, '%s''s |cFFFF0404|Hspell:155539|h[Destructive Rampage]|h|r ends.', 41, 0, 100, 0, 0, 0, 'GruulDestructiveRampageEnd');
 
 DELETE FROM locales_creature_text WHERE entry IN (87771, @REF_GRUUL);
 --                                                       French     German     Spanish    Russian
@@ -159,6 +163,20 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Gruul... fällt?',
     'Gruul... ¿caer?',
     'Груул... упал?'
+),
+(
+    @REF_GRUUL, 7, 0,
+    '%s déclenche un |cFFFF0404|Hspell:155539|h[Saccage destructeur]|h|r !',
+    '%s steigert sich in einen |cFFFF0404|Hspell:155539|h[zerstörerischen Amoklauf]|h|r!',
+    '¡%s entra en modo |cFFFF0404|Hspell:155539|h[Desenfreno destructivo]|h|r!',
+    '%s впадает в |cFFFF0404|Hspell:155539|h[Разрушительное буйство]|h|r!'
+),
+(
+    @REF_GRUUL, 8, 0,
+    'Le |cFFFF0404|Hspell:155539|h[Saccage destructeur]|h|r |2 %s prend fin.',
+    'Der |cFFFF0404|Hspell:155539|h[zerstörerische Amoklauf]|h|r von %s endet.',
+    'El |cFFFF0404|Hspell:155539|h[Desenfreno destructivo]|h|r de %s acaba.',
+    '|cFFFF0404|Hspell:155539|h[Разрушительное буйство]|h|r |3-1(%s) заканчивается.'
 );
 
 DELETE FROM `reference_loot_template` WHERE entry = @REF_GRUUL;
