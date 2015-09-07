@@ -3621,9 +3621,25 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                 else
                     l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);
             }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit *l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
+
+                if (l_Caster == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                // Generates 1 Chi if it hits at least 3 targets.
+                if (p_AurEff->GetAmount() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
+
+            }
+
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_rushing_jade_wind_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_monk_rushing_jade_wind_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -3643,16 +3659,22 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_rushing_jade_wind_damage_SpellScript);
 
+            enum eSpells
+            {
+                RushingJadeWindAura = 116847
+            };
+
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
-                if (Unit *l_Caster = GetCaster())
-                {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
+                Unit *l_Caster = GetCaster();
 
-                    // Generates 1 Chi if it hits at least 3 targets.
-                    if (l_SpellInfo != nullptr && (int32)p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
-                        l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
-                }
+                if (l_Caster == nullptr)
+                    return;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
+
+                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
+                    l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());
             }
 
             void Register()
@@ -3677,22 +3699,26 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_rushing_jade_wind_heal_SpellScript);
 
+            enum eSpells
+            {
+                RushingJadeWindAura = 116847
+            };
+
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
-                if (Unit *l_Caster = GetCaster())
-                {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
+                Unit *l_Caster = GetCaster();
 
-                    // Generates 1 Chi if it hits at least 3 targets.
-                    if (l_SpellInfo != nullptr && (int32)p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
-                        l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
+                if (l_Caster == nullptr)
+                    return;
 
-                    /// up to 6 allies
-                    if (p_Targets.size() <= 6)
-                        return;
+                /// up to 6 allies
+                if (p_Targets.size() <= 6)
+                    return;
 
-                    JadeCore::RandomResizeList(p_Targets, 6);
-                }
+                JadeCore::RandomResizeList(p_Targets, 6);
+
+                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
+                    l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());
             }
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
