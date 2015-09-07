@@ -2485,7 +2485,8 @@ class spell_warl_soul_harverst: public SpellScriptLoader
         }
 };
 
-// Life Tap - 1454
+/// last update : 6.1.2 19802
+/// Life Tap - 1454
 class spell_warl_life_tap: public SpellScriptLoader
 {
     public:
@@ -2504,11 +2505,10 @@ class spell_warl_life_tap: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 amount = int32(caster->GetHealthPct() * GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100);
-                    caster->EnergizeBySpell(caster, WARLOCK_LIFE_TAP, amount, POWER_MANA);
-                }
+                Unit* l_Caster = GetCaster();
+
+                int32 l_Amount = int32(l_Caster->GetMaxHealth() * GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100);
+                l_Caster->EnergizeBySpell(l_Caster, WARLOCK_LIFE_TAP, l_Amount, POWER_MANA);
             }
 
             void Register()

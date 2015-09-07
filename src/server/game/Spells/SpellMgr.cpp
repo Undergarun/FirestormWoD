@@ -4875,6 +4875,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 131361:///< Vanish - Improved Stealth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); ///< 3s
                 break;
+            case 129197:///< Insanity
+                spellInfo->Effects[0].BonusMultiplier *= 2.0f;
+                break;
             case 116784:///< Wildfire Spark - Boss Feng
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
@@ -6408,6 +6411,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 1719:   ///< Recklessness
                 /// Can be casted in Battle Stance AND in Defensive Stance
                 spellInfo->Stances |= ((uint64)1L << (ShapeshiftForm::FORM_DEFENSIVESTANCE - 1));
+                break;
+            case 91809: ///< Leap
+                spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
+                break;
+            case 91802: ///< Shambling Rush
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 0;
                 break;
             default:
                 break;
