@@ -80,9 +80,9 @@ class spell_mastery_molten_earth : public SpellScriptLoader
                 if (!roll_chance_f(33.33f))
                     return;
 
-                if (l_Target->HasAura(MoltenEarthSpells::MoltenEarthPeriodic))
+                if (l_Target->HasAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Caster->GetGUID()))
                 {
-                    if (AuraPtr l_PeriodicAura = l_Target->GetAura(MoltenEarthSpells::MoltenEarthPeriodic))
+                    if (AuraPtr l_PeriodicAura = l_Target->GetAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Caster->GetGUID()))
                         l_PeriodicAura->RefreshDuration();
                 }
                 else
