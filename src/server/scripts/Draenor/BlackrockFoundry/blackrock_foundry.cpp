@@ -245,7 +245,7 @@ class npc_foundry_spinning_blade : public CreatureScript
 
             void Reset() override
             {
-                me->CastSpell(me, eSpell::SpinningBladeAura, true);
+                me->CastSpell(me, eSpell::SpinningBladeAura, false);
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
@@ -291,6 +291,8 @@ class npc_foundry_ogron_hauler : public CreatureScript
             void Reset() override
             {
                 m_Events.Reset();
+
+                me->CastSpell(me ,eSpells::CarryingSlagContainmentCrate, true);
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -483,9 +485,18 @@ class npc_foundry_iron_slag_shaper : public CreatureScript
     public:
         npc_foundry_iron_slag_shaper() : CreatureScript("npc_foundry_iron_slag_shaper") { }
 
-        enum eSpell
+        enum eSpells
         {
-            AnimateSlag = 175088
+            AnimateSlag         = 175088,
+            GrippingSlag        = 175603,
+            RainOfSlag          = 175981,
+            RainOfSlagVisual    = 175983
+        };
+
+        enum eEvents
+        {
+            EventGrippingSlag = 1,
+            EventRainOfSlag
         };
 
         enum eAction
@@ -497,12 +508,22 @@ class npc_foundry_iron_slag_shaper : public CreatureScript
         {
             npc_foundry_iron_slag_shaperAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            EventMap m_Events;
+
             void Reset() override
             {
+                m_Events.Reset();
+
                 AddTimedDelayedOperation(100, [this]() -> void
                 {
-                    me->CastSpell(me, eSpell::AnimateSlag, false);
+                    me->CastSpell(me, eSpells::AnimateSlag, false);
                 });
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventGrippingSlag, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventRainOfSlag, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DoAction(int32 const p_Action) override
@@ -511,7 +532,7 @@ class npc_foundry_iron_slag_shaper : public CreatureScript
                 {
                     AddTimedDelayedOperation(100, [this]() -> void
                     {
-                        me->CastSpell(me, eSpell::AnimateSlag, false);
+                        me->CastSpell(me, eSpells::AnimateSlag, false);
                     });
                 }
             }
@@ -523,8 +544,29 @@ class npc_foundry_iron_slag_shaper : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                m_Events.Update(p_Diff);
+
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventGrippingSlag:
+                    {
+                        me->CastSpell(me, eSpells::GrippingSlag, false);
+                        m_Events.ScheduleEvent(eEvents::EventGrippingSlag, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventRainOfSlag:
+                    {
+                        me->CastSpell(me, eSpells::RainOfSlag, false);
+                        me->CastSpell(me, eSpells::RainOfSlagVisual, true);
+                        m_Events.ScheduleEvent(eEvents::EventRainOfSlag, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
 
                 DoMeleeAttackIfReady();
             }
@@ -533,6 +575,431 @@ class npc_foundry_iron_slag_shaper : public CreatureScript
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_foundry_iron_slag_shaperAI(p_Creature);
+        }
+};
+
+/// Slagshop Worker - 87771
+class npc_foundry_slagshop_worker : public CreatureScript
+{
+    public:
+        npc_foundry_slagshop_worker() : CreatureScript("npc_foundry_slagshop_worker") { }
+
+        enum eSpell
+        {
+            PunctureWound = 175987
+        };
+
+        enum eEvent
+        {
+            EventPunctureWound = 1
+        };
+
+        enum eTalk
+        {
+            TalkCosmetic
+        };
+
+        struct npc_foundry_slagshop_workerAI : public ScriptedAI
+        {
+            npc_foundry_slagshop_workerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                AddTimedDelayedOperation(urand(1 * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::IN_MILLISECONDS), [this]() -> void
+                {
+                    Talk(eTalk::TalkCosmetic);
+                });
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                ClearDelayedOperations();
+
+                me->SetUInt32Value(EUnitFields::UNIT_FIELD_ANIM_TIER, 0);
+
+                m_Events.ScheduleEvent(eEvent::EventPunctureWound, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventPunctureWound:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpell::PunctureWound, true);
+
+                        m_Events.ScheduleEvent(eEvent::EventPunctureWound, 5 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void LastOperationCalled() override
+            {
+                AddTimedDelayedOperation(urand(1 * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::IN_MILLISECONDS), [this]() -> void
+                {
+                    Talk(eTalk::TalkCosmetic);
+                });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_slagshop_workerAI(p_Creature);
+        }
+};
+
+/// Slagshop Brute - 87780
+class npc_foundry_slagshop_brute : public CreatureScript
+{
+    public:
+        npc_foundry_slagshop_brute() : CreatureScript("npc_foundry_slagshop_brute") { }
+
+        enum eSpells
+        {
+            LumberingStrength   = 175993,
+            DeathHowl           = 175992
+        };
+
+        enum eEvents
+        {
+            EventDeathHowl = 1,
+            EventLumberingStrength
+        };
+
+        struct npc_foundry_slagshop_bruteAI : public ScriptedAI
+        {
+            npc_foundry_slagshop_bruteAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetAIAnimKitId(0);
+
+                m_Events.ScheduleEvent(eEvents::EventDeathHowl, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventLumberingStrength, 15 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventDeathHowl:
+                    {
+                        me->CastSpell(me, eSpells::DeathHowl, false);
+                        m_Events.ScheduleEvent(eEvents::EventDeathHowl, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventLumberingStrength:
+                    {
+                        me->CastSpell(me, eSpells::LumberingStrength, false);
+                        m_Events.ScheduleEvent(eEvents::EventLumberingStrength, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_slagshop_bruteAI(p_Creature);
+        }
+};
+
+/// Iron Journeyman - 80677
+class npc_foundry_iron_journeyman : public CreatureScript
+{
+    public:
+        npc_foundry_iron_journeyman() : CreatureScript("npc_foundry_iron_journeyman") { }
+
+        enum eSpell
+        {
+            Heymaker = 164102
+        };
+
+        enum eEvent
+        {
+            EventHeymaker = 1
+        };
+
+        struct npc_foundry_iron_journeymanAI : public ScriptedAI
+        {
+            npc_foundry_iron_journeymanAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetUInt32Value(EUnitFields::UNIT_FIELD_ANIM_TIER, 0);
+
+                m_Events.ScheduleEvent(eEvent::EventHeymaker, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventHeymaker:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpell::Heymaker, false);
+
+                        m_Events.ScheduleEvent(eEvent::EventHeymaker, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_journeymanAI(p_Creature);
+        }
+};
+
+/// Gronnling Laborer - 81114
+class npc_foundry_gronnling_laborer : public CreatureScript
+{
+    public:
+        npc_foundry_gronnling_laborer() : CreatureScript("npc_foundry_gronnling_laborer") { }
+
+        enum eSpells
+        {
+            Enrage          = 18501,
+            GronnlingSmash  = 169402,
+            EarthAttack     = 165318
+        };
+
+        enum eEvent
+        {
+            EventGronnlingSmash = 1
+        };
+
+        struct npc_foundry_gronnling_laborerAI : public ScriptedAI
+        {
+            npc_foundry_gronnling_laborerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetUInt32Value(EUnitFields::UNIT_FIELD_ANIM_TIER, 0);
+
+                me->RemoveAura(eSpells::EarthAttack);
+
+                m_Events.ScheduleEvent(eEvent::EventGronnlingSmash, 10 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (me->HasAura(eSpells::Enrage))
+                    return;
+
+                if (me->HealthBelowPctDamaged(50, p_Damage))
+                    me->CastSpell(me, eSpells::Enrage, true);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventGronnlingSmash:
+                    {
+                        me->CastSpell(me, eSpells::GronnlingSmash, false);
+                        m_Events.ScheduleEvent(eEvent::EventGronnlingSmash, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_gronnling_laborerAI(p_Creature);
+        }
+};
+
+/// Karnor the Cruel - 81117
+class npc_foundry_karnor_the_cruel : public CreatureScript
+{
+    public:
+        npc_foundry_karnor_the_cruel() : CreatureScript("npc_foundry_karnor_the_cruel") { }
+
+        enum eSpells
+        {
+            ChainVolley             = 170679,
+            ChainVolleyDummy        = 170680,
+            KillingSpree            = 170687,
+            EnvenomedBladeTrigger   = 177943,
+            EnvenomedBlade          = 170689
+        };
+
+        enum eEvents
+        {
+            EventChainVolley = 1,
+            EventKillingSpree
+        };
+
+        enum eData
+        {
+            ChainVolleyCount = 7
+        };
+
+        struct npc_foundry_karnor_the_cruelAI : public ScriptedAI
+        {
+            npc_foundry_karnor_the_cruelAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventChainVolley, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventKillingSpree, 15 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::ChainVolley:
+                    {
+                        for (uint8 l_I = 0; l_I < eData::ChainVolleyCount; ++l_I)
+                            p_Target->CastSpell(p_Target, eSpells::ChainVolleyDummy, true);
+
+                        break;
+                    }
+                    case eSpells::EnvenomedBladeTrigger:
+                    {
+                        me->NearTeleportTo(*p_Target);
+
+                        uint64 l_Guid = p_Target->GetGUID();
+                        AddTimedDelayedOperation(100, [this, l_Guid]() -> void
+                        {
+                            if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                                me->CastSpell(l_Target, eSpells::EnvenomedBlade, false);
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventChainVolley:
+                    {
+                        me->CastSpell(me, eSpells::ChainVolley, true);
+                        m_Events.ScheduleEvent(eEvents::EventChainVolley, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventKillingSpree:
+                    {
+                        me->CastSpell(me, eSpells::KillingSpree, true);
+                        m_Events.ScheduleEvent(eEvents::EventKillingSpree, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_karnor_the_cruelAI(p_Creature);
         }
 };
 
@@ -600,7 +1067,7 @@ class spell_foundry_spinning_blade : public SpellScriptLoader
                         if (Unit* l_Caster = GetCaster())
                         {
                             std::list<Unit*> l_TargetList;
-                            float l_Radius = 10.0f;
+                            float l_Radius = 8.0f;
 
                             JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
                             JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
@@ -610,10 +1077,10 @@ class spell_foundry_spinning_blade : public SpellScriptLoader
 
                             for (Unit* l_Iter : l_TargetList)
                             {
-                                if (l_Iter->GetDistance(l_Caster) <= 5.0f)
+                                if (l_Iter->GetDistance(l_Caster) <= 1.0f)
                                 {
                                     if (!l_Iter->HasAura(eSpell::SpinningBladeDoT))
-                                        l_Caster->CastSpell(l_Iter, eSpell::SpinningBladeDoT, true);
+                                        l_Iter->CastSpell(l_Iter, eSpell::SpinningBladeDoT, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
                                 }
                                 else
                                 {
@@ -727,10 +1194,10 @@ class spell_foundry_animate_slag : public SpellScriptLoader
             void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
-                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
+                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
                     return;
 
-                if (Creature* l_Creature = GetTarget()->ToCreature())
+                if (Creature* l_Creature = GetCaster()->ToCreature())
                 {
                     if (!l_Creature->IsAIEnabled)
                         return;
@@ -752,6 +1219,39 @@ class spell_foundry_animate_slag : public SpellScriptLoader
         }
 };
 
+/// Gronnling Smash - 169402
+class spell_foundry_gronnling_smash : public SpellScriptLoader
+{
+    public:
+        spell_foundry_gronnling_smash() : SpellScriptLoader("spell_foundry_gronnling_smash") { }
+
+        class spell_foundry_gronnling_smash_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_gronnling_smash_AuraScript);
+
+            enum eSpell
+            {
+                GronnlingSmashAoE = 169401
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->CastSpell(l_Target, eSpell::GronnlingSmashAoE, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_gronnling_smash_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_gronnling_smash_AuraScript();
+        }
+};
+
 void AddSC_blackrock_foundry()
 {
     /// NPCs
@@ -763,12 +1263,18 @@ void AddSC_blackrock_foundry()
     new npc_foundry_ironworker();
     new npc_foundry_flame_jets();
     new npc_foundry_iron_slag_shaper();
+    new npc_foundry_slagshop_worker();
+    new npc_foundry_slagshop_brute();
+    new npc_foundry_iron_journeyman();
+    new npc_foundry_gronnling_laborer();
+    new npc_foundry_karnor_the_cruel();
 
     /// Spells
     new spell_foundry_grievous_mortal_wounds();
     new spell_foundry_spinning_blade();
     new spell_foundry_slag_breath();
     new spell_foundry_animate_slag();
+    new spell_foundry_gronnling_smash();
 
     /// GameObjects
 
