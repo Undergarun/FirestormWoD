@@ -10,38 +10,28 @@
 #include "InstanceScript.h"
 #include "auchindon.hpp"
 
-class ClappingEvent : public BasicEvent
+/// Event teleports player to Kaathar hall.
+class EventTeleportPlayer : public BasicEvent
 {
 public:
-    explicit ClappingEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    explicit EventTeleportPlayer(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value)
     {
     }
 
-    bool Execute(uint64 /*currTime*/, uint32 /*p_Diff*/)
+    bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
     {
-        if (m_Obj)
+        if (m_Obj && m_Obj->GetTypeId() == TYPEID_PLAYER)
         {
-            if (InstanceScript* l_Instance = m_Obj->GetInstanceScript())
-            {
                 switch (m_Modifier)
                 {
-                case 0:
-                    if (Player* nearest = m_Obj->FindNearestPlayer(50.0f, true))
+                    case 101:
                     {
-                        m_Obj->SetFacingToObject(nearest);
-                        m_Obj->CastSpell(m_Obj, eAuchindonSpells::SpellApplaud);
-
-                        m_Obj->m_Events.AddEvent(new ClappingEvent(m_Obj, 1), m_Obj->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
+                        m_Obj->ToPlayer()->TeleportTo(1182, 1904.29f, 3185.111f, 30.799f, 3.34086f);
+                        break;
                     }
-                    break;
-                case 1:
-                {
-                    m_Obj->RemoveAllAuras();
-                    break;
                 }
-                }
-            }
         }
+
         return true;
     }
 
@@ -51,39 +41,6 @@ private:
     int m_Event;
 };
 
-class ArcaneBombEvent : public BasicEvent
-{
-public:
-    explicit ArcaneBombEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
-    {
-    }
-
-    bool Execute(uint64 /*currTime*/, uint32 /*p_Diff*/)
-    {
-        if (m_Obj)
-        {
-            if (InstanceScript* m_Instance = m_Obj->GetInstanceScript())
-            {
-                switch (m_Modifier)
-                {
-                case 0:
-                    if (Creature* l_Nearest = m_Obj->FindNearestCreature(eAuchindonCreatures::CreatureArcaneBomb, 50.0f, true))
-                    {
-                        m_Obj->CastSpell(l_Nearest, eAuchindonSpells::SpellArcaneBombAreaTrigger);
-                        m_Obj->m_Events.AddEvent(new ArcaneBombEvent(m_Obj, 0), m_Obj->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
-                    }
-                    break;
-                }
-            }
-        }
-        return true;
-    }
-
-private:
-    Unit* m_Obj;
-    int m_Modifier;
-    int Event;
-};
 
 class instance_auchindon : public InstanceMapScript
 {
@@ -95,13 +52,19 @@ public:
 
 	struct instance_auchindon_InstanceMapScript : public InstanceScript
 	{
-		instance_auchindon_InstanceMapScript(Map* map) : InstanceScript(map) {}
+		instance_auchindon_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            m_KaatharDied = false;
+            m_TuulaniSummoned = true;
+        }
 
         InstanceScript* m_Instance = this;
 
 		uint32 m_auiEncounter[4];
         // Creatures
+
         uint64 m_NyamiGuid;
+        uint64 m_Tuulani02;
         uint64 m_UniqueGuardGuid;
         uint64 m_TuulaniGuid;
         uint64 m_WardenGuid;
@@ -131,6 +94,7 @@ public:
         uint64 m_TriggerAzzakelFelPortalGuid;
 
         bool m_KaatharDied;
+        bool m_TuulaniSummoned;
 
         // Dispensor
         std::list<uint64> m_Dispensor;
@@ -139,6 +103,7 @@ public:
 		{           
             // Creatures
             m_NyamiGuid = 0;
+            m_Tuulani02 = 0;
             m_UniqueGuardGuid = 0;
             m_TuulaniGuid = 0;
             m_WardenGuid = 0;
@@ -163,122 +128,22 @@ public:
             m_SoulTransport03Guid = 0;
             // Triggers
             m_TriggerBubbleMiddleNyamiGuid = 0;
-
-            m_KaatharDied = false;
-
-            LaunchSpawning();
 		}
 
-        void OnPlayerEnter(Player* p_Player)
+        void OnPlayerEnter(Player* p_Player) override
         {
             if (m_KaatharDied)
             {
-                p_Player->TeleportTo(1182, 1904.29f, 3185.111f, 30.799f, 3.34086f);
-;           }
-        }
+                p_Player->m_Events.AddEvent(new EventTeleportPlayer(p_Player, 101), p_Player->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
+            }
 
-        void LaunchSpawning()
-        {
-            if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossTeronogor)))
+            if (m_TuulaniSummoned)
             {
-                for (int32 i = 0; i <= 5; i++)
-                {                  
-                    if (Creature* l_Guard = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionGuards[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                    {
-                        l_Guard->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 505);
-                    }
-                }
-                // Auchindon Summon Clappers
-                for (int32 i = 0; i < 2; i++)
+                m_TuulaniSummoned = false;
+               
+                if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossTeronogor)))
                 {
-                    if(Creature* l_Clapper = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionGuards2nd[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                        l_Clapper->m_Events.AddEvent(new ClappingEvent(l_Clapper, 0), l_Clapper->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
-                }
-
-                // Cicrular Mobs - Magus
-                for (int32 i = 0; i < 3; i++)
-                {                
-                    if (Creature* l_Magus = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionCircularMages[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                    {
-                        l_Magus->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, );
-                    }
-                }
-                // Cicrular Mobs - Priest
-                for (int32 i = 0; i < 2; i++)
-                {
-                    if (Creature* l_Priest = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniSoulPriest, g_PositionCircularPriests[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                    {
-                        l_Priest->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, SpellKneel);
-                    }
-                }
-                // Cicrular Mobs - Cleric
-                for (int32 i = 0; i < 2; i++)
-                {
-                    if (Creature* l_Cleric = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniCleric, g_PositionCircularHolies[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                    {
-                        l_Cleric->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, SpellKneel);
-                    }
-                }
-
-                // Hovering Magus near preacher
-                for (int32 i = 0; i < 2; i++)
-                {             
-                    if (Creature* l_Magus = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionAuchenaiMagus2nd[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                    {
-                        l_Magus->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, SpellKneel);
-                    }
-                }
-                // Preacher near 2 magus             
-                if (Creature* l_Preacher = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniArbiter, g_PositionAuchenaiReader1st, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                {
-                    l_Preacher->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, SpellKneel);
-                }
-
-                for (int32 i = 0; i < 4; i++)
-                {
-                    if (Creature* l_Vigilant = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniVigiliant, g_PositionAuchenaiVigilant[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                    {
-                        l_Vigilant->CastSpell(l_Vigilant, eAuchindonSpells::SpellGuard);
-
-                        l_Vigilant->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                        l_Vigilant->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
-                        l_Vigilant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                        l_Vigilant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                    }
-                }
-                for (int32 i = 0; i < 2; i++)
-                {
-                    // Two Guarding Hopilite
-                    if (Creature* l_Hopilite = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniHoplite, g_PositionHopilliteGuardState[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                    {
-                        l_Hopilite->CastSpell(l_Hopilite, eAuchindonSpells::SpellGuard);
-                    }
-                }
-                // Defender that reads near two guarding hopilite
-                if (Creature* l_Defender = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionDefenderWhoReadsNearTwoHopilite, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                {
-                    l_Defender->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteRead);
-                }
-                // Priest who meditates
-                if (Creature* l_Priest = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureSargeriSoulPriest, g_PositionSoulPriestWhoMeditates, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                {
-                    l_Priest->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteHover);
-                }
-                // Magus who cast arcane bomb near hovering priest.
-                if (Creature* l_Mage = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionMagusWhoCastArcane, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                {
-                    l_Mage->CastSpell(l_Mage, SpellArcaneChanneling);
-                    l_Mage->m_Events.AddEvent(new ArcaneBombEvent(l_Mage, 0), l_Mage->m_Events.CalculateTime(20 * TimeConstants::IN_MILLISECONDS));
-                }
-                // Magus who talk to defender
-                if (Creature* l_Magus = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionMagusWhoTalksToDefender, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                {
-                    l_Magus->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteTalk);
-                }
-                // Soul Priest who talks to defenders
-                if (Creature* l_SoulPriest = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniSoulPriest, g_PositionSoulPriestTalksToTwoDefender, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                {
-                    l_SoulPriest->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteTalk);
+                    l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureSoulBinderTuulani, 1507.84f, 2953.38f, 35.238f, 6.254070f, TEMPSUMMON_MANUAL_DESPAWN);
                 }
             }
         }
@@ -315,6 +180,9 @@ public:
 		{
             switch (p_Creature->GetEntry())
 			{
+                case eAuchindonCreatures::CreatureSoulBinderTuulani01:
+                    m_Tuulani02 = p_Creature->GetGUID();
+                    break;
                 case eAuchindonCreatures::CreatureIruun:
                     m_IruunGuid = p_Creature->GetGUID();
                     break;
@@ -465,6 +333,9 @@ public:
         {
             switch (p_Data)
             {
+                case eDataAuchindonDatas::DataTuulani02:
+                    return m_Tuulani02;
+                    break;
                 case eDataAuchindonDatas::DataGuard:
                     return m_UniqueGuardGuid;
                     break;

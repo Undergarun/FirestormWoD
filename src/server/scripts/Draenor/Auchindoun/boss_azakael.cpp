@@ -28,7 +28,10 @@ enum eAzzakelSpells
     SpellVisualFelBurst              = 169682,
     SpellFelSparkAreaTrigger         = 153725,
     SpellFelSparkDamage              = 153726,
-    SpellFelSparkPerioidicCreation   = 153727
+    SpellFelSparkPerioidicCreation   = 153727,
+    SpellSummonImp                   = 153775,
+    SpellFelGuard                    = 164080,
+    SpellSummonPyromaniac            = 164127,
 };
 
 enum eAzzakelEvents
@@ -246,7 +249,7 @@ public:
                     break;
                 case eAzzakelActions::ActionBoolDeactivate:
                     m_Argus = false;
-                    me->GetMotionMaster()->Clear();
+                    me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
                     break;
                 case eAzzakelActions::ActionBoolActivate:
                     m_Argus = true;
@@ -254,11 +257,6 @@ public:
                 case eAzzakelActions::ActionFelSpark:
                     events.ScheduleEvent(eAzzakelEvents::EventFelSpark, 1 * TimeConstants::IN_MILLISECONDS);
                     break;
-                case eAzzakelActions::ActionSummonDemons:
-                {             
-                   // Remake this properly, this is shit 
-                    break;
-                }
                 case eAzzakelActions::ActionRenewEvents:
                 {
                     events.Reset();
@@ -266,6 +264,10 @@ public:
 
                     // Fix stuck boss
                     me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), false);
+                    
+                    // Shampoo <3
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        AttackStart(l_Target);
 
                     events.ScheduleEvent(eAzzakelEvents::EventFelLash,           8  * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus,      45 * TimeConstants::IN_MILLISECONDS);
@@ -307,13 +309,15 @@ public:
                 DoZoneInCombat();
             }
 
+            m_Achievement = true;
+
             // Manual, I don't remember why I handled it that way - there must be a reason, I'm not touching
             me->SummonGameObject(eAuchindonObjects::GameobjectFelBarrier, 1911.01f, 2722.89f, 30.799f, g_PositionAzzakel_Blackgate.GetOrientation(), 0, 0, 0, 0, 0);
 
-            events.ScheduleEvent(EventFelLash, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(EventClawsOfArgus, 45 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(EventCurtainOfFlame, 14 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(EventMalevolentCrush02, 20 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAzzakelEvents::EventFelLash, 8 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus, 45 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAzzakelEvents::EventCurtainOfFlame, 14 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush02, 20 * TimeConstants::IN_MILLISECONDS);
         }
 
         void KilledUnit(Unit* p_Who) override
@@ -360,14 +364,28 @@ public:
 
             if (m_Argus) // claws of argus
             {
-                if (m_Interval <= p_Diff)
+                if (m_Interval < p_Diff)
                 {
-                    DoAction(eAzzakelActions::ActionSummonDemons);
+                    if (Creature* l_AzzakelController = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataTriggerAzzakelController)))
+                    {
+                        switch (urand(0, 3))
+                        {
+                            case 0:
+                                l_AzzakelController->CastSpell(l_AzzakelController, eAzzakelSpells::SpellSummonImp);
+                                break;
+                            case 1:
+                                l_AzzakelController->CastSpell(l_AzzakelController, eAzzakelSpells::SpellFelGuard);
+                                break;
+                            case 2:
+                                l_AzzakelController->CastSpell(l_AzzakelController, eAzzakelSpells::SpellSummonPyromaniac);
+                                break;
+                        }
+                    }
 
-                    m_Argus = false;
+                    m_Interval = 3000;
                 }
                 else
-                    m_Argus -= p_Diff;
+                    m_Interval -= p_Diff;
             }
 
             events.Update(p_Diff);
@@ -398,10 +416,10 @@ public:
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
                             Talk(eAzzakelTalks::AzzakelSpell03);
-                            me->AddAura(eAzzakelSpells::SpellCurtainOfFlameVisual, l_Target);
+                            me->AddAura(eAzzakelSpells::SpellCurtainOfFlameAura, l_Target);
 
                             std::string l_Str;
-                            l_Str += "Azzakel casts |cffff0000[Azzakael casts Curtain of Flame]|cfffaeb00! on ";
+                            l_Str += "Azzakel casts |cffff0000[Curtain of Flame]|cfffaeb00! on ";
                             l_Str += l_Target->GetName();
 
                             me->MonsterTextEmote(l_Str.c_str(), me->GetGUID(), true);
@@ -509,19 +527,6 @@ public:
     {
         PrepareAuraScript(auchindon_auras);
 
-        bool Load() 
-        {
-            SpellInfo* l_Spell = const_cast<SpellInfo*>(GetSpellInfo());
-            l_Spell->Effects[1].Effect = 0;
-            l_Spell->Effects[1].TargetA = 0;
-            return true;
-        }
-
-        void HandlePeriodic(constAuraEffectPtr p_AurEff)
-        {
-  
-        }
-
         void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetCaster())
@@ -559,7 +564,7 @@ public:
 
                     l_Azzakel->RemoveAllAuras();
 
-                    if (l_Azzakel->GetMap()->IsHeroic())
+                    if (l_Azzakel->GetMap() && l_Azzakel->GetMap()->IsHeroic())
                     {
                         if (Player* l_Nearest = l_Azzakel->FindNearestPlayer(20.0f, true))
                         {
@@ -582,7 +587,6 @@ public:
 
         void Register()
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(auchindon_auras::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY);
             AfterEffectApply += AuraEffectApplyFn(auchindon_auras::OnApply,           SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
             AfterEffectRemove += AuraEffectRemoveFn(auchindon_auras::OnRemove,        SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DUMMY, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
         }
@@ -600,7 +604,7 @@ class auchindon_azzakel_fel_spark_area_trigger : public AreaTriggerEntityScript
 public:
     auchindon_azzakel_fel_spark_area_trigger() : AreaTriggerEntityScript("auchindon_azzakel_fel_spark_area_trigger") {}
 
-    int32 m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
+    uint32 m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
     {

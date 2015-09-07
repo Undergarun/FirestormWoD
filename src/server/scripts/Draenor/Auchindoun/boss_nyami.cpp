@@ -47,7 +47,8 @@ enum eNyamiEvents
     EventRadiantFurySummonTrigger,
     EventRadiantFuryStop,
     EventArcaneBolt,
-    EventCrusaderStrike
+    EventCrusaderStrike,
+    EventArcaneBombNyami
 };
 
 enum eNyamiTalks
@@ -81,18 +82,6 @@ enum eNyamiCreatures
     CreatureSoulVesselHackBubbleEffect = 342652
 };
 
-Position g_PositionSafeZoneVessel       = { 1658.81f, 2957.50f, 34.291f, 5.099889f };
-Position g_PositionBubble               = { 1660.65f, 2953.06f, 34.291f, 1.542292f };
-Position g_PositionWardenSpawnPoint     = { 1660.96f, 2918.35f, 48.036f, 1.672848f };
-Position g_PositionWardenPosition1st    = { 1686.05f, 2840.95f, 35.140f };
-Position g_PositionDeadGuards[4]        =
-{
-    { 1645.85f, 2937.17f, 35.166f, 1.454027f },
-    { 1645.02f, 2971.30f, 35.140f, 6.229243f },
-    { 1675.58f, 2972.18f, 35.139f, 3.197360f },
-    { 1674.51f, 2932.11f, 35.119f, 3.219360f }
-};
-
 /// Nyami after death event
 class EventPostNyamiFight : public BasicEvent
 {
@@ -118,14 +107,16 @@ public:
                                 l_Warden->RemoveAllAuras();
                                 l_Warden->SetDisableGravity(false);
                                 l_Warden->SetCanFly(false);
+                           
 
                                 l_Warden->AddAura(eAuchindonSpells::SpellKneel, l_Warden);
-                                l_Warden->m_Events.AddEvent(new EventPostNyamiFight(l_Warden, 1), l_Warden->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
+                                l_Warden->m_Events.AddEvent(new EventPostNyamiFight(l_Warden, 0), l_Warden->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
                                 break;
                             }
                             case 0:
                             {
-
+                                l_Warden->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                                l_Warden->RemoveAllAuras();
                                 l_Warden->AI()->Talk(eNyamiTalks::Auchenaiwarden1);
                                 l_Warden->RemoveAura(eAuchindonSpells::SpellKneel);
 
@@ -161,9 +152,9 @@ public:
                         }
                     }
                 }
-                return true;
             }
         }
+        return true;
     }
 
 private:
@@ -186,6 +177,7 @@ public:
             me->SetDisableGravity(true);
             me->CastSpell(me, eNyamiSpells::SpellStrangulateState);
             me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
@@ -222,7 +214,7 @@ public:
         {
             m_Instance = me->GetInstanceScript();
 
-            me->SummonCreature(eAuchindonCreatures::CreatureWardenAzzakael, );
+            me->SummonCreature(eAuchindonCreatures::CreatureWardenAzzakael, g_PositionWardenSpawnPoint);
             me->SetRespawnTime(6000000);
         }
 
@@ -292,6 +284,11 @@ public:
             {
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);;
                 m_Instance->SetBossState(eDataAuchindonDatas::DataBossNyami, EncounterState::DONE);
+
+                if (Creature* l_Warden = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataWarden)))
+                {
+                    l_Warden->GetMotionMaster()->MoveTakeoff(2, l_Warden->GetPositionX(), l_Warden->GetPositionY(), 34.764f);
+                }
             } 
 
             me->m_Events.AddEvent(new EventPostNyamiFight(me, 10), me->m_Events.CalculateTime(10 * TimeConstants::IN_MILLISECONDS));
@@ -349,31 +346,31 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case EventMindSpikeNyami:
+            case eNyamiEvents::EventMindSpikeNyami:
                     if (Unit * l_Target = me->getVictim())
-                        me->CastSpell(l_Target, SpellMindSpike);
+                        me->CastSpell(l_Target, eAuchindonSpells::SpellMindSpike);
 
-                    events.ScheduleEvent(EventMindSpikeNyami, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                    events.ScheduleEvent(eNyamiEvents::EventMindSpikeNyami, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
                     break;
-                case EventShadowWordPain:
+            case eNyamiEvents::EventShadowWordPain:
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                        me->CastSpell(l_Target, SpellShadowWordPain);
+                        me->CastSpell(l_Target, eNyamiSpells::SpellShadowWordPain);
              
-                    events.ScheduleEvent(EventShadowWordPain, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
+                    events.ScheduleEvent(eNyamiEvents::EventShadowWordPain, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
                     break;
-                case EventSoulVessel:
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(SpellSoulBubbleBuff);
+            case eNyamiEvents::EventSoulVessel:
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eNyamiSpells::SpellSoulBubbleBuff);
 
                     me->MonsterTextEmote("Soulbinder Nyami begins to cast|cffff0000[Soul Vessel]|cfffaeb00!", me->GetGUID(), true);
-                    me->SummonCreature(CREA, g_PositionBubble, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                    me->CastSpell(me, SpellSoulVesselDummy);
+                    me->SummonCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, g_PositionBubble, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                    me->CastSpell(me, eNyamiSpells::SpellSoulVesselDummy);
 
-                    events.ScheduleEvent(EventSoulVessel, 25 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eNyamiEvents::EventSoulVessel, 25 * TimeConstants::IN_MILLISECONDS);
                     break;
-                case EventTornSpirit:
+            case eNyamiEvents::EventTornSpirit:
                 {
                     std::list<Creature*> l_ListCorpsesTriggers;
-                    me->GetCreatureListWithEntryInGrid(l_ListCorpsesTriggers, CreatureCorpsesNyamiFight, 40.0f);
+                    me->GetCreatureListWithEntryInGrid(l_ListCorpsesTriggers, eAuchindonCreatures::CreatureCorpsesNyamiFight, 40.0f);
 
                     if (l_ListCorpsesTriggers.empty())
                         return;
@@ -383,15 +380,15 @@ public:
 
                     me->SetReactState(ReactStates::REACT_PASSIVE);
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 20.0f, true);
-                    me->CastSpell((*it), SpellDispersionVisualNyami);
+                    me->CastSpell((*it), eAuchindonSpells::SpellDispersionVisualNyami);
                
                     me->GetMotionMaster()->MovePoint(0, (*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ());
 
-                    events.ScheduleEvent(EventTornSpiritsDummy, 3 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(EventTornSpirit, 35 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eNyamiEvents::EventTornSpiritsDummy, 3 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eNyamiEvents::EventTornSpirit, 35 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
-                case EventTornSpiritsDummy:
+            case eNyamiEvents::EventTornSpiritsDummy:
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 1.5f, true);
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                     me->CastSpell(me, eNyamiSpells::SpellTornSpritsDummy);
@@ -422,6 +419,7 @@ public:
 
         void Reset() override
         {
+            me->CastSpell(me, eNyamiSpells::SpellSoulBubbleVisual);
             me->CastSpell(me, eNyamiSpells::SpellSoulBubbleBuff);
             me->SetDisplayId(eAuchindonInformation::InformationDisplayIdInvis);
 
@@ -483,7 +481,7 @@ class auchindon_nyami_radiant_star : public AreaTriggerEntityScript
 public:
     auchindon_nyami_radiant_star() : AreaTriggerEntityScript("auchindon_nyami_radiant_star") {}
 
-    int m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
+    uint32 m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
     std::list<uint64> m_Targets;
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
@@ -710,8 +708,8 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(EventArcaneBolt, 4 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(EventArcaneBomb, 10 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eNyamiEvents::EventArcaneBolt, 4 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eNyamiEvents::EventArcaneBombNyami, 10 * TimeConstants::IN_MILLISECONDS);
         }
  
         void UpdateAI(const uint32 p_Diff) override
@@ -732,7 +730,7 @@ public:
 
                     events.ScheduleEvent(eNyamiEvents::EventArcaneBolt, 6 * TimeConstants::IN_MILLISECONDS);
                     break;
-            case eAuchindonEvents::EventArcaneBomb:
+            case eNyamiEvents::EventArcaneBombNyami:
                     me->CastSpell(me, SpellArcaneBombDummy);
 
                     events.ScheduleEvent(eAuchindonEvents::EventArcaneBomb, 25 * TimeConstants::IN_MILLISECONDS);
@@ -757,15 +755,15 @@ public:
     {
         PrepareSpellScript(auchindon_spells);
 
-        uint32 m_Entries[3] = { CreatureMaleficDefender, CreatureTwistedMagus, CreatureSpitefulArbitrer };
-
         void HandleDummy(SpellEffIndex effIndex)
         {
+            uint32 m_Entries[3] = { eNyamiCreatures::CreatureMaleficDefender, eNyamiCreatures::CreatureTwistedMagus, eNyamiCreatures::CreatureSpitefulArbitrer };
+
             if (Unit* l_Caster = GetCaster())
             {
                 Position l_Pos;
 
-                if (Creature* l_Trigger = GetCaster()->FindNearestCreature(CreatureCorpsesNyamiFight, 100.0f, true))
+                if (Creature* l_Trigger = GetCaster()->FindNearestCreature(eAuchindonCreatures::CreatureCorpsesNyamiFight, 100.0f, true))
                 {
                     l_Trigger->GetRandomNearPosition(l_Pos, 4.0f);
 

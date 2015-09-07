@@ -3458,7 +3458,19 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// Auchindon
             case 156862: ///< Drain Soul Cosmetic
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
+            case 169682: ///< Azakkel visual pillar
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                break;
+            case 153775: ///< Summon Imp
+            case 164127: ///< Summon Pyromaniac
+            case 164080: ///< Summon FelGuard
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(10); ///< from 15.0f (RangeEntry.ID 11) to 40.0f
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 153430: ///< Areatrigger Damage
+                spellInfo->Effects[0].Amplitude = 2000;
             case 119975: ///< Conversion
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 break;

@@ -47,7 +47,9 @@ enum eTerongorSpells
     SpellSummonAbyssalDummy                 = 157214,
     SpellSummonAbyssalSummonSpell           = 157216,
     SpellDemonicCircleVisual                = 149133,
-    SpellTeronogorShield                    = 157017
+    SpellTeronogorShield                    = 157017,
+    SpellBrokenSouls                        = 72398,
+    SpellSoulBarrage                        = 72305,
 };
 
 enum eTerongorEvents
@@ -121,45 +123,6 @@ enum eTeronogorTransformations
     TransformationOccured     = 5
 };
 
-Position g_PositionFirstPlatformFirstMove   = { 1910.91f, 2810.94f, 119.795f }; // DURAG
-Position g_PositionFirstPlatormSecondMove   = { 1959.16f, 2907.14f, 41.030f };
-Position g_PositionFirstPlatformThirdMove   = { 2003.36f, 2863.18f, 35.212f };
-Position g_PositionSecondPlatformFirstMove  = { 1981.34f, 2877.99f, 53.373f }; // GULKOSH
-Position g_PositionSecondPlatformSecondMove = { 1959.05f, 2999.68f, 75.242f };
-Position g_PositionSecondPlatformThirdMove  = { 2003.70f, 3043.89f, 35.212f };
-Position g_PositionThirdPlatformFirstMove   = { 2003.70f, 3043.89f, 56.912f }; // GROMTASH
-Position g_PositionThirdPlatformsSecondMove = { 1914.66f, 2991.45f, 77.863f };
-Position g_PositionThirdPlatformThirdMove   = { 1817.49f, 3046.65f, 35.212f };
-Position g_PositionFourthMovement           = { 1846.60f, 2950.43f, 15.170f };
-Position g_PositionPlatform_3               = { 1838.42f, 3027.05f, 35.283f, 2.149401f }; // CREATURE_GROMTASH_THE_DESTRUCTOR
-Position g_PositionDrain                    = { 1960.20f, 3000.69f, 16.236f, 0.847815f };
-Position g_PositionTeronogorStartingPoint[1]=
-{
-    { 1923.63f, 2974.06f, 16.844f, 1.104046f }
-};
-Position g_PositionPlatform_01[2] =
-{
-    { 1985.33f, 2876.17f, 35.282f, 5.431586f }, // CREATURE_ZIPTEQ 
-    { 1987.57f, 2880.12f, 35.282f, 5.169260f }, //CREATURE_DURAG_THE_DOMINATOR
-};
-Position g_PositionPlatform_02[2] =
-{
-    { 1983.61f, 3030.35f, 35.280f, 0.613946f }, // CREATURE_SHAADUM  
-    { 1987.36f, 3023.54f, 35.282f, 0.747463f }, //CREATURE_GULKOSH
-};
-Position g_Positionsoul_move[4] =
-{
-    { 2010.29f, 2855.26f, 35.213f, 2.397908f },
-    { 2011.11f, 3051.70f, 35.212f, 4.003247f },
-    { 1812.13f, 3052.10f, 35.212f, 5.536366f },
-    { 1812.37f, 2854.15f, 35.212f, 0.796488f },
-};
-Position g_Positiondead_souls[3] =
-{
-    { 1922.36f, 2988.91f, 27.743f, 4.405081f },
-    { 1946.59f, 2973.00f, 30.193f, 3.678247f },
-    { 1963.11f, 3003.42f, 22.359f, 3.904775f },
-};
 
 class EventTeronogorTransform : public BasicEvent
 {
@@ -206,6 +169,9 @@ public:
                                         }
                                         case eTeronogorTransformations::TransformationOccur:
                                         {
+                                            l_Teronogor->RemoveAllAuras();
+                                            l_Teronogor->CastStop();
+
                                             switch (m_tType)
                                             {
                                                 case eTeronogorTransformations::TransformationAffliction:
@@ -219,8 +185,9 @@ public:
                                                     break;
                                             }
 
-                                            l_Teronogor->CastStop();
-                                            l_Teronogor->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                                      
+                                            l_Teronogor->SetReactState(ReactStates::REACT_DEFENSIVE);
+                                            l_Teronogor->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                                             l_Teronogor->UpdatePosition(l_Teronogor->GetPositionX(), l_Teronogor->GetPositionY(), l_Teronogor->GetPositionZ(), l_Teronogor->GetOrientation());
                                             break;
                                         }
@@ -228,12 +195,12 @@ public:
                                 }
                             }
                         }
-                    }
-
-                    return true;
+                    }           
                 }
             }
         }
+
+        return true;
     }
 
 private:
@@ -244,10 +211,10 @@ private:
 };
 
 
-class EventTeronogorTransform : public BasicEvent
+class EventTeronogorPostDeath : public BasicEvent
 {
 public:
-    explicit EventTeronogorTransform(Unit* p_Unit, int32 p_Value, int32 p_TransformationType) : m_Obj(p_Unit), m_Modifier(p_Value), m_tType(p_TransformationType)
+    explicit EventTeronogorPostDeath(Unit* p_Unit, int32 p_Value) : m_Obj(p_Unit), m_Modifier(p_Value)
     {
     }
 
@@ -257,22 +224,76 @@ public:
         {
             if (InstanceScript* l_Instance = m_Obj->GetInstanceScript())
             {
-                switch (m_Modifier)
+                if (Creature* l_Teronogor = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataBossTeronogor)))
                 {
-                    case 0:
-                    
-                        break;
-                }
+                    if (Creature* l_Tuulani = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataTuulani02)))
+                    { 
+                        if (l_Tuulani->AI() && l_Teronogor->AI())
+                        { 
+                            switch (m_Modifier)
+                            {
+                                case 0:
+                                {
+                                    l_Teronogor->SetCanFly(true);
+                                    l_Teronogor->SetDisableGravity(true);
+                                    l_Teronogor->NearTeleportTo(l_Teronogor->GetPositionX(), l_Teronogor->GetPositionY(), 28.884939f, l_Teronogor->GetOrientation());
 
-                return true;
+                                    l_Teronogor->AddAura(eTerongorSpells::SpellSoulBarrage, l_Teronogor);
+                                    l_Teronogor->AddAura(eTerongorSpells::SpellBrokenSouls, l_Teronogor);
+                                    l_Teronogor->m_Events.AddEvent(new EventTeronogorPostDeath(l_Teronogor, 1), l_Teronogor->m_Events.CalculateTime(5 * TimeConstants::IN_MILLISECONDS));
+                                    break;
+                                }
+                                case 1:
+                                {
+                                    l_Teronogor->GetMotionMaster()->MoveKnockbackFrom(l_Teronogor->GetPositionX(), l_Teronogor->GetPositionY(), 14.0f, 12.0f);
+                                    l_Teronogor->m_Events.AddEvent(new EventTeronogorPostDeath(l_Teronogor, 2), l_Teronogor->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
+                                    break;
+                                }
+                                case 2:
+                                {
+                                    if (Player* l_Player = l_Teronogor->FindNearestPlayer(1000.0f, true))
+                                        l_Teronogor->AI()->JustDied(l_Player);
+
+                                    l_Teronogor->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
+                                    l_Tuulani->m_Events.AddEvent(new EventTeronogorPostDeath(l_Tuulani, 3), l_Tuulani->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
+                                    break;
+                                }
+                                case 3:
+                                {
+                                    l_Tuulani->AI()->Talk(eAuchindonTalk::TUULANITALK14);
+                                    l_Tuulani->m_Events.AddEvent(new EventTeronogorPostDeath(l_Tuulani, 4), l_Tuulani->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
+                                    break;
+                                }
+                                case 4:
+                                {
+                                    l_Tuulani->AI()->Talk(eAuchindonTalk::TUULANITALK15);
+                                    l_Teronogor->m_Events.AddEvent(new EventTeronogorPostDeath(l_Teronogor, 5), l_Teronogor->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
+                                    break;
+                                }
+                                case 5:
+                                {
+                                    l_Tuulani->AI()->Talk(eAuchindonTalk::TUULANITALK16);
+                                    l_Teronogor->m_Events.AddEvent(new EventTeronogorPostDeath(l_Teronogor, 6), l_Teronogor->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
+                                    break;
+                                }
+                                case 6:
+                                {
+                                    l_Tuulani->AI()->Talk(eAuchindonTalk::TUULANITALK14);
+                                    break;
+                                }
+                            }
+                        }       
+                    }
+                }         
             }
         }
+
+        return true;
     }
 
 private:
     Unit* m_Obj;
     int32 m_Modifier;
-    int32 m_tType;
     int32 m_Event;
 };
 
@@ -354,8 +375,8 @@ public:
                 m_SecondPhase = true;
                 events.Reset();
 
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
 
                 DoAction(eTeronogorActions::ActionChoosePower);
             }
@@ -424,6 +445,9 @@ public:
             _EnterCombat();
             me->RemoveAura(eTerongorSpells::SpellTeronogorShield);
 
+            me->CastStop();
+            me->RemoveAllAuras();
+
             events.ScheduleEvent(eTerongorEvents::EventShadowBolt, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eTerongorEvents::EventCorruption, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eTerongorEvents::EventRainOfFire, 21 * TimeConstants::IN_MILLISECONDS);
@@ -463,9 +487,10 @@ public:
             Talk(eTerongorTalks::TERONGOR_DEATH);
             DespawnCreaturesInArea(eAuchindonCreatures::CreatureFelborneAbyssal, me);
 
-
             me->SummonCreature(eAuchindonCreatures::CreatureSoulBinderTuulani01, 1911.65f, 2757.72f, 30.799f, 1.566535f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-            me->SummonGameObject(eAuchindonObjects::GameobjectChestAucheni, 1891.84f, 2973.80f, 16.844f, 5.664811f, 0,0,0,0,0);
+            me->SummonGameObject(eAuchindonObjects::GameobjectChestAucheni, 1891.84f, 2973.80f, 16.844f, 5.664811f, 0, 0, 0, 0, 0);
+
+            me->m_Events.AddEvent(new EventTeronogorPostDeath(me, 1), me->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -580,7 +605,7 @@ public:
             case eTerongorEvents::EventRainOfFire:
                         if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         {
-                            me->CastSpell(l_Random, eTerongorSpells::SpellRainOfFire);
+                            me->CastSpell(l_Random, eTerongorSpells::SpellRainOfFire, true);
 
                             events.ScheduleEvent(eTerongorEvents::EventRainOfFire, 25 * TimeConstants::IN_MILLISECONDS);
                             break;
@@ -668,6 +693,9 @@ public:
         { 
             me->CastSpell(me, 159021);
 
+            me->CastStop();
+            me->RemoveAllAuras();
+
             events.ScheduleEvent(eTerongorEvents::EventShadowBolt, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eTerongorEvents::EventCorruption, urand(10 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eTerongorEvents::EventChaosWave, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
@@ -743,6 +771,9 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
+            me->CastStop();
+            me->RemoveAllAuras();
+
             events.ScheduleEvent(EventShadowBolt, 8 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(EventUnstableAffliction, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(EventDrainLife, 16 * TimeConstants::IN_MILLISECONDS);
@@ -842,7 +873,7 @@ public:
     }
 };
 
-/// Gromtash The Destructor <Shadow Council> - 
+/// Grom'tash The Destructor <Shadow Council> - 
 class auchindon_teronogor_gromkash : public CreatureScript
 {
 public:
@@ -879,6 +910,9 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
+            me->CastStop();
+            me->RemoveAllAuras();
+
             events.ScheduleEvent(eTerongorEvents::EventImmolate, 8 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eTerongorEvents::EventIncinrate, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eTerongorEvents::EventRainOfFire, 18 * TimeConstants::IN_MILLISECONDS);
@@ -1096,7 +1130,17 @@ public:
                         // second soul transport
                     case 4:
                         m_Obj->GetMotionMaster()->MoveCharge(g_PositionSecondPlatformFirstMove.GetPositionX(), g_PositionSecondPlatformFirstMove.GetPositionY(), g_PositionSecondPlatformFirstMove.GetPositionZ(), 60.0f);
+                        m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(m_Obj, 5), m_Obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
                         break;
+                    case 5:
+                        m_Obj->GetMotionMaster()->MoveCharge(g_PositionSecondPlatformSecondMove.GetPositionX(), g_PositionSecondPlatformSecondMove.GetPositionY(), g_PositionSecondPlatformSecondMove.GetPositionZ(), 60.0f);
+                        m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(m_Obj, 6), m_Obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    case 6:
+                        m_Obj->GetMotionMaster()->MoveCharge(g_PositionSecondPlatformThirdMove.GetPositionX(), g_PositionSecondPlatformThirdMove.GetPositionY(), g_PositionSecondPlatformThirdMove.GetPositionZ(), 60.0f);
+                        m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(m_Obj, 100), m_Obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
+                        break;
+
 
                         // third soul transport
                     case 7:
@@ -1250,13 +1294,44 @@ public:
                         player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         player->AddAura(eTerongorSpells::SpellTranscend, player);
 
-                        player->m_Events.AddEvent(new auchindon_soul_transportation_event(player, 0), player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
+                        player->m_Events.AddEvent(new auchindon_soul_transportation_event(player, 10), player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
                         return true;
                     }
                 }
             }
         }
         return true;
+    }
+};
+
+/// Seed of Malevolence - 156921 
+class auchindon_teronogor_seed_of_malevolence : public SpellScriptLoader
+{
+public:
+    auchindon_teronogor_seed_of_malevolence() : SpellScriptLoader("auchindon_teronogor_seed_of_malevolence") { }
+
+    class auchindon_auras : public AuraScript
+    {
+        PrepareAuraScript(auchindon_auras);
+
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (!GetTarget())
+                return;
+
+            Unit* l_Target = GetTarget();
+            l_Target->CastSpell(l_Target, eTerongorSpells::SpellSeedOfMalevolenceDmg);
+        }
+
+        void Register()
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(auchindon_auras::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_DAMAGE, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new auchindon_auras();
     }
 };
 
@@ -1274,4 +1349,5 @@ void AddSC_teronogoer()
     new auchindon_teronogor_soul_transporter_gulkosh_fourth();
     new auchindon_teronogor_spell_chaos_wave();
     new auchindon_teronogor_spell_demonic_leap();
+    new auchindon_teronogor_seed_of_malevolence();
 }

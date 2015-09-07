@@ -29,8 +29,7 @@ public:
                     {
                         if (Creature* l_Guard = l_Instance->instance->GetCreature(l_Instance->GetData64(eDataAuchindonDatas::DataGuard)))
                         {
-
-                            if (l_Nyami->GetAI() && l_Tuulina->GetAI())
+                            if (l_Nyami->GetAI() && l_Tuulina->GetAI() && l_Guard->GetAI())
                             {
                                 switch (m_Modifier)
                                 {
@@ -49,31 +48,28 @@ public:
                                             l_Nyami->CastSpell(l_Trigger, eAuchindonSpells::SpellShadowBeam);
                                         }
 
-                                        l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK2);
-                                        l_Tuulina->GetMotionMaster()->MovePoint(1, g_PositionTuulaniPreMovement02.GetPositionX(), g_PositionTuulaniPreMovement02.GetPositionY(), g_PositionTuulaniPreMovement02.GetPositionZ());
+                                        l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK18);
+                                        l_Tuulina->GetMotionMaster()->MovePoint(1, g_PositionTuulaniPreMovement02nd.GetPositionX(), g_PositionTuulaniPreMovement03rd.GetPositionY(), g_PositionTuulaniPreMovement03rd.GetPositionZ());
                                         break;
                                     }
                                     case 1: // TUULINA
                                     {
                                         l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK3);
-                                        l_Tuulina->GetMotionMaster()->MovePoint(2, g_PositionTuulaniPreMovement03.GetPositionX(), g_PositionTuulaniPreMovement03.GetPositionY(), g_PositionTuulaniPreMovement03.GetPositionZ());
+                                        l_Tuulina->GetMotionMaster()->MovePoint(2, g_PositionTuulaniPreMovement03rd.GetPositionX(), g_PositionTuulaniPreMovement03rd.GetPositionY(), g_PositionTuulaniPreMovement03rd.GetPositionZ());
                                         break;
                                     }
                                     case 3: // GUARD
                                     {
-                                        if (l_Guard->GetAI())
-                                        {
-                                            l_Guard->RemoveAura(eAuchindonSpells::SpellKneel);
-                                            l_Guard->AI()->Talk(eAuchindonTalk::AUCHENAIDEFENDERTALK1);
-                                            l_Guard->SetFacingToObject(l_Tuulina);
+                                        l_Guard->RemoveAura(eAuchindonSpells::SpellKneel);
+                                        l_Guard->AI()->Talk(eAuchindonTalk::AUCHENAIDEFENDERTALK1);
+                                        l_Guard->SetFacingToObject(l_Tuulina);
 
-                                            l_Guard->m_Events.AddEvent(new EventTuulaniIntroduction(l_Guard, 4), l_Guard->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
-                                            break;
-                                        }
+                                        l_Guard->m_Events.AddEvent(new EventTuulaniIntroduction(l_Guard, 4), l_Guard->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                        break;
                                     }
                                     case 4: // TUULANI
                                     {
-                                        l_Tuulina->GetMotionMaster()->MovePoint(3, g_PositionTuulaniMovement000.GetPositionX(), g_PositionTuulaniMovement000.GetPositionY(), g_PositionTuulaniMovement000.GetPositionZ());
+                                        l_Tuulina->GetMotionMaster()->MovePoint(3, g_PositionTuulaniMovement3rd.GetPositionX(), g_PositionTuulaniMovement3rd.GetPositionY(), g_PositionTuulaniMovement3rd.GetPositionZ());
                                         break;
                                     }
                                     case 5: // TUULANI                    
@@ -96,34 +92,34 @@ public:
                                         }
 
                                         l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK2);
-                                        l_Tuulina->GetMotionMaster()->MovePoint(4, g_PositionTuulaniMovement04.GetPositionX(), g_PositionTuulaniMovement04.GetPositionY(), g_PositionTuulaniMovement04.GetPositionZ());
+                                        l_Tuulina->GetMotionMaster()->MovePoint(4, g_PositionTuulaniMovement4th.GetPositionX(), g_PositionTuulaniMovement4th.GetPositionY(), g_PositionTuulaniMovement4th.GetPositionZ());
                                         break;
                                     }
                                     case 8:
                                     {
                                         l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK5);
-                                        l_Tuulina->GetMotionMaster()->MovePoint(5, g_PositionTuulaniMovement05.GetPositionX(), g_PositionTuulaniMovement05.GetPositionY(), g_PositionTuulaniMovement05.GetPositionZ());
+                                        l_Tuulina->GetMotionMaster()->MovePoint(5, g_PositionTuulaniMovement5th.GetPositionX(), g_PositionTuulaniMovement5th.GetPositionY(), g_PositionTuulaniMovement5th.GetPositionZ());
                                         break;
                                     }
                                     case 9:
                                     {
-                                        l_Tuulina->GetMotionMaster()->MovePoint(6, g_PositionTuulaniMovement06.GetPositionX(), g_PositionTuulaniMovement06.GetPositionY(), g_PositionTuulaniMovement06.GetPositionZ());
+                                        l_Tuulina->GetMotionMaster()->MovePoint(6, g_PositionTuulaniMovement6th.GetPositionX(), g_PositionTuulaniMovement6th.GetPositionY(), g_PositionTuulaniMovement6th.GetPositionZ());
                                         break;
                                     }
                                     case 10:
                                     {
-                                        l_Tuulina->GetMotionMaster()->MovePoint(7, g_PositionTuulaniMovement07.GetPositionX(), g_PositionTuulaniMovement07.GetPositionY(), g_PositionTuulaniMovement07.GetPositionZ());
+                                        l_Tuulina->GetMotionMaster()->MovePoint(7, g_PositionTuulaniMovement7th.GetPositionX(), g_PositionTuulaniMovement7th.GetPositionY(), g_PositionTuulaniMovement7th.GetPositionZ());
                                         break;
                                     }
                                     case 11:
                                     {
-                                        l_Tuulina->GetMotionMaster()->MovePoint(8, g_PositionTuulaniMovement08.GetPositionX(), g_PositionTuulaniMovement08.GetPositionY(), g_PositionTuulaniMovement08.GetPositionZ());
+                                        l_Tuulina->GetMotionMaster()->MovePoint(8, g_PositionTuulaniMovement8th.GetPositionX(), g_PositionTuulaniMovement8th.GetPositionY(), g_PositionTuulaniMovement8th.GetPositionZ());
                                         break;
                                     }
                                     case 12:
                                     {
                                         l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK6);
-                                        l_Tuulina->GetMotionMaster()->MovePoint(9, g_PositionTuulaniPreMovement03.GetPositionX(), g_PositionTuulaniMovement09.GetPositionY(), g_PositionTuulaniMovement09.GetPositionZ());
+                                        l_Tuulina->GetMotionMaster()->MovePoint(9, g_PositionTuulaniMovement9th.GetPositionX(), g_PositionTuulaniMovement9th.GetPositionY(), g_PositionTuulaniMovement9th.GetPositionZ());
                                         break;
                                     }
                                     case 13:
@@ -177,17 +173,109 @@ public:
                                 }
                             }
                         }
-                        return true;
+                       
                     }
                 }
             }
         }
+
+        return true;
     }
 
 private:
     Unit* m_Obj;
     int m_Modifier;
     int m_Event;
+};
+
+/// Clapping Event
+class ClappingEvent : public BasicEvent
+{
+public:
+    explicit ClappingEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    {
+    }
+
+    bool Execute(uint64 /*currTime*/, uint32 /*p_Diff*/)
+    {
+        if (m_Obj)
+        {
+            if (InstanceScript* l_Instance = m_Obj->GetInstanceScript())
+            {
+                switch (m_Modifier)
+                {
+                case 0:
+                    if (Player* nearest = m_Obj->FindNearestPlayer(50.0f, true))
+                    {
+                        m_Obj->SetFacingToObject(nearest);
+                        m_Obj->CastSpell(m_Obj, eAuchindonSpells::SpellApplaud);
+
+                        m_Obj->m_Events.AddEvent(new ClappingEvent(m_Obj, 1), m_Obj->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
+                    }
+                    break;
+                case 1:
+                {
+                    m_Obj->RemoveAllAuras();
+                    break;
+                }
+                }
+            }
+        }
+        return true;
+    }
+
+private:
+    Unit* m_Obj;
+    int m_Modifier;
+    int m_Event;
+};
+
+/// Arcane Bomb
+class ArcaneBombEvent : public BasicEvent
+{
+public:
+    explicit ArcaneBombEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    {
+    }
+
+    bool Execute(uint64 /*currTime*/, uint32 /*p_Diff*/)
+    {
+        if (m_Obj)
+        {
+            if (InstanceScript* m_Instance = m_Obj->GetInstanceScript())
+            {
+                switch (m_Modifier)
+                {
+                case 0:
+                    if (Creature* l_Nearest = m_Obj->FindNearestCreature(eAuchindonCreatures::CreatureArcaneBomb, 50.0f, true))
+                    {
+                        m_Obj->CastSpell(l_Nearest, eAuchindonSpells::SpellArcaneBombAreaTrigger);
+                        m_Obj->m_Events.AddEvent(new ArcaneBombEvent(m_Obj, 0), m_Obj->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
+                    }
+                    break;
+                }
+            }
+        }
+        return true;
+    }
+
+private:
+    Unit* m_Obj;
+    int m_Modifier;
+    int Event;
+};
+
+/// Talador Portal - 236689
+class gob_talador_portal : public GameObjectScript
+{
+public:
+    gob_talador_portal() : GameObjectScript("gob_talador_portal") { }
+
+    bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+    {
+        p_Player->TeleportTo(1116, 1488.52f, 3077.65f, 108.920f, 4.653427f);
+        return true;
+    }
 };
 
 /// Tuulani - 79248
@@ -202,43 +290,153 @@ public:
         {
             m_Instance = p_Creature->GetInstanceScript(); 
 
-            // Handles starting event.
             m_First = true;
         }
 
         InstanceScript* m_Instance;
-        bool m_StartEvent;
         bool m_First;
+        uint32 m_FirstDiff;
 
         void Reset() override
         {       
             events.Reset();
+
+            m_First = false;
+            m_FirstDiff = 4000;
+        }
+
+        void LaunchSpawning()
+        {
+            if (Creature* l_Teronogor = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataBossTeronogor)))
+            {
+                for (int32 i = 0; i <= 5; i++)
+                {
+                    if (Creature* l_Guard = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionGuards[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Guard->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 505);
+                        l_Guard->SetReactState(ReactStates::REACT_PASSIVE);
+                    }
+                }
+                // Auchindon Summon Clappers
+                for (int32 i = 0; i < 2; i++)
+                {
+                    if (Creature* l_Clapper = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionGuards2nd[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Clapper->m_Events.AddEvent(new ClappingEvent(l_Clapper, 0), l_Clapper->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
+                        l_Clapper->SetReactState(ReactStates::REACT_PASSIVE);
+                    }
+                }
+
+                // Cicrular Mobs - Magus
+                for (int32 i = 0; i < 3; i++)
+                {
+                    if (Creature* l_Magus = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionCircularMages[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Magus->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteHover);
+                        l_Magus->SetReactState(ReactStates::REACT_PASSIVE);
+                    }
+                }
+                // Cicrular Mobs - Priest
+                for (int32 i = 0; i < 2; i++)
+                {
+                    if (Creature* l_Priest = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniSoulPriest, g_PositionCircularPriests[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Priest->CastSpell(l_Priest, eAuchindonSpells::SpellKneel);
+                        l_Priest->SetReactState(ReactStates::REACT_PASSIVE);
+                    }
+                }
+                // Cicrular Mobs - Cleric
+                for (int32 i = 0; i < 2; i++)
+                {
+                    if (Creature* l_Cleric = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniCleric, g_PositionCircularHolies[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Cleric->CastSpell(l_Cleric, eAuchindonSpells::SpellKneel);
+                        l_Cleric->SetReactState(ReactStates::REACT_PASSIVE);
+                    }
+                }
+
+                // Hovering Magus near preacher
+                for (int32 i = 0; i < 2; i++)
+                {
+                    if (Creature* l_Magus = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionAuchenaiMagus2nd[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Magus->CastSpell(l_Magus, eAuchindonSpells::SpellKneel);
+                        l_Magus->SetReactState(ReactStates::REACT_PASSIVE);
+                    }
+                }
+                // Preacher near 2 magus             
+                if (Creature* l_Preacher = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniArbiter, g_PositionAuchenaiReader1st, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Preacher->CastSpell(l_Preacher, eAuchindonSpells::SpellKneel);
+                    l_Preacher->SetReactState(ReactStates::REACT_PASSIVE);
+                }
+
+                for (int32 i = 0; i < 4; i++)
+                {
+                    if (Creature* l_Vigilant = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniVigiliant, g_PositionAuchenaiVigilant[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Vigilant->CastSpell(l_Vigilant, eAuchindonSpells::SpellGuard);
+
+                        l_Vigilant->SetReactState(ReactStates::REACT_PASSIVE);
+                        l_Vigilant->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                        l_Vigilant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                        l_Vigilant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                    }
+                }
+                for (int32 i = 0; i < 2; i++)
+                {
+                    // Two Guarding Hopilite
+                    if (Creature* l_Hopilite = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniHoplite, g_PositionHopilliteGuardState[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                    {
+                        l_Hopilite->CastSpell(l_Hopilite, eAuchindonSpells::SpellGuard);
+                        l_Hopilite->SetReactState(ReactStates::REACT_PASSIVE);
+                    }
+                }
+                // Defender that reads near two guarding hopilite
+                if (Creature* l_Defender = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniDefender, g_PositionDefenderWhoReadsNearTwoHopilite, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Defender->SetReactState(ReactStates::REACT_PASSIVE);
+                    l_Defender->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteRead);
+                }
+                // Priest who meditates
+                if (Creature* l_Priest = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniSoulPriest, g_PositionSoulPriestWhoMeditates, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Priest->SetReactState(ReactStates::REACT_PASSIVE);
+                    l_Priest->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteHover);
+                }
+                // Magus who cast arcane bomb near hovering priest.
+                if (Creature* l_Mage = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionMagusWhoCastArcane, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Mage->SetReactState(ReactStates::REACT_PASSIVE);
+                    l_Mage->CastSpell(l_Mage, SpellArcaneChanneling);
+                    l_Mage->m_Events.AddEvent(new ArcaneBombEvent(l_Mage, 0), l_Mage->m_Events.CalculateTime(20 * TimeConstants::IN_MILLISECONDS));
+                }
+                // Magus who talk to defender
+                if (Creature* l_Magus = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionMagusWhoTalksToDefender, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_Magus->SetReactState(ReactStates::REACT_PASSIVE);
+                    l_Magus->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteTalk);
+                }
+                // Soul Priest who talks to defenders
+                if (Creature* l_SoulPriest = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniSoulPriest, g_PositionSoulPriestTalksToTwoDefender, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    l_SoulPriest->SetReactState(ReactStates::REACT_PASSIVE);
+                    l_SoulPriest->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eAuchindonSpells::SpellEmoteTalk);
+                }
+            }
         }
 
         void HandleTuulaniAtSpawn()
         {
-            if (m_First)
-            {
-                m_First = false;
+            LaunchSpawning();
 
-                me->setFaction(eAuchindonInformation::InformationFriendlyFaction);
-                Talk(eAuchindonTalk::TUULANITALK1);
-                me->SetSpeed(UnitMoveType::MOVE_RUN, 1.5f, true);
-                me->SetSpeed(UnitMoveType::MOVE_WALK, 1.5f, true);
-                me->GetMotionMaster()->MovePoint(0, g_PositionTuulaniPreMovement01.GetPositionX(), g_PositionTuulaniPreMovement01.GetPositionY(), g_PositionTuulaniPreMovement01.GetPositionZ());
+            me->setFaction(eAuchindonInformation::InformationFriendlyFaction);
+            Talk(eAuchindonTalk::TUULANITALK1);
+            me->SetSpeed(UnitMoveType::MOVE_RUN, 1.2f, true);
+            me->SetSpeed(UnitMoveType::MOVE_WALK, 1.2f, true);
+            me->GetMotionMaster()->MovePoint(0, g_PositionTuulaniPreMovement01st.GetPositionX(), g_PositionTuulaniPreMovement01st.GetPositionY(), g_PositionTuulaniPreMovement01st.GetPositionZ());
 
-                events.ScheduleEvent(eAuchindonEvents::EventBeginRp, 4 * TimeConstants::IN_MILLISECONDS);
-            }
-        }
-
-        void DoAction(int32 const p_Action) override
-        {
-            switch (p_Action)
-            {
-            case eAuchindonGeneralActions::ActionConfirmTuulaniEvent:
-                m_StartEvent = true;
-                break;
-            }
+            events.ScheduleEvent(eAuchindonEvents::EventBeginRp, 4 * TimeConstants::IN_MILLISECONDS);
         }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
@@ -246,14 +444,14 @@ public:
             switch (p_Id)
             {
                 case eAuchindonMovementInform::MovementInformTuulani01:
-                       me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 0), me->m_Events.CalculateTime(200));
-                       break;
+                    me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 0), me->m_Events.CalculateTime(1000));
+                    break;
                 case eAuchindonMovementInform::MovementInformTuulani02:
-                        me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 1), me->m_Events.CalculateTime(200));
+                        me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 1), me->m_Events.CalculateTime(1000));
                         break;
                 case eAuchindonMovementInform::MovementInformTuulani03:
-                        if (Creature* l_Guard = me->FindNearestCreature(eAuchindonCreatures::CreatureAucheniDefender, 10.0F, true))
-                            l_Guard->m_Events.AddEvent(new EventTuulaniIntroduction(l_Guard, 3), l_Guard->m_Events.CalculateTime(200));
+                    if (Creature* l_Guard = m_Instance->instance->GetCreature(m_Instance->GetData64(eDataAuchindonDatas::DataGuard)))
+                          l_Guard->m_Events.AddEvent(new EventTuulaniIntroduction(l_Guard, 3), l_Guard->m_Events.CalculateTime(200));
                         break;
                 case eAuchindonMovementInform::MovementInformTuulani04:
                         me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 5), me->m_Events.CalculateTime(200));
@@ -283,18 +481,16 @@ public:
         {
             events.Update(p_Diff);
 
-            if (!m_StartEvent)
+            if (!m_First)
             {
-                me->m_Events.AddEvent(new EventTuulaniIntroduction(me, 0), me->m_Events.CalculateTime(0));
-            }
+                if (m_FirstDiff <= p_Diff)
+                {
+                    m_First = true;
 
-            switch (events.ExecuteEvent())
-            {
-                case eAuchindonEvents::EventBeginRp:
-                        m_StartEvent = false;
-                        break;
-                    default:
-                        break;
+                    HandleTuulaniAtSpawn();
+                }
+                else
+                    m_FirstDiff -= p_Diff;
             }
         }
     };
@@ -457,7 +653,7 @@ public:
         {
             me->AddAura(eAuchindonSpells::SpellDarkFire, me);
 
-            if (Creature* l_Trigger = me->SummonCreature(100055, g_PositionKaatharCrystalPosition, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* l_Trigger = me->SummonCreature(eAuchindonCreatures::CreatureShadowBeam, g_PositionKaatharCrystalPosition, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
             {
                 me->CastSpell(l_Trigger, eAuchindonSpells::SpellShadowBeam); // bind triggers      
             }
@@ -465,6 +661,7 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
+            me->CastStop();
             me->RemoveAllAuras();
 
             events.ScheduleEvent(eAuchindonEvents::EventMindSpike, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
@@ -967,7 +1164,7 @@ public:
             {
                 if (m_FixatedTargetGUID != NULL)
                 {
-                    if (Unit* l_Target = sObjectAccessor->GetUnit(me*, m_FixatedTargetGUID))
+                    if (Unit* l_Target = sObjectAccessor->GetUnit(*me, m_FixatedTargetGUID))
                     {
                         me->AddThreat(l_Target, 500.0f);
                     }
@@ -1531,7 +1728,7 @@ public:
             targets.clear();
 
             std::list<Creature*> l_ListTriggerWall;
-            GetCaster()->GetCreatureListWithEntryInGrid(l_ListTriggerWall, , 15.0f);
+            GetCaster()->GetCreatureListWithEntryInGrid(l_ListTriggerWall, eAuchindonCreatures::CreatureLightWallTargets, 15.0f);
 
             if (l_ListTriggerWall.empty())
                 return;
@@ -1569,6 +1766,7 @@ public:
 
         bool Load()
         {
+            /*
             SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
             spell->Effects[0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
             spell->Effects[0].TargetB = 0;
@@ -1576,6 +1774,9 @@ public:
             spell->AttributesEx6 = 0;
             spell->AttributesEx5 = 0;
             spell->AttributesEx4 = 0;
+            return true;
+            */
+
             return true;
         }
 
@@ -1642,7 +1843,7 @@ public:
     {
     }
 
-    int m_Diff = 9 * TimeConstants::IN_MILLISECONDS;
+    uint32 m_Diff = 9 * TimeConstants::IN_MILLISECONDS;
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
     {
@@ -1699,4 +1900,5 @@ void AddSC_auchindoun()
     new auchindon_spell_fixate();
     new auchindon_spell_tuulani_unlock();
     new auchindon_spell_beam_cosmetic();
+    new gob_talador_portal();
 }
