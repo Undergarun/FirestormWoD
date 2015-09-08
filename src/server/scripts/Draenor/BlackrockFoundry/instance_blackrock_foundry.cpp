@@ -23,10 +23,18 @@ class instance_blackrock_foundry : public InstanceMapScript
 
         struct instance_blackrock_foundryMapScript : public InstanceScript
         {
-            instance_blackrock_foundryMapScript(Map* p_Map) : InstanceScript(p_Map) { }
+            instance_blackrock_foundryMapScript(Map* p_Map) : InstanceScript(p_Map)
+            {
+                m_GruulGuid             = 0;
+                m_PristineTrueIronOres  = 0;
+
+                m_OregorgerGuid         = 0;
+            }
 
             /// Slagworks
             uint64 m_GruulGuid;
+            uint8 m_PristineTrueIronOres;
+
             uint64 m_OregorgerGuid;
 
             void Initialize() override
@@ -97,6 +105,28 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                 switch (p_BossID)
                 {
+                    case eFoundryDatas::DataGruul:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                if (m_PristineTrueIronOres >= eFoundryDatas::MaxPristineTrueIronOres)
+                                    DoCompleteAchievement(eFoundryAchievements::TheIronPrince);
+
+                                break;
+                            }
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_PristineTrueIronOres = 0;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -108,6 +138,11 @@ class instance_blackrock_foundry : public InstanceMapScript
             {
                 switch (p_Type)
                 {
+                    case eFoundryDatas::PristineTrueIronOres:
+                    {
+                        ++m_PristineTrueIronOres;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -117,6 +152,8 @@ class instance_blackrock_foundry : public InstanceMapScript
             {
                 switch (p_Type)
                 {
+                    case eFoundryDatas::PristineTrueIronOres:
+                        return (uint32)m_PristineTrueIronOres;
                     default:
                         return 0;
                 }

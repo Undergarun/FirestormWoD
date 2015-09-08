@@ -584,9 +584,10 @@ class npc_foundry_slagshop_worker : public CreatureScript
     public:
         npc_foundry_slagshop_worker() : CreatureScript("npc_foundry_slagshop_worker") { }
 
-        enum eSpell
+        enum eSpells
         {
-            PunctureWound = 175987
+            PunctureWound   = 175987,
+            ThrowCoin       = 177475
         };
 
         enum eEvent
@@ -599,6 +600,11 @@ class npc_foundry_slagshop_worker : public CreatureScript
             TalkCosmetic
         };
 
+        enum eCreature
+        {
+            SlagshopBrute = 87780
+        };
+
         struct npc_foundry_slagshop_workerAI : public ScriptedAI
         {
             npc_foundry_slagshop_workerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -609,10 +615,15 @@ class npc_foundry_slagshop_worker : public CreatureScript
             {
                 m_Events.Reset();
 
-                AddTimedDelayedOperation(urand(1 * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::IN_MILLISECONDS), [this]() -> void
+                if (Creature* l_Brute = me->FindNearestCreature(eCreature::SlagshopBrute, 10.0f))
                 {
-                    Talk(eTalk::TalkCosmetic);
-                });
+                    AddTimedDelayedOperation(urand(1 * TimeConstants::IN_MILLISECONDS, 120 * TimeConstants::IN_MILLISECONDS), [this]() -> void
+                    {
+                        Talk(eTalk::TalkCosmetic);
+
+                        me->CastSpell(me, eSpells::ThrowCoin, true);
+                    });
+                }
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -626,6 +637,8 @@ class npc_foundry_slagshop_worker : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                UpdateOperations(p_Diff);
+
                 if (!UpdateVictim())
                     return;
 
@@ -639,7 +652,7 @@ class npc_foundry_slagshop_worker : public CreatureScript
                     case eEvent::EventPunctureWound:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpell::PunctureWound, true);
+                            me->CastSpell(l_Target, eSpells::PunctureWound, true);
 
                         m_Events.ScheduleEvent(eEvent::EventPunctureWound, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -653,9 +666,11 @@ class npc_foundry_slagshop_worker : public CreatureScript
 
             void LastOperationCalled() override
             {
-                AddTimedDelayedOperation(urand(1 * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::IN_MILLISECONDS), [this]() -> void
+                AddTimedDelayedOperation(urand(1 * TimeConstants::IN_MILLISECONDS, 120 * TimeConstants::IN_MILLISECONDS), [this]() -> void
                 {
                     Talk(eTalk::TalkCosmetic);
+
+                    me->CastSpell(me, eSpells::ThrowCoin, true);
                 });
             }
         };

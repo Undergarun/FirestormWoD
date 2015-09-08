@@ -22,6 +22,8 @@ class boss_gruul_foundry : public CreatureScript
             GruulBonus              = 177529,
             RageRegenerationDisable = 173204,
             RageRegenerationAura    = 155534,
+            ModScale95_120Pct       = 123978,
+            PristineOre             = 165186,
             /// Inferno Slice
             InfernoSlice            = 155080,
             InfernoStrike           = 162322,
@@ -62,9 +64,10 @@ class boss_gruul_foundry : public CreatureScript
             ActionPetrification
         };
 
-        enum eCreature
+        enum eCreatures
         {
-            TriggerCaveIn = 86596
+            TriggerCaveIn       = 86596,
+            PristineTrueIronOre = 82074
         };
 
         enum eTalks
@@ -116,6 +119,15 @@ class boss_gruul_foundry : public CreatureScript
                 _Reset();
 
                 m_PetrifiedTargets.clear();
+
+                std::list<Creature*> l_TrueIronOres;
+                me->GetCreatureListWithEntryInGrid(l_TrueIronOres, eCreatures::PristineTrueIronOre, 100.0f);
+
+                for (Creature* l_IronOre : l_TrueIronOres)
+                {
+                    l_IronOre->CastSpell(me, eSpells::ModScale95_120Pct, true);
+                    l_IronOre->CastSpell(me, eSpells::PristineOre, true);
+                }
             }
 
             bool CanRespawn() override
@@ -396,7 +408,7 @@ class boss_gruul_foundry : public CreatureScript
                     case eEvents::EventCaveIn:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
-                            me->SummonCreature(eCreature::TriggerCaveIn, *l_Target);
+                            me->SummonCreature(eCreatures::TriggerCaveIn, *l_Target);
 
                         m_Events.ScheduleEvent(eEvents::EventCaveIn, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -495,6 +507,60 @@ class npc_foundry_cave_in : public CreatureScript
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_foundry_cave_inAI(p_Creature);
+        }
+};
+
+/// Pristine True Iron Ore - 82074
+class npc_foundry_pristine_true_iron_ore : public CreatureScript
+{
+    public:
+        npc_foundry_pristine_true_iron_ore() : CreatureScript("npc_foundry_pristine_true_iron_ore") { }
+
+        enum eSpells
+        {
+            ModScale95_120Pct   = 123978,
+            PristineOre         = 165186
+        };
+
+        struct npc_foundry_pristine_true_iron_oreAI : public MS::AI::CosmeticAI
+        {
+            npc_foundry_pristine_true_iron_oreAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+                m_Clicked  = false;
+            }
+
+            InstanceScript* m_Instance;
+
+            bool m_Clicked;
+
+            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            {
+                if (p_SpellInfo->Id == eSpells::PristineOre)
+                {
+                    m_Clicked = false;
+
+                    me->SetFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
+                }
+            }
+
+            void OnSpellClick(Unit* p_Clicker) override
+            {
+                if (m_Instance != nullptr && !m_Clicked)
+                {
+                    m_Clicked = true;
+
+                    m_Instance->SetData(eFoundryDatas::PristineTrueIronOres, 1);
+
+                    me->RemoveAura(eSpells::ModScale95_120Pct);
+                    me->RemoveAura(eSpells::PristineOre);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_pristine_true_iron_oreAI(p_Creature);
         }
 };
 
@@ -788,6 +854,7 @@ void AddSC_boss_gruul_foundry()
 
     /// NPCs
     new npc_foundry_cave_in();
+    new npc_foundry_pristine_true_iron_ore();
 
     /// Spells
     new spell_foundry_rage_regeneration();

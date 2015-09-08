@@ -91,6 +91,7 @@ enum eFoundryGameObjects
 
 enum eFoundryDatas
 {
+    /// Bosses
     DataGruul,
     DataOregorger,
     DataBlastFurnace,
@@ -101,12 +102,23 @@ enum eFoundryDatas
     DataOperatorThogar,
     DataIronMaidens,
     DataBlackhand,
-    MaxBossData
+    MaxBossData,
+
+    /// Misc
+    PristineTrueIronOres    = 0,
+
+    /// Counters
+    MaxPristineTrueIronOres = 3
 };
 
 enum eFoundrySpells
 {
     Berserker = 26662
+};
+
+enum eFoundryAchievements
+{
+    TheIronPrince = 8978
 };
 
 #endif
