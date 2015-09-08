@@ -3205,7 +3205,10 @@ void Player::RegenerateAll()
                 m_holyPowerRegenTimerCount = 0;
             break;
         case Classes::CLASS_MONK:
-            m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            if (!isInCombat())
+                m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            else
+                m_holyPowerRegenTimerCount = 0;
             break;
         case Classes::CLASS_HUNTER:
             m_focusRegenTimerCount += m_RegenPowerTimer;
