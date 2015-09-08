@@ -2605,7 +2605,7 @@ class spell_warr_heroic_strike : public SpellScriptLoader
 
 /// last update : 6.1.2 19802
 /// Call by Commanding Shout - 469, Battle Shout - 6673
-/// Glyph of Mystic Shout - 58095
+/// Glyph of Mystic Shout - 58095, Glyph of Bloodcurdling Shout - 58096
 class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
 {
     public:
@@ -2618,7 +2618,9 @@ class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
             enum eSpells
             {
                 GlyphofMystucShout = 58095,
-                GlyphofMystucShoutAura = 121186
+                GlyphofMystucShoutAura = 121186,
+                GlyphofBloodcurdlingShout = 58096,
+                GlyphofBloodcurdlingShoutAura = 23690
             };
 
             void HandleOnCast()
@@ -2628,6 +2630,8 @@ class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
+                if (l_Player->HasGlyph(eSpells::GlyphofBloodcurdlingShout))
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofBloodcurdlingShoutAura, true);
                 if (l_Player->HasGlyph(eSpells::GlyphofMystucShout))
                     l_Player->CastSpell(l_Player, eSpells::GlyphofMystucShoutAura, true);
             }
