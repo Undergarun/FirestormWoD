@@ -8,6 +8,8 @@
 #ifndef GARRISON_BUILDING_HPP_GARRISON
 #define GARRISON_BUILDING_HPP_GARRISON
 
+#include <string>
+
 namespace MS { namespace Garrison 
 {
     /// Garrison building
@@ -19,6 +21,8 @@ namespace MS { namespace Garrison
         uint32 SpecID;          ///< Building spec ID
         uint32 TimeBuiltStart;  ///< Time built start
         uint32 TimeBuiltEnd;    ///< Time build end
+
+        std::string GatheringData;  ///< Building gathering data
 
         bool Active;            ///< Is building active
         bool BuiltNotified;     ///< Is built notified

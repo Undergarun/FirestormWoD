@@ -3630,12 +3630,12 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
 {
     PlayerConditionEntry const* l_Entry = sPlayerConditionStore.LookupEntry(p_ConditionsID);
 
-    if (!l_Entry)
+    if (!l_Entry && !sScriptMgr->HasPlayerConditionScript(p_ConditionsID))
         return std::pair<bool, std::string>(false, "Condition entry not found");
 
     if (sScriptMgr->HasPlayerConditionScript(p_ConditionsID))
     {
-        if (!sScriptMgr->EvalPlayerConditionScript(l_Entry, this))
+        if (!sScriptMgr->EvalPlayerConditionScript(p_ConditionsID, l_Entry, this))
             return std::pair<bool, std::string>(false, "Condition script failed");
 
         return std::pair<bool, std::string>(true, "");

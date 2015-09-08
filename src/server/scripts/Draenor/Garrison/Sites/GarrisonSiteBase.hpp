@@ -46,6 +46,9 @@ namespace MS { namespace Garrison { namespace Sites
             /// @p_Player : Entered player instance
             void OnPlayerEnter(Player* p_Player) override;
 
+            /// Get owner player instance
+            Player* GetOwner();
+
         public:
             /// When the owner enter in the garrison
             /// @p_Owner : Owner instance
