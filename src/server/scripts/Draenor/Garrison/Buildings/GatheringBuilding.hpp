@@ -12,7 +12,7 @@
 #include "../GarrisonNPC.hpp"
 #include "GarrisonMgr.hpp"
 #include "SharedDefines.h"
-#include "../../Sites/GarrisonSiteBase.hpp"
+#include "../Sites/GarrisonSiteBase.hpp"
 
 namespace MS { namespace Garrison 
 {
