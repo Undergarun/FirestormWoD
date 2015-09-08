@@ -3199,7 +3199,10 @@ void Player::RegenerateAll()
     switch (l_Class)
     {
         case Classes::CLASS_PALADIN:
-            m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            if (!isInCombat())
+                m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            else
+                m_holyPowerRegenTimerCount = 0;
             break;
         case Classes::CLASS_MONK:
             m_chiPowerRegenTimerCount += m_RegenPowerTimer;
