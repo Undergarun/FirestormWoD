@@ -3590,7 +3590,7 @@ void Player::ResetAllPowers()
     SetPower(POWER_RAGE, 0);
     SetPower(POWER_RUNIC_POWER, 0);
     SetPower(POWER_SHADOW_ORB, 0);
-    SetPower(POWER_SOUL_SHARDS, 100);
+    SetPower(POWER_SOUL_SHARDS, 400);
 }
 
 bool Player::CanInteractWithQuestGiver(Object* questGiver)
