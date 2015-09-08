@@ -5070,7 +5070,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     return false;
 }
 
-bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool p_IsMountFavorite)
+bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool p_IsMountFavorite, bool p_LearnBattlePet)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -5356,7 +5356,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     }
 
     // Add BattlePet
-    if (learning && !dependent)
+    if (learning && !dependent && p_LearnBattlePet)
     {
         for (uint32 speciesId = 0; speciesId != sBattlePetSpeciesStore.GetNumRows(); ++speciesId)
         {
@@ -32990,6 +32990,10 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 
             l_AlreadyKnownPet.push_back(m_BattlePets[l_PetID]->Species);
 
+            BattlePetSpeciesEntry const* l_SpeciesEntry = sBattlePetSpeciesStore.LookupEntry(m_BattlePets[l_PetID]->Species);
+            if (l_SpeciesEntry != nullptr && !HasSpell(l_SpeciesEntry->spellId))
+                addSpell(l_SpeciesEntry->spellId, true, true, false, false, false, false, false);
+
             ++l_PetID;
         } while (p_Result->NextRow());
     }
@@ -33034,7 +33038,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 
         l_BattlePet.AddToPlayer(this);
 
-        removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
+        //removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
     }
 
     m_OldPetBattleSpellToMerge.clear();
