@@ -1007,9 +1007,9 @@ class spell_dk_plague_leech: public SpellScriptLoader
                 if (m_LstRunesUsed.size() < 2)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (l_Player->HasSpell(eSpells::NecroticPlague) && !l_Target->HasAura(eSpells::NecroticPlagueAura, l_Player->GetGUID()))
+                if (l_Player->HasAura(eSpells::NecroticPlague) && !l_Target->HasAura(eSpells::NecroticPlagueAura, l_Player->GetGUID()))
                     return SPELL_FAILED_DONT_REPORT;
-                else if (!l_Target->HasAura(eSpells::BloodPlague, l_Player->GetGUID()) || !l_Target->HasAura(eSpells::FrostEver, l_Player->GetGUID()))
+                else if (!l_Player->HasAura(eSpells::NecroticPlague) && (!l_Target->HasAura(eSpells::BloodPlague, l_Player->GetGUID()) || !l_Target->HasAura(eSpells::FrostEver, l_Player->GetGUID())))
                     return SPELL_FAILED_DONT_REPORT;
 
                 return SPELL_CAST_OK;
