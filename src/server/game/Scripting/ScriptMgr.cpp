@@ -2310,20 +2310,17 @@ bool ScriptMgr::HasPlayerConditionScript(uint32 p_ID)
 }
 
 /// Eval a player condition script
-/// @p_Condition : Condition
-/// @p_Player    : Player instance
-bool ScriptMgr::EvalPlayerConditionScript(PlayerConditionEntry const* p_Condition, Player* p_Player)
+/// @p_ConditionID : Condition ID
+/// @p_Condition   : Condition
+/// @p_Player      : Player instance
+bool ScriptMgr::EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player)
 {
-    if (!p_Condition)
-        return false;
-
-    uint32 l_ConditionID = p_Condition->ID;
-    auto l_Script = m_PlayerConditionScripts.Find(l_ConditionID);
+    auto l_Script = m_PlayerConditionScripts.Find(p_ConditionID);
 
     if (!l_Script)
         return false;
 
-    return l_Script->OnConditionCheck(p_Condition, p_Player);
+    return l_Script->OnConditionCheck(p_ConditionID, p_Condition, p_Player);
 }
 
 //////////////////////////////////////////////////////////////////////////

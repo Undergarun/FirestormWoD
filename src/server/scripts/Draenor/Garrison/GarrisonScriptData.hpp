@@ -104,7 +104,8 @@ namespace MS { namespace Garrison
         NPC_ASSISTANT_BRIGHTSTONE                       = 84455,
         NPC_SKAGGIT                                     = 80225,
         NPC_ARCHER                                      = 87518,
-        Marksman                                        = 88391
+        Marksman                                        = 88391,
+        LunarfallRaccoon                                = 85341
     };
 
     /// NPC texts id

@@ -2555,6 +2555,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
     uint32 lockId = 0;
     uint64 guid = 0;
+    bool l_OverridePlayerCondition = false;
 
     // Get lockId
     if (gameObjTarget)
@@ -2602,6 +2603,10 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
         lockId = goInfo->GetLockId();
         guid = gameObjTarget->GetGUID();
+
+        GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(gameObjTarget->GetEntry());
+        if (l_Template && l_Template->chest.conditionID1 && m_caster->ToPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
+            l_OverridePlayerCondition = true;
     }
     else if (itemTarget)
     {
@@ -2616,7 +2621,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     int32 skillValue;
 
     SpellCastResult res = CanOpenLock(effIndex, lockId, skillId, reqSkillValue, skillValue);
-    if (res != SPELL_CAST_OK)
+    if (res != SPELL_CAST_OK && !l_OverridePlayerCondition)
     {
         SendCastResult(res);
         return;
