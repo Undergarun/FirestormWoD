@@ -21413,6 +21413,8 @@ void Unit::SetFacingTo(float ori)
         init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
     init.SetFacing(ori);
     init.Launch();
+
+    SetOrientation(ori);
 }
 
 void Unit::SetFacingToObject(WorldObject* object)

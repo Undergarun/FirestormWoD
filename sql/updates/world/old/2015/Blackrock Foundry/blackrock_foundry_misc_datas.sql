@@ -15,7 +15,7 @@ INSERT INTO areatrigger_teleport VALUE
 (10241, 'Blackrock Foundry - Entrance', 1205, 131.171875, 3429.481, 319.8291, 0.00135),
 (10242, 'Blackrock Foundry - Exit Target', 1116, 8074.5845, 859.86652, 34.3671, 2.8979);
 
-DELETE FROM spell_script_names WHERE spell_id IN (175624, 175644, 175752, 175088, 169402, 155534, 155080);
+DELETE FROM spell_script_names WHERE spell_id IN (175624, 175644, 175752, 175088, 169402, 155534, 155080, 173191, 155323, 155301);
 INSERT INTO spell_script_names VALUES
 (175624, 'spell_foundry_grievous_mortal_wounds'),
 (175644, 'spell_foundry_spinning_blade'),
@@ -23,7 +23,10 @@ INSERT INTO spell_script_names VALUES
 (175088, 'spell_foundry_animate_slag'),
 (169402, 'spell_foundry_gronnling_smash'),
 (155534, 'spell_foundry_rage_regeneration'),
-(155080, 'spell_foundry_inferno_slice');
+(155080, 'spell_foundry_inferno_slice'),
+(173191, 'spell_foundry_cave_in'),
+(155323, 'spell_foundry_petrifying_slam'),
+(155301, 'spell_foundry_overhead_smash');
 
 DELETE FROM areatrigger_template WHERE spell_id IN (175644);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags) VALUES
