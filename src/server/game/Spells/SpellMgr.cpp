@@ -2889,6 +2889,14 @@ void SpellMgr::LoadSpellClassInfo()
         if (!classEntry)
             continue;
 
+        // Player damage reduction (72% base resilience)
+        mSpellClassInfo[ClassID].insert(115043);
+        mSpellClassInfo[ClassID].insert(142689);
+        // Player mastery activation
+        mSpellClassInfo[ClassID].insert(114585);
+        // Battle Fatigue
+        mSpellClassInfo[ClassID].insert(134732);
+
         // Opening gameobject
         if (l_ClassID == CLASS_MONK)
         {
