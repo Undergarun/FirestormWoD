@@ -3060,7 +3060,7 @@ class spell_monk_disable : public SpellScriptLoader
                 Unit* l_Target = GetCaster()->getVictim();
 
                 if (l_Target == nullptr)
-                    return;
+                    return SPELL_FAILED_BAD_TARGETS;
 
                 if (l_Target->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
                     m_SnaredOnHit = true;
