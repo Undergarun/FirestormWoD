@@ -3037,8 +3037,9 @@ class spell_monk_soothing_mist: public SpellScriptLoader
         }
 };
 
-// Disable - 116095
-class spell_monk_disable: public SpellScriptLoader
+/// last update : 6.1.2 19802
+/// Disable - 116095
+class spell_monk_disable : public SpellScriptLoader
 {
     public:
         spell_monk_disable() : SpellScriptLoader("spell_monk_disable") { }
@@ -3047,27 +3048,36 @@ class spell_monk_disable: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_disable_SpellScript);
 
-            bool snaredOnHit;
+            enum eSpells
+            {
+                DisableRootAura = 116706
+            };
+
+            bool m_SnaredOnHit = false;
 
             SpellCastResult CheckCast()
             {
-                snaredOnHit = false;
+                Unit* l_Target = GetCaster()->getVictim();
 
-                if (GetCaster())
-                    if (Unit* target = GetCaster()->getVictim())
-                        if (target->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
-                            snaredOnHit = true;
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
+                    m_SnaredOnHit = true;
 
                 return SPELL_CAST_OK;
             }
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    if (Player* _player = caster->ToPlayer())
-                        if (Unit* target = GetHitUnit())
-                            if (snaredOnHit)
-                                _player->CastSpell(target, SPELL_MONK_DISABLE_ROOT, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (m_SnaredOnHit)
+                    l_Caster->CastSpell(l_Target, eSpells::DisableRootAura, true);
             }
 
             void Register()
@@ -3080,33 +3090,6 @@ class spell_monk_disable: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_disable_SpellScript();
-        }
-
-        class spell_monk_disable_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_monk_disable_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetTarget())
-                    {
-                        if (target->GetDistance(caster) < 10.0f)
-                            aurEff->GetBase()->RefreshDuration();
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_disable_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_monk_disable_AuraScript();
         }
 };
 
