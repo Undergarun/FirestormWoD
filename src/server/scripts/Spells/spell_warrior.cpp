@@ -1964,7 +1964,7 @@ class spell_warr_rend : public SpellScriptLoader
         }
 };
 
-/// Blood Bath - 12292
+/// BloodBath - 12292
 class spell_warr_blood_bath : public SpellScriptLoader
 {
     public:
@@ -2001,7 +2001,7 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 if (l_SpellInfo == nullptr || l_SpellInfoDamage == nullptr)
                     return;
 
-                int32 l_Damage = (p_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100;
+                int32 l_Damage = CalculatePct(p_ProcInfo.GetDamageInfo()->GetDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
 
                 int32 l_PreviousTotalDamage = 0;
 
@@ -2023,10 +2023,15 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 l_Damage += l_PreviousTotalDamage;
 
                 l_Caster->CastSpell(l_Target, eSpells::BloodBathSnare, true);
-                l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage, true);
-
-                if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
-                    l_BloodbathActual->SetAmount(l_Damage);
+                if (l_Target->HasAura(eSpells::BloodBathDamage))
+                {
+                    if (AuraPtr l_ActualBloodBath = l_Caster->GetAura(eSpells::BloodBathDamage))
+                        l_ActualBloodBath->SetDuration(l_ActualBloodBath->GetMaxDuration());
+                }
+                else
+                    l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage);
+                if (AuraEffectPtr l_NewBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
+                    l_NewBloodBath->SetAmount(l_Damage);
             }
 
             void Register()
@@ -2695,6 +2700,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_die_by_the_sword();
     new spell_warr_single_minded_fury();
     new spell_warr_activate_battle_stance();
+    new spell_warr_blood_bath();
 
     /// Playerscripts
     new PlayerScript_second_wind();
