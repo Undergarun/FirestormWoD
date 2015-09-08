@@ -2023,9 +2023,9 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 l_Damage += l_PreviousTotalDamage;
 
                 l_Caster->CastSpell(l_Target, eSpells::BloodBathSnare, true);
-                if (l_Target->HasAura(eSpells::BloodBathDamage))
+                if (l_Target->HasAura(eSpells::BloodBathDamage, l_Caster->GetGUID()))
                 {
-                    if (AuraPtr l_ActualBloodBath = l_Caster->GetAura(eSpells::BloodBathDamage))
+                    if (AuraPtr l_ActualBloodBath = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID()))
                         l_ActualBloodBath->SetDuration(l_ActualBloodBath->GetMaxDuration());
                 }
                 else
@@ -2700,7 +2700,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_die_by_the_sword();
     new spell_warr_single_minded_fury();
     new spell_warr_activate_battle_stance();
-    new spell_warr_blood_bath();
 
     /// Playerscripts
     new PlayerScript_second_wind();
