@@ -104,10 +104,14 @@ class boss_gruul_foundry : public CreatureScript
 
             void Reset() override
             {
+                ClearDelayedOperations();
+
                 m_Events.Reset();
                 m_CosmeticEvents.Reset();
 
                 summons.DespawnAll();
+
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
                 me->RemoveAura(eFoundrySpells::Berserker);
                 me->RemoveAura(eSpells::RageRegenerationAura);
@@ -817,6 +821,52 @@ class spell_foundry_cave_in : public SpellScriptLoader
         }
 };
 
+/// Petrifying Slam - 155326
+class spell_foundry_petrifying_slam_aoe : public SpellScriptLoader
+{
+    public:
+        spell_foundry_petrifying_slam_aoe() : SpellScriptLoader("spell_foundry_petrifying_slam_aoe") { }
+
+        class spell_foundry_petrifying_slam_aoe_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_petrifying_slam_aoe_SpellScript);
+
+            bool Load() override
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    std::list<HostileReference*> l_ThreatList = l_Caster->getThreatManager().getThreatList();
+                    uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this, l_Caster](HostileReference* p_HostileRef) -> bool
+                    {
+                        Unit* l_Unit = Unit::GetUnit(*l_Caster, p_HostileRef->getUnitGuid());
+                        if (l_Unit == nullptr)
+                            return false;
+
+                        if (l_Unit->GetTypeId() != TypeID::TYPEID_PLAYER)
+                            return false;
+
+                        if (!l_Unit->isAlive())
+                            return false;
+
+                        return true;
+                    });
+
+                    GetSpell()->SetSpellValue(SpellValueMod::SPELLVALUE_MAX_TARGETS, int32(l_Count / 3));
+                    return true;
+                }
+                else
+                    return false;
+            }
+
+            void Register() override { }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_petrifying_slam_aoe_SpellScript();
+        }
+};
+
 /// Petrifying Slam - 155323
 class spell_foundry_petrifying_slam : public SpellScriptLoader
 {
@@ -940,6 +990,7 @@ void AddSC_boss_gruul_foundry()
     new spell_foundry_rage_regeneration();
     new spell_foundry_inferno_slice();
     new spell_foundry_cave_in();
+    new spell_foundry_petrifying_slam_aoe();
     new spell_foundry_petrifying_slam();
     new spell_foundry_overhead_smash();
 }

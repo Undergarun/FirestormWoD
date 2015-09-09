@@ -9,17 +9,17 @@
 
 enum eEverbloomData
 {
-    DataWitherbark       = 500,
-    DataLifeWardenGola   = 501,
-    DataEarthshaperTelu  = 502,
-    DataDulhu            = 503,
-    DataXeritac          = 504,
-    DataArchmageSol      = 505,
-    DataRpYalnu          = 506,
-    DataYalnu            = 507,
-    DataRpMage           = 508,
-    DataObjectVineWall   = 509,
-    DataObjectWebDoor    = 510,
+    DataWitherbark       = 1,
+    DataLifeWardenGola,
+    DataEarthshaperTelu,
+    DataDulhu,
+    DataXeritac,
+    DataArchmageSol,
+    DataRpYalnu,
+    DataYalnu,
+    DataRpMage,
+    DataObjectVineWall,
+    DataObjectWebDoor
 };
 
 enum eEverbloomBosses
@@ -30,13 +30,13 @@ enum eEverbloomBosses
     BossDulhu            = 83894,
     BossXeritac          = 84550,
     BossArchmageSol      = 82682,
-    BossYalnu            = 83846,
+    BossYalnu            = 83846
 };
 
 enum eEverbloomGameObjects
 {
     ObjectVineWall       = 235363,
-    ObjectWebDoor        = 195485,
+    ObjectWebDoor        = 195485
 };
 
 enum eEverbloomCreature
@@ -65,7 +65,7 @@ enum eEverbloomCreature
   
     // Witherbark
     CreatureEnchanctedWater        = 88862,
-    CreatureGlobuleWater = 81821,
+    CreatureGlobuleWater           = 81821,
 
     // Role Playing
     CreatureRpYalnu                = 84336,
@@ -78,42 +78,42 @@ enum eEverbloomCreature
     CreatureLadyBayeu              = 84358,
     TriggerTenderBeamTrigger       = 84677,
     TriggerLivingLeaves            = 324266,
-    TriggerFrozenSnap              = 321432,
+    TriggerFrozenSnap              = 321432
 };
 
 enum eEverbloomEvents
 {
     EventDreadpetalToxin    = 1,
-    EventBarrageOfLeaves    = 2,
-    EventDancingThorns      = 3,
-    EventEnragedGrowth      = 4,
-    EventVileBreath         = 5,
-    EventEnrage             = 6,
-    EventBoundingWhirl      = 7,
-    EventGasp               = 8,
-    EventVirulendGasp       = 9,
-    EventChokingVines       = 10,
-    EventHealingWaters      = 11,
-    EventInfectedWounds     = 12,
-    EventNoxiousEruption    = 13,
-    EventSporeBreath        = 14,
-    EventToxicBlood         = 15,
-    EventToxicity           = 16,
-    EventVenomSpray         = 17,
-    EventFrostbolt          = 18,
-    EventFrozenSnap         = 19,
-    EvertAraceBlast         = 20,
-    EventDragonsBreath      = 21,
-    EventFireBall           = 22,
-    EventTendonRip          = 23,
-    EventLasherVenom        = 24,
-    EventArcaneBlast        = 25,
-    EventArcaneOrb          = 26,
-    EventFireball           = 27,
-    EventFlamestike         = 28,
-    EventIceComet           = 29,
-    EventPoisonousClaws     = 30,
-    EventBoundingWhirl2     = 31,
+    EventDancingThorns,
+    EventEnragedGrowth,
+    EventVileBreath,
+    EventEnrage,
+    EventBoundingWhirl,
+    EventGasp,
+    EventVirulendGasp,
+    EventChokingVines,
+    EventHealingWaters,
+    EventInfectedWounds,
+    EventNoxiousEruption,
+    EventSporeBreath,
+    EventToxicBlood,
+    EventToxicity,
+    EventVenomSpray,
+    EventFrostbolt,
+    EventFrozenSnap,
+    EvertAraceBlast,
+    EventDragonsBreath,
+    EventFireBall,
+    EventTendonRip,
+    EventLasherVenom,
+    EventArcaneBlast,
+    EventArcaneOrb,
+    EventFireball,
+    EventFlamestike,
+    EventIceComet,
+    EventPoisonousClaws,
+    EventBoundingWhirl2,
+    EventBarrageOfLeaves = 100,
 };
 
 enum eEverbloomSpells
@@ -171,7 +171,7 @@ enum eEverbloomSpells
     SpellCosmeticRoot            = 164715,
     SpellVisualSolArcaneBeam     = 170146,
     SpellSubmerge                = 175123,
-    SpellNaturesChanneling       = 164850,
+    SpellNaturesChanneling       = 164850
 };
 
 enum eEverbloomActions
@@ -179,7 +179,7 @@ enum eEverbloomActions
     ActionCountPre1StBossKill = 1,
     ActionCounting            = 2,
     ActionYalnuEvent          = 3,
-    ActionBoundingWhirlAura   = 4,
+    ActionBoundingWhirlAura   = 4
 };
 
 enum eEverbloomAchievements
@@ -187,5 +187,5 @@ enum eEverbloomAchievements
     AchievementTheEverbloomNormal = 9044,
     AchivementTheEverbloomHeroic  = 9053,
     AchivementWeedWhacker         = 9223,
-    AchivementWaterManagement     = 9017,
+    AchivementWaterManagement     = 9017
 };
