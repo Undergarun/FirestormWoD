@@ -2889,6 +2889,14 @@ void SpellMgr::LoadSpellClassInfo()
         if (!classEntry)
             continue;
 
+        // Player damage reduction (72% base resilience)
+        mSpellClassInfo[l_ClassID].insert(115043);
+        mSpellClassInfo[l_ClassID].insert(142689);
+        // Player mastery activation
+        mSpellClassInfo[l_ClassID].insert(114585);
+        // Battle Fatigue
+        mSpellClassInfo[l_ClassID].insert(134732);
+
         // Opening gameobject
         if (l_ClassID == CLASS_MONK)
         {
@@ -3485,6 +3493,22 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
+                /// Auchindon
+            case 156862: ///< Drain Soul Cosmetic
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 169682: ///< Azakkel visual pillar
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                break;
+            case 153775: ///< Summon Imp
+            case 164127: ///< Summon Pyromaniac
+            case 164080: ///< Summon FelGuard
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(10); ///< from 15.0f (RangeEntry.ID 11) to 40.0f
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 153430: ///< Areatrigger Damage
+                spellInfo->Effects[0].Amplitude = 2000;
             case 119975: ///< Conversion
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 break;
@@ -5826,7 +5850,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 60206: ///< Ram
                 spellInfo->Effects[2].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
                 break;
-            case 70890:  ///< Scourge Strike triggered part
             case 96172:  ///< Hand of Light
             case 101085: ///< Wrath of Tarecgosa
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;

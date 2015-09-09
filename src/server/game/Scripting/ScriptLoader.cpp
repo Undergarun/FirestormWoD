@@ -892,9 +892,9 @@ void AddSC_boss_blackhand();
 
 /// Auchindon
 void AddSC_instance_auchindon();
-void AddSC_AuchindounNEW();
+void AddSC_auchindoun();
 void AddSC_kaathar();
-void AddSC_Nyami();
+void AddSC_nyami();
 void AddSC_azzakel();
 void AddSC_teronogoer();
 
@@ -1853,9 +1853,9 @@ void AddDraenorScripts()
 
     /// Auchindoun
     AddSC_instance_auchindon();
-    AddSC_AuchindounNEW();
+    AddSC_auchindoun();
     AddSC_kaathar();
-    AddSC_Nyami();
+    AddSC_nyami();
     AddSC_azzakel();
     AddSC_teronogoer();
 

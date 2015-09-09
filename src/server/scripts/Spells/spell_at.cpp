@@ -1162,6 +1162,77 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
         }
 };
 
+/// Chi burst - 123986
+class spell_at_monk_chi_burst : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_monk_chi_burst() : AreaTriggerEntityScript("spell_at_monk_chi_burst") { }
+
+        enum eSpells
+        {
+            SerpentsWise = 115070,
+            FierceTiger = 103985,
+            ChiBurstDamage = 148135,
+            ChiBurstHeal = 130654
+        };
+
+        std::list<uint64> m_UnitGUIDList;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 3.0f;
+
+            JadeCore::AnyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            float l_DmgMult = l_Player->HasSpell(eSpells::FierceTiger) ? 1.2f : 1.0f;
+            float l_HealMult = l_Player->HasSpell(eSpells::SerpentsWise) ? 1.2f : 1.0f;
+
+            int32 l_Damage = sSpellMgr->GetSpellInfo(eSpells::ChiBurstDamage)->Effects[EFFECT_0].BasePoints + l_DmgMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
+            int32 l_Healing = sSpellMgr->GetSpellInfo(eSpells::ChiBurstHeal)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
+
+            std::list<uint64> l_UnitGUIDList = m_UnitGUIDList;
+            l_TargetList.remove_if([this, l_Caster, l_UnitGUIDList](Unit* p_Unit) -> bool
+            {
+                if (p_Unit == nullptr || p_Unit->GetGUID() == l_Caster->GetGUID())
+                    return true;
+
+                if (!(std::find(l_UnitGUIDList.begin(), l_UnitGUIDList.end(), p_Unit->GetGUID()) == l_UnitGUIDList.end()))
+                    return true;
+
+                return false;
+            });
+
+            for (Unit* l_Target : l_TargetList)
+            {
+                if (l_Target->IsFriendlyTo(l_Caster))
+                    l_Player->CastCustomSpell(l_Target, eSpells::ChiBurstHeal, &l_Healing, NULL, NULL, true);
+                else
+                    l_Player->CastCustomSpell(l_Target, eSpells::ChiBurstDamage, &l_Damage, NULL, NULL, true);
+
+                m_UnitGUIDList.push_back(l_Target->GetGUID());
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_monk_chi_burst();
+        }
+};
+
+
 void AddSC_areatrigger_spell_scripts()
 {
     /// Deathknight Area Trigger
@@ -1192,6 +1263,7 @@ void AddSC_areatrigger_spell_scripts()
     new spell_at_monk_afterlife_healing_sphere();
     new spell_at_monk_chi_sphere_afterlife();
     new spell_at_monk_gift_of_the_ox();
+    new spell_at_monk_chi_burst();
 
     /// Priest Area Trigger
     new spell_at_pri_divine_star();

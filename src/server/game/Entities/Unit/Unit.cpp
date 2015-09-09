@@ -13261,27 +13261,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             if (AuraEffectPtr shadowInfusion = stacks->GetEffect(0))
                 DoneTotalMod += CalculatePct(1.0, shadowInfusion->GetAmount());
 
-    bool weaponAttack = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (!spellProto)
-            break;
-
-        switch (spellProto->Effects[i].Effect)
-        {
-            case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-            case SPELL_EFFECT_WEAPON_DAMAGE:
-            case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-                weaponAttack = true;
-                break;
-            default:
-                break;
-        }
-    }
-
-    // Some spells don't benefit from pct done mods
-    if (spellProto && !weaponAttack)
+    if (spellProto)
     {
         if (!(spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
         {
@@ -19852,7 +19832,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             if (getRace() == RACE_NIGHTELF)
             {
                 if (clawsOfShirvallah)
-                    return 55887; // Panther
+                    return 59268; // Panther
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
@@ -19900,7 +19880,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_TROLL)
             {
                 if (clawsOfShirvallah)
-                    return 55889; // Tiger
+                    return 59270; // Tiger
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
@@ -19950,7 +19930,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_WORGEN)
             {
                 if (clawsOfShirvallah)
-                    return 55888; // Snowleopard
+                    return 59269; // Snowleopard
 
                 // Based on Skin color
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
@@ -20048,7 +20028,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_TAUREN)
             {
                 if (clawsOfShirvallah)
-                    return 55886; // Lion
+                    return 59267; // Lion
 
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
                 // Male

@@ -917,9 +917,10 @@ class ScriptMgr
         /// @p_ID: Player condition ID
         bool HasPlayerConditionScript(uint32 p_ID);
         /// Eval a player condition script
-        /// @p_Condition : Condition
-        /// @p_Player    : Player instance
-        bool EvalPlayerConditionScript(PlayerConditionEntry const* p_Condition, Player* p_Player);
+        /// @p_ConditionID : Condition ID
+        /// @p_Condition   : Condition
+        /// @p_Player      : Player instance
+        bool EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player);
 
     /// Battle Pay product scripts
     public:

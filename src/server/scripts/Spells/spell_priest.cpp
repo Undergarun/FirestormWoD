@@ -3714,14 +3714,14 @@ class spell_pri_saving_grace : public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                Unit* l_Caster = GetCaster();
+                Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
                 /// HotFixe February 27, 2015 : Saving Grace now heals for 25% less in PvP combat.
-                if (l_Target->GetTypeId() == TYPEID_PLAYER && l_Caster->IsPvP())
+                if (l_Player->GetMap()->IsBattlegroundOrArena() || l_Player->IsInPvPCombat())
                     SetHitHeal(GetHitHeal() - CalculatePct(GetHitHeal(), 25));
             }
 

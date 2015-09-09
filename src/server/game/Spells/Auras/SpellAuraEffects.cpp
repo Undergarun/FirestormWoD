@@ -8553,7 +8553,7 @@ void AuraEffect::HandleModStatBonusPercent(AuraApplication const* p_AurApp, uint
 
 void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK))
         return;
 
     Unit* l_Target = p_AurApp->GetTarget();
@@ -8569,7 +8569,7 @@ void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode
     l_Target->GetPosition(&l_Position);
 
     AreaTrigger* l_AreaTrigger = new AreaTrigger;
-    if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), l_Target, m_spellInfo, 0, l_Position, l_Position))
+    if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), l_Target, m_spellInfo, m_effIndex, l_Position, l_Position))
         delete l_AreaTrigger;
 }
 

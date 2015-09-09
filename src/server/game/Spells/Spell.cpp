@@ -6555,11 +6555,16 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 // get the lock entry
                 uint32 lockId = 0;
+                bool l_OverridePlayerCondition = false;
                 if (GameObject* go = m_targets.GetGOTarget())
                 {
                     lockId = go->GetGOInfo()->GetLockId();
                     if (!lockId)
                         return SPELL_FAILED_BAD_TARGETS;
+
+                    GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(go->GetEntry());
+                    if (l_Template && l_Template->chest.conditionID1 && m_caster->ToPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
+                        l_OverridePlayerCondition = true;
                 }
                 else if (Item* itm = m_targets.GetItemTarget())
                     lockId = itm->GetTemplate()->LockID;
@@ -6570,8 +6575,11 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 // check lock compatibility
                 SpellCastResult res = CanOpenLock(i, lockId, skillId, reqSkillValue, skillValue);
-                if (res != SPELL_CAST_OK)
+                if (res != SPELL_CAST_OK && !l_OverridePlayerCondition)
                     return res;
+
+                if (l_OverridePlayerCondition)
+                    res = SPELL_CAST_OK;
 
                 // chance for fail at orange mining/herb/LockPicking gathering attempt
                 // second check prevent fail at rechecks
