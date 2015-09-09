@@ -3199,10 +3199,16 @@ void Player::RegenerateAll()
     switch (l_Class)
     {
         case Classes::CLASS_PALADIN:
-            m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            if (!isInCombat())
+                m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            else
+                m_holyPowerRegenTimerCount = 0;
             break;
         case Classes::CLASS_MONK:
-            m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            if (!isInCombat())
+                m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            else
+                m_holyPowerRegenTimerCount = 0;
             break;
         case Classes::CLASS_HUNTER:
             m_focusRegenTimerCount += m_RegenPowerTimer;
@@ -3590,7 +3596,7 @@ void Player::ResetAllPowers()
     SetPower(POWER_RAGE, 0);
     SetPower(POWER_RUNIC_POWER, 0);
     SetPower(POWER_SHADOW_ORB, 0);
-    SetPower(POWER_SOUL_SHARDS, 100);
+    SetPower(POWER_SOUL_SHARDS, 400);
 }
 
 bool Player::CanInteractWithQuestGiver(Object* questGiver)
@@ -3630,12 +3636,12 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
 {
     PlayerConditionEntry const* l_Entry = sPlayerConditionStore.LookupEntry(p_ConditionsID);
 
-    if (!l_Entry)
+    if (!l_Entry && !sScriptMgr->HasPlayerConditionScript(p_ConditionsID))
         return std::pair<bool, std::string>(false, "Condition entry not found");
 
     if (sScriptMgr->HasPlayerConditionScript(p_ConditionsID))
     {
-        if (!sScriptMgr->EvalPlayerConditionScript(l_Entry, this))
+        if (!sScriptMgr->EvalPlayerConditionScript(p_ConditionsID, l_Entry, this))
             return std::pair<bool, std::string>(false, "Condition script failed");
 
         return std::pair<bool, std::string>(true, "");
@@ -4956,7 +4962,8 @@ void Player::SendKnownSpells()
         if (!l_It->second)
             continue;
 
-        if (l_It->second->state == PLAYERSPELL_REMOVED)
+        if (l_It->second->state == PlayerSpellState::PLAYERSPELL_REMOVED
+            || l_It->second->state == PlayerSpellState::PLAYERSPELL_TEMPORARY)
             continue;
 
         if (!l_It->second->active || l_It->second->disabled)
@@ -5069,7 +5076,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     return false;
 }
 
-bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool p_IsMountFavorite)
+bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool p_IsMountFavorite, bool p_LearnBattlePet)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -5355,7 +5362,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     }
 
     // Add BattlePet
-    if (learning && !dependent)
+    if (learning && !dependent && p_LearnBattlePet)
     {
         for (uint32 speciesId = 0; speciesId != sBattlePetSpeciesStore.GetNumRows(); ++speciesId)
         {
@@ -32989,6 +32996,10 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 
             l_AlreadyKnownPet.push_back(m_BattlePets[l_PetID]->Species);
 
+            BattlePetSpeciesEntry const* l_SpeciesEntry = sBattlePetSpeciesStore.LookupEntry(m_BattlePets[l_PetID]->Species);
+            if (l_SpeciesEntry != nullptr && !HasSpell(l_SpeciesEntry->spellId))
+                addSpell(l_SpeciesEntry->spellId, true, true, false, false, false, false, false);
+
             ++l_PetID;
         } while (p_Result->NextRow());
     }
@@ -33033,7 +33044,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 
         l_BattlePet.AddToPlayer(this);
 
-        removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
+        //removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
     }
 
     m_OldPetBattleSpellToMerge.clear();

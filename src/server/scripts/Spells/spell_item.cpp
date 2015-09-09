@@ -2611,6 +2611,62 @@ class spell_item_sky_golem : public SpellScriptLoader
         }
 };
 
+enum eEngineeringScopesSpells
+{
+    SpellOglethorpesMissileSplitter = 156055,
+    SpellMegawattFilament           = 156060,
+    HemetsHeartseeker               = 173288
+};
+
+/// Called by Oglethorpe's Missile Splitter 156052, Megawatt Filament 156059, Hemet's Heartseeker 173286
+class spell_item_engineering_scopes: public SpellScriptLoader
+{
+    public:
+        spell_item_engineering_scopes(const char* p_Name, uint32 p_TriggeredSpellId) : SpellScriptLoader(p_Name), m_TriggeredSpellId(p_TriggeredSpellId) { }
+
+        class spell_item_engineering_scopes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_engineering_scopes_AuraScript);
+
+            public:
+                spell_item_engineering_scopes_AuraScript(uint32 p_TriggeredSpellId) : AuraScript(), m_TriggeredSpellId(p_TriggeredSpellId) { }
+
+                bool Validate(SpellInfo const* /*p_SpellEntry*/)
+                {
+                    if (!sSpellMgr->GetSpellInfo(m_TriggeredSpellId))
+                        return false;
+                    return true;
+                }
+
+                void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
+                {
+                    PreventDefaultAction();
+
+                    Unit* l_Caster = GetCaster();
+                    if (!l_Caster)
+                        return;
+
+                    l_Caster->CastSpell(l_Caster, m_TriggeredSpellId, true);
+                }
+
+                void Register()
+                {
+                    OnEffectProc += AuraEffectProcFn(spell_item_engineering_scopes_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                }
+
+            private:
+                uint32 m_TriggeredSpellId;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_item_engineering_scopes_AuraScript(m_TriggeredSpellId);
+        }
+
+    private:
+        uint32 m_TriggeredSpellId;
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2674,4 +2730,7 @@ void AddSC_item_spell_scripts()
     new spell_item_throw_mantra();
     new spell_item_ancient_knowledge();
     new spell_item_sky_golem();
+    new spell_item_engineering_scopes("spell_item_oglethorpe_s_missile_splitter", eEngineeringScopesSpells::SpellOglethorpesMissileSplitter);
+    new spell_item_engineering_scopes("spell_item_megawatt_filament", eEngineeringScopesSpells::SpellMegawattFilament);
+    new spell_item_engineering_scopes("spell_item_hemet_s_heartseeker", eEngineeringScopesSpells::HemetsHeartseeker);
 }

@@ -57,6 +57,8 @@ namespace MS { namespace Garrison
 
             /// Get building ID
             uint32 GetBuildingID();
+            /// Get plot instance ID
+            uint32 GetPlotInstanceID();
 
             /// Setup action sequence
             /// @p_CoordTable       : Coordinates table
@@ -67,10 +69,35 @@ namespace MS { namespace Garrison
             /// Do next sequence element
             virtual void DoNextSequenceAction();
 
+            /// Spawn a creature with building relative coords
+            /// @p_Entry      : Creature entry
+            /// @p_RelX       : X Relative coord
+            /// @p_RelY       : Y Relative coord
+            /// @p_RelZ       : Z Relative coord
+            /// @p_RelO       : Relative orientation coord
+            /// @p_SummonType : Summon type
+            Creature* SummonRelativeCreature(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO, TempSummonType p_SummonType);
+            /// Spawn a gameobject with building relative coords
+            /// @p_Entry      : GameObject entry
+            /// @p_RelX       : X Relative coord
+            /// @p_RelY       : Y Relative coord
+            /// @p_RelZ       : Z Relative coord
+            /// @p_RelO       : Relative orientation coord
+            GameObject* SummonRelativeGameObject(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO);
+
+            /// Transform coord
+            /// @p_X : X coord
+            /// @p_Y : Y coord
+            /// @p_Z : Z coord
+            void TransformCoord(float& p_X, float &p_Y, float &p_Z);
+
         public:
             /// When the building ID is set
             /// @p_BuildingID : Set building ID
             virtual void OnSetBuildingID(uint32 p_BuildingID);
+            /// When the PlotInstance ID is set
+            /// @p_BuildingID : Set plot instance ID
+            virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID);
 
         public:
             /// Set UInt32 value

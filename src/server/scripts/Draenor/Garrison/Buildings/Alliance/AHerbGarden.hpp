@@ -5,15 +5,38 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_LUNARFALL_EXCAVATION_ALLIANCE_HPP_GARRISON
-#define GARRISON_LUNARFALL_EXCAVATION_ALLIANCE_HPP_GARRISON
+#ifndef GARRISON_HERB_GARDEN_ALLIANCE_HPP_GARRISON
+#define GARRISON_HERB_GARDEN_ALLIANCE_HPP_GARRISON
 
 #include "../../GarrisonScriptData.hpp"
 #include "../../GarrisonNPC.hpp"
+#include "../GatheringBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
 {
+    /// Gather FMT : HerbSpawnType PrevSpawnTimeStamp NextSpawnTimeStamp BuildingLevel [for plot in plots]GobEntryOrHerbSpawnState[end_for]
+
+    namespace HerbSpawnType
+    {
+        enum Type
+        {
+            Frostweed,
+            Starflower,
+            Fireweed,
+            TaladorOrchid,
+            GrogrondFlytrap,
+            NagrandArrowbloom,
+            Random
+        };
+    }
+
+    /// Herbs game object entries
+    extern std::vector<uint32> g_HerbsGobsEntry;
+
+    /// FarmSimulator/GoatSimulator positions
+    extern std::vector<GatheringPlotInfos> g_HerbGardenFlowerPlot;
+
     //////////////////////////////////////////////////////////////////////////
     /// 85514 - Olly Nimkip                                                ///
     //////////////////////////////////////////////////////////////////////////
@@ -54,6 +77,48 @@ namespace MS { namespace Garrison
 
     };
     #pragma endregion 
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// 85344 - Naron Bloomthistle                                         ///
+    //////////////////////////////////////////////////////////////////////////
+    class npc_NaronBloomthistleAI : public GatheringBuildingMaster<&g_HerbGardenFlowerPlot>
+    {
+        public:
+            /// Constructor
+            /// @p_Creature : AI Owner
+            npc_NaronBloomthistleAI(Creature * p_Creature);
+
+            /// When the PlotInstance ID is set
+            /// @p_BuildingID : Set plot instance ID
+            virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+
+            /// On player quest rewarded
+            /// @p_Player : Subject
+            /// @p_Quest  : Rewarded quest template
+            /// @p_Opt    : Quest reward option (eg: Loot choose)
+            virtual void sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Opt) override;
+
+            /// Select game object entry for a fresh gathering spawn
+            /// @p_MiscData : Misc data
+            virtual uint32 SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData) override;
+
+    };
+
+    class npc_NaronBloomthistle : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_NaronBloomthistle();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const override;
+
+    };
+
 
 }   ///< namespace Garrison
 }   ///< namespace MS
