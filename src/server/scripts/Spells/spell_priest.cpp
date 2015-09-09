@@ -3751,38 +3751,58 @@ class spell_pri_shadowy_apparition : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Dispersion - 47585
 class spell_pri_dispersion : public SpellScriptLoader
 {
-public:
-    spell_pri_dispersion() : SpellScriptLoader("spell_pri_dispersion") { }
+    public:
+        spell_pri_dispersion() : SpellScriptLoader("spell_pri_dispersion") { }
 
-    class spell_pri_dispersion_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_dispersion_AuraScript);
-
-        void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+        class spell_pri_dispersion_AuraScript : public AuraScript
         {
-            Unit* l_Caster = GetCaster();
+            PrepareAuraScript(spell_pri_dispersion_AuraScript);
 
-            if (l_Caster == nullptr)
-                return;
+            enum eSpells
+            {
+                DispersionImmunity = 63230
+            };
 
-            /// Item - Priest WoD PvP Shadow 2P Bonus - 171146
-            if (l_Caster->HasAura(PRIEST_PVP_SHADOW_2P_BONUS))
-                l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_POWER, true);
-        }
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
 
-        void Register()
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveMovementImpairingAuras();
+                l_Caster->CastSpell(l_Caster, eSpells::DispersionImmunity, true);
+            }
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::DispersionImmunity))
+                    l_Caster->RemoveAura(eSpells::DispersionImmunity);
+                /// Item - Priest WoD PvP Shadow 2P Bonus - 171146
+                if (l_Caster->HasAura(PRIEST_PVP_SHADOW_2P_BONUS))
+                    l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_POWER, true);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectRemoveFn(spell_pri_dispersion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_dispersion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectRemove += AuraEffectRemoveFn(spell_pri_dispersion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            return new spell_pri_dispersion_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_dispersion_AuraScript();
-    }
 };
 
 /// last update : 6.1.2 19802
