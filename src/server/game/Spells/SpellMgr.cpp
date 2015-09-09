@@ -114,10 +114,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[1] & 0x100000)
                 return DIMINISHING_STUN;
 
-            // Dragon's Breath -- 31661
+            /// Dragon's Breath -- 31661
             if (spellproto->SpellFamilyFlags[0] & 0x800000)
-                return DIMINISHING_INCAPACITATE;
-            // Polymorph -- 118
+                return DIMINISHING_DISORIENT;
+            /// Polymorph -- 118
             if (spellproto->SpellFamilyFlags[0] & 0x1000000)
                 return DIMINISHING_INCAPACITATE;
             // Ring of Frost -- 82691
