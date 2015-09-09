@@ -16727,6 +16727,21 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
+    /// Words of Mending - 152117
+    if (HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL)
+    {
+        if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
+        {
+            if (HasAura(155363))
+            {
+                CastSpell(target, 33076, true);
+                RemoveAura(155363);
+            }
+            else
+                CastSpell(this, 155362, true);
+        }
+    }
+
     /// Revealing Strike - 84617
     if (target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
     {

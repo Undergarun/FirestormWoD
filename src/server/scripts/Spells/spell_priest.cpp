@@ -3452,15 +3452,8 @@ class spell_pri_mind_flay : public SpellScriptLoader
         }
 };
 
-
-enum WordsOfMendingSpells
-{
-    WordsOfMendingAuraStack     = 155362,
-    WordsOfMendingAuraFinal     = 155363,
-    PrayerOfMendingSpell         = 33076
-};
-
-/// Words of mending - 152117
+/// last update : 6.1.2 19802
+/// Words of mending - 155362
 class spell_pri_words_of_mending : public SpellScriptLoader
 {
     public:
@@ -3470,40 +3463,26 @@ class spell_pri_words_of_mending : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_words_of_mending_Aurascript);
 
-            void HandleOnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
+            enum eSpells
             {
-                PreventDefaultAction();
+                WordsOfMendingAuraStack = 155362,
+                WordsOfMendingAuraFinal = 155363
+            };
 
-                if (Unit* l_Caster = GetCaster())
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (p_AurEff->GetBase()->GetStackAmount() >= p_AurEff->GetBase()->GetSpellInfo()->StackAmount)
                 {
-                    if (l_Caster->HasAura(WordsOfMendingSpells::WordsOfMendingAuraFinal))
-                    {
-                        if (Unit* l_Target = p_ProcInfos.GetProcTarget())
-                        {
-                            l_Caster->CastSpell(l_Target, WordsOfMendingSpells::PrayerOfMendingSpell, true);
-                            l_Caster->RemoveAura(WordsOfMendingSpells::WordsOfMendingAuraFinal);
-                        }
-                    }
-                    else if (AuraPtr l_WordsOfMendingAura = l_Caster->GetAura(WordsOfMendingSpells::WordsOfMendingAuraStack))
-                    {
-                        if (l_WordsOfMendingAura->GetStackAmount() > 9)
-                        {
-                            l_Caster->AddAura(WordsOfMendingSpells::WordsOfMendingAuraFinal, l_Caster);
-                            l_Caster->RemoveAura(WordsOfMendingSpells::WordsOfMendingAuraStack);
-                        }
-                        else
-                            l_Caster->AddAura(WordsOfMendingSpells::WordsOfMendingAuraStack, l_Caster);
-                    }
-                    else
-                    {
-                        l_Caster->AddAura(WordsOfMendingSpells::WordsOfMendingAuraStack, l_Caster);
-                    }
+                    l_Target->CastSpell(l_Target, eSpells::WordsOfMendingAuraFinal, true);
+                    l_Target->RemoveAura(eSpells::WordsOfMendingAuraStack);
                 }
             }
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_pri_words_of_mending_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectApply += AuraEffectApplyFn(spell_pri_words_of_mending_Aurascript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
