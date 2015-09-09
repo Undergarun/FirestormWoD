@@ -62,7 +62,8 @@ class boss_gruul_foundry : public CreatureScript
         enum eActions
         {
             ActionInfernoSlice,
-            ActionPetrification
+            ActionPetrification,
+            ActionShatter
         };
 
         enum eCreatures
@@ -155,11 +156,21 @@ class boss_gruul_foundry : public CreatureScript
                         {
                             if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
                             {
-                                me->CastSpell(l_Target, eSpells::Shatter, true);
-
                                 l_Target->CastSpell(l_Target, eSpells::PetrifiedStun, true);
-
                                 l_Target->RemoveAura(eSpells::PetrifyStacks);
+                            }
+                        }
+
+                        break;
+                    }
+                    case eActions::ActionShatter:
+                    {
+                        for (uint64 l_Guid : m_PetrifiedTargets)
+                        {
+                            if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                            {
+                                l_Target->RemoveAura(eSpells::PetrifiedStun);
+                                me->CastSpell(l_Target, eSpells::Shatter, true);
                             }
                         }
 
@@ -182,7 +193,6 @@ class boss_gruul_foundry : public CreatureScript
 
                 me->CastSpell(me, eSpells::RageRegenerationAura, true);
 
-                m_Events.ScheduleEvent(eEvents::EventOverwhelmingBlows, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventCaveIn, 12 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventPetrifyingSlam, 22 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventOverheadSmash, 44 * TimeConstants::IN_MILLISECONDS);
@@ -341,6 +351,15 @@ class boss_gruul_foundry : public CreatureScript
                 }
             }
 
+            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
+            {
+                if (p_DamageType != DamageEffectType::DIRECT_DAMAGE)
+                    return;
+
+                if (!m_Events.HasEvent(eEvents::EventOverwhelmingBlows))
+                    m_Events.ScheduleEvent(eEvents::EventOverwhelmingBlows, 3 * TimeConstants::IN_MILLISECONDS);
+            }
+
             void RegeneratePower(Powers p_Power, int32& p_Value) override
             {
                 /// Gruul only regens by script
@@ -416,6 +435,7 @@ class boss_gruul_foundry : public CreatureScript
                 {
                     case eEvents::EventInfernoSlice:
                     {
+                        m_Events.CancelEvent(eEvents::EventOverwhelmingBlows);
                         me->CastSpell(me, eSpells::InfernoSlice, false);
                         break;
                     }
@@ -424,7 +444,6 @@ class boss_gruul_foundry : public CreatureScript
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::OverwhelmingBlowsProc, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventOverwhelmingBlows, 3 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventCaveIn:
@@ -437,9 +456,16 @@ class boss_gruul_foundry : public CreatureScript
                     }
                     case eEvents::EventPetrifyingSlam:
                     {
+                        m_Events.CancelEvent(eEvents::EventOverwhelmingBlows);
+
                         me->CastSpell(me, eSpells::PetrifyingSlam, false);
 
                         AddTimedDelayedOperation(7800, [this]() -> void
+                        {
+                            DoAction(eActions::ActionPetrification);
+                        });
+
+                        AddTimedDelayedOperation(10800, [this]() -> void
                         {
                             DoAction(eActions::ActionPetrification);
                         });
@@ -449,6 +475,8 @@ class boss_gruul_foundry : public CreatureScript
                     }
                     case eEvents::EventOverheadSmash:
                     {
+                        m_Events.CancelEvent(eEvents::EventOverwhelmingBlows);
+
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
                             float l_O = me->GetAngle(l_Target);
@@ -463,6 +491,8 @@ class boss_gruul_foundry : public CreatureScript
                     }
                     case eEvents::EventDestructiveRampage:
                     {
+                        m_Events.CancelEvent(eEvents::EventOverwhelmingBlows);
+
                         Talk(eTalks::DestructiveRampage);
                         Talk(eTalks::DestructiveRampageStart, me->GetGUID());
 
