@@ -6350,7 +6350,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 case 18765:
                 case 35429:
                 {
-                    target = SelectNearbyTarget(victim);
+                    target = SelectNearbyTarget(victim, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
                     if (!target)
                         return false;
 
@@ -6976,7 +6976,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 // Sweeping Strikes
                 case 12328:
                 {
-                    target = SelectNearbyTarget(victim);
+                    target = SelectNearbyTarget(victim, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
                     if (!target)
                         return false;
 
@@ -17658,7 +17658,7 @@ void Unit::GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Ra
     l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, p_Range);
 }
 
-Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/, bool p_ExcludeStealthVictim /*=false*/) const
+Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/, bool p_ExcludeStealthVictim /*=false*/, bool p_CheckValidAttack /*= false*/) const
 {
     std::list<Unit*> l_Targets;
     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -17681,6 +17681,8 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_
         if (!IsWithinLOSInMap(*tIter) || (*tIter)->isTotem() || (*tIter)->isSpiritService() || (*tIter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
             l_Targets.erase(tIter++);
         else if (p_ExcludeStealthVictim && (*tIter)->HasStealthAura()) ///< Remove Stealth victim
+            l_Targets.erase(tIter++);
+        else if (p_CheckValidAttack && !IsValidAttackTarget(*tIter))
             l_Targets.erase(tIter++);
         else
             ++tIter;
@@ -17719,7 +17721,7 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_
     return JadeCore::Containers::SelectRandomContainerElement(l_Targets);
 }
 
-Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const
+Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist, bool p_CheckValidAssist /*= false*/) const
 {
     std::list<Unit*> targets;
     JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -17733,6 +17735,8 @@ Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const
     for (std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end();)
     {
         if (!IsWithinLOSInMap(*tIter) || (*tIter)->isTotem() || (*tIter)->isSpiritService() || (*tIter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
+            targets.erase(tIter++);
+        else if (p_CheckValidAssist && !IsValidAssistTarget(*tIter))
             targets.erase(tIter++);
         else
             ++tIter;

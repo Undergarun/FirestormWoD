@@ -1618,7 +1618,7 @@ class npc_highmaul_iron_blood_mage : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventBloodBolt, urand(8000, 11000));
                         break;
                     case eEvents::EventCorruptedBloodShield:
-                        if (Unit* l_Target = me->SelectNearbyAlly(me, 15.0f))
+                        if (Unit* l_Target = me->SelectNearbyAlly(me, 15.0f, true))
                             me->CastSpell(l_Target, eSpells::SpellCorruptedBloodShield, false);
                         m_Events.ScheduleEvent(eEvents::EventCorruptedBloodShield, urand(15000, 18000));
                         break;
@@ -2862,7 +2862,7 @@ class npc_highmaul_gorian_high_sorcerer : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventNetherFont, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventCelerity:
-                        if (Unit* l_Target = me->SelectNearbyAlly(me, 50.0f))
+                        if (Unit* l_Target = me->SelectNearbyAlly(me, 50.0f, true))
                             me->CastSpell(l_Target, eSpells::Celerity, false);
                         m_Events.ScheduleEvent(eEvents::EventCelerity, 20 * TimeConstants::IN_MILLISECONDS);
                         break;

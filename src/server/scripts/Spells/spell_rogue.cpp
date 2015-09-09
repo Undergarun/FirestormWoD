@@ -886,7 +886,7 @@ class spell_rog_blade_flurry: public SpellScriptLoader
                     if (l_ProcSpell && !l_ProcSpell->CanTriggerBladeFlurry())
                         return;
 
-                    if (Unit* l_Target = l_Caster->SelectNearbyTarget(p_EventInfo.GetActionTarget()))
+                    if (Unit* l_Target = l_Caster->SelectNearbyTarget(p_EventInfo.GetActionTarget(), NOMINAL_MELEE_RANGE, 0U, true, true, false, true))
                         l_Caster->CastCustomSpell(l_Target, ROGUE_SPELL_BLADE_FLURRY_DAMAGE, &l_Damage, NULL, NULL, true);
                 }
             }

@@ -970,7 +970,7 @@ class mob_spirit_flayer : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_SPIRIT_LIGHT:
-                        if (Unit* target = me->SelectNearbyTarget(NULL, 10.0f))
+                        if (Unit* target = me->SelectNearbyTarget(NULL, 10.0f, 0U, true, true, false, true))
                             me->CastSpell(target, SPELL_SPIRIT_LIGHT, true);
                         events.ScheduleEvent(EVENT_SPIRIT_LIGHT, 1000);
                         break;

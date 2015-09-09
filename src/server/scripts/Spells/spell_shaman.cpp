@@ -2247,7 +2247,7 @@ class spell_sha_liquid_magma: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 // hardcoded in the tooltip - no DBC data here
-                Unit* l_Target = l_Caster->SelectNearbyTarget(nullptr, 40, 0, false, true, true);
+                Unit* l_Target = l_Caster->SelectNearbyTarget(nullptr, 40, 0, false, true, true, true);
 
                 if (l_Target)
                     l_Caster->CastSpell(l_Target, p_AurEff->GetTriggerSpell());
