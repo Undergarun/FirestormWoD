@@ -99,7 +99,7 @@ Position g_PositionitionPaleOne[2] =
 
 static void ShootBeam(Unit* p_Caster)
 {
-    Creature* l_Beam = p_Caster->SummonCreature(eXeritacCreatures::TriggerBeamTrigger, caster->GetPositionX(), caster->GetPositionY(), 87.611f, caster->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 8 * TimeConstants::IN_MILLISECONDS);
+    Creature* l_Beam = p_Caster->SummonCreature(eXeritacCreatures::TriggerBeamTrigger, p_Caster->GetPositionX(), p_Caster->GetPositionY(), 87.611f, p_Caster->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 8 * TimeConstants::IN_MILLISECONDS);
 
     if (l_Beam)
     {

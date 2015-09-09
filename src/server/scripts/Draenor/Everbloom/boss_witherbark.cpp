@@ -35,7 +35,7 @@ enum eWitherbarkSpells
 enum eWitherbarkActions
 {
     ///< Witherbark
-    ActionBrittleEffect         = 1,
+    ActionBrittleEffect         = 10,
     ActionBrittleDeffect,
     ActionEnergyPower,
 
