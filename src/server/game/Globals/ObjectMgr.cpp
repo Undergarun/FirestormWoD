@@ -2814,10 +2814,10 @@ void ObjectMgr::LoadItemSpecs()
     /// ===================== HACK ALERT, THIS IS BAD ================================================ ///
     /// - The process must be done with the character level, so we can't do it at loading ...          ///
     /// - For now, we use 100 as placeholder, we will change that in somes day/month/year, who know ?  ///
+    /// - For the guy who wrote the text above, use yyyy/mm/dd instead - thank you                     ///
     /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
 
     const uint32 l_CharacterLevel = 100;
-    /*
     for (ItemTemplateContainer::iterator l_Itr = _itemTemplateStore.begin(); l_Itr != _itemTemplateStore.end(); ++l_Itr)
     {
         ItemTemplate& l_ItemTemplate = l_Itr->second;
@@ -2827,11 +2827,9 @@ void ObjectMgr::LoadItemSpecs()
         uint32                     l_TempStat  = 28;
         bool                       l_Find      = false;
         std::vector<uint32>        l_ItemStats = ItemSpecialization::GetItemSpecStats(const_cast<ItemTemplate*>(&l_ItemTemplate));
-        std::vector<int32> const&  l_KeyOrders = sItemSpecStore.GetKeyOrders();
 
-        for (std::vector<int32>::const_reverse_iterator l_Itr = l_KeyOrders.rbegin(); l_Itr != l_KeyOrders.rend(); l_Itr++)
+        for (uint32 l_Idx = 0; l_Idx < sItemSpecStore.GetNumRows(); ++l_Idx)
         {
-            int32 l_Idx = (*l_Itr);
             ItemSpecEntry const* l_ItemSpec = sItemSpecStore.LookupEntry(l_Idx);
             if (!l_ItemSpec)
                 continue;
@@ -2864,7 +2862,6 @@ void ObjectMgr::LoadItemSpecs()
             }
         }
     }
-    */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 

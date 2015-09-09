@@ -727,6 +727,7 @@ class garrison_commandscript: public CommandScript
             }
 
             l_TargetPlayer->GetGarrison()->UpdateMissionDistribution(true, l_MissionCount);
+            return true;
         }
 };
 
