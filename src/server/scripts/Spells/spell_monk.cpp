@@ -4825,7 +4825,7 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
 
                 SetHitDamage(l_Damage);
 
-                if (l_Chi >= 1)
+                if (l_Chi >= 2)
                 {
                     SpellInfo const* l_DotSpellInfo = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_DOT);
                     l_Damage = CalculatePct(l_Damage , l_DotSpellInfo->Effects[EFFECT_1].BasePoints / (l_DotSpellInfo->GetDuration() / l_DotSpellInfo->Effects[EFFECT_0].Amplitude));
