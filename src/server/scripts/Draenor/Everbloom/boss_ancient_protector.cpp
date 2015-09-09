@@ -100,6 +100,9 @@ enum eAncientProtectorsTalks
 
 static void StartAncientProtectors(InstanceScript* p_Instance, Creature* me, Unit* /*p_Target*/)
 {
+    if (p_Instance == nullptr)
+        return;
+
     Creature* l_Gola = p_Instance->instance->GetCreature(p_Instance->GetData64(eEverbloomData::DataLifeWardenGola));
     if (l_Gola)
         l_Gola->SetInCombatWithZone();
@@ -117,6 +120,7 @@ static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 {
     std::list<Creature*> l_CreatureList;
     GetCreatureListWithEntryInGrid(l_CreatureList, p_Object, p_Entry, 300.0f);
+
     if (l_CreatureList.empty())
         return;
 
@@ -126,6 +130,10 @@ static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 
 static void WipingCondition(InstanceScript* p_Instance, Creature* p_Me)
 {
+    if (p_Instance == nullptr)
+        return;
+
+
     p_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Me);
 
     DespawnCreaturesInArea(eAncientProtectorsCreatrues::CreatureBramblePatch, p_Me);
@@ -151,6 +159,9 @@ static void WipingCondition(InstanceScript* p_Instance, Creature* p_Me)
 
 static void WiningCondition(InstanceScript* p_Instance, Creature* p_Me)
 {
+    if (p_Instance == nullptr)
+        return;
+
     p_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Me);
 
     DespawnCreaturesInArea(eAncientProtectorsCreatrues::CreatureBramblePatch, p_Me);
@@ -194,6 +205,7 @@ public:
         void Reset() override
         {
             _Reset();
+            events.Reset();
 
             me->CastSpell(me, eAncientProtectorsSpells::SpellWaterVisualChanneling); ///> water channel
 
@@ -231,6 +243,7 @@ public:
         void JustReachedHome() override
         {
             _JustReachedHome();
+            summons.DespawnAll();
 
             if (m_Instance != nullptr)
             WipingCondition(instance, me);
@@ -273,6 +286,9 @@ public:
             {
                 case eAncientProtectorsEvents::EventRevitalizingWaters:
                 {
+                    if (m_Instance == nullptr)
+                        return;
+
                     if (Creature* l_Telu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataEarthshaperTelu)))
                     {
                         me->CastSpell(l_Telu, eEverbloomSpells::SpellHealingWaters);
@@ -282,6 +298,9 @@ public:
                 }
                 case eAncientProtectorsEvents::EventRapidTides:
                 {
+                    if (m_Instance == nullptr)
+                        return;
+
                     if (Creature* l_Telu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataEarthshaperTelu)))
                     {
                         me->CastSpell(l_Telu, eAncientProtectorsSpells::SpellRapidTides);
@@ -330,10 +349,10 @@ public:
         void Reset() override
         {
             _Reset();
+            events.Reset();
 
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-
             me->CastSpell(me, eAncientProtectorsSpells::SpellNatureVisualChanneling); ///> water channel
         }
 
@@ -348,7 +367,7 @@ public:
             events.ScheduleEvent(eAncientProtectorsEvents::EventNaturesWrath, 8 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eAncientProtectorsEvents::EventBramblePatch, 25 * TimeConstants::IN_MILLISECONDS);
          
-            if (m_Instance)
+            if (m_Instance != nullptr)
             {
                 instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
                 instance->SetBossState(eEverbloomData::DataEarthshaperTelu, IN_PROGRESS);
@@ -395,8 +414,9 @@ public:
         void JustReachedHome() override
         {
             _JustReachedHome();
+            summons.DespawnAll();
 
-            if (m_Instance)
+            if (m_Instance != nullptr)
             {
                 WipingCondition(instance, me);
             }
@@ -416,6 +436,9 @@ public:
             {
                 case eAncientProtectorsEvents::EventBriarskin:
                 {
+                    if (m_Instance == nullptr)
+                        return;
+
                     if (Creature* l_Gola = m_Instance->instance->GetCreature(instance->GetData64(eEverbloomData::DataLifeWardenGola)))
                     {
                         if (Creature* l_Dulhu = m_Instance->instance->GetCreature(instance->GetData64(eEverbloomData::DataDulhu)))
@@ -448,6 +471,7 @@ public:
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
                         me->SummonCreature(eAncientProtectorsCreatrues::CreatureBramblePatch, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), l_Target->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                        
                         events.ScheduleEvent(eAncientProtectorsEvents::EventBramblePatch, 25 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -483,13 +507,14 @@ public:
         void Reset() override
         {
             _Reset();
+            events.Reset();
         }
 
         void EnterCombat(Unit* p_Who) override
         {
             _EnterCombat();
 
-            if (m_Instance)
+            if (m_Instance != nullptr)
             {
                 instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
                 instance->SetBossState(eEverbloomData::DataEarthshaperTelu, IN_PROGRESS);
@@ -519,10 +544,11 @@ public:
         void JustReachedHome() override
         {
             _JustReachedHome();
+            summons.DespawnAll();
 
-            if (instance)
+            if (m_Instance != nullptr)
             {
-                WipingCondition(instance, me);
+                WipingCondition(m_Instance, me);
             }        
         }
 
@@ -667,7 +693,7 @@ public:
         {
             me->SetDisplayId(11686);
             me->setFaction(HostileFaction);
-            m_Time = 1500;
+            m_Time = 1 * TimeConstants::IN_MILLISECONDS;
 
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
@@ -699,7 +725,7 @@ public:
                     }
                 }
 
-                m_Time = 500;
+                m_Time = 1 * TimeConstants::IN_MILLISECONDS;
             }
             else
             {
@@ -746,15 +772,10 @@ public:
 
 void AddSC_boss_ancient_protectors()
 {
-    // bosses
     new boss_life_warden();
     new boss_dulhu();
     new boss_earthshaper_telu();
-
-    // spells
     new the_everbloom_grasping_vine();
     new the_everbloom_rending_charge();
-  
-    // creatures
     new the_everbloom_bramble_patch();
 }
