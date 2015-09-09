@@ -641,6 +641,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
             void Update(uint32 diff)
             {
+                UpdateOperations(diff);
+
                 if (GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && NotOneButTwoJormungarsTimer)
                 {
                     if (NotOneButTwoJormungarsTimer <= diff)

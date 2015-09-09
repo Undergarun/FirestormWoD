@@ -215,6 +215,8 @@ public:
 
         void Update(uint32 Diff)
         {
+            UpdateOperations(Diff);
+
             if (GetData(DATA_ONYXIA) == IN_PROGRESS)
             {
                 if (OnyxiaLiftoffTimer && OnyxiaLiftoffTimer <= Diff)

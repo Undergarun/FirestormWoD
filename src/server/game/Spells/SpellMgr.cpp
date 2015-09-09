@@ -3367,6 +3367,36 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Blackrock Foundry
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 175609: ///< Unbind Flame
+                spellInfo->Effects[EFFECT_0].MiscValueB = 64;
+                break;
+            case 175638: ///< Spinning Blade
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
+            case 175643: ///< Spinning Blade (DoT)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 173192: ///< Cave In (Dot)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 175091: ///< Animate Slag
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 170687: ///< Killing Spree
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
+                break;
+            case 155077: ///< Overwhelming Blows (Gruul)
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
             case 167650: ///< Loose Quills (Rukhmar)
             case 167630: ///< Blaze of Glory (Rukhmar)
                 spellInfo->Effects[EFFECT_0].SetRadiusIndex(EFFECT_RADIUS_5_YARDS); ///< 5yd

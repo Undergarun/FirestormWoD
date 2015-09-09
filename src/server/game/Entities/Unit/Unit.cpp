@@ -17726,6 +17726,35 @@ Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const
     return JadeCore::Containers::SelectRandomContainerElement(targets);
 }
 
+Unit* Unit::SelectNearbyMostInjuredAlly(Unit* p_Exculde /*= nullptr*/, float p_Dist /*= NOMINAL_MELEE_RANGE*/) const
+{
+    std::list<Unit*> l_Targets;
+    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(this, this, p_Dist);
+    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(this, l_Targets, l_Check);
+    VisitNearbyObject(p_Dist, l_Searcher);
+
+    if (p_Exculde)
+        l_Targets.remove(p_Exculde);
+
+    /// Remove not LoS targets
+    for (std::list<Unit*>::iterator l_Iter = l_Targets.begin(); l_Iter != l_Targets.end();)
+    {
+        if (!IsWithinLOSInMap(*l_Iter) || (*l_Iter)->isTotem() || (*l_Iter)->isSpiritService() || (*l_Iter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
+            l_Targets.erase(l_Iter++);
+        else
+            ++l_Iter;
+    }
+
+    // No appropriate targets
+    if (l_Targets.empty())
+        return nullptr;
+
+    l_Targets.sort(JadeCore::HealthPctOrderPred(true));
+
+    /// Select most injured
+    return l_Targets.front();
+}
+
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
 {
     float remainingTimePct = (float)m_attackTimer[att] / (GetAttackTime(att) * m_modAttackSpeedPct[att]);
@@ -21364,6 +21393,8 @@ void Unit::SetFacingTo(float ori)
         init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
     init.SetFacing(ori);
     init.Launch();
+
+    SetOrientation(ori);
 }
 
 void Unit::SetFacingToObject(WorldObject* object)
