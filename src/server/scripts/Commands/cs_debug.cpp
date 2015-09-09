@@ -2871,6 +2871,59 @@ class debug_commandscript: public CommandScript
                 }
             }
 
+            const uint32 l_Count = 200;
+            const uint32 l_TomeOfTheClearMindId = 79249;
+
+            for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+            {
+                l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
+                            << "("
+                            << l_ClassId << ", "
+                            << l_TomeOfTheClearMindId << ", "
+                            <<  "1, "
+                            << l_Count
+                            << ")";
+                l_StrBuilder << "," << std::endl
+                            << "("
+                            << l_ClassId << ", "
+                            << l_TomeOfTheClearMindId << ", "
+                            << "2, "
+                            << l_Count
+                            << ")";
+            }
+
+            l_StrBuilder << ";" << std::endl << std::endl;
+
+            l_FirstEntry = true;
+            l_StrBuilder << "INSERT INTO character_template_spell VALUES";
+            for (uint32 l_ID = 0; l_ID < sSpellStore.GetNumRows(); ++l_ID)
+            {
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ID);
+                if (!l_SpellInfo)
+                    continue;
+
+                SpellEffectInfo const* l_EffectInfo = l_SpellInfo->GetEffectByType(SPELL_EFFECT_APPLY_GLYPH);
+                if (!l_EffectInfo)
+                    continue;
+
+                if (GlyphPropertiesEntry const* l_Glyph = sGlyphPropertiesStore.LookupEntry(l_EffectInfo->MiscValue))
+                {
+                    if (SpellInfo const* l_GlyphInfo = sSpellMgr->GetSpellInfo(l_Glyph->SpellId))
+                    {
+                        /// First value should be the template id, but with us, it's the same as classid
+                        uint32 l_ClassId = l_GlyphInfo->GetClassIDBySpellFamilyName();
+
+                        l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
+                                     << "("
+                                     << l_ClassId << ", "
+                                     << l_SpellInfo->Id
+                                     << ")";
+
+                        l_FirstEntry = false;
+                    }
+                }
+            }
+
             l_StrBuilder << ";" << std::endl;
             std::string l_FinalString = l_StrBuilder.str();
 
