@@ -6,6 +6,8 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+# include "blackrock_foundry.hpp"
+
 /// Iron Flame Binder - 87515
 class npc_foundry_iron_flame_binder : public CreatureScript
 {
@@ -1018,6 +1020,187 @@ class npc_foundry_karnor_the_cruel : public CreatureScript
         }
 };
 
+/// Iron Laborer (Cosmetic) - 78977
+class npc_foundry_iron_laborer_cosmetic : public CreatureScript
+{
+    public:
+        npc_foundry_iron_laborer_cosmetic() : CreatureScript("npc_foundry_iron_laborer_cosmetic") { }
+
+        enum eActions
+        {
+            ActionDisable   = 0,
+            ActionEvent     = 0
+        };
+
+        enum eCreature
+        {
+            IronLaborer = 78917
+        };
+
+        struct npc_foundry_iron_laborer_cosmeticAI : public ScriptedAI
+        {
+            npc_foundry_iron_laborer_cosmeticAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Started(false) { }
+
+            bool m_Started;
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eActions::ActionDisable)
+                    m_Started = true;
+            }
+
+            void MoveInLineOfSight(Unit* p_Who) override
+            {
+                if (m_Started)
+                    return;
+
+                if (p_Who->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                if (p_Who->GetDistance(me) > 30.0f)
+                    return;
+
+                m_Started = true;
+
+                std::list<Creature*> l_Creatures;
+                me->GetCreatureListWithEntryInGrid(l_Creatures, me->GetEntry(), 200.0f);
+
+                l_Creatures.remove(me);
+
+                for (Creature* l_Me : l_Creatures)
+                {
+                    if (l_Me->IsAIEnabled)
+                        l_Me->AI()->DoAction(eActions::ActionDisable);
+                }
+
+                LaunchTunnelEvent();
+            }
+
+            void LaunchTunnelEvent()
+            {
+                std::list<Creature*> l_Creatures;
+                me->GetCreatureListWithEntryInGrid(l_Creatures, eCreature::IronLaborer, 200.0f);
+
+                for (Creature* l_Laborer : l_Creatures)
+                {
+                    if (l_Laborer->IsAIEnabled)
+                        l_Laborer->AI()->DoAction(eActions::ActionEvent);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_laborer_cosmeticAI(p_Creature);
+        }
+};
+
+/// Iron Laborer - 78917
+class npc_foundry_iron_laborer : public CreatureScript
+{
+    public:
+        npc_foundry_iron_laborer() : CreatureScript("npc_foundry_iron_laborer_cosmetic") { }
+
+        enum eAction
+        {
+            ActionEvent
+        };
+
+        enum eCreature
+        {
+            DarkshardAcidback = 78801
+        };
+
+        enum eMoves
+        {
+            MoveFirst,
+            MoveSecond
+        };
+
+        struct npc_foundry_iron_laborerAI : public ScriptedAI
+        {
+            npc_foundry_iron_laborerAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Vehicle(p_Creature->GetVehicleKit()) { }
+
+            Vehicle* m_Vehicle;
+
+            void Reset() override { }
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eAction::ActionEvent)
+                {
+                    std::list<Creature*> l_Darkshards;
+                    me->GetCreatureListWithEntryInGrid(l_Darkshards, eCreature::DarkshardAcidback, 5.0f);
+
+                    for (Creature* l_Darkshard : l_Darkshards)
+                    {
+                        if (l_Darkshard->GetVehicle())
+                            continue;
+
+                        l_Darkshard->EnterVehicle(me);
+                    }
+
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        float l_X, l_Y, l_Z, l_O;
+
+                        l_O = me->GetOrientation();
+                        l_X = me->GetPositionX() + (30.0f * cos(l_O));
+                        l_Y = me->GetPositionY() + (30.0f * sin(l_O));
+                        l_Z = me->GetMap()->GetHeight(l_X, l_Y, MAX_HEIGHT);
+
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(eMoves::MoveFirst, l_X, l_Y, l_Z);
+                    });
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                switch (p_ID)
+                {
+                    case eMoves::MoveFirst:
+                    {
+                        AddTimedDelayedOperation(100, [this]() -> void
+                        {
+                            float l_X, l_Y, l_Z;
+
+                            l_X = me->GetPositionX() + (30.0f * cos(0.0f));
+                            l_Y = me->GetPositionY() + (30.0f * sin(0.0f));
+                            l_Z = me->GetMap()->GetHeight(l_X, l_Y, MAX_HEIGHT);
+
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(eMoves::MoveSecond, l_X, l_Y, l_Z);
+                        });
+
+                        break;
+                    }
+                    case eMoves::MoveSecond:
+                    {
+                        m_Vehicle->RemoveAllPassengers();
+                        me->Kill(me);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_laborerAI(p_Creature);
+        }
+};
+
 /// Grievous Mortal Wounds - 175624
 class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
 {
@@ -1283,6 +1466,8 @@ void AddSC_blackrock_foundry()
     new npc_foundry_iron_journeyman();
     new npc_foundry_gronnling_laborer();
     new npc_foundry_karnor_the_cruel();
+    new npc_foundry_iron_laborer_cosmetic();
+    new npc_foundry_iron_laborer();
 
     /// Spells
     new spell_foundry_grievous_mortal_wounds();
