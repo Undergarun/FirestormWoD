@@ -467,7 +467,7 @@ class boss_gruul_foundry : public CreatureScript
 
                         AddTimedDelayedOperation(10800, [this]() -> void
                         {
-                            DoAction(eActions::ActionPetrification);
+                            DoAction(eActions::ActionShatter);
                         });
 
                         m_Events.ScheduleEvent(eEvents::EventPetrifyingSlam, 60 * TimeConstants::IN_MILLISECONDS);
