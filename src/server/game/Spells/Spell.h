@@ -693,6 +693,9 @@ public:
     WorldLocation* GetDestTarget() const { return destTarget; }
     uint32 GetUnitTargetCount() const { return m_UniqueTargetInfo.size(); }
 
+    void SetDamage(uint32 p_Damage) { damage = p_Damage; }
+    uint32 GetDamage() const { return damage; }
+
 protected:
     bool HasGlobalCooldown() const;
     void TriggerGlobalCooldown();

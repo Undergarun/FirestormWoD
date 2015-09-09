@@ -38,7 +38,8 @@ class boss_gruul_foundry : public CreatureScript
             PetrifiedStun           = 155506,
             PetrifyStacks           = 155330,
             /// Overhead Smash
-            OverheadSmash           = 155301
+            OverheadSmash           = 155301,
+            OverheadSmashAoE        = 173190
         };
 
         enum eEvents
@@ -103,6 +104,7 @@ class boss_gruul_foundry : public CreatureScript
             void Reset() override
             {
                 m_Events.Reset();
+                m_CosmeticEvents.Reset();
 
                 summons.DespawnAll();
 
@@ -199,6 +201,7 @@ class boss_gruul_foundry : public CreatureScript
                 _JustDied();
 
                 m_Events.Reset();
+                m_CosmeticEvents.Reset();
 
                 summons.DespawnAll();
 
@@ -291,6 +294,11 @@ class boss_gruul_foundry : public CreatureScript
 
                         break;
                     }
+                    case eSpells::OverheadSmash:
+                    {
+                        me->CastSpell(me, eSpells::OverheadSmashAoE, true);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -314,8 +322,16 @@ class boss_gruul_foundry : public CreatureScript
                         {
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                AttackStart(l_Target);
+                            if (!me->HasAura(eSpells::SpellDestructiveRampage))
+                            {
+                                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                {
+                                    AttackStart(l_Target);
+
+                                    me->GetMotionMaster()->Clear();
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                                }
+                            }
                         });
 
                         break;
@@ -361,18 +377,24 @@ class boss_gruul_foundry : public CreatureScript
                         {
                             AddTimedDelayedOperation(l_CurrentSpell->GetCastTime() + 100, [this]() -> void
                             {
-                                me->GetMotionMaster()->Clear();
-
                                 if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                {
                                     AttackStart(l_Target);
+
+                                    me->GetMotionMaster()->Clear();
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                                }
                             });
                         }
                         else
                         {
-                            me->GetMotionMaster()->Clear();
-
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            {
                                 AttackStart(l_Target);
+
+                                me->GetMotionMaster()->Clear();
+                                me->GetMotionMaster()->MoveChase(l_Target);
+                            }
                         }
 
                         m_CosmeticEvents.Reset();
@@ -427,7 +449,7 @@ class boss_gruul_foundry : public CreatureScript
                     }
                     case eEvents::EventOverheadSmash:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
                             float l_O = me->GetAngle(l_Target);
 
@@ -663,6 +685,19 @@ class spell_foundry_inferno_slice : public SpellScriptLoader
             {
                 if (m_TargetCount)
                     SetHitDamage(GetHitDamage() / m_TargetCount);
+
+                if (m_TargetCount < 4)
+                {
+                    if (Creature* l_Gruul = GetCaster()->ToCreature())
+                    {
+                        if (!l_Gruul->IsAIEnabled)
+                            return;
+
+                        /// In Mythic difficulty, if Inferno Slice fails to hit at least 4 targets, Gruul will instantly gain 50 Rage.
+                        if (l_Gruul->GetMap()->IsMythic())
+                            l_Gruul->EnergizeBySpell(l_Gruul, GetSpellInfo()->Id, 50, Powers::POWER_MANA);
+                    }
+                }
             }
 
             void Register() override
@@ -834,10 +869,25 @@ class spell_foundry_overhead_smash : public SpellScriptLoader
                 });
             }
 
+            void HandleKnockBack(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Boss = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        float l_Distance = l_Target->GetDistance(l_Boss);
+                        int32 l_Damage = GetSpell()->GetDamage() * int32(l_Distance / 5.0f);
+
+                        GetSpell()->SetDamage(l_Damage);
+                    }
+                }
+            }
+
             void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_overhead_smash_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_129);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_overhead_smash_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_129);
+                OnEffectHitTarget += SpellEffectFn(spell_foundry_overhead_smash_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
             }
         };
 
