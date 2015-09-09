@@ -421,66 +421,44 @@ uint32 MapManager::GetNumPlayersInInstances()
 
 void MapManager::InitInstanceIds()
 {
-    _nextInstanceId = 1;
-
-    QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM instance");
-    if (result)
-    {
-        uint32 maxId = (*result)[0].GetUInt32();
-
-        // Resize to multiples of 32 (vector<bool> allocates memory the same way)
-        _instanceIds.resize((maxId / 32) * 32 + (maxId % 32 > 0 ? 32 : 0));
-    }
+    m_NextInstanceID = 1;
 }
 
-void MapManager::RegisterInstanceId(uint32 instanceId)
+void MapManager::RegisterInstanceId(uint32 p_InstanceID)
 {
-    // Allocation and sizing was done in InitInstanceIds()
-    _instanceIds[instanceId] = true;
+    /// Allocation and sizing was done in InitInstanceIds()
+    m_InstanceIDs[p_InstanceID] = true;
 }
 
 uint32 MapManager::GenerateInstanceId()
 {
-    uint32 newInstanceId = _nextInstanceId;
+    uint32 l_NewInstanceID = m_NextInstanceID;
 
-    // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
-    for (uint32 i = ++_nextInstanceId; i < 0xFFFFFFFF; ++i)
+    /// Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
+    for (uint32 l_I = ++m_NextInstanceID; l_I < 0xFFFFFFFF; ++l_I)
     {
-        if ((i < _instanceIds.size() && !_instanceIds[i]) || i >= _instanceIds.size())
-        {
-            _nextInstanceId = i;
-            break;
-        }
+        if (m_InstanceIDs.find(l_I) != m_InstanceIDs.end())
+            continue;
+
+        m_NextInstanceID = l_I;
     }
 
-    if (newInstanceId == _nextInstanceId)
+    if (l_NewInstanceID == m_NextInstanceID)
     {
-        sLog->outError(LOG_FILTER_MAPS, "Instance ID overflow!! Can't continue, shutting down server. ");
-        World::StopNow(ERROR_EXIT_CODE);
+        sLog->outError(LogFilterType::LOG_FILTER_MAPS, "Instance ID overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ShutdownExitCode::ERROR_EXIT_CODE);
     }
 
-    // Allocate space if necessary
-    if (newInstanceId >= uint32(_instanceIds.size()))
-    {
-        // Due to the odd memory allocation behavior of vector<bool> we match size to capacity before triggering a new allocation
-        if (_instanceIds.size() < _instanceIds.capacity())
-        {
-            _instanceIds.resize(_instanceIds.capacity());
-        }
-        else
-            _instanceIds.resize((newInstanceId / 32) * 32 + (newInstanceId % 32 > 0 ? 32 : 0));
-    }
+    m_InstanceIDs[l_NewInstanceID] = true;
 
-    _instanceIds[newInstanceId] = true;
-
-    return newInstanceId;
+    return l_NewInstanceID;
 }
 
-void MapManager::FreeInstanceId(uint32 instanceId)
+void MapManager::FreeInstanceId(uint32 p_InstanceID)
 {
-    // If freed instance id is lower than the next id available for new instances, use the freed one instead
-    if (instanceId < _nextInstanceId)
-        SetNextInstanceId(instanceId);
+    /// If freed instance id is lower than the next id available for new instances, use the freed one instead
+    if (p_InstanceID < m_NextInstanceID)
+        SetNextInstanceId(p_InstanceID);
 
-    _instanceIds[instanceId] = false;
+    m_InstanceIDs.erase(p_InstanceID);
 }
