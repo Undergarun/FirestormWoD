@@ -104,10 +104,14 @@ class boss_gruul_foundry : public CreatureScript
 
             void Reset() override
             {
+                ClearDelayedOperations();
+
                 m_Events.Reset();
                 m_CosmeticEvents.Reset();
 
                 summons.DespawnAll();
+
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
                 me->RemoveAura(eFoundrySpells::Berserker);
                 me->RemoveAura(eSpells::RageRegenerationAura);
