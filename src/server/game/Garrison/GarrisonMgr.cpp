@@ -3643,7 +3643,10 @@ namespace MS { namespace Garrison
                     {
                         GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_RewardIT);
 
-                        if (l_RewardEntry && l_RewardEntry->MissionID == l_Entry->MissionRecID)
+                        if (!l_RewardEntry)
+                            continue;
+
+                        if (l_RewardEntry->MissionID == l_Entry->MissionRecID)
                             l_RewardCount++;
 
                         /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
