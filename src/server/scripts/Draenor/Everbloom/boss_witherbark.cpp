@@ -166,7 +166,7 @@ public:
             {
                 if (Creature* l_Tender = me->SummonCreature(eEverbloomCreature::CreatureEverbloomMender, l_PositionNaturalistFollower, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                 {
-                    l_Follower->GetMotionMaster()->MovePoint(5, l_PositionNaturalistFollowerMov[2].GetPositionX(), l_PositionNaturalistFollowerMov[2].GetPositionY(), l_PositionNaturalistFollowerMov[2].GetPositionZ());
+                    l_Follower->GetMotionMaster()->MovePoint(5, l_PositionNaturalistFollowerMov[1].GetPositionX(), l_PositionNaturalistFollowerMov[1].GetPositionY(), l_PositionNaturalistFollowerMov[1].GetPositionZ());
                     l_Tender->GetMotionMaster()->MoveFollow(l_Follower, 60.0f, 4.0f, MOTION_SLOT_ACTIVE);
                 }
             }
@@ -426,7 +426,6 @@ public:
     }
 };
 
-
 // Everbloom Naturalist - 81819
 class the_everbloom_everbloom_naturalist : public CreatureScript
 {
@@ -462,10 +461,10 @@ public:
             switch (id)
             {
             case 5:
-                me->GetMotionMaster()->MovePoint(5, l_PositionNaturalistFollowerMov[1].GetPositionX(), l_PositionNaturalistFollowerMov[1].GetPositionY(), l_PositionNaturalistFollowerMov[1].GetPositionZ());
+                me->GetMotionMaster()->MovePoint(5, l_PositionNaturalistFollowerMov[0].GetPositionX(), l_PositionNaturalistFollowerMov[0].GetPositionY(), l_PositionNaturalistFollowerMov[0].GetPositionZ());
                 break;
             case 6:
-                me->GetMotionMaster()->MovePoint(5, l_PositionNaturalistFollowerMov[2].GetPositionX(), l_PositionNaturalistFollowerMov[2].GetPositionY(), l_PositionNaturalistFollowerMov[2].GetPositionZ());
+                me->GetMotionMaster()->MovePoint(5, l_PositionNaturalistFollowerMov[1].GetPositionX(), l_PositionNaturalistFollowerMov[1].GetPositionY(), l_PositionNaturalistFollowerMov[1].GetPositionZ());
                 break;
             }
         }
