@@ -623,6 +623,7 @@ public:
     bool CannotBeAddedToCharm() const;
     bool IsCustomArchaeologySpell() const;
     bool IsCustomChecked() const;
+    bool IsBattleResurrection() const;
 
     // loading helpers
     uint32 _GetExplicitTargetMask() const;

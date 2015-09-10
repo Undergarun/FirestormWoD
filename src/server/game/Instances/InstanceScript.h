@@ -162,10 +162,29 @@ enum eChallengeMedals
 enum eInstanceSpells
 {
     SpellDetermination          = 139068,
+    /// Heroism, Bloodlust...
     ShamanSated                 = 57724,
     HunterInsanity              = 95809,
     MageTemporalDisplacement    = 80354,
-    ShamanExhaustion            = 57723
+    ShamanExhaustion            = 57723,
+    /// Battle resurrection spells
+    Rebirth                     = 20484,
+    Soulstone                   = 20707,
+    RaiseAlly                   = 61999,
+    EternalGuardian             = 126393,
+    GiftOfChiJi                 = 159931,
+    DustOfLife                  = 159956,
+    MaxBattleResSpells          = 6
+};
+
+uint32 const g_BattleResSpells[eInstanceSpells::MaxBattleResSpells] =
+{
+    eInstanceSpells::Rebirth,
+    eInstanceSpells::Soulstone,
+    eInstanceSpells::RaiseAlly,
+    eInstanceSpells::EternalGuardian,
+    eInstanceSpells::GiftOfChiJi,
+    eInstanceSpells::DustOfLife
 };
 
 class InstanceScript : public ZoneScript
@@ -253,6 +272,9 @@ class InstanceScript : public ZoneScript
 
         // Add aura on all players in instance
         void DoAddAuraOnPlayers(uint32 spell);
+
+        /// Remove cooldown for spell on all players in instance
+        void DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID);
 
         // Return wether server allow two side groups or not
         bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
@@ -478,6 +500,20 @@ class InstanceScript : public ZoneScript
 
             return nullptr;
         }
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Combat Resurrection - http://wow.gamepedia.com/Resurrect#Combat_resurrection
+        void ResetCombatResurrection();
+        void StartCombatResurrection();
+        void UpdateCombatResurrection(uint32 const p_Diff);
+        bool CanUseCombatResurrection() const;
+        void ConsumeCombatResurrectionCharge();
+
+        uint32 m_InCombatResCount;
+        uint32 m_MaxInCombatResCount;
+        uint32 m_CombatResChargeTime;
+        uint32 m_NextCombatResChargeTime;
+        //////////////////////////////////////////////////////////////////////////
 
     protected:
         void SetBossNumber(uint32 p_Number);

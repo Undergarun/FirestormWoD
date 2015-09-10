@@ -221,6 +221,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                         l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
                 }
             }
+
+            void Update(uint32 p_Diff) override
+            {
+                UpdateCombatResurrection(p_Diff);
+            }
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* p_Map) const override

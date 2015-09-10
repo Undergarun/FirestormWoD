@@ -3978,6 +3978,11 @@ bool SpellInfo::IsCustomChecked() const
     return false;
 }
 
+bool SpellInfo::IsBattleResurrection() const
+{
+    return AttributesEx8 & SpellAttr8::SPELL_ATTR8_BATTLE_RESURRECTION;
+}
+
 bool SpellInfo::IsCanBeStolen() const
 {
     /// Special rules, some aren't using mana but can be stolen
