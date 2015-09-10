@@ -1349,18 +1349,16 @@ class spell_mage_inferno_blast: public SpellScriptLoader
                                 l_Caster->AddAura(SPELL_MAGE_LIVING_BOMB, l_Unit);
 
                             /// 4 : Combustion
-                            if (l_Target->HasAura(SPELL_MAGE_COMBUSTION_DOT, l_Caster->GetGUID()))
+                            if (AuraEffectPtr l_AuraCombustion = l_Target->GetAuraEffect(SPELL_MAGE_COMBUSTION_DOT, EFFECT_0, l_Caster->GetGUID()))
                             {
-                                if (l_Unit->HasAura(SPELL_MAGE_PYROBLAST, l_Caster->GetGUID()))
-                                {
-                                    l_CombustionBP += l_Caster->CalculateSpellDamage(l_Target, sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST), 1);
-                                    l_CombustionBP = l_Caster->SpellDamageBonusDone(l_Target, sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST), l_CombustionBP, EFFECT_0, DOT);
-                                }
-                                if (l_Unit->HasAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
-                                    l_CombustionBP += l_Unit->GetRemainingPeriodicAmount(l_Caster->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
+                                int32 l_PreviousCombustion = 0;
 
-                                if (l_CombustionBP)
-                                    l_Caster->CastCustomSpell(l_Unit, SPELL_MAGE_COMBUSTION_DOT, &l_CombustionBP, NULL, NULL, true);
+                                if (l_Unit->HasAura(SPELL_MAGE_COMBUSTION_DOT, l_Caster->GetGUID()))
+                                    l_PreviousCombustion = l_Unit->GetRemainingPeriodicAmount(l_Caster->GetGUID(), SPELL_MAGE_COMBUSTION_DOT, SPELL_AURA_PERIODIC_DAMAGE);
+
+                                AuraPtr l_Combustion = l_Caster->AddAura(SPELL_MAGE_COMBUSTION_DOT, l_Unit);
+                                l_Combustion->SetDuration(l_AuraCombustion->GetBase()->GetDuration());
+                                l_Combustion->GetEffect(EFFECT_0)->SetAmount(l_AuraCombustion->GetAmount() + l_PreviousCombustion);
                             }
                         }
                     }

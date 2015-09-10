@@ -504,6 +504,8 @@ class boss_gruul_foundry : public CreatureScript
 
                         AddTimedDelayedOperation(100, [this]() -> void
                         {
+                            me->SetReactState(ReactStates::REACT_PASSIVE);
+
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MovePoint(eSpells::SpellDestructiveRampage, g_CenterPos);
                         });
