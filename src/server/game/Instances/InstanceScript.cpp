@@ -1491,7 +1491,7 @@ void InstanceScript::StartCombatResurrection()
     float l_Value = 9000.0f / (float)l_PlayerCount;
     uint32 l_Timer = l_Value / 100;
 
-    l_Value -= l_Timer;
+    l_Value -= (float)l_Timer * 100.0f;
     l_Timer *= TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
     l_Value *= TimeConstants::MINUTE / 100.0f * TimeConstants::IN_MILLISECONDS;
     l_Timer += l_Value;
