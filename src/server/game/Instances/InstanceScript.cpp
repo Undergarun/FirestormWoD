@@ -1496,9 +1496,6 @@ void InstanceScript::StartCombatResurrection()
     l_Value *= TimeConstants::MINUTE / 100.0f * TimeConstants::IN_MILLISECONDS;
     l_Timer += l_Value;
 
-    ////////// DEBUG ///////////
-    l_Timer = 15 * TimeConstants::IN_MILLISECONDS;
-
     m_MaxInCombatResCount = 9;
     m_CombatResChargeTime = l_Timer;
     m_NextCombatResChargeTime = l_Timer;
