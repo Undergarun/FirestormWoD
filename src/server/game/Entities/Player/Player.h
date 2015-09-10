@@ -1373,6 +1373,7 @@ struct ResurrectionData
     uint32 Health;
     uint32 Mana;
     uint32 Aura;
+    SpellInfo const* ResSpell;
 };
 
 class KillRewarder
@@ -2370,7 +2371,7 @@ class Player : public Unit, public GridObject<Player>
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
-        void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura)
+        void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura, SpellInfo const* p_ResSpell = nullptr)
         {
             ASSERT(!IsRessurectRequested());
             _resurrectionData = new ResurrectionData();
@@ -2379,6 +2380,7 @@ class Player : public Unit, public GridObject<Player>
             _resurrectionData->Health = health;
             _resurrectionData->Mana = mana;
             _resurrectionData->Aura = appliedAura;
+            _resurrectionData->ResSpell = p_ResSpell;
         }
 
         void ClearResurrectRequestData()

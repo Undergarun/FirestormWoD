@@ -357,7 +357,7 @@ void Spell::EffectResurrectNew(SpellEffIndex effIndex)
     uint32 health = damage;
     uint32 mana = m_spellInfo->Effects[effIndex].MiscValue;
     ExecuteLogEffectResurrect(effIndex, target);
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
+    target->SetResurrectRequestData(m_caster, health, mana, 0, m_spellInfo);
     SendResurrectRequest(target);
 }
 
@@ -5638,7 +5638,7 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
 
     ExecuteLogEffectResurrect(effIndex, target);
 
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
+    target->SetResurrectRequestData(m_caster, health, mana, 0, m_spellInfo);
     SendResurrectRequest(target);
 }
 
@@ -7450,7 +7450,7 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
         return;
 
     ExecuteLogEffectResurrect(effIndex, target);
-    target->SetResurrectRequestData(m_caster, health, mana, resurrectAura);
+    target->SetResurrectRequestData(m_caster, health, mana, resurrectAura, m_spellInfo);
     SendResurrectRequest(target);
 }
 

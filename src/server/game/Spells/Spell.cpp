@@ -5978,6 +5978,25 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_spellInfo->IsCustomCastCanceled(m_caster))
         return SPELL_FAILED_DONT_REPORT;
 
+    /// Combat Resurrection spell
+    if (m_spellInfo->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = m_caster->GetInstanceScript())
+        {
+            if (!l_InstanceScript->CanUseCombatResurrection())
+                return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+        }
+
+        if (m_targets.GetUnitTarget() != nullptr)
+        {
+            if (Player* l_Target = m_targets.GetUnitTarget()->ToPlayer())
+            {
+                if (l_Target->IsRessurectRequested())
+                    return SPELL_FAILED_TARGET_HAS_RESURRECT_PENDING;
+            }
+        }
+    }
+
     // Check death state
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !((m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
         return SPELL_FAILED_CASTER_DEAD;
