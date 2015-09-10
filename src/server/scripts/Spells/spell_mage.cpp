@@ -1356,9 +1356,11 @@ class spell_mage_inferno_blast: public SpellScriptLoader
                                 if (l_Unit->HasAura(SPELL_MAGE_COMBUSTION_DOT, l_Caster->GetGUID()))
                                     l_PreviousCombustion = l_Unit->GetRemainingPeriodicAmount(l_Caster->GetGUID(), SPELL_MAGE_COMBUSTION_DOT, SPELL_AURA_PERIODIC_DAMAGE);
 
-                                AuraPtr l_Combustion = l_Caster->AddAura(SPELL_MAGE_COMBUSTION_DOT, l_Unit);
-                                l_Combustion->SetDuration(l_AuraCombustion->GetBase()->GetDuration());
-                                l_Combustion->GetEffect(EFFECT_0)->SetAmount(l_AuraCombustion->GetAmount() + l_PreviousCombustion);
+                                if (AuraPtr l_Combustion = l_Caster->AddAura(SPELL_MAGE_COMBUSTION_DOT, l_Unit))
+                                {
+                                    l_Combustion->SetDuration(l_AuraCombustion->GetBase()->GetDuration());
+                                    l_Combustion->GetEffect(EFFECT_0)->SetAmount(l_AuraCombustion->GetAmount() + l_PreviousCombustion);
+                                }
                             }
                         }
                     }
