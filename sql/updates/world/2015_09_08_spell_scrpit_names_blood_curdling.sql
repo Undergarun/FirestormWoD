@@ -1,0 +1,1 @@
+INSERT INTO `spell_script_names` VALUES (58096, 'spell_warr_glyph_of_mystic_shout');

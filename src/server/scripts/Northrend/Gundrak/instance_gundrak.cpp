@@ -421,6 +421,8 @@ public:
 
          void Update(uint32 diff)
          {
+             UpdateOperations(diff);
+
              // Spawn the support for the bridge if necessary
              if (spawnSupport)
              {

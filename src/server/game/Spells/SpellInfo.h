@@ -503,6 +503,7 @@ public:
     bool CanBeUsedInCombat() const;
     bool IsPositive() const;
     bool IsHealingSpell() const;
+    bool IsShieldingSpell() const;
     bool IsPositiveEffect(uint8 effIndex) const;
     bool IsChanneled() const;
     bool NeedsComboPoints() const;

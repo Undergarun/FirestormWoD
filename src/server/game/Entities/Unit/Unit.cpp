@@ -6350,7 +6350,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 case 18765:
                 case 35429:
                 {
-                    target = SelectNearbyTarget(victim);
+                    target = SelectNearbyTarget(victim, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
                     if (!target)
                         return false;
 
@@ -6976,7 +6976,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 // Sweeping Strikes
                 case 12328:
                 {
-                    target = SelectNearbyTarget(victim);
+                    target = SelectNearbyTarget(victim, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
                     if (!target)
                         return false;
 
@@ -16727,6 +16727,21 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
+    /// Words of Mending - 152117
+    if (HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL)
+    {
+        if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
+        {
+            if (HasAura(155363))
+            {
+                CastSpell(target, 33076, true);
+                RemoveAura(155363);
+            }
+            else
+                CastSpell(this, 155362, true);
+        }
+    }
+
     /// Revealing Strike - 84617
     if (target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
     {
@@ -17638,7 +17653,7 @@ void Unit::GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Ra
     l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, p_Range);
 }
 
-Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/, bool p_ExcludeStealthVictim /*=false*/) const
+Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/, bool p_ExcludeStealthVictim /*=false*/, bool p_CheckValidAttack /*= false*/) const
 {
     std::list<Unit*> l_Targets;
     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -17661,6 +17676,8 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_
         if (!IsWithinLOSInMap(*tIter) || (*tIter)->isTotem() || (*tIter)->isSpiritService() || (*tIter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
             l_Targets.erase(tIter++);
         else if (p_ExcludeStealthVictim && (*tIter)->HasStealthAura()) ///< Remove Stealth victim
+            l_Targets.erase(tIter++);
+        else if (p_CheckValidAttack && !IsValidAttackTarget(*tIter))
             l_Targets.erase(tIter++);
         else
             ++tIter;
@@ -17699,7 +17716,7 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_
     return JadeCore::Containers::SelectRandomContainerElement(l_Targets);
 }
 
-Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const
+Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist, bool p_CheckValidAssist /*= false*/) const
 {
     std::list<Unit*> targets;
     JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -17714,6 +17731,8 @@ Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const
     {
         if (!IsWithinLOSInMap(*tIter) || (*tIter)->isTotem() || (*tIter)->isSpiritService() || (*tIter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
             targets.erase(tIter++);
+        else if (p_CheckValidAssist && !IsValidAssistTarget(*tIter))
+            targets.erase(tIter++);
         else
             ++tIter;
     }
@@ -17724,6 +17743,35 @@ Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const
 
     // select random
     return JadeCore::Containers::SelectRandomContainerElement(targets);
+}
+
+Unit* Unit::SelectNearbyMostInjuredAlly(Unit* p_Exculde /*= nullptr*/, float p_Dist /*= NOMINAL_MELEE_RANGE*/) const
+{
+    std::list<Unit*> l_Targets;
+    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(this, this, p_Dist);
+    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(this, l_Targets, l_Check);
+    VisitNearbyObject(p_Dist, l_Searcher);
+
+    if (p_Exculde)
+        l_Targets.remove(p_Exculde);
+
+    /// Remove not LoS targets
+    for (std::list<Unit*>::iterator l_Iter = l_Targets.begin(); l_Iter != l_Targets.end();)
+    {
+        if (!IsWithinLOSInMap(*l_Iter) || (*l_Iter)->isTotem() || (*l_Iter)->isSpiritService() || (*l_Iter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
+            l_Targets.erase(l_Iter++);
+        else
+            ++l_Iter;
+    }
+
+    // No appropriate targets
+    if (l_Targets.empty())
+        return nullptr;
+
+    l_Targets.sort(JadeCore::HealthPctOrderPred(true));
+
+    /// Select most injured
+    return l_Targets.front();
 }
 
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
@@ -21364,6 +21412,8 @@ void Unit::SetFacingTo(float ori)
         init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
     init.SetFacing(ori);
     init.Launch();
+
+    SetOrientation(ori);
 }
 
 void Unit::SetFacingToObject(WorldObject* object)

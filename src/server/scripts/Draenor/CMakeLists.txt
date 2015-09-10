@@ -15,6 +15,7 @@ file(GLOB_RECURSE sources_Everbloom Draenor/Everbloom/*.hpp Draenor/Everbloom/*.
 file(GLOB_RECURSE sources_Auchindoun Draenor/Auchindoun/*.hpp Draenor/Auchindoun/*.cpp Draenor/Auchindoun/*.hxx)
 file(GLOB_RECURSE sources_Skyreach Draenor/Skyreach/*.hpp Draenor/Skyreach/*.cpp Draenor/Skyreach/*.hxx)
 file(GLOB_RECURSE sources_BloodmaulSlagMines Draenor/BloodmaulSlagMines/*.hpp Draenor/BloodmaulSlagMines/*.cpp Draenor/BloodmaulSlagMines/*.hxx)
+file(GLOB_RECURSE sources_BlackrockFoundry Draenor/BlackrockFoundry/*.hpp Draenor/BlackrockFoundry/*.cpp Draenor/BlackrockFoundry/*.hxx)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
@@ -25,6 +26,7 @@ set(scripts_STAT_SRCS
   ${sources_Skyreach}
   ${sources_Everbloom}
   ${sources_BloodmaulSlagMines}
+  ${sources_BlackrockFoundry}
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
   Draenor/frostfire_ridge.cpp
