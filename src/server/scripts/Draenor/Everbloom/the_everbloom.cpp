@@ -59,8 +59,8 @@ public:
 			switch (events.ExecuteEvent())
 			{
                 case eEverbloomEvents::EventDreadpetalToxin:
-				        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 8.0f, true))
-					        me->CastSpell(target, eEverbloomSpells::SpellDreadpetalToxin - 1);
+				        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 8.0f, true))
+                            me->CastSpell(l_Target, eEverbloomSpells::SpellDreadpetalToxin - 1);
 
                         events.ScheduleEvent(eEverbloomEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
 				        break;

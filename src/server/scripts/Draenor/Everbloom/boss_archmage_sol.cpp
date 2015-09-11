@@ -707,7 +707,7 @@ public:
         {
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitState(UnitState::UNIT_STATE_CANNOT_AUTOATTACK);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
 
             std::list<Player*> l_Playerlist;
             me->GetPlayerListInGrid(l_Playerlist, 100.0f);

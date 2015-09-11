@@ -103,16 +103,13 @@ static void StartAncientProtectors(InstanceScript* p_Instance, Creature* me, Uni
     if (p_Instance == nullptr)
         return;
 
-    Creature* l_Gola = p_Instance->instance->GetCreature(p_Instance->GetData64(eEverbloomData::DataLifeWardenGola));
-    if (l_Gola)
+    if (Creature* l_Gola = p_Instance->instance->GetCreature(p_Instance->GetData64(eEverbloomData::DataLifeWardenGola)))
         l_Gola->SetInCombatWithZone();
 
-    Creature* l_Dulhu = p_Instance->instance->GetCreature(p_Instance->GetData64(eEverbloomData::DataDulhu));
-    if (l_Dulhu)
+    if (Creature* l_Dulhu = p_Instance->instance->GetCreature(p_Instance->GetData64(eEverbloomData::DataDulhu)))
         l_Dulhu->SetInCombatWithZone();
 
-    Creature* l_Telu = p_Instance->instance->GetCreature(p_Instance->GetData64(eEverbloomData::DataEarthshaperTelu));
-    if (l_Telu)
+   if (Creature* l_Telu = p_Instance->instance->GetCreature(p_Instance->GetData64(eEverbloomData::DataEarthshaperTelu)))
         l_Telu->SetInCombatWithZone();
 }
 
@@ -132,7 +129,6 @@ static void WipingCondition(InstanceScript* p_Instance, Creature* p_Me)
 {
     if (p_Instance == nullptr)
         return;
-
 
     p_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Me);
 
@@ -182,6 +178,26 @@ static void WiningCondition(InstanceScript* p_Instance, Creature* p_Me)
         }
     }
 }
+
+static class MostCreatureHPMissingInRange
+{
+public:
+    MostCreatureHPMissingInRange(Unit const* obj, float range, uint32 hp) : i_obj(obj), i_range(range), i_hp(hp) {}
+    bool operator()(Unit* u)
+    {
+        if (u->isAlive() && u->isInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp && u->GetTypeId() != TYPEID_PLAYER)
+        {
+            if (u->GetEntry() == eEverbloomBosses::BossDulhu || u->GetEntry() == eEverbloomBosses::BossEarthshaperTelu || u->GetEntry() == eEverbloomBosses::BossLifeWardenGola)
+            i_hp = u->GetMaxHealth() - u->GetHealth();
+            return true;
+        }
+        return false;
+    }
+private:
+    Unit const* i_obj;
+    float i_range;
+    uint32 i_hp;
+};
 
 
 /// Life Warden Gola - 83892
@@ -286,15 +302,16 @@ public:
             {
                 case eAncientProtectorsEvents::EventRevitalizingWaters:
                 {
-                    if (m_Instance == nullptr)
-                        return;
+                    Unit* l_Target = NULL;
+                    MostCreatureHPMissingInRange u_check(me, 30.0f, 1);
+                    JadeCore::UnitLastSearcher<MostCreatureHPMissingInRange> searcher(me, l_Target, u_check);
+                    me->VisitNearbyObject(30.0f, searcher);
 
-                    if (Creature* l_Telu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataEarthshaperTelu)))
-                    {
-                        me->CastSpell(l_Telu, eEverbloomSpells::SpellHealingWaters);
-                        events.ScheduleEvent(eAncientProtectorsEvents::EventRevitalizingWaters, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
+                    if (l_Target && l_Target->IsInWorld())
+                        me->CastSpell(l_Target, eEverbloomSpells::SpellHealingWaters);
+
+                    events.ScheduleEvent(eAncientProtectorsEvents::EventRevitalizingWaters, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
+                    break;
                 }
                 case eAncientProtectorsEvents::EventRapidTides:
                 {
@@ -313,7 +330,7 @@ public:
                     if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
                         me->CastSpell(l_Random, eAncientProtectorsSpells::SpellWaterBolt);
-                        events.ScheduleEvent(eAncientProtectorsEvents::EventWaterBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                        events.ScheduleEvent(eAncientProtectorsEvents::EventWaterBolt, 6 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                 }
@@ -462,7 +479,7 @@ public:
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
                         me->CastSpell(l_Target, eAncientProtectorsSpells::SpellNaturesWrath);
-                        events.ScheduleEvent(eAncientProtectorsEvents::EventNaturesWrath, 8 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eAncientProtectorsEvents::EventNaturesWrath, 6 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                 }
@@ -500,14 +517,19 @@ public:
             m_Intro = false;
         }
 
-        EventMap m_Events;
         InstanceScript* m_Instance;
+        uint64 m_GraspingVineTargetGUID;
+        uint32 m_GraspingVineDiff;
         bool m_Intro;
+
 
         void Reset() override
         {
             _Reset();
             events.Reset();
+
+            m_GraspingVineTargetGUID = NULL;
+            m_GraspingVineDiff = 6000;
         }
 
         void EnterCombat(Unit* p_Who) override
@@ -582,6 +604,28 @@ public:
             if (!UpdateVictim())
                 return;
 
+            // Handle grasping Vine.
+            if (m_GraspingVineTargetGUID != NULL)
+            {
+                if (Unit* l_GraspingVineTarget = sObjectAccessor->GetUnit(*me, m_GraspingVineTargetGUID))
+                {
+                    if (me->IsWithinDistInMap(l_GraspingVineTarget, 5.0f))
+                    {
+                        // Cast Slash
+                        me->CastSpell(l_GraspingVineTarget, eAncientProtectorsSpells::SpellSlash);
+                        m_GraspingVineTargetGUID = NULL;
+                    }
+                }
+
+                // Incase Slash didn't happen, set target to NULL;
+                if (m_GraspingVineDiff <= p_Diff)
+                {
+                    m_GraspingVineTargetGUID = NULL;
+                }
+                else
+                    m_GraspingVineDiff -= p_Diff;
+            }
+
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
@@ -611,7 +655,12 @@ public:
                 {
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
-                        l_Target->CastSpell(me, eAncientProtectorsSpells::SpellGraspingVine);
+                        m_GraspingVineTargetGUID = l_Target->GetGUID();
+                        m_GraspingVineDiff = 6000;
+
+                        l_Target->CastSpell(me, eAncientProtectorsSpells::SpellGraspingVineAuraDummy);
+                        l_Target->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 8.0f, 6.0f, 10.0f);
+
                         events.ScheduleEvent(eAncientProtectorsEvents::EventGraspingVine, 45 * TimeConstants::IN_MILLISECONDS);
                     }
                     break;
@@ -750,17 +799,17 @@ public:
     {
         PrepareSpellScript(the_everbloom_spells);
 
-        void OnHitApply()
+        void OnCastApply()
         {
-            if (!GetCaster() && !GetHitUnit())
+            if (!GetCaster() && !GetExplTargetUnit())
                 return;
 
-            GetCaster()->AddAura(eAncientProtectorsSpells::SpellRendingChargeDot, GetHitUnit());
+            GetCaster()->CastSpell(GetExplTargetUnit(), eAncientProtectorsSpells::SpellRendingChargeDot, true);
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(the_everbloom_spells::OnHitApply);
+            AfterCast += SpellCastFn(the_everbloom_spells::OnCastApply);
         }
     };
 
