@@ -28,8 +28,8 @@ set(scripts_STAT_SRCS
   ${sources_BloodmaulSlagMines}
   ${sources_BlackrockFoundry}
 
-  Draenor/shadowmoon_valley.cpp
-  Draenor/shadowmoon_valley.hpp
+  Draenor/draenor_shadowmoon_valley.cpp
+  Draenor/draenor_shadowmoon_valley.hpp
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
   Draenor/frostfire_ridge.cpp

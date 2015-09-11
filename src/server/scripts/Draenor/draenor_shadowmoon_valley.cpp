@@ -102,10 +102,10 @@ class shadowmoon_prophet_velen_eventide_escort : public CreatureScript
 };
 */
 
-void AddSC_draenor_shadowmoon_valley()
+/*void AddSC_draenor_shadowmoon_valley()
 {
-//    new shadowmoon_prophet_velen_eventide_questgiver();
-//    new shadowmoon_prophet_velen_eventide_escort();
-//    new shadowmoon_yrel_eventide_questgiver();
-//    new shadowmoon_yrel_eventide_escort();
-}
+    new shadowmoon_prophet_velen_eventide_questgiver();
+    new shadowmoon_prophet_velen_eventide_escort();
+    new shadowmoon_yrel_eventide_questgiver();
+    new shadowmoon_yrel_eventide_escort();
+}*/
