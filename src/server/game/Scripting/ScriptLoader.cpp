@@ -876,6 +876,20 @@ void AddSC_boss_twin_ogron();
 void AddSC_boss_koragh();
 void AddSC_boss_imperator_margok();
 
+/// Blackrock Foundry
+void AddSC_instance_blackrock_foundry();
+void AddSC_blackrock_foundry();
+void AddSC_boss_gruul_foundry();
+void AddSC_boss_oregorger();
+void AddSC_boss_blast_furnace();
+void AddSC_boss_hansgar_and_franzok();
+void AddSC_boss_flamebender_kagraz();
+void AddSC_boss_kromog();
+void AddSC_boss_beastlord_darmac();
+void AddSC_boss_operator_thogar();
+void AddSC_boss_iron_maidens();
+void AddSC_boss_blackhand();
+
 /// Auchindon
 void AddSC_instance_auchindon();
 void AddSC_auchindoun();
@@ -1822,6 +1836,20 @@ void AddDraenorScripts()
     AddSC_boss_twin_ogron();
     AddSC_boss_koragh();
     AddSC_boss_imperator_margok();
+
+    /// Blackrock Foundry
+    AddSC_instance_blackrock_foundry();
+    AddSC_blackrock_foundry();
+    AddSC_boss_gruul_foundry();
+    AddSC_boss_oregorger();
+    AddSC_boss_blast_furnace();
+    AddSC_boss_hansgar_and_franzok();
+    AddSC_boss_flamebender_kagraz();
+    AddSC_boss_kromog();
+    AddSC_boss_beastlord_darmac();
+    AddSC_boss_operator_thogar();
+    AddSC_boss_iron_maidens();
+    AddSC_boss_blackhand();
 
     /// Auchindoun
     AddSC_instance_auchindon();

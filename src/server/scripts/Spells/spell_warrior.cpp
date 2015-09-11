@@ -1964,7 +1964,7 @@ class spell_warr_rend : public SpellScriptLoader
         }
 };
 
-/// Blood Bath - 12292
+/// BloodBath - 12292
 class spell_warr_blood_bath : public SpellScriptLoader
 {
     public:
@@ -2001,7 +2001,7 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 if (l_SpellInfo == nullptr || l_SpellInfoDamage == nullptr)
                     return;
 
-                int32 l_Damage = (p_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100;
+                int32 l_Damage = CalculatePct(p_ProcInfo.GetDamageInfo()->GetDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
 
                 int32 l_PreviousTotalDamage = 0;
 
@@ -2023,10 +2023,15 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 l_Damage += l_PreviousTotalDamage;
 
                 l_Caster->CastSpell(l_Target, eSpells::BloodBathSnare, true);
-                l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage, true);
-
-                if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
-                    l_BloodbathActual->SetAmount(l_Damage);
+                if (l_Target->HasAura(eSpells::BloodBathDamage, l_Caster->GetGUID()))
+                {
+                    if (AuraPtr l_ActualBloodBath = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID()))
+                        l_ActualBloodBath->SetDuration(l_ActualBloodBath->GetMaxDuration());
+                }
+                else
+                    l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage);
+                if (AuraEffectPtr l_NewBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
+                    l_NewBloodBath->SetAmount(l_Damage);
             }
 
             void Register()
@@ -2600,7 +2605,7 @@ class spell_warr_heroic_strike : public SpellScriptLoader
 
 /// last update : 6.1.2 19802
 /// Call by Commanding Shout - 469, Battle Shout - 6673
-/// Glyph of Mystic Shout - 58095
+/// Glyph of Mystic Shout - 58095, Glyph of Bloodcurdling Shout - 58096
 class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
 {
     public:
@@ -2613,7 +2618,9 @@ class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
             enum eSpells
             {
                 GlyphofMystucShout = 58095,
-                GlyphofMystucShoutAura = 121186
+                GlyphofMystucShoutAura = 121186,
+                GlyphofBloodcurdlingShout = 58096,
+                GlyphofBloodcurdlingShoutAura = 23690
             };
 
             void HandleOnCast()
@@ -2623,6 +2630,8 @@ class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
+                if (l_Player->HasGlyph(eSpells::GlyphofBloodcurdlingShout))
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofBloodcurdlingShoutAura, true);
                 if (l_Player->HasGlyph(eSpells::GlyphofMystucShout))
                     l_Player->CastSpell(l_Player, eSpells::GlyphofMystucShoutAura, true);
             }

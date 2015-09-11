@@ -26,6 +26,22 @@ namespace MS { namespace Garrison
 
         bool Active;            ///< Is building active
         bool BuiltNotified;     ///< Is built notified
+
+        /// Reset building
+        void Reset()
+        {
+            DatabaseID      = 0;
+            PlotInstanceID  = 0;
+            BuildingID      = 0;
+            SpecID          = 0;
+            TimeBuiltStart  = 0;
+            TimeBuiltEnd    = 0;
+
+            GatheringData = "";
+
+            Active          = false;
+            BuiltNotified   = false;
+        }
     };
 
 }   ///< namespace Garrison

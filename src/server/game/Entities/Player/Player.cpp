@@ -3102,6 +3102,15 @@ void Player::ProcessDelayedOperations()
             CastSpell(this, aura, true, NULL, NULLAURA_EFFECT, _resurrectionData->GUID);
 
         SpawnCorpseBones();
+
+        if (_resurrectionData->ResSpell != nullptr && _resurrectionData->ResSpell->IsBattleResurrection())
+        {
+            if (InstanceScript* l_InstanceScript = GetInstanceScript())
+                l_InstanceScript->ConsumeCombatResurrectionCharge();
+        }
+
+        /// Resurrecting - 60s aura preventing client from new res spells
+        RemoveAura(160029);
     }
 
     if (m_DelayedOperations & DELAYED_SAVE_PLAYER)
@@ -3199,10 +3208,16 @@ void Player::RegenerateAll()
     switch (l_Class)
     {
         case Classes::CLASS_PALADIN:
-            m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            if (!isInCombat())
+                m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            else
+                m_holyPowerRegenTimerCount = 0;
             break;
         case Classes::CLASS_MONK:
-            m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            if (!isInCombat())
+                m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            else
+                m_holyPowerRegenTimerCount = 0;
             break;
         case Classes::CLASS_HUNTER:
             m_focusRegenTimerCount += m_RegenPowerTimer;
@@ -3590,7 +3605,7 @@ void Player::ResetAllPowers()
     SetPower(POWER_RAGE, 0);
     SetPower(POWER_RUNIC_POWER, 0);
     SetPower(POWER_SHADOW_ORB, 0);
-    SetPower(POWER_SOUL_SHARDS, 100);
+    SetPower(POWER_SOUL_SHARDS, 400);
 }
 
 bool Player::CanInteractWithQuestGiver(Object* questGiver)
@@ -26102,6 +26117,17 @@ void Player::UpdatePvP(bool state, bool override)
 
 void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p_ItemId, Spell* p_Spell, bool p_InfinityCooldown)
 {
+    /// No need to set cooldown for Battle resurrection spells during a raid encounter
+    /// Now we have a system using Battle resurrection charges
+    if (p_SpellInfo->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = GetInstanceScript())
+        {
+            if (l_InstanceScript->IsEncounterInProgress() && l_InstanceScript->instance->IsRaid())
+                return;
+        }
+    }
+
     // init cooldown values
     uint32 l_CategoryId       = 0; // cat
     int64  l_Cooldown         = -1; //rec
@@ -28263,6 +28289,15 @@ void Player::ResurectUsingRequestData()
         CastSpell(this, aura, true, NULL, NULLAURA_EFFECT, _resurrectionData->GUID);
 
     SpawnCorpseBones();
+
+    if (_resurrectionData->ResSpell != nullptr && _resurrectionData->ResSpell->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = GetInstanceScript())
+            l_InstanceScript->ConsumeCombatResurrectionCharge();
+    }
+
+    /// Resurrecting - 60s aura preventing client from new res spells
+    RemoveAura(160029);
 }
 
 void Player::SetClientControl(Unit* p_Target, uint8 p_AllowMove)

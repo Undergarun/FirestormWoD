@@ -2487,8 +2487,7 @@ namespace MS { namespace Garrison
         GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
         GarrisonBuilding l_Building;
-
-        memset(&l_Building, 0, sizeof(l_Building));
+        l_Building.Reset();
 
         if (!l_BuildingEntry)
             return l_Building;
