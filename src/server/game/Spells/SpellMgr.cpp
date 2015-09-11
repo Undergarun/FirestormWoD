@@ -3385,6 +3385,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 173192: ///< Cave In (Dot)
+            case 159686: ///< Acidback Puddle (DoT)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 175091: ///< Animate Slag
@@ -3395,6 +3396,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155077: ///< Overwhelming Blows (Gruul)
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
+            case 159632: ///< Insatiable Hunger
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 167650: ///< Loose Quills (Rukhmar)

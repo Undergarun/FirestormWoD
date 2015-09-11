@@ -504,6 +504,12 @@ void Vehicle::RemovePassenger(Unit* unit)
     if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled)
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
 
+    if (Creature* l_Passenger = unit->ToCreature())
+    {
+        if (l_Passenger->IsAIEnabled)
+            l_Passenger->AI()->OnVehicleExited(_me);
+    }
+
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnRemovePassenger(this, unit);
 }
