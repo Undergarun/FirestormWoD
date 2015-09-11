@@ -6,6 +6,7 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 
 #81981/NPC - Tarnon
 
+	DELETE FROM creature_queststarter WHERE quest = 34193;
 	INSERT INTO creature_queststarter VALUE (81981, 34193);
 	UPDATE creature_template SET scriptname = "npc_Tarnon_Garrison", npcflag = 131 WHERE entry = 81981;
 

@@ -147,7 +147,7 @@ namespace MS { namespace Garrison
             /// Get num follower activation remaining
             uint32 GetNumFollowerActivationsRemaining() const;
             /// Check if any followers has ability in parameter
-            bool HasFollowerAbility(uint32 p_AbilityID);
+            bool HasFollowerAbility(uint32 p_AbilityID) const;
 
             /// Can build building X at slot instance Y
             bool IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID) const;

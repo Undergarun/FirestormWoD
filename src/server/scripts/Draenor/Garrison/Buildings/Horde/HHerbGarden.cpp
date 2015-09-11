@@ -6,12 +6,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #include "HHerbGarden.hpp"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "GameObjectAI.h"
-#include "Spell.h"
 #include "GarrisonMgr.hpp"
+#include "../../GarrisonScriptData.hpp"
 #include "../../Sites/GarrisonSiteBase.hpp"
 #include "../Alliance/AHerbGarden.hpp"
 
@@ -219,7 +215,7 @@ namespace MS { namespace Garrison
         {
             if (p_Player->GetGarrison())
             {
-                if (!p_Player->GetGarrison()->HasFollowerAbility(53)) ///< Herbalism
+                if (!p_Player->GetGarrison()->HasFollowerAbility(MS::Garrison::GarrisonAbilities::AbilityHerbalism))
                     p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
                 else
                 {

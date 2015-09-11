@@ -187,6 +187,11 @@ namespace MS { namespace Garrison
         GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE   = 161694,
     };
 
+    enum GarrisonAbilities
+    {
+        AbilityHerbalism = 53
+    };
+
     /// TerrainSwap : See WorldMapArea.dbc
     enum
     {

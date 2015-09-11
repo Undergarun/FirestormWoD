@@ -6,11 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #include "AHerbGarden.hpp"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "GameObjectAI.h"
-#include "Spell.h"
+#include "../../GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../Sites/GarrisonSiteBase.hpp"
 

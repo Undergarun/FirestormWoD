@@ -8,6 +8,12 @@
 #ifndef GARRISON_SCRIPT_DATA_HPP_GARRISON
 #define GARRISON_SCRIPT_DATA_HPP_GARRISON
 
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "GameObjectAI.h"
+#include "Spell.h"
+
 namespace MS { namespace Garrison 
 {
 

@@ -105,22 +105,22 @@ namespace MS { namespace Garrison
                 Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
                 if (!l_GarrisonSite)
-                    return;
+                    return 0;
 
                 GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(GetBuildingID());
 
                 if (!l_BuildingEntry)
-                    return;
+                    return 0;
 
                 Player* l_Owner = l_GarrisonSite->GetOwner();
 
                 if (!l_Owner)
-                    return;
+                    return 0;
 
                 Tokenizer l_Datas(l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
 
                 if (l_Datas.size() < 4 || l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()) == "")
-                    return;
+                    return 0;
 
                 return atol(l_Datas[0]);
             }
