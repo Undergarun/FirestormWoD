@@ -133,12 +133,12 @@ public:
     bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
     {
         if (l_Obj->GetTypeId() == TypeID::TYPEID_PLAYER)
-            return;
+            return false;
 
         if (l_Obj && l_Obj->GetAI())
         {
             if (Unit* l_Target = l_Obj->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                l_Obj->GetAI->AttackStart(l_Target);
+                l_Obj->GetAI()->AttackStart(l_Target);
         }
         return true;
     }
@@ -1294,7 +1294,7 @@ public:
             if (l_Beam)
             {
                 GetCaster()->GetMotionMaster()->MoveCharge(GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), 87.611f);
-                RandomMove(GetCaster());
+                //RandomMove(GetCaster());
             }
         }
 
