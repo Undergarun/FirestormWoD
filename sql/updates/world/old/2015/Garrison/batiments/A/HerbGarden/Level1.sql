@@ -4,7 +4,7 @@ UPDATE `creature_template` SET gossip_menu_id = 16962, npcflag=3, ScriptName="np
 
 -- Work order NPC
 INSERT INTO npc_text (`ID`, `text0_0`, `text0_1`, `lang0`, `prob0`, `BuildVerified`) VALUES(86941, "Draenic seeds can be gathered from herbalism nodes across draenor.  Return to me once you have 5 or more and I will grow them into herbs for you.", "Draenic seeds can be gathered from herbalism nodes across draenor.  Return to me once you have 5 or more and I will grow them into herbs for you.", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `text0_1` = VALUES(`text0_1`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `BuildVerified` = VALUES(`BuildVerified`);
-UPDATE `creature_template` SET gossip_menu_id = 16966, npcFlag=3, npcFlag2=128, minlevel=90, maxlevel=90, ScriptName="npc_OllyNimkip_Garr" WHERE `entry`=85514;
+UPDATE `creature_template` SET gossip_menu_id = 16966, npcFlag=3, npcFlag2=32, minlevel=90, maxlevel=90, ScriptName="npc_OllyNimkip_Garr" WHERE `entry`=85514;
 
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=77355;
 DELETE FROM `npc_vendor` WHERE `entry` = 77355 AND `type` = 1;

@@ -5,55 +5,28 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_HERB_GARDEN_ALLIANCE_HPP_GARRISON
-#define GARRISON_HERB_GARDEN_ALLIANCE_HPP_GARRISON
+#ifndef GARRISON_HERB_GARDEN_HORDE_HPP_GARRISON
+#define GARRISON_HERB_GARDEN_HORDE_HPP_GARRISON
 
 #include "../../GarrisonScriptData.hpp"
 #include "../../GarrisonNPC.hpp"
 #include "../GatheringBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Gather FMT : HerbSpawnType PrevSpawnTimeStamp NextSpawnTimeStamp BuildingLevel [for plot in plots]GobEntryOrHerbSpawnState[end_for]
 
-    namespace HerbSpawnType
-    {
-        enum Type
-        {
-            Frostweed,
-            Starflower,
-            Fireweed,
-            TaladorOrchid,
-            GrogrondFlytrap,
-            NagrandArrowbloom,
-            Random
-        };
-    }
-
-    namespace HerbAction
-    {
-        enum
-        {
-            Frostweed         = 0,
-            Fireweed          = 1,
-            TaladorOrchid     = 2,
-            GorgrondFlytrap   = 3,
-            NagrandArrowbloom = 4,
-            Starflower        = 5,
-        };
-    }
-
     /// Herbs game object entries
-    extern std::vector<uint32> g_AllyHerbsGobsEntry;
+    extern std::vector<uint32> g_HordeHerbsGobsEntry;
 
-    /// FarmSimulator/GoatSimulator positions
-    extern std::vector<GatheringPlotInfos> g_AllyHerbGardenFlowerPlot;
+    /// FarmSimulator positions
+    extern std::vector<GatheringPlotInfos> g_HordeHerbGardenFlowerPlot;
 
     //////////////////////////////////////////////////////////////////////////
-    /// 85514 - Olly Nimkip                                                ///
+    /// 85783 - Nali Softsoil                                              ///
     //////////////////////////////////////////////////////////////////////////
-    namespace npc_OllyNimkipAIData
+    namespace npc_NaliSoftOilAIData
     {
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
@@ -62,20 +35,17 @@ namespace MS { namespace Garrison
         extern char ScriptName[];
     }
 
-    using npc_OllyNimkip = GatheringBuilding_WorkOrderNPC<npc_OllyNimkipAIData::ScriptName, Quests::Alliance_ClearingTheGarden, &npc_OllyNimkipAIData::FnLevel1, &npc_OllyNimkipAIData::FnLevel2, &npc_OllyNimkipAIData::FnLevel3>;
+    using npc_NaliSoftOil = GatheringBuilding_WorkOrderNPC<npc_NaliSoftOilAIData::ScriptName, Quests::Horde_ClearingTheGarden, &npc_NaliSoftOilAIData::FnLevel1, &npc_NaliSoftOilAIData::FnLevel2, &npc_NaliSoftOilAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
+    /// 81981 - Tarnon                                                     ///
     //////////////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////////////
-    /// 85344 - Naron Bloomthistle                                         ///
-    //////////////////////////////////////////////////////////////////////////
-    class npc_NaronBloomthistleAI : public GatheringBuildingMaster<&g_AllyHerbGardenFlowerPlot>
+    class npc_TarnonAI : public GatheringBuildingMaster<&g_HordeHerbGardenFlowerPlot>
     {
         public:
             /// Constructor
             /// @p_Creature : AI Owner
-            npc_NaronBloomthistleAI(Creature * p_Creature);
+            npc_TarnonAI(Creature* p_Creature);
 
             /// When the PlotInstance ID is set
             /// @p_BuildingID : Set plot instance ID
@@ -87,24 +57,17 @@ namespace MS { namespace Garrison
             /// @p_Opt    : Quest reward option (eg: Loot choose)
             virtual void sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Opt) override;
 
-            /// @p_Action : Action ID
-            virtual void DoAction(int32 const p_Action) override;
-
             /// Select game object entry for a fresh gathering spawn
             /// @p_MiscData : Misc data
             virtual uint32 SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData) override;
 
     };
 
-    class npc_NaronBloomthistle : public CreatureScript
+    class npc_Tarnon : public CreatureScript
     {
         public:
             /// Constructor
-            npc_NaronBloomthistle();
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const override;
+            npc_Tarnon();
 
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
@@ -118,10 +81,13 @@ namespace MS { namespace Garrison
             /// @p_Action   : Action
             virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const override;
     };
 
 
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-#endif  ///< GARRISON_HERB_GARDEN_ALLIANCE_HPP_GARRISON
+#endif  ///< GARRISON_HERB_GARDEN_HORDE_HPP_GARRISON

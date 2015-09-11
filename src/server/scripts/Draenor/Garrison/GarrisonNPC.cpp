@@ -38,6 +38,7 @@
 #include "Buildings/Horde/Small/HGemBoutique.hpp"
 #include "Buildings/Horde/Small/HEngineeringWorks.hpp"
 #include "Buildings/Horde/Small/HScribeQuarters.hpp"
+#include "Buildings/Horde/HHerbGarden.hpp"
 
 #include <random>
 
@@ -628,6 +629,7 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_KurtBroadoak;
 
         /// Herb garden
+        new MS::Garrison::npc_OllyNimkip;
         new MS::Garrison::npc_NaronBloomthistle;
     }
 
@@ -680,5 +682,9 @@ void AddSC_Garrison_NPC()
         /// Scribe quarters
         new MS::Garrison::npc_Urgra;
         new MS::Garrison::npc_Yrogg;
+
+        /// Herb garden
+        new MS::Garrison::npc_Tarnon;
+        new MS::Garrison::npc_NaliSoftOil;
     }
 }

@@ -25,6 +25,8 @@ set(scripts_STAT_SRCS
   ${sources_Skyreach}
   ${sources_Everbloom}
   ${sources_BloodmaulSlagMines}
+  Draenor/shadowmoon_valley.cpp
+  Draenor/shadowmoon_valley.hpp
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
   Draenor/frostfire_ridge.cpp

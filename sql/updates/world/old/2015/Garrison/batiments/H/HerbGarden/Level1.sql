@@ -3,3 +3,16 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-29','0','81981','-10.7658','-2.22524','0.3862','3.02969');
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-29','0','79916','-25.4734','23.7395','3.0022','3.92699');
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-29','0','-239238','-4.98841','11.0472','1.0202','3.75067');
+
+#81981/NPC - Tarnon
+
+	INSERT INTO creature_queststarter VALUE (81981, 34193);
+	UPDATE creature_template SET scriptname = "npc_Tarnon_Garrison", npcflag = 131 WHERE entry = 81981;
+
+#85344/NPC - Naron Bloomthistle
+
+	UPDATE creature_template SET npcflag = npcflag | 128 WHERE entry = 85344;
+
+#85783/NPC - Nali Softsoil
+
+	UPDATE creature_template SET npcflag = npcflag | 1, npcflag2 = 32, scriptname = "npc_NaliSoftOil_Garr" WHERE entry = 85783;

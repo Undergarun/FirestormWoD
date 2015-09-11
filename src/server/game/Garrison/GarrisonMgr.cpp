@@ -3009,6 +3009,21 @@ namespace MS { namespace Garrison
         return m_WorkOrders;
     }
 
+    /// Check if any followers has ability in parameter
+    bool Manager::HasFollowerAbility(uint32 p_AbilityID)
+    {
+        std::vector<MS::Garrison::GarrisonFollower> l_Followers = GetFollowers();
+
+        for (MS::Garrison::GarrisonFollower l_Follower : l_Followers)
+        {
+            for (auto l_Ability : l_Follower.Abilities)
+            {
+                if (l_Ability == p_AbilityID)
+                    return true;
+            }
+        }
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 

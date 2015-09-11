@@ -17,7 +17,7 @@
 namespace MS { namespace Garrison 
 {
 
-    std::vector<uint32> g_HerbsGobsEntry
+    std::vector<uint32> g_AllyHerbsGobsEntry
     {
         235376, ///< HerbSpawnType::Frostweed
         235389, ///< HerbSpawnType::Starflower
@@ -28,7 +28,7 @@ namespace MS { namespace Garrison
     };
 
     /// FarmSimulator/GoatSimulator positions
-    std::vector<GatheringPlotInfos> g_HerbGardenFlowerPlot
+    std::vector<GatheringPlotInfos> g_AllyHerbGardenFlowerPlot
     {
         /// Level 1
         { 1, 30.1702f, -15.1116f, -1.1398f, 1.8810f },
@@ -45,85 +45,25 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     /// 85514 - Olly Nimkip                                                ///
     //////////////////////////////////////////////////////////////////////////
-    #pragma region 
-    namespace npc_OllyNimkipData
+    namespace npc_OllyNimkipAIData
     {
-        /// Cosmetic init for level 1
         InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        /// Cosmetic init for level 2
         InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        /// Cosmetic init for level 3
         InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
-    }   ///< namespace npc_TharisStrongcastData
 
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Constructor
-    npc_OllyNimkip::npc_OllyNimkip()
-        : CreatureScript("npc_OllyNimkip_Garr")
-    {
-
+        char ScriptName[] = "npc_OllyNimkip_Garr";
     }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a player opens a gossip dialog with the GameObject.
-    /// @p_Player     : Source player instance
-    /// @p_Creature   : Target GameObject instance
-    bool npc_OllyNimkip::OnGossipHello(Player * p_Player, Creature * p_Creature)
-    {
-        if (p_Player->IsQuestRewarded(Quests::Alliance_ClearingTheGarden))
-        {
-            /// @TODO
-            p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-            return true;
-        }
-        else
-        {
-            p_Player->SEND_GOSSIP_MENU(NPCTexts::OllyNimkipDefault, p_Creature->GetGUID());
-            return true;
-        }
-    }
-
-    /// Called when a player selects a gossip item in the creature's gossip menu.
-    /// @p_Player   : Source player instance
-    /// @p_Creature : Target creature instance
-    /// @p_Sender   : Sender menu
-    /// @p_Action   : Action
-    bool npc_OllyNimkip::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
-    {
-        if (!p_Player->IsQuestRewarded(Quests::Alliance_ClearingTheGarden))
-            return true;
-
-        if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
-            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
-
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI * npc_OllyNimkip::GetAI(Creature * p_Creature) const
-    {
-        return new SimpleSequenceCosmeticScriptAI<&npc_OllyNimkipData::FnLevel1, &npc_OllyNimkipData::FnLevel2, &npc_OllyNimkipData::FnLevel3>(p_Creature);
-    }
-    #pragma endregion 
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -135,7 +75,120 @@ namespace MS { namespace Garrison
     npc_NaronBloomthistleAI::npc_NaronBloomthistleAI(Creature * p_Creature)
         : GatheringBuildingMaster(p_Creature)
     {
+    }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the GameObject.
+    /// @p_Player     : Source player instance
+    /// @p_Creature   : Target GameObject instance
+    bool npc_NaronBloomthistle::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Alliance_ClearingTheGarden);
+
+        if (!l_Quest)
+            return true;
+
+        if (p_Player->GetQuestStatus(Quests::Alliance_ClearingTheGarden) == QUEST_STATUS_NONE)
+        {
+            p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+            return true;
+        }
+        else
+        {
+            if (p_Player->GetGarrison())
+            {
+                if (!p_Player->GetGarrison()->HasFollowerAbility(53)) ///< Herbalism
+                    p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
+                else
+                {
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I want to browse your goods.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to pick what we plant next.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /// Called when a player selects a gossip item in the creature's gossip menu.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    /// @p_Sender   : Sender menu
+    /// @p_Action   : Action
+    bool npc_NaronBloomthistle::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        p_Player->PlayerTalkClass->ClearMenus();
+
+        CreatureAI* l_AI = p_Creature->AI();
+
+        if (!l_AI)
+            return true;
+
+        switch (p_Action)
+        {
+            case GOSSIP_ACTION_INFO_DEF + 1:
+            {
+                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Alliance_ClearingTheGarden);
+
+                if (!l_Quest)
+                    return true;
+
+                if (p_Player->GetQuestStatus(Quests::Alliance_ClearingTheGarden) == QUEST_STATUS_NONE)
+                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+                else if (p_Player->GetQuestStatus(Quests::Alliance_ClearingTheGarden) == QUEST_STATUS_COMPLETE)
+                    p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
+
+                break;
+            }
+            case GOSSIP_ACTION_INFO_DEF + 2:
+            {
+                p_Player->PlayerTalkClass->ClearMenus();
+
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Frostweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Starflower.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fireweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Talador Orchid.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gorgrond Flytrap.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nagrand Arrowbloom.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+
+                p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+                break;
+            }
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                l_AI->DoAction(HerbAction::Frostweed);
+                p_Player->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 4:
+                l_AI->DoAction(HerbAction::Starflower);
+                p_Player->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 5:
+                l_AI->DoAction(HerbAction::Fireweed);
+                p_Player->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 6:
+                l_AI->DoAction(HerbAction::TaladorOrchid);
+                p_Player->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 7:
+                l_AI->DoAction(HerbAction::GorgrondFlytrap);
+                p_Player->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 8:
+                l_AI->DoAction(HerbAction::NagrandArrowbloom);
+                p_Player->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_TRADE:
+                p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
+                break;
+            default:
+                break;
+        }
+
+        return true;
     }
 
     /// When the PlotInstance ID is set
@@ -234,9 +287,18 @@ namespace MS { namespace Garrison
     uint32 npc_NaronBloomthistleAI::SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData)
     {
         if (p_MiscData == HerbSpawnType::Random)
-            return g_HerbsGobsEntry[urand(0, HerbSpawnType::Random - 1)];
+            return g_AllyHerbsGobsEntry[urand(0, HerbSpawnType::Random - 1)];
 
-        return g_HerbsGobsEntry[p_MiscData];
+        return g_AllyHerbsGobsEntry[p_MiscData];
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// @p_Action : Action ID
+    void npc_NaronBloomthistleAI::DoAction(int32 p_Action)
+    {
+        SetGatheringMiscData(g_AllyHerbsGobsEntry[p_Action]);
     }
 
     //////////////////////////////////////////////////////////////////////////
