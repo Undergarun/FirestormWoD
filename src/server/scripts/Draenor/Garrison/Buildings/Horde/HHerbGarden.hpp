@@ -57,6 +57,9 @@ namespace MS { namespace Garrison
             /// @p_Opt    : Quest reward option (eg: Loot choose)
             virtual void sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Opt) override;
 
+            /// @p_Action : Action ID
+            virtual void DoAction(int32 const p_Action) override;
+
             /// Select game object entry for a fresh gathering spawn
             /// @p_MiscData : Misc data
             virtual uint32 SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData) override;
@@ -83,7 +86,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const override;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
 
