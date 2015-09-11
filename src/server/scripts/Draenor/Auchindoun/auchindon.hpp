@@ -477,7 +477,7 @@ enum eAuchindonSpells
     SpellEmoteRead                      = 483,
     SpellVoidShiftHeal                  = 157036,
     SpellVoidShiftDmg                   = 157037,
-    SpellShadowWordPain                 = 176518,
+    SpellShadowWordPainPriest                 = 176518,
     SpellPsychicTerrorDummy             = 154356,
     SpellPsychicTerrorFear              = 154359,
 };
