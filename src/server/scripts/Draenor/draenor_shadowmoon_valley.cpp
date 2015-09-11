@@ -10,7 +10,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
-#include "shadowmoon_valley.hpp"
+#include "draenor_shadowmoon_valley.hpp"
 #include "GameObjectAI.h"
 #include "NPCHandler.h"
 #include "Vehicle.h"
