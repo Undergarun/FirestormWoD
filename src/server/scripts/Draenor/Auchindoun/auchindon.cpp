@@ -408,7 +408,7 @@ public:
                 if (Creature* l_Mage = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniMagus, g_PositionMagusWhoCastArcane, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                 {
                     l_Mage->SetReactState(ReactStates::REACT_PASSIVE);
-                    l_Mage->CastSpell(l_Mage, SpellArcaneChanneling);
+                    l_Mage->CastSpell(l_Mage, eAuchindonSpells::SpellArcaneChanneling);
                     l_Mage->m_Events.AddEvent(new ArcaneBombEvent(l_Mage, 0), l_Mage->m_Events.CalculateTime(20 * TimeConstants::IN_MILLISECONDS));
                 }
                 // Magus who talk to defender
@@ -999,6 +999,7 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
+            me->RemoveAura(eAuchindonSpells::SpellArcaneChanneling);
             events.ScheduleEvent(eAuchindonEvents::EventArcaneBomb, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
 
             std::list<Creature*> l_CreaturesPrisoners;
@@ -1031,6 +1032,68 @@ public:
             case eAuchindonEvents::EventArcaneBomb:
                     me->CastSpell(me, eAuchindonSpells::SpellArcaneBombDummy);
                     events.ScheduleEvent(eAuchindonEvents::EventArcaneBomb, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+                    break;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new auchindon_creatures(p_Creature);
+    }
+};
+
+/// Sargerei Soul Priest - 76595
+class auchindon_creature_soul_priest : public CreatureScript
+{
+public:
+    auchindon_creature_soul_priest() : CreatureScript("auchindon_creature_soul_priest") { }
+
+    struct auchindon_creatures : public ScriptedAI
+    {
+        auchindon_creatures(Creature* p_Creature) : ScriptedAI(p_Creature)
+        {
+            m_Instance = me->GetInstanceScript();
+        }
+
+        InstanceScript* m_Instance;
+
+        void Reset() override
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* p_Attacker) override
+        {
+            events.ScheduleEvent(eAuchindonEvents::EventShadowWordPainSoulPriest, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eAuchindonEvents::EventPsychicTerrors, 15 * TimeConstants::IN_MILLISECONDS);
+        }
+
+        void UpdateAI(const uint32 p_Diff) override
+        {
+            events.Update(p_Diff);
+
+            if (!UpdateVictim())
+                return;
+
+            switch (events.ExecuteEvent())
+            {
+                case eAuchindonEvents::EventShadowWordPainSoulPriest:
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true, -eAuchindonSpells::SpellShadowWordPain))
+                    {
+                        me->CastSpell(me, eAuchindonSpells::SpellShadowWordPain);
+                    }
+                    events.ScheduleEvent(eAuchindonEvents::EventShadowWordPainSoulPriest, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                case eAuchindonEvents::EventPsychicTerrors:
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    {
+                        me->CastSpell(l_Target, eAuchindonSpells::SpellPsychicTerrorDummy);
+                    }
+                
+                    events.ScheduleEvent(eAuchindonEvents::EventPsychicTerrors, 15 * TimeConstants::IN_MILLISECONDS);
                     break;
             }
 
@@ -1465,6 +1528,49 @@ public:
     }
 };
 
+/// Psychic Terrors - 154356  
+class auchindon_spell_psychic_terror : public SpellScriptLoader
+{
+public:
+    auchindon_spell_psychic_terror() : SpellScriptLoader("auchindon_spell_psychic_terror") { }
+
+    class everbloom_spells : public SpellScript
+    {
+        PrepareSpellScript(everbloom_spells);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    std::list<Player*> l_ListPlayers;
+                    l_Caster->GetPlayerListInGrid(l_ListPlayers, 4.0f);
+
+                    if (l_ListPlayers.empty())
+                        return;
+
+                    for (auto itr : l_ListPlayers)
+                    {
+                        itr->AddAura(eAuchindonSpells::SpellPsychicTerrorFear, itr);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(everbloom_spells::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new everbloom_spells();
+    }
+};
+
+
 /// Warden's Chain - 154683 
 class auchindon_spell_warden_chain : public SpellScriptLoader
 {
@@ -1884,6 +1990,7 @@ void AddSC_auchindoun()
     new auchindon_creature_sargerei_spirit_tender();
     new auchindon_creature_sargerei_hopilite();
     new auchindon_creature_felborne_abyssal();
+    new auchindon_creature_soul_priest();
     new auchindon_creature_felguard();
     new auchindon_creature_cackling_pyromaniac();
     new auchindon_creature_blazing_trickster();
@@ -1897,6 +2004,7 @@ void AddSC_auchindoun()
     new auchindon_spell_void_mending();
     new auchindon_spell_void_shell_filter();
     new auchindon_spell_arcane_bomb_dummy();
+    new auchindon_spell_psychic_terror();
     new auchindon_spell_fixate();
     new auchindon_spell_tuulani_unlock();
     new auchindon_spell_beam_cosmetic();

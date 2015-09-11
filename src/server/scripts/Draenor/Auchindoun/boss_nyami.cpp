@@ -405,7 +405,7 @@ public:
     }
 };
 
-/// Bubble Creature
+/// Bubble Creature - 342652
 class auchindon_nyami_bubble : public CreatureScript
 {
 public:
@@ -521,7 +521,7 @@ public:
     }
 };
 
-/// Malefic Defender - 
+/// Malefic Defender - 76283
 class auchindon_nyami_malefic_defender : public CreatureScript
 {
 public:
@@ -571,7 +571,7 @@ public:
     }
 };
 
-/// Spiteful Arbitrer
+/// Spiteful Arbitrer - 76284
 class auchindon_nyami_spiteful_arbitrer : public CreatureScript
 {
 public:
@@ -585,16 +585,31 @@ public:
         }
 
         InstanceScript* m_Instance;
+        bool m_Radiant;
+        uint32 m_RadiantDiff;
 
         void Reset()
         {
             events.Reset();
+
+            m_Radiant = false;
+            m_RadiantDiff = 500;
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
-            events.ScheduleEvent(EventRadiantFury, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(EventArbitrerHammer, 14 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eNyamiEvents::EventRadiantFury, 8 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eNyamiEvents::EventArbitrerHammer, 14 * TimeConstants::IN_MILLISECONDS);
+        }
+
+        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
+        {
+            switch (p_Id)
+            {
+            case 500:
+                m_Radiant = false;
+                break;
+            }
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -603,6 +618,25 @@ public:
             
             if (!UpdateVictim())
                 return;
+
+            if (m_Radiant)
+            {
+                if (m_RadiantDiff <= p_Diff)
+                {
+                    Position l_Position;
+                    me->GetPosition(&l_Position);
+
+                    ///< Right
+                    me->SummonCreature(eNyamiCreatures::CreatureRadiantFury, l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetOrientation() * M_PI, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+
+                    ///< Left
+                    me->SummonCreature(eNyamiCreatures::CreatureRadiantFury, l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetOrientation() * ((0 - 2) * M_PI), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+
+                    m_Radiant = 500;
+                }
+                else
+                    m_RadiantDiff -= p_Diff;
+            }
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -617,24 +651,12 @@ public:
                         }
                         break;
                 case eNyamiEvents::EventRadiantFury:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50.0f, true))
                         {
-                            me->CastSpell(l_Target, SpellRadiantFuryJump); // too fast?
-                            Position pos;
-                            me->GetPosition(&pos);
+                            m_Radiant = true;
+                            m_RadiantDiff = 500;
 
-                            for (int i = 0; i < 3; i++)
-                            {
-                                float orientationleft = me->GetOrientation() * M_PI / 2;                       
-                                Creature* LeftTrigger = me->SummonCreature(eNyamiCreatures::CreatureRadiantFury, pos.GetPositionX(), pos.GetPositionY(), orientationleft, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                        
-                            }
-                            for (int i = 0; i < 3; i++)
-                            {
-                                float orientationright = me->GetOrientation() * M_PI / 4;
-                                Creature* RightTrigger = me->SummonCreature(eNyamiCreatures::CreatureRadiantFury, pos.GetPositionX(), pos.GetPositionY(), orientationright, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                            }
-
+                            me->GetMotionMaster()->MoveJump(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), 4.0f, 4.0f, 10.0f, 500);
                             events.ScheduleEvent(eNyamiEvents::EventRadiantFuryStop, 3 * TimeConstants::IN_MILLISECONDS);
                         }
                         break;             
@@ -656,7 +678,7 @@ public:
     }
 };
 
-/// Radiant Fury - 
+/// Radiant Fury - 432626
 class auchindon_nyami_radiant_fury_trigger : public CreatureScript
 {
 public:
@@ -691,7 +713,7 @@ public:
     }
 };
 
-/// Twisted Magus - 
+/// Twisted Magus - 76296
 class auchindon_nyami_twisted_magus : public CreatureScript
 {
 public:
@@ -745,7 +767,7 @@ public:
     }
 };
 
-/// Torn Spirits
+/// Torn Spirits - 153994
 class auchindon_nyami_torn_spirits : public SpellScriptLoader
 {
 public:
@@ -787,7 +809,7 @@ public:
     }
 };
 
-/// Soul Vessel
+/// Soul Vessel - 154187
 class auchindon_nyami_spell_soul_vessel_damage : public SpellScriptLoader
 {
 public:
@@ -815,7 +837,7 @@ public:
     }
 };
 
-/// Soul Vessel - 
+/// Soul Vessel - 155327
 class auchindon_nyami_spell_soul_vessel_dummy : public SpellScriptLoader
 {
 public:

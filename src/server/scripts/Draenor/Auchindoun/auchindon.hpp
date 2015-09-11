@@ -476,7 +476,10 @@ enum eAuchindonSpells
     SpellEmoteHover                     = 533,
     SpellEmoteRead                      = 483,
     SpellVoidShiftHeal                  = 157036,
-    SpellVoidShiftDmg                   = 157037
+    SpellVoidShiftDmg                   = 157037,
+    SpellShadowWordPain                 = 176518,
+    SpellPsychicTerrorDummy             = 154356,
+    SpellPsychicTerrorFear              = 154359,
 };
 
 enum eAuchindonEvents
@@ -501,7 +504,9 @@ enum eAuchindonEvents
     EventWardenHammer,
     EventWardenChain,
     EventConfligrate,
-    EventBeginRp
+    EventBeginRp,
+    EventShadowWordPainSoulPriest,
+    EventPsychicTerrors,
 };
 
 enum eAuchindonObjects
