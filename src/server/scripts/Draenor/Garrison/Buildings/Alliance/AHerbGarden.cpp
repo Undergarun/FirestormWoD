@@ -116,12 +116,13 @@ namespace MS { namespace Garrison
     /// @p_Action   : Action
     bool npc_NaronBloomthistle::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        p_Player->PlayerTalkClass->ClearMenus();
-
+        MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
 
-        if (!l_AI)
+        if (!l_GarrisonMgr || !l_AI)
             return true;
+
+        p_Player->PlayerTalkClass->ClearMenus();
 
         switch (p_Action)
         {
@@ -142,6 +143,24 @@ namespace MS { namespace Garrison
             case GOSSIP_ACTION_INFO_DEF + 2:
             {
                 p_Player->PlayerTalkClass->ClearMenus();
+
+                /// Test for removing already selected option
+                /*Tokenizer l_Datas(l_GarrisonMgr->GetBuildingGatheringData(63), ' '); ///< Herb Garden
+                uint32 l_Type = strtoul(l_Datas[0], NULL, 10);
+
+                if (l_Type != 0)
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Frostweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                if (l_Type != 1)
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Starflower.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                if (l_Type != 2)
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fireweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                if (l_Type != 3)
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Talador Orchid.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                if (l_Type != 4)
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gorgrond Flytrap.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                if (l_Type != 5)
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nagrand Arrowbloom.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);*/
+
 
                 p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Frostweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                 p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Starflower.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
