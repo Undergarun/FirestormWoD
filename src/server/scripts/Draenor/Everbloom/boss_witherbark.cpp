@@ -221,6 +221,9 @@ public:
                     {
                         m_Intro = true;
 
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_UNK_15 | eUnitFlags::UNIT_FLAG_UNK_6);
+                        me->SetReactState(ReactStates::REACT_DEFENSIVE);
+
                         me->setFaction(HostileFaction);
                         me->RemoveAllAuras();
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
@@ -769,17 +772,55 @@ public:
     }
 };
 
+/// Agitated Waters - 177731 
+class the_everbloom_agitated_waters : public SpellScriptLoader
+{
+public:
+    the_everbloom_agitated_waters() : SpellScriptLoader("the_everbloom_agitated_waters") {}
+
+    class the_everbloom_agitated_waters_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(the_everbloom_agitated_waters_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (GetCaster())
+            {       
+                if (InstanceScript* l_Instance = GetCaster()->GetInstanceScript())
+                {
+                    if (Creature* l_Witherbark = l_Instance->instance->GetCreature(l_Instance->GetData64(eEverbloomData::DataWitherbark)))
+                    {
+                        if (!l_Witherbark->isInCombat())
+                            return SPELL_FAILED_DONT_REPORT;
+
+                        if (!l_Witherbark->isAlive())
+                            return SPELL_FAILED_DONT_REPORT;
+                    }
+                }
+            }
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(the_everbloom_agitated_waters_SpellScript::CheckCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new the_everbloom_agitated_waters_SpellScript;
+    }
+};
+
 void AddSC_boss_witherbark()
 {
-    // Boss
     new boss_witherbark();
-
-    // Creatures
     new the_everbloom_agitated_water();
     new the_everbloom_globule();
     new the_everbloom_naturalist();
-
-    // Spells
     new the_everbloom_brittle_bark();
     new the_everbloom_parched_grasp_target();
+    new the_everbloom_agitated_waters();
 }

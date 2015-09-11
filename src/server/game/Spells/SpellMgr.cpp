@@ -3493,6 +3493,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
+                /// Everbloom
+            case 164834: ///< Barrage of Leaves
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 164886: ///< Dreadpetal Toxin
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
                 /// Auchindon
             case 156862: ///< Drain Soul Cosmetic
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;

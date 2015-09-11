@@ -109,6 +109,7 @@ static void ShootBeam(Unit* p_Caster)
     }
 }
 
+/*
 static void RandomMove(Unit* p_Me)
 {
     std::list<Position> l_Position;
@@ -120,6 +121,32 @@ static void RandomMove(Unit* p_Me)
 
     p_Me->GetMotionMaster()->MovePoint(0, l_it->GetPositionX(), l_it->GetPositionY(), l_it->GetPositionZ());
 }
+*/
+
+class basic_event_fix_movement_chase : public BasicEvent
+{
+public:
+    explicit basic_event_fix_movement_chase(Unit* p_Unit) : l_Obj(p_Unit)
+    {
+    }
+
+    bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
+    {
+        if (l_Obj->GetTypeId() == TypeID::TYPEID_PLAYER)
+            return false;
+
+        if (l_Obj && l_Obj->GetAI())
+        {
+            if (Unit* l_Target = l_Obj->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                l_Obj->GetAI()->AttackStart(l_Target);
+        }
+        return true;
+    }
+private:
+    Unit* l_Obj;
+    int modifier;
+    int Event;
+};
 
 static void DescendBeam(Creature* p_Creature)
 {
@@ -133,6 +160,7 @@ static void DescendBeam(Creature* p_Creature)
         }
 
         p_Creature->GetMotionMaster()->MoveTakeoff(0, p_Creature->GetPositionX(), p_Creature->GetPositionY(), 64.589f);
+        p_Creature->m_Events.AddEvent(new basic_event_fix_movement_chase(p_Creature), p_Creature->m_Events.CalculateTime(2500));
     }
 }
 
@@ -293,7 +321,7 @@ public:
             {          
                 case 10:   // Beam
                 case 11:   // Random Movement
-                    RandomMove(me);
+                    //RandomMove(me);
                     break;
             }
         }
@@ -382,7 +410,7 @@ public:
             {
                 if (!m_Descend)
                 {
-                    RandomMove(me);
+                    //RandomMove(me);
                 }
             }
             else
@@ -501,9 +529,8 @@ public:
 
                     std::list<Position>::const_iterator it = l_Position.begin();
                     std::advance(it, urand(0, l_Position.size() - 1));
-
-                    Creature* l_Spiderling = me->SummonCreature(eEverbloomCreature::CreatureVenomSprayer, it->GetPositionX(), it->GetPositionY(), it->GetPositionZ(), it->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                    if (l_Spiderling)
+           
+                    if (Creature* l_Spiderling = me->SummonCreature(eEverbloomCreature::CreatureVenomSprayer, it->GetPositionX(), it->GetPositionY(), it->GetPositionZ(), it->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                         DescendBeam(l_Spiderling);
 
                     events.ScheduleEvent(eXeritacEvents::EventVenomSprayers, 30 * TimeConstants::IN_MILLISECONDS);
@@ -1267,7 +1294,7 @@ public:
             if (l_Beam)
             {
                 GetCaster()->GetMotionMaster()->MoveCharge(GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), 87.611f);
-                RandomMove(GetCaster());
+                //RandomMove(GetCaster());
             }
         }
 
