@@ -258,7 +258,7 @@ enum ItemFlags3
     ITEM_FLAG3_UNK11                       = 0x00004000,
     ITEM_FLAG3_UNK12                       = 0x00008000,
     ITEM_FLAG3_UNK13                       = 0x00010000,
-    ITEM_FLAG3_UNK14                       = 0x00020000,
+    ITEM_FLAG3_SEND_TOAST_ON_LOOT          = 0x00020000, ///< Guessed
     ITEM_FLAG3_UNK15                       = 0x00040000
 };
 

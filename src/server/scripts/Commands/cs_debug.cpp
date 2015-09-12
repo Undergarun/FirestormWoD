@@ -129,6 +129,8 @@ class debug_commandscript: public CommandScript
                 { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
                 { "setaianimkit",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAIAnimKit,           "", NULL },
                 { "dumpchartemplate", SEC_CONSOLE,      true,  &HandleDebugDumpCharTemplate,       "", NULL },
+                { "dumprewardlessmissions", SEC_CONSOLE, true, &HandleDebugDumpRewardlessMissions, "", NULL },
+                { "dumpspellrewardlessmissions", SEC_CONSOLE, true, &HandleSpellDebugDumpRewardlessMissions, "", NULL },
                 { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
                 { "packetprofiler", SEC_ADMINISTRATOR,  false, &HandleDebugPacketProfiler,         "", NULL },
                 { "hotfix",         SEC_ADMINISTRATOR,  false, &HandleHotfixOverride,              "", NULL },
@@ -2684,6 +2686,124 @@ class debug_commandscript: public CommandScript
             fwrite(l_FinalString.c_str(), l_FinalString.length(), 1, l_Output);
             fflush(l_Output);
             fclose(l_Output);
+            return true;
+        }
+
+        static bool HandleDebugDumpRewardlessMissions(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            FILE* l_Output = fopen("./rewardless_ids.txt", "w+");
+            if (!l_Output)
+                return false;
+
+            std::ostringstream l_StrBuilder;
+            std::list<uint32> l_AlreadyInserted;
+
+            for (uint32 l_ID = 0; l_ID < sGarrMissionRewardStore.GetNumRows(); l_ID++)
+            {
+                GarrMissionRewardEntry const* l_Entry = sGarrMissionRewardStore.LookupEntry(l_ID);
+
+                if (!l_Entry)
+                    continue;
+
+                if (!l_Entry->ItemID)
+                    continue;
+
+                ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_Entry->ItemID);
+
+                if (!l_Template)
+                    continue;
+
+                if (!(l_Template->Flags & ITEM_FLAG_OPENABLE))
+                    continue;
+
+                if (LootTemplates_Item.HaveLootFor(l_Template->ItemId))
+                    continue;
+
+                if (std::find(l_AlreadyInserted.begin(), l_AlreadyInserted.end(), l_Entry->ItemID) != l_AlreadyInserted.end())
+                    continue;
+
+                l_AlreadyInserted.push_back(l_Entry->ItemID);
+                l_StrBuilder << l_Entry->ItemID << " \\ " << l_Template->Name1->Get(LOCALE_enUS) << "\n";
+            }
+
+            std::string l_String = l_StrBuilder.str();
+            fwrite(l_String.c_str(), l_String.length(), 1, l_Output);
+            fflush(l_Output);
+            fclose(l_Output);
+
+            return true;
+        }
+
+        static bool HandleSpellDebugDumpRewardlessMissions(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            FILE* l_Output = fopen("./rewardless_spell_ids.txt", "w+");
+            if (!l_Output)
+                return false;
+
+            FILE* l_SQL = fopen("./temp_loot_table.sql", "w+");
+            if (!l_Output)
+                return false;
+
+            std::ostringstream l_StrBuilder;
+            std::ostringstream l_StrBuilder2;
+            std::list<uint32> l_AlreadyInserted;
+
+            for (uint32 l_ID = 0; l_ID < sGarrMissionRewardStore.GetNumRows(); l_ID++)
+            {
+                GarrMissionRewardEntry const* l_Entry = sGarrMissionRewardStore.LookupEntry(l_ID);
+
+                if (!l_Entry)
+                    continue;
+
+                if (!l_Entry->ItemID)
+                    continue;
+
+                ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_Entry->ItemID);
+
+                if (!l_Template)
+                    continue;
+
+                uint32 l_SpellId = l_Template->Spells[0].SpellId;
+
+                if (!l_SpellId)
+                    continue;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellId);
+
+                if (!l_SpellInfo)
+                    continue;
+
+                if (!l_SpellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM_2))
+                    continue;
+
+                if (LootTemplates_Spell.HaveLootFor(l_SpellId))
+                    continue;
+
+                if (std::find(l_AlreadyInserted.begin(), l_AlreadyInserted.end(), l_Entry->ItemID) != l_AlreadyInserted.end())
+                    continue;
+
+                l_AlreadyInserted.push_back(l_Entry->ItemID);
+                l_StrBuilder << l_Entry->ItemID << " \\ " << l_Template->Name1->Get(LOCALE_enUS) << "\n";
+                l_StrBuilder2 << "UPDATE temp_loot_table SET entry = " << l_SpellId << " WHERE entry = " << l_Entry->ItemID << ";\n";
+                l_StrBuilder2 << "DELETE FROM spell_loot_tempalte WHERE entry = " << l_SpellId << ";\n";
+            }
+
+            std::string l_String = l_StrBuilder.str();
+            fwrite(l_String.c_str(), l_String.length(), 1, l_Output);
+            fflush(l_Output);
+            fclose(l_Output);
+
+            std::string l_String2 = l_StrBuilder2.str();
+            fwrite(l_String2.c_str(), l_String2.length(), 1, l_SQL);
+            fflush(l_SQL);
+            fclose(l_SQL);
+
             return true;
         }
 
