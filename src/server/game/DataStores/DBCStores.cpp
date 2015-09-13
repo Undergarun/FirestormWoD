@@ -91,6 +91,8 @@ static FactionTeamMap                     sFactionTeamMap;
 DBCStorage <FactionEntry>                 sFactionStore(FactionEntryfmt);
 DBCStorage <FactionTemplateEntry>         sFactionTemplateStore(FactionTemplateEntryfmt);
 
+DBCStorage <FileDataEntry>                sFileDataStore(FileDatafmt);
+
 DBCStorage <GameObjectDisplayInfoEntry>   sGameObjectDisplayInfoStore(GameObjectDisplayInfofmt);
 DBCStorage <GemPropertiesEntry>           sGemPropertiesStore(GemPropertiesEntryfmt);
 DBCStorage <GlyphPropertiesEntry>         sGlyphPropertiesStore(GlyphPropertiesfmt);
@@ -308,7 +310,9 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sFactionTemplateStore,        dbcPath, "FactionTemplate.dbc");                                              // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sFileDataStore,               dbcPath, "FileData.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sGameObjectDisplayInfoStore,  dbcPath, "GameObjectDisplayInfo.dbc");                                        // 17399
+
     for (uint32 i = 0; i < sGameObjectDisplayInfoStore.GetNumRows(); ++i)
     {
         if (GameObjectDisplayInfoEntry const* info = sGameObjectDisplayInfoStore.LookupEntry(i))

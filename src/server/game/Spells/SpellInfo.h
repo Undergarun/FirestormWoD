@@ -504,6 +504,7 @@ public:
     bool CanBeUsedInCombat() const;
     bool IsPositive() const;
     bool IsHealingSpell() const;
+    bool IsShieldingSpell() const;
     bool IsPositiveEffect(uint8 effIndex) const;
     bool IsChanneled() const;
     bool NeedsComboPoints() const;
@@ -623,6 +624,7 @@ public:
     bool CannotBeAddedToCharm() const;
     bool IsCustomArchaeologySpell() const;
     bool IsCustomChecked() const;
+    bool IsBattleResurrection() const;
 
     // loading helpers
     uint32 _GetExplicitTargetMask() const;

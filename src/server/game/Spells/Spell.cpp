@@ -1874,7 +1874,11 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex p_EffIndex, SpellImp
                             if ((*l_Iterator))
                             {
                                 if (Unit* unitTarget = (*l_Iterator)->ToUnit())
-                                    l_UnitTargets.push_back(unitTarget);
+                                {
+                                    /// Raid buffs work just on Players
+                                    if (unitTarget->ToPlayer())
+                                        l_UnitTargets.push_back(unitTarget);
+                                }
                             }
                         }
                     }
@@ -3319,19 +3323,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         // Haste modifies duration of channeled spells
                         if (m_spellInfo->IsChanneled())
                             m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
-                        else if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
-                        {
-                            int32 origDuration = duration;
-                            duration = 0;
-                            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                                if (constAuraEffectPtr eff = m_spellAura->GetEffect(i))
-                                    if (int32 amplitude = eff->GetAmplitude())  // amplitude is hastened by UNIT_FIELD_MOD_CASTING_SPEED
-                                        duration = int32(origDuration * (2.0f - m_originalCaster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED)));
-
-                            // if there is no periodic effect
-                            if (!duration)
-                                duration = int32(origDuration * (2.0f - m_originalCaster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED)));
-                        }
                     }
 
                     if (duration != m_spellAura->GetMaxDuration())
@@ -3594,7 +3585,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
     //Prevent casting at cast another spell (ServerSide check)
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count &&
-        (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_BE_CAST_WHILE_MOVING) || (GetSpellInfo()->CalcCastTime(m_caster))) &&
+        m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) &&
         (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
@@ -4032,6 +4023,9 @@ void Spell::cast(bool skipCheck)
     }
 
     CallScriptAfterCastHandlers();
+
+    if (m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
+        m_caster->ToCreature()->AI()->OnSpellCasted(m_spellInfo);
 
     // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed 
     if (m_caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && m_caster->isMoving() && !m_caster->HasAura(119048) && m_spellInfo->CalcCastTime(m_caster) > 0)
@@ -5974,6 +5968,25 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_spellInfo->IsCustomCastCanceled(m_caster))
         return SPELL_FAILED_DONT_REPORT;
 
+    /// Combat Resurrection spell
+    if (m_spellInfo->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = m_caster->GetInstanceScript())
+        {
+            if (!l_InstanceScript->CanUseCombatResurrection())
+                return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+        }
+
+        if (m_targets.GetUnitTarget() != nullptr)
+        {
+            if (Player* l_Target = m_targets.GetUnitTarget()->ToPlayer())
+            {
+                if (l_Target->IsRessurectRequested())
+                    return SPELL_FAILED_TARGET_HAS_RESURRECT_PENDING;
+            }
+        }
+    }
+
     // Check death state
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !((m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
         return SPELL_FAILED_CASTER_DEAD;
@@ -5999,7 +6012,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
         //can cast triggered (by aura only?) spells while have this flag
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && l_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY) &&
-            (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (GetSpellInfo()->CalcCastTime(m_caster))) &&
+            m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) &&
             (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 
@@ -6272,10 +6285,25 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_caster->IsMounted() && m_caster->GetTypeId() == TYPEID_PLAYER && !(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE) &&
         !m_spellInfo->IsPassive() && !(m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_MOUNTED))
     {
-        if (m_caster->isInFlight())
-            return SPELL_FAILED_NOT_ON_TAXI;
+        /// Herb Gathering
+        if (m_spellInfo->Id == 2369)
+        {
+            /// This is used for Sky Golem (Flying Mount) which allow you to gather herbs (and only herbs) without being dismounted.
+            if (!m_caster->HasFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED))
+            {
+                if (m_caster->isInFlight())
+                    return SPELL_FAILED_NOT_ON_TAXI;
+                else
+                    return SPELL_FAILED_NOT_MOUNTED;
+            }
+        }
         else
-            return SPELL_FAILED_NOT_MOUNTED;
+        {
+            if (m_caster->isInFlight())
+                return SPELL_FAILED_NOT_ON_TAXI;
+            else
+                return SPELL_FAILED_NOT_MOUNTED;
+        }
     }
 
     SpellCastResult castResult = SPELL_CAST_OK;
@@ -6536,11 +6564,16 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 // get the lock entry
                 uint32 lockId = 0;
+                bool l_OverridePlayerCondition = false;
                 if (GameObject* go = m_targets.GetGOTarget())
                 {
                     lockId = go->GetGOInfo()->GetLockId();
                     if (!lockId)
                         return SPELL_FAILED_BAD_TARGETS;
+
+                    GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(go->GetEntry());
+                    if (l_Template && l_Template->chest.conditionID1 && m_caster->ToPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
+                        l_OverridePlayerCondition = true;
                 }
                 else if (Item* itm = m_targets.GetItemTarget())
                     lockId = itm->GetTemplate()->LockID;
@@ -6551,8 +6584,11 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 // check lock compatibility
                 SpellCastResult res = CanOpenLock(i, lockId, skillId, reqSkillValue, skillValue);
-                if (res != SPELL_CAST_OK)
+                if (res != SPELL_CAST_OK && !l_OverridePlayerCondition)
                     return res;
+
+                if (l_OverridePlayerCondition)
+                    res = SPELL_CAST_OK;
 
                 // chance for fail at orange mining/herb/LockPicking gathering attempt
                 // second check prevent fail at rechecks
@@ -7816,9 +7852,7 @@ void Spell::Delayed()
         return;
 
     /// Check pushback reduce
-    /// Spellcasting delay is normally 500ms
-    /// http://www.mmo-champion.com/content/3981-Warlords-of-Draenor-Skies-Blizzcon-Tickets-on-Saturday-Blue-Tweets-Wildstar-Beta
-    /// "We removed the passives, and reduced all pushback, game-wide, by 70%. (Celestalon)"
+    /// Spellcasting delay is normally 150ms since WOD
     int32 l_DelayTime = 150;
 
     /// Must be initialized to 100 for percent modifiers

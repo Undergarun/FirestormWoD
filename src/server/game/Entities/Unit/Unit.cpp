@@ -6351,7 +6351,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 case 18765:
                 case 35429:
                 {
-                    target = SelectNearbyTarget(victim);
+                    target = SelectNearbyTarget(victim, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
                     if (!target)
                         return false;
 
@@ -6977,7 +6977,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 // Sweeping Strikes
                 case 12328:
                 {
-                    target = SelectNearbyTarget(victim);
+                    target = SelectNearbyTarget(victim, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
                     if (!target)
                         return false;
 
@@ -9259,21 +9259,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                         basepoints0 = int32(CalculatePct(procSpell->ManaCost, 35));
                         trigger_spell_id = 23571;
                         target = this;
-                        break;
-                    }
-                    case 30881: // Nature's Guardian Rank 1
-                    case 30883: // Nature's Guardian Rank 2
-                    case 30884: // Nature's Guardian Rank 3
-                    {
-                        if (HealthBelowPctDamaged(30, damage))
-                        {
-                            target = this;
-                            trigger_spell_id = 31616;
-                            if (victim && victim->isAlive())
-                                victim->getThreatManager().modifyThreatPercent(this, -10);
-                        }
-                        else
-                            return false;
                         break;
                     }
                 }
@@ -12098,7 +12083,7 @@ void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int
     if (IsSpellMultistrike(p_ProcSpell) &&
         (p_ProcSpell->Id == 17 || p_ProcSpell->Id == 152118 || p_ProcSpell->Id == 114908))
     {
-        uint8 l_ProcTimes = (p_Target->GetSpellModOwner() != nullptr) ? 1 : 2;
+        uint8 l_ProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
         for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
         {
             uint32 l_MultistrikeAbsorbAmount = GetMultistrikeBasePoints(p_Amount);
@@ -12423,6 +12408,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
+        {
             if (victim)
             {
                 crit_chance += GetUnitCriticalChance(attackType, victim);
@@ -12474,6 +12460,8 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     }
                 }
             }
+            break;
+        }
         case SPELL_DAMAGE_CLASS_RANGED:
         {
             if (victim)
@@ -13274,27 +13262,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             if (AuraEffectPtr shadowInfusion = stacks->GetEffect(0))
                 DoneTotalMod += CalculatePct(1.0, shadowInfusion->GetAmount());
 
-    bool weaponAttack = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (!spellProto)
-            break;
-
-        switch (spellProto->Effects[i].Effect)
-        {
-            case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-            case SPELL_EFFECT_WEAPON_DAMAGE:
-            case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-                weaponAttack = true;
-                break;
-            default:
-                break;
-        }
-    }
-
-    // Some spells don't benefit from pct done mods
-    if (spellProto && !weaponAttack)
+    if (spellProto)
     {
         if (!(spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
         {
@@ -13333,10 +13301,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
 
     if (GetSpellModOwner())
-    {
-        if (GetSpellModOwner())
-            DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-    }
+        DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
     if (spellProto)
@@ -13848,7 +13813,10 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 
     for (Unit::ControlList::iterator l_Iter = m_Controlled.begin(); l_Iter != m_Controlled.end(); ++l_Iter)
-        (*l_Iter)->SetInCombatState(p_IsPVP, p_Enemy, true);
+    {
+        if ((*l_Iter) != nullptr)
+            (*l_Iter)->SetInCombatState(p_IsPVP, p_Enemy, true);
+    }
 
     RemoveAura(121308); ///< Glyph of Disguise, only out of combat
 
@@ -16006,9 +15974,6 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
-    if (p_Regen)
-        m_lastRegenTime[l_PowerIndex] = getMSTime();
-
     if (!p_Regen || l_RegenDiff > 2000)
         SetInt32Value(UNIT_FIELD_POWER + l_PowerIndex, p_PowerValue);
 
@@ -16024,6 +15989,8 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
         l_Data << uint8(p_PowerType);
 
         SendMessageToSet(&l_Data, GetTypeId() == TYPEID_PLAYER ? true : false);
+
+        m_lastRegenTime[l_PowerIndex] = getMSTime();
     }
 
     /// Custom MoP Script
@@ -16302,26 +16269,18 @@ void CharmInfo::RestoreState()
 void CharmInfo::InitPetActionBar()
 {
     // the first 3 SpellOrActions are attack, follow and move-to
+    CommandStates l_Commands[] = { COMMAND_ATTACK, COMMAND_FOLLOW, COMMAND_MOVE_TO };
     for (uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_START - ACTION_BAR_INDEX_START; ++i)
-    {
-        if (i < 2)
-            SetActionBar(ACTION_BAR_INDEX_START + i, COMMAND_ATTACK - i, ACT_COMMAND);
-        else
-            SetActionBar(ACTION_BAR_INDEX_START + i, COMMAND_MOVE_TO, ACT_COMMAND);
-    }
+        SetActionBar(ACTION_BAR_INDEX_START + i, l_Commands[i], ACT_COMMAND);
 
     // middle 4 SpellOrActions are spells/special attacks/abilities
     for (uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_END-ACTION_BAR_INDEX_PET_SPELL_START; ++i)
         SetActionBar(ACTION_BAR_INDEX_PET_SPELL_START + i, 0, ACT_PASSIVE);
 
     // last 3 SpellOrActions are reactions
+    ReactStates l_Reactions[] = { REACT_HELPER, REACT_DEFENSIVE, REACT_PASSIVE };
     for (uint32 i = 0; i < ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_PET_SPELL_END; ++i)
-    {
-        if (i == 0)
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER, ACT_REACTION);
-        else
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_AGGRESSIVE - i, ACT_REACTION);
-    }
+        SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, l_Reactions[i], ACT_REACTION);
 
     m_CharmType = CharmType::CHARM_TYPE_CHARM;
 }
@@ -16755,6 +16714,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
+    /// Runic Strikes
+    if ((procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && HasAura(165394) && GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsTwoHandUsed() && procSpell == nullptr)
+        CastSpell(this, 163948, true);
+
     // Dematerialize
     if (target && !isVictim && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(122464) && procSpell && procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN))
     {
@@ -16762,6 +16725,21 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         {
             target->CastSpell(target, 122465, true);
             target->ToPlayer()->AddSpellCooldown(122465, 0, 10 * IN_MILLISECONDS);
+        }
+    }
+
+    /// Words of Mending - 152117
+    if (HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL)
+    {
+        if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
+        {
+            if (HasAura(155363))
+            {
+                CastSpell(target, 33076, true);
+                RemoveAura(155363);
+            }
+            else
+                CastSpell(this, 155362, true);
         }
     }
 
@@ -17676,7 +17654,7 @@ void Unit::GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Ra
     l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, p_Range);
 }
 
-Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/, bool p_ExcludeStealthVictim /*=false*/) const
+Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/, bool p_ExcludeStealthVictim /*=false*/, bool p_CheckValidAttack /*= false*/) const
 {
     std::list<Unit*> l_Targets;
     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -17699,6 +17677,8 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_
         if (!IsWithinLOSInMap(*tIter) || (*tIter)->isTotem() || (*tIter)->isSpiritService() || (*tIter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
             l_Targets.erase(tIter++);
         else if (p_ExcludeStealthVictim && (*tIter)->HasStealthAura()) ///< Remove Stealth victim
+            l_Targets.erase(tIter++);
+        else if (p_CheckValidAttack && !IsValidAttackTarget(*tIter))
             l_Targets.erase(tIter++);
         else
             ++tIter;
@@ -17737,7 +17717,7 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_
     return JadeCore::Containers::SelectRandomContainerElement(l_Targets);
 }
 
-Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const
+Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist, bool p_CheckValidAssist /*= false*/) const
 {
     std::list<Unit*> targets;
     JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -17752,6 +17732,8 @@ Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const
     {
         if (!IsWithinLOSInMap(*tIter) || (*tIter)->isTotem() || (*tIter)->isSpiritService() || (*tIter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
             targets.erase(tIter++);
+        else if (p_CheckValidAssist && !IsValidAssistTarget(*tIter))
+            targets.erase(tIter++);
         else
             ++tIter;
     }
@@ -17762,6 +17744,35 @@ Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist) const
 
     // select random
     return JadeCore::Containers::SelectRandomContainerElement(targets);
+}
+
+Unit* Unit::SelectNearbyMostInjuredAlly(Unit* p_Exculde /*= nullptr*/, float p_Dist /*= NOMINAL_MELEE_RANGE*/) const
+{
+    std::list<Unit*> l_Targets;
+    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(this, this, p_Dist);
+    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(this, l_Targets, l_Check);
+    VisitNearbyObject(p_Dist, l_Searcher);
+
+    if (p_Exculde)
+        l_Targets.remove(p_Exculde);
+
+    /// Remove not LoS targets
+    for (std::list<Unit*>::iterator l_Iter = l_Targets.begin(); l_Iter != l_Targets.end();)
+    {
+        if (!IsWithinLOSInMap(*l_Iter) || (*l_Iter)->isTotem() || (*l_Iter)->isSpiritService() || (*l_Iter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
+            l_Targets.erase(l_Iter++);
+        else
+            ++l_Iter;
+    }
+
+    // No appropriate targets
+    if (l_Targets.empty())
+        return nullptr;
+
+    l_Targets.sort(JadeCore::HealthPctOrderPred(true));
+
+    /// Select most injured
+    return l_Targets.front();
 }
 
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
@@ -19841,7 +19852,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             if (getRace() == RACE_NIGHTELF)
             {
                 if (clawsOfShirvallah)
-                    return 55887; // Panther
+                    return 59268; // Panther
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
@@ -19889,7 +19900,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_TROLL)
             {
                 if (clawsOfShirvallah)
-                    return 55889; // Tiger
+                    return 59270; // Tiger
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
@@ -19939,7 +19950,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_WORGEN)
             {
                 if (clawsOfShirvallah)
-                    return 55888; // Snowleopard
+                    return 59269; // Snowleopard
 
                 // Based on Skin color
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
@@ -20037,7 +20048,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_TAUREN)
             {
                 if (clawsOfShirvallah)
-                    return 55886; // Lion
+                    return 59267; // Lion
 
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
                 // Male
@@ -20462,21 +20473,10 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         }
         case FORM_FLIGHT_EPIC:
         {
-            if (Player::TeamForRace(getRace()) == HORDE)
-            {
-                if (getRace() == RACE_TROLL)
-                    return 37730;
-                else if (getRace() == RACE_TAUREN)
-                    return 21244;
-            }
-            else if (Player::TeamForRace(getRace()) == ALLIANCE)
-            {
-                if (getRace() == RACE_NIGHTELF)
-                    return 21243;
-                else if (getRace() == RACE_WORGEN)
-                    return 37729;
-            }
-
+            if (Player::TeamForRace(getRace()) == ALLIANCE)
+                return (getRace() == RACE_WORGEN ? 37729 : 21243);
+            if (getRace() == RACE_TROLL)
+                return 37730;
             return 21244;
         }
         case FORM_STAG:
@@ -20489,61 +20489,55 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 case RACE_NIGHTELF:
                 case RACE_WORGEN:
                     return 40816;
-
                 case RACE_TROLL:
                 case RACE_TAUREN:
                     return 45339;
+                default:
+                    break;
             }
+            break;
         }
         case FORM_MOONKIN:
         {
-            bool chosenOfElune = HasAura(102560);
-            if (Player::TeamForRace(getRace()) == HORDE)
+            /// Glyph of Stars
+            if (HasAura(114301))
             {
-                // Glyph of Stars
-                if (HasAura(114301))
-                {
-                    CastSpell(this, 114302, true); // Astral Form
-                    return 0;
-                }
-                else if (getRace() == RACE_TROLL)
-                {
-                    if (chosenOfElune)
-                        return 43789;
-                    else
-                        return 37174;
-                }
-                else if (getRace() == RACE_TAUREN)
-                {
-                    if (chosenOfElune)
-                        return 43786;
-                    else
-                        return 15375;
-                }
+                CastSpell(this, 114302, true); ///< Astral Form
+                return 0;
             }
-            else if (Player::TeamForRace(getRace()) == ALLIANCE)
+
+            bool l_ChosenOfElune = HasAura(102560);
+
+            switch (getRace())
             {
-                // Glyph of Stars
-                if (HasAura(114301))
+                case RACE_NIGHTELF:
                 {
-                    CastSpell(this, 114302, true); // Astral Form
-                    return 0;
-                }
-                if (getRace() == RACE_NIGHTELF)
-                {
-                    if (chosenOfElune)
+                    if (l_ChosenOfElune)
                         return 43790;
-                    else
-                        return 15374;
+                    return 15374;
                 }
-                else if (getRace() == RACE_WORGEN)
+                case RACE_TAUREN:
                 {
-                    if (chosenOfElune)
-                        return 43787;
-                    else
-                        return 37173;
+                    if (l_ChosenOfElune)
+                        return 43786;
+                    return 15375;
                 }
+                case RACE_WORGEN:
+                {
+                    if (l_ChosenOfElune)
+                        return 43787;
+                    return 37173;
+                }
+                case RACE_TROLL:
+                {
+                    if (l_ChosenOfElune)
+                        return 43789;
+                    return 37174;
+                }
+                default:
+                    break;
             }
+            break;
         }
         case FORM_AQUA:
         {
@@ -21419,6 +21413,8 @@ void Unit::SetFacingTo(float ori)
         init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
     init.SetFacing(ori);
     init.Launch();
+
+    SetOrientation(ori);
 }
 
 void Unit::SetFacingToObject(WorldObject* object)

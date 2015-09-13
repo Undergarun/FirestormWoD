@@ -886,7 +886,7 @@ class spell_rog_blade_flurry: public SpellScriptLoader
                     if (l_ProcSpell && !l_ProcSpell->CanTriggerBladeFlurry())
                         return;
 
-                    if (Unit* l_Target = l_Caster->SelectNearbyTarget(p_EventInfo.GetActionTarget()))
+                    if (Unit* l_Target = l_Caster->SelectNearbyTarget(p_EventInfo.GetActionTarget(), NOMINAL_MELEE_RANGE, 0U, true, true, false, true))
                         l_Caster->CastCustomSpell(l_Target, ROGUE_SPELL_BLADE_FLURRY_DAMAGE, &l_Damage, NULL, NULL, true);
                 }
             }
@@ -1570,17 +1570,21 @@ class spell_rog_deadly_poison_instant_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_deadly_poison_instant_damage_SpellScript);
 
-            void HandleOnCast()
+            void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetExplTargetUnit())
-                        if (target->HasAura(ROGUE_SPELL_DEADLY_POISON_DOT, caster->GetGUID()))
-                            caster->CastSpell(target, ROGUE_SPELL_DEADLY_POISON_INSTANT_DAMAGE, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(ROGUE_SPELL_DEADLY_POISON_DOT, l_Caster->GetGUID()))
+                    l_Caster->CastSpell(l_Target, ROGUE_SPELL_DEADLY_POISON_INSTANT_DAMAGE, true);
             }
 
             void Register()
             {
-                OnCast += SpellCastFn(spell_rog_deadly_poison_instant_damage_SpellScript::HandleOnCast);
+                AfterHit += SpellHitFn(spell_rog_deadly_poison_instant_damage_SpellScript::HandleAfterHit);
             }
         };
 
@@ -2127,6 +2131,7 @@ class spell_rog_internal_bleeding_damage : public SpellScriptLoader
         }
 };
 
+/// Last Upadate 6.1.2
 /// Fan of Knives - 51723
 class spell_rog_fan_of_knives: public SpellScriptLoader
 {
@@ -2137,15 +2142,27 @@ class spell_rog_fan_of_knives: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_fan_of_knives_SpellScript);
 
-            void HandleAfterCast()
+            bool m_HasAlredyBenefitOfBonus = false;
+
+            enum eSpells
             {
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                EmpoweredFanofKnives = 157671
+            };
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (m_HasAlredyBenefitOfBonus && !l_Caster->HasAura(eSpells::EmpoweredFanofKnives))
+                    return;
+
+                l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                m_HasAlredyBenefitOfBonus = true;
             }
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_rog_fan_of_knives_SpellScript::HandleAfterCast);
+                AfterHit += SpellHitFn(spell_rog_fan_of_knives_SpellScript::HandleAfterHit);
             }
         };
 

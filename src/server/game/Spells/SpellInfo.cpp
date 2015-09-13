@@ -1493,6 +1493,12 @@ bool SpellInfo::IsHealingSpell() const
         || HasAura(SPELL_AURA_PERIODIC_HEAL));
 }
 
+bool SpellInfo::IsShieldingSpell() const
+{
+    return (HasAura(SPELL_AURA_SCHOOL_ABSORB)
+        || HasAura(SPELL_AURA_SCHOOL_HEAL_ABSORB));
+}
+
 bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
 {
     switch (effIndex)
@@ -2618,7 +2624,8 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
-            if (Id == 48266 || Id == 48263 || Id == 48265)
+            /// Blood Presence, Unholy Presence, Frost Presence
+            if (Id == 48263 || Id == 48265 || Id == 48266)
                 return SpellSpecificType::SpellSpecificPresence;
             break;
         case SPELLFAMILY_ROGUE:
@@ -3096,6 +3103,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case 62344: // Fists of Stone
                 case 62478: // Frozen Blows (Hodir)
                 case 63512: // Frozen Blows (Hodir)
+                case 73523: // Rigor Mortis
                     return true;
                 default:
                     break;
@@ -3975,6 +3983,11 @@ bool SpellInfo::IsCustomChecked() const
     }
 
     return false;
+}
+
+bool SpellInfo::IsBattleResurrection() const
+{
+    return AttributesEx8 & SpellAttr8::SPELL_ATTR8_BATTLE_RESURRECTION;
 }
 
 bool SpellInfo::IsCanBeStolen() const

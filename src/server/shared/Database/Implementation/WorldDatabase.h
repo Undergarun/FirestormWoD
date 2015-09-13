@@ -21,19 +21,6 @@
 #include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-class WorldDatabaseConnection : public MySQLConnection
-{
-    public:
-        //- Constructors for sync and async connections
-        WorldDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) {}
-        WorldDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
-
-        //- Loads database type specific prepared statements
-        void DoPrepareStatements();
-};
-
-typedef DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabaseWorkerPool;
-
 enum WorldDatabaseStatements
 {
     /*  Naming standard for defines:
@@ -116,7 +103,23 @@ enum WorldDatabaseStatements
     WORLD_INS_DISABLES,
     WORLD_DEL_DISABLES,
     WORLD_SEL_BLACKMARKET_TEMPLATE,
+    WORLD_SEL_MAX_CREATURE_GUID,
     MAX_WORLDDATABASE_STATEMENTS,
 };
+
+class WorldDatabaseConnection : public MySQLConnection
+{
+public:
+    typedef WorldDatabaseStatements Statements;
+
+    //- Constructors for sync and async connections
+    WorldDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) {}
+    WorldDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
+
+    //- Loads database type specific prepared statements
+    void DoPrepareStatements() override;
+};
+
+typedef DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabaseWorkerPool;
 
 #endif

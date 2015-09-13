@@ -216,7 +216,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
 }
 
 //this function sends mail to old bidder
-void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans)
+void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint64 newPrice, Player* newBidder, SQLTransaction& trans)
 {
     uint64 oldBidder_guid = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
     Player* oldBidder = ObjectAccessor::FindPlayer(oldBidder_guid);
@@ -645,16 +645,16 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& p_Data) const
     return true;
 }
 
-uint32 AuctionEntry::GetAuctionCut() const
+uint64 AuctionEntry::GetAuctionCut() const
 {
-    int32 cut = int32(CalculatePct(bid, auctionHouseEntry->ConsignmentRate) * sWorld->getRate(RATE_AUCTION_CUT));
-    return std::max(cut, 0);
+    int64 cut = int64(CalculatePct(bid, auctionHouseEntry->ConsignmentRate) * sWorld->getRate(RATE_AUCTION_CUT));
+    return std::max(cut, (int64)0);
 }
 
 /// the sum of outbid is (1% from current bid)*5, if bid is very small, it is 1c
-uint32 AuctionEntry::GetAuctionOutBid() const
+uint64 AuctionEntry::GetAuctionOutBid() const
 {
-    uint32 outbid = CalculatePct(bid, 5);
+    uint64 outbid = CalculatePct(bid, 5);
     return outbid ? outbid : 1;
 }
 
@@ -673,11 +673,11 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt32(2, itemGUIDLow);
     stmt->setUInt32(3, owner);
     stmt->setUInt64(4, buyout);
-    stmt->setUInt64(5, uint64(expire_time));
+    stmt->setUInt32(5, expire_time);
     stmt->setUInt32(6, bidder);
     stmt->setUInt64(7, bid);
     stmt->setUInt64(8, startbid);
-    stmt->setInt32(9, int32(deposit));
+    stmt->setUInt64(9, deposit);
     trans->Append(stmt);
 }
 
@@ -696,7 +696,7 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     bidder      = fields[index++].GetUInt32();
     bid         = fields[index++].GetUInt64();
     startbid    = fields[index++].GetUInt64();
-    deposit     = fields[index++].GetUInt32();
+    deposit     = fields[index++].GetUInt64();
 
     CreatureData const* auctioneerData = sObjectMgr->GetCreatureData(auctioneer);
     if (!auctioneerData)
@@ -857,7 +857,7 @@ std::string AuctionEntry::BuildAuctionMailSubject(MailAuctionAnswers response) c
     return strm.str();
 }
 
-std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint64 bid, uint64 buyout, uint32 deposit, uint32 cut, uint32 deliveryTime)
+std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint64 bid, uint64 buyout, uint64 deposit, uint64 cut, uint32 deliveryTime)
 {
     std::ostringstream strm;
     strm.width(16);

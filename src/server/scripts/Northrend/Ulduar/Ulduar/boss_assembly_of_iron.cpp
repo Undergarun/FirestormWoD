@@ -349,7 +349,7 @@ class boss_steelbreaker : public CreatureScript
                     Talk(SAY_STEELBREAKER_AGGRO);
                     sayEnterCombat = true;
                 }
-                DoZoneInCombat();
+                //DoZoneInCombat();
                 DoCast(me, SPELL_HIGH_VOLTAGE);
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_FUSION_PUNCH, 15000);
@@ -653,7 +653,7 @@ class boss_runemaster_molgeim : public CreatureScript
                     Talk(SAY_MOLGEIM_AGGRO);
                     sayEnterCombat = true;
                 }
-                DoZoneInCombat();
+                //DoZoneInCombat();
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 30000);
                 events.ScheduleEvent(EVENT_RUNE_OF_POWER, 20000);
@@ -968,7 +968,7 @@ class boss_stormcaller_brundir : public CreatureScript
                     Talk(SAY_BRUNDIR_AGGRO);
                     sayEnterCombat = true;
                 }
-                DoZoneInCombat();
+                //DoZoneInCombat();
                 events.ScheduleEvent(EVENT_MOVE_POSITION, 1000);
                 events.ScheduleEvent(EVENT_ENRAGE, 900000);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4000);

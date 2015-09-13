@@ -117,6 +117,7 @@ class boss_the_butcher : public CreatureScript
             BoundingCleaveKnock = 156160,
             BoundingCleaveDummy = 156197,
             BoundingCleaveDmg   = 156172,
+            BoundingCleaveCharg = 156171,
             /// Cleave
             SpellCleave         = 156157,
             SpellGushingWounds  = 156152,
@@ -341,6 +342,18 @@ class boss_the_butcher : public CreatureScript
                         break;
                     default:
                         break;
+                }
+            }
+
+            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            {
+                if (p_SpellInfo->Id == eSpells::BoundingCleaveCharg)
+                {
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            AttackStart(l_Target);
+                    });
                 }
             }
 

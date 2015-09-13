@@ -9,6 +9,8 @@
 #include "InstanceScript.h"
 #include "the_everbloom.hpp"
 
+#define EverbloomMaxBosses 5
+
 class instance_everbloom : public InstanceMapScript
 {
 public:
@@ -25,42 +27,46 @@ public:
 
         InstanceScript* m_Instance = this;
 
-        uint64 Talu;
-        uint64 Gola;
-        uint64 Dulhu;
-        uint64 Witherbark;
-        uint64 Archmagesol;
-        uint64 Xeritac;
-        uint64 PreYalnu;
-        uint64 Yalnu;
-        uint64 PostTeleportTrigger;
-        uint64 MageTrigger;
-        uint32 count;
+        uint64 m_TaluGUID;
+        uint64 m_GolaGUID;
+        uint64 m_DulhuGUID;
+        uint64 m_WitherbarkGUID;
+        uint64 m_ArchmagesolGUID;
+        uint64 m_XeritacGUID;
+        uint64 m_PreYalnuGUID;
+        uint64 m_YalnuGUID;
+        uint64 m_PostTeleportTriggerGUID;
+        uint64 m_MageTriggerGUID;
+        uint32 m_CountGUID;
 
         // objects
-        uint64 YalnuDoor;
-        uint64 WebDoor;
+        uint64 m_YalnuDoorGUID;
+        uint64 m_WebDoorGUID;
 
         void Initialize() override
         {
-            SetBossNumber(4); // excluding optimal xeritac
+            SetBossNumber(EverbloomMaxBosses); // excluding optimal xeritac
 
             // Creatures
-            Talu = 0;
-            Gola = 0;
-            Witherbark = 0;
-            Dulhu = 0;
-            Archmagesol = 0;
-            Xeritac = 0;
-            PreYalnu = 0;
-            Yalnu = 0;
-            PostTeleportTrigger = 0;
-            MageTrigger = 0;
-            count = 0;
+            m_TaluGUID = 0;
+            m_GolaGUID = 0;
+            m_DulhuGUID = 0;
+            m_WitherbarkGUID = 0;
+            m_ArchmagesolGUID = 0;
+            m_XeritacGUID = 0;
+            m_PreYalnuGUID = 0;
+            m_YalnuGUID = 0;
+            m_PostTeleportTriggerGUID = 0;
+            m_MageTriggerGUID = 0;
+            m_MageTriggerGUID = 0;
+
+            m_CountGUID = 0;
 
             // Objects
-            YalnuDoor = 0;
-            WebDoor = 0;
+            m_YalnuDoorGUID = 0;
+            m_WebDoorGUID = 0;
+
+            instance->SetObjectVisibility(1000.0f);
         }
 
         void OnCreatureCreate(Creature* l_Creature) override
@@ -68,31 +74,31 @@ public:
             switch (l_Creature->GetEntry())
             {
                 case eEverbloomBosses::BossWitherbark:
-                    Witherbark = l_Creature->GetGUID();
+                    m_WitherbarkGUID = l_Creature->GetGUID();
                     break;
                 case eEverbloomBosses::BossEarthshaperTelu:
-                    Talu = l_Creature->GetGUID();
+                    m_TaluGUID = l_Creature->GetGUID();
                     break;
                 case eEverbloomBosses::BossLifeWardenGola:
-                    Gola = l_Creature->GetGUID();
+                    m_GolaGUID = l_Creature->GetGUID();
                     break;
                 case eEverbloomBosses::BossDulhu:
-                    Dulhu = l_Creature->GetGUID();
+                    m_DulhuGUID = l_Creature->GetGUID();
                     break;
                 case eEverbloomBosses::BossArchmageSol:
-                    Archmagesol = l_Creature->GetGUID();
+                    m_ArchmagesolGUID = l_Creature->GetGUID();
                     break;
                 case eEverbloomBosses::BossXeritac:
-                    Xeritac = l_Creature->GetGUID();
+                    m_XeritacGUID = l_Creature->GetGUID();
                     break;
                 case eEverbloomBosses::BossYalnu:
-                    Yalnu = l_Creature->GetGUID();
+                    m_YalnuGUID = l_Creature->GetGUID();
                     break;
                 case eEverbloomCreature::CreatureRpYalnu:
-                    PreYalnu = l_Creature->GetGUID();
+                    m_PreYalnuGUID = l_Creature->GetGUID();
                     break;
                 case eEverbloomCreature::CreatureUndermageKeasel:
-                    MageTrigger = l_Creature->GetGUID();
+                    m_MageTriggerGUID = l_Creature->GetGUID();
                     break;
             }
         }
@@ -107,14 +113,16 @@ public:
                 case eEverbloomBosses::BossWitherbark:
                 case eEverbloomBosses::BossArchmageSol:
                 case eEverbloomBosses::BossXeritac:
-                    count++;
+                    m_CountGUID++;
                     
-                    if (count >= 2 ? !l_Creature->GetMap()->IsHeroic() : 3)
-                        if (Creature* RPmageTrigger = instance->GetCreature(GetData64(eEverbloomData::DataRpMage)))
+                    if (m_CountGUID >= 2 ? !l_Creature->GetMap()->IsHeroic() : 3)
+                    {
+                        if (Creature* l_Trigger = instance->GetCreature(GetData64(eEverbloomData::DataRpMage)))
                         {
-                            if (RPmageTrigger->GetAI())
-                            RPmageTrigger->AI()->DoAction(eEverbloomActions::ActionYalnuEvent);
+                            if (l_Trigger->GetAI())
+                                l_Trigger->AI()->DoAction(eEverbloomActions::ActionYalnuEvent);
                         }
+                    }
                     break;
                 case eEverbloomBosses::BossYalnu:
                     if (l_Creature->GetMap()->IsHeroic())
@@ -134,7 +142,7 @@ public:
             switch (p_Go->GetEntry())
             {
             case eEverbloomData::DataObjectWebDoor:
-                WebDoor = p_Go->GetGUID();
+                m_WebDoorGUID = p_Go->GetGUID();
                 break;
             }
         }
@@ -144,36 +152,36 @@ public:
             switch (p_Identifier)
             {
                 case eEverbloomData::DataEarthshaperTelu:
-                    return Talu;
+                    return m_TaluGUID;
                     break;
                 case eEverbloomData::DataLifeWardenGola:
-                    return Gola;
+                    return m_GolaGUID;
                     break;
                 case eEverbloomData::DataDulhu:
-                    return Dulhu;
+                    return m_DulhuGUID;
                     break;
                 case eEverbloomData::DataWitherbark:
-                    return Witherbark;
+                    return m_WitherbarkGUID;
                     break;
                 case eEverbloomData::DataArchmageSol:
-                    return Archmagesol;
+                    return m_ArchmagesolGUID;
                     break;
                 case eEverbloomData::DataXeritac:
-                    return Xeritac;
+                    return m_XeritacGUID;
                     break;
                 case eEverbloomData::DataYalnu:
-                    return Yalnu;
+                    return m_YalnuGUID;
                     break;
                 case eEverbloomData::DataRpMage:
-                    return MageTrigger;
+                    return m_MageTriggerGUID;
                     break;
                 case eEverbloomData::DataRpYalnu:
-                    return PreYalnu;
+                    return m_PreYalnuGUID;
                     break;
                 
                     // Objects
                 case eEverbloomData::DataObjectWebDoor:
-                    return WebDoor;
+                    return m_WebDoorGUID;
                     break;
             }
             return 0;

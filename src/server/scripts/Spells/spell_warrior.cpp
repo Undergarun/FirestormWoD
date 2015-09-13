@@ -1431,6 +1431,20 @@ class spell_warr_intervene: public SpellScriptLoader
                 InterveneCharge = 147833
             };
 
+            SpellCastResult CheckCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (!l_Player || !l_Target)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->GetDistance(l_Target) >= 25.0f)
+                    return SPELL_FAILED_OUT_OF_RANGE;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -1445,6 +1459,7 @@ class spell_warr_intervene: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warr_intervene_SpellScript::CheckCast);
                 OnCast += SpellCastFn(spell_warr_intervene_SpellScript::HandleOnCast);
             }
         };
@@ -1949,7 +1964,7 @@ class spell_warr_rend : public SpellScriptLoader
         }
 };
 
-/// Blood Bath - 12292
+/// BloodBath - 12292
 class spell_warr_blood_bath : public SpellScriptLoader
 {
     public:
@@ -1986,7 +2001,9 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 if (l_SpellInfo == nullptr || l_SpellInfoDamage == nullptr)
                     return;
 
-                int32 l_Damage = (p_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100;
+                int32 l_Damage = CalculatePct(p_ProcInfo.GetDamageInfo()->GetDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
+
+                int32 l_PreviousTotalDamage = 0;
 
                 if (AuraEffectPtr l_PreviousBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                 {
@@ -1994,21 +2011,27 @@ class spell_warr_blood_bath : public SpellScriptLoader
                     int32 l_Duration = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID())->GetDuration();
                     int32 l_Amplitude = l_PreviousBloodBath->GetAmplitude();
 
-                    int32 l_PreviousTotalDamage = 0;
-
                     if (l_Amplitude)
                         l_PreviousTotalDamage = l_PeriodicDamage * (l_Duration / l_Amplitude);
-                    l_Damage += l_PreviousTotalDamage;
+
+                    l_PreviousTotalDamage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
                 }
 
                 if (l_SpellInfoDamage->Effects[EFFECT_0].Amplitude)
                     l_Damage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
 
-                l_Caster->CastSpell(l_Target, eSpells::BloodBathSnare, true);
-                l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage, true);
+                l_Damage += l_PreviousTotalDamage;
 
-                if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
-                    l_BloodbathActual->SetAmount(l_Damage);
+                l_Caster->CastSpell(l_Target, eSpells::BloodBathSnare, true);
+                if (l_Target->HasAura(eSpells::BloodBathDamage, l_Caster->GetGUID()))
+                {
+                    if (AuraPtr l_ActualBloodBath = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID()))
+                        l_ActualBloodBath->SetDuration(l_ActualBloodBath->GetMaxDuration());
+                }
+                else
+                    l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage);
+                if (AuraEffectPtr l_NewBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
+                    l_NewBloodBath->SetAmount(l_Damage);
             }
 
             void Register()
@@ -2580,8 +2603,54 @@ class spell_warr_heroic_strike : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Call by Commanding Shout - 469, Battle Shout - 6673
+/// Glyph of Mystic Shout - 58095, Glyph of Bloodcurdling Shout - 58096
+class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_mystic_shout() : SpellScriptLoader("spell_warr_glyph_of_mystic_shout") { }
+
+        class spell_warr_glyph_of_mystic_shout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_mystic_shout_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofMystucShout = 58095,
+                GlyphofMystucShoutAura = 121186,
+                GlyphofBloodcurdlingShout = 58096,
+                GlyphofBloodcurdlingShoutAura = 23690
+            };
+
+            void HandleOnCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasGlyph(eSpells::GlyphofBloodcurdlingShout))
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofBloodcurdlingShoutAura, true);
+                if (l_Player->HasGlyph(eSpells::GlyphofMystucShout))
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofMystucShoutAura, true);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_warr_glyph_of_mystic_shout_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_mystic_shout_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_glyph_of_mystic_shout();
     new spell_warr_heroic_strike();
     new spell_warr_unyielding_strikes();
     new spell_warr_defensive_stance();

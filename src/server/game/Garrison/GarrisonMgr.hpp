@@ -150,6 +150,8 @@ namespace MS { namespace Garrison
             SpellCastResult CanUpgradeItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo) const;
             /// Upgrades follower with spell
             void UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo);
+            /// Check if any followers has ability in parameter
+            bool HasFollowerAbility(uint32 p_AbilityID) const;
 
             /// Can build building X at slot instance Y
             bool IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID) const;
@@ -187,6 +189,16 @@ namespace MS { namespace Garrison
             uint32 GetCreaturePlotInstanceID(uint64 p_GUID) const;
             /// Get gameobject plot instance ID
             uint32 GetGameObjectPlotInstanceID(uint64 p_GUID) const;
+            /// Get building gathering data
+            /// @p_PlotInstanceID : Plot building location
+            std::string GetBuildingGatheringData(uint32 p_PlotInstanceID);
+            /// Set building gathering data
+            /// @p_PlotInstanceID   : Plot building location
+            /// @p_Data             : Gathering data
+            void SetBuildingGatheringData(uint32 p_PlotInstanceID, std::string p_Data);
+            /// Get list of creature in a specific building type
+            /// @p_Type : Building type
+            std::vector<uint64> GetBuildingCreaturesByBuildingType(BuildingType::Type p_Type);
 
             /// Get known blueprints
             std::vector<int32> GetKnownBlueprints() const;

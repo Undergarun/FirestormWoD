@@ -10,49 +10,39 @@
 
 enum eYalnuSpells
 {
-    // Yalnu
 	SpellColossalBlow            = 169179,
 	SpellEntanglmentDummy        = 169247,
-    //SpellEntanglementProjetctile = 180836,
 	SpellEntaglementTrigger      = 169251,  
-	SpellGenesis                 = 169613, ///< |TInterface\Icons\Ability_Druid_EmpoweredTouch:20|t Yalnu begins to channel |cFFFF0404|Hspell:169613|h[Genesis]|h|r.
+	SpellGenesis                 = 169613, 
     SpellGenesisProjectile       = 175975,
 	SpellGerminateAborbladeDummy = 169265,
 	SpellGeiminateAborbladeAura  = 169266,
     SpellFontOfLife              = 169120,
     SpellFontOfLifeSummon        = 169121,
-
-    // Mobs
     SpellDragonBreathVisual      = 101837,
-
-    // Rp
     SpellChannelArcaneYalnu      = 171984,
     SpellEntanglmentAura         = 169240,
     SpellEntanglementVisualR     = 169192,
     SpellPyroBlast               = 170738,
-    SpellPyroBlastFinish         = 170741,
+    SpellPyroBlastFinish         = 170741
 };
 
 enum eYalnuEvents
 {
-	EventColossalBlow        = 240,
-	EventEntaglement         = 241,
-	EventGenesis             = 242,
-	EventGerminateAbroblade  = 243,
-    EventFontOfLife          = 244,
-
-    ///< Adds
-    EventFeralLasherActivate = 245,
-    EventNoxiousBreath       = 246,
-    EventLumberingSwipe      = 247,
-
-    ///< Rp
-    Event1                   = 248,
-    Event2                   = 249,
-    Event3                   = 250,
-    EventMove1               = 251,
-    EventMove2               = 252,
-    EventMove3               = 253
+	EventColossalBlow        = 1,
+	EventEntaglement,
+	EventGenesis,
+	EventGerminateAbroblade,
+    EventFontOfLife,
+    EventFeralLasherActivate,
+    EventNoxiousBreath,
+    EventLumberingSwipe,
+    Event1,
+    Event2,
+    Event3,
+    EventMove1,
+    EventMove2,
+    EventMove3 
 };
 
 enum eYalnuTalks
@@ -67,27 +57,6 @@ enum eYalnuTalks
     LadyBaihuSpell01  = 52,  ///< The vines are overtaking everything!
     LadyBaihuSpell02  = 53,  ///< Quickly. drow it towards the flames!
     LadyBaihuSpell03  = 54  ///< Look out!
-
-    /*
-    Text: You! Maybe there is still time. The portal atop this outpost is a direct link to our world-- to Stormwind! The genesaur...
-    Text2:  If that beast crosses through, the unchecked growth will choke the whole of Azeroth! Hurry!
-    Text3: The portal is lost! We must stop this beast before it can escape!
-    Text4: We've got its attention!
-    Text5: Do you want to die here?! Move!
-    Text6: Quickly, draw it towards the flames!
-    Text7: Look out!
-    Text8: The vines are overtaking everything!
-    */
-
-    // DBM
-    /*
-    SAY_SPELL1 = Entanglement
-    SAY_SPELL2 = [Special Warining] Entanglement - switch targets
-    SAY_SPELL3 = Font of Life
-    SAY_SPELL4 =  Colossal Blow
-    SAY_SPELL5 = [Special Warining] Colossal Blow
-    SAY_SPELL6 = [Special Warining] Genesis - switch targets
-    */
 };
 
 enum eYalnuCreatures
@@ -104,12 +73,12 @@ enum eYalnuActions
     ActionAchievementWeedWhacker = 1,
 };
 
-Position l_PosYalnuMoveToPortal = {623.67f, 1730.01f, 143.357f};
-Position l_PosPortalToOverLook =  {876.61f, -1221.62f, 196.700f, 0.076986f};
-Position l_PosYalnuMoveToMiddle = {963.22f, -1229.370f, 181.250f};
-Position l_PosBaihuSpawn = {955.670f, -1239.352f, 181.249f, 0.920571f};
-Position l_PosLadyBayeu = { 693.75f, -1227.05f, 181.249f, 6.011444f };
-Position l_PosWallPos[7] =
+Position g_PositionYalnuMoveToPortal = {623.67f, 1730.01f, 143.357f};
+Position g_PositionPortalToOverLook =  {876.61f, -1221.62f, 196.700f, 0.076986f};
+Position g_PositionYalnuMoveToMiddle = {963.22f, -1229.370f, 181.250f};
+Position g_PositionBaihuSpawn = {955.670f, -1239.352f, 181.249f, 0.920571f};
+Position g_PositionLadyBayeu = { 693.75f, -1227.05f, 181.249f, 6.011444f };
+Position g_PositionWallPos[7] =
 {
     {659.50f, 1677.284f, 133.746f, 1.980766f},
     {651.77f, 1674.292f, 133.555f, 1.910080f},
@@ -119,7 +88,7 @@ Position l_PosWallPos[7] =
     {629.35f, 1669.642f, 130.290f, 1.639117f},
     {622.48f, 1670.313f, 131.578f, 1.466329f}
 };
-Position l_PosMages[6] =
+Position g_PositionMages[6] =
 {
     {948.28f, -1227.79f, 181.249f, 0.193210f},
     {950.53f, -1219.82f, 181.255f, 5.653301f},
@@ -131,21 +100,20 @@ Position l_PosMages[6] =
 
 static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
 {
-    std::list<Creature*> creatures;
-    GetCreatureListWithEntryInGrid(creatures, object, entry, 300.0f);
-    if (creatures.empty())
+    std::list<Creature*> l_Creatures;
+    GetCreatureListWithEntryInGrid(l_Creatures, object, entry, 300.0f);
+    if (l_Creatures.empty())
         return;
 
-    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
+    for (std::list<Creature*>::iterator iter = l_Creatures.begin(); iter != l_Creatures.end(); ++iter)
         (*iter)->DespawnOrUnsummon();
 }
-
 
 #define INVISIBILE_DISPLAY 11686
 #define FriendlyFaction 35
 #define HostileFaction 16
 
-// Rp Yalnu - 84336
+/// Rp Yalnu - 84336
 class the_everbloom_yalnu_rp : public CreatureScript
 {
 public:
@@ -176,7 +144,7 @@ public:
     }
 };
 
-// Undermage Kealson - 85496
+/// Undermage Kealson - 85496
 class the_everbloom_undermage_kealson : public CreatureScript
 {
 public:
@@ -191,7 +159,7 @@ public:
 
             for (int i = 0; i < 7; i++)
             {
-                GameObject* l_GameObject = me->SummonGameObject(eEverbloomGameObjects::ObjectVineWall, l_PosWallPos[i].GetPositionX(), l_PosWallPos[i].GetPositionY(), l_PosWallPos[i].GetPositionZ(), l_PosWallPos[i].GetOrientation(), 0, 0, 0, 0, 0);
+                GameObject* l_GameObject = me->SummonGameObject(eEverbloomGameObjects::ObjectVineWall, g_PositionWallPos[i].GetPositionX(), g_PositionWallPos[i].GetPositionY(), g_PositionWallPos[i].GetPositionZ(), g_PositionWallPos[i].GetOrientation(), 0, 0, 0, 0, 0);
                 if (l_GameObject != nullptr)
                     m_GuidsWalls.push_back(l_GameObject->GetGUID());
             }
@@ -204,6 +172,8 @@ public:
 
         void Reset() override
         {
+            events.Reset();
+
             me->setFaction(FriendlyFaction);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
@@ -217,7 +187,7 @@ public:
             switch (p_Action)
             {
             case eEverbloomActions::ActionYalnuEvent:
-                events.ScheduleEvent(eYalnuEvents::EventMove1, 500);
+                events.ScheduleEvent(eYalnuEvents::EventMove1, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             }
         }
@@ -227,10 +197,9 @@ public:
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 8.0f) && m_MovementTrigger && m_HasShotFire)
             {
                 m_MovementTrigger = false;
-                events.ScheduleEvent(eYalnuEvents::Event2, 1500);
+                events.ScheduleEvent(eYalnuEvents::Event2, 2 * TimeConstants::IN_MILLISECONDS);
             }
         }
-
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
         {
@@ -260,28 +229,31 @@ public:
                         me->GetMotionMaster()->MovePoint(1, 637.775f, 1585.777f, 115.899f);
                         break;
                     case eYalnuEvents::Event1:
-                        if (Creature* nearest = me->FindNearestCreature(eEverbloomCreature::CreatureTriggerFire, 100.0f))
+                        if (Creature* l_Nearest = me->FindNearestCreature(eEverbloomCreature::CreatureTriggerFire, 100.0f))
                         {
                             m_HasShotFire = true;
 
-                            me->CastSpell(nearest, eYalnuSpells::SpellDragonBreathVisual);
+                            me->CastSpell(l_Nearest, eYalnuSpells::SpellDragonBreathVisual);
                             m_MovementTrigger = true;
+
+                            if (m_GuidsWalls.empty())
+                                return;
 
                             for (auto itr : m_GuidsWalls)
                             {
-                                if (GameObject* wall = GameObject::GetGameObject(*me, itr))
-                                    wall->Delete();
+                                if (GameObject* l_Wall = GameObject::GetGameObject(*me, itr))
+                                    l_Wall->Delete();
                             }
                         }
                         break;
                     case eYalnuEvents::Event2:
-                        if (Creature* RpYalnu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataRpYalnu)))
+                        if (Creature* l_RpYalnu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataRpYalnu)))
                         {
-                            RpYalnu->CastStop();
-                            RpYalnu->GetMotionMaster()->MovePoint(0, l_PosYalnuMoveToPortal);
-                            RpYalnu->DespawnOrUnsummon(4 * TimeConstants::IN_MILLISECONDS);
+                            l_RpYalnu->CastStop();
+                            l_RpYalnu->GetMotionMaster()->MovePoint(0, g_PositionYalnuMoveToPortal);
+                            l_RpYalnu->DespawnOrUnsummon(4 * TimeConstants::IN_MILLISECONDS);
 
-                            me->SummonCreature(eEverbloomCreature::CreatureTriggerTeleportToYalnu, l_PosYalnuMoveToPortal.GetPositionX(), l_PosYalnuMoveToPortal.GetPositionY(), l_PosYalnuMoveToPortal.GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                            me->SummonCreature(eEverbloomCreature::CreatureTriggerTeleportToYalnu, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                         }
                         break;
                 }
@@ -291,13 +263,13 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new the_everbloom_creaturesAI(p_Creature);
     }
 };
 
-// Trigger Teleport - 324251
+/// Trigger Teleport - 324251
 class the_everbloom_fake_areatrigger_teleport : public CreatureScript
 {
 public:
@@ -327,13 +299,12 @@ public:
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 4.0f))
             {
-                p_Who->NearTeleportTo(l_PosPortalToOverLook.GetPositionX(), l_PosPortalToOverLook.GetPositionY(), l_PosPortalToOverLook.GetPositionZ(), l_PosPortalToOverLook.GetOrientation());
+                p_Who->NearTeleportTo(g_PositionPortalToOverLook.GetPositionX(), g_PositionPortalToOverLook.GetPositionY(), g_PositionPortalToOverLook.GetPositionZ(), g_PositionPortalToOverLook.GetOrientation());
             }
         }
-
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new the_everbloom_creaturesAI(p_Creature);
     }
@@ -388,8 +359,8 @@ public:
                 case eYalnuEvents::Event1:
                     if (Creature* Yalnu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataYalnu)))
                     {
-                        Yalnu->GetMotionMaster()->MovePoint(0, l_PosYalnuMoveToMiddle);
-                        Yalnu->SetHomePosition(l_PosYalnuMoveToMiddle.GetPositionX(), l_PosYalnuMoveToMiddle.GetPositionY(), l_PosYalnuMoveToMiddle.GetPositionZ(), 2.992742f);
+                        Yalnu->GetMotionMaster()->MovePoint(0, g_PositionYalnuMoveToMiddle);
+                        Yalnu->SetHomePosition(g_PositionYalnuMoveToMiddle.GetPositionX(), g_PositionYalnuMoveToMiddle.GetPositionY(), g_PositionYalnuMoveToMiddle.GetPositionZ(), 2.992742f);
                     }
                     break;
                 }
@@ -424,10 +395,11 @@ public:
         void Reset()
         {
             _Reset();
+            events.Reset();
 
             me->SetInCombatWithZone();
             me->setFaction(7);   
-            me->SetReactState(REACT_AGGRESSIVE);
+            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
             m_Achievement = true;
 
@@ -446,32 +418,31 @@ public:
         {
             for (int i = 0; i <= 5; i++)
             {
-                Creature* mages = me->SummonCreature(eEverbloomCreature::CreatureKirinTorBattleMage, l_PosMages[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                if (mages)
+                Creature* l_Mages = me->SummonCreature(eEverbloomCreature::CreatureKirinTorBattleMage, g_PositionMages[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                if (l_Mages)
                 {
-                    mages->CastSpell(mages, eEverbloomSpells::SpellBlinkMageUponSummon);
+                    l_Mages->CastSpell(l_Mages, eEverbloomSpells::SpellBlinkMageUponSummon);
                 }
             }
 
-            Creature* baihu = me->SummonCreature(eEverbloomCreature::CreatureLadyBayeu, l_PosBaihuSpawn, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-            if (baihu)
+            if (Creature* l_Baihu = me->SummonCreature(eEverbloomCreature::CreatureLadyBayeu, g_PositionBaihuSpawn, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
             {
-                baihu->CastSpell(baihu, eEverbloomSpells::SpellBlinkMageUponSummon);
+                l_Baihu->CastSpell(l_Baihu, eEverbloomSpells::SpellBlinkMageUponSummon);
 
-                if (baihu->AI())
-                baihu->AI()->Talk(eYalnuTalks::LadyBaihuAggro);
+                if (l_Baihu->AI())
+                    l_Baihu->AI()->Talk(eYalnuTalks::LadyBaihuAggro);
             }
         }
 
-        void DoAction(int32 const action) override
+        void DoAction(int32 const p_Action) override
         {
-            switch (action)
+            switch (p_Action)
             {
-            case eYalnuActions::ActionAchievementWeedWhacker:
+                case eYalnuActions::ActionAchievementWeedWhacker:
                 
-                if (m_Achievement)
-                    m_Achievement = false;
-                break;
+                    if (m_Achievement)
+                        m_Achievement = false;
+                    break;
             }
         }
 
@@ -495,10 +466,10 @@ public:
             }
 
             // Move to the Middle
-            me->GetMotionMaster()->MovePoint(0, l_PosYalnuMoveToMiddle);
+            me->GetMotionMaster()->MovePoint(0, g_PositionYalnuMoveToMiddle);
 
             // Set new Home Position
-            me->SetHomePosition(l_PosYalnuMoveToMiddle.GetPositionX(), l_PosYalnuMoveToMiddle.GetPositionY(), l_PosYalnuMoveToMiddle.GetPositionZ(), 2.992742f);
+            me->SetHomePosition(g_PositionYalnuMoveToMiddle.GetPositionX(), g_PositionYalnuMoveToMiddle.GetPositionY(), g_PositionYalnuMoveToMiddle.GetPositionZ(), 2.992742f);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
@@ -509,7 +480,7 @@ public:
             {
                 if (m_Instance != nullptr)
                 {
-                    if (me->GetMap()->IsHeroic())
+                    if (me->GetMap() && me->GetMap()->IsHeroic())
                     m_Instance->DoCompleteAchievement(eEverbloomAchievements::AchivementWeedWhacker);
                 }
             }
@@ -558,19 +529,17 @@ public:
                     case eYalnuEvents::EventEntaglement:
                         {
                             // If Heroic 50% to strike players
-                            if (me->GetMap()->IsHeroic())
+                            if (me->GetMap() && me->GetMap()->IsHeroic())
                             {
                                 if (roll_chance_i(50))
                                 {
                                     ///< target players
-                                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                     {
-                                        if (Creature* wrap = DoSummon(eYalnuCreatures::CreatureEntangling, target, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
+                                        if (Creature* l_Wrap = DoSummon(eYalnuCreatures::CreatureEntangling, l_Target, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
                                         {
-                                            if (wrap->GetAI())
-                                            wrap->AI()->SetGUID(target->GetGUID());
-
-                                            //me->CastSpell(target, eYalnuSpells::SpellEntanglementProjetctile);
+                                            if (l_Wrap->GetAI())
+                                                l_Wrap->AI()->SetGUID(l_Target->GetGUID());
                                         }
                                     }
                                 }
@@ -583,18 +552,17 @@ public:
                                     if (l_MagesAndBaihu.empty())
                                         return;
 
-                                    std::list<Creature*>::const_iterator it = l_MagesAndBaihu.begin();
-                                    std::advance(it, urand(0, l_MagesAndBaihu.size() - 1));
+                                    std::list<Creature*>::const_iterator l_it = l_MagesAndBaihu.begin();
+                                    std::advance(l_it, urand(0, l_MagesAndBaihu.size() - 1));
 
-                                    if (Creature* wrap = DoSummon(eYalnuCreatures::CreatureEntangling, (*it), 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
+                                    if (Creature* l_Wrap = DoSummon(eYalnuCreatures::CreatureEntangling, (*l_it), 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
                                     {
-                                        if (wrap->GetAI())
-                                        wrap->AI()->SetGUID((*it)->GetGUID());
-
-                                        //me->CastSpell((*it), eYalnuSpells::SpellEntanglementProjetctile);
+                                        if (l_Wrap->GetAI())
+                                            l_Wrap->AI()->SetGUID((*l_it)->GetGUID());
                                     }
                                 }
                             }
+
                             // If not heroic, 100% to strike npcs.
                             else
                             {
@@ -605,15 +573,13 @@ public:
                                 if (l_MagesAndBaihu.empty())
                                     return;
 
-                                std::list<Creature*>::const_iterator it = l_MagesAndBaihu.begin();
-                                std::advance(it, urand(0, l_MagesAndBaihu.size() - 1));
+                                std::list<Creature*>::const_iterator l_it = l_MagesAndBaihu.begin();
+                                std::advance(l_it, urand(0, l_MagesAndBaihu.size() - 1));
 
-                                if (Creature* wrap = DoSummon(eYalnuCreatures::CreatureEntangling, (*it), 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
+                                if (Creature* l_Wrap = DoSummon(eYalnuCreatures::CreatureEntangling, (*l_it), 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
                                 {
-                                    if (wrap->GetAI())
-                                    wrap->AI()->SetGUID((*it)->GetGUID());
-
-                                    //me->CastSpell((*it), eYalnuSpells::SpellEntanglementProjetctile);
+                                    if (l_Wrap->GetAI())
+                                        l_Wrap->AI()->SetGUID((*l_it)->GetGUID());
                                 }
                             }
 
@@ -627,13 +593,13 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new boss_yalnu_AI(p_Creature);
     }
 };
 
-// Lady Baihu - 84358
+/// Lady Baihu - 84358
 class the_everbloom_lady_baihu : public CreatureScript
 {
 public:
@@ -652,6 +618,8 @@ public:
 
         void Reset() override
         {
+            events.Reset();
+
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
 
@@ -700,27 +668,23 @@ public:
 
             if (m_Instance != nullptr)
             {
-                if (Creature* Yalnu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataYalnu)))
+                if (Creature* l_Yalnu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataYalnu)))
                 {
-                    if (uint32 eventId = events.ExecuteEvent())
+                    switch (events.ExecuteEvent())
                     {
-                        switch (eventId)
-                        {
                         case eEverbloomEvents::EventFireBall:
                         {
                             Talk(eYalnuTalks::LadyBaihuSpell02);
-                            me->CastSpell(Yalnu, eEverbloomSpells::SpellFireBall);
+                            me->CastSpell(l_Yalnu, eEverbloomSpells::SpellFireBall);
                             events.ScheduleEvent(eEverbloomEvents::EventFireBall, 10 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
                         case eEverbloomEvents::EventFlamestike:
                         {
                             Talk(eYalnuTalks::LadyBaihuSpell01);
-                            me->CastSpell(Yalnu, eEverbloomSpells::SpellFlamestikeAreatriger);
+                            me->CastSpell(l_Yalnu, eEverbloomSpells::SpellFlamestikeAreatriger);
                             events.ScheduleEvent(eEverbloomEvents::EventFlamestike, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
                             break;
-
-                        }
                         }
                     }
                 }
@@ -734,7 +698,7 @@ public:
     }
 };
 
-// Kirin Tor Mage - 84329
+/// Kirin Tor Mage - 84329
 class the_everbloom_kirin_tor_mage : public CreatureScript
 {
 public:
@@ -751,6 +715,8 @@ public:
 
         void Reset() override
         {
+            events.Reset();
+
             me->setFaction(FriendlyFaction);
 
             me->SetInCombatWithZone();
@@ -776,10 +742,13 @@ public:
 
         void JustDied(Unit* /*p_Killer*/) override
         {
-            if (Creature* Yalnu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataYalnu)))
+            if (m_Instance != nullptr)
             {
-                if (Yalnu->GetAI())
-                    Yalnu->GetAI()->DoAction(eYalnuActions::ActionAchievementWeedWhacker);
+                if (Creature* l_Yalnu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataYalnu)))
+                {
+                    if (l_Yalnu->GetAI())
+                        l_Yalnu->GetAI()->DoAction(eYalnuActions::ActionAchievementWeedWhacker);
+                }
             }
         }
 
@@ -795,7 +764,7 @@ public:
 
             if (m_Instance != nullptr)
             {
-                if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f))
                 {
                     switch (events.ExecuteEvent())
                     {
@@ -841,13 +810,13 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new the_everbloom_creaturesAI(p_Creature);
     }
 };
 
-// Swift Sproutling - 84401
+/// Swift Sproutling - 84401
 class the_everbloom_swift_sproutling : public CreatureScript
 {
 public:
@@ -861,6 +830,11 @@ public:
 		}
 
         InstanceScript* m_Instance;
+
+        void Reset() override
+        {
+            events.Reset();
+        }
 
 		void EnterCombat(Unit* p_Attacker) override
 		{
@@ -880,7 +854,9 @@ public:
 			switch (events.ExecuteEvent())
 			{
                 case eEverbloomEvents::EventTendonRip:
-                        me->CastSpell(me->getVictim(), eEverbloomSpells::SpellTendonRip);
+                    if (Unit* l_Target = me->getVictim())
+                        me->CastSpell(l_Target, eEverbloomSpells::SpellTendonRip);
+
                         events.ScheduleEvent(eEverbloomEvents::EventTendonRip, urand(7 * TimeConstants::IN_MILLISECONDS, 11 * TimeConstants::IN_MILLISECONDS));
 				        break;
 			}
@@ -889,7 +865,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
 	{
         return new the_everbloom_creaturesAI(p_Creature);
 	}
@@ -910,6 +886,11 @@ public:
 
         InstanceScript* m_Instance;
 
+        void Reset() override
+        {
+            events.Reset();
+        }
+
         void EnterCombat(Unit* p_Attacker) override
         {
             events.ScheduleEvent(eYalnuEvents::EventNoxiousBreath, 12 * TimeConstants::IN_MILLISECONDS);
@@ -928,7 +909,9 @@ public:
             switch (events.ExecuteEvent())
             {
                 case eYalnuEvents::EventNoxiousBreath:
-                    me->CastSpell(me->getVictim(), eEverbloomSpells::SpellNoxiousBreath);
+                    if (Unit* l_Target = me->getVictim())
+                        me->CastSpell(l_Target, eEverbloomSpells::SpellNoxiousBreath);
+
                     events.ScheduleEvent(eYalnuEvents::EventNoxiousBreath, 12 * TimeConstants::IN_MILLISECONDS);
                     break;
             }
@@ -937,13 +920,13 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new the_everbloom_creaturesAI(p_Creature);
     }
 };
 
-// Gnarled Ancient - 84312
+/// Gnarled Ancient - 84312
 class the_everbloom_gnarled_ancient : public CreatureScript
 {
 public:
@@ -990,13 +973,13 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new the_everbloom_creaturesAI(p_Creature);
     }
 };
 
-// Entangling - 84499
+/// Entangling - 84499
 class the_everbloom_entangling : public CreatureScript
 {
 public:
@@ -1004,39 +987,42 @@ public:
 
     struct the_everbloom_creaturesAI : public NullCreatureAI
     {
-        the_everbloom_creaturesAI(Creature* p_Creature) : NullCreatureAI(p_Creature), victimGUID(0) {}
+        the_everbloom_creaturesAI(Creature* p_Creature) : NullCreatureAI(p_Creature), m_VictimGUID(0) {}
 
-        uint64 victimGUID;
+        uint64 m_VictimGUID;
 
-        void Reset()
+        void Reset() override
         {
             me->CastSpell(me, eYalnuSpells::SpellEntanglementVisualR);
-            me->SetDisplayId(11686);
+            me->SetDisplayId(INVISIBILE_DISPLAY);
         }
 
-        void SetGUID(uint64 guid, int32 /*param*/) override
+        void SetGUID(uint64 p_Guid, int32 /*p_Param*/) override
         {
-            victimGUID = guid;
-            if (victimGUID)
-                if (Unit* victim = Unit::GetUnit(*me, victimGUID))
+            m_VictimGUID = p_Guid;
+
+            if (m_VictimGUID != NULL)
+            {
+                if (Unit* l_Victim = Unit::GetUnit(*me, m_VictimGUID))
                 {
-                    victim->AddAura(eYalnuSpells::SpellEntanglmentAura, victim);
+                    l_Victim->AddAura(eYalnuSpells::SpellEntanglmentAura, l_Victim);
                 }
+            }
         }
 
         void JustDied(Unit* /*p_Killer*/) override
         {
-            if (victimGUID)
-                if (Unit* victim = Unit::GetUnit(*me, victimGUID))
+            if (m_VictimGUID != NULL)
+            {
+                if (Unit* l_Victim = Unit::GetUnit(*me, m_VictimGUID))
                 {
-                    victim->RemoveAura(eYalnuSpells::SpellEntanglmentAura);
-                    //victim->RemoveAura(eYalnuSpells::SpellEntanglementProjetctile + 1);
+                    l_Victim->RemoveAura(eYalnuSpells::SpellEntanglmentAura);
                 }
+            }
         }
-
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new the_everbloom_creaturesAI(p_Creature);
     }
@@ -1080,7 +1066,7 @@ public:
             {
                 m_SleepMode = false;
                 me->Kill(me);
-                me->DespawnOrUnsummon(500);
+                me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                 me->CastSpell(me, 154535);
             }
         }
@@ -1088,7 +1074,7 @@ public:
         void UpdateAI(const uint32 p_Diff) override
 		{
             events.Update(p_Diff);
-		
+
 			switch (events.ExecuteEvent())
 			{
                 case eEverbloomEvents::EventLasherVenom:
@@ -1099,10 +1085,11 @@ public:
                     if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                         return;
 
-                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
-                        me->CastSpell(target, eEverbloomSpells::SpellLasherVenom);
+                        me->CastSpell(l_Target, eEverbloomSpells::SpellLasherVenom);
                     }
+
                     events.ScheduleEvent(eEverbloomEvents::EventLasherVenom, urand(3 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
                     break;
                 }
@@ -1124,13 +1111,13 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* p_Creature) const
+	CreatureAI* GetAI(Creature* p_Creature) const override
 	{
         return new the_everbloom_creaturesAI(p_Creature);
 	}
 };
 
-// Genesis Tick - 169613
+/// Genesis Tick - 169613
 class the_everbloom_genesis_tick : public SpellScriptLoader
 {
 public:
@@ -1147,10 +1134,6 @@ public:
 
             for (int i = 0; i <= 13; i++)
             {
-                //Position pos;
-                //GetCaster()->GetRandomNearPosition(pos, 50.0f);
-
-                //GetCaster()->SummonCreature(eYalnuCreatures::CreatureFeralLasher, pos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                 GetCaster()->CastSpell(GetCaster(), eYalnuSpells::SpellGenesisProjectile, true);
             }
         }
@@ -1161,14 +1144,14 @@ public:
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new everbloom_spells();
     }
 };
 
 
-// Font of Life - 169121
+/// Font of Life - 169121
 class the_everbloom_font_of_life : public SpellScriptLoader
 {
 public:
@@ -1183,38 +1166,37 @@ public:
             if (!GetCaster())
                 return;
 
-            if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(eYalnuSpells::SpellFontOfLifeSummon))
+            if (SpellInfo const* l_Spell = sSpellMgr->GetSpellInfo(eYalnuSpells::SpellFontOfLifeSummon))
             {
-                uint32 value = NULL;
+                uint32 l_Value = NULL;
                 
                 switch (urand(0, 2))
                 {
                 case 0:
-                    value = eYalnuCreatures::CreatureViciousMandragora;
+                    l_Value = eYalnuCreatures::CreatureViciousMandragora;
                     break;
                 case 1:
-                    value = eYalnuCreatures::CreatureSwiftSproutling;
+                    l_Value = eYalnuCreatures::CreatureSwiftSproutling;
                     break;
                 case 2:
-                    value = eYalnuCreatures::CreatureGnarledAncient;
+                    l_Value = eYalnuCreatures::CreatureGnarledAncient;
                     break;
                 }
 
-                Position pos;
-                GetExplTargetDest()->GetPosition(&pos);
-                const SummonPropertiesEntry* properties = sSummonPropertiesStore.LookupEntry(spell->Effects[effIndex].MiscValueB);
+                Position l_Pos;
+                GetExplTargetDest()->GetPosition(&l_Pos);
 
-                TempSummon* summon = GetCaster()->SummonCreature(value, pos, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, spell->GetDuration());
+                GetCaster()->SummonCreature(l_Value, l_Pos, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, l_Spell->GetDuration());
             }
 		}
 
         void Register()
         {
-            OnEffectHit += SpellEffectFn(everbloom_spells::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+            OnEffectHit += SpellEffectFn(everbloom_spells::HandleSummon, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SUMMON);
         }
 	};
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
 	{
         return new everbloom_spells();
 	}
@@ -1223,25 +1205,16 @@ public:
 
 void AddSC_boss_yalnu()
 {
-	// Boss
 	new boss_yalnu();
-
-    // Rp Basic Event
     new the_everbloom_yalnu_rp();
-
-    // Creatures
     new the_everbloom_kirin_tor_mage();
     new the_everbloom_gnarled_ancient();
     new the_everbloom_feral_lasher();
     new the_everbloom_swift_sproutling();
     new the_everbloom_lady_baihu();
     new the_everbloom_vicious_mandragora();
-
-	// Spells
     new the_everbloom_font_of_life();
     new the_everbloom_genesis_tick();
-
-	// Triggers
     new the_everbloom_prefight_trigger();
     new the_everbloom_fake_areatrigger_teleport();
     new the_everbloom_undermage_kealson();

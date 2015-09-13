@@ -31,6 +31,14 @@ namespace BattlePay
         };
     }
 
+    namespace ProfessionAdditionalSpells
+    {
+        enum
+        {
+            Prospecting = 31252,
+        };
+    }
+
     static std::map<uint32, uint32> g_SkillLearningSpells =
     {
         { SkillType::SKILL_ALCHEMY,        ProfessionBookSpells::Alchemy        },
@@ -71,11 +79,18 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
             std::list<SkillLineAbilityEntry const*> l_Abilities = sSpellMgr->GetTradeSpellFromSkill(t_SkillID);
             for (auto l_Abilitie : l_Abilities)
             {
-                if (l_Abilitie->min_value > 600)
+                if (l_Abilitie->spellId > 155748)   ///< last 5.4.7 spellid
                     continue;
 
                 l_Player->learnSpell(l_Abilitie->spellId, false);
             }
+
+            if (t_SkillID == SkillType::SKILL_JEWELCRAFTING)
+                l_Player->learnSpell(BattlePay::ProfessionAdditionalSpells::Prospecting, false);             ///< Prospecting
+
+            /// We also need to learn it for herbalism
+            if (t_SkillID == SkillType::SKILL_HERBALISM)
+                l_Player->learnSpell(l_SpellID, false);
 
             l_Player->SaveToDB();
         }

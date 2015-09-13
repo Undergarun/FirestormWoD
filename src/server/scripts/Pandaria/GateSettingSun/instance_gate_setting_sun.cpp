@@ -369,6 +369,8 @@ public:
 
         void Update(uint32 diff)
         {
+            UpdateOperations(diff);
+
             if (cinematicTimer)
             {
                 if (cinematicTimer <= diff)

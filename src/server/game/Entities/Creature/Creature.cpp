@@ -895,6 +895,8 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
 
     loot.Context = map->GetLootItemContext();
 
+    SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
+
     return true;
 }
 

@@ -180,7 +180,10 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
                 continue;
 
             sLFGMgr->InitializeLockedDungeons(l_CurrentGroupPlayer);
-            l_LockMap[l_CurrentGroupPlayer->GetGUID()] = sLFGMgr->GetLockedDungeons(l_CurrentGroupPlayer->GetGUID());
+
+            LfgLockMap const& l_LockedDungeons = sLFGMgr->GetLockedDungeons(l_CurrentGroupPlayer->GetGUID());
+            for (auto l_Iter : l_LockedDungeons)
+                l_LockMap[l_CurrentGroupPlayer->GetGUID()].insert(l_Iter);
         }
 
         WorldPacket l_Data(Opcodes::SMSG_LFG_PARTY_INFO, 150 * 1024);

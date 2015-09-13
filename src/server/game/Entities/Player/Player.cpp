@@ -756,6 +756,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_RegenPowerTimer = 0;
     m_regenTimerCount = 0;
     m_holyPowerRegenTimerCount = 0;
+    m_runicPowerRegenTimerCount = 0;
     m_chiPowerRegenTimerCount = 0;
     m_demonicFuryPowerRegenTimerCount = 0;
     m_soulShardsRegenTimerCount = 0;
@@ -1002,8 +1003,6 @@ Player::~Player()
 {
     sLFGListMgr->RemovePlayerDueToLogout(GetGUIDLow());
 
-    m_DeleteLock.acquire();
-
     if (m_Garrison)
         delete m_Garrison;
 
@@ -1058,7 +1057,6 @@ Player::~Player()
     ClearResurrectRequestData();
 
     sWorld->DecreasePlayerCount();
-    m_DeleteLock.release();
 }
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)
@@ -1475,6 +1473,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 CompleteQuest(quest->GetQuestId());
         }
     }
+
+    SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
     return true;
 }
 
@@ -3104,6 +3104,15 @@ void Player::ProcessDelayedOperations()
             CastSpell(this, aura, true, NULL, NULLAURA_EFFECT, _resurrectionData->GUID);
 
         SpawnCorpseBones();
+
+        if (_resurrectionData->ResSpell != nullptr && _resurrectionData->ResSpell->IsBattleResurrection())
+        {
+            if (InstanceScript* l_InstanceScript = GetInstanceScript())
+                l_InstanceScript->ConsumeCombatResurrectionCharge();
+        }
+
+        /// Resurrecting - 60s aura preventing client from new res spells
+        RemoveAura(160029);
     }
 
     if (m_DelayedOperations & DELAYED_SAVE_PLAYER)
@@ -3201,10 +3210,16 @@ void Player::RegenerateAll()
     switch (l_Class)
     {
         case Classes::CLASS_PALADIN:
-            m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            if (!isInCombat())
+                m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            else
+                m_holyPowerRegenTimerCount = 0;
             break;
         case Classes::CLASS_MONK:
-            m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            if (!isInCombat())
+                m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            else
+                m_holyPowerRegenTimerCount = 0;
             break;
         case Classes::CLASS_HUNTER:
             m_focusRegenTimerCount += m_RegenPowerTimer;
@@ -3226,6 +3241,8 @@ void Player::RegenerateAll()
         }
         case Classes::CLASS_DEATH_KNIGHT:   ///< Runes act as cooldowns, and they don't need to send any data
         {
+            m_runicPowerRegenTimerCount += m_RegenPowerTimer;
+
             for (uint8 l_I = 0; l_I < MAX_RUNES; l_I += 2)
             {
                 uint8 l_RuneToRegen = l_I;
@@ -3270,9 +3287,6 @@ void Player::RegenerateAll()
 
         Regenerate(POWER_RAGE);
 
-        if (l_Class == CLASS_DEATH_KNIGHT)
-            Regenerate(POWER_RUNIC_POWER);
-
         m_regenTimerCount -= 2000;
     }
 
@@ -3280,6 +3294,12 @@ void Player::RegenerateAll()
     {
         Regenerate(POWER_HOLY_POWER);
         m_holyPowerRegenTimerCount -= 10000;
+    }
+
+    if (m_runicPowerRegenTimerCount >= 1000 && l_Class == CLASS_DEATH_KNIGHT)
+    {
+        Regenerate(POWER_RUNIC_POWER);
+        m_runicPowerRegenTimerCount -= 1000;
     }
 
     if (m_chiPowerRegenTimerCount >= 15000 && l_Class == CLASS_MONK)
@@ -3367,11 +3387,13 @@ void Player::Regenerate(Powers power)
             /// Regenerate Runic Power
             case POWER_RUNIC_POWER:
             {
+                float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
                 if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
                 {
-                    float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                    addvalue += (-30 * RunicPowerDecreaseRate / HastePct); ///< 3 RunicPower by tick
+                    addvalue += (-15 * RunicPowerDecreaseRate / HastePct); ///< 1.5 RunicPower by tick
                 }
+                if (isInCombat() && HasAura(50029))
+                    addvalue += 10.0f * RunicPowerDecreaseRate; ///< 1 RunicPower by tick
 
                 break;
             }
@@ -3572,45 +3594,20 @@ void Player::RegenerateHealth()
 
 void Player::ResetAllPowers()
 {
+    if (getPowerType() == POWER_COMBO_POINT)
+        ClearComboPoints();
+
     SetHealth(GetMaxHealth());
-    switch (getPowerType())
-    {
-        case POWER_MANA:
-            SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
-            break;
-        case POWER_RAGE:
-            SetPower(POWER_RAGE, 0);
-            break;
-        case POWER_ENERGY:
-            SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
-            break;
-        case POWER_COMBO_POINT:
-            ClearComboPoints();
-            break;
-        case POWER_RUNIC_POWER:
-            SetPower(POWER_RUNIC_POWER, 0);
-            break;
-        case POWER_ECLIPSE:
-            SetPower(POWER_ECLIPSE, 0);
-            break;
-        case POWER_DEMONIC_FURY:
-            SetPower(POWER_DEMONIC_FURY, 200);
-            break;
-        case POWER_BURNING_EMBERS:
-            SetPower(POWER_BURNING_EMBERS, 10);
-            break;
-        case POWER_SOUL_SHARDS:
-            SetPower(POWER_SOUL_SHARDS, 100);
-            break;
-        case POWER_SHADOW_ORB:
-            SetPower(POWER_SHADOW_ORB, 0);
-            break;
-        case POWER_CHI:
-            SetPower(POWER_CHI, 0);
-            break;
-        default:
-            break;
-    }
+    SetPower(POWER_BURNING_EMBERS, 10);
+    SetPower(POWER_CHI, 0);
+    SetPower(POWER_DEMONIC_FURY, 200);
+    SetPower(POWER_ECLIPSE, 0);
+    SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
+    SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+    SetPower(POWER_RAGE, 0);
+    SetPower(POWER_RUNIC_POWER, 0);
+    SetPower(POWER_SHADOW_ORB, 0);
+    SetPower(POWER_SOUL_SHARDS, 400);
 }
 
 bool Player::CanInteractWithQuestGiver(Object* questGiver)
@@ -3650,12 +3647,12 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
 {
     PlayerConditionEntry const* l_Entry = sPlayerConditionStore.LookupEntry(p_ConditionsID);
 
-    if (!l_Entry)
+    if (!l_Entry && !sScriptMgr->HasPlayerConditionScript(p_ConditionsID))
         return std::pair<bool, std::string>(false, "Condition entry not found");
 
     if (sScriptMgr->HasPlayerConditionScript(p_ConditionsID))
     {
-        if (!sScriptMgr->EvalPlayerConditionScript(l_Entry, this))
+        if (!sScriptMgr->EvalPlayerConditionScript(p_ConditionsID, l_Entry, this))
             return std::pair<bool, std::string>(false, "Condition script failed");
 
         return std::pair<bool, std::string>(true, "");
@@ -4033,55 +4030,65 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     return std::pair<bool, std::string>(true, "");
 }
 
-Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
+Creature* Player::GetNPCIfCanInteractWith(uint64 p_Guid, uint32 p_NpcFlagMask)
 {
-    // unit checks
-    if (!guid)
-        return NULL;
+    /// Unit checks
+    if (!p_Guid)
+        return nullptr;
 
     if (!IsInWorld())
-        return NULL;
+        return nullptr;
 
     if (isInFlight())
-        return NULL;
+        return nullptr;
 
-    // exist (we need look pets also for some interaction (quest/etc)
-    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
-    if (!creature)
-        return NULL;
+    /// Exist (we need look pets also for some interaction (quest/etc)
+    Creature* l_Creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, p_Guid);
+    if (!l_Creature)
+        return nullptr;
 
-    // Deathstate checks
-    if (!isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_GHOST))
-        return NULL;
+    /// Deathstate checks
+    if (!isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPEFLAGS_GHOST))
+        return nullptr;
 
-    // alive or spirit healer
-    if (!creature->isAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_DEAD_INTERACT))
-        return NULL;
+    /// Alive or spirit healer
+    if (!l_Creature->isAlive() && !(l_Creature->GetCreatureTemplate()->type_flags & CreatureTypeFlags::CREATURE_TYPEFLAGS_DEAD_INTERACT))
+        return nullptr;
 
-    // appropriate npc type
-    if (npcflagmask && !creature->HasFlag(UNIT_FIELD_NPC_FLAGS, npcflagmask))
-        return NULL;
+    /// Appropriate npc type
+    if (p_NpcFlagMask && !l_Creature->HasFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, p_NpcFlagMask))
+        return nullptr;
 
-    // not allow interaction under control, but allow with own pets
-    if (creature->GetCharmerGUID())
-        return NULL;
+    /// Not allow interaction under control, but allow with own pets
+    if (l_Creature->GetCharmerGUID())
+        return nullptr;
 
-    // not enemy
-    if (creature->IsHostileTo(this))
-        return NULL;
+    /// Not enemy
+    if (l_Creature->IsHostileTo(this))
+        return nullptr;
 
-    // not unfriendly
-    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(creature->getFaction()))
-        if (factionTemplate->Faction)
-            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->Faction))
-                if (faction->ReputationIndex >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
-                    return NULL;
+    /// Not unfriendly
+    if (FactionTemplateEntry const* l_FactionTemplate = sFactionTemplateStore.LookupEntry(l_Creature->getFaction()))
+    {
+        if (l_FactionTemplate->Faction)
+        {
+            if (FactionEntry const* l_Faction = sFactionStore.LookupEntry(l_FactionTemplate->Faction))
+            {
+                if (l_Faction->ReputationIndex >= 0 && GetReputationMgr().GetRank(l_Faction) <= ReputationRank::REP_UNFRIENDLY)
+                    return nullptr;
+            }
+        }
+    }
 
-    // not too far
-    if (!creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
-        return NULL;
+    /// Not too far
+    bool l_ByPassDist = false;
+    if (l_Creature->IsAIEnabled)
+        l_ByPassDist = l_Creature->AI()->CanByPassDistanceCheck();
 
-    return creature;
+    if (!l_ByPassDist && !l_Creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
+        return nullptr;
+
+    return l_Creature;
 }
 
 Creature* Player::GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask)
@@ -4967,7 +4974,8 @@ void Player::SendKnownSpells()
         if (!l_It->second)
             continue;
 
-        if (l_It->second->state == PLAYERSPELL_REMOVED)
+        if (l_It->second->state == PlayerSpellState::PLAYERSPELL_REMOVED
+            || l_It->second->state == PlayerSpellState::PLAYERSPELL_TEMPORARY)
             continue;
 
         if (!l_It->second->active || l_It->second->disabled)
@@ -5080,7 +5088,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     return false;
 }
 
-bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool p_IsMountFavorite)
+bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool p_IsMountFavorite, bool p_LearnBattlePet)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -5366,7 +5374,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     }
 
     // Add BattlePet
-    if (learning && !dependent)
+    if (learning && !dependent && p_LearnBattlePet)
     {
         for (uint32 speciesId = 0; speciesId != sBattlePetSpeciesStore.GetNumRows(); ++speciesId)
         {
@@ -6130,6 +6138,10 @@ uint32 Player::GetNextResetTalentsCost() const
         {
             // This cost will be reduced by a rate of 5 gold per month
             int32 new_cost = int32(GetTalentResetCost() - 5*GOLD*months);
+
+            // 50 gold cap
+            new_cost = std::min(new_cost, 50 * GOLD);
+
             // to a minimum of 10 gold.
             return (new_cost < 10*GOLD ? 10*GOLD : new_cost);
         }
@@ -6473,6 +6485,8 @@ void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_L
 
     if (Group* l_Group = GetGroup())
         l_Group->OnChangeMemberSpec(GetGUID(), p_Specialization);
+
+    SaveToDB();
 }
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
@@ -21192,6 +21206,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
     RewardCompletedAchievementsIfNeeded();
+    CheckTalentSpells();
     l_Times.push_back(getMSTime() - l_StartTime);
 
     if ((getMSTime() - l_StartTime) > 50)
@@ -23734,7 +23749,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
                     && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
-                    stmt = CharacterDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
+                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, itr->first);
                     stmt->setUInt32(1, GetSession()->GetAccountId());
                     accountTrans->Append(stmt);
@@ -26112,6 +26127,17 @@ void Player::UpdatePvP(bool state, bool override)
 
 void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p_ItemId, Spell* p_Spell, bool p_InfinityCooldown)
 {
+    /// No need to set cooldown for Battle resurrection spells during a raid encounter
+    /// Now we have a system using Battle resurrection charges
+    if (p_SpellInfo->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = GetInstanceScript())
+        {
+            if (l_InstanceScript->IsEncounterInProgress() && l_InstanceScript->instance->IsRaid())
+                return;
+        }
+    }
+
     // init cooldown values
     uint32 l_CategoryId       = 0; // cat
     int64  l_Cooldown         = -1; //rec
@@ -27339,7 +27365,7 @@ void Player::learnDefaultSpells()
 {
     // learn default race/class spells
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
-    for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); itr != info->spell.end(); ++itr)
+    for (PlayerCreateInfoSpells::const_iterator itr = info->customSpells.begin(); itr != info->customSpells.end(); ++itr)
     {
         uint32 tspell = *itr;
         sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "PLAYER (Class: %u Race: %u): Adding initial spell, id = %u", uint32(getClass()), uint32(getRace()), tspell);
@@ -28275,6 +28301,15 @@ void Player::ResurectUsingRequestData()
         CastSpell(this, aura, true, NULL, NULLAURA_EFFECT, _resurrectionData->GUID);
 
     SpawnCorpseBones();
+
+    if (_resurrectionData->ResSpell != nullptr && _resurrectionData->ResSpell->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = GetInstanceScript())
+            l_InstanceScript->ConsumeCombatResurrectionCharge();
+    }
+
+    /// Resurrecting - 60s aura preventing client from new res spells
+    RemoveAura(160029);
 }
 
 void Player::SetClientControl(Unit* p_Target, uint8 p_AllowMove)
@@ -29062,8 +29097,10 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 
     AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator l_Idx = l_RegenAura.begin(); l_Idx != l_RegenAura.end(); ++l_Idx)
+    {
         if ((*l_Idx)->GetMiscValue() == POWER_RUNES && RuneType((*l_Idx)->GetMiscValueB()) == runeType)
             l_Cooldown *= 1.0f - ((*l_Idx)->GetAmount() / 100.0f);
+    }
 
     // Runes cooldown are now affected by player's haste from equipment ...
     l_HastePct = GetRatingBonusValue(CR_HASTE_MELEE);
@@ -29722,8 +29759,6 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         Player* l_Player = HashMapHolder<Player>::Find(p_PlayerGuid);
         if (l_Player == nullptr)
             return;
-            
-        l_Player->m_DeleteLock.acquire();
 
         /// Same for the unit
         Unit* l_Unit = p_UnitGUID ? Unit::GetUnit(*l_Player, p_UnitGUID) : nullptr;
@@ -29733,15 +29768,11 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         // Update only individual achievement criteria here, otherwise we may get multiple updates
         // from a single boss kill
         if (sAchievementMgr->IsGroupCriteriaType(p_Type))
-        {
-            l_Player->m_DeleteLock.release();
             return;
-        }
 
         if (Guild* l_Guild = sGuildMgr->GetGuildById(l_Player->GetGuildId()))
             l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player, p_LoginCheck);
         
-        l_Player->m_DeleteLock.release();
     };
 
     sAchievementMgr->AddCriteriaUpdateTask(l_Task);
@@ -31808,6 +31839,14 @@ namespace ProfessionBookSpells
     };
 }
 
+namespace ProfessionAdditionalSpells
+{
+    enum
+    {
+        Prospecting = 31252,
+    };
+}
+
 void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
 {
     if (!p_Result)
@@ -31861,12 +31900,19 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
             const std::list<SkillLineAbilityEntry const*>& l_Abilities = sSpellMgr->GetTradeSpellFromSkill(l_SkillID);
             for (auto l_Abilitie : l_Abilities)
             {
-                if (l_Abilitie->min_value > 600)
+                if (l_Abilitie->spellId > 155748)   ///< last 5.4.7 spellid
                     continue;
 
                 learnSpell(l_Abilitie->spellId, false);
             }
         }
+
+        if (l_SkillID == SkillType::SKILL_JEWELCRAFTING)
+            learnSpell(ProfessionAdditionalSpells::Prospecting, false);             ///< Prospecting
+
+        /// We also need to learn it for herbalism
+        if (l_SkillID == SkillType::SKILL_HERBALISM)
+            learnSpell(l_SpellID, false);
 
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_STORE_PROFESSION);
         l_Statement->setUInt32(0, GetGUIDLow());
@@ -33108,6 +33154,10 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 
             l_AlreadyKnownPet.push_back(m_BattlePets[l_PetID]->Species);
 
+            BattlePetSpeciesEntry const* l_SpeciesEntry = sBattlePetSpeciesStore.LookupEntry(m_BattlePets[l_PetID]->Species);
+            if (l_SpeciesEntry != nullptr && !HasSpell(l_SpeciesEntry->spellId))
+                addSpell(l_SpeciesEntry->spellId, true, true, false, false, false, false, false);
+
             ++l_PetID;
         } while (p_Result->NextRow());
     }
@@ -33152,7 +33202,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 
         l_BattlePet.AddToPlayer(this);
 
-        removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
+        //removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
     }
 
     m_OldPetBattleSpellToMerge.clear();
@@ -33995,4 +34045,34 @@ uint32 Player::GetBagsFreeSlots() const
     }
 
     return l_FreeBagSlots;
+}
+
+void Player::CheckTalentSpells()
+{
+    std::set<uint32> l_Talents;
+    uint8 l_SpeCount = std::min(GetSpecsCount(), (uint8)MAX_TALENT_SPECS);
+
+    for (uint8 l_SpecIdx = 0; l_SpecIdx < l_SpeCount; l_SpecIdx++)
+    {
+        PlayerTalentMap& l_PlayerTalent = *GetTalentMap(l_SpecIdx);
+        for (PlayerTalentMap::iterator l_TalentItr = l_PlayerTalent.begin(); l_TalentItr != l_PlayerTalent.end(); ++l_TalentItr)
+            l_Talents.insert(l_TalentItr->first);
+    }
+
+    for (PlayerSpellMap::iterator l_Itr = m_spells.begin(); l_Itr != m_spells.end();)
+    {
+        if (!l_Itr->second)
+            continue;
+
+        if (l_Itr->second->state != PlayerSpellState::PLAYERSPELL_REMOVED
+            && sSpellMgr->IsTalent(l_Itr->first)
+            && l_Talents.find(l_Itr->first) == l_Talents.end())
+        {
+            removeSpell(l_Itr->first);
+            l_Itr = m_spells.begin();
+            continue;
+        }
+
+        ++l_Itr;
+    }
 }

@@ -11,28 +11,6 @@
 #include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-class WebDatabaseConnection : public MySQLConnection
-{
-public:
-    /// Constructors for sync and async connections
-    WebDatabaseConnection(MySQLConnectionInfo& p_ConnectionInfo)
-        : MySQLConnection(p_ConnectionInfo)
-    {
-
-    }
-    /// Constructors
-    WebDatabaseConnection(ACE_Activation_Queue* p_Queue, MySQLConnectionInfo& p_ConnectionInfo)
-        : MySQLConnection(p_Queue, p_ConnectionInfo)
-    {
-
-    }
-
-    /// Loads database type specific prepared statements
-    void DoPrepareStatements();
-};
-
-typedef DatabaseWorkerPool<WebDatabaseConnection> WebDatabaseWorkerPool;
-
 enum WebDatabaseStatements
 {
     /*  Naming standard for defines:
@@ -46,5 +24,20 @@ enum WebDatabaseStatements
 
     MAX_WEBDATABASE_STATEMENTS
 };
+
+class WebDatabaseConnection : public MySQLConnection
+{
+public:
+    typedef WebDatabaseStatements Statements;
+
+    /// Constructors for sync and async connections
+    WebDatabaseConnection(MySQLConnectionInfo& p_ConnectionInfo) : MySQLConnection(p_ConnectionInfo) { }
+    WebDatabaseConnection(ACE_Activation_Queue* p_Queue, MySQLConnectionInfo& p_ConnectionInfo) : MySQLConnection(p_Queue, p_ConnectionInfo) { }
+
+    /// Loads database type specific prepared statements
+    void DoPrepareStatements() override;
+};
+
+typedef DatabaseWorkerPool<WebDatabaseConnection> WebDatabaseWorkerPool;
 
 #endif  ///< LOGINMOPDATABASE_H_INCLUDED

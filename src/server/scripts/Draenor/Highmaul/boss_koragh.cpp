@@ -317,7 +317,7 @@ class boss_koragh : public CreatureScript
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(eMove::MoveToCenter, g_CenterPos);
 
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfCharging, 30 * TimeConstants::IN_MILLISECONDS);
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfCharging, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eActions::ActionSuppressionField:
@@ -631,7 +631,7 @@ class boss_koragh : public CreatureScript
                     }
                     case eEvents::EventSuppressionField:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM/*, 0, -10.0f*/))
                         {
                             m_SuppressionFieldTarget = l_Target->GetGUID();
                             me->CastSpell(me, eSpells::SuppressionFieldAura, false);
@@ -1284,7 +1284,8 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
                 {
                     l_Boss->SetPower(Powers::POWER_ALTERNATE_POWER, 0);
 
-                    if (l_Boss->IsAIEnabled)
+                    AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                    if (l_Boss->IsAIEnabled && l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_DEATH)
                         l_Boss->AI()->DoAction(eAction::CancelBreakersStrength);
                 }
             }
@@ -1814,7 +1815,7 @@ class areatrigger_highmaul_suppression_field : public AreaTriggerEntityScript
                     if (Unit* l_Caster = p_AreaTrigger->GetCaster())
                     {
                         std::list<Unit*> l_TargetList;
-                        float l_Radius = 10.0f;
+                        float l_Radius = 15.0f;
 
                         JadeCore::AnyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Radius);
                         JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -1840,19 +1841,11 @@ class areatrigger_highmaul_suppression_field : public AreaTriggerEntityScript
                             }
                             else
                             {
-                                if (l_Unit->GetEntry() == eHighmaulCreatures::VolatileAnomaly)
-                                {
-                                    if (l_Unit->HasAura(eSpells::SuppressionFieldSilence))
-                                        l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
-                                }
-                                else
-                                {
-                                    if (l_Unit->HasAura(eSpells::SuppressionFieldDoT))
-                                        l_Unit->RemoveAura(eSpells::SuppressionFieldDoT);
+                                if (l_Unit->HasAura(eSpells::SuppressionFieldDoT))
+                                    l_Unit->RemoveAura(eSpells::SuppressionFieldDoT);
 
-                                    if (l_Unit->HasAura(eSpells::SuppressionFieldSilence))
-                                        l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
-                                }
+                                if (l_Unit->HasAura(eSpells::SuppressionFieldSilence))
+                                    l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
                             }
                         }
                     }

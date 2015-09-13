@@ -351,7 +351,8 @@ struct PlayerInfo
     uint16 displayId_m;
     uint16 displayId_f;
     PlayerCreateInfoItems item;
-    PlayerCreateInfoSpells spell;
+    PlayerCreateInfoSpells customSpells;
+    PlayerCreateInfoSpells castSpells;
     PlayerCreateInfoActions action;
 
     PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
@@ -1381,6 +1382,7 @@ struct ResurrectionData
     uint32 Health;
     uint32 Mana;
     uint32 Aura;
+    SpellInfo const* ResSpell;
 };
 
 class KillRewarder
@@ -2233,7 +2235,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false);
+        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false, bool p_LearnBattlePet = true);
         void learnSpell(uint32 spell_id, bool dependent);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void resetSpells(bool myClassOnly = false);
@@ -2300,6 +2302,11 @@ class Player : public Unit, public GridObject<Player>
 
         void ResetSpec(bool p_NoCost = false);
         void ResetAllSpecs();
+
+        /*
+         * Ensure all talent spell are in talent map, otherwise unlearn them.
+         */
+        void CheckTalentSpells();
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
@@ -2373,7 +2380,7 @@ class Player : public Unit, public GridObject<Player>
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
-        void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura)
+        void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura, SpellInfo const* p_ResSpell = nullptr)
         {
             ASSERT(!IsRessurectRequested());
             _resurrectionData = new ResurrectionData();
@@ -2382,6 +2389,7 @@ class Player : public Unit, public GridObject<Player>
             _resurrectionData->Health = health;
             _resurrectionData->Mana = mana;
             _resurrectionData->Aura = appliedAura;
+            _resurrectionData->ResSpell = p_ResSpell;
         }
 
         void ClearResurrectRequestData()
@@ -3648,9 +3656,11 @@ class Player : public Unit, public GridObject<Player>
         void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
 
         uint32 GetBagsFreeSlots() const;
-        
-        ACE_Thread_Mutex m_DeleteLock;
 
+        bool IsSummoned() const { return m_Summoned; }
+        void FinishSummon() { m_Summoned = false; }
+        void BeginSummon() { m_Summoned = true; }
+        
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3676,6 +3686,7 @@ class Player : public Unit, public GridObject<Player>
         WhisperListContainer WhisperList;
         uint32 m_regenTimerCount;
         uint32 m_holyPowerRegenTimerCount;
+        uint32 m_runicPowerRegenTimerCount;
         uint32 m_chiPowerRegenTimerCount;
         uint32 m_soulShardsRegenTimerCount;
         uint32 m_focusRegenTimerCount;
@@ -3944,6 +3955,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_lastpetnumber;
 
         // Player summoning
+        bool   m_Summoned;
         time_t m_summon_expire;
         uint32 m_summon_mapid;
         float  m_summon_x;

@@ -3445,16 +3445,71 @@ void ObjectMgr::LoadPlayerInfo()
                     uint32 max_class = current_class ? current_class + 1 : MAX_CLASSES;
                     for (uint32 r = min_race; r < max_race; ++r)
                         for (uint32 c = min_class; c < max_class; ++c)
-                            _playerInfo[r][c].spell.push_back(fields[2].GetUInt32());
+                            _playerInfo[r][c].customSpells.push_back(fields[2].GetUInt32());
                 }
                 else
-                    _playerInfo[current_race][current_class].spell.push_back(fields[2].GetUInt32());
+                    _playerInfo[current_race][current_class].customSpells.push_back(fields[2].GetUInt32());
 
                 ++count;
             }
             while (result->NextRow());
 
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u player create spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+    // Load playercreate cast spell
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Cast Spell Data...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        QueryResult result = WorldDatabase.PQuery("SELECT raceMask, classMask, spell FROM playercreateinfo_cast_spell");
+
+        if (!result)
+            sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 player create cast spells. DB table `playercreateinfo_cast_spell` is empty.");
+        else
+        {
+            uint32 count = 0;
+
+            do
+            {
+                Field* fields       = result->Fetch();
+                uint32 raceMask     = fields[0].GetUInt32();
+                uint32 classMask    = fields[1].GetUInt32();
+                uint32 spellId      = fields[2].GetUInt32();
+
+                if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Wrong race mask %u in `playercreateinfo_cast_spell` table, ignoring.", raceMask);
+                    continue;
+                }
+
+                if (classMask != 0 && !(classMask & CLASSMASK_ALL_PLAYABLE))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Wrong class mask %u in `playercreateinfo_cast_spell` table, ignoring.", classMask);
+                    continue;
+                }
+
+                for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
+                {
+                    if (raceMask == 0 || ((1 << (raceIndex - 1)) & raceMask))
+                    {
+                        for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
+                        {
+                            if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
+                            {
+                                if (PlayerInfo* l_Info = &_playerInfo[raceIndex][classIndex])
+                                {
+                                    l_Info->castSpells.push_back(spellId);
+                                    ++count;
+                                }
+                            }
+                        }
+                    }
+                }
+            } while (result->NextRow());
+
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u player create cast spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
@@ -6285,6 +6340,8 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         _hiCreatureGuid = (*result)[0].GetUInt32()+1;
 
+    _hiCreatureGuid += 10000;
+
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
         m_HighItemGuid = (*result)[0].GetUInt32()+1;
@@ -6395,17 +6452,17 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         }
         case HIGHGUID_UNIT:
         {
-            ASSERT(_hiCreatureGuid < 0x00FFFFFE && "Creature guid overflow!");
+            ASSERT(_hiCreatureGuid < 0xFFFFFFFE && "Creature guid overflow!");
             return _hiCreatureGuid++;
         }
         case HIGHGUID_PET:
         {
-            ASSERT(_hiPetGuid < 0x00FFFFFE && "Pet guid overflow!");
+            ASSERT(_hiPetGuid < 0xFFFFFFFE && "Pet guid overflow!");
             return _hiPetGuid++;
         }
         case HIGHGUID_VEHICLE:
         {
-            ASSERT(_hiVehicleGuid < 0x00FFFFFF && "Vehicle guid overflow!");
+            ASSERT(_hiVehicleGuid < 0xFFFFFFFE && "Vehicle guid overflow!");
             return _hiVehicleGuid++;
         }
         case HIGHGUID_PLAYER:
@@ -6415,7 +6472,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         }
         case HIGHGUID_GAMEOBJECT:
         {
-            ASSERT(_hiGoGuid < 0x00FFFFFE && "Gameobject guid overflow!");
+            ASSERT(_hiGoGuid < 0xFFFFFFFE && "Gameobject guid overflow!");
             return _hiGoGuid++;
         }
         case HIGHGUID_CORPSE:

@@ -804,17 +804,21 @@ class spell_npc_warr_ravager : public CreatureScript
         {
             spell_npc_warr_ravagerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            enum eSpells
+            enum eDatas
             {
+                DisplayID = 55644,
                 RavagerAura = 153709
             };
 
             void IsSummonedBy(Unit* p_Summoner)
             {
-                me->CastSpell(me, eSpells::RavagerAura, true);
+                me->SetDisplayId(eDatas::DisplayID);
+                me->CastSpell(me, eDatas::RavagerAura, true);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->AddUnitState(UnitState::UNIT_STATE_ROOT);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE |
+                                                           eUnitFlags::UNIT_FLAG_UNK_15 |
+                                                           eUnitFlags::UNIT_FLAG_PVP_ATTACKABLE);
 
                 if (p_Summoner == nullptr || p_Summoner->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;

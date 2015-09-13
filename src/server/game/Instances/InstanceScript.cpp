@@ -45,6 +45,12 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_ScenarioID = 0;
     m_ScenarioStep = 0;
     m_EncounterTime = 0;
+    m_DisabledMask = 0;
+
+    m_InCombatResCount = 0;
+    m_MaxInCombatResCount = 0;
+    m_CombatResChargeTime = 0;
+    m_NextCombatResChargeTime = 0;
 }
 
 void InstanceScript::SaveToDB()
@@ -221,7 +227,18 @@ void InstanceScript::UpdateDoorState(GameObject* door)
         }
     }
 
-    door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+    /// Delay Door closing, like retail
+    if (!open)
+    {
+        uint64 l_DoorGuid = door->GetGUID();
+        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [l_DoorGuid]() -> void
+        {
+            if (GameObject* l_Door = sObjectAccessor->FindGameObject(l_DoorGuid))
+                l_Door->SetGoState(GOState::GO_STATE_READY);
+        });
+    }
+    else
+        door->SetGoState(GOState::GO_STATE_ACTIVE);
 }
 
 void InstanceScript::AddDoor(GameObject* door, bool add)
@@ -385,11 +402,22 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     }
 
                     m_EncounterTime = 0;
+
+                    ResetCombatResurrection();
+
+                    /// Bloodlust, Heroism, Temporal Displacement and Insanity debuffs are removed at the end of an encounter
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::HunterInsanity);
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::MageTemporalDisplacement);
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::ShamanExhaustion);
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::ShamanSated);
                     break;
                 }
                 case EncounterState::IN_PROGRESS:
+                {
                     m_EncounterTime = time(nullptr);
+                    StartCombatResurrection();
                     break;
+                }
                 case EncounterState::FAIL:
                 {
                     /// Now you have to fight for at least 3mins to get a stack.
@@ -601,6 +629,22 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
     }
 }
 
+void InstanceScript::DoRemoveForcedMovementsOnPlayers(uint64 p_Source)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (!l_PlayerList.isEmpty())
+    {
+        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+        {
+            if (Player* l_Player = l_Iter->getSource())
+            {
+                if (l_Player->HasMovementForce(p_Source))
+                    l_Player->SendApplyMovementForce(p_Source, false, Position());
+            }
+        }
+    }
+}
+
 // Cast spell on all players in instance
 void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
 {
@@ -664,6 +708,23 @@ void InstanceScript::DoAddAuraOnPlayers(uint32 spell)
                 player->AddAura(spell, player);
 }
 
+void InstanceScript::DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+
+    if (!l_PlayerList.isEmpty())
+    {
+        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+        {
+            if (Player* l_Player = l_Iter->getSource())
+            {
+                if (l_Player->HasSpellCooldown(p_SpellID))
+                    l_Player->RemoveSpellCooldown(p_SpellID, true);
+            }
+        }
+    }
+}
+
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
@@ -671,9 +732,13 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
     return false;
 }
 
-bool InstanceScript::CheckRequiredBosses(uint32 /*bossId*/, Player const* player) const
+bool InstanceScript::CheckRequiredBosses(uint32 p_ID, Player const* p_Player) const
 {
-    if (player && player->isGameMaster())
+    /// Disable case (for LFR)
+    if (m_DisabledMask & (1 << p_ID))
+        return false;
+
+    if (p_Player && p_Player->isGameMaster())
         return true;
 
     if (instance->GetPlayersCountExceptGMs() > instance->ToInstanceMap()->GetMaxPlayers())
@@ -719,11 +784,10 @@ void InstanceScript::SendEncounterUnit(uint32 p_Type, Unit* p_Unit /*= NULL*/, u
             break;
         case EncounterFrameType::ENCOUNTER_FRAME_START:
             l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_START, 4 * 4);
-            /// Sniffed values
-            l_Data << uint32(1);        ///< CombatResChargeRecovery
-            l_Data << int32(9);         ///< MaxInCombatResCount
-            l_Data << int32(216000);    ///< InCombatResCount
-            l_Data << uint32(216000);   ///< NextCombatResChargeTime
+            l_Data << uint32(m_InCombatResCount);
+            l_Data << int32(m_MaxInCombatResCount);
+            l_Data << int32(m_CombatResChargeTime);
+            l_Data << uint32(m_NextCombatResChargeTime);
             break;
         case EncounterFrameType::ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
             l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE, 4 * 2);
@@ -741,8 +805,8 @@ void InstanceScript::SendEncounterUnit(uint32 p_Type, Unit* p_Unit /*= NULL*/, u
             break;
         case EncounterFrameType::ENCOUNTER_FRAME_GAIN_COMBAT_RESURRECTION_CHARGE:
             l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE, 4 * 2);
-            l_Data << int32(0);         // InCombatResCount
-            l_Data << uint32(0);        // CombatResChargeRecovery
+            l_Data << int32(m_InCombatResCount);
+            l_Data << uint32(m_CombatResChargeTime);
             break;
         default:
             break;
@@ -1294,7 +1358,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
+        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetNativeDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
         {
             m_CompletedEncounters |= 1 << (*l_Iter)->dbcEntry->Bit;
 
@@ -1392,3 +1456,89 @@ void InstanceScript::UpdateCreatureGroupSizeStats()
         l_Creature->UpdateGroupSizeStats();
     }
 }
+
+//////////////////////////////////////////////////////////////////////////
+/// Combat Resurrection - http://wow.gamepedia.com/Resurrect#Combat_resurrection
+void InstanceScript::ResetCombatResurrection()
+{
+    if (!instance->IsRaid())
+        return;
+
+    m_InCombatResCount = 0;
+    m_MaxInCombatResCount = 0;
+    m_CombatResChargeTime = 0;
+    m_NextCombatResChargeTime = 0;
+}
+
+void InstanceScript::StartCombatResurrection()
+{
+    if (!instance->IsRaid())
+        return;
+
+    /// Upon engaging a boss, all combat resurrection spells will have their cooldowns reset and begin with 1 charge.
+    for (uint8 l_I = 0; l_I < eInstanceSpells::MaxBattleResSpells; ++l_I)
+        DoRemoveSpellCooldownOnPlayers(g_BattleResSpells[l_I]);
+
+    m_InCombatResCount = 1;
+
+    /// Charges will accumulate at a rate of 1 per (90/RaidSize) minutes.
+    /// Example 1: A 10-player raid will accumulate 1 charge every 9 minutes (90/10 = 9).
+    /// Example 2: A 20-player raid will accumulate 1 charge every 4.5 minutes (90/20 = 4.5).
+    uint32 l_PlayerCount = instance->GetPlayers().getSize();
+    if (!l_PlayerCount)
+        return;
+
+    float l_Value = 9000.0f / (float)l_PlayerCount;
+    uint32 l_Timer = l_Value / 100;
+
+    l_Value -= (float)l_Timer * 100.0f;
+    l_Timer *= TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+    l_Value *= TimeConstants::MINUTE / 100.0f * TimeConstants::IN_MILLISECONDS;
+    l_Timer += l_Value;
+
+    m_MaxInCombatResCount = 9;
+    m_CombatResChargeTime = l_Timer;
+    m_NextCombatResChargeTime = l_Timer;
+}
+
+void InstanceScript::UpdateCombatResurrection(uint32 const p_Diff)
+{
+    if (!m_NextCombatResChargeTime)
+        return;
+
+    /// Add a charge
+    if (m_NextCombatResChargeTime <= p_Diff)
+    {
+        m_NextCombatResChargeTime = m_CombatResChargeTime;
+        m_InCombatResCount = std::min(++m_InCombatResCount, m_MaxInCombatResCount);
+
+        SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_GAIN_COMBAT_RESURRECTION_CHARGE);
+    }
+    else
+        m_NextCombatResChargeTime -= p_Diff;
+}
+
+bool InstanceScript::CanUseCombatResurrection() const
+{
+    if (!instance->IsRaid())
+        return true;
+
+    if (!IsEncounterInProgress())
+        return true;
+
+    if (m_InCombatResCount <= 0)
+        return false;
+
+    return true;
+}
+
+void InstanceScript::ConsumeCombatResurrectionCharge()
+{
+    /// Shouldn't happen
+    if (m_InCombatResCount <= 0)
+        return;
+
+    --m_InCombatResCount;
+    SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_IN_COMBAT_RESURRECTION);
+}
+//////////////////////////////////////////////////////////////////////////

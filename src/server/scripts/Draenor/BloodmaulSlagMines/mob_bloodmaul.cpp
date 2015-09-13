@@ -8,6 +8,10 @@
 
 #include "instance_bloodmaul.hpp"
 
+Position const g_CromanExitPos = { 1998.86f, -392.345f, 222.9501f };
+Position const g_CromanSwordPos = { 2082.09f, 120.2452f, 224.828f, 1.5189f };
+Position const g_CromanEndPos = { 2400.616f, -455.1502f, 198.1855f, 2.461f };
+
 namespace MS { namespace Instances { namespace Bloodmaul
 {
     /// Slagna - 75406
@@ -1072,6 +1076,421 @@ namespace MS { namespace Instances { namespace Bloodmaul
             }
     };
 
+    /// Croman <Barbarian> - 75242
+    class mob_bloodmaul_croman : public CreatureScript
+    {
+        public:
+            mob_bloodmaul_croman() : CreatureScript("mob_bloodmaul_croman") { }
+
+            enum eSpells
+            {
+                WheelOfPainKnockBack    = 151272,
+                SummonCroman            = 163652,
+                SummonCromanTriggered   = 163647
+            };
+
+            enum eAnim
+            {
+                AnimKitID = 4914
+            };
+
+            enum eCreature
+            {
+                WheelOfPain = 75252
+            };
+
+            enum eActions
+            {
+                ActionEnableClick,
+                ActionExitWheel
+            };
+
+            bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+            {
+                if (p_Creature->IsAIEnabled)
+                {
+                    if (p_Creature->GetVehicle())
+                        p_Creature->AI()->DoAction(eActions::ActionExitWheel);
+                    else
+                        p_Creature->CastSpell(p_Creature, eSpells::WheelOfPainKnockBack, true);
+                }
+
+                return true;
+            }
+
+            struct mob_bloodmaul_cromanAI : public MS::AI::CosmeticAI
+            {
+                mob_bloodmaul_cromanAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+                {
+                    m_PlayerEscortGuid = 0;
+                }
+
+                uint64 m_PlayerEscortGuid;
+
+                bool CanRespawn() override
+                {
+                    return false;
+                }
+
+                void Reset() override
+                {
+                    me->SetAIAnimKitId(eAnim::AnimKitID);
+
+                    if (Creature* l_Wheel = me->FindNearestCreature(eCreature::WheelOfPain, 50.0f))
+                    {
+                        me->EnterVehicle(l_Wheel);
+
+                        /// Croman is pushing the Wheel!
+                        l_Wheel->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_LEFT | MovementFlags::MOVEMENTFLAG_DISABLE_GRAVITY);
+                        l_Wheel->SetSpeed(MOVE_TURN_RATE, 0.1256637f);  ///< Sniffed
+                    }
+
+                    me->m_movementInfo.t_pos.m_orientation = 1.570796f; ///< Sniffed
+
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_GOSSIP);
+                }
+
+                bool CanByPassDistanceCheck() const override
+                {
+                    return true;
+                }
+
+                void DoAction(int32 const p_Action) override
+                {
+                    switch (p_Action)
+                    {
+                        case eActions::ActionEnableClick:
+                        {
+                            if (me->GetMap()->IsHeroic())
+                                me->SetFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_GOSSIP);
+
+                            break;
+                        }
+                        case eActions::ActionExitWheel:
+                        {
+                            me->SetAIAnimKitId(0);
+                            me->ExitVehicle(&g_CromanExitPos);
+
+                            AddTimedDelayedOperation(200, [this]() -> void
+                            {
+                                me->NearTeleportTo(g_CromanExitPos);
+                            });
+
+                            if (Creature* l_Wheel = me->FindNearestCreature(eCreature::WheelOfPain, 50.0f))
+                                l_Wheel->SetSpeed(UnitMoveType::MOVE_TURN_RATE, 0.0f);  ///< This makes the Wheel stop turning
+
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+
+                void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+                {
+                    if (p_SpellInfo->Id == eSpells::WheelOfPainKnockBack)
+                    {
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_GOSSIP);
+
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->CastSpell(me, eSpells::SummonCroman, true);
+
+                            if (Creature* l_Croman = me->FindNearestCreature(uint32(MobEntries::CromanTheBarbarianReal), 50.0f))
+                            {
+                                if (l_Croman->IsAIEnabled)
+                                    l_Croman->AI()->SetGUID(m_PlayerEscortGuid);
+                            }
+                        });
+                    }
+                }
+
+                void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+                {
+                    if (p_Target == nullptr)
+                        return;
+
+                    switch (p_SpellInfo->Id)
+                    {
+                        case eSpells::SummonCroman:
+                        {
+                            /// Summons other Croman - 81032
+                            me->CastSpell(*p_Target, eSpells::SummonCromanTriggered, true);
+                            me->DespawnOrUnsummon();
+                            m_PlayerEscortGuid = p_Target->GetGUID();
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            };
+
+            CreatureAI* GetAI(Creature* p_Creature) const override
+            {
+                return new mob_bloodmaul_cromanAI(p_Creature);
+            }
+    };
+
+    /// Croman <Barbarian> - 81032
+    class mob_bloodmaul_croman_real : public CreatureScript
+    {
+        public:
+            mob_bloodmaul_croman_real() : CreatureScript("mob_bloodmaul_croman_real") { }
+
+            enum eSpells
+            {
+                ComeWithMeIfYouWantToLive = 163684
+            };
+
+            enum eEvent
+            {
+                CheckPlayerAlive = 1
+            };
+
+            enum eTalks
+            {
+                Intro1,
+                Intro2,
+                Aggro,
+                Sword1,
+                Sword2,
+                Freed1,
+                Freed2
+            };
+
+            enum eActions
+            {
+                ActionPickUpSword,
+                ActionFreed
+            };
+
+            enum eAchievement
+            {
+                AchievementCromanBarbarian = 9005
+            };
+
+            enum eMoves
+            {
+                MoveSword = 1,
+                MoveEnd
+            };
+
+            enum eVisuals
+            {
+                OneShotPoint    = 25,
+                SteelSword      = 3417
+            };
+
+            struct mob_bloodmaul_croman_realAI : public FollowerAI
+            {
+                mob_bloodmaul_croman_realAI(Creature* p_Creature) : FollowerAI(p_Creature)
+                {
+                    m_IntroDone = false;
+                    m_PickSword = false;
+                    m_SwordBack = false;
+                }
+
+                EventMap m_Events;
+
+                bool m_IntroDone;
+                bool m_PickSword;
+                bool m_SwordBack;
+
+                void Reset() override
+                {
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 2.0f);
+
+                    me->SetByteFlag(EUnitFields::UNIT_FIELD_ANIM_TIER, 0, 0);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, 0);
+
+                    if (!m_IntroDone)
+                    {
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Talk(eTalks::Intro1, GetLeaderForFollower() != nullptr ? GetLeaderForFollower()->GetGUID() : 0);
+                        });
+
+                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Talk(eTalks::Intro2);
+                            SetFollowPaused(false);
+                        });
+
+                        m_IntroDone = true;
+                    }
+
+                    if (m_PickSword)
+                    {
+                        m_PickSword = false;
+
+                        Talk(eTalks::Sword1);
+
+                        SetFollowPaused(true);
+
+                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(eMoves::MoveSword, g_CromanSwordPos);
+                        });
+
+                        m_SwordBack = true;
+                    }
+                }
+
+                void MovementInform(uint32 p_Type, uint32 p_ID) override
+                {
+                    if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                        return;
+
+                    switch (p_ID)
+                    {
+                        case eMoves::MoveSword:
+                        {
+                            me->HandleEmoteCommand(eVisuals::OneShotPoint);
+                            Talk(eTalks::Sword2);
+
+                            AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, eVisuals::SteelSword);
+
+                                if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
+                                {
+                                    if (GameObject* l_Sword = GameObject::GetGameObject(*me, l_InstanceScript->GetData64(GameObjects::SteelSword)))
+                                        l_Sword->Delete();
+                                }
+
+                                SetFollowPaused(false);
+                            });
+
+                            break;
+                        }
+                        case eMoves::MoveEnd:
+                        {
+                            Talk(eTalks::Freed1);
+
+                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                me->CastSpell(me, eSpells::ComeWithMeIfYouWantToLive, true);
+
+                                me->SetByteFlag(EUnitFields::UNIT_FIELD_ANIM_TIER, 0, UnitBytes1_Flags::UNIT_BYTE1_FLAG_KNEEL);
+                                me->SetFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_GOSSIP);
+
+                                Talk(eTalks::Freed2);
+                            });
+
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+
+                void DoAction(int32 const p_Action) override
+                {
+                    switch (p_Action)
+                    {
+                        case eActions::ActionPickUpSword:
+                        {
+                            m_PickSword = true;
+
+                            if (!me->isInCombat())
+                                Reset();
+
+                            break;
+                        }
+                        case eActions::ActionFreed:
+                        {
+                            /// Croman must have his sword to complete the escort
+                            if (!m_SwordBack)
+                                break;
+
+                            SetFollowComplete(true);
+
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(eMoves::MoveEnd, g_CromanEndPos);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+
+                void EnterCombat(Unit* p_Attacker) override
+                {
+                    Talk(eTalks::Aggro);
+                }
+
+                void EnterEvadeMode() override
+                {
+                    FollowerAI::EnterEvadeMode();
+
+                    SetFollowPaused(false);
+                }
+
+                void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+                {
+                    if (p_Target == nullptr)
+                        return;
+
+                    switch (p_SpellInfo->Id)
+                    {
+                        case eSpells::ComeWithMeIfYouWantToLive:
+                        {
+                            if (AchievementEntry const* l_Achievement = sAchievementStore.LookupEntry(eAchievement::AchievementCromanBarbarian))
+                                p_Target->ToPlayer()->CompletedAchievement(l_Achievement);
+
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+
+                void SetGUID(uint64 p_Guid, int32 p_ID /*= 0 */) override
+                {
+                    if (Player* l_Player = Player::GetPlayer(*me, p_Guid))
+                    {
+                        StartFollow(l_Player, 35, nullptr);
+                        SetFollowPaused(true);
+                    }
+
+                    m_Events.ScheduleEvent(eEvent::CheckPlayerAlive, 1 * TimeConstants::IN_MILLISECONDS);
+                }
+
+                void UpdateAI(uint32 const p_Diff) override
+                {
+                    FollowerAI::UpdateAI(p_Diff);
+
+                    UpdateOperations(p_Diff);
+
+                    m_Events.Update(p_Diff);
+
+                    if (m_Events.ExecuteEvent() == eEvent::CheckPlayerAlive)
+                    {
+                        /// If the group member who cronan is following died, Cronan despawns.
+                        if (Player* l_Player = GetLeaderForFollower())
+                        {
+                            if (!l_Player->isAlive())
+                                me->DespawnOrUnsummon();
+                        }
+
+                        m_Events.ScheduleEvent(eEvent::CheckPlayerAlive, 1 * TimeConstants::IN_MILLISECONDS);
+                    }
+
+                    if (!UpdateVictim())
+                        return;
+
+                    DoMeleeAttackIfReady();
+                }
+            };
+
+            CreatureAI* GetAI(Creature* p_Creature) const override
+            {
+                return new mob_bloodmaul_croman_realAI(p_Creature);
+            }
+    };
+
     /// Channel Flames - 164615
     class spell_bloodmaul_channel_flames : public SpellScriptLoader
     {
@@ -1146,6 +1565,8 @@ void AddSC_mob_Bloodmaul()
     new MS::Instances::Bloodmaul::mob_vengeful_magma_elemental();
     new MS::Instances::Bloodmaul::mob_magma_lord();
     new MS::Instances::Bloodmaul::mob_pillar_of_flame();
+    new MS::Instances::Bloodmaul::mob_bloodmaul_croman();
+    new MS::Instances::Bloodmaul::mob_bloodmaul_croman_real();
 
     /// Spells
     new MS::Instances::Bloodmaul::spell_bloodmaul_channel_flames();

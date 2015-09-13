@@ -792,7 +792,8 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
     {
         /// Force the loading of all grids of Ashran for the first time
         p_Player->GetMap()->LoadAllGrids(3700.0f, 5100.0f, -5050.0f, -3510.0f, p_Player);
-        p_Player->GetMap()->SetObjectVisibility(300.0f);
+        /// Temp disable, that maybe cause lags.
+        //p_Player->GetMap()->SetObjectVisibility(300.0f);
         m_InitPointsTimer = 2000;
     }
 

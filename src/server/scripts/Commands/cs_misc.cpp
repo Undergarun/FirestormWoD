@@ -1395,7 +1395,7 @@ class misc_commandscript: public CommandScript
                     std::string l_ItemName = l_ItemNameStr + 1;
                     WorldDatabase.EscapeString(l_ItemName);
 
-                    PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(HOTFIX_SEL_ITEM_TEMPLATE_BY_NAME);
+                    PreparedStatement* l_Statement = HotfixDatabase.GetPreparedStatement(HOTFIX_SEL_ITEM_TEMPLATE_BY_NAME);
                     l_Statement->setString(0, l_ItemName);
                     PreparedQueryResult l_Result = WorldDatabase.Query(l_Statement);
 

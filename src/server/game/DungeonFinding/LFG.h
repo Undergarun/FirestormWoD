@@ -105,7 +105,7 @@ struct LfgLockStatus
 
 
 typedef std::set<uint32> LfgDungeonSet;
-typedef std::map<uint32, LfgLockStatus> LfgLockMap;
+typedef ACE_Based::LockedMap<uint32, LfgLockStatus> LfgLockMap;
 typedef std::map<uint64, LfgLockMap> LfgLockPartyMap;
 
 #endif

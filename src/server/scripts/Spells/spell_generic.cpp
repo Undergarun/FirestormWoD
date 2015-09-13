@@ -3633,8 +3633,13 @@ namespace Resolve
                 if (!ResolveIsAvailable(p_Player))
                     return;
 
-                if (!p_Player->isInCombat())
+                auto& l_DamagesHistory = m_HistoryDamagesPlayers[p_Player->GetGUID()];
+
+                if (!p_Player->isInCombat() && l_DamagesHistory.empty())
+                {
+                    p_Player->RemoveAurasDueToSpell(Resolve::InCombatAura);
                     return;
+                }
 
                 auto& l_Timer = m_Timers[p_Player->GetGUID()];
                 if (l_Timer <= p_Diff)
@@ -3653,6 +3658,9 @@ namespace Resolve
             bool ResolveIsAvailable(Player* p_Player)
             {
                 if (!p_Player->HasAura(Resolve::PassiveAura))
+                    return false;
+
+                if (p_Player->IsInPvPCombat() || (p_Player->GetMap() && p_Player->GetMap()->IsBattlegroundOrArena()))
                     return false;
 
                 return true;
@@ -4405,8 +4413,7 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                 if (l_Attacker->GetGUID() == l_Victim->GetGUID())
                     return;
 
-                if (Unit* l_Owner = GetUnitOwner())
-                    l_Owner->CastSpell(l_Victim, eSpells::TouchoftheGraveEffect, true);
+                l_Attacker->CastSpell(l_Victim, eSpells::TouchoftheGraveEffect, true);
             }
 
             void Register()

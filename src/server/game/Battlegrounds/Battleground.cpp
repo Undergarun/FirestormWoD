@@ -1400,6 +1400,7 @@ void Battleground::AddPlayer(Player* player)
     player->Dismount();
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
     player->RemoveAurasByType(SPELL_AURA_FLY);
+    player->ResetAllPowers();
 
     // add arena specific auras
     if (isArena())
@@ -1445,7 +1446,6 @@ void Battleground::AddPlayer(Player* player)
         {
             player->SaveBGLastSpecialization();
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
-            player->ResetAllPowers();
             SendCountdownTimer();
         }
 
@@ -1573,16 +1573,19 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
+        uint32 l_PlayerTeam = GetPlayerTeam(guid);
+        uint32 l_OtherTeam = GetOtherTeam(l_PlayerTeam);
+
         // drop flag and handle other cleanups
-        RemovePlayer(player, guid, GetPlayerTeam(guid));
+        RemovePlayer(player, guid, l_PlayerTeam);
 
         if (player && IsRatedBG())
             player->setFactionForRace(player->getRace());
 
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())
-            if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
-                EndBattleground(GetOtherTeam(player->GetTeam()));
+            if (GetAlivePlayersCountByTeam(l_PlayerTeam) <= 1 && GetPlayersCountByTeam(l_OtherTeam))
+                EndBattleground(l_OtherTeam);
     }
 }
 
