@@ -574,46 +574,46 @@ class spell_hun_steady_focus: public SpellScriptLoader
                 ProcFlagsExLegacy l_ExFlags = ProcFlagsExLegacy(p_EventInfo.GetHitMask());
                 uint32 l_SpellID = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
                 {
-                    switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                    ///< Marksmanship
+                    ///< - Steady Shot twice in a row
+                    case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
                     {
-                        ///< Marksmanship
-                        ///< - Steady Shot twice in a row
-                        case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
+                        ///< Not Steady Shot
+                        if (l_SpellID != SteadyFocusSpells::SteadyShot)
                         {
-                            ///< Not Steady Shot
-                            if (l_SpellID != SteadyFocusSpells::SteadyShot)
-                            {
-                                ///< Shitty procs
-                                if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
-                                    p_AurEff->GetBase()->SetCharges(0);
+                            ///< Shitty procs
+                            if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                p_AurEff->GetBase()->SetCharges(0);
 
-                                return;
-                            }
-
-                            DealWithCharges(p_AurEff, l_Player);
-                            break;
-                        }
-                        case SpecIndex::SPEC_NONE:
                             return;
-                        ///< Beast Mastery and Survival (Level 81)
-                        ///< - Cobra Shot twice in a row
-                        default:
-                        {
-                            ///< Not Cobra Shot
-                            if (l_SpellID != SteadyFocusSpells::CobraShot)
-                            {
-                                ///< Shitty procs
-                                if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
-                                    p_AurEff->GetBase()->SetCharges(0);
-
-                                return;
-                            }
-
-                            DealWithCharges(p_AurEff, l_Player);
-                            break;
                         }
+
+                        DealWithCharges(p_AurEff, l_Player);
+                        break;
+                    }
+                    ///< Beast Mastery and Survival (Level 81)
+                    ///< - Cobra Shot twice in a row
+                    case SpecIndex::SPEC_HUNTER_BEASTMASTERY:
+                    case SpecIndex::SPEC_HUNTER_SURVIVAL:
+                    {
+                        ///< Not Cobra Shot
+                        if (l_SpellID != SteadyFocusSpells::CobraShot)
+                        {
+                            ///< Shitty procs
+                            if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                p_AurEff->GetBase()->SetCharges(0);
+
+                            return;
+                        }
+
+                        DealWithCharges(p_AurEff, l_Player);
+                        break;
                     }
                 }
             }
