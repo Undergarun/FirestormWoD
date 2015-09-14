@@ -14396,19 +14396,25 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if (GetTypeId() == TYPEID_UNIT)
             {
                 Unit* pOwner = GetCharmerOrOwner();
-                if ((isPet() || isGuardian()) && !isInCombat() && pOwner) // Must check for owner or crash on "Tame Beast"
+                if ((isPet() || isGuardian()) && pOwner) // Must check for owner or crash on "Tame Beast"
                 {
-                    // For every yard over 5, increase speed by 0.01
-                    //  to help prevent pet from lagging behind and despawning
-                    float dist = GetDistance(pOwner);
                     float base_rate = 1.14f; // base speed is 114% of owner speed
 
-                    if (dist < 5)
-                        dist = 5;
+                    if (!isInCombat())
+                    {
+                        // For every yard over 5, increase speed by 0.01
+                        //  to help prevent pet from lagging behind and despawning
+                        float dist = GetDistance(pOwner);
 
-                    float mult = base_rate + ((dist - 5) * 0.01f);
+                        if (dist < 5)
+                            dist = 5;
 
-                    speed *= pOwner->GetSpeedRate(mtype) * mult; // pets derive speed from owner when not in combat
+                        float mult = base_rate + ((dist - 5) * 0.01f);
+
+                        speed *= pOwner->GetSpeedRate(mtype) * mult; // pets derive speed from owner when not in combat
+                    }
+                    else
+                        speed *= base_rate;
                 }
                 else
                     speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
@@ -14456,6 +14462,9 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 speed = min_speed;
         }
     }
+
+    if (speed > roundf(speed * 100))
+        speed += 0.01;
 
     SetSpeed(mtype, speed, forced);
 }
