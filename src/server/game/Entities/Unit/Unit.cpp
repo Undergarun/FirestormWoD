@@ -11204,14 +11204,6 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
         }
     }
 
-    /// Health leech handling
-    if (GetTypeId() == TypeID::TYPEID_PLAYER && addhealth > 0 && spellProto && spellProto->Id != SPELL_PLAYER_LIFE_STEAL)
-    {
-        float l_Percentage = GetFloatValue(EPlayerFields::PLAYER_FIELD_LIFESTEAL);
-        int32 l_Heal = CalculatePct(addhealth, (int32)l_Percentage);
-        CastCustomSpell(this, SPELL_PLAYER_LIFE_STEAL, &l_Heal, nullptr, nullptr, true);
-    }
-
     if (Player* player = unit->ToPlayer())
     {
         if (Battleground* bg = player->GetBattleground())
