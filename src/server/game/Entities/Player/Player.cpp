@@ -29090,19 +29090,7 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
             l_Cooldown *= 1.0f - ((*l_Idx)->GetAmount() / 100.0f);
     }
 
-    // Runes cooldown are now affected by player's haste from equipment ...
-    l_HastePct = GetRatingBonusValue(CR_HASTE_MELEE);
-
-    // ... and some auras.
-    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
-    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_2);
-    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_3);
-    l_HastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_RANGED_HASTE) / 10.0f;
-
-    if (AuraEffectPtr unholy = GetAuraEffect(48265, EFFECT_0))
-        l_HastePct += unholy->GetAmount();
-
-    l_Cooldown *=  1.0f - (l_HastePct / 100.0f);
+    l_Cooldown *= 1.0f - ((1.0f / GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) - 1.0f));
 
     return l_Cooldown;
 }

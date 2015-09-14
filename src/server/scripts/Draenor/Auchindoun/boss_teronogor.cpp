@@ -404,6 +404,8 @@ public:
                     switch (urand(eTeronogorTransformations::TransformationAffliction, eTeronogorTransformations::TransformationDemonology))
                     {
                         case eTeronogorTransformations::TransformationAffliction: // Mender Elum - Affliction
+                            events.Reset();
+
                             events.ScheduleEvent(eTerongorEvents::EventShadowBolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                             events.ScheduleEvent(eTerongorEvents::EventCurseOfExhaustion, 13 * TimeConstants::IN_MILLISECONDS);
                             events.ScheduleEvent(eTerongorEvents::EventSeedOfMalevolence, urand(22 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
@@ -415,6 +417,8 @@ public:
                             Talk(eTerongorTalks::TERONGOR_EVENT_03);
                             break;
                         case eTeronogorTransformations::TransformationDestruction: // Arcanist Jorra's - destruction
+                            events.Reset();
+
                             events.ScheduleEvent(eTerongorEvents::EventChaosBolt, 20 * TimeConstants::IN_MILLISECONDS);
                             events.ScheduleEvent(eTerongorEvents::EventImmolate, urand(10 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
                             events.ScheduleEvent(eTerongorEvents::EventConflagrate, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
@@ -425,6 +429,8 @@ public:
                             Talk(eTerongorTalks::TERONGOR_EVENT_01);
                             break;
                         case eTeronogorTransformations::TransformationDemonology: // Vindication Iruun's - demonology
+                            events.Reset();
+
                             events.ScheduleEvent(eTerongorEvents::EventDoom, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                             events.ScheduleEvent(eTerongorEvents::EventDemonicLeap, urand(10 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
                             events.ScheduleEvent(eTerongorEvents::EventCurseOfExhaustion, 18 * TimeConstants::IN_MILLISECONDS);
