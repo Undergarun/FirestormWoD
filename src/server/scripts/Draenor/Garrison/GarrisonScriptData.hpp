@@ -8,6 +8,12 @@
 #ifndef GARRISON_SCRIPT_DATA_HPP_GARRISON
 #define GARRISON_SCRIPT_DATA_HPP_GARRISON
 
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "GameObjectAI.h"
+#include "Spell.h"
+
 namespace MS { namespace Garrison 
 {
 
@@ -81,7 +87,9 @@ namespace MS { namespace Garrison
             Horde_YourFirstEnchantingWorkOrder        = 37570,
             Horde_YourFirstJewelcraftingWorkOrder     = 37573,
             Horde_YourFirstEngineeringWorkOrder       = 37571,
-            Horde_YourFirstInscriptionWorkOrder       = 37572
+            Horde_YourFirstInscriptionWorkOrder       = 37572,
+            /// Herb garden
+            Horde_ClearingTheGarden                   = 34193
         };
     }   ///< namespace Quests
 
@@ -104,7 +112,9 @@ namespace MS { namespace Garrison
         NPC_ASSISTANT_BRIGHTSTONE                       = 84455,
         NPC_SKAGGIT                                     = 80225,
         NPC_ARCHER                                      = 87518,
-        Marksman                                        = 88391
+        Marksman                                        = 88391,
+        LunarfallRaccoon                                = 85341,
+        NpcFrostwallNibbler                             = 81967
     };
 
     /// NPC texts id

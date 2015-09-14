@@ -633,6 +633,11 @@ class instance_highmaul : public InstanceMapScript
                     }
                 }
             }
+
+            void Update(uint32 p_Diff) override
+            {
+                UpdateCombatResurrection(p_Diff);
+            }
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* p_Map) const override

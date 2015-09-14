@@ -594,7 +594,7 @@ class mob_black_iron_alchemist : public CreatureScript
                         m_Events.ScheduleEvent(EVENT_DEBILITATING_RAY, 30000);
                         break;
                     case EVENT_REJUVENATING_SERUM:
-                        if (Unit* l_Target = me->SelectNearbyAlly(me))
+                        if (Unit* l_Target = me->SelectNearbyAlly(me, NOMINAL_MELEE_RANGE, true))
                             me->CastSpell(l_Target, SPELL_REJUVENATING_SERUM, false);
                         m_Events.ScheduleEvent(EVENT_REJUVENATING_SERUM, 20000);
                         break;

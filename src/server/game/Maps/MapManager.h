@@ -144,8 +144,8 @@ class MapManager
         bool HaveMaxDiff() const { return m_mapDiffLimit; }
         void SetMapDiffLimit(bool value) { m_mapDiffLimit = value; }
 
-        uint32 GetNextInstanceId() const { return _nextInstanceId; };
-        void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
+        uint32 GetNextInstanceId() const { return m_NextInstanceID; };
+        void SetNextInstanceId(uint32 nextInstanceId) { m_NextInstanceID = nextInstanceId; };
 
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
@@ -158,7 +158,7 @@ class MapManager
 
     private:
         typedef UNORDERED_MAP<uint32, Map*> MapMapType;
-        typedef std::vector<bool> InstanceIds;
+        typedef std::set<uint32> InstanceIDs;
 
         // debugging code, should be deleted some day
         void checkAndCorrectGridStatesArray();              // just for debugging to find some memory overwrites
@@ -182,8 +182,8 @@ class MapManager
         MapMapType i_maps;
         IntervalTimer i_timer;
 
-        InstanceIds _instanceIds;
-        uint32 _nextInstanceId;
+        InstanceIDs m_InstanceIDs;
+        uint32 m_NextInstanceID;
         MapUpdater m_updater;
         bool m_mapDiffLimit;
 

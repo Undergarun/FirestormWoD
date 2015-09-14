@@ -2569,7 +2569,7 @@
     <field type="int" name="GameObjectsA" />
     <field type="int" name="GameObjectsB" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="BuildingType" />
     <field type="int" name="BuildingLevel" />
     <field type="string" name="NameA" />
     <field type="string" name="NameH" />
@@ -2582,11 +2582,11 @@
     <field type="int" name="TexturePrefixB" />
     <field type="int" name="IconID" />
     <field type="int" name="field16" />
-    <field type="int" name="field17" />
+    <field type="int" name="NeedToBeBuilt" />
     <field type="int" name="BuiltSceneA" />
     <field type="int" name="BuiltSceneH" />
     <field type="int" name="field20" />
-    <field type="int" name="field21" />
+    <field type="int" name="AbilityID" />
     <field type="int" name="field22" />
     <field type="int" name="MoneyCost" />
   </GarrBuilding>

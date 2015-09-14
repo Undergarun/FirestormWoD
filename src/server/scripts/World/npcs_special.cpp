@@ -4094,7 +4094,7 @@ class npc_force_of_nature : public CreatureScript
                         if (me->HasUnitState(UNIT_STATE_CASTING))
                             return;
 
-                        if (Unit* target = me->SelectNearbyAlly(NULL, 30.0f))
+                        if (Unit* target = me->SelectNearbyAlly(NULL, 30.0f, true))
                             me->CastSpell(target, SPELL_TREANT_HEAL, false);
                         return;
                     }

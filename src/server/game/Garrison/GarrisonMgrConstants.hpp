@@ -187,6 +187,11 @@ namespace MS { namespace Garrison
         GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE   = 161694,
     };
 
+    enum GarrisonAbilities
+    {
+        AbilityHerbalism = 53
+    };
+
     /// TerrainSwap : See WorldMapArea.dbc
     enum
     {
@@ -206,6 +211,7 @@ namespace MS { namespace Garrison
             PeonWorking     = 10001,
             BuildingID      = 10002,
             PlotInstanceID  = 10003,
+            GatheredPos     = 10004,
             HasRecipe       = 0x40000000
         };
     }
@@ -258,7 +264,10 @@ namespace MS { namespace Garrison
             EngineeringWorks__EngineeringWorks_Level3   = 124,
             ScribesQuarters__ScribesQuarters_Level1     = 95,
             ScribesQuarters__ScribesQuarters_Level2     = 129,
-            ScribesQuarters__ScribesQuarters_Level3     = 130
+            ScribesQuarters__ScribesQuarters_Level3     = 130,
+            HerbGarden__HerbGarden_Level1               = 29,
+            HerbGarden__HerbGarden_Level2               = 136,
+            HerbGarden__HerbGarden_Level3               = 137
         };
     }
 

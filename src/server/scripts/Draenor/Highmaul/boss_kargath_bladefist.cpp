@@ -2026,7 +2026,7 @@ class npc_highmaul_iron_grunt : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 8)]); });
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -2044,7 +2044,7 @@ class npc_highmaul_iron_grunt : public CreatureScript
 
             void LastOperationCalled() override
             {
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 8)]); });
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -2095,7 +2095,7 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 8)]); });
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
 
                 m_Events.Reset();
             }
@@ -2121,7 +2121,7 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
 
             void LastOperationCalled() override
             {
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 8)]); });
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -2168,7 +2168,7 @@ class npc_highmaul_ogre_grunt : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 8)]); });
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -2184,7 +2184,7 @@ class npc_highmaul_ogre_grunt : public CreatureScript
 
             void LastOperationCalled() override
             {
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 8)]); });
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -2222,7 +2222,7 @@ class npc_highmaul_ogre_grunt_second : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 8)]); });
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
