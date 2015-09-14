@@ -2328,47 +2328,6 @@ class spell_hun_powershot: public SpellScriptLoader
         }
 };
 
-// Feign Death - 5384
-class spell_hun_feign_death: public SpellScriptLoader
-{
-    public:
-        spell_hun_feign_death() : SpellScriptLoader("spell_hun_feign_death") { }
-
-        class spell_hun_feign_death_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_feign_death_AuraScript);
-
-            int32 health;
-            int32 focus;
-
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                health = GetTarget()->GetHealth();
-                focus = GetTarget()->GetPower(POWER_FOCUS);
-            }
-
-            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (health && focus)
-                {
-                    GetTarget()->SetHealth(health);
-                    GetTarget()->SetPower(POWER_FOCUS, focus);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_hun_feign_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_FEIGN_DEATH, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_feign_death_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_FEIGN_DEATH, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_feign_death_AuraScript();
-        }
-};
-
 // Camouflage - 51755
 class spell_hun_camouflage_visual: public SpellScriptLoader
 {
@@ -3829,7 +3788,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_binding_shot();
     new spell_hun_binding_shot_zone();
     new spell_hun_powershot();
-    new spell_hun_feign_death();
     new spell_hun_camouflage_visual();
     new spell_hun_serpent_spread();
     new spell_hun_ancient_hysteria();
