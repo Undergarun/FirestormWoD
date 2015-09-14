@@ -706,12 +706,12 @@ class spell_sha_conductivity: public SpellScriptLoader
 
                 if (AuraPtr l_Conductivity = l_Caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
                 {
-                    if (DynamicObject* l_DynObj = l_Caster->GetDynObject(eSpells::HealingRainAura))
+                    if (AreaTrigger* l_AreaTrigger = l_Caster->GetAreaTrigger(eSpells::HealingRainAura))
                     {
                         int32 l_RemainingDuration = l_Conductivity->GetEffect(EFFECT_0)->GetAmount() * 10;
                         uint32 l_AddDuration = std::min(l_RemainingDuration, 4000);
 
-                        l_DynObj->SetDuration(l_DynObj->GetDuration() + l_AddDuration);
+                        l_AreaTrigger->SetDuration(l_AreaTrigger->GetDuration() + l_AddDuration);
                         l_Conductivity->GetEffect(EFFECT_0)->SetAmount((l_RemainingDuration - l_AddDuration) / 10);
 
                         if (AuraPtr l_HealingRain = l_Caster->GetAura(eSpells::HealingRainAura))
@@ -1365,7 +1365,7 @@ class spell_sha_healing_rain: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_healing_rain_SpellScript);
 
-            void HandleOnHit()
+            void HitTarget(SpellEffIndex)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -1385,7 +1385,7 @@ class spell_sha_healing_rain: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_sha_healing_rain_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
