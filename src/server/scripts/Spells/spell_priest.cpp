@@ -3452,15 +3452,8 @@ class spell_pri_mind_flay : public SpellScriptLoader
         }
 };
 
-
-enum WordsOfMendingSpells
-{
-    WordsOfMendingAuraStack     = 155362,
-    WordsOfMendingAuraFinal     = 155363,
-    PrayerOfMendingSpell         = 33076
-};
-
-/// Words of mending - 152117
+/// last update : 6.1.2 19802
+/// Words of mending - 155362
 class spell_pri_words_of_mending : public SpellScriptLoader
 {
     public:
@@ -3470,40 +3463,26 @@ class spell_pri_words_of_mending : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_words_of_mending_Aurascript);
 
-            void HandleOnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
+            enum eSpells
             {
-                PreventDefaultAction();
+                WordsOfMendingAuraStack = 155362,
+                WordsOfMendingAuraFinal = 155363
+            };
 
-                if (Unit* l_Caster = GetCaster())
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (p_AurEff->GetBase()->GetStackAmount() >= p_AurEff->GetBase()->GetSpellInfo()->StackAmount)
                 {
-                    if (l_Caster->HasAura(WordsOfMendingSpells::WordsOfMendingAuraFinal))
-                    {
-                        if (Unit* l_Target = p_ProcInfos.GetProcTarget())
-                        {
-                            l_Caster->CastSpell(l_Target, WordsOfMendingSpells::PrayerOfMendingSpell, true);
-                            l_Caster->RemoveAura(WordsOfMendingSpells::WordsOfMendingAuraFinal);
-                        }
-                    }
-                    else if (AuraPtr l_WordsOfMendingAura = l_Caster->GetAura(WordsOfMendingSpells::WordsOfMendingAuraStack))
-                    {
-                        if (l_WordsOfMendingAura->GetStackAmount() > 9)
-                        {
-                            l_Caster->AddAura(WordsOfMendingSpells::WordsOfMendingAuraFinal, l_Caster);
-                            l_Caster->RemoveAura(WordsOfMendingSpells::WordsOfMendingAuraStack);
-                        }
-                        else
-                            l_Caster->AddAura(WordsOfMendingSpells::WordsOfMendingAuraStack, l_Caster);
-                    }
-                    else
-                    {
-                        l_Caster->AddAura(WordsOfMendingSpells::WordsOfMendingAuraStack, l_Caster);
-                    }
+                    l_Target->CastSpell(l_Target, eSpells::WordsOfMendingAuraFinal, true);
+                    l_Target->RemoveAura(eSpells::WordsOfMendingAuraStack);
                 }
             }
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_pri_words_of_mending_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectApply += AuraEffectApplyFn(spell_pri_words_of_mending_Aurascript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -3714,14 +3693,14 @@ class spell_pri_saving_grace : public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                Unit* l_Caster = GetCaster();
+                Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
                 /// HotFixe February 27, 2015 : Saving Grace now heals for 25% less in PvP combat.
-                if (l_Target->GetTypeId() == TYPEID_PLAYER && l_Caster->IsPvP())
+                if (l_Player->GetMap()->IsBattlegroundOrArena() || l_Player->IsInPvPCombat())
                     SetHitHeal(GetHitHeal() - CalculatePct(GetHitHeal(), 25));
             }
 
@@ -3772,38 +3751,58 @@ class spell_pri_shadowy_apparition : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Dispersion - 47585
 class spell_pri_dispersion : public SpellScriptLoader
 {
-public:
-    spell_pri_dispersion() : SpellScriptLoader("spell_pri_dispersion") { }
+    public:
+        spell_pri_dispersion() : SpellScriptLoader("spell_pri_dispersion") { }
 
-    class spell_pri_dispersion_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_dispersion_AuraScript);
-
-        void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+        class spell_pri_dispersion_AuraScript : public AuraScript
         {
-            Unit* l_Caster = GetCaster();
+            PrepareAuraScript(spell_pri_dispersion_AuraScript);
 
-            if (l_Caster == nullptr)
-                return;
+            enum eSpells
+            {
+                DispersionImmunity = 63230
+            };
 
-            /// Item - Priest WoD PvP Shadow 2P Bonus - 171146
-            if (l_Caster->HasAura(PRIEST_PVP_SHADOW_2P_BONUS))
-                l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_POWER, true);
-        }
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
 
-        void Register()
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveMovementImpairingAuras();
+                l_Caster->CastSpell(l_Caster, eSpells::DispersionImmunity, true);
+            }
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::DispersionImmunity))
+                    l_Caster->RemoveAura(eSpells::DispersionImmunity);
+                /// Item - Priest WoD PvP Shadow 2P Bonus - 171146
+                if (l_Caster->HasAura(PRIEST_PVP_SHADOW_2P_BONUS))
+                    l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_POWER, true);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectRemoveFn(spell_pri_dispersion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_dispersion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectRemove += AuraEffectRemoveFn(spell_pri_dispersion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            return new spell_pri_dispersion_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_dispersion_AuraScript();
-    }
 };
 
 /// last update : 6.1.2 19802

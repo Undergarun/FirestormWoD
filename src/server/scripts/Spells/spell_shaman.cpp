@@ -37,9 +37,6 @@ enum ShamanSpells
     MAGE_SPELL_TEMPORAL_DISPLACEMENT            = 80354,
     HUNTER_SPELL_FATIGUED                       = 160455,
     SPELL_SHA_LIGHTNING_SHIELD_AURA             = 324,
-    SPELL_SHA_HEALING_RAIN                      = 142923,
-    SPELL_SHA_HEALING_RAIN_TICK                 = 73921,
-    SPELL_SHA_HEALING_RAIN_AURA                 = 73920,
     SPELL_SHA_ELEMENTAL_BLAST                   = 117014,
     SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL     = 118517,
     SPELL_SHA_ELEMENTAL_BLAST_FROST_VISUAL      = 118515,
@@ -698,13 +695,18 @@ class spell_sha_conductivity: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_conductivity_SpellScript);
 
+            enum eSpells
+            {
+                HealingRainAura = 73920,
+            };
+
             void HandleAfterHit()
             {
                 Unit* l_Caster = GetCaster();
 
                 if (AuraPtr l_Conductivity = l_Caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
                 {
-                    if (DynamicObject* l_DynObj = l_Caster->GetDynObject(SPELL_SHA_HEALING_RAIN))
+                    if (DynamicObject* l_DynObj = l_Caster->GetDynObject(eSpells::HealingRainAura))
                     {
                         int32 l_RemainingDuration = l_Conductivity->GetEffect(EFFECT_0)->GetAmount() * 10;
                         uint32 l_AddDuration = std::min(l_RemainingDuration, 4000);
@@ -712,7 +714,7 @@ class spell_sha_conductivity: public SpellScriptLoader
                         l_DynObj->SetDuration(l_DynObj->GetDuration() + l_AddDuration);
                         l_Conductivity->GetEffect(EFFECT_0)->SetAmount((l_RemainingDuration - l_AddDuration) / 10);
 
-                        if (AuraPtr l_HealingRain = l_Caster->GetAura(SPELL_SHA_HEALING_RAIN_AURA))
+                        if (AuraPtr l_HealingRain = l_Caster->GetAura(eSpells::HealingRainAura))
                         {
                             l_HealingRain->SetDuration(l_HealingRain->GetDuration() + l_AddDuration);
                             l_HealingRain->SetMaxDuration(l_HealingRain->GetMaxDuration() + l_AddDuration);
@@ -1353,26 +1355,31 @@ class spell_sha_healing_rain: public SpellScriptLoader
     public:
         spell_sha_healing_rain() : SpellScriptLoader("spell_sha_healing_rain") { }
 
+        enum eSpells
+        {
+            HealingRainHeal = 73921,
+            HealingRain     = 147490
+        };
+
         class spell_sha_healing_rain_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_sha_healing_rain_SpellScript);
 
             void HandleOnHit()
             {
-                if (WorldLocation const* loc = GetExplTargetDest())
+                Unit* l_Caster = GetCaster();
+
+                if (WorldLocation const* l_Loc = GetExplTargetDest())
                 {
-                    if (Unit* caster = GetCaster())
-                    {
-                        // Casting a second healing rain after prolonging the previous one using conductivity
-                        // will replace the old healing rain with base amount of duration (in other words, you will not have 2 healing rains).
-                        if (caster->GetDynObject(SPELL_SHA_HEALING_RAIN))
-                            caster->RemoveDynObject(SPELL_SHA_HEALING_RAIN);
+                    // Casting a second healing rain after prolonging the previous one using conductivity
+                    // will replace the old healing rain with base amount of duration (in other words, you will not have 2 healing rains).
+                    if (l_Caster->GetAreaTrigger(eSpells::HealingRain))
+                        l_Caster->RemoveAreaTrigger(eSpells::HealingRain);
 
-                        caster->CastSpell(loc->GetPositionX(), loc->GetPositionY(), loc->GetPositionZ(), SPELL_SHA_HEALING_RAIN, true);
+                    l_Caster->CastSpell(l_Loc->GetPositionX(), l_Loc->GetPositionY(), l_Loc->GetPositionZ(), eSpells::HealingRain, true);
 
-                        if (AuraPtr conductivity = caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
-                            conductivity->GetEffect(EFFECT_0)->SetAmount(conductivity->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-                    }
+                    if (AuraPtr l_Conductivity = l_Caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
+                        l_Conductivity->GetEffect(EFFECT_0)->SetAmount(l_Conductivity->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                 }
             }
 
@@ -1393,16 +1400,30 @@ class spell_sha_healing_rain: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (!GetCaster())
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
                     return;
 
-                if (DynamicObject* dynObj = GetCaster()->GetDynObject(SPELL_SHA_HEALING_RAIN))
-                    GetCaster()->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHA_HEALING_RAIN_TICK, true);
+                if (AreaTrigger* l_At = l_Caster->GetAreaTrigger(eSpells::HealingRain))
+                    l_Caster->CastSpell(l_At->GetPositionX(), l_At->GetPositionY(), l_At->GetPositionZ(), eSpells::HealingRainHeal, true);
+            }
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                if (l_Caster->GetAreaTrigger(eSpells::HealingRain))
+                    l_Caster->RemoveAreaTrigger(eSpells::HealingRain);
             }
 
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_sha_healing_rain_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2247,7 +2268,7 @@ class spell_sha_liquid_magma: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 // hardcoded in the tooltip - no DBC data here
-                Unit* l_Target = l_Caster->SelectNearbyTarget(nullptr, 40, 0, false, true, true);
+                Unit* l_Target = l_Caster->SelectNearbyTarget(nullptr, 40, 0, false, true, true, true);
 
                 if (l_Target)
                     l_Caster->CastSpell(l_Target, p_AurEff->GetTriggerSpell());

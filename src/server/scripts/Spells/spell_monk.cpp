@@ -2347,44 +2347,18 @@ class spell_monk_chi_burst: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        std::list<Unit*> l_TempUnitMap;
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
 
-                        float l_DmgMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER) ? 1.2f : 1.0f;
-                        float l_HealMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT) ? 1.2f : 1.0f;
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return;
 
-                        int32 l_Damage = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_DAMAGE)->Effects[EFFECT_0].BasePoints + l_DmgMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
-                        int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
+                float l_HealMult = l_Player->HasSpell(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT) ? 1.2f : 1.0f;
 
-                        // Chi Burst will always heal the Monk, but not heal twice if Monk targets himself
-                        if (l_Target->GetGUID() != l_Player->GetGUID())
-                            l_Player->CastCustomSpell(l_Player, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
+                int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
 
-                        if (l_Player->IsValidAttackTarget(l_Target))
-                            l_Player->CastCustomSpell(l_Target, SPELL_MONK_CHI_BURST_DAMAGE, &l_Damage, NULL, NULL, true);
-                        else
-                            l_Player->CastCustomSpell(l_Target, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
-
-                        l_Player->GetAttackableUnitListInRange(l_TempUnitMap, l_Player->GetDistance(l_Target));
-                        for (auto l_Itr : l_TempUnitMap)
-                        {
-                            if (l_Itr->GetGUID() == l_Player->GetGUID())
-                                continue;
-
-                            if (!l_Itr->IsInBetween(l_Player, l_Target, 3.0f))
-                                continue;
-
-                            if (l_Player->IsValidAttackTarget(l_Itr))
-                                l_Player->CastCustomSpell(l_Itr, SPELL_MONK_CHI_BURST_DAMAGE, &l_Damage, NULL, NULL, true);
-                            else
-                                l_Player->CastCustomSpell(l_Itr, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
-
-                        }
-                    }
-                }
+                if (l_Target->GetGUID() != l_Player->GetGUID())
+                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
             }
 
             void Register()
@@ -3063,8 +3037,9 @@ class spell_monk_soothing_mist: public SpellScriptLoader
         }
 };
 
-// Disable - 116095
-class spell_monk_disable: public SpellScriptLoader
+/// last update : 6.1.2 19802
+/// Disable - 116095
+class spell_monk_disable : public SpellScriptLoader
 {
     public:
         spell_monk_disable() : SpellScriptLoader("spell_monk_disable") { }
@@ -3073,27 +3048,36 @@ class spell_monk_disable: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_disable_SpellScript);
 
-            bool snaredOnHit;
+            enum eSpells
+            {
+                DisableRootAura = 116706
+            };
+
+            bool m_SnaredOnHit = false;
 
             SpellCastResult CheckCast()
             {
-                snaredOnHit = false;
+                Unit* l_Target = GetCaster()->getVictim();
 
-                if (GetCaster())
-                    if (Unit* target = GetCaster()->getVictim())
-                        if (target->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
-                            snaredOnHit = true;
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (l_Target->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
+                    m_SnaredOnHit = true;
 
                 return SPELL_CAST_OK;
             }
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    if (Player* _player = caster->ToPlayer())
-                        if (Unit* target = GetHitUnit())
-                            if (snaredOnHit)
-                                _player->CastSpell(target, SPELL_MONK_DISABLE_ROOT, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (m_SnaredOnHit)
+                    l_Caster->CastSpell(l_Target, eSpells::DisableRootAura, true);
             }
 
             void Register()
@@ -3106,33 +3090,6 @@ class spell_monk_disable: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_disable_SpellScript();
-        }
-
-        class spell_monk_disable_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_monk_disable_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetTarget())
-                    {
-                        if (target->GetDistance(caster) < 10.0f)
-                            aurEff->GetBase()->RefreshDuration();
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_disable_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_monk_disable_AuraScript();
         }
 };
 
@@ -3621,9 +3578,25 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                 else
                     l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);
             }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit *l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
+
+                if (l_Caster == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                // Generates 1 Chi if it hits at least 3 targets.
+                if (p_AurEff->GetAmount() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
+
+            }
+
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_rushing_jade_wind_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_monk_rushing_jade_wind_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -3643,16 +3616,22 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_rushing_jade_wind_damage_SpellScript);
 
+            enum eSpells
+            {
+                RushingJadeWindAura = 116847
+            };
+
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
-                if (Unit *l_Caster = GetCaster())
-                {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
+                Unit *l_Caster = GetCaster();
 
-                    // Generates 1 Chi if it hits at least 3 targets.
-                    if (l_SpellInfo != nullptr && (int32)p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
-                        l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
-                }
+                if (l_Caster == nullptr)
+                    return;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
+
+                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
+                    l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());
             }
 
             void Register()
@@ -3677,22 +3656,26 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_rushing_jade_wind_heal_SpellScript);
 
+            enum eSpells
+            {
+                RushingJadeWindAura = 116847
+            };
+
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
-                if (Unit *l_Caster = GetCaster())
-                {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
+                Unit *l_Caster = GetCaster();
 
-                    // Generates 1 Chi if it hits at least 3 targets.
-                    if (l_SpellInfo != nullptr && (int32)p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
-                        l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
+                if (l_Caster == nullptr)
+                    return;
 
-                    /// up to 6 allies
-                    if (p_Targets.size() <= 6)
-                        return;
+                /// up to 6 allies
+                if (p_Targets.size() <= 6)
+                    return;
 
-                    JadeCore::RandomResizeList(p_Targets, 6);
-                }
+                JadeCore::RandomResizeList(p_Targets, 6);
+
+                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
+                    l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());
             }
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
@@ -4842,7 +4825,7 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
 
                 SetHitDamage(l_Damage);
 
-                if (l_Chi >= 1)
+                if (l_Chi >= 2)
                 {
                     SpellInfo const* l_DotSpellInfo = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_DOT);
                     l_Damage = CalculatePct(l_Damage , l_DotSpellInfo->Effects[EFFECT_1].BasePoints / (l_DotSpellInfo->GetDuration() / l_DotSpellInfo->Effects[EFFECT_0].Amplitude));

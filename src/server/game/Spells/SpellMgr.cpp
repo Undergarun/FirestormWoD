@@ -114,10 +114,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[1] & 0x100000)
                 return DIMINISHING_STUN;
 
-            // Dragon's Breath -- 31661
+            /// Dragon's Breath -- 31661
             if (spellproto->SpellFamilyFlags[0] & 0x800000)
-                return DIMINISHING_INCAPACITATE;
-            // Polymorph -- 118
+                return DIMINISHING_DISORIENT;
+            /// Polymorph -- 118
             if (spellproto->SpellFamilyFlags[0] & 0x1000000)
                 return DIMINISHING_INCAPACITATE;
             // Ring of Frost -- 82691
@@ -2889,6 +2889,14 @@ void SpellMgr::LoadSpellClassInfo()
         if (!classEntry)
             continue;
 
+        // Player damage reduction (72% base resilience)
+        mSpellClassInfo[l_ClassID].insert(115043);
+        mSpellClassInfo[l_ClassID].insert(142689);
+        // Player mastery activation
+        mSpellClassInfo[l_ClassID].insert(114585);
+        // Battle Fatigue
+        mSpellClassInfo[l_ClassID].insert(134732);
+
         // Opening gameobject
         if (l_ClassID == CLASS_MONK)
         {
@@ -3359,6 +3367,36 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Blackrock Foundry
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 175609: ///< Unbind Flame
+                spellInfo->Effects[EFFECT_0].MiscValueB = 64;
+                break;
+            case 175638: ///< Spinning Blade
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
+            case 175643: ///< Spinning Blade (DoT)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 173192: ///< Cave In (Dot)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 175091: ///< Animate Slag
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 170687: ///< Killing Spree
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
+                break;
+            case 155077: ///< Overwhelming Blows (Gruul)
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
             case 167650: ///< Loose Quills (Rukhmar)
             case 167630: ///< Blaze of Glory (Rukhmar)
                 spellInfo->Effects[EFFECT_0].SetRadiusIndex(EFFECT_RADIUS_5_YARDS); ///< 5yd
@@ -3455,6 +3493,29 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
+                /// Everbloom
+            case 164834: ///< Barrage of Leaves
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 164886: ///< Dreadpetal Toxin
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
+                /// Auchindon
+            case 156862: ///< Drain Soul Cosmetic
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 169682: ///< Azakkel visual pillar
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                break;
+            case 153775: ///< Summon Imp
+            case 164127: ///< Summon Pyromaniac
+            case 164080: ///< Summon FelGuard
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(10); ///< from 15.0f (RangeEntry.ID 11) to 40.0f
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 153430: ///< Areatrigger Damage
+                spellInfo->Effects[0].Amplitude = 2000;
             case 119975: ///< Conversion
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 break;
@@ -5796,7 +5857,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 60206: ///< Ram
                 spellInfo->Effects[2].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
                 break;
-            case 70890:  ///< Scourge Strike triggered part
             case 96172:  ///< Hand of Light
             case 101085: ///< Wrath of Tarecgosa
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;

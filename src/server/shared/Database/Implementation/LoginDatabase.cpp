@@ -95,7 +95,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_ADD_TRANSFERTS_LOGS, "INSERT INTO transferts_logs (`id`, `account`, `perso_guid`, `from`, `to`, `dump`) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
     PREPARE_STATEMENT(LOGIN_INS_CHAR_SPELL, "INSERT INTO account_spell (accountId, spell, active, disabled, IsMountFavorite) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled, IsMountFavorite FROM account_spell WHERE accountId = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled, IsMountFavorite FROM account_spell WHERE accountId = ? AND spell < 197205", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL_BY_SPELL, "DELETE FROM account_spell WHERE spell = ? AND accountId = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL, "DELETE FROM account_spell WHERE accountId = ?", CONNECTION_ASYNC);
 
@@ -109,8 +109,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     // Battle pets
 #define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account"
 #define PETBATTLE_FULL_FIELDS "id, " PETBATTLE_FIELDS
-    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE id = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_ACCOUNT, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_ACCOUNT, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ? AND species < 1635", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_REP_PETBATTLE, "REPLACE INTO account_battlepet(" PETBATTLE_FULL_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_BOTH);
 #undef PETBATTLE_FIELDS

@@ -14,7 +14,7 @@ enum eArchmageSpells
     SpellParasiticInjection                     = 166891,
     SpellThoughtChrySailis                      = 166474,
     ///Arcane
-    SpellPrimalAffinityArcane                   = 166477, ///< |TInterface\Icons\Spell_Arcane_ArcaneArmor02.blp:20|tArchmage Sol begins casting Arcane spells!
+    SpellPrimalAffinityArcane                   = 166477, 
     SpellArcaneBrust                            = 166466,
     ///Fire
     SpellPrimalAffinityFire                     = 166475,
@@ -26,7 +26,7 @@ enum eArchmageSpells
     SpellFireBloomAreatriggerUnknownFlowerBomb  = 166562,
     SpellFireBloomUnknown2                      = 166567,
     ///Ice
-    SpellPrimalAffinityFrost                    = 166476, ///< |TInterface\Icons\Spell_Frost_FrostArmor02.blp:20|tArchmage Sol begins casting Frost spells!
+    SpellPrimalAffinityFrost                    = 166476,
     SpellFrozenRainSpawn                        = 166723,
     SpellFrozenRainAuraPeriodicDamage           = 166726,
     SpellFrozenRainAura                         = 166913,
@@ -38,30 +38,30 @@ enum eArchmageSpells
     SpellNoxiusEruption                         = 177145,
     SpellEntanglement                           = 180836,
     SpellArcaneChanneling                       = 161837,
-    SpellBubble                                 = 170665,
+    SpellBubble                                 = 170665
 };
 
 enum eArchmageEvents
 {
-    EventArcaneBrust            = 220,
-    EventFireBloom              = 222,
-    EventFrozenRain             = 224,
-    EventParasiticGrowth        = 225,
-    EventPrimalAffinityArcane   = 226,
-    EventPrimalAffinityFire     = 227,
-    EventPrimalAffinityFrost    = 228,
-    EventThoughtChrySailis      = 229,
-    EventParasiticInjection     = 230,
-    EventTransform              = 231,
-    EventTransformRemovePassive = 232,
-    EventFrostBall              = 233,
+    EventArcaneBrust             = 1,
+    EventFireBloom,
+    EventFrozenRain,
+    EventParasiticGrowth,
+    EventPrimalAffinityArcane,
+    EventPrimalAffinityFire,
+    EventPrimalAffinityFrost,
+    EventThoughtChrySailis,
+    EventParasiticInjection,
+    EventTransform,
+    EventTransformRemovePassive,
+    EventFrostBall
 };
 
 enum eArchmageActions
 {
-    ActionTransport    = 900,
-    ActionChoosePower  = 901,
-    ActionStopPreevent = 902,
+    ActionTransport    = 1,
+    ActionChoosePower,
+    ActionStopPreevent,
 };
 
 enum eArchmageCreatures
@@ -180,15 +180,16 @@ public:
         {
             summons.DespawnAll();
 
-            if (m_Instance)
+            if (m_Instance != nullptr)
+            {
                 m_Instance->SetBossState(eEverbloomData::DataArchmageSol, EncounterState::FAIL);
-
-            m_Instance->DoRemoveAurasDueToSpellOnPlayers(eArchmageSpells::SpellFireBloomAreatriggerTick);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eArchmageSpells::SpellFireBloomAreatriggerTick);
+            }
         }
 
-        void DoAction(int32 const action) override
+        void DoAction(int32 const p_Action) override
         {
-            switch (action)
+            switch (p_Action)
             {
                 case eArchmageActions::ActionStopPreevent:
                         me->RemoveAllAuras();
@@ -213,13 +214,13 @@ public:
                         events.Reset();
                         m_Count++;
 
-                        uint32 entries[3] = { eArchmageSpells::SpellPrimalAffinityArcane,
+                        uint32 l_Entries[3] = { eArchmageSpells::SpellPrimalAffinityArcane,
                             eArchmageSpells::SpellPrimalAffinityFire,
                             eArchmageSpells::SpellPrimalAffinityFrost};
 
                         for (int i = 0; i < 2; i++)
                         {
-                            me->RemoveAura(entries[i]);
+                            me->RemoveAura(l_Entries[i]);
                         }
              
                         /// parasitic injection
@@ -229,21 +230,21 @@ public:
                         }
                         else
                         {
-                            AuraPtr aura = me->GetAura(eArchmageSpells::SpellParasiticInjection);
+                            AuraPtr l_Aura = me->GetAura(eArchmageSpells::SpellParasiticInjection);
 
-                            if (aura)
+                            if (l_Aura)
                             {
-                                aura->SetStackAmount(aura->GetStackAmount() + 1);
+                                l_Aura->SetStackAmount(l_Aura->GetStackAmount() + 1);
                             }
                         }
 
                         /// Heroic Spore Image
-                        if (me->GetMap()->IsHeroic())
+                        if (me->GetMap() && me->GetMap()->IsHeroic())
                         {
-                            Position pos;
-                            me->GetRandomNearPosition(pos, 30.0f);
+                            Position l_Pos;
+                            me->GetRandomNearPosition(l_Pos, 30.0f);
 
-                            me->SummonCreature(eArchmageCreatures::CreatureSporeImage, pos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                            me->SummonCreature(eArchmageCreatures::CreatureSporeImage, l_Pos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                         }
 
                         switch (m_Count)
@@ -279,6 +280,12 @@ public:
             _EnterCombat();
             Talk(eArchmageTalks::KirinTorMageAggro);
 
+            if (m_Instance != nullptr)
+            {
+                m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
+                m_Instance->SetBossState(eEverbloomData::DataArchmageSol, EncounterState::IN_PROGRESS);
+            }
+
             events.ScheduleEvent(eArchmageEvents::EventParasiticGrowth, 29 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eEverbloomEvents::EventFireBall,  urand(5 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eArchmageEvents::EventFireBloom, urand(22 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
@@ -289,16 +296,23 @@ public:
         void KilledUnit(Unit* p_Attacker) override
         {
             if (p_Attacker->GetTypeId() == TypeID::TYPEID_PLAYER)
+            {
                 if (roll_chance_i(50))
                     Talk(eArchmageTalks::KirinTorMageKill01);
+            }
         }
 
         void JustDied(Unit* /*p_Killer*/ ) override
         {
-            Talk(eArchmageTalks::KirinTorMageDeath);
             _JustDied();
 
-            m_Instance->DoRemoveAurasDueToSpellOnPlayers(eArchmageSpells::SpellFireBloomAreatriggerTick);
+            Talk(eArchmageTalks::KirinTorMageDeath);
+
+            if (m_Instance != nullptr)
+            {
+                m_Instance->SetBossState(eEverbloomData::DataArchmageSol, EncounterState::DONE);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eArchmageSpells::SpellFireBloomAreatriggerTick);
+            } 
         }
 
         void ArcaneBeam(uint32 const p_Diff)
@@ -382,10 +396,8 @@ public:
 
             if (Unit* l_Victim = me->getVictim())
             {
-                if (uint32 eventId = events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
-                    switch (eventId)
-                    {
                     case eArchmageEvents::EventParasiticGrowth:
                     {
                         me->CastSpell(me, eArchmageSpells::SpellParasiticGrowth);
@@ -412,8 +424,7 @@ public:
                     }
                     case eArchmageEvents::EventFrostBall:
                     {
-                        if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, eEverbloomSpells::SpellFrostbolt);
+                        me->CastSpell(l_Victim, eEverbloomSpells::SpellFrostbolt);
 
                         events.ScheduleEvent(eArchmageEvents::EventFrostBall, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                         break;
@@ -430,12 +441,10 @@ public:
                     default:
                         break;
                     }
-                }
             }
 
             DoMeleeAttackIfReady();
         }
-
     };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
@@ -461,7 +470,9 @@ public:
 
         void Reset() override
         {
+            events.Reset();
             me->SetInCombatWithZone();
+
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
             me->setFaction(HostileFaction);
         }
@@ -488,7 +499,6 @@ public:
                         events.ScheduleEvent(eEverbloomEvents::EventFrostbolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
-
                     case eEverbloomEvents::EventFireBall:
                     {
                         if (Unit* l_Target = me->getVictim())
@@ -499,6 +509,7 @@ public:
                     default:
                         break;
             }
+
             DoMeleeAttackIfReady();
         }
 
@@ -528,6 +539,8 @@ public:
 
         void Reset() override
         {
+            events.Reset();
+
             me->SetInCombatWithZone();
             me->setFaction(HostileFaction);
             
@@ -561,11 +574,11 @@ public:
 
                     if ((*itr)->HasAura(eArchmageSpells::SpellFrozenRainAuraPeriodicDamage))
                     {
-                        AuraPtr aura = (*itr)->GetAura(eArchmageSpells::SpellFrozenRainAuraPeriodicDamage);
+                        AuraPtr l_Aura = (*itr)->GetAura(eArchmageSpells::SpellFrozenRainAuraPeriodicDamage);
 
-                        if (aura)
+                        if (l_Aura)
                         {
-                            aura->SetDuration(1);
+                            l_Aura->SetDuration(1);
                         }
                     }
                 }
@@ -639,6 +652,7 @@ public:
 
         void Reset() override
         {
+            events.Reset();
             me->SetInCombatWithZone();
           
             me->SetReactState(ReactStates::REACT_PASSIVE);
@@ -646,7 +660,7 @@ public:
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
             me->setFaction(HostileFaction);
-            m_FreezeCheck = 1000;
+            m_FreezeCheck = 1 * TimeConstants::IN_MILLISECONDS;
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -655,13 +669,13 @@ public:
             {
                 me->CastSpell(me, eArchmageSpells::SpellFrozenSnapEffectTrigger);
 
-                if (Player* nearest = me->FindNearestPlayer(1.6f, true))
+                if (Player* l_Nearest = me->FindNearestPlayer(1.6f, true))
                 {
-                    me->CastSpell(nearest, eArchmageSpells::SpellFrozenSnapStun, true);
+                    me->CastSpell(l_Nearest, eArchmageSpells::SpellFrozenSnapStun, true);
                     me->DespawnOrUnsummon();
                 }
 
-                m_FreezeCheck = 500;
+                m_FreezeCheck = 1 * TimeConstants::IN_MILLISECONDS;
             }
             else
                 m_FreezeCheck -= p_Diff;
@@ -693,7 +707,7 @@ public:
         {
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitState(UnitState::UNIT_STATE_CANNOT_AUTOATTACK);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
 
             std::list<Player*> l_Playerlist;
             me->GetPlayerListInGrid(l_Playerlist, 100.0f);
@@ -716,7 +730,6 @@ public:
         return new the_everbloom_creaturesAI(p_Creature);
     }
 };
-
 
 /// Firebloom Trigger -  234256 / 213125
 class the_everbloom_firebloom_trigger: public CreatureScript
@@ -755,10 +768,9 @@ public:
 
     uint32 p_Diff = 2 * TimeConstants::IN_MILLISECONDS;
     uint32 m_Despawn = 8 * TimeConstants::IN_MILLISECONDS;
-
     std::list<uint64> m_Targets;
 
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
     {
         if (p_Diff <= p_Time)
         {
@@ -781,8 +793,11 @@ public:
         }
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) 
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
     {
+        if (m_Targets.empty())
+            return;
+
         for (auto l_Guid : m_Targets)
         {
             Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
@@ -791,7 +806,7 @@ public:
         }
     }
 
-    the_everbloom_areatrigger_boss_archmage_sol_firebloom* GetAI() const
+    the_everbloom_areatrigger_boss_archmage_sol_firebloom* GetAI() const override
     {
         return new the_everbloom_areatrigger_boss_archmage_sol_firebloom();
     }
@@ -807,27 +822,27 @@ public:
     {
         PrepareAuraScript(the_everbloom_auras);
 
-        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/) 
+        void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/) 
         {
-            amount = 0;
+            p_Amount = 0;
 
-            if (Unit* caster = GetCaster())
+            if (Unit* l_Caster = GetCaster())
             {
-                if (DynamicObject* dynObj = GetCaster()->GetDynObject(eArchmageSpells::SpellFireBloomUnknown2))
+                if (DynamicObject* l_DynObj = GetCaster()->GetDynObject(eArchmageSpells::SpellFireBloomUnknown2))
                 {
                     std::list<Player*> l_Playerlist;
-                    dynObj->GetPlayerListInGrid(l_Playerlist, 1.0F);
+                    l_DynObj->GetPlayerListInGrid(l_Playerlist, 1.0F);
 
                     if (l_Playerlist.empty())
                         return;
 
-                    if (SpellInfo const* info = sSpellMgr->GetSpellInfo(eArchmageSpells::SpellFireBloomAreatriggerTick))
+                    if (SpellInfo const* l_Info = sSpellMgr->GetSpellInfo(eArchmageSpells::SpellFireBloomAreatriggerTick))
                     {
-                        uint32 basepoint = info->Effects[0].BasePoints;
+                        uint32 l_Basepoint = l_Info->Effects[0].BasePoints;
 
                         for (auto itr : l_Playerlist)
                         {
-                            amount = basepoint;
+                            p_Amount = l_Basepoint;
                         }
                     }
                 }
@@ -845,7 +860,6 @@ public:
         return new the_everbloom_auras();
     }
 };
-
 
 /// Firebloom - 166489
 class the_everbloom_firebloom_preflower : public SpellScriptLoader
@@ -901,10 +915,10 @@ public:
 
             if (InstanceScript* m_Instance = GetCaster()->GetInstanceScript())
             {
-                if (Creature* Sol = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataArchmageSol)))
+                if (Creature* l_Sol = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataArchmageSol)))
                 {
-                    if (Sol->GetAI())
-                        Sol->GetAI()->DoAction(eArchmageActions::ActionChoosePower);
+                    if (l_Sol->GetAI())
+                        l_Sol->GetAI()->DoAction(eArchmageActions::ActionChoosePower);
                 }
             }
         }
@@ -923,23 +937,15 @@ public:
 
 void AddSC_boss_sol()
 {
-    // Boss
     new boss_archmage_sol();
-
-    // Creatures
     new the_everbloom_sol_frozen_aura();
     new the_everbloom_cold_snap();
     new the_everbloom_noxious_explosion();
     new the_everbloom_spore_image();
     new the_everbloom_firebloom_trigger_dot();
     new the_everbloom_firebloom_trigger();
-
-    // Spells
     new the_everbloom_firebloom_preflower();
     new the_everbloom_parasite_change();
     new the_everbloom_firebloom_dyn_object();
-
-   // Areatriggers
     new the_everbloom_areatrigger_boss_archmage_sol_firebloom();
-
 }

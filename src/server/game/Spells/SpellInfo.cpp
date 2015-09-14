@@ -1484,6 +1484,12 @@ bool SpellInfo::IsHealingSpell() const
         || HasAura(SPELL_AURA_PERIODIC_HEAL));
 }
 
+bool SpellInfo::IsShieldingSpell() const
+{
+    return (HasAura(SPELL_AURA_SCHOOL_ABSORB)
+        || HasAura(SPELL_AURA_SCHOOL_HEAL_ABSORB));
+}
+
 bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
 {
     switch (effIndex)
@@ -3975,6 +3981,11 @@ bool SpellInfo::IsCustomChecked() const
     }
 
     return false;
+}
+
+bool SpellInfo::IsBattleResurrection() const
+{
+    return AttributesEx8 & SpellAttr8::SPELL_ATTR8_BATTLE_RESURRECTION;
 }
 
 bool SpellInfo::IsCanBeStolen() const
