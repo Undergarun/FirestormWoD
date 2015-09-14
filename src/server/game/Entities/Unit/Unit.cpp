@@ -11516,14 +11516,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, PvPPower);
     }
 
-    // Mastery : Emberstorm - 77220
-    // Increases the damage of spells wich consume Burning Embers (Shadowburn and Chaos Bolt)
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && spellProto && (spellProto->Id == 17877 || spellProto->Id == 116858))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
     // 76613 - Mastery : Icicles
     if (spellProto && victim)
     {
@@ -11835,6 +11827,13 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             if (spellProto->SpellFamilyFlags[1] & 0x00400000 && isPet())
                 if (uint8 count = victim->GetDoTsByCaster(GetOwnerGUID()))
                     DoneTotalMod += CalculatePct(1.0f, 30 * count);
+            /// Mastery : Emberstorm - 77220
+            /// Increases the damage of spells wich consume Burning Embers (Shadowburn and Chaos Bolt)
+            if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && (spellProto->Id == 17877 || spellProto->Id == 116858))
+            {
+                float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
+                DoneTotalMod += CalculatePct(1.0f, Mastery);
+            }
             break;
     }
     return DoneTotalMod;
