@@ -3981,7 +3981,8 @@ class PlayerScript_word_of_mending : public PlayerScript
         {
             WordOfMendingAura = 152117,
             WordOfMendingProc = 155363,
-            WordOfMendingStack = 155362
+            WordOfMendingStack = 155362,
+            LiveSteal = 146347
         };
 
         void OnSpellCast(Player* p_Player, Spell* p_Spell, bool skipCheck)
@@ -3989,7 +3990,10 @@ class PlayerScript_word_of_mending : public PlayerScript
             if (p_Player == nullptr)
                 return;
 
-            if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() || p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347 && p_Spell->GetSpellInfo()->Id != 77489)
+            if (skipCheck)
+                return;
+
+            if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() || p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)
             {
                 if (!p_Player->HasAura(eSpells::WordOfMendingProc))
                     p_Player->CastSpell(p_Player, eSpells::WordOfMendingStack, true);
