@@ -296,10 +296,10 @@ void Minion::InitStats(uint32 duration)
 
     SetReactState(REACT_PASSIVE);
 
-    SetCreatorGUID(GetOwnerGUID());
-
     if (Unit* l_Owner = GetSummoner())
     {
+        SetCreatorGUID(l_Owner->GetGUID());
+
         setFaction(l_Owner->getFaction());
         l_Owner->SetMinion(this, true, PET_SLOT_UNK_SLOT, ToPet() ? ToPet()->m_Stampeded : false);
     }
