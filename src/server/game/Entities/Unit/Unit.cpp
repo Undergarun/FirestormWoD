@@ -645,40 +645,13 @@ bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint
     return false;
 }
 
-bool Unit::HasCrowdControlAuraType(AuraType p_Type, uint32 p_ExcludeAura) const
-{
-    AuraEffectList const& l_Auras = GetAuraEffectsByType(p_Type);
-    for (AuraEffectList::const_iterator l_Iter = l_Auras.begin(); l_Iter != l_Auras.end(); ++l_Iter)
-    {
-        if ((!p_ExcludeAura || p_ExcludeAura != (*l_Iter)->GetSpellInfo()->Id) && ///< Avoid self interrupt of channeled Crowd Control spells like Seduction
-            ((*l_Iter)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*l_Iter)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT | AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
-            return true;
-    }
-    return false;
-}
-
-bool Unit::HasCrowdControlAura(Unit* excludeCasterChannel) const
-{
-    uint32 excludeAura = 0;
-    if (Spell* currentChanneledSpell = excludeCasterChannel ? excludeCasterChannel->GetCurrentSpell(CURRENT_CHANNELED_SPELL) : NULL)
-        excludeAura = currentChanneledSpell->GetSpellInfo()->Id; //Avoid self interrupt of channeled Crowd Control spells like Seduction
-
-    return (   HasCrowdControlAuraType(SPELL_AURA_MOD_CONFUSE, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_MOD_FEAR, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_MOD_FEAR_2, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_MOD_STUN, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_MOD_ROOT_2, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_TRANSFORM, excludeAura));
-}
-
 bool Unit::HasBreakableByDamageAuraType(AuraType p_Type, uint32 p_ExcludeAura) const
 {
     AuraEffectList const& l_Auras = GetAuraEffectsByType(p_Type);
     for (AuraEffectList::const_iterator l_Iter = l_Auras.begin(); l_Iter != l_Auras.end(); ++l_Iter)
     {
         if ((!p_ExcludeAura || p_ExcludeAura != (*l_Iter)->GetSpellInfo()->Id) && ///< Avoid self interrupt of channeled Crowd Control spells like Seduction
-            ((*l_Iter)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*l_Iter)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
+            ((*l_Iter)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*l_Iter)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT | AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
             return true;
     }
     return false;
@@ -692,6 +665,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
     return (   HasBreakableByDamageAuraType(SPELL_AURA_MOD_CONFUSE, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR, excludeAura)
+            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR_2, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT_2, excludeAura)

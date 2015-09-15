@@ -614,7 +614,7 @@ class spell_rog_killing_spree: public SpellScriptLoader
 
                         l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
                         {
-                            if (p_Unit == nullptr || p_Unit->HasCrowdControlAura() || !l_Caster->IsValidAttackTarget(p_Unit))
+                            if (p_Unit == nullptr || p_Unit->HasBreakableByDamageCrowdControlAura() || !l_Caster->IsValidAttackTarget(p_Unit))
                                 return true;
 
                             return false;
