@@ -6425,11 +6425,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 171253: ///< Garrison heartstone
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
-            case 104318: ///< Imp, Fel Firebolt
-            {
-                for (auto l_Iter : spellInfo->SpellPowers)
-                    ((SpellPowerEntry*)l_Iter)->Cost = 0;
-            }
             case 171690: ///< Truesteel Ingot
             case 169081: ///< War Paints
             case 168835: ///< Hexweave Cloth
