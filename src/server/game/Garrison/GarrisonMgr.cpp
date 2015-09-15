@@ -3654,7 +3654,7 @@ namespace MS { namespace Garrison
     void Manager::UpdateMissionDistribution(bool p_Force /* = false */, uint32 p_ForcedCount /* = 0 */)
     {
         /// Do ramdom mission distribution
-        if (p_Force || ((time(0) - m_MissionDistributionLastUpdate) > Globals::MissionDistributionInterval))
+        if (p_Force || ((time(nullptr) - m_MissionDistributionLastUpdate) > Globals::MissionDistributionInterval))
         {
             /// Random, no detail about how blizzard do
             uint32 l_MaxMissionCount         = p_ForcedCount ? p_ForcedCount : ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
@@ -3711,8 +3711,8 @@ namespace MS { namespace Garrison
                         if (!l_RewardEntry)
                             continue;
 
-                        if (l_RewardEntry->MissionID == l_Entry->MissionRecID)
-                            l_RewardCount++;
+                        if (l_RewardEntry->MissionID != l_Entry->MissionRecID)
+                            continue;
 
                         /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
                         if (l_RewardEntry->ItemID == 115510 || l_RewardEntry->ItemID == 115280)
@@ -3720,6 +3720,8 @@ namespace MS { namespace Garrison
                             l_RewardCount = 0;
                             break;
                         }
+
+                        ++ l_RewardCount;
                     }
 
                     /// All missions should have a reward
