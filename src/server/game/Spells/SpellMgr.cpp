@@ -6478,6 +6478,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 91802: ///< Shambling Rush
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 0;
                 break;
+            case 143333:    ///< Water walking aura
+                spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_NOT_MOUNTED;
+                break;
             default:
                 break;
         }
