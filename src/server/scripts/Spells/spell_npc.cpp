@@ -917,7 +917,7 @@ class spell_npc_warl_wild_imp : public CreatureScript
                 me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
                 m_Charges--;
 
-                l_Owner->EnergizeBySpell(l_Owner, eSpells::Firebolt, 5 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
+                me->EnergizeBySpell(l_Owner, eSpells::Firebolt, 5 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
 
                 if (AuraEffectPtr l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
                     if (roll_chance_i(l_MoltenCore->GetAmount()))
