@@ -1600,24 +1600,24 @@ class spell_sha_lava_lash_spread: public SpellScriptLoader
                     GetCaster()->AddAura(SPELL_SHA_FLAME_SHOCK, target);
             }
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                uint32 maxTargets = sSpellMgr->GetSpellInfo(SPELL_SHA_LAVA_LASH)->Effects[EFFECT_3].BasePoints;
-                std::list<WorldObject*> finalList;
+                uint32 l_MaxTargets = sSpellMgr->GetSpellInfo(SPELL_SHA_LAVA_LASH)->Effects[EFFECT_3].BasePoints;
+                Unit* l_MainTarget = GetExplTargetUnit();
 
-                for (std::list<WorldObject*>::const_iterator iter = unitList.begin(); iter != unitList.end(); iter++)
-                    if (Unit* target = (*iter)->ToUnit())
-                        if (finalList.size() < maxTargets)
-                            if (!target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                                finalList.push_back(*iter);
+                if (l_MainTarget == nullptr)
+                    return;
 
-                for (std::list<WorldObject*>::const_iterator iter = unitList.begin(); iter != unitList.end(); iter++)
-                    if (Unit* target = (*iter)->ToUnit())
-                        if (finalList.size() < maxTargets)
-                            if (target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                                finalList.push_back(*iter);
+                p_Targets.remove_if([this, l_MainTarget](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr || p_Object->ToUnit()->GetGUID() == l_MainTarget->GetGUID())
+                        return true;
 
-                unitList = finalList;
+                    return false;
+                });
+
+                if (p_Targets.size() > l_MaxTargets)
+                    JadeCore::RandomResizeList(p_Targets, l_MaxTargets);
             }
 
             void Register()
