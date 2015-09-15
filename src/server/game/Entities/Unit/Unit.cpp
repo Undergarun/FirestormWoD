@@ -12062,15 +12062,25 @@ void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int
 
 void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType /* = WeaponAttackType::BaseAttack*/ , SpellInfo const* p_ProcAura /*= NULL*/, constAuraEffectPtr p_OwnerAuraEffect /*= NULL*/)
 {
+    uint32 l_InitialDamage = p_Damage;
+    Player* l_ModOwner = GetSpellModOwner();
+
     /// ...the chance to activate up to two extra times (depending if PvE or PvP) at X% of normal effectiveness
-    uint8 l_ProcTimes = (p_Target->GetSpellModOwner() != nullptr) ? 1 : 2;
+    uint8 l_ProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
+    if (p_ProcExtra & PROC_EX_CRITICAL_HIT)
+    {
+        if (l_ProcTimes < 2)
+            l_InitialDamage = (l_InitialDamage / 3) * 2;
+        else
+            l_InitialDamage /= 2;
+    }
     for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
     {
         if (IsSpellMultistrike(p_ProcSpell))
         {
             bool l_IsCrit = false;
 
-            uint32 l_MultistrikeDamage = GetMultistrikeBasePoints(p_Damage);
+            uint32 l_MultistrikeDamage = GetMultistrikeBasePoints(l_InitialDamage);
 
             if (p_ProcSpell && roll_chance_f(GetUnitSpellCriticalChance(p_Target, p_ProcSpell, p_ProcSpell->GetSchoolMask())))
                 l_IsCrit = true;
@@ -12081,9 +12091,6 @@ void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 
                 l_MultistrikeDamage = SpellCriticalDamageBonus(p_ProcSpell, l_MultistrikeDamage, p_Target);
             else if (l_IsCrit && !p_ProcSpell)
                 l_MultistrikeDamage = MeleeCriticalDamageBonus(nullptr, l_MultistrikeDamage, p_Target, p_AttType);
-
-            if (p_ProcExtra & PROC_EX_CRITICAL_HIT)
-                l_IsCrit = true;
 
             uint32 l_DoneProcFlag = p_ProcFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK;
             uint32 l_TakenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
@@ -14429,7 +14436,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     }
 
     if (speed > roundf(speed * 100))
-        speed += 0.01;
+        speed += 0.01f;
 
     SetSpeed(mtype, speed, forced);
 }
@@ -16702,17 +16709,20 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Words of Mending - 152117
-    if (HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL)
+    if (HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL && procSpell->Id != 77489)
     {
         if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
         {
             if (HasAura(155363))
             {
-                CastSpell(target, 33076, true);
-                RemoveAura(155363);
+                if (HasAura(155362))
+                    RemoveAura(155362);
+                else
+                {
+                    CastSpell(target, 33076, true);
+                    RemoveAura(155363);
+                }
             }
-            else
-                CastSpell(this, 155362, true);
         }
     }
 
