@@ -5997,6 +5997,31 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
+    /// Check specialization
+    if (!IsTriggered())
+    {
+        if (Player* l_Player = m_caster->ToPlayer())
+        {
+            uint32 l_CasterSpecialization = l_Player->GetSpecializationId();
+            
+            if (!m_spellInfo->SpecializationIdList.empty())
+            {
+                bool l_Found = false;
+                for (uint32 l_Specialization : m_spellInfo->SpecializationIdList)
+                {
+                    if (l_CasterSpecialization == l_Specialization)
+                    {
+                        l_Found = true;
+                        break;
+                    }
+                }
+
+                if (!l_Found)
+                    return SpellCastResult::SPELL_FAILED_SPELL_UNAVAILABLE;
+            }
+        }
+    }
+
     // Check death state
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !((m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
         return SPELL_FAILED_CASTER_DEAD;
