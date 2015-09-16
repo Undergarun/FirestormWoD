@@ -6479,6 +6479,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 91802: ///< Shambling Rush
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 0;
                 break;
+            case 157698: ///< Haunting Spirits
+                spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
+                break;
             default:
                 break;
         }
