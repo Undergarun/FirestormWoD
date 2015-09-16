@@ -87,20 +87,20 @@ namespace MS { namespace Garrison
             return true;
 
         if (p_Player->GetQuestStatus(Quests::Alliance_ClearingTheGarden) == QUEST_STATUS_NONE)
-        {
             p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-            return true;
-        }
+        else if (p_Player->GetQuestStatus(Quests::Alliance_ClearingTheGarden) == QUEST_STATUS_COMPLETE)
+            p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
         else
         {
             if (p_Player->GetGarrison())
             {
-                if (!p_Player->GetGarrison()->HasFollowerAbility(53)) ///< Herbalism
+                if (!p_Player->GetGarrison()->HasFollowerAbility(MS::Garrison::GarrisonAbilities::AbilityHerbalism))
                     p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
                 else
                 {
+                    p_Player->PlayerTalkClass->ClearMenus();
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I want to browse your goods.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to pick what we plant next.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to pick what we plant next.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 }
             }
@@ -119,7 +119,7 @@ namespace MS { namespace Garrison
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
 
-        if (!l_GarrisonMgr || !l_AI)
+        if (!p_Player || !p_Creature || !l_GarrisonMgr || !l_AI || p_Creature->GetScriptName() != CreatureScript::GetName())
             return true;
 
         p_Player->PlayerTalkClass->ClearMenus();
@@ -128,71 +128,49 @@ namespace MS { namespace Garrison
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
             {
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Alliance_ClearingTheGarden);
-
-                if (!l_Quest)
-                    return true;
-
-                if (p_Player->GetQuestStatus(Quests::Alliance_ClearingTheGarden) == QUEST_STATUS_NONE)
-                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-                else if (p_Player->GetQuestStatus(Quests::Alliance_ClearingTheGarden) == QUEST_STATUS_COMPLETE)
-                    p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
-
-                break;
-            }
-            case GOSSIP_ACTION_INFO_DEF + 2:
-            {
                 p_Player->PlayerTalkClass->ClearMenus();
 
                 /// Test for removing already selected option
-                /*Tokenizer l_Datas(l_GarrisonMgr->GetBuildingGatheringData(63), ' '); ///< Herb Garden
-                uint32 l_Type = strtoul(l_Datas[0], NULL, 10);
 
-                if (l_Type != 0)
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Frostweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                if (l_Type != 1)
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Starflower.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                if (l_Type != 2)
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fireweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                if (l_Type != 3)
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Talador Orchid.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                if (l_Type != 4)
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gorgrond Flytrap.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-                if (l_Type != 5)
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nagrand Arrowbloom.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);*/
+                uint32 l_Type = reinterpret_cast<GatheringBuildingMaster<&g_AllyHerbGardenFlowerPlot>*>(p_Creature->AI())->GetGatheringMiscData();
 
-
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Frostweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Starflower.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fireweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Talador Orchid.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gorgrond Flytrap.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nagrand Arrowbloom.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Frostweed])
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Frostweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Starflower])
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Starflower.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Fireweed])
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Fireweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::TaladorOrchid])
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Talador Orchid.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::GorgrondFlytrap])
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gorgrond Flytrap.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::NagrandArrowbloom])
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nagrand Arrowbloom.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
 
                 p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 break;
             }
-            case GOSSIP_ACTION_INFO_DEF + 3:
+            case GOSSIP_ACTION_INFO_DEF + 2:
                 l_AI->DoAction(HerbAction::Frostweed);
                 p_Player->CLOSE_GOSSIP_MENU();
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 4:
+            case GOSSIP_ACTION_INFO_DEF + 3:
                 l_AI->DoAction(HerbAction::Starflower);
                 p_Player->CLOSE_GOSSIP_MENU();
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 5:
+            case GOSSIP_ACTION_INFO_DEF + 4:
                 l_AI->DoAction(HerbAction::Fireweed);
                 p_Player->CLOSE_GOSSIP_MENU();
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 6:
+            case GOSSIP_ACTION_INFO_DEF + 5:
                 l_AI->DoAction(HerbAction::TaladorOrchid);
                 p_Player->CLOSE_GOSSIP_MENU();
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 7:
+            case GOSSIP_ACTION_INFO_DEF + 6:
                 l_AI->DoAction(HerbAction::GorgrondFlytrap);
                 p_Player->CLOSE_GOSSIP_MENU();
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 8:
+            case GOSSIP_ACTION_INFO_DEF + 7:
                 l_AI->DoAction(HerbAction::NagrandArrowbloom);
                 p_Player->CLOSE_GOSSIP_MENU();
                 break;
@@ -201,7 +179,7 @@ namespace MS { namespace Garrison
                 break;
             default:
                 break;
-        }
+            }
 
         return true;
     }
@@ -304,7 +282,7 @@ namespace MS { namespace Garrison
         if (p_MiscData == HerbSpawnType::Random)
             return g_AllyHerbsGobsEntry[urand(0, HerbSpawnType::Random - 1)];
 
-        return g_AllyHerbsGobsEntry[p_MiscData];
+        return g_AllyHerbsGobsEntry[(p_MiscData >= HerbSpawnType::Random) ? 0 : p_MiscData];
     }
 
     //////////////////////////////////////////////////////////////////////////

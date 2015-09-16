@@ -3476,7 +3476,6 @@ class spell_pri_words_of_mending : public SpellScriptLoader
                 if (p_AurEff->GetBase()->GetStackAmount() >= p_AurEff->GetBase()->GetSpellInfo()->StackAmount)
                 {
                     l_Target->CastSpell(l_Target, eSpells::WordsOfMendingAuraFinal, true);
-                    l_Target->RemoveAura(eSpells::WordsOfMendingAuraStack);
                 }
             }
 
@@ -3972,6 +3971,37 @@ class spell_pri_dominate_mind : public SpellScriptLoader
         }
 };
 
+/// Word of Mending - 152117
+class PlayerScript_word_of_mending : public PlayerScript
+{
+    public:
+        PlayerScript_word_of_mending() :PlayerScript("PlayerScript_word_of_mending") {}
+
+        enum eSpells
+        {
+            WordOfMendingAura = 152117,
+            WordOfMendingProc = 155363,
+            WordOfMendingStack = 155362,
+            LiveSteal = 146347
+        };
+
+        void OnSpellCast(Player* p_Player, Spell* p_Spell, bool skipCheck)
+        {
+            if (p_Player == nullptr)
+                return;
+
+            if (skipCheck)
+                return;
+
+            if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() || p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)
+            {
+                if (!p_Player->HasAura(eSpells::WordOfMendingProc))
+                    p_Player->CastSpell(p_Player, eSpells::WordOfMendingStack, true);
+            }
+        }
+};
+
+
 
 void AddSC_priest_spell_scripts()
 {
@@ -4053,4 +4083,5 @@ void AddSC_priest_spell_scripts()
     /// Player Script
     new PlayerScript_Shadow_Orb();
     new PlayerScript_insanity();
+    new PlayerScript_word_of_mending();
 }

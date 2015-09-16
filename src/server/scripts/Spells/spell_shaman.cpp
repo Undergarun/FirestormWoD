@@ -706,12 +706,12 @@ class spell_sha_conductivity: public SpellScriptLoader
 
                 if (AuraPtr l_Conductivity = l_Caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
                 {
-                    if (DynamicObject* l_DynObj = l_Caster->GetDynObject(eSpells::HealingRainAura))
+                    if (AreaTrigger* l_AreaTrigger = l_Caster->GetAreaTrigger(eSpells::HealingRainAura))
                     {
                         int32 l_RemainingDuration = l_Conductivity->GetEffect(EFFECT_0)->GetAmount() * 10;
                         uint32 l_AddDuration = std::min(l_RemainingDuration, 4000);
 
-                        l_DynObj->SetDuration(l_DynObj->GetDuration() + l_AddDuration);
+                        l_AreaTrigger->SetDuration(l_AreaTrigger->GetDuration() + l_AddDuration);
                         l_Conductivity->GetEffect(EFFECT_0)->SetAmount((l_RemainingDuration - l_AddDuration) / 10);
 
                         if (AuraPtr l_HealingRain = l_Caster->GetAura(eSpells::HealingRainAura))
@@ -1365,7 +1365,7 @@ class spell_sha_healing_rain: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_healing_rain_SpellScript);
 
-            void HandleOnHit()
+            void HitTarget(SpellEffIndex)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -1385,7 +1385,7 @@ class spell_sha_healing_rain: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_sha_healing_rain_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1600,24 +1600,24 @@ class spell_sha_lava_lash_spread: public SpellScriptLoader
                     GetCaster()->AddAura(SPELL_SHA_FLAME_SHOCK, target);
             }
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                uint32 maxTargets = sSpellMgr->GetSpellInfo(SPELL_SHA_LAVA_LASH)->Effects[EFFECT_3].BasePoints;
-                std::list<WorldObject*> finalList;
+                uint32 l_MaxTargets = sSpellMgr->GetSpellInfo(SPELL_SHA_LAVA_LASH)->Effects[EFFECT_3].BasePoints;
+                Unit* l_MainTarget = GetExplTargetUnit();
 
-                for (std::list<WorldObject*>::const_iterator iter = unitList.begin(); iter != unitList.end(); iter++)
-                    if (Unit* target = (*iter)->ToUnit())
-                        if (finalList.size() < maxTargets)
-                            if (!target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                                finalList.push_back(*iter);
+                if (l_MainTarget == nullptr)
+                    return;
 
-                for (std::list<WorldObject*>::const_iterator iter = unitList.begin(); iter != unitList.end(); iter++)
-                    if (Unit* target = (*iter)->ToUnit())
-                        if (finalList.size() < maxTargets)
-                            if (target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                                finalList.push_back(*iter);
+                p_Targets.remove_if([this, l_MainTarget](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr || p_Object->ToUnit()->GetGUID() == l_MainTarget->GetGUID())
+                        return true;
 
-                unitList = finalList;
+                    return false;
+                });
+
+                if (p_Targets.size() > l_MaxTargets)
+                    JadeCore::RandomResizeList(p_Targets, l_MaxTargets);
             }
 
             void Register()

@@ -63,7 +63,6 @@ namespace MS { namespace Garrison
             /// Select game object entry for a fresh gathering spawn
             /// @p_MiscData : Misc data
             virtual uint32 SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData) override;
-
     };
 
     class npc_Tarnon : public CreatureScript
@@ -74,7 +73,7 @@ namespace MS { namespace Garrison
 
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
+            /// @p_Creature   : Target creature instance
             virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
 
             /// Called when a player selects a gossip item in the creature's gossip menu.

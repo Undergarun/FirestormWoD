@@ -95,7 +95,7 @@ void PetAI::UpdateAI(const uint32 diff)
     if (me->getVictim())
     {
         // is only necessary to stop casting, the pet must not exit combat
-        if (me->getVictim()->HasCrowdControlAura(me))
+        if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
         {
             me->InterruptNonMeleeSpellsExcept(false, 90337);    // hack for Bad Manner
             return;
@@ -389,7 +389,7 @@ Unit* PetAI::SelectNextTarget()
 
     // Check pet attackers first so we don't drag a bunch of targets to the owner
     if (Unit* myAttacker = me->getAttackerForHelper())
-        if (!myAttacker->HasCrowdControlAura())
+        if (!myAttacker->HasBreakableByDamageCrowdControlAura())
             return myAttacker;
 
     // Not sure why we wouldn't have an owner but just in case...
@@ -398,7 +398,7 @@ Unit* PetAI::SelectNextTarget()
 
     // Check owner attackers
     if (Unit* ownerAttacker = me->GetCharmerOrOwner()->getAttackerForHelper())
-        if (!ownerAttacker->HasCrowdControlAura())
+        if (!ownerAttacker->HasBreakableByDamageCrowdControlAura())
             return ownerAttacker;
 
     // Check owner victim
@@ -544,7 +544,7 @@ bool PetAI::CanAttack(Unit* target)
         return me->GetCharmInfo()->IsCommandAttack();
 
     // CC - mobs under crowd control can be attacked if owner commanded
-    if (target->HasCrowdControlAura())
+    if (target->HasBreakableByDamageCrowdControlAura())
         return me->GetCharmInfo()->IsCommandAttack();
 
     // Returning - pets ignore attacks only if owner clicked follow

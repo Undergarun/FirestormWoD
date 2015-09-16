@@ -3921,6 +3921,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
                 break;
+            case 8936: ///< Regrowth
+                spellInfo->Effects[0].BasePoints = 1;
+                break;
             case 136339: ///< Lightning Tether
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
@@ -6422,11 +6425,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 171253: ///< Garrison heartstone
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
-            case 104318: ///< Imp, Fel Firebolt
-            {
-                for (auto l_Iter : spellInfo->SpellPowers)
-                    ((SpellPowerEntry*)l_Iter)->Cost = 0;
-            }
             case 171690: ///< Truesteel Ingot
             case 169081: ///< War Paints
             case 168835: ///< Hexweave Cloth
@@ -6541,6 +6539,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 147490: ///< Healing Rain
                 case 120644: ///< Halo (damage)
                 case 120517: ///< Halo (heal)
                 case 61882: ///< Earthquake

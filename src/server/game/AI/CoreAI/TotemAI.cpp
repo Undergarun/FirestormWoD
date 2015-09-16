@@ -62,7 +62,7 @@ void TotemAI::UpdateAI(uint32 const /*diff*/)
 
     if (me->IsNonMeleeSpellCasted(false))
     {
-        if (victim && victim->HasCrowdControlAura())
+        if (victim && victim->HasBreakableByDamageCrowdControlAura())
             victim = NULL;
         else
             return;
@@ -81,7 +81,7 @@ void TotemAI::UpdateAI(uint32 const /*diff*/)
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
     if (!victim ||
         !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) ||
-        me->IsFriendlyTo(victim) || !me->canSeeOrDetect(victim) || victim->HasCrowdControlAura())
+        me->IsFriendlyTo(victim) || !me->canSeeOrDetect(victim) || victim->HasBreakableByDamageCrowdControlAura())
     {
         victim = NULL;
         JadeCore::NearestAttackableNoCCUnitInObjectRangeCheck u_check(me, me, max_range);

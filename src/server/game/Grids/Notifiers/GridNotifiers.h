@@ -1165,7 +1165,7 @@ namespace JadeCore
             bool operator()(Unit* u)
             {
                 if (u->isTargetableForAttack() && i_obj->IsWithinDistInMap(u, i_range) &&
-                    !i_funit->IsFriendlyTo(u) && !u->HasCrowdControlAura() && !u->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+                    !i_funit->IsFriendlyTo(u) && !u->HasBreakableByDamageCrowdControlAura() && !u->HasAuraType(SPELL_AURA_MOD_CONFUSE))
                 {
                     i_range = i_obj->GetDistance(u);        // use found unit range as new range limit for next check
                     return true;
@@ -1301,7 +1301,7 @@ namespace JadeCore
             if (!me->IsValidAttackTarget(u))
                 return false;
 
-            if (u->HasCrowdControlAura())
+            if (u->HasBreakableByDamageCrowdControlAura())
                 return false;
 
             if (u->HasAuraType(SPELL_AURA_MOD_CONFUSE))

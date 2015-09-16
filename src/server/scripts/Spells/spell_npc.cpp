@@ -917,7 +917,7 @@ class spell_npc_warl_wild_imp : public CreatureScript
                 me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
                 m_Charges--;
 
-                l_Owner->EnergizeBySpell(l_Owner, eSpells::Firebolt, 5 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
+                me->EnergizeBySpell(l_Owner, eSpells::Firebolt, 5 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
 
                 if (AuraEffectPtr l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
                     if (roll_chance_i(l_MoltenCore->GetAmount()))
@@ -992,6 +992,65 @@ class spell_npc_warl_imp : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new spell_npc_warl_impAI(creature);
+        }
+};
+
+class spell_npc_warl_doomguard: public CreatureScript
+{
+    public:
+        spell_npc_warl_doomguard() : CreatureScript("npc_doomguard") { }
+
+        enum eSpells
+        {
+            DoomBolt = 85692
+        };
+
+        struct spell_npc_warl_doomguardAI : public ScriptedAI
+        {
+            spell_npc_warl_doomguardAI(Creature *creature) : ScriptedAI(creature)
+            {
+                me->SetReactState(REACT_HELPER);
+            }
+
+            void Reset()
+            {
+                me->SetReactState(REACT_HELPER);
+
+                if (me->GetOwner())
+                    if (me->GetOwner()->getVictim())
+                        AttackStart(me->GetOwner()->getVictim());
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                Unit* l_Owner = me->GetOwner();
+                if (!l_Owner)
+                    return;
+
+                if (!UpdateVictim())
+                {
+                    Unit* l_OwnerTarget = nullptr;
+                    if (Player* l_Player = l_Owner->ToPlayer())
+                        l_OwnerTarget = l_Player->GetSelectedUnit();
+                    else
+                        l_OwnerTarget = l_Owner->getVictim();
+
+                    if (l_OwnerTarget)
+                        AttackStart(l_OwnerTarget);
+
+                    return;
+                }
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                me->CastSpell(me->getVictim(), eSpells::DoomBolt, false);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_warl_doomguardAI(creature);
         }
 };
 
@@ -1254,6 +1313,7 @@ void AddSC_npc_spell_scripts()
     /// Warlock NPC
     new spell_npc_warl_wild_imp();
     new spell_npc_warl_imp();
+    new spell_npc_warl_doomguard();
     new spell_npc_warl_demonic_gateway_purple();
     new spell_npc_warl_demonic_gateway_green();
 }

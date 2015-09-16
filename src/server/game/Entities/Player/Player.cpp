@@ -7944,23 +7944,13 @@ void Player::UpdateRating(CombatRating p_CombatRating)
 
         AuraEffectList const& l_HasteAuras = GetAuraEffectsByType(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK);
         for (AuraEffectList::const_iterator l_Iter = l_HasteAuras.begin(); l_Iter != l_HasteAuras.end(); ++l_Iter)
-        {
             if ((*l_Iter)->GetAmount() > 0)
-            {
                 l_HastePct *= (1.0f + (*l_Iter)->GetAmount() / 100.0f);
-                l_HastePct += (*l_Iter)->GetAmount();
-            }
-        }
 
         AuraEffectList const& l_MeleeSlowAuras = GetAuraEffectsByType(SPELL_AURA_MELEE_SLOW);
         for (AuraEffectList::const_iterator l_Iter = l_MeleeSlowAuras.begin(); l_Iter != l_MeleeSlowAuras.end(); ++l_Iter)
-        {
             if ((*l_Iter)->GetAmount() > 0)
-            {
                 l_HastePct *= (1.0f + (*l_Iter)->GetAmount() / 100.0f);
-                l_HastePct += (*l_Iter)->GetAmount();
-            }
-        }
 
         float l_Haste = 1.0f / (1.0f + l_HastePct / 100.0f);
 

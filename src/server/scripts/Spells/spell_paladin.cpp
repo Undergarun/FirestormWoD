@@ -1253,8 +1253,8 @@ public:
     }
 };
 
-// called by Holy Prism (damage) - 114852 or Holy Prism (heal) - 114871
-// Holy Prism visual for other targets
+/// called by Holy Prism (heal) - 114852 or Holy Prism (damage) - 114871
+/// Holy Prism visual for other targets
 class spell_pal_holy_prism_visual: public SpellScriptLoader
 {
     public:
@@ -1264,6 +1264,21 @@ class spell_pal_holy_prism_visual: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_holy_prism_visual_SpellScript);
 
+            enum eSpells
+            {
+                HolyPrismHeal = 114852,
+                HolyPrismDamage = 114871,
+                HolyPrismHealVisual = 121552,
+                HolyPrismDamageVisual = 114870
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                /// Healing up to 5 allies or ennemies
+                if (p_Targets.size() > 5)
+                    JadeCore::RandomResizeList(p_Targets, 5);
+            }
+
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
@@ -1271,15 +1286,26 @@ class spell_pal_holy_prism_visual: public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         if (_player->IsValidAttackTarget(target))
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL_2, true);
+                            _player->CastSpell(target, eSpells::HolyPrismDamageVisual, true);
                         else
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL_2, true);
+                            _player->CastSpell(target, eSpells::HolyPrismHealVisual, true);
                     }
                 }
             }
 
             void Register()
             {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::HolyPrismHeal:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_prism_visual_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+                    break;
+                case eSpells::HolyPrismDamage:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_prism_visual_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                    break;
+                default:
+                    break;
+                }
                 OnHit += SpellHitFn(spell_pal_holy_prism_visual_SpellScript::HandleOnHit);
             }
         };
