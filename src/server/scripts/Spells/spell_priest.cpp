@@ -1815,7 +1815,7 @@ class spell_pri_mind_spike: public SpellScriptLoader
         }
 };
 
-// Called by Holy Fire - 14914, Smite - 585, Penance - 47666 and Power Word: Solace - 129250
+// Called by Holy Fire - 14914, Smite - 585 and Power Word: Solace - 129250
 // Evangelism - 81662
 class spell_pri_evangelism: public SpellScriptLoader
 {
@@ -2484,7 +2484,11 @@ class spell_pri_penance: public SpellScriptLoader
                         if (l_Player->IsFriendlyTo(l_UnitTarget))
                             l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_HEAL, l_Rank), false, 0);
                         else
+                        {
                             l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_DAMAGE, l_Rank), false, 0);
+                            if (l_Player->HasAura(PRIEST_EVANGELISM_AURA))
+                                l_Player->CastSpell(l_Player, PRIEST_EVANGELISM_STACK, true);
+                        }
 
                         // Divine Insight (Discipline)
                         if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_DISCIPLINE)
