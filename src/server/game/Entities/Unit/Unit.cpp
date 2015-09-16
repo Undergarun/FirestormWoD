@@ -9403,7 +9403,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             ToPlayer()->AddSpellCooldown(108945, 0, 90 * IN_MILLISECONDS);
-            basepoints0 = int32(CountPctFromMaxHealth(20));
+            basepoints0 = int32(CountPctFromMaxHealth(15));
 
             break;
         }
