@@ -4913,6 +4913,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108945: ///< Angelic Bulwark
                 spellInfo->Effects[0].TriggerSpell = 114214;
                 break;
+            case 114867: ///< Soul Reaper
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
             case 34428: ///< Victory Rush
                 spellInfo->OverrideSpellList.push_back(103840); ///< Impending Victory
                 break;
