@@ -6854,41 +6854,35 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggered_spell_id = 37436;
                     break;
                 }
-                case 44448: // Improved Hot Streak ///< @todo this spell is marked delete from game 
+                case 44448: ///< Pyroblast Clearcasting Driver
                 {
-                    if (effIndex != 0)
+                    if (!procSpell || !procSpell->CanTriggerHotStreak())
                         return false;
 
                     if (!damage && !(procEx & PROC_EX_ABSORB))
                         return false;
 
-                    if (!procSpell)
-                        return false;
-
-                    if (procEx & PROC_EX_INTERNAL_DOT)
-                        return false;
-
-                    if (!procSpell->CanTriggerHotStreak())
+                    if (procEx & (PROC_EX_INTERNAL_DOT | PROC_EX_INTERNAL_MULTISTRIKE))
                         return false;
 
                     if (procEx & PROC_EX_CRITICAL_HIT)
                     {
                         if (!HasAura(48107))
                         {
-                            CastSpell(this, 48107, true);
+                            CastSpell(this, 48107, true, castItem); ///< Heating Up
                             return true;
                         }
                         else
                         {
                             RemoveAura(48107);
-                            triggered_spell_id = 48108;
+                            triggered_spell_id = 48108; ///< Pyroblast!
                             target = this;
                             break;
                         }
                     }
                     else
                     {
-                        if (AuraPtr l_HeatingUp = this->GetAura(48107, this->GetGUID()))
+                        if (AuraPtr l_HeatingUp = GetAura(48107, GetGUID()))
                             l_HeatingUp->SetDuration(500);
                         return false;
                     }
