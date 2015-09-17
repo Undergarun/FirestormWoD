@@ -588,8 +588,6 @@ int Master::Run()
         // go down and shutdown the server
     }
 
-    //TestTransfertDump();
-
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, g_RealmID);
 

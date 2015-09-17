@@ -26,6 +26,7 @@ void AddSC_user_reporting();
 void AddSC_warning_update_client();
 void AddSC_DuelReset();
 void AddSC_npc_custom();
+void AddSC_Webshop_Delivery();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1915,5 +1916,6 @@ void AddCustomScripts()
     AddSC_warning_update_client();
     AddSC_DuelReset();
     AddSC_npc_custom();
+    AddSC_Webshop_Delivery();
 #endif
 }

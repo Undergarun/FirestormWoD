@@ -106,24 +106,24 @@ enum LoginDatabaseStatements
     LOGIN_UPD_TOY_FAVORITE,
     //////////////////////////////////////////////////////////////////////////
     
-    LOGIN_SET_DUMP,
-    LOGIN_ADD_TRANSFERTS_LOGS,
-    
     LOGIN_INS_CHAR_SPELL,
     LOGIN_SEL_CHARACTER_SPELL,
     LOGIN_DEL_CHAR_SPELL_BY_SPELL,
     LOGIN_DEL_CHAR_SPELL,
 
     LOGIN_UPD_ACCOUNT_PREMIUM,
-    LOGIN_UP_TRANSFERT_PDUMP,
     LOGIN_SELECT_PDUMP,
 
     LOGIN_SEL_PETBATTLE_ACCOUNT,
     LOGIN_REP_PETBATTLE,
     LOGIN_INS_PETBATTLE,
 
-    LOGIN_SEL_TRANSFERT_DUMP,
-    LOGIN_SEL_TRANSFERT_LOAD,
+    //////////////////////////////////////////////////////////////////////////
+    /// Transfers
+    LOGIN_SEL_TRANSFERS_DUMP,
+    LOGIN_SEL_TRANSFERS_LOAD,
+    LOGIN_UPD_TRANSFER_PDUMP,
+    //////////////////////////////////////////////////////////////////////////
 
     LOGIN_SEL_BATTLEPAY_POINTS,
 

@@ -92,19 +92,17 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_REALMLIST_SECURITY_LEVEL, "SELECT allowedSecurityLevel from realmlist WHERE id = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(LOGIN_DEL_ACCOUNT, "DELETE FROM account WHERE id = ?", CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(LOGIN_ADD_TRANSFERTS_LOGS, "INSERT INTO transferts_logs (`id`, `account`, `perso_guid`, `from`, `to`, `dump`) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-
     PREPARE_STATEMENT(LOGIN_INS_CHAR_SPELL, "INSERT INTO account_spell (accountId, spell, active, disabled, IsMountFavorite) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled, IsMountFavorite FROM account_spell WHERE accountId = ? AND spell < 197205", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL_BY_SPELL, "DELETE FROM account_spell WHERE spell = ? AND accountId = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL, "DELETE FROM account_spell WHERE accountId = ?", CONNECTION_ASYNC);
 
     PREPARE_STATEMENT(LOGIN_UPD_ACCOUNT_PREMIUM, "UPDATE account_premium SET active = 0 WHERE active = 1 AND unsetdate<=UNIX_TIMESTAMP() AND unsetdate<>setdate", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_UP_TRANSFERT_PDUMP, "UPDATE transferts SET state = 1, dump = ? WHERE id = ?", CONNECTION_SYNCH);
 
-    // Transferts
-    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERT_DUMP, "SELECT `id`, `account`, `perso_guid` FROM transferts WHERE `from` = ? AND state = 0", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERT_LOAD, "SELECT `id`, `account`, `perso_guid`, `dump` FROM transferts WHERE `to` = ? AND state = 1", CONNECTION_ASYNC);
+    // Transfers
+    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERS_DUMP, "SELECT `id`, `account`, `guid` FROM webshop_delivery_interrealm_transfer WHERE `startrealm` = ? AND state = 0", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERS_LOAD, "SELECT `id`, `account`, `guid`, `dump` FROM webshop_delivery_interrealm_transfer WHERE `destrealm` = ? AND state = 1", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_UPD_TRANSFER_PDUMP, "UPDATE webshop_delivery_interrealm_transfer SET state = 1, dump = ? WHERE id = ?", CONNECTION_SYNCH);
 
     // Battle pets
 #define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account"
