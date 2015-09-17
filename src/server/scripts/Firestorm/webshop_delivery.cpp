@@ -391,7 +391,7 @@ namespace WebShop
                     if (l_SkillID == SkillType::SKILL_HERBALISM)
                         p_Player->learnSpell(l_SpellID, false);
 
-                    CharacterDatabase.PExecute("UPDATE webshop_delivery_level SET delivery = 1 WHERE transaction = %u", l_Transaction);
+                    CharacterDatabase.PExecute("UPDATE webshop_delivery_profession SET delivery = 1 WHERE transaction = %u", l_Transaction);
                 } 
                 while (l_Result->NextRow());
 
