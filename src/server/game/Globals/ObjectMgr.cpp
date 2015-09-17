@@ -9979,7 +9979,7 @@ void ObjectMgr::LoadQuestObjectives()
         l_Quest.second->QuestObjectives.clear();
 
         for (int l_I = 0; l_I < QUEST_OBJECTIVE_TYPE_END; ++l_I)
-            l_Quest.second->QuestObjecitveTypeCount[l_I] = 0
+            l_Quest.second->QuestObjecitveTypeCount[l_I] = 0;
     }
 
     QueryResult l_Result = WorldDatabase.Query("SELECT `ID`,`QuestID`,`Type`,`Index`,`ObjectID`,`Amount`,`Flags`,`UnkFloat`,`Description`,`VisualEffects` FROM quest_template_objective ORDER BY QuestID ASC");
@@ -10183,7 +10183,7 @@ void ObjectMgr::LoadQuestObjectives()
         l_Objective.Flags       = l_ObjectiveFlags;
         l_Objective.UnkFloat    = l_ObjectiveUnkFloat;
         l_Objective.Description = l_ObjectiveDescription;
-
+        {}
         if (!l_ObjectiveVisualEffects.empty())
         {
             Tokenizer l_Specializations(l_ObjectiveVisualEffects, ' ');
