@@ -10186,7 +10186,7 @@ void ObjectMgr::LoadQuestObjectives()
         l_Objective.Flags       = l_ObjectiveFlags;
         l_Objective.UnkFloat    = l_ObjectiveUnkFloat;
         l_Objective.Description = l_ObjectiveDescription;
-        {}
+
         if (!l_ObjectiveVisualEffects.empty())
         {
             Tokenizer l_Specializations(l_ObjectiveVisualEffects, ' ');
