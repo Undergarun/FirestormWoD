@@ -592,8 +592,11 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
             _groupRate * float(player->getLevel()) / _sumLevel : // Group rate depends on summary level.
             1.0f;                                                // Personal rate is 100%.
         if (_xp)
+        {
             // 4.2. Give XP.
-            _RewardXP(player, rate);
+            if (!(_victim->getLevel() > player->getLevel() && (_victim->getLevel() - player->getLevel()) > 6 && _group))
+                _RewardXP(player, rate);
+        }
         if (!_isBattleGround)
         {
             // If killer is in dungeon then all members receive full reputation at kill.
