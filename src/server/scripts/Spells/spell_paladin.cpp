@@ -1126,7 +1126,10 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                 uint32 l_TickNumber = p_AurEff->GetTickNumber();
 
                 if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                {
+                    if (l_TickNumber >= 1 && l_TickNumber <= 10)
                         l_AuraEffect->SetAmount(int32(l_BaseValue * (m_TickMultiplier[l_TickNumber])));
+                }
             }
 
             void Register()
