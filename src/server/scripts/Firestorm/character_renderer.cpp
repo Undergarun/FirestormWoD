@@ -26,9 +26,9 @@ class CharacterRenderer : public PlayerScript
             std::ostringstream l_Equipement;
             l_Equipement << "[";
             
-            for (uint8 l_Slot = 0; l_Slot < CharacterSlot::SLOT_EMPTY; l_Slot++)
+            for (uint8 l_Slot = 0; l_Slot < EQUIPMENT_SLOT_END; l_Slot++)
             {
-                if (Item* l_Item = p_Player->GetItemByPos(l_Slot))
+                if (Item* l_Item = p_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_Slot))
                     l_Equipement << "[" << l_Item->GetTemplate()->InventoryType << "," << l_Item->GetTemplate()->DisplayInfoID << "],";
             }
 
