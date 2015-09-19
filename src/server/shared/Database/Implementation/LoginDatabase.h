@@ -145,6 +145,8 @@ enum LoginDatabaseStatements
     LOGIN_SET_ACCOUNT_SERVICE,
     //////////////////////////////////////////////////////////////////////////
 
+    LOGIN_RPL_CHARACTER_RENDERER_QUEUE,
+
     MAX_LOGINDATABASE_STATEMENTS
 };
 
