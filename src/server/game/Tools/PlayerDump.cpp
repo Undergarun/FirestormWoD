@@ -587,7 +587,7 @@ std::vector<std::string> GetColumnsFromLine(std::string p_Line)
     return l_Columns;
 }
 
-DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Account, std::string p_Name, uint32 p_Guid, bool p_OnlyBoundedItems, uint32 p_AtLogin, bool p_Premade)
+DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Account, std::string p_Name, uint32 p_Guid, bool p_OnlyBoundedItems, uint32 p_AtLogin)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(p_Account);
     if (charcount >= 11)
@@ -612,9 +612,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
     }
     else
         p_Guid = sObjectMgr->_hiCharGuid.value();
-
-    if (!p_Premade)
-        p_Name = "transfertCha";
 
     // name encoded or empty
 
@@ -730,21 +727,10 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                 }
 
                 l_Index = GetFieldIndexFromColumn("at_login", l_Columns) + 1;
-                if (p_Premade)
+                if (!changenth(l_Line, l_Index, atLogin))                           ///< characters.at_login set to "rename on login"
                 {
-                    if (!changenth(l_Line, l_Index, atLogin))                           ///< characters.at_login set to "rename on login"
-                    {
-                        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [7]");
-                        ROLLBACK(DUMP_FILE_BROKEN);
-                    }
-                }
-                else
-                {
-                    if (!changenth(l_Line, l_Index, "3093")) ///< characters.at_login set to AT_LOGIN_RESET_TALENTS | AT_LOGIN_RESET_PET_TALENTS | AT_LOGIN_RESET_SPECS | AT_LOGIN_RENAME | AT_LOGIN_DELETE_INVALID_SPELL
-                    {
-                        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [8]");
-                        ROLLBACK(DUMP_FILE_BROKEN);
-                    }
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [7]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
                 }
 
                 /// We transfer max 50k golds

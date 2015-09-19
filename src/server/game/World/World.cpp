@@ -2485,7 +2485,7 @@ void World::Update(uint32 diff)
                 fprintf(l_File, "%s\n", l_CharDump.c_str());
                 fclose(l_File);
 
-                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_AccountID, "", 0);
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_AccountID, "#Transfer", 0);
                 remove(l_Filename.str().c_str());
 
                 if (l_Error == DUMP_SUCCESS)
