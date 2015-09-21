@@ -14,6 +14,8 @@ enum eAncientProtectorsSpells
     SpellRevitalizingWater          = 168082, 
     SpellRapidTides                 = 168105,  
     SpellWaterBolt                  = 168092, 
+    SpellUnknownReqCasRapidTides    = 168183,
+    SpellUnknownReqTarRapidTides    = 173298,
 
     /// Earthshaper Telu
     SpellNaturesWrath               = 168040, 
@@ -54,7 +56,9 @@ enum eAncientProtectorsEvents
 
 enum eAncientProtectorsActions
 {
-    ActionUseSlash = 3333
+    ActionUseSlash = 1,
+    ActionRapidTidesDisable,
+    ActionRapidTidesEnable
 };
 
 enum eAncientProtectorsCreatrues
@@ -75,7 +79,7 @@ enum eAncientProtectorsTalks
 
     ///> Earthshaper Telu
     LUENA_INTRO     = 17, ///> You will never escape...(46209)
-    LUENA_SPELL01   = 18, ///> You will be perged!(46212)
+    LUENA_SPELL01   = 18, ///> You will be purged!(46212)
     LUENA_SPELL02   = 19, ///> The forst shield us.(46213)
     LUENA_SPELL03   = 20, ///> We protect.(46214)
     LUENA_DEATH     = 21, ///> I will be renewed.(46208)
@@ -199,7 +203,6 @@ private:
     uint32 i_hp;
 };
 
-
 /// Life Warden Gola - 83892
 class boss_life_warden : public CreatureScript
 {
@@ -242,6 +245,7 @@ public:
                 DoZoneInCombat();
             }
       
+            events.ScheduleEvent(eAncientProtectorsEvents::EventRapidTides, 30 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eAncientProtectorsEvents::EventHealing, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eAncientProtectorsEvents::EventRevitalizingWaters, 20 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eAncientProtectorsEvents::EventWaterBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
@@ -310,6 +314,8 @@ public:
                     if (l_Target && l_Target->IsInWorld())
                         me->CastSpell(l_Target, eEverbloomSpells::SpellHealingWaters);
 
+                    Talk(eAncientProtectorsTalks::LUENA_SPELL01);
+
                     events.ScheduleEvent(eAncientProtectorsEvents::EventRevitalizingWaters, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
                     break;
                 }
@@ -318,12 +324,29 @@ public:
                     if (m_Instance == nullptr)
                         return;
 
+                    me->AddAura(eAncientProtectorsSpells::SpellUnknownReqCasRapidTides, me);
+                    Talk(eAncientProtectorsTalks::LUENA_SPELL02);
+
                     if (Creature* l_Telu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataEarthshaperTelu)))
                     {
-                        me->CastSpell(l_Telu, eAncientProtectorsSpells::SpellRapidTides);
-                        events.ScheduleEvent(eAncientProtectorsEvents::EventRevitalizingWaters, 20 * TimeConstants::IN_MILLISECONDS);
-                        break;
+                        if (Creature* l_Dulhu = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataDulhu)))
+                        {
+                            if (roll_chance_i(50))
+                            {
+                                l_Telu->AddAura(eAncientProtectorsSpells::SpellUnknownReqTarRapidTides, l_Telu);
+
+                                me->AddAura(eAncientProtectorsSpells::SpellRapidTides, l_Telu);
+                            }
+                            else
+                            {
+                                l_Dulhu->AddAura(eAncientProtectorsSpells::SpellUnknownReqTarRapidTides, l_Dulhu);
+
+                                me->AddAura(eAncientProtectorsSpells::SpellRapidTides, l_Dulhu);
+                            }                    
+                        }
                     }
+                    events.ScheduleEvent(eAncientProtectorsEvents::EventRevitalizingWaters, 30 * TimeConstants::IN_MILLISECONDS);
+                    break;
                 }
                 case eAncientProtectorsEvents::EventWaterBolt:
                 {
@@ -362,11 +385,14 @@ public:
         EventMap m_Events;
         InstanceScript* m_Instance;
         bool m_Intro;
+        bool m_Tides;
 
         void Reset() override
         {
             _Reset();
             events.Reset();
+
+            m_Tides = false;
 
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
@@ -401,6 +427,24 @@ public:
                 Talk(eAncientProtectorsTalks::LUENA_KILL01);
             else
                 Talk(eAncientProtectorsTalks::LUENA_KILL02);
+        }
+
+        void DoAction(int32 const p_Action) override
+        {
+            switch (p_Action)
+            {
+            case eAncientProtectorsActions::ActionRapidTidesEnable:
+                m_Tides = true;
+
+                events.ScheduleEvent(eAncientProtectorsEvents::EventBramblePatch, 1 * TimeConstants::IN_MILLISECONDS);
+                break;
+            case eAncientProtectorsActions::ActionRapidTidesDisable:
+                m_Tides = false;
+
+                events.CancelEvent(eAncientProtectorsEvents::EventBramblePatch);
+                events.ScheduleEvent(eAncientProtectorsEvents::EventBramblePatch, 25 * TimeConstants::IN_MILLISECONDS);
+                break;
+            }
         }
 
         void JustDied(Unit* /*p_Killer*/) override
@@ -456,6 +500,8 @@ public:
                     if (m_Instance == nullptr)
                         return;
 
+                    Talk(eAncientProtectorsTalks::LUENA_SPELL01);
+
                     if (Creature* l_Gola = m_Instance->instance->GetCreature(instance->GetData64(eEverbloomData::DataLifeWardenGola)))
                     {
                         if (Creature* l_Dulhu = m_Instance->instance->GetCreature(instance->GetData64(eEverbloomData::DataDulhu)))
@@ -485,11 +531,16 @@ public:
                 }
                 case eAncientProtectorsEvents::EventBramblePatch:
                 {
+                    Talk(eAncientProtectorsTalks::LUENA_SPELL02);
+
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
-                        me->SummonCreature(eAncientProtectorsCreatrues::CreatureBramblePatch, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), l_Target->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                        me->SummonCreature(eAncientProtectorsCreatrues::CreatureBramblePatch, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), l_Target->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 18 * TimeConstants::IN_MILLISECONDS);
                         
-                        events.ScheduleEvent(eAncientProtectorsEvents::EventBramblePatch, 25 * TimeConstants::IN_MILLISECONDS);
+                        if (m_Tides)
+                             events.ScheduleEvent(eAncientProtectorsEvents::EventBramblePatch, 6 * TimeConstants::IN_MILLISECONDS);
+                        else
+                            events.ScheduleEvent(eAncientProtectorsEvents::EventBramblePatch, 25 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                 }
@@ -521,12 +572,15 @@ public:
         uint64 m_GraspingVineTargetGUID;
         uint32 m_GraspingVineDiff;
         bool m_Intro;
+        bool m_Tides;
 
 
         void Reset() override
         {
             _Reset();
             events.Reset();
+
+            m_Tides = false;
 
             m_GraspingVineTargetGUID = NULL;
             m_GraspingVineDiff = 6000;
@@ -552,17 +606,25 @@ public:
 
             StartAncientProtectors(instance, me, p_Who);
         }
-
+     
         void DoAction(int32 const p_Action) override
         {
             switch (p_Action)
             {
-                case eAncientProtectorsActions::ActionUseSlash:
-                    events.ScheduleEvent(eAncientProtectorsEvents::EventSlash, 500);
+                case eAncientProtectorsActions::ActionRapidTidesEnable:
+                    m_Tides = true;
+
+                    events.ScheduleEvent(eAncientProtectorsEvents::EventNoxiusEruption, 1 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                case eAncientProtectorsActions::ActionRapidTidesDisable:
+                    m_Tides = false;
+
+                    events.CancelEvent(eAncientProtectorsEvents::EventNoxiusEruption);
+                    events.ScheduleEvent(eAncientProtectorsEvents::EventNoxiusEruption, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
                     break;
             }
         }
-
+        
         void JustReachedHome() override
         {
             _JustReachedHome();
@@ -648,7 +710,11 @@ public:
                 case eAncientProtectorsEvents::EventNoxiusEruption:
                 {
                     DoCastAOE(eAncientProtectorsSpells::SpellNoxiousEruption);
-                    events.ScheduleEvent(eAncientProtectorsEvents::EventNoxiusEruption, urand(25 * TimeConstants::IN_MILLISECONDS, 32 * TimeConstants::IN_MILLISECONDS));
+
+                    if (m_Tides)
+                         events.ScheduleEvent(eAncientProtectorsEvents::EventNoxiusEruption, urand(25 * TimeConstants::IN_MILLISECONDS, 32 * TimeConstants::IN_MILLISECONDS));
+                    else
+                        events.ScheduleEvent(eAncientProtectorsEvents::EventNoxiusEruption, 6 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eAncientProtectorsEvents::EventGraspingVine:
@@ -677,51 +743,6 @@ public:
     }
 };
 
-/// Grasping Vine - 
-class the_everbloom_grasping_vine : public SpellScriptLoader
-{
-public:
-    the_everbloom_grasping_vine() : SpellScriptLoader("the_everbloom_grasping_vine") { }
-
-    class everbloom_spells : public SpellScript
-    {
-        PrepareSpellScript(everbloom_spells);
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (!GetCaster())
-                return;
-            
-            std::list<Player*> l_PlayerList;
-            GetCaster()->GetPlayerListInGrid(l_PlayerList, 100.0f);
-
-            if (l_PlayerList.empty())
-                return;
-
-            std::list<Player*>::const_iterator it = l_PlayerList.begin();
-            std::advance(it, urand(0, l_PlayerList.size() - 1));
-
-            if ((*it) && (*it)->IsInWorld() && (*it)->isAlive())
-            {
-                (*it)->CastSpell(GetCaster(), eAncientProtectorsSpells::SpellGraspingVineJump); ///> JUMP
-            }
-            
-            if (GetCaster() && GetCaster()->GetAI())
-                GetCaster()->GetAI()->DoAction(eAncientProtectorsActions::ActionUseSlash);
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(everbloom_spells::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new everbloom_spells();
-    }
-};
-
 /// Bramble Patch Trigger - 
 class the_everbloom_bramble_patch : public CreatureScript
 {
@@ -742,7 +763,7 @@ public:
         {
             me->SetDisplayId(11686);
             me->setFaction(HostileFaction);
-            m_Time = 1 * TimeConstants::IN_MILLISECONDS;
+            m_Time = 2 * TimeConstants::IN_MILLISECONDS;
 
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
@@ -768,13 +789,11 @@ public:
                         if (!itr->HasAura(eAncientProtectorsSpells::SpellBramblePatchDamage))
                         {
                             itr->CastSpell(itr, eAncientProtectorsSpells::SpellBramblePatchDamage, true);
-
-                            AuraPtr aura = itr->GetAura(eAncientProtectorsSpells::SpellBramblePatchDamage);
                         }                        
                     }
                 }
 
-                m_Time = 1 * TimeConstants::IN_MILLISECONDS;
+                m_Time = 2 * TimeConstants::IN_MILLISECONDS;
             }
             else
             {
@@ -819,12 +838,53 @@ public:
     }
 };
 
+/// Rapid Tides - 168105 
+class spell_everbloom_rapid_tides : public SpellScriptLoader
+{
+public:
+    spell_everbloom_rapid_tides() : SpellScriptLoader("spell_everbloom_rapid_tides") { }
+
+    class spell_everbloom_rapid_tides_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_everbloom_rapid_tides_AuraScript);
+
+        void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+        {
+            if (Creature* l_Target = GetTarget()->ToCreature())
+            {
+                if (l_Target->IsAIEnabled)
+                    l_Target->AI()->DoAction(eAncientProtectorsActions::ActionRapidTidesEnable);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+        {
+            if (Creature* l_Target = GetTarget()->ToCreature())
+            {
+                if (l_Target->IsAIEnabled)
+                    l_Target->AI()->DoAction(eAncientProtectorsActions::ActionRapidTidesDisable);
+            }
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_everbloom_rapid_tides_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_everbloom_rapid_tides_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_everbloom_rapid_tides_AuraScript();
+    }
+};
+
 void AddSC_boss_ancient_protectors()
 {
     new boss_life_warden();
     new boss_dulhu();
     new boss_earthshaper_telu();
-    new the_everbloom_grasping_vine();
     new the_everbloom_rending_charge();
     new the_everbloom_bramble_patch();
+    new spell_everbloom_rapid_tides();
 }

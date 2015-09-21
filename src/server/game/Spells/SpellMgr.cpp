@@ -3494,11 +3494,23 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 0;
                 break;
                 /// Everbloom
+            case 164643:
+            case 164886:
+            case 169658:
+            case 164965: ///< Choking Vines
             case 164834: ///< Barrage of Leaves
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
-            case 164886: ///< Dreadpetal Toxin
+            case 169223: ///< Toxic Gas
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 169376: ///< Venomous Sting
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 164885: ///< Dreadpetal Toxin
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
                 /// Auchindon
             case 156862: ///< Drain Soul Cosmetic
