@@ -106,10 +106,11 @@ class npc_frozen_orb : public CreatureScript
 
         enum Constants
         {
-            CheckDist     = 5,                   ///< Every AI update, the orb will try to travel this distance
-            DamageDelay   = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
-            HeightMaxStep = 3,                   ///< Maximum step height the orb can go before stopping (this value goes along with CheckDist)
-            HoverHeight   = 0                    ///< "Display" height modification (some modelid are centered at the origin)
+            CheckDist          = 5,                   ///< Every AI update, the orb will try to travel this distance
+            DamageDelay        = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
+            HeightMaxStep      = 3,                   ///< Maximum step height the orb can go before stopping (this value goes along with CheckDist)
+            HoverHeight        = 0,                   ///< "Display" height modification (some modelid are centered at the origin),
+            HeightCompensation = -1                   ///< Looks like the orb is rising by itself, let's compensate (hackfix though)
         };
 
         enum Spells
@@ -142,11 +143,6 @@ class npc_frozen_orb : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->AddAura(Spells::FrozenOrbVisual, me);
                 me->SetCanFly(true);
-
-                /// Adjust orb height
-                Position l_Pos = *me;
-                l_Pos.m_positionZ = me->GetMap()->GetHeight(l_Pos.m_positionX, l_Pos.m_positionY, MAX_HEIGHT) + Constants::HoverHeight;
-                me->SetPosition(l_Pos);
 
                 /// Give it a movement
                 UpdateMovement();
@@ -215,11 +211,12 @@ class npc_frozen_orb : public CreatureScript
                 Position l_Dest(l_Origin);
                 l_Dest.m_positionX += l_CheckDist * l_RotCos;
                 l_Dest.m_positionY += l_CheckDist * l_RotSin;
+                l_Dest.m_positionZ += Constants::HeightCompensation - Constants::HoverHeight;
 
-                float l_DestHeight = me->GetMap()->GetHeight(l_Dest.m_positionX, l_Dest.m_positionY, MAX_HEIGHT);
-                float l_Diff = l_DestHeight - (l_Origin.m_positionZ - Constants::HoverHeight) + 1.f; ///< +1 because reasons (I have no idea why this is required, but it is)
+                float l_DestHeight = std::max(l_Dest.GetPositionZ(), me->GetMap()->GetHeight(l_Dest.GetPositionX(), l_Dest.GetPositionY(), MAX_HEIGHT));
+                float l_Diff = l_DestHeight - l_Dest.m_positionZ + 1.f; ///< +1 because reasons (I have no idea why this is required, but it is)
 
-                if (std::abs(l_Diff) - std::abs(l_MaxStep) > 0.f)
+                if (l_Diff > l_MaxStep)
                 {
                     float l_Step = l_CheckDist / 10.f;
 
@@ -229,8 +226,8 @@ class npc_frozen_orb : public CreatureScript
                         l_Dest.m_positionY -= l_Step * l_RotSin;
 
                         l_DestHeight = me->GetMap()->GetHeight(l_Dest.m_positionX, l_Dest.m_positionY, MAX_HEIGHT);
-                        l_Diff = l_DestHeight - (l_Origin.m_positionZ - Constants::HoverHeight) + 1.f;
-                        if (std::abs(l_Diff) - std::abs(l_MaxStep) < 0.f)
+                        l_Diff = l_DestHeight - l_Dest.m_positionZ + 1.f;
+                        if (l_Diff < l_MaxStep)
                             break;
                     }
 
@@ -917,7 +914,7 @@ class spell_npc_warl_wild_imp : public CreatureScript
                 me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
                 m_Charges--;
 
-                l_Owner->EnergizeBySpell(l_Owner, eSpells::Firebolt, 5 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
+                me->EnergizeBySpell(l_Owner, eSpells::Firebolt, 5 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
 
                 if (AuraEffectPtr l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
                     if (roll_chance_i(l_MoltenCore->GetAmount()))
@@ -992,6 +989,65 @@ class spell_npc_warl_imp : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new spell_npc_warl_impAI(creature);
+        }
+};
+
+class spell_npc_warl_doomguard: public CreatureScript
+{
+    public:
+        spell_npc_warl_doomguard() : CreatureScript("npc_doomguard") { }
+
+        enum eSpells
+        {
+            DoomBolt = 85692
+        };
+
+        struct spell_npc_warl_doomguardAI : public ScriptedAI
+        {
+            spell_npc_warl_doomguardAI(Creature *creature) : ScriptedAI(creature)
+            {
+                me->SetReactState(REACT_HELPER);
+            }
+
+            void Reset()
+            {
+                me->SetReactState(REACT_HELPER);
+
+                if (me->GetOwner())
+                    if (me->GetOwner()->getVictim())
+                        AttackStart(me->GetOwner()->getVictim());
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                Unit* l_Owner = me->GetOwner();
+                if (!l_Owner)
+                    return;
+
+                if (!UpdateVictim())
+                {
+                    Unit* l_OwnerTarget = nullptr;
+                    if (Player* l_Player = l_Owner->ToPlayer())
+                        l_OwnerTarget = l_Player->GetSelectedUnit();
+                    else
+                        l_OwnerTarget = l_Owner->getVictim();
+
+                    if (l_OwnerTarget)
+                        AttackStart(l_OwnerTarget);
+
+                    return;
+                }
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                me->CastSpell(me->getVictim(), eSpells::DoomBolt, false);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_warl_doomguardAI(creature);
         }
 };
 
@@ -1254,6 +1310,7 @@ void AddSC_npc_spell_scripts()
     /// Warlock NPC
     new spell_npc_warl_wild_imp();
     new spell_npc_warl_imp();
+    new spell_npc_warl_doomguard();
     new spell_npc_warl_demonic_gateway_purple();
     new spell_npc_warl_demonic_gateway_green();
 }

@@ -302,7 +302,7 @@ namespace MS { namespace Garrison
                     float l_PlotX = l_Plot.X;
                     float l_PlotY = l_Plot.Y;
                     float l_PlotZ = l_Plot.Z;
-                    
+
                     TransformCoord(l_PlotX, l_PlotY, l_PlotZ);
 
                     if (l_Position.GetExactDist2d(l_PlotX, l_PlotY) < 0.1)

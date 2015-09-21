@@ -1384,7 +1384,7 @@ enum ReactiveType
 #define MAX_TOTEM_SLOT      5
 #define SUMMON_SLOT_MINIPET 5
 #define SUMMON_SLOT_QUEST   6
-#define MAX_SUMMON_SLOT     7
+#define MAX_SUMMON_SLOT     9
 
 #define MAX_GAMEOBJECT_SLOT 4
 
@@ -1839,8 +1839,6 @@ class Unit : public WorldObject
 
         bool HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const;
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }
-        bool HasCrowdControlAuraType(AuraType type, uint32 excludeAura = 0) const;
-        bool HasCrowdControlAura(Unit* excludeCasterChannel = NULL) const;
         bool HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura = 0) const;
         bool HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel = NULL) const;
 
