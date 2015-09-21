@@ -631,7 +631,7 @@ bool AuthSocket::_HandleLogonProof()
         stmt->setString(4, _login);
         LoginDatabase.Execute(stmt);
 
-        QueryResult AccountIdResult = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", _login.c_str());
+        /*QueryResult AccountIdResult = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", _login.c_str());
 
         if (AccountIdResult)
         {
@@ -641,7 +641,7 @@ bool AuthSocket::_HandleLogonProof()
             stmt->setUInt32(0, accountid);
             stmt->setString(1, socket().getRemoteAddress().c_str());
             LoginDatabase.Execute(stmt);
-        }
+        }*/
 
         OPENSSL_free((void*)K_hex);
 
