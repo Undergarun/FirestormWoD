@@ -12814,11 +12814,11 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     AuraEffectList const& modHealingPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_PCT);
     for (AuraEffectList::const_iterator i = modHealingPct.begin(); i != modHealingPct.end(); ++i)
-        AddPct(TakenTotalMod, (*i)->GetAmount());
+        TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
 
     // Tenacity increase healing % taken
     if (constAuraEffectPtr Tenacity = GetAuraEffect(58549, 0))
-        AddPct(TakenTotalMod, Tenacity->GetAmount());
+        TakenTotalMod += CalculatePct(1.0f, Tenacity->GetAmount());
 
     // Healing Done
     int32 TakenTotal = 0;
@@ -12861,15 +12861,15 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     for (AuraEffectList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
     {
         if (caster->GetGUID() == (*i)->GetCasterGUID() && (*i)->IsAffectingSpell(spellProto))
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
         else if ((*i)->GetBase()->GetId() == 974) // Hack fix for Earth Shield
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
     }
 
     AuraEffectList const& mHotPct = GetAuraEffectsByType(SPELL_AURA_MOD_HOT_PCT);
     for (AuraEffectList::const_iterator i = mHotPct.begin(); i != mHotPct.end(); ++i)
         if (damagetype == DOT)
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
