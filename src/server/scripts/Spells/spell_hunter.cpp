@@ -574,46 +574,46 @@ class spell_hun_steady_focus: public SpellScriptLoader
                 ProcFlagsExLegacy l_ExFlags = ProcFlagsExLegacy(p_EventInfo.GetHitMask());
                 uint32 l_SpellID = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
                 {
-                    switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                    ///< Marksmanship
+                    ///< - Steady Shot twice in a row
+                    case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
                     {
-                        ///< Marksmanship
-                        ///< - Steady Shot twice in a row
-                        case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
+                        ///< Not Steady Shot
+                        if (l_SpellID != SteadyFocusSpells::SteadyShot)
                         {
-                            ///< Not Steady Shot
-                            if (l_SpellID != SteadyFocusSpells::SteadyShot)
-                            {
-                                ///< Shitty procs
-                                if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
-                                    p_AurEff->GetBase()->SetCharges(0);
+                            ///< Shitty procs
+                            if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                p_AurEff->GetBase()->SetCharges(0);
 
-                                return;
-                            }
-
-                            DealWithCharges(p_AurEff, l_Player);
-                            break;
-                        }
-                        case SpecIndex::SPEC_NONE:
                             return;
-                        ///< Beast Mastery and Survival (Level 81)
-                        ///< - Cobra Shot twice in a row
-                        default:
-                        {
-                            ///< Not Cobra Shot
-                            if (l_SpellID != SteadyFocusSpells::CobraShot)
-                            {
-                                ///< Shitty procs
-                                if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
-                                    p_AurEff->GetBase()->SetCharges(0);
-
-                                return;
-                            }
-
-                            DealWithCharges(p_AurEff, l_Player);
-                            break;
                         }
+
+                        DealWithCharges(p_AurEff, l_Player);
+                        break;
+                    }
+                    ///< Beast Mastery and Survival (Level 81)
+                    ///< - Cobra Shot twice in a row
+                    case SpecIndex::SPEC_HUNTER_BEASTMASTERY:
+                    case SpecIndex::SPEC_HUNTER_SURVIVAL:
+                    {
+                        ///< Not Cobra Shot
+                        if (l_SpellID != SteadyFocusSpells::CobraShot)
+                        {
+                            ///< Shitty procs
+                            if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                p_AurEff->GetBase()->SetCharges(0);
+
+                            return;
+                        }
+
+                        DealWithCharges(p_AurEff, l_Player);
+                        break;
                     }
                 }
             }
@@ -2328,47 +2328,6 @@ class spell_hun_powershot: public SpellScriptLoader
         }
 };
 
-// Feign Death - 5384
-class spell_hun_feign_death: public SpellScriptLoader
-{
-    public:
-        spell_hun_feign_death() : SpellScriptLoader("spell_hun_feign_death") { }
-
-        class spell_hun_feign_death_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_feign_death_AuraScript);
-
-            int32 health;
-            int32 focus;
-
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                health = GetTarget()->GetHealth();
-                focus = GetTarget()->GetPower(POWER_FOCUS);
-            }
-
-            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (health && focus)
-                {
-                    GetTarget()->SetHealth(health);
-                    GetTarget()->SetPower(POWER_FOCUS, focus);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_hun_feign_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_FEIGN_DEATH, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_feign_death_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_FEIGN_DEATH, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_feign_death_AuraScript();
-        }
-};
-
 // Camouflage - 51755
 class spell_hun_camouflage_visual: public SpellScriptLoader
 {
@@ -3829,7 +3788,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_binding_shot();
     new spell_hun_binding_shot_zone();
     new spell_hun_powershot();
-    new spell_hun_feign_death();
     new spell_hun_camouflage_visual();
     new spell_hun_serpent_spread();
     new spell_hun_ancient_hysteria();

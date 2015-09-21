@@ -1882,8 +1882,9 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         if (unitTarget->HasAura(48920) && (unitTarget->GetHealth() + addhealth >= unitTarget->GetMaxHealth()))
             unitTarget->RemoveAura(48920);
 
-        /// Custom MoP Script
-        /// 77495 - Mastery : Harmony last update 5.0.1 (Tue Aug 28 2012) Build 15640
+        /// Custom WoD Script
+        /// last update : 6.1.2 19802
+        /// 77495 - Mastery : Harmony
         if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_DRUID)
         {
             /// Can't proc from Ysera's Gift
@@ -1891,15 +1892,13 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             {
                 if (addhealth)
                 {
-                    float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25 / 100.0f;
-
                     if (m_spellInfo->HasEffect(SPELL_EFFECT_HEAL))
                     {
-                        addhealth *= (1 + Mastery);
-
-                        int32 bp = int32(100.0f * Mastery);
-
-                        caster->CastCustomSpell(caster, 100977, &bp, NULL, NULL, true);
+                        if (AuraEffectPtr l_AuraHarmony = caster->GetAuraEffect(77495, EFFECT_0))
+                        {
+                            int32 l_Bp = l_AuraHarmony->GetAmount();
+                            caster->CastCustomSpell(caster, 100977, &l_Bp, NULL, NULL, true);
+                        }
                     }
                 }
             }

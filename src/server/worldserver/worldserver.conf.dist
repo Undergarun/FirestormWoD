@@ -3178,6 +3178,13 @@ LastClientBuild = 19342
 #        Default:     1 - (Enabled)
 LogPackets = 1
 
+#   DisableSpellSpecializationCheck
+#        Description: Disable spell specialization check (in case it breaks spells).
+#        Default:     0 - (Disabled, specialization is checked at spell cast)
+#                     1 - (Enabled, specialization check is disabled)
+
+DisableSpellSpecializationCheck = 0
+
 ###################################################################################################
 # VIP CONFIG
 #

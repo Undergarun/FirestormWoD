@@ -614,7 +614,7 @@ class spell_rog_killing_spree: public SpellScriptLoader
 
                         l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
                         {
-                            if (p_Unit == nullptr || p_Unit->HasCrowdControlAura() || !l_Caster->IsValidAttackTarget(p_Unit))
+                            if (p_Unit == nullptr || p_Unit->HasBreakableByDamageCrowdControlAura() || !l_Caster->IsValidAttackTarget(p_Unit))
                                 return true;
 
                             return false;
@@ -1948,7 +1948,8 @@ public:
         Subterfuge = 108208,
         StealthSubterfuge = 115191,
         StealthSubterfugeEffect = 115192,
-        GlyphOfDisappearance = 159638
+        GlyphOfDisappearance = 159638,
+        GlyphOfVanish = 89758
     };
 
     class spell_rog_vanish_AuraScript : public AuraScript
@@ -1964,7 +1965,7 @@ public:
             }
         }
 
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
             {
@@ -1972,6 +1973,10 @@ public:
                 l_Player->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
                 l_Player->CastSpell(l_Player, eSpells::StealthShapeshift, true);
+
+                /// Glyph of Vanish
+                if (AuraEffectPtr l_AurGlyphOfVanish = l_Player->GetAuraEffect(eSpells::GlyphOfVanish, EFFECT_0))
+                    p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() + l_AurGlyphOfVanish->GetAmount());
 
                 /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
                 if (l_Player->getLevel() == 100)

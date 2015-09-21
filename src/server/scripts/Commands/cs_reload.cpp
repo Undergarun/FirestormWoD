@@ -631,6 +631,10 @@ public:
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading GameObjects for quests...");
         sObjectMgr->LoadGameObjectForQuests();
         handler->SendGlobalGMSysMessage("Data GameObjects for quests reloaded.");
+        
+        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Quest Objectives...");
+        sObjectMgr->LoadQuestObjectives();
+        handler->SendGlobalGMSysMessage("Quest objectives have been reloaded.");
         return true;
     }
 
