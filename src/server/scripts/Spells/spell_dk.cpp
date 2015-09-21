@@ -1730,12 +1730,21 @@ class spell_dk_icy_touch: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_icy_touch_SpellScript);
 
+            enum eSpells
+            {
+                chilbrains = 50041,
+                chilbrainsAura = 50435
+            };
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
 
                 GetCaster()->CastSpell(GetHitUnit(), DK_SPELL_FROST_FEVER, true);
+
+                if (GetCaster()->HasAura(eSpells::chilbrains))
+                    GetCaster()->CastSpell(GetHitUnit(), eSpells::chilbrainsAura, true);
             }
 
             void Register()
@@ -2113,7 +2122,8 @@ class spell_dk_chilblains: public SpellScriptLoader
 
             enum eSpell
             {
-                ChainOfIceRoot = 96294
+                ChainOfIceRoot = 96294,
+                chilbrainsAura = 50435
             };
 
             void HandleOnHit()
@@ -2123,7 +2133,10 @@ class spell_dk_chilblains: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (l_Caster->HasAura(DK_SPELL_CHILBLAINS))
+                        {
+                            l_Caster->CastSpell(l_Target, eSpell::chilbrainsAura, true);
                             l_Caster->CastSpell(l_Target, eSpell::ChainOfIceRoot, true);
+                        }
                     }
                 }
             }
@@ -2169,47 +2182,6 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dk_chilblains_aura_AuraScript();
-        }
-};
-
-/// last update : 6.1.2 19802
-/// Frost Fever - 55095
-class spell_dk_frost_fever : public SpellScriptLoader
-{
-    public:
-        spell_dk_frost_fever() : SpellScriptLoader("spell_dk_frost_fever") { }
-
-        class spell_dk_frost_fever_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_frost_fever_AuraScript);
-
-            enum eSpells
-            {
-                chilbrains = 50041,
-                chilbrainsAura = 50435
-            };
-
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-            {
-                Unit* l_Target = GetTarget();
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster == nullptr)
-                    return;
-
-                if (l_Caster->HasAura(eSpells::chilbrains))
-                    l_Caster->CastSpell(l_Target, eSpells::chilbrainsAura, true);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_dk_frost_fever_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY));
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_frost_fever_AuraScript();
         }
 };
 
@@ -2967,7 +2939,6 @@ class spell_dk_presences : public SpellScriptLoader
 
 void AddSC_deathknight_spell_scripts()
 {
-    new spell_dk_frost_fever();
     new spell_dk_death_coil();
     new spell_dk_empowered_obliterate_icy_touch();
     new spell_dk_empowered_obliterate_howling_blast();

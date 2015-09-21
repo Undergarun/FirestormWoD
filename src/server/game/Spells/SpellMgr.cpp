@@ -3933,6 +3933,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RIGHT;
                 break;
+            case 8936: ///< Regrowth
+                spellInfo->Effects[0].BasePoints = 1;
+                break;
             case 136339: ///< Lightning Tether
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
@@ -4921,6 +4924,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 108945: ///< Angelic Bulwark
                 spellInfo->Effects[0].TriggerSpell = 114214;
+                break;
+            case 114867: ///< Soul Reaper
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CANT_BE_REFLECTED;
                 break;
             case 34428: ///< Victory Rush
                 spellInfo->OverrideSpellList.push_back(103840); ///< Impending Victory
@@ -6434,11 +6440,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 171253: ///< Garrison heartstone
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
-            case 104318: ///< Imp, Fel Firebolt
-            {
-                for (auto l_Iter : spellInfo->SpellPowers)
-                    ((SpellPowerEntry*)l_Iter)->Cost = 0;
-            }
             case 171690: ///< Truesteel Ingot
             case 169081: ///< War Paints
             case 168835: ///< Hexweave Cloth
@@ -6489,6 +6490,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 91802: ///< Shambling Rush
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 0;
+                break;
+            case 143333: ///< Water walking aura
+                spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_NOT_MOUNTED;
+				break;
+            case 157698: ///< Haunting Spirits
+                spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
                 break;
             default:
                 break;
@@ -6553,6 +6560,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 147490: ///< Healing Rain
                 case 120644: ///< Halo (damage)
                 case 120517: ///< Halo (heal)
                 case 61882: ///< Earthquake

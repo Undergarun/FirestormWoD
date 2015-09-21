@@ -645,40 +645,13 @@ bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint
     return false;
 }
 
-bool Unit::HasCrowdControlAuraType(AuraType p_Type, uint32 p_ExcludeAura) const
-{
-    AuraEffectList const& l_Auras = GetAuraEffectsByType(p_Type);
-    for (AuraEffectList::const_iterator l_Iter = l_Auras.begin(); l_Iter != l_Auras.end(); ++l_Iter)
-    {
-        if ((!p_ExcludeAura || p_ExcludeAura != (*l_Iter)->GetSpellInfo()->Id) && ///< Avoid self interrupt of channeled Crowd Control spells like Seduction
-            ((*l_Iter)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*l_Iter)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT | AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
-            return true;
-    }
-    return false;
-}
-
-bool Unit::HasCrowdControlAura(Unit* excludeCasterChannel) const
-{
-    uint32 excludeAura = 0;
-    if (Spell* currentChanneledSpell = excludeCasterChannel ? excludeCasterChannel->GetCurrentSpell(CURRENT_CHANNELED_SPELL) : NULL)
-        excludeAura = currentChanneledSpell->GetSpellInfo()->Id; //Avoid self interrupt of channeled Crowd Control spells like Seduction
-
-    return (   HasCrowdControlAuraType(SPELL_AURA_MOD_CONFUSE, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_MOD_FEAR, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_MOD_FEAR_2, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_MOD_STUN, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_MOD_ROOT_2, excludeAura)
-            || HasCrowdControlAuraType(SPELL_AURA_TRANSFORM, excludeAura));
-}
-
 bool Unit::HasBreakableByDamageAuraType(AuraType p_Type, uint32 p_ExcludeAura) const
 {
     AuraEffectList const& l_Auras = GetAuraEffectsByType(p_Type);
     for (AuraEffectList::const_iterator l_Iter = l_Auras.begin(); l_Iter != l_Auras.end(); ++l_Iter)
     {
         if ((!p_ExcludeAura || p_ExcludeAura != (*l_Iter)->GetSpellInfo()->Id) && ///< Avoid self interrupt of channeled Crowd Control spells like Seduction
-            ((*l_Iter)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*l_Iter)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
+            ((*l_Iter)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*l_Iter)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT | AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
             return true;
     }
     return false;
@@ -692,6 +665,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
     return (   HasBreakableByDamageAuraType(SPELL_AURA_MOD_CONFUSE, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR, excludeAura)
+            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR_2, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT_2, excludeAura)
@@ -6880,41 +6854,35 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggered_spell_id = 37436;
                     break;
                 }
-                case 44448: // Improved Hot Streak ///< @todo this spell is marked delete from game 
+                case 44448: ///< Pyroblast Clearcasting Driver
                 {
-                    if (effIndex != 0)
+                    if (!procSpell || !procSpell->CanTriggerHotStreak())
                         return false;
 
                     if (!damage && !(procEx & PROC_EX_ABSORB))
                         return false;
 
-                    if (!procSpell)
-                        return false;
-
-                    if (procEx & PROC_EX_INTERNAL_DOT)
-                        return false;
-
-                    if (!procSpell->CanTriggerHotStreak())
+                    if (procEx & (PROC_EX_INTERNAL_DOT | PROC_EX_INTERNAL_MULTISTRIKE))
                         return false;
 
                     if (procEx & PROC_EX_CRITICAL_HIT)
                     {
                         if (!HasAura(48107))
                         {
-                            CastSpell(this, 48107, true);
+                            CastSpell(this, 48107, true, castItem); ///< Heating Up
                             return true;
                         }
                         else
                         {
                             RemoveAura(48107);
-                            triggered_spell_id = 48108;
+                            triggered_spell_id = 48108; ///< Pyroblast!
                             target = this;
                             break;
                         }
                     }
                     else
                     {
-                        if (AuraPtr l_HeatingUp = this->GetAura(48107, this->GetGUID()))
+                        if (AuraPtr l_HeatingUp = GetAura(48107, GetGUID()))
                             l_HeatingUp->SetDuration(500);
                         return false;
                     }
@@ -9429,7 +9397,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             ToPlayer()->AddSpellCooldown(108945, 0, 90 * IN_MILLISECONDS);
-            basepoints0 = int32(CountPctFromMaxHealth(20));
+            basepoints0 = int32(CountPctFromMaxHealth(15));
 
             break;
         }
@@ -11204,14 +11172,6 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
         }
     }
 
-    /// Health leech handling
-    if (GetTypeId() == TypeID::TYPEID_PLAYER && addhealth > 0 && spellProto && spellProto->Id != SPELL_PLAYER_LIFE_STEAL)
-    {
-        float l_Percentage = GetFloatValue(EPlayerFields::PLAYER_FIELD_LIFESTEAL);
-        int32 l_Heal = CalculatePct(addhealth, (int32)l_Percentage);
-        CastCustomSpell(this, SPELL_PLAYER_LIFE_STEAL, &l_Heal, nullptr, nullptr, true);
-    }
-
     if (Player* player = unit->ToPlayer())
     {
         if (Battleground* bg = player->GetBattleground())
@@ -11522,14 +11482,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     {
         float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE);
         DoneTotal += CalculatePct(pdamage, PvPPower);
-    }
-
-    // Mastery : Emberstorm - 77220
-    // Increases the damage of spells wich consume Burning Embers (Shadowburn and Chaos Bolt)
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && spellProto && (spellProto->Id == 17877 || spellProto->Id == 116858))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
     // 76613 - Mastery : Icicles
@@ -11843,6 +11795,13 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             if (spellProto->SpellFamilyFlags[1] & 0x00400000 && isPet())
                 if (uint8 count = victim->GetDoTsByCaster(GetOwnerGUID()))
                     DoneTotalMod += CalculatePct(1.0f, 30 * count);
+            /// Mastery : Emberstorm - 77220
+            /// Increases the damage of spells wich consume Burning Embers (Shadowburn and Chaos Bolt)
+            if (GetTypeId() == TYPEID_PLAYER && HasAura(77220) && (spellProto->Id == 17877 || spellProto->Id == 116858))
+            {
+                float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
+                DoneTotalMod += CalculatePct(1.0f, Mastery);
+            }
             break;
     }
     return DoneTotalMod;
@@ -12097,15 +12056,25 @@ void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int
 
 void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType /* = WeaponAttackType::BaseAttack*/ , SpellInfo const* p_ProcAura /*= NULL*/, constAuraEffectPtr p_OwnerAuraEffect /*= NULL*/)
 {
+    uint32 l_InitialDamage = p_Damage;
+    Player* l_ModOwner = GetSpellModOwner();
+
     /// ...the chance to activate up to two extra times (depending if PvE or PvP) at X% of normal effectiveness
-    uint8 l_ProcTimes = (p_Target->GetSpellModOwner() != nullptr) ? 1 : 2;
+    uint8 l_ProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
+    if (p_ProcExtra & PROC_EX_CRITICAL_HIT)
+    {
+        if (l_ProcTimes < 2)
+            l_InitialDamage = (l_InitialDamage / 3) * 2;
+        else
+            l_InitialDamage /= 2;
+    }
     for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
     {
         if (IsSpellMultistrike(p_ProcSpell))
         {
             bool l_IsCrit = false;
 
-            uint32 l_MultistrikeDamage = GetMultistrikeBasePoints(p_Damage);
+            uint32 l_MultistrikeDamage = GetMultistrikeBasePoints(l_InitialDamage);
 
             if (p_ProcSpell && roll_chance_f(GetUnitSpellCriticalChance(p_Target, p_ProcSpell, p_ProcSpell->GetSchoolMask())))
                 l_IsCrit = true;
@@ -12116,9 +12085,6 @@ void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 
                 l_MultistrikeDamage = SpellCriticalDamageBonus(p_ProcSpell, l_MultistrikeDamage, p_Target);
             else if (l_IsCrit && !p_ProcSpell)
                 l_MultistrikeDamage = MeleeCriticalDamageBonus(nullptr, l_MultistrikeDamage, p_Target, p_AttType);
-
-            if (p_ProcExtra & PROC_EX_CRITICAL_HIT)
-                l_IsCrit = true;
 
             uint32 l_DoneProcFlag = p_ProcFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK;
             uint32 l_TakenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
@@ -14396,19 +14362,25 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if (GetTypeId() == TYPEID_UNIT)
             {
                 Unit* pOwner = GetCharmerOrOwner();
-                if ((isPet() || isGuardian()) && !isInCombat() && pOwner) // Must check for owner or crash on "Tame Beast"
+                if ((isPet() || isGuardian()) && pOwner) // Must check for owner or crash on "Tame Beast"
                 {
-                    // For every yard over 5, increase speed by 0.01
-                    //  to help prevent pet from lagging behind and despawning
-                    float dist = GetDistance(pOwner);
                     float base_rate = 1.14f; // base speed is 114% of owner speed
 
-                    if (dist < 5)
-                        dist = 5;
+                    if (!isInCombat())
+                    {
+                        // For every yard over 5, increase speed by 0.01
+                        //  to help prevent pet from lagging behind and despawning
+                        float dist = GetDistance(pOwner);
 
-                    float mult = base_rate + ((dist - 5) * 0.01f);
+                        if (dist < 5)
+                            dist = 5;
 
-                    speed *= pOwner->GetSpeedRate(mtype) * mult; // pets derive speed from owner when not in combat
+                        float mult = base_rate + ((dist - 5) * 0.01f);
+
+                        speed *= pOwner->GetSpeedRate(mtype) * mult; // pets derive speed from owner when not in combat
+                    }
+                    else
+                        speed *= base_rate;
                 }
                 else
                     speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
@@ -14456,6 +14428,9 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 speed = min_speed;
         }
     }
+
+    if (speed > roundf(speed * 100))
+        speed += 0.01f;
 
     SetSpeed(mtype, speed, forced);
 }
@@ -16728,17 +16703,20 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Words of Mending - 152117
-    if (HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL)
+    if (HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL && procSpell->Id != 77489)
     {
         if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
         {
             if (HasAura(155363))
             {
-                CastSpell(target, 33076, true);
-                RemoveAura(155363);
+                if (HasAura(155362))
+                    RemoveAura(155362);
+                else
+                {
+                    CastSpell(target, 33076, true);
+                    RemoveAura(155363);
+                }
             }
-            else
-                CastSpell(this, 155362, true);
         }
     }
 

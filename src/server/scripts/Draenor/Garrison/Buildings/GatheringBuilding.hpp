@@ -160,8 +160,11 @@ namespace MS { namespace Garrison
                 l_Owner->GetGarrison()->SetBuildingGatheringData(GetPlotInstanceID(), l_Str.str());
             }
             /// Update gathering plots
-            void UpdateGatheringPlots()
+            void UpdateGatheringPlots(int p_Recursion = 0)
             {
+                if (p_Recursion >= 10)
+                    return;
+                    
                 Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
                 if (!l_GarrisonSite)
@@ -179,10 +182,10 @@ namespace MS { namespace Garrison
 
                 Tokenizer l_Datas(l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
 
-                if (l_Datas.size() < 4 || l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()) == "")
+                if (l_Datas.size() < 4 || l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()) == "" || p_Recursion >= 5)
                 {
                     InitGatheringPlots(0);
-                    UpdateGatheringPlots();
+                    UpdateGatheringPlots(p_Recursion + 1);
                     return;
                 }
                 
@@ -192,7 +195,7 @@ namespace MS { namespace Garrison
                 uint32 l_NextSpawnTimeStamp = atol(l_Datas[l_Index++]);
                 uint32 l_BuildingLevel      = atol(l_Datas[l_Index++]);
 
-                auto l_UpdateRecursive = [this, &l_Owner, &l_MiscData, &l_PrevSpawnTimeStamp, &l_NextSpawnTimeStamp, &l_BuildingEntry]() -> void
+                auto l_UpdateRecursive = [this, &l_Owner, &l_MiscData, &l_PrevSpawnTimeStamp, &l_NextSpawnTimeStamp, &l_BuildingEntry, p_Recursion]() -> void
                 {
                     std::ostringstream l_Str;
                     l_Str << l_MiscData << " " << l_PrevSpawnTimeStamp << " " << l_NextSpawnTimeStamp << " " << l_BuildingEntry->BuildingLevel;
@@ -206,7 +209,7 @@ namespace MS { namespace Garrison
                     }
 
                     l_Owner->GetGarrison()->SetBuildingGatheringData(GetPlotInstanceID(), l_Str.str());
-                    UpdateGatheringPlots();
+                    UpdateGatheringPlots(p_Recursion + 1);
                 };
 
                 if (l_BuildingLevel == l_BuildingEntry->BuildingLevel)
@@ -299,7 +302,7 @@ namespace MS { namespace Garrison
                     float l_PlotX = l_Plot.X;
                     float l_PlotY = l_Plot.Y;
                     float l_PlotZ = l_Plot.Z;
-                    
+
                     TransformCoord(l_PlotX, l_PlotY, l_PlotZ);
 
                     if (l_Position.GetExactDist2d(l_PlotX, l_PlotY) < 0.1)

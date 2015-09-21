@@ -316,10 +316,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         }
         else
         {
-            if (savedhealth > GetMaxHealth())
+            if (savedhealth > GetMaxHealth() || savedhealth < 1)
                 savedhealth = GetMaxHealth();
-            else if (savedhealth < 1)
-                savedhealth = 1;
             SetHealth(savedhealth);
             SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
             SetPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
