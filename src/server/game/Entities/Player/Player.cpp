@@ -26177,8 +26177,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
     {
         // use +MONTH as infinity mark for spell cooldown (will checked as MONTH/2 at save ans skipped)
         // but not allow ignore until reset or re-login
-        l_CategoryCooldownTime = l_CategoryCooldown > 0 ? p_InfinityCooldown : 0;
-        l_CooldownTime         = l_Cooldown         > 0 ? p_InfinityCooldown : l_CategoryCooldownTime;
+        l_CategoryCooldownTime = l_CategoryCooldown > 0 ? infinityCooldownDelay : 0;
+        l_CooldownTime         = l_Cooldown         > 0 ? infinityCooldownDelay : l_CategoryCooldownTime;
     }
     else
     {
@@ -26321,7 +26321,7 @@ void Player::SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID, S
 
 void Player::UpdatePotionCooldown(Spell* spell)
 {
-    // no potion used i combat or still in combat
+    // no potion used in combat or still in combat
     if (!m_lastPotionId || isInCombat())
         return;
 
@@ -26330,22 +26330,10 @@ void Player::UpdatePotionCooldown(Spell* spell)
     {
         // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
-        {
-            bool found = false;
-            for (uint8 idx = 0; idx < MAX_ITEM_SPELLS; ++idx)
-                if (proto->Spells[idx].SpellId && proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
+            for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
+                if (proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
                     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
-                    {
-                        if (!HasSpellCooldown(spellInfo->Id))
                             SendCooldownEvent(spellInfo, m_lastPotionId);
-                        found = true;
-                    }
-            // if not - used by Spinal Healing Injector
-            if (!found)
-            {
-                SendCooldownEvent(sSpellMgr->GetSpellInfo(82184), m_lastPotionId);
-            }
-        }
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else
