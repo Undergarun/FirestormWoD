@@ -3634,15 +3634,22 @@ class spell_warl_healthstone : public SpellScriptLoader
                 GlyphOfHealthstone = 56224
             };
 
-            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
+            void HandleHeal(SpellEffIndex p_EffIndex)
             {
                 if (GetCaster()->HasAura(eSpells::GlyphOfHealthstone))
-                    PreventHitHeal();
+                    PreventHitDefaultEffect(p_EffIndex);
+            }
+
+            void HandlePeriodicHeal(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (!GetCaster()->HasAura(eSpells::GlyphOfHealthstone))
+                    PreventHitAura();
             }
 
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_warl_healthstone_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_healthstone_SpellScript::HandlePeriodicHeal, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
