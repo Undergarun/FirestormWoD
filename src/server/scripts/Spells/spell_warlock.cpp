@@ -703,11 +703,18 @@ class spell_warl_agony: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_agony_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_ApplyMode*/)
             {
                 if (GetCaster())
-                    if (AuraPtr l_Agony = GetTarget()->GetAura(aurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                        l_Agony->ModStackAmount(aurEff->GetBaseAmount());
+                    if (AuraPtr l_Agony = GetTarget()->GetAura(p_AurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
+                        l_Agony->SetStackAmount(3);
+            }
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (GetCaster())
+                    if (AuraPtr l_Agony = GetTarget()->GetAura(p_AurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
+                        l_Agony->ModStackAmount(p_AurEff->GetBaseAmount());
             }
 
             bool CanRefreshProcDummy()
@@ -717,6 +724,7 @@ class spell_warl_agony: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_agony_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
                 CanRefreshProc += AuraCanRefreshProcFn(spell_warl_agony_AuraScript::CanRefreshProcDummy);
             }
