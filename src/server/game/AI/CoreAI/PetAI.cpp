@@ -420,15 +420,12 @@ void PetAI::HandleReturnMovement()
         if (!me->GetCharmInfo()->IsAtStay() && !me->GetCharmInfo()->IsReturning())
         {
             // Return to previous position where stay was clicked
-            if (!me->GetCharmInfo()->IsCommandAttack())
-            {
-                float x, y, z;
+            float x, y, z;
 
-                me->GetCharmInfo()->GetStayPosition(x, y, z);
-                me->GetCharmInfo()->SetIsReturning(true);
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, z);
-            }
+            me->GetCharmInfo()->GetStayPosition(x, y, z);
+            me->GetCharmInfo()->SetIsReturning(true);
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, z);
         }
     }
     else if (me->GetCharmInfo()->HasCommandState(COMMAND_MOVE_TO))
@@ -439,12 +436,9 @@ void PetAI::HandleReturnMovement()
     {
         if (!me->GetCharmInfo()->IsFollowing() && !me->GetCharmInfo()->IsReturning())
         {
-            if (!me->GetCharmInfo()->IsCommandAttack())
-            {
-                me->GetCharmInfo()->SetIsReturning(true);
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
-            }
+            me->GetCharmInfo()->SetIsReturning(true);
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
         }
     }
 }
