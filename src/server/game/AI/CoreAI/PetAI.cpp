@@ -95,7 +95,8 @@ void PetAI::UpdateAI(const uint32 diff)
     if (me->getVictim())
     {
         // is only necessary to stop casting, the pet must not exit combat
-        if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
+        if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && // ignore channeled spells (Pin, Seduction)
+            me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
         {
             me->InterruptNonMeleeSpellsExcept(false, 90337);    // hack for Bad Manner
             return;
