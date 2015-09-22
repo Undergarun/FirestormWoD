@@ -3808,6 +3808,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 94954: ///< Heroic Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
+            case 17007:///< Leader of the Pack
+            case 16864:///< Omen of Clarity
+            case 16961:///< Primal Fury
             case 159232:///< Ursa Major
             case 159362:///< Blood Craze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
