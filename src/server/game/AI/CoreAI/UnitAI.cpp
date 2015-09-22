@@ -109,8 +109,6 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
                     me->AddAura(spellid, unit);
         }
     }
-    else
-        return;
 }
 
 void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
@@ -125,8 +123,6 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
                     me->CastSpell(unit, spellid, triggered);
         }
     }
-    else
-        return;
 }
 
 void UnitAI::DoCast(uint32 spellId)
