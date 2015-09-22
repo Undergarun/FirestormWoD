@@ -18370,6 +18370,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             }
             return true;
         }
+        
+        if (p_Reward == 0)
+            return true;
+        
         return false;
     }
 
