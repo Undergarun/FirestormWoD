@@ -1545,6 +1545,22 @@ class spell_pal_word_of_glory: public SpellScriptLoader
                 return true;
             }
 
+            SpellCastResult CheckTarget()
+            {
+                /// Since this spell can be used on any unit (friendly/enemy) with the Glyph of Harsh Words,
+                /// the target has to be checked.
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetExplTargetUnit())
+                    {
+                        if (!l_Target->IsFriendlyTo(l_Caster) && !l_Caster->_IsValidAttackTarget(l_Target, GetSpellInfo()))
+                            return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
+                    }
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
             void HandleOnCast()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -1589,6 +1605,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_pal_word_of_glory_SpellScript::CheckTarget);
                 OnCast += SpellCastFn(spell_pal_word_of_glory_SpellScript::HandleOnCast);
                 OnHit += SpellHitFn(spell_pal_word_of_glory_SpellScript::HandleOnHit);
             }
