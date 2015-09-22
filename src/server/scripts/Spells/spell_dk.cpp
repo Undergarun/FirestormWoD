@@ -398,7 +398,8 @@ class spell_dk_festering_strike: public SpellScriptLoader
         }
 };
 
-// Death Strike heal - 45470
+/// last update : 6.1.2 19802
+/// Death Strike heal - 45470
 class spell_dk_death_strike_heal: public SpellScriptLoader
 {
     public:
@@ -408,22 +409,17 @@ class spell_dk_death_strike_heal: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_death_strike_heal_SpellScript);
 
+            enum eSpells
+            {
+                ScentOfBloodAura = 50421
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (AuraPtr scentOfBlood = _player->GetAura(DK_SPELL_SCENT_OF_BLOOD_AURA))
-                        {
-                            uint8 chg = scentOfBlood->GetStackAmount();
-                            uint32 hl = GetHitHeal() * 0.2 * chg;
-                            SetHitHeal(GetHitHeal() + hl);
-                        }
+                Unit* l_Caster = GetCaster();
 
-                        _player->RemoveAura(DK_SPELL_SCENT_OF_BLOOD_AURA);
-                    }
-                }
+                if (l_Caster->HasAura(eSpells::ScentOfBloodAura))
+                    l_Caster->RemoveAura(eSpells::ScentOfBloodAura);
             }
 
             void Register()
