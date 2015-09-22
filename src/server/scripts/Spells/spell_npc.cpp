@@ -915,22 +915,20 @@ class spell_npc_warl_wild_imp : public CreatureScript
 
             void UpdateAI(const uint32 p_Diff)
             {
-                if (!UpdateVictim())
+                if (Unit* l_Owner = me->GetOwner())
                 {
-                    if (Unit* l_Owner = me->GetOwner())
-                    {
-                        Unit* l_OwnerTarget = nullptr;
+                    Unit* l_OwnerTarget = l_Owner->getVictim();
+
+                    if (l_OwnerTarget == nullptr)
                         if (Player* l_Player = l_Owner->ToPlayer())
                             l_OwnerTarget = l_Player->GetSelectedUnit();
-                        else
-                            l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget)
-                            AttackStart(l_OwnerTarget);
-                    }
-
-                    return;
+                    if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && (!me->getVictim() || me->getVictim() != l_OwnerTarget))
+                        AttackStart(l_OwnerTarget);
                 }
+
+                if (!me->getVictim())
+                    return;
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -983,22 +981,20 @@ class spell_npc_warl_doomguard: public CreatureScript
 
             void UpdateAI(const uint32 p_Diff)
             {
-                if (!UpdateVictim())
+                if (Unit* l_Owner = me->GetOwner())
                 {
-                    if (Unit* l_Owner = me->GetOwner())
-                    {
-                        Unit* l_OwnerTarget = nullptr;
+                    Unit* l_OwnerTarget = l_Owner->getVictim();
+
+                    if (l_OwnerTarget == nullptr)
                         if (Player* l_Player = l_Owner->ToPlayer())
                             l_OwnerTarget = l_Player->GetSelectedUnit();
-                        else
-                            l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget)
-                            AttackStart(l_OwnerTarget);
-                    }
-
-                    return;
+                    if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && (!me->getVictim() || me->getVictim() != l_OwnerTarget))
+                        AttackStart(l_OwnerTarget);
                 }
+
+                if (!me->getVictim())
+                    return;
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
