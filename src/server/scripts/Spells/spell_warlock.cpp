@@ -3162,42 +3162,54 @@ public:
     }
 };
 
-// Cataclysm - 152108
+/// last update : 6.1.2 19802
+/// Cataclysm - 152108
 class spell_warl_cataclysm : public SpellScriptLoader
 {
-public:
-    spell_warl_cataclysm() : SpellScriptLoader("spell_warl_cataclysm") { }
+    public:
+        spell_warl_cataclysm() : SpellScriptLoader("spell_warl_cataclysm") { }
 
-    class spell_warl_cataclysm_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_cataclysm_SpellScript);
-
-        void HandleOnHit()
+        class spell_warl_cataclysm_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_warl_cataclysm_SpellScript);
+
+            enum eSpells
             {
-                if (Unit* l_Target = GetHitUnit())
+                Immolate = 157736,
+                Agony = 980,
+                Corrupation = 172,
+                UnstableAffliction = 30108
+            };
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
+                    l_Player->CastSpell(l_Target, eSpells::Immolate, true);
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
                 {
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
-                        l_Player->CastSpell(l_Target, WARLOCK_IMMOLATE, true);
-                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
-                        l_Player->CastSpell(l_Target, WARLOCK_AGONY, true);
-                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        l_Player->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
+                    l_Player->CastSpell(l_Target, eSpells::Agony, true);
+                    l_Player->CastSpell(l_Target, eSpells::UnstableAffliction, true);
                 }
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                    l_Player->CastSpell(l_Target, eSpells::Corrupation, true);
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_cataclysm_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_warl_cataclysm_SpellScript::HandleOnHit);
+            return new spell_warl_cataclysm_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_cataclysm_SpellScript();
-    }
 };
 
 enum HavocSpells
