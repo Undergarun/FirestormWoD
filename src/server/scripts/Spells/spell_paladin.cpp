@@ -1545,6 +1545,22 @@ class spell_pal_word_of_glory: public SpellScriptLoader
                 return true;
             }
 
+            SpellCastResult CheckTarget()
+            {
+                /// Since this spell can be used on any unit (friendly/enemy) with the Glyph of Harsh Words,
+                /// the target has to be checked.
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetExplTargetUnit())
+                    {
+                        if (!l_Target->IsFriendlyTo(l_Caster) && !l_Caster->_IsValidAttackTarget(l_Target, GetSpellInfo()))
+                            return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
+                    }
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
             void HandleOnCast()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -1553,30 +1569,30 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (!l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
-                            if ((l_Target->GetTypeId() != TYPEID_PLAYER && !l_Target->isPet()) || !l_Target->IsFriendlyTo(l_Player))
-                                l_Target = l_Player;
+                        if (!l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
+                            if ((l_Target->GetTypeId() != TYPEID_PLAYER && !l_Target->isPet()) || !l_Target->IsFriendlyTo(l_Caster))
+                                l_Target = l_Caster;
 
                         // Set HolyPower with value of OnPrepare because some Holy Power are consumed before OnHit and we need it for calculate
                         // HolyPower are consume after it
-                        l_Player->SetPower(POWER_HOLY_POWER, m_HolyPower);
+                        l_Caster->SetPower(POWER_HOLY_POWER, m_HolyPower);
 
-                        if (l_Target->IsFriendlyTo(l_Player))
-                            l_Player->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
-                        else if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
-                            l_Player->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
+                        if (l_Target->IsFriendlyTo(l_Caster))
+                            l_Caster->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
+                        else if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
+                            l_Caster->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
 
-                        if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Player))
+                        if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Caster))
                         {
-                            AuraPtr l_Aura = l_Player->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Player);
+                            AuraPtr l_Aura = l_Caster->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Caster);
 
                             if (l_Aura)
                             {
-                                if (m_HolyPower > 3 || l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                                if (m_HolyPower > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                                     m_HolyPower = 3;
 
                                 l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (m_HolyPower));
@@ -1589,6 +1605,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_pal_word_of_glory_SpellScript::CheckTarget);
                 OnCast += SpellCastFn(spell_pal_word_of_glory_SpellScript::HandleOnCast);
                 OnHit += SpellHitFn(spell_pal_word_of_glory_SpellScript::HandleOnHit);
             }
