@@ -816,7 +816,7 @@ struct ItemTemplate
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
-    SpecList specs;
+    SpecList specs[2];
     uint32 PvPScalingLevel;
 
     /// Item bonus group
@@ -933,19 +933,27 @@ struct ItemTemplate
         }
     }
 
-    void AddSpec(SpecIndex index) { specs.push_back(index); }
-    bool HasSpec() const { return !specs.empty(); }
-    bool HasClassSpec(uint8 Class) const
+    void AddSpec(SpecIndex index, uint32 level)
     {
-        for (auto itr : specs)
+        uint8 rangeIndex = level > 40;
+        specs[rangeIndex].push_back(index);
+    }
+
+    bool HasSpec() const { return !specs[1].empty(); }
+    
+    bool HasClassSpec(uint8 Class, uint32 level) const
+    {
+        uint8 rangeIndex = level > 40;
+        for (auto itr : specs[rangeIndex])
             if (GetClassBySpec(itr) == Class)
                 return true;
         return false;
     }
 
-    bool HasSpec(SpecIndex index) const
+    bool HasSpec(SpecIndex index, uint32 level) const
     {
-        for (auto itr : specs)
+        uint8 rangeIndex = level > 40;
+        for (auto itr : specs[rangeIndex])
             if (itr == index)
                 return true;
         return false;
