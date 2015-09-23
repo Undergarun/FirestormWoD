@@ -219,7 +219,7 @@ struct PlayerCurrency
    bool needResetCap;
 };
 
-typedef ACE_Based::LockedMap<uint32, PlayerTalent*> PlayerTalentMap;
+typedef std::map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef ACE_Based::LockedMap<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
 typedef ACE_Based::LockedMap<uint32, PlayerCurrency> PlayerCurrenciesMap;
