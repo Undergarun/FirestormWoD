@@ -24811,10 +24811,11 @@ void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
             else
             {
                 for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
-                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask && (p_Apply || (!p_Apply && p_Modifier != *l_It)))
                         AddPct(l_Value, (*l_It)->value);
 
-                AddPct(l_Value, p_Apply ? float(p_Modifier->value) : float(-p_Modifier->value));
+                if (p_Apply)
+                    AddPct(l_Value, p_Modifier->value);
             }
 
             l_Buffer << float(l_Value);
