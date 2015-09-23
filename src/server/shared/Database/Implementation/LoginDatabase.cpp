@@ -105,7 +105,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_UPD_TRANSFER_PDUMP, "UPDATE webshop_delivery_interrealm_transfer SET state = 1, dump = ? WHERE id = ?", CONNECTION_SYNCH);
 
     // Battle pets
-#define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account"
+#define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account, declinedGenitive, declinedNative, declinedAccusative, declinedInstrumental, declinedPrepositional"
 #define PETBATTLE_FULL_FIELDS "id, " PETBATTLE_FIELDS
     PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_ACCOUNT, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ? AND species < 1635", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_REP_PETBATTLE, "REPLACE INTO account_battlepet(" PETBATTLE_FULL_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
