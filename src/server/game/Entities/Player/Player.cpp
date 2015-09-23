@@ -24798,16 +24798,24 @@ void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
 
         if (p_Modifier->mask & l_Mask)
         {
-            float l_Value = 0.f;
+            float l_Value = p_Modifier->type == SPELLMOD_FLAT ? 0.f : 1.f;
 
-            for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
-                if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
-                    l_Value += float((*l_It)->value);
+            if (p_Modifier->type == SPELLMOD_FLAT)
+            {
+                for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                        l_Value += float((*l_It)->value);
 
-            l_Value += p_Apply ? float(p_Modifier->value) : float(-p_Modifier->value);
+                l_Value += p_Apply ? float(p_Modifier->value) : float(-p_Modifier->value);
+            }
+            else
+            {
+                for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                        AddPct(l_Value, (*l_It)->value);
 
-            if (p_Modifier->type == SPELLMOD_PCT)
-                l_Value = 1.0f + (l_Value * 0.01f);
+                AddPct(l_Value, p_Apply ? float(p_Modifier->value) : float(-p_Modifier->value));
+            }
 
             l_Buffer << float(l_Value);
             l_Buffer << uint8(l_EffectIndex);
