@@ -5661,7 +5661,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 980: ///< Agony
-                spellInfo->StackAmount = (spellInfo->GetDuration() / spellInfo->Effects[0].Amplitude) + 3;
+                spellInfo->StackAmount = 10;
                 break;
             case 131740: ///< Corruption (Malefic Grasp)
             case 131736: ///< Unstable Affliction (Malefic Grasp)

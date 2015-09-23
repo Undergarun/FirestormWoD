@@ -703,13 +703,6 @@ class spell_warl_agony: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_agony_AuraScript);
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_ApplyMode*/)
-            {
-                if (GetCaster())
-                    if (AuraPtr l_Agony = GetTarget()->GetAura(p_AurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                        l_Agony->SetStackAmount(3);
-            }
-
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (GetCaster())
@@ -724,8 +717,7 @@ class spell_warl_agony: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_warl_agony_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 CanRefreshProc += AuraCanRefreshProcFn(spell_warl_agony_AuraScript::CanRefreshProcDummy);
             }
         };
