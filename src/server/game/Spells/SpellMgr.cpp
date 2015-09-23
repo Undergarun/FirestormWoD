@@ -5353,7 +5353,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 115072: ///< Expel Harm
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                 break;
             case 117952: ///< Crackling Jade Lightning
