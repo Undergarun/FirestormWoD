@@ -6490,7 +6490,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 12328:  ///< Sweeping Strikes
             case 1719:   ///< Recklessness
                 /// Can be casted in Battle Stance AND in Defensive Stance
-                spellInfo->Stances |= ((uint64)1L << (ShapeshiftForm::FORM_DEFENSIVESTANCE - 1));
+                /// @Todo: remove when SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT is handled
+                spellInfo->Stances |= UI64LIT(1) << (ShapeshiftForm::FORM_DEFENSIVESTANCE - 1);
                 break;
             case 91809: ///< Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
