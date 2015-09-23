@@ -621,7 +621,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
     snprintf(newguid, 20, "%u", p_Guid);
     snprintf(chraccount, 20, "%u", p_Account);
     snprintf(newpetid, 20, "%u", sObjectMgr->GeneratePetNumber());
-    snprintf(lastpetid, 20, "%u", 0);
+    snprintf(lastpetid, 20, "%d", 0);
     snprintf(atLogin, 20, "%u", p_AtLogin);
     snprintf(l_NewGarrisonID, 20, "%u", sObjectMgr->GetNewGarrisonID());
 
@@ -753,7 +753,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                 if (l_Gold > (50000 * GOLD))
                 {
                     char l_MaxMoney[20];
-                    snprintf(l_MaxMoney, 20, "%u", 50000 * GOLD);
+                    snprintf(l_MaxMoney, 20, "%u", 50000U * GOLD);
 
                     if (!changenth(l_Line, l_Index, l_MaxMoney))
                     {
@@ -933,7 +933,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             {
                 uint64 newItemIdNum = sObjectMgr->GenerateVoidStorageItemId();
                 char newItemId[20];
-                snprintf(newItemId, 20, "%u", newItemIdNum);
+                snprintf(newItemId, 20, "%ull", newItemIdNum);
 
                 uint32 l_Index = GetFieldIndexFromColumn("itemId", l_Columns) + 1;
                 if (!changenth(l_Line, l_Index, newItemId))                             ///< character_void_storage.itemId update

@@ -225,10 +225,8 @@ public:
             m_Argus = false;
 
             uint32 l_Entries[4] = { TriggerDemonSummoning, CreatureCacklingPyromaniac, CreatureBlazingTrickster, CreatureFelguard };
-            for (int32 i = 0; i < 5; i++)
-            {
-                DespawnCreaturesInArea(l_Entries[i], me);
-            }
+            for (uint32 l_Entry : l_Entries)
+                DespawnCreaturesInArea(l_Entry, me);
         }
 
         void MoveInLineOfSight(Unit* p_Who)
@@ -290,10 +288,8 @@ public:
             }
 
             uint32 l_Entries[3] = { CreatureCacklingPyromaniac, CreatureBlazingTrickster, CreatureFelguard };
-            for (int32 i = 0; i < 4; i++)
-            {
-                DespawnCreaturesInArea(l_Entries[i], me);
-            }
+            for (uint32 l_Entry : l_Entries)
+                DespawnCreaturesInArea(l_Entry, me);
         }
 
         void EnterCombat(Unit* /*p_Who*/) override
@@ -351,10 +347,8 @@ public:
             }
 
             uint32 l_Entries[3] = { CreatureCacklingPyromaniac, CreatureBlazingTrickster, CreatureFelguard };
-            for (int32 i = 0; i < 4; i++)
-            {
-                DespawnCreaturesInArea(l_Entries[i], me);
-            }       
+            for (uint32 l_Entry : l_Entries)
+                DespawnCreaturesInArea(l_Entry, me);
         }
 
         void UpdateAI(uint32 const p_Diff) override

@@ -528,7 +528,7 @@ public:
                 {
                     std::list<Position> l_Position;
 
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 5; i++)
                         l_Position.push_back(g_PositionRandomMovements[i]);
 
                     std::list<Position>::const_iterator it = l_Position.begin();
@@ -547,7 +547,7 @@ public:
                 {
                     std::list<Position> l_Position;
 
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 5; i++)
                         l_Position.push_back(g_PositionRandomMovements[i]);
 
                     std::list<Position>::const_iterator it = l_Position.begin();
@@ -565,7 +565,7 @@ public:
                 case eXeritacEvents::EventVenomSprayers:
                 {
                     std::list<Position> l_Position;
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 5; i++)
                         l_Position.push_back(g_PositionRandomMovements[i]);
 
                     std::list<Position>::const_iterator it = l_Position.begin();
@@ -581,11 +581,11 @@ public:
                 {
                     if (roll_chance_i(50))
                     {
-                        me->SummonCreature(eEverbloomCreature::CreatureVenomCrazedPaleOne, g_PositionitionPaleOne[1], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                        me->SummonCreature(eEverbloomCreature::CreatureVenomCrazedPaleOne, g_PositionitionPaleOne[0], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                     }
                     else
                     {
-                        me->SummonCreature(eEverbloomCreature::CreatureVenomCrazedPaleOne, g_PositionitionPaleOne[2], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                        me->SummonCreature(eEverbloomCreature::CreatureVenomCrazedPaleOne, g_PositionitionPaleOne[1], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                     }
 
                     events.ScheduleEvent(eXeritacEvents::EventVenomCrazedPaleOne, 35 * TimeConstants::IN_MILLISECONDS);
@@ -1198,7 +1198,7 @@ public:
                 return;
 
             std::list<Player*>::const_iterator l_It = l_GaseousVolleyList.begin();
-            std::advance(l_It, urand(0, l_GaseousVolleyList.size() - 2 ? l_GaseousVolleyList.size() > 1 : 1));
+            std::advance(l_It, urand(0, (l_GaseousVolleyList.size() - 2) ? l_GaseousVolleyList.size() > 1 : 1));
 
             GetCaster()->CastSpell((*l_It), eXeritacSpells::SpellGasVolleyMissile, true);
         }

@@ -1389,7 +1389,7 @@ class spell_pri_atonement: public SpellScriptLoader
                     return;
 
                 SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(PRIEST_ATONEMENT_AURA);
-                if (!l_SpellInfoAtonement && !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
+                if (!l_SpellInfoAtonement || !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
                     return;
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
@@ -1455,7 +1455,7 @@ class spell_pri_atonement: public SpellScriptLoader
                     return;
 
                 SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(PRIEST_ATONEMENT_AURA);
-                if (!l_SpellInfoAtonement && !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
+                if (!l_SpellInfoAtonement || !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
                     return;
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)

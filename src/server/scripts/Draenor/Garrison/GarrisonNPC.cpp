@@ -298,9 +298,9 @@ namespace MS { namespace Garrison
 
                 /// transform plot coord
                 m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
+            
+                OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
             }
-
-            OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
         }
         else if (p_ID == CreatureAIDataIDs::BuildingID)
         {

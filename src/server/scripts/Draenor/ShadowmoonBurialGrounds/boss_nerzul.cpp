@@ -71,17 +71,6 @@ Position l_NerzulTeleportPosition = {1723.754f, -799.859f, 73.735f, 4.222427f};
 Position l_InitialPositionRight = { 1694.928f, -785.322f, 73.735f, 4.234663f };
 Position l_InitialPositionLeft  = { 1677.648f, -825.009f, 73.306f, 0.882368f };
 
-void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
-{
-    std::list<Creature*> creatures;
-    GetCreatureListWithEntryInGrid(creatures, object, entry, 5000.0f);
-    if (creatures.empty())
-        return;
-
-    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
-}
-
 /// Nerz'ul - 76407
 class boss_nerzul : public CreatureScript
 {
@@ -223,6 +212,17 @@ public:
             }
 
             DoMeleeAttackIfReady();
+        }
+
+        static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
+        {
+            std::list<Creature*> creatures;
+            GetCreatureListWithEntryInGrid(creatures, object, entry, 5000.0f);
+            if (creatures.empty())
+                return;
+
+            for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
+                (*iter)->DespawnOrUnsummon();
         }
     };
 

@@ -301,13 +301,13 @@ public:
                     Timer = 1000;
                     if (Phase == 3)
                     {
-                        if (!Essence->isAlive())
+                        if (Essence && !Essence->isAlive())
                             DoCast(me, 7, true);
                         else return;
                     }
                     else
                     {
-                        if (Essence->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                        if (Essence && Essence->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         {
                             MergeThreatList(Essence);
                             Essence->RemoveAllAuras();

@@ -125,7 +125,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
 {
     if (_target >= TOTAL_SPELL_TARGETS)
     {
-        printf("SPELL_TARGET overflow!! %u\r\n", _target);
+        printf("SPELL_TARGET overflow!! %d\r\n", _target); ///< Bad sprintf :'(
         return 0;
     }
 
@@ -3025,7 +3025,7 @@ uint32 SpellInfo::_GetExplicitTargetMask() const
 
         if (Effects[i].TargetA.GetTarget() >= TOTAL_SPELL_TARGETS)
         {
-            printf("%u SPELL_TARGET overflow!! %u\r\n", Id, Effects[i].TargetA.GetTarget());
+            printf("%u SPELL_TARGET overflow!! %d\r\n", Id, Effects[i].TargetA.GetTarget());
             continue;
         }
 
