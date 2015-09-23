@@ -594,7 +594,7 @@ class spell_npc_sha_storm_elemental : public CreatureScript
 class spell_npc_sha_fire_elemental : public CreatureScript
 {
     public:
-        spell_npc_sha_fire_elemental() : CreatureScript("15438") { }
+        spell_npc_sha_fire_elemental() : CreatureScript("spell_npc_sha_fire_elemental") { }
 
         struct spell_npc_sha_fire_elementalAI : public ScriptedAI
         {
