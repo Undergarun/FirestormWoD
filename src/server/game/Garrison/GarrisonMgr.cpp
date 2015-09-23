@@ -527,46 +527,45 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         {
-            PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_BUILDING);
+            PreparedStatement* l_BuildingStatement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_BUILDING);
 
-            uint32 l_Index = 0;
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].PlotInstanceID);
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].BuildingID);
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].SpecID);
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltStart);
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltEnd);
-            l_Stmt->setBool(l_Index++, m_Buildings[l_I].Active);
-            l_Stmt->setString(l_Index++, m_Buildings[l_I].GatheringData);
+            l_Index = 0;
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].PlotInstanceID);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].BuildingID);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].SpecID);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltStart);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltEnd);
+            l_BuildingStatement->setBool  (l_Index++, m_Buildings[l_I].Active);
+            l_BuildingStatement->setString(l_Index++, m_Buildings[l_I].GatheringData);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].DatabaseID);
+            l_BuildingStatement->setUInt32(l_Index++, m_ID);
 
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].DatabaseID);
-            l_Stmt->setUInt32(l_Index++, m_ID);
-
-            p_Transaction->Append(l_Stmt);
+            p_Transaction->Append(l_BuildingStatement);
         }
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
             if ((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) > time(0) || m_Missions[l_I].State == MissionStates::InProgress || m_Missions[l_I].State == MissionStates::CompleteSuccess)
             {
-                PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_MISSION);
+                PreparedStatement* l_MissionStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_MISSION);
 
-                uint32 l_Index = 0;
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].MissionID);
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].OfferTime);
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].OfferMaxDuration);
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].StartTime);
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].State);
+                l_Index = 0;
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].MissionID);
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].OfferTime);
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].OfferMaxDuration);
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].StartTime);
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].State);
 
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].DatabaseID);
-                l_Stmt->setUInt32(l_Index++, m_ID);
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].DatabaseID);
+                l_MissionStmt->setUInt32(l_Index++, m_ID);
 
-                p_Transaction->Append(l_Stmt);
+                p_Transaction->Append(l_MissionStmt);
             }
             else
             {
-                PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
-                l_Stmt->setUInt32(0, m_Missions[l_I].DatabaseID);
-                p_Transaction->Append(l_Stmt);
+                PreparedStatement * l_MissionStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
+                l_MissionStmt->setUInt32(0, m_Missions[l_I].DatabaseID);
+                p_Transaction->Append(l_MissionStmt);
             }
         }
 
@@ -577,24 +576,23 @@ namespace MS { namespace Garrison
             for (uint32 l_Y = 0; l_Y < m_Followers[l_I].Abilities.size(); ++l_Y)
                 l_Abilities << m_Followers[l_I].Abilities[l_Y] << ' ';
 
-            PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_FOLLOWER);
+            PreparedStatement* l_FollowerStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_FOLLOWER);
 
-            uint32 l_Index = 0;
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].FollowerID);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].Level);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].XP);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].Quality);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelArmor);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelWeapon);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].CurrentMissionID);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].CurrentBuildingID);
-            l_Stmt->setString(l_Index++, l_Abilities.str());
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].Flags);
+            l_Index = 0;
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].FollowerID);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Level);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].XP);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Quality);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelArmor);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelWeapon);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].CurrentMissionID);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].CurrentBuildingID);
+            l_FollowerStmt->setString(l_Index++, l_Abilities.str());
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Flags);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].DatabaseID);
+            l_FollowerStmt->setUInt32(l_Index++, m_ID);
 
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].DatabaseID);
-            l_Stmt->setUInt32(l_Index++, m_ID);
-
-            p_Transaction->Append(l_Stmt);
+            p_Transaction->Append(l_FollowerStmt);
         }
     }
 

@@ -3494,11 +3494,23 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 0;
                 break;
                 /// Everbloom
+            case 164643:
+            case 164886:
+            case 169658:
+            case 164965: ///< Choking Vines
             case 164834: ///< Barrage of Leaves
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
-            case 164886: ///< Dreadpetal Toxin
+            case 169223: ///< Toxic Gas
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 169376: ///< Venomous Sting
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 164885: ///< Dreadpetal Toxin
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
                 /// Auchindon
             case 156862: ///< Drain Soul Cosmetic
@@ -3796,6 +3808,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 94954: ///< Heroic Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
+            case 31220:///< Sinister Calling
+            case 17007:///< Leader of the Pack
+            case 16864:///< Omen of Clarity
+            case 16961:///< Primal Fury
             case 159232:///< Ursa Major
             case 159362:///< Blood Craze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
@@ -3961,6 +3977,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 134531: ///< Web Thread
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
+            case 132413: ///< Shadow Bulwark
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;
             case 152150:///< Death from Above (periodic dummy)
                 spellInfo->Effects[5].TargetA = TARGET_UNIT_TARGET_ENEMY;
@@ -4913,6 +4932,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108945: ///< Angelic Bulwark
                 spellInfo->Effects[0].TriggerSpell = 114214;
                 break;
+            case 114867: ///< Soul Reaper
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
             case 34428: ///< Victory Rush
                 spellInfo->OverrideSpellList.push_back(103840); ///< Impending Victory
                 break;
@@ -5639,7 +5661,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 980: ///< Agony
-                spellInfo->StackAmount = 10;
+                spellInfo->StackAmount = (spellInfo->GetDuration() / spellInfo->Effects[0].Amplitude) + 3;
                 break;
             case 131740: ///< Corruption (Malefic Grasp)
             case 131736: ///< Unstable Affliction (Malefic Grasp)
@@ -6475,6 +6497,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 91802: ///< Shambling Rush
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 0;
+                break;
+            case 143333: ///< Water walking aura
+                spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_NOT_MOUNTED;
+				break;
+            case 157698: ///< Haunting Spirits
+                spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
                 break;
             default:
                 break;

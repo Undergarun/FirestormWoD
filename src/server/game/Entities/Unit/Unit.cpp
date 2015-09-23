@@ -6854,41 +6854,35 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggered_spell_id = 37436;
                     break;
                 }
-                case 44448: // Improved Hot Streak ///< @todo this spell is marked delete from game 
+                case 44448: ///< Pyroblast Clearcasting Driver
                 {
-                    if (effIndex != 0)
+                    if (!procSpell || !procSpell->CanTriggerHotStreak())
                         return false;
 
                     if (!damage && !(procEx & PROC_EX_ABSORB))
                         return false;
 
-                    if (!procSpell)
-                        return false;
-
-                    if (procEx & PROC_EX_INTERNAL_DOT)
-                        return false;
-
-                    if (!procSpell->CanTriggerHotStreak())
+                    if (procEx & (PROC_EX_INTERNAL_DOT | PROC_EX_INTERNAL_MULTISTRIKE))
                         return false;
 
                     if (procEx & PROC_EX_CRITICAL_HIT)
                     {
                         if (!HasAura(48107))
                         {
-                            CastSpell(this, 48107, true);
+                            CastSpell(this, 48107, true, castItem); ///< Heating Up
                             return true;
                         }
                         else
                         {
                             RemoveAura(48107);
-                            triggered_spell_id = 48108;
+                            triggered_spell_id = 48108; ///< Pyroblast!
                             target = this;
                             break;
                         }
                     }
                     else
                     {
-                        if (AuraPtr l_HeatingUp = this->GetAura(48107, this->GetGUID()))
+                        if (AuraPtr l_HeatingUp = GetAura(48107, GetGUID()))
                             l_HeatingUp->SetDuration(500);
                         return false;
                     }
@@ -9403,7 +9397,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             ToPlayer()->AddSpellCooldown(108945, 0, 90 * IN_MILLISECONDS);
-            basepoints0 = int32(CountPctFromMaxHealth(20));
+            basepoints0 = int32(CountPctFromMaxHealth(15));
 
             break;
         }
@@ -11858,11 +11852,11 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             {
                 // Vendetta, should affect to all damage
                 case 79140:
-                    AddPct(TakenTotalMod, (*i)->GetAmount());
+                    TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
                     break;
                 default:
                     if ((*i)->IsAffectingSpell(spellProto))
-                        AddPct(TakenTotalMod, (*i)->GetAmount());
+                        TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
                     break;
             }
         }
@@ -11874,27 +11868,27 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         AuraEffectList const& mDamageDoneMechanic = GetAuraEffectsByType(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT);
         for (AuraEffectList::const_iterator i = mDamageDoneMechanic.begin(); i != mDamageDoneMechanic.end(); ++i)
             if (mechanicMask & uint32(1<<((*i)->GetMiscValue())))
-                AddPct(TakenTotalMod, (*i)->GetAmount());
+                TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
     }
 
     if (spellProto->IsTargetingArea())
     {
         if (GetTypeId() == TYPEID_PLAYER)
-            AddPct(TakenTotalMod, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
+            TakenTotalMod += CalculatePct(1.0f, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
 
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
-        AddPct(TakenTotalMod, mult);
+        TakenTotalMod += CalculatePct(1.0f, mult);
 
         if (caster->GetTypeId() == TYPEID_UNIT)
         {
             int32 u_mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
-            AddPct(TakenTotalMod, u_mult);
+            TakenTotalMod += CalculatePct(1.0f, u_mult);
         }
     }
 
     // Glyph of Inner Sanctum with Inner Fire
     if (HasAura(14771) && HasAura(588))
-        AddPct(TakenTotalMod, -6);
+        TakenTotalMod += CalculatePct(1.0f, -6);
 
     /// Prey on the Weak
     if (AuraEffectPtr l_PreyOnTheWeak = caster->GetAuraEffect(131511, SpellEffIndex::EFFECT_0))
@@ -11904,7 +11898,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             HasAura(1776) || ///< Gouge
             HasAura(6770) || ///< Sap
             HasAura(2094))   ///< Blind
-            AddPct(TakenTotalMod, l_PreyOnTheWeak->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, l_PreyOnTheWeak->GetAmount());
     }
 
     int32 TakenAdvertisedBenefit = SpellBaseDamageBonusTaken(spellProto->GetSchoolMask());
@@ -12139,7 +12133,8 @@ void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 
                     damageInfo.HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
                     damageInfo.damage = l_MultistrikeDamage;
 
-                    CalcAbsorbResist(p_Target, p_ProcSpell->GetSchoolMask(), p_ProcFlag & PROC_FLAG_DONE_PERIODIC ? DOT : SPELL_DIRECT_DAMAGE, p_Damage, &damageInfo.absorb, &damageInfo.resist, p_ProcSpell);
+                    CalcAbsorbResist(p_Target, p_ProcSpell->GetSchoolMask(), p_ProcFlag & PROC_FLAG_DONE_PERIODIC ? DOT : SPELL_DIRECT_DAMAGE, damageInfo.damage, &damageInfo.absorb, &damageInfo.resist, p_ProcSpell);
+                    damageInfo.damage -= damageInfo.absorb + damageInfo.resist;
                     DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
                     DealSpellDamage(&damageInfo, true);
 
@@ -12820,11 +12815,11 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     AuraEffectList const& modHealingPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_PCT);
     for (AuraEffectList::const_iterator i = modHealingPct.begin(); i != modHealingPct.end(); ++i)
-        AddPct(TakenTotalMod, (*i)->GetAmount());
+        TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
 
     // Tenacity increase healing % taken
     if (constAuraEffectPtr Tenacity = GetAuraEffect(58549, 0))
-        AddPct(TakenTotalMod, Tenacity->GetAmount());
+        TakenTotalMod += CalculatePct(1.0f, Tenacity->GetAmount());
 
     // Healing Done
     int32 TakenTotal = 0;
@@ -12867,15 +12862,15 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     for (AuraEffectList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
     {
         if (caster->GetGUID() == (*i)->GetCasterGUID() && (*i)->IsAffectingSpell(spellProto))
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
         else if ((*i)->GetBase()->GetId() == 974) // Hack fix for Earth Shield
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
     }
 
     AuraEffectList const& mHotPct = GetAuraEffectsByType(SPELL_AURA_MOD_HOT_PCT);
     for (AuraEffectList::const_iterator i = mHotPct.begin(); i != mHotPct.end(); ++i)
         if (damagetype == DOT)
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
@@ -16621,12 +16616,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())
         return;
     /// Multistrike...
+    int32 l_TotalDamage = damage + absorb;
     if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL) &&
-        damage && target && GetSpellModOwner() && !(procSpell && !procSpell->IsPositive() && target->GetGUID() == GetGUID()))
+        l_TotalDamage && target && GetSpellModOwner() && !(procSpell && !procSpell->IsPositive() && target->GetGUID() == GetGUID()))
         {
         /// ...grants your spells, abilities, and auto-attacks...
         if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
-            ProcMultistrike(procSpell, target, procFlag, procExtra, damage, attType, procAura, ownerAuraEffect);
+            ProcMultistrike(procSpell, target, procFlag, procExtra, l_TotalDamage, attType, procAura, ownerAuraEffect);
         }
 
     // For melee/ranged based attack need update skills and set some Aura states if victim present

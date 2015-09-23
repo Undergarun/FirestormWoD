@@ -2950,8 +2950,108 @@ class spell_sha_natures_guardian : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Call by Earth Shield - 974
+/// Item - Shaman WoD PvP Restoration 4P Bonus - 166063
+class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_sha_pvp_restoration_4p_bonus() : SpellScriptLoader("spell_sha_pvp_restoration_4p_bonus") { }
+
+        class spell_sha_pvp_restoration_4p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_pvp_restoration_4p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                ItemWodPvpRestoration4PBonus = 166063,
+                EarthShieldProc = 379
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr || !l_Caster->HasAura(eSpells::ItemWodPvpRestoration4PBonus))
+                    return;
+
+                float l_HealthPct = 0.0f;
+                AuraPtr l_AuraSetBonus = l_Caster->GetAura(eSpells::ItemWodPvpRestoration4PBonus);
+                if (AuraEffectPtr l_AuraEffectHealthPct = l_AuraSetBonus->GetEffect(EFFECT_2))
+                    l_HealthPct = (float)l_AuraEffectHealthPct->GetAmount();
+
+                if (p_EventInfo.GetDamageInfo() == nullptr || l_AuraSetBonus == nullptr)
+                    return;
+
+                Unit* l_Target = GetTarget();
+                if (l_Target->GetHealthPct() >= l_HealthPct && (100.f * (l_Target->GetHealth() - p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) < l_HealthPct)
+                {
+                    if (AuraEffectPtr l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
+                    {
+                        for (int8 i = 0; i < l_AuraEffectNbrProc->GetAmount(); ++i)
+                        {
+                            l_Caster->CastSpell(l_Target, eSpells::EarthShieldProc, true);
+                            p_AurEff->GetBase()->DropCharge();
+                        }
+                    }
+
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_pvp_restoration_4p_bonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_pvp_restoration_4p_bonus_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Spiritwalker's Grace - 79206
+class spell_sha_spiritwalkers_grace : public SpellScriptLoader
+{
+    public:
+        spell_sha_spiritwalkers_grace() : SpellScriptLoader("spell_sha_spiritwalkers_grace") { }
+
+        class spell_sha_spiritwalkers_grace_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_spiritwalkers_grace_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfSpiritwalkersGraceAura = 159651,
+                GlyphOfSpiritwalkersGrace = 159652
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphOfSpiritwalkersGraceAura))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfSpiritwalkersGrace, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_sha_spiritwalkers_grace_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_spiritwalkers_grace_SpellScript();
+        }
+};
+
+
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_spiritwalkers_grace();
+    new spell_sha_pvp_restoration_4p_bonus();
     new spell_sha_natures_guardian();
     new spell_sha_unleashed_fury();
     new spell_sha_high_tide();

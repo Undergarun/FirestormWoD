@@ -592,8 +592,11 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
             _groupRate * float(player->getLevel()) / _sumLevel : // Group rate depends on summary level.
             1.0f;                                                // Personal rate is 100%.
         if (_xp)
+        {
             // 4.2. Give XP.
-            _RewardXP(player, rate);
+            if (!(_victim->getLevel() > player->getLevel() && (_victim->getLevel() - player->getLevel()) > 6 && _group))
+                _RewardXP(player, rate);
+        }
         if (!_isBattleGround)
         {
             // If killer is in dungeon then all members receive full reputation at kill.
@@ -7944,13 +7947,23 @@ void Player::UpdateRating(CombatRating p_CombatRating)
 
         AuraEffectList const& l_HasteAuras = GetAuraEffectsByType(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK);
         for (AuraEffectList::const_iterator l_Iter = l_HasteAuras.begin(); l_Iter != l_HasteAuras.end(); ++l_Iter)
+        {
             if ((*l_Iter)->GetAmount() > 0)
+            {
                 l_HastePct *= (1.0f + (*l_Iter)->GetAmount() / 100.0f);
+                l_HastePct += (*l_Iter)->GetAmount();
+            }
+        }
 
         AuraEffectList const& l_MeleeSlowAuras = GetAuraEffectsByType(SPELL_AURA_MELEE_SLOW);
         for (AuraEffectList::const_iterator l_Iter = l_MeleeSlowAuras.begin(); l_Iter != l_MeleeSlowAuras.end(); ++l_Iter)
+        {
             if ((*l_Iter)->GetAmount() > 0)
+            {
                 l_HastePct *= (1.0f + (*l_Iter)->GetAmount() / 100.0f);
+                l_HastePct += (*l_Iter)->GetAmount();
+            }
+        }
 
         float l_Haste = 1.0f / (1.0f + l_HastePct / 100.0f);
 
@@ -18357,6 +18370,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             }
             return true;
         }
+        
+        if (p_Reward == 0)
+            return true;
+        
         return false;
     }
 
@@ -24781,16 +24798,24 @@ void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
 
         if (p_Modifier->mask & l_Mask)
         {
-            float l_Value = 0.f;
+            float l_Value = p_Modifier->type == SPELLMOD_FLAT ? 0.f : 1.f;
 
-            for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
-                if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
-                    l_Value += float((*l_It)->value);
+            if (p_Modifier->type == SPELLMOD_FLAT)
+            {
+                for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                        l_Value += float((*l_It)->value);
 
-            l_Value += p_Apply ? float(p_Modifier->value) : float(-p_Modifier->value);
+                l_Value += p_Apply ? float(p_Modifier->value) : float(-p_Modifier->value);
+            }
+            else
+            {
+                for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                        AddPct(l_Value, (*l_It)->value);
 
-            if (p_Modifier->type == SPELLMOD_PCT)
-                l_Value = 1.0f + (l_Value * 0.01f);
+                AddPct(l_Value, p_Apply ? float(p_Modifier->value) : float(-p_Modifier->value));
+            }
 
             l_Buffer << float(l_Value);
             l_Buffer << uint8(l_EffectIndex);
@@ -26164,8 +26189,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
     {
         // use +MONTH as infinity mark for spell cooldown (will checked as MONTH/2 at save ans skipped)
         // but not allow ignore until reset or re-login
-        l_CategoryCooldownTime = l_CategoryCooldown > 0 ? p_InfinityCooldown : 0;
-        l_CooldownTime         = l_Cooldown         > 0 ? p_InfinityCooldown : l_CategoryCooldownTime;
+        l_CategoryCooldownTime = l_CategoryCooldown > 0 ? infinityCooldownDelay : 0;
+        l_CooldownTime         = l_Cooldown         > 0 ? infinityCooldownDelay : l_CategoryCooldownTime;
     }
     else
     {
@@ -26308,7 +26333,7 @@ void Player::SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID, S
 
 void Player::UpdatePotionCooldown(Spell* spell)
 {
-    // no potion used i combat or still in combat
+    // no potion used in combat or still in combat
     if (!m_lastPotionId || isInCombat())
         return;
 
@@ -26317,22 +26342,10 @@ void Player::UpdatePotionCooldown(Spell* spell)
     {
         // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
-        {
-            bool found = false;
-            for (uint8 idx = 0; idx < MAX_ITEM_SPELLS; ++idx)
-                if (proto->Spells[idx].SpellId && proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
+            for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
+                if (proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
                     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
-                    {
-                        if (!HasSpellCooldown(spellInfo->Id))
                             SendCooldownEvent(spellInfo, m_lastPotionId);
-                        found = true;
-                    }
-            // if not - used by Spinal Healing Injector
-            if (!found)
-            {
-                SendCooldownEvent(sSpellMgr->GetSpellInfo(82184), m_lastPotionId);
-            }
-        }
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else

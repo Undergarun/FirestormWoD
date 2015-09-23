@@ -59,8 +59,8 @@ public:
 			switch (events.ExecuteEvent())
 			{
                 case eEverbloomEvents::EventDreadpetalToxin:
-				        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 8.0f, true))
-                            me->CastSpell(l_Target, eEverbloomSpells::SpellDreadpetalToxin - 1);
+				        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                            me->CastSpell(l_Target, eEverbloomSpells::SpellDreadpetalToxin);
 
                         events.ScheduleEvent(eEverbloomEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
 				        break;
@@ -1100,4 +1100,5 @@ void AddSC_the_everbloom()
     new the_everbloom_poisonous_claws();
     new the_everbloom_living_leaves_blamber_patch();
     new the_everbloom_duration_fix();
+    new the_everbloom_bounding_whirl_dummy();
 }
