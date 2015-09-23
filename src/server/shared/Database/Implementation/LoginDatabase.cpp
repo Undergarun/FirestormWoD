@@ -50,7 +50,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_BY_ID, "SELECT 1 FROM account WHERE id = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(LOGIN_INS_IP_BANNED, "INSERT INTO ip_banned VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?)", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_DEL_IP_NOT_BANNED, "DELETE FROM ip_banned WHERE ip = ?", CONNECTION_ASYNC)
-    PREPARE_STATEMENT(LOGIN_INS_ACCOUNT_BANNED, "INSERT INTO account_banned VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?, 1)", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(LOGIN_INS_ACCOUNT_BANNED, "INSERT INTO account_banned VALUES (?, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?, 1)", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_ALWAYS_BANNED, "SELECT unbandate-UNIX_TIMESTAMP() AS unban FROM account_banned WHERE id = ? AND active = 1 AND bandate <> unbandate", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_BANNED_PERMANENT, "SELECT 1 FROM account_banned WHERE id = ? AND active = 1 AND bandate = unbandate", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_UPD_ACCOUNT_NOT_BANNED, "UPDATE account_banned SET active = 0 WHERE id = ? AND active != 0", CONNECTION_ASYNC)
@@ -108,8 +108,8 @@ void LoginDatabaseConnection::DoPrepareStatements()
 #define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account, declinedGenitive, declinedNative, declinedAccusative, declinedInstrumental, declinedPrepositional"
 #define PETBATTLE_FULL_FIELDS "id, " PETBATTLE_FIELDS
     PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_ACCOUNT, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ? AND species < 1635", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_REP_PETBATTLE, "REPLACE INTO account_battlepet(" PETBATTLE_FULL_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_BOTH);
+    PREPARE_STATEMENT(LOGIN_REP_PETBATTLE, "REPLACE INTO account_battlepet(" PETBATTLE_FULL_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_BOTH);
 #undef PETBATTLE_FIELDS
 #undef PETBATTLE_FULL_FIELDS
 
