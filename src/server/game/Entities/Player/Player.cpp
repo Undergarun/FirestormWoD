@@ -5679,7 +5679,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     // update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
-    if (spellInfo)
+    if (!spellInfo)
         return;
 
     if (spellInfo->IsPrimaryProfessionFirstRank())
