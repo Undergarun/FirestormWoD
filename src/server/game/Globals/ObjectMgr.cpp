@@ -3034,23 +3034,23 @@ void ObjectMgr::LoadItemSpecs()
             continue;
 
         std::vector<uint32>        l_ItemStats = ItemSpecialization::GetItemSpecStats(const_cast<ItemTemplate*>(&l_ItemTemplate));
-        std::vector<int32> const&  l_KeyOrders = sItemSpecStore.GetKeyOrders();
         
         ItemSpecStats itemSpecStats(sItemStore.LookupEntry(l_ItemTemplate.ItemId), sItemSparseStore.LookupEntry(l_ItemTemplate.ItemId));
-        
+
         if (itemSpecStats.ItemSpecStatCount)
         {
-            for (uint32 l_ItemSpecId = 0; l_ItemSpecId < sItemSpecStore.GetNumRows(); l_ItemSpecId++)
+            for (uint32 l_SpecIndex = 0; l_SpecIndex < sItemSpecStore.GetNumRows(); l_SpecIndex++)
             {
-                ItemSpecEntry const* itemSpec = sItemSpecStore.LookupEntry(l_ItemSpecId);
+                ItemSpecEntry const* itemSpec = sItemSpecStore.LookupEntry(l_SpecIndex);
                 if (itemSpec == nullptr)
                     continue;
                 
                 if (itemSpecStats.ItemType != itemSpec->ItemType)
                     continue;
-                
+
                 bool hasPrimary = false;
                 bool hasSecondary = itemSpec->SecondaryStat == ITEM_SPEC_STAT_NONE;
+
                 for (uint32 i = 0; i < itemSpecStats.ItemSpecStatCount; ++i)
                 {
                     if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->PrimaryStat)
@@ -3058,7 +3058,10 @@ void ObjectMgr::LoadItemSpecs()
                     if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->SecondaryStat)
                         hasSecondary = true;
                 }
-                
+
+                if (!hasPrimary)
+                    hasPrimary = hasSecondary && itemSpecStats.ItemSpecStatCount == 1; ///< If only 1 was found, it doesnt have any stats, therefore ignore primary stat check
+
                 if (!hasPrimary || !hasSecondary)
                     continue;
                 
