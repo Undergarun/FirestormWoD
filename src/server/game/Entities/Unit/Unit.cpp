@@ -18526,7 +18526,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         l_PlayerVictim->SendClearLossOfControl();
     }
     /// Creature died
-    else
+    else if (l_KilledCreature)
     {
         if (!l_KilledCreature->isPet())
         {

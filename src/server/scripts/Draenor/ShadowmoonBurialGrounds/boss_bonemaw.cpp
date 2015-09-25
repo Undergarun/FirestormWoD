@@ -59,17 +59,6 @@ Position l_PositionAdds[2] =
     { 1860.075f, -497.532f, 196.796f, 4.054334f },
 };
 
-void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
-{
-    std::list<Creature*> creatures;
-    GetCreatureListWithEntryInGrid(creatures, object, entry, 5000.0f);
-    if (creatures.empty())
-        return;
-
-    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
-}
-
 /// Bonemaw - 75452
 class boss_bonemaw : public CreatureScript
 {
@@ -268,6 +257,17 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
+        {
+            std::list<Creature*> creatures;
+            GetCreatureListWithEntryInGrid(creatures, object, entry, 5000.0f);
+            if (creatures.empty())
+                return;
+
+            for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
+                (*iter)->DespawnOrUnsummon();
+        }
     };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
@@ -428,12 +428,12 @@ public:
     {
     }
 
-    int m_Diff = 500;
+    int32 m_Diff = 500;
     std::list<uint64> m_Targets;
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
-        if (m_Diff <= p_Time)
+        if (m_Diff <= int32(p_Time))
         {
             std::list<Player*> l_ListPlayers;
 

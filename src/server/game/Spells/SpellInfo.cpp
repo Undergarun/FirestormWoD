@@ -125,7 +125,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
 {
     if (_target >= TOTAL_SPELL_TARGETS)
     {
-        printf("SPELL_TARGET overflow!! %u\r\n", _target);
+        printf("SPELL_TARGET overflow!! %d\r\n", _target); ///< Bad sprintf :'(
         return 0;
     }
 
@@ -1143,8 +1143,8 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
 
     // SpellShapeshiftEntry
     SpellShapeshiftEntry const* _shapeshift = GetSpellShapeshift();
-    Stances = _shapeshift ? _shapeshift->Stances : 0;
-    StancesNot = _shapeshift ? _shapeshift->StancesNot : 0;
+    Stances = _shapeshift ? MAKE_PAIR64(_shapeshift->ShapeshiftMask[0], _shapeshift->ShapeshiftMask[1]) : 0;
+    StancesNot = _shapeshift ? MAKE_PAIR64(_shapeshift->ShapeshiftExclude[0], _shapeshift->ShapeshiftExclude[1]) : 0;
 
     // SpellTargetRestrictionsEntry
     SpellTargetRestrictionsEntry const* _target = GetSpellTargetRestrictions();
@@ -1757,7 +1757,10 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 p_Shapeshift) const
         (Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[1].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[2].Effect == SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;
 
-    uint64 stanceMask = p_Shapeshift ? ((uint64)1L << (p_Shapeshift - 1)) : 0;
+    if (HasAttribute(SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT))
+        return SPELL_CAST_OK;
+
+    uint64 stanceMask = (p_Shapeshift ? UI64LIT(1) << (p_Shapeshift - 1) : 0);
 
     // can explicitly not be casted in this stance
     if (stanceMask & StancesNot)
@@ -3025,7 +3028,7 @@ uint32 SpellInfo::_GetExplicitTargetMask() const
 
         if (Effects[i].TargetA.GetTarget() >= TOTAL_SPELL_TARGETS)
         {
-            printf("%u SPELL_TARGET overflow!! %u\r\n", Id, Effects[i].TargetA.GetTarget());
+            printf("%u SPELL_TARGET overflow!! %d\r\n", Id, Effects[i].TargetA.GetTarget());
             continue;
         }
 

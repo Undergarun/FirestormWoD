@@ -2301,9 +2301,9 @@ void SpellMgr::LoadSpellPetAuras()
                 continue;
             }
             if (spellInfo->Effects[eff].Effect != SPELL_EFFECT_DUMMY &&
-                (spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA ||
-                spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA_ON_PET ||
-                spellInfo->Effects[eff].ApplyAuraName != SPELL_AURA_DUMMY))
+                (spellInfo->Effects[eff].Effect == SPELL_EFFECT_APPLY_AURA ||
+                 spellInfo->Effects[eff].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET) &&
+                spellInfo->Effects[eff].ApplyAuraName != SPELL_AURA_DUMMY)
             {
                 sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell %u listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
                 continue;
@@ -5353,7 +5353,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 115072: ///< Expel Harm
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                 break;
             case 117952: ///< Crackling Jade Lightning
@@ -5661,7 +5661,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 980: ///< Agony
-                spellInfo->StackAmount = (spellInfo->GetDuration() / spellInfo->Effects[0].Amplitude) + 3;
+                spellInfo->StackAmount = 10;
                 break;
             case 131740: ///< Corruption (Malefic Grasp)
             case 131736: ///< Unstable Affliction (Malefic Grasp)
@@ -6485,12 +6485,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 159456: ///< Glyph of Travel
                 spellInfo->Stances = 0;
-                break;
-            case 167105: ///< Colossus Smash
-            case 12328:  ///< Sweeping Strikes
-            case 1719:   ///< Recklessness
-                /// Can be casted in Battle Stance AND in Defensive Stance
-                spellInfo->Stances |= ((uint64)1L << (ShapeshiftForm::FORM_DEFENSIVESTANCE - 1));
                 break;
             case 91809: ///< Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;

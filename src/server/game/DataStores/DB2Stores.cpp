@@ -182,7 +182,7 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
         if (FILE * f = fopen(db2_filename.c_str(), "rb"))
         {
             char buf[100];
-            snprintf(buf, 100,"(exist, but have %d fields instead " SIZEFMTD ") Wrong client version DBC file?", storage.GetFieldCount(), strlen(storage.GetFormat()));
+            snprintf(buf, 100,"(exist, but have %u fields instead " SIZEFMTD ") Wrong client version DBC file?", storage.GetFieldCount(), strlen(storage.GetFormat()));
             errlist.push_back(db2_filename + buf);
             fclose(f);
         }

@@ -107,18 +107,17 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
     public:
         spell_at_druid_fungal_growth() : AreaTriggerEntityScript("at_fungal_growth") { }
 
-        enum WildMushroomSpells
+        enum eWildMushroomSpells
         {
-            SpellDruidWildMushroomFungalCloud       = 81281,
-            SpellDruidAreaWildMushroomFungalCloud   = 164717,
-            SpellDruidWildMushroomBalance           = 88747,
+            FungalCloud         = 81281,
+            WildMushroomBalance = 88747,
         };
 
         std::list<uint64> m_Targets;
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
-            auto l_SpellInfo = sSpellMgr->GetSpellInfo(WildMushroomSpells::SpellDruidWildMushroomBalance);
+            auto l_SpellInfo = sSpellMgr->GetSpellInfo(eWildMushroomSpells::WildMushroomBalance);
             auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
 
             if (l_AreaTriggerCaster == nullptr || l_SpellInfo == nullptr)
@@ -136,9 +135,9 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (!l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud))
+                if (!l_Target->HasAura(eWildMushroomSpells::FungalCloud))
                 {
-                    l_AreaTriggerCaster->CastSpell(l_Target, WildMushroomSpells::SpellDruidWildMushroomFungalCloud, true);
+                    l_AreaTriggerCaster->CastSpell(l_Target, eWildMushroomSpells::FungalCloud, true);
                     m_Targets.push_back(l_Target->GetGUID());
                 }
             }
@@ -151,11 +150,11 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()) && l_Target->GetDistance(l_AreaTriggerCaster) <= l_Radius)
+                if (l_Target->HasAura(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID()) && l_Target->GetDistance(l_AreaTriggerCaster) <= l_Radius)
                     return;
 
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()))
-                    l_Target->RemoveAurasDueToSpell(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID());
+                if (l_Target->HasAura(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID()))
+                    l_Target->RemoveAurasDueToSpell(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID());
 
                 m_Targets.remove(l_TargetGuid);
             }
@@ -176,8 +175,8 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()))
-                    l_Target->RemoveAurasDueToSpell(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID());
+                if (l_Target->HasAura(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID()))
+                    l_Target->RemoveAurasDueToSpell(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID());
 
                 m_Targets.remove(l_TargetGuid);
             }

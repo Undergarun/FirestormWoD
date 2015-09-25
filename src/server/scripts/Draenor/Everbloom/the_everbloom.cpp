@@ -8,15 +8,18 @@
 
 #include "the_everbloom.hpp"
 
-void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
+namespace
 {
-    std::list<Creature*> creatures;
-    GetCreatureListWithEntryInGrid(creatures, object, entry, 10.0f);
-    if (creatures.empty())
-        return;
+    void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
+    {
+        std::list<Creature*> creatures;
+        GetCreatureListWithEntryInGrid(creatures, object, entry, 10.0f);
+        if (creatures.empty())
+            return;
 
-    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
+        for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
+            (*iter)->DespawnOrUnsummon();
+    }
 }
 
 /// Dreadpital toxin - 81864

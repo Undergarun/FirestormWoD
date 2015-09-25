@@ -183,7 +183,7 @@ static void WiningCondition(InstanceScript* p_Instance, Creature* p_Me)
     }
 }
 
-static class MostCreatureHPMissingInRange
+class MostCreatureHPMissingInRange
 {
 public:
     MostCreatureHPMissingInRange(Unit const* obj, float range, uint32 hp) : i_obj(obj), i_range(range), i_hp(hp) {}
