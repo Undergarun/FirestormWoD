@@ -62,11 +62,7 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
-
-        extern char gScriptName[];
     }
-
-    using npc_HomerStonefieldWorkOrder = SimpleSequenceCosmeticScript<npc_HomerStonefieldAIData::gScriptName, &npc_HomerStonefieldAIData::FnLevel1, &npc_HomerStonefieldAIData::FnLevel2, &npc_HomerStonefieldAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -101,7 +97,7 @@ namespace MS { namespace Garrison
             CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
-    class npc_HomerStonefieldAI : public GarrisonNPCAI
+    class npc_HomerStonefieldAI : public SimpleSequenceCosmeticScriptAI<&npc_HomerStonefieldAIData::FnLevel1, &npc_HomerStonefieldAIData::FnLevel2, &npc_HomerStonefieldAIData::FnLevel3>
     {
         public:
             /// Constructor

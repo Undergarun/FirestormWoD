@@ -22,11 +22,7 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
-
-        extern char gScriptName[];
     }
-
-    using npc_FarmerLokLubWorkOrder = SimpleSequenceCosmeticScript<npc_FarmerLokLubAIData::gScriptName, &npc_FarmerLokLubAIData::FnLevel1, &npc_FarmerLokLubAIData::FnLevel2, &npc_FarmerLokLubAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -61,7 +57,7 @@ namespace MS { namespace Garrison
             CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
-    class npc_FarmerLokLubAI : public GarrisonNPCAI
+    class npc_FarmerLokLubAI : public SimpleSequenceCosmeticScriptAI<&npc_FarmerLokLubAIData::FnLevel1, &npc_FarmerLokLubAIData::FnLevel2, &npc_FarmerLokLubAIData::FnLevel3>
     {
         public:
             /// Constructor

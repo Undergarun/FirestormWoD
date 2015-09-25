@@ -33,8 +33,6 @@ namespace MS { namespace Garrison
         {
 
         };
-
-        char gScriptName[] = "npc_FarmerLokLub_Garr";
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -52,7 +50,7 @@ namespace MS { namespace Garrison
     /// Constructor
     /// @p_Creature : AI Owner
     npc_FarmerLokLubAI::npc_FarmerLokLubAI(Creature* p_Creature)
-        : GarrisonNPCAI(p_Creature)
+        : SimpleSequenceCosmeticScriptAI(p_Creature)
     {
     }
 
@@ -131,6 +129,8 @@ namespace MS { namespace Garrison
 
     void npc_FarmerLokLubAI::SetData(uint32 p_ID, uint32 p_Value)
     {
+        GarrisonNPCAI::SetData(p_ID, p_Value);
+
         if (p_ID == 1)
             m_ProductionChosen = p_Value;
     }
