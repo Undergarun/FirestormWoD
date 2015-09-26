@@ -30332,6 +30332,12 @@ void Player::_SaveTalents(SQLTransaction& trans)
 
             if (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED)
             {
+                if (itr->second->spec > 1)
+                {
+                    sLog->outAshran("Invalid spec index (%d > 1) on player %s (%ull), not saving talent to prevent crash at loading", itr->second->spec, m_name.c_str(), GetGUID());
+                    continue;
+                }
+
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
                 stmt->setUInt32(0, GetGUIDLow());
                 stmt->setUInt32(1, itr->first);
