@@ -29088,16 +29088,17 @@ void Player::UpdateCharmedAI()
 
 uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 {
-    float l_Cooldown = RUNE_BASE_COOLDOWN;
+    float l_RegenRate = 1.f / RUNE_BASE_COOLDOWN;
     float l_HastePct = 0.0f;
 
     AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator l_Idx = l_RegenAura.begin(); l_Idx != l_RegenAura.end(); ++l_Idx)
     {
         if ((*l_Idx)->GetMiscValue() == POWER_RUNES && RuneType((*l_Idx)->GetMiscValueB()) == runeType)
-            l_Cooldown *= 1.0f - ((*l_Idx)->GetAmount() / 100.0f);
+            AddPct(l_RegenRate, (*l_Idx)->GetAmount());
     }
 
+    float l_Cooldown = 1.f / l_RegenRate;
     l_Cooldown *= 1.0f - ((1.0f / GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) - 1.0f));
 
     return l_Cooldown;
