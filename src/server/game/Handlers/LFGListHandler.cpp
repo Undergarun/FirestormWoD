@@ -45,7 +45,7 @@ void WorldSession::HandleLfgListJoin(WorldPacket& p_RecvData)
     l_List->m_CreationTime = time(NULL);
     l_List->m_Group = nullptr;
 
-    if (sLFGListMgr->CanInsert(l_List, GetPlayer()), true)
+    if (sLFGListMgr->CanInsert(l_List, GetPlayer(), true))
         sLFGListMgr->Insert(l_List, GetPlayer());
     else
         delete l_List;

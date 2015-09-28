@@ -768,7 +768,7 @@ public:
 
         void SummonHealer()
         {
-            uint32 entry = rand() % 2 ? NPC_HEALER_A: NPC_HEALER_H;
+            uint32 entry = (rand() % 2) ? NPC_HEALER_A : NPC_HEALER_H;
             float posX = frand(228.0f, 270.0f);
             float posY = frand(3949.0f, 3962.0f);
 

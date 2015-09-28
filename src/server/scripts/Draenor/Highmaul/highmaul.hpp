@@ -75,7 +75,9 @@ enum eHighmaulDatas
     MaxCreepingMoss = 16,
     MaxFleshEaterPos = 2,
     /// The Market
-    MaxTectusGuardians = 3
+    MaxTectusGuardians = 3,
+    /// Imperator Mar'gok
+    MaxIntervalles = 2
 };
 
 enum eHighmaulCreatures

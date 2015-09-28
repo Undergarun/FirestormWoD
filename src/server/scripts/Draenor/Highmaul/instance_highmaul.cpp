@@ -338,6 +338,7 @@ class instance_highmaul : public InstanceMapScript
                     {
                         if (p_State != EncounterState::DONE)
                             break;
+
                         SendUpdateWorldState(eHighmaulWorldStates::DisableCrowdSound, 1);
                         SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState, 0);
                         SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState2, 0);

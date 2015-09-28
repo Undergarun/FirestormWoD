@@ -590,9 +590,6 @@ class spell_mastery_blood_shield: public SpellScriptLoader
 
                     int32 l_Bp = -int32(GetHitDamage() * (l_Mastery / 100));
 
-                    if (AuraPtr l_ScentOfBlood = l_Caster->GetAura(SPELL_DK_SCENT_OF_BLOOD))
-                        AddPct(l_Bp, (l_ScentOfBlood->GetStackAmount() * 20));
-
                     if (AuraEffectPtr l_ActualBloodShield = l_Caster->GetAuraEffect(MASTERY_SPELL_BLOOD_SHIELD, EFFECT_0))
                         l_Bp += l_ActualBloodShield->GetAmount();
 

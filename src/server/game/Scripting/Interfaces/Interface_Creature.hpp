@@ -138,6 +138,18 @@ class CreatureScript : public ScriptObjectImpl<true>, public UpdatableScript<Cre
             return 100;
         }
 
+        /// Called when player asks from a creature gossip to create a shipment.
+        /// @p_Player       : Player that created the shipment
+        /// @p_Creature     : NPC that got the gossip
+        virtual void OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Creature);
+            UNUSED(p_BuildingID);
+
+            return;
+        }
+
         /// Called when a CreatureAI object is needed for the creature.
         /// @p_Creature : Target creature instance
         virtual CreatureAI* GetAI(Creature* p_Creature) const

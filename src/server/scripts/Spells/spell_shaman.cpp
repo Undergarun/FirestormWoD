@@ -3010,8 +3010,47 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Spiritwalker's Grace - 79206
+class spell_sha_spiritwalkers_grace : public SpellScriptLoader
+{
+    public:
+        spell_sha_spiritwalkers_grace() : SpellScriptLoader("spell_sha_spiritwalkers_grace") { }
+
+        class spell_sha_spiritwalkers_grace_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_spiritwalkers_grace_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfSpiritwalkersGraceAura = 159651,
+                GlyphOfSpiritwalkersGrace = 159652
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphOfSpiritwalkersGraceAura))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfSpiritwalkersGrace, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_sha_spiritwalkers_grace_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_spiritwalkers_grace_SpellScript();
+        }
+};
+
+
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_spiritwalkers_grace();
     new spell_sha_pvp_restoration_4p_bonus();
     new spell_sha_natures_guardian();
     new spell_sha_unleashed_fury();

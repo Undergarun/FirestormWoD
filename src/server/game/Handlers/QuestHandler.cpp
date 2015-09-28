@@ -122,7 +122,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     if (!object || object == m_Player)
         return;
 
-    // no or incorrect quest giver
+    // no or incorrect quest giver (probably missing quest relation)
     if ((object->GetTypeId() != TYPEID_PLAYER && !object->hasQuest(questId)) ||
         (object->GetTypeId() == TYPEID_PLAYER && object != m_Player && !object->ToPlayer()->CanShareQuest(questId)))
     {
