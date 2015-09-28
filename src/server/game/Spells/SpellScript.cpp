@@ -405,6 +405,13 @@ WorldLocation const* SpellScript::GetExplTargetDest()
     return NULL;
 }
 
+Position const* SpellScript::GetExplTargetSrc()
+{
+    if (m_spell->m_targets.HasSrc())
+        return m_spell->m_targets.GetSrcPos();
+    return NULL;
+}
+
 void SpellScript::SetExplTargetDest(WorldLocation& loc)
 {
     m_spell->m_targets.SetDst(loc);
