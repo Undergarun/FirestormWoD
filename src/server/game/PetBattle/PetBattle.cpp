@@ -1339,7 +1339,7 @@ void PetBattle::SwapPet(uint32 p_TeamID, uint32 p_NewFrontPetID, bool p_Initial)
 {
     assert(p_TeamID < MAX_PETBATTLE_TEAM);
     
-    if (p_NewFrontPetID > (MAX_PETBATTLE_TEAM * MAX_PETBATTLE_SLOTS))
+    if (p_NewFrontPetID >= (MAX_PETBATTLE_TEAM * MAX_PETBATTLE_SLOTS))
         return;
 
     if (!Pets[p_NewFrontPetID])

@@ -462,25 +462,11 @@ void GuildMgr::LoadGuilds()
             {
                 Field* l_Fields = l_Result->Fetch();
                 uint32 l_GuildId = l_Fields[0].GetInt32();
-                bool l_GuildFound = false;
 
                 if (Guild* l_Guild = GetGuildById(l_GuildId))
                 {
                     l_Guild->LoadGuildChallengesFromDB(l_Fields);
-                    l_GuildFound = true;
                 }
-
-                if (!l_GuildFound)
-                {
-                    for (uint8 l_Itr = 1; l_Itr < ChallengeMax; ++l_Itr)
-                    {
-                        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INIT_GUILD_CHALLENGES);
-                        l_Statement->setInt32(0, l_GuildId);
-                        l_Statement->setInt32(1, l_Itr);
-                        CharacterDatabase.Execute(l_Statement);
-                    }
-                }
-
                 ++l_Count;
 
             } while (l_Result->NextRow());

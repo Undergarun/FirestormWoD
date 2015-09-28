@@ -2134,7 +2134,7 @@ class go_not_push_button : public GameObjectScript
         {
             if (InstanceScript* instance = go->GetInstanceScript())
             {
-                if ((instance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS || instance->GetBossState(BOSS_MIMIRON) != DONE) && player)
+                if ((instance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS && instance->GetBossState(BOSS_MIMIRON) != DONE) && player)
                     if (Creature* mimiron = ObjectAccessor::GetCreature((*player), instance->GetData64(BOSS_MIMIRON)))
                     {
                         mimiron->AI()->DoAction(DO_ACTIVATE_HARD_MODE);

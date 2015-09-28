@@ -158,7 +158,7 @@ class MapManager
 
     private:
         typedef UNORDERED_MAP<uint32, Map*> MapMapType;
-        typedef std::map<uint32, bool> InstanceIDs;
+        typedef std::set<uint32> InstanceIDs;
 
         // debugging code, should be deleted some day
         void checkAndCorrectGridStatesArray();              // just for debugging to find some memory overwrites

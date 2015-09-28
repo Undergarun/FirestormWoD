@@ -21,62 +21,48 @@ namespace MS { namespace Garrison
     {
         enum Type
         {
-            Frostweed,
-            Starflower,
-            Fireweed,
-            TaladorOrchid,
-            GrogrondFlytrap,
-            NagrandArrowbloom,
-            Random
+            Frostweed          = 0,
+            Starflower         = 1,
+            Fireweed           = 2,
+            TaladorOrchid      = 3,
+            GorgrondFlytrap    = 4,
+            NagrandArrowbloom  = 5,
+            Random             = 6
+        };
+    }
+
+    namespace HerbAction
+    {
+        enum
+        {
+            Frostweed         = 0,
+            Starflower        = 1,
+            Fireweed          = 2,
+            TaladorOrchid     = 3,
+            GorgrondFlytrap   = 4,
+            NagrandArrowbloom = 5
         };
     }
 
     /// Herbs game object entries
-    extern std::vector<uint32> g_HerbsGobsEntry;
+    extern std::vector<uint32> g_AllyHerbsGobsEntry;
 
     /// FarmSimulator/GoatSimulator positions
-    extern std::vector<GatheringPlotInfos> g_HerbGardenFlowerPlot;
+    extern std::vector<GatheringPlotInfos> g_AllyHerbGardenFlowerPlot;
 
     //////////////////////////////////////////////////////////////////////////
     /// 85514 - Olly Nimkip                                                ///
     //////////////////////////////////////////////////////////////////////////
-    #pragma region 
-    /// Cosmetic data
-    namespace npc_OllyNimkipData
+    namespace npc_OllyNimkipAIData
     {
-        /// Cosmetic init for level 1
         extern InitSequenceFunction FnLevel1;
-        /// Cosmetic init for level 2
         extern InitSequenceFunction FnLevel2;
-        /// Cosmetic init for level 3
         extern InitSequenceFunction FnLevel3;
-    }   ///< namespace npc_OllyNimkipData
 
-    /// Main script
-    class npc_OllyNimkip : CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_OllyNimkip();
+        extern char ScriptName[];
+    }
 
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
-    #pragma endregion 
+    using npc_OllyNimkip = GatheringBuilding_WorkOrderNPC<npc_OllyNimkipAIData::ScriptName, Quests::Alliance_ClearingTheGarden, &npc_OllyNimkipAIData::FnLevel1, &npc_OllyNimkipAIData::FnLevel2, &npc_OllyNimkipAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -84,7 +70,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     /// 85344 - Naron Bloomthistle                                         ///
     //////////////////////////////////////////////////////////////////////////
-    class npc_NaronBloomthistleAI : public GatheringBuildingMaster<&g_HerbGardenFlowerPlot>
+    class npc_NaronBloomthistleAI : public GatheringBuildingMaster<&g_AllyHerbGardenFlowerPlot>
     {
         public:
             /// Constructor
@@ -101,6 +87,9 @@ namespace MS { namespace Garrison
             /// @p_Opt    : Quest reward option (eg: Loot choose)
             virtual void sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Opt) override;
 
+            /// @p_Action : Action ID
+            virtual void DoAction(int32 const p_Action) override;
+
             /// Select game object entry for a fresh gathering spawn
             /// @p_MiscData : Misc data
             virtual uint32 SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData) override;
@@ -116,6 +105,18 @@ namespace MS { namespace Garrison
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
             CreatureAI * GetAI(Creature * p_Creature) const override;
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_Creature   : Target GameObject instance
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
+
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
     };
 

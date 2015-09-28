@@ -66,6 +66,65 @@ namespace MS { namespace Garrison
             /// @p_MiscData : Misc data
             virtual uint32 SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData) = 0;
 
+            /// Set gathering misc data
+            /// @p_MiscID : Misc data value
+            void SetGatheringMiscData(uint32 p_MiscID)
+            {
+                Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
+
+                if (!l_GarrisonSite)
+                    return;
+
+                GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(GetBuildingID());
+
+                if (!l_BuildingEntry)
+                    return;
+
+                Player* l_Owner = l_GarrisonSite->GetOwner();
+
+                if (!l_Owner)
+                    return;
+
+                Tokenizer l_Datas(l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
+
+                if (l_Datas.size() < 4 || l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()) == "")
+                    return;
+
+                std::ostringstream l_Str;
+                l_Str << p_MiscID;
+
+                for (uint32 l_I = 1; l_I < l_Datas.size(); ++l_I)
+                    l_Str << " " << l_Datas[l_I];
+
+                l_Owner->GetGarrison()->SetBuildingGatheringData(GetPlotInstanceID(), l_Str.str());
+            }
+
+            /// Get gathering misc data
+            uint32 GetGatheringMiscData()
+            {
+                Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
+
+                if (!l_GarrisonSite)
+                    return 0;
+
+                GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(GetBuildingID());
+
+                if (!l_BuildingEntry)
+                    return 0;
+
+                Player* l_Owner = l_GarrisonSite->GetOwner();
+
+                if (!l_Owner)
+                    return 0;
+
+                Tokenizer l_Datas(l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
+
+                if (l_Datas.size() < 4 || l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()) == "")
+                    return 0;
+
+                return atol(l_Datas[0]);
+            }
+
         protected:
             /// Init gathering plots
             /// @p_MiscData : Misc data
@@ -101,8 +160,11 @@ namespace MS { namespace Garrison
                 l_Owner->GetGarrison()->SetBuildingGatheringData(GetPlotInstanceID(), l_Str.str());
             }
             /// Update gathering plots
-            void UpdateGatheringPlots()
+            void UpdateGatheringPlots(int p_Recursion = 0)
             {
+                if (p_Recursion >= 10)
+                    return;
+                    
                 Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
                 if (!l_GarrisonSite)
@@ -120,10 +182,10 @@ namespace MS { namespace Garrison
 
                 Tokenizer l_Datas(l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
 
-                if (l_Datas.size() < 4 || l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()) == "")
+                if (l_Datas.size() < 4 || l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()) == "" || p_Recursion >= 5)
                 {
                     InitGatheringPlots(0);
-                    UpdateGatheringPlots();
+                    UpdateGatheringPlots(p_Recursion + 1);
                     return;
                 }
                 
@@ -133,7 +195,7 @@ namespace MS { namespace Garrison
                 uint32 l_NextSpawnTimeStamp = atol(l_Datas[l_Index++]);
                 uint32 l_BuildingLevel      = atol(l_Datas[l_Index++]);
 
-                auto l_UpdateRecursive = [this, &l_Owner, &l_MiscData, &l_PrevSpawnTimeStamp, &l_NextSpawnTimeStamp, &l_BuildingEntry]() -> void
+                auto l_UpdateRecursive = [this, &l_Owner, &l_MiscData, &l_PrevSpawnTimeStamp, &l_NextSpawnTimeStamp, &l_BuildingEntry, p_Recursion]() -> void
                 {
                     std::ostringstream l_Str;
                     l_Str << l_MiscData << " " << l_PrevSpawnTimeStamp << " " << l_NextSpawnTimeStamp << " " << l_BuildingEntry->BuildingLevel;
@@ -147,7 +209,7 @@ namespace MS { namespace Garrison
                     }
 
                     l_Owner->GetGarrison()->SetBuildingGatheringData(GetPlotInstanceID(), l_Str.str());
-                    UpdateGatheringPlots();
+                    UpdateGatheringPlots(p_Recursion + 1);
                 };
 
                 if (l_BuildingLevel == l_BuildingEntry->BuildingLevel)
@@ -240,7 +302,7 @@ namespace MS { namespace Garrison
                     float l_PlotX = l_Plot.X;
                     float l_PlotY = l_Plot.Y;
                     float l_PlotZ = l_Plot.Z;
-                    
+
                     TransformCoord(l_PlotX, l_PlotY, l_PlotZ);
 
                     if (l_Position.GetExactDist2d(l_PlotX, l_PlotY) < 0.1)
@@ -255,6 +317,55 @@ namespace MS { namespace Garrison
         private:
             bool m_GatheringPlotsAreSpawned;    ///< Is gathering plots spawned
             int32 m_NextUpdate;                 ///< Last update
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Simple profession building NPC script
+    /// @t_ScriptName   : Script name
+    /// @t_Skill        : Building target skill type
+    /// @t_QuestID      : Building work order quest
+    /// @t_SetupLevel1  : Function pour initializing sequence for level 1 building
+    /// @t_SetupLevel2  : Function pour initializing sequence for level 2 building
+    /// @t_SetupLevel3  : Function pour initializing sequence for level 3 building
+    template<char const* t_ScriptName, uint32 t_QuestID, InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    class GatheringBuilding_WorkOrderNPC : public SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>
+    {
+        public:
+            /// Constructor
+            GatheringBuilding_WorkOrderNPC()
+                : SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>()
+            {
+
+            }
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_Creature   : Target GameObject instance
+            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
+            {
+                if (p_Player->IsQuestRewarded(t_QuestID))
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+                p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+                return true;
+            }
+
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
+            {
+                if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName() && p_Player->IsQuestRewarded(t_QuestID))
+                    reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+
+                return true;
+            }
 
     };
 

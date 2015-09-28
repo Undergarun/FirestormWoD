@@ -24,8 +24,8 @@
 #include "heart_of_fear.h"
 
 /*
-During the fight, you will have to fight Mel'jarak, as well as 9 adds: 
-- 3 Sra-thik Amber-Trappers, 
+During the fight, you will have to fight Mel'jarak, as well as 9 adds:
+- 3 Sra-thik Amber-Trappers,
 - 3 Kor'thic Elite Blademasters,
 - 3 Zar'thik Battle-Menders.
 The adds will all become active as soon as you engage the boss.
@@ -768,7 +768,7 @@ public:
                 GetCreatureListWithEntryInGrid(allAdds, me, addEntries[i], 150.0f);
 
                 for (Creature* add : allAdds)
-                    if (add->isAlive() && add->HasCrowdControlAura())
+                    if (add->isAlive() && add->HasBreakableByDamageCrowdControlAura())
                         ++impaledAdds;
             }
             return impaledAdds;
@@ -812,7 +812,7 @@ public:
             if (spell->Id == SPELL_COWARDS || !pInstance)
                 return;
 
-            if (me->HasCrowdControlAura())
+            if (me->HasBreakableByDamageCrowdControlAura())
             {
                 if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
                     meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
@@ -918,12 +918,12 @@ struct NonAlreadyAmberPrisoner : public std::unary_function<Unit*, bool>
 };
 
 // Srathik Amber Trapper: 62405.
-class npc_srathik_amber_trapper: public CreatureScript 
+class npc_srathik_amber_trapper: public CreatureScript
 {
 public:
     npc_srathik_amber_trapper() : CreatureScript("npc_srathik_amber_trapper") { }
 
-    struct npc_srathik_amber_trapperAI: public ScriptedAI 
+    struct npc_srathik_amber_trapperAI: public ScriptedAI
     {
         npc_srathik_amber_trapperAI(Creature* creature) : ScriptedAI(creature)
         {
@@ -970,7 +970,7 @@ public:
             if (spell->Id == SPELL_COWARDS || !pInstance)
                 return;
 
-            if (me->HasCrowdControlAura())
+            if (me->HasBreakableByDamageCrowdControlAura())
             {
                 if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
                     meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
@@ -1048,9 +1048,9 @@ public:
 
             events.Update(diff);
 
-            while (uint32 eventId = events.ExecuteEvent()) 
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId) 
+                switch (eventId)
                 {
                     case EVENT_AMBER_PRISON:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonAlreadyAmberPrisoner()))
@@ -1079,12 +1079,12 @@ public:
 };
 
 // Zarthik Battle Mender: 62408.
-class npc_zarthik_battle_mender: public CreatureScript 
+class npc_zarthik_battle_mender: public CreatureScript
 {
 public:
     npc_zarthik_battle_mender() : CreatureScript("npc_zarthik_battle_mender") { }
 
-    struct npc_zarthik_battle_menderAI: public ScriptedAI 
+    struct npc_zarthik_battle_menderAI: public ScriptedAI
     {
         npc_zarthik_battle_menderAI(Creature* creature) : ScriptedAI(creature)
         {
@@ -1122,8 +1122,8 @@ public:
             AttackStart(attacker);
 
             events.ScheduleEvent(EVENT_MENDING, urand(30000, 49000));
-            events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));        
-            
+            events.ScheduleEvent(EVENT_QUICKENING, urand(12000, 28000));
+
         }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
@@ -1131,7 +1131,7 @@ public:
             if (spell->Id == SPELL_COWARDS || !pInstance)
                 return;
 
-            if (me->HasCrowdControlAura())
+            if (me->HasBreakableByDamageCrowdControlAura())
             {
                 if (Creature* meljarak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MELJARAK)))
                     meljarak->AI()->DoAction(ACTION_CHECK_CONTROLLED_ADDS);
@@ -1209,9 +1209,9 @@ public:
 
             events.Update(diff);
 
-            while (uint32 eventId = events.ExecuteEvent()) 
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId) 
+                switch (eventId)
                 {
                     case EVENT_MENDING:
                     {
@@ -1516,7 +1516,7 @@ public:
         void CheckTargets(std::list<WorldObject*>& targets)
         {
             targets.clear();
-            
+
             std::list<Creature*> tmpTargets;
 
             GetCaster()->GetCreatureListWithEntryInGridAppend(tmpTargets, NPC_KORTHIK_ELITE_BLADEMASTER, 150.0f);

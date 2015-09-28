@@ -403,7 +403,6 @@ public:
 
             m_Achievement = true;
 
-            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
 
             DespawnCreaturesInArea(eEverbloomCreature::CreatureKirinTorBattleMage, me);
@@ -1150,7 +1149,6 @@ public:
     }
 };
 
-
 /// Font of Life - 169121
 class the_everbloom_font_of_life : public SpellScriptLoader
 {
@@ -1202,10 +1200,44 @@ public:
 	}
 };
 
+/// Colossal Blow - 169179 
+class the_everbloom_yalnu_cone_strike : public SpellScriptLoader
+{
+public:
+    the_everbloom_yalnu_cone_strike() : SpellScriptLoader("the_everbloom_yalnu_cone_strike") { }
+
+    class spell_warr_storm_bolt_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_storm_bolt_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (!l_Target->isInFront(l_Caster))
+                        SetHitDamage(0);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warr_storm_bolt_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_storm_bolt_SpellScript();
+    }
+};
 
 void AddSC_boss_yalnu()
 {
 	new boss_yalnu();
+
     new the_everbloom_yalnu_rp();
     new the_everbloom_kirin_tor_mage();
     new the_everbloom_gnarled_ancient();
@@ -1219,4 +1251,5 @@ void AddSC_boss_yalnu()
     new the_everbloom_fake_areatrigger_teleport();
     new the_everbloom_undermage_kealson();
     new the_everbloom_entangling();
+    new the_everbloom_yalnu_cone_strike();
 }

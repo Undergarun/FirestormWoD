@@ -124,7 +124,7 @@ std::string GetScriptCommandName(ScriptCommands command)
         default:
         {
             char sz[32];
-            sprintf(sz, "Unknown command: %u", command);
+            sprintf(sz, "Unknown command: %d", command);
             res = sz;
             break;
         }
@@ -9975,6 +9975,15 @@ CharacterTemplate const* ObjectMgr::GetCharacterTemplate(uint32 p_ID) const
 void ObjectMgr::LoadQuestObjectives()
 {
     uint32 l_OldMSTime = getMSTime();
+
+    m_questObjectiveLookup.clear();
+    for (auto& l_Quest : _questTemplates)
+    {
+        l_Quest.second->QuestObjectives.clear();
+
+        for (int l_I = 0; l_I < QUEST_OBJECTIVE_TYPE_END; ++l_I)
+            l_Quest.second->QuestObjecitveTypeCount[l_I] = 0;
+    }
 
     QueryResult l_Result = WorldDatabase.Query("SELECT `ID`,`QuestID`,`Type`,`Index`,`ObjectID`,`Amount`,`Flags`,`UnkFloat`,`Description`,`VisualEffects` FROM quest_template_objective ORDER BY QuestID ASC");
     if (!l_Result)

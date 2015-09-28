@@ -60,6 +60,8 @@ public:
             m_MageTriggerGUID = 0;
             m_MageTriggerGUID = 0;
 
+            m_CountGUID = 0;
+
             // Objects
             m_YalnuDoorGUID = 0;
             m_WebDoorGUID = 0;

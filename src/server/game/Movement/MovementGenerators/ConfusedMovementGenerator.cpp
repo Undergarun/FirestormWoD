@@ -47,32 +47,51 @@ void ConfusedMovementGenerator<T>::Initialize(T &unit)
 
     for (uint8 idx = 0; idx < MAX_CONF_WAYPOINTS + 1; ++idx)
     {
-        float wanderX = x + (wander_distance * (float)rand_norm() - wander_distance/2);
-        float wanderY = y + (wander_distance * (float)rand_norm() - wander_distance/2);
+        float wanderX;
+        float wanderY;
+        bool l_WasFound = false;
 
-        // prevent invalid coordinates generation
-        JadeCore::NormalizeMapCoord(wanderX);
-        JadeCore::NormalizeMapCoord(wanderY);
+        Position oldPos;
 
-        if (unit.IsWithinLOS(wanderX, wanderY, z))
+        if (idx > 0)
+            oldPos.Relocate(i_waypoints[idx-1][0], i_waypoints[idx-1][1], i_waypoints[idx-1][2]);
+        else
+            oldPos.Relocate(x, y, z);
+
+        /// Atempts to generate pos 10 if not within LOS
+        for (int l_I = 0; l_I < 10; l_I++)
         {
+            wanderX = x + (wander_distance * (float)rand_norm() - wander_distance/2);
+            wanderY = y + (wander_distance * (float)rand_norm() - wander_distance/2);
+
+            // prevent invalid coordinates generation
+            JadeCore::NormalizeMapCoord(wanderX);
+            JadeCore::NormalizeMapCoord(wanderY);
+            unit.UpdateAllowedPositionZ(wanderX, wanderY, z);
+            float angle = oldPos.GetAngle(wanderX, wanderY);
+
+            l_WasFound = unit.GetMap()->isInLineOfSight(oldPos.GetPositionX(), oldPos.GetPositionY(), oldPos.GetPositionZ(), wanderX + (2.f * cos(angle)), wanderY + (2.f * sin(angle)), z, unit.GetPhaseMask());
+            if (!l_WasFound)
+                continue;
+
             bool is_water = map->IsInWater(wanderX, wanderY, z);
 
             if ((is_water && !is_water_ok) || (!is_water && !is_land_ok))
             {
-                //! Cannot use coordinates outside our InhabitType. Use the current or previous position.
-                wanderX = idx > 0 ? i_waypoints[idx-1][0] : x;
-                wanderY = idx > 0 ? i_waypoints[idx-1][1] : y;
+                l_WasFound = false;
+                continue;
             }
-        }
-        else
-        {
-            //! Trying to access path outside line of sight. Skip this by using the current or previous position.
-            wanderX = idx > 0 ? i_waypoints[idx-1][0] : x;
-            wanderY = idx > 0 ? i_waypoints[idx-1][1] : y;
+
+            if (l_WasFound)
+                break;
         }
 
-        unit.UpdateAllowedPositionZ(wanderX, wanderY, z);
+        if (!l_WasFound)
+        {
+            //! Trying to access path outside line of sight. Skip this by using the current or previous position.
+            wanderX = oldPos.GetPositionX();
+            wanderY = oldPos.GetPositionY();
+        }
 
         //! Positions are fine - apply them to this waypoint
         i_waypoints[idx][0] = wanderX;

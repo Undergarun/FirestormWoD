@@ -3087,6 +3087,26 @@ class spell_monk_disable : public SpellScriptLoader
             }
         };
 
+        class spell_monk_disable_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_disable_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& /*p_ProcInfo*/)
+            {
+                p_AurEff->GetBase()->RefreshDuration();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_disable_AuraScript::OnProc, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_disable_AuraScript();
+        }
+
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_disable_SpellScript();

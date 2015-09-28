@@ -128,6 +128,15 @@ public:
         boss_witherbarkAI(Creature* p_Creature) : BossAI(p_Creature, eEverbloomData::DataWitherbark)
         {
             m_Instance = me->GetInstanceScript();
+
+            me->AddAura(eWitherbarkSpells::SpellBrittleBarkAura, me);
+            me->setFaction(FriendlyFaction);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+            SolarVisual();
+
+            m_Counting = 0;
+            m_Intro = false;
         }
 
         uint32 m_Counting;
@@ -155,15 +164,6 @@ public:
             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
 
             me->AddAura(eWitherbarkSpells::SpellPertifiedBark, me);
-
-            SolarVisual();
-
-            m_Counting = 0;
-            m_Intro = false;
-
-            me->AddAura(eWitherbarkSpells::SpellBrittleBarkAura, me);
-            me->setFaction(FriendlyFaction);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void SolarVisual()
@@ -220,10 +220,11 @@ public:
                     if (m_Counting == 6 && !m_Intro)
                     {
                         m_Intro = true;
+                        me->SetReactState(ReactStates::REACT_DEFENSIVE);
 
                         me->setFaction(HostileFaction);
                         me->RemoveAllAuras();
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_UNK_15 | eUnitFlags::UNIT_FLAG_UNK_6);
                     }
                     break;
                 }
@@ -582,7 +583,7 @@ public:
                     case eWitherbarkEvents::EventAqueousGlobules:
                         m_Interval -= 3 * TimeConstants::IN_MILLISECONDS;
 
-                        if (roll_chance_i(20))
+                        if (roll_chance_i(40))
                         {
                             me->SummonCreature(eWitherbarkCreatures::CreatureWaterGlobule, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                         }
@@ -729,57 +730,54 @@ public:
     }
 };
 
-/// Parched Grasp - 
-class the_everbloom_parched_grasp_target : public SpellScriptLoader
+/// Agitated Waters - 177731 
+class the_everbloom_agitated_waters : public SpellScriptLoader
 {
 public:
-    the_everbloom_parched_grasp_target() : SpellScriptLoader("the_everbloom_parched_grasp_target") { }
+    the_everbloom_agitated_waters() : SpellScriptLoader("the_everbloom_agitated_waters") {}
 
-    class the_everbloom_spells : public SpellScript
+    class the_everbloom_agitated_waters_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_spells);
+        PrepareSpellScript(the_everbloom_agitated_waters_SpellScript);
 
-        bool Load()
+        SpellCastResult CheckCast()
         {
-            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
-            spell->CasterAuraSpell = 0;
-            spell->CasterAuraState = 0;
-            spell->TargetAuraSpell = 0;
-            spell->TargetAuraState = 0;
-            spell->ExcludeCasterAuraSpell = 0;
-            spell->ExcludeTargetAuraSpell = 0;
-            return true;
+            if (GetCaster())
+            {       
+                if (InstanceScript* l_Instance = GetCaster()->GetInstanceScript())
+                {
+                    if (Creature* l_Witherbark = l_Instance->instance->GetCreature(l_Instance->GetData64(eEverbloomData::DataWitherbark)))
+                    {
+                        if (!l_Witherbark->isInCombat())
+                            return SPELL_FAILED_DONT_REPORT;
+
+                        if (!l_Witherbark->isAlive())
+                            return SPELL_FAILED_DONT_REPORT;
+                    }
+                }
+            }
+
+            return SPELL_CAST_OK;
         }
 
-        void RecalculateDamage(SpellEffIndex /*p_EffIndex*/)
+        void Register() override
         {
-            if (!GetCaster() && !GetHitUnit())
-                return;
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(the_everbloom_spells::RecalculateDamage, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnCheckCast += SpellCheckCastFn(the_everbloom_agitated_waters_SpellScript::CheckCast);
         }
     };
 
     SpellScript* GetSpellScript() const
     {
-        return new the_everbloom_spells();
+        return new the_everbloom_agitated_waters_SpellScript;
     }
 };
 
 void AddSC_boss_witherbark()
 {
-    // Boss
     new boss_witherbark();
-
-    // Creatures
     new the_everbloom_agitated_water();
     new the_everbloom_globule();
     new the_everbloom_naturalist();
-
-    // Spells
     new the_everbloom_brittle_bark();
-    new the_everbloom_parched_grasp_target();
+    new the_everbloom_agitated_waters();
 }

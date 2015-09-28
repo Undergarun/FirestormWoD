@@ -427,7 +427,7 @@ void MapManager::InitInstanceIds()
 void MapManager::RegisterInstanceId(uint32 p_InstanceID)
 {
     /// Allocation and sizing was done in InitInstanceIds()
-    m_InstanceIDs[p_InstanceID] = true;
+    m_InstanceIDs.insert(p_InstanceID);
 }
 
 uint32 MapManager::GenerateInstanceId()
@@ -441,6 +441,7 @@ uint32 MapManager::GenerateInstanceId()
             continue;
 
         m_NextInstanceID = l_I;
+        break;
     }
 
     if (l_NewInstanceID == m_NextInstanceID)
@@ -449,7 +450,7 @@ uint32 MapManager::GenerateInstanceId()
         World::StopNow(ShutdownExitCode::ERROR_EXIT_CODE);
     }
 
-    m_InstanceIDs[l_NewInstanceID] = true;
+    m_InstanceIDs.insert(l_NewInstanceID);
 
     return l_NewInstanceID;
 }

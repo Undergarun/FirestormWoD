@@ -614,7 +614,7 @@ class spell_rog_killing_spree: public SpellScriptLoader
 
                         l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
                         {
-                            if (p_Unit == nullptr || p_Unit->HasCrowdControlAura() || !l_Caster->IsValidAttackTarget(p_Unit))
+                            if (p_Unit == nullptr || p_Unit->HasBreakableByDamageCrowdControlAura() || !l_Caster->IsValidAttackTarget(p_Unit))
                                 return true;
 
                             return false;
@@ -1948,7 +1948,8 @@ public:
         Subterfuge = 108208,
         StealthSubterfuge = 115191,
         StealthSubterfugeEffect = 115192,
-        GlyphOfDisappearance = 159638
+        GlyphOfDisappearance = 159638,
+        GlyphOfVanish = 89758
     };
 
     class spell_rog_vanish_AuraScript : public AuraScript
@@ -1964,7 +1965,7 @@ public:
             }
         }
 
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
             {
@@ -1972,6 +1973,10 @@ public:
                 l_Player->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
                 l_Player->CastSpell(l_Player, eSpells::StealthShapeshift, true);
+
+                /// Glyph of Vanish
+                if (AuraEffectPtr l_AurGlyphOfVanish = l_Player->GetAuraEffect(eSpells::GlyphOfVanish, EFFECT_0))
+                    p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() + l_AurGlyphOfVanish->GetAmount());
 
                 /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
                 if (l_Player->getLevel() == 100)
@@ -2772,8 +2777,89 @@ class spell_rog_glyph_of_recovery : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.1.2
+/// Sinister Calling - 31220
+class spell_rog_sinister_calling : public SpellScriptLoader
+{
+    public:
+        spell_rog_sinister_calling() : SpellScriptLoader("spell_rog_sinister_calling") { }
+
+        class spell_rog_sinister_calling_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_sinister_calling_AuraScript);
+
+            enum eSpells
+            {
+                Garrote = 703,
+                Rupture = 1943,
+                Hemorrhage = 16511,
+                Ambush = 8676,
+                Backstab = 53
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
+            {
+                if (p_ProcInfos.GetDamageInfo() == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = p_ProcInfos.GetDamageInfo()->GetVictim();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (p_ProcInfos.GetDamageInfo()->GetSpellInfo() == nullptr)
+                    return;
+
+                if (p_ProcInfos.GetDamageInfo()->GetSpellInfo()->Id != eSpells::Backstab && p_ProcInfos.GetDamageInfo()->GetSpellInfo()->Id != eSpells::Ambush)
+                    return;
+
+                if (!(p_ProcInfos.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
+                    return;
+
+                std::list<uint32> l_DotBleedList;
+                l_DotBleedList.push_back(eSpells::Garrote);
+                l_DotBleedList.push_back(eSpells::Rupture);
+                l_DotBleedList.push_back(eSpells::Hemorrhage);
+
+                for (std::list<uint32>::iterator it = l_DotBleedList.begin(); it != l_DotBleedList.end(); ++it)
+                {
+                    if (AuraPtr l_BleedAura = l_Target->GetAura(*it, l_Caster->GetGUID()))
+                    {
+                        switch (*it)
+                        {
+                        case eSpells::Garrote:
+                        case eSpells::Rupture:
+                            if (AuraEffectPtr l_BleedEffect = l_BleedAura->GetEffect(EFFECT_0))
+                                l_BleedEffect->HandlePeriodicDamageAurasTick(l_Target, l_Caster);
+                            break;
+                        case eSpells::Hemorrhage:
+                            if (AuraEffectPtr l_BleedEffect = l_BleedAura->GetEffect(EFFECT_3))
+                                l_BleedEffect->HandlePeriodicDamageAurasTick(l_Target, l_Caster);
+                            break;
+                        default:
+                                break;
+                        }
+                        l_BleedAura->SetDuration(l_BleedAura->GetDuration() - p_AurEff->GetAmount() * IN_MILLISECONDS);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_sinister_calling_AuraScript::OnProc, EFFECT_2, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_sinister_calling_AuraScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_sinister_calling();
     new spell_rog_glyph_of_recovery();
     new spell_rog_anticipation();
     new spell_rog_venom_rush();

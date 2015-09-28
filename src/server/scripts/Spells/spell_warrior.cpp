@@ -2529,7 +2529,7 @@ class spell_warr_activate_battle_stance : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_activate_battle_stance_SpellScript::HandleOnHit);
+                BeforeHit += SpellHitFn(spell_warr_activate_battle_stance_SpellScript::HandleOnHit);
             }
         };
 
@@ -2648,8 +2648,61 @@ class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of Crow Feast - 115943
+class spell_warr_glyph_of_crow_feast : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_crow_feast() : SpellScriptLoader("spell_warr_glyph_of_crow_feast") { }
+
+        class spell_warr_glyph_of_crow_feast_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_glyph_of_crow_feast_AuraScript);
+
+            enum eSpells
+            {
+                Execute = 5308,
+                GlyphOfCrowFeast = 115944
+            };
+
+            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+            {
+                PreventDefaultAction();
+
+                if (p_ProcEventInfo.GetDamageInfo() == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = p_ProcEventInfo.GetDamageInfo()->GetVictim();
+                SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
+
+                if (l_Caster == nullptr || l_Target == nullptr || l_SpellInfoTriggerSpell == nullptr)
+                    return;
+
+                if (l_SpellInfoTriggerSpell->Id != eSpells::Execute)
+                    return;
+
+                if (!(p_ProcEventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                    return;
+
+                l_Caster->CastSpell(l_Target, eSpells::GlyphOfCrowFeast, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_glyph_of_crow_feast_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_glyph_of_crow_feast_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_glyph_of_crow_feast();
     new spell_warr_glyph_of_mystic_shout();
     new spell_warr_heroic_strike();
     new spell_warr_unyielding_strikes();

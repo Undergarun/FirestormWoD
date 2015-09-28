@@ -185,6 +185,9 @@ class CreatureAI : public UnitAI
         // Called at any threat added from any attacker (before threat apply)
         virtual void OnAddThreat(Unit* /*victim*/, float& /*fThreat*/, SpellSchoolMask /*schoolMask*/, SpellInfo const* /*threatSpell*/) {}
 
+        /// Called when at HandleGarrisonGetShipmentInfoOpcode() is received
+        virtual int OnShipmentIDRequest(Player* p_Player) { return -1; }
+
         /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)

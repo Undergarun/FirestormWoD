@@ -1,0 +1,1 @@
+DELETE FROM guild_challenges WHERE GuildId NOT IN (SELECT guildid FROM guild);

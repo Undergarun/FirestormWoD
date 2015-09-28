@@ -955,7 +955,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
         case TARGET_SELECT_CATEGORY_NYI:
             break;
         default:
-            printf("Spell::SelectEffectImplicitTargets: received not implemented select target category / Spell ID = %u and Effect = %u and target type = %u \n", m_spellInfo->Id, effIndex, targetType.GetTarget());
+            printf("Spell::SelectEffectImplicitTargets: received not implemented select target category / Spell ID = %u and Effect = %d and target type = %d \n", m_spellInfo->Id, effIndex, targetType.GetTarget());
             //ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target category");
             break;
     }
@@ -5993,6 +5993,31 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 if (l_Target->IsRessurectRequested())
                     return SPELL_FAILED_TARGET_HAS_RESURRECT_PENDING;
+            }
+        }
+    }
+
+    /// Check specialization
+    if (!IsTriggered() && !sWorld->getBoolConfig(CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK))
+    {
+        if (Player* l_Player = m_caster->ToPlayer())
+        {
+            uint32 l_CasterSpecialization = l_Player->GetSpecializationId();
+            
+            if (!m_spellInfo->SpecializationIdList.empty())
+            {
+                bool l_Found = false;
+                for (uint32 l_Specialization : m_spellInfo->SpecializationIdList)
+                {
+                    if (l_CasterSpecialization == l_Specialization)
+                    {
+                        l_Found = true;
+                        break;
+                    }
+                }
+
+                if (!l_Found)
+                    return SpellCastResult::SPELL_FAILED_SPELL_UNAVAILABLE;
             }
         }
     }

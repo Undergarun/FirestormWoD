@@ -48,19 +48,18 @@ enum eXeritacEvents
     EventToxicAura,
     EventVenomousString,
     EventWebCrawl,
-
     EventToxicSpiderling,
     EventVenomCrazedPaleOne,
     EventGorgendBusters,
     EventVenomSprayers,
-
     EventExplode,
     EventSwipe,
     EventCancelSwipe,
     EventInhale,
     EventRemoveBeam,
     EventMoveHack,
-    EventInitialBeam
+    EventInitialBeam,
+    EventMoveSecondPhaseHacked,
 };
 
 enum eXeritacCreatures
@@ -109,6 +108,7 @@ static void ShootBeam(Unit* p_Caster)
     }
 }
 
+/*
 static void RandomMove(Unit* p_Me)
 {
     std::list<Position> l_Position;
@@ -120,6 +120,37 @@ static void RandomMove(Unit* p_Me)
 
     p_Me->GetMotionMaster()->MovePoint(0, l_it->GetPositionX(), l_it->GetPositionY(), l_it->GetPositionZ());
 }
+*/
+
+class basic_event_fix_movement_chase : public BasicEvent
+{
+public:
+    explicit basic_event_fix_movement_chase(Unit* p_Unit) : l_Obj(p_Unit)
+    {
+    }
+
+    bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
+    {
+        if (l_Obj->GetTypeId() == TypeID::TYPEID_PLAYER)
+            return false;
+
+        if (l_Obj && l_Obj->IsAIEnabled)
+        {
+            if (Unit* l_Target = l_Obj->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+            {
+                l_Obj->UpdatePosition(l_Obj->GetPositionX(), l_Obj->GetPositionY(), l_Obj->GetPositionZ(), l_Obj->GetOrientation(), true);
+
+                l_Obj->GetAI()->AttackStart(l_Target);
+                l_Obj->GetMotionMaster()->MoveChase(l_Target);
+            }
+        }
+        return true;
+    }
+private:
+    Unit* l_Obj;
+    int modifier;
+    int Event;
+};
 
 static void DescendBeam(Creature* p_Creature)
 {
@@ -133,6 +164,7 @@ static void DescendBeam(Creature* p_Creature)
         }
 
         p_Creature->GetMotionMaster()->MoveTakeoff(0, p_Creature->GetPositionX(), p_Creature->GetPositionY(), 64.589f);
+        p_Creature->m_Events.AddEvent(new basic_event_fix_movement_chase(p_Creature), p_Creature->m_Events.CalculateTime(2500));
     }
 }
 
@@ -200,7 +232,7 @@ public:
          
             me->setFaction(HostileFaction);       
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void WebDoor()
@@ -256,7 +288,8 @@ public:
         {
             _EnterCombat();
 
-            events.ScheduleEvent(eXeritacEvents::EventDescend,  urand(13 * TimeConstants::IN_MILLISECONDS, 21 * TimeConstants::IN_MILLISECONDS));          
+            events.ScheduleEvent(eXeritacEvents::EventMoveHack, 10 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eXeritacEvents::EventDescend,  urand(20 * TimeConstants::IN_MILLISECONDS, 21 * TimeConstants::IN_MILLISECONDS));          
             events.ScheduleEvent(eXeritacEvents::EventToxicSpiderling, 10 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eXeritacEvents::EventVenomSprayers, 10 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eXeritacEvents::EventVenomCrazedPaleOne, 20 * TimeConstants::IN_MILLISECONDS);
@@ -275,7 +308,6 @@ public:
 
             m_Phase = 1;
            
-
             me->SetAIAnimKitId(1);
             me->SetCanFly(true);
             me->SetDisableGravity(true);
@@ -293,7 +325,7 @@ public:
             {          
                 case 10:   // Beam
                 case 11:   // Random Movement
-                    RandomMove(me);
+                    //RandomMove(me);
                     break;
             }
         }
@@ -348,12 +380,27 @@ public:
                     
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 
                         events.ScheduleEvent(eXeritacEvents::EventToxicBolt, urand(7 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-                        events.ScheduleEvent(eXeritacEvents::EventVenomousString, urand(16 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
+                        events.ScheduleEvent(eXeritacEvents::EventVenomousString, 16 * TimeConstants::IN_MILLISECONDS);
                         events.ScheduleEvent(eXeritacEvents::EventGasVolley, 30 * TimeConstants::IN_MILLISECONDS);
                         events.ScheduleEvent(eXeritacEvents::EventVenomCrazedPaleOne, 20 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eXeritacEvents::EventMoveSecondPhaseHacked, 5 * TimeConstants::IN_MILLISECONDS);
+
+                        me->SetAIAnimKitId(1);
+                        me->SetMovementAnimKitId(1);
+                        me->SetMeleeAnimKitId(1);
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        {
+                            me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
+
+                            me->Attack(l_Target, true);
+                            me->GetMotionMaster()->MoveChase(l_Target);
+                        }
+
+                        events.ScheduleEvent(eXeritacEvents::EventMoveSecondPhaseHacked, 6 * TimeConstants::IN_MILLISECONDS);
 
                         me->MonsterTextEmote("Xeri'tac descends from her web!", me->GetGUID(), true);
                     }
@@ -382,7 +429,7 @@ public:
             {
                 if (!m_Descend)
                 {
-                    RandomMove(me);
+                    //RandomMove(me);
                 }
             }
             else
@@ -403,14 +450,35 @@ public:
 
             switch (events.ExecuteEvent())
             {
+                case eXeritacEvents::EventMoveSecondPhaseHacked:
+                    if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                        return;
+
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        me->GetMotionMaster()->MoveChase(l_Target);
+
+                    events.ScheduleEvent(eXeritacEvents::EventMoveSecondPhaseHacked, 5 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                case eXeritacEvents::EventMoveHack:
+                    Position l_Position;
+                    me->GetRandomNearPosition(l_Position, 10.0f);
+
+                    l_Position.m_positionZ = 87.611f;
+                    me->GetMotionMaster()->MovePoint(0, l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetPositionZ());
+                    events.ScheduleEvent(eXeritacEvents::EventMoveHack, 8 * TimeConstants::IN_MILLISECONDS);
+                    break;
                 case eXeritacEvents::EventInitialBeam:
                     me->CastSpell(933.281f, 1424.252f, 90.216f, eXeritacSpells::SpellDecsendBeam, true);
                     break;
                     // Descend Phase
                 case eXeritacEvents::EventDescend:
                 {
-                    DescendBeam(me);
+                    events.CancelEvent(eXeritacEvents::EventMoveHack);
+                    me->StopMoving();
 
+                    DescendBeam(me);
+                    
+                    events.ScheduleEvent(eXeritacEvents::EventMoveHack, 10 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eXeritacEvents::EventDescend, 20 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eXeritacEvents::EventDecsendDummy, 3 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -438,15 +506,16 @@ public:
                 }
                 case eXeritacEvents::EventVenomousString:
                 {
-                    if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                    {
-                        if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                            return;
+                    if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                        return;
 
-                        me->CastSpell(l_Random, eXeritacSpells::SpellVenoumousSting);
-                        events.ScheduleEvent(eXeritacEvents::EventVenomousString, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                    if (Unit* l_Victim = me->getVictim())
+                    {
+                        me->CastSpell(l_Victim, eXeritacSpells::SpellVenoumousSting);
+
+                        events.ScheduleEvent(eXeritacEvents::EventVenomousString, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
                     }
-                    break;
                 }
                 case eXeritacEvents::EventGasVolley:
                 {
@@ -459,7 +528,7 @@ public:
                 {
                     std::list<Position> l_Position;
 
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 5; i++)
                         l_Position.push_back(g_PositionRandomMovements[i]);
 
                     std::list<Position>::const_iterator it = l_Position.begin();
@@ -478,7 +547,7 @@ public:
                 {
                     std::list<Position> l_Position;
 
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 5; i++)
                         l_Position.push_back(g_PositionRandomMovements[i]);
 
                     std::list<Position>::const_iterator it = l_Position.begin();
@@ -496,14 +565,13 @@ public:
                 case eXeritacEvents::EventVenomSprayers:
                 {
                     std::list<Position> l_Position;
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 5; i++)
                         l_Position.push_back(g_PositionRandomMovements[i]);
 
                     std::list<Position>::const_iterator it = l_Position.begin();
                     std::advance(it, urand(0, l_Position.size() - 1));
-
-                    Creature* l_Spiderling = me->SummonCreature(eEverbloomCreature::CreatureVenomSprayer, it->GetPositionX(), it->GetPositionY(), it->GetPositionZ(), it->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                    if (l_Spiderling)
+           
+                    if (Creature* l_Spiderling = me->SummonCreature(eEverbloomCreature::CreatureVenomSprayer, it->GetPositionX(), it->GetPositionY(), it->GetPositionZ(), it->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                         DescendBeam(l_Spiderling);
 
                     events.ScheduleEvent(eXeritacEvents::EventVenomSprayers, 30 * TimeConstants::IN_MILLISECONDS);
@@ -513,11 +581,11 @@ public:
                 {
                     if (roll_chance_i(50))
                     {
-                        me->SummonCreature(eEverbloomCreature::CreatureVenomCrazedPaleOne, g_PositionitionPaleOne[1], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                        me->SummonCreature(eEverbloomCreature::CreatureVenomCrazedPaleOne, g_PositionitionPaleOne[0], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                     }
                     else
                     {
-                        me->SummonCreature(eEverbloomCreature::CreatureVenomCrazedPaleOne, g_PositionitionPaleOne[2], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                        me->SummonCreature(eEverbloomCreature::CreatureVenomCrazedPaleOne, g_PositionitionPaleOne[1], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                     }
 
                     events.ScheduleEvent(eXeritacEvents::EventVenomCrazedPaleOne, 35 * TimeConstants::IN_MILLISECONDS);
@@ -594,8 +662,6 @@ public:
                     me->RemoveAura(eXeritacSpells::SpellDecsendBeam);
                     break;
             }
-
-            DoMeleeAttackIfReady();
         }
 
     };
@@ -630,7 +696,7 @@ public:
             DoZoneInCombat();     
             me->setFaction(HostileFaction);
 
-            me->SetSpeed(MOVE_RUN, 0.6f, true);
+            me->SetSpeed(UnitMoveType::MOVE_RUN, 0.6f, true);
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -655,16 +721,16 @@ public:
             if (!UpdateVictim())
                 return;
 
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
             if (me->FindNearestCreature(eXeritacCreatures::TriggerGas, 1.5f) && !m_Transformed)
             {
                 m_Transformed = true;
 
                 me->CastSpell(me, eXeritacSpells::SpellToxicGas);
             }
-
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
-
+    
             switch (events.ExecuteEvent())
             {
                 case eXeritacEvents::EventSwipe:
@@ -998,14 +1064,12 @@ public:
                 if (!(*it)->HasAura(eXeritacSpells::SpellToxicGasDamage))
                 {
                     (*it)->AddAura(eXeritacSpells::SpellToxicGasDamage, (*it));
-                }
-                else
-                {
+
                     AuraPtr aura = (*it)->GetAura(eXeritacSpells::SpellToxicGasDamage);
 
                     if (aura)
                     {
-                        aura->SetDuration(2);
+                        aura->SetDuration(1);
                     }
                 }
             }
@@ -1134,7 +1198,7 @@ public:
                 return;
 
             std::list<Player*>::const_iterator l_It = l_GaseousVolleyList.begin();
-            std::advance(l_It, urand(0, l_GaseousVolleyList.size() - 2 ? l_GaseousVolleyList.size() > 1 : 1));
+            std::advance(l_It, urand(0, (l_GaseousVolleyList.size() - 2) ? l_GaseousVolleyList.size() > 1 : 1));
 
             GetCaster()->CastSpell((*l_It), eXeritacSpells::SpellGasVolleyMissile, true);
         }
@@ -1267,7 +1331,7 @@ public:
             if (l_Beam)
             {
                 GetCaster()->GetMotionMaster()->MoveCharge(GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), 87.611f);
-                RandomMove(GetCaster());
+                //RandomMove(GetCaster());
             }
         }
 

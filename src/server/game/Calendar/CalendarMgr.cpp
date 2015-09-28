@@ -630,7 +630,7 @@ void CalendarMgr::SendCalendarEvent(uint64 p_Guid, CalendarEvent const& p_Calend
     for (CalendarInviteStore::const_iterator l_Iter = l_InvitList.begin(); l_Iter != l_InvitList.end(); ++l_Iter)
     {
         CalendarInvite const* l_Invite = (*l_Iter);
-        Player* l_Player = ObjectAccessor::FindPlayer(l_Invite->GetInviteeGUID());
+        l_Player = ObjectAccessor::FindPlayer(l_Invite->GetInviteeGUID());
         uint8 l_Level = l_Player ? l_Player->getLevel() : Player::GetLevelFromDB(l_Invite->GetInviteeGUID());
 
         l_Data.appendPackGUID(l_Invite->GetInviteeGUID());

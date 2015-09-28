@@ -716,6 +716,19 @@ uint32 ScriptMgr::GetDialogStatus(Player * p_Player, Creature * p_Creature)
     return tmpscript->GetDialogStatus(p_Player, p_Creature);
 }
 
+/// Called when player asks from a creature gossip to create a shipment.
+/// @p_Player       : Player that created the shipment
+/// @p_Creature     : NPC that got the gossip
+void ScriptMgr::OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID)
+{
+    ASSERT(p_Player);
+    ASSERT(p_Creature);
+    ASSERT(p_BuildingID);
+
+    GET_SCRIPT(CreatureScript, p_Creature->GetScriptId(), tmpscript);
+    tmpscript->OnShipmentCreated(p_Player, p_Creature, p_BuildingID);
+}
+
 /// Called when a CreatureAI object is needed for the creature.
 /// @p_Creature : Target creature instance
 CreatureAI * ScriptMgr::GetCreatureAI(Creature * p_Creature)

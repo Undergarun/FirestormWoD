@@ -743,7 +743,7 @@ class CheckArcaneBarrageImpactPredicate
         Unit* _mainTarget;
 };
 
-// Arcane Barrage - 44425
+/// Arcane Barrage - 44425
 class spell_mage_arcane_barrage: public SpellScriptLoader
 {
     public:
@@ -753,52 +753,33 @@ class spell_mage_arcane_barrage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_arcane_barrage_SpellScript);
 
-            uint8 m_ChargeCount;
+            uint64 m_MainTargetGUID = 0;
 
             void HandleBeforeCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    m_ChargeCount = 0;
-
-                    if (AuraPtr arcaneCharge = _player->GetAura(SPELL_MAGE_ARCANE_CHARGE))
-                        m_ChargeCount = arcaneCharge->GetStackAmount();
-                }
+                if (Unit* l_MainTarget = GetExplTargetUnit())
+                    m_MainTargetGUID = l_MainTarget->GetGUID();
             }
 
-            void HandleAfterHit()
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        int32 l_Basepoints = 0;
+                Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
 
-                        if (m_ChargeCount)
-                        {
-                            l_Basepoints = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                if (l_Target == nullptr)
+                    return;
 
-                            std::list<Unit*> l_TargetList;
+                if (l_Target->GetGUID() != m_MainTargetGUID)
+                    SetHitDamage(CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints));
 
-                            l_Target->GetAttackableUnitListInRange(l_TargetList, 10.0f);
-                            l_TargetList.remove_if(CheckArcaneBarrageImpactPredicate(l_Player, l_Target));
-
-                            JadeCore::Containers::RandomResizeList(l_TargetList, m_ChargeCount);
-
-                            for (auto itr : l_TargetList)
-                                l_Target->CastCustomSpell(itr, SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED, &l_Basepoints, NULL, NULL, true, 0, NULLAURA_EFFECT, l_Player->GetGUID());
-
-                            if (AuraPtr l_ArcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE, l_Player->GetGUID()))
-                                l_ArcaneCharge->ModStackAmount(-m_ChargeCount);
-                        }
-                    }
-                }
+                if (l_Caster->HasAura(SPELL_MAGE_ARCANE_CHARGE))
+                    l_Caster->RemoveAura(SPELL_MAGE_ARCANE_CHARGE);
             }
 
             void Register()
             {
                 BeforeCast += SpellCastFn(spell_mage_arcane_barrage_SpellScript::HandleBeforeCast);
-                AfterHit += SpellHitFn(spell_mage_arcane_barrage_SpellScript::HandleAfterHit);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_barrage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -2755,12 +2736,48 @@ class spell_ring_of_frost_freeze : public SpellScriptLoader
         }
 };
 
+/// Ring of Frost - 113724, Ring of Frost - 140376 (override)
+class spell_mage_ring_of_frost_trigger : public SpellScriptLoader
+{
+    public:
+        spell_mage_ring_of_frost_trigger() : SpellScriptLoader("spell_mage_ring_of_frost_trigger") { }
+
+        class spell_mage_ring_of_frost_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_ring_of_frost_trigger_SpellScript);
+
+            enum eSpells
+            {
+                PresenceOfMind = 12043
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::PresenceOfMind))
+                    l_Caster->RemoveAura(eSpells::PresenceOfMind);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_mage_ring_of_frost_trigger_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_ring_of_frost_trigger_SpellScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
     new spell_areatrigger_mage_wod_frost_2p_bonus();
 
     /// Spells
+    new spell_mage_ring_of_frost_trigger();
     new spell_mage_arcane_charge();
     new spell_mage_meteor();
     new spell_mage_comet_storm();
