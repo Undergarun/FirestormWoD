@@ -490,6 +490,12 @@ class spell_warr_mocking_banner: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_mocking_banner_AuraScript);
 
+            enum eDatas
+            {
+                NPCMockingBanner = 59390,
+                MockingBannerTaunt = 114198
+            };
+
             void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 Unit* l_Target = GetTarget();
@@ -497,7 +503,7 @@ class spell_warr_mocking_banner: public SpellScriptLoader
                 std::list<Creature*> l_BannerList;
                 std::list<Creature*> l_TempList;
 
-                l_Target->GetCreatureListWithEntryInGrid(l_TempList, WARRIOR_NPC_MOCKING_BANNER, GetSpellInfo()->RangeEntry->maxRangeHostile);
+                l_Target->GetCreatureListWithEntryInGrid(l_TempList, eDatas::NPCMockingBanner, GetSpellInfo()->RangeEntry->maxRangeHostile);
 
                 l_BannerList = l_TempList;
 
@@ -512,7 +518,7 @@ class spell_warr_mocking_banner: public SpellScriptLoader
                 }
 
                 for (auto itr : l_BannerList)
-                    itr->CastSpell(itr, WARRIOR_SPELL_MOCKING_BANNER_TAUNT, true);
+                    l_Target->CastSpell(itr, eDatas::MockingBannerTaunt, true);
             }
 
             void Register()
