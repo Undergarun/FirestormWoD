@@ -5646,7 +5646,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 122510: ///< Ultimatum
             case 34784:  ///< Intervene (triggered)
             case 73683:  ///< Unleash Flame
-            case 165462: ///< Unleash Flame
             case 52437:  ///< Sudden Death
             case 157174: ///< Elemental Fusion
                 spellInfo->ProcCharges = 1;
@@ -6501,6 +6500,10 @@ void SpellMgr::LoadSpellCustomAttr()
 				break;
             case 157698: ///< Haunting Spirits
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
+                break;
+            case 165462: ///< Unleash Flame
+                spellInfo->ProcCharges = 1;
+                spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 0x10000000;
                 break;
             default:
                 break;
