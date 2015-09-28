@@ -338,6 +338,7 @@ class instance_highmaul : public InstanceMapScript
                     {
                         if (p_State != EncounterState::DONE)
                             break;
+
                         SendUpdateWorldState(eHighmaulWorldStates::DisableCrowdSound, 1);
                         SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState, 0);
                         SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState2, 0);
@@ -552,62 +553,40 @@ class instance_highmaul : public InstanceMapScript
                     {
                         case eHighmaulDungeons::WalledCity:
                         {
-                            if (Creature* l_Tectus = sObjectAccessor->FindCreature(m_TectusGuid))
-                                l_Tectus->setFaction(35);
+                            uint32 l_DisabledMask = 0;
 
-                            if (Creature* l_Pol = sObjectAccessor->FindCreature(m_PolGuid))
-                                l_Pol->setFaction(35);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossTectus);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossTwinOgron);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossKoragh);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossImperatorMargok);
 
-                            if (Creature* l_Phemos = sObjectAccessor->FindCreature(m_PhemosGuid))
-                                l_Phemos->setFaction(35);
-
-                            if (Creature* l_Koragh = sObjectAccessor->FindCreature(m_KoraghGuid))
-                                l_Koragh->setFaction(35);
-
-                            if (Creature* l_Margok = sObjectAccessor->FindCreature(m_ImperatorMargokGuid))
-                                l_Margok->setFaction(35);
-
+                            SetDisabledBosses(l_DisabledMask);
                             break;
                         }
                         case eHighmaulDungeons::ArcaneSanctum:
                         {
-                            if (Creature* l_Kargath = sObjectAccessor->FindCreature(m_KargathBladefistGuid))
-                                l_Kargath->setFaction(35);
+                            uint32 l_DisabledMask = 0;
 
-                            if (Creature* l_Butcher = sObjectAccessor->FindCreature(m_TheButcherGuid))
-                                l_Butcher->setFaction(35);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossKargathBladefist);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossTheButcher);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossBrackenspore);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossImperatorMargok);
 
-                            if (Creature* l_Brackenspore = sObjectAccessor->FindCreature(m_BrackensporeGuid))
-                                l_Brackenspore->setFaction(35);
-
-                            if (Creature* l_Margok = sObjectAccessor->FindCreature(m_ImperatorMargokGuid))
-                                l_Margok->setFaction(35);
-
+                            SetDisabledBosses(l_DisabledMask);
                             break;
                         }
                         case eHighmaulDungeons::ImperatorsFall:
                         {
-                            if (Creature* l_Kargath = sObjectAccessor->FindCreature(m_KargathBladefistGuid))
-                                l_Kargath->setFaction(35);
+                            uint32 l_DisabledMask = 0;
 
-                            if (Creature* l_Butcher = sObjectAccessor->FindCreature(m_TheButcherGuid))
-                                l_Butcher->setFaction(35);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossKargathBladefist);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossTheButcher);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossBrackenspore);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossTectus);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossTwinOgron);
+                            l_DisabledMask |= (1 << eHighmaulDatas::BossKoragh);
 
-                            if (Creature* l_Brackenspore = sObjectAccessor->FindCreature(m_BrackensporeGuid))
-                                l_Brackenspore->setFaction(35);
-
-                            if (Creature* l_Tectus = sObjectAccessor->FindCreature(m_TectusGuid))
-                                l_Tectus->setFaction(35);
-
-                            if (Creature* l_Pol = sObjectAccessor->FindCreature(m_PolGuid))
-                                l_Pol->setFaction(35);
-
-                            if (Creature* l_Phemos = sObjectAccessor->FindCreature(m_PhemosGuid))
-                                l_Phemos->setFaction(35);
-
-                            if (Creature* l_Koragh = sObjectAccessor->FindCreature(m_KoraghGuid))
-                                l_Koragh->setFaction(35);
-
+                            SetDisabledBosses(l_DisabledMask);
                             break;
                         }
                         default:
@@ -654,6 +633,11 @@ class instance_highmaul : public InstanceMapScript
                         l_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     }
                 }
+            }
+
+            void Update(uint32 p_Diff) override
+            {
+                UpdateCombatResurrection(p_Diff);
             }
         };
 

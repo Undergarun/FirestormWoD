@@ -1431,6 +1431,9 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_LOG_PACKETS] = ConfigMgr::GetBoolDefault("LogPackets", true);
 
+    // Specialization check at spell cast (as it may breaks spells)
+    m_bool_configs[CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK] = ConfigMgr::GetBoolDefault("DisableSpellSpecializationCheck", false);
+
     std::string fn_analogsfile = ConfigMgr::GetStringDefault("LexicsCutterAnalogsFile", "letter_analogs.txt");
     std::string fn_wordsfile = ConfigMgr::GetStringDefault("LexicsCutterWordsFile", "innormative_words.txt");
 

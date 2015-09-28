@@ -347,6 +347,8 @@ class instance_upper_blackrock_spire : public InstanceMapScript
 
             void Update(uint32 p_Diff)
             {
+                UpdateOperations(p_Diff);
+
                 ScheduleBeginningTimeUpdate(p_Diff);
                 ScheduleChallengeStartup(p_Diff);
                 ScheduleChallengeTimeUpdate(p_Diff);

@@ -372,6 +372,7 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
     }
 
     data.WriteBits(Title.size(), 11);
+    data.FlushBits();
     data.WriteString(Title);
 
     _session->SendPacket(&data);

@@ -2582,21 +2582,29 @@ class debug_commandscript: public CommandScript
             l_StrBuilder << "DELETE FROM character_template;" << std::endl;
             l_StrBuilder << "DELETE FROM character_template_item;" << std::endl;
             l_StrBuilder << "DELETE FROM character_template_spell;" << std::endl;
-            l_StrBuilder << "DELETE FROM character_template_reputation;" << std::endl;
-            
+            l_StrBuilder << "DELETE FROM character_template_reputation;" << std::endl << std::endl;
+
             bool l_FirstEntry = true;
             l_StrBuilder << "INSERT INTO character_template VALUES";
             for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
             {
                 ChrClassesEntry const* l_ClassEntry = sChrClassesStore.LookupEntry(l_ClassId);
-                l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_ClassId << " ,\"" << l_ClassEntry->NameLang << " - Level 100\", \"\", 100, " \
-                    << "100000000, -8833.07, 622.778, 93.9317, 0.6771, 0, 1569.97, -4397.41, 16.0472, 0.543025, 1, 0)", l_FirstEntry = false;
+                l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
+                    << "("
+                    << l_ClassId << ", "
+                    << l_ClassId << ", "
+                    << "\"" << l_ClassEntry->NameLang << " - Level 100\", \"\", 100, "
+                    << "100000000, -8833.07, 622.778, 93.9317, 0.6771, 0, 1569.97, -4397.41, 16.0472, 0.543025, 1, 0)";
+
+                l_FirstEntry = false;
             }
-            
             l_StrBuilder << ";" << std::endl << std::endl;
 
             const uint32 l_HordeMask = 0xFE5FFBB2;
             const uint32 l_AllianceMask = 0xFD7FFC4D;
+            const uint32 l_ItemLevel = 670;
+            const uint32 l_BagItemId = 114821;
+
             std::string l_SearchString = p_Args; /// Case sensitive search
 
             std::list<uint8> l_ArmorSlotFind;
@@ -2604,7 +2612,6 @@ class debug_commandscript: public CommandScript
             std::list<uint8> l_CloaksFind;
             std::map<uint8, uint8> l_TrinketsFind;
 
-            
             l_FirstEntry = true;
             l_StrBuilder << "INSERT INTO character_template_item (id, itemID, faction, count) VALUES ";
             ItemTemplateContainer const* l_Store = sObjectMgr->GetItemTemplateStore();
@@ -2612,11 +2619,49 @@ class debug_commandscript: public CommandScript
             {
                 ItemTemplate const* l_Template = &l_Iter->second;
 
+                if (l_Template->InventoryType == INVTYPE_BAG)
+                {
+                    uint32 l_Count = 4;
+
+                    if (l_Template->ItemId != l_BagItemId)
+                        continue;
+
+                    for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+                    {
+                        int32 l_ClassMask = 1 << (l_ClassId - 1);
+                        if (l_Template->AllowableClass & l_ClassMask)
+                        {
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
+                                << "("
+                                << l_ClassId << ", "
+                                << l_BagItemId << ", "
+                                << "1, "
+                                << l_Count
+                                << ")";
+                            l_StrBuilder << "," << std::endl
+                                << "("
+                                << l_ClassId << ", "
+                                << l_BagItemId << ", "
+                                << "2, "
+                                << l_Count
+                                << ")";
+
+                            l_FirstEntry = false;
+                        }
+                    }
+                }
+
+                /// Must after bags
                 if (sSpellMgr->GetItemSourceSkills(l_Template->ItemId) != nullptr)
                     continue;
 
                 if (l_Template->InventoryType == INVTYPE_TRINKET)
                 {
+                    uint32 l_Count = 1;
+
+                    if (l_Template->ItemLevel != l_ItemLevel)
+                        continue;
+
                     for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
                     {
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
@@ -2628,22 +2673,38 @@ class debug_commandscript: public CommandScript
                             if (l_TrinketsFind.find(l_ClassId) != l_TrinketsFind.end() && l_TrinketsFind[l_ClassId] == 2)
                                 continue;
 
-                            if (l_Template->ItemLevel != 640)
-                                continue;
-
                             if (l_TrinketsFind.find(l_ClassId) == l_TrinketsFind.end())
                                 l_TrinketsFind[l_ClassId] = 1;
                             else
                                 l_TrinketsFind[l_ClassId] = 2;
 
-                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 1 << " ," << 1 << ")", l_FirstEntry = false;
-                            l_StrBuilder << "," << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 2 << " ," << 1 << ")";
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
+                                << "("
+                                << l_ClassId << ", "
+                                << l_Template->ItemId << ", "
+                                << "1, "
+                                << l_Count
+                                << ")";
+                            l_StrBuilder << "," << std::endl
+                                << "("
+                                << l_ClassId << ", "
+                                << l_Template->ItemId << ", "
+                                << "2, "
+                                << l_Count
+                                << ")";
+
+                            l_FirstEntry = false;
                         }
                     }
                 }
 
                 if (l_Template->InventoryType == INVTYPE_CLOAK)
                 {
+                    uint32 l_Count = 1;
+
+                    if (l_Template->ItemLevel != l_ItemLevel)
+                        continue;
+
                     for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
                     {
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
@@ -2655,13 +2716,24 @@ class debug_commandscript: public CommandScript
                             if (std::find(l_CloaksFind.begin(), l_CloaksFind.end(), l_ClassId) != l_CloaksFind.end())
                                 continue;
 
-                            if (l_Template->ItemLevel != 640)
-                                continue;
-
                             l_CloaksFind.push_back(l_ClassId);
 
-                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 1 << " ," << 1 << ")", l_FirstEntry = false;
-                            l_StrBuilder << "," << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 2 << " ," << 1 << ")";
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
+                                << "("
+                                << l_ClassId << ", "
+                                << l_Template->ItemId << ", "
+                                << "1, "
+                                << l_Count
+                                << ")";
+                            l_StrBuilder << "," << std::endl
+                                << "("
+                                << l_ClassId << ", "
+                                << l_Template->ItemId << ", "
+                                << "2, "
+                                << l_Count
+                                << ")";
+
+                            l_FirstEntry = false;
                         }
                     }
                 }
@@ -2669,6 +2741,9 @@ class debug_commandscript: public CommandScript
                 if (l_Template->Class == ITEM_CLASS_WEAPON)
                 {
                     uint32 l_Count = 1;
+
+                    if (l_Template->ItemLevel != l_ItemLevel)
+                        continue;
 
                     for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
                     {
@@ -2681,14 +2756,25 @@ class debug_commandscript: public CommandScript
                             if (std::find(l_ClassWeaponFind.begin(), l_ClassWeaponFind.end(), l_ClassId | l_Template->SubClass << 16) != l_ClassWeaponFind.end())
                                 continue;
 
-                            if (l_Template->ItemLevel != 640)
-                                continue;
-
                             l_ClassWeaponFind.push_back(l_ClassId | l_Template->SubClass << 16);
 
                             l_Count = l_Template->IsOneHanded() || (l_Template->IsTwoHandedWeapon() && l_ClassId == CLASS_WARRIOR) ? 2 : 1;
-                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," <<  1 << " ," << l_Count << ")", l_FirstEntry = false;
-                            l_StrBuilder << "," << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 2 << " ," << l_Count << ")";
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
+                                << "("
+                                << l_ClassId << ", "
+                                << l_Template->ItemId << ", "
+                                << "1, "
+                                << l_Count
+                                << ")";
+                            l_StrBuilder << "," << std::endl
+                                << "("
+                                << l_ClassId << ", "
+                                << l_Template->ItemId << ", "
+                                << "2, "
+                                << l_Count
+                                << ")";
+
+                            l_FirstEntry = false;
                         }
                     }
                 }
@@ -2699,8 +2785,10 @@ class debug_commandscript: public CommandScript
                     if (l_Template->Class != ITEM_CLASS_ARMOR)
                         continue;
 
-                    int32 l_TeamIndex = l_Template->AllowableRace == l_HordeMask;
                     uint32 l_Count = 1;
+
+                    if (l_Template->ItemLevel != l_ItemLevel)
+                        continue;
 
                     for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
                     {
@@ -2711,65 +2799,130 @@ class debug_commandscript: public CommandScript
                             {
                                 switch (l_Template->SubClass)
                                 {
-                                    case ITEM_SUBCLASS_ARMOR_CLOTH:
-                                        switch (l_ClassId)
-                                        {
-                                            case CLASS_PRIEST:
-                                            case CLASS_MAGE:
-                                            case CLASS_WARLOCK:
-                                                break;
-                                            default:
-                                                continue;
-                                        }
-                                        break;
-                                    case ITEM_SUBCLASS_ARMOR_LEATHER:
-                                        switch (l_ClassId)
-                                        {
-                                            case CLASS_ROGUE:
-                                            case CLASS_MONK:
-                                            case CLASS_DRUID:
-                                                break;
-                                            default:
-                                                continue;
-                                        }
-                                        break;
-                                    case ITEM_SUBCLASS_ARMOR_MAIL:
-                                        switch (l_ClassId)
-                                        {
-                                            case CLASS_HUNTER:
-                                            case CLASS_SHAMAN:
-                                                break;
-                                            default:
-                                                continue;
-                                        }
-                                        break;
-                                    case ITEM_SUBCLASS_ARMOR_PLATE:
-                                        switch (l_ClassId)
-                                        {
-                                            case CLASS_PALADIN:
-                                            case CLASS_WARRIOR:
-                                            case CLASS_DEATH_KNIGHT:
-                                                break;
-                                            default:
-                                                continue;
-                                        }
+                                case ITEM_SUBCLASS_ARMOR_CLOTH:
+                                    switch (l_ClassId)
+                                    {
+                                    case CLASS_PRIEST:
+                                    case CLASS_MAGE:
+                                    case CLASS_WARLOCK:
                                         break;
                                     default:
+                                        continue;
+                                    }
+                                    break;
+                                case ITEM_SUBCLASS_ARMOR_LEATHER:
+                                    switch (l_ClassId)
+                                    {
+                                    case CLASS_ROGUE:
+                                    case CLASS_MONK:
+                                    case CLASS_DRUID:
                                         break;
+                                    default:
+                                        continue;
+                                    }
+                                    break;
+                                case ITEM_SUBCLASS_ARMOR_MAIL:
+                                    switch (l_ClassId)
+                                    {
+                                    case CLASS_HUNTER:
+                                    case CLASS_SHAMAN:
+                                        break;
+                                    default:
+                                        continue;
+                                    }
+                                    break;
+                                case ITEM_SUBCLASS_ARMOR_PLATE:
+                                    switch (l_ClassId)
+                                    {
+                                    case CLASS_PALADIN:
+                                    case CLASS_WARRIOR:
+                                    case CLASS_DEATH_KNIGHT:
+                                        break;
+                                    default:
+                                        continue;
+                                    }
+                                    break;
+                                default:
+                                    break;
                                 }
                             }
 
-                            if (!l_Template->HasClassSpec(l_ClassId) || l_Template->ItemLevel != 640)
+                            if (!l_Template->HasClassSpec(l_ClassId))
                                 continue;
 
-                            l_Count = 1;
-                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," <<  1 << " ," << l_Count << ")", l_FirstEntry = false;
-                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 2 << " ," << l_Count << ")", l_FirstEntry = false;
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
+                                << "("
+                                << l_ClassId << ", "
+                                << l_Template->ItemId << ", "
+                                << "1, "
+                                << l_Count
+                                << ")";
+                            l_StrBuilder << "," << std::endl
+                                << "("
+                                << l_ClassId << ", "
+                                << l_Template->ItemId << ", "
+                                << "2, "
+                                << l_Count
+                                << ")";
+
+                            l_FirstEntry = false;
                         }
                     }
                 }
             }
 
+            const uint32 l_Count = 200;
+            const uint32 l_TomeOfTheClearMindId = 79249;
+
+            for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+            {
+                l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
+                    << "("
+                    << l_ClassId << ", "
+                    << l_TomeOfTheClearMindId << ", "
+                    << "1, "
+                    << l_Count
+                    << ")";
+                l_StrBuilder << "," << std::endl
+                    << "("
+                    << l_ClassId << ", "
+                    << l_TomeOfTheClearMindId << ", "
+                    << "2, "
+                    << l_Count
+                    << ")";
+            }
+
+            l_StrBuilder << ";" << std::endl << std::endl;
+
+            l_FirstEntry = true;
+            l_StrBuilder << "INSERT INTO character_template_spell VALUES";
+            for (uint32 l_ID = 0; l_ID < sSpellStore.GetNumRows(); ++l_ID)
+            {
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ID);
+                if (!l_SpellInfo)
+                    continue;
+
+                SpellEffectInfo const* l_EffectInfo = l_SpellInfo->GetEffectByType(SPELL_EFFECT_APPLY_GLYPH);
+                if (!l_EffectInfo)
+                    continue;
+
+                if (GlyphPropertiesEntry const* l_Glyph = sGlyphPropertiesStore.LookupEntry(l_EffectInfo->MiscValue))
+                {
+                    if (SpellInfo const* l_GlyphInfo = sSpellMgr->GetSpellInfo(l_Glyph->SpellId))
+                    {
+                        /// First value should be the template id, but with us, it's the same as classid
+                        uint32 l_ClassId = l_GlyphInfo->GetClassIDBySpellFamilyName();
+
+                        l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
+                            << "("
+                            << l_ClassId << ", "
+                            << l_SpellInfo->Id
+                            << ")";
+
+                        l_FirstEntry = false;
+                    }
+                }
+            }
 
             l_StrBuilder << ";" << std::endl;
             std::string l_FinalString = l_StrBuilder.str();
@@ -2777,6 +2930,9 @@ class debug_commandscript: public CommandScript
             fwrite(l_FinalString.c_str(), l_FinalString.length(), 1, l_Output);
             fflush(l_Output);
             fclose(l_Output);
+
+            p_Handler->PSendSysMessage("Characters templates generated !");
+
             return true;
         }
 

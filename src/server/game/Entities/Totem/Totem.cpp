@@ -35,7 +35,7 @@ Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(prop
 void Totem::Update(uint32 time)
 {
     Unit* l_Owner = GetSummoner();
-    if ((!l_Owner && !l_Owner->isAlive()) || !isAlive())
+    if ((!l_Owner || !l_Owner->isAlive()) || !isAlive())
     {
         UnSummon();                                         // remove self
         return;
@@ -172,29 +172,6 @@ void Totem::UnSummon(uint32 msTime)
     }
 
     Unit* l_Owner = GetSummoner();
-
-    // Totemic Persistence
-    if (l_Owner != nullptr)
-    {
-        if (AuraEffectPtr totemicPersistence = l_Owner->GetAuraEffect(108284, EFFECT_0))
-        {
-            if (totemicPersistence->GetAmount() == 50)
-            {
-                // Does not affect Fire totems
-                for (int i = SUMMON_SLOT_TOTEM + 1; i < MAX_TOTEM_SLOT; ++i)
-                {
-                    if (l_Owner->m_SummonSlot[i] == GetGUID())
-                    {
-                        l_Owner->m_SummonSlot[i] = 0;
-                        totemicPersistence->SetAmount(GetEntry());
-                        return;
-                    }
-                }
-            }
-            else if (totemicPersistence->GetAmount() == (int32)GetEntry())
-                totemicPersistence->SetAmount(50);
-        }
-    }
 
     CombatStop();
     RemoveAurasDueToSpell(GetSpell(), GetGUID());

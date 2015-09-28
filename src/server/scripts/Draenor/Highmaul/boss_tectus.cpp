@@ -1582,8 +1582,9 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
                         return;
 
                     uint32 l_OldPower = l_Target->GetPower(Powers::POWER_ENERGY);
-                    l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, GetEnergyGainFromHealth(l_Target->GetHealthPct()), Powers::POWER_ENERGY);
-                    uint32 l_NewPower = l_Target->GetPower(Powers::POWER_ENERGY);
+                    int32 l_PowerGain = GetEnergyGainFromHealth(l_Target->GetHealthPct());
+                    l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, l_PowerGain, Powers::POWER_ENERGY);
+                    uint32 l_NewPower = l_OldPower + l_PowerGain;
 
                     if (l_Target->IsAIEnabled)
                     {
@@ -1594,13 +1595,13 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
                             /// On Mythic difficulty, Tectus also uses this ability at 50 Energy.
                             if (l_Target->GetMap()->IsMythic())
                             {
-                                if ((l_OldPower < 25 && (l_OldPower + l_NewPower) >= 25) ||
-                                    (l_OldPower < 50 && (l_OldPower + l_NewPower) >= 50))
+                                if ((l_OldPower < 25 && l_NewPower >= 25) ||
+                                    (l_OldPower < 50 && l_NewPower >= 50))
                                     l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
                             }
                             else
                             {
-                                if (l_OldPower < 25 && (l_OldPower + l_NewPower) >= 25)
+                                if (l_OldPower < 25 && l_NewPower >= 25)
                                     l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
                             }
                         }

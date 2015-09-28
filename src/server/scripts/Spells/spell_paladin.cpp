@@ -638,7 +638,8 @@ class spell_pal_tower_of_radiance: public SpellScriptLoader
         }
 };
 
-// Sacred shield - 20925 and Sacred Shield (Holy) - 148039
+/// last update : 6.1.2 19802
+/// Sacred shield - 20925 and Sacred Shield (Holy) - 148039
 class spell_pal_sacred_shield: public SpellScriptLoader
 {
     public:
@@ -648,11 +649,13 @@ class spell_pal_sacred_shield: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_sacred_shield_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
-                if (Unit* _player = GetCaster())
-                    if (Unit* target = GetTarget())
-                            _player->CastSpell(target, PALADIN_SPELL_SACRED_SHIELD, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetTarget())
+                        l_Caster->CastSpell(l_Target, PALADIN_SPELL_SACRED_SHIELD, true);
+                }
             }
 
             void Register()
@@ -667,7 +670,8 @@ class spell_pal_sacred_shield: public SpellScriptLoader
         }
 };
 
-// Sacred shield absorb - 65148
+/// last update : 6.1.2 19802
+/// Sacred shield absorb - 65148
 class spell_pal_sacred_shield_absorb: public SpellScriptLoader
 {
     public:
@@ -677,10 +681,24 @@ class spell_pal_sacred_shield_absorb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_sacred_shield_absorb_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr , int32 & amount, bool & )
+            void CalculateAmount(constAuraEffectPtr /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
-                if (GetCaster())
-                    amount = int32(1 + GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * 1.306f);
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY)
+                    p_Amount = int32(1 + l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * 0.995f);
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
+                    p_Amount = int32(1 + l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * 1.306f / 0.7f);
+                else
+                    p_Amount = int32(1 + l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * 1.306f);
             }
 
             void Register()
@@ -1108,7 +1126,10 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                 uint32 l_TickNumber = p_AurEff->GetTickNumber();
 
                 if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                {
+                    if (l_TickNumber >= 1 && l_TickNumber <= 10)
                         l_AuraEffect->SetAmount(int32(l_BaseValue * (m_TickMultiplier[l_TickNumber])));
+                }
             }
 
             void Register()
@@ -1253,8 +1274,8 @@ public:
     }
 };
 
-// called by Holy Prism (damage) - 114852 or Holy Prism (heal) - 114871
-// Holy Prism visual for other targets
+/// called by Holy Prism (heal) - 114852 or Holy Prism (damage) - 114871
+/// Holy Prism visual for other targets
 class spell_pal_holy_prism_visual: public SpellScriptLoader
 {
     public:
@@ -1264,6 +1285,21 @@ class spell_pal_holy_prism_visual: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_holy_prism_visual_SpellScript);
 
+            enum eSpells
+            {
+                HolyPrismHeal = 114852,
+                HolyPrismDamage = 114871,
+                HolyPrismHealVisual = 121552,
+                HolyPrismDamageVisual = 114870
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                /// Healing up to 5 allies or ennemies
+                if (p_Targets.size() > 5)
+                    JadeCore::RandomResizeList(p_Targets, 5);
+            }
+
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
@@ -1271,15 +1307,26 @@ class spell_pal_holy_prism_visual: public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         if (_player->IsValidAttackTarget(target))
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL_2, true);
+                            _player->CastSpell(target, eSpells::HolyPrismDamageVisual, true);
                         else
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL_2, true);
+                            _player->CastSpell(target, eSpells::HolyPrismHealVisual, true);
                     }
                 }
             }
 
             void Register()
             {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::HolyPrismHeal:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_prism_visual_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+                    break;
+                case eSpells::HolyPrismDamage:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_prism_visual_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                    break;
+                default:
+                    break;
+                }
                 OnHit += SpellHitFn(spell_pal_holy_prism_visual_SpellScript::HandleOnHit);
             }
         };
@@ -1498,6 +1545,22 @@ class spell_pal_word_of_glory: public SpellScriptLoader
                 return true;
             }
 
+            SpellCastResult CheckTarget()
+            {
+                /// Since this spell can be used on any unit (friendly/enemy) with the Glyph of Harsh Words,
+                /// the target has to be checked.
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetExplTargetUnit())
+                    {
+                        if (!l_Target->IsFriendlyTo(l_Caster) && !l_Caster->_IsValidAttackTarget(l_Target, GetSpellInfo()))
+                            return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
+                    }
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
             void HandleOnCast()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -1506,30 +1569,30 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (!l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
-                            if ((l_Target->GetTypeId() != TYPEID_PLAYER && !l_Target->isPet()) || !l_Target->IsFriendlyTo(l_Player))
-                                l_Target = l_Player;
+                        if (!l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
+                            if ((l_Target->GetTypeId() != TYPEID_PLAYER && !l_Target->isPet()) || !l_Target->IsFriendlyTo(l_Caster))
+                                l_Target = l_Caster;
 
                         // Set HolyPower with value of OnPrepare because some Holy Power are consumed before OnHit and we need it for calculate
                         // HolyPower are consume after it
-                        l_Player->SetPower(POWER_HOLY_POWER, m_HolyPower);
+                        l_Caster->SetPower(POWER_HOLY_POWER, m_HolyPower);
 
-                        if (l_Target->IsFriendlyTo(l_Player))
-                            l_Player->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
-                        else if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
-                            l_Player->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
+                        if (l_Target->IsFriendlyTo(l_Caster))
+                            l_Caster->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
+                        else if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_HARSH_WORDS))
+                            l_Caster->CastSpell(l_Target, PALADIN_SPELL_HARSH_WORDS_DAMAGE, true);
 
-                        if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Player))
+                        if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Caster))
                         {
-                            AuraPtr l_Aura = l_Player->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Player);
+                            AuraPtr l_Aura = l_Caster->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Caster);
 
                             if (l_Aura)
                             {
-                                if (m_HolyPower > 3 || l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                                if (m_HolyPower > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                                     m_HolyPower = 3;
 
                                 l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (m_HolyPower));
@@ -1542,6 +1605,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_pal_word_of_glory_SpellScript::CheckTarget);
                 OnCast += SpellCastFn(spell_pal_word_of_glory_SpellScript::HandleOnCast);
                 OnHit += SpellHitFn(spell_pal_word_of_glory_SpellScript::HandleOnHit);
             }

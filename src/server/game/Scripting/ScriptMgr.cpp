@@ -716,6 +716,19 @@ uint32 ScriptMgr::GetDialogStatus(Player * p_Player, Creature * p_Creature)
     return tmpscript->GetDialogStatus(p_Player, p_Creature);
 }
 
+/// Called when player asks from a creature gossip to create a shipment.
+/// @p_Player       : Player that created the shipment
+/// @p_Creature     : NPC that got the gossip
+void ScriptMgr::OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID)
+{
+    ASSERT(p_Player);
+    ASSERT(p_Creature);
+    ASSERT(p_BuildingID);
+
+    GET_SCRIPT(CreatureScript, p_Creature->GetScriptId(), tmpscript);
+    tmpscript->OnShipmentCreated(p_Player, p_Creature, p_BuildingID);
+}
+
 /// Called when a CreatureAI object is needed for the creature.
 /// @p_Creature : Target creature instance
 CreatureAI * ScriptMgr::GetCreatureAI(Creature * p_Creature)
@@ -2310,20 +2323,17 @@ bool ScriptMgr::HasPlayerConditionScript(uint32 p_ID)
 }
 
 /// Eval a player condition script
-/// @p_Condition : Condition
-/// @p_Player    : Player instance
-bool ScriptMgr::EvalPlayerConditionScript(PlayerConditionEntry const* p_Condition, Player* p_Player)
+/// @p_ConditionID : Condition ID
+/// @p_Condition   : Condition
+/// @p_Player      : Player instance
+bool ScriptMgr::EvalPlayerConditionScript(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player)
 {
-    if (!p_Condition)
-        return false;
-
-    uint32 l_ConditionID = p_Condition->ID;
-    auto l_Script = m_PlayerConditionScripts.Find(l_ConditionID);
+    auto l_Script = m_PlayerConditionScripts.Find(p_ConditionID);
 
     if (!l_Script)
         return false;
 
-    return l_Script->OnConditionCheck(p_Condition, p_Player);
+    return l_Script->OnConditionCheck(p_ConditionID, p_Condition, p_Player);
 }
 
 //////////////////////////////////////////////////////////////////////////

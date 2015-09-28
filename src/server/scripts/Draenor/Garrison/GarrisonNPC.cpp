@@ -14,6 +14,7 @@
 #include "GarrisonMgr.hpp"
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
+#include "Buildings/Alliance/Medium/ABarn.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 #include "Buildings/Alliance/Small/ATheForge.hpp"
@@ -30,6 +31,7 @@
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
+#include "Buildings/Horde/Medium/HBarn.hpp"
 #include "Buildings/Horde/Small/HTheForge.hpp"
 #include "Buildings/Horde/Small/HTailoringEmporium.hpp"
 #include "Buildings/Horde/Small/HAlchemyLab.hpp"
@@ -38,6 +40,7 @@
 #include "Buildings/Horde/Small/HGemBoutique.hpp"
 #include "Buildings/Horde/Small/HEngineeringWorks.hpp"
 #include "Buildings/Horde/Small/HScribeQuarters.hpp"
+#include "Buildings/Horde/HHerbGarden.hpp"
 
 #include <random>
 
@@ -110,6 +113,12 @@ namespace MS { namespace Garrison
         return m_BuildingID;
     }
 
+    /// Get plot instance ID
+    uint32 GarrisonNPCAI::GetPlotInstanceID()
+    {
+        return m_PlotInstanceLocation ? m_PlotInstanceLocation->PlotInstanceID : 0;
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -152,9 +161,111 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    /// Spawn a creature with building relative coords
+    /// @p_Entry      : Creature entry
+    /// @p_RelX       : X Relative coord
+    /// @p_RelY       : Y Relative coord
+    /// @p_RelZ       : Z Relative coord
+    /// @p_RelO       : Relative orientation coord
+    /// @p_SummonType : Summon type
+    Creature* GarrisonNPCAI::SummonRelativeCreature(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO, TempSummonType p_SummonType)
+    {
+        if (!m_PlotInstanceLocation)
+            return nullptr;
+
+        G3D::Vector3 l_Position = G3D::Vector3(p_RelX, p_RelY, 0);
+
+        G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), m_PlotInstanceLocation->O);
+
+        l_Position.x += m_NonRotatedPlotPosition.x;
+        l_Position.y += m_NonRotatedPlotPosition.y;
+
+        l_Position = l_Mat * l_Position;
+
+        l_Position.z = p_RelZ + m_PlotInstanceLocation->Z;
+
+        float l_Angle = p_RelO;
+
+        if (m_PlotInstanceLocation)
+            l_Angle += m_PlotInstanceLocation->O;
+
+        return me->SummonCreature(p_Entry, l_Position.x, l_Position.y, l_Position.z, l_Angle, p_SummonType);
+    }
+
+    /// Spawn a gameobject with building relative coords
+    /// @p_Entry      : GameObject entry
+    /// @p_RelX       : X Relative coord
+    /// @p_RelY       : Y Relative coord
+    /// @p_RelZ       : Z Relative coord
+    /// @p_RelO       : Relative orientation coord
+    GameObject* GarrisonNPCAI::SummonRelativeGameObject(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO)
+    {
+        if (!m_PlotInstanceLocation)
+            return nullptr;
+
+        G3D::Vector3 l_Position = G3D::Vector3(p_RelX, p_RelY, 0);
+
+        G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), m_PlotInstanceLocation->O);
+
+        l_Position.x += m_NonRotatedPlotPosition.x;
+        l_Position.y += m_NonRotatedPlotPosition.y;
+
+        l_Position = l_Mat * l_Position;
+
+        l_Position.z = p_RelZ + m_PlotInstanceLocation->Z;
+
+        float l_Angle = p_RelO;
+
+        if (m_PlotInstanceLocation)
+            l_Angle += m_PlotInstanceLocation->O;
+
+        return me->SummonGameObject(p_Entry, l_Position.x, l_Position.y, l_Position.z, l_Angle, 0, 0, 0, 0, 0);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Transform coord
+    /// @p_X : X coord
+    /// @p_Y : Y coord
+    /// @p_Z : Z coord
+    void GarrisonNPCAI::TransformCoord(float& p_X, float &p_Y, float &p_Z)
+    {
+        if (!m_PlotInstanceLocation)
+            return;
+
+        G3D::Vector3 l_Position = G3D::Vector3(p_X, p_Y, 0);
+
+        G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), m_PlotInstanceLocation->O);
+
+        l_Position.x += m_NonRotatedPlotPosition.x;
+        l_Position.y += m_NonRotatedPlotPosition.y;
+
+        l_Position = l_Mat * l_Position;
+
+        l_Position.z = p_Z + m_PlotInstanceLocation->Z;
+
+        p_X = l_Position.x;
+        p_Y = l_Position.y;
+        p_Z = l_Position.z;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// When the building ID is set
     /// @p_BuildingID : Set building ID
     void GarrisonNPCAI::OnSetBuildingID(uint32 p_BuildingID)
+    {
+
+    }
+
+    /// When the PlotInstance ID is set
+    /// @p_BuildingID : Set plot instance ID
+    void GarrisonNPCAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
 
     }
@@ -187,6 +298,8 @@ namespace MS { namespace Garrison
 
                 /// transform plot coord
                 m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
+            
+                OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
             }
         }
         else if (p_ID == CreatureAIDataIDs::BuildingID)
@@ -225,22 +338,20 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Show shipment crafter UI
-    void GarrisonNPCAI::SendShipmentCrafterUI(Player * p_Player)
+    void GarrisonNPCAI::SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID /*= 0*/)
     {
         if (p_Player->IsInGarrison())
         {
-            uint32 l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(m_BuildingID, p_Player, false);
-
-            if (l_ShipmentID)
+            if (!p_ShipmentID && !(p_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(m_BuildingID, p_Player, false)))
+                p_Player->PlayerTalkClass->SendCloseGossip();
+            else
             {
                 WorldPacket l_Data(SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP);
                 l_Data.appendPackGUID(me->GetGUID());
-                l_Data << uint32(l_ShipmentID);
+                l_Data << uint32(p_ShipmentID);
 
                 p_Player->SendDirectMessage(&l_Data);
             }
-            else
-                p_Player->PlayerTalkClass->SendCloseGossip();
         }
     }
 
@@ -516,6 +627,14 @@ void AddSC_Garrison_NPC()
         /// Scribe quarters
         new MS::Garrison::npc_EricBroadoak;
         new MS::Garrison::npc_KurtBroadoak;
+
+        /// Herb garden
+        new MS::Garrison::npc_OllyNimkip;
+        new MS::Garrison::npc_NaronBloomthistle;
+
+        /// Barn
+        new MS::Garrison::npc_HomerStonefield;
+        new MS::Garrison::npc_HomerStonefield_Garr_Trap;
     }
 
     /// Horde
@@ -567,5 +686,14 @@ void AddSC_Garrison_NPC()
         /// Scribe quarters
         new MS::Garrison::npc_Urgra;
         new MS::Garrison::npc_Yrogg;
+
+        /// Herb garden
+        new MS::Garrison::npc_Tarnon;
+        new MS::Garrison::npc_NaliSoftOil;
+
+        /// Barn
+        new MS::Garrison::npc_FarmerLokLub;
+        new MS::Garrison::npc_IronTrap;
+        new MS::Garrison::npc_FarmerLokLub_Trap;
     }
 }

@@ -1111,6 +1111,8 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 {
                     if (p_Creature->GetVehicle())
                         p_Creature->AI()->DoAction(eActions::ActionExitWheel);
+                    else
+                        p_Creature->CastSpell(p_Creature, eSpells::WheelOfPainKnockBack, true);
                 }
 
                 return true;

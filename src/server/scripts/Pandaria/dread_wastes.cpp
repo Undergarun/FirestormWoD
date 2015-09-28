@@ -1842,7 +1842,7 @@ class mob_hisek_the_swarmkeeper_two : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                if ((id = 1))
+                if ((id == 1))
                 {
                     DoAction(ACTION_START_SPEAKING);
                     me->SummonCreature(MOB_KLAXXI_TRAITOR, -637.653f, 3134.079f, 146.444f, 3.333f); // Klaxxi Traitor
@@ -1966,7 +1966,7 @@ class mob_klaxxi_traitor : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                if ((id = 1))
+                if ((id == 1))
                 {
                     DoAction(ACTION_START_SPEAKING);
                     me->SummonCreature(MOB_KLAXXI_TRAITOR, -637.653f, 3134.079f, 146.444f, 3.333f); // Klaxxi Traitor

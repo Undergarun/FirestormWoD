@@ -398,7 +398,8 @@ class spell_dk_festering_strike: public SpellScriptLoader
         }
 };
 
-// Death Strike heal - 45470
+/// last update : 6.1.2 19802
+/// Death Strike heal - 45470
 class spell_dk_death_strike_heal: public SpellScriptLoader
 {
     public:
@@ -408,22 +409,17 @@ class spell_dk_death_strike_heal: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_death_strike_heal_SpellScript);
 
+            enum eSpells
+            {
+                ScentOfBloodAura = 50421
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (AuraPtr scentOfBlood = _player->GetAura(DK_SPELL_SCENT_OF_BLOOD_AURA))
-                        {
-                            uint8 chg = scentOfBlood->GetStackAmount();
-                            uint32 hl = GetHitHeal() * 0.2 * chg;
-                            SetHitHeal(GetHitHeal() + hl);
-                        }
+                Unit* l_Caster = GetCaster();
 
-                        _player->RemoveAura(DK_SPELL_SCENT_OF_BLOOD_AURA);
-                    }
-                }
+                if (l_Caster->HasAura(eSpells::ScentOfBloodAura))
+                    l_Caster->RemoveAura(eSpells::ScentOfBloodAura);
             }
 
             void Register()
@@ -980,57 +976,70 @@ class spell_dk_plague_leech: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_plague_leech_SpellScript);
 
+            enum eSpells
+            {
+                NecroticPlague = 152281,
+                NecroticPlagueAura = 155159,
+                BloodPlague = 55078,
+                FrostEver = 55095
+            };
+
             std::list<uint8> m_LstRunesUsed;
 
             SpellCastResult CheckRunes()
             {
-                if (GetCaster() && GetCaster()->ToPlayer())
-                {
-                    for (uint8 i = 0; i < MAX_RUNES; ++i)
-                        if (GetCaster()->ToPlayer()->GetRuneCooldown(i))
-                            m_LstRunesUsed.push_back(i);
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetExplTargetUnit();
 
-                    if (m_LstRunesUsed.size() < 2)
-                        return SPELL_FAILED_DONT_REPORT;
-                    else
-                        return SPELL_CAST_OK;
-
-                    if (Unit* target = GetExplTargetUnit())
-                    {
-                        if (!target->HasAura(DK_SPELL_BLOOD_PLAGUE) || !target->HasAura(DK_SPELL_FROST_FEVER))
-                            return SPELL_FAILED_DONT_REPORT;
-                        else
-                            return SPELL_CAST_OK;
-                    }
-                }
-                else
+                if (l_Player == nullptr || l_Target == nullptr)
                     return SPELL_FAILED_DONT_REPORT;
+
+                for (uint8 i = 0; i < MAX_RUNES; ++i)
+                {
+                    if (l_Player->GetRuneCooldown(i))
+                        m_LstRunesUsed.push_back(i);
+                }
+
+                if (m_LstRunesUsed.size() < 2)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->HasAura(eSpells::NecroticPlague) && !l_Target->HasAura(eSpells::NecroticPlagueAura, l_Player->GetGUID()))
+                    return SPELL_FAILED_DONT_REPORT;
+                else if (!l_Player->HasAura(eSpells::NecroticPlague) && (!l_Target->HasAura(eSpells::BloodPlague, l_Player->GetGUID()) || !l_Target->HasAura(eSpells::FrostEver, l_Player->GetGUID())))
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
             }
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(eSpells::NecroticPlagueAura, l_Player->GetGUID()))
+                    l_Target->RemoveAura(eSpells::NecroticPlagueAura, l_Player->GetGUID());
+                else
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        l_Target->RemoveAura(DK_SPELL_FROST_FEVER);
-                        l_Target->RemoveAura(DK_SPELL_BLOOD_PLAGUE);
-
-                        for (uint8 l_I = 0; l_I < 2; l_I++)
-                        {
-                            uint8 l_RuneRandom = JadeCore::Containers::SelectRandomContainerElement(m_LstRunesUsed);
-
-                            if (l_Player->GetRuneCooldown(l_RuneRandom))
-                            {
-                                l_Player->SetRuneCooldown(l_RuneRandom, 0);
-                                l_Player->ConvertRune(l_RuneRandom, RUNE_DEATH);
-                            }
-
-                            m_LstRunesUsed.remove(l_RuneRandom);
-                        }
-                        l_Player->ResyncRunes(MAX_RUNES);
-                    }
+                    l_Target->RemoveAura(eSpells::FrostEver, l_Player->GetGUID());
+                    l_Target->RemoveAura(eSpells::BloodPlague, l_Player->GetGUID());
                 }
+
+                for (uint8 l_I = 0; l_I < 2; l_I++)
+                {
+                    uint8 l_RuneRandom = JadeCore::Containers::SelectRandomContainerElement(m_LstRunesUsed);
+
+                    if (l_Player->GetRuneCooldown(l_RuneRandom))
+                    {
+                        l_Player->SetRuneCooldown(l_RuneRandom, 0);
+                        l_Player->ConvertRune(l_RuneRandom, RUNE_DEATH);
+                    }
+
+                    m_LstRunesUsed.remove(l_RuneRandom);
+                }
+                l_Player->ResyncRunes(MAX_RUNES);
             }
 
             void Register()
@@ -1719,10 +1728,13 @@ class spell_dk_icy_touch: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (!GetCaster() || !GetHitUnit())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
                     return;
 
-                GetCaster()->CastSpell(GetHitUnit(), DK_SPELL_FROST_FEVER, true);
+                GetCaster()->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
             }
 
             void Register()
@@ -2087,43 +2099,42 @@ class spell_dk_death_pact: public SpellScriptLoader
         }
 };
 
-/// Called by Chains of Ice - 45524
-/// Chilblains - 50041
-class spell_dk_chilblains: public SpellScriptLoader
+/// Chains of Ice - 45524
+class spell_dk_chain_of_ice: public SpellScriptLoader
 {
     public:
-        spell_dk_chilblains() : SpellScriptLoader("spell_dk_chilblains") { }
+        spell_dk_chain_of_ice() : SpellScriptLoader("spell_dk_chain_of_ice") { }
 
-        class spell_dk_chilblains_SpellScript : public SpellScript
+        class spell_dk_chain_of_ice_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dk_chilblains_SpellScript);
+            PrepareSpellScript(spell_dk_chain_of_ice_SpellScript);
 
             enum eSpell
             {
-                ChainOfIceRoot = 96294
+                ChainOfIceRoot = 96294,
             };
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster->HasAura(DK_SPELL_CHILBLAINS))
-                            l_Caster->CastSpell(l_Target, eSpell::ChainOfIceRoot, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(DK_SPELL_CHILBLAINS))
+                    l_Caster->CastSpell(l_Target, eSpell::ChainOfIceRoot, true);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dk_chilblains_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_dk_chain_of_ice_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_dk_chilblains_SpellScript();
+            return new spell_dk_chain_of_ice_SpellScript();
         }
 };
 
@@ -2156,47 +2167,6 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dk_chilblains_aura_AuraScript();
-        }
-};
-
-/// last update : 6.1.2 19802
-/// Frost Fever - 55095
-class spell_dk_frost_fever : public SpellScriptLoader
-{
-    public:
-        spell_dk_frost_fever() : SpellScriptLoader("spell_dk_frost_fever") { }
-
-        class spell_dk_frost_fever_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_frost_fever_AuraScript);
-
-            enum eSpells
-            {
-                chilbrains = 50041,
-                chilbrainsAura = 50435
-            };
-
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-            {
-                Unit* l_Target = GetTarget();
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster == nullptr)
-                    return;
-
-                if (l_Caster->HasAura(eSpells::chilbrains))
-                    l_Caster->CastSpell(l_Target, eSpells::chilbrainsAura, true);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_dk_frost_fever_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY));
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_frost_fever_AuraScript();
         }
 };
 
@@ -2952,6 +2922,47 @@ class spell_dk_presences : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Frost Fever - 55095
+class spell_dk_frost_fever : public SpellScriptLoader
+{
+    public:
+        spell_dk_frost_fever() : SpellScriptLoader("spell_dk_frost_fever") { }
+
+        class spell_dk_frost_fever_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_frost_fever_SpellScript);
+            
+            enum eSpells
+            {
+                chilbrains = 50041,
+                chilbrainsAura = 50435
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::chilbrains))
+                    l_Caster->CastSpell(l_Target, eSpells::chilbrainsAura, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_frost_fever_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_frost_fever_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_frost_fever();
@@ -2996,7 +3007,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_runic_empowerment();
     new spell_dk_runic_corruption();
     new spell_dk_death_pact();
-    new spell_dk_chilblains();
+    new spell_dk_chain_of_ice();
+    new spell_dk_frost_fever();
     new spell_dk_chilblains_aura();
     new spell_dk_reaping();
     new spell_dk_mark_of_sindragosa();

@@ -357,7 +357,7 @@ void Spell::EffectResurrectNew(SpellEffIndex effIndex)
     uint32 health = damage;
     uint32 mana = m_spellInfo->Effects[effIndex].MiscValue;
     ExecuteLogEffectResurrect(effIndex, target);
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
+    target->SetResurrectRequestData(m_caster, health, mana, 0, m_spellInfo);
     SendResurrectRequest(target);
 }
 
@@ -1882,8 +1882,9 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         if (unitTarget->HasAura(48920) && (unitTarget->GetHealth() + addhealth >= unitTarget->GetMaxHealth()))
             unitTarget->RemoveAura(48920);
 
-        /// Custom MoP Script
-        /// 77495 - Mastery : Harmony last update 5.0.1 (Tue Aug 28 2012) Build 15640
+        /// Custom WoD Script
+        /// last update : 6.1.2 19802
+        /// 77495 - Mastery : Harmony
         if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_DRUID)
         {
             /// Can't proc from Ysera's Gift
@@ -1891,15 +1892,13 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             {
                 if (addhealth)
                 {
-                    float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25 / 100.0f;
-
                     if (m_spellInfo->HasEffect(SPELL_EFFECT_HEAL))
                     {
-                        addhealth *= (1 + Mastery);
-
-                        int32 bp = int32(100.0f * Mastery);
-
-                        caster->CastCustomSpell(caster, 100977, &bp, NULL, NULL, true);
+                        if (AuraEffectPtr l_AuraHarmony = caster->GetAuraEffect(77495, EFFECT_0))
+                        {
+                            int32 l_Bp = l_AuraHarmony->GetAmount();
+                            caster->CastCustomSpell(caster, 100977, &l_Bp, NULL, NULL, true);
+                        }
                     }
                 }
             }
@@ -2555,6 +2554,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
     uint32 lockId = 0;
     uint64 guid = 0;
+    bool l_OverridePlayerCondition = false;
 
     // Get lockId
     if (gameObjTarget)
@@ -2602,6 +2602,10 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
         lockId = goInfo->GetLockId();
         guid = gameObjTarget->GetGUID();
+
+        GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(gameObjTarget->GetEntry());
+        if (l_Template && l_Template->chest.conditionID1 && m_caster->ToPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
+            l_OverridePlayerCondition = true;
     }
     else if (itemTarget)
     {
@@ -2616,7 +2620,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     int32 skillValue;
 
     SpellCastResult res = CanOpenLock(effIndex, lockId, skillId, reqSkillValue, skillValue);
-    if (res != SPELL_CAST_OK)
+    if (res != SPELL_CAST_OK && !l_OverridePlayerCondition)
     {
         SendCastResult(res);
         return;
@@ -5633,7 +5637,7 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
 
     ExecuteLogEffectResurrect(effIndex, target);
 
-    target->SetResurrectRequestData(m_caster, health, mana, 0);
+    target->SetResurrectRequestData(m_caster, health, mana, 0, m_spellInfo);
     SendResurrectRequest(target);
 }
 
@@ -5759,7 +5763,7 @@ void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (!m_caster || m_caster->isAlive())
+    if (!m_caster || m_caster->isAlive() || !m_originalCaster)
         return;
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -5780,7 +5784,10 @@ void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
     {
         if (m_spellInfo->Id == 3026) ///< Soulstone resurrect
         {
-            health = m_caster->CountPctFromMaxHealth(60);
+            if (m_originalCaster->HasAura(56231))
+                health = m_caster->GetMaxHealth();
+            else
+                health = m_caster->CountPctFromMaxHealth(m_spellInfo->Effects[EFFECT_1].BasePoints);
             if (m_caster->GetMaxPower(POWER_MANA) > 0)
                 mana = CalculatePct(m_caster->GetMaxPower(POWER_MANA), damage);
         }
@@ -7442,7 +7449,7 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
         return;
 
     ExecuteLogEffectResurrect(effIndex, target);
-    target->SetResurrectRequestData(m_caster, health, mana, resurrectAura);
+    target->SetResurrectRequestData(m_caster, health, mana, resurrectAura, m_spellInfo);
     SendResurrectRequest(target);
 }
 

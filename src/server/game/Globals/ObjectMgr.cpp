@@ -124,7 +124,7 @@ std::string GetScriptCommandName(ScriptCommands command)
         default:
         {
             char sz[32];
-            sprintf(sz, "Unknown command: %u", command);
+            sprintf(sz, "Unknown command: %d", command);
             res = sz;
             break;
         }
@@ -6343,6 +6343,8 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         _hiCreatureGuid = (*result)[0].GetUInt32()+1;
 
+    _hiCreatureGuid += 10000;
+
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
         m_HighItemGuid = (*result)[0].GetUInt32()+1;
@@ -6453,17 +6455,17 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         }
         case HIGHGUID_UNIT:
         {
-            ASSERT(_hiCreatureGuid < 0x00FFFFFE && "Creature guid overflow!");
+            ASSERT(_hiCreatureGuid < 0xFFFFFFFE && "Creature guid overflow!");
             return _hiCreatureGuid++;
         }
         case HIGHGUID_PET:
         {
-            ASSERT(_hiPetGuid < 0x00FFFFFE && "Pet guid overflow!");
+            ASSERT(_hiPetGuid < 0xFFFFFFFE && "Pet guid overflow!");
             return _hiPetGuid++;
         }
         case HIGHGUID_VEHICLE:
         {
-            ASSERT(_hiVehicleGuid < 0x00FFFFFF && "Vehicle guid overflow!");
+            ASSERT(_hiVehicleGuid < 0xFFFFFFFE && "Vehicle guid overflow!");
             return _hiVehicleGuid++;
         }
         case HIGHGUID_PLAYER:
@@ -6473,7 +6475,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         }
         case HIGHGUID_GAMEOBJECT:
         {
-            ASSERT(_hiGoGuid < 0x00FFFFFE && "Gameobject guid overflow!");
+            ASSERT(_hiGoGuid < 0xFFFFFFFE && "Gameobject guid overflow!");
             return _hiGoGuid++;
         }
         case HIGHGUID_CORPSE:
@@ -9979,6 +9981,15 @@ CharacterTemplate const* ObjectMgr::GetCharacterTemplate(uint32 p_ID) const
 void ObjectMgr::LoadQuestObjectives()
 {
     uint32 l_OldMSTime = getMSTime();
+
+    m_questObjectiveLookup.clear();
+    for (auto& l_Quest : _questTemplates)
+    {
+        l_Quest.second->QuestObjectives.clear();
+
+        for (int l_I = 0; l_I < QUEST_OBJECTIVE_TYPE_END; ++l_I)
+            l_Quest.second->QuestObjecitveTypeCount[l_I] = 0;
+    }
 
     QueryResult l_Result = WorldDatabase.Query("SELECT `ID`,`QuestID`,`Type`,`Index`,`ObjectID`,`Amount`,`Flags`,`UnkFloat`,`Description`,`VisualEffects` FROM quest_template_objective ORDER BY QuestID ASC");
     if (!l_Result)

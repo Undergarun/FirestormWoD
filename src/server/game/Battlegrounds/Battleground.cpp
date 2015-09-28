@@ -1400,6 +1400,7 @@ void Battleground::AddPlayer(Player* player)
     player->Dismount();
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
     player->RemoveAurasByType(SPELL_AURA_FLY);
+    player->ResetAllPowers();
 
     // add arena specific auras
     if (isArena())
@@ -1445,7 +1446,6 @@ void Battleground::AddPlayer(Player* player)
         {
             player->SaveBGLastSpecialization();
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
-            player->ResetAllPowers();
             SendCountdownTimer();
         }
 

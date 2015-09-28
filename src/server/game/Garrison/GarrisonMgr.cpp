@@ -187,6 +187,7 @@ namespace MS { namespace Garrison
                     l_Building.TimeBuiltStart   = l_Fields[4].GetUInt32();
                     l_Building.TimeBuiltEnd     = l_Fields[5].GetUInt32();
                     l_Building.Active           = l_Fields[6].GetBool();
+                    l_Building.GatheringData    = l_Fields[7].GetString();
 
                     if (!l_Building.Active && time(0) > l_Building.TimeBuiltEnd)
                         l_Building.BuiltNotified = true;    ///< Auto notify by info packet
@@ -526,45 +527,45 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         {
-            PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_BUILDING);
+            PreparedStatement* l_BuildingStatement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_BUILDING);
 
-            uint32 l_Index = 0;
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].PlotInstanceID);
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].BuildingID);
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].SpecID);
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltStart);
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltEnd);
-            l_Stmt->setBool(l_Index++, m_Buildings[l_I].Active);
+            l_Index = 0;
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].PlotInstanceID);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].BuildingID);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].SpecID);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltStart);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltEnd);
+            l_BuildingStatement->setBool  (l_Index++, m_Buildings[l_I].Active);
+            l_BuildingStatement->setString(l_Index++, m_Buildings[l_I].GatheringData);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].DatabaseID);
+            l_BuildingStatement->setUInt32(l_Index++, m_ID);
 
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].DatabaseID);
-            l_Stmt->setUInt32(l_Index++, m_ID);
-
-            p_Transaction->Append(l_Stmt);
+            p_Transaction->Append(l_BuildingStatement);
         }
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
             if ((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) > time(0) || m_Missions[l_I].State == MissionStates::InProgress || m_Missions[l_I].State == MissionStates::CompleteSuccess)
             {
-                PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_MISSION);
+                PreparedStatement* l_MissionStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_MISSION);
 
-                uint32 l_Index = 0;
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].MissionID);
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].OfferTime);
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].OfferMaxDuration);
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].StartTime);
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].State);
+                l_Index = 0;
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].MissionID);
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].OfferTime);
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].OfferMaxDuration);
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].StartTime);
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].State);
 
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].DatabaseID);
-                l_Stmt->setUInt32(l_Index++, m_ID);
+                l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].DatabaseID);
+                l_MissionStmt->setUInt32(l_Index++, m_ID);
 
-                p_Transaction->Append(l_Stmt);
+                p_Transaction->Append(l_MissionStmt);
             }
             else
             {
-                PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
-                l_Stmt->setUInt32(0, m_Missions[l_I].DatabaseID);
-                p_Transaction->Append(l_Stmt);
+                PreparedStatement * l_MissionStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
+                l_MissionStmt->setUInt32(0, m_Missions[l_I].DatabaseID);
+                p_Transaction->Append(l_MissionStmt);
             }
         }
 
@@ -575,24 +576,23 @@ namespace MS { namespace Garrison
             for (uint32 l_Y = 0; l_Y < m_Followers[l_I].Abilities.size(); ++l_Y)
                 l_Abilities << m_Followers[l_I].Abilities[l_Y] << ' ';
 
-            PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_FOLLOWER);
+            PreparedStatement* l_FollowerStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_FOLLOWER);
 
-            uint32 l_Index = 0;
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].FollowerID);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].Level);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].XP);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].Quality);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelArmor);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelWeapon);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].CurrentMissionID);
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].CurrentBuildingID);
-            l_Stmt->setString(l_Index++, l_Abilities.str());
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].Flags);
+            l_Index = 0;
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].FollowerID);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Level);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].XP);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Quality);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelArmor);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelWeapon);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].CurrentMissionID);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].CurrentBuildingID);
+            l_FollowerStmt->setString(l_Index++, l_Abilities.str());
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Flags);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].DatabaseID);
+            l_FollowerStmt->setUInt32(l_Index++, m_ID);
 
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].DatabaseID);
-            l_Stmt->setUInt32(l_Index++, m_ID);
-
-            p_Transaction->Append(l_Stmt);
+            p_Transaction->Append(l_FollowerStmt);
         }
     }
 
@@ -1910,7 +1910,7 @@ namespace MS { namespace Garrison
             l_CurrentAdditionalWinChance = (l_Seil * l_V11) + l_CurrentAdditionalWinChance;
 
             #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                printf("Added %.2f to success due to follower %d bias.\n", (l_Seil * l_V11), l_MissionFollowers[l_Y]->FollowerID);
+                printf("Added %.2f to success due to follower %u bias.\n", (l_Seil * l_V11), l_MissionFollowers[l_Y]->FollowerID);
             #endif // GARRISON_CHEST_FORMULA_DEBUG
         }
         #pragma endregion
@@ -1978,7 +1978,7 @@ namespace MS { namespace Garrison
                 l_CurrentAdditionalWinChance = l_Unk1 + l_CurrentAdditionalWinChance;
 
                 #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                    printf("Added %.2f to success due to followers countering boss mechanic %d.\n", l_Unk1, l_EncoutersMechanics[l_I].second);
+                    printf("Added %.2f to success due to followers countering boss mechanic %u.\n", l_Unk1, l_EncoutersMechanics[l_I].second);
                 #endif // GARRISON_CHEST_FORMULA_DEBUG
             }
         }
@@ -2021,7 +2021,7 @@ namespace MS { namespace Garrison
                                 l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
 
                                 #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                                    printf("Added %.2f to success due to follower %d enemy race ability %d.\n", (l_Seil * l_V62), 0, l_CurrentAbilityID);
+                                    printf("Added %.2f to success due to follower %u enemy race ability %d.\n", (l_Seil * l_V62), 0, l_CurrentAbilityID);
                                 #endif // GARRISON_CHEST_FORMULA_DEBUG
                             }
                         }
@@ -2061,7 +2061,7 @@ namespace MS { namespace Garrison
                         l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
 
                         #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                            printf("Added %.2f to success due to follower %d environment ability %d.\n", (l_Seil * l_V62), l_MissionFollowers[l_Y]->FollowerID, l_CurrentAbilityID);
+                            printf("Added %.2f to success due to follower %u environment ability %u.\n", (l_Seil * l_V62), l_MissionFollowers[l_Y]->FollowerID, l_CurrentAbilityID);
                         #endif // GARRISON_CHEST_FORMULA_DEBUG
                     }
                 }
@@ -2172,7 +2172,7 @@ namespace MS { namespace Garrison
                     l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
 
                     #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                        printf("Added %.2f to success due to follower %d trait %d.\n", (l_Seil * l_V62), l_MissionFollowers[l_Y]->FollowerID, l_AbilityEffectEntry->EffectType);
+                        printf("Added %.2f to success due to follower %u trait %u.\n", (l_Seil * l_V62), l_MissionFollowers[l_Y]->FollowerID, l_AbilityEffectEntry->EffectType);
                     #endif // GARRISON_CHEST_FORMULA_DEBUG
                 }
             }
@@ -2196,7 +2196,7 @@ namespace MS { namespace Garrison
                 l_CurrentAdditionalWinChance = (l_AbilityEffectEntry->ModMin * l_V62) + l_CurrentAdditionalWinChance;
 
                 #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                    printf("Added %.2f to success due to passive effect %d.\n", l_AbilityEffectEntry->ModMin * l_V62, l_AbilityEffectEntry->AbilityID);
+                    printf("Added %.2f to success due to passive effect %u.\n", l_AbilityEffectEntry->ModMin * l_V62, l_AbilityEffectEntry->AbilityID);
                 #endif // GARRISON_CHEST_FORMULA_DEBUG
             }
         }
@@ -2486,8 +2486,6 @@ namespace MS { namespace Garrison
 
         GarrisonBuilding l_Building;
 
-        memset(&l_Building, 0, sizeof(l_Building));
-
         if (!l_BuildingEntry)
             return l_Building;
 
@@ -2525,7 +2523,7 @@ namespace MS { namespace Garrison
         {
             l_Building.TimeBuiltStart   = time(nullptr) - l_BuildingTime;
             l_Building.TimeBuiltEnd     = time(nullptr);
-            l_Building.Active           = true;
+            l_Building.Active           = false;
             l_Building.BuiltNotified    = true;
         }
         else if (p_Triggered)
@@ -2542,6 +2540,7 @@ namespace MS { namespace Garrison
         l_Stmt->setUInt32(l_Index++, l_Building.TimeBuiltStart);
         l_Stmt->setUInt32(l_Index++, l_Building.TimeBuiltEnd);
         l_Stmt->setBool(l_Index++, l_Building.Active);
+        l_Stmt->setString(l_Index++, l_Building.GatheringData);
 
         CharacterDatabase.AsyncQuery(l_Stmt);
 
@@ -2892,6 +2891,52 @@ namespace MS { namespace Garrison
         return 0;
     }
 
+    /// Get building gathering data
+    /// @p_PlotInstanceID : Plot building location
+    std::string Manager::GetBuildingGatheringData(uint32 p_PlotInstanceID)
+    {
+        for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+        {
+            if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
+                return m_Buildings[l_I].GatheringData;
+        }
+
+        return "";
+    }
+
+    /// Set building gathering data
+    /// @p_PlotInstanceID   : Plot building location
+    /// @p_Data             : Gathering data
+    void Manager::SetBuildingGatheringData(uint32 p_PlotInstanceID, std::string p_Data)
+    {
+        for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+        {
+            if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
+            {
+                m_Buildings[l_I].GatheringData = p_Data;
+                return;
+            }
+        }
+    }
+
+    /// Get list of creature in a specific building type
+    /// @p_Type : Building type
+    std::vector<uint64> Manager::GetBuildingCreaturesByBuildingType(BuildingType::Type p_Type)
+    {
+        for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
+
+            if (!l_BuildingEntry)
+                continue;
+
+            if (l_BuildingEntry->BuildingType == p_Type && m_Buildings[l_I].Active == true)
+                return m_PlotsCreatures[m_Buildings[l_I].PlotInstanceID];
+        }
+
+        return std::vector<uint64>();
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -2958,6 +3003,23 @@ namespace MS { namespace Garrison
     std::vector<GarrisonWorkOrder> Manager::GetWorkOrders() const
     {
         return m_WorkOrders;
+    }
+
+    /// Check if any followers has ability in parameter
+    bool Manager::HasFollowerAbility(uint32 p_AbilityID) const
+    {
+        std::vector<GarrisonFollower> l_Followers = GetFollowers();
+
+        for (GarrisonFollower l_Follower : l_Followers)
+        {
+            for (auto l_Ability : l_Follower.Abilities)
+            {
+                if (l_Ability == p_AbilityID)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -3168,7 +3230,12 @@ namespace MS { namespace Garrison
         }
         else
         {
-            if (!l_Building.Active)
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
+
+            if (!l_BuildingEntry)
+                return;
+
+            if (!l_Building.Active && l_BuildingEntry->BuildingCategory != BuildingCategory::Prebuilt)
             {
                 l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)];
 
@@ -3179,17 +3246,13 @@ namespace MS { namespace Garrison
             }
             else
             {
-                GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
-            
-                if (!l_BuildingEntry)
-                    return;
-
                 l_GobEntry = l_BuildingEntry->GameObjects[GetGarrisonFactionIndex()];
             }
         }
 
         if (l_GobEntry != 0)
         {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
             GameObject * l_Gob = m_Owner->SummonGameObject(l_GobEntry, l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0, 0, 0, 255, 0, true);
         
             if (l_Gob)
@@ -3249,12 +3312,11 @@ namespace MS { namespace Garrison
                     l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
                 }
 
-                std::vector<GarrisonPlotBuildingContent> l_Contents;
-            
-            
+                std::vector<GarrisonPlotBuildingContent> l_Contents; 
+
                 if (l_IsPlotBuilding)
                     l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
-                else if (l_Building.Active && l_Building.BuildingID)
+                else if ((l_Building.Active || (l_BuildingEntry && l_BuildingEntry->BuildingCategory == BuildingCategory::Prebuilt)) && l_Building.BuildingID)
                     l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(-(int32)l_Building.BuildingID, GetGarrisonFactionIndex());
 
                 for (uint32 l_I = 0; l_I < l_Contents.size(); ++l_I)
@@ -3721,13 +3783,23 @@ namespace MS { namespace Garrison
                 }
                 else
                 {
-                    l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
+                    /// Keep original displayID for Barn Work Order
+                    if (l_WorkOrderGameObject->GetEntry() != GarrisonBuildingWorkOrderGameObject::GobBarnWOrkOrder)
+                        l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
+                    else
+                        l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::BaseBarn);
+
                     l_WorkOrderGameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
                 }
             }
             else
             {
-                l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
+                /// Keep original displayID for Barn Work Order
+                if (l_WorkOrderGameObject->GetEntry() != GarrisonBuildingWorkOrderGameObject::GobBarnWOrkOrder)
+                    l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
+                else
+                    l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::BaseBarn);
+
                 l_WorkOrderGameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
             }
         }

@@ -8,6 +8,8 @@
 #ifndef GARRISON_BUILDING_HPP_GARRISON
 #define GARRISON_BUILDING_HPP_GARRISON
 
+#include <string>
+
 namespace MS { namespace Garrison 
 {
     /// Garrison building
@@ -20,8 +22,26 @@ namespace MS { namespace Garrison
         uint32 TimeBuiltStart;  ///< Time built start
         uint32 TimeBuiltEnd;    ///< Time build end
 
+        std::string GatheringData;  ///< Building gathering data
+
         bool Active;            ///< Is building active
         bool BuiltNotified;     ///< Is built notified
+
+        /// Reset building
+        GarrisonBuilding()
+        {
+            DatabaseID      = 0;
+            PlotInstanceID  = 0;
+            BuildingID      = 0;
+            SpecID          = 0;
+            TimeBuiltStart  = 0;
+            TimeBuiltEnd    = 0;
+
+            GatheringData = "";
+
+            Active          = false;
+            BuiltNotified   = false;
+        }
     };
 
 }   ///< namespace Garrison

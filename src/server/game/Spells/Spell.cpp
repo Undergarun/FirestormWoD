@@ -955,7 +955,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
         case TARGET_SELECT_CATEGORY_NYI:
             break;
         default:
-            printf("Spell::SelectEffectImplicitTargets: received not implemented select target category / Spell ID = %u and Effect = %u and target type = %u \n", m_spellInfo->Id, effIndex, targetType.GetTarget());
+            printf("Spell::SelectEffectImplicitTargets: received not implemented select target category / Spell ID = %u and Effect = %d and target type = %d \n", m_spellInfo->Id, effIndex, targetType.GetTarget());
             //ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target category");
             break;
     }
@@ -3582,7 +3582,7 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
     //Prevent casting at cast another spell (ServerSide check)
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count &&
-        (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_BE_CAST_WHILE_MOVING) || (GetSpellInfo()->CalcCastTime(m_caster))) &&
+        m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) &&
         (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
@@ -5978,6 +5978,50 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_spellInfo->IsCustomCastCanceled(m_caster))
         return SPELL_FAILED_DONT_REPORT;
 
+    /// Combat Resurrection spell
+    if (m_spellInfo->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = m_caster->GetInstanceScript())
+        {
+            if (!l_InstanceScript->CanUseCombatResurrection())
+                return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+        }
+
+        if (m_targets.GetUnitTarget() != nullptr)
+        {
+            if (Player* l_Target = m_targets.GetUnitTarget()->ToPlayer())
+            {
+                if (l_Target->IsRessurectRequested())
+                    return SPELL_FAILED_TARGET_HAS_RESURRECT_PENDING;
+            }
+        }
+    }
+
+    /// Check specialization
+    if (!IsTriggered() && !sWorld->getBoolConfig(CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK))
+    {
+        if (Player* l_Player = m_caster->ToPlayer())
+        {
+            uint32 l_CasterSpecialization = l_Player->GetSpecializationId();
+            
+            if (!m_spellInfo->SpecializationIdList.empty())
+            {
+                bool l_Found = false;
+                for (uint32 l_Specialization : m_spellInfo->SpecializationIdList)
+                {
+                    if (l_CasterSpecialization == l_Specialization)
+                    {
+                        l_Found = true;
+                        break;
+                    }
+                }
+
+                if (!l_Found)
+                    return SpellCastResult::SPELL_FAILED_SPELL_UNAVAILABLE;
+            }
+        }
+    }
+
     // Check death state
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !((m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
         return SPELL_FAILED_CASTER_DEAD;
@@ -6003,7 +6047,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
         //can cast triggered (by aura only?) spells while have this flag
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && l_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY) &&
-            (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (GetSpellInfo()->CalcCastTime(m_caster))) &&
+            m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) &&
             (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 
@@ -6555,11 +6599,16 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 // get the lock entry
                 uint32 lockId = 0;
+                bool l_OverridePlayerCondition = false;
                 if (GameObject* go = m_targets.GetGOTarget())
                 {
                     lockId = go->GetGOInfo()->GetLockId();
                     if (!lockId)
                         return SPELL_FAILED_BAD_TARGETS;
+
+                    GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(go->GetEntry());
+                    if (l_Template && l_Template->chest.conditionID1 && m_caster->ToPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
+                        l_OverridePlayerCondition = true;
                 }
                 else if (Item* itm = m_targets.GetItemTarget())
                     lockId = itm->GetTemplate()->LockID;
@@ -6570,8 +6619,11 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 // check lock compatibility
                 SpellCastResult res = CanOpenLock(i, lockId, skillId, reqSkillValue, skillValue);
-                if (res != SPELL_CAST_OK)
+                if (res != SPELL_CAST_OK && !l_OverridePlayerCondition)
                     return res;
+
+                if (l_OverridePlayerCondition)
+                    res = SPELL_CAST_OK;
 
                 // chance for fail at orange mining/herb/LockPicking gathering attempt
                 // second check prevent fail at rechecks

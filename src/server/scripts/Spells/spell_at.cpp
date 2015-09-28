@@ -107,18 +107,17 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
     public:
         spell_at_druid_fungal_growth() : AreaTriggerEntityScript("at_fungal_growth") { }
 
-        enum WildMushroomSpells
+        enum eWildMushroomSpells
         {
-            SpellDruidWildMushroomFungalCloud       = 81281,
-            SpellDruidAreaWildMushroomFungalCloud   = 164717,
-            SpellDruidWildMushroomBalance           = 88747,
+            FungalCloud         = 81281,
+            WildMushroomBalance = 88747,
         };
 
         std::list<uint64> m_Targets;
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
-            auto l_SpellInfo = sSpellMgr->GetSpellInfo(WildMushroomSpells::SpellDruidWildMushroomBalance);
+            auto l_SpellInfo = sSpellMgr->GetSpellInfo(eWildMushroomSpells::WildMushroomBalance);
             auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
 
             if (l_AreaTriggerCaster == nullptr || l_SpellInfo == nullptr)
@@ -136,9 +135,9 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (!l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud))
+                if (!l_Target->HasAura(eWildMushroomSpells::FungalCloud))
                 {
-                    l_AreaTriggerCaster->CastSpell(l_Target, WildMushroomSpells::SpellDruidWildMushroomFungalCloud, true);
+                    l_AreaTriggerCaster->CastSpell(l_Target, eWildMushroomSpells::FungalCloud, true);
                     m_Targets.push_back(l_Target->GetGUID());
                 }
             }
@@ -151,11 +150,11 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()) && l_Target->GetDistance(l_AreaTriggerCaster) <= l_Radius)
+                if (l_Target->HasAura(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID()) && l_Target->GetDistance(l_AreaTriggerCaster) <= l_Radius)
                     return;
 
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()))
-                    l_Target->RemoveAurasDueToSpell(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID());
+                if (l_Target->HasAura(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID()))
+                    l_Target->RemoveAurasDueToSpell(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID());
 
                 m_Targets.remove(l_TargetGuid);
             }
@@ -168,15 +167,16 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
             if (l_AreaTriggerCaster == nullptr)
                 return;
 
-            for (uint64 l_TargetGuid : m_Targets)
+            std::list<uint64> l_Targets = m_Targets;
+            for (uint64 l_TargetGuid : l_Targets)
             {
                 Unit* l_Target = ObjectAccessor::GetUnit(*l_AreaTriggerCaster, l_TargetGuid);
 
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()))
-                    l_Target->RemoveAurasDueToSpell(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID());
+                if (l_Target->HasAura(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID()))
+                    l_Target->RemoveAurasDueToSpell(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID());
 
                 m_Targets.remove(l_TargetGuid);
             }
@@ -223,7 +223,7 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
     public:
         spell_at_druid_solar_beam() : AreaTriggerEntityScript("spell_at_druid_solar_beam") { }
 
-        std::list<Unit*> m_TargetList;
+        std::list<uint64> m_TargetList;
 
         enum eSpells
         {
@@ -232,47 +232,50 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            std::list<Unit*> l_NewTargetList;
             float l_Radius = 5.0f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
 
             if (l_Caster == nullptr)
                 return;
 
+            std::list<Unit*> l_NewTargetList;
             JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
             p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
 
-            for (auto itr : l_NewTargetList)
+            for (Unit* l_Target : l_NewTargetList)
             {
-                if (itr != nullptr && l_Caster->IsValidAttackTarget(itr) && std::find(m_TargetList.begin(), m_TargetList.end(), itr) == m_TargetList.end())
+                if (l_Caster->IsValidAttackTarget(l_Target) && std::find(m_TargetList.begin(), m_TargetList.end(), l_Target->GetGUID()) == m_TargetList.end())
                 {
-                    m_TargetList.push_back(itr);
-                    l_Caster->CastSpell(itr, eSpells::solarBeamSilence, true);
+                    m_TargetList.push_back(l_Target->GetGUID());
+                    l_Caster->CastSpell(l_Target, eSpells::solarBeamSilence, true);
                     if (AuraPtr l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
                         l_SolarBeamSilence->SetDuration(p_AreaTrigger->GetDuration());
                 }
             }
 
-            for (std::list<Unit*>::iterator itr = m_TargetList.begin(); itr != m_TargetList.end();)
+            for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end(); )
             {
-                if ((*itr) == nullptr || (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), (*itr)) == l_NewTargetList.end()))
+                Unit* l_Target = ObjectAccessor::FindUnit(*l_It);
+                if (!l_Target || (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end()))
                 {
-                    if ((*itr) != nullptr && (*itr)->HasAura(eSpells::solarBeamSilence))
-                        (*itr)->RemoveAura(eSpells::solarBeamSilence);
-                    itr = m_TargetList.erase(itr);
+                    if (l_Target)
+                        l_Target->RemoveAura(eSpells::solarBeamSilence);
+
+                    l_It = m_TargetList.erase(l_It);
                 }
                 else
-                    itr++;
+                    ++l_It;
             }
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
-            for (auto itr : m_TargetList)
+            for (uint64 l_TargetGUID : m_TargetList)
             {
-                if (itr != nullptr && itr->HasAura(eSpells::solarBeamSilence))
-                    itr->RemoveAura(eSpells::solarBeamSilence);
+                Unit* l_Target = ObjectAccessor::FindUnit(l_TargetGUID);
+                if (l_Target)
+                    l_Target->RemoveAura(eSpells::solarBeamSilence);
             }
         }
 
@@ -1159,6 +1162,77 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
         }
 };
 
+/// Chi burst - 123986
+class spell_at_monk_chi_burst : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_monk_chi_burst() : AreaTriggerEntityScript("spell_at_monk_chi_burst") { }
+
+        enum eSpells
+        {
+            SerpentsWise = 115070,
+            FierceTiger = 103985,
+            ChiBurstDamage = 148135,
+            ChiBurstHeal = 130654
+        };
+
+        std::list<uint64> m_UnitGUIDList;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 3.0f;
+
+            JadeCore::AnyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            float l_DmgMult = l_Player->HasSpell(eSpells::FierceTiger) ? 1.2f : 1.0f;
+            float l_HealMult = l_Player->HasSpell(eSpells::SerpentsWise) ? 1.2f : 1.0f;
+
+            int32 l_Damage = sSpellMgr->GetSpellInfo(eSpells::ChiBurstDamage)->Effects[EFFECT_0].BasePoints + l_DmgMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
+            int32 l_Healing = sSpellMgr->GetSpellInfo(eSpells::ChiBurstHeal)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
+
+            std::list<uint64> l_UnitGUIDList = m_UnitGUIDList;
+            l_TargetList.remove_if([this, l_Caster, l_UnitGUIDList](Unit* p_Unit) -> bool
+            {
+                if (p_Unit == nullptr || p_Unit->GetGUID() == l_Caster->GetGUID())
+                    return true;
+
+                if (!(std::find(l_UnitGUIDList.begin(), l_UnitGUIDList.end(), p_Unit->GetGUID()) == l_UnitGUIDList.end()))
+                    return true;
+
+                return false;
+            });
+
+            for (Unit* l_Target : l_TargetList)
+            {
+                if (l_Target->IsFriendlyTo(l_Caster))
+                    l_Player->CastCustomSpell(l_Target, eSpells::ChiBurstHeal, &l_Healing, NULL, NULL, true);
+                else
+                    l_Player->CastCustomSpell(l_Target, eSpells::ChiBurstDamage, &l_Damage, NULL, NULL, true);
+
+                m_UnitGUIDList.push_back(l_Target->GetGUID());
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_monk_chi_burst();
+        }
+};
+
+
 void AddSC_areatrigger_spell_scripts()
 {
     /// Deathknight Area Trigger
@@ -1189,6 +1263,7 @@ void AddSC_areatrigger_spell_scripts()
     new spell_at_monk_afterlife_healing_sphere();
     new spell_at_monk_chi_sphere_afterlife();
     new spell_at_monk_gift_of_the_ox();
+    new spell_at_monk_chi_burst();
 
     /// Priest Area Trigger
     new spell_at_pri_divine_star();

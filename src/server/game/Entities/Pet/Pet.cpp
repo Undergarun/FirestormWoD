@@ -316,10 +316,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         }
         else
         {
-            if (savedhealth > GetMaxHealth())
+            if (savedhealth > GetMaxHealth() || savedhealth < 1)
                 savedhealth = GetMaxHealth();
-            else if (savedhealth < 1)
-                savedhealth = 1;
             SetHealth(savedhealth);
             SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
             SetPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
@@ -971,24 +969,29 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     if (l_Owner != nullptr)
     {
-        if (l_Owner->GetTypeId() == TYPEID_PLAYER && l_Owner->getClass() == CLASS_WARLOCK)
-            SetCreateHealth(l_Owner->GetMaxHealth() * 0.75f);
-        else
-            SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+        SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
         SetMaxHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
     }
-
+    
     SetFullHealth();
 
     if (IsWarlockPet())
         CastSpell(this, 123746, true);  ///< Fel Energy
 
-    if (GetEntry() == ENTRY_GHOUL && l_Owner && l_Owner->HasAura(58640))           ///< Glyph of the Geist
-        CastSpell(this, 121916, true);
-    else if (GetEntry() == ENTRY_GHOUL && l_Owner && l_Owner->HasAura(146652))     ///< Glyph of the Skeleton
-        CastSpell(this, 147157, true);
-    if (l_PetType == HUNTER_PET) ///< All Hunter pet Get Combat Experience
-        CastSpell(this, 20782, true);
+    if (GetEntry() == ENTRY_GHOUL)
+    {
+        if (l_Owner && l_Owner->HasAura(58640))  ///< Glyph of the Geist
+            CastSpell(this, 121916, true);
+        if (l_Owner && l_Owner->HasAura(146652)) ///< Glyph of the Skeleton
+            CastSpell(this, 147157, true);
+    }
+
+    if (l_PetType == HUNTER_PET)
+    {
+        CastSpell(this, 20782, true); ///< Combat Experience
+        CastSpell(this, 88680, true, nullptr, nullptr, l_Owner ? l_Owner->GetGUID() : 0); ///< Kindred Spirits
+    }
+
     return true;
 }
 

@@ -1203,6 +1203,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
 
+    if (GetId() == 122355) ///< Don't stack amount of molten core
+        return amount;
+
     if (caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
         if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
@@ -2027,7 +2030,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 if (!spellInfo || !(spellInfo->Attributes & (SPELL_ATTR0_PASSIVE | SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                     continue;
 
-                if (spellInfo->Stances & uint64(1L << (GetMiscValue() - 1)))
+                if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
                     target->CastSpell(target, itr->first, true, NULL, CONST_CAST(AuraEffect, shared_from_this()));
             }
 
@@ -2042,7 +2045,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         if (!spellInfo || !(spellInfo->Attributes & (SPELL_ATTR0_PASSIVE | SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                             continue;
 
-                        if (spellInfo->Stances & uint64(1L << (GetMiscValue() - 1)))
+                        if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
                             target->CastSpell(target, glyph->SpellId, true, NULL, CONST_CAST(AuraEffect, shared_from_this()));
                     }
                 }
@@ -2075,7 +2078,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
         {
             // Use the new aura to see on what stance the target will be
-            uint32 newStance = (1<<((newAura ? newAura->GetMiscValue() : 0)-1));
+            uint64 newStance = newAura ? (UI64LIT(1) << (newAura->GetMiscValue()) - 1) : 0;
 
             // If the stances are not compatible with the spell, remove it
             if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance))
@@ -4118,8 +4121,8 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
 
             if (!apply)
             {
-                target->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
-                target->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+                target->m_movementInfo.SetFallTime(0);
+                target->RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING_FLY);
             }
 
             Player* player = target->ToPlayer();
@@ -5172,6 +5175,7 @@ void AuraEffect::HandleAuraModIncreaseEnergy(AuraApplication const* aurApp, uint
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
+    target->SetCanModifyStats(true);
     target->HandleStatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
 }
 
@@ -5189,6 +5193,8 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
     // inside effect handlers is not a good idea
     //if (int32(powerType) != GetMiscValue())
     //    return;
+
+    target->SetCanModifyStats(true);
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
     float amount = float(GetAmount());
@@ -7541,7 +7547,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         int32 l_MaxTicksCount = int32(l_MaxDuration / l_Amplitude);
 
         /// If it was last tick, we should deal instant damage, according to left duration
-        if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0)
+        if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
         {
             uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
 
@@ -8547,7 +8553,7 @@ void AuraEffect::HandleModStatBonusPercent(AuraApplication const* p_AurApp, uint
 
 void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK))
         return;
 
     Unit* l_Target = p_AurApp->GetTarget();
@@ -8563,7 +8569,7 @@ void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode
     l_Target->GetPosition(&l_Position);
 
     AreaTrigger* l_AreaTrigger = new AreaTrigger;
-    if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), l_Target, m_spellInfo, 0, l_Position, l_Position))
+    if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), l_Target, m_spellInfo, m_effIndex, l_Position, l_Position))
         delete l_AreaTrigger;
 }
 

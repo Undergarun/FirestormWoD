@@ -9,6 +9,7 @@
 
 void AddSC_Garrison_PlayerConditions()
 {
+    new MS::Garrison::PlayerCondition_HasHerbGarden();
     new MS::Garrison::PlayerCondition_AlchemyLab_Level2();
     new MS::Garrison::PlayerCondition_AlchemyLab_Level3();
     new MS::Garrison::PlayerCondition_TailoringEmporium_Level2();

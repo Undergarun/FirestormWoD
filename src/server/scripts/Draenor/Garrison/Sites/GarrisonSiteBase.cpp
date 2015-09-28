@@ -141,6 +141,15 @@ namespace MS { namespace Garrison { namespace Sites
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Get owner player instance
+    Player* GarrisonSiteBase::GetOwner()
+    {
+        return HashMapHolder<Player>::Find(m_OwnerGUID);
+    }
+
 }   ///< namespace Sites
 }   ///< namespace Garrison
 }   ///< namespace MS

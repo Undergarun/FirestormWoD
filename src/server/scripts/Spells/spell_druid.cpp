@@ -162,6 +162,7 @@ enum GenesisSpells
     SPELL_DRUID_GENESIS_HEAL = 162359
 };
 
+/// last update : 6.1.2 19802
 /// Genesis - 145518
 class spell_dru_genesis: public SpellScriptLoader
 {
@@ -171,36 +172,49 @@ class spell_dru_genesis: public SpellScriptLoader
         class spell_dru_genesis_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_genesis_SpellScript);
+            
+            enum eSpells
+            {
+                RejuvenationAura = 774,
+                GerminationAura = 155777,
+                GenersisHeal = 162359
+            };
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (!GetCaster())
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* l_GenesisHeal = sSpellMgr->GetSpellInfo(eSpells::GenersisHeal);
+
+                if (l_Player == nullptr || l_GenesisHeal == nullptr)
                     return;
 
-                if (Player* plr = GetCaster()->ToPlayer())
-                {
                     std::list<Unit*> partyMembers;
-                    plr->GetRaidMembers(partyMembers);
+                    l_Player->GetRaidMembers(partyMembers);
+                    int l_Rejuvenations[2] = { eSpells::RejuvenationAura, eSpells::GerminationAura };
 
-                    for (auto itr : partyMembers)
+                    for (auto l_Target : partyMembers)
                     {
-                        if (!itr->IsWithinDist(plr, 60.0f) || !itr->IsWithinLOSInMap(plr))
+                        if (!l_Target->IsWithinDist(l_Player, 60.0f) || !l_Target->IsWithinLOSInMap(l_Player))
                             continue;
 
-                        if (AuraPtr rejuvenation = itr->GetAura(SPELL_DRUID_REJUVENATION, plr->GetGUID()))
+                        int32 l_HealAmount = 0;
+                        bool l_AtListOne = false;
+                        for (uint8 i = 0; i < 2; ++i)
                         {
-                            /// Calculate left heal from rejuvenation (1 tick on the aura applying, so we add it)
-                            int8 l_TicksLeft = uint8(rejuvenation->GetDuration() / rejuvenation->GetEffect(0)->GetAmplitude()) + 1;
-                            int32 l_HealAmount = rejuvenation->GetEffect(0)->GetAmount();
-                            /// Per tick heal for our Genesis spell
-                            int32 l_NewHeal = uint32(l_TicksLeft * l_HealAmount / 5);
-                            plr->CastCustomSpell(itr, SPELL_DRUID_GENESIS_HEAL, &l_NewHeal, NULL, NULL, true);
-                            itr->RemoveAura(SPELL_DRUID_REJUVENATION);
+                            if (AuraPtr l_Rejuvenation = l_Target->GetAura(l_Rejuvenations[i], l_Player->GetGUID()))
+                            {
+                                int8 l_TicksLeft = uint8(l_Rejuvenation->GetDuration() / l_Rejuvenation->GetEffect(0)->GetAmplitude()) + 1;
 
-                            //itr->SetHealth(itr->GetHealth() + plr->GetHealingDoneInPastSecs(3));
+                                if (l_GenesisHeal->Effects[0].Amplitude)
+                                    l_HealAmount += uint32((l_TicksLeft * l_Rejuvenation->GetEffect(0)->GetAmount()) / (l_GenesisHeal->GetMaxDuration() / l_GenesisHeal->Effects[0].Amplitude));
+
+                                l_Target->RemoveAura(l_Rejuvenations[i]);
+                                l_AtListOne = true;
+                            }
                         }
+                        if (l_AtListOne)
+                            l_Player->CastCustomSpell(l_Target, SPELL_DRUID_GENESIS_HEAL, &l_HealAmount, NULL, NULL, true);
                     }
-                }
             }
 
             void Register()
@@ -1291,10 +1305,10 @@ class spell_dru_lifebloom: public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                Unit* l_Target = GetTarget();
+                Unit* l_Target = GetUnitOwner();
                 Unit* l_Caster = GetCaster();
 
-                if (!l_Caster)
+                if (!l_Caster || !l_Target)
                     return;
 
                 SpellInfo const* l_LifebloomFinalHeal = sSpellMgr->GetSpellInfo(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL);
@@ -1316,10 +1330,10 @@ class spell_dru_lifebloom: public SpellScriptLoader
             {
                 if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
                 {
-                    Unit* l_Target = p_DispelInfo->GetDispeller();
+                    Unit* l_Target = GetUnitOwner();
                     Unit* l_Caster = GetCaster();
 
-                    if (!l_Caster)
+                    if (!l_Caster || !l_Target)
                         return;
 
                     SpellInfo const* l_LifebloomFinalHeal = sSpellMgr->GetSpellInfo(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL);
@@ -1353,7 +1367,7 @@ class spell_dru_lifebloom: public SpellScriptLoader
             void Register()
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
-                AfterDispel += AuraDispelFn(spell_dru_lifebloom_AuraScript::HandleDispel);
+                OnDispel += AuraDispelFn(spell_dru_lifebloom_AuraScript::HandleDispel);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_lifebloom_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
@@ -1764,17 +1778,20 @@ class spell_dru_faerie_swarm_speed_aura : public SpellScriptLoader
         }
 };
 
-enum WildMushroomSpells
+enum eWildMushroomSpells
 {
-    DruidNpcWildMushroom                    = 47649,
-    SpellDruidWildMushroomHeal              = 81269,
-    SpellDruidWildMushroomHealAura          = 81262,
-    SpellDruidWildMushroomFungalCloud       = 81281,
-    SpellDruidAreaWildMushroomFungalCloud   = 164717,
-    SpellDruidWildMushroomBalance           = 88747,
-    SpellDduidMushroomBirthVisual           = 94081,
-    SpellDruidWildMushroomRestoration       = 145205,
-    SpellDruidT15RestorationBonus           = 138284
+    Heal                      = 81269,
+    HealAura                  = 81262,
+    FungalCloudArea           = 164717,
+    WildMushroomBalance       = 88747,
+    WildMushroomBirthVisual   = 94081,
+    WildMushroomRestoration   = 145205,
+    T15RestorationBonus       = 138284
+};
+
+enum eWildMushroomDatas
+{
+    NpcWildMushroom = 47649,
 };
 
 /// Wild Mushroom (Balance) - 88747
@@ -1788,6 +1805,20 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_wild_mushroom_SpellScript)
 
+            enum eWildMushroomSpells
+            {
+                HealAura                  = 81262,
+                FungalCloudArea           = 164717,
+                WildMushroomBalance       = 88747,
+                WildMushroomBirthVisual   = 94081,
+                WildMushroomRestoration   = 145205,
+            };
+            
+            enum eWildMushroomDatas
+            {
+                NpcWildMushroom = 47649,
+            };
+
             void HandleSummon(SpellEffIndex p_EffIndex)
             {
                 PreventHitDefaultEffect(p_EffIndex);
@@ -1798,7 +1829,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
 
                 std::list<Creature*> l_Mushroomlist;
 
-                l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, WildMushroomSpells::DruidNpcWildMushroom, 500.0f);
+                l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, eWildMushroomDatas::NpcWildMushroom, 500.0f);
 
                 /// Remove other player mushrooms
                 for (std::list<Creature*>::iterator i = l_Mushroomlist.begin(); i != l_Mushroomlist.end(); ++i)
@@ -1823,12 +1854,12 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     l_Summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     l_Summon->SetMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                     l_Summon->SetFullHealth();
-                    l_Summon->CastSpell(l_Summon, WildMushroomSpells::SpellDduidMushroomBirthVisual, true);
+                    l_Summon->CastSpell(l_Summon, eWildMushroomSpells::WildMushroomBirthVisual, true);
 
-                    if (GetSpellInfo()->Id == WildMushroomSpells::SpellDruidWildMushroomRestoration)
-                        l_Summon->CastSpell(l_Summon, WildMushroomSpells::SpellDruidWildMushroomHealAura, true);
-                    else if (GetSpellInfo()->Id == WildMushroomSpells::SpellDruidWildMushroomBalance)
-                        l_Summon->CastSpell(l_Summon, WildMushroomSpells::SpellDruidAreaWildMushroomFungalCloud, true);
+                    if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestoration)
+                        l_Summon->CastSpell(l_Summon, eWildMushroomSpells::HealAura, true);
+                    else if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomBalance)
+                        l_Summon->CastSpell(l_Summon, eWildMushroomSpells::FungalCloudArea, true);
                 }
             }
 
@@ -1854,6 +1885,11 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_wild_mushroom_heal_AuraScript);
 
+            enum eWildMushroomSpells
+            {
+                Heal = 81269
+            };
+
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 Unit* l_Mushroom = GetCaster();
@@ -1862,7 +1898,7 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
                 if (l_Mushroom == nullptr || l_Owner == nullptr)
                     return;
 
-                l_Owner->CastSpell(l_Mushroom, WildMushroomSpells::SpellDruidWildMushroomHeal, true);
+                l_Owner->CastSpell(l_Mushroom, eWildMushroomSpells::Heal, true);
             }
 
             void Register()
@@ -1887,13 +1923,18 @@ class spell_dru_wild_mushroom_heal_proc : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_wild_mushroom_heal_proc_SpellScript);
 
+            enum eWildMushroomSpells
+            {
+                T15RestorationBonus = 138284
+            };
+
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
                 Unit* l_Caster = GetCaster();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WildMushroomSpells::SpellDruidT15RestorationBonus);
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eWildMushroomSpells::T15RestorationBonus);
                 uint8 l_MaxTargets = 3;
 
-                if (l_SpellInfo != nullptr && l_Caster->HasAura(WildMushroomSpells::SpellDruidT15RestorationBonus))
+                if (l_SpellInfo != nullptr && l_Caster->HasAura(eWildMushroomSpells::T15RestorationBonus))
                     l_MaxTargets = l_SpellInfo->Effects[EFFECT_0].BasePoints;
 
                 if (p_Targets.size() > 1)
@@ -4640,12 +4681,14 @@ public:
                 return;
 
             /// When Entangling Roots is dispelled or broken by damage, you gain 1 charge of Starsurge.
-            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+            if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
                 return;
 
             if (SpellInfo const* l_Starsurge = sSpellMgr->GetSpellInfo(eSpells::Starsurge))
+            {
                 if (SpellCategoriesEntry const* l_StarsurgeCategories = l_Starsurge->GetSpellCategories())
                     l_Player->RestoreCharge(l_StarsurgeCategories->ChargesCategory);
+            }
         }
 
         void Register()
@@ -4947,8 +4990,64 @@ class spell_dru_celestial_alignement_marker : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Incarnation: Tree of Life - 33891
+class spell_dru_incarnation_tree_of_life : public SpellScriptLoader
+{
+    public:
+        spell_dru_incarnation_tree_of_life() : SpellScriptLoader("spell_dru_incarnation_tree_of_life") { }
+
+        class spell_dru_incarnation_tree_of_life_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_incarnation_tree_of_life_AuraScript);
+
+            enum eSpells
+            {
+                Incarnation = 117679
+            };
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (AuraPtr l_Aura = l_Target->GetAura(eSpells::Incarnation))
+                {
+                    p_AurEff->GetBase()->SetDuration(l_Aura->GetDuration());
+                    l_Target->RemoveAura(eSpells::Incarnation);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes mode)
+            {
+                Unit* l_Target = GetTarget();
+
+
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_CANCEL)
+                    return;
+
+                if (p_AurEff->GetBase()->GetDuration())
+                    l_Target->CastSpell(l_Target, eSpells::Incarnation, true);
+
+                if (AuraPtr l_Aura = l_Target->GetAura(eSpells::Incarnation))
+                    l_Aura->SetDuration(p_AurEff->GetBase()->GetDuration());
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_incarnation_tree_of_life_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_incarnation_tree_of_life_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_incarnation_tree_of_life_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_incarnation_tree_of_life();
     new spell_dru_celestial_alignement_marker();
     new spell_dru_celestial_alignement();
     new spell_dru_yseras_gift_ally_proc();

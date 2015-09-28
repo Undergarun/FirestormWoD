@@ -80,9 +80,9 @@ class spell_mastery_molten_earth : public SpellScriptLoader
                 if (!roll_chance_f(33.33f))
                     return;
 
-                if (l_Target->HasAura(MoltenEarthSpells::MoltenEarthPeriodic))
+                if (l_Target->HasAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Caster->GetGUID()))
                 {
-                    if (AuraPtr l_PeriodicAura = l_Target->GetAura(MoltenEarthSpells::MoltenEarthPeriodic))
+                    if (AuraPtr l_PeriodicAura = l_Target->GetAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Caster->GetGUID()))
                         l_PeriodicAura->RefreshDuration();
                 }
                 else
@@ -589,9 +589,6 @@ class spell_mastery_blood_shield: public SpellScriptLoader
                     float l_Mastery = l_MasteryBloodShield->GetAmount();
 
                     int32 l_Bp = -int32(GetHitDamage() * (l_Mastery / 100));
-
-                    if (AuraPtr l_ScentOfBlood = l_Caster->GetAura(SPELL_DK_SCENT_OF_BLOOD))
-                        AddPct(l_Bp, (l_ScentOfBlood->GetStackAmount() * 20));
 
                     if (AuraEffectPtr l_ActualBloodShield = l_Caster->GetAuraEffect(MASTERY_SPELL_BLOOD_SHIELD, EFFECT_0))
                         l_Bp += l_ActualBloodShield->GetAmount();

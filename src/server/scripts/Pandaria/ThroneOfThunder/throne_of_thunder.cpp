@@ -970,7 +970,7 @@ class mob_spirit_flayer : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_SPIRIT_LIGHT:
-                        if (Unit* target = me->SelectNearbyTarget(NULL, 10.0f))
+                        if (Unit* target = me->SelectNearbyTarget(NULL, 10.0f, 0U, true, true, false, true))
                             me->CastSpell(target, SPELL_SPIRIT_LIGHT, true);
                         events.ScheduleEvent(EVENT_SPIRIT_LIGHT, 1000);
                         break;
@@ -3210,8 +3210,8 @@ class mob_iron_qon_disciple : CreatureScript
                             Unit* l_Target = me->GetPlayer(*me, m_FirstTargetGuid);
                             if (!l_Target)
                             {
-                                l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 20.0f, true);
-                                m_FirstTargetGuid = l_Target->GetGUID();
+                                if (l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 20.0f, true))
+                                    m_FirstTargetGuid = l_Target->GetGUID();
                             }
 
                             if (l_Target  && !m_InCombat)

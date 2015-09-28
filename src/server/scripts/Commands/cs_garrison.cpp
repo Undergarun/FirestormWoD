@@ -248,7 +248,6 @@ class garrison_commandscript: public CommandScript
             }
 
             MS::Garrison::GarrisonPlotInstanceInfoLocation l_Info = l_TargetPlayer->GetGarrison()->GetPlot(l_TargetPlayer->GetPositionX(), l_TargetPlayer->GetPositionY(), l_TargetPlayer->GetPositionZ());
-
             if (!l_Info.PlotInstanceID)
             {
                 p_Handler->SendSysMessage("Plot not found");
@@ -616,7 +615,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleFollowerAddCommand(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleFollowerAddCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 

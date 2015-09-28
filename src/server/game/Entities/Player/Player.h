@@ -219,7 +219,7 @@ struct PlayerCurrency
    bool needResetCap;
 };
 
-typedef ACE_Based::LockedMap<uint32, PlayerTalent*> PlayerTalentMap;
+typedef std::map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef ACE_Based::LockedMap<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
 typedef ACE_Based::LockedMap<uint32, PlayerCurrency> PlayerCurrenciesMap;
@@ -1374,6 +1374,7 @@ struct ResurrectionData
     uint32 Health;
     uint32 Mana;
     uint32 Aura;
+    SpellInfo const* ResSpell;
 };
 
 class KillRewarder
@@ -2226,7 +2227,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false);
+        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false, bool p_LearnBattlePet = true);
         void learnSpell(uint32 spell_id, bool dependent);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void resetSpells(bool myClassOnly = false);
@@ -2371,7 +2372,7 @@ class Player : public Unit, public GridObject<Player>
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
-        void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura)
+        void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura, SpellInfo const* p_ResSpell = nullptr)
         {
             ASSERT(!IsRessurectRequested());
             _resurrectionData = new ResurrectionData();
@@ -2380,6 +2381,7 @@ class Player : public Unit, public GridObject<Player>
             _resurrectionData->Health = health;
             _resurrectionData->Mana = mana;
             _resurrectionData->Aura = appliedAura;
+            _resurrectionData->ResSpell = p_ResSpell;
         }
 
         void ClearResurrectRequestData()
@@ -4219,7 +4221,7 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
                     l_PyroBlast = true;
             }
 
-            l_TotalMul += CalculatePct(1.0f, l_SpellMod->value);
+             AddPct(l_TotalMul, l_SpellMod->value);
         }
 
         if (p_RemoveStacks && p_Spell && !m_isMoltenCored)

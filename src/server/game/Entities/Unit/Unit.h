@@ -730,7 +730,7 @@ enum eUnitFlags2
     UNIT_FLAG2_UNK7                         = 0x00800000,
     UNIT_FLAG2_UNK8                         = 0x01000000,
     UNIT_FLAG2_UPDATE_REACTION              = 0x02000000,
-    UNIT_FLAG2_UNK10                        = 0x04000000,   ///< Cant select (even in GM mode)
+    UNIT_FLAG2_SELECTION_DISABLED           = 0x04000000,   ///< Cant select (even in GM mode)
     UNIT_FLAG2_UNK11                        = 0x08000000,
     UNIT_FLAG2_UNK12                        = 0x10000000,   ///< Cant target, hide highlight, hide name (work on faction 14/7 but not 35)
     UNIT_FLAG2_UNK13                        = 0x20000000,
@@ -1384,7 +1384,7 @@ enum ReactiveType
 #define MAX_TOTEM_SLOT      5
 #define SUMMON_SLOT_MINIPET 5
 #define SUMMON_SLOT_QUEST   6
-#define MAX_SUMMON_SLOT     7
+#define MAX_SUMMON_SLOT     9
 
 #define MAX_GAMEOBJECT_SLOT 4
 
@@ -1575,8 +1575,9 @@ class Unit : public WorldObject
         void StopAttackFaction(uint32 faction_id);
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
         void GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Range) const;
-        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true, bool p_Alive = true, bool p_ExcludeStealthVictim = false) const;
-        Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
+        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true, bool p_Alive = true, bool p_ExcludeStealthVictim = false, bool p_CheckValidAttack = false) const;
+        Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, bool p_CheckValidAssist = false) const;
+        Unit* SelectNearbyMostInjuredAlly(Unit* p_Exculde = nullptr, float p_Dist = NOMINAL_MELEE_RANGE) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
         void SendMeleeAttackStart(Unit* victim);
         bool IsVisionObscured(Unit* victim, SpellInfo const* spellInfo);
@@ -1838,8 +1839,6 @@ class Unit : public WorldObject
 
         bool HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const;
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }
-        bool HasCrowdControlAuraType(AuraType type, uint32 excludeAura = 0) const;
-        bool HasCrowdControlAura(Unit* excludeCasterChannel = NULL) const;
         bool HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura = 0) const;
         bool HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel = NULL) const;
 

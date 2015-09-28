@@ -12,6 +12,7 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
+#include "Sites/GarrisonSiteBase.hpp"
 
 namespace MS { namespace Garrison 
 {
@@ -173,6 +174,160 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    go_garrison_herb::go_garrison_herb()
+        : GameObjectScript("go_garrison_herb")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the GameObject.
+    /// @p_Player     : Source player instance
+    /// @p_GameObject : Target GameObject instance
+    bool go_garrison_herb::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
+    {
+        Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)p_GameObject->GetInstanceScript();
+
+        if (!l_GarrisonSite)
+            return true;
+
+        Player* l_Owner = l_GarrisonSite->GetOwner();
+
+        if (l_Owner != p_Player)
+            return true;
+
+        float l_BaseX = p_GameObject->GetPositionX();
+        float l_BaseY = p_GameObject->GetPositionY();
+
+        uint64 l_PackedValue = 0;
+        l_PackedValue |= ((uint64)*(uint32*)(&l_BaseX)) << 0;
+        l_PackedValue |= ((uint64)*(uint32*)(&l_BaseY)) << 32;
+
+        std::vector<uint64> l_Creatures = l_Owner->GetGarrison()->GetBuildingCreaturesByBuildingType(BuildingType::Farm);
+
+        for (uint64 l_CreatureGUID : l_Creatures)
+        {
+            Creature* l_Creature = HashMapHolder<Creature>::Find(l_CreatureGUID);
+
+            if (l_Creature)
+                l_Creature->AI()->SetGUID(l_PackedValue, CreatureAIDataIDs::GatheredPos);
+        }
+
+        return false;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    /// 234186 - Iron Trap                                                 ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    gob_IronTrap_Garrison::gob_IronTrap_Garrison()
+        : GameObjectScript("npc_IronTrap_Garr")
+    {
+    }
+
+    /// Constructor
+    /// @p_Gob : AI Owner
+    gob_IronTrap_Garrison::gob_IronTrap_GarrisonAI::gob_IronTrap_GarrisonAI(GameObject* p_Gob)
+        : GameObjectAI(p_Gob)
+    {
+        m_UpdateTimer = 0;
+    }
+
+    void gob_IronTrap_Garrison::gob_IronTrap_GarrisonAI::Reset()
+    {
+        Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)go->GetInstanceScript();
+
+        if (l_GarrisonSite == nullptr)
+            return;
+
+        Player* l_Owner = l_GarrisonSite->GetOwner();
+
+        if (l_Owner == nullptr)
+            return;
+
+        switch (l_Owner->GetTeamId())
+        {
+            case TEAM_ALLIANCE:
+                if (l_Owner->IsQuestRewarded(MS::Garrison::Quests::Alliance_BreakingIntoTheTrapGame))
+                    go->SetDisplayId(MS::Garrison::DisplayIDs::GobIronTrapDisplay);
+                else
+                {
+                    go->SetDisplayId(MS::Garrison::DisplayIDs::InvisibleDisplay);
+                    m_UpdateTimer = 1500;
+                }
+                break;
+            case TEAM_HORDE:
+                if (l_Owner->IsQuestRewarded(MS::Garrison::Quests::Horde_BreakingIntoTheTrapGame))
+                    go->SetDisplayId(MS::Garrison::DisplayIDs::GobIronTrapDisplay);
+                else
+                {
+                    go->SetDisplayId(MS::Garrison::DisplayIDs::InvisibleDisplay);
+                    m_UpdateTimer = 1500;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    void gob_IronTrap_Garrison::gob_IronTrap_GarrisonAI::UpdateAI(uint32 const p_Diff)
+    {
+        if (m_UpdateTimer)
+        {
+            if (m_UpdateTimer <= p_Diff)
+            {
+                Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)go->GetInstanceScript();
+
+                if (l_GarrisonSite == nullptr)
+                    return;
+
+                Player* l_Owner = l_GarrisonSite->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                switch (l_Owner->GetTeamId())
+                {
+                    case TEAM_ALLIANCE:
+                        if (l_Owner->IsQuestRewarded(MS::Garrison::Quests::Alliance_BreakingIntoTheTrapGame))
+                        {
+                            go->SetDisplayId(MS::Garrison::DisplayIDs::GobIronTrapDisplay);
+                            m_UpdateTimer = 0;
+                        }
+                        else
+                            m_UpdateTimer = 1500;
+                        break;
+                    case TEAM_HORDE:
+                        if (l_Owner->IsQuestRewarded(MS::Garrison::Quests::Horde_BreakingIntoTheTrapGame))
+                        {
+                            go->SetDisplayId(MS::Garrison::DisplayIDs::GobIronTrapDisplay);
+                            m_UpdateTimer = 0;
+                        }
+                        else
+                            m_UpdateTimer = 1500;
+                        break;
+                    default:
+                        break;
+                }
+
+                m_UpdateTimer = 1500;
+            }
+            else m_UpdateTimer -= p_Diff;
+        }
+    }
+
+    GameObjectAI* gob_IronTrap_Garrison::GetAI(GameObject* p_Gob) const
+    {
+        return new gob_IronTrap_GarrisonAI(p_Gob);
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -181,4 +336,6 @@ void AddSC_Garrison_GO()
     new MS::Garrison::go_garrison_cache;
     new MS::Garrison::go_garrison_outhouse;
     new MS::Garrison::go_garrison_shipment_container;
+    new MS::Garrison::go_garrison_herb;
+    new MS::Garrison::gob_IronTrap_Garrison;
 }

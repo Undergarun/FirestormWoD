@@ -8,18 +8,21 @@
 
 #include "the_everbloom.hpp"
 
-void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
+namespace
 {
-    std::list<Creature*> creatures;
-    GetCreatureListWithEntryInGrid(creatures, object, entry, 10.0f);
-    if (creatures.empty())
-        return;
+    void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
+    {
+        std::list<Creature*> creatures;
+        GetCreatureListWithEntryInGrid(creatures, object, entry, 10.0f);
+        if (creatures.empty())
+            return;
 
-    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
+        for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
+            (*iter)->DespawnOrUnsummon();
+    }
 }
 
-// Dreadpital toxin - 81864
+/// Dreadpital toxin - 81864
 class the_everbloom_dreadpital_toxin : public CreatureScript
 {
 public:
@@ -59,8 +62,8 @@ public:
 			switch (events.ExecuteEvent())
 			{
                 case eEverbloomEvents::EventDreadpetalToxin:
-				        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 8.0f, true))
-					        me->CastSpell(target, eEverbloomSpells::SpellDreadpetalToxin - 1);
+				        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                            me->CastSpell(l_Target, eEverbloomSpells::SpellDreadpetalToxin);
 
                         events.ScheduleEvent(eEverbloomEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
 				        break;
@@ -77,7 +80,7 @@ public:
 	}
 };
 
-// Everbloom Tender - 81985
+/// Everbloom Tender - 81985
 class the_everbloom_tender : public CreatureScript
 {
 public:
@@ -87,7 +90,6 @@ public:
 	{
         the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
 		{
-            Reset();
             m_Instance = me->GetInstanceScript();
 		}
 
@@ -96,6 +98,7 @@ public:
         void Reset() override
 		{
             events.Reset();
+
             me->CastSpell(me, eEverbloomSpells::SpellSolarChannel);
 		}
 
@@ -141,7 +144,7 @@ public:
 	}
 };
 
-//  Melder Berserker - 86372
+///  Melder Berserker - 86372
 class the_everbloom_melded_berserker : public CreatureScript
 {
 public:
@@ -224,7 +227,7 @@ public:
 	}
 };
 
-// Everbloom Gnarloot - 81984
+/// Everbloom Gnarloot - 81984
 class the_everbloom_gnarlroot : public CreatureScript
 {
 public:
@@ -286,7 +289,7 @@ public:
 	}
 };
 
-// Verdant Mandragora - 81983
+/// Verdant Mandragora - 81983
 class the_everbloom_verdant_mandragora : public CreatureScript
 {
 public:
@@ -341,7 +344,7 @@ public:
 	}
 };
 
-// Everbloom Mender - 81820
+/// Everbloom Mender - 81820
 class the_everbloom_mender : public CreatureScript
 {
 public:
@@ -408,7 +411,7 @@ public:
 };	
 
 
-// Twisted Abomination - 84767
+/// Twisted Abomination - 84767
 class the_everbloom_twisted_abomination : public CreatureScript
 {
 public:
@@ -472,7 +475,7 @@ public:
     }
 };
 
-// Infested Icecaller - 84989
+/// Infested Icecaller - 84989
 class the_everbloom_infested_icecaller : public CreatureScript
 {
 public:
@@ -543,7 +546,7 @@ public:
 	}
 };
 
-//  Addled Arcanomancer - 84990
+///  Addled Arcanomancer - 84990
 class the_everbloom_addled_arcanomancer : public CreatureScript
 {
 public:
@@ -599,7 +602,7 @@ public:
 	}
 };
 
-// Putrid Pyromancer - 84957
+/// Putrid Pyromancer - 84957
 class the_everbloom_putrid_pyromancer : public CreatureScript
 {
 public:
@@ -720,7 +723,7 @@ public:
 		}
 	};
 
-	SpellScript* GetSpellScript() const
+	SpellScript* GetSpellScript() const override
 	{
 		return new the_the_everbloom_spells();
 	}
@@ -848,6 +851,7 @@ public:
 
         void Reset() override
 		{
+            events.Reset();
             m_Time = 1500;
 
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS,  eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
@@ -969,49 +973,6 @@ public:
     }
 };
 
-/*
-// Barrage Leaves
-class the_everbloom_barrage_hostile_leaves : public SpellScriptLoader
-{
-public:
-    the_everbloom_barrage_hostile_leaves() : SpellScriptLoader("the_everbloom_barrage_hostile_leaves") { }
-
-    class the_everbloom_spells : public AuraScript
-    {
-        PrepareAuraScript(the_everbloom_spells);
-
-        bool Load()
-        {
-            if (!GetSpellInfo())
-                return false;
-
-            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
-
-            if (spell)
-            {
-                spell->AttributesCu |= SpellCustomAttributes::SPELL_ATTR0_CU_NEGATIVE_EFF0;
-                spell->AttributesCu |= SpellCustomAttributes::SPELL_ATTR0_CU_NEGATIVE_EFF1;
-                spell->AttributesCu |= SpellCustomAttributes::SPELL_ATTR0_CU_NEGATIVE_EFF2;
-            }
-        }
-
-        void HandlePeriodic(constAuraEffectPtr aurEff)
-        {
-        }
-
-        void Register()
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(the_everbloom_spells::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new the_everbloom_spells();
-    }
-};
-*/
-
 // Bounding Whirl - 172576 
 class the_everbloom_bounding_whirl_dummy : public SpellScriptLoader
 {
@@ -1027,12 +988,15 @@ public:
             if (!GetCaster() && !GetHitUnit())
                 return;
 
-            if (Creature* caster = GetCaster()->ToCreature())
+            if (Creature* l_Caster = GetCaster()->ToCreature())
             {
-                caster->CastSpell(GetHitUnit(), eEverbloomSpells::SpellBoundingWhirlJump);
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    l_Caster->CastSpell(l_Target, eEverbloomSpells::SpellBoundingWhirlJump);
 
-                if (caster->GetAI())
-                caster->AI()->DoAction(eEverbloomActions::ActionBoundingWhirlAura);
+                    if (l_Caster->GetAI())
+                        l_Caster->AI()->DoAction(eEverbloomActions::ActionBoundingWhirlAura);
+                }
             }
         }
 
@@ -1078,7 +1042,7 @@ public:
     }
 };
 
-
+/// Blamber Patch
 class the_everbloom_living_leaves_blamber_patch : public SpellScriptLoader
 {
 public:
@@ -1136,8 +1100,8 @@ void AddSC_the_everbloom()
     new the_everbloom_flower_beam_target_fix();
     new the_everbloom_living_leaves_dummy();
     new the_everbloom_living_leaves_executre();
-    //new the_everbloom_barrage_hostile_leaves();
     new the_everbloom_poisonous_claws();
     new the_everbloom_living_leaves_blamber_patch();
     new the_everbloom_duration_fix();
+    new the_everbloom_bounding_whirl_dummy();
 }
