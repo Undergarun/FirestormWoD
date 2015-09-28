@@ -751,6 +751,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const
         {
+            if (m_charmInfo == nullptr)
+                return 0;
+
             if (pos >= MAX_SPELL_CHARM || m_charmInfo->GetCharmSpell(pos) == nullptr || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
                 return 0;
             else
