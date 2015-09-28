@@ -287,11 +287,10 @@ namespace Battlepay
         l_Statement->setUInt32(0, p_Session->GetAccountId());
         l_Statement->setUInt32(1, sLog->GetRealmID());
         l_Statement->setUInt32(2, p_Session->GetPlayer() ? p_Session->GetPlayer()->GetGUIDLow() : 0);
-        l_Statement->setString(3, l_ItemsText.str());
-        l_Statement->setString(4, "InGame Shop - " + l_Type + " - " + l_ProductName);
+        l_Statement->setString(3, "InGame Shop - " + l_Type + " - " + l_ProductName);
+        l_Statement->setUInt32(4, 1);
         l_Statement->setUInt32(5, p_Purchase->CurrentPrice);
         l_Statement->setString(6, p_Session->GetRemoteAddress());
-        l_Statement->setString(7, l_Type);
         auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
 
         p_Session->AddPrepareStatementCallback(std::make_pair([p_Session](PreparedQueryResult p_Result) -> void
