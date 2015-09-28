@@ -3290,12 +3290,13 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
     /// @Todo: we need to find a better way to handle this, bool on every effect handlers, add hook ?
     switch (m_spellInfo->Id)
     {
-        case 475: // Remove Curse
+        case 475: ///< Remove Curse
+            if (m_caster->HasAura(115700)) ///< Glyph of Remove Curse
+                m_caster->AddAura(115701, m_caster);
+            break;
+        case 370: ///< Purge
             if (m_caster->HasAura(147762)) ///< Glyph of Purging
                 m_caster->CastSpell(m_caster, 53817, true); ///< Maelstrom Weapon
-            break;
-        case 370:
-            if (m_caster->HasAura(115700))
             break;
         case 527:   ///< Purify
         case 97960: ///< Cosmetic Magic Aura
