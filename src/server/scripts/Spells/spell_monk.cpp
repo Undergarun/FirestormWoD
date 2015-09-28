@@ -4645,6 +4645,20 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_explosion_mistweaver_SpellScript);
 
+            void HandleOnPrepare()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
+                {
+                    TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                    GetSpell()->setTriggerCastFlags(l_Flags);
+                }
+            }
+
             void HandleDummy(SpellEffIndex effIndex)
             {
                 Unit* l_Caster = GetCaster();
@@ -4680,6 +4694,7 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleOnPrepare);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
