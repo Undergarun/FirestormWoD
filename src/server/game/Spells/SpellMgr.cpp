@@ -3879,11 +3879,15 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156734: ///< Destructive Resonance - Summon (Imperator Mar'gok)
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
+            case 157265: ///< Volatile Anomalies (Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                break;
             case 158512: ///< Volatile Anomalies (Imperator Mar'gok)
             case 159158: ///< Volatile Anomalies (Imperator Mar'gok)
             case 159159: ///< Volatile Anomalies (Imperator Mar'gok)
-                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
-                spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_CASTER_FRONT;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].SetRadiusIndex(18);    ///< 15 yards
                 break;
             case 156799: ///< Destructive Resonance (Other - Imperator Mar'gok)
