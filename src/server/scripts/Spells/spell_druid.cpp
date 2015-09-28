@@ -1604,7 +1604,7 @@ class spell_dru_cat_form: public SpellScriptLoader
                 Unit* l_Target = GetTarget();
 
                 if (l_Target->HasAura(eSpells::Prowl))
-                    l_Target->RemoveAura(eSpells::Prowl);
+                    l_Target->RemoveAura(eSpells::Prowl, 0, 0, AURA_REMOVE_BY_CANCEL);
 
                 if (l_Target->HasAura(eSpells::DesplacerBeast))
                     l_Target->RemoveAura(eSpells::DesplacerBeast);
