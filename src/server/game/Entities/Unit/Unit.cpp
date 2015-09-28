@@ -11668,7 +11668,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
         DoneTotalMod += CalculatePct(1.0f, l_Pct);
     }
 
-    if (isPet() && GetSpellModOwner())
+    if ((isPet() || isGuardian()) && GetSpellModOwner())
     {
         AuraEffectList const& mModDamagePercentDone = GetSpellModOwner()->GetAuraEffectsByType(SPELL_AURA_MOD_PET_DAMAGE_DONE);
         for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
@@ -13248,7 +13248,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         }
     }
 
-    if (isPet() && GetSpellModOwner())
+    if ((isPet() || isGuardian()) && GetSpellModOwner())
     {
         AuraEffectList const& mModDamagePercentDone = GetSpellModOwner()->GetAuraEffectsByType(SPELL_AURA_MOD_PET_DAMAGE_DONE);
         for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
