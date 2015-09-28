@@ -770,8 +770,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (!victim->HasSpell(157533))
         {
             if (!spellProto || ((spellProto->DmgClass == SPELL_DAMAGE_CLASS_RANGED || spellProto->DmgClass == SPELL_DAMAGE_CLASS_MELEE) && damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL))
+            {
                 if (!spellProto || (spellProto->Id != LIGHT_STAGGER && spellProto->Id != MODERATE_STAGGER && spellProto->Id != HEAVY_STAGGER))
                     damage = victim->CalcStaggerDamage(victim->ToPlayer(), damage, damageSchoolMask, spellProto);
+            }
         }
         else ///< You are now able to shrug off even spells
         {
@@ -2395,6 +2397,28 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
     *resist = dmgInfo.GetResist();
     *absorb = dmgInfo.GetAbsorb();
+
+    /// Stagger handler
+    if (victim && victim->ToPlayer() && victim->getClass() == CLASS_MONK && damagetype != DamageEffectType::SELF_DAMAGE)
+    {
+        if (!victim->HasSpell(157533))
+        {
+            if (!spellInfo || ((spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED || spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE) && schoolMask & SPELL_SCHOOL_MASK_NORMAL))
+            if (!spellInfo || (spellInfo->Id != LIGHT_STAGGER && spellInfo->Id != MODERATE_STAGGER && spellInfo->Id != HEAVY_STAGGER))
+            {
+                if (*absorb)
+                    *absorb = victim->CalcStaggerDamage(victim->ToPlayer(), *absorb, schoolMask, spellInfo);
+            }
+        }
+        else ///< You are now able to shrug off even spells
+        {
+            if (!spellInfo || (spellInfo->Id != LIGHT_STAGGER && spellInfo->Id != MODERATE_STAGGER && spellInfo->Id != HEAVY_STAGGER))
+            {
+                if (*absorb)
+                    *absorb = victim->CalcStaggerDamage(victim->ToPlayer(), *absorb, schoolMask, spellInfo);
+            }
+        }
+    }
 }
 
 void Unit::CalcHealAbsorb(Unit* victim, const SpellInfo* healSpell, uint32 &healAmount, uint32 &absorb)
