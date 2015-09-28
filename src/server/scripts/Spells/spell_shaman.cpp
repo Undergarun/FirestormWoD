@@ -1138,7 +1138,8 @@ class spell_sha_healing_stream: public SpellScriptLoader
             enum eSpells
             {
                 RushingStreams = 147074,
-                GlyphOfHealingStreamTotem = 55456
+                GlyphOfHealingStreamTotem = 55456,
+                GlyphOfHealingStreamTotemAura = 119523
             };
 
             bool Validate(SpellInfo const* /*spell*/)
@@ -1168,18 +1169,20 @@ class spell_sha_healing_stream: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (!GetCaster()->GetOwner())
+                Unit* l_Owner = GetCaster()->GetOwner();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
                     return;
 
-                if (Unit* l_Owner = GetCaster()->GetOwner())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        /// Glyph of Healing Stream Totem
-                        if (l_Owner->HasAura(eSpells::GlyphOfHealingStreamTotem))
-                            l_Owner->CastSpell(l_Target, eSpells::GlyphOfHealingStreamTotem, true);
-                    }
-                }
+                Player* l_Player = l_Owner->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /// Glyph of Healing Stream Totem
+                if (l_Player->HasGlyph(eSpells::GlyphOfHealingStreamTotem))
+                    l_Player->CastSpell(l_Target, eSpells::GlyphOfHealingStreamTotemAura, true);
             }
 
             void Register()
