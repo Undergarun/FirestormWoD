@@ -224,6 +224,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
             void Update(uint32 p_Diff) override
             {
+                UpdateOperations(p_Diff);
                 UpdateCombatResurrection(p_Diff);
             }
         };

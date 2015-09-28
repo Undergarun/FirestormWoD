@@ -3386,6 +3386,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 173192: ///< Cave In (Dot)
             case 159686: ///< Acidback Puddle (DoT)
+            case 156203: ///< Retched Blackrock (Oregorger)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 175091: ///< Animate Slag

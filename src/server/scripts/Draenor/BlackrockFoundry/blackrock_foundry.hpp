@@ -41,6 +41,15 @@ static void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, boo
     }
 }
 
+static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_WorldObject)
+{
+    std::list<Creature*> l_Creatures;
+    GetCreatureListWithEntryInGrid(l_Creatures, p_WorldObject, p_Entry, p_WorldObject->GetMap()->GetVisibilityRange());
+
+    for (Creature* l_Iter : l_Creatures)
+        l_Iter->DespawnOrUnsummon();
+}
+
 enum eFoundryCreatures
 {
     /// Slagworks - Part 1
@@ -108,7 +117,9 @@ enum eFoundryDatas
     PristineTrueIronOres    = 0,
 
     /// Counters
-    MaxPristineTrueIronOres = 3
+    MaxPristineTrueIronOres = 3,
+    MaxOreCrateSpawns       = 25,
+    MaxOregorgerMovePos     = 8
 };
 
 enum eFoundrySpells

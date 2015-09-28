@@ -1,9 +1,11 @@
 SET NAMES utf8;
 
-DELETE FROM areatrigger_template WHERE spell_id IN (159121, 159518);
+DELETE FROM areatrigger_template WHERE spell_id IN (159121, 159518, 156186, 156388);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, scale_x, scale_y, ScriptName) VALUES
 (159121, 0, 6689, 2, 0x4000, 3, 3, 'areatrigger_foundry_acidback_puddle'),
-(159518, 2, 6709, 2, 0x4004, 2.5, 2.5, '');
+(159518, 2, 6709, 2, 0x4004, 2.5, 2.5, ''),
+(156186, 0, 6349, 2, 0x4000, 7, 7, 'areatrigger_foundry_retched_blackrock'),
+(156388, 0, 6360, 2, 0x4000, 7, 7, 'areatrigger_foundry_explosive_shard');
 
 DELETE FROM spell_script_names WHERE spell_id IN (159518);
 INSERT INTO spell_script_names VALUES
