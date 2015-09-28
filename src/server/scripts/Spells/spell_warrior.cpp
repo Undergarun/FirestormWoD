@@ -1664,6 +1664,11 @@ class spell_warr_execute: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_execute_SpellScript);
 
+            enum eSpells
+            {
+                SuddenDeath = 52437
+            };
+
             void HandleEnergize(SpellEffIndex p_EffIndex)
             {
                 PreventHitDefaultEffect(p_EffIndex);
@@ -1688,16 +1693,14 @@ class spell_warr_execute: public SpellScriptLoader
                 else
                     l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
 
-                /// Sudden Death : consume no extra Rage
-                if (AuraPtr l_Aura = l_Caster->GetAura(52437))
-                    l_Aura->Remove();
-                else
-                {
-                    l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
+                l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
 
-                    // Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
-                    l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
-                }
+                /// Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
+                l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
+
+                /// Sudden Death
+                if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
+                    l_Aura->Remove();
 
                 if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
