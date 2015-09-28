@@ -5680,6 +5680,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 126084: ///< Fingers of Frost - visual
                 spellInfo->StackAmount = 2;
                 break;
+            case 116330: ///< Dizzying Haze
+                spellInfo->Effects[EFFECT_1].BasePoints = 2000;
+                break;
             case 85222: ///< Light of Dawn
                 spellInfo->MaxAffectedTargets = 6;
                 break;
