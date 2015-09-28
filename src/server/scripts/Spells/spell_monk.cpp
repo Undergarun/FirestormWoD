@@ -3574,6 +3574,11 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_rushing_jade_wind_AuraScript);
 
+            enum eSpells
+            {
+                StanceOfTheWiseSerpents = 115070
+            };
+
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (!GetCaster())
@@ -3588,7 +3593,7 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                     return;
 
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                if (!(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && l_Player->HasAura(eSpells::StanceOfTheWiseSerpents)))
                 {
                     l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
