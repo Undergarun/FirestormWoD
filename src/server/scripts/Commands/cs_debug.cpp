@@ -2590,11 +2590,11 @@ class debug_commandscript: public CommandScript
             {
                 ChrClassesEntry const* l_ClassEntry = sChrClassesStore.LookupEntry(l_ClassId);
                 l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
-                    << "("
-                    << l_ClassId << ", "
-                    << l_ClassId << ", "
-                    << "\"" << l_ClassEntry->NameLang << " - Level 100\", \"\", 100, "
-                    << "100000000, -8833.07, 622.778, 93.9317, 0.6771, 0, 1569.97, -4397.41, 16.0472, 0.543025, 1, 0)";
+                             << "("
+                             << l_ClassId << ", "
+                             << l_ClassId << ", "
+                             << "\"" << l_ClassEntry->NameLang << " - Level 100\", \"\", 100, "
+                             << "100000000, -8833.07, 622.778, 93.9317, 0.6771, 0, 1569.97, -4397.41, 16.0472, 0.543025, 1, 0)";
 
                 l_FirstEntry = false;
             }
@@ -2632,19 +2632,19 @@ class debug_commandscript: public CommandScript
                         if (l_Template->AllowableClass & l_ClassMask)
                         {
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
-                                << "("
-                                << l_ClassId << ", "
-                                << l_BagItemId << ", "
-                                << "1, "
-                                << l_Count
-                                << ")";
+                                         << "("
+                                         << l_ClassId << ", "
+                                         << l_BagItemId << ", "
+                                         << "1, "
+                                         << l_Count
+                                         << ")";
                             l_StrBuilder << "," << std::endl
-                                << "("
-                                << l_ClassId << ", "
-                                << l_BagItemId << ", "
-                                << "2, "
-                                << l_Count
-                                << ")";
+                                         << "("
+                                         << l_ClassId << ", "
+                                         << l_BagItemId << ", "
+                                         << "2, "
+                                         << l_Count
+                                         << ")";
 
                             l_FirstEntry = false;
                         }
@@ -2679,21 +2679,21 @@ class debug_commandscript: public CommandScript
                                 l_TrinketsFind[l_ClassId] = 2;
 
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
-                                << "("
-                                << l_ClassId << ", "
-                                << l_Template->ItemId << ", "
-                                << "1, "
-                                << l_Count
-                                << ")";
+                                         << "("
+                                         << l_ClassId << ", "
+                                         << l_Template->ItemId << ", "
+                                         << "1, "
+                                         << l_Count
+                                         << ")";
                             l_StrBuilder << "," << std::endl
-                                << "("
-                                << l_ClassId << ", "
-                                << l_Template->ItemId << ", "
-                                << "2, "
-                                << l_Count
-                                << ")";
+                                         << "("
+                                         << l_ClassId << ", "
+                                         << l_Template->ItemId << ", "
+                                         << "2, "
+                                         << l_Count
+                                         << ")";
 
-                            l_FirstEntry = false;
+                             l_FirstEntry = false;
                         }
                     }
                 }
@@ -2719,19 +2719,19 @@ class debug_commandscript: public CommandScript
                             l_CloaksFind.push_back(l_ClassId);
 
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
-                                << "("
-                                << l_ClassId << ", "
-                                << l_Template->ItemId << ", "
-                                << "1, "
-                                << l_Count
-                                << ")";
+                                         << "("
+                                         << l_ClassId << ", "
+                                         << l_Template->ItemId << ", "
+                                         << "1, "
+                                         << l_Count
+                                         << ")";
                             l_StrBuilder << "," << std::endl
-                                << "("
-                                << l_ClassId << ", "
-                                << l_Template->ItemId << ", "
-                                << "2, "
-                                << l_Count
-                                << ")";
+                                         << "("
+                                         << l_ClassId << ", "
+                                         << l_Template->ItemId << ", "
+                                         << "2, "
+                                         << l_Count
+                                         << ")";
 
                             l_FirstEntry = false;
                         }
@@ -2760,19 +2760,19 @@ class debug_commandscript: public CommandScript
 
                             l_Count = l_Template->IsOneHanded() || (l_Template->IsTwoHandedWeapon() && l_ClassId == CLASS_WARRIOR) ? 2 : 1;
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
-                                << "("
-                                << l_ClassId << ", "
-                                << l_Template->ItemId << ", "
-                                << "1, "
-                                << l_Count
-                                << ")";
+                                         << "("
+                                         << l_ClassId << ", "
+                                         << l_Template->ItemId << ", "
+                                         <<  "1, "
+                                         << l_Count
+                                         << ")";
                             l_StrBuilder << "," << std::endl
-                                << "("
-                                << l_ClassId << ", "
-                                << l_Template->ItemId << ", "
-                                << "2, "
-                                << l_Count
-                                << ")";
+                                         << "("
+                                         << l_ClassId << ", "
+                                         << l_Template->ItemId << ", "
+                                         << "2, "
+                                         << l_Count
+                                         << ")";
 
                             l_FirstEntry = false;
                         }
@@ -2799,51 +2799,51 @@ class debug_commandscript: public CommandScript
                             {
                                 switch (l_Template->SubClass)
                                 {
-                                case ITEM_SUBCLASS_ARMOR_CLOTH:
-                                    switch (l_ClassId)
-                                    {
-                                    case CLASS_PRIEST:
-                                    case CLASS_MAGE:
-                                    case CLASS_WARLOCK:
+                                    case ITEM_SUBCLASS_ARMOR_CLOTH:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_PRIEST:
+                                            case CLASS_MAGE:
+                                            case CLASS_WARLOCK:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_LEATHER:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_ROGUE:
+                                            case CLASS_MONK:
+                                            case CLASS_DRUID:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_MAIL:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_HUNTER:
+                                            case CLASS_SHAMAN:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_PLATE:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_PALADIN:
+                                            case CLASS_WARRIOR:
+                                            case CLASS_DEATH_KNIGHT:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
                                         break;
                                     default:
-                                        continue;
-                                    }
-                                    break;
-                                case ITEM_SUBCLASS_ARMOR_LEATHER:
-                                    switch (l_ClassId)
-                                    {
-                                    case CLASS_ROGUE:
-                                    case CLASS_MONK:
-                                    case CLASS_DRUID:
                                         break;
-                                    default:
-                                        continue;
-                                    }
-                                    break;
-                                case ITEM_SUBCLASS_ARMOR_MAIL:
-                                    switch (l_ClassId)
-                                    {
-                                    case CLASS_HUNTER:
-                                    case CLASS_SHAMAN:
-                                        break;
-                                    default:
-                                        continue;
-                                    }
-                                    break;
-                                case ITEM_SUBCLASS_ARMOR_PLATE:
-                                    switch (l_ClassId)
-                                    {
-                                    case CLASS_PALADIN:
-                                    case CLASS_WARRIOR:
-                                    case CLASS_DEATH_KNIGHT:
-                                        break;
-                                    default:
-                                        continue;
-                                    }
-                                    break;
-                                default:
-                                    break;
                                 }
                             }
 
@@ -2851,19 +2851,19 @@ class debug_commandscript: public CommandScript
                                 continue;
 
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
-                                << "("
-                                << l_ClassId << ", "
-                                << l_Template->ItemId << ", "
-                                << "1, "
-                                << l_Count
-                                << ")";
+                                         << "("
+                                         << l_ClassId << ", "
+                                         << l_Template->ItemId << ", "
+                                         <<  "1, "
+                                         << l_Count
+                                         << ")";
                             l_StrBuilder << "," << std::endl
-                                << "("
-                                << l_ClassId << ", "
-                                << l_Template->ItemId << ", "
-                                << "2, "
-                                << l_Count
-                                << ")";
+                                         << "("
+                                         << l_ClassId << ", "
+                                         << l_Template->ItemId << ", "
+                                         << "2, "
+                                         << l_Count
+                                        << ")";
 
                             l_FirstEntry = false;
                         }
@@ -2877,19 +2877,19 @@ class debug_commandscript: public CommandScript
             for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
             {
                 l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
-                    << "("
-                    << l_ClassId << ", "
-                    << l_TomeOfTheClearMindId << ", "
-                    << "1, "
-                    << l_Count
-                    << ")";
+                            << "("
+                            << l_ClassId << ", "
+                            << l_TomeOfTheClearMindId << ", "
+                            <<  "1, "
+                            << l_Count
+                            << ")";
                 l_StrBuilder << "," << std::endl
-                    << "("
-                    << l_ClassId << ", "
-                    << l_TomeOfTheClearMindId << ", "
-                    << "2, "
-                    << l_Count
-                    << ")";
+                            << "("
+                            << l_ClassId << ", "
+                            << l_TomeOfTheClearMindId << ", "
+                            << "2, "
+                            << l_Count
+                            << ")";
             }
 
             l_StrBuilder << ";" << std::endl << std::endl;
@@ -2914,10 +2914,10 @@ class debug_commandscript: public CommandScript
                         uint32 l_ClassId = l_GlyphInfo->GetClassIDBySpellFamilyName();
 
                         l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
-                            << "("
-                            << l_ClassId << ", "
-                            << l_SpellInfo->Id
-                            << ")";
+                                     << "("
+                                     << l_ClassId << ", "
+                                     << l_SpellInfo->Id
+                                     << ")";
 
                         l_FirstEntry = false;
                     }
