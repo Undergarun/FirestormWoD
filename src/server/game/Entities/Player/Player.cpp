@@ -18381,19 +18381,14 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             switch (l_DynamicReward->Type)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
-                    if (!l_ItemTemplate->HasSpec((SpecIndex)l_Specialization))
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)l_Specialization, getLevel()))
                     {
-                        /// @TODO: Since we have default spec id, this is may be useless
-                        /// Hard fix to apply dynamic rewards for low level quests
-                        if (quest->GetQuestLevel() < 10 && l_ItemTemplate->HasClassSpec(getClass()))
-                            break;
-
                         GetSession()->SendNotification(LANG_NO_SPE_FOR_DYNAMIC_REWARD);
                         return false;
                     }
                     break;
                 case uint8(PackageItemRewardType::ClassReward):
-                    if (!l_ItemTemplate->HasClassSpec(getClass()))
+                    if (!l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         return false;
                     break;
                 case uint8(PackageItemRewardType::DefaultHiddenReward):                             ///< Yes, player can cheat to have it instead of his own specific item, but it's useless for him
@@ -18651,12 +18646,12 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                 {
-                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())) && !l_ItemTemplate->HasClassSpec(getClass()))
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec()), getLevel()) && !l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         continue;
                     break;
                 }
                 case uint8(PackageItemRewardType::ClassReward):
-                    if (!l_ItemTemplate->HasClassSpec(getClass()))
+                    if (!l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         continue;
                     break;
                 case uint8(PackageItemRewardType::DefaultHiddenReward):                             ///< Yes, player can cheat to have it instead of his own specific item, but it's useless for him
