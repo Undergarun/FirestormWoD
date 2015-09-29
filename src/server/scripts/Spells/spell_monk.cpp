@@ -1923,8 +1923,7 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
                 if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
                 {
                     if (SpellInfo const* l_RenewingMist = sSpellMgr->GetSpellInfo(eSpells::RenewingMist))
-                        if (SpellCategoriesEntry const* l_RenewingMistCategories = l_RenewingMist->GetSpellCategories())
-                            l_Player->RestoreCharge(l_RenewingMistCategories->ChargesCategory);
+                        l_Player->RestoreCharge(l_RenewingMist->ChargeCategoryEntry);
                 }
             }
 
@@ -4427,8 +4426,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
                 {
                     if (SpellInfo const* l_RisingSunKick = sSpellMgr->GetSpellInfo(eSpells::RisingSunKick))
-                        if (SpellCategoriesEntry const* l_RisingSunKickCategories = l_RisingSunKick->GetSpellCategories())
-                            l_Player->RestoreCharge(l_RisingSunKickCategories->ChargesCategory);
+                            l_Player->RestoreCharge(l_RisingSunKick->ChargeCategoryEntry);
                 }
             }
 
@@ -5192,8 +5190,7 @@ public:
                 return;
 
             if (SpellInfo const* l_Roll = sSpellMgr->GetSpellInfo(eSpells::Roll))
-                if (SpellCategoriesEntry const* l_RollCategories = l_Roll->GetSpellCategories())
-                    l_Player->RestoreCharge(l_RollCategories->ChargesCategory);
+                l_Player->RestoreCharge(l_Roll->ChargeCategoryEntry);
         }
 
         void Register()

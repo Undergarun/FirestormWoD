@@ -706,9 +706,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     //////////////////////////////////////////////////////////////////////////
     /// SpellCharges
-    PREPARE_STATEMENT(CHAR_SEL_CHARGES_COOLDOWN, "SELECT category, charge, time FROM character_charges_cooldown WHERE guid = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_INS_CHARGES_COOLDOWN, "INSERT INTO character_charges_cooldown (guid, category, charge, time) VALUE (?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_CHARGES_COOLDOWN, "DELETE FROM character_charges_cooldown WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_CHARGES_COOLDOWN, "SELECT categoryId, rechargeStart, rechargeEnd FROM character_spell_charges WHERE guid = ? AND rechargeEnd > UNIX_TIMESTAMP() ORDER BY rechargeEnd", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_CHARGES_COOLDOWN, "INSERT INTO character_spell_charges (guid, categoryId, rechargeStart, rechargeEnd) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_CHARGES_COOLDOWN, "DELETE FROM character_spell_charges WHERE guid = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
