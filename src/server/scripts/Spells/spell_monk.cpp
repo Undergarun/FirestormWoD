@@ -1831,14 +1831,29 @@ class spell_monk_surging_mist: public SpellScriptLoader
 
             void HandleOnPrepare()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
                 {
-                    if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
-                    {
-                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
-                        GetSpell()->setTriggerCastFlags(l_Flags);
-                    }
+                    TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                    GetSpell()->setTriggerCastFlags(l_Flags);
                 }
+            }
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, -30, POWER_ENERGY);
+                else
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
             }
 
             void HandleHeal(SpellEffIndex effIndex)
@@ -1868,6 +1883,7 @@ class spell_monk_surging_mist: public SpellScriptLoader
             void Register()
             {
                 OnPrepare += SpellOnPrepareFn(spell_monk_surging_mist_SpellScript::HandleOnPrepare);
+                AfterCast += SpellCastFn(spell_monk_surging_mist_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_surging_mist_SpellScript::HandleGivePower, EFFECT_1, SPELL_EFFECT_ENERGIZE);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_surging_mist_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
