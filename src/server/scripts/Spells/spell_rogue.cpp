@@ -1882,7 +1882,7 @@ class spell_rog_stealth: public SpellScriptLoader
                     else
                     {
                         if (l_Caster->HasAura(eSpells::StealthSubterfuge))
-                            l_Caster->RemoveAura(eSpells::StealthSubterfuge);
+                            l_Caster->RemoveAura(eSpells::StealthSubterfuge, 0, 0, AURA_REMOVE_BY_CANCEL);
                     }
                 }
             }
