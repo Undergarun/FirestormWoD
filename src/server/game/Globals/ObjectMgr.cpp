@@ -2806,105 +2806,71 @@ void ObjectMgr::LoadItemScriptNames()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item script names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-enum ItemSpecStat
-{
-    ITEM_SPEC_STAT_INTELLECT        = 0,
-    ITEM_SPEC_STAT_AGILITY          = 1,
-    ITEM_SPEC_STAT_STRENGTH         = 2,
-    ITEM_SPEC_STAT_SPIRIT           = 3,
-    ITEM_SPEC_STAT_HIT              = 4,
-    ITEM_SPEC_STAT_DODGE            = 5,
-    ITEM_SPEC_STAT_PARRY            = 6,
-    ITEM_SPEC_STAT_ONE_HANDED_AXE   = 7,
-    ITEM_SPEC_STAT_TWO_HANDED_AXE   = 8,
-    ITEM_SPEC_STAT_ONE_HANDED_SWORD = 9,
-    ITEM_SPEC_STAT_TWO_HANDED_SWORD = 10,
-    ITEM_SPEC_STAT_ONE_HANDED_MACE  = 11,
-    ITEM_SPEC_STAT_TWO_HANDED_MACE  = 12,
-    ITEM_SPEC_STAT_DAGGER           = 13,
-    ITEM_SPEC_STAT_FIST_WEAPON      = 14,
-    ITEM_SPEC_STAT_GUN              = 15,
-    ITEM_SPEC_STAT_BOW              = 16,
-    ITEM_SPEC_STAT_CROSSBOW         = 17,
-    ITEM_SPEC_STAT_STAFF            = 18,
-    ITEM_SPEC_STAT_POLEARM          = 19,
-    ITEM_SPEC_STAT_THROWN           = 20,
-    ITEM_SPEC_STAT_WAND             = 21,
-    ITEM_SPEC_STAT_SHIELD           = 22,
-    ITEM_SPEC_STAT_RELIC            = 23,
-    ITEM_SPEC_STAT_CRIT             = 24,
-    ITEM_SPEC_STAT_HASTE            = 25,
-    ITEM_SPEC_STAT_BONUS_ARMOR      = 26,
-    ITEM_SPEC_STAT_CLOAK            = 27,
-    
-    ITEM_SPEC_STAT_NONE             = 28
-};
-
 struct ItemSpecStats
 {
     uint32 ItemType;
     uint32 ItemSpecStatTypes[MAX_ITEM_PROTO_STATS];
     uint32 ItemSpecStatCount;
-    
+
     ItemSpecStats(ItemEntry const* item, ItemSparseEntry const* sparse) : ItemType(0), ItemSpecStatCount(0)
     {
         memset(ItemSpecStatTypes, -1, sizeof(ItemSpecStatTypes));
-        
+
         if (item == nullptr || sparse == nullptr)
             return;
-        
+
         if (item->Class == ITEM_CLASS_WEAPON)
         {
             ItemType = 5;
             switch (item->SubClass)
             {
-                case ITEM_SUBCLASS_WEAPON_AXE:
-                    AddStat(ITEM_SPEC_STAT_ONE_HANDED_AXE);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_AXE2:
-                    AddStat(ITEM_SPEC_STAT_TWO_HANDED_AXE);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_BOW:
-                    AddStat(ITEM_SPEC_STAT_BOW);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_GUN:
-                    AddStat(ITEM_SPEC_STAT_GUN);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_MACE:
-                    AddStat(ITEM_SPEC_STAT_ONE_HANDED_MACE);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_MACE2:
-                    AddStat(ITEM_SPEC_STAT_TWO_HANDED_MACE);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_POLEARM:
-                    AddStat(ITEM_SPEC_STAT_POLEARM);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_SWORD:
-                    AddStat(ITEM_SPEC_STAT_ONE_HANDED_SWORD);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_SWORD2:
-                    AddStat(ITEM_SPEC_STAT_TWO_HANDED_SWORD);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_STAFF:
-                    AddStat(ITEM_SPEC_STAT_STAFF);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
-                    AddStat(ITEM_SPEC_STAT_FIST_WEAPON);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_DAGGER:
-                    AddStat(ITEM_SPEC_STAT_DAGGER);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_THROWN:
-                    AddStat(ITEM_SPEC_STAT_THROWN);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                    AddStat(ITEM_SPEC_STAT_CROSSBOW);
-                    break;
-                case ITEM_SUBCLASS_WEAPON_WAND:
-                    AddStat(ITEM_SPEC_STAT_WAND);
-                    break;
-                default:
-                    break;
+            case ITEM_SUBCLASS_WEAPON_AXE:
+                AddStat(ITEM_SPEC_STAT_ONE_HANDED_AXE);
+                break;
+            case ITEM_SUBCLASS_WEAPON_AXE2:
+                AddStat(ITEM_SPEC_STAT_TWO_HANDED_AXE);
+                break;
+            case ITEM_SUBCLASS_WEAPON_BOW:
+                AddStat(ITEM_SPEC_STAT_BOW);
+                break;
+            case ITEM_SUBCLASS_WEAPON_GUN:
+                AddStat(ITEM_SPEC_STAT_GUN);
+                break;
+            case ITEM_SUBCLASS_WEAPON_MACE:
+                AddStat(ITEM_SPEC_STAT_ONE_HANDED_MACE);
+                break;
+            case ITEM_SUBCLASS_WEAPON_MACE2:
+                AddStat(ITEM_SPEC_STAT_TWO_HANDED_MACE);
+                break;
+            case ITEM_SUBCLASS_WEAPON_POLEARM:
+                AddStat(ITEM_SPEC_STAT_POLEARM);
+                break;
+            case ITEM_SUBCLASS_WEAPON_SWORD:
+                AddStat(ITEM_SPEC_STAT_ONE_HANDED_SWORD);
+                break;
+            case ITEM_SUBCLASS_WEAPON_SWORD2:
+                AddStat(ITEM_SPEC_STAT_TWO_HANDED_SWORD);
+                break;
+            case ITEM_SUBCLASS_WEAPON_STAFF:
+                AddStat(ITEM_SPEC_STAT_STAFF);
+                break;
+            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
+                AddStat(ITEM_SPEC_STAT_FIST_WEAPON);
+                break;
+            case ITEM_SUBCLASS_WEAPON_DAGGER:
+                AddStat(ITEM_SPEC_STAT_DAGGER);
+                break;
+            case ITEM_SUBCLASS_WEAPON_THROWN:
+                AddStat(ITEM_SPEC_STAT_THROWN);
+                break;
+            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                AddStat(ITEM_SPEC_STAT_CROSSBOW);
+                break;
+            case ITEM_SUBCLASS_WEAPON_WAND:
+                AddStat(ITEM_SPEC_STAT_WAND);
+                break;
+            default:
+                break;
             }
         }
         else if (item->Class == ITEM_CLASS_ARMOR && item->SubClass > 5 && item->SubClass <= 11)
@@ -2917,7 +2883,7 @@ struct ItemSpecStats
                         ItemType = 1;
                         break;
                     }
-                    
+
                     ItemType = 0;
                     AddStat(ITEM_SPEC_STAT_CLOAK);
                     break;
@@ -2941,86 +2907,84 @@ struct ItemSpecStats
         }
         else
             ItemType = 0;
-        
+
         for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
             if (sparse->ItemStatType[i] != -1)
                 AddModStat(sparse->ItemStatType[i]);
     }
-    
+
     void AddStat(ItemSpecStat statType)
     {
         if (ItemSpecStatCount >= MAX_ITEM_PROTO_STATS)
             return;
-        
+
         for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
             if (ItemSpecStatTypes[i] == uint32(statType))
                 return;
-        
+
         ItemSpecStatTypes[ItemSpecStatCount++] = statType;
     }
-    
+
     void AddModStat(int32 itemStatType)
     {
         switch (itemStatType)
         {
-            case ITEM_MOD_AGILITY:
-                AddStat(ITEM_SPEC_STAT_AGILITY);
-                break;
-            case ITEM_MOD_STRENGTH:
-                AddStat(ITEM_SPEC_STAT_STRENGTH);
-                break;
-            case ITEM_MOD_INTELLECT:
-                AddStat(ITEM_SPEC_STAT_INTELLECT);
-                break;
-            case ITEM_MOD_SPIRIT:
-                AddStat(ITEM_SPEC_STAT_SPIRIT);
-                break;
-            case ITEM_MOD_DODGE_RATING:
-                AddStat(ITEM_SPEC_STAT_DODGE);
-                break;
-            case ITEM_MOD_PARRY_RATING:
-                AddStat(ITEM_SPEC_STAT_PARRY);
-                break;
-            case ITEM_MOD_CRIT_MELEE_RATING:
-            case ITEM_MOD_CRIT_RANGED_RATING:
-            case ITEM_MOD_CRIT_SPELL_RATING:
-            case ITEM_MOD_CRIT_RATING:
-                AddStat(ITEM_SPEC_STAT_CRIT);
-                break;
-            case ITEM_MOD_HASTE_MELEE_RATING:
-            case ITEM_MOD_HASTE_RANGED_RATING:
-            case ITEM_MOD_HASTE_SPELL_RATING:
-            case ITEM_MOD_HASTE_RATING:
-                AddStat(ITEM_SPEC_STAT_HASTE);
-                break;
-            case ITEM_MOD_HIT_RATING:
-                AddStat(ITEM_SPEC_STAT_HIT);
-                break;
-            case ITEM_MOD_EXTRA_ARMOR:
-                AddStat(ITEM_SPEC_STAT_BONUS_ARMOR);
-                break;
-            case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
-                AddStat(ITEM_SPEC_STAT_AGILITY);
-                AddStat(ITEM_SPEC_STAT_STRENGTH);
-                AddStat(ITEM_SPEC_STAT_INTELLECT);
-                break;
-            case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
-                AddStat(ITEM_SPEC_STAT_AGILITY);
-                AddStat(ITEM_SPEC_STAT_STRENGTH);
-                break;
-            case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
-                AddStat(ITEM_SPEC_STAT_AGILITY);
-                AddStat(ITEM_SPEC_STAT_INTELLECT);
-                break;
-            case ITEM_MOD_DYNAMIC_STAT_STR_INT:
-                AddStat(ITEM_SPEC_STAT_STRENGTH);
-                AddStat(ITEM_SPEC_STAT_INTELLECT);
-                break;
+        case ITEM_MOD_AGILITY:
+            AddStat(ITEM_SPEC_STAT_AGILITY);
+            break;
+        case ITEM_MOD_STRENGTH:
+            AddStat(ITEM_SPEC_STAT_STRENGTH);
+            break;
+        case ITEM_MOD_INTELLECT:
+            AddStat(ITEM_SPEC_STAT_INTELLECT);
+            break;
+        case ITEM_MOD_SPIRIT:
+            AddStat(ITEM_SPEC_STAT_SPIRIT);
+            break;
+        case ITEM_MOD_DODGE_RATING:
+            AddStat(ITEM_SPEC_STAT_DODGE);
+            break;
+        case ITEM_MOD_PARRY_RATING:
+            AddStat(ITEM_SPEC_STAT_PARRY);
+            break;
+        case ITEM_MOD_CRIT_MELEE_RATING:
+        case ITEM_MOD_CRIT_RANGED_RATING:
+        case ITEM_MOD_CRIT_SPELL_RATING:
+        case ITEM_MOD_CRIT_RATING:
+            AddStat(ITEM_SPEC_STAT_CRIT);
+            break;
+        case ITEM_MOD_HASTE_MELEE_RATING:
+        case ITEM_MOD_HASTE_RANGED_RATING:
+        case ITEM_MOD_HASTE_SPELL_RATING:
+        case ITEM_MOD_HASTE_RATING:
+            AddStat(ITEM_SPEC_STAT_HASTE);
+            break;
+        case ITEM_MOD_HIT_RATING:
+            AddStat(ITEM_SPEC_STAT_HIT);
+            break;
+        case ITEM_MOD_EXTRA_ARMOR:
+            AddStat(ITEM_SPEC_STAT_BONUS_ARMOR);
+            break;
+        case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
+            AddStat(ITEM_SPEC_STAT_AGILITY);
+            AddStat(ITEM_SPEC_STAT_STRENGTH);
+            AddStat(ITEM_SPEC_STAT_INTELLECT);
+            break;
+        case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
+            AddStat(ITEM_SPEC_STAT_AGILITY);
+            AddStat(ITEM_SPEC_STAT_STRENGTH);
+            break;
+        case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
+            AddStat(ITEM_SPEC_STAT_AGILITY);
+            AddStat(ITEM_SPEC_STAT_INTELLECT);
+            break;
+        case ITEM_MOD_DYNAMIC_STAT_STR_INT:
+            AddStat(ITEM_SPEC_STAT_STRENGTH);
+            AddStat(ITEM_SPEC_STAT_INTELLECT);
+            break;
         }
     }
 };
-
-
 
 void ObjectMgr::LoadItemSpecs()
 {
@@ -3032,8 +2996,6 @@ void ObjectMgr::LoadItemSpecs()
         ItemTemplate& l_ItemTemplate = l_Itr->second;
         if (l_ItemTemplate.HasSpec())
             continue;
-
-        std::vector<uint32>        l_ItemStats = ItemSpecialization::GetItemSpecStats(const_cast<ItemTemplate*>(&l_ItemTemplate));
         
         ItemSpecStats itemSpecStats(sItemStore.LookupEntry(l_ItemTemplate.ItemId), sItemSparseStore.LookupEntry(l_ItemTemplate.ItemId));
 
@@ -3066,55 +3028,8 @@ void ObjectMgr::LoadItemSpecs()
                     continue;
                 
                 l_ItemTemplate.AddSpec((SpecIndex)itemSpec->SpecializationID, itemSpec->MaxLevel);
-                sLog->outAshran("LoadItemSpecs %u : [Spec: %u, Level : %u]", l_ItemTemplate.ItemId, itemSpec->SpecializationID, itemSpec->MaxLevel);
             }
         }
-        
-        
-        /*int l_Levels[2] = {40, 100};
-        
-        for (auto l_Level : l_Levels)
-        {
-            bool  l_Find     = false;
-            uint32 l_TempStat = 28;
-            
-            for (std::vector<int32>::const_reverse_iterator l_Itr = l_KeyOrders.rbegin(); l_Itr != l_KeyOrders.rend(); l_Itr++)
-            {
-                int32 l_Idx = (*l_Itr);
-                ItemSpecEntry const* l_ItemSpec = sItemSpecStore.LookupEntry(l_Idx);
-                if (!l_ItemSpec)
-                    continue;
-            
-                if (l_Level >= l_ItemSpec->MinLevel && l_ItemTemplate.RequiredLevel <= l_Level)
-                {
-                    if (l_ItemSpec->ItemType == ItemSpecialization::GetItemType(&l_ItemTemplate))
-                    {
-                        l_Find = true;
-                        if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->PrimaryStat, l_ItemStats))
-                        {
-                            if (l_ItemSpec->SecondaryStat == 28)
-                            {
-                                if (l_TempStat != l_ItemSpec->PrimaryStat)
-                                {
-                                    sLog->outAshran("LoadItemSpecs %u : [Spec: %u, Level : %u]", l_ItemTemplate.ItemId, l_ItemSpec->SpecializationID, l_Level);
-                                    l_ItemTemplate.AddSpec((SpecIndex)l_ItemSpec->SpecializationID, l_Level);
-                                    ++l_Count;
-                                }
-                            }
-                            else if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->SecondaryStat, l_ItemStats))
-                            {
-                                sLog->outAshran("LoadItemSpecs %u : [Spec: %u, Level : %u]", l_ItemTemplate.ItemId, l_ItemSpec->SpecializationID, l_Level);
-                                l_ItemTemplate.AddSpec((SpecIndex)l_ItemSpec->SpecializationID, l_Level);
-                                ++l_Count;
-                                l_TempStat = l_ItemSpec->PrimaryStat;
-                            }
-                        }
-                    }
-                    else if (l_Find)
-                        break;
-                }
-            }
-        }*/
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
