@@ -185,7 +185,7 @@ public:
             }
 
             // Distrubed Spirits RP moment.
-            for (int i = 0; i >= 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                Creature* l_Creature = me->SummonCreature(eNhalishCreatures::CreatureDistrubedSouls, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 10 * TimeConstants::IN_MILLISECONDS);
 
@@ -692,7 +692,7 @@ public:
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
-        if (m_Diff <= p_Time)
+        if (m_Diff <= int32(p_Time))
         {
             std::list<Player*> l_ListPlayers;
 

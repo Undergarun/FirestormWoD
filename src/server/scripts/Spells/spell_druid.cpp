@@ -1604,7 +1604,7 @@ class spell_dru_cat_form: public SpellScriptLoader
                 Unit* l_Target = GetTarget();
 
                 if (l_Target->HasAura(eSpells::Prowl))
-                    l_Target->RemoveAura(eSpells::Prowl);
+                    l_Target->RemoveAura(eSpells::Prowl, 0, 0, AURA_REMOVE_BY_CANCEL);
 
                 if (l_Target->HasAura(eSpells::DesplacerBeast))
                     l_Target->RemoveAura(eSpells::DesplacerBeast);
@@ -1778,17 +1778,20 @@ class spell_dru_faerie_swarm_speed_aura : public SpellScriptLoader
         }
 };
 
-enum WildMushroomSpells
+enum eWildMushroomSpells
 {
-    DruidNpcWildMushroom                    = 47649,
-    SpellDruidWildMushroomHeal              = 81269,
-    SpellDruidWildMushroomHealAura          = 81262,
-    SpellDruidWildMushroomFungalCloud       = 81281,
-    SpellDruidAreaWildMushroomFungalCloud   = 164717,
-    SpellDruidWildMushroomBalance           = 88747,
-    SpellDduidMushroomBirthVisual           = 94081,
-    SpellDruidWildMushroomRestoration       = 145205,
-    SpellDruidT15RestorationBonus           = 138284
+    Heal                      = 81269,
+    HealAura                  = 81262,
+    FungalCloudArea           = 164717,
+    WildMushroomBalance       = 88747,
+    WildMushroomBirthVisual   = 94081,
+    WildMushroomRestoration   = 145205,
+    T15RestorationBonus       = 138284
+};
+
+enum eWildMushroomDatas
+{
+    NpcWildMushroom = 47649,
 };
 
 /// Wild Mushroom (Balance) - 88747
@@ -1802,6 +1805,20 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_wild_mushroom_SpellScript)
 
+            enum eWildMushroomSpells
+            {
+                HealAura                  = 81262,
+                FungalCloudArea           = 164717,
+                WildMushroomBalance       = 88747,
+                WildMushroomBirthVisual   = 94081,
+                WildMushroomRestoration   = 145205,
+            };
+            
+            enum eWildMushroomDatas
+            {
+                NpcWildMushroom = 47649,
+            };
+
             void HandleSummon(SpellEffIndex p_EffIndex)
             {
                 PreventHitDefaultEffect(p_EffIndex);
@@ -1812,7 +1829,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
 
                 std::list<Creature*> l_Mushroomlist;
 
-                l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, WildMushroomSpells::DruidNpcWildMushroom, 500.0f);
+                l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, eWildMushroomDatas::NpcWildMushroom, 500.0f);
 
                 /// Remove other player mushrooms
                 for (std::list<Creature*>::iterator i = l_Mushroomlist.begin(); i != l_Mushroomlist.end(); ++i)
@@ -1837,12 +1854,12 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     l_Summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     l_Summon->SetMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                     l_Summon->SetFullHealth();
-                    l_Summon->CastSpell(l_Summon, WildMushroomSpells::SpellDduidMushroomBirthVisual, true);
+                    l_Summon->CastSpell(l_Summon, eWildMushroomSpells::WildMushroomBirthVisual, true);
 
-                    if (GetSpellInfo()->Id == WildMushroomSpells::SpellDruidWildMushroomRestoration)
-                        l_Summon->CastSpell(l_Summon, WildMushroomSpells::SpellDruidWildMushroomHealAura, true);
-                    else if (GetSpellInfo()->Id == WildMushroomSpells::SpellDruidWildMushroomBalance)
-                        l_Summon->CastSpell(l_Summon, WildMushroomSpells::SpellDruidAreaWildMushroomFungalCloud, true);
+                    if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestoration)
+                        l_Summon->CastSpell(l_Summon, eWildMushroomSpells::HealAura, true);
+                    else if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomBalance)
+                        l_Summon->CastSpell(l_Summon, eWildMushroomSpells::FungalCloudArea, true);
                 }
             }
 
@@ -1868,6 +1885,11 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_wild_mushroom_heal_AuraScript);
 
+            enum eWildMushroomSpells
+            {
+                Heal = 81269
+            };
+
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 Unit* l_Mushroom = GetCaster();
@@ -1876,7 +1898,7 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
                 if (l_Mushroom == nullptr || l_Owner == nullptr)
                     return;
 
-                l_Owner->CastSpell(l_Mushroom, WildMushroomSpells::SpellDruidWildMushroomHeal, true);
+                l_Owner->CastSpell(l_Mushroom, eWildMushroomSpells::Heal, true);
             }
 
             void Register()
@@ -1901,13 +1923,18 @@ class spell_dru_wild_mushroom_heal_proc : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_wild_mushroom_heal_proc_SpellScript);
 
+            enum eWildMushroomSpells
+            {
+                T15RestorationBonus = 138284
+            };
+
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
                 Unit* l_Caster = GetCaster();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WildMushroomSpells::SpellDruidT15RestorationBonus);
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eWildMushroomSpells::T15RestorationBonus);
                 uint8 l_MaxTargets = 3;
 
-                if (l_SpellInfo != nullptr && l_Caster->HasAura(WildMushroomSpells::SpellDruidT15RestorationBonus))
+                if (l_SpellInfo != nullptr && l_Caster->HasAura(eWildMushroomSpells::T15RestorationBonus))
                     l_MaxTargets = l_SpellInfo->Effects[EFFECT_0].BasePoints;
 
                 if (p_Targets.size() > 1)

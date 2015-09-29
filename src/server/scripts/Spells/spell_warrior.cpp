@@ -2529,7 +2529,7 @@ class spell_warr_activate_battle_stance : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_activate_battle_stance_SpellScript::HandleOnHit);
+                BeforeHit += SpellHitFn(spell_warr_activate_battle_stance_SpellScript::HandleOnHit);
             }
         };
 

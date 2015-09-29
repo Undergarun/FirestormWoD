@@ -28,7 +28,7 @@ namespace MS { namespace Garrison
         bool BuiltNotified;     ///< Is built notified
 
         /// Reset building
-        void Reset()
+        GarrisonBuilding()
         {
             DatabaseID      = 0;
             PlotInstanceID  = 0;

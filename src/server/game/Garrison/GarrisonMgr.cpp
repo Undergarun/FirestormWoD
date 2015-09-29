@@ -1910,7 +1910,7 @@ namespace MS { namespace Garrison
             l_CurrentAdditionalWinChance = (l_Seil * l_V11) + l_CurrentAdditionalWinChance;
 
             #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                printf("Added %.2f to success due to follower %d bias.\n", (l_Seil * l_V11), l_MissionFollowers[l_Y]->FollowerID);
+                printf("Added %.2f to success due to follower %u bias.\n", (l_Seil * l_V11), l_MissionFollowers[l_Y]->FollowerID);
             #endif // GARRISON_CHEST_FORMULA_DEBUG
         }
         #pragma endregion
@@ -1978,7 +1978,7 @@ namespace MS { namespace Garrison
                 l_CurrentAdditionalWinChance = l_Unk1 + l_CurrentAdditionalWinChance;
 
                 #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                    printf("Added %.2f to success due to followers countering boss mechanic %d.\n", l_Unk1, l_EncoutersMechanics[l_I].second);
+                    printf("Added %.2f to success due to followers countering boss mechanic %u.\n", l_Unk1, l_EncoutersMechanics[l_I].second);
                 #endif // GARRISON_CHEST_FORMULA_DEBUG
             }
         }
@@ -2021,7 +2021,7 @@ namespace MS { namespace Garrison
                                 l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
 
                                 #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                                    printf("Added %.2f to success due to follower %d enemy race ability %d.\n", (l_Seil * l_V62), 0, l_CurrentAbilityID);
+                                    printf("Added %.2f to success due to follower %u enemy race ability %d.\n", (l_Seil * l_V62), 0, l_CurrentAbilityID);
                                 #endif // GARRISON_CHEST_FORMULA_DEBUG
                             }
                         }
@@ -2061,7 +2061,7 @@ namespace MS { namespace Garrison
                         l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
 
                         #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                            printf("Added %.2f to success due to follower %d environment ability %d.\n", (l_Seil * l_V62), l_MissionFollowers[l_Y]->FollowerID, l_CurrentAbilityID);
+                            printf("Added %.2f to success due to follower %u environment ability %u.\n", (l_Seil * l_V62), l_MissionFollowers[l_Y]->FollowerID, l_CurrentAbilityID);
                         #endif // GARRISON_CHEST_FORMULA_DEBUG
                     }
                 }
@@ -2172,7 +2172,7 @@ namespace MS { namespace Garrison
                     l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
 
                     #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                        printf("Added %.2f to success due to follower %d trait %d.\n", (l_Seil * l_V62), l_MissionFollowers[l_Y]->FollowerID, l_AbilityEffectEntry->EffectType);
+                        printf("Added %.2f to success due to follower %u trait %u.\n", (l_Seil * l_V62), l_MissionFollowers[l_Y]->FollowerID, l_AbilityEffectEntry->EffectType);
                     #endif // GARRISON_CHEST_FORMULA_DEBUG
                 }
             }
@@ -2196,7 +2196,7 @@ namespace MS { namespace Garrison
                 l_CurrentAdditionalWinChance = (l_AbilityEffectEntry->ModMin * l_V62) + l_CurrentAdditionalWinChance;
 
                 #ifdef GARRISON_CHEST_FORMULA_DEBUG
-                    printf("Added %.2f to success due to passive effect %d.\n", l_AbilityEffectEntry->ModMin * l_V62, l_AbilityEffectEntry->AbilityID);
+                    printf("Added %.2f to success due to passive effect %u.\n", l_AbilityEffectEntry->ModMin * l_V62, l_AbilityEffectEntry->AbilityID);
                 #endif // GARRISON_CHEST_FORMULA_DEBUG
             }
         }
@@ -2485,7 +2485,6 @@ namespace MS { namespace Garrison
         GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
         GarrisonBuilding l_Building;
-        l_Building.Reset();
 
         if (!l_BuildingEntry)
             return l_Building;
@@ -3784,13 +3783,23 @@ namespace MS { namespace Garrison
                 }
                 else
                 {
-                    l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
+                    /// Keep original displayID for Barn Work Order
+                    if (l_WorkOrderGameObject->GetEntry() != GarrisonBuildingWorkOrderGameObject::GobBarnWOrkOrder)
+                        l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
+                    else
+                        l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::BaseBarn);
+
                     l_WorkOrderGameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
                 }
             }
             else
             {
-                l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
+                /// Keep original displayID for Barn Work Order
+                if (l_WorkOrderGameObject->GetEntry() != GarrisonBuildingWorkOrderGameObject::GobBarnWOrkOrder)
+                    l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
+                else
+                    l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::BaseBarn);
+
                 l_WorkOrderGameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
             }
         }

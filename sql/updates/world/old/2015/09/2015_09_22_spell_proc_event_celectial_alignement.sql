@@ -1,0 +1,1 @@
+INSERT INTO `spell_proc_event` (`entry`, `procEx`) VALUES (160373, 0x00000001 + 0x0000002 + 0x0000400);
