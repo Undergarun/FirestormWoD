@@ -485,6 +485,9 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             /// Fear - 6 seconds in PvP (6.0)
             if (spellproto->Id == 118699 || spellproto->Id == 130616)
                 return 6 * IN_MILLISECONDS;
+            /// Debilitate - 4 seconds in PvP
+            if (spellproto->Id == 170996)
+                return 4 * IN_MILLISECONDS;
             break;
         }
         default:
