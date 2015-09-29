@@ -7,62 +7,97 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, scale
 (156186, 0, 6349, 2, 0x4000, 7, 7, 'areatrigger_foundry_retched_blackrock'),
 (156388, 0, 6360, 2, 0x4000, 7, 7, 'areatrigger_foundry_explosive_shard');
 
-DELETE FROM spell_script_names WHERE spell_id IN (159518);
+DELETE FROM spell_script_names WHERE spell_id IN (159518, 156297, 156324);
 INSERT INTO spell_script_names VALUES
-(159518, 'spell_foundry_shattering_charge');
+(159518, 'spell_foundry_shattering_charge'),
+(156297, 'spell_foundry_acid_torrent'),
+(156324, 'spell_foundry_acid_torrent_aoe');
 
-DELETE FROM creature_groupsizestats WHERE entry = 77182;
+SET @REF_OREGORGER = 77182;
+
+DELETE FROM creature_text WHERE entry IN (@REF_OREGORGER);
+INSERT INTO creature_text VALUES
+(@REF_OREGORGER, 0, 0, '|Hunit:77182:Oregorger|hOregorger prepares to cast |cFFFF0000|Hspell:156879|h[Blackrock Barrage]|h|r.', 41, 0, 100, 0, 0, 0, 'BlackrockBarrage'),
+(@REF_OREGORGER, 1, 0, 'Oregorger has grown hungry and wants to eat more blackrock ore!', 41, 0, 100, 0, 0, 0, 'Phase2'),
+(@REF_OREGORGER, 2, 0, 'Oregorger is full of blackrock ore!', 41, 0, 100, 0, 0, 0, 'ReturnToPhase1');
+
+DELETE FROM locales_creature_text WHERE entry IN (@REF_OREGORGER);
+--                                                       French     German     Spanish    Russian
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
+(
+    @REF_OREGORGER, 0, 0,
+    '|Hunit:77182:Oregorger|hMangeroc se prépare à lancer |cFFFF0000|Hspell:156879|h[Barrage rochenoire]|h|r.',
+    '|Hunit:77182:Oregorger|hErzfresser bereitet sich darauf vor, |cFFFF0000|Hspell:156879|h[Schwarzfelssperrfeuer]|h|r zu wirken!',
+    '|Hunit:77182:Oregorger|hZampamenas se prepara para lanzar |cFFFF0000|Hspell:156879|h[Tromba de Roca Negra]|h|r.',
+    '|Hunit:77182:Oregorger|hРудожуй готовится применить |cFFFF0000|Hspell:156879|h[Шквал Черной горы]|h|r.'
+),
+(
+    @REF_OREGORGER, 1, 0,
+    'Mangeroc a faim et veut manger plus de minerai rochenoire !',
+    'Erzfresser ist jetzt hungrig und will mehr Schwarzfelserz fressen!',
+    '¡Zampamenas tiene hambre y quiere comer más mena de Roca Negra!',
+    'Рудожуй проголодался и хочет еще руды Черной горы!'
+),
+(
+    @REF_OREGORGER, 2, 0,
+    'Mangeroc est rempli de minerai rochenoire !',
+    'Erzfresser ist voller Schwarzfelserz!',
+    '¡Zampamenas está lleno de mena de Roca Negra!',
+    'Рудожуй наелся руды Черной горы!'
+);
+
+DELETE FROM creature_groupsizestats WHERE entry = @REF_OREGORGER;
 INSERT INTO creature_groupsizestats (entry, difficulty, groupSize, health) VALUES
 -- Normal
-(77182,14,10,39001391),
-(77182,14,11,43117825),
-(77182,14,12,47202400),
-(77182,14,13,51292485),
-(77182,14,14,55382369),
-(77182,14,15,59476000),
-(77182,14,16,63593745),
-(77182,14,17,67680445),
-(77182,14,18,71765114),
-(77182,14,19,75869003),
-(77182,14,20,79956107),
-(77182,14,21,84053664),
-(77182,14,22,88140861),
-(77182,14,23,92239703),
-(77182,14,24,96337792),
-(77182,14,25,100489912),
-(77182,14,26,104530096),
-(77182,14,27,108646554),
-(77182,14,28,112725495),
-(77182,14,29,116813903),
-(77182,14,30,120935139),
+(@REF_OREGORGER,14,10,39001391),
+(@REF_OREGORGER,14,11,43117825),
+(@REF_OREGORGER,14,12,47202400),
+(@REF_OREGORGER,14,13,51292485),
+(@REF_OREGORGER,14,14,55382369),
+(@REF_OREGORGER,14,15,59476000),
+(@REF_OREGORGER,14,16,63593745),
+(@REF_OREGORGER,14,17,67680445),
+(@REF_OREGORGER,14,18,71765114),
+(@REF_OREGORGER,14,19,75869003),
+(@REF_OREGORGER,14,20,79956107),
+(@REF_OREGORGER,14,21,84053664),
+(@REF_OREGORGER,14,22,88140861),
+(@REF_OREGORGER,14,23,92239703),
+(@REF_OREGORGER,14,24,96337792),
+(@REF_OREGORGER,14,25,100489912),
+(@REF_OREGORGER,14,26,104530096),
+(@REF_OREGORGER,14,27,108646554),
+(@REF_OREGORGER,14,28,112725495),
+(@REF_OREGORGER,14,29,116813903),
+(@REF_OREGORGER,14,30,120935139),
 -- Heroic
-(77182,15,10,54165022),
-(77182,15,11,59889024),
-(77182,15,12,65568042),
-(77182,15,13,71226495),
-(77182,15,14,76956501),
-(77182,15,15,82626135),
-(77182,15,16,88318040),
-(77182,15,17,94022105),
-(77182,15,18,99664737),
-(77182,15,19,105371910),
-(77182,15,20,111039511),
-(77182,15,21,116726722),
-(77182,15,22,122424868),
-(77182,15,23,128114515),
-(77182,15,24,133814197),
-(77182,15,25,139483496),
-(77182,15,26,145186362),
-(77182,15,27,150858264),
-(77182,15,28,156544656),
-(77182,15,29,162224207),
-(77182,15,30,167996102),
+(@REF_OREGORGER,15,10,54165022),
+(@REF_OREGORGER,15,11,59889024),
+(@REF_OREGORGER,15,12,65568042),
+(@REF_OREGORGER,15,13,71226495),
+(@REF_OREGORGER,15,14,76956501),
+(@REF_OREGORGER,15,15,82626135),
+(@REF_OREGORGER,15,16,88318040),
+(@REF_OREGORGER,15,17,94022105),
+(@REF_OREGORGER,15,18,99664737),
+(@REF_OREGORGER,15,19,105371910),
+(@REF_OREGORGER,15,20,111039511),
+(@REF_OREGORGER,15,21,116726722),
+(@REF_OREGORGER,15,22,122424868),
+(@REF_OREGORGER,15,23,128114515),
+(@REF_OREGORGER,15,24,133814197),
+(@REF_OREGORGER,15,25,139483496),
+(@REF_OREGORGER,15,26,145186362),
+(@REF_OREGORGER,15,27,150858264),
+(@REF_OREGORGER,15,28,156544656),
+(@REF_OREGORGER,15,29,162224207),
+(@REF_OREGORGER,15,30,167996102),
 -- LFR
-(77182,17,18,50281633),
-(77182,17,19,53113927),
-(77182,17,20,56011537),
-(77182,17,21,58844429),
-(77182,17,22,61710392),
-(77182,17,23,64567493),
-(77182,17,24,67433747),
-(77182,17,25,70299883);
+(@REF_OREGORGER,17,18,50281633),
+(@REF_OREGORGER,17,19,53113927),
+(@REF_OREGORGER,17,20,56011537),
+(@REF_OREGORGER,17,21,58844429),
+(@REF_OREGORGER,17,22,61710392),
+(@REF_OREGORGER,17,23,64567493),
+(@REF_OREGORGER,17,24,67433747),
+(@REF_OREGORGER,17,25,70299883);

@@ -3401,6 +3401,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159632: ///< Insatiable Hunger
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
+            case 160665: ///< Rolling Box (Oregorger)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 155819: ///< Hunger Drive (Oregorger)
+                spellInfo->Attributes &= ~SPELL_ATTR0_DEBUFF;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 167650: ///< Loose Quills (Rukhmar)
             case 167630: ///< Blaze of Glory (Rukhmar)

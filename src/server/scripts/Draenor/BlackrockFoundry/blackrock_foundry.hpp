@@ -23,6 +23,11 @@
 # include "Group.h"
 # include "MoveSplineInit.h"
 
+float const g_NorthOrientation = 0.0f;
+float const g_SouthOrientation = M_PI;
+float const g_WestOrientation = M_PI / 2.0f;
+float const g_EastOrientation = 3.0f * M_PI / 2.0f;
+
 static void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
 {
     if (p_Map == nullptr)

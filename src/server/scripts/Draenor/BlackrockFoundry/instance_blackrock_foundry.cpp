@@ -61,15 +61,6 @@ class instance_blackrock_foundry : public InstanceMapScript
                 }
             }
 
-            void OnCreatureRemove(Creature* p_Creature) override
-            {
-                switch (p_Creature->GetEntry())
-                {
-                    default:
-                        break;
-                }
-            }
-
             void OnGameObjectCreate(GameObject* p_GameObject) override
             {
                 switch (p_GameObject->GetEntry())
@@ -179,17 +170,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                     return false;
 
-                switch (p_BossID)
-                {
-                    default:
-                        break;
-                }
-
                 return true;
-            }
-
-            void FillInitialWorldStates(ByteBuffer& p_Buffer) override
-            {
             }
 
             void OnPlayerEnter(Player* p_Player) override

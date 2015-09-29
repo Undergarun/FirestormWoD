@@ -1494,11 +1494,11 @@ class npc_foundry_darkshard_crystalback : public CreatureScript
                 if (p_Target == nullptr)
                     return;
 
-                switch (p_SpellInfo->Id)
+                /*switch (p_SpellInfo->Id)
                 {
                     default:
                         break;
-                }
+                }*/
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1513,11 +1513,11 @@ class npc_foundry_darkshard_crystalback : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                switch (m_Events.ExecuteEvent())
+                /*switch (m_Events.ExecuteEvent())
                 {
                     default:
                         break;
-                }
+                }*/
 
                 DoMeleeAttackIfReady();
             }
@@ -1873,8 +1873,11 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
                         if (!l_Unit->HasAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID()))
                             l_Unit->CastSpell(l_Unit, eSpell::AcidbackPuddleDoT, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
                     }
-                    else if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID()))
-                        l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID());
+                    else
+                    {
+                        if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID()))
+                            l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID());
+                    }
                 }
             }
         }
