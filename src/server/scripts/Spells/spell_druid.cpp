@@ -2658,7 +2658,7 @@ class spell_dru_moonfire : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Target, SPELL_DRUID_MOONFIRE_DAMAGE);
+                l_Caster->CastSpell(l_Target, SPELL_DRUID_MOONFIRE_DAMAGE, true);
 
                 if (l_Caster->HasAura(eSpells::DreamOfCenarius) && m_IsLunarPeak)
                     l_Caster->CastSpell(l_Caster, eSpells::DreamOfCenariusHeal, true);
@@ -2717,7 +2717,7 @@ class spell_dru_sunfire : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Target, Sunfire::SpellDamage);
+                l_Caster->CastSpell(l_Target, Sunfire::SpellDamage, true);
 
                 if (l_Caster->HasAura(eSpells::DreamOfCenarius) && m_IsSolarPeak)
                     l_Caster->CastSpell(l_Caster, eSpells::DreamOfCenariusHeal, true);
