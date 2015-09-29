@@ -1788,7 +1788,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             /// Chi Explosion Heal -- Prevent executing both effects if BP if one is 0
             case 182078:
             {
-                SpellValue const* l_Values = m_spellValue;
                 if (!m_spellValue)
                     return;
 
@@ -1921,6 +1920,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 renew->RefreshDuration();
 
         // Mogu'Shan Vault
+        /// full magic values, please refactor me.
         if (caster && (caster->HasAura(116161) || unitTarget->HasAura(116161))) // SPELL_CROSSED_OVER
         {
             // http://fr.wowhead.com/spell=117549#english-comments
@@ -3592,12 +3592,8 @@ void Spell::EffectEnchantItemPrismatic(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
     if (!itemTarget)
         return;
-
-    Player* p_caster = (Player*)m_caster;
 
     uint32 enchant_id = m_spellInfo->Effects[effIndex].MiscValue;
     if (!enchant_id)
@@ -3647,11 +3643,6 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
-
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    Player* p_caster = (Player*)m_caster;
 
     if (!itemTarget)
         return;
@@ -7781,6 +7772,7 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
+/// @todo USE ME
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -7902,8 +7894,6 @@ void Spell::EffectIncreaseSkill(SpellEffIndex p_EffIndex)
         return;
 
     int32 l_BasePoints = m_spellInfo->Effects[p_EffIndex].BasePoints;
-
-    int32 l_NewValue = std::min((int32)l_MaxSkillValue, (int32)(l_CurrentSkillValue + l_BasePoints));
 
     l_Player->UpdateSkillPro(l_SkillId, 1000, l_BasePoints);
 }

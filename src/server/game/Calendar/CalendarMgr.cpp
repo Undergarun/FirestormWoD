@@ -668,8 +668,8 @@ void CalendarMgr::SendCalendarCommandResult(uint64 p_Guid, CalendarError p_Error
     if (Player* l_Player = ObjectAccessor::FindPlayer(p_Guid))
     {
         WorldPacket l_Data(SMSG_CALENDAR_COMMAND_RESULT, 0);
-        l_Data << uint8(0);
-        l_Data << uint8(p_Error);
+        l_Data << uint8(0);             ///< Command
+        l_Data << uint8(p_Error);       ///< Result
 
         switch (p_Error)
         {

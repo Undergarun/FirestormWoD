@@ -950,8 +950,8 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
     p_Data->WriteBit(p_Ennemy);                  ///< ForEnemy
     p_Data->FlushBits();
     p_Data->appendPackGUID(p_Player->GetGUID());
-    *p_Data << uint8(1);                        ///< Same realms ?
-    *p_Data << uint8(0);                        ///< Unk, maybe "instance" status
+    *p_Data << uint8(1);                        ///< Unk, maybe "instance" status
+    *p_Data << uint8(0);                        ///< MEMBER_STATUS_*
     *p_Data << uint16(l_PlayerStatus);
     *p_Data << uint8(p_Player->getPowerType());
     *p_Data << uint16(0);
@@ -962,12 +962,12 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
     *p_Data << uint16(p_Player->getLevel());
     *p_Data << uint16(p_Player->GetSpecializationId(p_Player->GetActiveSpec()));
     *p_Data << uint16(p_Player->GetZoneId());
-    *p_Data << uint16(0);
+    *p_Data << uint16(0);                     ///< On Trinity it's GetZoneId
     *p_Data << uint32(0);
     *p_Data << uint16(p_Player->GetPositionX());
     *p_Data << uint16(p_Player->GetPositionY());
     *p_Data << uint16(p_Player->GetPositionZ());
-    *p_Data << uint32(0);
+    *p_Data << uint32();                       ///< VehicleSeat
 
     uint8 l_AuraCount = 0;
     size_t l_AuraPos = p_Data->wpos();

@@ -360,7 +360,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
     WorldPacket l_Data(SMSG_ENUM_CHARACTERS_RESULT, 5 * 1024);
 
     l_Data.WriteBit(l_CanCreateCharacter);          ///< Allow char creation
-    l_Data.WriteBit(0);                             ///< unk
+    l_Data.WriteBit(0);                             ///< IsDeletedCharacters
     l_Data.FlushBits();
 
     l_Data << uint32(l_CharacterCount);             ///< Account character count

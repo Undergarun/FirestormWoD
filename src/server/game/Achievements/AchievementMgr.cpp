@@ -1220,35 +1220,35 @@ void AchievementMgr<Player>::SendCriteriaUpdate(CriteriaEntry const* p_Entry, Cr
 {
     WorldPacket l_Data(SMSG_CRITERIA_UPDATE, 4 + 8 + 16 + 2 + 4 + 4 + 4 + 4);
 
-    l_Data << uint32(p_Entry->ID);
-    l_Data << uint64(p_Progress->counter);
-    l_Data.appendPackGUID(GetOwner()->GetGUID());
+    l_Data << uint32(p_Entry->ID);                                                  ///< CriteriaID
+    l_Data << uint64(p_Progress->counter);                                          ///< Quantity
+    l_Data.appendPackGUID(GetOwner()->GetGUID());                                   ///< PlayerGUID
 
     // This are some flags, 1 is for keeping the counter at 0 in client
     if (!p_Entry->StartTimer)
-        l_Data << uint32(0);
+        l_Data << uint32(0);                                                        ///< CreationTime
     else
         l_Data << uint32(p_TimedCompleted ? 0 : 1);
 
     l_Data << uint32(MS::Utilities::WowTime::Encode(p_Progress->date));
-    l_Data << uint32(p_TimeElapsed);                        // Time from start
-    l_Data << uint32(0);                                  // Time from create
+    l_Data << uint32(p_TimeElapsed);                                                ///< ElapsedTime
+    l_Data << uint32(0);                                                            ///< CurrentTime @todo send current time
 
     SendPacket(&l_Data);
 
     if (p_UpdateAccount)
     {
         WorldPacket l_Packet(SMSG_ACCOUNT_CRITERIA_UPDATE, 4 + 8 + 16 + 2 + 4 + 4 + 4);
-        l_Packet << uint32(p_Entry->ID);
-        l_Packet << uint64(p_Progress->counter);
-        l_Packet.appendPackGUID(GetOwner()->GetGUID());
-        l_Packet << uint32(MS::Utilities::WowTime::Encode(p_Progress->date));
-        l_Packet << uint32(p_TimeElapsed);
-        l_Packet << uint32(0);
+        l_Packet << uint32(p_Entry->ID);                                            ///< CriteriaID
+        l_Packet << uint64(p_Progress->counter);                                    ///< Quantity
+        l_Packet.appendPackGUID(GetOwner()->GetGUID());                             ///< PlayerGUID
+        l_Packet << uint32(MS::Utilities::WowTime::Encode(p_Progress->date));       ///< CreationTime
+        l_Packet << uint32(p_TimeElapsed);                                          ///< ElapsedTime
+        l_Packet << uint32(0);                                                      ///< CurrentTime @todo send current time
 
         uint32 l_Flag = !p_Entry->StartTimer ? 0 : p_TimedCompleted ? 0 : 1;
 
-        l_Packet.WriteBits(l_Flag, 4);
+        l_Packet.WriteBits(l_Flag, 4);                                              ///< Flags
         l_Packet.FlushBits();
         SendPacket(&l_Packet);
     }
@@ -1262,13 +1262,13 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(CriteriaEntry const* p_Entry, Cri
 
     l_Data << uint32(1);
 
-    l_Data << uint32(p_Entry->ID);
-    l_Data << uint32(p_Progress->date);      ///< DateCreated
-    l_Data << uint32(p_Progress->date);      ///< DateStarted
-    l_Data << uint32(p_Progress->date);      ///< Last update time (not packed!)
-    l_Data << uint64(p_Progress->counter);
-    l_Data.appendPackGUID(p_Progress->CompletedGUID);
-    l_Data << uint32(p_Progress->changed);
+    l_Data << uint32(p_Entry->ID);                                                  ///< CriteriaID
+    l_Data << uint32(p_Progress->date);                                             ///< DateCreated
+    l_Data << uint32(p_Progress->date);                                             ///< DateStarted
+    l_Data << uint32(p_Progress->date);                                             ///< DateUpdated (not packed!)
+    l_Data << uint64(p_Progress->counter);                                          ///< Quantity
+    l_Data.appendPackGUID(p_Progress->CompletedGUID);                               ///< PlayerGUID
+    l_Data << uint32(p_Progress->changed);                                          ///< Flags (@todo ?)
 
     SendPacket(&l_Data);
 }
@@ -2381,23 +2381,23 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
         if (!l_IsVisible(*itr))
             continue;
 
-        data << uint32(itr->first);                                 ///< Id
-        data << uint32(MS::Utilities::WowTime::Encode((*itr).second.date));    ///< Date
-        data.appendPackGUID((*itr).second.first_guid);              ///< Owner
-        data << uint32(g_RealmID);                                  ///< Virtual Realm Address
-        data << uint32(g_RealmID);                                  ///< Native Realm Address
+        data << uint32(itr->first);                                             ///< Id
+        data << uint32(MS::Utilities::WowTime::Encode((*itr).second.date));     ///< Date
+        data.appendPackGUID((*itr).second.first_guid);                          ///< Owner
+        data << uint32(g_RealmID);                                              ///< Virtual Realm Address
+        data << uint32(g_RealmID);                                              ///< Native Realm Address
     }
     m_CompletedAchievementsLock.release();
 
     for (CriteriaProgressMap::const_iterator itr = l_ProgressMap->begin(); itr != l_ProgressMap->end(); ++itr)
     {
-        data << uint32(itr->first);                     ///< Id
-        data << uint64(itr->second.counter);            ///< Quantity
-        data.appendPackGUID(GetOwner()->GetGUID());     ///< Player
-        data << uint32(MS::Utilities::WowTime::Encode(time(0)));   ///< Date
-        data << uint32(0);                              ///< TimeFromStart
-        data << uint32(0);                              ///< TimeFromCreate
-        data.WriteBits(0, 4);                           ///< Flags
+        data << uint32(itr->first);                                             ///< Id
+        data << uint64(itr->second.counter);                                    ///< Quantity
+        data.appendPackGUID(GetOwner()->GetGUID());                             ///< PlayerGUID
+        data << uint32(MS::Utilities::WowTime::Encode(time(0)));                ///< Date
+        data << uint32(0);                                                      ///< TimeFromStart
+        data << uint32(0);                                                      ///< TimeFromCreate
+        data.WriteBits(0, 4);                                                   ///< Flags
         data.FlushBits();
     }
 

@@ -2512,13 +2512,13 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
     *p_Data << float(l_CharacterPositionZ);                 ///< Z
     p_Data->appendPackGUID(l_CharacterGuildGuid);           ///< Character guild GUID
     *p_Data << uint32(l_CharacterFlags);                    ///< Character flags
-    *p_Data << uint32(l_CharacterCustomizationFlags);       ///< Character customization flags
+    *p_Data << uint32(l_CharacterCustomizationFlags);       ///< atLoginFlags
     *p_Data << uint32(0);                                   ///< Character Boost
     *p_Data << uint32(l_CharacterPetDisplayId);             ///< Pet DisplayID
     *p_Data << uint32(l_CharacterPetLevel);                 ///< Pet level
     *p_Data << uint32(l_CharacterPetFamily);                ///< Pet family
-    *p_Data << uint32(0);                                   ///< unk
-    *p_Data << uint32(0);                                   ///< unk
+    *p_Data << uint32(0);                                   ///< Profession 1
+    *p_Data << uint32(0);                                   ///< Profession 2
 
     /// Character visible equipment
     for (uint8 l_EquipmentSlot = 0; l_EquipmentSlot < INVENTORY_SLOT_BAG_END; ++l_EquipmentSlot)
@@ -17516,10 +17516,10 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
     WorldPacket l_Data(SMSG_DISPLAY_TOAST, 30);
 
     l_Data << uint32(p_Count);
-    l_Data << uint8(p_Method);
+    l_Data << uint8(p_Method);                  ///< DisplayToastMethod
 
-    l_Data.WriteBit(p_BonusRoll);
-    l_Data.WriteBits(p_Type, 2);
+    l_Data.WriteBit(p_BonusRoll);               ///< Bonuses
+    l_Data.WriteBits(p_Type, 2);                ///< Context
 
     if (p_Type == TOAST_TYPE_NEW_ITEM)
     {
@@ -17528,8 +17528,8 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
 
         Item::BuildDynamicItemDatas(l_Data, p_Entry, p_ItemBonus);
 
-        l_Data << uint32(GetLootSpecId());
-        l_Data << uint32(0);                        // Unk: Quantity ?
+        l_Data << uint32(GetLootSpecId());          ///< LootSpec
+        l_Data << uint32(0);                        ///< Quantity
     }
     else
         l_Data.FlushBits();
@@ -30029,7 +30029,7 @@ void Player::SendEquipmentSetList()
         if (l_Itr->second.state == EQUIPMENT_SET_DELETED)
             continue;
 
-        l_Data << uint64(l_Itr->second.Guid);
+        l_Data << uint64(l_Itr->second.Guid);   ///< Guid
         l_Data << uint32(l_Itr->first);
         l_Data << uint32(0);
 
@@ -31951,7 +31951,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << float(p_Direction.GetPositionX());    ///< Direction X
         l_Data << float(p_Direction.GetPositionY());    ///< Direction Y
         l_Data << float(p_Direction.GetPositionZ());    ///< Direction Z
-        l_Data.WriteVector3(l_Vector);                  ///< Unk Pos
+        l_Data.WriteVector3(l_Vector);                  ///< TransportPosition
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 

@@ -64,8 +64,8 @@ void WorldSession::SendAuctionHello(uint64 p_Guid, Creature* p_Unit)
         return;
 
     WorldPacket l_Data(SMSG_AUCTION_HELLO_RESPONSE, 12);
-    l_Data.appendPackGUID(p_Guid);
-    l_Data.WriteBit(1);               ///< 3.3.3: 1 - AH enabled, 0 - AH disabled
+    l_Data.appendPackGUID(p_Guid);                          ///< Guid
+    l_Data.WriteBit(1);                                     ///< OpenForBusiness
     l_Data.FlushBits();
 
     SendPacket(&l_Data);
@@ -77,13 +77,13 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* p_Auction, uint32 p_Ac
     uint64 l_Guid = 0;
 
     WorldPacket l_Data(SMSG_AUCTION_COMMAND_RESULT);
-    l_Data << uint32(p_Auction ? p_Auction->Id : 0);
-    l_Data << uint32(p_Action);
-    l_Data << uint32(p_BidError);
-    l_Data << uint32(p_Error);
-    l_Data.appendPackGUID(l_Guid);
-    l_Data << uint64(p_Auction ? (p_Auction->bid ? p_Auction->GetAuctionOutBid() : 0) : 0);
-    l_Data << uint64(p_Auction ? (p_Auction->bid ? p_Auction->GetAuctionOutBid() : 0) : 0);
+    l_Data << uint32(p_Auction ? p_Auction->Id : 0);    ///< AuctionItemID
+    l_Data << uint32(p_Action);                         ///< Command
+    l_Data << uint32(p_BidError);                       ///< ErrorCode
+    l_Data << uint32(p_Error);                          ///< BagResult
+    l_Data.appendPackGUID(l_Guid);                      ///< Guid
+    l_Data << uint64(p_Auction ? (p_Auction->bid ? p_Auction->GetAuctionOutBid() : 0) : 0); ///< MinIncrement
+    l_Data << uint64(p_Auction ? (p_Auction->bid ? p_Auction->GetAuctionOutBid() : 0) : 0); ///< Money
     SendPacket(&l_Data);
 }
 
@@ -117,11 +117,11 @@ void WorldSession::SendAuctionBidderNotification(AuctionEntry* p_Auction,uint64 
 void WorldSession::SendAuctionOwnerNotification(AuctionEntry* p_Auction)
 {
     WorldPacket l_Data(SMSG_AUCTION_OWNER_BID_NOTIFICATION, 400);
-    l_Data << uint32(p_Auction->itemEntry);
-    l_Data << uint64(p_Auction->bid);
+    l_Data << uint32(p_Auction->itemEntry);             ///< AuctionItemID
+    l_Data << uint64(p_Auction->bid);                   ///< BidAmount
     p_Auction->BuildAuctionInfo(l_Data);
-    l_Data << uint64(0);
-    l_Data.appendPackGUID(p_Auction->bidder);
+    l_Data << uint64(0);                                ///< MinIncrement
+    l_Data.appendPackGUID(p_Auction->bidder);           ///< Bidder
     SendPacket(&l_Data);
 }
 
@@ -381,9 +381,9 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& p_RecvData)
     uint32 l_AuctionID;
     uint64 l_Price;
 
-    p_RecvData.readPackGUID(l_Guid);
-    p_RecvData >> l_AuctionID;
-    p_RecvData >> l_Price;
+    p_RecvData.readPackGUID(l_Guid);            ///< Auctioneer
+    p_RecvData >> l_AuctionID;                  ///< AuctionItemID
+    p_RecvData >> l_Price;                      ///< BidAmount
 
     if (!l_AuctionID || !l_Price)
         return;
@@ -605,9 +605,9 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& p_RecvData)
 
     size_t l_CountPos = l_Data.wpos();
     l_Data << l_Count;
-    l_Data << uint32(300);
+    l_Data << uint32(300);                  ///<
     size_t l_TotalCountPos = l_Data.wpos();
-    l_Data << l_TotalCount;
+    l_Data << l_TotalCount;                 ///<
 
     l_AuctionHouse->BuildListBidderItems(l_Data, GetPlayer(), l_Count, l_TotalCount);
 
@@ -733,6 +733,6 @@ void WorldSession::HandleAuctionListItems(WorldPacket& p_RecvData)
 void WorldSession::HandleAuctionListPendingSales(WorldPacket& /*p_RecvData*/)
 {
     WorldPacket l_Data(SMSG_AUCTION_LIST_PENDING_SALES, 4);
-    l_Data << uint32(0);
+    l_Data << uint32(0);    ///< mail
     SendPacket(&l_Data);
 }

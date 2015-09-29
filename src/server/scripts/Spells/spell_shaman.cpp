@@ -1667,7 +1667,6 @@ class spell_sha_flame_shock : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
 
                 SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
@@ -2534,7 +2533,6 @@ class spell_sha_chain_heal : public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                Unit* l_Caster = GetCaster();
                 Unit* l_FirstTarget = GetExplTargetUnit();
 
                 if (l_FirstTarget == nullptr)
@@ -2773,8 +2771,7 @@ class spell_sha_cloudburst: public SpellScriptLoader
 
             void CountTargets(std::list<WorldObject*>& p_Targets)
             {
-                for (auto l_Target : p_Targets)
-                    ++l_TargetCount;
+                l_TargetCount = p_Targets.size();
             }
 
             void Register()
