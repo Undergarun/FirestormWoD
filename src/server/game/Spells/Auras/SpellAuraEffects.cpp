@@ -1224,6 +1224,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         }
     }
 
+    LOG_SPELL(GetId(), "CalculateAmount(): Aura %s: EffIndex %i: : Amount %i (DoneActualBenefit %i) * %i (stacks)", GetSpellInfo()->GetNameForLogging().c_str(), GetEffIndex(), amount, DoneActualBenefit, GetBase()->GetStackAmount());
     amount *= GetBase()->GetStackAmount();
 
     return amount;

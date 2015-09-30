@@ -638,6 +638,13 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
 
             float l_APBonusDamage = l_AttackPower * AttackPowerMultiplier;
             float l_SPBonusDamage = l_SpellPower * BonusMultiplier;
+
+            if (AttackPowerMultiplier)
+                LOG_SPELL(_spellInfo->Id, "CalcValue(CanScale): Spell %s: EffIndex %i: AttackPowerMultiplier %f * AttackPower %f = %f, Base %f", _spellInfo->GetNameForLogging().c_str(), _effIndex, AttackPowerMultiplier, l_AttackPower, l_APBonusDamage, l_Value);
+
+            if (BonusMultiplier)
+                LOG_SPELL(_spellInfo->Id, "CalcValue(CanScale): Spell %s: EffIndex %i: BonusMultiplier %f * SpellPower %f = %f, Base %f", _spellInfo->GetNameForLogging().c_str(), _effIndex, BonusMultiplier, l_SpellPower, l_SPBonusDamage, l_Value);
+
             l_Value += l_APBonusDamage + l_SPBonusDamage;
         }
     }
@@ -646,6 +653,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
     if (_spellInfo->Id == 50273 || _spellInfo->Id == 33917)
         l_Value = float(l_BasePoints);
 
+    LOG_SPELL(_spellInfo->Id, "CalcValue(): Spell %s: EffIndex %i: Final Amount %i", _spellInfo->GetNameForLogging().c_str(), _effIndex, int32(l_Value));
     return int32(l_Value);
 }
 
@@ -4459,4 +4467,16 @@ Classes SpellInfo::GetClassIDBySpellFamilyName() const
         default:
             return CLASS_NONE;
     }
+}
+
+std::string SpellInfo::GetNameForLogging() const
+{
+    std::ostringstream l_StringStream;
+
+    if (SpellName && strlen(SpellName))
+        l_StringStream << "\"" << SpellName << "\"" << "[" << Id << "]";
+    else
+        l_StringStream << "[" << Id << "]";
+
+    return l_StringStream.str();
 }

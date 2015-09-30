@@ -641,6 +641,8 @@ public:
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();
+
+    std::string GetNameForLogging() const;
 };
 
 #endif // _SPELLINFO_H
