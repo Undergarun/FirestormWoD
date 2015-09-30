@@ -813,11 +813,15 @@ class spell_sha_earthgrab: public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 for (std::list<WorldObject*>::iterator iter = unitList.begin(); iter != unitList.end();)
+                {
                     if (Unit* target = (*iter)->ToUnit())
+                    {
                         if (target->HasAura(SPELL_SHA_EARTHGRAB))
                             iter = unitList.erase(iter);
                         else
                             iter++;
+                    }
+                }
             }
 
             void Register()
