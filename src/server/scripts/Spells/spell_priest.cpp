@@ -1852,19 +1852,22 @@ class spell_pri_evangelism: public SpellScriptLoader
         }
 };
 
-/// Cascade (holy) - 121135
-class spell_pri_cascade_holy : public SpellScriptLoader
+/// Cascade (holy) - 121135, Cascade (shadow) - 127632
+class spell_pri_cascade : public SpellScriptLoader
 {
     public:
-        spell_pri_cascade_holy() : SpellScriptLoader("spell_pri_cascade_holy") { }
+        spell_pri_cascade() : SpellScriptLoader("spell_pri_cascade") { }
 
-        class spell_pri_cascade_holy_SpellScript : public SpellScript
+        class spell_pri_cascade_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_cascade_holy_SpellScript);
+            PrepareSpellScript(spell_pri_cascade_SpellScript);
 
             enum eSpells
             {
-                CascadeHolyTrigger = 121146
+                CascadeHolyTrigger = 121146,
+                CascadeShadowTrigger = 127628,
+                CascadeHoly = 121135,
+                CascadeShadow = 127632
             };
 
             void HandleOnHit()
@@ -1875,18 +1878,21 @@ class spell_pri_cascade_holy : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Target, eSpells::CascadeHolyTrigger, true); ///< Visual
+                if (GetSpellInfo()->Id == eSpells::CascadeHoly)
+                    l_Caster->CastSpell(l_Target, eSpells::CascadeHolyTrigger, true); ///< Visual
+                else
+                    l_Caster->CastSpell(l_Target, eSpells::CascadeShadowTrigger, true); ///< Visual
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_cascade_holy_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_pri_cascade_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pri_cascade_holy_SpellScript;
+            return new spell_pri_cascade_SpellScript;
         }
 };
 
@@ -1904,6 +1910,7 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
             {
                 CascadeHeal = 121148,
                 CascadeMarker = 127631,
+                CascadeMarker2 = 120840,
                 Cascade = 121135
             };
 
@@ -1931,10 +1938,11 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                     l_FirstCaster = l_Marker->GetCaster();
                 }
 
-                int32 l_Bp = (l_FirstCaster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * l_HealingSpell->Effects[EFFECT_0].BonusMultiplier) * float(l_Caster->GetDistance(l_Target) / l_Radius);
-                l_FirstCaster->CastCustomSpell(l_Target, l_HealingSpell->Id, &l_Bp, NULL, NULL, true); ///< Heal Effect
+                l_Caster->CastSpell(l_Target, eSpells::CascadeMarker2, true);
 
-                if (l_ActualWave >= l_CascadeSpell->Effects[EFFECT_0].BasePoints - 1)
+                l_FirstCaster->CastSpell(l_Target, l_HealingSpell->Id, true);
+
+                if (l_ActualWave >= l_CascadeSpell->Effects[EFFECT_0].BasePoints)
                     return;
 
                 std::list<Unit*> l_FriendlyUnitListTemp;
@@ -1970,6 +1978,54 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_cascade_trigger_holy_SpellScript;
+        }
+};
+
+/// Cascade (heal) - 121148
+class spell_pri_cascade_heal : public SpellScriptLoader
+{
+    public:
+        spell_pri_cascade_heal() : SpellScriptLoader("spell_pri_cascade_heal") { }
+
+        class spell_pri_cascade_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_cascade_heal_SpellScript);
+
+            enum eSpells
+            {
+                CascadeMarker = 120840,
+            };
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_FirstCaster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                float l_Radius = 40.0f;
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraPtr l_Marker = l_Target->GetAura(120840))
+                {
+                    Unit* l_Caster = l_Marker->GetCaster();
+
+                    if (l_Caster == nullptr)
+                        return;
+
+                    SetHitHeal(GetHitHeal() * float(l_Caster->GetDistance(l_Target) / l_Radius));
+                }
+
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_cascade_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_cascade_heal_SpellScript;
         }
 };
 
@@ -3949,8 +4005,10 @@ void AddSC_priest_spell_scripts()
     new spell_pri_glyph_of_restored_faith();
     new spell_pri_dominate_mind();
     new spell_pri_spirit_shell_effect();
-    new spell_pri_cascade_holy();
+    new spell_pri_cascade();
     new spell_pri_cascade_trigger_holy();
+    new spell_pri_cascade_trigger_shadow();
+    new spell_pri_cascade_heal();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();
