@@ -2029,6 +2029,95 @@ class spell_pri_cascade_heal : public SpellScriptLoader
         }
 };
 
+/// Cascade (trigger) (shadow) - 127628
+class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
+{
+    public:
+        spell_pri_cascade_trigger_shadow() : SpellScriptLoader("spell_pri_cascade_trigger_shadow") { }
+
+        class spell_pri_cascade_trigger_shadow_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_cascade_trigger_shadow_SpellScript);
+
+            enum eSpells
+            {
+                CascadeMarker = 120840,
+                Cascade = 127632
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                uint8 l_ActualWave = 0;
+                float l_Radius = 40.0f;
+                SpellInfo const* l_CascadeSpell = sSpellMgr->GetSpellInfo(eSpells::Cascade);
+
+                if (l_Target == nullptr || l_CascadeSpell == nullptr)
+                    return;
+
+                if (!l_Target->HasAura(eSpells::CascadeMarker))
+                    l_Caster->CastSpell(l_Target, eSpells::CascadeMarker, true); ///< Marker
+
+                Unit* l_FirstCaster = nullptr;
+
+                if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                {
+                    l_Marker->GetBase()->SetDuration(4 * IN_MILLISECONDS);
+                    l_ActualWave = l_Marker->GetAmount();
+                    l_FirstCaster = l_Marker->GetCaster();
+                }
+
+                if (l_FirstCaster == nullptr)
+                    return;
+
+                /// Scale with distance
+                int32 l_Damage = GetHitDamage() * float(l_Caster->GetDistance(l_Target) / l_Radius);
+
+                /// July 7th 2015 Cascade now deals 20% less damage in PvP combat.
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    l_Damage *= 0.80f;
+
+                SetHitDamage(l_Damage);
+
+                if (l_ActualWave >= l_CascadeSpell->Effects[EFFECT_0].BasePoints)
+                    return;
+
+                std::list<Unit*> l_UnFriendlyUnitListTemp;
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Target, l_FirstCaster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_UnFriendlyUnitListTemp, l_Check);
+                l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+                l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
+                JadeCore::RandomResizeList(l_UnFriendlyUnitListTemp, l_CascadeSpell->Effects[EFFECT_1].BasePoints);
+
+                for (auto l_Itr : l_UnFriendlyUnitListTemp)
+                {
+                    if (l_FirstCaster == nullptr)
+                        return;
+
+                    l_FirstCaster->CastSpell(l_Itr, eSpells::CascadeMarker, true); ///< Marker
+                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                    {
+                        l_Marker->SetAmount(l_ActualWave + 1);
+                        l_Marker->GetBase()->SetDuration(4 * IN_MILLISECONDS);
+                    }
+                    l_Target->CastCustomSpell(l_Itr, GetSpellInfo()->Id, NULL, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_FirstCaster->GetGUID());
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_cascade_trigger_shadow_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_cascade_trigger_shadow_SpellScript;
+        }
+};
+
 // Halo - 120692 : Heal
 class spell_pri_halo_heal: public SpellScriptLoader
 {
