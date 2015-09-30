@@ -1468,10 +1468,15 @@ class npc_foundry_darkshard_crystalback : public CreatureScript
 
         enum eSpells
         {
+            Acidmaw             = 159939,
+            ShardVolleySearcher = 159769,
+            ShardVolleyTrigger  = 159775
         };
 
         enum eEvents
         {
+            EventAcidMaw = 1,
+            EventShardVolley
         };
 
         struct npc_foundry_darkshard_crystalbackAI : public ScriptedAI
@@ -1487,6 +1492,8 @@ class npc_foundry_darkshard_crystalback : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                m_Events.ScheduleEvent(eEvents::EventAcidMaw, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventShardVolley, 9 * TimeConstants::IN_MILLISECONDS);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -1494,11 +1501,10 @@ class npc_foundry_darkshard_crystalback : public CreatureScript
                 if (p_Target == nullptr)
                     return;
 
-                /*switch (p_SpellInfo->Id)
+                if (p_SpellInfo->Id == eSpells::ShardVolleySearcher)
                 {
-                    default:
-                        break;
-                }*/
+                    me->CastSpell(p_Target, eSpells::ShardVolleyTrigger, true);
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1513,11 +1519,25 @@ class npc_foundry_darkshard_crystalback : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                /*switch (m_Events.ExecuteEvent())
+                switch (m_Events.ExecuteEvent())
                 {
+                    case eEvents::EventAcidMaw:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Acidmaw, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventAcidMaw, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventShardVolley:
+                    {
+                        me->CastSpell(me, eSpells::ShardVolleySearcher, false);
+                        m_Events.ScheduleEvent(eEvents::EventShardVolley, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
                     default:
                         break;
-                }*/
+                }
 
                 DoMeleeAttackIfReady();
             }

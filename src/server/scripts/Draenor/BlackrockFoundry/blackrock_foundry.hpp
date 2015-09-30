@@ -124,7 +124,9 @@ enum eFoundryDatas
     /// Counters
     MaxPristineTrueIronOres = 3,
     MaxOreCrateSpawns       = 25,
-    MaxOregorgerMovePos     = 8
+    MaxOregorgerMovePos     = 8,
+    MaxOregorgerPatterns    = 7,
+    MaxOregorgerCollisions  = 8
 };
 
 enum eFoundrySpells
