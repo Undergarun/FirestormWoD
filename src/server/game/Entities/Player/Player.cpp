@@ -5860,54 +5860,48 @@ void Player::RemoveSpellCooldown(uint32 spell_id, bool update /* = false */)
         SendClearCooldown(spell_id, this);
 }
 
-void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
+void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
 {
     // remove cooldowns on spells that have < 10 min CD
-
-    SpellCooldowns::iterator itr, next;
-    for (itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); itr = next)
+    for (auto l_Itr = m_spellCooldowns.begin(); l_Itr != m_spellCooldowns.end();)
     {
-        next = itr;
-        ++next;
-        SpellInfo const* entry = sSpellMgr->GetSpellInfo(itr->first);
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Itr->first);
         // check if spellentry is present and if the cooldown is less than 10 min
-        if (entry &&
-            entry->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
-            entry->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
-            (entry->ChargeCategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
+        if (l_SpellInfo &&
+            l_SpellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            l_SpellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            (l_SpellInfo->CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             // remove & notify
-            RemoveSpellCooldown(itr->first, true);
+            RemoveSpellCooldown(l_Itr->first, true);
         }
     }
 
-    /// Remove spell charge cooldown that have <= 10 min CD
+    /// Remove spell charge cooldown that have < 10 min CD
     for (auto l_Itr = m_CategoryCharges.begin(); l_Itr != m_CategoryCharges.end();)
     {
         SpellCategoryEntry const* l_SpellCategory = sSpellCategoryStore.LookupEntry(l_Itr->first);
-        if (l_SpellCategory == nullptr
-            || l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET
-            || l_SpellCategory->ChargeRecoveryTime > 10 * MINUTE * IN_MILLISECONDS)
+        if (l_SpellCategory &&
+            l_SpellCategory->ChargeRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            (l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
-            l_Itr++;
-            continue;
+            ResetCharges(l_SpellCategory);
         }
-
-        ResetCharges(l_SpellCategory);
     }
 
-
     // pet cooldowns
-    if (removeActivePetCooldowns)
-        if (Pet* pet = GetPet())
+    if (p_RemoveActivePetCooldowns)
+    {
+        if (Pet* l_Pet = GetPet())
         {
             // notify player
-            for (CreatureSpellCooldowns::const_iterator itr2 = pet->m_CreatureSpellCooldowns.begin(); itr2 != pet->m_CreatureSpellCooldowns.end(); ++itr2)
-                SendClearCooldown(itr2->first, pet);
+            for (auto l_Itr = l_Pet->m_CreatureSpellCooldowns.begin(); l_Itr != l_Pet->m_CreatureSpellCooldowns.end();)
+                SendClearCooldown(l_Itr->first, l_Pet);
 
             // actually clear cooldowns
-            pet->m_CreatureSpellCooldowns.clear();
+            l_Pet->m_CreatureSpellCooldowns.clear();
         }
+    }
 }
 
 void Player::RemoveAllSpellCooldown()
