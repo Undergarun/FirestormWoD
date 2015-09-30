@@ -2117,6 +2117,20 @@ public:
 
                     if (!l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         l_Caster->ModifyPower(POWER_HOLY_POWER, -m_PowerUsed);
+
+                    if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Caster))
+                    {
+                        AuraPtr l_Aura = l_Caster->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Caster);
+
+                        if (l_Aura)
+                        {
+                            if (m_PowerUsed > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                                m_PowerUsed = 3;
+
+                            l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (m_PowerUsed));
+                            l_Aura->SetNeedClientUpdateForTargets();
+                        }
+                    }
                 }
         }
 
