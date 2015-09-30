@@ -3921,11 +3921,12 @@ class spell_dru_frenzied_regeneration: public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex p_EffIndex)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                if (l_Caster == nullptr)
+                if (l_Target == nullptr)
                     return;
 
                 /// Maximum we can reach (attack power * 6) health by 60 rage
@@ -3934,6 +3935,9 @@ class spell_dru_frenzied_regeneration: public SpellScriptLoader
                 float l_AttackPowerPerRage = l_AttackPower / GetSpellInfo()->Effects[EFFECT_1].BasePoints;
                 /// Calculate our heal, according to spent rage
                 int32 l_Heal = l_AttackPowerPerRage * (m_RageForSpell / l_Caster->GetPowerCoeff(POWER_RAGE));
+
+                l_Heal = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, p_EffIndex, HEAL);
+                l_Heal = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Heal, HEAL);
 
                 SetHitHeal(l_Heal);
             }
@@ -3946,8 +3950,8 @@ class spell_dru_frenzied_regeneration: public SpellScriptLoader
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_dru_frenzied_regeneration_SpellScript::CheckCast);
-                OnHit += SpellHitFn(spell_dru_frenzied_regeneration_SpellScript::HandleOnHit);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
