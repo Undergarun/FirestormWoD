@@ -462,7 +462,7 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_ON_PET;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit const* p_Target, Item const* p_Item) const
+int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit const* p_Target, Item const* p_Item, bool p_Log) const
 {
     float l_BasePointsPerLevel = RealPointsPerLevel;
     int32 l_BasePoints = p_Bp ? *p_Bp : BasePoints;
@@ -639,11 +639,11 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
             float l_APBonusDamage = l_AttackPower * AttackPowerMultiplier;
             float l_SPBonusDamage = l_SpellPower * BonusMultiplier;
 
-            if (AttackPowerMultiplier)
-                LOG_SPELL(_spellInfo->Id, "CalcValue(CanScale): Spell %s: EffIndex %i: AttackPowerMultiplier %f * AttackPower %f = %f, Base %f", _spellInfo->GetNameForLogging().c_str(), _effIndex, AttackPowerMultiplier, l_AttackPower, l_APBonusDamage, l_Value);
+            if (p_Log && AttackPowerMultiplier)
+                LOG_SPELL(p_Caster, _spellInfo->Id, "CalcValue(CanScale): Spell %s: EffIndex %i: AttackPowerMultiplier %f * AttackPower %f = %f, Base %f", _spellInfo->GetNameForLogging().c_str(), _effIndex, AttackPowerMultiplier, l_AttackPower, l_APBonusDamage, l_Value);
 
-            if (BonusMultiplier)
-                LOG_SPELL(_spellInfo->Id, "CalcValue(CanScale): Spell %s: EffIndex %i: BonusMultiplier %f * SpellPower %f = %f, Base %f", _spellInfo->GetNameForLogging().c_str(), _effIndex, BonusMultiplier, l_SpellPower, l_SPBonusDamage, l_Value);
+            if (p_Log && BonusMultiplier)
+                LOG_SPELL(p_Caster, _spellInfo->Id, "CalcValue(CanScale): Spell %s: EffIndex %i: BonusMultiplier %f * SpellPower %f = %f, Base %f", _spellInfo->GetNameForLogging().c_str(), _effIndex, BonusMultiplier, l_SpellPower, l_SPBonusDamage, l_Value);
 
             l_Value += l_APBonusDamage + l_SPBonusDamage;
         }
@@ -653,7 +653,9 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
     if (_spellInfo->Id == 50273 || _spellInfo->Id == 33917)
         l_Value = float(l_BasePoints);
 
-    LOG_SPELL(_spellInfo->Id, "CalcValue(): Spell %s: EffIndex %i: Final Amount %i", _spellInfo->GetNameForLogging().c_str(), _effIndex, int32(l_Value));
+    if (p_Log)
+        LOG_SPELL(p_Caster, _spellInfo->Id, "CalcValue(): Spell %s: EffIndex %i: Final Amount %i", _spellInfo->GetNameForLogging().c_str(), _effIndex, int32(l_Value));
+
     return int32(l_Value);
 }
 

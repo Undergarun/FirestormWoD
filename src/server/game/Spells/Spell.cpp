@@ -5968,7 +5968,10 @@ void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_
     destTarget       = &m_destTargets[p_I]._position;
 
     uint8 l_Effect = m_spellInfo->Effects[p_I].Effect;
-    damage         = CalculateDamage(p_I, unitTarget);
+
+    /// Prevent recalculating base damage for every posible target in case of AoE spells 
+    if (p_Mode == SPELL_EFFECT_HANDLE_HIT || p_Mode == SPELL_EFFECT_HANDLE_LAUNCH)
+        damage = CalculateDamage(p_I, unitTarget, p_Mode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET);
 
     bool l_PreventDefault = CallScriptEffectHandlers((SpellEffIndex)p_I, p_Mode);
     if (!l_PreventDefault && l_Effect < TOTAL_SPELL_EFFECTS)

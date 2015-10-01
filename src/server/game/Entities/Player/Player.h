@@ -2594,7 +2594,6 @@ class Player : public Unit, public GridObject<Player>
         void UpdateParryPercentage();
         void UpdateDodgePercentage();
         void UpdateMasteryPercentage();
-        void UpdatePvPPowerPercentage();
         void UpdateMultistrikePercentage();
         void UpdateLeechPercentage();
         void UpdateVersatilityPercentage();

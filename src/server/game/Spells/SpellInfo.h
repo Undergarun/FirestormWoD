@@ -296,7 +296,7 @@ public:
     bool IsPeriodicEffect() const;
     bool CanScale() const;
 
-    int32 CalcValue(Unit const* p_Caster = nullptr, int32 const* p_BasePoints = nullptr, Unit const* p_Target = nullptr, Item const* p_Item = nullptr) const;
+    int32 CalcValue(Unit const* p_Caster = nullptr, int32 const* p_BasePoints = nullptr, Unit const* p_Target = nullptr, Item const* p_Item = nullptr, bool p_Log = false) const;
     int32 CalcBaseValue(int32 value) const;
     float CalcValueMultiplier(Unit* caster, Spell* spell = nullptr) const;
     float CalcDamageMultiplier(Unit* caster, Spell* spell = nullptr) const;

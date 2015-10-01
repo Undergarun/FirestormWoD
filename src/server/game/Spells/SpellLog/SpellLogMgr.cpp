@@ -51,8 +51,11 @@ void SpellLogMgr::RemoveSpellFromListener(Player* p_Player, uint32 p_SpellID)
     }
 }
 
-void SpellLogMgr::LogSpell(uint32 p_SpellID, char* p_String, ...)
+void SpellLogMgr::LogSpell(Unit const* p_Caster, uint32 p_SpellID, char* p_String, ...)
 {
+    if (m_Listeners.empty())
+        return;
+
     char l_Buff[512];
     va_list l_Args;
     va_start(l_Args, p_String);
@@ -65,8 +68,11 @@ void SpellLogMgr::LogSpell(uint32 p_SpellID, char* p_String, ...)
     {
         for (auto& l_Listener : m_Listeners)
         {
-            if (std::find(l_Listener.second.begin(), l_Listener.second.end(), p_SpellID) != l_Listener.second.end())
-                ChatHandler(l_Listener.first).SendSysMessage(l_Buff);
+            if (l_Listener.first == p_Caster)
+            {
+                if (std::find(l_Listener.second.begin(), l_Listener.second.end(), p_SpellID) != l_Listener.second.end())
+                    ChatHandler(l_Listener.first).SendSysMessage(l_Buff);
+            }
         }
     }
 
@@ -88,12 +94,19 @@ void SpellLogMgr::LogSpell(uint32 p_SpellID, char* p_String, ...)
                 if (l_Print)
                     break;
             }
+
+            if (l_Print)
+                break;
+
         }
     }
 }
 
-void SpellLogMgr::LogSpell(uint32 p_SpellID, uint32 p_SpellID2, char* p_String, ...)
+void SpellLogMgr::LogSpell(Unit const* p_Caster, uint32 p_SpellID, uint32 p_SpellID2, char* p_String, ...)
 {
+    if (m_Listeners.empty())
+        return;
+
     char l_Buff[512];
     va_list l_Args;
     va_start(l_Args, p_String);
@@ -106,9 +119,12 @@ void SpellLogMgr::LogSpell(uint32 p_SpellID, uint32 p_SpellID2, char* p_String, 
     {
         for (auto& l_Listener : m_Listeners)
         {
-            if (std::find(l_Listener.second.begin(), l_Listener.second.end(), p_SpellID) != l_Listener.second.end() ||
-                std::find(l_Listener.second.begin(), l_Listener.second.end(), p_SpellID2) != l_Listener.second.end())
-                ChatHandler(l_Listener.first).SendSysMessage(l_Buff);
+            if (l_Listener.first == p_Caster)
+            {
+                if (std::find(l_Listener.second.begin(), l_Listener.second.end(), p_SpellID) != l_Listener.second.end() ||
+                    std::find(l_Listener.second.begin(), l_Listener.second.end(), p_SpellID2) != l_Listener.second.end())
+                    ChatHandler(l_Listener.first).SendSysMessage(l_Buff);
+            }
         }
     }
 

@@ -1010,6 +1010,8 @@ Player::~Player()
     if (m_WargameRequest)
         delete m_WargameRequest;
 
+    sSpellLogMgr->RemoveListener(this);
+
     // it must be unloaded already in PlayerLogout and accessed only for loggined player
     //m_social = NULL;
 
@@ -7979,9 +7981,6 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             break;
         case CR_MASTERY:                                    // Implemented in Player::UpdateMasteryPercentage
             UpdateMasteryPercentage();
-            break;
-        case CR_PVP_POWER:
-            UpdatePvPPowerPercentage();
             break;
         case CR_MULTISTRIKE:
             UpdateMultistrikePercentage();
