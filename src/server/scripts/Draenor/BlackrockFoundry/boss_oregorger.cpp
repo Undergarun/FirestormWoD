@@ -58,13 +58,25 @@ struct CollisionIntersectionPoint
 
 CollisionIntersectionPoint const g_CollisionPoints[eFoundryDatas::MaxOregorgerCollisions] =
 {
-    { 1, 2 },
-    { 2, 2 },
-    { 2, 4 },
-    { 2, 5 },
-    { 4, 1 },
-    { 4, 2 },
-    { 4, 4 },
+    { 4, 5 },   ///< 1: Linked to 3 and 7
+    { 4, 4 },   ///< 2: Linked to 3 and 7
+    { 4, 2 },   ///< 3: Linked to 6 and 1
+    { 5, 2 },   ///< 4: Linked to 6 and 1
+    { 2, 4 },   ///< 5: Linked to 2 and 8
+    { 2, 2 },   ///< 6: Linked to 5 and 4
+    { 1, 4 },   ///< 7: Linked to 2 and 8
+    { 2, 1 }    ///< 8: Linked to 5 and 4
+};
+
+std::pair<uint8, uint8> const g_LinkedCollisionPoints[eFoundryDatas::MaxOregorgerCollisions] =
+{
+    { 3, 7 },
+    { 3, 7 },
+    { 6, 1 },
+    { 6, 1 },
+    { 2, 8 },
+    { 5, 4 },
+    { 2, 8 },
     { 5, 4 }
 };
 
@@ -156,10 +168,6 @@ class boss_oregorger : public CreatureScript
             EventCollectOre
         };
 
-        enum eActions
-        {
-        };
-
         enum eCreatures
         {
             PathIdentifier          = 77848,
@@ -170,9 +178,10 @@ class boss_oregorger : public CreatureScript
             BlackrockOre            = 77261
         };
 
-        enum eData
+        enum eDatas
         {
-            DataMitigationPct
+            DataMitigationPct,
+            MovementFinished = 666
         };
 
         enum eTalks
@@ -205,6 +214,9 @@ class boss_oregorger : public CreatureScript
             std::set<uint8> m_CratesToActivate;
             std::set<uint8> m_ActivatedCrates;
             uint8 m_ActivatedCratesCount;
+
+            uint8 m_PointID;
+            Position m_Destination;
 
             void Reset() override
             {
@@ -243,6 +255,9 @@ class boss_oregorger : public CreatureScript
                 m_CratesToActivate.clear();
                 m_ActivatedCrates.clear();
                 m_ActivatedCratesCount = 0;
+
+                m_PointID = 255;
+                m_Destination = Position();
             }
 
             bool CanRespawn() override
@@ -254,7 +269,7 @@ class boss_oregorger : public CreatureScript
             {
                 switch (p_ID)
                 {
-                    case eData::DataMitigationPct:
+                    case eDatas::DataMitigationPct:
                     {
                         m_MitigationPct = p_Value;
                         break;
@@ -268,7 +283,7 @@ class boss_oregorger : public CreatureScript
             {
                 switch (p_ID)
                 {
-                    case eData::DataMitigationPct:
+                    case eDatas::DataMitigationPct:
                         return m_MitigationPct;
                     default:
                         break;
@@ -305,12 +320,15 @@ class boss_oregorger : public CreatureScript
                     AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
                         me->SetReactState(ReactStates::REACT_PASSIVE);
+                        me->AttackStop();
 
-                        G3D::Vector2 l_Point = GetNearestIntersectionPoint();
-                        if (l_Point.x != 0.0f && l_Point.y != 0.0f)
+                        std::pair<G3D::Vector2, uint8> l_PointData = GetNearestIntersectionPoint(me);
+                        if (l_PointData.first.x != 0.0f && l_PointData.first.y != 0.0f)
                         {
                             me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MovePoint(0, G3D::Vector3(l_Point, me->GetPositionZ()));
+                            me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, G3D::Vector3(l_PointData.first, me->GetPositionZ()));
+
+                            m_PointID = l_PointData.second;
                         }
                     });
 
@@ -379,9 +397,7 @@ class boss_oregorger : public CreatureScript
 
                     AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        /// Select a path to next collision point
-                        /// Choose in priority those which have the more ore to eat, if no one has available ore, select a random one
-                        /// There is always two possible choices, and Oregorger can never goes back
+                        SelectPath();
                     });
 
                     AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -390,6 +406,9 @@ class boss_oregorger : public CreatureScript
                         me->CastSpell(me, eSpells::HungerDrivePeriodic, true);
 
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCollectOre, 200);
+
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
                     });
                 }
                 /// When Oregorger reaches full Mana, Phase One restarts.
@@ -488,9 +507,31 @@ class boss_oregorger : public CreatureScript
                 if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE && p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE)
                     return;
 
-                /// Don't handle movement informations during second phase
+                /// Handle phase 2 movements in a specific way
                 if (me->GetPower(Powers::POWER_MANA) == 0)
+                {
+                    if (p_ID == eDatas::MovementFinished && me->HasAura(eSpells::RollingFuryAura))
+                    {
+                        me->RemoveAura(eSpells::RollingFuryAura);
+
+                        me->CastSpell(me, eSpells::EarthshakingCollision, true);
+
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            SelectPath();
+                        });
+
+                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->CastSpell(me, eSpells::RollingFuryAura, true);
+
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                        });
+                    }
+
                     return;
+                }
 
                 switch (p_Type)
                 {
@@ -768,11 +809,14 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventBlackrockBarrage:
                     {
-                        if (AuraPtr l_Aura = me->GetAura(eSpells::BlackrockSpines))
-                            l_Aura->DropStack();
+                        AddTimedDelayedOperation(2050, [this]() -> void
+                        {
+                            if (AuraPtr l_Aura = me->GetAura(eSpells::BlackrockSpines))
+                                l_Aura->DropStack();
 
-                        if (me->HasAura(eSpells::BlackrockSpines))
-                            m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 500);
+                            if (me->HasAura(eSpells::BlackrockSpines))
+                                m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 50);
+                        });
 
                         me->CastSpell(me, eSpells::BlackrockBarrageAoE, false);
                         break;
@@ -793,25 +837,26 @@ class boss_oregorger : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventBlackrockSpines, 14 * TimeConstants::IN_MILLISECONDS);
             }
 
-            bool IsCollisionOrIntersectionPoint(uint8 p_I, uint8 p_J) const
+            uint8 GetCollisionOrIntersectionPoint(uint8 p_I, uint8 p_J) const
             {
                 for (uint8 l_I = 0; l_I < eFoundryDatas::MaxOregorgerCollisions; ++l_I)
                 {
                     if (g_CollisionPoints[l_I].I == p_I && g_CollisionPoints[l_I].J == p_J)
-                        return true;
+                        return l_I;
                 }
 
-                return false;
+                return 255;
             }
 
-            G3D::Vector2 GetNearestIntersectionPoint() const
+            std::pair<G3D::Vector2, uint8> GetNearestIntersectionPoint(Creature* p_Source, float p_MinDist = 1.0f) const
             {
                 float l_Dist = 100000.0f;
 
                 G3D::Vector2 l_Point = G3D::Vector2(0.0f, 0.0f);
+                uint8 l_PointID = 0;
 
                 Position l_Pos;
-                l_Pos.m_positionZ = me->GetPositionZ();
+                l_Pos.m_positionZ = p_Source->GetPositionZ();
 
                 /// Check position X for each part of X axis
                 for (uint8 l_I = 0; l_I < eFoundryDatas::MaxOregorgerPatterns; ++l_I)
@@ -821,8 +866,10 @@ class boss_oregorger : public CreatureScript
                     /// When X part is found, search for the Y part
                     for (uint8 l_J = 0; l_J < eFoundryDatas::MaxOregorgerPatterns; ++l_J)
                     {
+                        uint8 l_CollisionID = GetCollisionOrIntersectionPoint(l_I, l_J);
+
                         /// Some points must be bypassed, and some others aren't collision or intersection (it's the same here) points
-                        if (g_BypassPoints[l_I][l_J] || !IsCollisionOrIntersectionPoint(l_I, l_J))
+                        if (g_BypassPoints[l_I][l_J] || l_CollisionID == 255)
                             continue;
 
                         float l_Y = g_OregorgerPatternsY[l_J];
@@ -836,15 +883,151 @@ class boss_oregorger : public CreatureScript
                         l_Pos.m_positionX = l_CenterX;
                         l_Pos.m_positionY = l_CenterY;
 
-                        if (me->GetDistance(l_Pos) < l_Dist)
+                        if (p_Source->GetDistance(l_Pos) >= p_MinDist && p_Source->GetDistance(l_Pos) < l_Dist)
                         {
-                            l_Dist  = me->GetDistance(l_Pos);
+                            l_Dist = p_Source->GetDistance(l_Pos);
                             l_Point = G3D::Vector2(l_CenterX, l_CenterY);
+                            l_PointID = l_CollisionID;
+                        }
+                    }
+                }
+
+                return std::make_pair(l_Point, l_PointID);
+            }
+
+            G3D::Vector2 GetNearestOreToCollect() const
+            {
+                G3D::Vector2 l_Point = G3D::Vector2(0.0f, 0.0f);
+
+                if (Creature* l_Ore = me->FindNearestCreature(eCreatures::BlackrockOre, 150.0f))
+                {
+                    /// Check position X for each part of X axis
+                    for (uint8 l_I = 0; l_I < eFoundryDatas::MaxOregorgerPatterns; ++l_I)
+                    {
+                        float l_X = g_OregorgerPatternsX[l_I];
+
+                        if (l_Ore->GetPositionX() >= l_X)
+                            continue;
+
+                        /// When X part is found, search for the Y part
+                        for (uint8 l_J = 0; l_J < eFoundryDatas::MaxOregorgerPatterns; ++l_J)
+                        {
+                            if (g_BypassPoints[l_I][l_J])
+                                continue;
+
+                            float l_Y = g_OregorgerPatternsY[l_J];
+
+                            if (l_Ore->GetPositionY() >= l_Y)
+                                continue;
+
+                            float l_CenterX, l_CenterY;
+
+                            l_CenterX = (l_X + (l_I > 0 ? g_OregorgerPatternsX[l_I - 1] : 0.0f)) / 2.0f;
+                            l_CenterY = (l_Y + (l_J > 0 ? g_OregorgerPatternsY[l_J - 1] : 0.0f)) / 2.0f;
+                            l_Point = G3D::Vector2(l_CenterX, l_CenterY);
+
+                            return l_Point;
                         }
                     }
                 }
 
                 return l_Point;
+            }
+
+            G3D::Vector2 GetRandomCollisionPoint()
+            {
+                if (m_PointID == 255)
+                    return G3D::Vector2();
+
+                std::pair<uint8, uint8> l_Choices = g_LinkedCollisionPoints[m_PointID];
+                uint8 l_ID = 0;
+
+                if (urand(0, 1))
+                    l_ID = l_Choices.first;
+                else
+                    l_ID = l_Choices.second;
+
+                --l_ID;
+
+                m_PointID = l_ID;
+
+                CollisionIntersectionPoint l_Point = g_CollisionPoints[l_ID];
+
+                float l_CenterX, l_CenterY;
+
+                l_CenterX = (g_OregorgerPatternsX[l_Point.I] + g_OregorgerPatternsX[l_Point.I - 1]) / 2.0f;
+                l_CenterY = (g_OregorgerPatternsY[l_Point.J] + g_OregorgerPatternsY[l_Point.J - 1]) / 2.0f;
+
+                return G3D::Vector2(l_CenterX, l_CenterY);
+            }
+
+            bool IsCenterPos(float p_X, float p_Y) const
+            {
+                /// We need to know if a specific point is in the center of the room, or not
+                /// The rolling direction will change depending on that
+                /// If it's the room's center, Oregorger will rolls clockwise
+                for (uint8 l_I = 0; l_I < eFoundryDatas::MaxOregorgerPatterns; ++l_I)
+                {
+                    if (p_X > g_OregorgerPatternsX[l_I])
+                        continue;
+
+                    for (uint8 l_J = 0; l_J < eFoundryDatas::MaxOregorgerPatterns; ++l_J)
+                    {
+                        if (p_Y > g_OregorgerPatternsY[l_J])
+                            continue;
+
+                        if (l_I >= 1 && l_I <= 4 && l_J >= 1 && l_J <= 4)
+                            return true;
+                        else
+                            return false;
+                    }
+                }
+
+                return false;
+            }
+
+            void SelectPath()
+            {
+                /// At this point, Oregorger is at an intersection point
+                /// Choose in priority paths with one or more Blackrock Ore to eat
+                G3D::Vector2 l_Point = GetNearestOreToCollect();
+                if (l_Point.x == 0.0f && l_Point.y == 0.0f)
+                {
+                    /// If there is no one in the room, choose a random path to next collision point
+                    /// There is always two possible choices, and Oregorger can never goes back
+
+                    ////////////////////////////////////////////////////////////////////////////////
+                    /// TESTS
+                    ////////////////////////////////////////////////////////////////////////////////
+                    do
+                    {
+                        l_Point = GetRandomCollisionPoint();
+                    }
+                    while (!IsCenterPos(l_Point.x, l_Point.y));
+                }
+                else
+                {
+
+                }
+
+                /// Calculate path
+                if (l_Point.x != 0.0f && l_Point.y != 0.0f)
+                {
+                    /// Clockwise
+                    if (IsCenterPos(l_Point.x, l_Point.y) && IsCenterPos(me->m_positionX, me->m_positionY))
+                    {
+                        m_Destination.m_positionX = l_Point.x;
+                        m_Destination.m_positionY = l_Point.y;
+                        m_Destination.m_positionZ = me->GetPositionZ() + 0.5f;
+
+                        me->SetFacingTo(me->GetAngle(&m_Destination));
+                    }
+                    /// Counter clockwise
+                    else
+                    {
+
+                    }
+                }
             }
         };
 

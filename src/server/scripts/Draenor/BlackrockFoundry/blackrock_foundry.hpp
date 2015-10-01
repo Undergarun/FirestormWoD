@@ -126,7 +126,8 @@ enum eFoundryDatas
     MaxOreCrateSpawns       = 25,
     MaxOregorgerMovePos     = 8,
     MaxOregorgerPatterns    = 7,
-    MaxOregorgerCollisions  = 8
+    MaxOregorgerCollisions  = 8,
+    MaxOregorgerPaths       = 12
 };
 
 enum eFoundrySpells
