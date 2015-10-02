@@ -794,6 +794,12 @@ void WorldSession::HandlePetBattleRename(WorldPacket& p_RecvData)
     {
         l_BattlePet->Name           = l_Name;
         l_BattlePet->NameTimeStamp  = l_TimeStamp;
+
+        if (l_HaveDeclinedNames)
+        {
+            for (size_t l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+                l_BattlePet->DeclinedNames[l_I] = l_DeclinedNames.name[l_I];
+        }
     }
 
     m_Player->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, l_TimeStamp);
