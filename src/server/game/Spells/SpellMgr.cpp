@@ -3407,6 +3407,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155819: ///< Hunger Drive (Oregorger)
                 spellInfo->Attributes &= ~SPELL_ATTR0_DEBUFF;
                 break;
+            case 155897: ///< Earthshaking Collision (Oregorger)
+                spellInfo->Mechanic = MECHANIC_DISCOVERY;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 167650: ///< Loose Quills (Rukhmar)
             case 167630: ///< Blaze of Glory (Rukhmar)

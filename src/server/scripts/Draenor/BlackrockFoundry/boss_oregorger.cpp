@@ -50,13 +50,13 @@ Position const g_MovePos[eFoundryDatas::MaxOregorgerMovePos] =
 
 Position const g_JumpPos = { 52.8958f, 3617.03f, 280.894f, 4.673866f };
 
-struct CollisionIntersectionPoint
+struct PointData
 {
     uint8 I;
     uint8 J;
 };
 
-CollisionIntersectionPoint const g_CollisionPoints[eFoundryDatas::MaxOregorgerCollisions] =
+PointData const g_CollisionPoints[eFoundryDatas::MaxOregorgerCollisions] =
 {
     { 4, 5 },   ///< 1: Linked to 3 and 7
     { 4, 4 },   ///< 2: Linked to 3 and 7
@@ -217,6 +217,11 @@ class boss_oregorger : public CreatureScript
 
             uint8 m_PointID;
             Position m_Destination;
+            Position m_NextPos;
+
+            bool m_FirstMove;
+            bool m_MustTurnRight;
+            bool m_MustTurnLeft;
 
             void Reset() override
             {
@@ -229,6 +234,8 @@ class boss_oregorger : public CreatureScript
 
                 me->RemoveAura(eFoundrySpells::Berserker);
                 me->RemoveAura(eSpells::BlackrockSpines);
+
+                me->SetPower(Powers::POWER_MANA, 100);
 
                 me->RemoveAllAreasTrigger();
 
@@ -258,6 +265,11 @@ class boss_oregorger : public CreatureScript
 
                 m_PointID = 255;
                 m_Destination = Position();
+                m_NextPos = Position();
+
+                m_FirstMove = false;
+                m_MustTurnRight = false;
+                m_MustTurnLeft = false;
             }
 
             bool CanRespawn() override
@@ -512,6 +524,54 @@ class boss_oregorger : public CreatureScript
                 {
                     if (p_ID == eDatas::MovementFinished && me->HasAura(eSpells::RollingFuryAura))
                     {
+                        /// Movement not finished, handle it in a different way
+                        if (me->GetDistance(m_Destination) > 1.0f)
+                        {
+                            std::list<Creature*> l_PathList;
+                            me->GetCreatureListWithEntryInGrid(l_PathList, eCreatures::PathIdentifier, 15.0f);
+
+                            /// If no path identifier in line of sight, it should be the last move
+                            if (l_PathList.empty())
+                            {
+                                AddTimedDelayedOperation(50, [this]() -> void
+                                {
+                                    me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                                });
+
+                                return;
+                            }
+
+                            /// Only one should remain in this list
+                            l_PathList.remove_if([this](Creature* p_Creature) -> bool
+                            {
+                                if (p_Creature == nullptr || !p_Creature->isInFront(me, M_PI / 3.0f))
+                                    return true;
+
+                                if (p_Creature->GetDistance(me) <= 1.0f)
+                                    return true;
+
+                                return false;
+                            });
+
+                            /// Shouldn't happens
+                            if (l_PathList.empty())
+                                return;
+
+                            if (Creature* l_PathIdentifier = (*l_PathList.begin()))
+                            {
+                                me->SetFacingTo(me->GetAngle(l_PathIdentifier));
+
+                                uint64 l_Guid = l_PathIdentifier->GetGUID();
+                                AddTimedDelayedOperation(50, [this, l_Guid]() -> void
+                                {
+                                    if (Creature* l_PathIdentifier = Creature::GetCreature(*me, l_Guid))
+                                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, *l_PathIdentifier);
+                                });
+                            }
+
+                            return;
+                        }
+
                         me->RemoveAura(eSpells::RollingFuryAura);
 
                         me->CastSpell(me, eSpells::EarthshakingCollision, true);
@@ -525,8 +585,16 @@ class boss_oregorger : public CreatureScript
                         {
                             me->CastSpell(me, eSpells::RollingFuryAura, true);
 
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                            if (m_NextPos.m_positionX == 0.0f)
+                            {
+                                me->GetMotionMaster()->Clear();
+                                me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                            }
+                            else
+                            {
+                                me->GetMotionMaster()->Clear();
+                                me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
+                            }
                         });
                     }
 
@@ -934,10 +1002,10 @@ class boss_oregorger : public CreatureScript
                 return l_Point;
             }
 
-            G3D::Vector2 GetRandomCollisionPoint()
+            std::pair<G3D::Vector2, uint8> GetRandomCollisionPoint()
             {
                 if (m_PointID == 255)
-                    return G3D::Vector2();
+                    return std::make_pair(G3D::Vector2(), m_PointID);
 
                 std::pair<uint8, uint8> l_Choices = g_LinkedCollisionPoints[m_PointID];
                 uint8 l_ID = 0;
@@ -949,16 +1017,14 @@ class boss_oregorger : public CreatureScript
 
                 --l_ID;
 
-                m_PointID = l_ID;
-
-                CollisionIntersectionPoint l_Point = g_CollisionPoints[l_ID];
+                PointData l_Point = g_CollisionPoints[l_ID];
 
                 float l_CenterX, l_CenterY;
 
                 l_CenterX = (g_OregorgerPatternsX[l_Point.I] + g_OregorgerPatternsX[l_Point.I - 1]) / 2.0f;
                 l_CenterY = (g_OregorgerPatternsY[l_Point.J] + g_OregorgerPatternsY[l_Point.J - 1]) / 2.0f;
 
-                return G3D::Vector2(l_CenterX, l_CenterY);
+                return std::make_pair(G3D::Vector2(l_CenterX, l_CenterY), l_ID);
             }
 
             bool IsCenterPos(float p_X, float p_Y) const
@@ -976,7 +1042,7 @@ class boss_oregorger : public CreatureScript
                         if (p_Y > g_OregorgerPatternsY[l_J])
                             continue;
 
-                        if (l_I >= 1 && l_I <= 4 && l_J >= 1 && l_J <= 4)
+                        if (l_I >= 2 && l_I <= 4 && l_J >= 2 && l_J <= 4)
                             return true;
                         else
                             return false;
@@ -988,6 +1054,8 @@ class boss_oregorger : public CreatureScript
 
             void SelectPath()
             {
+                std::pair<G3D::Vector2, uint8> l_PointDatas;
+
                 /// At this point, Oregorger is at an intersection point
                 /// Choose in priority paths with one or more Blackrock Ore to eat
                 G3D::Vector2 l_Point = GetNearestOreToCollect();
@@ -995,37 +1063,51 @@ class boss_oregorger : public CreatureScript
                 {
                     /// If there is no one in the room, choose a random path to next collision point
                     /// There is always two possible choices, and Oregorger can never goes back
+                    l_PointDatas = GetRandomCollisionPoint();
 
                     ////////////////////////////////////////////////////////////////////////////////
                     /// TESTS
+                    /// do
+                    /// {
+                    ///     l_PointDatas = GetRandomCollisionPoint();
+                    /// }
+                    /// while (IsCenterPos(l_PointDatas.first.x, l_PointDatas.first.y));
                     ////////////////////////////////////////////////////////////////////////////////
-                    do
-                    {
-                        l_Point = GetRandomCollisionPoint();
-                    }
-                    while (!IsCenterPos(l_Point.x, l_Point.y));
                 }
                 else
                 {
-
                 }
+
+                m_PointID = l_PointDatas.second;
+                l_Point   = l_PointDatas.first;
 
                 /// Calculate path
                 if (l_Point.x != 0.0f && l_Point.y != 0.0f)
                 {
-                    /// Clockwise
-                    if (IsCenterPos(l_Point.x, l_Point.y) && IsCenterPos(me->m_positionX, me->m_positionY))
+                    /// At center, moves are always on a front lines, directly setup destination
+                    if (IsCenterPos(l_Point.x, l_Point.y))
                     {
                         m_Destination.m_positionX = l_Point.x;
                         m_Destination.m_positionY = l_Point.y;
-                        m_Destination.m_positionZ = me->GetPositionZ() + 0.5f;
+                        m_Destination.m_positionZ = me->GetPositionZ();
 
                         me->SetFacingTo(me->GetAngle(&m_Destination));
                     }
-                    /// Counter clockwise
                     else
                     {
+                        m_Destination.m_positionX = l_Point.x;
+                        m_Destination.m_positionY = l_Point.y;
+                        m_Destination.m_positionZ = me->GetPositionZ();
 
+                        /// In this case, the first step is the nearest collision point
+                        if (IsCenterPos(me->m_positionX, me->m_positionY))
+                            l_Point = GetNearestIntersectionPoint(me).first;
+
+                        m_NextPos.m_positionX = l_Point.x;
+                        m_NextPos.m_positionY = l_Point.y;
+                        m_NextPos.m_positionZ = me->GetPositionZ();
+
+                        me->SetFacingTo(me->GetAngle(&m_Destination));
                     }
                 }
             }
