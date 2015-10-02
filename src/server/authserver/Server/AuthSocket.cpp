@@ -631,7 +631,7 @@ bool AuthSocket::_HandleLogonProof()
         stmt->setString(4, _login);
         LoginDatabase.Execute(stmt);
 
-        QueryResult AccountIdResult = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", _login.c_str());
+        /*QueryResult AccountIdResult = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", _login.c_str());
 
         if (AccountIdResult)
         {
@@ -641,7 +641,7 @@ bool AuthSocket::_HandleLogonProof()
             stmt->setUInt32(0, accountid);
             stmt->setString(1, socket().getRemoteAddress().c_str());
             LoginDatabase.Execute(stmt);
-        }
+        }*/
 
         OPENSSL_free((void*)K_hex);
 
@@ -686,51 +686,6 @@ bool AuthSocket::_HandleLogonProof()
         socket().send(data, sizeof(data));
 
         sLog->outDebug(LOG_FILTER_AUTHSERVER, "'%s:%d' [AuthChallenge] account %s tried to login with invalid password!", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str ());
-
-        uint32 MaxWrongPassCount = ConfigMgr::GetIntDefault("WrongPass.MaxCount", 0);
-        if (MaxWrongPassCount > 0)
-        {
-            //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
-            PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_FAILEDLOGINS);
-            stmt->setString(0, _login);
-            LoginDatabase.Execute(stmt);
-
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_FAILEDLOGINS);
-            stmt->setString(0, _login);
-
-            if (PreparedQueryResult loginfail = LoginDatabase.Query(stmt))
-            {
-                uint32 failed_logins = (*loginfail)[1].GetUInt32();
-
-                if (failed_logins >= MaxWrongPassCount)
-                {
-                    uint32 WrongPassBanTime = ConfigMgr::GetIntDefault("WrongPass.BanTime", 600);
-                    bool WrongPassBanType = ConfigMgr::GetBoolDefault("WrongPass.BanType", false);
-
-                    if (WrongPassBanType)
-                    {
-                        uint32 acc_id = (*loginfail)[0].GetUInt32();
-                        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_AUTO_BANNED);
-                        stmt->setUInt32(0, acc_id);
-                        stmt->setUInt32(1, WrongPassBanTime);
-                        LoginDatabase.Execute(stmt);
-
-                        sLog->outDebug(LOG_FILTER_AUTHSERVER, "'%s:%d' [AuthChallenge] account %s got banned for '%u' seconds because it failed to authenticate '%u' times",
-                            socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str(), WrongPassBanTime, failed_logins);
-                    }
-                    else
-                    {
-                        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_AUTO_BANNED);
-                        stmt->setString(0, socket().getRemoteAddress());
-                        stmt->setUInt32(1, WrongPassBanTime);
-                        LoginDatabase.Execute(stmt);
-
-                        sLog->outDebug(LOG_FILTER_AUTHSERVER, "'%s:%d' [AuthChallenge] IP %s got banned for '%u' seconds because account %s failed to authenticate '%u' times",
-                            socket().getRemoteAddress().c_str(), socket().getRemotePort(), socket().getRemoteAddress().c_str(), WrongPassBanTime, _login.c_str(), failed_logins);
-                    }
-                }
-            }
-        }
     }
 
     return true;

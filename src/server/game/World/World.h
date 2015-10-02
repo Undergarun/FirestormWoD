@@ -92,7 +92,7 @@ enum WorldTimers
     WUPDATE_PINGDB,
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
-    WUPDATE_TRANSFERT,
+    WUPDATE_TRANSFER,
     WUPDATE_TRANSFER_MOP,
     WUPDATE_COUNT
 };
@@ -1056,8 +1056,8 @@ class World
 
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
-        PreparedQueryResultFuture m_transfertsDumpCallbacks;
-        PreparedQueryResultFuture m_transfertsLoadCallbacks;
+        PreparedQueryResultFuture m_transfersDumpCallbacks;
+        PreparedQueryResultFuture m_transfersLoadCallbacks;
         PreparedQueryResultFuture m_transferMop;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
         LexicsCutter *m_lexicsCutter;

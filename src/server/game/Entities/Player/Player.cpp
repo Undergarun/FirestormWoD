@@ -2466,6 +2466,9 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
     else
         l_CharacterFlags |= CHARACTER_FLAG_DECLINED;
 
+    if (l_CharacterLoginFlags & AT_LOGIN_LOCKED_FOR_TRANSFER)
+        l_CharacterFlags |= CHARACTER_LOCKED_FOR_TRANSFER;
+
     bool l_CharacterFirstLogin = l_CharacterLoginFlags & AT_LOGIN_FIRST;
 
     uint32 l_CharacterCustomizationFlags = 0;
@@ -20388,6 +20391,11 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     Field* fields = result->Fetch();
 
+    m_atLoginFlags = fields[34].GetUInt16();
+
+    if (m_atLoginFlags & AT_LOGIN_LOCKED_FOR_TRANSFER)
+        return false;
+
     uint32 dbAccountId = fields[1].GetUInt32();
 
     // check if the character's account in the db and the logged in account match.
@@ -20549,7 +20557,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     GetSession()->SetPlayer(this);
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
 
-    m_atLoginFlags = fields[34].GetUInt16();
     bool mustResurrectFromUnlock = false;
 
     if (m_atLoginFlags & AT_LOGIN_UNLOCK)

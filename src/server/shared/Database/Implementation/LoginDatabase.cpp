@@ -32,13 +32,13 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_BANNED, "SELECT bandate, unbandate FROM account_banned WHERE id = ? AND active = 1", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_BANNED_ALL, "SELECT account.id, username FROM account, account_banned WHERE account.id = account_banned.id AND active = 1 GROUP BY account.id", CONNECTION_SYNCH);
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME, "SELECT account.id, username FROM account, account_banned WHERE account.id = account_banned.id AND active = 1 AND username LIKE CONCAT('%%', ?, '%%') GROUP BY account.id", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(LOGIN_INS_ACCOUNT_AUTO_BANNED, "INSERT INTO account_banned VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, 'Trinity realmd', 'Failed login autoban', 1)", CONNECTION_ASYNC)
+    //PREPARE_STATEMENT(LOGIN_INS_ACCOUNT_AUTO_BANNED, "INSERT INTO account_banned VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, 'Trinity realmd', 'Failed login autoban', 1)", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_DEL_ACCOUNT_BANNED, "DELETE FROM account_banned WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_SEL_SESSIONKEY, "SELECT a.sessionkey, a.id, aa.gmlevel  FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE username = ?", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_UPD_VS, "UPDATE account SET v = ?, s = ? WHERE username = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_UPD_LOGONPROOF, "UPDATE account SET sessionkey = ?, last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE username = ?", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_SEL_LOGONCHALLENGE, "SELECT a.sha_pass_hash, a.id, a.locked, a.last_ip, aa.gmlevel, a.v, a.s, a.token_key, a.bnet2_pass_hash, a.bnet2_salt FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = ?", CONNECTION_SYNCH)
-    PREPARE_STATEMENT(LOGIN_INS_LOG_IP, "INSERT IGNORE INTO account_log_ip (`accountid`, `ip`, `date`) VALUES (?, ?, NOW())", CONNECTION_ASYNC)
+    //PREPARE_STATEMENT(LOGIN_INS_LOG_IP, "INSERT IGNORE INTO account_log_ip (`accountid`, `ip`, `date`) VALUES (?, ?, NOW())", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_UPD_FAILEDLOGINS, "UPDATE account SET failed_logins = failed_logins + 1 WHERE username = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_SEL_FAILEDLOGINS, "SELECT id, failed_logins FROM account WHERE username = ?", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_ID_BY_NAME, "SELECT id FROM account WHERE username = ?", CONNECTION_SYNCH)
@@ -50,7 +50,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_BY_ID, "SELECT 1 FROM account WHERE id = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(LOGIN_INS_IP_BANNED, "INSERT INTO ip_banned VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?)", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_DEL_IP_NOT_BANNED, "DELETE FROM ip_banned WHERE ip = ?", CONNECTION_ASYNC)
-    PREPARE_STATEMENT(LOGIN_INS_ACCOUNT_BANNED, "INSERT INTO account_banned VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?, 1)", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(LOGIN_INS_ACCOUNT_BANNED, "INSERT INTO account_banned VALUES (?, 0, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?, 1)", CONNECTION_ASYNC)
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_ALWAYS_BANNED, "SELECT unbandate-UNIX_TIMESTAMP() AS unban FROM account_banned WHERE id = ? AND active = 1 AND bandate <> unbandate", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_BANNED_PERMANENT, "SELECT 1 FROM account_banned WHERE id = ? AND active = 1 AND bandate = unbandate", CONNECTION_SYNCH)
     PREPARE_STATEMENT(LOGIN_UPD_ACCOUNT_NOT_BANNED, "UPDATE account_banned SET active = 0 WHERE id = ? AND active != 0", CONNECTION_ASYNC)
@@ -92,26 +92,24 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_REALMLIST_SECURITY_LEVEL, "SELECT allowedSecurityLevel from realmlist WHERE id = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(LOGIN_DEL_ACCOUNT, "DELETE FROM account WHERE id = ?", CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(LOGIN_ADD_TRANSFERTS_LOGS, "INSERT INTO transferts_logs (`id`, `account`, `perso_guid`, `from`, `to`, `dump`) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-
     PREPARE_STATEMENT(LOGIN_INS_CHAR_SPELL, "INSERT INTO account_spell (accountId, spell, active, disabled, IsMountFavorite) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled, IsMountFavorite FROM account_spell WHERE accountId = ? AND spell < 197205", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL_BY_SPELL, "DELETE FROM account_spell WHERE spell = ? AND accountId = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL, "DELETE FROM account_spell WHERE accountId = ?", CONNECTION_ASYNC);
 
     PREPARE_STATEMENT(LOGIN_UPD_ACCOUNT_PREMIUM, "UPDATE account_premium SET active = 0 WHERE active = 1 AND unsetdate<=UNIX_TIMESTAMP() AND unsetdate<>setdate", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_UP_TRANSFERT_PDUMP, "UPDATE transferts SET state = 1, dump = ? WHERE id = ?", CONNECTION_SYNCH);
 
-    // Transferts
-    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERT_DUMP, "SELECT `id`, `account`, `perso_guid` FROM transferts WHERE `from` = ? AND state = 0", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERT_LOAD, "SELECT `id`, `account`, `perso_guid`, `dump` FROM transferts WHERE `to` = ? AND state = 1", CONNECTION_ASYNC);
+    // Transfers
+    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERS_DUMP, "SELECT `id`, `account`, `guid` FROM webshop_delivery_interrealm_transfer WHERE `startrealm` = ? AND state = 0", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERS_LOAD, "SELECT `id`, `account`, `guid`, `dump` FROM webshop_delivery_interrealm_transfer WHERE `destrealm` = ? AND state = 1", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_UPD_TRANSFER_PDUMP, "UPDATE webshop_delivery_interrealm_transfer SET state = 1, dump = ? WHERE id = ?", CONNECTION_SYNCH);
 
     // Battle pets
-#define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account"
+#define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account, declinedGenitive, declinedNative, declinedAccusative, declinedInstrumental, declinedPrepositional"
 #define PETBATTLE_FULL_FIELDS "id, " PETBATTLE_FIELDS
     PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_ACCOUNT, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ? AND species < 1635", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_REP_PETBATTLE, "REPLACE INTO account_battlepet(" PETBATTLE_FULL_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_BOTH);
+    PREPARE_STATEMENT(LOGIN_REP_PETBATTLE, "REPLACE INTO account_battlepet(" PETBATTLE_FULL_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_BOTH);
 #undef PETBATTLE_FIELDS
 #undef PETBATTLE_FULL_FIELDS
 
@@ -142,4 +140,6 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_REMOVE_ACCOUNT_SERVICE, "UPDATE account SET service_flags = service_flags &~ ? WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_SET_ACCOUNT_SERVICE, "UPDATE account SET service_flags = service_flags | ? WHERE id = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
+
+    PREPARE_STATEMENT(LOGIN_RPL_CHARACTER_RENDERER_QUEUE, "REPLACE INTO character_renderer_queue (guid, race, gender, class, skinColor, face, hairStyle, hairColor, facialHair, equipment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 }
