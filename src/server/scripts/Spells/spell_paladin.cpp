@@ -213,33 +213,45 @@ class spell_pal_glyph_of_devotian_trigger_aura: public SpellScriptLoader
         }
 };
 
-// Hammer of Wrath - 24275 - 158392 - 157496
+/// Hammer of Wrath - 24275 - 158392 - 157496
 class spell_pal_hammer_of_wrath: public SpellScriptLoader
 {
-public:
-    spell_pal_hammer_of_wrath() : SpellScriptLoader("spell_pal_hammer_of_wrath") { }
+    public:
+        spell_pal_hammer_of_wrath() : SpellScriptLoader("spell_pal_hammer_of_wrath") { }
 
-    class spell_pal_hammer_of_wrath_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pal_hammer_of_wrath_SpellScript);
-
-        void HandleAfterCast()
+        class spell_pal_hammer_of_wrath_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
-                    l_Player->CastSpell(l_Player, PALADIN_SPELL_HAMMER_OF_WRATH_POWER, true);
-        }
+            PrepareSpellScript(spell_pal_hammer_of_wrath_SpellScript);
 
-        void Register()
+            bool m_EnergizeAlreadyApply = false;
+
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (GetHitDamage() + GetAbsorbedDamage() <= 0 || m_EnergizeAlreadyApply)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
+                    return;
+
+                l_Player->CastSpell(l_Player, PALADIN_SPELL_HAMMER_OF_WRATH_POWER, true);
+                m_EnergizeAlreadyApply = true;
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_pal_hammer_of_wrath_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterCast += SpellCastFn(spell_pal_hammer_of_wrath_SpellScript::HandleAfterCast);
+            return new spell_pal_hammer_of_wrath_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pal_hammer_of_wrath_SpellScript();
-    }
 };
 
 /// Exorcism - 879, Mass Exorcism - 122032
@@ -261,8 +273,6 @@ class spell_pal_exorcism_energize: public SpellScriptLoader
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
                     return;
-                
-                l_Player->CastSpell(l_Player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
             }
 
             void Register()
