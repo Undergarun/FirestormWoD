@@ -4382,7 +4382,7 @@ class spell_dru_starsurge : public SpellScriptLoader
 
                 if (l_EclipseAmount < 0)
                     l_Caster->CastSpell(l_Caster, eSpells::SolarEmpowerment, true);
-                else if (l_EclipseAmount > 0)
+                else if (l_EclipseAmount >= 0)
                     l_Caster->CastSpell(l_Caster, eSpells::LunarEmpowerment, true);
             }
 
