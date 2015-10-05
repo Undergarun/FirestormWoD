@@ -7614,11 +7614,8 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     }
     else for (ItemTemplate const* l_Template : l_LootTable)
     {
-        for (SpecIndex l_ItemSpecID : l_Template->specs)
-        {
-            if (l_ItemSpecID == l_SpecID)
-                l_Items.push_back(l_Template->ItemId);
-        }
+        if (l_Template->HasSpec((SpecIndex)l_SpecID, l_Player->getLevel()))
+            l_Items.push_back(l_Template->ItemId);
     }
 
     l_Player->RemoveAurasByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT);

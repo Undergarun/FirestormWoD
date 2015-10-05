@@ -894,6 +894,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
         return;
 
     uint32 accountId = 0;
+    uint32 atLogin = 0;
     std::string name;
 
     // is guild leader
@@ -913,11 +914,20 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
         Field* fields = result->Fetch();
         accountId     = fields[0].GetUInt32();
         name          = fields[1].GetString();
+        atLogin       = fields[2].GetUInt32();
     }
 
     // prevent deleting other players' characters using cheating tools
     if (accountId != GetAccountId())
         return;
+
+    if (atLogin & AT_LOGIN_LOCKED_FOR_TRANSFER)
+    {
+        WorldPacket data(SMSG_CHAR_DELETE, 1);
+        data << uint8(CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER);
+        SendPacket(&data);
+        return;
+    }
 
     std::string IP_str = GetRemoteAddress();
     sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), GUID_LOPART(charGuid));
