@@ -264,20 +264,28 @@ class spell_pal_exorcism_energize: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_exorcism_energize_SpellScript);
 
-            void HandleAfterCast()
+            bool m_EnergizeAlreadyApply = false;
+
+            void HandleAfterHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
 
                 if (l_Player == nullptr)
                     return;
 
+                if (GetHitDamage() + GetAbsorbedDamage() <= 0 || m_EnergizeAlreadyApply)
+                    return;
+
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
                     return;
+                
+                l_Player->CastSpell(l_Player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                m_EnergizeAlreadyApply = true;
             }
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_pal_exorcism_energize_SpellScript::HandleAfterCast);
+                AfterHit += SpellHitFn(spell_pal_exorcism_energize_SpellScript::HandleAfterHit);
             }
         };
 
