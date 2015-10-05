@@ -5873,7 +5873,7 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
             (l_SpellInfo->CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             // remove & notify
-            RemoveSpellCooldown(l_Itr->first, true);
+            RemoveSpellCooldown((l_Itr++)->first, true);
         }
     }
 
@@ -5886,6 +5886,7 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
             (l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             ResetCharges(l_SpellCategory);
+            l_Itr++;
         }
     }
 
