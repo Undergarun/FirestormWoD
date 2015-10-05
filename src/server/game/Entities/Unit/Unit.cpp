@@ -3380,6 +3380,9 @@ void Unit::_UpdateSpells(uint32 time)
                 ++itr;
         }
     }
+
+    if (ToPlayer())
+        ToPlayer()->UpdateCharges();
 }
 
 void Unit::_UpdateAutoRepeatSpell()
@@ -10018,7 +10021,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         {
             // Remove cooldown on Shield Slam
             if (GetTypeId() == TYPEID_PLAYER)
-                ToPlayer()->RemoveSpellCategoryCooldown(1209, true);
+                ToPlayer()->ResetCharges(procSpell->ChargeCategoryEntry);
             break;
         }
         // Maelstrom Weapon
@@ -17222,7 +17225,7 @@ bool Unit::IsNoBreakingCC(bool isVictim, Unit* target, uint32 procFlag, uint32 p
                           uint32 damage, uint32 absorb /* = 0 */, SpellInfo const* procAura /* = NULL */, SpellInfo const* spellInfo ) const
 {
     // Dragon Breath & Living Bomb
-    if (spellInfo->Category == 1215 && procSpell &&
+    if (spellInfo->GetCategory() == 1215 && procSpell &&
         procSpell->SpellFamilyName == SPELLFAMILY_MAGE && procSpell->SpellFamilyFlags[1] == 0x00010000)
         return true;
 

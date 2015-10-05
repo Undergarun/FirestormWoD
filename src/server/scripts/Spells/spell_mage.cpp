@@ -1193,8 +1193,7 @@ class spell_mage_combustion: public SpellScriptLoader
                     return;
 
                 if (SpellInfo const* l_InfernoBlast = sSpellMgr->GetSpellInfo(eSpells::InfernoBlast))
-                    if (SpellCategoriesEntry const* l_InfernoBlastCategories = l_InfernoBlast->GetSpellCategories())
-                        l_Player->RestoreCharge(l_InfernoBlastCategories->ChargesCategory);
+                    l_Player->RestoreCharge(l_InfernoBlast->ChargeCategoryEntry);
 
                 int32 combustionBp = 0;
 

@@ -1012,7 +1012,7 @@ class misc_commandscript: public CommandScript
             if (!*p_Args)
             {
                 l_Target->RemoveAllSpellCooldown();
-                l_Target->SendClearAllSpellCharges();
+                l_Target->ResetAllCharges();
                 p_Handler->PSendSysMessage(LANG_REMOVEALL_COOLDOWN, l_NameLink.c_str());
             }
             else
@@ -1031,12 +1031,7 @@ class misc_commandscript: public CommandScript
                 }
 
                 l_Target->RemoveSpellCooldown(l_SpellID, true);
-
-                if (SpellCategoriesEntry const* l_CatEntry = l_SpellInfo->GetSpellCategories())
-                {
-                    l_Target->SendClearSpellCharges(l_CatEntry->Category);
-                    l_Target->m_SpellChargesMap.erase(l_CatEntry->Category);
-                }
+                l_Target->ResetCharges(l_SpellInfo->ChargeCategoryEntry);
 
                 p_Handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, l_SpellID, l_Target == p_Handler->GetSession()->GetPlayer() ? p_Handler->GetTrinityString(LANG_YOU) : l_NameLink.c_str());
             }

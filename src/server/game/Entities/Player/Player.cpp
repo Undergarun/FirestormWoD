@@ -1907,9 +1907,6 @@ void Player::Update(uint32 p_time)
         }
     }
 
-    // Regenerate consumed spell charges
-    UpdateCharges(p_time);
-
     // Zone Skip Update
     if (sObjectMgr->IsSkipZone(GetZoneId()) || isAFK())
     {
@@ -5863,80 +5860,48 @@ void Player::RemoveSpellCooldown(uint32 spell_id, bool update /* = false */)
         SendClearCooldown(spell_id, this);
 }
 
-// I am not sure which one is more efficient
-void Player::RemoveCategoryCooldown(uint32 cat)
-{
-    SpellCategoryStore::const_iterator i_scstore = sSpellCategoryStore.find(cat);
-    if (i_scstore != sSpellCategoryStore.end())
-        for (SpellCategorySet::const_iterator i_scset = i_scstore->second.begin(); i_scset != i_scstore->second.end(); ++i_scset)
-            RemoveSpellCooldown(*i_scset, true);
-}
-
-void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
-{
-    SpellCategoryStore::const_iterator ct = sSpellCategoryStore.find(cat);
-    if (ct == sSpellCategoryStore.end())
-        return;
-
-    const SpellCategorySet& ct_set = ct->second;
-    for (SpellCooldowns::const_iterator i = m_spellCooldowns.begin(); i != m_spellCooldowns.end();)
-    {
-        if (ct_set.find(i->first) != ct_set.end())
-            RemoveSpellCooldown((i++)->first, update);
-        else
-            ++i;
-    }
-}
-
-void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
+void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
 {
     // remove cooldowns on spells that have < 10 min CD
-
-    SpellCooldowns::iterator itr, next;
-    for (itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); itr = next)
+    for (auto l_Itr = m_spellCooldowns.begin(); l_Itr != m_spellCooldowns.end();)
     {
-        next = itr;
-        ++next;
-        SpellInfo const* entry = sSpellMgr->GetSpellInfo(itr->first);
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Itr->first);
         // check if spellentry is present and if the cooldown is less than 10 min
-        if (entry &&
-            entry->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
-            entry->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
-            (entry->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
+        if (l_SpellInfo &&
+            l_SpellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            l_SpellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            (l_SpellInfo->CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             // remove & notify
-            RemoveSpellCooldown(itr->first, true);
+            RemoveSpellCooldown(l_Itr->first, true);
         }
     }
 
-    /// Remove spell charge cooldown that have <= 10 min CD
-    for (auto l_Itr = m_SpellChargesMap.begin(); l_Itr != m_SpellChargesMap.end();)
+    /// Remove spell charge cooldown that have < 10 min CD
+    for (auto l_Itr = m_CategoryCharges.begin(); l_Itr != m_CategoryCharges.end();)
     {
-        SpellCategoryEntry const* l_SpellCategory = sSpellCategoryStores.LookupEntry(l_Itr->first);
-        if (l_SpellCategory == nullptr
-            || l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET
-            || l_SpellCategory->ChargeRecoveryTime > 10 * MINUTE * IN_MILLISECONDS)
+        SpellCategoryEntry const* l_SpellCategory = sSpellCategoryStore.LookupEntry(l_Itr->first);
+        if (l_SpellCategory &&
+            l_SpellCategory->ChargeRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            (l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
-            l_Itr++;
-            continue;
+            ResetCharges(l_SpellCategory);
         }
-
-        SendClearSpellCharges(l_SpellCategory->Id);
-        l_Itr = m_SpellChargesMap.erase(l_Itr);
     }
-
 
     // pet cooldowns
-    if (removeActivePetCooldowns)
-        if (Pet* pet = GetPet())
+    if (p_RemoveActivePetCooldowns)
+    {
+        if (Pet* l_Pet = GetPet())
         {
             // notify player
-            for (CreatureSpellCooldowns::const_iterator itr2 = pet->m_CreatureSpellCooldowns.begin(); itr2 != pet->m_CreatureSpellCooldowns.end(); ++itr2)
-                SendClearCooldown(itr2->first, pet);
+            for (auto l_Itr = l_Pet->m_CreatureSpellCooldowns.begin(); l_Itr != l_Pet->m_CreatureSpellCooldowns.end();)
+                SendClearCooldown(l_Itr->first, l_Pet);
 
             // actually clear cooldowns
-            pet->m_CreatureSpellCooldowns.clear();
+            l_Pet->m_CreatureSpellCooldowns.clear();
         }
+    }
 }
 
 void Player::RemoveAllSpellCooldown()
@@ -6000,32 +5965,21 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
         do
         {
             Field* l_Fields = p_Result->Fetch();
-            uint32 l_CategoryID = l_Fields[0].GetUInt32();
-            uint8  l_ChargeIdx  = l_Fields[1].GetUInt8();
-            uint64 l_Cooldown = uint64(l_Fields[2].GetUInt32()) * IN_MILLISECONDS;
+            uint32 l_CategoryId = 0;
+            ChargeEntry l_Charges;
 
-            SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(l_CategoryID);
+            l_CategoryId = l_Fields[0].GetUInt32();
+            SpellCategoryEntry const* l_Category = sSpellCategoryStore.LookupEntry(l_CategoryId);
             if (l_Category == nullptr)
             {
-                sLog->outError(LOG_FILTER_PLAYER_LOADING, "Player %u has unknown charges category %u registered, skipping.", GetGUIDLow(), l_CategoryID);
+                sLog->outError(LOG_FILTER_PLAYER_LOADING, "Player %u has unknown charges category %u registered, skipping.", GetGUIDLow(), l_CategoryId);
                 continue;
             }
 
-            // skip outdated cooldown
-            if (l_Cooldown <= l_CurrTime)
-                continue;
+            l_Charges.RechargeStart = Clock::from_time_t(time_t(l_Fields[1].GetUInt32()));
+            l_Charges.RechargeEnd = Clock::from_time_t(time_t(l_Fields[2].GetUInt32()));
 
-            uint64 l_RealCooldown = (l_Cooldown - l_CurrTime);
-            if (m_SpellChargesMap.find(l_CategoryID) != m_SpellChargesMap.end())
-            {
-                ChargesData* l_Charges = GetChargesData(l_CategoryID);
-                l_Charges->m_ConsumedCharges++;
-                l_Charges->m_ChargesCooldown[l_ChargeIdx] = l_RealCooldown;
-            }
-            else
-                m_SpellChargesMap.insert(std::make_pair(l_CategoryID, ChargesData(l_Category->MaxCharges, l_RealCooldown, l_ChargeIdx)));
-
-            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) category %u, charges cooldown loaded (%u secs).", GetGUIDLow(), l_CategoryID, uint32(l_Cooldown - l_CurrTime));
+            m_CategoryCharges[l_CategoryId].push_back(l_Charges);
         }
         while (p_Result->NextRow());
     }
@@ -6076,16 +6030,15 @@ void Player::_SaveChargesCooldowns(SQLTransaction& p_Transaction)
     l_Statement->setUInt32(0, GetGUIDLow());
     p_Transaction->Append(l_Statement);
 
-    for (auto l_SpellCharges : m_SpellChargesMap)
+    for (auto const& p : m_CategoryCharges)
     {
-        uint8 l_ChargeIdx = 0;
-        for (uint64 l_Cooldown : l_SpellCharges.second.m_ChargesCooldown)
+        for (ChargeEntry const& l_Charge : p.second)
         {
             PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARGES_COOLDOWN);
             l_Statement->setUInt32(0, GetGUIDLow());
-            l_Statement->setUInt32(1, l_SpellCharges.first);
-            l_Statement->setUInt8(2, ++l_ChargeIdx);
-            l_Statement->setUInt32(3, time(NULL) + uint32(l_Cooldown / IN_MILLISECONDS));
+            l_Statement->setUInt32(1, p.first);
+            l_Statement->setUInt32(2, uint32(Clock::to_time_t(l_Charge.RechargeStart)));
+            l_Statement->setUInt32(3, uint32(Clock::to_time_t(l_Charge.RechargeEnd)));
             p_Transaction->Append(l_Statement);
         }
     }
@@ -24496,10 +24449,10 @@ void Player::PetSpellInitialize()
             l_Duration = (l_Itr->second > l_Now) ? (l_Itr->second - l_Now) * IN_MILLISECONDS : 0;
             l_SpellID = l_Itr->second;
 
-            CreatureSpellCooldowns::const_iterator l_CategoryItr = l_Pet->m_CreatureCategoryCooldowns.find(l_SpellInfo->Category);
+            CreatureSpellCooldowns::const_iterator l_CategoryItr = l_Pet->m_CreatureCategoryCooldowns.find(l_SpellInfo->GetCategory());
             if (l_CategoryItr != l_Pet->m_CreatureCategoryCooldowns.end())
             {
-                l_Category         = l_SpellInfo->Category;
+                l_Category         = l_SpellInfo->GetCategory();
                 l_CategoryDuration = (l_CategoryItr->second > l_Now) ? (l_CategoryItr->second - l_Now) * IN_MILLISECONDS : 0;
             }
         }
@@ -24628,10 +24581,10 @@ void Player::VehicleSpellInitialize()
             l_Duration = (l_Itr->second > l_Now) ? (l_Itr->second - l_Now) * IN_MILLISECONDS : 0;
             l_SpellID = l_Itr->second;
 
-            CreatureSpellCooldowns::const_iterator l_CategoryItr = l_Vehicle->m_CreatureCategoryCooldowns.find(l_SpellInfo->Category);
+            CreatureSpellCooldowns::const_iterator l_CategoryItr = l_Vehicle->m_CreatureCategoryCooldowns.find(l_SpellInfo->GetCategory());
             if (l_CategoryItr != l_Vehicle->m_CreatureCategoryCooldowns.end())
             {
-                l_Category         = l_SpellInfo->Category;
+                l_Category         = l_SpellInfo->GetCategory();
                 l_CategoryDuration = (l_CategoryItr->second > l_Now) ? (l_CategoryItr->second - l_Now) * IN_MILLISECONDS : 0;
             }
         }
@@ -26176,7 +26129,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
     // if no cooldown found above then base at DBC data
     if (l_Cooldown < 0 && l_CategoryCooldown < 0)
     {
-        l_CategoryId       = p_SpellInfo->Category;
+        l_CategoryId       = p_SpellInfo->GetCategory();
         l_Cooldown         = p_SpellInfo->RecoveryTime;
         l_CategoryCooldown = p_SpellInfo->CategoryRecoveryTime;
     }
@@ -26245,14 +26198,10 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
                     l_CategoryCooldown += l_CategoryModifier;
             }
 
-            if (p_SpellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET)
+            SpellCategoryEntry const* l_CategoryEntry = sSpellCategoryStore.LookupEntry(l_CategoryId);
+            if (l_CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET)
                 l_CategoryCooldown = (sWorld->GetNextDailyQuestsResetTime() * IN_MILLISECONDS) - l_CurTime;
         }
-
-        /// Is charge regen time affected by any mods?
-        SpellCategoriesEntry const* l_Categories = p_SpellInfo->GetSpellCategories();
-        if (l_Categories && l_Categories->ChargesCategory != 0)
-            ConsumeCharge(sSpellCategoryStores.LookupEntry(l_Categories->ChargesCategory));
 
         // replace negative cooldowns by 0
         if (l_Cooldown < 0)
@@ -26271,23 +26220,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
 
     // self spell cooldown
     if (l_CooldownTime > 0)
-        AddSpellCooldown(p_SpellInfo->Id, p_ItemId, l_CooldownTime, l_NeedsCooldownPacket);
-
-    // category spells
-    if (l_CategoryId && l_CategoryCooldown > 0)
-    {
-        SpellCategoryStore::const_iterator i_scstore = sSpellCategoryStore.find(l_CategoryId);
-        if (i_scstore != sSpellCategoryStore.end())
-        {
-            for (SpellCategorySet::const_iterator i_scset = i_scstore->second.begin(); i_scset != i_scstore->second.end(); ++i_scset)
-            {
-                if (*i_scset == p_SpellInfo->Id)                    // skip main spell, already handled above
-                    continue;
-
-                AddSpellCooldown(*i_scset, p_ItemId, l_CategoryCooldown, l_NeedsCooldownPacket);
-            }
-        }
-    }
+        AddSpellCooldown(p_SpellInfo->Id, p_ItemId, l_CategoryCooldownTime, l_NeedsCooldownPacket);
 }
 
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bool p_send /* = false */)
@@ -33093,222 +33026,177 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 /// SpellCharges
 void Player::SendSpellCharges()
 {
-    WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES, 4 + m_SpellChargesMap.size() * 9);
+    WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES, 4 + m_CategoryCharges.size() * 9);
 
-    l_Data << uint32(m_SpellChargesMap.size());
-    for (auto l_SpellCharge : m_SpellChargesMap)
+    l_Data << uint32(m_CategoryCharges.size());
+
+    Clock::time_point l_Now = Clock::now();
+    for (auto l_CategoryCharge : m_CategoryCharges)
     {
-        ChargesData l_Charges = l_SpellCharge.second;
+        if (!l_CategoryCharge.second.empty())
+        {
+            std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_CategoryCharge.second.front().RechargeEnd - l_Now);
+            if (l_CooldownDuration.count() <= 0)
+                continue;
 
-        l_Data << uint32(l_SpellCharge.first);
-        if (l_Charges.m_ChargesCooldown.empty())
-            l_Data << uint32(0);
-        else
-            l_Data << uint32(l_Charges.m_ChargesCooldown.front());
+            l_Data << uint32(l_CategoryCharge.first);
+            l_Data << uint32(l_CooldownDuration.count());
+            l_Data << l_CategoryCharge.second.size();
+            SendDirectMessage(&l_Data);
+        }
 
-        l_Data << uint8(l_Charges.m_ConsumedCharges);
     }
-
-    SendDirectMessage(&l_Data);
 }
 
-void Player::SendClearAllSpellCharges()
+void Player::UpdateCharges()
 {
+    Clock::time_point l_Now = Clock::now();
+
+    for (auto& l_CategoryCharge : m_CategoryCharges)
+    {
+        std::deque<ChargeEntry>& l_ChargeRefreshTimes = l_CategoryCharge.second;
+
+        while (!l_ChargeRefreshTimes.empty() && l_ChargeRefreshTimes.front().RechargeEnd <= l_Now)
+            l_ChargeRefreshTimes.pop_front();
+    }
+}
+
+bool Player::ConsumeCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
+{
+    if (!p_ChargeCategoryEntry)
+        return false;
+
+    int32 l_ChargeRecovery = GetChargeRecoveryTime(p_ChargeCategoryEntry);
+    if (l_ChargeRecovery > 0 && GetMaxCharges(p_ChargeCategoryEntry) > 0)
+    {
+        Clock::time_point l_RecoveryStart;
+        std::deque<ChargeEntry>& l_Charges = m_CategoryCharges[p_ChargeCategoryEntry->Id];
+
+        if (l_Charges.empty())
+            l_RecoveryStart = Clock::now();
+        else
+            l_RecoveryStart = l_Charges.back().RechargeEnd;
+
+        l_Charges.emplace_back(l_RecoveryStart, std::chrono::milliseconds(l_ChargeRecovery));
+
+        return true;
+    }
+
+    return false;
+}
+
+void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntry, uint64 p_Reductiontime)
+{
+    if (!p_ChargeCategoryEntry)
+        return;
+
+    Clock::time_point l_Now = Clock::now();
+
+    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+    if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
+    {
+        Clock::time_point l_NewRechargeEnd = l_Itr->second.back().RechargeEnd - std::chrono::milliseconds(p_Reductiontime);
+        if (l_NewRechargeEnd > l_Now)
+            l_Itr->second.back().RechargeEnd = l_NewRechargeEnd;
+        else
+            l_Itr->second.pop_back();
+
+        WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
+        l_Data << int32(p_ChargeCategoryEntry->Id);
+        l_Data << uint32(std::chrono::duration_cast<std::chrono::milliseconds>(l_NewRechargeEnd.time_since_epoch()).count());
+        l_Data << l_Itr->second.size();
+        l_Data.WriteBit(false); ///< IsPet
+        l_Data.FlushBits();
+        SendDirectMessage(&l_Data);
+    }
+}
+
+void Player::RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
+{
+    if (!p_ChargeCategoryEntry)
+        return;
+
+    Clock::time_point l_Now = Clock::now();
+
+    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+    if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
+    {
+        l_Itr->second.pop_back();
+
+        std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
+
+        WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
+        l_Data << int32(p_ChargeCategoryEntry->Id);
+        l_Data << uint32(l_CooldownDuration.count());
+        l_Data << l_Itr->second.size();
+        l_Data.WriteBit(false); ///< IsPet
+        l_Data.FlushBits();
+        SendDirectMessage(&l_Data);
+    }
+}
+
+void Player::ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
+{
+    if (!p_ChargeCategoryEntry)
+        return;
+
+    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+    if (l_Itr != m_CategoryCharges.end())
+    {
+        m_CategoryCharges.erase(l_Itr);
+
+        WorldPacket l_Data(SMSG_CLEAR_SPELL_CHARGES);
+        l_Data << int32(p_ChargeCategoryEntry->Id);
+        l_Data.WriteBit(false); ///< IsPet
+        l_Data.FlushBits();
+        SendDirectMessage(&l_Data);
+    }
+}
+
+void Player::ResetAllCharges()
+{
+    m_CategoryCharges.clear();
+
     WorldPacket l_Data(SMSG_CLEAR_ALL_SPELL_CHARGES);
     l_Data.appendPackGUID(GetGUID());
     SendDirectMessage(&l_Data);
-
-    m_SpellChargesMap.clear();
 }
 
-void Player::SendSetSpellCharges(uint32 p_CategoryID)
+bool Player::HasCharge(SpellCategoryEntry const* p_ChargeCategoryEntry) const
 {
-    ChargesData* l_Charges = GetChargesData(p_CategoryID);
-    if (l_Charges == nullptr)
-        return;
+    if (!p_ChargeCategoryEntry)
+        return true;
 
-    SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(p_CategoryID);
-    if (l_Category == nullptr)
-        return;
+    // Check if the spell is currently using charges (untalented warlock Dark Soul)
+    int32 l_MaxCharges = GetMaxCharges(p_ChargeCategoryEntry);
+    if (l_MaxCharges <= 0)
+        return true;
 
-    float l_Count = CalcMaxCharges(l_Category) - l_Charges->m_ConsumedCharges;
-    if (l_Charges->m_ConsumedCharges && !l_Charges->m_ChargesCooldown.empty())
-    {
-        uint32 l_Time = l_Charges->m_ChargesCooldown.front();
-        uint32 l_BaseTime = l_Category->ChargeRecoveryTime;
-        l_Count += 1.0f - float(l_Time) / float(l_BaseTime);
-    }
-
-    WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
-    l_Data << int32(p_CategoryID);
-    l_Data << float(l_Count);
-    l_Data.WriteBit(false); ///< IsPet
-    l_Data.FlushBits();
-    SendDirectMessage(&l_Data);
+    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+    return l_Itr == m_CategoryCharges.end() || int32(l_Itr->second.size()) < l_MaxCharges;
 }
 
-void Player::SendClearSpellCharges(uint32 p_CategoryID)
+uint32 Player::GetMaxCharges(SpellCategoryEntry const* p_ChargeCategoryEntry) const
 {
-    WorldPacket l_Data(SMSG_CLEAR_SPELL_CHARGES);
-    l_Data << int32(p_CategoryID);
-    l_Data.WriteBit(false); ///< IsPet
-    l_Data.FlushBits();
-    SendDirectMessage(&l_Data);
-}
-
-void Player::RestoreCharge(uint32 p_CategoryID)
-{
-    ChargesData* l_Charges = GetChargesData(p_CategoryID);
-    if (l_Charges == nullptr)
-        return;
-
-    if (l_Charges->m_ChargesCooldown.empty() || !l_Charges->m_ConsumedCharges)
-        return;
-
-    l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
-    --l_Charges->m_ConsumedCharges;
-
-    SendSetSpellCharges(p_CategoryID);
-}
-
-void Player::ReduceChargeCooldown(uint32 p_CategoryID, uint64 p_Reductiontime)
-{
-    SpellChargesMap::iterator l_Iter = m_SpellChargesMap.find(p_CategoryID);
-    if (l_Iter == m_SpellChargesMap.end())
-        return;
-
-    ChargesData* l_Charges = GetChargesData(l_Iter->first);
-
-    std::vector<uint64> l_ChargesCooldown = l_Charges->GetChargesCooldown();
-
-    if (!l_ChargesCooldown.empty())
-    {
-        uint64 l_Cooldown = l_ChargesCooldown.at(l_ChargesCooldown.size() - 1);
-
-        if (l_Cooldown <= p_Reductiontime)
-        {
-            if (l_Charges->m_ConsumedCharges <= 1)
-            {
-                l_Iter = m_SpellChargesMap.erase(l_Iter);
-                SendSetSpellCharges(p_CategoryID);
-                return;
-            }
-
-            l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
-            --l_Charges->m_ConsumedCharges;
-            return;
-        }
-        else
-            l_Charges->DecreaseCooldown(l_ChargesCooldown.size() - 1, p_Reductiontime);
-    }
-    SendSetSpellCharges(p_CategoryID);
-}
-
-uint32 Player::CalcMaxCharges(SpellCategoryEntry const* p_Category) const
-{
-    if (p_Category == nullptr)
+    if (!p_ChargeCategoryEntry)
         return 0;
 
-    uint32 l_MaxCharge = p_Category->MaxCharges;
+    uint32 l_MaxCharge = p_ChargeCategoryEntry->MaxCharges;
 
-    l_MaxCharge += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MAX_CHARGES, p_Category->Id);
+    l_MaxCharge += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MAX_CHARGES, p_ChargeCategoryEntry->Id);
 
     return l_MaxCharge;
 }
 
-bool Player::CanUseCharge(SpellCategoryEntry const* p_Category) const
+int32 Player::GetChargeRecoveryTime(SpellCategoryEntry const* p_ChargeCategoryEntry) const
 {
-    if (p_Category == nullptr)
-        return false;
-
-    if (m_SpellChargesMap.find(p_Category->Id) == m_SpellChargesMap.end())
-        return true;
-
-    ChargesData l_Charges = m_SpellChargesMap.at(p_Category->Id);
-    if (!l_Charges.m_ConsumedCharges)
-        return true;
-
-    if (l_Charges.m_ConsumedCharges >= CalcMaxCharges(p_Category))
-        return false;
-
-    return true;
-}
-
-void Player::UpdateCharges(uint32 const p_Time)
-{
-    for (SpellChargesMap::iterator l_Iter = m_SpellChargesMap.begin(); l_Iter != m_SpellChargesMap.end();)
-    {
-        ChargesData* l_Charges = GetChargesData(l_Iter->first);
-
-        std::vector<uint64> l_ChargesCooldown = l_Charges->GetChargesCooldown();
-        bool l_MustContinue = false;
-
-        if (!l_ChargesCooldown.empty())
-        {
-            uint64 l_Cooldown = l_ChargesCooldown.front();
-
-            if (l_Cooldown <= p_Time)
-            {
-                if (l_Charges->m_ConsumedCharges <= 1)
-                {
-                    l_Iter = m_SpellChargesMap.erase(l_Iter);
-                    l_MustContinue = true;
-                    break;
-                }
-
-                l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
-                --l_Charges->m_ConsumedCharges;
-                SendSetSpellCharges(l_Iter->first);
-                continue;
-            }
-            else
-                l_Charges->DecreaseCooldown(0, p_Time);
-        }
-
-        if (l_MustContinue)
-            continue;
-
-        ++l_Iter;
-    }
-}
-
-void Player::ConsumeCharge(SpellCategoryEntry const* p_Category)
-{
-    if (p_Category == nullptr)
-        return;
-
-    int32 l_ChargeRecoveryTime = GetChargeRecoveryTime(p_Category);
-    if (l_ChargeRecoveryTime > 0 && CalcMaxCharges(p_Category) > 0)
-    {
-        if (m_SpellChargesMap.find(p_Category->Id) == m_SpellChargesMap.end())
-            m_SpellChargesMap.insert(std::make_pair(p_Category->Id, ChargesData(CalcMaxCharges(p_Category), l_ChargeRecoveryTime)));
-        else
-        {
-            ChargesData* l_Charges = GetChargesData(p_Category->Id);
-            ++l_Charges->m_ConsumedCharges;
-
-            l_Charges->m_ChargesCooldown.push_back(l_ChargeRecoveryTime);
-        }
-    }
-}
-
-ChargesData* Player::GetChargesData(uint32 p_CategoryID)
-{
-    if (m_SpellChargesMap.find(p_CategoryID) != m_SpellChargesMap.end())
-        return &m_SpellChargesMap[p_CategoryID];
-
-    return nullptr;
-}
-
-int32 Player::GetChargeRecoveryTime(SpellCategoryEntry const* p_Category) const
-{
-    if (!p_Category)
+    if (!p_ChargeCategoryEntry)
         return 0;
 
-    float l_RecoveryTime = p_Category->ChargeRecoveryTime;
+    float l_RecoveryTime = p_ChargeCategoryEntry->ChargeRecoveryTime;
 
-    l_RecoveryTime += float(GetTotalAuraModifierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MOD, p_Category->Id));
-    l_RecoveryTime *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, p_Category->Id);
+    l_RecoveryTime += float(GetTotalAuraModifierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MOD, p_ChargeCategoryEntry->Id));
+    l_RecoveryTime *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, p_ChargeCategoryEntry->Id);
 
     if (HasAuraType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE))
         l_RecoveryTime *= GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED);

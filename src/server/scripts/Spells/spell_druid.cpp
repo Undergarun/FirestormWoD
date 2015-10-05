@@ -2885,8 +2885,7 @@ class spell_dru_shooting_stars : public SpellScriptLoader
 
                 /// Shooting Stars restores 1 charge of Starsurge and Starfall. (share same charges category)
                 if (SpellInfo const* l_Starsurge = sSpellMgr->GetSpellInfo(eSpells::Starsurge))
-                    if (SpellCategoriesEntry const* l_StarsurgeCategories = l_Starsurge->GetSpellCategories())
-                        l_Player->RestoreCharge(l_StarsurgeCategories->ChargesCategory);
+                    l_Player->RestoreCharge(l_Starsurge->ChargeCategoryEntry);
             }
 
             void Register()
@@ -4764,10 +4763,7 @@ public:
                 return;
 
             if (SpellInfo const* l_Starsurge = sSpellMgr->GetSpellInfo(eSpells::Starsurge))
-            {
-                if (SpellCategoriesEntry const* l_StarsurgeCategories = l_Starsurge->GetSpellCategories())
-                    l_Player->RestoreCharge(l_StarsurgeCategories->ChargesCategory);
-            }
+                l_Player->RestoreCharge(l_Starsurge->ChargeCategoryEntry);
         }
 
         void Register()

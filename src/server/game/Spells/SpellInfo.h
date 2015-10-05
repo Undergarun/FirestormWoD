@@ -326,8 +326,7 @@ class SpellInfo
 {
 public:
     uint32 Id;
-    uint32 Category;
-    uint32 CategoryFlags;
+    SpellCategoryEntry const* CategoryEntry;
     uint32 Dispel;
     uint32 Mechanic;
     uint32 Attributes;
@@ -406,6 +405,7 @@ public:
     uint32 PreventionType;
     int32  AreaGroupId;
     uint32 SchoolMask;
+    SpellCategoryEntry const* ChargeCategoryEntry;
     uint32 SpellDifficultyId;
     uint32 SpellScalingId;
     uint32 SpellAuraOptionsId;
@@ -466,6 +466,7 @@ public:
     SpellInfo(SpellEntry const* spellEntry, uint32 difficulty);
     ~SpellInfo();
 
+    uint32 GetCategory() const;
     bool HasEffect(SpellEffects effect) const;
     SpellEffectInfo const* GetEffectByType(SpellEffects p_Effect) const;
 

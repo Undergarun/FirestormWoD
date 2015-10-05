@@ -2895,8 +2895,8 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
                         if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
                             l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
 
-                        if (SpellCategoriesEntry const* l_HandofFreedomCategories = GetSpellInfo()->GetSpellCategories())
-                            l_Player->ReduceChargeCooldown(l_HandofFreedomCategories->ChargesCategory, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
+                        if (SpellCategoryEntry const* l_HandofFreedomCategory = GetSpellInfo()->ChargeCategoryEntry)
+                            l_Player->ReduceChargeCooldown(l_HandofFreedomCategory, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
                     }
                 }
 
