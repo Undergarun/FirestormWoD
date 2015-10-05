@@ -1250,6 +1250,9 @@ public:
             if (l_Owner->GetTypeId() == TypeID::TYPEID_PLAYER && l_Owner->ToPlayer()->HasSpellCooldown(PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE))
                 return;
 
+            if (p_DmgInfo.GetSpellInfo() && (p_DmgInfo.GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REDIRECTED) || (p_DmgInfo.GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED))
+                return;
+
             if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
             {
                 if (l_Owner == l_Target && l_Owner->HasAura(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
@@ -1258,9 +1261,6 @@ public:
                     {
                         int32 l_Damage = CalculatePct(p_DmgInfo.GetAbsorb(), l_ReflectiveShield->GetAmount());
                         l_Owner->CastCustomSpell(l_Attacker, PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
-
-                        if (l_Owner->GetTypeId() == TypeID::TYPEID_PLAYER)
-                            l_Owner->ToPlayer()->AddSpellCooldown(PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, 0, 200);
                     }
                 }
             }
