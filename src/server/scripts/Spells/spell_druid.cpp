@@ -2367,6 +2367,10 @@ class spell_dru_eclipse : public PlayerScript
             if (!l_EclipseData.m_EclipseCycleActive)
             {
                 p_NewValue = 0;
+
+                if (p_Player->HasAura(Eclipse::Spell::Sunfire))
+                    p_Player->RemoveAurasDueToSpell(Eclipse::Spell::Sunfire);
+
                 return;
             }
 
