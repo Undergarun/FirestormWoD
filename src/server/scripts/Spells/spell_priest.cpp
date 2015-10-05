@@ -1951,7 +1951,21 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                 l_Target->VisitNearbyObject(l_Radius, l_Searcher);
 
                 l_FriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
-                JadeCore::RandomResizeList(l_FriendlyUnitListTemp, l_CascadeSpell->Effects[EFFECT_1].BasePoints);
+
+                l_FriendlyUnitListTemp.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
+                l_FriendlyUnitListTemp.sort(JadeCore::HealthPctOrderPred());
+                if (l_FriendlyUnitListTemp.size() > l_CascadeSpell->Effects[EFFECT_1].BasePoints)
+                    l_FriendlyUnitListTemp.resize(l_CascadeSpell->Effects[EFFECT_1].BasePoints);
 
                 for (auto l_Itr : l_FriendlyUnitListTemp)
                 {
@@ -2089,7 +2103,20 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                 l_Target->VisitNearbyObject(l_Radius, l_Searcher);
 
                 l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
-                JadeCore::RandomResizeList(l_UnFriendlyUnitListTemp, l_CascadeSpell->Effects[EFFECT_1].BasePoints);
+
+                l_UnFriendlyUnitListTemp.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (!l_Caster->IsValidAttackTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
+                if (l_UnFriendlyUnitListTemp.size() > l_CascadeSpell->Effects[EFFECT_1].BasePoints)
+                    JadeCore::RandomResizeList(l_UnFriendlyUnitListTemp, l_CascadeSpell->Effects[EFFECT_1].BasePoints);
 
                 for (auto l_Itr : l_UnFriendlyUnitListTemp)
                 {
