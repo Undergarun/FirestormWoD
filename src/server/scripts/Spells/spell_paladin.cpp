@@ -3016,6 +3016,49 @@ class spell_pal_shining_protector : public SpellScriptLoader
         }
 };
 
+/// Glyph of Flash of Light - 57955
+class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_flash_of_light() : SpellScriptLoader("spell_pal_glyph_of_flash_of_light") { }
+
+        class spell_pal_glyph_of_flash_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_glyph_of_flash_of_light_AuraScript);
+
+            enum eSpells
+            {
+                FlashOfLight = 19750,
+                GlyphOfLightAura = 123254
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::FlashOfLight)
+                    return;
+
+                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), eSpells::GlyphOfLightAura, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_glyph_of_flash_of_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_glyph_of_flash_of_light_AuraScript();
+        }
+};
 
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
@@ -3045,6 +3088,7 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_glyph_of_flash_of_light();
     new spell_pal_shining_protector();
     new spell_pal_turn_evil();
     new spell_pal_denounce();

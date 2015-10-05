@@ -9685,16 +9685,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 57955: // Glyph of Flash of Light
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 19750)
-                return false;
-
-            break;
-        }
         case 122509:// Ultimatum
         {
             if (!procSpell)
