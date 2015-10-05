@@ -485,6 +485,9 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             /// Fear - 6 seconds in PvP (6.0)
             if (spellproto->Id == 118699 || spellproto->Id == 130616)
                 return 6 * IN_MILLISECONDS;
+            /// Debilitate - 4 seconds in PvP
+            if (spellproto->Id == 170996)
+                return 4 * IN_MILLISECONDS;
             break;
         }
         default:
@@ -5646,7 +5649,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 122510: ///< Ultimatum
             case 34784:  ///< Intervene (triggered)
             case 73683:  ///< Unleash Flame
-            case 165462: ///< Unleash Flame
             case 52437:  ///< Sudden Death
             case 157174: ///< Elemental Fusion
                 spellInfo->ProcCharges = 1;
@@ -5680,6 +5682,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 44544:  ///< Fingers of Frost
             case 126084: ///< Fingers of Frost - visual
                 spellInfo->StackAmount = 2;
+                break;
+            case 116330: ///< Dizzying Haze
+                spellInfo->Effects[EFFECT_1].BasePoints = 2000;
                 break;
             case 85222: ///< Light of Dawn
                 spellInfo->MaxAffectedTargets = 6;
@@ -6501,6 +6506,10 @@ void SpellMgr::LoadSpellCustomAttr()
 				break;
             case 157698: ///< Haunting Spirits
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
+                break;
+            case 165462: ///< Unleash Flame
+                spellInfo->ProcCharges = 1;
+                spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 0x10000000;
                 break;
             default:
                 break;

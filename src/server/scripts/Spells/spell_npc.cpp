@@ -803,6 +803,37 @@ class spell_npc_sha_feral_spirit : public CreatureScript
         }
 };
 
+class spell_npc_sha_healing_rain : public CreatureScript
+{
+public:
+    spell_npc_sha_healing_rain() : CreatureScript("spell_npc_sha_healing_rain") { }
+
+    struct spell_npc_sha_healing_rainAI : public CreatureAI
+    {
+
+        enum eSpells : uint32
+        {
+            HealingRainVisual = 147490
+        };
+
+        spell_npc_sha_healing_rainAI(Creature* p_Creature) : CreatureAI(p_Creature)
+        {
+            me->CastSpell(me, eSpells::HealingRainVisual, true);
+        }
+
+        void UpdateAI(uint32 const p_Diff)
+        {
+            if (!me->HasAura(eSpells::HealingRainVisual))
+                me->DespawnOrUnsummon();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const
+    {
+        return new spell_npc_sha_healing_rainAI(p_Creature);
+    }
+};
+
 /// Ravager - 76168
 class spell_npc_warr_ravager : public CreatureScript
 {
@@ -1163,6 +1194,7 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
         }
 };
 
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
@@ -1179,6 +1211,7 @@ void AddSC_npc_spell_scripts()
     new spell_npc_sha_fire_elemental();
     new spell_npc_sha_earth_elemental();
     new spell_npc_sha_feral_spirit();
+    new spell_npc_sha_healing_rain();
 
     /// Warrior NPC
     new spell_npc_warr_ravager();
