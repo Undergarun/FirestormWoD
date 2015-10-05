@@ -1128,7 +1128,22 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                 if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                 {
                     if (l_TickNumber >= 1 && l_TickNumber <= 10)
-                        l_AuraEffect->SetAmount(int32(l_BaseValue * (m_TickMultiplier[l_TickNumber])));
+                    {
+                        int32 l_Bp = int32(l_BaseValue * (m_TickMultiplier[l_TickNumber]));
+
+                        if (GetSpellInfo()->Id == eSpells::ExecutionSentence)
+                        {
+                            l_Bp = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, DOT);
+                            l_Bp = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Bp, DOT);
+                        }
+                        else
+                        {
+                            l_Bp = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, HEAL);
+                            l_Bp = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Bp, HEAL);
+                        }
+
+                        l_AuraEffect->SetAmount(l_Bp);
+                    }
                 }
             }
 
@@ -2102,6 +2117,20 @@ public:
 
                     if (!l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         l_Caster->ModifyPower(POWER_HOLY_POWER, -m_PowerUsed);
+
+                    if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Caster))
+                    {
+                        AuraPtr l_Aura = l_Caster->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Caster);
+
+                        if (l_Aura)
+                        {
+                            if (m_PowerUsed > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                                m_PowerUsed = 3;
+
+                            l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (m_PowerUsed));
+                            l_Aura->SetNeedClientUpdateForTargets();
+                        }
+                    }
                 }
         }
 
