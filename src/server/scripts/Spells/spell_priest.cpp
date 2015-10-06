@@ -1247,10 +1247,7 @@ public:
             if (l_Target == nullptr || l_Owner == nullptr)
                 return;
 
-            if (l_Owner->GetTypeId() == TypeID::TYPEID_PLAYER && l_Owner->ToPlayer()->HasSpellCooldown(PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE))
-                return;
-
-            if (p_DmgInfo.GetSpellInfo() && (p_DmgInfo.GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REDIRECTED) || (p_DmgInfo.GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED))
+            if (p_DmgInfo.GetSpellInfo() && ((p_DmgInfo.GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REDIRECTED) || (p_DmgInfo.GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED)))
                 return;
 
             if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
