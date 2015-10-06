@@ -6408,11 +6408,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
-            /// Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
-            /// @TODO: Remove this hack when we out S14
-            case 142689:
-                spellInfo->Effects[0].BasePoints = -2500;
-                break;
             case 123011: ///< Terrorize Player (tsulong spell)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
