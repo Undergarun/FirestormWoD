@@ -4427,8 +4427,36 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
         }
 };
 
+/// Savage Fortitude - 181706
+class spell_gen_savage_fortitude : public SpellScriptLoader
+{
+    public:
+        spell_gen_savage_fortitude() : SpellScriptLoader("spell_gen_savage_fortitude") { }
+
+        class spell_gen_savage_fortitude_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_savage_fortitude_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                p_Amount *= 10;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_savage_fortitude_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_2);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_savage_fortitude_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_savage_fortitude();
     new spell_dru_touch_of_the_grave();
     new spell_gen_drums_of_fury();
     new spell_gen_absorb0_hitlimit1();
