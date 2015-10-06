@@ -4757,30 +4757,6 @@ class npc_xuen_the_white_tiger : public CreatureScript
         }
 };
 
-/*######
-# npc_agatha - 49044
-######*/
-
-class npc_agatha : public CreatureScript
-{
-    public:
-        npc_agatha() : CreatureScript("npc_agatha") { }
-
-        enum Constants
-        {
-            QUEST_FRESH_OUT_OF_THE_GRAVE = 24959,
-            SPELL_RIGOR_MORTIS           = 73523
-        };
-
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
-        {
-            if (quest->GetQuestId() == Constants::QUEST_FRESH_OUT_OF_THE_GRAVE)
-                player->RemoveAura(Constants::SPELL_RIGOR_MORTIS);
-
-            return true;
-        }
-};
-
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4835,5 +4811,4 @@ void AddSC_npcs_special()
     new npc_training_dummy_tanking();
     new npc_consecration();
     new npc_xuen_the_white_tiger();
-    new npc_agatha();
 }
