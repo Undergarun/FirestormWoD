@@ -2080,8 +2080,12 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     if (tmpvalue > 0.85f)
         tmpvalue = 0.85f;
 
-    newdamage = uint32(damage - (damage * tmpvalue));
-    return (newdamage > 1) ? newdamage : 1;
+    newdamage = std::max((int)(damage - (damage * tmpvalue)), 1);
+
+    if (spellInfo)
+        LOG_SPELL(this, spellInfo->Id, "Spell %s: CalcArmorReducedDamage(): %i - %f = %i", spellInfo->GetNameForLogging().c_str(), damage, tmpvalue * 100.f, newdamage);
+
+    return newdamage;
 }
 
 bool Unit::IsSpellResisted(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo)
@@ -13293,7 +13297,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, tmpDamage);
 
-    LOG_SPELL(this, spellProto->Id, "MeeleDamageBonusDone(): Spell %s: ((%i + %i (DoneFlatBenefit)) * %f (DoneTotalMod)) = %f + %f (Mods) = %f", spellProto->GetNameForLogging().c_str(), pdamage, DoneFlatBenefit, DoneTotalMod, preTmpDamage, tmpDamage - preTmpDamage, tmpDamage);
+    if (spellProto)
+        LOG_SPELL(this, spellProto->Id, "MeeleDamageBonusDone(): Spell %s: ((%i + %i (DoneFlatBenefit)) * %f (DoneTotalMod)) = %f + %f (Mods) = %f", spellProto->GetNameForLogging().c_str(), pdamage, DoneFlatBenefit, DoneTotalMod, preTmpDamage, tmpDamage - preTmpDamage, tmpDamage);
 
     // bonus result can be negative
     return uint32(std::max(tmpDamage, 0.0f));
