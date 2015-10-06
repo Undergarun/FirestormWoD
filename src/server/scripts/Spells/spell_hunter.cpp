@@ -1226,27 +1226,6 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
     public:
         spell_hun_spirit_bond_apply() : SpellScriptLoader("spell_hun_spirit_bond_apply") { }
 
-        class spell_hun_spirit_bond_apply_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_spirit_bond_apply_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_SPIRIT_BOND, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_spirit_bond_apply_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_spirit_bond_apply_SpellScript();
-        }
-
         class spell_hun_spirit_bond_apply_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_hun_spirit_bond_apply_AuraScript);
@@ -1265,9 +1244,31 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
                 }
             }
 
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, HUNTER_SPELL_SPIRIT_BOND, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveAura(HUNTER_SPELL_SPIRIT_BOND);
+            }
+
             void Register()
             {
                 OnAuraUpdate += AuraUpdateFn(spell_hun_spirit_bond_apply_AuraScript::OnUpdate);
+                OnEffectApply += AuraEffectApplyFn(spell_hun_spirit_bond_apply_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_spirit_bond_apply_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
