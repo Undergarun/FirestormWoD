@@ -2892,9 +2892,6 @@ void SpellMgr::LoadSpellClassInfo()
         if (!classEntry)
             continue;
 
-        // Player damage reduction (72% base resilience)
-        mSpellClassInfo[l_ClassID].insert(115043);
-        mSpellClassInfo[l_ClassID].insert(142689);
         // Player mastery activation
         mSpellClassInfo[l_ClassID].insert(114585);
         // Battle Fatigue
