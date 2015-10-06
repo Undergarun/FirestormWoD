@@ -2466,6 +2466,9 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
     else
         l_CharacterFlags |= CHARACTER_FLAG_DECLINED;
 
+    if (l_CharacterLoginFlags & AT_LOGIN_LOCKED_FOR_TRANSFER)
+        l_CharacterFlags |= CHARACTER_LOCKED_FOR_TRANSFER;
+
     bool l_CharacterFirstLogin = l_CharacterLoginFlags & AT_LOGIN_FIRST;
 
     uint32 l_CharacterCustomizationFlags = 0;
@@ -5550,7 +5553,8 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     // note: form passives activated with shapeshift spells be implemented by HandleShapeshiftBoosts instead of spell_learn_spell
     // talent dependent passives activated at form apply have proper stance data
     ShapeshiftForm form = GetShapeshiftForm();
-    bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & uint64(1L << (form - 1)))) ||
+
+    bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & (UI64LIT(1) << (form - 1)))) ||
         (!form && (spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT)));
 
     //Check CasterAuraStates
@@ -5652,7 +5656,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             itr->second->state = PLAYERSPELL_REMOVED;
     }
 
-    RemoveAurasDueToSpell(spell_id);
+    RemoveOwnedAura(spell_id, GetGUID());
 
     // remove pet auras
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -5678,7 +5682,10 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     // update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
-    if (spellInfo && spellInfo->IsPrimaryProfessionFirstRank())
+    if (!spellInfo)
+        return;
+
+    if (spellInfo->IsPrimaryProfessionFirstRank())
     {
         uint32 freeProfs = GetFreePrimaryProfessionPoints()+1;
         if (freeProfs <= sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL))
@@ -14690,7 +14697,7 @@ InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
                 return EQUIP_ERR_NOT_DURING_ARENA_MATCH;
     }
 
-    if (ITEM_CLASS_WEAPON && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED))
+    if ((pProto->Class & ITEM_CLASS_WEAPON) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED))
         return EQUIP_ERR_CLIENT_LOCKED_OUT;
 
     if (!swap && pItem->IsNotEmptyBag())
@@ -18336,19 +18343,14 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             switch (l_DynamicReward->Type)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
-                    if (!l_ItemTemplate->HasSpec((SpecIndex)l_Specialization))
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)l_Specialization, getLevel()))
                     {
-                        /// @TODO: Since we have default spec id, this is may be useless
-                        /// Hard fix to apply dynamic rewards for low level quests
-                        if (quest->GetQuestLevel() < 10 && l_ItemTemplate->HasClassSpec(getClass()))
-                            break;
-
                         GetSession()->SendNotification(LANG_NO_SPE_FOR_DYNAMIC_REWARD);
                         return false;
                     }
                     break;
                 case uint8(PackageItemRewardType::ClassReward):
-                    if (!l_ItemTemplate->HasClassSpec(getClass()))
+                    if (!l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         return false;
                     break;
                 case uint8(PackageItemRewardType::DefaultHiddenReward):                             ///< Yes, player can cheat to have it instead of his own specific item, but it's useless for him
@@ -18370,6 +18372,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             }
             return true;
         }
+        
+        if (p_Reward == 0)
+            return true;
+        
         return false;
     }
 
@@ -18602,12 +18608,12 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                 {
-                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())) && !l_ItemTemplate->HasClassSpec(getClass()))
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec()), getLevel()) && !l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         continue;
                     break;
                 }
                 case uint8(PackageItemRewardType::ClassReward):
-                    if (!l_ItemTemplate->HasClassSpec(getClass()))
+                    if (!l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         continue;
                     break;
                 case uint8(PackageItemRewardType::DefaultHiddenReward):                             ///< Yes, player can cheat to have it instead of his own specific item, but it's useless for him
@@ -20385,6 +20391,11 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     Field* fields = result->Fetch();
 
+    m_atLoginFlags = fields[34].GetUInt16();
+
+    if (m_atLoginFlags & AT_LOGIN_LOCKED_FOR_TRANSFER)
+        return false;
+
     uint32 dbAccountId = fields[1].GetUInt32();
 
     // check if the character's account in the db and the logged in account match.
@@ -20546,7 +20557,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     GetSession()->SetPlayer(this);
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
 
-    m_atLoginFlags = fields[34].GetUInt16();
     bool mustResurrectFromUnlock = false;
 
     if (m_atLoginFlags & AT_LOGIN_UNLOCK)
@@ -24794,16 +24804,25 @@ void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
 
         if (p_Modifier->mask & l_Mask)
         {
-            float l_Value = 0.f;
+            float l_Value = p_Modifier->type == SPELLMOD_FLAT ? 0.f : 1.f;
 
-            for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
-                if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
-                    l_Value += float((*l_It)->value);
+            if (p_Modifier->type == SPELLMOD_FLAT)
+            {
+                for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                        l_Value += float((*l_It)->value);
 
-            l_Value += p_Apply ? float(p_Modifier->value) : float(-p_Modifier->value);
+                l_Value += p_Apply ? float(p_Modifier->value) : float(-p_Modifier->value);
+            }
+            else
+            {
+                for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask && (p_Apply || (!p_Apply && p_Modifier != *l_It)))
+                        AddPct(l_Value, (*l_It)->value);
 
-            if (p_Modifier->type == SPELLMOD_PCT)
-                l_Value = 1.0f + (l_Value * 0.01f);
+                if (p_Apply)
+                    AddPct(l_Value, p_Modifier->value);
+            }
 
             l_Buffer << float(l_Value);
             l_Buffer << uint8(l_EffectIndex);
@@ -26177,8 +26196,8 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
     {
         // use +MONTH as infinity mark for spell cooldown (will checked as MONTH/2 at save ans skipped)
         // but not allow ignore until reset or re-login
-        l_CategoryCooldownTime = l_CategoryCooldown > 0 ? p_InfinityCooldown : 0;
-        l_CooldownTime         = l_Cooldown         > 0 ? p_InfinityCooldown : l_CategoryCooldownTime;
+        l_CategoryCooldownTime = l_CategoryCooldown > 0 ? infinityCooldownDelay : 0;
+        l_CooldownTime         = l_Cooldown         > 0 ? infinityCooldownDelay : l_CategoryCooldownTime;
     }
     else
     {
@@ -26321,7 +26340,7 @@ void Player::SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID, S
 
 void Player::UpdatePotionCooldown(Spell* spell)
 {
-    // no potion used i combat or still in combat
+    // no potion used in combat or still in combat
     if (!m_lastPotionId || isInCombat())
         return;
 
@@ -26330,22 +26349,10 @@ void Player::UpdatePotionCooldown(Spell* spell)
     {
         // spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
-        {
-            bool found = false;
-            for (uint8 idx = 0; idx < MAX_ITEM_SPELLS; ++idx)
-                if (proto->Spells[idx].SpellId && proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
+            for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
+                if (proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
                     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
-                    {
-                        if (!HasSpellCooldown(spellInfo->Id))
                             SendCooldownEvent(spellInfo, m_lastPotionId);
-                        found = true;
-                    }
-            // if not - used by Spinal Healing Injector
-            if (!found)
-            {
-                SendCooldownEvent(sSpellMgr->GetSpellInfo(82184), m_lastPotionId);
-            }
-        }
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else
@@ -29083,16 +29090,17 @@ void Player::UpdateCharmedAI()
 
 uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 {
-    float l_Cooldown = RUNE_BASE_COOLDOWN;
+    float l_RegenRate = 1.f / RUNE_BASE_COOLDOWN;
     float l_HastePct = 0.0f;
 
     AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator l_Idx = l_RegenAura.begin(); l_Idx != l_RegenAura.end(); ++l_Idx)
     {
         if ((*l_Idx)->GetMiscValue() == POWER_RUNES && RuneType((*l_Idx)->GetMiscValueB()) == runeType)
-            l_Cooldown *= 1.0f - ((*l_Idx)->GetAmount() / 100.0f);
+            AddPct(l_RegenRate, (*l_Idx)->GetAmount());
     }
 
+    float l_Cooldown = 1.f / l_RegenRate;
     l_Cooldown *= 1.0f - ((1.0f / GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) - 1.0f));
 
     return l_Cooldown;
@@ -30332,6 +30340,12 @@ void Player::_SaveTalents(SQLTransaction& trans)
 
             if (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED)
             {
+                if (itr->second->spec > 1)
+                {
+                    sLog->outAshran("Invalid spec index (%d > 1) on player %s (%ull), not saving talent to prevent crash at loading", itr->second->spec, m_name.c_str(), GetGUID());
+                    continue;
+                }
+
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
                 stmt->setUInt32(0, GetGUIDLow());
                 stmt->setUInt32(1, itr->first);

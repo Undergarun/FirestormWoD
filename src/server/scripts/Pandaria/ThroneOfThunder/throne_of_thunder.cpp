@@ -3210,8 +3210,8 @@ class mob_iron_qon_disciple : CreatureScript
                             Unit* l_Target = me->GetPlayer(*me, m_FirstTargetGuid);
                             if (!l_Target)
                             {
-                                l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 20.0f, true);
-                                m_FirstTargetGuid = l_Target->GetGUID();
+                                if (l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 20.0f, true))
+                                    m_FirstTargetGuid = l_Target->GetGUID();
                             }
 
                             if (l_Target  && !m_InCombat)

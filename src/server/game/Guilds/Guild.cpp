@@ -1185,6 +1185,10 @@ void Guild::Disband()
     stmt->setUInt32(0, m_id);
     trans->Append(stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_REMOVE_GUILD_CHALLENGES);
+    stmt->setUInt32(0, m_id);
+    trans->Append(stmt);
+
     CharacterDatabase.CommitTransaction(trans);
 
     sGuildFinderMgr->DeleteGuild(m_id);

@@ -41,6 +41,7 @@ if(SCRIPTS)
   include(Draenor/CMakeLists.txt)
   include(Fun/CMakeLists.txt)
   include(BattlePay/CMakeLists.txt)
+  include(Firestorm/CMakeLists.txt)
 endif()
 
 MACRO( auto_group ProjectDirectory ProjectSources )

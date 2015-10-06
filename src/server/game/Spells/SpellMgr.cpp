@@ -485,6 +485,9 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             /// Fear - 6 seconds in PvP (6.0)
             if (spellproto->Id == 118699 || spellproto->Id == 130616)
                 return 6 * IN_MILLISECONDS;
+            /// Debilitate - 4 seconds in PvP
+            if (spellproto->Id == 170996)
+                return 4 * IN_MILLISECONDS;
             break;
         }
         default:
@@ -2301,9 +2304,9 @@ void SpellMgr::LoadSpellPetAuras()
                 continue;
             }
             if (spellInfo->Effects[eff].Effect != SPELL_EFFECT_DUMMY &&
-                (spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA ||
-                spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA_ON_PET ||
-                spellInfo->Effects[eff].ApplyAuraName != SPELL_AURA_DUMMY))
+                (spellInfo->Effects[eff].Effect == SPELL_EFFECT_APPLY_AURA ||
+                 spellInfo->Effects[eff].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET) &&
+                spellInfo->Effects[eff].ApplyAuraName != SPELL_AURA_DUMMY)
             {
                 sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell %u listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
                 continue;
@@ -3494,11 +3497,23 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 0;
                 break;
                 /// Everbloom
+            case 164643:
+            case 164886:
+            case 169658:
+            case 164965: ///< Choking Vines
             case 164834: ///< Barrage of Leaves
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
-            case 164886: ///< Dreadpetal Toxin
+            case 169223: ///< Toxic Gas
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 169376: ///< Venomous Sting
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 164885: ///< Dreadpetal Toxin
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
                 /// Auchindon
             case 156862: ///< Drain Soul Cosmetic
@@ -3796,6 +3811,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 94954: ///< Heroic Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
+            case 31220:///< Sinister Calling
+            case 17007:///< Leader of the Pack
+            case 16864:///< Omen of Clarity
+            case 16961:///< Primal Fury
             case 159232:///< Ursa Major
             case 159362:///< Blood Craze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
@@ -3863,11 +3882,15 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156734: ///< Destructive Resonance - Summon (Imperator Mar'gok)
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
+            case 157265: ///< Volatile Anomalies (Imperator Mar'gok)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                break;
             case 158512: ///< Volatile Anomalies (Imperator Mar'gok)
             case 159158: ///< Volatile Anomalies (Imperator Mar'gok)
             case 159159: ///< Volatile Anomalies (Imperator Mar'gok)
-                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
-                spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_CASTER_FRONT;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].SetRadiusIndex(18);    ///< 15 yards
                 break;
             case 156799: ///< Destructive Resonance (Other - Imperator Mar'gok)
@@ -3961,6 +3984,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 134531: ///< Web Thread
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
+            case 132413: ///< Shadow Bulwark
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;
             case 152150:///< Death from Above (periodic dummy)
                 spellInfo->Effects[5].TargetA = TARGET_UNIT_TARGET_ENEMY;
@@ -5334,7 +5360,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 115072: ///< Expel Harm
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                 break;
             case 117952: ///< Crackling Jade Lightning
@@ -5623,7 +5649,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 122510: ///< Ultimatum
             case 34784:  ///< Intervene (triggered)
             case 73683:  ///< Unleash Flame
-            case 165462: ///< Unleash Flame
             case 52437:  ///< Sudden Death
             case 157174: ///< Elemental Fusion
                 spellInfo->ProcCharges = 1;
@@ -5657,6 +5682,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 44544:  ///< Fingers of Frost
             case 126084: ///< Fingers of Frost - visual
                 spellInfo->StackAmount = 2;
+                break;
+            case 116330: ///< Dizzying Haze
+                spellInfo->Effects[EFFECT_1].BasePoints = 2000;
                 break;
             case 85222: ///< Light of Dawn
                 spellInfo->MaxAffectedTargets = 6;
@@ -6467,12 +6495,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159456: ///< Glyph of Travel
                 spellInfo->Stances = 0;
                 break;
-            case 167105: ///< Colossus Smash
-            case 12328:  ///< Sweeping Strikes
-            case 1719:   ///< Recklessness
-                /// Can be casted in Battle Stance AND in Defensive Stance
-                spellInfo->Stances |= ((uint64)1L << (ShapeshiftForm::FORM_DEFENSIVESTANCE - 1));
-                break;
             case 91809: ///< Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
@@ -6484,6 +6506,10 @@ void SpellMgr::LoadSpellCustomAttr()
 				break;
             case 157698: ///< Haunting Spirits
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
+                break;
+            case 165462: ///< Unleash Flame
+                spellInfo->ProcCharges = 1;
+                spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 0x10000000;
                 break;
             default:
                 break;

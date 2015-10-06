@@ -374,6 +374,8 @@ class SpellScript : public _SpellScript
 
         void SetExplTargetDest(WorldLocation& loc);
 
+        Position const* GetExplTargetSrc();
+
         // returns: WorldObject which was selected as an explicit spell target or NULL if there's no target
         WorldObject* GetExplTargetWorldObject();
 

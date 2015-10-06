@@ -219,7 +219,7 @@ struct PlayerCurrency
    bool needResetCap;
 };
 
-typedef ACE_Based::LockedMap<uint32, PlayerTalent*> PlayerTalentMap;
+typedef std::map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef ACE_Based::LockedMap<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
 typedef ACE_Based::LockedMap<uint32, PlayerCurrency> PlayerCurrenciesMap;
@@ -4208,7 +4208,7 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
                     l_PyroBlast = true;
             }
 
-            l_TotalMul += CalculatePct(1.0f, l_SpellMod->value);
+             AddPct(l_TotalMul, l_SpellMod->value);
         }
 
         if (p_RemoveStacks && p_Spell && !m_isMoltenCored)

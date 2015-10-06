@@ -587,7 +587,7 @@ std::vector<std::string> GetColumnsFromLine(std::string p_Line)
     return l_Columns;
 }
 
-DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Account, std::string p_Name, uint32 p_Guid, bool p_OnlyBoundedItems, uint32 p_AtLogin, bool p_Premade)
+DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Account, std::string p_Name, uint32 p_Guid, bool p_OnlyBoundedItems, uint32 p_AtLogin)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(p_Account);
     if (charcount >= 11)
@@ -613,15 +613,12 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
     else
         p_Guid = sObjectMgr->_hiCharGuid.value();
 
-    if (!p_Premade)
-        p_Name = "transfertCha";
-
     // name encoded or empty
 
     snprintf(newguid, 20, "%u", p_Guid);
     snprintf(chraccount, 20, "%u", p_Account);
     snprintf(newpetid, 20, "%u", sObjectMgr->GeneratePetNumber());
-    snprintf(lastpetid, 20, "%u", 0);
+    snprintf(lastpetid, 20, "%d", 0);
     snprintf(atLogin, 20, "%u", p_AtLogin);
     snprintf(l_NewGarrisonID, 20, "%u", sObjectMgr->GetNewGarrisonID());
 
@@ -730,21 +727,10 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                 }
 
                 l_Index = GetFieldIndexFromColumn("at_login", l_Columns) + 1;
-                if (p_Premade)
+                if (!changenth(l_Line, l_Index, atLogin))                           ///< characters.at_login set to "rename on login"
                 {
-                    if (!changenth(l_Line, l_Index, atLogin))                           ///< characters.at_login set to "rename on login"
-                    {
-                        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [7]");
-                        ROLLBACK(DUMP_FILE_BROKEN);
-                    }
-                }
-                else
-                {
-                    if (!changenth(l_Line, l_Index, "3093")) ///< characters.at_login set to AT_LOGIN_RESET_TALENTS | AT_LOGIN_RESET_PET_TALENTS | AT_LOGIN_RESET_SPECS | AT_LOGIN_RENAME | AT_LOGIN_DELETE_INVALID_SPELL
-                    {
-                        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [8]");
-                        ROLLBACK(DUMP_FILE_BROKEN);
-                    }
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [7]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
                 }
 
                 /// We transfer max 50k golds
@@ -753,7 +739,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                 if (l_Gold > (50000 * GOLD))
                 {
                     char l_MaxMoney[20];
-                    snprintf(l_MaxMoney, 20, "%u", 50000 * GOLD);
+                    snprintf(l_MaxMoney, 20, "%u", 50000U * GOLD);
 
                     if (!changenth(l_Line, l_Index, l_MaxMoney))
                     {
@@ -933,7 +919,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             {
                 uint64 newItemIdNum = sObjectMgr->GenerateVoidStorageItemId();
                 char newItemId[20];
-                snprintf(newItemId, 20, "%u", newItemIdNum);
+                snprintf(newItemId, 20, "%ull", newItemIdNum);
 
                 uint32 l_Index = GetFieldIndexFromColumn("itemId", l_Columns) + 1;
                 if (!changenth(l_Line, l_Index, newItemId))                             ///< character_void_storage.itemId update

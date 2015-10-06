@@ -90,7 +90,7 @@ class item_strongbox : public ItemScript
                     (l_Template->AllowableRace && !(l_Template->AllowableRace & p_Player->getRaceMask())))
                     continue;
 
-                for (SpecIndex l_ItemSpecID : l_Template->specs)
+                for (SpecIndex l_ItemSpecID : l_Template->specs[1])
                 {
                     if (l_ItemSpecID == l_SpecID)
                         l_Items.push_back(l_Template->ItemId);

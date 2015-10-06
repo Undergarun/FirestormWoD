@@ -55,6 +55,7 @@ INSERT INTO gameobject_loot_template(entry, item, ChanceOrQuestChance, lootmode,
 INSERT INTO gameobject_loot_template(entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount, itemBonuses) VALUES (55541, 120945, 10, 1, 0, 1, 3, '');
 
 -- HerbSpawnType::GrogrondFlytrap
+UPDATE gameobject_template SET data18 = 85, scriptname = "go_garrison_herb" WHERE entry = 235388;
 DELETE FROM gameobject_loot_template WHERE entry=55535;
 INSERT INTO gameobject_loot_template(entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount, itemBonuses) VALUES (55535, 116053, 100, 1, 0, 1, 3, '');
 INSERT INTO gameobject_loot_template(entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount, itemBonuses) VALUES (55535, 109126, 100, 1, 0, 2, 8, '');

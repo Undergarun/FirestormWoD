@@ -107,18 +107,17 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
     public:
         spell_at_druid_fungal_growth() : AreaTriggerEntityScript("at_fungal_growth") { }
 
-        enum WildMushroomSpells
+        enum eWildMushroomSpells
         {
-            SpellDruidWildMushroomFungalCloud       = 81281,
-            SpellDruidAreaWildMushroomFungalCloud   = 164717,
-            SpellDruidWildMushroomBalance           = 88747,
+            FungalCloud         = 81281,
+            WildMushroomBalance = 88747,
         };
 
         std::list<uint64> m_Targets;
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
-            auto l_SpellInfo = sSpellMgr->GetSpellInfo(WildMushroomSpells::SpellDruidWildMushroomBalance);
+            auto l_SpellInfo = sSpellMgr->GetSpellInfo(eWildMushroomSpells::WildMushroomBalance);
             auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
 
             if (l_AreaTriggerCaster == nullptr || l_SpellInfo == nullptr)
@@ -136,9 +135,9 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (!l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud))
+                if (!l_Target->HasAura(eWildMushroomSpells::FungalCloud))
                 {
-                    l_AreaTriggerCaster->CastSpell(l_Target, WildMushroomSpells::SpellDruidWildMushroomFungalCloud, true);
+                    l_AreaTriggerCaster->CastSpell(l_Target, eWildMushroomSpells::FungalCloud, true);
                     m_Targets.push_back(l_Target->GetGUID());
                 }
             }
@@ -151,11 +150,11 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()) && l_Target->GetDistance(l_AreaTriggerCaster) <= l_Radius)
+                if (l_Target->HasAura(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID()) && l_Target->GetDistance(l_AreaTriggerCaster) <= l_Radius)
                     return;
 
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()))
-                    l_Target->RemoveAurasDueToSpell(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID());
+                if (l_Target->HasAura(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID()))
+                    l_Target->RemoveAurasDueToSpell(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID());
 
                 m_Targets.remove(l_TargetGuid);
             }
@@ -176,8 +175,8 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()))
-                    l_Target->RemoveAurasDueToSpell(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID());
+                if (l_Target->HasAura(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID()))
+                    l_Target->RemoveAurasDueToSpell(eWildMushroomSpells::FungalCloud, l_AreaTriggerCaster->GetGUID());
 
                 m_Targets.remove(l_TargetGuid);
             }
@@ -987,7 +986,7 @@ class spell_at_pri_divine_star : public AreaTriggerEntityScript
             p_Caster->UpdateGroundPositionZ(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ);
 
             p_PathToLinearDestination.push_back(l_Position);
-            p_DestinationPosition = p_SourcePosition; // Return back
+            p_Caster->GetPosition(&p_DestinationPosition); // Return back
         }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -1033,6 +1032,18 @@ class spell_at_pri_divine_star : public AreaTriggerEntityScript
 
                 m_Cooldows.insert({ l_Unit->GetGUID(), 500 });
                 l_Caster->CastSpell(l_Unit, l_SpellID, true);
+            }
+
+            Position l_CasterPosition;
+            l_CasterPosition.m_positionX = l_Caster->GetPositionX();
+            l_CasterPosition.m_positionY = l_Caster->GetPositionY();
+            l_CasterPosition.m_positionZ = l_Caster->GetPositionZ();
+
+            if (l_CasterPosition != p_AreaTrigger->GetDestination())
+            {
+                p_AreaTrigger->SetDestination(l_CasterPosition);
+                p_AreaTrigger->SetTimeToTarget(p_AreaTrigger->GetDuration());
+                p_AreaTrigger->SendAreaTriggerRePath(p_AreaTrigger->GetDuration(), p_AreaTrigger->GetDuration());
             }
         }
 

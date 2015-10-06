@@ -398,7 +398,8 @@ class spell_dk_festering_strike: public SpellScriptLoader
         }
 };
 
-// Death Strike heal - 45470
+/// last update : 6.1.2 19802
+/// Death Strike heal - 45470
 class spell_dk_death_strike_heal: public SpellScriptLoader
 {
     public:
@@ -408,22 +409,17 @@ class spell_dk_death_strike_heal: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_death_strike_heal_SpellScript);
 
+            enum eSpells
+            {
+                ScentOfBloodAura = 50421
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (AuraPtr scentOfBlood = _player->GetAura(DK_SPELL_SCENT_OF_BLOOD_AURA))
-                        {
-                            uint8 chg = scentOfBlood->GetStackAmount();
-                            uint32 hl = GetHitHeal() * 0.2 * chg;
-                            SetHitHeal(GetHitHeal() + hl);
-                        }
+                Unit* l_Caster = GetCaster();
 
-                        _player->RemoveAura(DK_SPELL_SCENT_OF_BLOOD_AURA);
-                    }
-                }
+                if (l_Caster->HasAura(eSpells::ScentOfBloodAura))
+                    l_Caster->RemoveAura(eSpells::ScentOfBloodAura);
             }
 
             void Register()
@@ -1730,21 +1726,15 @@ class spell_dk_icy_touch: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_icy_touch_SpellScript);
 
-            enum eSpells
-            {
-                chilbrains = 50041,
-                chilbrainsAura = 50435
-            };
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (!GetCaster() || !GetHitUnit())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
                     return;
 
-                GetCaster()->CastSpell(GetHitUnit(), DK_SPELL_FROST_FEVER, true);
-
-                if (GetCaster()->HasAura(eSpells::chilbrains))
-                    GetCaster()->CastSpell(GetHitUnit(), eSpells::chilbrainsAura, true);
+                GetCaster()->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
             }
 
             void Register()
@@ -2109,47 +2099,42 @@ class spell_dk_death_pact: public SpellScriptLoader
         }
 };
 
-/// Called by Chains of Ice - 45524
-/// Chilblains - 50041
-class spell_dk_chilblains: public SpellScriptLoader
+/// Chains of Ice - 45524
+class spell_dk_chain_of_ice: public SpellScriptLoader
 {
     public:
-        spell_dk_chilblains() : SpellScriptLoader("spell_dk_chilblains") { }
+        spell_dk_chain_of_ice() : SpellScriptLoader("spell_dk_chain_of_ice") { }
 
-        class spell_dk_chilblains_SpellScript : public SpellScript
+        class spell_dk_chain_of_ice_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dk_chilblains_SpellScript);
+            PrepareSpellScript(spell_dk_chain_of_ice_SpellScript);
 
             enum eSpell
             {
                 ChainOfIceRoot = 96294,
-                chilbrainsAura = 50435
             };
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster->HasAura(DK_SPELL_CHILBLAINS))
-                        {
-                            l_Caster->CastSpell(l_Target, eSpell::chilbrainsAura, true);
-                            l_Caster->CastSpell(l_Target, eSpell::ChainOfIceRoot, true);
-                        }
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(DK_SPELL_CHILBLAINS))
+                    l_Caster->CastSpell(l_Target, eSpell::ChainOfIceRoot, true);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dk_chilblains_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_dk_chain_of_ice_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_dk_chilblains_SpellScript();
+            return new spell_dk_chain_of_ice_SpellScript();
         }
 };
 
@@ -2937,8 +2922,50 @@ class spell_dk_presences : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Frost Fever - 55095
+class spell_dk_frost_fever : public SpellScriptLoader
+{
+    public:
+        spell_dk_frost_fever() : SpellScriptLoader("spell_dk_frost_fever") { }
+
+        class spell_dk_frost_fever_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_frost_fever_SpellScript);
+            
+            enum eSpells
+            {
+                chilbrains = 50041,
+                chilbrainsAura = 50435
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::chilbrains))
+                    l_Caster->CastSpell(l_Target, eSpells::chilbrainsAura, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_frost_fever_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_frost_fever_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_frost_fever();
     new spell_dk_death_coil();
     new spell_dk_empowered_obliterate_icy_touch();
     new spell_dk_empowered_obliterate_howling_blast();
@@ -2980,7 +3007,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_runic_empowerment();
     new spell_dk_runic_corruption();
     new spell_dk_death_pact();
-    new spell_dk_chilblains();
+    new spell_dk_chain_of_ice();
+    new spell_dk_frost_fever();
     new spell_dk_chilblains_aura();
     new spell_dk_reaping();
     new spell_dk_mark_of_sindragosa();

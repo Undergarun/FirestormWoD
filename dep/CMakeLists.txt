@@ -8,15 +8,15 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if( CMAKE_COMPILER_IS_GNUCXX )
-  add_definitions(--no-warnings)
-elseif( MSVC )
+if( MSVC )
   add_definitions(/W0)
+else()
+  add_definitions(-w)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   if(SERVERS AND NOT NOJEM)
-    add_subdirectory(jemalloc)  
+    add_subdirectory(jemalloc)
   endif()
 endif()
 
@@ -30,10 +30,14 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   if(TOOLS)
     add_subdirectory(bzip2)
   endif()
-  add_subdirectory(zlib)
+  if(SERVERS OR TOOLS)
+    add_subdirectory(zlib)
+  endif()
 endif()
 
-add_subdirectory(g3dlite)
+if(SERVERS OR TOOLS)
+  add_subdirectory(g3dlite)
+endif()
 
 if(SERVERS)
   add_subdirectory(gsoap)

@@ -647,7 +647,7 @@ class spell_foundry_rage_regeneration : public SpellScriptLoader
                     if (!l_Gruul->IsAIEnabled)
                         return;
 
-                    l_Gruul->EnergizeBySpell(l_Gruul, GetSpellInfo()->Id, p_AurEff->GetTickNumber() % 3 ? 3 : 4, Powers::POWER_MANA);
+                    l_Gruul->EnergizeBySpell(l_Gruul, GetSpellInfo()->Id, (p_AurEff->GetTickNumber() % 3) ? 3 : 4, Powers::POWER_MANA);
 
                     if (l_Gruul->GetPower(Powers::POWER_MANA) >= 100)
                         l_Gruul->AI()->DoAction(eAction::ActionInfernoSlice);

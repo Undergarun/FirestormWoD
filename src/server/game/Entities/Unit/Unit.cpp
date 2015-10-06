@@ -694,13 +694,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (plr && plr->getClass() == CLASS_WARLOCK && plr->HasSpellCooldown(5484) && damage)
         plr->ReduceSpellCooldown(5484, 1000);
 
-    /// Custom WoD Script - Glyph of Frostbrand Weapon
-    if (plr && ToPlayer() && ToPlayer()->getClass() == CLASS_SHAMAN && ToPlayer()->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT)
-    {
-        if (cleanDamage && cleanDamage->attackType == WeaponAttackType::OffAttack && ToPlayer()->HasAura(161654))
-            ToPlayer()->CastSpell(plr, 147732, true);
-    }
-
     /// Custom MoP Script - Glyph of Fortuitous Spheres
     if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(146953))
     {
@@ -770,8 +763,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (!victim->HasSpell(157533))
         {
             if (!spellProto || ((spellProto->DmgClass == SPELL_DAMAGE_CLASS_RANGED || spellProto->DmgClass == SPELL_DAMAGE_CLASS_MELEE) && damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL))
+            {
                 if (!spellProto || (spellProto->Id != LIGHT_STAGGER && spellProto->Id != MODERATE_STAGGER && spellProto->Id != HEAVY_STAGGER))
                     damage = victim->CalcStaggerDamage(victim->ToPlayer(), damage, damageSchoolMask, spellProto);
+            }
         }
         else ///< You are now able to shrug off even spells
         {
@@ -2395,6 +2390,28 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
     *resist = dmgInfo.GetResist();
     *absorb = dmgInfo.GetAbsorb();
+
+    /// Stagger handler
+    if (victim && victim->ToPlayer() && victim->getClass() == CLASS_MONK && damagetype != DamageEffectType::SELF_DAMAGE)
+    {
+        if (!victim->HasSpell(157533))
+        {
+            if (!spellInfo || ((spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED || spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE) && schoolMask & SPELL_SCHOOL_MASK_NORMAL))
+            if (!spellInfo || (spellInfo->Id != LIGHT_STAGGER && spellInfo->Id != MODERATE_STAGGER && spellInfo->Id != HEAVY_STAGGER))
+            {
+                if (*absorb)
+                    *absorb = victim->CalcStaggerDamage(victim->ToPlayer(), *absorb, schoolMask, spellInfo);
+            }
+        }
+        else ///< You are now able to shrug off even spells
+        {
+            if (!spellInfo || (spellInfo->Id != LIGHT_STAGGER && spellInfo->Id != MODERATE_STAGGER && spellInfo->Id != HEAVY_STAGGER))
+            {
+                if (*absorb)
+                    *absorb = victim->CalcStaggerDamage(victim->ToPlayer(), *absorb, schoolMask, spellInfo);
+            }
+        }
+    }
 }
 
 void Unit::CalcHealAbsorb(Unit* victim, const SpellInfo* healSpell, uint32 &healAmount, uint32 &absorb)
@@ -3051,7 +3068,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* p_Victim, SpellInfo const* p_Spell
 SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool CanReflect)
 {
     // Check for immune
-    if (victim->IsImmunedToSpell(spell))
+    if (victim->IsImmunedToSpell(spell) && !IsFriendlyTo(victim))
         return SPELL_MISS_IMMUNE;
 
     // All positive spells can`t miss
@@ -3060,7 +3077,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
         &&(!IsHostileTo(victim)))  // prevent from affecting enemy by "positive" spell
         return SPELL_MISS_NONE;
     // Check for immune
-    if (victim->IsImmunedToDamage(spell))
+    if (victim->IsImmunedToDamage(spell) && !IsFriendlyTo(victim))
         return SPELL_MISS_IMMUNE;
 
     if (this == victim)
@@ -3078,7 +3095,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
         for (Unit::AuraEffectList::const_iterator i = mReflectSpellsSchool.begin(); i != mReflectSpellsSchool.end(); ++i)
             if ((*i)->GetMiscValue() & spell->GetSchoolMask())
                 reflectchance += (*i)->GetAmount();
-        if (reflectchance > 0 && roll_chance_i(reflectchance) && !spell->IsPositive())
+        if (reflectchance > 0 && roll_chance_i(reflectchance) && !spell->IsPositive() && !IsFriendlyTo(victim))
         {
             // Hack fix for Glyph of Grounding Totem - Remove aura
             if (victim->HasAura(89523))
@@ -4402,7 +4419,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
             uint32 removedAuras = m_removedAurasCount;
-            RemoveAura(aura);
+            RemoveAura(aura, AURA_REMOVE_BY_CANCEL);
             if (m_removedAurasCount > removedAuras + 1)
                 iter = m_interruptableAuras.begin();
         }
@@ -11668,7 +11685,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
         DoneTotalMod += CalculatePct(1.0f, l_Pct);
     }
 
-    if (isPet() && GetSpellModOwner())
+    if ((isPet() || isGuardian()) && GetSpellModOwner())
     {
         AuraEffectList const& mModDamagePercentDone = GetSpellModOwner()->GetAuraEffectsByType(SPELL_AURA_MOD_PET_DAMAGE_DONE);
         for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
@@ -11852,11 +11869,11 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             {
                 // Vendetta, should affect to all damage
                 case 79140:
-                    AddPct(TakenTotalMod, (*i)->GetAmount());
+                    TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
                     break;
                 default:
                     if ((*i)->IsAffectingSpell(spellProto))
-                        AddPct(TakenTotalMod, (*i)->GetAmount());
+                        TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
                     break;
             }
         }
@@ -11868,27 +11885,27 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         AuraEffectList const& mDamageDoneMechanic = GetAuraEffectsByType(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT);
         for (AuraEffectList::const_iterator i = mDamageDoneMechanic.begin(); i != mDamageDoneMechanic.end(); ++i)
             if (mechanicMask & uint32(1<<((*i)->GetMiscValue())))
-                AddPct(TakenTotalMod, (*i)->GetAmount());
+                TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
     }
 
     if (spellProto->IsTargetingArea())
     {
         if (GetTypeId() == TYPEID_PLAYER)
-            AddPct(TakenTotalMod, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
+            TakenTotalMod += CalculatePct(1.0f, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
 
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
-        AddPct(TakenTotalMod, mult);
+        TakenTotalMod += CalculatePct(1.0f, mult);
 
         if (caster->GetTypeId() == TYPEID_UNIT)
         {
             int32 u_mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
-            AddPct(TakenTotalMod, u_mult);
+            TakenTotalMod += CalculatePct(1.0f, u_mult);
         }
     }
 
     // Glyph of Inner Sanctum with Inner Fire
     if (HasAura(14771) && HasAura(588))
-        AddPct(TakenTotalMod, -6);
+        TakenTotalMod += CalculatePct(1.0f, -6);
 
     /// Prey on the Weak
     if (AuraEffectPtr l_PreyOnTheWeak = caster->GetAuraEffect(131511, SpellEffIndex::EFFECT_0))
@@ -11898,7 +11915,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             HasAura(1776) || ///< Gouge
             HasAura(6770) || ///< Sap
             HasAura(2094))   ///< Blind
-            AddPct(TakenTotalMod, l_PreyOnTheWeak->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, l_PreyOnTheWeak->GetAmount());
     }
 
     int32 TakenAdvertisedBenefit = SpellBaseDamageBonusTaken(spellProto->GetSchoolMask());
@@ -12133,7 +12150,8 @@ void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 
                     damageInfo.HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
                     damageInfo.damage = l_MultistrikeDamage;
 
-                    CalcAbsorbResist(p_Target, p_ProcSpell->GetSchoolMask(), p_ProcFlag & PROC_FLAG_DONE_PERIODIC ? DOT : SPELL_DIRECT_DAMAGE, p_Damage, &damageInfo.absorb, &damageInfo.resist, p_ProcSpell);
+                    CalcAbsorbResist(p_Target, p_ProcSpell->GetSchoolMask(), p_ProcFlag & PROC_FLAG_DONE_PERIODIC ? DOT : SPELL_DIRECT_DAMAGE, damageInfo.damage, &damageInfo.absorb, &damageInfo.resist, p_ProcSpell);
+                    damageInfo.damage -= damageInfo.absorb + damageInfo.resist;
                     DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
                     DealSpellDamage(&damageInfo, true);
 
@@ -12814,11 +12832,11 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     AuraEffectList const& modHealingPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_PCT);
     for (AuraEffectList::const_iterator i = modHealingPct.begin(); i != modHealingPct.end(); ++i)
-        AddPct(TakenTotalMod, (*i)->GetAmount());
+        TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
 
     // Tenacity increase healing % taken
     if (constAuraEffectPtr Tenacity = GetAuraEffect(58549, 0))
-        AddPct(TakenTotalMod, Tenacity->GetAmount());
+        TakenTotalMod += CalculatePct(1.0f, Tenacity->GetAmount());
 
     // Healing Done
     int32 TakenTotal = 0;
@@ -12861,15 +12879,15 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     for (AuraEffectList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
     {
         if (caster->GetGUID() == (*i)->GetCasterGUID() && (*i)->IsAffectingSpell(spellProto))
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
         else if ((*i)->GetBase()->GetId() == 974) // Hack fix for Earth Shield
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
     }
 
     AuraEffectList const& mHotPct = GetAuraEffectsByType(SPELL_AURA_MOD_HOT_PCT);
     for (AuraEffectList::const_iterator i = mHotPct.begin(); i != mHotPct.end(); ++i)
         if (damagetype == DOT)
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
@@ -13206,6 +13224,13 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         }
     }
 
+    /// Custom WoD Script - Glyph of Frostbrand Weapon
+    if (GetTypeId() == TYPEID_PLAYER && victim && ToPlayer()->getClass() == CLASS_SHAMAN && ToPlayer()->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT && attType == WeaponAttackType::BaseAttack)
+    {
+        if (HasAura(161654) && pdamage != 0)
+            CastSpell(victim, 147732, true);
+    }
+
     // Custom MoP Script
     // 76613 - Mastery : Frostburn for Water elemental Melee damage
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0)
@@ -13247,7 +13272,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         }
     }
 
-    if (isPet() && GetSpellModOwner())
+    if ((isPet() || isGuardian()) && GetSpellModOwner())
     {
         AuraEffectList const& mModDamagePercentDone = GetSpellModOwner()->GetAuraEffectsByType(SPELL_AURA_MOD_PET_DAMAGE_DONE);
         for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
@@ -16615,12 +16640,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())
         return;
     /// Multistrike...
+    int32 l_TotalDamage = damage + absorb;
     if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL) &&
-        damage && target && GetSpellModOwner() && !(procSpell && !procSpell->IsPositive() && target->GetGUID() == GetGUID()))
+        l_TotalDamage && target && GetSpellModOwner() && !(procSpell && !procSpell->IsPositive() && target->GetGUID() == GetGUID()))
         {
         /// ...grants your spells, abilities, and auto-attacks...
         if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
-            ProcMultistrike(procSpell, target, procFlag, procExtra, damage, attType, procAura, ownerAuraEffect);
+            ProcMultistrike(procSpell, target, procFlag, procExtra, l_TotalDamage, attType, procAura, ownerAuraEffect);
         }
 
     // For melee/ranged based attack need update skills and set some Aura states if victim present
@@ -18524,7 +18550,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         l_PlayerVictim->SendClearLossOfControl();
     }
     /// Creature died
-    else
+    else if (l_KilledCreature)
     {
         if (!l_KilledCreature->isPet())
         {
