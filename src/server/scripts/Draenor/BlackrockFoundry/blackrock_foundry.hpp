@@ -120,6 +120,7 @@ enum eFoundryDatas
 
     /// Misc
     PristineTrueIronOres    = 0,
+    VolatileOreGrinded      = 1,
 
     /// Counters
     MaxPristineTrueIronOres = 3,
@@ -137,7 +138,8 @@ enum eFoundrySpells
 
 enum eFoundryAchievements
 {
-    TheIronPrince = 8978
+    TheIronPrince   = 8978,
+    HeShootsHeOres  = 8979
 };
 
 #endif

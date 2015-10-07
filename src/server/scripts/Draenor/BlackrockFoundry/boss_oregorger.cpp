@@ -114,6 +114,8 @@ float const g_OregorgerPatternsY[eFoundryDatas::MaxOregorgerPatterns] =
     3634.95f
 };
 
+Position const g_VolatileOreSpawn = { 34.08f, 3636.04f, 281.19f, 4.83f };
+
 /// Oregorger <The Devourer> - 77182
 class boss_oregorger : public CreatureScript
 {
@@ -179,6 +181,11 @@ class boss_oregorger : public CreatureScript
             BlackrockOre            = 77261
         };
 
+        enum eGameObject
+        {
+            VolatileBlackrockOre = 237308
+        };
+
         enum eDatas
         {
             DataMitigationPct,
@@ -212,6 +219,9 @@ class boss_oregorger : public CreatureScript
 
             bool m_Init;
             uint8 m_MoveIndex;
+
+            bool m_VolatileOre;
+            uint64 m_VolatileOreGuid;
 
             uint8 m_Phase;
 
@@ -272,6 +282,12 @@ class boss_oregorger : public CreatureScript
                     l_Crate->DespawnOrUnsummon();
 
                 m_MoveIndex = 0;
+
+                if (GameObject* l_Ore = GameObject::GetGameObject(*me, m_VolatileOreGuid))
+                    l_Ore->Delete();
+
+                m_VolatileOre = false;
+                m_VolatileOreGuid = 0;
 
                 m_Phase = ePhases::PhaseFight;
 
@@ -363,6 +379,14 @@ class boss_oregorger : public CreatureScript
                     Talk(eTalks::Phase2);
 
                     m_Phase = ePhases::PhaseRolling;
+
+                    if (!m_VolatileOre)
+                    {
+                        m_VolatileOre = true;
+
+                        if (GameObject* l_Ore = me->SummonGameObject(eGameObject::VolatileBlackrockOre, g_VolatileOreSpawn, 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                            m_VolatileOreGuid = l_Ore->GetGUID();
+                    }
 
                     m_PathCount = 0;
 
@@ -1436,6 +1460,72 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
         }
 };
 
+/// Harvest Volatile Blackrock - 163453
+class spell_foundry_harvest_volatile_blackrock : public SpellScriptLoader
+{
+    public:
+        spell_foundry_harvest_volatile_blackrock() : SpellScriptLoader("spell_foundry_harvest_volatile_blackrock") { }
+
+        class spell_foundry_harvest_volatile_blackrock_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_harvest_volatile_blackrock_SpellScript);
+
+            enum eSpell
+            {
+                CarryingVolatileBlackrock = 163454
+            };
+
+            void HandleScript(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpell::CarryingVolatileBlackrock, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_foundry_harvest_volatile_blackrock_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_harvest_volatile_blackrock_SpellScript();
+        }
+};
+
+/// Throw Volatile Ore - 163455
+class spell_foundry_throw_volatile_ore : public SpellScriptLoader
+{
+    public:
+        spell_foundry_throw_volatile_ore() : SpellScriptLoader("spell_foundry_throw_volatile_ore") { }
+
+        class spell_foundry_throw_volatile_ore_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_throw_volatile_ore_SpellScript);
+
+            enum eSpell
+            {
+                CarryingVolatileBlackrock = 163454
+            };
+
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->RemoveAura(eSpell::CarryingVolatileBlackrock);
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_foundry_throw_volatile_ore_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_throw_volatile_ore_SpellScript();
+        }
+};
+
 /// Retched Blackrock - 156186
 class areatrigger_foundry_retched_blackrock : public AreaTriggerEntityScript
 {
@@ -1525,6 +1615,65 @@ class areatrigger_foundry_explosive_shard : public AreaTriggerEntityScript
         }
 };
 
+/// Volatile Blackrock Ore - 237308
+class go_foundry_volatile_blackrock_ore : public GameObjectScript
+{
+    public:
+        go_foundry_volatile_blackrock_ore() : GameObjectScript("go_foundry_volatile_blackrock_ore") { }
+
+        struct go_foundry_volatile_blackrock_oreAI : public GameObjectAI
+        {
+            go_foundry_volatile_blackrock_oreAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+
+            void OnStateChanged(uint32 p_State) override
+            {
+                if (p_State == GOState::GO_STATE_READY)
+                    go->Delete();
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_foundry_volatile_blackrock_oreAI(p_GameObject);
+        }
+};
+
+/// Ore Grinder - 231313
+class go_founrdy_ore_grinder : public GameObjectScript
+{
+    public:
+        go_founrdy_ore_grinder() : GameObjectScript("go_founrdy_ore_grinder") { }
+
+        struct go_founrdy_ore_grinderAI : public GameObjectAI
+        {
+            go_founrdy_ore_grinderAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+
+            enum eSpells
+            {
+                CompleteTheAchievement      = 163569,
+                CarryingVolatileBlackrock   = 163454
+            };
+
+            bool GossipHello(Player* p_Player) override
+            {
+                if (p_Player->HasAura(eSpells::CarryingVolatileBlackrock))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::CompleteTheAchievement, true);
+
+                    if (InstanceScript* l_Instance = p_Player->GetInstanceScript())
+                        l_Instance->SetData(eFoundryDatas::VolatileOreGrinded, 1);
+                }
+
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_founrdy_ore_grinderAI(p_GameObject);
+        }
+};
+
 void AddSC_boss_oregorger()
 {
     /// Boss
@@ -1537,8 +1686,14 @@ void AddSC_boss_oregorger()
     new spell_foundry_acid_torrent();
     new spell_foundry_acid_torrent_aoe();
     new spell_foundry_rolling_fury_aura();
+    new spell_foundry_harvest_volatile_blackrock();
+    new spell_foundry_throw_volatile_ore();
 
     /// AreaTriggers
     new areatrigger_foundry_retched_blackrock();
     new areatrigger_foundry_explosive_shard();
+
+    /// GameObjects
+    new go_foundry_volatile_blackrock_ore();
+    new go_founrdy_ore_grinder();
 }
