@@ -7,11 +7,12 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, scale
 (156186, 0, 6349, 2, 0x4000, 7, 7, 'areatrigger_foundry_retched_blackrock'),
 (156388, 0, 6360, 2, 0x4000, 7, 7, 'areatrigger_foundry_explosive_shard');
 
-DELETE FROM spell_script_names WHERE spell_id IN (159518, 156297, 156324);
+DELETE FROM spell_script_names WHERE spell_id IN (159518, 156297, 156324, 155898);
 INSERT INTO spell_script_names VALUES
 (159518, 'spell_foundry_shattering_charge'),
 (156297, 'spell_foundry_acid_torrent'),
-(156324, 'spell_foundry_acid_torrent_aoe');
+(156324, 'spell_foundry_acid_torrent_aoe'),
+(155898, 'spell_foundry_rolling_fury_aura');
 
 SET @REF_OREGORGER = 77182;
 

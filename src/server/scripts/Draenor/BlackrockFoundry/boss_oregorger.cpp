@@ -135,6 +135,7 @@ class boss_oregorger : public CreatureScript
             RetchedBlackrockDoT     = 156203,
             /// Explosive Shard
             ExplosiveShardMissile   = 156390,
+            ExplosiveShardAoE       = 156374,
             /// Acid Torrent
             AcidTorrentSearcher     = 156240,
             AcidTorrentTriggered    = 160465,
@@ -191,6 +192,12 @@ class boss_oregorger : public CreatureScript
             ReturnToPhase1
         };
 
+        enum ePhases
+        {
+            PhaseFight,
+            PhaseRolling
+        };
+
         struct boss_oregorgerAI : public BossAI
         {
             boss_oregorgerAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataOregorger), m_Init(false), m_MoveIndex(0)
@@ -206,6 +213,8 @@ class boss_oregorger : public CreatureScript
             bool m_Init;
             uint8 m_MoveIndex;
 
+            uint8 m_Phase;
+
             uint64 m_AcidTorrentTarget;
             std::list<uint64> m_FrontPlayers;
 
@@ -219,9 +228,10 @@ class boss_oregorger : public CreatureScript
             Position m_Destination;
             Position m_NextPos;
 
-            bool m_FirstMove;
-            bool m_MustTurnRight;
-            bool m_MustTurnLeft;
+            /// Counter for Path Identifier reached
+            uint8 m_PathCount;
+
+            std::set<uint64> m_BlackrockOres;
 
             void Reset() override
             {
@@ -236,6 +246,8 @@ class boss_oregorger : public CreatureScript
                 me->RemoveAura(eSpells::BlackrockSpines);
 
                 me->SetPower(Powers::POWER_MANA, 100);
+
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
                 me->RemoveAllAreasTrigger();
 
@@ -252,7 +264,16 @@ class boss_oregorger : public CreatureScript
                 for (Creature* l_Crate : l_CrateList)
                     l_Crate->Respawn();
 
+                l_CrateList.clear();
+
+                me->GetCreatureListWithEntryInGrid(l_CrateList, eCreatures::OreCrate, 150.0f);
+
+                for (Creature* l_Crate : l_CrateList)
+                    l_Crate->DespawnOrUnsummon();
+
                 m_MoveIndex = 0;
+
+                m_Phase = ePhases::PhaseFight;
 
                 m_AcidTorrentTarget = 0;
                 m_FrontPlayers.clear();
@@ -267,9 +288,21 @@ class boss_oregorger : public CreatureScript
                 m_Destination = Position();
                 m_NextPos = Position();
 
-                m_FirstMove = false;
-                m_MustTurnRight = false;
-                m_MustTurnLeft = false;
+                m_PathCount = 0;
+
+                m_BlackrockOres.clear();
+            }
+
+            void JustSummoned(Creature* p_Summon) override
+            {
+                if (p_Summon->GetEntry() == eCreatures::BlackrockOre)
+                    m_BlackrockOres.insert(p_Summon->GetGUID());
+            }
+
+            void SummonedCreatureDespawn(Creature* p_Summon) override
+            {
+                if (p_Summon->GetEntry() == eCreatures::BlackrockOre)
+                    m_BlackrockOres.erase(p_Summon->GetGUID());
             }
 
             bool CanRespawn() override
@@ -329,12 +362,16 @@ class boss_oregorger : public CreatureScript
 
                     Talk(eTalks::Phase2);
 
+                    m_Phase = ePhases::PhaseRolling;
+
+                    m_PathCount = 0;
+
                     AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
                         me->SetReactState(ReactStates::REACT_PASSIVE);
                         me->AttackStop();
 
-                        std::pair<G3D::Vector2, uint8> l_PointData = GetNearestIntersectionPoint(me);
+                        std::pair<G3D::Vector2, uint8> l_PointData = GetNearestIntersectionPoint(me, 0.0f);
                         if (l_PointData.first.x != 0.0f && l_PointData.first.y != 0.0f)
                         {
                             me->GetMotionMaster()->Clear();
@@ -419,14 +456,24 @@ class boss_oregorger : public CreatureScript
 
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCollectOre, 200);
 
-                        me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                        if (m_NextPos.m_positionX == 0.0f)
+                        {
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                        }
+                        else
+                        {
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
+                        }
                     });
                 }
                 /// When Oregorger reaches full Mana, Phase One restarts.
                 else if (p_Value == 100)
                 {
                     Talk(eTalks::ReturnToPhase1);
+
+                    m_Phase = ePhases::PhaseFight;
 
                     me->RemoveAura(eSpells::HungerDrivePeriodic);
                     me->RemoveAura(eSpells::RollingFuryAura);
@@ -473,6 +520,7 @@ class boss_oregorger : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RetchedBlackrockDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AcidTorrentDmgAndDebuff);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AcidMawDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExplosiveShardAoE);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::OregorgerBonusLoot, true);
 
@@ -511,6 +559,7 @@ class boss_oregorger : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RetchedBlackrockDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AcidTorrentDmgAndDebuff);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AcidMawDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExplosiveShardAoE);
                 }
             }
 
@@ -520,57 +569,51 @@ class boss_oregorger : public CreatureScript
                     return;
 
                 /// Handle phase 2 movements in a specific way
-                if (me->GetPower(Powers::POWER_MANA) == 0)
+                if (m_Phase == ePhases::PhaseRolling)
                 {
                     if (p_ID == eDatas::MovementFinished && me->HasAura(eSpells::RollingFuryAura))
                     {
                         /// Movement not finished, handle it in a different way
-                        if (me->GetDistance(m_Destination) > 1.0f)
+                        if (me->GetDistance(m_Destination) > 0.5f)
                         {
-                            std::list<Creature*> l_PathList;
-                            me->GetCreatureListWithEntryInGrid(l_PathList, eCreatures::PathIdentifier, 15.0f);
-
-                            /// If no path identifier in line of sight, it should be the last move
-                            if (l_PathList.empty())
+                            if (!IsCenterPos(me->m_positionX, me->m_positionY))
                             {
-                                AddTimedDelayedOperation(50, [this]() -> void
+                                switch (m_PathCount)
                                 {
-                                    me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
-                                });
+                                    case 1:
+                                    case 4:
+                                    {
+                                        me->SetFacingTo(me->GetOrientation() + M_PI / 2.0f);
+                                        break;
+                                    }
+                                    case 5:
+                                    {
+                                        AddTimedDelayedOperation(50, [this]() -> void
+                                        {
+                                            m_PathCount = 0;
 
-                                return;
+                                            me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                                            return;
+                                        });
+
+                                        break;
+                                    }
+                                    case 2:
+                                    case 3:
+                                    default:
+                                        break;
+                                }
                             }
 
-                            /// Only one should remain in this list
-                            l_PathList.remove_if([this](Creature* p_Creature) -> bool
+                            AddTimedDelayedOperation(125, [this]() -> void
                             {
-                                if (p_Creature == nullptr || !p_Creature->isInFront(me, M_PI / 3.0f))
-                                    return true;
-
-                                if (p_Creature->GetDistance(me) <= 1.0f)
-                                    return true;
-
-                                return false;
+                                SelectNextPathIdentifier();
                             });
-
-                            /// Shouldn't happens
-                            if (l_PathList.empty())
-                                return;
-
-                            if (Creature* l_PathIdentifier = (*l_PathList.begin()))
-                            {
-                                me->SetFacingTo(me->GetAngle(l_PathIdentifier));
-
-                                uint64 l_Guid = l_PathIdentifier->GetGUID();
-                                AddTimedDelayedOperation(50, [this, l_Guid]() -> void
-                                {
-                                    if (Creature* l_PathIdentifier = Creature::GetCreature(*me, l_Guid))
-                                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, *l_PathIdentifier);
-                                });
-                            }
 
                             return;
                         }
+
+                        m_PathCount = 0;
 
                         me->RemoveAura(eSpells::RollingFuryAura);
 
@@ -585,56 +628,53 @@ class boss_oregorger : public CreatureScript
                         {
                             me->CastSpell(me, eSpells::RollingFuryAura, true);
 
-                            if (m_NextPos.m_positionX == 0.0f)
-                            {
-                                me->GetMotionMaster()->Clear();
-                                me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
-                            }
-                            else
-                            {
-                                me->GetMotionMaster()->Clear();
+                            if (m_NextPos.m_positionX != 0.0f)
                                 me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
-                            }
+                            else
+                                me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
                         });
                     }
 
                     return;
                 }
 
-                switch (p_Type)
+                if (!me->isInCombat())
                 {
-                    case MovementGeneratorType::POINT_MOTION_TYPE:
+                    switch (p_Type)
                     {
-                        if (m_MoveIndex >= eFoundryDatas::MaxOregorgerMovePos)
+                        case MovementGeneratorType::POINT_MOTION_TYPE:
                         {
-                            me->RemoveAura(eSpells::RollingFuryVisual);
-
-                            AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            if (m_MoveIndex >= eFoundryDatas::MaxOregorgerMovePos)
                             {
-                                me->GetMotionMaster()->MoveJump(g_JumpPos, 20.0f, 20.0f);
-                            });
+                                me->RemoveAura(eSpells::RollingFuryVisual);
+
+                                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                                {
+                                    me->GetMotionMaster()->MoveJump(g_JumpPos, 20.0f, 20.0f);
+                                });
+                            }
+                            else
+                            {
+                                AddTimedDelayedOperation(100, [this]() -> void
+                                {
+                                    me->GetMotionMaster()->MovePoint(m_MoveIndex, g_MovePos[m_MoveIndex]);
+                                    ++m_MoveIndex;
+                                });
+                            }
+
+                            break;
                         }
-                        else
+                        case MovementGeneratorType::EFFECT_MOTION_TYPE:
                         {
-                            AddTimedDelayedOperation(100, [this]() -> void
-                            {
-                                me->GetMotionMaster()->MovePoint(m_MoveIndex, g_MovePos[m_MoveIndex]);
-                                ++m_MoveIndex;
-                            });
+                            me->SetWalk(false);
+                            me->SetSpeed(UnitMoveType::MOVE_WALK, 2.85714f);
+                            me->SetHomePosition(*me);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                            break;
                         }
-
-                        break;
+                        default:
+                            break;
                     }
-                    case MovementGeneratorType::EFFECT_MOTION_TYPE:
-                    {
-                        me->SetWalk(false);
-                        me->SetSpeed(UnitMoveType::MOVE_WALK, 2.85714f);
-                        me->SetHomePosition(*me);
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                        break;
-                    }
-                    default:
-                        break;
                 }
             }
 
@@ -903,6 +943,9 @@ class boss_oregorger : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventExplosiveShard, 9 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventAcidTorrent, 12 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventBlackrockSpines, 14 * TimeConstants::IN_MILLISECONDS);
+
+                if (me->HasAura(eSpells::BlackrockSpines))
+                    m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 100);
             }
 
             uint8 GetCollisionOrIntersectionPoint(uint8 p_I, uint8 p_J) const
@@ -963,46 +1006,7 @@ class boss_oregorger : public CreatureScript
                 return std::make_pair(l_Point, l_PointID);
             }
 
-            G3D::Vector2 GetNearestOreToCollect() const
-            {
-                G3D::Vector2 l_Point = G3D::Vector2(0.0f, 0.0f);
-
-                if (Creature* l_Ore = me->FindNearestCreature(eCreatures::BlackrockOre, 150.0f))
-                {
-                    /// Check position X for each part of X axis
-                    for (uint8 l_I = 0; l_I < eFoundryDatas::MaxOregorgerPatterns; ++l_I)
-                    {
-                        float l_X = g_OregorgerPatternsX[l_I];
-
-                        if (l_Ore->GetPositionX() >= l_X)
-                            continue;
-
-                        /// When X part is found, search for the Y part
-                        for (uint8 l_J = 0; l_J < eFoundryDatas::MaxOregorgerPatterns; ++l_J)
-                        {
-                            if (g_BypassPoints[l_I][l_J])
-                                continue;
-
-                            float l_Y = g_OregorgerPatternsY[l_J];
-
-                            if (l_Ore->GetPositionY() >= l_Y)
-                                continue;
-
-                            float l_CenterX, l_CenterY;
-
-                            l_CenterX = (l_X + (l_I > 0 ? g_OregorgerPatternsX[l_I - 1] : 0.0f)) / 2.0f;
-                            l_CenterY = (l_Y + (l_J > 0 ? g_OregorgerPatternsY[l_J - 1] : 0.0f)) / 2.0f;
-                            l_Point = G3D::Vector2(l_CenterX, l_CenterY);
-
-                            return l_Point;
-                        }
-                    }
-                }
-
-                return l_Point;
-            }
-
-            std::pair<G3D::Vector2, uint8> GetRandomCollisionPoint()
+            std::pair<G3D::Vector2, uint8> GetRandomCollisionPoint() const
             {
                 if (m_PointID == 255)
                     return std::make_pair(G3D::Vector2(), m_PointID);
@@ -1010,10 +1014,51 @@ class boss_oregorger : public CreatureScript
                 std::pair<uint8, uint8> l_Choices = g_LinkedCollisionPoints[m_PointID];
                 uint8 l_ID = 0;
 
-                if (urand(0, 1))
-                    l_ID = l_Choices.first;
+                /////////////////////////////////////////////////////////////////////
+                /// Try to choose a point with blackrock ores to eat
+                if (!m_BlackrockOres.empty())
+                {
+                    float l_MinDistA = 100000.0f;
+                    float l_MinDistB = 100000.0f;
+
+                    Position l_PosA, l_PosB;
+                    PointData l_PointA = g_CollisionPoints[l_Choices.first - 1];
+                    PointData l_PointB = g_CollisionPoints[l_Choices.second - 1];
+
+                    l_PosA.m_positionX = (g_OregorgerPatternsX[l_PointA.I] + g_OregorgerPatternsX[l_PointA.I - 1]) / 2.0f;
+                    l_PosA.m_positionY = (g_OregorgerPatternsY[l_PointA.J] + g_OregorgerPatternsY[l_PointA.J - 1]) / 2.0f;
+                    l_PosA.m_positionZ = me->GetPositionZ();
+
+                    l_PosB.m_positionX = (g_OregorgerPatternsX[l_PointB.I] + g_OregorgerPatternsX[l_PointB.I - 1]) / 2.0f;
+                    l_PosB.m_positionY = (g_OregorgerPatternsY[l_PointB.J] + g_OregorgerPatternsY[l_PointB.J - 1]) / 2.0f;
+                    l_PosB.m_positionZ = me->GetPositionZ();
+
+                    for (uint64 l_Guid : m_BlackrockOres)
+                    {
+                        if (Creature* l_Ore = Creature::GetCreature(*me, l_Guid))
+                        {
+                            if (l_Ore->GetDistance(l_PosA) < l_MinDistA)
+                                l_MinDistA = l_Ore->GetDistance(l_PosA);
+
+                            if (l_Ore->GetDistance(l_PosB) < l_MinDistB)
+                                l_MinDistB = l_Ore->GetDistance(l_PosB);
+                        }
+                    }
+
+                    if (l_MinDistA < l_MinDistB)
+                        l_ID = l_Choices.first;
+                    else
+                        l_ID = l_Choices.second;
+                }
+                /// If no ore to eat, choose randomly
                 else
-                    l_ID = l_Choices.second;
+                {
+                    if (urand(0, 1))
+                        l_ID = l_Choices.first;
+                    else
+                        l_ID = l_Choices.second;
+                }
+                /////////////////////////////////////////////////////////////////////
 
                 --l_ID;
 
@@ -1054,32 +1099,13 @@ class boss_oregorger : public CreatureScript
 
             void SelectPath()
             {
-                std::pair<G3D::Vector2, uint8> l_PointDatas;
-
                 /// At this point, Oregorger is at an intersection point
                 /// Choose in priority paths with one or more Blackrock Ore to eat
-                G3D::Vector2 l_Point = GetNearestOreToCollect();
-                if (l_Point.x == 0.0f && l_Point.y == 0.0f)
-                {
-                    /// If there is no one in the room, choose a random path to next collision point
-                    /// There is always two possible choices, and Oregorger can never goes back
-                    l_PointDatas = GetRandomCollisionPoint();
+                std::pair<G3D::Vector2, uint8> l_PointDatas = GetRandomCollisionPoint();
 
-                    ////////////////////////////////////////////////////////////////////////////////
-                    /// TESTS
-                    /// do
-                    /// {
-                    ///     l_PointDatas = GetRandomCollisionPoint();
-                    /// }
-                    /// while (IsCenterPos(l_PointDatas.first.x, l_PointDatas.first.y));
-                    ////////////////////////////////////////////////////////////////////////////////
-                }
-                else
-                {
-                }
+                G3D::Vector2 l_Point = l_PointDatas.first;
 
                 m_PointID = l_PointDatas.second;
-                l_Point   = l_PointDatas.first;
 
                 /// Calculate path
                 if (l_Point.x != 0.0f && l_Point.y != 0.0f)
@@ -1091,6 +1117,8 @@ class boss_oregorger : public CreatureScript
                         m_Destination.m_positionY = l_Point.y;
                         m_Destination.m_positionZ = me->GetPositionZ();
 
+                        m_NextPos = Position();
+
                         me->SetFacingTo(me->GetAngle(&m_Destination));
                     }
                     else
@@ -1099,17 +1127,84 @@ class boss_oregorger : public CreatureScript
                         m_Destination.m_positionY = l_Point.y;
                         m_Destination.m_positionZ = me->GetPositionZ();
 
+                        float l_O = 0.0f;
+
                         /// In this case, the first step is the nearest collision point
                         if (IsCenterPos(me->m_positionX, me->m_positionY))
+                        {
                             l_Point = GetNearestIntersectionPoint(me).first;
 
-                        m_NextPos.m_positionX = l_Point.x;
-                        m_NextPos.m_positionY = l_Point.y;
-                        m_NextPos.m_positionZ = me->GetPositionZ();
+                            m_NextPos.m_positionX = l_Point.x;
+                            m_NextPos.m_positionY = l_Point.y;
+                            m_NextPos.m_positionZ = me->GetPositionZ();
 
-                        me->SetFacingTo(me->GetAngle(&m_Destination));
+                            l_O += me->GetAngle(&m_NextPos);
+
+                            me->SetFacingTo(l_O);
+                        }
+                        else
+                        {
+                            l_O = me->GetOrientation();
+                            l_O -= M_PI / 2.0f;
+
+                            me->SetFacingTo(l_O);
+
+                            m_NextPos = SelectNextPathIdentifier(false);
+                        }
                     }
                 }
+            }
+
+            Position SelectNextPathIdentifier(bool p_LaunchMove = true)
+            {
+                std::list<Creature*> l_PathList;
+                me->GetCreatureListWithEntryInGrid(l_PathList, eCreatures::PathIdentifier, 5.0f);
+
+                /// If no path identifier in line of sight, it should be the last move
+                if (l_PathList.empty())
+                {
+                    if (p_LaunchMove)
+                    {
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            m_PathCount = 0;
+
+                            me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                        });
+                    }
+
+                    return Position();
+                }
+
+                /// Only one should remain in this list
+                l_PathList.remove_if([this](Creature* p_Creature) -> bool
+                {
+                    if (p_Creature == nullptr || !me->isInFront(p_Creature, M_PI / 2.0f))
+                        return true;
+
+                    if (p_Creature->GetDistance(me) < 0.5f)
+                        return true;
+
+                    return false;
+                });
+
+                /// Shouldn't happens
+                if (l_PathList.empty())
+                    return Position();
+
+                Position l_Pos;
+
+                if (Creature* l_PathIdentifier = (*l_PathList.begin()))
+                {
+                    l_Pos = *l_PathIdentifier;
+
+                    ++m_PathCount;
+
+                    if (p_LaunchMove)
+                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, *l_PathIdentifier);
+                }
+
+                return l_Pos;
             }
         };
 
@@ -1280,6 +1375,67 @@ class spell_foundry_acid_torrent_aoe : public SpellScriptLoader
         }
 };
 
+/// Rolling Fury - 155898
+class spell_foundry_rolling_fury_aura : public SpellScriptLoader
+{
+    public:
+        spell_foundry_rolling_fury_aura() : SpellScriptLoader("spell_foundry_rolling_fury_aura") { }
+
+        class spell_foundry_rolling_fury_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_rolling_fury_aura_AuraScript);
+
+            enum eSpell
+            {
+                RollingFuryDamage = 155900
+            };
+
+            uint32 m_DamageTimer;
+
+            bool Load()
+            {
+                m_DamageTimer = 500;
+                return true;
+            }
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                if (m_DamageTimer)
+                {
+                    if (m_DamageTimer <= p_Diff)
+                    {
+                        if (Unit* l_Caster = GetCaster())
+                        {
+                            std::list<Unit*> l_TargetList;
+                            float l_Radius = 1.0f;
+
+                            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                            l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                            for (Unit* l_Iter : l_TargetList)
+                                l_Iter->CastSpell(l_Iter, eSpell::RollingFuryDamage, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                        }
+
+                        m_DamageTimer = 500;
+                    }
+                    else
+                        m_DamageTimer -= p_Diff;
+                }
+            }
+
+            void Register() override
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_foundry_rolling_fury_aura_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_rolling_fury_aura_AuraScript();
+        }
+};
+
 /// Retched Blackrock - 156186
 class areatrigger_foundry_retched_blackrock : public AreaTriggerEntityScript
 {
@@ -1374,12 +1530,13 @@ void AddSC_boss_oregorger()
     /// Boss
     new boss_oregorger();
 
-    /// NPCs
+    /// NPC
     new npc_foundry_crate_ore();
 
     /// Spells
     new spell_foundry_acid_torrent();
     new spell_foundry_acid_torrent_aoe();
+    new spell_foundry_rolling_fury_aura();
 
     /// AreaTriggers
     new areatrigger_foundry_retched_blackrock();
