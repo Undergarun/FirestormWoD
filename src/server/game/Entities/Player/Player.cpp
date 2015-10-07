@@ -30486,8 +30486,8 @@ void Player::ActivateSpec(uint8 spec)
 
     for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
     {
-        SetPower(Powers(i), 0);
         SetMaxPower(Powers(i), GetCreatePowers(Powers(i)));
+        SetPower(Powers(i), 0);
     }
 
     SetUsedTalentCount(usedTalentPoint);
