@@ -6,7 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "SpelllogMgr.h"
+#include "SpellLogMgr.h"
 #include "Chat.h"
 
 void SpellLogMgr::AddOrSetListener(Player* p_Player, uint32 p_SpellID)
