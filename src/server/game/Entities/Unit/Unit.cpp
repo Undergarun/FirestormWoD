@@ -4774,6 +4774,18 @@ void Unit::RemoveAllAurasByType(AuraType type)
     }
 }
 
+void Unit::RemoveAllAurasByCaster(uint64 p_Guid)
+{
+    for (AuraMap::iterator l_Iter = m_ownedAuras.begin(); l_Iter != m_ownedAuras.end();)
+    {
+        AuraPtr p_Aura = l_Iter->second;
+        if (p_Aura->GetCasterGUID() == p_Guid)
+            RemoveOwnedAura(l_Iter, AURA_REMOVE_BY_DEFAULT);
+        else
+            ++l_Iter;
+    }
+}
+
 void Unit::DelayOwnedAuras(uint32 spellId, uint64 caster, int32 delaytime)
 {
     for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);++iter)
