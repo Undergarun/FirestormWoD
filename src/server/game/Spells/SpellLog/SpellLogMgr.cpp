@@ -11,12 +11,12 @@
 
 void SpellLogMgr::AddOrSetListener(Player* p_Player, uint32 p_SpellID)
 {
-    auto& l_Listener = m_Listeners.find(p_Player);
+    auto l_Listener = m_Listeners.find(p_Player);
     std::list<uint32>* l_List;
 
     if (l_Listener == m_Listeners.end())
     {
-        auto& l_Pair = m_Listeners.insert({p_Player, std::list<uint32> {}});
+        auto l_Pair = m_Listeners.insert({p_Player, std::list<uint32> {}});
         l_List = &l_Pair.first->second;
     }
     else
@@ -30,7 +30,7 @@ void SpellLogMgr::AddOrSetListener(Player* p_Player, uint32 p_SpellID)
 
 void SpellLogMgr::RemoveListener(Player* p_Player)
 {
-    auto& l_Listener = m_Listeners.find(p_Player);
+    auto l_Listener = m_Listeners.find(p_Player);
 
     if (l_Listener != m_Listeners.end())
         m_Listeners.erase(l_Listener);
@@ -38,7 +38,7 @@ void SpellLogMgr::RemoveListener(Player* p_Player)
 
 void SpellLogMgr::RemoveSpellFromListener(Player* p_Player, uint32 p_SpellID)
 {
-    auto& l_Listener = m_Listeners.find(p_Player);
+    auto l_Listener = m_Listeners.find(p_Player);
 
     if (l_Listener != m_Listeners.end())
     {
