@@ -3268,7 +3268,7 @@ public:
 
             if (l_Caster->HasAura(PRIEST_SPELL_CLARITY_OF_POWER))
             {
-                if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN)) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH))) ///< Shadow word: pain or Vampiric touch
+                if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID())) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID()))) ///< Shadow word: pain or Vampiric touch
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_Caster->GetAura(PRIEST_SPELL_CLARITY_OF_POWER)->GetEffect(EFFECT_0)->GetAmount()));
             }
         }
