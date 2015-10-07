@@ -1825,6 +1825,19 @@ class spell_warr_shield_charge: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_shield_charge_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (!l_Player)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_WARRIOR_PROTECTION)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -1838,6 +1851,7 @@ class spell_warr_shield_charge: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warr_shield_charge_SpellScript::CheckCast);
                 OnCast += SpellCastFn(spell_warr_shield_charge_SpellScript::HandleOnCast);
             }
         };
