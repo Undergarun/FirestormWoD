@@ -1940,7 +1940,8 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
 
                 l_Caster->CastSpell(l_Target, eSpells::CascadeMarker2, true);
 
-                l_FirstCaster->CastSpell(l_Target, l_HealingSpell->Id, true);
+                if (l_FirstCaster)
+                    l_FirstCaster->CastSpell(l_Target, l_HealingSpell->Id, true);
 
                 if (l_ActualWave >= l_CascadeSpell->Effects[EFFECT_0].BasePoints)
                     return;
