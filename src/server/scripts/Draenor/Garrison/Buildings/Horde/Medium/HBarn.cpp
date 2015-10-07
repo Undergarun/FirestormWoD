@@ -70,21 +70,14 @@ namespace MS { namespace Garrison
         if (l_Quest == nullptr)
             return true;
 
-        if (p_Player->IsQuestRewarded(Quests::Horde_BreakingIntoTheTrapGame))
+        if (p_Player->IsQuestRewarded(Quests::Horde_BreakingIntoTheTrapGame) ||
+           (p_Player->GetQuestStatus(Quests::Horde_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(276190)))
         {
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
         else if (p_Player->GetQuestStatus(Quests::Horde_BreakingIntoTheTrapGame) == QUEST_STATUS_NONE)
             p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-        else if (p_Player->GetQuestStatus(Quests::Horde_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE)
-        {
-            if (p_Player->GetQuestObjectiveCounter(276190)) ///< Catch a beast
-                return true;
-
-            if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
-                reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player, 0);
-        }
         else if (p_Player->GetQuestStatus(Quests::Horde_BreakingIntoTheTrapGame) == QUEST_STATUS_COMPLETE)
             p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
 
@@ -278,7 +271,7 @@ namespace MS { namespace Garrison
 
     /// Constructor
     npc_FarmerLokLub_Trap::npc_FarmerLokLub_Trap()
-        : CreatureScript("npc_IronTrap_Garr")
+        : CreatureScript("npc_FarmerLokLub_Trap")
     {
     }
 
