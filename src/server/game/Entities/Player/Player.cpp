@@ -5855,12 +5855,16 @@ void Player::ReduceSpellCooldown(uint32 p_SpellID, time_t p_ModifyTime)
     SendDirectMessage(&l_Data);
 }
 
-void Player::RemoveSpellCooldown(uint32 spell_id, bool update /* = false */)
+void Player::RemoveSpellCooldown(uint32 p_SpellId, bool p_Update /* = false */)
 {
-    m_spellCooldowns.erase(spell_id);
+    auto l_Itr = m_spellCooldowns.find(p_SpellId);
+    if (l_Itr != m_spellCooldowns.end())
+    {
+        m_spellCooldowns.erase(l_Itr);
 
-    if (update)
-        SendClearCooldown(spell_id, this);
+        if (p_Update)
+            SendClearCooldown(p_SpellId, this);
+    }
 }
 
 void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
@@ -5876,7 +5880,8 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
             (l_SpellInfo->CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             // remove & notify
-            RemoveSpellCooldown((l_Itr++)->first, true);
+            RemoveSpellCooldown(l_Itr->first, true);
+            ++l_Itr;
         }
     }
 
@@ -5889,7 +5894,7 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
             (l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             ResetCharges(l_SpellCategory);
-            l_Itr++;
+            ++l_Itr;
         }
     }
 
