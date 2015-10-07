@@ -2127,7 +2127,7 @@ class spell_hun_barrage : public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (!l_Target->HasAura(eSpells::BarrageTalent))
+                        if (!l_Target->HasAura(eSpells::BarrageTalent, l_Caster->GetGUID()))
                             SetHitDamage(GetHitDamage() / 2);
                     }
                 }
