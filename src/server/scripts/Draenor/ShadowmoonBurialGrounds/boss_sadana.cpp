@@ -545,6 +545,8 @@ public:
         
             if (GetCaster()->GetPositionZ() == DaggerGroundAltitude)
                 return SpellCastResult::SPELL_CAST_OK;
+
+            return SpellCastResult::SPELL_CAST_OK;
         }
 
         void Register()
