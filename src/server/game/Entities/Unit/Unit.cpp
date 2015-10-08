@@ -15499,6 +15499,9 @@ bool Unit::IsInDisallowedMountForm() const
 
         if (!(l_Shapeshift->m_Flags & 0x1))
             return true;
+
+        if (l_Form == FORM_MOONKIN)
+            return false;
     }
 
     if (GetDisplayId() == GetNativeDisplayId())
