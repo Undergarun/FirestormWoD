@@ -10,10 +10,11 @@
 
 DoorData const g_DoorData[] =
 {
-    { eFoundryGameObjects::GruulSpikeDoor,              eFoundryDatas::DataGruul,           DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE },
-    { eFoundryGameObjects::BKFoundrySpikeTrapGate,      eFoundryDatas::DataOregorger,       DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE },
-    { eFoundryGameObjects::BlastFurnaceEncounterDoor,   eFoundryDatas::DataBlastFurnace,    DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE },
-    { 0,                                                0,                                  DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE } ///< End
+    { eFoundryGameObjects::GruulSpikeDoor,              eFoundryDatas::DataGruul,           DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BKFoundrySpikeTrapGate,      eFoundryDatas::DataOregorger,       DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::FurnacePortcullis,           eFoundryDatas::DataOregorger,       DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BlastFurnaceEncounterDoor,   eFoundryDatas::DataBlastFurnace,    DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { 0,                                                0,                                  DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
 class instance_blackrock_foundry : public InstanceMapScript
@@ -29,6 +30,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_PristineTrueIronOres  = 0;
 
                 m_OregorgerGuid         = 0;
+                m_VolatileOreGrinded    = false;
             }
 
             /// Slagworks
@@ -36,6 +38,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint8 m_PristineTrueIronOres;
 
             uint64 m_OregorgerGuid;
+            bool m_VolatileOreGrinded;
 
             void Initialize() override
             {
@@ -61,23 +64,19 @@ class instance_blackrock_foundry : public InstanceMapScript
                 }
             }
 
-            void OnCreatureRemove(Creature* p_Creature) override
-            {
-                switch (p_Creature->GetEntry())
-                {
-                    default:
-                        break;
-                }
-            }
-
             void OnGameObjectCreate(GameObject* p_GameObject) override
             {
                 switch (p_GameObject->GetEntry())
                 {
                     case eFoundryGameObjects::GruulSpikeDoor:
                     case eFoundryGameObjects::BKFoundrySpikeTrapGate:
+                    case eFoundryGameObjects::FurnacePortcullis:
                     case eFoundryGameObjects::BlastFurnaceEncounterDoor:
                         AddDoor(p_GameObject, true);
+                        break;
+                    case eFoundryGameObjects::CrucibleLeft:
+                    case eFoundryGameObjects::CrucibleRight:
+                        p_GameObject->SetAIAnimKitId(eFoundryVisuals::CrucibleVisuals);
                         break;
                     default:
                         break;
@@ -90,6 +89,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 {
                     case eFoundryGameObjects::GruulSpikeDoor:
                     case eFoundryGameObjects::BKFoundrySpikeTrapGate:
+                    case eFoundryGameObjects::FurnacePortcullis:
                     case eFoundryGameObjects::BlastFurnaceEncounterDoor:
                         AddDoor(p_GameObject, false);
                         break;
@@ -127,6 +127,26 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                         break;
                     }
+                    case eFoundryDatas::DataOregorger:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                if (m_VolatileOreGrinded)
+                                    DoCompleteAchievement(eFoundryAchievements::HeShootsHeOres);
+
+                                break;
+                            }
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_VolatileOreGrinded = false;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                    }
                     default:
                         break;
                 }
@@ -143,6 +163,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                         ++m_PristineTrueIronOres;
                         break;
                     }
+                    case eFoundryDatas::VolatileOreGrinded:
+                    {
+                        m_VolatileOreGrinded = p_Data != 0;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -154,6 +179,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                 {
                     case eFoundryDatas::PristineTrueIronOres:
                         return (uint32)m_PristineTrueIronOres;
+                    case eFoundryDatas::VolatileOreGrinded:
+                        return (uint32)m_VolatileOreGrinded;
                     default:
                         return 0;
                 }
@@ -179,17 +206,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                     return false;
 
-                switch (p_BossID)
-                {
-                    default:
-                        break;
-                }
-
                 return true;
-            }
-
-            void FillInitialWorldStates(ByteBuffer& p_Buffer) override
-            {
             }
 
             void OnPlayerEnter(Player* p_Player) override
@@ -224,6 +241,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
             void Update(uint32 p_Diff) override
             {
+                UpdateOperations(p_Diff);
                 UpdateCombatResurrection(p_Diff);
             }
         };

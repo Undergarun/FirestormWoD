@@ -563,9 +563,9 @@ public:
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+            /*switch (events.ExecuteEvent())
             {
-            }
+            }*/
 
             DoMeleeAttackIfReady();
         }
@@ -775,9 +775,9 @@ public:
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+            /*switch (events.ExecuteEvent())
             {
-            }
+            }*/
 
             DoMeleeAttackIfReady();
         }

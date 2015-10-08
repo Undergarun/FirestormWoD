@@ -1961,7 +1961,7 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                 });
 
                 l_FriendlyUnitListTemp.sort(JadeCore::HealthPctOrderPred());
-                if (l_FriendlyUnitListTemp.size() > l_CascadeSpell->Effects[EFFECT_1].BasePoints)
+                if ((uint32)l_FriendlyUnitListTemp.size() > (uint32)l_CascadeSpell->Effects[EFFECT_1].BasePoints)
                     l_FriendlyUnitListTemp.resize(l_CascadeSpell->Effects[EFFECT_1].BasePoints);
 
                 for (auto l_Itr : l_FriendlyUnitListTemp)
@@ -2112,7 +2112,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                     return false;
                 });
 
-                if (l_UnFriendlyUnitListTemp.size() > l_CascadeSpell->Effects[EFFECT_1].BasePoints)
+                if ((uint32)l_UnFriendlyUnitListTemp.size() > (uint32)l_CascadeSpell->Effects[EFFECT_1].BasePoints)
                     JadeCore::RandomResizeList(l_UnFriendlyUnitListTemp, l_CascadeSpell->Effects[EFFECT_1].BasePoints);
 
                 for (auto l_Itr : l_UnFriendlyUnitListTemp)
@@ -3268,7 +3268,7 @@ public:
 
             if (l_Caster->HasAura(PRIEST_SPELL_CLARITY_OF_POWER))
             {
-                if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN)) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH))) ///< Shadow word: pain or Vampiric touch
+                if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID())) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID()))) ///< Shadow word: pain or Vampiric touch
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_Caster->GetAura(PRIEST_SPELL_CLARITY_OF_POWER)->GetEffect(EFFECT_0)->GetAmount()));
             }
         }

@@ -42,7 +42,7 @@ void SpellLogMgr::RemoveSpellFromListener(Player* p_Player, uint32 p_SpellID)
 
     if (l_Listener != m_Listeners.end())
     {
-        auto& l_It = std::find(l_Listener->second.begin(), l_Listener->second.end(), p_SpellID);
+        auto l_It = std::find(l_Listener->second.begin(), l_Listener->second.end(), p_SpellID);
         if (l_It != l_Listener->second.end())
             l_Listener->second.erase(l_It);
 
