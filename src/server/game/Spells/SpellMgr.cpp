@@ -485,6 +485,9 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             /// Fear - 6 seconds in PvP (6.0)
             if (spellproto->Id == 118699 || spellproto->Id == 130616)
                 return 6 * IN_MILLISECONDS;
+            /// Debilitate - 4 seconds in PvP
+            if (spellproto->Id == 170996)
+                return 4 * IN_MILLISECONDS;
             break;
         }
         default:
@@ -2889,9 +2892,6 @@ void SpellMgr::LoadSpellClassInfo()
         if (!classEntry)
             continue;
 
-        // Player damage reduction (72% base resilience)
-        mSpellClassInfo[l_ClassID].insert(115043);
-        mSpellClassInfo[l_ClassID].insert(142689);
         // Player mastery activation
         mSpellClassInfo[l_ClassID].insert(114585);
         // Battle Fatigue
@@ -5660,7 +5660,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 122510: ///< Ultimatum
             case 34784:  ///< Intervene (triggered)
             case 73683:  ///< Unleash Flame
-            case 165462: ///< Unleash Flame
             case 52437:  ///< Sudden Death
             case 157174: ///< Elemental Fusion
                 spellInfo->ProcCharges = 1;
@@ -5694,6 +5693,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 44544:  ///< Fingers of Frost
             case 126084: ///< Fingers of Frost - visual
                 spellInfo->StackAmount = 2;
+                break;
+            case 116330: ///< Dizzying Haze
+                spellInfo->Effects[EFFECT_1].BasePoints = 2000;
                 break;
             case 85222: ///< Light of Dawn
                 spellInfo->MaxAffectedTargets = 6;
@@ -6420,11 +6422,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
-            /// Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
-            /// @TODO: Remove this hack when we out S14
-            case 142689:
-                spellInfo->Effects[0].BasePoints = -2500;
-                break;
             case 123011: ///< Terrorize Player (tsulong spell)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
@@ -6515,6 +6512,10 @@ void SpellMgr::LoadSpellCustomAttr()
 				break;
             case 157698: ///< Haunting Spirits
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
+                break;
+            case 165462: ///< Unleash Flame
+                spellInfo->ProcCharges = 1;
+                spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 0x10000000;
                 break;
             default:
                 break;

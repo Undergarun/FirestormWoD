@@ -490,6 +490,12 @@ class spell_warr_mocking_banner: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_mocking_banner_AuraScript);
 
+            enum eDatas
+            {
+                NPCMockingBanner = 59390,
+                MockingBannerTaunt = 114198
+            };
+
             void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 Unit* l_Target = GetTarget();
@@ -497,7 +503,7 @@ class spell_warr_mocking_banner: public SpellScriptLoader
                 std::list<Creature*> l_BannerList;
                 std::list<Creature*> l_TempList;
 
-                l_Target->GetCreatureListWithEntryInGrid(l_TempList, WARRIOR_NPC_MOCKING_BANNER, GetSpellInfo()->RangeEntry->maxRangeHostile);
+                l_Target->GetCreatureListWithEntryInGrid(l_TempList, eDatas::NPCMockingBanner, GetSpellInfo()->RangeEntry->maxRangeHostile);
 
                 l_BannerList = l_TempList;
 
@@ -512,7 +518,7 @@ class spell_warr_mocking_banner: public SpellScriptLoader
                 }
 
                 for (auto itr : l_BannerList)
-                    itr->CastSpell(itr, WARRIOR_SPELL_MOCKING_BANNER_TAUNT, true);
+                    l_Target->CastSpell(itr, eDatas::MockingBannerTaunt, true);
             }
 
             void Register()
@@ -1658,6 +1664,11 @@ class spell_warr_execute: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_execute_SpellScript);
 
+            enum eSpells
+            {
+                SuddenDeath = 52437
+            };
+
             void HandleEnergize(SpellEffIndex p_EffIndex)
             {
                 PreventHitDefaultEffect(p_EffIndex);
@@ -1682,16 +1693,14 @@ class spell_warr_execute: public SpellScriptLoader
                 else
                     l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
 
-                /// Sudden Death : consume no extra Rage
-                if (AuraPtr l_Aura = l_Caster->GetAura(52437))
-                    l_Aura->Remove();
-                else
-                {
-                    l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
+                l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
 
-                    // Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
-                    l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
-                }
+                /// Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
+                l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
+
+                /// Sudden Death
+                if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
+                    l_Aura->Remove();
 
                 if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
@@ -1816,6 +1825,19 @@ class spell_warr_shield_charge: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_shield_charge_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (!l_Player)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_WARRIOR_PROTECTION)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -1829,6 +1851,7 @@ class spell_warr_shield_charge: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warr_shield_charge_SpellScript::CheckCast);
                 OnCast += SpellCastFn(spell_warr_shield_charge_SpellScript::HandleOnCast);
             }
         };

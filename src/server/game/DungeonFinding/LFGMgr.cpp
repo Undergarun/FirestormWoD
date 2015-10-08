@@ -2794,11 +2794,8 @@ void LFGMgr::AutomaticLootDistribution(Creature* p_Creature, Group* p_Group)
 
         for (ItemTemplate const* l_ItemTemplate : l_LootTable)
         {
-            for (SpecIndex l_ItemSpecializationId : l_ItemTemplate->specs)
-            {
-                if (l_ItemSpecializationId == l_SpecializationId)
-                    l_Items.push_back(l_ItemTemplate->ItemId);
-            }
+            if (l_ItemTemplate->HasSpec((SpecIndex)l_SpecializationId, l_Member->getLevel()))
+                l_Items.push_back(l_ItemTemplate->ItemId);
         }
 
         if (!roll_chance_f(l_DropChance) || l_Items.empty())
@@ -2846,11 +2843,8 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
 
         for (ItemTemplate const* l_ItemTemplate : l_LootTable)
         {
-            for (SpecIndex l_ItemSpecializationId : l_ItemTemplate->specs)
-            {
-                if (l_ItemSpecializationId == l_SpecializationId)
+                if (l_ItemTemplate->HasSpec((SpecIndex)l_SpecializationId, l_Member->getLevel()))
                     l_Items.push_back(l_ItemTemplate->ItemId);
-            }
         }
 
         if (!roll_chance_f(l_DropChance) || l_Items.empty())
@@ -2944,11 +2938,8 @@ uint32 LFGMgr::GetAugmentRuneID(Player const* p_Player) const
     {
         if (ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_AugmentRunes[l_I]))
         {
-            for (SpecIndex l_ItemSpecializationId : l_Template->specs)
-            {
-                if (l_ItemSpecializationId == l_SpecID)
-                    return l_AugmentRunes[l_I];
-            }
+            if (l_Template->HasSpec((SpecIndex)p_Player->GetSpecializationId(p_Player->GetActiveSpec()), p_Player->getLevel()))
+                return l_AugmentRunes[l_I];
         }
     }
 

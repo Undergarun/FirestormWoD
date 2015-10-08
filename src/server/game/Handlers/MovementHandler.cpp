@@ -430,7 +430,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 
     uint32 l_MSTime = getMSTime();
 
-    if (m_clientTimeDelay == 0)
+    //if (m_clientTimeDelay == 0)
         m_clientTimeDelay = l_MSTime - l_MovementInfo.time;
 
     l_MovementInfo.time = l_MovementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;

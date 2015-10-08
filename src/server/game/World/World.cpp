@@ -1450,6 +1450,8 @@ void World::LoadConfigSettings(bool reload)
     m_lexicsCutter->IgnoreMiddleSpaces = ConfigMgr::GetBoolDefault("LexicsCutterIgnoreSpaces", true);
     m_lexicsCutter->CheckLetterContains = ConfigMgr::GetBoolDefault("LexicsCutterCheckContains", false);
 
+    m_int_configs[CONFIG_SPELLOG_FLAGS] = ConfigMgr::GetIntDefault("SpellLog.Flags", SPELLLOG_OUTPUT_FLAG_PLAYER);
+
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }
@@ -2033,7 +2035,7 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_REALM_STATS].SetInterval(MINUTE * IN_MILLISECONDS);
 
-    m_timers[WUPDATE_TRANSFERT].SetInterval(1 * IN_MILLISECONDS);
+    m_timers[WUPDATE_TRANSFER].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_TRANSFER_MOP].SetInterval(1 * MINUTE * IN_MILLISECONDS);
 
     //to set mailtimer to return mails every day between 4 and 5 am
@@ -2388,87 +2390,35 @@ void World::Update(uint32 diff)
         LoginDatabase.PExecute("UPDATE realmlist SET online = %u, queue = %u where id = %u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
     }
 
-    /// Moved to MopTransfersRunnable (see Master.cpp)
-    /*if (m_timers[WUPDATE_TRANSFER_MOP].Passed())
+    if (m_timers[WUPDATE_TRANSFER].Passed())
     {
-        if (sWorld->getBoolConfig(CONFIG_MOP_TRANSFER_ENABLE))
+        // Prepare transfer dump callback ...
         {
-            PreparedStatement* l_Statement = LoginMopDatabase.GetPreparedStatement(LOGINMOP_SEL_TRANSFER);
-            l_Statement->setUInt32(0, sLog->GetRealmID());
-            m_transferMop = LoginMopDatabase.AsyncQuery(l_Statement);
-        }
-
-        m_timers[WUPDATE_TRANSFER_MOP].SetInterval(5 * MINUTE * IN_MILLISECONDS);
-        m_timers[WUPDATE_TRANSFER_MOP].Reset();
-    }
-
-    if (m_transferMop.ready())
-    {
-        PreparedQueryResult l_ToDump;
-        m_transferMop.get(l_ToDump);
-
-        if (l_ToDump)
-        {
-            do
-            {
-                Field* l_Fields    = l_ToDump->Fetch();
-                uint32 l_Timestamp = getMSTime();
-                uint32 l_Id        = l_Fields[0].GetUInt32();
-                uint32 l_Account   = l_Fields[1].GetUInt32();
-                std::string l_Dump = l_Fields[2].GetString();
-
-                std::ostringstream l_Filename;
-                l_Filename << "pdump/" << l_Account << "_" << l_Timestamp;
-
-                FILE* l_File = fopen(l_Filename.str().c_str(), "w");
-                if (!l_File)
-                    continue;
-
-                fprintf(l_File, "%s\n", l_Dump.c_str());
-                fclose(l_File);
-
-                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "", 0, true);
-                remove(l_Filename.str().c_str());
-
-                if (l_Error == DUMP_SUCCESS)
-                    LoginMopDatabase.PQuery("UPDATE transfer_ashran SET state = 2 WHERE id = %u", l_Id);
-            }
-            while (l_ToDump->NextRow());
-        }
-
-        m_transferMop.cancel();
-    }*/
-
-    if (m_timers[WUPDATE_TRANSFERT].Passed())
-    {
-        // Prepare transfert dump callback ...
-        {
-            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERT_DUMP);
+            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERS_DUMP);
             l_Stmt->setUInt32(0, sLog->GetRealmID());
 
-            m_transfertsDumpCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
+            m_transfersDumpCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
         }
 
-        // Prepare transfert load callback ...
+        // Prepare transfer load callback ...
         {
-            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERT_LOAD);
+            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERS_LOAD);
             l_Stmt->setUInt32(0, sLog->GetRealmID());
 
-            m_transfertsLoadCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
+            m_transfersLoadCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
         }
 
-
-        m_timers[WUPDATE_TRANSFERT].SetInterval(HOUR * IN_MILLISECONDS);
-        m_timers[WUPDATE_TRANSFERT].Reset();
+        m_timers[WUPDATE_TRANSFER].SetInterval(HOUR * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFER].Reset();
     }
 
-    if (m_transfertsDumpCallbacks.ready() && m_transfertsLoadCallbacks.ready())
+    if (m_transfersDumpCallbacks.ready() && m_transfersLoadCallbacks.ready())
     {
         PreparedQueryResult l_ToDump;
         PreparedQueryResult l_ToLoad;
 
-        m_transfertsDumpCallbacks.get(l_ToDump);
-        m_transfertsLoadCallbacks.get(l_ToLoad);
+        m_transfersDumpCallbacks.get(l_ToDump);
+        m_transfersLoadCallbacks.get(l_ToLoad);
 
         if (l_ToDump)
         {
@@ -2479,20 +2429,22 @@ void World::Update(uint32 diff)
                 uint32 l_AccountID = l_Field[1].GetUInt32();
                 uint32 l_CharGUID = l_Field[2].GetUInt32();
 
-                if (Player * l_Player = sObjectMgr->GetPlayerByLowGUID(l_CharGUID))
-                {
-                    l_Player->GetSession()->SendNotification("Vous devez vous deconnecter pour pouvoir transferer votre personnage");
+                /// Transfers aren't allowed with legacy account
+                if (l_AccountID & 0x40000000)
                     continue;
-                }
+
+                if (Player * l_Player = sObjectMgr->GetPlayerByLowGUID(l_CharGUID))
+                    continue;
 
                 bool l_Error = true;
                 std::string l_Dump;
 
                 if (PlayerDumpWriter().GetDump(l_CharGUID, l_AccountID, l_Dump, false))
                 {
-                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UP_TRANSFERT_PDUMP);
+                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_TRANSFER_PDUMP);
                     stmt->setString(0, l_Dump);
                     stmt->setUInt32(1, l_Transaction);
+
                     if (LoginDatabase.DirectExecuteWithReturn(stmt))
                     {
                         l_Error = false;
@@ -2506,7 +2458,7 @@ void World::Update(uint32 diff)
                 if (l_Error)
                 {
                     sLog->outTrace(LOG_FILTER_WORLDSERVER, "PlayerDump fail ! (guid %u)", l_CharGUID);
-                    LoginDatabase.PExecute("UPDATE transferts SET nb_attempt = nb_attempt + 1 WHERE id = %u", l_Transaction);
+                    LoginDatabase.PExecute("UPDATE webshop_delivery_interrealm_transfer SET nb_attempt = nb_attempt + 1 WHERE id = %u", l_Transaction);
                     continue;
                 }
             }
@@ -2524,6 +2476,10 @@ void World::Update(uint32 diff)
                 uint32 l_CharGUID      = l_Field[2].GetUInt32();
                 std::string l_CharDump = l_Field[3].GetString();
 
+                /// Transfers aren't allowed with legacy account
+                if (l_AccountID & 0x40000000)
+                    continue;
+
                 std::ostringstream l_Filename;
                 l_Filename << "pdump/" << l_AccountID << "_" << l_CharGUID << "_" << l_Timestamp;
 
@@ -2534,25 +2490,25 @@ void World::Update(uint32 diff)
                 fprintf(l_File, "%s\n", l_CharDump.c_str());
                 fclose(l_File);
 
-                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_AccountID, "", 0);
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_AccountID, "#Transfer", 0);
                 remove(l_Filename.str().c_str());
 
                 if (l_Error == DUMP_SUCCESS)
                 {
-                    LoginDatabase.PQuery("UPDATE transferts SET state = 2 WHERE id = %u", l_Transaction);
+                    LoginDatabase.PQuery("UPDATE webshop_delivery_interrealm_transfer SET state = 2 WHERE id = %u", l_Transaction);
                     continue;
                 }
 
-                LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1, state = 0 WHERE id = %u", (uint32)l_Error, l_Transaction);
+                LoginDatabase.PQuery("UPDATE webshop_delivery_interrealm_transfer SET error = %u, nb_attempt = nb_attempt + 1, state = 0 WHERE id = %u", (uint32)l_Error, l_Transaction);
             }
             while (l_ToLoad->NextRow());
         }
 
-        m_transfertsDumpCallbacks.cancel();
-        m_transfertsLoadCallbacks.cancel();
+        m_transfersDumpCallbacks.cancel();
+        m_transfersLoadCallbacks.cancel();
 
-        m_timers[WUPDATE_TRANSFERT].SetInterval(15 * MINUTE * IN_MILLISECONDS);
-        m_timers[WUPDATE_TRANSFERT].Reset();
+        m_timers[WUPDATE_TRANSFER].SetInterval(15 * MINUTE * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFER].Reset();
     }
 
     uint32 diffTime = getMSTime();

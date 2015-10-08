@@ -228,13 +228,10 @@ class debug_commandscript: public CommandScript
 
             uint32 id = atoi((char*)args);
 
-            if (SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(id))
+            if (SpellCategoryEntry const* l_Category = sSpellCategoryStore.LookupEntry(id))
             {
                 if (Player* l_Player = handler->GetSession()->GetPlayer())
-                {
-                    l_Player->m_SpellChargesMap.erase(id);
-                    l_Player->SendClearSpellCharges(id);
-                }
+                    l_Player->ResetCharges(l_Category);
 
                 return true;
             }
@@ -2667,7 +2664,7 @@ class debug_commandscript: public CommandScript
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
                         if (l_Template->AllowableClass & l_ClassMask)
                         {
-                            if (!l_Template->HasClassSpec(l_ClassId))
+                            if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
                             if (l_TrinketsFind.find(l_ClassId) != l_TrinketsFind.end() && l_TrinketsFind[l_ClassId] == 2)
@@ -2710,7 +2707,7 @@ class debug_commandscript: public CommandScript
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
                         if (l_Template->AllowableClass & l_ClassMask)
                         {
-                            if (!l_Template->HasClassSpec(l_ClassId))
+                            if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
                             if (std::find(l_CloaksFind.begin(), l_CloaksFind.end(), l_ClassId) != l_CloaksFind.end())
@@ -2750,7 +2747,7 @@ class debug_commandscript: public CommandScript
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
                         if (l_Template->AllowableClass & l_ClassMask)
                         {
-                            if (!l_Template->HasClassSpec(l_ClassId))
+                            if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
                             if (std::find(l_ClassWeaponFind.begin(), l_ClassWeaponFind.end(), l_ClassId | l_Template->SubClass << 16) != l_ClassWeaponFind.end())
@@ -2847,7 +2844,7 @@ class debug_commandscript: public CommandScript
                                 }
                             }
 
-                            if (!l_Template->HasClassSpec(l_ClassId))
+                            if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl

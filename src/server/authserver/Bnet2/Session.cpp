@@ -783,10 +783,10 @@ namespace BNet2 {
 //         ));
 
 
-        l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG_IP);
+        /*l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG_IP);
         l_Stmt->setUInt32(0, m_AccountID);
         l_Stmt->setString(1, GetSocket().getRemoteAddress().c_str());
-        LoginDatabase.Execute(l_Stmt);
+        LoginDatabase.Execute(l_Stmt);*/
 
         /// User reporting
         /// Step Login (5)

@@ -986,7 +986,7 @@ class spell_at_pri_divine_star : public AreaTriggerEntityScript
             p_Caster->UpdateGroundPositionZ(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ);
 
             p_PathToLinearDestination.push_back(l_Position);
-            p_DestinationPosition = p_SourcePosition; // Return back
+            p_Caster->GetPosition(&p_DestinationPosition); // Return back
         }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -1032,6 +1032,18 @@ class spell_at_pri_divine_star : public AreaTriggerEntityScript
 
                 m_Cooldows.insert({ l_Unit->GetGUID(), 500 });
                 l_Caster->CastSpell(l_Unit, l_SpellID, true);
+            }
+
+            Position l_CasterPosition;
+            l_CasterPosition.m_positionX = l_Caster->GetPositionX();
+            l_CasterPosition.m_positionY = l_Caster->GetPositionY();
+            l_CasterPosition.m_positionZ = l_Caster->GetPositionZ();
+
+            if (l_CasterPosition != p_AreaTrigger->GetDestination())
+            {
+                p_AreaTrigger->SetDestination(l_CasterPosition);
+                p_AreaTrigger->SetTimeToTarget(p_AreaTrigger->GetDuration());
+                p_AreaTrigger->SendAreaTriggerRePath(p_AreaTrigger->GetDuration(), p_AreaTrigger->GetDuration());
             }
         }
 

@@ -345,7 +345,7 @@ public:
                             }                    
                         }
                     }
-                    events.ScheduleEvent(eAncientProtectorsEvents::EventRevitalizingWaters, 30 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eAncientProtectorsEvents::EventRapidTides, 30 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eAncientProtectorsEvents::EventWaterBolt:

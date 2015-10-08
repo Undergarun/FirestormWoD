@@ -213,33 +213,45 @@ class spell_pal_glyph_of_devotian_trigger_aura: public SpellScriptLoader
         }
 };
 
-// Hammer of Wrath - 24275 - 158392 - 157496
+/// Hammer of Wrath - 24275 - 158392 - 157496
 class spell_pal_hammer_of_wrath: public SpellScriptLoader
 {
-public:
-    spell_pal_hammer_of_wrath() : SpellScriptLoader("spell_pal_hammer_of_wrath") { }
+    public:
+        spell_pal_hammer_of_wrath() : SpellScriptLoader("spell_pal_hammer_of_wrath") { }
 
-    class spell_pal_hammer_of_wrath_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pal_hammer_of_wrath_SpellScript);
-
-        void HandleAfterCast()
+        class spell_pal_hammer_of_wrath_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
-                    l_Player->CastSpell(l_Player, PALADIN_SPELL_HAMMER_OF_WRATH_POWER, true);
-        }
+            PrepareSpellScript(spell_pal_hammer_of_wrath_SpellScript);
 
-        void Register()
+            bool m_EnergizeAlreadyApply = false;
+
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (GetHitDamage() + GetAbsorbedDamage() <= 0 || m_EnergizeAlreadyApply)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
+                    return;
+
+                l_Player->CastSpell(l_Player, PALADIN_SPELL_HAMMER_OF_WRATH_POWER, true);
+                m_EnergizeAlreadyApply = true;
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_pal_hammer_of_wrath_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterCast += SpellCastFn(spell_pal_hammer_of_wrath_SpellScript::HandleAfterCast);
+            return new spell_pal_hammer_of_wrath_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pal_hammer_of_wrath_SpellScript();
-    }
 };
 
 /// Exorcism - 879, Mass Exorcism - 122032
@@ -252,22 +264,28 @@ class spell_pal_exorcism_energize: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_exorcism_energize_SpellScript);
 
-            void HandleAfterCast()
+            bool m_EnergizeAlreadyApply = false;
+
+            void HandleAfterHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
 
                 if (l_Player == nullptr)
                     return;
 
+                if (GetHitDamage() + GetAbsorbedDamage() <= 0 || m_EnergizeAlreadyApply)
+                    return;
+
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
                     return;
                 
                 l_Player->CastSpell(l_Player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                m_EnergizeAlreadyApply = true;
             }
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_pal_exorcism_energize_SpellScript::HandleAfterCast);
+                AfterHit += SpellHitFn(spell_pal_exorcism_energize_SpellScript::HandleAfterHit);
             }
         };
 
@@ -1128,7 +1146,22 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                 if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                 {
                     if (l_TickNumber >= 1 && l_TickNumber <= 10)
-                        l_AuraEffect->SetAmount(int32(l_BaseValue * (m_TickMultiplier[l_TickNumber])));
+                    {
+                        int32 l_Bp = int32(l_BaseValue * (m_TickMultiplier[l_TickNumber]));
+
+                        if (GetSpellInfo()->Id == eSpells::ExecutionSentence)
+                        {
+                            l_Bp = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, DOT);
+                            l_Bp = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Bp, DOT);
+                        }
+                        else
+                        {
+                            l_Bp = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, HEAL);
+                            l_Bp = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Bp, HEAL);
+                        }
+
+                        l_AuraEffect->SetAmount(l_Bp);
+                    }
                 }
             }
 
@@ -2102,6 +2135,20 @@ public:
 
                     if (!l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         l_Caster->ModifyPower(POWER_HOLY_POWER, -m_PowerUsed);
+
+                    if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Caster))
+                    {
+                        AuraPtr l_Aura = l_Caster->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Caster);
+
+                        if (l_Aura)
+                        {
+                            if (m_PowerUsed > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                                m_PowerUsed = 3;
+
+                            l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (m_PowerUsed));
+                            l_Aura->SetNeedClientUpdateForTargets();
+                        }
+                    }
                 }
         }
 
@@ -2866,8 +2913,8 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
                         if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
                             l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
 
-                        if (SpellCategoriesEntry const* l_HandofFreedomCategories = GetSpellInfo()->GetSpellCategories())
-                            l_Player->ReduceChargeCooldown(l_HandofFreedomCategories->ChargesCategory, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
+                        if (SpellCategoryEntry const* l_HandofFreedomCategory = GetSpellInfo()->ChargeCategoryEntry)
+                            l_Player->ReduceChargeCooldown(l_HandofFreedomCategory, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
                     }
                 }
 
@@ -2987,6 +3034,49 @@ class spell_pal_shining_protector : public SpellScriptLoader
         }
 };
 
+/// Glyph of Flash of Light - 57955
+class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_flash_of_light() : SpellScriptLoader("spell_pal_glyph_of_flash_of_light") { }
+
+        class spell_pal_glyph_of_flash_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_glyph_of_flash_of_light_AuraScript);
+
+            enum eSpells
+            {
+                FlashOfLight = 19750,
+                GlyphOfLightAura = 123254
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::FlashOfLight)
+                    return;
+
+                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), eSpells::GlyphOfLightAura, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_glyph_of_flash_of_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_glyph_of_flash_of_light_AuraScript();
+        }
+};
 
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
@@ -3016,6 +3106,7 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_glyph_of_flash_of_light();
     new spell_pal_shining_protector();
     new spell_pal_turn_evil();
     new spell_pal_denounce();

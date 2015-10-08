@@ -785,7 +785,7 @@ public:
         if (l_AtLoginFlagsStr != nullptr)
             l_AtLogin = atoi(l_AtLoginFlagsStr);
 
-        switch (PlayerDumpReader().LoadDump(l_FileStr, l_AccountId, l_Name, l_Guid, false, l_AtLogin, false))
+        switch (PlayerDumpReader().LoadDump(l_FileStr, l_AccountId, l_Name, l_Guid, false, l_AtLogin))
         {
             case DUMP_SUCCESS:
                 p_Handler->PSendSysMessage(LANG_COMMAND_IMPORT_SUCCESS);
