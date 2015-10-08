@@ -125,34 +125,39 @@ class boss_oregorger : public CreatureScript
         enum eSpells
         {
             /// Misc
-            OregorgerBonusLoot      = 177530,
-            RollingFuryVisual       = 174183,
-            RollingBox              = 160665,
-            WallshakingRoar         = 160662,
+            OregorgerBonusLoot          = 177530,
+            RollingFuryVisual           = 174183,
+            RollingBox                  = 160665,
+            WallshakingRoar             = 160662,
             /// Phase 1
             /// Acid Maw
-            AcidMawDoT              = 173471,
+            AcidMawDoT                  = 173471,
             /// Retched Blackrock
-            RetchedBlackrockMissile = 156179,
-            RetchedBlackrockDoT     = 156203,
+            RetchedBlackrockMissile     = 156179,
+            RetchedBlackrockDoT         = 156203,
             /// Explosive Shard
-            ExplosiveShardMissile   = 156390,
-            ExplosiveShardAoE       = 156374,
+            ExplosiveShardMissile       = 156390,
+            ExplosiveShardAoE           = 156374,
             /// Acid Torrent
-            AcidTorrentSearcher     = 156240,
-            AcidTorrentTriggered    = 160465,
-            AcidTorrentDmgAndDebuff = 156297,   ///< Main target and 20s debuff
-            AcidTorrentAura         = 156300,   ///< 2s aura
-            AcidTorrentMissile      = 156309,   ///< Triggers 156324, needs aura
+            AcidTorrentSearcher         = 156240,
+            AcidTorrentTriggered        = 160465,
+            AcidTorrentDmgAndDebuff     = 156297,   ///< Main target and 20s debuff
+            AcidTorrentAura             = 156300,   ///< 2s aura
+            AcidTorrentMissile          = 156309,   ///< Triggers 156324, needs aura
             /// Blackrock Barrage
-            BlackrockSpines         = 156834,
-            BlackrockBarrageAoE     = 173461,
-            BlackrockBarrageTrigger = 156878,
+            BlackrockSpines             = 156834,
+            BlackrockBarrageAoE         = 173461,
+            BlackrockBarrageTrigger     = 156878,
             /// Phase 2
-            RollingFuryAura         = 155898,
-            HungerDrivePeriodic     = 165127,
-            EarthshakingCollision   = 155897,
-            ConsumeBlackrockOre     = 155862
+            RollingFuryAura             = 155898,
+            HungerDrivePeriodic         = 165127,
+            EarthshakingCollision       = 155897,
+            ConsumeBlackrockOre         = 155862,
+            /// Spells for Mythic mode
+            ExpelUnstableSlagSummon     = 155908,
+            UnstableSlagExplosionAT     = 155910,
+            ExpelUnstableSlagVisual     = 155916,
+            UnstableSlagExplosionDmg    = 155923
         };
 
         enum eEvents
@@ -178,7 +183,8 @@ class boss_oregorger : public CreatureScript
             OreCrate                = 77252,
             DarkshardCrystalback    = 78233,
             DarkshardGnasher        = 78978,
-            BlackrockOre            = 77261
+            BlackrockOre            = 77261,
+            UnstableSlag            = 77299
         };
 
         enum eGameObject
@@ -313,6 +319,8 @@ class boss_oregorger : public CreatureScript
             {
                 if (p_Summon->GetEntry() == eCreatures::BlackrockOre)
                     m_BlackrockOres.insert(p_Summon->GetGUID());
+                else if (p_Summon->GetEntry() == eCreatures::UnstableSlag)
+                    p_Summon->CastSpell(p_Summon, eSpells::ExpelUnstableSlagVisual, true);
             }
 
             void SummonedCreatureDespawn(Creature* p_Summon) override
@@ -642,6 +650,22 @@ class boss_oregorger : public CreatureScript
                         me->RemoveAura(eSpells::RollingFuryAura);
 
                         me->CastSpell(me, eSpells::EarthshakingCollision, true);
+
+                        /// In Mythic difficulty, these collisions also leave Unstable Slag residue at the location of the collision.
+                        /// Unstable Slag explodes if another collision occurs at the same location.
+                        if (IsMythic())
+                        {
+                            if (Creature* l_Slag = me->FindNearestCreature(eCreatures::UnstableSlag, 2.0f))
+                            {
+                                l_Slag->CastSpell(l_Slag, eSpells::UnstableSlagExplosionAT, true);
+
+                                //////////////////////////////////////////////////////////////////////////
+                                /// MISSING AREATRIGGER TEMPLATE DATAS FOR MYTHIC
+                                //////////////////////////////////////////////////////////////////////////
+                            }
+                            else
+                                me->CastSpell(me, eSpells::ExpelUnstableSlagSummon, true);
+                        }
 
                         AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
