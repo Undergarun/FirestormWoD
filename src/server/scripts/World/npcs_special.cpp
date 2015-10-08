@@ -2284,7 +2284,7 @@ class npc_training_dummy : public CreatureScript
 
             void MoveInLineOfSight(Unit* p_Who)
             {
-                if (!me->IsWithinDistInMap(p_Who, 25.f) && me->getHostileRefManager())
+                if (!me->IsWithinDistInMap(p_Who, 25.f))
                 {
                     me->RemoveAllAurasByCaster(p_Who->GetGUID());
                     me->getHostileRefManager().deleteReference(p_Who);
