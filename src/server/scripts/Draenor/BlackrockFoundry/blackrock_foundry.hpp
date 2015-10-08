@@ -94,6 +94,8 @@ enum eFoundryGameObjects
     BKFoundrySpikeTrapGate      = 230931,
     FurnacePortcullis           = 237224,
     BlastFurnaceEncounterDoor   = 230759,
+    CrucibleLeft                = 233759,
+    CrucibleRight               = 233839,
     /// The Black Forge - Part 2
     BlackForgePortcullis        = 238836,
     /// Iron Assembly - Part 3
@@ -140,6 +142,11 @@ enum eFoundryAchievements
 {
     TheIronPrince   = 8978,
     HeShootsHeOres  = 8979
+};
+
+enum eFoundryVisuals
+{
+    CrucibleVisuals = 6922
 };
 
 #endif

@@ -10,10 +10,11 @@
 
 DoorData const g_DoorData[] =
 {
-    { eFoundryGameObjects::GruulSpikeDoor,              eFoundryDatas::DataGruul,           DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE },
-    { eFoundryGameObjects::BKFoundrySpikeTrapGate,      eFoundryDatas::DataOregorger,       DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE },
-    { eFoundryGameObjects::BlastFurnaceEncounterDoor,   eFoundryDatas::DataBlastFurnace,    DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE },
-    { 0,                                                0,                                  DoorType::DOOR_TYPE_ROOM, BoundaryType::BOUNDARY_NONE } ///< End
+    { eFoundryGameObjects::GruulSpikeDoor,              eFoundryDatas::DataGruul,           DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BKFoundrySpikeTrapGate,      eFoundryDatas::DataOregorger,       DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::FurnacePortcullis,           eFoundryDatas::DataOregorger,       DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BlastFurnaceEncounterDoor,   eFoundryDatas::DataBlastFurnace,    DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { 0,                                                0,                                  DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
 class instance_blackrock_foundry : public InstanceMapScript
@@ -69,8 +70,13 @@ class instance_blackrock_foundry : public InstanceMapScript
                 {
                     case eFoundryGameObjects::GruulSpikeDoor:
                     case eFoundryGameObjects::BKFoundrySpikeTrapGate:
+                    case eFoundryGameObjects::FurnacePortcullis:
                     case eFoundryGameObjects::BlastFurnaceEncounterDoor:
                         AddDoor(p_GameObject, true);
+                        break;
+                    case eFoundryGameObjects::CrucibleLeft:
+                    case eFoundryGameObjects::CrucibleRight:
+                        p_GameObject->SetAIAnimKitId(eFoundryVisuals::CrucibleVisuals);
                         break;
                     default:
                         break;
@@ -83,6 +89,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 {
                     case eFoundryGameObjects::GruulSpikeDoor:
                     case eFoundryGameObjects::BKFoundrySpikeTrapGate:
+                    case eFoundryGameObjects::FurnacePortcullis:
                     case eFoundryGameObjects::BlastFurnaceEncounterDoor:
                         AddDoor(p_GameObject, false);
                         break;
