@@ -3385,6 +3385,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 173192: ///< Cave In (Dot)
+            case 159686: ///< Acidback Puddle (DoT)
+            case 156203: ///< Retched Blackrock (Oregorger)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 175091: ///< Animate Slag
@@ -3395,6 +3397,18 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155077: ///< Overwhelming Blows (Gruul)
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
+            case 159632: ///< Insatiable Hunger
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 160665: ///< Rolling Box (Oregorger)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 155819: ///< Hunger Drive (Oregorger)
+                spellInfo->Attributes &= ~SPELL_ATTR0_DEBUFF;
+                break;
+            case 155897: ///< Earthshaking Collision (Oregorger)
+                spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 167650: ///< Loose Quills (Rukhmar)

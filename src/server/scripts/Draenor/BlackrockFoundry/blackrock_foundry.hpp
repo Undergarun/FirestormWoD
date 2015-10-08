@@ -23,6 +23,11 @@
 # include "Group.h"
 # include "MoveSplineInit.h"
 
+float const g_NorthOrientation = 0.0f;
+float const g_SouthOrientation = M_PI;
+float const g_WestOrientation = M_PI / 2.0f;
+float const g_EastOrientation = 3.0f * M_PI / 2.0f;
+
 static void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
 {
     if (p_Map == nullptr)
@@ -39,6 +44,15 @@ static void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, boo
                 l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
         }
     }
+}
+
+static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_WorldObject)
+{
+    std::list<Creature*> l_Creatures;
+    GetCreatureListWithEntryInGrid(l_Creatures, p_WorldObject, p_Entry, p_WorldObject->GetMap()->GetVisibilityRange());
+
+    for (Creature* l_Iter : l_Creatures)
+        l_Iter->DespawnOrUnsummon();
 }
 
 enum eFoundryCreatures
@@ -80,6 +94,8 @@ enum eFoundryGameObjects
     BKFoundrySpikeTrapGate      = 230931,
     FurnacePortcullis           = 237224,
     BlastFurnaceEncounterDoor   = 230759,
+    CrucibleLeft                = 233759,
+    CrucibleRight               = 233839,
     /// The Black Forge - Part 2
     BlackForgePortcullis        = 238836,
     /// Iron Assembly - Part 3
@@ -106,9 +122,15 @@ enum eFoundryDatas
 
     /// Misc
     PristineTrueIronOres    = 0,
+    VolatileOreGrinded      = 1,
 
     /// Counters
-    MaxPristineTrueIronOres = 3
+    MaxPristineTrueIronOres = 3,
+    MaxOreCrateSpawns       = 25,
+    MaxOregorgerMovePos     = 8,
+    MaxOregorgerPatterns    = 7,
+    MaxOregorgerCollisions  = 8,
+    MaxOregorgerPaths       = 12
 };
 
 enum eFoundrySpells
@@ -118,7 +140,13 @@ enum eFoundrySpells
 
 enum eFoundryAchievements
 {
-    TheIronPrince = 8978
+    TheIronPrince   = 8978,
+    HeShootsHeOres  = 8979
+};
+
+enum eFoundryVisuals
+{
+    CrucibleVisuals = 6922
 };
 
 #endif
