@@ -1647,12 +1647,17 @@ class go_foundry_volatile_blackrock_ore : public GameObjectScript
 
         struct go_foundry_volatile_blackrock_oreAI : public GameObjectAI
         {
-            go_foundry_volatile_blackrock_oreAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+            go_foundry_volatile_blackrock_oreAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject), m_Deleted(false) { }
+
+            bool m_Deleted;
 
             void OnStateChanged(uint32 p_State) override
             {
-                if (p_State == GOState::GO_STATE_READY)
+                if (p_State == GOState::GO_STATE_READY && !m_Deleted)
+                {
+                    m_Deleted = true;
                     go->Delete();
+                }
             }
         };
 
