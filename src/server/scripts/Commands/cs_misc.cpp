@@ -34,7 +34,7 @@
 #include "DisableMgr.h"
 #include <fstream>
 
-#include "../../Game/Garrison/GarrisonMgr.hpp"
+#include "GarrisonMgr.hpp"
 #include "BattlegroundPacketFactory.hpp"
 #include "BattlegroundInvitationsMgr.hpp"
 
