@@ -1961,7 +1961,7 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                 });
 
                 l_FriendlyUnitListTemp.sort(JadeCore::HealthPctOrderPred());
-                if (l_FriendlyUnitListTemp.size() > l_CascadeSpell->Effects[EFFECT_1].BasePoints)
+                if ((uint32)l_FriendlyUnitListTemp.size() > (uint32)l_CascadeSpell->Effects[EFFECT_1].BasePoints)
                     l_FriendlyUnitListTemp.resize(l_CascadeSpell->Effects[EFFECT_1].BasePoints);
 
                 for (auto l_Itr : l_FriendlyUnitListTemp)
@@ -2112,7 +2112,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                     return false;
                 });
 
-                if (l_UnFriendlyUnitListTemp.size() > l_CascadeSpell->Effects[EFFECT_1].BasePoints)
+                if ((uint32)l_UnFriendlyUnitListTemp.size() > (uint32)l_CascadeSpell->Effects[EFFECT_1].BasePoints)
                     JadeCore::RandomResizeList(l_UnFriendlyUnitListTemp, l_CascadeSpell->Effects[EFFECT_1].BasePoints);
 
                 for (auto l_Itr : l_UnFriendlyUnitListTemp)

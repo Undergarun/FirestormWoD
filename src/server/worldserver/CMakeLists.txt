@@ -153,7 +153,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Skills
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells/Auras
-  ${CMAKE_SOURCE_DIR}/src/server/game/Spells/Spelllog
+  ${CMAKE_SOURCE_DIR}/src/server/game/Spells/SpellLog
   ${CMAKE_SOURCE_DIR}/src/server/game/Tools
   ${CMAKE_SOURCE_DIR}/src/server/game/Vignette
   ${CMAKE_SOURCE_DIR}/src/server/game/Warden
