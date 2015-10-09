@@ -1949,12 +1949,12 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
 
                 l_FriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
 
-                l_FriendlyUnitListTemp.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                l_FriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
                         return true;
 
-                    if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
+                    if (!l_FirstCaster->IsValidAssistTarget(p_Object->ToUnit()))
                         return true;
 
                     return false;
@@ -2101,12 +2101,12 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
 
                 l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
 
-                l_UnFriendlyUnitListTemp.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                l_UnFriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
                         return true;
 
-                    if (!l_Caster->IsValidAttackTarget(p_Object->ToUnit()))
+                    if (!l_FirstCaster->IsValidAttackTarget(p_Object->ToUnit()))
                         return true;
 
                     return false;
