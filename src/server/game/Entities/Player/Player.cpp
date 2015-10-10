@@ -5885,6 +5885,8 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
             RemoveSpellCooldown(l_Itr->first, true);
             l_Itr = m_spellCooldowns.begin();
         }
+        else
+            l_Itr++;
     }
 
     /// Remove spell charge cooldown that have < 10 min CD
@@ -5896,8 +5898,10 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
             (l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             ResetCharges(l_SpellCategory);
-           l_Itr = m_CategoryCharges.begin();
+            l_Itr = m_CategoryCharges.begin();
         }
+        else
+            l_Itr++;
     }
 
     // pet cooldowns
