@@ -92,7 +92,7 @@ enum WorldTimers
     WUPDATE_PINGDB,
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
-    WUPDATE_TRANSFERT,
+    WUPDATE_TRANSFER,
     WUPDATE_TRANSFER_MOP,
     WUPDATE_COUNT
 };
@@ -214,6 +214,7 @@ enum WorldBoolConfigs
     CONFIG_WEB_DATABASE_ENABLE,
     CONFIG_LOG_PACKETS,
     CONFIG_BATTLEPAY_ENABLE,
+    CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -410,6 +411,7 @@ enum WorldIntConfigs
     CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX,
     CONFIG_LAST_CLIENT_BUILD,
     CONFIG_BATTLEPAY_MIN_SECURITY,
+    CONFIG_SPELLOG_FLAGS,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -1055,8 +1057,8 @@ class World
 
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
-        PreparedQueryResultFuture m_transfertsDumpCallbacks;
-        PreparedQueryResultFuture m_transfertsLoadCallbacks;
+        PreparedQueryResultFuture m_transfersDumpCallbacks;
+        PreparedQueryResultFuture m_transfersLoadCallbacks;
         PreparedQueryResultFuture m_transferMop;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
         LexicsCutter *m_lexicsCutter;

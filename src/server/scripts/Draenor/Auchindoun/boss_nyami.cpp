@@ -240,11 +240,8 @@ public:
                 m_Instance->SetBossState(eDataAuchindonDatas::DataBossNyami, FAIL);
         
             uint32 l_Entries[3] = {CreatureTwistedMagus, CreatureMaleficDefender, CreatureSpitefulArbitrer};
-
-            for (int i = 0; i < 4; i++)
-            {
-                DespawnCreaturesInArea(l_Entries[i], me);
-            }
+            for (uint32 l_Entry : l_Entries)
+                DespawnCreaturesInArea(l_Entry, me);
 
             summons.DespawnAll();
         }
@@ -632,7 +629,7 @@ public:
                     ///< Left
                     me->SummonCreature(eNyamiCreatures::CreatureRadiantFury, l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetOrientation() * ((0 - 2) * M_PI), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
 
-                    m_Radiant = 500;
+                    m_RadiantDiff = 500;
                 }
                 else
                     m_RadiantDiff -= p_Diff;
@@ -779,7 +776,7 @@ public:
 
         void HandleDummy(SpellEffIndex effIndex)
         {
-            uint32 m_Entries[3] = { eNyamiCreatures::CreatureMaleficDefender, eNyamiCreatures::CreatureTwistedMagus, eNyamiCreatures::CreatureSpitefulArbitrer };
+            uint32 l_Entries[3] = { eNyamiCreatures::CreatureMaleficDefender, eNyamiCreatures::CreatureTwistedMagus, eNyamiCreatures::CreatureSpitefulArbitrer };
 
             if (Unit* l_Caster = GetCaster())
             {
@@ -789,10 +786,8 @@ public:
                 {
                     l_Trigger->GetRandomNearPosition(l_Pos, 4.0f);
 
-                    for (int i = 0; i < 4; i++)
-                    {
-                        l_Caster->SummonCreature(m_Entries[i], l_Pos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                    }
+                    for (uint32 l_Entry : l_Entries)
+                        l_Caster->SummonCreature(l_Entry, l_Pos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                 }
             }
         }

@@ -1684,7 +1684,7 @@ class npc_snake_trap : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (me->getVictim()->HasCrowdControlAura(me))
+                if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
                 {
                     me->InterruptNonMeleeSpells(false);
                     return;
@@ -2282,10 +2282,22 @@ class npc_training_dummy : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+                if (!me->IsWithinDistInMap(p_Who, 25.f) && p_Who->isInCombat())
+                {
+                    me->RemoveAllAurasByCaster(p_Who->GetGUID());
+                    me->getHostileRefManager().deleteReference(p_Who);
+                }
+            }
+
+            void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 resetTimer = 5000;
                 damage = 0;
+
+                me->SetInCombatWith(doneBy);
+                doneBy->SetInCombatWith(me);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -2321,7 +2333,7 @@ class npc_training_dummy : public CreatureScript
                         despawnTimer -= diff;
                 }
             }
-            void MoveInLineOfSight(Unit* /*who*/){return;}
+
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -4757,55 +4769,27 @@ class npc_xuen_the_white_tiger : public CreatureScript
         }
 };
 
-class npc_doomguard : public CreatureScript
+/*######
+# npc_agatha - 49044
+######*/
+
+class npc_agatha : public CreatureScript
 {
     public:
-        npc_doomguard() : CreatureScript("npc_doomguard") { }
+        npc_agatha() : CreatureScript("npc_agatha") { }
 
-        enum eSpells
+        enum Constants
         {
-            SPELL_DOOMBOLT = 85692
+            QUEST_FRESH_OUT_OF_THE_GRAVE = 24959,
+            SPELL_RIGOR_MORTIS           = 73523
         };
 
-        struct npc_doomguardAI : CreatureAI
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
         {
-            npc_doomguardAI(Creature* creature) :
-                CreatureAI(creature)
-            {
-            }
+            if (quest->GetQuestId() == Constants::QUEST_FRESH_OUT_OF_THE_GRAVE)
+                player->RemoveAura(Constants::SPELL_RIGOR_MORTIS);
 
-            void UpdateAI(const uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-                
-                Unit* l_Victim = me->getVictim();
-                if (l_Victim->HasCrowdControlAura(me))
-                {
-                    me->InterruptNonMeleeSpells(false);
-                    return;
-                }
-
-                Position l_Pos = *l_Victim;
-                float l_DistSq = me->GetExactDistSq(&l_Pos);
-                float l_Range = AISpellInfo[eSpells::SPELL_DOOMBOLT].maxRange;
-                if (l_DistSq > l_Range * l_Range)
-                    me->GetMotionMaster()->MoveChase(l_Victim, l_Range);
-                else
-                    me->GetMotionMaster()->Clear(true);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                DoCast(eSpells::SPELL_DOOMBOLT);
-                /// If cast failed (or has cooldown), go melee
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_doomguardAI(creature);
+            return true;
         }
 };
 
@@ -4863,5 +4847,5 @@ void AddSC_npcs_special()
     new npc_training_dummy_tanking();
     new npc_consecration();
     new npc_xuen_the_white_tiger();
-    new npc_doomguard();
+    new npc_agatha();
 }

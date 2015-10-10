@@ -2115,8 +2115,11 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 /// In Mythic difficulty, killing Iron Grunts grants favor for Roar of the Crowd.
-                if (me->GetMap()->IsMythic())
-                    CastSpellToPlayers(me->GetMap(), nullptr, eSpells::CrowdMinionKilled, true);
+                if (Map* l_Map = me->GetMap())
+                {
+                    if (l_Map->IsMythic())
+                        CastSpellToPlayers(l_Map, nullptr, eSpells::CrowdMinionKilled, true);
+                }
             }
 
             void LastOperationCalled() override

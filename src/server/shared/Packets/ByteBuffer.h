@@ -732,6 +732,8 @@ class ByteBuffer
         //! without null-terminating the string
         void WriteString(std::string const& str)
         {
+            FlushBits();
+            
             if (size_t len = str.length())
                 append(str.c_str(), len);
         }

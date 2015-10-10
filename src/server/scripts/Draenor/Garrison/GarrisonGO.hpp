@@ -79,6 +79,33 @@ namespace MS { namespace Garrison
 
     };
 
+    //////////////////////////////////////////////////////////////////////////
+    /// 234186 - Iron Trap                                                 ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Garrison shipment container generic script
+    class gob_IronTrap_Garrison : public GameObjectScript
+    {
+        public:
+            /// Constructor
+            gob_IronTrap_Garrison();
+
+            /// Called when a GameObjectAI object is needed for the GameObject.
+            /// @p_GameObject : GameObject instance
+            GameObjectAI* GetAI(GameObject* p_Gob) const override;
+
+            struct gob_IronTrap_GarrisonAI : public GameObjectAI
+            {
+                /// Constructor
+                gob_IronTrap_GarrisonAI(GameObject* p_Gob);
+
+                uint32 m_UpdateTimer;
+
+                virtual void Reset() override;
+
+                virtual void UpdateAI(uint32 p_Diff) override;
+            };
+    };
 
 }   ///< namespace Garrison
 }   ///< namespace MS

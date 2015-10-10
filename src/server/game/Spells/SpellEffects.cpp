@@ -1231,7 +1231,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
-        && m_spellInfo->Category == spellInfo->Category)
+        && m_spellInfo->GetCategory() == spellInfo->GetCategory())
         m_caster->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
 
     // original caster guid only for GO cast
@@ -1281,7 +1281,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
 
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
-        && m_spellInfo->Category == spellInfo->Category)
+        && m_spellInfo->GetCategory() == spellInfo->GetCategory())
         m_caster->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
 
     // original caster guid only for GO cast
@@ -1883,8 +1883,9 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         if (unitTarget->HasAura(48920) && (unitTarget->GetHealth() + addhealth >= unitTarget->GetMaxHealth()))
             unitTarget->RemoveAura(48920);
 
-        /// Custom MoP Script
-        /// 77495 - Mastery : Harmony last update 5.0.1 (Tue Aug 28 2012) Build 15640
+        /// Custom WoD Script
+        /// last update : 6.1.2 19802
+        /// 77495 - Mastery : Harmony
         if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_DRUID)
         {
             /// Can't proc from Ysera's Gift
@@ -1892,15 +1893,13 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             {
                 if (addhealth)
                 {
-                    float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25 / 100.0f;
-
                     if (m_spellInfo->HasEffect(SPELL_EFFECT_HEAL))
                     {
-                        addhealth *= (1 + Mastery);
-
-                        int32 bp = int32(100.0f * Mastery);
-
-                        caster->CastCustomSpell(caster, 100977, &bp, NULL, NULL, true);
+                        if (AuraEffectPtr l_AuraHarmony = caster->GetAuraEffect(77495, EFFECT_0))
+                        {
+                            int32 l_Bp = l_AuraHarmony->GetAmount();
+                            caster->CastCustomSpell(caster, 100977, &l_Bp, NULL, NULL, true);
+                        }
                     }
                 }
             }
@@ -3292,12 +3291,13 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
     /// @Todo: we need to find a better way to handle this, bool on every effect handlers, add hook ?
     switch (m_spellInfo->Id)
     {
-        case 475: // Remove Curse
+        case 475: ///< Remove Curse
+            if (m_caster->HasAura(115700)) ///< Glyph of Remove Curse
+                m_caster->AddAura(115701, m_caster);
+            break;
+        case 370: ///< Purge
             if (m_caster->HasAura(147762)) ///< Glyph of Purging
                 m_caster->CastSpell(m_caster, 53817, true); ///< Maelstrom Weapon
-            break;
-        case 370:
-            if (m_caster->HasAura(115700))
             break;
         case 527:   ///< Purify
         case 97960: ///< Cosmetic Magic Aura
@@ -7606,11 +7606,8 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     }
     else for (ItemTemplate const* l_Template : l_LootTable)
     {
-        for (SpecIndex l_ItemSpecID : l_Template->specs)
-        {
-            if (l_ItemSpecID == l_SpecID)
-                l_Items.push_back(l_Template->ItemId);
-        }
+        if (l_Template->HasSpec((SpecIndex)l_SpecID, l_Player->getLevel()))
+            l_Items.push_back(l_Template->ItemId);
     }
 
     l_Player->RemoveAurasByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT);

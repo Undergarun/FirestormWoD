@@ -590,9 +590,6 @@ class spell_mastery_blood_shield: public SpellScriptLoader
 
                     int32 l_Bp = -int32(GetHitDamage() * (l_Mastery / 100));
 
-                    if (AuraPtr l_ScentOfBlood = l_Caster->GetAura(SPELL_DK_SCENT_OF_BLOOD))
-                        AddPct(l_Bp, (l_ScentOfBlood->GetStackAmount() * 20));
-
                     if (AuraEffectPtr l_ActualBloodShield = l_Caster->GetAuraEffect(MASTERY_SPELL_BLOOD_SHIELD, EFFECT_0))
                         l_Bp += l_ActualBloodShield->GetAmount();
 
@@ -841,52 +838,6 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
         }
 };
 
-enum MasterAnguish
-{
-    SPELL_PRIEST_MIND_BLAST = 8092,
-    SPELL_PRIEST_MIND_SPIKE = 73510,
-    SPELL_PRIEST_MIND_FLAY = 15407
-};
-
-// Called by 8092 - Mind Blast, 73510 - Mind Spike, 15407 - Mind Flay
-// 77486 - Mastery: Mental Anguish
-class spell_mastery_master_mental_anguish : public SpellScriptLoader
-{
-    public:
-        spell_mastery_master_mental_anguish() : SpellScriptLoader("spell_mastery_master_mental_anguish") { }
-
-        class spell_mastery_master_mental_anguish_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mastery_master_mental_anguish_SpellScript);
-
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (GetSpellInfo()->Id != SPELL_PRIEST_MIND_BLAST && GetSpellInfo()->Id != SPELL_PRIEST_MIND_SPIKE)
-                        return;
-
-                    /// Increases the damage of Mind Blast, Mind Spike, and Mind Flay by 20 %.
-                    if (l_Caster->HasAura(SPELL_PRIEST_MENTAL_ANGUISH))
-                    {
-                        float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_mastery_master_mental_anguish_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mastery_master_mental_anguish_SpellScript();
-        }
-};
-
 /// Mastrey: Primal Tenacity - 159195
 class spell_mastery_primal_tenacity : public SpellScriptLoader
 {
@@ -956,6 +907,5 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_ignite();
     new spell_mastery_hand_of_light();
     new spell_mastery_elemental_overload();
-    new spell_mastery_master_mental_anguish();
     new spell_mastery_primal_tenacity();
 }

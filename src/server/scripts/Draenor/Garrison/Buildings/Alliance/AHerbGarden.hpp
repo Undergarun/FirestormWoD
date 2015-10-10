@@ -21,13 +21,13 @@ namespace MS { namespace Garrison
     {
         enum Type
         {
-            Frostweed,
-            Starflower,
-            Fireweed,
-            TaladorOrchid,
-            GrogrondFlytrap,
-            NagrandArrowbloom,
-            Random
+            Frostweed          = 0,
+            Starflower         = 1,
+            Fireweed           = 2,
+            TaladorOrchid      = 3,
+            GorgrondFlytrap    = 4,
+            NagrandArrowbloom  = 5,
+            Random             = 6
         };
     }
 
@@ -36,11 +36,11 @@ namespace MS { namespace Garrison
         enum
         {
             Frostweed         = 0,
-            Fireweed          = 1,
-            TaladorOrchid     = 2,
-            GorgrondFlytrap   = 3,
-            NagrandArrowbloom = 4,
-            Starflower        = 5,
+            Starflower        = 1,
+            Fireweed          = 2,
+            TaladorOrchid     = 3,
+            GorgrondFlytrap   = 4,
+            NagrandArrowbloom = 5
         };
     }
 

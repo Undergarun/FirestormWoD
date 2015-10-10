@@ -463,7 +463,7 @@ class boss_megaera : public CreatureScript
 
             void ActivateNextHeads()
             {
-                if (m_ActivesHeads & HEAD_NONE)
+                if (m_ActivesHeads == HEAD_NONE)
                 {
                     EnterEvadeMode();
                     return;

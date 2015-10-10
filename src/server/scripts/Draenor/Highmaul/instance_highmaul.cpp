@@ -338,6 +338,7 @@ class instance_highmaul : public InstanceMapScript
                     {
                         if (p_State != EncounterState::DONE)
                             break;
+
                         SendUpdateWorldState(eHighmaulWorldStates::DisableCrowdSound, 1);
                         SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState, 0);
                         SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState2, 0);
@@ -636,6 +637,7 @@ class instance_highmaul : public InstanceMapScript
 
             void Update(uint32 p_Diff) override
             {
+                UpdateOperations(p_Diff);
                 UpdateCombatResurrection(p_Diff);
             }
         };

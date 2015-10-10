@@ -574,46 +574,46 @@ class spell_hun_steady_focus: public SpellScriptLoader
                 ProcFlagsExLegacy l_ExFlags = ProcFlagsExLegacy(p_EventInfo.GetHitMask());
                 uint32 l_SpellID = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
                 {
-                    switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                    ///< Marksmanship
+                    ///< - Steady Shot twice in a row
+                    case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
                     {
-                        ///< Marksmanship
-                        ///< - Steady Shot twice in a row
-                        case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
+                        ///< Not Steady Shot
+                        if (l_SpellID != SteadyFocusSpells::SteadyShot)
                         {
-                            ///< Not Steady Shot
-                            if (l_SpellID != SteadyFocusSpells::SteadyShot)
-                            {
-                                ///< Shitty procs
-                                if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
-                                    p_AurEff->GetBase()->SetCharges(0);
+                            ///< Shitty procs
+                            if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                p_AurEff->GetBase()->SetCharges(0);
 
-                                return;
-                            }
-
-                            DealWithCharges(p_AurEff, l_Player);
-                            break;
-                        }
-                        case SpecIndex::SPEC_NONE:
                             return;
-                        ///< Beast Mastery and Survival (Level 81)
-                        ///< - Cobra Shot twice in a row
-                        default:
-                        {
-                            ///< Not Cobra Shot
-                            if (l_SpellID != SteadyFocusSpells::CobraShot)
-                            {
-                                ///< Shitty procs
-                                if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
-                                    p_AurEff->GetBase()->SetCharges(0);
-
-                                return;
-                            }
-
-                            DealWithCharges(p_AurEff, l_Player);
-                            break;
                         }
+
+                        DealWithCharges(p_AurEff, l_Player);
+                        break;
+                    }
+                    ///< Beast Mastery and Survival (Level 81)
+                    ///< - Cobra Shot twice in a row
+                    case SpecIndex::SPEC_HUNTER_BEASTMASTERY:
+                    case SpecIndex::SPEC_HUNTER_SURVIVAL:
+                    {
+                        ///< Not Cobra Shot
+                        if (l_SpellID != SteadyFocusSpells::CobraShot)
+                        {
+                            ///< Shitty procs
+                            if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                p_AurEff->GetBase()->SetCharges(0);
+
+                            return;
+                        }
+
+                        DealWithCharges(p_AurEff, l_Player);
+                        break;
                     }
                 }
             }
@@ -1226,27 +1226,6 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
     public:
         spell_hun_spirit_bond_apply() : SpellScriptLoader("spell_hun_spirit_bond_apply") { }
 
-        class spell_hun_spirit_bond_apply_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_spirit_bond_apply_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_SPIRIT_BOND, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_spirit_bond_apply_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_spirit_bond_apply_SpellScript();
-        }
-
         class spell_hun_spirit_bond_apply_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_hun_spirit_bond_apply_AuraScript);
@@ -1265,9 +1244,31 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
                 }
             }
 
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, HUNTER_SPELL_SPIRIT_BOND, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveAura(HUNTER_SPELL_SPIRIT_BOND);
+            }
+
             void Register()
             {
                 OnAuraUpdate += AuraUpdateFn(spell_hun_spirit_bond_apply_AuraScript::OnUpdate);
+                OnEffectApply += AuraEffectApplyFn(spell_hun_spirit_bond_apply_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_spirit_bond_apply_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2126,7 +2127,7 @@ class spell_hun_barrage : public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (!l_Target->HasAura(eSpells::BarrageTalent))
+                        if (!l_Target->HasAura(eSpells::BarrageTalent, l_Caster->GetGUID()))
                             SetHitDamage(GetHitDamage() / 2);
                     }
                 }
@@ -2325,47 +2326,6 @@ class spell_hun_powershot: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_powershot_SpellScript();
-        }
-};
-
-// Feign Death - 5384
-class spell_hun_feign_death: public SpellScriptLoader
-{
-    public:
-        spell_hun_feign_death() : SpellScriptLoader("spell_hun_feign_death") { }
-
-        class spell_hun_feign_death_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_feign_death_AuraScript);
-
-            int32 health;
-            int32 focus;
-
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                health = GetTarget()->GetHealth();
-                focus = GetTarget()->GetPower(POWER_FOCUS);
-            }
-
-            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (health && focus)
-                {
-                    GetTarget()->SetHealth(health);
-                    GetTarget()->SetPower(POWER_FOCUS, focus);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_hun_feign_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_FEIGN_DEATH, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_feign_death_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_FEIGN_DEATH, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_feign_death_AuraScript();
         }
 };
 
@@ -3264,7 +3224,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         l_Owner->ToPlayer()->AddSpellCooldown(HUNTER_SPELL_BLINK_STRIKES, 0, 20 * IN_MILLISECONDS, true);
                     }
                 }
-
                 return SPELL_CAST_OK;
             }
 
@@ -3301,9 +3260,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_FreeCostSpell)
                             l_Pet->RemoveAura(eSpells::EnhancedBasicAttacksProc);
 
-                        if (l_EnhancedBasicAttacks != nullptr && l_Hunter->HasAura(eSpells::EnhancedBasicAttacksAura) && roll_chance_i(l_EnhancedBasicAttacks->Effects[EFFECT_0].BasePoints))
-                            l_Pet->CastSpell(l_Pet, eSpells::EnhancedBasicAttacksProc, true);
-
                         /// Frenzy - 19623
                         if (l_Hunter->HasAura(HUNTER_SPELL_FRENZY) && roll_chance_i(l_Frenzy->Effects[EFFECT_1].BasePoints))
                             l_Pet->CastSpell(l_Pet, HUNTER_SPELL_FRENZY_STACKS, true);
@@ -3324,15 +3280,29 @@ class spell_hun_claw_bite : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* l_Pet = GetCaster())
+                Pet* l_Pet = GetCaster()->ToPet();
+                Unit* l_Hunter = GetCaster()->GetOwner();
+                
+                if (l_Hunter == nullptr || l_Pet == nullptr)
+                    return;
+
+                Player* l_Player = l_Hunter->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                SpellInfo const* l_EnhancedBasicAttacks = sSpellMgr->GetSpellInfo(eSpells::EnhancedBasicAttacksAura);
+
+                if (AuraPtr l_CobraStrike = l_Hunter->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
+                    l_CobraStrike->ModStackAmount(-1);
+                if (AuraPtr l_CobraStrikePet = l_Pet->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
+                    l_CobraStrikePet->ModStackAmount(-1);
+
+                if (l_EnhancedBasicAttacks != nullptr && l_Hunter->HasAura(eSpells::EnhancedBasicAttacksAura) && roll_chance_i(l_EnhancedBasicAttacks->Effects[EFFECT_0].BasePoints))
                 {
-                    if (Unit* l_Hunter = GetCaster()->GetOwner())
-                    {
-                        if (AuraPtr l_CobraStrike = l_Hunter->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
-                            l_CobraStrike->ModStackAmount(-1);
-                        if (AuraPtr l_CobraStrikePet = l_Pet->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
-                            l_CobraStrikePet->ModStackAmount(-1);
-                    }
+                    l_Pet->CastSpell(l_Pet, eSpells::EnhancedBasicAttacksProc, true);
+                    l_Pet->_AddCreatureSpellCooldown(GetSpellInfo()->Id, time(nullptr));
+                    l_Player->SendClearCooldown(GetSpellInfo()->Id, l_Pet);
                 }
             }
 
@@ -3829,7 +3799,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_binding_shot();
     new spell_hun_binding_shot_zone();
     new spell_hun_powershot();
-    new spell_hun_feign_death();
     new spell_hun_camouflage_visual();
     new spell_hun_serpent_spread();
     new spell_hun_ancient_hysteria();

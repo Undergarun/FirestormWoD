@@ -301,7 +301,7 @@ public:
                                 l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargeriWarden, g_PositionWardenAndGuards, TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
                      
                                 // Defenders
-                                for (int32 i = 0; i < 3; i++)
+                                for (int32 i = 0; i < 2; i++)
                                 {
                                     l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureSargereiDefender, g_PositionGuardsAndWardens[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
                                 }
@@ -549,7 +549,7 @@ public:
         {
             int32 l_Entries[14] = {76595, CreatureAuchenaiDefenderUnique, CreatureAucheniMagus2, CreatureAucheniVigiliant, CreatureAucheniHoplite, CreatureAucheniZealot, CreatureAucheniWarden, CreatureAucheniRitualist, CreatureAucheniMagus, CreatureAucheniSoulPriest, CreatureAucheniArbiter, CreatureAucheniCleric, CreatureAucheniDefender};
 
-            for (int32 i = 0; i <= 14; i++)
+            for (int32 i = 0; i < 14; i++)
                 DespawnCreaturesInArea(l_Entries[i], me);
         }
 

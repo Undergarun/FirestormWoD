@@ -59,6 +59,12 @@ void WorldSession::HandleSetSpecialization(WorldPacket& p_Packet)
         m_Player->SetSpecializationId(m_Player->GetActiveSpec(), l_SpecializationID);
         m_Player->SendTalentsInfoData(false);
 
+        for (uint8 l_I = POWER_MANA; l_I < MAX_POWERS; ++l_I)
+        {
+            m_Player->SetMaxPower(Powers(l_I), m_Player->GetCreatePowers(Powers(l_I)));
+            m_Player->SetPower(Powers(l_I), 0);
+        }
+
         if (l_SpecializationSpell)
             m_Player->learnSpell(l_SpecializationSpell, false);
 

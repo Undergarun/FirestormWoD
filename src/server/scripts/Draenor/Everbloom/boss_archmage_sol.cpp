@@ -74,7 +74,7 @@ enum eArchmageCreatures
     CreatureTriggerFrozenAura      = 424255,
     CreatureTriggerFrozenSnap      = 321432,
     CreatureTriggerNoxiousEruption = 213151,
-    TriggerTick                    = 754332,
+    TriggerTick = 0,
 };
 
 enum eArchmageTalks
@@ -252,7 +252,7 @@ public:
                             case 2: /// Arcane Magic
                                 events.ScheduleEvent(eArchmageEvents::EventArcaneBrust, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
                                 me->CastSpell(me, eArchmageSpells::SpellPrimalAffinityArcane);
-                                events.CancelEvent(eArchmageEvents::EventParasiticGrowth);   
+                                // events.CancelEvent(eArchmageEvents::EventParasiticGrowth);   Apparently it should get casted even after the 2 stacks. Interesting..
 
                                 me->MonsterTextEmote("|TInterface\\Icons\\Spell_Arcane_ArcaneArmor02.blp:20|tArchmage Sol begins casting Arcane spells!", LANG_UNIVERSAL, me->GetGUID());
                                 Talk(eArchmageTalks::KirinTorMageSpell03);
@@ -812,55 +812,6 @@ public:
     }
 };
 
-/// Firebloom - 166492
-class the_everbloom_firebloom_dyn_object : public SpellScriptLoader
-{
-public:
-    the_everbloom_firebloom_dyn_object() : SpellScriptLoader("the_everbloom_firebloom_dyn_object") { }
-
-    class the_everbloom_auras : public AuraScript
-    {
-        PrepareAuraScript(the_everbloom_auras);
-
-        void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/) 
-        {
-            p_Amount = 0;
-
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (DynamicObject* l_DynObj = GetCaster()->GetDynObject(eArchmageSpells::SpellFireBloomUnknown2))
-                {
-                    std::list<Player*> l_Playerlist;
-                    l_DynObj->GetPlayerListInGrid(l_Playerlist, 1.0F);
-
-                    if (l_Playerlist.empty())
-                        return;
-
-                    if (SpellInfo const* l_Info = sSpellMgr->GetSpellInfo(eArchmageSpells::SpellFireBloomAreatriggerTick))
-                    {
-                        uint32 l_Basepoint = l_Info->Effects[0].BasePoints;
-
-                        for (auto itr : l_Playerlist)
-                        {
-                            p_Amount = l_Basepoint;
-                        }
-                    }
-                }
-            }
-        }
-
-        void Register()
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(the_everbloom_auras::CalculateAmount, SpellEffIndex::EFFECT_1, AuraType::SPELL_AURA_PERIODIC_DAMAGE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new the_everbloom_auras();
-    }
-};
-
 /// Firebloom - 166489
 class the_everbloom_firebloom_preflower : public SpellScriptLoader
 {
@@ -946,6 +897,5 @@ void AddSC_boss_sol()
     new the_everbloom_firebloom_trigger();
     new the_everbloom_firebloom_preflower();
     new the_everbloom_parasite_change();
-    new the_everbloom_firebloom_dyn_object();
     new the_everbloom_areatrigger_boss_archmage_sol_firebloom();
 }

@@ -15,6 +15,12 @@ float const g_MinAllowedZ = 560.0f;
 
 Position const g_CenterPos = { 3917.63f, 8590.89f, 565.341f, 0.0f };
 
+Position const g_VolatileAnomalyPos[eHighmaulDatas::MaxIntervalles] =
+{
+    { 3885.65f, 8557.80f, 565.34f, 0.747137f }, ///< Rune of Fortification
+    { 3890.47f, 8628.17f, 565.34f, 5.375480f }  ///< Rune of Replication
+};
+
 /// Imperator Mar'gok <Sorcerer King> - 77428
 class boss_imperator_margok : public CreatureScript
 {
@@ -3352,6 +3358,78 @@ class spell_highmaul_orbs_of_chaos_aura : public SpellScriptLoader
         }
 };
 
+/// Volatile Anomalies - 157265
+class spell_highmaul_volatile_anomalies : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_volatile_anomalies() : SpellScriptLoader("spell_highmaul_volatile_anomalies") { }
+
+        enum eData
+        {
+            PhaseID = 1
+        };
+
+        enum eSpells
+        {
+            VolatileAnomalies1  = 158512,
+            VolatileAnomalies2  = 159158,
+            VolatileAnomalies3  = 159159
+        };
+
+        enum ePhases
+        {
+            DormantRunestones   = 3,    ///< Intermission: Dormant Runestones
+            LineageOfPower      = 5     ///< Intermission: Lineage of Power
+        };
+
+        class spell_highmaul_volatile_anomalies_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_volatile_anomalies_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (Creature* l_Margok = l_Target->FindNearestCreature(eHighmaulCreatures::ImperatorMargok, 150.0f))
+                    {
+                        if (!l_Margok->IsAIEnabled)
+                            return;
+
+                        switch (l_Margok->AI()->GetData(eData::PhaseID))
+                        {
+                            case ePhases::DormantRunestones:
+                            {
+                                l_Target->CastSpell(g_VolatileAnomalyPos[0], eSpells::VolatileAnomalies1, true);
+                                l_Target->CastSpell(g_VolatileAnomalyPos[0], eSpells::VolatileAnomalies2, true);
+                                l_Target->CastSpell(g_VolatileAnomalyPos[0], eSpells::VolatileAnomalies3, true);
+                                break;
+                            }
+                            case ePhases::LineageOfPower:
+                            {
+                                l_Target->CastSpell(g_VolatileAnomalyPos[1], eSpells::VolatileAnomalies1, true);
+                                l_Target->CastSpell(g_VolatileAnomalyPos[1], eSpells::VolatileAnomalies2, true);
+                                l_Target->CastSpell(g_VolatileAnomalyPos[1], eSpells::VolatileAnomalies3, true);
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_volatile_anomalies_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_volatile_anomalies_AuraScript();
+        }
+};
+
 /// Orb of Chaos - 158639
 class areatrigger_highmaul_orb_of_chaos : public AreaTriggerEntityScript
 {
@@ -3485,6 +3563,7 @@ void AddSC_boss_imperator_margok()
     new spell_highmaul_devastating_shockwave();
     new spell_highmaul_force_nova_dot();
     new spell_highmaul_orbs_of_chaos_aura();
+    new spell_highmaul_volatile_anomalies();
 
     /// AreaTriggers
     new areatrigger_highmaul_orb_of_chaos();

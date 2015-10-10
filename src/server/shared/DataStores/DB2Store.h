@@ -196,7 +196,7 @@ template<class T> class DB2Storage : public DB2StorageBase
         }
         /// Get raw entry by index
         /// @p_ID : Entry index
-        virtual char * LookupEntryRaw(uint32 p_ID) const
+        virtual char * LookupEntryRaw(uint32 p_ID) const override
         {
             return (char*)LookupEntry(p_ID);
         }

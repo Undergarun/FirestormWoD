@@ -1384,7 +1384,7 @@ enum ReactiveType
 #define MAX_TOTEM_SLOT      5
 #define SUMMON_SLOT_MINIPET 5
 #define SUMMON_SLOT_QUEST   6
-#define MAX_SUMMON_SLOT     7
+#define MAX_SUMMON_SLOT     9
 
 #define MAX_GAMEOBJECT_SLOT 4
 
@@ -1839,8 +1839,6 @@ class Unit : public WorldObject
 
         bool HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const;
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }
-        bool HasCrowdControlAuraType(AuraType type, uint32 excludeAura = 0) const;
-        bool HasCrowdControlAura(Unit* excludeCasterChannel = NULL) const;
         bool HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura = 0) const;
         bool HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel = NULL) const;
 
@@ -2125,6 +2123,7 @@ class Unit : public WorldObject
         void RemoveAllAurasRequiringDeadTarget();
         void RemoveAllAurasExceptType(AuraType type);
         void RemoveAllAurasByType(AuraType type);
+        void RemoveAllAurasByCaster(uint64 p_Guid);
         void DelayOwnedAuras(uint32 spellId, uint64 caster, int32 delaytime);
 
         void _RemoveAllAuraStatMods();
@@ -2449,7 +2448,7 @@ class Unit : public WorldObject
         bool isCamouflaged() const { return HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE); }
 
         float ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const;
-        int32 CalculateSpellDamage(Unit const* p_Target, SpellInfo const* p_SpellProto, uint8 p_EffectIndex, int32 const* p_BasePoints = nullptr, Item const* p_Item = nullptr) const;
+        int32 CalculateSpellDamage(Unit const* p_Target, SpellInfo const* p_SpellProto, uint8 p_EffectIndex, int32 const* p_BasePoints = nullptr, Item const* p_Item = nullptr, bool p_Log = false) const;
         int32 CalcSpellDuration(SpellInfo const* spellProto);
         int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell* spell = nullptr);

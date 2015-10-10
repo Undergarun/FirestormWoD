@@ -421,7 +421,7 @@ public:
                 fprintf(l_File, "%s\n", l_Dump.c_str());
                 fclose(l_File);
 
-                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "", 0, true);
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "#Transfer", 0, true, 3093);
                 remove(l_Filename.str().c_str());
 
                 if (l_Error == DUMP_SUCCESS)
@@ -474,6 +474,8 @@ int Master::Run()
     ///- Start the databases
     if (!_StartDB())
         return 1;
+
+    ExecutePendingRequests();
 
     // set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, g_RealmID);
@@ -587,8 +589,6 @@ int Master::Run()
         World::StopNow(ERROR_EXIT_CODE);
         // go down and shutdown the server
     }
-
-    //TestTransfertDump();
 
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, g_RealmID);
@@ -890,4 +890,37 @@ void Master::ClearOnlineAccounts()
 
     // Battleground instance ids reset at server restart
     CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
+}
+
+/// Execute pending SQL requests
+#define PENDING_SQL_FILENAME "PendingSQL_Characters.sql"
+
+void Master::ExecutePendingRequests()
+{
+    if (FILE* l_PendingRequestsFile = fopen(PENDING_SQL_FILENAME, "rb"))
+    {
+        fseek(l_PendingRequestsFile, 0, SEEK_END);
+        long l_Size = ftell(l_PendingRequestsFile);
+        rewind(l_PendingRequestsFile);
+
+        if (l_Size > 0)
+        {
+            std::vector<char> l_Content(l_Size + 1);
+            fread(l_Content.data(), l_Size, 1, l_PendingRequestsFile);
+            l_Content[l_Size] = 0;
+
+            CharacterDatabase.DirectExecute(l_Content.data());
+            sLog->outInfo(LOG_FILTER_WORLDSERVER, PENDING_SQL_FILENAME " has been executed with success"); ///< Because if the above failed, the core would crash
+        }
+        else
+            sLog->outInfo(LOG_FILTER_WORLDSERVER, PENDING_SQL_FILENAME " is empty, ignoring.");
+
+        fclose(l_PendingRequestsFile);
+
+        /// Clear file
+        if (l_PendingRequestsFile = fopen(PENDING_SQL_FILENAME, "w"))
+            fclose(l_PendingRequestsFile);
+    }
+    else
+        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Unable to open " PENDING_SQL_FILENAME ", ignoring.");
 }

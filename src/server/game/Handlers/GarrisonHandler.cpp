@@ -15,6 +15,7 @@
 #include "GarrisonMgr.hpp"
 #include "CreatureAI.h"
 #include "Chat.h"
+#include "ScriptMgr.h"
 
 void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 {
@@ -592,7 +593,13 @@ void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
         uint32 l_BuildingID = l_Garrison->GetBuilding(l_PlotInstanceID).BuildingID;
 
         if (l_BuildingID)
-            l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, false);
+        {
+            if (l_Unit->AI())
+                l_ShipmentID = l_Unit->AI()->OnShipmentIDRequest(m_Player);
+
+            if (l_ShipmentID == -1)
+                l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, false);
+        }
     }
 
     bool l_Success = !!l_ShipmentID && !!l_PlotInstanceID;
@@ -610,6 +617,7 @@ void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
             return p_Order.PlotInstanceID == l_PlotInstanceID;
         });
 
+
         l_Response << uint32(l_ShipmentID);
         l_Response << uint32(l_OrderAvailable);
         l_Response << uint32(l_PendingWorkOrderCount);
@@ -622,7 +630,7 @@ void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
 
             uint32 l_Duration = 0;
         
-            const CharShipmentEntry * l_Entry = sCharShipmentStore.LookupEntry(l_WorkOrders[l_I].ShipmentID);
+            const CharShipmentEntry* l_Entry = sCharShipmentStore.LookupEntry(l_WorkOrders[l_I].ShipmentID);
         
             if (l_Entry)
                 l_Duration = l_Entry->Duration;
@@ -700,7 +708,10 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
         uint32 l_BuildingID = l_Garrison->GetBuilding(l_PlotInstanceID).BuildingID;
 
         if (l_BuildingID)
+        {
             l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, true);
+            sScriptMgr->OnShipmentCreated(m_Player, l_Unit, l_BuildingID);
+        }
     }
 
     if (!l_ShipmentID || !l_PlotInstanceID)

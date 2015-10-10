@@ -487,7 +487,7 @@ enum AuraType
     SPELL_AURA_426                                          = 426,  // 5.4.0 unk aura (NYI) Brawl queue
     SPELL_AURA_427                                          = 427,  // 5.4.0 Related to itemScaling on battleground or draenor spell test
     SPELL_AURA_LINKED_2                                     = 428,  // 5.4.0 SPELL_AURA_LINKED_2
-    SPELL_AURA_MOD_PET_DAMAGE_DONE                          = 429,  // 5.4.0 (NYI) see 144364
+    SPELL_AURA_MOD_PET_DAMAGE_DONE                          = 429,  // 5.4.0
     SPELL_AURA_430                                          = 430,  // 5.4.0 SPELL_AURA_PLAY_SCENE_SCRIPT ?
     SPELL_AURA_431                                          = 431,  // 5.4.0 unk aura (NYI) Contested Territory 142869
     SPELL_AURA_432                                          = 432,  // 5.4.0 Entering Battleground (91318)

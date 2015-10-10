@@ -31,23 +31,28 @@
 /// Load
 void BattlePet::Load(Field* p_Fields)
 {
-    JournalID       = MAKE_NEW_GUID(p_Fields[0].GetUInt64(), 0, HIGHGUID_BATTLE_PET);
-    Slot            = p_Fields[1].GetInt32();
-    Name            = p_Fields[2].GetString();
-    NameTimeStamp   = p_Fields[3].GetUInt32();
-    Species         = p_Fields[4].GetUInt32();
-    Quality         = p_Fields[5].GetUInt32();
-    Breed           = p_Fields[6].GetUInt32();
-    Level           = p_Fields[7].GetUInt32();
-    XP              = p_Fields[8].GetUInt32();
-    DisplayModelID  = p_Fields[9].GetUInt32();
-    Health          = p_Fields[10].GetInt32();
-    Flags           = p_Fields[11].GetUInt32();
-    InfoPower       = p_Fields[12].GetInt32();
-    InfoMaxHealth   = p_Fields[13].GetInt32();
-    InfoSpeed       = p_Fields[14].GetInt32();
-    InfoGender      = p_Fields[15].GetInt32();
-    AccountID       = p_Fields[16].GetInt32();
+    JournalID        = MAKE_NEW_GUID(p_Fields[0].GetUInt64(), 0, HIGHGUID_BATTLE_PET);
+    Slot             = p_Fields[1].GetInt32();
+    Name             = p_Fields[2].GetString();
+    NameTimeStamp    = p_Fields[3].GetUInt32();
+    Species          = p_Fields[4].GetUInt32();
+    Quality          = p_Fields[5].GetUInt32();
+    Breed            = p_Fields[6].GetUInt32();
+    Level            = p_Fields[7].GetUInt32();
+    XP               = p_Fields[8].GetUInt32();
+    DisplayModelID   = p_Fields[9].GetUInt32();
+    Health           = p_Fields[10].GetInt32();
+    Flags            = p_Fields[11].GetUInt32();
+    InfoPower        = p_Fields[12].GetInt32();
+    InfoMaxHealth    = p_Fields[13].GetInt32();
+    InfoSpeed        = p_Fields[14].GetInt32();
+    InfoGender       = p_Fields[15].GetInt32();
+    AccountID        = p_Fields[16].GetInt32();
+    DeclinedNames[0] = p_Fields[17].GetString();
+    DeclinedNames[1] = p_Fields[18].GetString();
+    DeclinedNames[2] = p_Fields[19].GetString();
+    DeclinedNames[3] = p_Fields[20].GetString();
+    DeclinedNames[4] = p_Fields[21].GetString();
 
     for (uint8 l_I = 0; l_I < MAX_PETBATTLE_ABILITIES; ++l_I)
         Abilities[l_I] = 0;
@@ -86,23 +91,28 @@ void BattlePet::Load(Field* p_Fields)
 /// Load
 void BattlePet::CloneFrom(BattlePet::Ptr & p_BattlePet)
 {
-    JournalID       = p_BattlePet->JournalID;
-    Slot            = p_BattlePet->Slot;
-    Name            = p_BattlePet->Name;
-    NameTimeStamp   = p_BattlePet->NameTimeStamp;
-    Species         = p_BattlePet->Species;
-    Quality         = p_BattlePet->Quality;
-    Breed           = p_BattlePet->Breed;
-    Level           = p_BattlePet->Level;
-    XP              = p_BattlePet->XP;
-    DisplayModelID  = p_BattlePet->DisplayModelID;
-    Health          = p_BattlePet->Health;
-    Flags           = p_BattlePet->Flags;
-    InfoPower       = p_BattlePet->InfoPower;
-    InfoMaxHealth   = p_BattlePet->InfoMaxHealth;
-    InfoSpeed       = p_BattlePet->InfoSpeed;
-    InfoGender      = p_BattlePet->InfoGender;
-    AccountID       = p_BattlePet->AccountID;
+    JournalID        = p_BattlePet->JournalID;
+    Slot             = p_BattlePet->Slot;
+    Name             = p_BattlePet->Name;
+    NameTimeStamp    = p_BattlePet->NameTimeStamp;
+    Species          = p_BattlePet->Species;
+    Quality          = p_BattlePet->Quality;
+    Breed            = p_BattlePet->Breed;
+    Level            = p_BattlePet->Level;
+    XP               = p_BattlePet->XP;
+    DisplayModelID   = p_BattlePet->DisplayModelID;
+    Health           = p_BattlePet->Health;
+    Flags            = p_BattlePet->Flags;
+    InfoPower        = p_BattlePet->InfoPower;
+    InfoMaxHealth    = p_BattlePet->InfoMaxHealth;
+    InfoSpeed        = p_BattlePet->InfoSpeed;
+    InfoGender       = p_BattlePet->InfoGender;
+    AccountID        = p_BattlePet->AccountID;
+    DeclinedNames[0] = p_BattlePet->DeclinedNames[0];
+    DeclinedNames[1] = p_BattlePet->DeclinedNames[1];
+    DeclinedNames[2] = p_BattlePet->DeclinedNames[2];
+    DeclinedNames[3] = p_BattlePet->DeclinedNames[3];
+    DeclinedNames[4] = p_BattlePet->DeclinedNames[4];
 
     for (uint8 l_I = 0; l_I < MAX_PETBATTLE_ABILITIES; ++l_I)
         Abilities[l_I] = p_BattlePet->Abilities[l_I];
@@ -128,6 +138,11 @@ void BattlePet::Save()
     l_Statement->setInt32(14, InfoSpeed);
     l_Statement->setInt32(15, InfoGender);
     l_Statement->setInt32(16, AccountID);
+    l_Statement->setString(17, DeclinedNames[0]);
+    l_Statement->setString(18, DeclinedNames[1]);
+    l_Statement->setString(19, DeclinedNames[2]);
+    l_Statement->setString(20, DeclinedNames[3]);
+    l_Statement->setString(21, DeclinedNames[4]);
     LoginDatabase.Execute(l_Statement);
 }
 
@@ -153,6 +168,11 @@ void BattlePet::AddToPlayer(Player* p_Player)
     l_Statement->setInt32(13, InfoSpeed);
     l_Statement->setInt32(14, InfoGender);
     l_Statement->setInt32(15, p_Player->GetSession()->GetAccountId());
+    l_Statement->setString(16, DeclinedNames[0]);
+    l_Statement->setString(17, DeclinedNames[1]);
+    l_Statement->setString(18, DeclinedNames[2]);
+    l_Statement->setString(19, DeclinedNames[3]);
+    l_Statement->setString(20, DeclinedNames[4]);
 
     // We need to execute it sync to be sure we will have it at next async select
     LoginDatabase.Query(l_Statement);
@@ -1339,7 +1359,7 @@ void PetBattle::SwapPet(uint32 p_TeamID, uint32 p_NewFrontPetID, bool p_Initial)
 {
     assert(p_TeamID < MAX_PETBATTLE_TEAM);
     
-    if (p_NewFrontPetID > (MAX_PETBATTLE_TEAM * MAX_PETBATTLE_SLOTS))
+    if (p_NewFrontPetID >= (MAX_PETBATTLE_TEAM * MAX_PETBATTLE_SLOTS))
         return;
 
     if (!Pets[p_NewFrontPetID])

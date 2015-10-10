@@ -906,56 +906,6 @@ void Player::UpdateMasteryPercentage()
     }
 }
 
-void Player::UpdatePvPPowerPercentage()
-{
-    float value = GetRatingBonusValue(CR_PVP_POWER);
-    value = value < 0.0f ? 0.0f : value;
-
-    float damage_value = value;
-    float heal_value = value;
-
-    switch (GetSpecializationId(GetActiveSpec()))
-    {
-        // All other specializations and classes (including tanking) receive a 40% bonus to healing from PvP Power.
-        case SPEC_WARRIOR_ARMS:
-        case SPEC_WARRIOR_FURY:
-        case SPEC_WARRIOR_PROTECTION:
-        case SPEC_HUNTER_BEASTMASTERY:
-        case SPEC_HUNTER_MARKSMANSHIP:
-        case SPEC_HUNTER_SURVIVAL:
-        case SPEC_ROGUE_ASSASSINATION:
-        case SPEC_ROGUE_COMBAT:
-        case SPEC_ROGUE_SUBTLETY:
-        case SPEC_DK_BLOOD:
-        case SPEC_DK_FROST:
-        case SPEC_DK_UNHOLY:
-        case SPEC_MAGE_ARCANE:
-        case SPEC_MAGE_FIRE:
-        case SPEC_MAGE_FROST:
-        case SPEC_WARLOCK_AFFLICTION:
-        case SPEC_WARLOCK_DEMONOLOGY:
-        case SPEC_WARLOCK_DESTRUCTION:
-            heal_value *= 0.4f;
-            break;
-        // Healing specializations receive a 100% bonus to healing from PvP Power.
-        case SPEC_PALADIN_HOLY:
-        case SPEC_PRIEST_DISCIPLINE:
-        case SPEC_PRIEST_HOLY:
-        case SPEC_SHAMAN_RESTORATION:
-        case SPEC_DRUID_RESTORATION:
-        case SPEC_MONK_MISTWEAVER:
-            damage_value = 0.0f;
-            break;
-        // Damage specializations for Druids, Monks, Paladins, Priests, and Shaman receive a 70% bonus to healing from PvP Power.
-        default:
-            heal_value *= 0.7f;
-            break;
-    }
-
-    SetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE, damage_value);
-    SetFloatValue(PLAYER_FIELD_PVP_POWER_HEALING, heal_value);
-}
-
 void Player::UpdateAllSpellCritChances()
 {
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
@@ -1663,10 +1613,20 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 // WoD updated
 void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
 {
-    if (p_AttType > WeaponAttackType::BaseAttack)
-        return;
-
-    UnitMods l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
+    UnitMods l_UnitMod;
+    switch (p_AttType)
+    {
+        case WeaponAttackType::BaseAttack:
+        default:
+            l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
+            break;
+        case WeaponAttackType::OffAttack:
+            l_UnitMod = UNIT_MOD_DAMAGE_OFFHAND;
+            break;
+        case WeaponAttackType::RangedAttack:
+            l_UnitMod = UNIT_MOD_DAMAGE_RANGED;
+            break;
+    }
 
     float l_AttackSpeed = float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
     /// Hunter's pets got 2.8 from normalized ranged weapons speed
@@ -1691,6 +1651,20 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     float l_MinDamage = ((l_BaseValue + l_WeaponMinDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
     float l_MaxDamage = ((l_BaseValue + l_WeaponMaxDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
 
-    SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
-    SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
+    switch (p_AttType)
+    {
+        case WeaponAttackType::BaseAttack:
+        default:
+            SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);
+            break;
+        case WeaponAttackType::OffAttack:
+            SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, l_MinDamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, l_MaxDamage);
+            break;
+        case WeaponAttackType::RangedAttack:
+            SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, l_MinDamage);
+            SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, l_MaxDamage);
+            break;
+    }
 }

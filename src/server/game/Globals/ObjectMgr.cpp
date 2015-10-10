@@ -124,7 +124,7 @@ std::string GetScriptCommandName(ScriptCommands command)
         default:
         {
             char sz[32];
-            sprintf(sz, "Unknown command: %u", command);
+            sprintf(sz, "Unknown command: %d", command);
             res = sz;
             break;
         }
@@ -2806,59 +2806,227 @@ void ObjectMgr::LoadItemScriptNames()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item script names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+struct ItemSpecStats
+{
+    uint32 ItemType;
+    uint32 ItemSpecStatTypes[MAX_ITEM_PROTO_STATS];
+    uint32 ItemSpecStatCount;
+
+    ItemSpecStats(ItemEntry const* item, ItemSparseEntry const* sparse) : ItemType(0), ItemSpecStatCount(0)
+    {
+        memset(ItemSpecStatTypes, -1, sizeof(ItemSpecStatTypes));
+
+        if (item == nullptr || sparse == nullptr)
+            return;
+
+        if (item->Class == ITEM_CLASS_WEAPON)
+        {
+            ItemType = 5;
+            switch (item->SubClass)
+            {
+            case ITEM_SUBCLASS_WEAPON_AXE:
+                AddStat(ITEM_SPEC_STAT_ONE_HANDED_AXE);
+                break;
+            case ITEM_SUBCLASS_WEAPON_AXE2:
+                AddStat(ITEM_SPEC_STAT_TWO_HANDED_AXE);
+                break;
+            case ITEM_SUBCLASS_WEAPON_BOW:
+                AddStat(ITEM_SPEC_STAT_BOW);
+                break;
+            case ITEM_SUBCLASS_WEAPON_GUN:
+                AddStat(ITEM_SPEC_STAT_GUN);
+                break;
+            case ITEM_SUBCLASS_WEAPON_MACE:
+                AddStat(ITEM_SPEC_STAT_ONE_HANDED_MACE);
+                break;
+            case ITEM_SUBCLASS_WEAPON_MACE2:
+                AddStat(ITEM_SPEC_STAT_TWO_HANDED_MACE);
+                break;
+            case ITEM_SUBCLASS_WEAPON_POLEARM:
+                AddStat(ITEM_SPEC_STAT_POLEARM);
+                break;
+            case ITEM_SUBCLASS_WEAPON_SWORD:
+                AddStat(ITEM_SPEC_STAT_ONE_HANDED_SWORD);
+                break;
+            case ITEM_SUBCLASS_WEAPON_SWORD2:
+                AddStat(ITEM_SPEC_STAT_TWO_HANDED_SWORD);
+                break;
+            case ITEM_SUBCLASS_WEAPON_STAFF:
+                AddStat(ITEM_SPEC_STAT_STAFF);
+                break;
+            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
+                AddStat(ITEM_SPEC_STAT_FIST_WEAPON);
+                break;
+            case ITEM_SUBCLASS_WEAPON_DAGGER:
+                AddStat(ITEM_SPEC_STAT_DAGGER);
+                break;
+            case ITEM_SUBCLASS_WEAPON_THROWN:
+                AddStat(ITEM_SPEC_STAT_THROWN);
+                break;
+            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                AddStat(ITEM_SPEC_STAT_CROSSBOW);
+                break;
+            case ITEM_SUBCLASS_WEAPON_WAND:
+                AddStat(ITEM_SPEC_STAT_WAND);
+                break;
+            default:
+                break;
+            }
+        }
+        else if (item->Class == ITEM_CLASS_ARMOR && item->SubClass > 5 && item->SubClass <= 11)
+        {
+            switch (item->SubClass)
+            {
+                case ITEM_SUBCLASS_ARMOR_CLOTH:
+                    if (sparse->InventoryType != INVTYPE_CLOAK)
+                    {
+                        ItemType = 1;
+                        break;
+                    }
+
+                    ItemType = 0;
+                    AddStat(ITEM_SPEC_STAT_CLOAK);
+                    break;
+                case ITEM_SUBCLASS_ARMOR_LEATHER:
+                    ItemType = 2;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_MAIL:
+                    ItemType = 3;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_PLATE:
+                    ItemType = 4;
+                    break;
+                default:
+                    ItemType = 6;
+                    if (item->SubClass == ITEM_SUBCLASS_ARMOR_SHIELD)
+                        AddStat(ITEM_SPEC_STAT_SHIELD);
+                    else if (item->SubClass > ITEM_SUBCLASS_ARMOR_SHIELD && item->SubClass <= ITEM_SUBCLASS_ARMOR_RELIC)
+                        AddStat(ITEM_SPEC_STAT_RELIC);
+                    break;
+            }
+        }
+        else
+            ItemType = 0;
+
+        for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+            if (sparse->ItemStatType[i] != -1)
+                AddModStat(sparse->ItemStatType[i]);
+    }
+
+    void AddStat(ItemSpecStat statType)
+    {
+        if (ItemSpecStatCount >= MAX_ITEM_PROTO_STATS)
+            return;
+
+        for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+            if (ItemSpecStatTypes[i] == uint32(statType))
+                return;
+
+        ItemSpecStatTypes[ItemSpecStatCount++] = statType;
+    }
+
+    void AddModStat(int32 itemStatType)
+    {
+        switch (itemStatType)
+        {
+        case ITEM_MOD_AGILITY:
+            AddStat(ITEM_SPEC_STAT_AGILITY);
+            break;
+        case ITEM_MOD_STRENGTH:
+            AddStat(ITEM_SPEC_STAT_STRENGTH);
+            break;
+        case ITEM_MOD_INTELLECT:
+            AddStat(ITEM_SPEC_STAT_INTELLECT);
+            break;
+        case ITEM_MOD_SPIRIT:
+            AddStat(ITEM_SPEC_STAT_SPIRIT);
+            break;
+        case ITEM_MOD_DODGE_RATING:
+            AddStat(ITEM_SPEC_STAT_DODGE);
+            break;
+        case ITEM_MOD_PARRY_RATING:
+            AddStat(ITEM_SPEC_STAT_PARRY);
+            break;
+        case ITEM_MOD_CRIT_MELEE_RATING:
+        case ITEM_MOD_CRIT_RANGED_RATING:
+        case ITEM_MOD_CRIT_SPELL_RATING:
+        case ITEM_MOD_CRIT_RATING:
+            AddStat(ITEM_SPEC_STAT_CRIT);
+            break;
+        case ITEM_MOD_HASTE_MELEE_RATING:
+        case ITEM_MOD_HASTE_RANGED_RATING:
+        case ITEM_MOD_HASTE_SPELL_RATING:
+        case ITEM_MOD_HASTE_RATING:
+            AddStat(ITEM_SPEC_STAT_HASTE);
+            break;
+        case ITEM_MOD_HIT_RATING:
+            AddStat(ITEM_SPEC_STAT_HIT);
+            break;
+        case ITEM_MOD_EXTRA_ARMOR:
+            AddStat(ITEM_SPEC_STAT_BONUS_ARMOR);
+            break;
+        case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
+            AddStat(ITEM_SPEC_STAT_AGILITY);
+            AddStat(ITEM_SPEC_STAT_STRENGTH);
+            AddStat(ITEM_SPEC_STAT_INTELLECT);
+            break;
+        case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
+            AddStat(ITEM_SPEC_STAT_AGILITY);
+            AddStat(ITEM_SPEC_STAT_STRENGTH);
+            break;
+        case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
+            AddStat(ITEM_SPEC_STAT_AGILITY);
+            AddStat(ITEM_SPEC_STAT_INTELLECT);
+            break;
+        case ITEM_MOD_DYNAMIC_STAT_STR_INT:
+            AddStat(ITEM_SPEC_STAT_STRENGTH);
+            AddStat(ITEM_SPEC_STAT_INTELLECT);
+            break;
+        }
+    }
+};
+
 void ObjectMgr::LoadItemSpecs()
 {
     uint32 l_Count = 0;
     uint32 l_OldMSTime = getMSTime();
 
-    /// ===================== HACK ALERT, THIS IS BAD ================================================ ///
-    /// - The process must be done with the character level, so we can't do it at loading ...          ///
-    /// - For now, we use 100 as placeholder, we will change that in somes day/month/year, who know ?  ///
-    /// - For the guy who wrote the text above, use yyyy/mm/dd instead - thank you                     ///
-    /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
-
-    const uint32 l_CharacterLevel = 100;
     for (ItemTemplateContainer::iterator l_Itr = _itemTemplateStore.begin(); l_Itr != _itemTemplateStore.end(); ++l_Itr)
     {
         ItemTemplate& l_ItemTemplate = l_Itr->second;
         if (l_ItemTemplate.HasSpec())
             continue;
-
-        uint32                     l_TempStat  = 28;
-        bool                       l_Find      = false;
-        std::vector<uint32>        l_ItemStats = ItemSpecialization::GetItemSpecStats(const_cast<ItemTemplate*>(&l_ItemTemplate));
-
-        for (uint32 l_Idx = 0; l_Idx < sItemSpecStore.GetNumRows(); ++l_Idx)
+        
+        ItemSpecStats itemSpecStats(sItemStore.LookupEntry(l_ItemTemplate.ItemId), sItemSparseStore.LookupEntry(l_ItemTemplate.ItemId));
+        if (itemSpecStats.ItemSpecStatCount)
         {
-            ItemSpecEntry const* l_ItemSpec = sItemSpecStore.LookupEntry(l_Idx);
-            if (!l_ItemSpec)
-                continue;
-
-            if (l_CharacterLevel >= l_ItemSpec->MinLevel && l_ItemTemplate.RequiredLevel <= l_CharacterLevel)
+            for (uint32 l_SpecIndex = 0; l_SpecIndex < sItemSpecStore.GetNumRows(); l_SpecIndex++)
             {
-                if (l_ItemSpec->ItemType == ItemSpecialization::GetItemType(&l_ItemTemplate))
+                ItemSpecEntry const* itemSpec = sItemSpecStore.LookupEntry(l_SpecIndex);
+                if (itemSpec == nullptr)
+                    continue;
+                
+                if (itemSpecStats.ItemType != itemSpec->ItemType)
+                    continue;
+
+                bool hasPrimary = false;
+                bool hasSecondary = itemSpec->SecondaryStat == ITEM_SPEC_STAT_NONE;
+
+                for (uint32 i = 0; i < itemSpecStats.ItemSpecStatCount; ++i)
                 {
-                    l_Find = true;
-                    if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->PrimaryStat, l_ItemStats))
-                    {
-                        if (l_ItemSpec->SecondaryStat == 28)
-                        {
-                            if (l_TempStat != l_ItemSpec->PrimaryStat)
-                            {
-                                l_ItemTemplate.AddSpec((SpecIndex)l_ItemSpec->SpecializationID);
-                                ++l_Count;
-                            }
-                        }
-                        else if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->SecondaryStat, l_ItemStats))
-                        {
-                            l_ItemTemplate.AddSpec((SpecIndex)l_ItemSpec->SpecializationID);
-                            ++l_Count;
-                            l_TempStat = l_ItemSpec->PrimaryStat;
-                        }
-                    }
+                    if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->PrimaryStat)
+                        hasPrimary = true;
+                    if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->SecondaryStat)
+                        hasSecondary = true;
                 }
-                else if (l_Find)
-                    break;
+
+                if (!hasPrimary)
+                    hasPrimary = hasSecondary && itemSpecStats.ItemSpecStatCount == 1; ///< If only 1 was found, it doesnt have any stats, therefore ignore primary stat check
+
+                if (!hasPrimary || !hasSecondary)
+                    continue;
+                
+                l_ItemTemplate.AddSpec((SpecIndex)itemSpec->SpecializationID, itemSpec->MaxLevel);
             }
         }
     }
@@ -2880,7 +3048,8 @@ void ObjectMgr::LoadItemSpecsOverride()
             continue;
 
         ItemTemplate& itemTemplate = _itemTemplateStore[specInfo->itemEntry];
-        itemTemplate.AddSpec((SpecIndex)specInfo->specID);
+        itemTemplate.AddSpec((SpecIndex)specInfo->specID, 40);
+        itemTemplate.AddSpec((SpecIndex)specInfo->specID, 100);
         l_Count++;
     }
 

@@ -703,11 +703,11 @@ class spell_warl_agony: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_agony_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (GetCaster())
-                    if (AuraPtr l_Agony = GetTarget()->GetAura(aurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                        l_Agony->ModStackAmount(aurEff->GetBaseAmount());
+                    if (AuraPtr l_Agony = GetTarget()->GetAura(p_AurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
+                        l_Agony->ModStackAmount(p_AurEff->GetBaseAmount());
             }
 
             bool CanRefreshProcDummy()
@@ -717,7 +717,7 @@ class spell_warl_agony: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 CanRefreshProc += AuraCanRefreshProcFn(spell_warl_agony_AuraScript::CanRefreshProcDummy);
             }
         };
@@ -3154,42 +3154,54 @@ public:
     }
 };
 
-// Cataclysm - 152108
+/// last update : 6.1.2 19802
+/// Cataclysm - 152108
 class spell_warl_cataclysm : public SpellScriptLoader
 {
-public:
-    spell_warl_cataclysm() : SpellScriptLoader("spell_warl_cataclysm") { }
+    public:
+        spell_warl_cataclysm() : SpellScriptLoader("spell_warl_cataclysm") { }
 
-    class spell_warl_cataclysm_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_cataclysm_SpellScript);
-
-        void HandleOnHit()
+        class spell_warl_cataclysm_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_warl_cataclysm_SpellScript);
+
+            enum eSpells
             {
-                if (Unit* l_Target = GetHitUnit())
+                Immolate = 157736,
+                Agony = 980,
+                Corrupation = 172,
+                UnstableAffliction = 30108
+            };
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
+                    l_Player->CastSpell(l_Target, eSpells::Immolate, true);
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
                 {
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
-                        l_Player->CastSpell(l_Target, WARLOCK_IMMOLATE, true);
-                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
-                        l_Player->CastSpell(l_Target, WARLOCK_AGONY, true);
-                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        l_Player->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
+                    l_Player->CastSpell(l_Target, eSpells::Agony, true);
+                    l_Player->CastSpell(l_Target, eSpells::UnstableAffliction, true);
                 }
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                    l_Player->CastSpell(l_Target, eSpells::Corrupation, true);
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_cataclysm_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_warl_cataclysm_SpellScript::HandleOnHit);
+            return new spell_warl_cataclysm_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_cataclysm_SpellScript();
-    }
 };
 
 enum HavocSpells
@@ -3614,15 +3626,22 @@ class spell_warl_healthstone : public SpellScriptLoader
                 GlyphOfHealthstone = 56224
             };
 
-            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
+            void HandleHeal(SpellEffIndex p_EffIndex)
             {
                 if (GetCaster()->HasAura(eSpells::GlyphOfHealthstone))
-                    PreventHitHeal();
+                    PreventHitDefaultEffect(p_EffIndex);
+            }
+
+            void HandlePeriodicHeal(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (!GetCaster()->HasAura(eSpells::GlyphOfHealthstone))
+                    PreventHitAura();
             }
 
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_warl_healthstone_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_healthstone_SpellScript::HandlePeriodicHeal, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
             }
         };
 

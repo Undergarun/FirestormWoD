@@ -51,7 +51,7 @@ namespace MS { namespace Garrison
             void SetRecipes(std::vector<SkillNPC_RecipeEntry> * p_Recipes, uint32 p_RecipesSkillID);
 
             /// Show shipment crafter UI
-            void SendShipmentCrafterUI(Player * p_Player);
+            void SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID = 0);
             /// Show trade skill crafter UI
             void SendTradeSkillUI(Player * p_Player);
 

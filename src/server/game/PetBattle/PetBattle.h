@@ -319,6 +319,7 @@ class BattlePet
         int32           InfoMaxHealth;                          ///< Info max health (need UpdateStats calls) 
         int32           InfoSpeed;                              ///< Info speed (need UpdateStats calls)
         int32           InfoGender;                             ///< Info gender (need UpdateStats calls)
+        std::string     DeclinedNames[MAX_DECLINED_NAME_CASES]; ///< Declined names
 
 };
 

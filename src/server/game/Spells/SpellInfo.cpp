@@ -125,7 +125,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
 {
     if (_target >= TOTAL_SPELL_TARGETS)
     {
-        printf("SPELL_TARGET overflow!! %u\r\n", _target);
+        printf("SPELL_TARGET overflow!! %d\r\n", _target); ///< Bad sprintf :'(
         return 0;
     }
 
@@ -462,7 +462,7 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_ON_PET;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit const* p_Target, Item const* p_Item) const
+int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit const* p_Target, Item const* p_Item, bool p_Log) const
 {
     float l_BasePointsPerLevel = RealPointsPerLevel;
     int32 l_BasePoints = p_Bp ? *p_Bp : BasePoints;
@@ -643,6 +643,13 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
 
             float l_APBonusDamage = l_AttackPower * AttackPowerMultiplier;
             float l_SPBonusDamage = l_SpellPower * BonusMultiplier;
+
+            if (p_Log && AttackPowerMultiplier)
+                LOG_SPELL(p_Caster, _spellInfo->Id, "CalcValue(CanScale): Spell %s: EffIndex %i: AttackPowerMultiplier %f * AttackPower %f = %f, Base %f", _spellInfo->GetNameForLogging().c_str(), _effIndex, AttackPowerMultiplier, l_AttackPower, l_APBonusDamage, l_Value);
+
+            if (p_Log && BonusMultiplier)
+                LOG_SPELL(p_Caster, _spellInfo->Id, "CalcValue(CanScale): Spell %s: EffIndex %i: BonusMultiplier %f * SpellPower %f = %f, Base %f", _spellInfo->GetNameForLogging().c_str(), _effIndex, BonusMultiplier, l_SpellPower, l_SPBonusDamage, l_Value);
+
             l_Value += l_APBonusDamage + l_SPBonusDamage;
         }
     }
@@ -650,6 +657,9 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
     /// Don't need to change our value for Arcane Barrage triggered spell and Mangle (bear), it's already calculated
     if (_spellInfo->Id == 50273 || _spellInfo->Id == 33917)
         l_Value = float(l_BasePoints);
+
+    if (p_Log)
+        LOG_SPELL(p_Caster, _spellInfo->Id, "CalcValue(): Spell %s: EffIndex %i: Final Amount %i", _spellInfo->GetNameForLogging().c_str(), _effIndex, int32(l_Value));
 
     return int32(l_Value);
 }
@@ -1067,17 +1077,13 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
 
     // SpellCategoriesEntry
     SpellCategoriesEntry const* _categorie = GetSpellCategories();
-    Category = _categorie ? _categorie->Category : 0;
+    CategoryEntry = _categorie ? sSpellCategoryStore.LookupEntry(_categorie->Category) : NULL;
     Dispel = _categorie ? _categorie->Dispel : 0;
     Mechanic = _categorie ? _categorie->Mechanic : 0;
     StartRecoveryCategory = _categorie ? _categorie->StartRecoveryCategory : 0;
     DmgClass = _categorie ? _categorie->DmgClass : 0;
     PreventionType = _categorie ? _categorie->PreventionType : 0;
-
-    if (SpellCategoryEntry const* categoryInfo = sSpellCategoryStores.LookupEntry(Category))
-        CategoryFlags = categoryInfo->Flags;
-    else
-        CategoryFlags = 0;
+    ChargeCategoryEntry = _categorie ? sSpellCategoryStore.LookupEntry(_categorie->ChargeCategory) : 0;
 
     // SpellClassOptionsEntry
     SpellClassOptionsEntry const* _class = GetSpellClassOptions();
@@ -1151,8 +1157,8 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
 
     // SpellShapeshiftEntry
     SpellShapeshiftEntry const* _shapeshift = GetSpellShapeshift();
-    Stances = _shapeshift ? _shapeshift->Stances : 0;
-    StancesNot = _shapeshift ? _shapeshift->StancesNot : 0;
+    Stances = _shapeshift ? MAKE_PAIR64(_shapeshift->ShapeshiftMask[0], _shapeshift->ShapeshiftMask[1]) : 0;
+    StancesNot = _shapeshift ? MAKE_PAIR64(_shapeshift->ShapeshiftExclude[0], _shapeshift->ShapeshiftExclude[1]) : 0;
 
     // SpellTargetRestrictionsEntry
     SpellTargetRestrictionsEntry const* _target = GetSpellTargetRestrictions();
@@ -1194,6 +1200,11 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
 SpellInfo::~SpellInfo()
 {
     _UnloadImplicitTargetConditionLists();
+}
+
+uint32 SpellInfo::GetCategory() const
+{
+    return CategoryEntry ? CategoryEntry->Id : 0;
 }
 
 bool SpellInfo::HasEffect(SpellEffects effect) const
@@ -1445,7 +1456,7 @@ bool SpellInfo::IsMultiSlotAura() const
 
 bool SpellInfo::IsCooldownStartedOnEvent() const
 {
-    return Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE || (Category && (CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT));
+    return Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE || (CategoryEntry && (CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT));
 }
 
 bool SpellInfo::IsDeathPersistent() const
@@ -1584,7 +1595,7 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
         return true;
 
     // these spells (Cyclone for example) can pierce all...         // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
-    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH)))
+    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH || aura->Id == 48707))) ///< ...nor Anti-Magic Shell
         return true;
 
     return false;
@@ -1766,7 +1777,10 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 p_Shapeshift) const
         (Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[1].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[2].Effect == SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;
 
-    uint64 stanceMask = p_Shapeshift ? ((uint64)1L << (p_Shapeshift - 1)) : 0;
+    if (HasAttribute(SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT))
+        return SPELL_CAST_OK;
+
+    uint64 stanceMask = (p_Shapeshift ? UI64LIT(1) << (p_Shapeshift - 1) : 0);
 
     // can explicitly not be casted in this stance
     if (stanceMask & StancesNot)
@@ -2261,7 +2275,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
 bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
 {
     // Curse of Doom & Exorcism: not find another way to fix spell target check :/
-    if (SpellFamilyName == SPELLFAMILY_WARLOCK && Category == 1179)
+    if (SpellFamilyName == SPELLFAMILY_WARLOCK && GetCategory() == 1179)
     {
         // not allow cast at player
         if (target->GetTypeId() == TYPEID_PLAYER)
@@ -2365,7 +2379,7 @@ AuraStateType SpellInfo::GetAuraState() const
         return AURA_STATE_FAERIE_FIRE;
 
     // Sting (hunter's pet ability)
-    if (Category == 1133)
+    if (GetCategory() == 1133)
         return AURA_STATE_FAERIE_FIRE;
 
     // Victorious
@@ -3032,7 +3046,7 @@ uint32 SpellInfo::_GetExplicitTargetMask() const
 
         if (Effects[i].TargetA.GetTarget() >= TOTAL_SPELL_TARGETS)
         {
-            printf("%u SPELL_TARGET overflow!! %u\r\n", Id, Effects[i].TargetA.GetTarget());
+            printf("%u SPELL_TARGET overflow!! %d\r\n", Id, Effects[i].TargetA.GetTarget());
             continue;
         }
 
@@ -4462,4 +4476,16 @@ Classes SpellInfo::GetClassIDBySpellFamilyName() const
         default:
             return CLASS_NONE;
     }
+}
+
+std::string SpellInfo::GetNameForLogging() const
+{
+    std::ostringstream l_StringStream;
+
+    if (SpellName && strlen(SpellName))
+        l_StringStream << "\"" << SpellName << "\"" << "[" << Id << "]";
+    else
+        l_StringStream << "[" << Id << "]";
+
+    return l_StringStream.str();
 }

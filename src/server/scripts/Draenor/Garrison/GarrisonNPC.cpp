@@ -14,6 +14,7 @@
 #include "GarrisonMgr.hpp"
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
+#include "Buildings/Alliance/Medium/ABarn.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 #include "Buildings/Alliance/Small/ATheForge.hpp"
@@ -30,6 +31,7 @@
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
+#include "Buildings/Horde/Medium/HBarn.hpp"
 #include "Buildings/Horde/Small/HTheForge.hpp"
 #include "Buildings/Horde/Small/HTailoringEmporium.hpp"
 #include "Buildings/Horde/Small/HAlchemyLab.hpp"
@@ -296,9 +298,9 @@ namespace MS { namespace Garrison
 
                 /// transform plot coord
                 m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
+            
+                OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
             }
-
-            OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
         }
         else if (p_ID == CreatureAIDataIDs::BuildingID)
         {
@@ -336,22 +338,20 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Show shipment crafter UI
-    void GarrisonNPCAI::SendShipmentCrafterUI(Player * p_Player)
+    void GarrisonNPCAI::SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID /*= 0*/)
     {
         if (p_Player->IsInGarrison())
         {
-            uint32 l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(m_BuildingID, p_Player, false);
-
-            if (l_ShipmentID)
+            if (!p_ShipmentID && !(p_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(m_BuildingID, p_Player, false)))
+                p_Player->PlayerTalkClass->SendCloseGossip();
+            else
             {
                 WorldPacket l_Data(SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP);
                 l_Data.appendPackGUID(me->GetGUID());
-                l_Data << uint32(l_ShipmentID);
+                l_Data << uint32(p_ShipmentID);
 
                 p_Player->SendDirectMessage(&l_Data);
             }
-            else
-                p_Player->PlayerTalkClass->SendCloseGossip();
         }
     }
 
@@ -631,6 +631,10 @@ void AddSC_Garrison_NPC()
         /// Herb garden
         new MS::Garrison::npc_OllyNimkip;
         new MS::Garrison::npc_NaronBloomthistle;
+
+        /// Barn
+        new MS::Garrison::npc_HomerStonefield;
+        new MS::Garrison::npc_HomerStonefield_Garr_Trap;
     }
 
     /// Horde
@@ -686,5 +690,10 @@ void AddSC_Garrison_NPC()
         /// Herb garden
         new MS::Garrison::npc_Tarnon;
         new MS::Garrison::npc_NaliSoftOil;
+
+        /// Barn
+        new MS::Garrison::npc_FarmerLokLub;
+        new MS::Garrison::npc_IronTrap;
+        new MS::Garrison::npc_FarmerLokLub_Trap;
     }
 }
