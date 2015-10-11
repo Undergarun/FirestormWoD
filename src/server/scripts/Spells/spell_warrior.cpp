@@ -1838,6 +1838,9 @@ class spell_warr_shield_charge: public SpellScriptLoader
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_WARRIOR_PROTECTION)
                     return SPELL_FAILED_DONT_REPORT;
 
+                if (l_Player->GetShapeshiftForm() != FORM_GLADIATORSTANCE)
+                    return SPELL_FAILED_DONT_REPORT;
+
                 return SPELL_CAST_OK;
             }
 
