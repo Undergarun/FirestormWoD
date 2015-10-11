@@ -1677,6 +1677,7 @@ class spell_warr_execute: public SpellScriptLoader
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
                 int32 l_Damage = GetHitDamage();
 
                 /// If damage is 0 we should return script, to prevent double rage consuming
@@ -1702,7 +1703,9 @@ class spell_warr_execute: public SpellScriptLoader
                 if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
                     l_Aura->Remove();
 
-                if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                bool l_ApplyMastery = l_Target != nullptr && l_Target->GetHealthPct() <= 20.0f;
+
+                if (l_ApplyMastery && l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
                     float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
 
