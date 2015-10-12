@@ -64,6 +64,7 @@ enum eFoundryCreatures
     BossOregorger           = 77182,
     /// Blast Furnace
     HeartOfTheMountain      = 76806,
+    BlackhandCosmetic       = 76831,
     /// The Black Forge - Part 2
     /// Hans'gar & Franzok
     BossHansgar             = 76973,
@@ -120,9 +121,13 @@ enum eFoundryDatas
     DataBlackhand,
     MaxBossData,
 
+    /// Other boss datas
+    DataForemanFeldspar     = eFoundryDatas::MaxBossData,
+
     /// Misc
     PristineTrueIronOres    = 0,
     VolatileOreGrinded      = 1,
+    PrimalElementalistTime  = 2,
 
     /// Counters
     MaxPristineTrueIronOres = 3,
@@ -141,7 +146,8 @@ enum eFoundrySpells
 enum eFoundryAchievements
 {
     TheIronPrince   = 8978,
-    HeShootsHeOres  = 8979
+    HeShootsHeOres  = 8979,
+    YaWeveGotTime   = 8930
 };
 
 enum eFoundryVisuals

@@ -1583,6 +1583,11 @@ class npc_foundry_slag_behemoth : public CreatureScript
             IceBlock        = 201722
         };
 
+        enum eAction
+        {
+            ActionIntro
+        };
+
         struct npc_foundry_slag_behemothAI : public ScriptedAI
         {
             npc_foundry_slag_behemothAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -1642,6 +1647,15 @@ class npc_foundry_slag_behemoth : public CreatureScript
 
                 for (GameObject* l_GameObject : l_Gobs)
                     l_GameObject->Delete();
+
+                if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
+                {
+                    if (Creature* l_Creature = Creature::GetCreature(*me, l_InstanceScript->GetData64(eFoundryCreatures::BlackhandCosmetic)))
+                    {
+                        if (l_Creature->IsAIEnabled)
+                            l_Creature->AI()->DoAction(eAction::ActionIntro);
+                    }
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
