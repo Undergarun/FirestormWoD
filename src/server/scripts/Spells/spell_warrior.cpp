@@ -2729,61 +2729,6 @@ class spell_warr_glyph_of_crow_feast : public SpellScriptLoader
         }
 };
 
-<<<<<<< HEAD
-=======
-/// last update : 6.1.2 19802
-/// Revenge - 5301
-class spell_warr_revenge : public SpellScriptLoader
-{
-    public:
-        spell_warr_revenge() : SpellScriptLoader("spell_warr_revenge") { }
-
-        class spell_warr_revenge_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warr_revenge_AuraScript);
-
-            enum eSpells
-            {
-                Revenger = 6572
-            };
-
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
-            {
-                PreventDefaultAction();
-
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster == nullptr)
-                    return;
-
-                if (!(p_ProcInfos.GetHitMask() & (PROC_EX_PARRY | PROC_EX_DODGE)))
-                    return;
-
-                if (p_ProcInfos.GetDamageInfo() == nullptr || p_ProcInfos.GetDamageInfo()->GetVictim() == nullptr)
-                    return;
-
-                Player* l_Player = p_ProcInfos.GetDamageInfo()->GetVictim()->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                if (l_Player->HasSpellCooldown(eSpells::Revenger))
-                    l_Player->RemoveSpellCooldown(eSpells::Revenger, true);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warr_revenge_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warr_revenge_AuraScript();
-        }
-};
-
->>>>>>> 73db11d... Core/Spells: Fix Spells cooldown
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_glyph_of_crow_feast();
