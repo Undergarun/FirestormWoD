@@ -33055,10 +33055,9 @@ void Player::SendSpellCharges()
             l_Data << uint32(l_CategoryCharge.first);
             l_Data << uint32(l_CooldownDuration.count());
             l_Data << l_CategoryCharge.second.size();
-            SendDirectMessage(&l_Data);
         }
-
     }
+    SendDirectMessage(&l_Data);
 }
 
 void Player::UpdateCharges()
@@ -33114,13 +33113,7 @@ void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntr
         else
             l_Itr->second.pop_back();
 
-        WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
-        l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data << uint32(std::chrono::duration_cast<std::chrono::milliseconds>(l_NewRechargeEnd.time_since_epoch()).count());
-        l_Data << l_Itr->second.size();
-        l_Data.WriteBit(false); ///< IsPet
-        l_Data.FlushBits();
-        SendDirectMessage(&l_Data);
+        SendSpellCharges()
     }
 }
 
