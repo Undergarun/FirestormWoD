@@ -17212,7 +17212,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 }
             }
 
-            i->aura->DropCharge();
+            i->aura->DropCharge(AURA_REMOVE_BY_CANCEL);
         }
         i->aura->CallScriptAfterProcHandlers(aurApp, eventInfo);
 
