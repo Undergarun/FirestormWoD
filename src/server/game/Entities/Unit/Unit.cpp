@@ -9721,19 +9721,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 5301:  // Revenge (aura proc)
-        {
-            if (!(procEx & PROC_EX_DODGE) && !(procEx & PROC_EX_PARRY))
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(6572))
-                ToPlayer()->RemoveSpellCooldown(6572, true);
-
-            break;
-        }
         case 145672:// Riposte (Warrior)
         {
             if (!(procEx & PROC_EX_DODGE) && !(procEx & PROC_EX_PARRY))
