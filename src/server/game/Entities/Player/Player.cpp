@@ -26233,7 +26233,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
 
     // self spell cooldown
     if (l_CooldownTime > 0)
-        AddSpellCooldown(p_SpellInfo->Id, p_ItemId, l_CategoryCooldownTime, l_NeedsCooldownPacket);
+        AddSpellCooldown(p_SpellInfo->Id, p_ItemId, l_CooldownTime, l_NeedsCooldownPacket);
 }
 
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bool p_send /* = false */)
@@ -33113,7 +33113,7 @@ void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntr
         else
             l_Itr->second.pop_back();
 
-        SendSpellCharges()
+        SendSpellCharges();
     }
 }
 
