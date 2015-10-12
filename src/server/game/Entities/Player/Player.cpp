@@ -20052,6 +20052,14 @@ void Player::SendQuestTimerFailed(uint32 quest_id)
     }
 }
 
+/// @TODO
+/// according to c9e138d66d6a455a72d3fefbc0e4d5998bc338d6 from TrinityCore
+/// the correct struct is
+/// data << uint32(Reason);
+/// data.WriteBit(SendErrorMessage);
+/// data.WriteBits(ReasonText.length(), 9);
+/// data.FlushBits();
+/// data.WriteString(ReasonText);
 void Player::SendCanTakeQuestResponse(uint32 msg) const
 {
     WorldPacket data(SMSG_QUEST_GIVER_INVALID_QUEST, 4 + 2);
