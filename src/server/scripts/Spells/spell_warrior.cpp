@@ -2729,7 +2729,8 @@ class spell_warr_revenge : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                l_Player->RemoveSpellCooldown(eSpells::Revenger, true);
+                if (l_Player->HasSpellCooldown(eSpells::Revenger))
+                    l_Player->RemoveSpellCooldown(eSpells::Revenger, true);
             }
 
             void Register()

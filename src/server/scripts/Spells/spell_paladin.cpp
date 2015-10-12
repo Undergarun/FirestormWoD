@@ -2910,7 +2910,8 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
                 {
                     if (AuraEffectPtr l_AuraEffect = l_Player->GetAuraEffect(eSpells::GlyphoftheLiberator, EFFECT_0))
                     {
-                        l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
+                        if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                            l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
 
                         if (SpellCategoryEntry const* l_HandofFreedomCategory = GetSpellInfo()->ChargeCategoryEntry)
                             l_Player->ReduceChargeCooldown(l_HandofFreedomCategory, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
