@@ -1491,7 +1491,7 @@ struct SpellCategoriesEntry
     uint32  Mechanic;                                       // 6        m_mechanic
     uint32  PreventionType;                                 // 7        m_preventionType
     uint32  StartRecoveryCategory;                          // 8        m_startRecoveryCategory
-    uint32  ChargesCategory;                                // 9        m_chargesCategory
+    uint32  ChargeCategory;                                 // 9        m_chargesCategory
 };
 
 // SpellCategory.dbc
@@ -1505,8 +1505,6 @@ struct SpellCategoryEntry
     uint32  ChargeRecoveryTime;                             // 5        m_ChargeRecoveryTime
 };
 
-typedef std::set<uint32> SpellCategorySet;
-typedef std::map<uint32, SpellCategorySet > SpellCategoryStore;
 typedef std::list<const SpellEntry*> SpellSkillingList;
 typedef std::set<uint32> PetFamilySpellsSet;
 typedef std::map<uint32, PetFamilySpellsSet > PetFamilySpellsStore;

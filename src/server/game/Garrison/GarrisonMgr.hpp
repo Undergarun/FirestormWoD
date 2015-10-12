@@ -195,6 +195,8 @@ namespace MS { namespace Garrison
             /// Get list of creature in a specific building type
             /// @p_Type : Building type
             std::vector<uint64> GetBuildingCreaturesByBuildingType(BuildingType::Type p_Type);
+            /// Get Garrison ID
+            uint32 GetGarrisonID() { return m_ID; };
 
             /// Get known blueprints
             std::vector<int32> GetKnownBlueprints() const;

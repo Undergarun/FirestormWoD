@@ -11,6 +11,10 @@ INSERT INTO creature_text VALUE (76877, 5, 1, "No more.", 14, 0, 100, 0, 0, 4503
 INSERT INTO creature_text VALUE (76877, 6, 0, "Gruul... Fall... Down?", 14, 0, 100, 0, 0, 45032, "GruulDeath");
 INSERT INTO creature_text VALUE (76877, 7, 0, "%s goes into a |cFFFF0404|Hspell:155539|h[Destructive Rampage]|h|r!", 41, 0, 100, 0, 0, 0, "GruulDestructiveRampageStart");
 INSERT INTO creature_text VALUE (76877, 8, 0, "%s's |cFFFF0404|Hspell:155539|h[Destructive Rampage]|h|r ends.", 41, 0, 100, 0, 0, 0, "GruulDestructiveRampageEnd");
+DELETE FROM creature_text WHERE entry = 77182;
+INSERT INTO creature_text VALUE (77182, 0, 0, "|Hunit:77182:Oregorger|hOregorger prepares to cast |cFFFF0000|Hspell:156879|h[Blackrock Barrage]|h|r.", 41, 0, 100, 0, 0, 0, "BlackrockBarrage");
+INSERT INTO creature_text VALUE (77182, 1, 0, "Oregorger has grown hungry and wants to eat more blackrock ore!", 41, 0, 100, 0, 0, 0, "Phase2");
+INSERT INTO creature_text VALUE (77182, 2, 0, "Oregorger is full of blackrock ore!", 41, 0, 100, 0, 0, 0, "ReturnToPhase1");
 DELETE FROM creature_text WHERE entry = 87771;
 INSERT INTO creature_text VALUE (87771, 0, 0, "Bite him! Bite him!", 12, 0, 100, 0, 0, 0, "SlagshopWorker1");
 INSERT INTO creature_text VALUE (87771, 0, 1, "Come on Brute!", 12, 0, 100, 0, 0, 0, "SlagshopWorker2");

@@ -1457,6 +1457,8 @@ void World::LoadConfigSettings(bool reload)
     m_lexicsCutter->IgnoreMiddleSpaces = ConfigMgr::GetBoolDefault("LexicsCutterIgnoreSpaces", true);
     m_lexicsCutter->CheckLetterContains = ConfigMgr::GetBoolDefault("LexicsCutterCheckContains", false);
 
+    m_int_configs[CONFIG_SPELLOG_FLAGS] = ConfigMgr::GetIntDefault("SpellLog.Flags", SPELLLOG_OUTPUT_FLAG_PLAYER);
+
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }

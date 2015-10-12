@@ -1200,6 +1200,7 @@ namespace JadeCore
 
         list = listCopy;
     }
+
     // Binary predicate to sort WorldObjects based on the distance to a reference WorldObject
     class ObjectDistanceOrderPred
     {
@@ -1212,6 +1213,25 @@ namespace JadeCore
         private:
             const WorldObject* m_refObj;
             const bool m_ascending;
+    };
+
+    /// Binary predicate to sort WorldObjects based on the distance to a reference Position
+    class PositionDistanceOrderPred
+    {
+        public:
+            PositionDistanceOrderPred(Position const p_RefPsos, bool p_Ascending = true) : m_RefPos(p_RefPsos), m_Ascending(p_Ascending) { }
+
+            bool operator()(WorldObject const* pLeft, WorldObject const* pRight) const
+            {
+                float l_LeftDist = pLeft->GetDistance(m_RefPos);
+                float l_RightDist = pRight->GetDistance(m_RefPos);
+
+                return m_Ascending ? l_LeftDist < l_RightDist : l_LeftDist > l_RightDist;
+            }
+
+        private:
+            Position const m_RefPos;
+            bool const m_Ascending;
     };
 }
 

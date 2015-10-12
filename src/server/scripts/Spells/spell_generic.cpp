@@ -4427,8 +4427,93 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Remove Rigor Mortis - 73523 on Fresh Out Of The Grave quest acceptation (24959)
+class PlayerScript_gen_remove_rigor_mortis : public PlayerScript
+{
+    public:
+        PlayerScript_gen_remove_rigor_mortis() :PlayerScript("PlayerScript_gen_remove_rigor_mortis") {}
+
+        enum Constants
+        {
+            QUEST_FRESH_OUT_OF_THE_GRAVE = 24959,
+            SPELL_RIGOR_MORTIS = 73523
+        };
+
+        void OnQuestAccept(Player* p_Player, Quest const* p_Quest) override
+        {
+            if (p_Quest->GetQuestId() == Constants::QUEST_FRESH_OUT_OF_THE_GRAVE)
+                p_Player->RemoveAura(Constants::SPELL_RIGOR_MORTIS);
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Savage Fortitude - 181706
+class spell_gen_savage_fortitude : public SpellScriptLoader
+{
+    public:
+        spell_gen_savage_fortitude() : SpellScriptLoader("spell_gen_savage_fortitude") { }
+
+        class spell_gen_savage_fortitude_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_savage_fortitude_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                p_Amount *= 10;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_savage_fortitude_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_2);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_savage_fortitude_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Mark of Warsong - 159675
+class spell_gen_mark_of_warsong : public SpellScriptLoader
+{
+    public:
+        spell_gen_mark_of_warsong() : SpellScriptLoader("spell_gen_mark_of_warsong") { }
+
+        class spell_gen_mark_of_warsong_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_mark_of_warsong_AuraScript);
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                p_AurEff->GetBase()->ModStackAmount(9);
+            }
+
+            void OnPeriodic(constAuraEffectPtr p_AurEff)
+            {
+                if (p_AurEff->GetBase()->GetStackAmount() > 1)
+                    p_AurEff->GetBase()->SetStackAmount(p_AurEff->GetBase()->GetStackAmount() - 1);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_gen_mark_of_warsong_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_RATING, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_mark_of_warsong_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_mark_of_warsong_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_mark_of_warsong();
+    new spell_gen_savage_fortitude();
     new spell_dru_touch_of_the_grave();
     new spell_gen_drums_of_fury();
     new spell_gen_absorb0_hitlimit1();
@@ -4515,5 +4600,6 @@ void AddSC_generic_spell_scripts()
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
+    new PlayerScript_gen_remove_rigor_mortis();
     new Resolve::PlayerScript_Resolve();
 }

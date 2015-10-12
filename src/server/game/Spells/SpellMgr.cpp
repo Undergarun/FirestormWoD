@@ -2892,9 +2892,6 @@ void SpellMgr::LoadSpellClassInfo()
         if (!classEntry)
             continue;
 
-        // Player damage reduction (72% base resilience)
-        mSpellClassInfo[l_ClassID].insert(115043);
-        mSpellClassInfo[l_ClassID].insert(142689);
         // Player mastery activation
         mSpellClassInfo[l_ClassID].insert(114585);
         // Battle Fatigue
@@ -3388,6 +3385,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 173192: ///< Cave In (Dot)
+            case 159686: ///< Acidback Puddle (DoT)
+            case 156203: ///< Retched Blackrock (Oregorger)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 175091: ///< Animate Slag
@@ -3398,6 +3397,18 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155077: ///< Overwhelming Blows (Gruul)
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
+            case 159632: ///< Insatiable Hunger
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 160665: ///< Rolling Box (Oregorger)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 155819: ///< Hunger Drive (Oregorger)
+                spellInfo->Attributes &= ~SPELL_ATTR0_DEBUFF;
+                break;
+            case 155897: ///< Earthshaking Collision (Oregorger)
+                spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 167650: ///< Loose Quills (Rukhmar)
@@ -6410,11 +6421,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->SetDurationIndex(18); ///< 20s Duration
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-                break;
-            /// Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
-            /// @TODO: Remove this hack when we out S14
-            case 142689:
-                spellInfo->Effects[0].BasePoints = -2500;
                 break;
             case 123011: ///< Terrorize Player (tsulong spell)
                 spellInfo->MaxAffectedTargets = 1;

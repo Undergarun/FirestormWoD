@@ -1677,6 +1677,7 @@ class spell_warr_execute: public SpellScriptLoader
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
                 int32 l_Damage = GetHitDamage();
 
                 /// If damage is 0 we should return script, to prevent double rage consuming
@@ -1702,7 +1703,9 @@ class spell_warr_execute: public SpellScriptLoader
                 if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
                     l_Aura->Remove();
 
-                if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                bool l_ApplyMastery = l_Target != nullptr && l_Target->GetHealthPct() <= 20.0f;
+
+                if (l_ApplyMastery && l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
                     float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
 
@@ -1825,6 +1828,22 @@ class spell_warr_shield_charge: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_shield_charge_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (!l_Player)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_WARRIOR_PROTECTION)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->GetShapeshiftForm() != FORM_GLADIATORSTANCE)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -1838,6 +1857,7 @@ class spell_warr_shield_charge: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warr_shield_charge_SpellScript::CheckCast);
                 OnCast += SpellCastFn(spell_warr_shield_charge_SpellScript::HandleOnCast);
             }
         };

@@ -1247,7 +1247,7 @@ public:
             if (l_Target == nullptr || l_Owner == nullptr)
                 return;
 
-            if (l_Owner->GetTypeId() == TypeID::TYPEID_PLAYER && l_Owner->ToPlayer()->HasSpellCooldown(PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE))
+            if (p_DmgInfo.GetSpellInfo() && ((p_DmgInfo.GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REDIRECTED) || (p_DmgInfo.GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED)))
                 return;
 
             if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
@@ -1258,9 +1258,6 @@ public:
                     {
                         int32 l_Damage = CalculatePct(p_DmgInfo.GetAbsorb(), l_ReflectiveShield->GetAmount());
                         l_Owner->CastCustomSpell(l_Attacker, PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
-
-                        if (l_Owner->GetTypeId() == TypeID::TYPEID_PLAYER)
-                            l_Owner->ToPlayer()->AddSpellCooldown(PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, 0, 200);
                     }
                 }
             }
@@ -1940,7 +1937,8 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
 
                 l_Caster->CastSpell(l_Target, eSpells::CascadeMarker2, true);
 
-                l_FirstCaster->CastSpell(l_Target, l_HealingSpell->Id, true);
+                if (l_FirstCaster)
+                    l_FirstCaster->CastSpell(l_Target, l_HealingSpell->Id, true);
 
                 if (l_ActualWave >= l_CascadeSpell->Effects[EFFECT_0].BasePoints)
                     return;
@@ -1951,7 +1949,21 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                 l_Target->VisitNearbyObject(l_Radius, l_Searcher);
 
                 l_FriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
-                JadeCore::RandomResizeList(l_FriendlyUnitListTemp, l_CascadeSpell->Effects[EFFECT_1].BasePoints);
+
+                l_FriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (!l_FirstCaster->IsValidAssistTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
+                l_FriendlyUnitListTemp.sort(JadeCore::HealthPctOrderPred());
+                if ((uint32)l_FriendlyUnitListTemp.size() > (uint32)l_CascadeSpell->Effects[EFFECT_1].BasePoints)
+                    l_FriendlyUnitListTemp.resize(l_CascadeSpell->Effects[EFFECT_1].BasePoints);
 
                 for (auto l_Itr : l_FriendlyUnitListTemp)
                 {
@@ -2089,7 +2101,20 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                 l_Target->VisitNearbyObject(l_Radius, l_Searcher);
 
                 l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
-                JadeCore::RandomResizeList(l_UnFriendlyUnitListTemp, l_CascadeSpell->Effects[EFFECT_1].BasePoints);
+
+                l_UnFriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (!l_FirstCaster->IsValidAttackTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
+                if ((uint32)l_UnFriendlyUnitListTemp.size() > (uint32)l_CascadeSpell->Effects[EFFECT_1].BasePoints)
+                    JadeCore::RandomResizeList(l_UnFriendlyUnitListTemp, l_CascadeSpell->Effects[EFFECT_1].BasePoints);
 
                 for (auto l_Itr : l_UnFriendlyUnitListTemp)
                 {
@@ -3244,7 +3269,7 @@ public:
 
             if (l_Caster->HasAura(PRIEST_SPELL_CLARITY_OF_POWER))
             {
-                if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN)) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH))) ///< Shadow word: pain or Vampiric touch
+                if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID())) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID()))) ///< Shadow word: pain or Vampiric touch
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_Caster->GetAura(PRIEST_SPELL_CLARITY_OF_POWER)->GetEffect(EFFECT_0)->GetAmount()));
             }
         }
