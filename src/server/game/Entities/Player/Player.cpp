@@ -5912,7 +5912,7 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
         if (Pet* l_Pet = GetPet())
         {
             // notify player
-            for (auto l_Itr = l_Pet->m_CreatureSpellCooldowns.begin(); l_Itr != l_Pet->m_CreatureSpellCooldowns.end();)
+            for (auto l_Itr = l_Pet->m_CreatureSpellCooldowns.begin(); l_Itr != l_Pet->m_CreatureSpellCooldowns.end(); l_Itr++)
                 SendClearCooldown(l_Itr->first, l_Pet);
 
             // actually clear cooldowns
