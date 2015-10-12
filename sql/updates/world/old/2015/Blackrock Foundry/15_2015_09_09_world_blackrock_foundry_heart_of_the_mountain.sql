@@ -383,4 +383,4 @@ INSERT INTO spell_script_names VALUES
 
 DELETE FROM gameobject_template WHERE entry = 227616;
 INSERT INTO gameobject_template VALUE
-(227616, 0, 10267, 'Volcanic Bomb', '', '', '', 16, 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 19865);
+(227616, 0, 10267, 'Volcanic Bomb', '', '', '', 16, 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 19865);

@@ -1577,6 +1577,12 @@ class npc_foundry_slag_behemoth : public CreatureScript
             TalkBlastWave
         };
 
+        enum eGameObjects
+        {
+            VolcanicBomb    = 227616,
+            IceBlock        = 201722
+        };
+
         struct npc_foundry_slag_behemothAI : public ScriptedAI
         {
             npc_foundry_slag_behemothAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -1594,9 +1600,22 @@ class npc_foundry_slag_behemoth : public CreatureScript
                     if (GameObject* l_FurnaceDoor = me->FindNearestGameObject(eFoundryGameObjects::BlastFurnaceEncounterDoor, 30.0f))
                     {
                         m_EncounterDoor = l_FurnaceDoor->GetGUID();
-                        l_FurnaceDoor->SetGoState(GOState::GO_STATE_ACTIVE);
+                        l_FurnaceDoor->SetGoState(GOState::GO_STATE_READY);
                     }
                 });
+
+                std::list<GameObject*> l_Gobs;
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::IceBlock, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
+
+                l_Gobs.clear();
+
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::VolcanicBomb, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -1609,7 +1628,20 @@ class npc_foundry_slag_behemoth : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 if (GameObject* l_FurnaceDoor = GameObject::GetGameObject(*me, m_EncounterDoor))
-                    l_FurnaceDoor->SetGoState(GOState::GO_STATE_READY);
+                    l_FurnaceDoor->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                std::list<GameObject*> l_Gobs;
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::IceBlock, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
+
+                l_Gobs.clear();
+
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::VolcanicBomb, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -2044,27 +2076,35 @@ class spell_foundry_blast_wave : public SpellScriptLoader
                 IceBlock        = 201722
             };
 
-            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            void SelectIceBlocks(std::list<WorldObject*>& p_Targets)
             {
-                if (p_Targets.empty())
-                    return;
+                p_Targets.clear();
 
-                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_GAMEOBJECT)
-                        return true;
+                    for (uint8 l_I = 0; l_I < (uint8)EFFECT_2; ++l_I)
+                    {
+                        float l_Radius = GetSpellInfo()->Effects[l_I].CalcRadius(l_Caster);
 
-                    if (p_Object->GetEntry() != eGameObjects::VolcanicBomb && p_Object->GetEntry() != eGameObjects::IceBlock)
-                        return true;
+                        std::list<GameObject*> l_GoBList;
+                        l_Caster->GetGameObjectListWithEntryInGrid(l_GoBList, l_I == 0 ? eGameObjects::IceBlock : eGameObjects::VolcanicBomb, l_Radius);
 
-                    return false;
-                });
+                        for (GameObject* l_Gob : l_GoBList)
+                            p_Targets.push_back(l_Gob);
+                    }
+                }
+            }
+
+            void HandleActivateObject(SpellEffIndex p_EffIndex)
+            {
+                if (GameObject* l_GameObject = GetHitGObj())
+                    l_GameObject->Delete();
             }
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_blast_wave_SpellScript::CorrectTargets, EFFECT_0, TARGET_GAMEOBJECT_SRC_AREA);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_blast_wave_SpellScript::CorrectTargets, EFFECT_1, TARGET_GAMEOBJECT_SRC_AREA);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_blast_wave_SpellScript::SelectIceBlocks, EFFECT_0, TARGET_GAMEOBJECT_SRC_AREA);
+                OnEffectHitTarget += SpellEffectFn(spell_foundry_blast_wave_SpellScript::HandleActivateObject, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
             }
         };
 
