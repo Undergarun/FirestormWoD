@@ -5871,9 +5871,11 @@ void Player::RemoveSpellCooldown(uint32 p_SpellId, bool p_Update /* = false */)
 
 void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
 {
-    // remove cooldowns on spells that have < 10 min CD
-    for (auto l_Itr = m_spellCooldowns.begin(); l_Itr != m_spellCooldowns.end();)
+    SpellCooldowns::iterator l_Itr, l_Next;
+    for (l_Itr = m_spellCooldowns.begin(); l_Itr != m_spellCooldowns.end(); l_Itr = l_Next)
     {
+        l_Next = l_Itr;
+        ++l_Next;
         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Itr->first);
         // check if spellentry is present and if the cooldown is less than 10 min
         if (l_SpellInfo &&
@@ -5883,10 +5885,7 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
         {
             // remove & notify
             RemoveSpellCooldown(l_Itr->first, true);
-            l_Itr = m_spellCooldowns.begin();
         }
-        else
-            l_Itr++;
     }
 
     /// Remove spell charge cooldown that have < 10 min CD
