@@ -1224,6 +1224,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         }
     }
 
+    LOG_SPELL(caster, GetId(), "CalculateAmount(): Aura %s: EffIndex %i: : Amount %i (DoneActualBenefit %i) * %i (stacks)", GetSpellInfo()->GetNameForLogging().c_str(), GetEffIndex(), amount, DoneActualBenefit, GetBase()->GetStackAmount());
     amount *= GetBase()->GetStackAmount();
 
     return amount;
@@ -1969,6 +1970,10 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 spellId2 = 107903;
             break;
         case FORM_GHOSTWOLF:
+        /// Glyph of the Ghost Wolf
+            if (target->HasAura(58135) || !apply)
+                spellId = 160942;
+            break;
         case FORM_GHOUL:
         case FORM_AMBIENT:
         case FORM_STEALTH:

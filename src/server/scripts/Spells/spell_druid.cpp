@@ -2367,6 +2367,10 @@ class spell_dru_eclipse : public PlayerScript
             if (!l_EclipseData.m_EclipseCycleActive)
             {
                 p_NewValue = 0;
+
+                if (p_Player->HasAura(Eclipse::Spell::Sunfire))
+                    p_Player->RemoveAurasDueToSpell(Eclipse::Spell::Sunfire);
+
                 return;
             }
 
@@ -2885,8 +2889,7 @@ class spell_dru_shooting_stars : public SpellScriptLoader
 
                 /// Shooting Stars restores 1 charge of Starsurge and Starfall. (share same charges category)
                 if (SpellInfo const* l_Starsurge = sSpellMgr->GetSpellInfo(eSpells::Starsurge))
-                    if (SpellCategoriesEntry const* l_StarsurgeCategories = l_Starsurge->GetSpellCategories())
-                        l_Player->RestoreCharge(l_StarsurgeCategories->ChargesCategory);
+                    l_Player->RestoreCharge(l_Starsurge->ChargeCategoryEntry);
             }
 
             void Register()
@@ -4383,7 +4386,7 @@ class spell_dru_starsurge : public SpellScriptLoader
 
                 if (l_EclipseAmount < 0)
                     l_Caster->CastSpell(l_Caster, eSpells::SolarEmpowerment, true);
-                else if (l_EclipseAmount > 0)
+                else if (l_EclipseAmount >= 0)
                     l_Caster->CastSpell(l_Caster, eSpells::LunarEmpowerment, true);
             }
 
@@ -4764,10 +4767,7 @@ public:
                 return;
 
             if (SpellInfo const* l_Starsurge = sSpellMgr->GetSpellInfo(eSpells::Starsurge))
-            {
-                if (SpellCategoriesEntry const* l_StarsurgeCategories = l_Starsurge->GetSpellCategories())
-                    l_Player->RestoreCharge(l_StarsurgeCategories->ChargesCategory);
-            }
+                l_Player->RestoreCharge(l_Starsurge->ChargeCategoryEntry);
         }
 
         void Register()

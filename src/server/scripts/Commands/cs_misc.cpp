@@ -34,6 +34,7 @@
 #include "DisableMgr.h"
 #include <fstream>
 
+#include "GarrisonMgr.hpp"
 #include "BattlegroundPacketFactory.hpp"
 #include "BattlegroundInvitationsMgr.hpp"
 
@@ -1012,7 +1013,7 @@ class misc_commandscript: public CommandScript
             if (!*p_Args)
             {
                 l_Target->RemoveAllSpellCooldown();
-                l_Target->SendClearAllSpellCharges();
+                l_Target->ResetAllCharges();
                 p_Handler->PSendSysMessage(LANG_REMOVEALL_COOLDOWN, l_NameLink.c_str());
             }
             else
@@ -1031,12 +1032,7 @@ class misc_commandscript: public CommandScript
                 }
 
                 l_Target->RemoveSpellCooldown(l_SpellID, true);
-
-                if (SpellCategoriesEntry const* l_CatEntry = l_SpellInfo->GetSpellCategories())
-                {
-                    l_Target->SendClearSpellCharges(l_CatEntry->Category);
-                    l_Target->m_SpellChargesMap.erase(l_CatEntry->Category);
-                }
+                l_Target->ResetCharges(l_SpellInfo->ChargeCategoryEntry);
 
                 p_Handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, l_SpellID, l_Target == p_Handler->GetSession()->GetPlayer() ? p_Handler->GetTrinityString(LANG_YOU) : l_NameLink.c_str());
             }
@@ -1695,6 +1691,7 @@ class misc_commandscript: public CommandScript
             uint32 mapId;
             uint32 areaId;
             uint32 phase = 0;
+            uint32 l_GarrisonID = 0;
 
             // get additional information from Player object
             if (target)
@@ -1714,6 +1711,9 @@ class misc_commandscript: public CommandScript
                 mapId = target->GetMapId();
                 areaId = target->GetAreaId();
                 phase = target->GetPhaseMask();
+
+                if (MS::Garrison::Manager* l_Garr = target->GetGarrison())
+                    l_GarrisonID = l_Garr->GetGarrisonID();
             }
             // get additional information from DB
             else
@@ -1937,9 +1937,9 @@ class misc_commandscript: public CommandScript
             if (target)
             {
                 if (!zoneName.empty())
-                    handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->MapNameLang, zoneName.c_str(), areaName.c_str(), phase);
+                    handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, l_GarrisonID, map->MapNameLang, zoneName.c_str(), areaName.c_str(), phase);
                 else
-                    handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->MapNameLang, areaName.c_str(), "<unknown>", phase);
+                    handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, l_GarrisonID, map->MapNameLang, areaName.c_str(), "<unknown>", phase);
             }
             else
                 handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->MapNameLang, areaName.c_str());

@@ -296,7 +296,7 @@ public:
     bool IsPeriodicEffect() const;
     bool CanScale() const;
 
-    int32 CalcValue(Unit const* p_Caster = nullptr, int32 const* p_BasePoints = nullptr, Unit const* p_Target = nullptr, Item const* p_Item = nullptr) const;
+    int32 CalcValue(Unit const* p_Caster = nullptr, int32 const* p_BasePoints = nullptr, Unit const* p_Target = nullptr, Item const* p_Item = nullptr, bool p_Log = false) const;
     int32 CalcBaseValue(int32 value) const;
     float CalcValueMultiplier(Unit* caster, Spell* spell = nullptr) const;
     float CalcDamageMultiplier(Unit* caster, Spell* spell = nullptr) const;
@@ -326,8 +326,7 @@ class SpellInfo
 {
 public:
     uint32 Id;
-    uint32 Category;
-    uint32 CategoryFlags;
+    SpellCategoryEntry const* CategoryEntry;
     uint32 Dispel;
     uint32 Mechanic;
     uint32 Attributes;
@@ -406,6 +405,7 @@ public:
     uint32 PreventionType;
     int32  AreaGroupId;
     uint32 SchoolMask;
+    SpellCategoryEntry const* ChargeCategoryEntry;
     uint32 SpellDifficultyId;
     uint32 SpellScalingId;
     uint32 SpellAuraOptionsId;
@@ -466,6 +466,7 @@ public:
     SpellInfo(SpellEntry const* spellEntry, uint32 difficulty);
     ~SpellInfo();
 
+    uint32 GetCategory() const;
     bool HasEffect(SpellEffects effect) const;
     SpellEffectInfo const* GetEffectByType(SpellEffects p_Effect) const;
 
@@ -640,6 +641,8 @@ public:
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();
+
+    std::string GetNameForLogging() const;
 };
 
 #endif // _SPELLINFO_H

@@ -1,0 +1,2 @@
+-- Add GarrisonID in PInfo command
+UPDATE trinity_string SET content_default = "GarrisonID : %u, Map: %s, Area: %s, Zone: %s, Phase: %u", content_loc3 = "GarrisonID : %u, Map: %s, Area: %s, Zone: %s, Phase: %u" WHERE entry = 714;

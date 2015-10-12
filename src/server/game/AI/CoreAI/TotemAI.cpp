@@ -91,8 +91,11 @@ void TotemAI::UpdateAI(uint32 const /*diff*/)
     {
         if (!me->HasUnitState(UNIT_STATE_CASTING))
         {
-            // remember
-            i_victimGuid = victim->GetGUID();
+            // remember or force to reselect a victim
+            if (i_victimGuid && me->GetCharmerOrOwner() && victim != me->GetCharmerOrOwner()->getVictim())
+                i_victimGuid = 0;
+            else
+                i_victimGuid = victim->GetGUID();
 
             // attack
             me->SetInFront(victim);                         // client change orientation by self

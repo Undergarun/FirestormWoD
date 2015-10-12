@@ -25,6 +25,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Unit.h"
+#include "SpellLogMgr.h"
 
 class SpellInfo;
 class Player;

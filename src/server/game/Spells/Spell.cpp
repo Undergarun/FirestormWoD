@@ -4259,8 +4259,8 @@ void Spell::_handle_finish_phase()
 
 void Spell::SendSpellCooldown()
 {
-    Player* _player = m_caster->ToPlayer();
-    if (!_player)
+    Player* l_Player = m_caster->ToPlayer();
+    if (!l_Player)
     {
         // Handle pet cooldowns here if needed instead of in PetAI to avoid hidden cooldown restarts
         Creature* _creature = m_caster->ToCreature();
@@ -4270,11 +4270,14 @@ void Spell::SendSpellCooldown()
         return;
     }
 
+    if (l_Player && l_Player->ConsumeCharge(m_spellInfo->ChargeCategoryEntry))
+        return;
+
     // mana/health/etc potions, disabled by client (until combat out as declarate)
     if (m_CastItem && (m_CastItem->IsPotion() || m_CastItem->IsHealthstone() || m_spellInfo->IsCooldownStartedOnEvent()))
     {
         // need in some way provided data for Spell::finish SendCooldownEvent
-        _player->SetLastPotionId(m_CastItem->GetEntry());
+        l_Player->SetLastPotionId(m_CastItem->GetEntry());
         return;
     }
 
@@ -4285,7 +4288,7 @@ void Spell::SendSpellCooldown()
     if (m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
         return;
 
-    _player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : m_CastItemEntry, this);
+    l_Player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : m_CastItemEntry, this);
 }
 
 void Spell::update(uint32 difftime)
@@ -5965,7 +5968,12 @@ void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_
     destTarget       = &m_destTargets[p_I]._position;
 
     uint8 l_Effect = m_spellInfo->Effects[p_I].Effect;
-    damage         = CalculateDamage(p_I, unitTarget);
+    damage = CalculateDamage(p_I, unitTarget);
+
+    /// Prevent recalculating base damage for every posible target in case of AoE spells 
+    /// @TODO_SOVAK: Rewrite this shit! :P
+    /*if (p_Mode == SPELL_EFFECT_HANDLE_HIT || p_Mode == SPELL_EFFECT_HANDLE_LAUNCH)
+        damage = CalculateDamage(p_I, unitTarget, p_Mode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET);*/
 
     bool l_PreventDefault = CallScriptEffectHandlers((SpellEffIndex)p_I, p_Mode);
     if (!l_PreventDefault && l_Effect < TOTAL_SPELL_EFFECTS)
@@ -6063,13 +6071,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_NOT_READY;
         }
 
-        auto const categories = m_spellInfo->GetSpellCategories();
-        if (categories && categories->ChargesCategory != 0)
-        {
-            auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-            if (category && !l_Player->CanUseCharge(category))
-                return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
-        }
+        if (!l_Player->HasCharge(m_spellInfo->ChargeCategoryEntry))
+            return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
 
         // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
         if (l_Player->GetLastPotionId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))

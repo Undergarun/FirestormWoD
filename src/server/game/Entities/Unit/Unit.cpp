@@ -2080,8 +2080,12 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     if (tmpvalue > 0.85f)
         tmpvalue = 0.85f;
 
-    newdamage = uint32(damage - (damage * tmpvalue));
-    return (newdamage > 1) ? newdamage : 1;
+    newdamage = std::max((int)(damage - (damage * tmpvalue)), 1);
+
+    if (spellInfo)
+        LOG_SPELL(this, spellInfo->Id, "Spell %s: CalcArmorReducedDamage(): %i - %f = %i", spellInfo->GetNameForLogging().c_str(), damage, tmpvalue * 100.f, newdamage);
+
+    return newdamage;
 }
 
 bool Unit::IsSpellResisted(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo)
@@ -3380,6 +3384,9 @@ void Unit::_UpdateSpells(uint32 time)
                 ++itr;
         }
     }
+
+    if (ToPlayer())
+        ToPlayer()->UpdateCharges();
 }
 
 void Unit::_UpdateAutoRepeatSpell()
@@ -4764,6 +4771,18 @@ void Unit::RemoveAllAurasByType(AuraType type)
             RemoveOwnedAura(iter, AURA_REMOVE_BY_DEFAULT);
         else
             ++iter;
+    }
+}
+
+void Unit::RemoveAllAurasByCaster(uint64 p_Guid)
+{
+    for (AuraMap::iterator l_Iter = m_ownedAuras.begin(); l_Iter != m_ownedAuras.end();)
+    {
+        AuraPtr p_Aura = l_Iter->second;
+        if (p_Aura->GetCasterGUID() == p_Guid)
+            RemoveOwnedAura(l_Iter, AURA_REMOVE_BY_DEFAULT);
+        else
+            ++l_Iter;
     }
 }
 
@@ -9682,16 +9701,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 57955: // Glyph of Flash of Light
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 19750)
-                return false;
-
-            break;
-        }
         case 122509:// Ultimatum
         {
             if (!procSpell)
@@ -10018,7 +10027,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         {
             // Remove cooldown on Shield Slam
             if (GetTypeId() == TYPEID_PLAYER)
-                ToPlayer()->RemoveSpellCategoryCooldown(1209, true);
+                ToPlayer()->ResetCharges(procSpell->ChargeCategoryEntry);
             break;
         }
         // Maelstrom Weapon
@@ -11493,14 +11502,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
         DoneTotal += CalculatePct(pdamage, amount);
     }
-
-    // Apply Power PvP damage bonus
-    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
-    {
-        float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE);
-        DoneTotal += CalculatePct(pdamage, PvPPower);
-    }
-
     // 76613 - Mastery : Icicles
     if (spellProto && victim)
     {
@@ -11598,6 +11599,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
     // Check for table values
     float coeff = 0;
+
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     if (bonus && (spellProto->Effects[effIndex].BonusMultiplier == 0.0f && spellProto->Effects[effIndex].AttackPowerMultiplier == 0.0f))
     {
@@ -11626,10 +11628,15 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     }
 
     // Done Percentage for DOT is already calculated, no need to do it again. The percentage mod is applied in Aura::HandleAuraSpecificMods.
-    float tmpDamage = (int32(pdamage) + DoneTotal) * (damagetype == DOT ? 1.0f : SpellDamagePctDone(victim, spellProto, damagetype));
+    float l_Multiplier = damagetype == DOT ? 1.0f : SpellDamagePctDone(victim, spellProto, damagetype);
+    float tmpDamage = (int32(pdamage) + DoneTotal) * l_Multiplier;
+    float tempTmpDamage = tmpDamage;
+
     // apply spellmod to Done damage (flat and pct)
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, tmpDamage);
+
+    LOG_SPELL(this, spellProto->Id, "SpellDamageBonusDone(): Spell %s: ((%i + %i (DoneTotal)) * %f (SpellDamagePctDone)) = %f + %f (Mods) = %f", spellProto->GetNameForLogging().c_str(), pdamage, DoneTotal, l_Multiplier, tempTmpDamage, tmpDamage - tempTmpDamage, tmpDamage);
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
@@ -11706,7 +11713,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             DoneTotalMod += CalculatePct(1.0f, (*i)->GetAmount());
 
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
-    DoneTotalMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic);
+    DoneTotalMod += CalculatePct(1.0f, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
 
     // done scripted mod (take it from owner)
     Unit const* owner = GetOwner() ? GetOwner() : this;
@@ -12056,7 +12063,7 @@ void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int
     Player* l_ModOwner = GetSpellModOwner();
 
     if (IsSpellMultistrike(p_ProcSpell) &&
-        (p_ProcSpell->Id == 17 || p_ProcSpell->Id == 152118 || p_ProcSpell->Id == 114908))
+        (p_ProcSpell->Id == 17 || p_ProcSpell->Id == 152118 || p_ProcSpell->Id == 114908 || p_ProcSpell->Id == 65148))
     {
         uint8 l_ProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
         for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
@@ -13193,13 +13200,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             DoneTotalMod += CalculatePct(1.0, amount);
     }
 
-    // Apply Power PvP damage bonus
-    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
-    {
-        float PvPPower = GetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE);
-        DoneTotalMod += CalculatePct(1.0, PvPPower);
-    }
-    
     // Custom MoP Script
     // 76856 - Mastery : Unshackled Fury
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0)
@@ -13302,11 +13302,15 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     // AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
 
     float tmpDamage = float(int32(pdamage) + DoneFlatBenefit) * DoneTotalMod;
+    float preTmpDamage = tmpDamage;
 
     // apply spellmod to Done damage
     if (spellProto)
         if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, tmpDamage);
+
+    if (spellProto)
+        LOG_SPELL(this, spellProto->Id, "MeeleDamageBonusDone(): Spell %s: ((%i + %i (DoneFlatBenefit)) * %f (DoneTotalMod)) = %f + %f (Mods) = %f", spellProto->GetNameForLogging().c_str(), pdamage, DoneFlatBenefit, DoneTotalMod, preTmpDamage, tmpDamage - preTmpDamage, tmpDamage);
 
     // bonus result can be negative
     return uint32(std::max(tmpDamage, 0.0f));
@@ -15131,9 +15135,9 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
 }
 
 // function uses real base points (typically value - 1)
-int32 Unit::CalculateSpellDamage(Unit const* p_Target, SpellInfo const* p_SpellProto, uint8 p_EffectIndex, int32 const* p_BasePoints, Item const* p_Item) const
+int32 Unit::CalculateSpellDamage(Unit const* p_Target, SpellInfo const* p_SpellProto, uint8 p_EffectIndex, int32 const* p_BasePoints, Item const* p_Item, bool p_Log /* = false */) const
 {
-    return p_SpellProto->Effects[p_EffectIndex].CalcValue(this, p_BasePoints, p_Target, p_Item);
+    return p_SpellProto->Effects[p_EffectIndex].CalcValue(this, p_BasePoints, p_Target, p_Item, p_Log);
 }
 
 int32 Unit::CalcSpellDuration(SpellInfo const* p_SpellInfo)
@@ -15495,6 +15499,9 @@ bool Unit::IsInDisallowedMountForm() const
 
         if (!(l_Shapeshift->m_Flags & 0x1))
             return true;
+
+        if (l_Form == FORM_MOONKIN)
+            return false;
     }
 
     if (GetDisplayId() == GetNativeDisplayId())
@@ -17222,7 +17229,7 @@ bool Unit::IsNoBreakingCC(bool isVictim, Unit* target, uint32 procFlag, uint32 p
                           uint32 damage, uint32 absorb /* = 0 */, SpellInfo const* procAura /* = NULL */, SpellInfo const* spellInfo ) const
 {
     // Dragon Breath & Living Bomb
-    if (spellInfo->Category == 1215 && procSpell &&
+    if (spellInfo->GetCategory() == 1215 && procSpell &&
         procSpell->SpellFamilyName == SPELLFAMILY_MAGE && procSpell->SpellFamilyFlags[1] == 0x00010000)
         return true;
 

@@ -1829,6 +1829,14 @@ class spell_monk_surging_mist: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_surging_mist_SpellScript);
 
+            enum eSpells
+            {
+                StanceoftheSturdyOx = 115069,
+                StanceoftheFierceTiger = 103985,
+                StanceoftheWiseSerpent = 115070,
+                StanceoftheSpiritedCrane = 154436
+            };
+
             void HandleOnPrepare()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -1850,10 +1858,11 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                if ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && !l_Player->HasAura(eSpells::StanceoftheSturdyOx)) ||
+                    ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec()) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
                     l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, -30, POWER_ENERGY);
-                else
-                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
             }
 
             void HandleHeal(SpellEffIndex effIndex)
@@ -1923,8 +1932,7 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
                 if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
                 {
                     if (SpellInfo const* l_RenewingMist = sSpellMgr->GetSpellInfo(eSpells::RenewingMist))
-                        if (SpellCategoriesEntry const* l_RenewingMistCategories = l_RenewingMist->GetSpellCategories())
-                            l_Player->RestoreCharge(l_RenewingMistCategories->ChargesCategory);
+                        l_Player->RestoreCharge(l_RenewingMist->ChargeCategoryEntry);
                 }
             }
 
@@ -2046,8 +2054,13 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
 
-                if (l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE ||
-                    l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_ENEMY_SPELL)
+                if (l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);
+                }
+
+                if (l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE)
                 {
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);
@@ -4427,8 +4440,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
                 {
                     if (SpellInfo const* l_RisingSunKick = sSpellMgr->GetSpellInfo(eSpells::RisingSunKick))
-                        if (SpellCategoriesEntry const* l_RisingSunKickCategories = l_RisingSunKick->GetSpellCategories())
-                            l_Player->RestoreCharge(l_RisingSunKickCategories->ChargesCategory);
+                            l_Player->RestoreCharge(l_RisingSunKick->ChargeCategoryEntry);
                 }
             }
 
@@ -5192,8 +5204,7 @@ public:
                 return;
 
             if (SpellInfo const* l_Roll = sSpellMgr->GetSpellInfo(eSpells::Roll))
-                if (SpellCategoriesEntry const* l_RollCategories = l_Roll->GetSpellCategories())
-                    l_Player->RestoreCharge(l_RollCategories->ChargesCategory);
+                l_Player->RestoreCharge(l_Roll->ChargeCategoryEntry);
         }
 
         void Register()

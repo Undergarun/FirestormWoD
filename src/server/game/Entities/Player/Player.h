@@ -53,6 +53,8 @@
 #include <mutex>
 #include <ace/Stack_Trace.h>
 #include <unordered_set>
+#include <chrono>
+#include <deque>
 
 struct Mail;
 struct ItemExtendedCostEntry;
@@ -72,6 +74,8 @@ class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
 typedef std::set<uint32> DailyLootsCooldowns;
+
+typedef std::chrono::system_clock Clock;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
@@ -1477,40 +1481,17 @@ typedef std::map<uint32, PlayerToy> PlayerToys;
 
 using BossLooted = std::set<uint64>;
 
-struct ChargesData
+struct ChargeEntry
 {
-    ChargesData()
-    {
-        m_MaxCharges = 0;
-        m_ConsumedCharges = 0;
-    }
+    ChargeEntry() { }
+    ChargeEntry(Clock::time_point p_StartTime, std::chrono::milliseconds p_RechargeTime) : RechargeStart(p_StartTime), RechargeEnd(p_StartTime + p_RechargeTime) { }
+    ChargeEntry(Clock::time_point p_StartTime, Clock::time_point p_EndTime) : RechargeStart(p_StartTime), RechargeEnd(p_EndTime) { }
 
-    ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown, uint32 p_Charges = 1)
-    {
-        m_MaxCharges = p_MaxCharges;
-
-        // Called in ConsumeCharge, so one charge has gone
-        m_ConsumedCharges = p_Charges;
-
-        m_ChargesCooldown.push_back(p_Cooldown);
-    }
-
-    std::vector<uint64> GetChargesCooldown() const { return m_ChargesCooldown; }
-    void DecreaseCooldown(uint8 p_Charge, uint32 p_Time)
-    {
-        if (p_Charge >= m_MaxCharges)
-            return;
-
-        m_ChargesCooldown[p_Charge] -= p_Time;
-    }
-
-    uint32 m_MaxCharges;
-    uint32 m_ConsumedCharges;
-    std::vector<uint64> m_ChargesCooldown;
+    Clock::time_point RechargeStart;
+    Clock::time_point RechargeEnd;
 };
 
-///            CategoryID
-typedef std::map<uint32, ChargesData> SpellChargesMap;
+typedef std::unordered_map<uint32 /*categoryId*/, std::deque<ChargeEntry>> ChargeStorageType;
 
 struct CompletedChallenge
 {
@@ -2355,12 +2336,10 @@ class Player : public Unit, public GridObject<Player>
         void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
         void ReduceSpellCooldown(uint32 spell_id, time_t modifyTime);
         void RemoveSpellCooldown(uint32 spell_id, bool update = false);
-        void RemoveSpellCategoryCooldown(uint32 cat, bool update = false);
         void SendClearCooldown(uint32 p_SpellID, Unit * p_Target, bool p_ClearOnHold = false);
 
         GlobalCooldownMgr& GetGlobalCooldownMgr() { return m_GlobalCooldownMgr; }
 
-        void RemoveCategoryCooldown(uint32 cat);
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         void RemoveAllSpellCooldown();
         void _LoadSpellCooldowns(PreparedQueryResult result);
@@ -2615,7 +2594,6 @@ class Player : public Unit, public GridObject<Player>
         void UpdateParryPercentage();
         void UpdateDodgePercentage();
         void UpdateMasteryPercentage();
-        void UpdatePvPPowerPercentage();
         void UpdateMultistrikePercentage();
         void UpdateLeechPercentage();
         void UpdateVersatilityPercentage();
@@ -3520,21 +3498,18 @@ class Player : public Unit, public GridObject<Player>
 
         //////////////////////////////////////////////////////////////////////////
         /// SpellCharges
-        SpellChargesMap m_SpellChargesMap;
+        ChargeStorageType m_CategoryCharges;
 
         void SendSpellCharges();
-        void SendClearAllSpellCharges();
-        void SendSetSpellCharges(uint32 p_CategoryID);
-        void SendClearSpellCharges(uint32 p_CategoryID);
-
-        void RestoreCharge(uint32 p_CategoryID);
-        void ReduceChargeCooldown(uint32 p_CategoryID, uint64 p_Reductiontime);
-        uint32 CalcMaxCharges(SpellCategoryEntry const* p_Category) const;
-        bool CanUseCharge(SpellCategoryEntry const* p_Category) const;
-        void UpdateCharges(uint32 const p_Time);
-        void ConsumeCharge(SpellCategoryEntry const* p_Category);
-        ChargesData* GetChargesData(uint32 p_CategoryID);
-        int32 GetChargeRecoveryTime(SpellCategoryEntry const* p_Category) const;
+        void UpdateCharges();
+        bool ConsumeCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
+        void ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntry, uint64 p_Reductiontime);
+        void RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
+        void ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry);
+        void ResetAllCharges();
+        bool HasCharge(SpellCategoryEntry const* p_ChargeCategoryEntry) const;
+        uint32 GetMaxCharges(SpellCategoryEntry const* p_ChargeCategoryEntry) const;
+        int32 GetChargeRecoveryTime(SpellCategoryEntry const* p_ChargeCategoryEntry) const;
         //////////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////////

@@ -417,8 +417,7 @@ class spell_sha_ascendance_flame : public SpellScriptLoader
                     return;
 
                 if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
-                    if (SpellCategoriesEntry const* l_LavaBurstCategories = l_LavaBurst->GetSpellCategories())
-                        l_Player->RestoreCharge(l_LavaBurstCategories->ChargesCategory);
+                    l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
             }
 
             void Register()
@@ -456,8 +455,7 @@ class spell_sha_ascendance_air : public SpellScriptLoader
                     return;
 
                 if (SpellInfo const* l_Stormstrike = sSpellMgr->GetSpellInfo(eSpells::Stormstrike))
-                    if (SpellCategoriesEntry const* l_StormstrikeCategories = l_Stormstrike->GetSpellCategories())
-                        l_Player->RestoreCharge(l_StormstrikeCategories->ChargesCategory);
+                    l_Player->RestoreCharge(l_Stormstrike->ChargeCategoryEntry);
             }
 
             void Register()
@@ -1112,8 +1110,7 @@ class spell_sha_lava_surge: public SpellScriptLoader
                     return;
 
                 if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
-                    if (SpellCategoriesEntry const* l_LavaBurstCategories = l_LavaBurst->GetSpellCategories())
-                        l_Player->RestoreCharge(l_LavaBurstCategories->ChargesCategory);
+                    l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
             }
 
             void Register()
@@ -2080,8 +2077,7 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
                     return;;
 
                 if (SpellInfo const* l_LavaLash = sSpellMgr->GetSpellInfo(eSpells::LavaLash))
-                    if (SpellCategoriesEntry const* l_LavaLashCategories = l_LavaLash->GetSpellCategories())
-                        l_Player->RestoreCharge(l_LavaLashCategories->ChargesCategory);
+                    l_Player->RestoreCharge(l_LavaLash->ChargeCategoryEntry);
             }
 
             void Register()
@@ -2510,19 +2506,11 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     return;
 
                 if (SpellInfo const* l_LavaSurge = sSpellMgr->GetSpellInfo(eSpells::LavaSurge))
-                {
-                    if (SpellCategoriesEntry const* l_LavaSurgeCategories = l_LavaSurge->GetSpellCategories())
-                        l_Player->RestoreCharge(l_LavaSurgeCategories->ChargesCategory);
-                }
+                    l_Player->RestoreCharge(l_LavaSurge->ChargeCategoryEntry);
 
                 if (l_Player->HasAura(eSpells::LavaSurge))
-                {
                     if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
-                    {
-                        if (SpellCategoriesEntry const* l_LavaBurstCategories = l_LavaBurst->GetSpellCategories())
-                            l_Player->RestoreCharge(l_LavaBurstCategories->ChargesCategory);
-                    }
-                }
+                        l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
             }
 
             void Register()

@@ -179,6 +179,15 @@ public:
             Reset();
         }
 
+        void MoveInLineOfSight(Unit* p_Who)
+        {
+            if (!me->IsWithinDistInMap(p_Who, 25.f) && p_Who->isInCombat())
+            {
+                me->RemoveAllAurasByCaster(p_Who->GetGUID());
+                me->getHostileRefManager().deleteReference(p_Who);
+            }
+        }
+
         void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             resetTimer = 5000;
@@ -187,6 +196,9 @@ public:
             if (doneBy->HasAura(SPELL_AUTORITE))
                 if (doneBy->ToPlayer())
                     doneBy->ToPlayer()->KilledMonsterCredit(44175, 0);
+
+            me->SetInCombatWith(doneBy);
+            doneBy->SetInCombatWith(me);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -232,7 +244,6 @@ public:
             else
                 resetTimer -= diff;
         }
-        void MoveInLineOfSight(Unit* /*who*/){return;}
     };
 
     CreatureAI* GetAI(Creature* creature) const
