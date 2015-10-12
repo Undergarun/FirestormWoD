@@ -5876,12 +5876,15 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
     {
         l_Next = l_Itr;
         ++l_Next;
+
         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Itr->first);
+        uint32 l_Flags = (l_SpellInfo && l_SpellInfo->CategoryEntry) ? l_SpellInfo->CategoryEntry->Flags : 0;
+
         // check if spellentry is present and if the cooldown is less than 10 min
         if (l_SpellInfo &&
             l_SpellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
             l_SpellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
-            (l_SpellInfo->CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
+            (l_Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             // remove & notify
             RemoveSpellCooldown(l_Itr->first, true);
