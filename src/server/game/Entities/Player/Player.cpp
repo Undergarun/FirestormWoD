@@ -30479,7 +30479,7 @@ void Player::ActivateSpec(uint8 spec)
                         if (!l_GlyphPropertiesCheck)
                             continue;
 
-                        if (l_GlyphPropertiesCheck->GlyphExclusiveCategoryID == l_GlyphProperties->GlyphExclusiveCategoryID)
+                        if (l_GlyphPropertiesCheck->GlyphExclusiveCategoryID == l_GlyphProperties->GlyphExclusiveCategoryID && glyph != l_GlyphID)
                         {
                             l_CanApplyGlyph = false;
                             break;
