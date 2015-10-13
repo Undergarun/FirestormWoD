@@ -1831,10 +1831,10 @@ class spell_monk_surging_mist: public SpellScriptLoader
 
             enum eSpells
             {
-                StanceoftheSturdyOx = 115069,
-                StanceoftheFierceTiger = 103985,
-                StanceoftheWiseSerpent = 115070,
-                StanceoftheSpiritedCrane = 154436
+                StanceoftheSturdyOx         = 115069,
+                StanceoftheFierceTiger      = 103985,
+                StanceoftheWiseSerpent      = 115070,
+                StanceoftheSpiritedCrane    = 154436
             };
 
             void HandleOnPrepare()

@@ -5871,22 +5871,24 @@ void Player::RemoveSpellCooldown(uint32 p_SpellId, bool p_Update /* = false */)
 
 void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
 {
-    // remove cooldowns on spells that have < 10 min CD
-    for (auto l_Itr = m_spellCooldowns.begin(); l_Itr != m_spellCooldowns.end();)
+    SpellCooldowns::iterator l_Itr, l_Next;
+    for (l_Itr = m_spellCooldowns.begin(); l_Itr != m_spellCooldowns.end(); l_Itr = l_Next)
     {
+        l_Next = l_Itr;
+        ++l_Next;
+
         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Itr->first);
+        uint32 l_Flags = (l_SpellInfo && l_SpellInfo->CategoryEntry) ? l_SpellInfo->CategoryEntry->Flags : 0;
+
         // check if spellentry is present and if the cooldown is less than 10 min
         if (l_SpellInfo &&
             l_SpellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
             l_SpellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
-            (l_SpellInfo->CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
+            (l_Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET) == 0)
         {
             // remove & notify
             RemoveSpellCooldown(l_Itr->first, true);
-            l_Itr = m_spellCooldowns.begin();
         }
-        else
-            l_Itr++;
     }
 
     /// Remove spell charge cooldown that have < 10 min CD
@@ -5910,7 +5912,7 @@ void Player::RemoveArenaSpellCooldowns(bool p_RemoveActivePetCooldowns)
         if (Pet* l_Pet = GetPet())
         {
             // notify player
-            for (auto l_Itr = l_Pet->m_CreatureSpellCooldowns.begin(); l_Itr != l_Pet->m_CreatureSpellCooldowns.end();)
+            for (auto l_Itr = l_Pet->m_CreatureSpellCooldowns.begin(); l_Itr != l_Pet->m_CreatureSpellCooldowns.end(); l_Itr++)
                 SendClearCooldown(l_Itr->first, l_Pet);
 
             // actually clear cooldowns
@@ -20052,6 +20054,14 @@ void Player::SendQuestTimerFailed(uint32 quest_id)
     }
 }
 
+/// @TODO
+/// according to c9e138d66d6a455a72d3fefbc0e4d5998bc338d6 from TrinityCore
+/// the correct struct is
+/// data << uint32(Reason);
+/// data.WriteBit(SendErrorMessage);
+/// data.WriteBits(ReasonText.length(), 9);
+/// data.FlushBits();
+/// data.WriteString(ReasonText);
 void Player::SendCanTakeQuestResponse(uint32 msg) const
 {
     WorldPacket data(SMSG_QUEST_GIVER_INVALID_QUEST, 4 + 2);
@@ -26231,7 +26241,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
 
     // self spell cooldown
     if (l_CooldownTime > 0)
-        AddSpellCooldown(p_SpellInfo->Id, p_ItemId, l_CategoryCooldownTime, l_NeedsCooldownPacket);
+        AddSpellCooldown(p_SpellInfo->Id, p_ItemId, l_CooldownTime, l_NeedsCooldownPacket);
 }
 
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bool p_send /* = false */)
@@ -33053,10 +33063,9 @@ void Player::SendSpellCharges()
             l_Data << uint32(l_CategoryCharge.first);
             l_Data << uint32(l_CooldownDuration.count());
             l_Data << l_CategoryCharge.second.size();
-            SendDirectMessage(&l_Data);
         }
-
     }
+    SendDirectMessage(&l_Data);
 }
 
 void Player::UpdateCharges()
@@ -33112,13 +33121,7 @@ void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntr
         else
             l_Itr->second.pop_back();
 
-        WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
-        l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data << uint32(std::chrono::duration_cast<std::chrono::milliseconds>(l_NewRechargeEnd.time_since_epoch()).count());
-        l_Data << l_Itr->second.size();
-        l_Data.WriteBit(false); ///< IsPet
-        l_Data.FlushBits();
-        SendDirectMessage(&l_Data);
+        SendSpellCharges();
     }
 }
 
@@ -33127,19 +33130,17 @@ void Player::RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
     if (!p_ChargeCategoryEntry)
         return;
 
-    Clock::time_point l_Now = Clock::now();
-
     auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
     if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
     {
         l_Itr->second.pop_back();
-
-        std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
+        float l_Count = GetMaxCharges(p_ChargeCategoryEntry) - l_Itr->second.size();
+        if (l_Count < 0.0f)
+            l_Count = 0.0f;
 
         WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
         l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data << uint32(l_CooldownDuration.count());
-        l_Data << l_Itr->second.size();
+        l_Data << float(l_Count);
         l_Data.WriteBit(false); ///< IsPet
         l_Data.FlushBits();
         SendDirectMessage(&l_Data);

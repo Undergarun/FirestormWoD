@@ -4426,7 +4426,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
             uint32 removedAuras = m_removedAurasCount;
-            RemoveAura(aura, AURA_REMOVE_BY_CANCEL);
+            RemoveAura(aura);
             if (m_removedAurasCount > removedAuras + 1)
                 iter = m_interruptableAuras.begin();
         }
@@ -9718,19 +9718,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             if ((procSpell->Id != 24275 && procSpell->Id != 20271) || procEx != PROC_EX_CRITICAL_HIT)
                 return false;
-
-            break;
-        }
-        case 5301:  // Revenge (aura proc)
-        {
-            if (!(procEx & PROC_EX_DODGE) && !(procEx & PROC_EX_PARRY))
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(6572))
-                ToPlayer()->RemoveSpellCooldown(6572, true);
 
             break;
         }
