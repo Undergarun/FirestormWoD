@@ -770,107 +770,6 @@ enum UrsolsVortexSpells
     SPELL_DRUID_URSOLS_VORTEX_SNARE        = 127797
 };
 
-/// Ursol's Vortex - 102793
-class spell_dru_ursols_vortex: public SpellScriptLoader
-{
-public:
-    spell_dru_ursols_vortex() : SpellScriptLoader("spell_dru_ursols_vortex") { }
-
-    class spell_dru_ursols_vortex_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_ursols_vortex_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                if (Unit* target = GetHitUnit())
-                    if (!target->HasAura(SPELL_DRUID_URSOLS_VORTEX_AREA_TRIGGER))
-                        l_Player->CastSpell(target, SPELL_DRUID_URSOLS_VORTEX_SNARE, true);
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_dru_ursols_vortex_SpellScript::HandleOnHit);
-        }
-    };
-
-    class spell_dru_ursols_vortex_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_ursols_vortex_AuraScript);
-
-        std::list<Unit*> targetList;
-
-        void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
-        {
-            aurEff->GetTargetList(targetList);
-
-            for (auto itr : targetList)
-            {
-                if (Unit* caster = GetCaster())
-                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_DRUID_URSOLS_VORTEX_AREA_TRIGGER))
-                        if (itr->GetDistance(dynObj) > 8.0f && !itr->HasAura(SPELL_DRUID_URSOLS_VORTEX_JUMP_DEST))
-                            itr->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_DRUID_URSOLS_VORTEX_JUMP_DEST, true);
-            }
-
-            targetList.clear();
-        }
-
-        void Register()
-        {
-            OnEffectUpdate += AuraEffectUpdateFn(spell_dru_ursols_vortex_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_ursols_vortex_SpellScript();
-    }
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_ursols_vortex_AuraScript();
-    }
-};
-
-/// Ursol's Vortex (snare) - 127797
-class spell_dru_ursols_vortex_snare: public SpellScriptLoader
-{
-    public:
-        spell_dru_ursols_vortex_snare() : SpellScriptLoader("spell_dru_ursols_vortex_snare") { }
-
-        class spell_dru_ursols_vortex_snare_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_ursols_vortex_snare_AuraScript);
-
-            std::list<Unit*> targetList;
-
-            void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
-            {
-                aurEff->GetTargetList(targetList);
-
-                for (auto itr : targetList)
-                {
-                    if (Unit* caster = GetCaster())
-                        if (AreaTrigger* areaTrigger = caster->GetAreaTrigger(SPELL_DRUID_URSOLS_VORTEX_AREA_TRIGGER))
-                            if (itr->GetDistance(areaTrigger) > 8.0f && !itr->HasAura(SPELL_DRUID_URSOLS_VORTEX_JUMP_DEST))
-                                itr->CastSpell(areaTrigger->GetPositionX(), areaTrigger->GetPositionY(), areaTrigger->GetPositionZ(), SPELL_DRUID_URSOLS_VORTEX_JUMP_DEST, true);
-                }
-
-                targetList.clear();
-            }
-
-            void Register()
-            {
-                OnEffectUpdate += AuraEffectUpdateFn(spell_dru_ursols_vortex_snare_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dru_ursols_vortex_snare_AuraScript();
-        }
-};
-
 enum DashSpells
 {
     SPELL_DRUID_STAMPEDING_ROAR = 106898
@@ -5148,8 +5047,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_maul();
     new spell_dru_natures_vigil();
     new spell_dru_natures_vigil_proc();
-    new spell_dru_ursols_vortex_snare();
-    new spell_dru_ursols_vortex();
     new spell_dru_dash();
     new spell_dru_savage_defense();
     new spell_dru_lifebloom();
