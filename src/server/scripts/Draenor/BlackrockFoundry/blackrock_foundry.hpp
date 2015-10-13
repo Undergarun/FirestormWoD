@@ -22,6 +22,7 @@
 # include "GameObjectAI.h"
 # include "Group.h"
 # include "MoveSplineInit.h"
+# include "CreatureTextMgr.h"
 
 float const g_NorthOrientation = 0.0f;
 float const g_SouthOrientation = M_PI;

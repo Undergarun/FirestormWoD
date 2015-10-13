@@ -368,11 +368,25 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     '%s использует |cFFFF0000|Hspell:156446|h[Взрывную волну]|h|r! Прячься!'
 );
 
-DELETE FROM spell_script_names WHERE spell_id IN (156345, 158424);
+DELETE FROM spell_script_names WHERE spell_id IN (156345, 158424, 160379, 155192, 174716, 156934, 158247);
 INSERT INTO spell_script_names VALUES
 (156345, 'spell_foundry_ignite_aura'),
-(158424, 'spell_foundry_blast_wave');
+(158424, 'spell_foundry_blast_wave'),
+(160379, 'spell_foundry_defense_aura'),
+(155192, 'spell_foundry_bomb_overrider'),
+(174716, 'spell_foundry_bomb_overrider'),
+(156934, 'spell_foundry_rupture_aura'),
+(158247, 'spell_foundry_hot_blooded_aura');
 
 DELETE FROM gameobject_template WHERE entry = 227616;
 INSERT INTO gameobject_template VALUE
 (227616, 0, 10267, 'Volcanic Bomb', '', '', '', 16, 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 19865);
+
+DELETE FROM conditions WHERE SourceEntry IN (155180, 155188);
+INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
+(13, 1, 155180, 31, 0, 3, 76806),
+(13, 1, 155188, 31, 0, 3, 76808);
+
+DELETE FROM areatrigger_template WHERE spell_id IN (156933);
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, scale_x, scale_y, morph_curve_id, ScriptName) VALUES
+(156933, 0, 6432, 2, 0x4080, 6, 6, 513, 'areatrigger_foundry_rupture');

@@ -4409,6 +4409,9 @@ void Spell::finish(bool ok)
     if (m_spellInfo->IsChanneled())
         m_caster->UpdateInterruptMask();
 
+    if (m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->IsAIEnabled)
+        m_caster->ToCreature()->AI()->OnSpellFinished(m_spellInfo);
+
     if (IsAutoActionResetSpell())
     {
         bool found = false;

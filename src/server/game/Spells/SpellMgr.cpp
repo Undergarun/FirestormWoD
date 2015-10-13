@@ -3410,6 +3410,16 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155897: ///< Earthshaking Collision (Oregorger)
                 spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
+            case 160382: ///< Defense (Security Guard)
+            case 158246: ///< Hot Blooded (Foreman Feldspar)
+            case 156932: ///< Rupture DoT (Foreman Feldspar)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
+                break;
+            case 155201: ///< Electrocution (Furnace Engineer)
+                spellInfo->Effects[EFFECT_0].ChainTarget = 2;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 167650: ///< Loose Quills (Rukhmar)
             case 167630: ///< Blaze of Glory (Rukhmar)
