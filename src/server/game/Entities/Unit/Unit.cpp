@@ -11649,10 +11649,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
     /// Apply Versatility damage bonus done
     if (GetSpellModOwner())
-    {
-        if (GetSpellModOwner())
-            DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-    }
+        DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
@@ -17325,7 +17322,7 @@ Player* Unit::GetSpellModOwner() const
 {
     if (GetTypeId() == TYPEID_PLAYER)
         return (Player*)this;
-    if (ToCreature()->isPet() || ToCreature()->isTotem())
+    if (ToCreature()->isPet() || ToCreature()->isTotem() || ToCreature()->isSummon() || ToCreature()->isGuardian())
     {
         Unit* owner = GetOwner();
         if (owner && owner->GetTypeId() == TYPEID_PLAYER)
