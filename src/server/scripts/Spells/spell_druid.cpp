@@ -5022,6 +5022,45 @@ class spell_dru_incarnation_tree_of_life : public SpellScriptLoader
         }
 };
 
+/// 113769 - Warth
+class spell_dru_treant_wrath : public SpellScriptLoader
+{
+    public:
+        spell_dru_treant_wrath() : SpellScriptLoader("spell_dru_treant_wrath") { }
+
+        class spell_dru_treant_wrath_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_treant_wrath_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_treant_wrath_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_treant_wrath_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_incarnation_tree_of_life();
@@ -5112,4 +5151,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_lunar_inspiration();
     new spell_dru_gyph_of_the_flapping_owl();
     new spell_dru_glyph_of_rake();
+    new spell_dru_treant_wrath();
 }
