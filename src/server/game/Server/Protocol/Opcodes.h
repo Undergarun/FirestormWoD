@@ -68,7 +68,7 @@ enum Opcodes
         SMSG_HOTFIX_NOTIFY                          = 0x02EC, ///< 6.2.2 20490
         SMSG_WORLD_SERVER_INFO                      = 0x01E1, ///< 6.2.2 20490
         SMSG_INITIAL_SETUP                          = 0x0B3B, ///< 6.2.2 20490
-        SMSG_PONG                                   = 0x0000, ///<
+        SMSG_PONG                                   = 0x0237, ///< 6.2.2 20490
         SMSG_UITIME                                 = 0x1C2A, ///< 6.2.2 20490
 
         /// Query
@@ -915,9 +915,9 @@ enum Opcodes
         SMSG_LFG_LIST_JOIN_RESULT                         = 0x086D, ///< 6.2.2 20490
         SMSG_LFG_LIST_UPDATE_BLACKLIST                    = 0x0A7E, ///< 6.2.2 20490
         SMSG_LFG_LIST_UPDATE_STATUS                       = 0x0CD3, ///< 6.2.2 20490
-        SMSG_LFG_LIST_SEARCH_RESULT                       = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x0565
-        SMSG_LFG_LIST_APPLY_FOR_GROUP_RESULT              = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x017E
-        SMSG_LFG_LIST_APPLICANT_LIST_UPDATE               = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x006E
+        SMSG_LFG_LIST_SEARCH_RESULT                       = 0x102E, ///< 6.2.2 20490
+        SMSG_LFG_LIST_APPLY_FOR_GROUP_RESULT              = 0x1ED3, ///< 6.2.2 20490
+        SMSG_LFG_LIST_APPLICANT_LIST_UPDATE               = 958223, ///< 6.2.2 20490
         SMSG_LFG_LIST_APPLICANT_GROUP_INVITE              = 0x003E, ///< 6.2.2 20490
     #pragma endregion
 
