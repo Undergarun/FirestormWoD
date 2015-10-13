@@ -1795,7 +1795,7 @@ enum eWildMushroomDatas
 };
 
 /// Wild Mushroom (Balance) - 88747
-/// Wild Mushroom (Restoration) - 145205
+/// Wild Mushroom (Restoration) - 145205, Wild Mushroom (Restoration)(override by 146654) - 147349
 class spell_dru_wild_mushroom: public SpellScriptLoader
 {
     public:
@@ -1807,11 +1807,12 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
 
             enum eWildMushroomSpells
             {
-                HealAura                  = 81262,
-                FungalCloudArea           = 164717,
-                WildMushroomBalance       = 88747,
-                WildMushroomBirthVisual   = 94081,
-                WildMushroomRestoration   = 145205,
+                HealAura                        = 81262,
+                FungalCloudArea                 = 164717,
+                WildMushroomBalance             = 88747,
+                WildMushroomBirthVisual         = 94081,
+                WildMushroomRestoration         = 145205,
+                WildMushroomRestorationGlyph    = 147349
             };
             
             enum eWildMushroomDatas
@@ -1856,7 +1857,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     l_Summon->SetFullHealth();
                     l_Summon->CastSpell(l_Summon, eWildMushroomSpells::WildMushroomBirthVisual, true);
 
-                    if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestoration)
+                    if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestoration || GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestorationGlyph)
                         l_Summon->CastSpell(l_Summon, eWildMushroomSpells::HealAura, true);
                     else if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomBalance)
                         l_Summon->CastSpell(l_Summon, eWildMushroomSpells::FungalCloudArea, true);
