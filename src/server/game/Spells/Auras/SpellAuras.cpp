@@ -739,12 +739,11 @@ void Aura::_UnapplyForTarget(Unit* p_Target, Unit* p_Caster, AuraApplication * p
     // reset cooldown state for spells
     if (p_Caster && p_Caster->GetTypeId() == TYPEID_PLAYER)
     {
-        Item* l_CastItem = m_castItemGuid ? p_Caster->ToPlayer()->GetItemByGuid(m_castItemGuid) : NULL;
+        bool l_MisdirectionGlyph = (GetSpellInfo()->Id == 34477 && p_Caster->HasAura(56829) && (p_Caster->GetPetGUID() == p_Target->GetGUID()));
 
-        if (m_spellInfo->IsCooldownStartedOnEvent() &&
-            !(GetSpellInfo()->Id == 34477 && p_Caster->HasAura(56829) && (p_Caster->GetPetGUID() == p_Target->GetGUID())) &&
-            (p_AuraApp->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT && l_CastItem && (l_CastItem->IsHealthstone() || l_CastItem->IsPotion())))
-            // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
+        if (m_spellInfo->IsCooldownStartedOnEvent() ///< IsCooldownEvent spell
+            && GetSpellInfo()->Id != 6262           ///< Healthstone (warlock), the cooldown event is started in UpdatePotionCooldown when the player get out of combat
+            && !l_MisdirectionGlyph)                ///< Glyph of Misdirection (hunter)
             p_Caster->ToPlayer()->SendCooldownEvent(GetSpellInfo());
     }
 }
