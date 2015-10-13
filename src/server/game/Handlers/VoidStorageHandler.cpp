@@ -299,7 +299,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket & p_Packet)
         return;
     }
 
-    bool l_UsedSrcSlot  = m_Player->GetVoidStorageItem(l_OldSlot) != NULL; // should be always true
+    bool l_UsedSrcSlot  = m_Player->GetVoidStorageItem(l_OldSlot) != NULL; // should be always true ///> True or not l_UsedSrcSlot is unused
     bool l_UsedDestSlot = m_Player->GetVoidStorageItem(l_DstSlot) != NULL;
 
     uint64 l_ItemIdDest = 0;
