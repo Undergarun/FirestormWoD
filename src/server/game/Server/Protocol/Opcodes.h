@@ -917,7 +917,7 @@ enum Opcodes
         SMSG_LFG_LIST_UPDATE_STATUS                       = 0x0CD3, ///< 6.2.2 20490
         SMSG_LFG_LIST_SEARCH_RESULT                       = 0x102E, ///< 6.2.2 20490
         SMSG_LFG_LIST_APPLY_FOR_GROUP_RESULT              = 0x1ED3, ///< 6.2.2 20490
-        SMSG_LFG_LIST_APPLICANT_LIST_UPDATE               = 958223, ///< 6.2.2 20490
+        SMSG_LFG_LIST_APPLICANT_LIST_UPDATE               = 0x1E51, ///< 6.2.2 20490
         SMSG_LFG_LIST_APPLICANT_GROUP_INVITE              = 0x003E, ///< 6.2.2 20490
     #pragma endregion
 
