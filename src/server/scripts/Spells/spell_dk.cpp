@@ -89,8 +89,6 @@ enum DeathKnightSpells
     DK_WOD_PVP_FROST_4P_BONUS_EFFECT            = 166057
 };
 
-uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
-
 /// Glyph of Death and Decay - 58629
 /// Call By Death and Decay 43265 & Defile 152280 (hot fix 6.0.3)
 class spell_dk_glyph_of_death_and_decay: public SpellScriptLoader
@@ -1840,8 +1838,8 @@ class spell_dk_empowered_obliterate_howling_blast : public SpellScriptLoader
         }
 };
 
-// Plaguebearer - 161497
-// Called by Death Coil 47541 & Frost Strike 49143
+/// Plaguebearer - 161497
+/// Called by Death Coil 47541 & Frost Strike 49143
 class spell_dk_plaguebearer: public SpellScriptLoader
 {
     public:
@@ -1853,28 +1851,36 @@ class spell_dk_plaguebearer: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Player = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (!l_Player->HasAura(DK_SPELL_PLAGUEBEARER))
+                    if (!l_Caster->HasAura(DK_SPELL_PLAGUEBEARER))
                         return;
 
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (AuraPtr l_auraBloodPlague = GetHitUnit()->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Player->GetGUID()))
-                            l_auraBloodPlague->SetDuration(l_auraBloodPlague->GetDuration() + 4000);
+                        if (AuraPtr l_BloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
+                            l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);
 
-                        if (AuraPtr l_AuraFrostFever = GetHitUnit()->GetAura(DK_SPELL_FROST_FEVER, l_Player->GetGUID()))
-                            l_AuraFrostFever->SetDuration(l_AuraFrostFever->GetDuration() + 4000);
+                        if (AuraPtr l_FrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
+                            l_FrostFever->SetDuration(l_FrostFever->GetDuration() + 4000);
 
-                        if (l_Player->HasAura(DK_SPELL_NECROTIC_PLAGUE))
-                            l_Player->CastSpell(l_Target, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA);
+                        if (l_Caster->HasAura(DK_SPELL_NECROTIC_PLAGUE))
+                            l_Caster->CastSpell(l_Target, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA);
                     }
                 }
             }
 
+            void HandleDamage(SpellEffIndex p_EffIndex)
+            {
+                HandleOnHit();
+            }
+
             void Register()
             {
-                OnHit += SpellHitFn(spell_dk_plaguebearer_SpellScript::HandleOnHit);
+                if (m_scriptSpellId == DK_SPELL_DEATH_COIL)
+                    OnHit += SpellHitFn(spell_dk_plaguebearer_SpellScript::HandleOnHit);
+                else ///< Necessary for Frost Strike, because it has two effects
+                    OnEffectHitTarget += SpellEffectFn(spell_dk_plaguebearer_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
@@ -1901,7 +1907,7 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 NecroticPlagueEnergize = 155165
             };
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -1909,7 +1915,7 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
-                if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
+                if (AuraPtr l_AuraNecroticPlague = p_AurEff->GetBase())
                     l_AuraNecroticPlague->ModStackAmount(1);
 
                 std::list<Unit*> l_TargetList;
