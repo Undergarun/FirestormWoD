@@ -18314,6 +18314,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
                     }
                     break;
                 case uint8(PackageItemRewardType::ClassReward):
+                    /// If the item doesn't have any spec, let's assume everyone can take it.
+                    if (!l_ItemTemplate->HasSpec())
+                        return true;
+
                     if (!l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         return false;
                     break;

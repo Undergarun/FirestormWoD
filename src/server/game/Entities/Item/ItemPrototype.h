@@ -939,7 +939,7 @@ struct ItemTemplate
         specs[rangeIndex].push_back(index);
     }
 
-    bool HasSpec() const { return !specs[1].empty(); }
+    bool HasSpec() const { return !specs[1].empty() && !specs[0].empty(); }
     
     bool HasClassSpec(uint8 Class, uint32 level) const
     {
