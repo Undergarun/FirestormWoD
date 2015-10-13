@@ -33084,8 +33084,6 @@ void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry
         std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
 
         l_Count += 1.0f - (float)l_CooldownDuration.count() / (float)GetChargeRecoveryTime(p_ChargeCategoryEntry);
-
-
         WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
         l_Data << int32(p_ChargeCategoryEntry->Id);
         l_Data << float(l_Count);
