@@ -789,7 +789,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     /// last update : 6.1.2 19802
     /// Stance of the Spirited Crane - 154436
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK && HasAura(154436))
+    if (GetSpellModOwner() && GetSpellModOwner()->HasAura(154436))
         if (!spellProto || (spellProto
         && spellProto->Id != 115129 && spellProto->Id != 125033 && spellProto->Id != 124098 && spellProto->Id != 132467
         && spellProto->Id != 130651 && spellProto->Id != 117993)) ///< Don't triggered by Zen Sphere, Chi Wave, Chi Burst, Chi Torpedo and Expel Harm
@@ -799,8 +799,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         std::list<Creature*> l_StatueList;
         Creature* l_Statue = nullptr;
 
-        ToPlayer()->GetCreatureListWithEntryInGrid(l_TempList, 60849, 100.0f);
-        ToPlayer()->GetCreatureListWithEntryInGrid(l_StatueList, 60849, 100.0f);
+        GetSpellModOwner()->GetCreatureListWithEntryInGrid(l_TempList, 60849, 100.0f);
+        GetSpellModOwner()->GetCreatureListWithEntryInGrid(l_StatueList, 60849, 100.0f);
 
         /// Remove other players jade statue
         for (std::list<Creature*>::iterator i = l_TempList.begin(); i != l_TempList.end(); ++i)
@@ -813,7 +813,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
 
         /// In addition, you also gain Eminence, causing you to heal the lowest health nearby target within 20 yards for an amount equal to 50% of non-autoattack damage you deal
-        CastCustomSpell(this, 126890, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence
+        CastCustomSpell(this, 126890, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetSpellModOwner()->GetGUID()); ///< Eminence
 
         if (l_StatueList.size() == 1)
         {
