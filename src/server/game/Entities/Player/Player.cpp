@@ -26282,7 +26282,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
 
     // self spell cooldown
     if (l_CooldownTime > 0)
-        AddSpellCooldown(p_SpellInfo->Id, p_ItemId, l_CategoryCooldownTime, l_NeedsCooldownPacket);
+        AddSpellCooldown(p_SpellInfo->Id, p_ItemId, l_CooldownTime, l_NeedsCooldownPacket);
 }
 
 void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bool p_send /* = false */)
@@ -33108,10 +33108,9 @@ void Player::SendSpellCharges()
             l_Data << uint32(l_CategoryCharge.first);
             l_Data << uint32(l_CooldownDuration.count());
             l_Data << l_CategoryCharge.second.size();
-            SendDirectMessage(&l_Data);
         }
-
     }
+    SendDirectMessage(&l_Data);
 }
 
 void Player::UpdateCharges()
@@ -33167,13 +33166,7 @@ void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntr
         else
             l_Itr->second.pop_back();
 
-        WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
-        l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data << uint32(std::chrono::duration_cast<std::chrono::milliseconds>(l_NewRechargeEnd.time_since_epoch()).count());
-        l_Data << l_Itr->second.size();
-        l_Data.WriteBit(false); ///< IsPet
-        l_Data.FlushBits();
-        SendDirectMessage(&l_Data);
+        SendSpellCharges();
     }
 }
 
@@ -33182,19 +33175,17 @@ void Player::RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
     if (!p_ChargeCategoryEntry)
         return;
 
-    Clock::time_point l_Now = Clock::now();
-
     auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
     if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
     {
         l_Itr->second.pop_back();
-
-        std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
+        float l_Count = GetMaxCharges(p_ChargeCategoryEntry) - l_Itr->second.size();
+        if (l_Count < 0.0f)
+            l_Count = 0.0f;
 
         WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
         l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data << uint32(l_CooldownDuration.count());
-        l_Data << l_Itr->second.size();
+        l_Data << float(l_Count);
         l_Data.WriteBit(false); ///< IsPet
         l_Data.FlushBits();
         SendDirectMessage(&l_Data);
