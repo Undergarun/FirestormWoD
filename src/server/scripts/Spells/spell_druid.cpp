@@ -1033,7 +1033,8 @@ class spell_dru_wild_growth : public SpellScriptLoader
         enum eSpells
         {
             TreeOfLife = 33891,
-            T10Resto2PBonus = 70658
+            T10Resto2PBonus = 70658,
+            GlyphofWildGrowth = 62970
         };
 
         class spell_dru_wild_growth_SpellScript : public SpellScript
@@ -1042,10 +1043,14 @@ class spell_dru_wild_growth : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                uint8 l_MaxTargets = GetSpellInfo()->Effects[EFFECT_2].BasePoints;
+                uint8 l_MaxTargets = GetSpellInfo()->Effects[EFFECT_2].BasePoints + 1; ///< +1 = Main Target
+                Unit* l_Caster = GetCaster();
 
-                if (GetCaster()->HasAura(eSpells::TreeOfLife))
+                if (l_Caster->HasAura(eSpells::TreeOfLife))
                     l_MaxTargets += 2;
+
+                if (l_Caster->HasAura(eSpells::GlyphofWildGrowth))
+                    l_MaxTargets += 1;
 
                 if (p_Targets.size() > l_MaxTargets)
                     JadeCore::RandomResizeList(p_Targets, l_MaxTargets);
