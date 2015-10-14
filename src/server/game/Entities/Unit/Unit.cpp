@@ -12545,7 +12545,8 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
         return  p_Damage;
 
     Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
-
+    int32 l_Diff = 0;
+    float l_PctSpellMod = 0.0f;
     if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr)
         l_CritPctBonus = 50; ///< 150% on pvp
 
@@ -12557,10 +12558,15 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
     {
         l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
         /// adds additional damage to p_Damage (from talents)
-        if (l_ModOwner)
-            l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
-    }
+        int32 l_DamageTmp = p_Damage;
 
+        if (l_ModOwner)
+            l_Diff = l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, l_DamageTmp);
+    }
+    if (l_Diff > 0)
+        l_PctSpellMod = 100.0f / ((float)p_Damage / (float)l_Diff);
+    
+    l_CritPctBonus += l_PctSpellMod;
     p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
     return p_Damage;
