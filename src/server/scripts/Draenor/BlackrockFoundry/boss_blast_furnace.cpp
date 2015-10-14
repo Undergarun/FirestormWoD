@@ -56,6 +56,8 @@ class boss_heart_of_the_mountain : public CreatureScript
             /// Misc
             HeartOfTheFurnace   = 155288,
             BlastFurnaceBonus   = 177531,
+            BustLoose           = 160823,
+            BlastWaveCosmetic   = 177388,
             /// Encounter
             Blast               = 155209
         };
@@ -64,7 +66,19 @@ class boss_heart_of_the_mountain : public CreatureScript
         {
             EventBerserker = 1,
             EventWarnBlast,
-            EventBlast
+            EventBlast,
+            EventSlagPool
+        };
+
+        enum eActions
+        {
+            ActionBlastIncreased    = 2,
+            ActionFreeFury          = 2
+        };
+
+        enum eVisual
+        {
+            OneShotBattleRoar = 53
         };
 
         struct boss_heart_of_the_mountainAI : public BossAI
@@ -77,6 +91,8 @@ class boss_heart_of_the_mountain : public CreatureScript
             InstanceScript* m_Instance;
 
             EventMap m_Events;
+
+            bool m_Enabled;
 
             void Reset() override
             {
@@ -91,6 +107,8 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+
+                m_Enabled = false;
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -104,27 +122,36 @@ class boss_heart_of_the_mountain : public CreatureScript
                 _EnterCombat();
 
                 if (m_Instance != nullptr)
-                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
-                }
 
                 me->CastSpell(me, eSpells::HeartOfTheFurnace, true);
 
                 m_Events.ScheduleEvent(eEvents::EventBerserker, 780 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventWarnBlast, 27 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventBlast, 30 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventWarnBlast, GetBlastTimer() - 3 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventBlast, GetBlastTimer());
+            }
+
+            void JustReachedHome() override
+            {
+                if (m_Enabled)
+                    Talk(eTalks::Wipe);
+
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
             void EnterEvadeMode() override
             {
-                Talk(eTalks::Wipe);
+                me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
 
                 CreatureAI::EnterEvadeMode();
 
-                if (m_Instance != nullptr)
-                {
-                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
-                }
+                me->StopMoving();
+                me->ClearUnitState(UnitState::UNIT_STATE_EVADE);
+
+                me->NearTeleportTo(me->GetHomePosition());
+
+                JustReachedHome();
             }
 
             void JustDied(Unit* p_Killer) override
@@ -139,12 +166,82 @@ class boss_heart_of_the_mountain : public CreatureScript
                 }
             }
 
+            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            {
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::BustLoose:
+                    {
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Position const l_TeleportPos = { 197.707f, 3529.08f, 217.234f, me->GetOrientation() };
+
+                            me->NearTeleportTo(l_TeleportPos);
+                        });
+
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->SetAnimTier(0);
+                            me->SetDisableGravity(false);
+                            me->SetPlayerHoverAnim(false);
+                        });
+
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->RemoveAura(eSpells::BustLoose);
+                        });
+
+                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->HandleEmoteCommand(eVisual::OneShotBattleRoar);
+                        });
+
+                        m_Events.Reset();
+                        m_Events.ScheduleEvent(eEvents::EventSlagPool, 5 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
             void DoAction(int32 const p_Action) override
             {
+                switch (p_Action)
+                {
+                    case eActions::ActionFreeFury:
+                    {
+                        me->CastSpell(me, eSpells::BustLoose, false);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void SetPower(Powers p_Power, int32 p_Value) override
+            {
+                if (p_Power != Powers::POWER_ALTERNATE_POWER || m_Instance == nullptr)
+                    return;
+
+                int32 l_OldPower = me->GetPower(p_Power);
+
+                if ((l_OldPower < 75 && p_Value >= 75) ||
+                    (l_OldPower < 50 && p_Value >= 50) ||
+                    (l_OldPower < 25 && p_Value >= 25))
+                {
+                    if (Creature* l_Foreman = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::ForemanFeldspar)))
+                    {
+                        if (l_Foreman->IsAIEnabled)
+                            l_Foreman->AI()->DoAction(eActions::ActionBlastIncreased);
+                    }
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                UpdateOperations(p_Diff);
+
                 if (!UpdateVictim())
                     return;
 
@@ -170,6 +267,11 @@ class boss_heart_of_the_mountain : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::Blast, true);
                         m_Events.ScheduleEvent(eEvents::EventBlast, GetBlastTimer());
+                        break;
+                    }
+                    case eEvents::EventSlagPool:
+                    {
+                        m_Events.ScheduleEvent(eEvents::EventSlagPool, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -238,9 +340,11 @@ class boss_foreman_feldspar : public CreatureScript
             SecurityGuardFight      = 76812
         };
 
-        enum eAction
+        enum eActions
         {
-            ActionActivateBellows
+            ActionActivateBellows,
+            ActionRegulatorDestroyed,
+            ActionBlastIncreased
         };
 
         enum eEvents
@@ -255,10 +359,14 @@ class boss_foreman_feldspar : public CreatureScript
 
         enum eSpells
         {
-            Pyroclasm   = 156937,
-            Rupture     = 156934,
-            RuptureDoT  = 156932,
-            HotBlooded  = 158247
+            /// Misc
+            Bomb            = 155192,
+            BombOverrider   = 174716,
+            /// Fight
+            Pyroclasm       = 156937,
+            Rupture         = 156934,
+            RuptureDoT      = 156932,
+            HotBlooded      = 158247
         };
 
         struct boss_foreman_feldsparAI : public BossAI
@@ -272,6 +380,8 @@ class boss_foreman_feldspar : public CreatureScript
 
             EventMap m_Events;
 
+            bool m_RegulatorDestroyed;
+
             void Reset() override
             {
                 m_Events.Reset();
@@ -281,8 +391,18 @@ class boss_foreman_feldspar : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 me->RemoveAura(eFoundrySpells::Berserker);
+                me->RemoveAura(eSpells::HotBlooded);
 
-                me->CastSpell(me, eSpells::HotBlooded, true);
+                m_RegulatorDestroyed = false;
+
+                if (m_Instance != nullptr)
+                {
+                    if (Creature* l_Blackhand = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BlackhandCosmetic)))
+                    {
+                        if (l_Blackhand->IsAIEnabled)
+                            l_Blackhand->AI()->Reset();
+                    }
+                }
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -295,6 +415,8 @@ class boss_foreman_feldspar : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->CastSpell(me, eSpells::HotBlooded, true);
+
                 Talk(eTalks::Aggro);
 
                 std::list<Creature*> l_BellowsOperators;
@@ -303,26 +425,19 @@ class boss_foreman_feldspar : public CreatureScript
                 for (Creature* l_Operator : l_BellowsOperators)
                 {
                     if (l_Operator->IsAIEnabled)
-                        l_Operator->AI()->DoAction(eAction::ActionActivateBellows);
+                        l_Operator->AI()->DoAction(eActions::ActionActivateBellows);
                 }
 
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
 
+                    CallAddsInCombat(p_Attacker);
+
                     if (Creature* l_HeartOfTheMountain = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
                     {
                         if (l_HeartOfTheMountain->IsAIEnabled)
-                            l_HeartOfTheMountain->AI()->AttackStart(p_Attacker);
-                    }
-
-                    std::list<Creature*> l_Regulators;
-                    me->GetCreatureListWithEntryInGrid(l_Regulators, eCreatures::HeatRegulator, 150.0f);
-
-                    for (Creature* l_Regulator : l_Regulators)
-                    {
-                        if (l_Regulator->IsAIEnabled)
-                            l_Regulator->AI()->AttackStart(p_Attacker);
+                            l_HeartOfTheMountain->SetInCombatWithZone();
                     }
                 }
 
@@ -339,15 +454,17 @@ class boss_foreman_feldspar : public CreatureScript
                 Talk(eTalks::Death);
             }
 
-            void EnterEvadeMode() override
+            void JustReachedHome() override
             {
-                CreatureAI::EnterEvadeMode();
+                Talk(eTalks::Wipe);
 
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RuptureDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Bomb);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::BombOverrider);
                 }
 
                 summons.DespawnAll();
@@ -357,6 +474,26 @@ class boss_foreman_feldspar : public CreatureScript
 
             void DoAction(int32 const p_Action) override
             {
+                switch (p_Action)
+                {
+                    case eActions::ActionRegulatorDestroyed:
+                    {
+                        if (!m_RegulatorDestroyed)
+                        {
+                            Talk(eTalks::FirstHeatDestroyed);
+                            m_RegulatorDestroyed = true;
+                        }
+
+                        break;
+                    }
+                    case eActions::ActionBlastIncreased:
+                    {
+                        Talk(eTalks::BlastIncreased);
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -395,15 +532,21 @@ class boss_foreman_feldspar : public CreatureScript
                     }
                     case eEvents::EventFurnaceEngineer:
                     {
-                        for (uint8 l_I = 0; l_I < 2; ++l_I)
+                        if (m_Instance != nullptr)
                         {
-                            if (Creature* l_Engineer = me->SummonCreature(eCreatures::FurnaceEngineerFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
+                            if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
                             {
-                                float l_O = l_Engineer->GetAngle(me);
-                                float l_X = l_Engineer->GetPositionX() + 10.0f * cos(l_O);
-                                float l_Y = l_Engineer->GetPositionY() + 10.0f * sin(l_O);
+                                for (uint8 l_I = 0; l_I < 2; ++l_I)
+                                {
+                                    if (Creature* l_Engineer = me->SummonCreature(eCreatures::FurnaceEngineerFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
+                                    {
+                                        float l_O = l_Engineer->GetAngle(l_Fury);
+                                        float l_X = l_Engineer->GetPositionX() + 20.0f * cos(l_O);
+                                        float l_Y = l_Engineer->GetPositionY() + 20.0f * sin(l_O);
 
-                                l_Engineer->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
+                                        l_Engineer->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
+                                    }
+                                }
                             }
                         }
 
@@ -412,15 +555,21 @@ class boss_foreman_feldspar : public CreatureScript
                     }
                     case eEvents::EventSecurityGuard:
                     {
-                        for (uint8 l_I = 0; l_I < 2; ++l_I)
+                        if (m_Instance != nullptr)
                         {
-                            if (Creature* l_Guard = me->SummonCreature(eCreatures::SecurityGuardFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
+                            if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
                             {
-                                float l_O = l_Guard->GetAngle(me);
-                                float l_X = l_Guard->GetPositionX() + 10.0f * cos(l_O);
-                                float l_Y = l_Guard->GetPositionY() + 10.0f * sin(l_O);
+                                for (uint8 l_I = 0; l_I < 2; ++l_I)
+                                {
+                                    if (Creature* l_Guard = me->SummonCreature(eCreatures::SecurityGuardFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
+                                    {
+                                        float l_O = l_Guard->GetAngle(l_Fury);
+                                        float l_X = l_Guard->GetPositionX() + 20.0f * cos(l_O);
+                                        float l_Y = l_Guard->GetPositionY() + 20.0f * sin(l_O);
 
-                                l_Guard->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
+                                        l_Guard->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
+                                    }
+                                }
                             }
                         }
 
@@ -429,15 +578,23 @@ class boss_foreman_feldspar : public CreatureScript
                     }
                     case eEvents::EventBellowsOperator:
                     {
-                        for (uint8 l_I = 0; l_I < 2; ++l_I)
-                        {
-                            if (Creature* l_Operator = me->SummonCreature(eCreatures::BellowsOperatorFight, g_BellowsOperatorSpawns[l_I]))
-                            {
-                                float l_O = l_Operator->GetAngle(me);
-                                float l_X = l_Operator->GetPositionX() + 10.0f * cos(l_O);
-                                float l_Y = l_Operator->GetPositionY() + 10.0f * sin(l_O);
+                        Talk(eTalks::BellowsOperators);
 
-                                l_Operator->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
+                        if (m_Instance != nullptr)
+                        {
+                            if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
+                            {
+                                for (uint8 l_I = 0; l_I < 2; ++l_I)
+                                {
+                                    if (Creature* l_Operator = me->SummonCreature(eCreatures::BellowsOperatorFight, g_BellowsOperatorSpawns[l_I]))
+                                    {
+                                        float l_O = l_Operator->GetAngle(l_Fury);
+                                        float l_X = l_Operator->GetPositionX() + 12.0f * cos(l_O);
+                                        float l_Y = l_Operator->GetPositionY() + 12.0f * sin(l_O);
+
+                                        l_Operator->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
+                                    }
+                                }
                             }
                         }
 
@@ -446,6 +603,7 @@ class boss_foreman_feldspar : public CreatureScript
                     }
                     case eEvents::EventPyroclasm:
                     {
+                        Talk(eTalks::Ability);
                         me->CastSpell(me, eSpells::Pyroclasm, false);
                         m_Events.ScheduleEvent(eEvents::EventPyroclasm, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -477,12 +635,37 @@ class boss_foreman_feldspar : public CreatureScript
 
                     for (Creature* l_Iter : l_CreatureList)
                     {
-                        if (l_Iter->isAlive() && l_Iter->IsAIEnabled)
+                        if (l_Iter->isAlive() && !l_Iter->IsInEvadeMode() && l_Iter->IsAIEnabled)
                             l_Iter->AI()->EnterEvadeMode();
-                        else
+                        else if (!l_Iter->isAlive())
                         {
                             l_Iter->Respawn();
                             l_Iter->GetMotionMaster()->MoveTargetedHome();
+                        }
+                    }
+                }
+            }
+
+            void CallAddsInCombat(Unit* p_Attacker)
+            {
+                std::list<Creature*> l_CreatureList;
+
+                uint32 const l_Entries[4] = { eCreatures::SecurityGuard, eCreatures::FurnaceEngineer, eCreatures::BellowsOperator, eCreatures::HeatRegulator };
+
+                for (uint8 l_I = 0; l_I < 4; ++l_I)
+                {
+                    l_CreatureList.clear();
+
+                    me->GetCreatureListWithEntryInGrid(l_CreatureList, l_Entries[l_I], 150.0f);
+
+                    for (Creature* l_Iter : l_CreatureList)
+                    {
+                        if (l_Iter->IsAIEnabled)
+                        {
+                            if (l_I < 2)
+                                l_Iter->AI()->AttackStart(p_Attacker);
+                            else
+                                l_Iter->SetInCombatWithZone();
                         }
                     }
                 }
@@ -520,7 +703,6 @@ class npc_foundry_blackhand_cosmetic : public CreatureScript
         enum eTalks
         {
             Intro,
-            Begin,
             BellowsOperators,
             FirstHeatDestroyedBefore,
             FirstHeatDestroyedAfter,
@@ -535,26 +717,67 @@ class npc_foundry_blackhand_cosmetic : public CreatureScript
             HeartDeath
         };
 
-        enum eAction
+        enum eActions
         {
-            ActionIntro
+            ActionIntro,
+            ActionRegulatorDestroyed,
+            ActionFreeFury
         };
 
         struct npc_foundry_blackhand_cosmeticAI : public ScriptedAI
         {
-            npc_foundry_blackhand_cosmeticAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_foundry_blackhand_cosmeticAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+
+            bool m_FirstHeatDestroyed;
 
             void Reset() override
             {
+                m_FirstHeatDestroyed = false;
             }
 
             void DoAction(int32 const p_Action) override
             {
                 switch (p_Action)
                 {
-                    case eAction::ActionIntro:
+                    case eActions::ActionIntro:
                     {
                         Talk(eTalks::Intro);
+                        break;
+                    }
+                    case eActions::ActionRegulatorDestroyed:
+                    {
+                        if (!m_FirstHeatDestroyed)
+                        {
+                            m_FirstHeatDestroyed = true;
+
+                            Talk(eTalks::FirstHeatDestroyedBefore);
+
+                            AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                Talk(eTalks::FirstHeatDestroyedAfter);
+                            });
+
+                        }
+                        else
+                        {
+                            Talk(eTalks::HeartExposedBefore);
+                            Talk(eTalks::HeartExposedAfter);
+
+                            if (m_Instance != nullptr)
+                            {
+                                if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
+                                {
+                                    if (l_Fury->IsAIEnabled)
+                                        l_Fury->AI()->DoAction(eActions::ActionFreeFury);
+                                }
+                            }
+                        }
+
                         break;
                     }
                     default:
@@ -590,16 +813,37 @@ class npc_foundry_primal_elementalist : public CreatureScript
 
         struct npc_foundry_primal_elementalistAI : public ScriptedAI
         {
-            npc_foundry_primal_elementalistAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_foundry_primal_elementalistAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
 
             void Reset() override
             {
             }
 
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 3);
+            }
+
             void JustDied(Unit* p_Killer) override
             {
-                if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
-                    l_InstanceScript->SetData(eFoundryDatas::PrimalElementalistTime, (uint32)time(nullptr));
+                if (m_Instance != nullptr)
+                {
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->SetData(eFoundryDatas::PrimalElementalistTime, (uint32)time(nullptr));
+                }
+            }
+
+            void EnterEvadeMode() override
+            {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -615,6 +859,7 @@ class npc_foundry_primal_elementalist : public CreatureScript
 };
 
 /// Bellows Operator - 88821
+/// Bellows Operator (Fight) - 76811
 class npc_foundry_bellows_operator : public CreatureScript
 {
     public:
@@ -635,6 +880,12 @@ class npc_foundry_bellows_operator : public CreatureScript
             EventActivateBellows = 1
         };
 
+        enum eCreatures
+        {
+            OperatorForFight    = 76811,
+            Bellows             = 78477
+        };
+
         struct npc_foundry_bellows_operatorAI : public ScriptedAI
         {
             npc_foundry_bellows_operatorAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_SwitchStatePct(50) { }
@@ -650,6 +901,15 @@ class npc_foundry_bellows_operator : public CreatureScript
                 me->RemoveAura(eSpells::Loading);
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (Creature* l_Bellows = me->FindNearestCreature(eCreatures::Bellows, 50.0f))
+                        me->EnterVehicle(l_Bellows);
+
+                    if (me->GetEntry() == eCreatures::OperatorForFight)
+                        m_CosmeticEvent.ScheduleEvent(eCosmeticEvent::EventActivateBellows, 1 * TimeConstants::IN_MILLISECONDS);
+                });
             }
 
             void DoAction(int32 const p_Action) override
@@ -679,6 +939,20 @@ class npc_foundry_bellows_operator : public CreatureScript
                 }
             }
 
+            void EnterEvadeMode() override
+            {
+                me->RemoveAllAuras();
+
+                me->InterruptNonMeleeSpells(true);
+
+                /// Just in case, to prevent the fail Return to Home
+                me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+                me->ClearUnitState(UnitState::UNIT_STATE_DISTRACTED);
+                me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
+
+                CreatureAI::EnterEvadeMode();
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
@@ -689,9 +963,10 @@ class npc_foundry_bellows_operator : public CreatureScript
                 {
                     case eCosmeticEvent::EventActivateBellows:
                     {
-                        AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::Loading, false);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                         });
 
                         break;
@@ -719,6 +994,11 @@ class npc_foundry_heat_regulator : public CreatureScript
     public:
         npc_foundry_heat_regulator() : CreatureScript("npc_foundry_heat_regulator") { }
 
+        enum eAction
+        {
+            RegulatorDestroyed = 1
+        };
+
         struct npc_foundry_heat_regulatorAI : public ScriptedAI
         {
             npc_foundry_heat_regulatorAI(Creature* p_Creature) : ScriptedAI(p_Creature)
@@ -735,15 +1015,13 @@ class npc_foundry_heat_regulator : public CreatureScript
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
                 me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
                 if (m_Instance != nullptr)
-                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
-                }
             }
 
             void EnterEvadeMode() override
@@ -753,9 +1031,35 @@ class npc_foundry_heat_regulator : public CreatureScript
 
                 CreatureAI::EnterEvadeMode();
 
+                me->StopMoving();
+                me->ClearUnitState(UnitState::UNIT_STATE_EVADE);
+
+                JustReachedHome();
+            }
+
+            void JustReachedHome() override
+            {
                 if (m_Instance != nullptr)
-                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                if (Creature* l_Foreman = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::ForemanFeldspar)))
+                {
+                    if (l_Foreman->IsAIEnabled)
+                        l_Foreman->AI()->DoAction(eAction::RegulatorDestroyed);
+                }
+
+                if (Creature* l_Blackhand = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BlackhandCosmetic)))
+                {
+                    if (l_Blackhand->IsAIEnabled)
+                        l_Blackhand->AI()->DoAction(eAction::RegulatorDestroyed);
                 }
             }
 
@@ -772,6 +1076,7 @@ class npc_foundry_heat_regulator : public CreatureScript
 };
 
 /// Security Guard - 88818
+/// Security Guard (Fight) - 76812
 class npc_foundry_security_guard : public CreatureScript
 {
     public:
@@ -780,6 +1085,11 @@ class npc_foundry_security_guard : public CreatureScript
         enum eSpell
         {
             DefenseAura = 160379
+        };
+
+        enum eCreature
+        {
+            GuardForFight = 76812
         };
 
         struct npc_foundry_security_guardAI : public ScriptedAI
@@ -793,6 +1103,15 @@ class npc_foundry_security_guard : public CreatureScript
                 me->RemoveAura(eSpell::DefenseAura);
 
                 me->SetCanDualWield(false);
+
+                if (me->GetEntry() == eCreature::GuardForFight)
+                {
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        if (Player* l_Target = me->SelectNearestPlayerNotGM(50.0f))
+                            AttackStart(l_Target);
+                    });
+                }
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -813,6 +1132,7 @@ class npc_foundry_security_guard : public CreatureScript
 };
 
 /// Furnace Engineer - 88820
+/// Furnace Engineer (Fight) - 76810
 class npc_foundry_furnace_engineer : public CreatureScript
 {
     public:
@@ -838,9 +1158,10 @@ class npc_foundry_furnace_engineer : public CreatureScript
             BombWarning = 8
         };
 
-        enum eCreature
+        enum eCreatures
         {
-            HeatRegulator = 76808
+            HeatRegulator       = 76808,
+            EngineerForFight    = 76810
         };
 
         enum eMove
@@ -861,6 +1182,15 @@ class npc_foundry_furnace_engineer : public CreatureScript
                 m_Events.Reset();
 
                 m_IsInRepair = false;
+
+                if (me->GetEntry() == eCreatures::EngineerForFight)
+                {
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        if (Player* l_Target = me->SelectNearestPlayerNotGM(50.0f))
+                            AttackStart(l_Target);
+                    });
+                }
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -936,13 +1266,15 @@ class npc_foundry_furnace_engineer : public CreatureScript
                     }
                     case eEvents::EventRepair:
                     {
-                        if (Unit* l_Regulator = me->FindNearestCreature(eCreature::HeatRegulator, 100.0f))
-                        {
-                            float l_O = l_Regulator->GetAngle(me);
-                            float l_X = l_Regulator->GetPositionX() + 10.0f * cos(l_O);
-                            float l_Y = l_Regulator->GetPositionY() + 10.0f * sin(l_O);
+                        Position const l_LeftPos = { 147.85f, 3572.02f, 218.251f, 0.507f };
+                        Position const l_RightPos = { 247.14f, 3572.02f, 218.246f, 2.794f };
 
-                            me->GetMotionMaster()->MovePoint(eMove::MoveRegulator, l_X, l_Y, me->GetPositionZ());
+                        if (Unit* l_Regulator = me->FindNearestCreature(eCreatures::HeatRegulator, 100.0f))
+                        {
+                            if (l_Regulator->GetDistance(l_LeftPos) < l_Regulator->GetDistance(l_RightPos))
+                                me->GetMotionMaster()->MovePoint(eMove::MoveRegulator, l_LeftPos);
+                            else
+                                me->GetMotionMaster()->MovePoint(eMove::MoveRegulator, l_RightPos);
 
                             m_IsInRepair = true;
                         }
@@ -996,6 +1328,9 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
 
             void OnSpellClick(Unit* p_Clicker) override
             {
+                if (p_Clicker->HasAura(eSpells::BombOverrider))
+                    return;
+
                 p_Clicker->CastSpell(p_Clicker, eSpells::BombOverrider, true);
 
                 if (AuraPtr l_Aura = me->GetAura(eSpells::ClusterOfLitBombs))

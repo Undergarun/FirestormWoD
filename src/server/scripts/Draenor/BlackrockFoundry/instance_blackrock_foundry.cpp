@@ -33,6 +33,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_VolatileOreGrinded        = false;
 
                 m_HeartOfTheMountain        = 0;
+                m_ForemanFeldspar           = 0;
                 m_CosmeticBlackhand         = 0;
                 m_PrimalElementalistTime    = 0;
                 m_YaWeveGotTimeAchiev       = false;
@@ -47,6 +48,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
             /// Blast Furnace
             uint64 m_HeartOfTheMountain;
+            uint64 m_ForemanFeldspar;
             uint64 m_CosmeticBlackhand;
             uint32 m_PrimalElementalistTime;
             bool m_YaWeveGotTimeAchiev;
@@ -72,6 +74,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                         break;
                     case eFoundryCreatures::HeartOfTheMountain:
                         m_HeartOfTheMountain = p_Creature->GetGUID();
+                        break;
+                    case eFoundryCreatures::ForemanFeldspar:
+                        m_ForemanFeldspar = p_Creature->GetGUID();
                         break;
                     case eFoundryCreatures::BlackhandCosmetic:
                         m_CosmeticBlackhand = p_Creature->GetGUID();
@@ -247,6 +252,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_OregorgerGuid;
                     case eFoundryCreatures::HeartOfTheMountain:
                         return m_HeartOfTheMountain;
+                    case eFoundryCreatures::ForemanFeldspar:
+                        return m_ForemanFeldspar;
                     case eFoundryCreatures::BlackhandCosmetic:
                         return m_CosmeticBlackhand;
                     default:

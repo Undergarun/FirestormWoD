@@ -36,18 +36,17 @@ INSERT INTO creature_text VALUES
 (@REF_FOREMAN_FELDSPAR, 8, 0, '|TInterface\\Icons\\ability_rhyolith_magmaflow_whole.blp:20|tForeman Feldspar is going to create a |cFFFF0000|Hspell:156934|h[Rupture]|h|r under your feet!', 42, 0, 100, 0, 0, 0, 'RuptureWarning'),
 
 (@REF_BLACKHAND_COSMETIC, 0, 0, 'Guards! Intruders are meddling with the Blast Furnace!', 14, 0, 100, 0, 0, 45466, 'Intro'),
-(@REF_BLACKHAND_COSMETIC, 1, 0, '|TInterface\\Icons\\ability_foundryraid_bellows.blp:20|tThe Bellows Operators are increasing the heat of the furnace, defeat them quickly to stop the heat level from increasing.', 41, 0, 100, 0, 0, 0, 'BellowsOperators'),
-(@REF_BLACKHAND_COSMETIC, 2, 0, 'One Pressure Regulator has been destroyed. One remains.', 41, 0, 100, 0, 0, 0, 'FirstHeatRegulatorDestroyedBefore'),
-(@REF_BLACKHAND_COSMETIC, 3, 0, 'The machinery is damaged. Keep those scum from sabotaging the furnace!', 14, 0, 100, 0, 0, 45463, 'FirstHeatRegulatorDestroyedAfter'),
-(@REF_BLACKHAND_COSMETIC, 4, 0, 'Both Heat Regulators have been destroyed. The Heart of the Mountain is unleashed!', 41, 0, 100, 0, 0, 0, 'HeartExposedBefore'),
-(@REF_BLACKHAND_COSMETIC, 5, 0, 'The furnace is overheating! Fools! If the fury breaks free, our work will be ruined!', 14, 0, 100, 0, 0, 45464, 'HeartExposedAfter'),
-(@REF_BLACKHAND_COSMETIC, 6, 0, 'Defeat the Primal Elementalists to release the Heart of the Mountain from its bindings.', 41, 0, 100, 0, 0, 0, 'Phase2'),
-(@REF_BLACKHAND_COSMETIC, 7, 0, 'Three Primal Elementalists remain.', 41, 0, 100, 0, 0, 0, '3PrimalRemaining'),
-(@REF_BLACKHAND_COSMETIC, 8, 0, 'Two Primal Elementalists remain.', 41, 0, 100, 0, 0, 0, '2PrimalRemaining'),
-(@REF_BLACKHAND_COSMETIC, 9, 0, 'One Primal Elementalist remains.', 41, 0, 100, 0, 0, 0, '1PrimalRemaining'),
-(@REF_BLACKHAND_COSMETIC, 10, 0, 'All Primal Elementalists have been defeated. The Heart of the Mountain is free!', 41, 0, 100, 0, 0, 0, 'Phase3Freedom1'),
-(@REF_BLACKHAND_COSMETIC, 11, 0, 'A small victory, but now you will perish in the flame that burns at the heart of Blackrock!', 14, 0, 100, 0, 0, 45465, 'Phase3Freedom2'),
-(@REF_BLACKHAND_COSMETIC, 12, 0, 'What happened to my Furnace? Where are my guards? Shut these intruders down!', 14, 0, 100, 0, 0, 45460, 'HeartDeath'),
+(@REF_BLACKHAND_COSMETIC, 1, 0, 'One Pressure Regulator has been destroyed. One remains.', 41, 0, 100, 0, 0, 0, 'FirstHeatRegulatorDestroyedBefore'),
+(@REF_BLACKHAND_COSMETIC, 2, 0, 'The machinery is damaged. Keep those scum from sabotaging the furnace!', 14, 0, 100, 0, 0, 45463, 'FirstHeatRegulatorDestroyedAfter'),
+(@REF_BLACKHAND_COSMETIC, 3, 0, 'Both Heat Regulators have been destroyed. The Heart of the Mountain is unleashed!', 41, 0, 100, 0, 0, 0, 'HeartExposedBefore'),
+(@REF_BLACKHAND_COSMETIC, 4, 0, 'The furnace is overheating! Fools! If the fury breaks free, our work will be ruined!', 14, 0, 100, 0, 0, 45464, 'HeartExposedAfter'),
+(@REF_BLACKHAND_COSMETIC, 5, 0, 'Defeat the Primal Elementalists to release the Heart of the Mountain from its bindings.', 41, 0, 100, 0, 0, 0, 'Phase2'),
+(@REF_BLACKHAND_COSMETIC, 6, 0, 'Three Primal Elementalists remain.', 41, 0, 100, 0, 0, 0, '3PrimalRemaining'),
+(@REF_BLACKHAND_COSMETIC, 7, 0, 'Two Primal Elementalists remain.', 41, 0, 100, 0, 0, 0, '2PrimalRemaining'),
+(@REF_BLACKHAND_COSMETIC, 8, 0, 'One Primal Elementalist remains.', 41, 0, 100, 0, 0, 0, '1PrimalRemaining'),
+(@REF_BLACKHAND_COSMETIC, 9, 0, 'All Primal Elementalists have been defeated. The Heart of the Mountain is free!', 41, 0, 100, 0, 0, 0, 'Phase3Freedom1'),
+(@REF_BLACKHAND_COSMETIC, 10, 0, 'A small victory, but now you will perish in the flame that burns at the heart of Blackrock!', 14, 0, 100, 0, 0, 45465, 'Phase3Freedom2'),
+(@REF_BLACKHAND_COSMETIC, 11, 0, 'What happened to my Furnace? Where are my guards? Shut these intruders down!', 14, 0, 100, 0, 0, 45460, 'HeartDeath'),
 
 (@REF_PRIMAL_ELEMENTALIST, 0, 0, 'The fury has broken free!', 14, 0, 100, 0, 0, 42891, 'HeartExposed1'),
 (@REF_PRIMAL_ELEMENTALIST, 1, 0, 'Quick, get it under control!', 14, 0, 100, 0, 0, 42892, 'HeartExposed2'),
@@ -250,83 +249,76 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 ),
 (
     @REF_BLACKHAND_COSMETIC, 1, 0,
-    '|TInterface\\Icons\\ability_foundryraid_bellows.blp:20|tLes opérateurs des soufflets font monter la température du haut fourneau. Éliminez-les rapidement pour empêcher la chaleur d''augmenter.',
-    '|TInterface\\Icons\\ability_foundryraid_bellows.blp:20|tDie Gebläsearbeiter erhöhen die Hitze des Schmelzofens. Besiegt sie schnell, damit es nicht noch heißer wird.',
-    '|TInterface\\Icons\\ability_foundryraid_bellows.blp:20|tLos operadores de fuelle están elevando el calor del horno, derrótalos rápidamente para que el grado de calor deje de subir.',
-    '|TInterface\\Icons\\ability_foundryraid_bellows.blp:20|tРаботники кузни нагнетают жар. Убейте их, прежде чем температура станет слишком высокой.'
-),
-(
-    @REF_BLACKHAND_COSMETIC, 2, 0,
     'Un régulateur de pression a été détruit. Il n''en reste plus qu''un.',
     'Ein Hitzeregler wurde zerstört, ein weiterer ist noch da.',
     'Se destruyó un regulador de presión. Falta otro.',
     'Один регулятор давления уничтожен, остался еще один.'
 ),
 (
-    @REF_BLACKHAND_COSMETIC, 3, 0,
+    @REF_BLACKHAND_COSMETIC, 2, 0,
     'La machinerie est endommagée. Empêchez cette vermine de saboter le fourneau !',
     'Der Mechanismus ist beschädigt. Lasst diesen Abschaum nicht den Ofen sabotieren!',
     'La maquinaria está dañada. ¡Eviten que esos malditos saboteen el horno!',
     'Оборудование повреждено. Не дайте им вывести из строя Горнило!'
 ),
 (
-    @REF_BLACKHAND_COSMETIC, 4, 0,
+    @REF_BLACKHAND_COSMETIC, 3, 0,
     'Les deux régulateurs de chaleur ont été détruits. Le Cœur de la montagne a été libéré !',
     'Beide Hitzeregler wurden zerstört. Das Herz des Berges ist freigesetzt!',
     'Se destruyeron ambos reguladores de calor. ¡Se desató el Corazón de la Montaña!',
     'Оба регулятора температуры уничтожены. Сердце Горы на свободе!'
 ),
 (
-    @REF_BLACKHAND_COSMETIC, 5, 0,
+    @REF_BLACKHAND_COSMETIC, 4, 0,
     'La fournaise est en surchauffe ! Imbéciles ! Si la fureur s''échappe, tout notre travail sera anéanti !',
     'Der Schmelzofen überhitzt! Ihr Narren! Wenn der Zorn ausbricht, macht er alles zunichte!',
     '¡El horno se está sobrecalentando! Tontos, si la furia es liberada, ¡nuestro trabajo se habrá arruinado!',
     'Горнило перегревается! Если Гнев вырвется на свободу, все пропало!'
 ),
 (
-    @REF_BLACKHAND_COSMETIC, 6, 0,
+    @REF_BLACKHAND_COSMETIC, 5, 0,
     'Triomphez des élémentalistes primordiaux pour libérer le Cœur de la montagne de ses entraves.',
     'Besiegt die Urelementaristen, um das Herz des Berges von seinen Fesseln zu befreien.',
     'Derrota a los elementalistas primigenios para liberar al Corazón de la Montaña de sus ataduras.',
     'Расправьтесь с повелительницами изначальных стихий, чтобы высвободить Сердце Горы.'
 ),
 (
-    @REF_BLACKHAND_COSMETIC, 7, 0,
+    @REF_BLACKHAND_COSMETIC, 6, 0,
     'Il reste trois élémentalistes primordiaux.',
     'Noch drei Urelementaristen.',
     'Faltan tres elementalistas primigenios.',
     'Осталось три повелительницы изначальных стихий.'
 ),
 (
-    @REF_BLACKHAND_COSMETIC, 8, 0,
+    @REF_BLACKHAND_COSMETIC, 7, 0,
     'Il reste deux élémentalistes primordiaux.',
     'Noch zwei Urelementaristen.',
     'Faltan dos elementalistas primigenios.',
     'Осталось две повелительницы изначальных стихий.'
 ),
 (
-    @REF_BLACKHAND_COSMETIC, 9, 0,
+    @REF_BLACKHAND_COSMETIC, 8, 0,
     'Il reste un élémentaliste primordial.',
     'Noch ein Urelementarist.',
     'Falta una elementalista primigenia.',
     'Осталась одна повелительница изначальных стихий.'
 ),
 (
-    @REF_BLACKHAND_COSMETIC, 10, 0,
+    @REF_BLACKHAND_COSMETIC, 9, 0,
     'Tous les élémentalistes primordiaux ont été vaincus. Le Cœur de la montagne n''est plus entravé !',
     'Alle Urelementaristen wurden besiegt. Das Herz des Berges ist frei!',
     'Derrotaste a todos los elementalistas primigenios. ¡El Corazón de la Montaña es libre!',
     'Все повелительницы изначальных стихий повержены, Сердце Горы на свободе.'
 ),
 (
-    @REF_BLACKHAND_COSMETIC, 11, 0,
+    @REF_BLACKHAND_COSMETIC, 10, 0,
     'Savourez cette petite victoire, maintenant vous allez périr dans les flammes qui rugissent dans le cœur de Rochenoire !',
     'Ein unbedeutender Sieg. Denn jetzt werdet Ihr in den Flammen im Herzen des Schwarzfels aufgehen!',
     'Una pequeña victoria, ¡pero ahora perecerás en la llama que arde en el corazón de Roca Negra!',
     'Скромная победа... а теперь сгорите в пламени сердца Черной горы!'
 ),
 (
-    @REF_BLACKHAND_COSMETIC, 12, 0,
+    @REF_BLACKHAND_COSMETIC, 11, 0,
     'Qu''est-il arrivé à mon fourneau ? Où sont mes gardes ? Débarrassez-moi de ces intrus !',
     'Was ist mit meiner Gießerei passiert? Wo sind die Wachen? Schiebt diesen Eindringlingen einen Riegel vor!',
     '¿Qué le ha pasado a mi horno? ¿Dónde están mis guardias? ¡Encierren a estos intrusos!',

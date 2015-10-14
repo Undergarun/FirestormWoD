@@ -65,6 +65,7 @@ enum eFoundryCreatures
     BossOregorger           = 77182,
     /// Blast Furnace
     HeartOfTheMountain      = 76806,
+    ForemanFeldspar         = 76809,
     BlackhandCosmetic       = 76831,
     /// The Black Forge - Part 2
     /// Hans'gar & Franzok
