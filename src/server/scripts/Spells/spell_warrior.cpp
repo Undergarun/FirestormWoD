@@ -1749,6 +1749,11 @@ class spell_warr_whirlwind: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_whirlwind_SpellScript);
 
+            enum eSpells
+            {
+                GlyphOfTheRagingWhirlwind     = 146968,
+                GlyphOfTheRagingWhirlwindAura = 147297
+            };
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -1764,6 +1769,9 @@ class spell_warr_whirlwind: public SpellScriptLoader
                         l_MeatCleaverAura->RefreshSpellMods();
                     }
                 }
+
+                if (l_Caster->HasAura(eSpells::GlyphOfTheRagingWhirlwind))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfTheRagingWhirlwindAura, true);
             }
 
             void HandleOnHit()

@@ -963,7 +963,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                     l_RageGain *= 0.5f;
             }
 
-            RewardRage(l_RageGain);
+            if (!HasAura(147297)) ///< Glyph of the Raging Whirlwind 146968 (Aura)
+                RewardRage(l_RageGain);
         }
     }
 
