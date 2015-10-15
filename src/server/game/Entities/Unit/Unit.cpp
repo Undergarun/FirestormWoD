@@ -301,6 +301,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
         m_powers[i] = 0;
 
     m_lastVisibilityUpdPos = *this;
+
+    m_HealingRainTrigger = 0;
 }
 
 ////////////////////////////////////////////////////////////
