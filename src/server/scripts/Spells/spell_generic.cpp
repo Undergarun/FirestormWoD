@@ -4409,10 +4409,14 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                 if (l_Attacker == nullptr || l_Victim == nullptr)
                     return;
 
-                if (l_Attacker->GetGUID() == l_Victim->GetGUID())
+                if (l_Attacker->GetGUID() == l_Victim->GetGUID() || !l_Attacker->ToPlayer())
+                    return;
+
+                if (l_Attacker->ToPlayer()->HasSpellCooldown(eSpells::TouchoftheGraveEffect))
                     return;
 
                 l_Attacker->CastSpell(l_Victim, eSpells::TouchoftheGraveEffect, true);
+                l_Attacker->ToPlayer()->AddSpellCooldown(eSpells::TouchoftheGraveEffect, 0, 20 * IN_MILLISECONDS, true);
             }
 
             void Register()

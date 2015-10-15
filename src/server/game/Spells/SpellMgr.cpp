@@ -5731,6 +5731,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157695:///< Demonbolt
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
                 break;
+            case 127802: ///< Touch of The Grave (trigger)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
