@@ -99,6 +99,7 @@ enum eFoundryGameObjects
     BlastFurnaceEncounterDoor   = 230759,
     CrucibleLeft                = 233759,
     CrucibleRight               = 233839,
+    FurnaceGate                 = 227423,
     /// The Black Forge - Part 2
     BlackForgePortcullis        = 238836,
     /// Iron Assembly - Part 3
@@ -132,12 +133,16 @@ enum eFoundryDatas
     PrimalElementalistTime  = 2,
 
     /// Counters
+    /// Gruul
     MaxPristineTrueIronOres = 3,
+    /// Oregorger
     MaxOreCrateSpawns       = 25,
     MaxOregorgerMovePos     = 8,
     MaxOregorgerPatterns    = 7,
     MaxOregorgerCollisions  = 8,
-    MaxOregorgerPaths       = 12
+    MaxOregorgerPaths       = 12,
+    /// Blast Furnace
+    MaxPrimalElementalists  = 4
 };
 
 enum eFoundrySpells

@@ -360,7 +360,7 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     '%s использует |cFFFF0000|Hspell:156446|h[Взрывную волну]|h|r! Прячься!'
 );
 
-DELETE FROM spell_script_names WHERE spell_id IN (156345, 158424, 160379, 155192, 174716, 156934, 158247);
+DELETE FROM spell_script_names WHERE spell_id IN (156345, 158424, 160379, 155192, 174716, 156934, 158247, 155176, 158345);
 INSERT INTO spell_script_names VALUES
 (156345, 'spell_foundry_ignite_aura'),
 (158424, 'spell_foundry_blast_wave'),
@@ -368,17 +368,99 @@ INSERT INTO spell_script_names VALUES
 (155192, 'spell_foundry_bomb_overrider'),
 (174716, 'spell_foundry_bomb_overrider'),
 (156934, 'spell_foundry_rupture_aura'),
-(158247, 'spell_foundry_hot_blooded_aura');
+(158247, 'spell_foundry_hot_blooded_aura'),
+(155176, 'spell_foundry_damage_shield'),
+(158345, 'spell_foundry_shields_down');
 
 DELETE FROM gameobject_template WHERE entry = 227616;
 INSERT INTO gameobject_template VALUE
 (227616, 0, 10267, 'Volcanic Bomb', '', '', '', 16, 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 19865);
 
-DELETE FROM conditions WHERE SourceEntry IN (155180, 155188);
+DELETE FROM conditions WHERE SourceEntry IN (155180, 155188, 155265);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
 (13, 1, 155180, 31, 0, 3, 76806),
-(13, 1, 155188, 31, 0, 3, 76808);
+(13, 1, 155188, 31, 0, 3, 76808),
+(13, 1, 155265, 31, 0, 3, 76806);
 
 DELETE FROM areatrigger_template WHERE spell_id IN (156933);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, scale_x, scale_y, morph_curve_id, ScriptName) VALUES
 (156933, 0, 6432, 2, 0x4080, 6, 6, 513, 'areatrigger_foundry_rupture');
+
+DELETE FROM areatrigger_template WHERE spell_id = 155738;
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, data0, data1, data6, ScriptName) VALUE
+(155738, 0, 6269, 0, 0x1000, -16.86198, 5.687012, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -18.87587, 5.460449, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -19.24045, 4.552490, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -18.57031, 3.417969, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -19.13976, 1.558594, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -19.83247, 1.338135, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -22.77344, 1.569824, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -22.61719, 0.439697, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -21.65712, -0.74097, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -20.79948, -3.80957, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -17.78038, -2.82764, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -17.12587, -2.96582, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -15.30122, -4.73999, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -15.06857, -6.34424, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -15.44705, -8.13843, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -13.08247, -10.1707, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -9.546005, -11.3738, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -6.610245, -12.3972, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -6.323792, -15.8867, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -7.138016, -16.9380, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -7.257813, -18.0171, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -5.002609, -19.8147, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -3.674484, -17.3565, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -2.143234, -17.5464, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -1.318573, -16.7593, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 0.5269012, -16.8120, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 0.8463593, -15.7505, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 6.1258700, -15.0335, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 7.9262080, -21.8572, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 10.644960, -20.7705, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 10.865450, -19.6480, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 12.639760, -19.1567, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 9.7908020, -14.5447, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 8.6796880, -14.1567, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 11.855030, -10.3008, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 11.662320, -9.21240, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 14.634550, -4.94678, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 19.167530, -7.36499, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 19.912320, -1.71582, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 22.773440, -1.14209, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 22.381070, -0.16626, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 22.610240, 1.986572, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 21.811630, 2.655762, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 22.099820, 4.718262, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 20.302950, 4.640137, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 19.919270, 6.360596, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 18.830730, 7.254639, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 17.891490, 9.407471, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 18.311630, 10.52393, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 20.804690, 11.91699, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 19.603300, 12.63745, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 18.690110, 14.38501, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 17.375870, 14.60889, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 16.356770, 15.91260, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 15.177950, 14.94824, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 14.254330, 14.98486, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 13.523440, 15.69312, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 11.953990, 15.75830, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 10.052950, 16.84058, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 9.7908020, 17.88574, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 11.077260, 20.16187, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 9.6692660, 19.80688, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 7.8307340, 21.00391, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 5.6883700, 20.24072, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, 1.2855830, 19.45874, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -4.431427, 19.98657, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -9.042542, 21.85718, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -10.69531, 18.03857, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -9.702255, 17.48999, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -8.757813, 15.89526, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -9.438370, 14.43433, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -9.271698, 12.97168, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -10.64323, 10.74854, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -11.65192, 7.027344, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -13.01823, 4.738281, 76, 'areatrigger_foundry_slag_pool'),
+(155738, 0, 6269, 0, 0x1000, -14.78038, 4.577637, 76, 'areatrigger_foundry_slag_pool');

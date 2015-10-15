@@ -35,6 +35,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_HeartOfTheMountain        = 0;
                 m_ForemanFeldspar           = 0;
                 m_CosmeticBlackhand         = 0;
+                m_FurnaceGate               = 0;
                 m_PrimalElementalistTime    = 0;
                 m_YaWeveGotTimeAchiev       = false;
             }
@@ -50,6 +51,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_HeartOfTheMountain;
             uint64 m_ForemanFeldspar;
             uint64 m_CosmeticBlackhand;
+            uint64 m_FurnaceGate;
             uint32 m_PrimalElementalistTime;
             bool m_YaWeveGotTimeAchiev;
 
@@ -99,6 +101,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::CrucibleLeft:
                     case eFoundryGameObjects::CrucibleRight:
                         p_GameObject->SetAIAnimKitId(eFoundryVisuals::CrucibleVisuals);
+                        break;
+                    case eFoundryGameObjects::FurnaceGate:
+                        m_FurnaceGate = p_GameObject->GetGUID();
                         break;
                     default:
                         break;
@@ -256,6 +261,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_ForemanFeldspar;
                     case eFoundryCreatures::BlackhandCosmetic:
                         return m_CosmeticBlackhand;
+                    case eFoundryGameObjects::FurnaceGate:
+                        return m_FurnaceGate;
                     default:
                         break;
                 }
