@@ -18355,6 +18355,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
                     }
                     break;
                 case uint8(PackageItemRewardType::ClassReward):
+                    /// If the item doesn't have any spec, let's assume everyone can take it.
+                    if (!l_ItemTemplate->HasSpec())
+                        return true;
+
                     if (!l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         return false;
                     break;
@@ -33113,6 +33117,33 @@ void Player::SendSpellCharges()
     SendDirectMessage(&l_Data);
 }
 
+void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
+{
+    if (!p_ChargeCategoryEntry)
+        return;
+
+    Clock::time_point l_Now = Clock::now();
+    auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+    if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
+    {
+        float l_Count = GetMaxCharges(p_ChargeCategoryEntry) - l_Itr->second.size();
+        if (l_Count < 0.0f)
+            l_Count = 0.0f;
+
+        std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
+
+        l_Count += 1.0f - (float)l_CooldownDuration.count() / (float)GetChargeRecoveryTime(p_ChargeCategoryEntry);
+
+
+        WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
+        l_Data << int32(p_ChargeCategoryEntry->Id);
+        l_Data << float(l_Count);
+        l_Data.WriteBit(false); ///< IsPet
+        l_Data.FlushBits();
+        SendDirectMessage(&l_Data);
+    }
+}
+
 void Player::UpdateCharges()
 {
     Clock::time_point l_Now = Clock::now();
@@ -33166,7 +33197,7 @@ void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntr
         else
             l_Itr->second.pop_back();
 
-        SendSpellCharges();
+        SendSetSpellCharges(p_ChargeCategoryEntry);
     }
 }
 
