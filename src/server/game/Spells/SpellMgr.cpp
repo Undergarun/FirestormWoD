@@ -3405,6 +3405,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160665: ///< Rolling Box (Oregorger)
             case 160833: ///< Bust Loose (Heart of the Mountain)
             case 155738: ///< Slag Pool (Heart of the Mountain)
+            case 155224: ///< Melt (Heart of the Mountain)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 155819: ///< Hunger Drive (Oregorger)
@@ -3416,6 +3417,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160382: ///< Defense (Security Guard)
             case 158246: ///< Hot Blooded (Foreman Feldspar)
             case 156932: ///< Rupture DoT (Foreman Feldspar)
+            case 155223: ///< Melt DoT (Heart of the Mountain)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
@@ -3423,9 +3425,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155201: ///< Electrocution (Furnace Engineer)
                 spellInfo->Effects[EFFECT_0].ChainTarget = 2;
                 break;
-            case 158702: ///< Fixate (Slag Elemental)
-                spellInfo->TargetAuraSpell = 0;
-                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_DUMMY;
+            case 155196: ///< Fixate (Slag Elemental)
+                spellInfo->MaxAffectedTargets = 1;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 167650: ///< Loose Quills (Rukhmar)
