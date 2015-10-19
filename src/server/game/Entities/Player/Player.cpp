@@ -33910,3 +33910,30 @@ void Player::CheckTalentSpells()
         ++l_Itr;
     }
 }
+
+void Player::HandleWarlockWodPvpBonus()
+{
+    if (getClass() != CLASS_WARLOCK || getLevel() != 100)
+        return;
+
+    uint32 l_SpellBonusId = 0;
+    uint32 l_TriggerSpell = 0;
+
+    /// Check what's specialization bonus we need
+    if (GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
+    {
+        l_SpellBonusId = 171377;
+        l_TriggerSpell = 171378;
+    }
+    else if (GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION)
+    {
+        l_SpellBonusId = 171383;
+        l_TriggerSpell = 188168;
+    }
+
+    if (HasAura(l_SpellBonusId) && !HasSpellCooldown(l_TriggerSpell))
+    {
+        CastSpell(this, l_TriggerSpell, true);
+        AddSpellCooldown(l_TriggerSpell, 0, 15 * IN_MILLISECONDS);
+    }
+}

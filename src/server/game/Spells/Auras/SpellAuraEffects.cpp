@@ -3176,6 +3176,11 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* p_AurApp, uint8 p_M
             p_AurApp->GetBase()->SetMaxDuration(p_AurApp->GetBase()->GetMaxDuration() + 2000);
             p_AurApp->GetBase()->RefreshDuration();
         }
+
+        /// Item - Warlock WoD PvP Affliction 2P Bonus
+        if (l_Target->ToPlayer())
+            l_Target->ToPlayer()->HandleWarlockWodPvpBonus();
+
     }
     else
     {
@@ -3786,6 +3791,10 @@ void AuraEffect::HandleModFear(AuraApplication const* p_AurApp, uint8 p_Mode, bo
         l_Target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
+    /// Item - Warlock WoD PvP Affliction 2P Bonus
+    if (l_Target->ToPlayer())
+        l_Target->ToPlayer()->HandleWarlockWodPvpBonus();
+
     l_Target->SetControlled(p_Apply, UNIT_STATE_FLEEING);
 
     if (p_Apply)
@@ -3841,6 +3850,10 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* p_AurApp, uint8 p_Mode
         l_Target->CastSpell(l_Target, 89023, true);
         l_Target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
+
+    /// Item - Warlock WoD PvP Affliction 2P Bonus
+    if (l_Target->ToPlayer())
+        l_Target->ToPlayer()->HandleWarlockWodPvpBonus();
 
     l_Target->SetControlled(p_Apply, UNIT_STATE_STUNNED);
 

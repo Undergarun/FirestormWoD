@@ -1814,6 +1814,17 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     damageInfo->damage      -= resilienceReduction;
     damageInfo->cleanDamage += resilienceReduction;
 
+    // only for normal weapon damage
+    if (damageInfo->attackType == WeaponAttackType::BaseAttack || damageInfo->attackType == WeaponAttackType::OffAttack)
+    {
+        /// last update : 6.1.2 19802
+        /// Blood Horror - 111397
+        if (victim->HasAura(111397))
+        {
+            victim->CastSpell(this, 137143, true);
+            victim->RemoveAurasDueToSpell(111397);
+        }
+
     // Calculate absorb resist
     if (int32(damageInfo->damage) > 0)
     {
@@ -1834,17 +1845,6 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     }
     else // Impossible get negative result but....
         damageInfo->damage = 0;
-
-    // only for normal weapon damage
-    if (damageInfo->attackType == WeaponAttackType::BaseAttack || damageInfo->attackType == WeaponAttackType::OffAttack)
-    {
-        /// last update : 6.1.2 19802
-        /// Blood Horror - 111397
-        if (victim->HasAura(111397))
-        {
-            victim->CastSpell(this, 137143, true);
-            victim->RemoveAurasDueToSpell(111397);
-        }
 
         // Custom MoP Script - Zen Meditation - 115176
         if (AuraPtr zenMeditation = victim->GetAura(115176, victim->GetGUID()))
@@ -11481,7 +11481,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // damage is increased by your critical strike chance
     if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 116858 || spellProto->Id == 157701 || spellProto->Id == 6353 || spellProto->Id == 104027))
     {
-        float crit_chance;
+        /// Default is 5% of crit
+        float crit_chance = 5.0f;
         crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
         DoneTotal += CalculatePct(pdamage, crit_chance);
     }
@@ -12538,8 +12539,9 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
     Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
     int32 l_Diff = 0;
     float l_PctSpellMod = 0.0f;
-    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr)
-        l_CritPctBonus = 50; ///< 150% on pvp
+
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && p_SpellProto->Id != 116858)
+        l_CritPctBonus = 50; ///< 150% on pvp, except Chaos Bolt
 
     /// Special case for Prismatic Crystal - 150% crit
     if (l_ModOwner != nullptr && l_ModOwner->getClass() == CLASS_MAGE && p_Victim->GetTypeId() == TYPEID_UNIT && p_Victim->HasAura(155153))

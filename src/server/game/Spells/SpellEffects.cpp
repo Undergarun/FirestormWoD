@@ -4275,6 +4275,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     if (m_spellInfo->Id == 6552 && m_originalCaster->HasAura(58372))
                         m_originalCaster->CastSpell(m_originalCaster, 86663, true);
 
+                    /// Item - Warlock WoD PvP Affliction 2P Bonus
+                    if (unitTarget->ToPlayer())
+                        unitTarget->ToPlayer()->HandleWarlockWodPvpBonus();
+
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(l_CurrentSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
 

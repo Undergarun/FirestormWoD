@@ -1899,6 +1899,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 break;
             }
+            case SPELLFAMILY_WARLOCK:
+                // Soulburn: Demonic Circle
+                if (m_spellInfo->Id == 79438)
+                {
+                    if (caster)
+                        caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                }
+                break;
             default:
                 break;
         }

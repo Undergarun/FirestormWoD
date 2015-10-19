@@ -4432,8 +4432,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(21); ///< 35
                 break;
             case 103965: ///< Metamorphosis (override auras)
-                spellInfo->Effects[2].SpellClassMask[0] = 64;
-
                 ///< All this effects are Override with old spell id
                 spellInfo->Effects[4].Effect = SPELL_EFFECT_NONE; ///< No more use (Void Ray : 115422)
                 spellInfo->Effects[5].Effect = SPELL_EFFECT_NONE; ///< No more use (Aura of Enfeeblement : 116198)
@@ -4444,6 +4442,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[11].Effect = SPELL_EFFECT_NONE;
                 spellInfo->Effects[14].Effect = SPELL_EFFECT_NONE; ///< No more use (Drain Life : 103990)
                 spellInfo->Effects[15].Effect = SPELL_EFFECT_NONE;
+                break;
+            case 5857:   ///< Hellfire damage spell
+                spellInfo->AttributesEx3 = 0;
+                spellInfo->AttributesEx4 = 0;
                 break;
             case 145518: ///< Genesis
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;

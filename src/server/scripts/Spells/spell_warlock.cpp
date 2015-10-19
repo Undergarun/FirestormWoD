@@ -1783,6 +1783,17 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             {
                                 int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
                                 l_Caster->CastCustomSpell(l_Target, (*l_DotAura).second, &l_Bp0, NULL, NULL, true);
+
+                                /// Agony stack refresh
+                                if ((*l_DotAura).second == 131737)
+                                    if (AuraPtr l_Agony = l_Target->GetAura((*l_DotAura).first, GetCaster()->GetGUID()))
+                                        if (constAuraEffectPtr l_AgonyDmgEffect = l_Target->GetAuraEffect((*l_DotAura).first, 0))
+                                            l_Agony->ModStackAmount(l_AgonyDmgEffect->GetBaseAmount());
+
+                                /// Glyph of Siphon Life - 56218
+                                if ((*l_DotAura).second == 131740)
+                                    if (l_Caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
+                                        l_Caster->CastSpell(l_Caster, WARLOCK_SPELL_SYPHON_LIFE, true);
                             }
                         }
                     }
