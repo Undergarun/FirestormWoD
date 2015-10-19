@@ -982,6 +982,8 @@ uint32 GameEventMgr::Update()                               // return the next e
     uint32 nextEventDelay = max_ge_check_delay;             // 1 day
     uint32 calcDelay;
     std::set<uint16> activate, deactivate;
+
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
     for (uint16 itr = 1; itr < mGameEvent.size(); ++itr)
     {
         // must do the activating first, and after that the deactivating
@@ -996,7 +998,7 @@ uint32 GameEventMgr::Update()                               // return the next e
                 mGameEvent[itr].state = GAMEEVENT_WORLD_FINISHED;
                 mGameEvent[itr].nextstart = 0;
                 // save the state of this gameevent
-                SaveWorldEventStateToDB(itr);
+                SaveWorldEventStateToDB(itr, l_Transaction);
                 // queue for deactivation
                 if (IsActiveEvent(itr))
                     deactivate.insert(itr);
@@ -1005,7 +1007,7 @@ uint32 GameEventMgr::Update()                               // return the next e
             }
             else if (mGameEvent[itr].state == GAMEEVENT_WORLD_CONDITIONS && CheckOneGameEventConditions(itr))
                 // changed, save to DB the gameevent state, will be updated in next update cycle
-                SaveWorldEventStateToDB(itr);
+                SaveWorldEventStateToDB(itr, l_Transaction);
 
             //sLog->outDebug(LOG_FILTER_GENERAL, "GameEvent %u is active", itr->first);
             // queue for activation
@@ -1031,6 +1033,10 @@ uint32 GameEventMgr::Update()                               // return the next e
         if (calcDelay < nextEventDelay)
             nextEventDelay = calcDelay;
     }
+
+    if (l_Transaction->GetSize())
+        CharacterDatabase.CommitTransaction(l_Transaction);
+
     // now activate the queue
     // a now activated event can contain a spawn of a to-be-deactivated one
     // following the activate - deactivate order, deactivating the first event later will leave the spawn in (wont disappear then reappear clientside)
@@ -1040,8 +1046,10 @@ uint32 GameEventMgr::Update()                               // return the next e
         // in that case, initiate next update in 1 second
         if (StartEvent(*itr))
             nextEventDelay = 0;
+
     for (std::set<uint16>::iterator itr = deactivate.begin(); itr != deactivate.end(); ++itr)
         StopEvent(*itr);
+
     sLog->outInfo(LOG_FILTER_GAMEEVENTS, "Next game event check in %u seconds.", nextEventDelay + 1);
     return (nextEventDelay + 1) * IN_MILLISECONDS;           // Add 1 second to be sure event has started/stopped at next call
 }
@@ -1586,15 +1594,21 @@ void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_SAVE);
-    stmt->setUInt8(0, uint8(event_id));
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GAME_EVENT_SAVE);
-    stmt->setUInt8(0, uint8(event_id));
-    stmt->setUInt8(1, mGameEvent[event_id].state);
-    stmt->setUInt32(2, mGameEvent[event_id].nextstart ? uint32(mGameEvent[event_id].nextstart) : 0);
-    trans->Append(stmt);
+    SaveWorldEventStateToDB(event_id, trans)
     CharacterDatabase.CommitTransaction(trans);
+}
+
+void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id, SQLTransaction& p_Transaction)
+{
+    PreparedStatement* p_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_SAVE);
+    p_Stmt->setUInt8(0, uint8(event_id));
+    p_Transaction->Append(p_Stmt);
+
+    p_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GAME_EVENT_SAVE);
+    p_Stmt->setUInt8(0, uint8(event_id));
+    p_Stmt->setUInt8(1, mGameEvent[event_id].state);
+    p_Stmt->setUInt32(2, mGameEvent[event_id].nextstart ? uint32(mGameEvent[event_id].nextstart) : 0);
+    p_Transaction->Append(p_Stmt);
 }
 
 void GameEventMgr::SendWorldStateUpdate(Player* player, uint16 event_id)
