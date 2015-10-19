@@ -3047,7 +3047,7 @@ class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
             enum eSpells
             {
                 FlashOfLight = 19750,
-                GlyphOfLightAura = 123254
+                GlyphOfLightAura = 54957
             };
 
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)

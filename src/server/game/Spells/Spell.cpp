@@ -1909,14 +1909,13 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
     {
         int8 l_StacksToDrop = GetSpellInfo()->Id == 116858 ? 3 : 1;
         if (GetSpellInfo()->SpellFamilyFlags & flag128(0x00000000, 0x00000000, 0x00000000, 0x00400000) &&
-            havoc->GetStackAmount() >= l_StacksToDrop && target->ToUnit() && !target->ToUnit()->HasAura(80240))
+            havoc->GetStackAmount() >= l_StacksToDrop && target->ToUnit() && !target->ToUnit()->HasAura(80240) && effIndex == EFFECT_0)
         {
             std::list<Unit*> targets;
             Unit* secondTarget = NULL;
             m_caster->GetAttackableUnitListInRange(targets, 40.0f);
 
-            if (target->ToUnit())
-                targets.remove(target->ToUnit());
+            targets.remove(target->ToUnit());
             targets.remove(m_caster);
 
             for (auto itr : targets)

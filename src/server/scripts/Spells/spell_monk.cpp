@@ -1829,6 +1829,14 @@ class spell_monk_surging_mist: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_surging_mist_SpellScript);
 
+            enum eSpells
+            {
+                StanceoftheSturdyOx         = 115069,
+                StanceoftheFierceTiger      = 103985,
+                StanceoftheWiseSerpent      = 115070,
+                StanceoftheSpiritedCrane    = 154436
+            };
+
             void HandleOnPrepare()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -1850,10 +1858,11 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                if ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && !l_Player->HasAura(eSpells::StanceoftheSturdyOx)) ||
+                    ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec()) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
                     l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, -30, POWER_ENERGY);
-                else
-                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
             }
 
             void HandleHeal(SpellEffIndex effIndex)
@@ -3930,8 +3939,6 @@ class spell_monk_tiger_palm: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
-                    l_Coeff = 6.0f;
                 l_Player->RemoveAurasDueToSpell(118864); // Combo Breaker
 
                 int32 l_Damage = int32(frand(l_Coeff * l_Low, l_Coeff * l_High));

@@ -1367,17 +1367,17 @@ public:
 };
 
 /// Healing Rain - 73920
-class spell_sha_healing_rain: public SpellScriptLoader
+class spell_sha_healing_rain : public SpellScriptLoader
 {
     public:
         spell_sha_healing_rain() : SpellScriptLoader("spell_sha_healing_rain") { }
 
-        enum eSpells : uint32
+        enum eSpell : uint32
         {
             HealingRainHeal = 73921,
         };
 
-        enum eNPCs : uint32
+        enum eNPC : uint32
         {
             HealingRainTrigger = 73400
         };
@@ -1392,36 +1392,27 @@ class spell_sha_healing_rain: public SpellScriptLoader
 
                 if (WorldLocation const* l_Loc = GetExplTargetDest())
                 {
-                    std::list<Creature*> l_Creatures;
-                    l_Caster->GetCreatureListWithEntryInGrid(l_Creatures, eNPCs::HealingRainTrigger, 200.f);
+                    if (Creature* l_Trigger = Creature::GetCreature(*l_Caster, l_Caster->GetHealingRainTrigger()))
+                        l_Trigger->DespawnOrUnsummon();
 
-                    /// Only 1 will be always found
-                    for (auto& l_Creature : l_Creatures)
-                    {
-                        if (l_Creature->GetOwnerGUID() == l_Caster->GetGUID())
-                        {
-                            l_Creature->DespawnOrUnsummon();
-                            break;
-                        }
-                    }
-
-                    if (TempSummon* l_Summon = l_Caster->SummonCreature(eNPCs::HealingRainTrigger, *l_Loc, TEMPSUMMON_MANUAL_DESPAWN))
+                    if (TempSummon* l_Summon = l_Caster->SummonCreature(eNPC::HealingRainTrigger, *l_Loc, TEMPSUMMON_MANUAL_DESPAWN))
                     {
                         l_Summon->SetOwnerGUID(l_Caster->GetGUID());
+                        l_Caster->SetHealingRainTrigger(l_Summon->GetGUID());
                     }
 
-                    if (AuraPtr l_Conductivity = l_Caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
-                        l_Conductivity->GetEffect(EFFECT_0)->SetAmount(l_Conductivity->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    if (AuraEffectPtr l_Conductivity = l_Caster->GetAuraEffect(SPELL_SHA_CONDUCTIVITY_TALENT, EFFECT_0))
+                        l_Conductivity->SetAmount(l_Conductivity->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_sha_healing_rain_SpellScript::Hit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_sha_healing_rain_SpellScript();
         }
@@ -1433,52 +1424,31 @@ class spell_sha_healing_rain: public SpellScriptLoader
             void OnTick(constAuraEffectPtr aurEff)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (!l_Caster)
                     return;
 
-                std::list<Creature*> l_Creatures;
-                l_Caster->GetCreatureListWithEntryInGrid(l_Creatures, eNPCs::HealingRainTrigger, 200.f);
-
-                for (auto& l_Creature : l_Creatures)
-                {
-                    if (l_Creature->GetOwnerGUID() == l_Caster->GetGUID())
-                    {
-                        l_Caster->CastSpell(l_Creature->GetPositionX(), l_Creature->GetPositionY(), l_Creature->GetPositionZ(), eSpells::HealingRainHeal, true);
-                        break;
-                    }
-                }
+                if (Creature* l_Trigger = Creature::GetCreature(*l_Caster, l_Caster->GetHealingRainTrigger()))
+                    l_Caster->CastSpell(*l_Trigger, eSpell::HealingRainHeal, true);
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (!l_Caster)
                     return;
 
-                std::list<Creature*> l_Creatures;
-                l_Caster->GetCreatureListWithEntryInGrid(l_Creatures, eNPCs::HealingRainTrigger, 200.f);
-
-                /// Only 1 will be always found
-                for (auto& l_Creature : l_Creatures)
-                {
-                    if (l_Creature->GetOwnerGUID() == l_Caster->GetGUID())
-                    {
-                        l_Creature->DespawnOrUnsummon();
-                        break;
-                    }
-                }
+                if (Creature* l_Trigger = Creature::GetCreature(*l_Caster, l_Caster->GetHealingRainTrigger()))
+                    l_Trigger->DespawnOrUnsummon();
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
                 OnEffectRemove += AuraEffectRemoveFn(spell_sha_healing_rain_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_sha_healing_rain_AuraScript();
         }

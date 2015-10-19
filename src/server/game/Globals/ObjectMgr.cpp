@@ -3026,8 +3026,36 @@ void ObjectMgr::LoadItemSpecs()
 
                 if (!hasPrimary || !hasSecondary)
                     continue;
-                
-                l_ItemTemplate.AddSpec((SpecIndex)itemSpec->SpecializationID, itemSpec->MaxLevel);
+
+                if (l_ItemTemplate.RequiredLevel > 40)
+                {
+                    uint8 l_Class = GetClassBySpec(itemSpec->SpecializationID);
+                    switch (l_ItemTemplate.SubClass)
+                    {
+                        case ITEM_SUBCLASS_ARMOR_CLOTH:
+                            if (l_Class != Classes::CLASS_PRIEST && l_Class != Classes::CLASS_MAGE && l_Class != Classes::CLASS_WARLOCK)
+                                continue;
+                            break;
+                        case ITEM_SUBCLASS_ARMOR_LEATHER:
+                            if (l_Class != Classes::CLASS_DRUID && l_Class != Classes::CLASS_ROGUE && l_Class != Classes::CLASS_MONK)
+                                continue;
+                            break;
+                        case ITEM_SUBCLASS_ARMOR_MAIL:
+                            if (l_Class != Classes::CLASS_HUNTER && l_Class != Classes::CLASS_SHAMAN)
+                                continue;
+                            break;
+                        case ITEM_SUBCLASS_ARMOR_PLATE:
+                            if (l_Class != Classes::CLASS_DEATH_KNIGHT && l_Class != Classes::CLASS_WARRIOR && l_Class != Classes::CLASS_PALADIN)
+                                continue;
+                            break;
+                    }
+                }
+
+                if (ChrSpecializationsEntry const* l_Specialization = sChrSpecializationsStore.LookupEntry(itemSpec->SpecializationID))
+                {
+                    if ((1 << (l_Specialization->ClassID - 1)) & l_ItemTemplate.AllowableClass && l_ItemTemplate.RequiredLevel <= itemSpec->MaxLevel)
+                        l_ItemTemplate.AddSpec((SpecIndex)itemSpec->SpecializationID, itemSpec->MaxLevel);
+                }
             }
         }
     }

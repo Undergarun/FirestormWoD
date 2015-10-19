@@ -14,6 +14,16 @@
 
 namespace MS { namespace Garrison 
 {
+    std::vector<uint32> g_HerbEntries
+    {
+        Items::ItemFireWeed,
+        Items::ItemFrostWeed,
+        Items::ItemGorgrondFlytrap,
+        Items::ItemNagrandArrowbloom,
+        Items::ItemTaladorOrchid,
+        Items::ItemStarflower
+    };
+
     /// Garrison cache generic script
     class go_garrison_cache : public GameObjectScript
     {

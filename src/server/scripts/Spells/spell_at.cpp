@@ -188,26 +188,78 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
         }
 };
 
+/// last update : 6.1.2 19802
 /// Ursol Vortex - 102793
 class spell_at_druid_ursol_vortex : public AreaTriggerEntityScript
 {
     public:
         spell_at_druid_ursol_vortex(): AreaTriggerEntityScript("at_ursol_vortex") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        enum eSpells
         {
-            std::list<Unit*> targetList;
+            VortexJump = 118283,
+            VortexSnare = 127797
+        };
+
+        std::list<uint64> m_TargetList;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        {
+            std::list<Unit*> l_NewTargetList;
             float l_Radius = 8.0f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
             p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
 
-            if (!targetList.empty())
-                for (auto itr : targetList)
-                    if (!itr->HasAura(127797))
-                        l_Caster->CastSpell(itr, 127797, true);
+            for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end();)
+            {
+                Unit* l_Target = ObjectAccessor::GetUnit(*l_Caster, *l_It);
+
+                if (l_Target == nullptr)
+                {
+                    l_It = m_TargetList.erase(l_It);
+                    continue;
+                }
+
+                if (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end())
+                {
+                    if (!l_Target->HasAura(eSpells::VortexJump))
+                        l_Target->CastSpell(p_AreaTrigger, eSpells::VortexJump, true);
+                    else
+                    {
+                        l_Target->RemoveAura(eSpells::VortexJump);
+                        l_It = m_TargetList.erase(l_It);
+                        continue;
+                    }
+                }
+                ++l_It;
+            }
+
+            if (!l_NewTargetList.empty())
+            {
+                for (auto itr : l_NewTargetList)
+                {
+                    if (!itr->HasAura(eSpells::VortexSnare))
+                        l_Caster->CastSpell(itr, eSpells::VortexSnare, true);
+                    if (std::find(m_TargetList.begin(), m_TargetList.end(), itr->GetGUID()) == m_TargetList.end())
+                        m_TargetList.push_back(itr->GetGUID());
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* /*p_AreaTrigger*/, uint32 /*p_Time*/)
+        {
+            for (auto l_It : m_TargetList)
+            {
+                Unit* l_Target = ObjectAccessor::FindUnit(l_It);
+                if (l_Target)
+                {
+                    l_Target->RemoveAura(eSpells::VortexSnare);
+                    l_Target->RemoveAura(eSpells::VortexJump);
+                }
+            }
         }
 
         AreaTriggerEntityScript* GetAI() const
