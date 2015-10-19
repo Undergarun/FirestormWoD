@@ -1592,9 +1592,7 @@ bool GameEventMgr::CheckOneGameEventConditions(uint16 event_id)
 void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_SAVE);
-    SaveWorldEventStateToDB(event_id, trans)
+    SaveWorldEventStateToDB(event_id, trans);
     CharacterDatabase.CommitTransaction(trans);
 }
 
