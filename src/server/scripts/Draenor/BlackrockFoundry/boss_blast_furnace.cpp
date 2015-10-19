@@ -102,7 +102,8 @@ class boss_heart_of_the_mountain : public CreatureScript
             ActionBlastIncreased        = 2,
             ActionFreeFury              = 2,
             ActionElementalistKilled    = 3,
-            ActionSwitchToPhase2        = 3
+            ActionSwitchToPhase2        = 3,
+            ActionFuryDead              = 4
         };
 
         enum eVisuals
@@ -243,6 +244,10 @@ class boss_heart_of_the_mountain : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
+                me->RemoveAllAreasTrigger();
+
+                summons.DespawnAll();
+
                 Talk(eTalks::Death);
 
                 _JustDied();
@@ -251,7 +256,16 @@ class boss_heart_of_the_mountain : public CreatureScript
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Heat);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Tempered);
+
                     CastSpellToPlayers(me->GetMap(), me, eSpells::BlastFurnaceBonus, true);
+
+                    if (Creature* l_Blackhand = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BlackhandCosmetic)))
+                    {
+                        if (l_Blackhand->IsAIEnabled)
+                            l_Blackhand->AI()->DoAction(eActions::ActionFuryDead);
+                    }
                 }
             }
 
@@ -1027,7 +1041,8 @@ class npc_foundry_blackhand_cosmetic : public CreatureScript
             ActionIntro,
             ActionRegulatorDestroyed,
             ActionFreeFury,
-            ActionElementalistKilled
+            ActionElementalistKilled,
+            ActionFuryDead
         };
 
         struct npc_foundry_blackhand_cosmeticAI : public ScriptedAI
@@ -1103,6 +1118,15 @@ class npc_foundry_blackhand_cosmetic : public CreatureScript
                                 Talk(eTalks::Phase3Freedom2);
                             });
                         }
+
+                        break;
+                    }
+                    case eActions::ActionFuryDead:
+                    {
+                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Talk(eTalks::HeartDeath);
+                        });
 
                         break;
                     }
@@ -2572,6 +2596,99 @@ class spell_foundry_melt_aura : public SpellScriptLoader
         }
 };
 
+/// Crucible (Left) - 233757
+/// Crucible (Right) - 233758
+class go_founrdy_crucible : public GameObjectScript
+{
+    public:
+        go_founrdy_crucible() : GameObjectScript("go_founrdy_crucible_left") { }
+
+        struct go_founrdy_crucibleAI : public GameObjectAI
+        {
+            go_founrdy_crucibleAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+
+            EventMap m_Events;
+
+            enum eGameObjects
+            {
+                CrucibleSecLeft     = 237303,
+                CrucibleSecRight    = 237302
+            };
+
+            enum eEvent
+            {
+                EventInit = 1
+            };
+
+            void Reset() override
+            {
+                uint32 l_Time = urand(1 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS);
+
+                GameObject* l_CrucibleSec = go->FindNearestGameObject(eGameObjects::CrucibleSecLeft, 50.0f);
+                if (l_CrucibleSec == nullptr)
+                    l_CrucibleSec = go->FindNearestGameObject(eGameObjects::CrucibleSecRight, 50.0f);
+
+                m_Events.ScheduleEvent(eEvent::EventInit, 2 * TimeConstants::IN_MILLISECONDS);
+
+                if (l_CrucibleSec != nullptr)
+                {
+                    m_Events.Reset();
+
+                    uint64 l_Guid = l_CrucibleSec->GetGUID();
+                    AddTimedDelayedOperation(l_Time, [this, l_Guid]() -> void
+                    {
+                        if (GameObject* l_CrucibleSec = GameObject::GetGameObject(*go, l_Guid))
+                            l_CrucibleSec->SetGoState(GOState::GO_STATE_ACTIVE);
+                    });
+
+                    l_Time += 6 * TimeConstants::IN_MILLISECONDS;
+
+                    AddTimedDelayedOperation(l_Time, [this, l_Guid]() -> void
+                    {
+                        if (GameObject* l_CrucibleSec = GameObject::GetGameObject(*go, l_Guid))
+                            l_CrucibleSec->SetGoState(GOState::GO_STATE_READY);
+                    });
+
+                    l_Time += 5 * TimeConstants::IN_MILLISECONDS;
+
+                    AddTimedDelayedOperation(l_Time, [this]() -> void
+                    {
+                        /// Start animation
+                        go->SetGoState(GOState::GO_STATE_ACTIVE);
+                    });
+
+                    l_Time += 5 * TimeConstants::IN_MILLISECONDS;
+
+                    AddTimedDelayedOperation(l_Time, [this]() -> void
+                    {
+                        /// End animation
+                        go->SetGoState(GOState::GO_STATE_READY);
+                    });
+                }
+            }
+
+            void LastOperationCalled() override
+            {
+                Reset();
+            }
+
+            void UpdateAI(uint32 p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == eEvent::EventInit)
+                    Reset();
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_founrdy_crucibleAI(p_GameObject);
+        }
+};
+
 /// Rupture - 156933
 class areatrigger_foundry_rupture : public AreaTriggerEntityScript
 {
@@ -2842,6 +2959,9 @@ void AddSC_boss_blast_furnace()
     new spell_foundry_shields_down();
     new spell_foundry_volatile_fire();
     new spell_foundry_melt_aura();
+
+    /// GameObject
+    new go_founrdy_crucible();
 
     /// AreaTriggers
     new areatrigger_foundry_rupture();
