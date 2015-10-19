@@ -7855,43 +7855,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 case 20154:
                     triggered_spell_id = 101423;
                     break;
-                // Beacon of Light
-                case 53651:
-                {
-                    if (Unit* beaconTarget = triggeredByAura->GetBase()->GetCaster())
-                    {
-                        // do not proc when target of beacon of light is self
-                        if (!victim || GetGUID() == beaconTarget->GetGUID())
-                            return false;
-
-                        // check if it was heal by paladin which casted this beacon of light
-                        if (beaconTarget->GetAura(53563, victim->GetGUID()))
-                        {
-                            if (beaconTarget->IsWithinLOSInMap(victim))
-                            {
-                                int32 percent = 0;
-                                switch (procSpell->Id)
-                                {
-                                    case 82327: // Holy Radiance
-                                    case 119952:// Light's Hammer
-                                    case 114871:// Holy Prism
-                                    case 85222: // Light of Dawn
-                                        percent = 15; // 15% heal from these spells
-                                        break;
-                                    default:
-                                        percent = triggerAmount; // 50% heal from all other heals
-                                        break;
-                                }
-
-                                basepoints0 = CalculatePct(damage, percent);
-                                victim->CastCustomSpell(beaconTarget, 53652, &basepoints0, NULL, NULL, true);
-                                return true;
-                            }
-                        }
-                    }
-
-                    return false;
-                }
                 case 157007:///< Beacon of Insight
                 {
                     if (!victim)
