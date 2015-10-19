@@ -18355,10 +18355,6 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
                     }
                     break;
                 case uint8(PackageItemRewardType::ClassReward):
-                    /// If the item doesn't have any spec, let's assume everyone can take it.
-                    if (!l_ItemTemplate->HasSpec())
-                        return true;
-
                     if (!l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         return false;
                     break;
@@ -20099,6 +20095,14 @@ void Player::SendQuestTimerFailed(uint32 quest_id)
     }
 }
 
+/// @TODO
+/// according to c9e138d66d6a455a72d3fefbc0e4d5998bc338d6 from TrinityCore
+/// the correct struct is
+/// data << uint32(Reason);
+/// data.WriteBit(SendErrorMessage);
+/// data.WriteBits(ReasonText.length(), 9);
+/// data.FlushBits();
+/// data.WriteString(ReasonText);
 void Player::SendCanTakeQuestResponse(uint32 msg) const
 {
     WorldPacket data(SMSG_QUEST_GIVER_INVALID_QUEST, 4 + 2);
@@ -30528,7 +30532,7 @@ void Player::ActivateSpec(uint8 spec)
                         if (!l_GlyphPropertiesCheck)
                             continue;
 
-                        if (l_GlyphPropertiesCheck->GlyphExclusiveCategoryID == l_GlyphProperties->GlyphExclusiveCategoryID)
+                        if (l_GlyphPropertiesCheck->GlyphExclusiveCategoryID == l_GlyphProperties->GlyphExclusiveCategoryID && glyph != l_GlyphID)
                         {
                             l_CanApplyGlyph = false;
                             break;
@@ -33133,8 +33137,6 @@ void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry
         std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
 
         l_Count += 1.0f - (float)l_CooldownDuration.count() / (float)GetChargeRecoveryTime(p_ChargeCategoryEntry);
-
-
         WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
         l_Data << int32(p_ChargeCategoryEntry->Id);
         l_Data << float(l_Count);

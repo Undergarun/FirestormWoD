@@ -214,9 +214,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Typhoon -- 61391
             if (spellproto->SpellFamilyFlags[1] & 0x1000000)
                 return DIMINISHING_AOE_KNOCKBACK;
-            // Ursol's Vortex -- 127797, no flags on the effect, 16921
-            if (spellproto->SpellIconID == 5784 && spellproto->SchoolMask == 8)
-                return DIMINISHING_AOE_KNOCKBACK;
 
             // Entangling Roots -- 339
             if (spellproto->SpellFamilyFlags[0] & 0x200)
@@ -5380,10 +5377,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 117833: ///< Crazy Thought
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                 break;
-            case 102793: ///< Ursol's Vortex
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
-                break;
             case 172:   ///< Corruption
             case 30108: ///< Unstable Affliction
                 spellInfo->Effects[2].Effect = 0;
@@ -6437,6 +6430,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// SPELL_ATTR4_CAN_CAST_WHILE_CASTING bypass charge check and players can usebug (the check is only doing client-side)
                 /// Maybe SPELL_ATTR4_CAN_CAST_WHILE_CASTING don't bypass charge ?
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
+                break;
+            case 44425: ///< Arcane barrage
+                spellInfo->AttributesEx6 &= ~SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED;
                 break;
             case 46916: ///< Bloodsurge
                 /// Blizzard use -300%, idk why
