@@ -1946,8 +1946,7 @@ class spell_pal_holy_shock: public SpellScriptLoader
                         if (l_Caster->HasAura(PALADIN_ENHANCED_HOLY_SHOCK_PROC))
                             l_Caster->ToPlayer()->RemoveSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, true);
                         if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_DENOUNCE))
-                            if (roll_chance_i(50))
-                                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC, true);
+                            l_Caster->CastSpell(l_Caster, PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC, true);
 
                         l_Caster->CastSpell(l_Caster, PALADIN_SPELL_HOLY_SHOCK_ENERGIZE, true);
                     }
