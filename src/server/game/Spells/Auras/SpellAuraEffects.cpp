@@ -7484,6 +7484,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 damage *= 0.85f;
         }
 
+        ///< Glyph of Flame Shock, have to be trigger afer calculating damages bonus
+        if (GetSpellInfo()->Id == 8050 && GetCaster() && GetCaster()->HasAura(55447))
+            GetCaster()->HealBySpell(GetCaster(), GetSpellInfo(), CalculatePct(damage, 45), false);
+
         // Holy Fire ticks can trigger Atonement
         if (GetSpellInfo()->Id == 14914 && GetCaster() && GetCaster()->HasAura(81749))
         {
