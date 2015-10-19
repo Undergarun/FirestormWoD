@@ -3939,8 +3939,6 @@ class spell_monk_tiger_palm: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
-                    l_Coeff = 6.0f;
                 l_Player->RemoveAurasDueToSpell(118864); // Combo Breaker
 
                 int32 l_Damage = int32(frand(l_Coeff * l_Low, l_Coeff * l_High));

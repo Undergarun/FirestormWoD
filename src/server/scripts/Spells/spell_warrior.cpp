@@ -1548,11 +1548,6 @@ class spell_warr_shield_barrier: public SpellScriptLoader
         }
 };
 
-enum AngerManagementSpells
-{
-    SPELL_WARR_ANGER_MANAGEMENT = 152278,
-};
-
 #define REDUCED_SPELLS_ID_MAX 13
 uint32 g_ReducedSpellsId[REDUCED_SPELLS_ID_MAX] =
 {
@@ -1571,16 +1566,26 @@ uint32 g_ReducedSpellsId[REDUCED_SPELLS_ID_MAX] =
     118038  ///< Die by the Sword
 };
 
+/// Anger Management - 152278
 class spell_warr_anger_management: public PlayerScript
 {
     public:
         spell_warr_anger_management() : PlayerScript("spell_warr_anger_management") {}
 
+        enum eSpells
+        {
+            AngerManagement = 152278,
+        };
+
         uint16 m_RageSpend = 0;
 
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen || !p_Player->HasAura(SPELL_WARR_ANGER_MANAGEMENT))
+            if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen)
+                return;
+
+            AuraEffectPtr l_AngerManagementAura = p_Player->GetAuraEffect(eSpells::AngerManagement, EFFECT_0);
+            if (!l_AngerManagementAura)
                 return;
 
             // Get the power earn (if > 0 ) or consum (if < 0)
@@ -1591,7 +1596,7 @@ class spell_warr_anger_management: public PlayerScript
                 return;
 
             m_RageSpend += -l_diffValue / p_Player->GetPowerCoeff(POWER_RAGE);
-            if (m_RageSpend >= sSpellMgr->GetSpellInfo(SPELL_WARR_ANGER_MANAGEMENT)->Effects[EFFECT_0].BasePoints)
+            if (m_RageSpend >= l_AngerManagementAura->GetAmount())
             {
                 for (int l_I = 0; l_I < REDUCED_SPELLS_ID_MAX; l_I++)
                 {
@@ -1744,6 +1749,11 @@ class spell_warr_whirlwind: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_whirlwind_SpellScript);
 
+            enum eSpells
+            {
+                GlyphOfTheRagingWhirlwind     = 146968,
+                GlyphOfTheRagingWhirlwindAura = 147297
+            };
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -1759,6 +1769,9 @@ class spell_warr_whirlwind: public SpellScriptLoader
                         l_MeatCleaverAura->RefreshSpellMods();
                     }
                 }
+
+                if (l_Caster->HasAura(eSpells::GlyphOfTheRagingWhirlwind))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfTheRagingWhirlwindAura, true);
             }
 
             void HandleOnHit()

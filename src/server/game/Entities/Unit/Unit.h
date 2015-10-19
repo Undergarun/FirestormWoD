@@ -2673,6 +2673,10 @@ class Unit : public WorldObject
         ///     LowGuid          SpellIDs
         std::map<uint32, std::set<uint32>> m_PoisonTargets;
 
+        void SetHealingRainTrigger(uint64 p_Guid) { m_HealingRainTrigger = p_Guid; }
+        uint64 GetHealingRainTrigger() const { return m_HealingRainTrigger; }
+        uint64 m_HealingRainTrigger;
+
     public:
         uint64 _petBattleId;
 
