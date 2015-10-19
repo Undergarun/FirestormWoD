@@ -494,6 +494,8 @@ namespace MS { namespace Garrison
     /// Save this garrison to DB
     void Manager::Save(SQLTransaction& p_Transaction)
     {
+        SQLTransaction l_GarrisonTransaction = CharacterDatabase.BeginTransaction();
+
         std::ostringstream l_KnownBluePrintsStr;
 
         for (uint32 l_I = 0; l_I < m_KnownBlueprints.size(); ++l_I)
@@ -523,7 +525,7 @@ namespace MS { namespace Garrison
         l_Stmt->setUInt32(l_Index++, m_CacheLastUsage);
         l_Stmt->setUInt32(l_Index++, m_ID);
         
-        p_Transaction->Append(l_Stmt);
+        l_GarrisonTransaction->Append(l_Stmt);
 
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         {
@@ -540,7 +542,7 @@ namespace MS { namespace Garrison
             l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].DatabaseID);
             l_BuildingStatement->setUInt32(l_Index++, m_ID);
 
-            p_Transaction->Append(l_BuildingStatement);
+            l_GarrisonTransaction->Append(l_BuildingStatement);
         }
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
@@ -559,13 +561,13 @@ namespace MS { namespace Garrison
                 l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].DatabaseID);
                 l_MissionStmt->setUInt32(l_Index++, m_ID);
 
-                p_Transaction->Append(l_MissionStmt);
+                l_GarrisonTransaction->Append(l_MissionStmt);
             }
             else
             {
                 PreparedStatement * l_MissionStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
                 l_MissionStmt->setUInt32(0, m_Missions[l_I].DatabaseID);
-                p_Transaction->Append(l_MissionStmt);
+                l_GarrisonTransaction->Append(l_MissionStmt);
             }
         }
 
@@ -592,8 +594,10 @@ namespace MS { namespace Garrison
             l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].DatabaseID);
             l_FollowerStmt->setUInt32(l_Index++, m_ID);
 
-            p_Transaction->Append(l_FollowerStmt);
+            l_GarrisonTransaction->Append(l_FollowerStmt);
         }
+
+        CharacterDatabase.CommitTransaction(l_GarrisonTransaction);
     }
 
     /// Delete garrison
