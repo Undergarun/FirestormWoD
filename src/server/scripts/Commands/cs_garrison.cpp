@@ -53,6 +53,12 @@ class garrison_commandscript: public CommandScript
                 { NULL,               0,              false, NULL,                                   "", NULL }
             };
 
+            static ChatCommand shipmentCommandTable[] =
+            {
+                { "complete",         SEC_GAMEMASTER, true,  &HandleShipmentCompleteCommand,         "", NULL },
+                { NULL,               0,              false, NULL,                                   "", NULL }
+            };
+
             static ChatCommand garrisonCommandTable[] =
             {
                 { "blueprint", SEC_GAMEMASTER,  true,   NULL, "", blueprintCommandTable   },
@@ -60,6 +66,7 @@ class garrison_commandscript: public CommandScript
                 { "follower",  SEC_GAMEMASTER,  true,   NULL, "", followerCommandTable    },
                 { "mission" ,  SEC_GAMEMASTER,  true,   NULL, "", missionCommandTable     },
                 { "building",  SEC_GAMEMASTER,  true,   NULL, "", buildingCommandTable    },
+                { "shipment",  SEC_GAMEMASTER,  true,   NULL, "", shipmentCommandTable    },
                 { "info",      SEC_GAMEMASTER,  true,   &HandleGarrisonInfo,     "", NULL },
                 { "setlevel",  SEC_GAMEMASTER,  true,   &HandleGarrisonSetLevel, "", NULL },
                 { "create",    SEC_GAMEMASTER,  true,   &HandleGarrisonCreate,   "", NULL },
@@ -739,6 +746,38 @@ class garrison_commandscript: public CommandScript
                 {
                     if (!l_Garr->PlotIsFree(l_Plot.PlotInstanceID) && !l_Garr->GetBuilding(l_Plot.PlotInstanceID).Active)
                         l_Garr->ActivateBuilding(l_Plot.PlotInstanceID);
+                }
+            }
+
+            return true;
+        }
+
+        static bool HandleShipmentCompleteCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (MS::Garrison::Manager* l_Garr = l_TargetPlayer->GetGarrison())
+            {
+                MS::Garrison::GarrisonPlotInstanceInfoLocation l_Plot = l_Garr->GetPlot(l_TargetPlayer->m_positionX, l_TargetPlayer->m_positionY, l_TargetPlayer->m_positionZ);
+
+                if (l_Plot.PlotInstanceID)
+                {
+                    std::vector<MS::Garrison::GarrisonWorkOrder>& l_PlotWorkOrder = l_Garr->GetWorkOrders();
+
+                    if (l_PlotWorkOrder.size() > 0)
+                    {
+                        uint32 l_CurrentTimeStamp = time(0);
+
+                        for (uint32 l_OrderI = 0; l_OrderI < l_PlotWorkOrder.size(); ++l_OrderI)
+                            l_PlotWorkOrder[l_OrderI].CompleteTime = l_CurrentTimeStamp;
+                    }
                 }
             }
 

@@ -169,7 +169,13 @@ namespace MS { namespace Garrison
         ITEM_SHELLY_HAMBY_REPORT                = 112730,
         ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1 = 111956,
         ItemFurryCagedBeast                     = 119813,
-        ItemLeatheryCagedBeast                  = 119814
+        ItemLeatheryCagedBeast                  = 119814,
+        ItemFireWeed                            = 109125,
+        ItemTaladorOrchid                       = 109129,
+        ItemNagrandArrowbloom                   = 109128,
+        ItemStarflower                          = 109127,
+        ItemGorgrondFlytrap                     = 109126,
+        ItemFrostWeed                           = 109124
     };
 
     /// Waypoints
