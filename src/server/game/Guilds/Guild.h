@@ -268,6 +268,17 @@ typedef std::map<uint32, GuildNewsEntry> GuildNewsLogMap;
 
 #define GUILD_EXPERIENCE_UNCAPPED_LEVEL 20  ///> Hardcoded in client, starting from this level, guild daily experience
 
+struct GuildRaidProgress
+{
+    uint32      MapID;
+    uint32      DifficultyID;
+    std::string GuildName;
+    uint8       Faction;
+    uint8       RealmID;
+    uint8       EncountersKilled;
+    uint8       MaxEncounters;
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Emblem info
 class EmblemInfo
