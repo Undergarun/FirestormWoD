@@ -388,7 +388,7 @@ namespace WebShop
                         p_Player->learnSpell(ProfessionAdditionalSpells::Prospecting, false);             ///< Prospecting
 
                     /// We also need to learn it for herbalism
-                    if (l_SkillID == SkillType::SKILL_HERBALISM)
+                    if (l_SkillID == SkillType::SKILL_HERBALISM || l_SkillID == SkillType::SKILL_MINING))
                         p_Player->learnSpell(l_SpellID, false);
 
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_profession SET delivery = 1 WHERE transaction = %u", l_Transaction);
