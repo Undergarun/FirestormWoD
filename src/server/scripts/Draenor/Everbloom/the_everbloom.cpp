@@ -121,7 +121,7 @@ public:
             switch (events.ExecuteEvent())
             {
             case eEverbloomEvents::EventDancingThorns:
-                if (Unit* l_Target = me->getVictim())
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                     me->CastSpell(l_Target, eEverbloomSpells::SpellDancingThorns);
 
                 events.ScheduleEvent(eEverbloomEvents::EventDancingThorns, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
@@ -195,8 +195,8 @@ public:
             switch (events.ExecuteEvent())
             {
             case eEverbloomEvents::EventVileBreath:
-                if (Unit* l_Victim = me->getVictim())
-                    me->CastSpell(l_Victim, eEverbloomSpells::SpellVileBreath);
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(l_Target, eEverbloomSpells::SpellVileBreath);
 
                 events.ScheduleEvent(eEverbloomEvents::EventVileBreath, urand(12 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
                 break;
@@ -266,8 +266,8 @@ public:
             switch (events.ExecuteEvent())
             {
             case eEverbloomEvents::EventGasp:
-                if (Unit* l_Victim = me->getVictim())
-                    me->CastSpell(l_Victim, eEverbloomSpells::SpellGasp);
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(l_Target, eEverbloomSpells::SpellGasp);
 
                 events.ScheduleEvent(eEverbloomEvents::EventGasp, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
                 break;
@@ -327,8 +327,8 @@ public:
             switch (events.ExecuteEvent())
             {
             case eEverbloomEvents::EventVirulendGasp:
-                if (Unit* l_Victim = me->getVictim())
-                    me->CastSpell(l_Victim, eEverbloomSpells::SpellVirulendGasp);
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    me->CastSpell(l_Target, eEverbloomSpells::SpellVirulendGasp);
 
                 events.ScheduleEvent(eEverbloomEvents::EventVirulendGasp, urand(7 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
                 break;
@@ -384,7 +384,7 @@ public:
             {
             case eEverbloomEvents::EventChokingVines:
             {
-                if (Unit* l_Target = me->getVictim())
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                     me->CastSpell(l_Target, eEverbloomSpells::SpellChokingVines);
 
                 events.ScheduleEvent(eEverbloomEvents::EventChokingVines, 18 * TimeConstants::IN_MILLISECONDS);
@@ -457,7 +457,7 @@ public:
             }
             case eEverbloomEvents::EventPoisonousClaws:
             {
-                if (Unit* l_Target = me->getVictim())
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                     me->CastSpell(l_Target, eEverbloomSpells::SpellPoisonousClaws);
 
                 events.ScheduleEvent(eEverbloomEvents::EventPoisonousClaws, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
