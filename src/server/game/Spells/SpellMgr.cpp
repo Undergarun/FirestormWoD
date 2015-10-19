@@ -4041,17 +4041,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 142421: ///< Swiftmend (treant)
                 spellInfo->Effects[1].TargetA = TARGET_DEST_TARGET_ANY;
                 break;
+            case 156910: ///< Beacon of Faith
             case 53563: ///< Beacon of Light
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 53651: ///< Beacon of Light
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); ///< -1ms
-                break;
-            case 156910: ///< Beacon of Faith
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
-                spellInfo->Effects[0].Amplitude = 1500;
-                spellInfo->ProcChance = 100;
                 break;
             case 129869: ///< Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;

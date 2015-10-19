@@ -3078,7 +3078,7 @@ class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Beacon of Light - 53563
+/// Beacon of Light - 53563, Beacon of Faith - 156910
 class spell_pal_beacon_of_light : public SpellScriptLoader
 {
     public:
@@ -3090,7 +3090,10 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
 
             enum eSpells
             {
-                BeaconOfLightProcAura = 53651
+                BeaconOfLight         = 53563,
+                BeaconOfLightProcAura = 53651,
+                BeaconOfFaith         = 156910,
+                BeaconOfFaithProcAura = 177173
             };
 
             void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -3101,17 +3104,24 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                l_Caster->CastCustomSpell(l_Caster, eSpells::BeaconOfLightProcAura, 0, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Target->GetGUID());
+                if (GetSpellInfo()->Id == eSpells::BeaconOfLight)
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::BeaconOfLightProcAura, 0, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Target->GetGUID());
+                else
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::BeaconOfFaithProcAura, 0, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Target->GetGUID());
             }
 
             void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
 
                 if (l_Caster == nullptr)
                     return;
 
-                l_Caster->RemoveAura(eSpells::BeaconOfLightProcAura);
+                if (GetSpellInfo()->Id == eSpells::BeaconOfLight)
+                    l_Caster->RemoveAura(eSpells::BeaconOfLightProcAura, l_Target->GetGUID());
+                else
+                    l_Caster->RemoveAura(eSpells::BeaconOfFaithProcAura, l_Target->GetGUID());
             }
 
             void Register()
@@ -3128,7 +3138,7 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Beacon of Light (proc aura) - 53651
+/// Beacon of Light (proc aura) - 53651, Beacon of Faith (proc aura) - 177173
 class spell_pal_beacon_of_light_proc : public SpellScriptLoader
 {
     public:
@@ -3140,8 +3150,11 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
 
             enum eSpells
             {
-                BeaconOfLight       = 53563,
-                BeaconOfLightHeal   = 53652
+                BeaconOfLight           = 53563,
+                BeaconOfLightProcAura   = 53651,
+                BeaconOfFaith           = 156910,
+                BeaconOfFaithProcAura   = 177173,
+                BeaconOfLightHeal       = 53652
             };
 
             int32 GetPctBySpell(uint32 l_SpellID) const
@@ -3187,7 +3200,8 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
 
                 int32 l_Bp = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), GetPctBySpell(GetSpellInfo()->Id));
 
-                if (l_TargetOfBeacon->HasAura(eSpells::BeaconOfLight))
+                if ((GetSpellInfo()->Id == eSpells::BeaconOfLightProcAura && l_TargetOfBeacon->HasAura(eSpells::BeaconOfLight)) ||
+                    (GetSpellInfo()->Id == eSpells::BeaconOfFaithProcAura && l_TargetOfBeacon->HasAura(eSpells::BeaconOfFaith)))
                     l_OwnerOfBeacon->CastCustomSpell(l_TargetOfBeacon, eSpells::BeaconOfLightHeal, &l_Bp, NULL, NULL, true);
                 else
                     l_OwnerOfBeacon->RemoveAura(GetSpellInfo()->Id);
