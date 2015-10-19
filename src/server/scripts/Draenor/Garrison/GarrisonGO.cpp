@@ -146,7 +146,13 @@ namespace MS { namespace Garrison
             if (!l_ShipmentEntry)
                 continue;
 
+
             uint32 l_RewardItemID = l_ShipmentEntry->ResultItemID;
+
+            if (l_ShipmentEntry->ID == 109) ///< Herb Garden
+                l_RewardItemID = g_HerbEntries[urand(0, 5)];
+            else if (l_RewardItemID == 114999) ///< Barn Somptuous Fur, itemID from dbc is wrong
+                l_RewardItemID = 111557;
 
             /// Adding items
             uint32 l_NoSpaceForCount = 0;
@@ -158,6 +164,12 @@ namespace MS { namespace Garrison
             if (l_Message == EQUIP_ERR_OK)
             {
                 p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID));
+
+                if (l_ShipmentEntry->ID == 109) ///< Herb Garden
+                {
+                    for (uint8 l_I = 0; l_I < 7; l_I++)
+                        p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID));
+                }
 
                 if (l_ToastStatus[l_RewardItemID] == false)
                 {

@@ -3000,7 +3000,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get work orders
-    std::vector<GarrisonWorkOrder> Manager::GetWorkOrders() const
+    std::vector<GarrisonWorkOrder>& Manager::GetWorkOrders()
     {
         return m_WorkOrders;
     }

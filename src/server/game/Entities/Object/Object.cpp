@@ -2893,6 +2893,10 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     if (entry == 60849 || entry == 61146)
         mask = UNIT_MASK_GUARDIAN;
 
+    // Fix Storm Scarab - 51113 (is Temp Summon instead of Guardian)
+    if (entry == 51113)
+        mask = UNIT_MASK_MINION;
+
     TempSummon* summon = NULL;
     switch (mask)
     {
