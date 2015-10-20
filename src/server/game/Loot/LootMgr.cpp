@@ -1000,8 +1000,8 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
         p_Data.appendPackGUID(0);                           ///< Loot Obj
         p_Data << uint8(6);                                 ///< Failure reason
         p_Data << uint8(0);                                 ///< Acquire Reason
-        p_Data << uint8(0);
-        p_Data << uint8(0);
+        p_Data << uint8(0);                                 ///< LootMethod
+        p_Data << uint8(0);                                 ///< Threshold
         p_Data << uint32(0);                                ///< Coins
         p_Data << uint32(0);                                ///< Item count
         p_Data << uint32(0);                                ///< Currency count
@@ -1062,9 +1062,9 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);        ///< Ui Type
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                     l_ItemsDataBuffer.FlushBits();
-                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].count);
-                    l_ItemsDataBuffer << uint8(l_SlotType);
-                    l_ItemsDataBuffer << uint8(l_I);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].count);       ///< Quantity
+                    l_ItemsDataBuffer << uint8(l_SlotType);                     ///< LootItemType
+                    l_ItemsDataBuffer << uint8(l_I);                            ///< LootListID
                     l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemid);
                     l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].randomSuffix);
                     l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].randomPropertyId);
@@ -1342,7 +1342,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     switch (lv.permission)
                     {
                         case MASTER_PERMISSION:
-                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER); ///< @todo slottype IS UNUSED
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
@@ -1458,7 +1458,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     switch (lv.permission)
                     {
                         case MASTER_PERMISSION:
-                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER); ///< @todo slottype IS UNUSED 
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:

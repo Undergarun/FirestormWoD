@@ -1211,8 +1211,8 @@ class ObjectMgr
 
         void LoadGuildChallengeRewardInfo();
 
-        void LoadResearchSiteZones();
-        void LoadResearchSiteLoot();
+        //void LoadResearchSiteZones();
+        //void LoadResearchSiteLoot();
 
         void LoadCharacterTemplateData();
         void LoadRealmCompletedChallenges();

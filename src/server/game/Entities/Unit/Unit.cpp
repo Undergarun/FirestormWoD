@@ -17467,7 +17467,7 @@ void Unit::SetStandState(uint8 p_State)
     if (GetTypeId() == TYPEID_PLAYER)
     {
         WorldPacket l_Update(SMSG_STANDSTATE_UPDATE, 5);
-        l_Update << uint32(0);  ///< Unk 6.1.0
+        l_Update << uint32(0);                              ///< AnimKit
         l_Update << (uint8)p_State;
         ToPlayer()->GetSession()->SendPacket(&l_Update);
     }

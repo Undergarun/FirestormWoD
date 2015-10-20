@@ -783,10 +783,10 @@ void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData)
         /// @TODO http://www.mmo-champion.com/content/4662-Patch-6-1-Iron-Horde-Scrap-Meltdown-Garrison-Vendor-Rush-Orders-Blue-Posts
         l_Data << uint32(l_WorkOrders[l_I].ShipmentID);
         l_Data << uint64(l_WorkOrders[l_I].DatabaseID);
-        l_Data << uint64(0);                                    ///< 6.1.x FollowerID
+        l_Data << uint64(0);                                    ///< FollowerID
         l_Data << uint32(l_WorkOrders[l_I].CreationTime);
         l_Data << uint32(l_Duration);
-        l_Data << uint32(0);                                    ///< 6.1.x Rewarded XP
+        l_Data << uint32(0);                                    ///< Rewarded XP
     }
 
     SendPacket(&l_Data);

@@ -5575,8 +5575,6 @@ void Spell::TakePower()
         /// WoD Custom Script - Arcane Blast mana cost with Arcane Charge and Improved Arcane Power
         if (powerType == POWER_MANA && m_spellInfo && m_spellInfo->Id == 30451 && m_caster->HasAura(157604))
         {
-            SpellInfo const* l_ArcaneBlast = sSpellMgr->GetSpellInfo(30451);
-
             /// Arcane Charge increase mana cost of Arcane Blast
             if (AuraPtr l_ArcaneCharge = m_caster->GetAura(36032))
             {

@@ -874,13 +874,13 @@ void Channel::MakeYouJoined(WorldPacket* p_Data)
 
     p_Data->Initialize(SMSG_CHANNEL_NOTIFY_JOINED, 3 + 1 + 4 + 8 + m_name.size() + l_UnkString.size());
     p_Data->WriteBits(GetName().length(), 7);   ///< Channel Name
-    p_Data->WriteBits(l_UnkString.length(), 10);///< Channel Name
+    p_Data->WriteBits(l_UnkString.length(), 10);///< ChannelWelcomeMsg
     p_Data->FlushBits();
     *p_Data << uint8(GetFlags());               ///< Channel Flags
     *p_Data << uint32(GetChannelId());          ///< Channel ID
-    *p_Data << uint64(0);                       ///< Unk
+    *p_Data << uint64(0);                       ///< InstanceID
     p_Data->WriteString(GetName());             ///< Channel Name
-    p_Data->WriteString(l_UnkString);           ///< Unk string
+    p_Data->WriteString(l_UnkString);           ///< ChannelWelcomeMsg
 }
 
 // done 0x03
