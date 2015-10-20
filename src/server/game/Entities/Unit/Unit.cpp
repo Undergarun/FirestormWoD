@@ -20561,8 +20561,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         case FORM_METAMORPHOSIS:
         {
             // Glyph of Metamorphosis
-            //if (HasAura(159680))
-            //    return 0;
+            if (HasAura(159680))
+                return 0;
             return 39261;
         }
         default:

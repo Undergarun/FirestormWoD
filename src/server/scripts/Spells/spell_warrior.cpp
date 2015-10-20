@@ -606,7 +606,19 @@ class spell_warr_devaste: public SpellScriptLoader
                 }
 
                 if (l_Player->HasAura(eSpells::UnyieldingStrikesAura))
-                    l_Player->CastSpell(l_Player, eSpells::UnyieldingStrikesProc, true);
+                {
+                    /// If we already have 5 charges, we don't need to update an aura
+                    if (AuraPtr l_UnyieldingStrikes = l_Player->GetAura(eSpells::UnyieldingStrikesProc))
+                    {
+                        if (l_UnyieldingStrikes->GetStackAmount() < 6)
+                        {
+                            l_UnyieldingStrikes->SetStackAmount(l_UnyieldingStrikes->GetStackAmount() + 1);
+                            l_UnyieldingStrikes->SetDuration(l_UnyieldingStrikes->GetMaxDuration());
+                        }
+                    }
+                    else
+                        l_Player->CastSpell(l_Player, eSpells::UnyieldingStrikesProc, true);
+                }
             }
 
             void Register()

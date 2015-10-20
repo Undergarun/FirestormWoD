@@ -1954,8 +1954,12 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_METAMORPHOSIS:
             spellId  = 103965;
+
             if (apply)
-                target->RemoveAura(114168); // Dark Apotheosis
+                target->AddAura(159687, target);
+            else
+                target->RemoveAura(159687);
+
             break;
         case FORM_SPIRITOFREDEMPTION:
             spellId  = 27792;
