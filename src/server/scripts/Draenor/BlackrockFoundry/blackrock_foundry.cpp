@@ -1598,6 +1598,8 @@ class npc_foundry_slag_behemoth : public CreatureScript
 
             void Reset() override
             {
+                m_EncounterDoor = 0;
+
                 m_Events.Reset();
 
                 AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
