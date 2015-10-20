@@ -6585,6 +6585,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 119392: ///< Charging Ox Wave
                 case 147490: ///< Healing Rain
                 case 120644: ///< Halo (damage)
                 case 120517: ///< Halo (heal)
