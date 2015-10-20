@@ -4745,6 +4745,10 @@ void Player::InitSpellForLevel()
     // Fix Pick Lock update at each level
     if (HasSpell(1804) && getLevel() > 20)
         SetSkill(921, GetSkillStep(921), (getLevel() * 5), (getLevel() * 5));
+
+    /// Missing mining skill (shop issue)
+    if (GetSkillValue(SkillType::SKILL_MINING) >= 700 && !HasSpell(158754))
+        learnSpell(158754, false);
 }
 
 void Player::RemoveSpecializationSpells()
