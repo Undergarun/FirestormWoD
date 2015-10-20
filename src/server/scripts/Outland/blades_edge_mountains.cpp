@@ -314,6 +314,39 @@ public:
     };
 };
 
+/// Lashh'an Channeling - 36904
+class spell_quest_lashhan_channeling : public SpellScriptLoader
+{
+    public:
+        spell_quest_lashhan_channeling() : SpellScriptLoader("spell_quest_lashhan_channeling") { }
+
+        class spell_quest_lashhan_channeling_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_lashhan_channeling_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(GetSpellInfo()->Id))
+                        return SpellCastResult::SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_quest_lashhan_channeling_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_lashhan_channeling_SpellScript();
+        }
+};
+
 /*######
 ## npc_overseer_nuaar
 ######*/
@@ -1153,6 +1186,7 @@ void AddSC_blades_edge_mountains()
     new mobs_bladespire_ogre();
     new mobs_nether_drake();
     new npc_daranelle();
+    new spell_quest_lashhan_channeling();
     new npc_overseer_nuaar();
     new npc_saikkal_the_elder();
     new go_legion_obelisk();
