@@ -1549,6 +1549,182 @@ class npc_foundry_darkshard_crystalback : public CreatureScript
         }
 };
 
+/// Slag Behemoth - 77504
+class npc_foundry_slag_behemoth : public CreatureScript
+{
+    public:
+        npc_foundry_slag_behemoth() : CreatureScript("npc_foundry_slag_behemoth") { }
+
+        enum eSpells
+        {
+            IgniteSearcher      = 156345,
+
+            VolcanicBombSearch  = 156348,
+            VolcanicBombMissile = 156413,
+
+            BlastWave           = 156446
+        };
+
+        enum eEvents
+        {
+            EventIgnite = 1,
+            EventVolcanicBomb,
+            EventBlastWave
+        };
+
+        enum eTalk
+        {
+            TalkBlastWave
+        };
+
+        enum eGameObjects
+        {
+            VolcanicBomb    = 227616,
+            IceBlock        = 201722
+        };
+
+        enum eAction
+        {
+            ActionIntro
+        };
+
+        struct npc_foundry_slag_behemothAI : public ScriptedAI
+        {
+            npc_foundry_slag_behemothAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            uint64 m_EncounterDoor;
+
+            void Reset() override
+            {
+                m_EncounterDoor = 0;
+
+                m_Events.Reset();
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (GameObject* l_FurnaceDoor = me->FindNearestGameObject(eFoundryGameObjects::BlastFurnaceEncounterDoor, 30.0f))
+                    {
+                        m_EncounterDoor = l_FurnaceDoor->GetGUID();
+                        l_FurnaceDoor->SetGoState(GOState::GO_STATE_READY);
+                    }
+                });
+
+                std::list<GameObject*> l_Gobs;
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::IceBlock, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
+
+                l_Gobs.clear();
+
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::VolcanicBomb, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventIgnite, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventVolcanicBomb, 11 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventBlastWave, 30 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (GameObject* l_FurnaceDoor = GameObject::GetGameObject(*me, m_EncounterDoor))
+                    l_FurnaceDoor->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                std::list<GameObject*> l_Gobs;
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::IceBlock, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
+
+                l_Gobs.clear();
+
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::VolcanicBomb, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
+
+                if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
+                {
+                    if (Creature* l_Creature = Creature::GetCreature(*me, l_InstanceScript->GetData64(eFoundryCreatures::BlackhandCosmetic)))
+                    {
+                        if (l_Creature->IsAIEnabled)
+                            l_Creature->AI()->DoAction(eAction::ActionIntro);
+                    }
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::VolcanicBombSearch:
+                    {
+                        me->CastSpell(*p_Target, eSpells::VolcanicBombMissile, false);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventIgnite:
+                    {
+                        me->CastSpell(me, eSpells::IgniteSearcher, false);
+                        m_Events.ScheduleEvent(eEvents::EventIgnite, 13 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventVolcanicBomb:
+                    {
+                        me->CastSpell(me, eSpells::VolcanicBombSearch, true);
+                        m_Events.ScheduleEvent(eEvents::EventVolcanicBomb, 11 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventBlastWave:
+                    {
+                        Talk(eTalk::TalkBlastWave);
+
+                        me->CastSpell(me, eSpells::BlastWave, false);
+                        m_Events.ScheduleEvent(eEvents::EventBlastWave, 35 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_slag_behemothAI(p_Creature);
+        }
+};
+
 /// Grievous Mortal Wounds - 175624
 class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
 {
@@ -1864,6 +2040,96 @@ class spell_foundry_shattering_charge : public SpellScriptLoader
         }
 };
 
+/// Ignite - 156345
+class spell_foundry_ignite_aura : public SpellScriptLoader
+{
+    public:
+        spell_foundry_ignite_aura() : SpellScriptLoader("spell_foundry_ignite_aura") { }
+
+        class spell_foundry_ignite_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_ignite_aura_AuraScript);
+
+            enum eSpell
+            {
+                IgniteAoE = 156346
+            };
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetTarget())
+                        l_Caster->CastSpell(*l_Target, eSpell::IgniteAoE, true);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_ignite_aura_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_ignite_aura_AuraScript();
+        }
+};
+
+/// Blast Wave - 158424
+class spell_foundry_blast_wave : public SpellScriptLoader
+{
+    public:
+        spell_foundry_blast_wave() : SpellScriptLoader("spell_foundry_blast_wave") { }
+
+        class spell_foundry_blast_wave_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_blast_wave_SpellScript);
+
+            enum eGameObjects
+            {
+                VolcanicBomb    = 227616,
+                IceBlock        = 201722
+            };
+
+            void SelectIceBlocks(std::list<WorldObject*>& p_Targets)
+            {
+                p_Targets.clear();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    for (uint8 l_I = 0; l_I < (uint8)EFFECT_2; ++l_I)
+                    {
+                        float l_Radius = GetSpellInfo()->Effects[l_I].CalcRadius(l_Caster);
+
+                        std::list<GameObject*> l_GoBList;
+                        l_Caster->GetGameObjectListWithEntryInGrid(l_GoBList, l_I == 0 ? eGameObjects::IceBlock : eGameObjects::VolcanicBomb, l_Radius);
+
+                        for (GameObject* l_Gob : l_GoBList)
+                            p_Targets.push_back(l_Gob);
+                    }
+                }
+            }
+
+            void HandleActivateObject(SpellEffIndex p_EffIndex)
+            {
+                if (GameObject* l_GameObject = GetHitGObj())
+                    l_GameObject->Delete();
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_blast_wave_SpellScript::SelectIceBlocks, EFFECT_0, TARGET_GAMEOBJECT_SRC_AREA);
+                OnEffectHitTarget += SpellEffectFn(spell_foundry_blast_wave_SpellScript::HandleActivateObject, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_blast_wave_SpellScript();
+        }
+};
+
 /// Acidback Puddle - 159121
 class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
 {
@@ -1929,6 +2195,7 @@ void AddSC_blackrock_foundry()
     new npc_foundry_darkshard_acidback();
     new npc_foundry_darkshard_gnasher();
     new npc_foundry_darkshard_crystalback();
+    new npc_foundry_slag_behemoth();
 
     /// Spells
     new spell_foundry_grievous_mortal_wounds();
@@ -1937,6 +2204,8 @@ void AddSC_blackrock_foundry()
     new spell_foundry_animate_slag();
     new spell_foundry_gronnling_smash();
     new spell_foundry_shattering_charge();
+    new spell_foundry_ignite_aura();
+    new spell_foundry_blast_wave();
 
     /// GameObjects
 

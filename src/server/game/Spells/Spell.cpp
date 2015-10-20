@@ -1201,7 +1201,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
 
 void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTargetInfo const& p_TargetType, uint32 p_EffMask)
 {
-    Unit* l_Referer = NULL;
+    Unit* l_Referer = nullptr;
     switch (p_TargetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
@@ -1232,7 +1232,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
     if (!l_Referer)
         return;
 
-    Position const* l_Center = NULL;
+    Position const* l_Center = nullptr;
     switch (p_TargetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
@@ -4407,6 +4407,9 @@ void Spell::finish(bool ok)
 
     if (m_spellInfo->IsChanneled())
         m_caster->UpdateInterruptMask();
+
+    if (m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->IsAIEnabled)
+        m_caster->ToCreature()->AI()->OnSpellFinished(m_spellInfo);
 
     if (IsAutoActionResetSpell())
     {

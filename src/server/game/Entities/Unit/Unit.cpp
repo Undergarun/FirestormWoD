@@ -17712,26 +17712,38 @@ Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist, bool p_CheckValidAssist 
     return JadeCore::Containers::SelectRandomContainerElement(targets);
 }
 
-Unit* Unit::SelectNearbyMostInjuredAlly(Unit* p_Exculde /*= nullptr*/, float p_Dist /*= NOMINAL_MELEE_RANGE*/) const
+Unit* Unit::SelectNearbyMostInjuredAlly(Unit* p_Exclude /*= nullptr*/, float p_Dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExcludeEntry /*= 0*/) const
 {
     std::list<Unit*> l_Targets;
     JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(this, this, p_Dist);
     JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(this, l_Targets, l_Check);
     VisitNearbyObject(p_Dist, l_Searcher);
 
-    if (p_Exculde)
-        l_Targets.remove(p_Exculde);
+    if (p_Exclude)
+        l_Targets.remove(p_Exclude);
 
-    /// Remove not LoS targets
-    for (std::list<Unit*>::iterator l_Iter = l_Targets.begin(); l_Iter != l_Targets.end();)
+    /// No appropriate targets
+    if (l_Targets.empty())
+        return nullptr;
+
+    l_Targets.remove_if([this, p_ExcludeEntry](Unit* p_Unit) -> bool
     {
-        if (!IsWithinLOSInMap(*l_Iter) || (*l_Iter)->isTotem() || (*l_Iter)->isSpiritService() || (*l_Iter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
-            l_Targets.erase(l_Iter++);
-        else
-            ++l_Iter;
-    }
+        if (p_Unit == nullptr)
+            return true;
 
-    // No appropriate targets
+        if (!IsWithinLOSInMap(p_Unit) || p_Unit->isTotem() || p_Unit->isSpiritService())
+            return true;
+
+        if (p_Unit->GetCreatureType() == CreatureType::CREATURE_TYPE_CRITTER)
+            return true;
+
+        if (p_Unit->GetEntry() == p_ExcludeEntry)
+            return true;
+
+        return false;
+    });
+
+    /// No appropriate targets
     if (l_Targets.empty())
         return nullptr;
 

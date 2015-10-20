@@ -1,4 +1,4 @@
-REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (76809, 1, 109614, 0, 109615);
+REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (76809, 1, 109614, 109615, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (78917, 1, 107415, 0, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (78977, 1, 107415, 0, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (80677, 1, 109596, 0, 0);
@@ -10,5 +10,7 @@ REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEnt
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (87521, 1, 108467, 0, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (87719, 1, 107409, 0, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (87771, 1, 112140, 0, 0);
-REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (88818, 1, 108974, 0, 32885);
-REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (88820, 1, 23221, 0, 6219);
+REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (88818, 1, 108974, 32885, 0);
+REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (88820, 1, 23221, 6219, 0);
+REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE(76810, 1, 23221, 6219, 0);
+REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE(76812, 1, 108974, 32885, 0);
