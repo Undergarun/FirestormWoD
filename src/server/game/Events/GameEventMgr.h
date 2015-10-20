@@ -138,6 +138,7 @@ class GameEventMgr
         void RunSmartAIScripts(uint16 event_id, bool activate);    //! Runs SMART_EVENT_GAME_EVENT_START/_END SAI
         bool CheckOneGameEventConditions(uint16 event_id);
         void SaveWorldEventStateToDB(uint16 event_id);
+        void SaveWorldEventStateToDB(uint16 p_EventID, SQLTransaction& p_Transaction);
         bool hasCreatureQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
         bool hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
         bool hasCreatureActiveEventExcept(uint32 creature_guid, uint16 event_id);
