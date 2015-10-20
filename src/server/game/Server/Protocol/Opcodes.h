@@ -1381,8 +1381,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Group
     //////////////////////////////////////////////////////////////////////////
-    CMSG_PARTY_INVITE                           = 0x0974, //< 6.2.2 20574
-    CMSG_PARTY_INVITE_RESPONSE                  = 0x02B1, ///< 6.2.2 20574
+    CMSG_PARTY_INVITE                           = 0x0974, ///< 6.2.2 20574
+    CMSG_PARTY_INVITE_RESPONSE                  = 0x036B, ///< 6.2.2 20574
     CMSG_LEAVE_GROUP                            = 0x02E2, ///< 6.2.2 20574
     CMSG_PARTY_UNINVITE                         = 0x02B1, ///< 6.2.2 20574
     CMSG_SET_PARTY_LEADER                       = 0x037A, ///< 6.2.2 20574
@@ -1612,10 +1612,10 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_GET_MAIL_LIST                             = 0x048D, ///< 6.2.2 20574
     CMSG_MAIL_CREATE_TEXT_ITEM                     = 0x0E0E, ///< 6.2.2 20574
-    CMSG_MAIL_DELETE                               = 0x0E0A, ///< 6.2.2 20574
+    CMSG_MAIL_DELETE                               = 0x14DD, ///< 6.2.2 20574
     CMSG_MAIL_MARK_AS_READ                         = 0x0C99, ///< 6.2.2 20574
     CMSG_MAIL_RETURN_TO_SENDER                     = 0x0A3C, ///< 6.2.2 20574
-    CMSG_MAIL_TAKE_ITEM                            = 0x14DD, ///< 6.2.2 20574
+    CMSG_MAIL_TAKE_ITEM                            = 0x0E0A, ///< 6.2.2 20574
     CMSG_MAIL_TAKE_MONEY                           = 0x0E39, ///< 6.2.2 20574
     CMSG_SEND_MAIL                                 = 0x00F3, ///< 6.2.2 20574
     CMSG_QUERY_NEXT_MAIL_TIME                      = 0x0FCA, ///< 6.2.2 20574
