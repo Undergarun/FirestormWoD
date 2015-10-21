@@ -281,13 +281,14 @@ public:
                         l_Party.resize(1);
                     }
 
-                    const SpellInfo* l_DreamOfCenariusSpellInfo = l_Caster->GetAura(SPELL_DRUID_DREAM_OF_CENARIUS_RESTO_TALENT)->GetSpellInfo();
+                    SpellInfo const* l_DreamOfCenariusSpellInfo = l_Caster->GetAura(SPELL_DRUID_DREAM_OF_CENARIUS_RESTO_TALENT)->GetSpellInfo();
+                    SpellInfo const* l_DreamOfCenariusHealSpellInfo = sSpellMgr->GetSpellInfo(SPELL_DRUID_DREAM_OF_CENARIUS_HEAL);
 
-                    if (!l_DreamOfCenariusSpellInfo)
+                    if (l_DreamOfCenariusSpellInfo == nullptr || l_DreamOfCenariusHealSpellInfo == nullptr)
                         return;
 
                     int32 l_HealAmount = CalculatePct(GetHitDamage(), l_DreamOfCenariusSpellInfo->Effects[EFFECT_1].BasePoints);
-                    l_Caster->CastCustomSpell(l_Party.front(), SPELL_DRUID_DREAM_OF_CENARIUS_HEAL, &l_HealAmount, NULL, NULL, true);
+                    l_Caster->HealBySpell(l_Party.front(), l_DreamOfCenariusHealSpellInfo, l_HealAmount, false, false);
                 }
             }
         }
