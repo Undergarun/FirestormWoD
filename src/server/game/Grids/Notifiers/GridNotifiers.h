@@ -1513,6 +1513,10 @@ namespace JadeCore
                 if (!_obj->IsWithinDistInMap(u, _range))
                     return false;
 
+                /// Don't add self
+                if (_obj->GetGUID() == u->GetGUID())
+                    return false;
+
                 return true;
             }
 

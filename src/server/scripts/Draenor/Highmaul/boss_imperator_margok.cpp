@@ -2556,7 +2556,8 @@ class spell_highmaul_branded : public SpellScriptLoader
                         {
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
-                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2666,7 +2667,8 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                         {
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
-                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2753,7 +2755,8 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                         {
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
-                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2838,7 +2841,8 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                         {
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
-                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
