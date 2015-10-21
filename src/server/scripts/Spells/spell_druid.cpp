@@ -137,16 +137,32 @@ class spell_dru_tooth_and_claw_absorb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_tooth_and_claw_absorb_AuraScript);
 
-            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
-                if (Unit* attacker = dmgInfo.GetAttacker())
-                    if (!attacker->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA))
-                        absorbAmount = 0;
+                Unit* l_Attacker = p_DmgInfo.GetAttacker();
+
+                if (l_Attacker == nullptr)
+                    return;
+
+                if (!l_Attacker->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA))
+                    p_AbsorbAmount = 0;
+            }
+
+            void AfterAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Attacker = p_DmgInfo.GetAttacker();
+
+                if (l_Attacker == nullptr || l_Caster == nullptr)
+                    return;
+
+                l_Attacker->RemoveAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, l_Caster->GetGUID());
             }
 
             void Register()
             {
                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dru_tooth_and_claw_absorb_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dru_tooth_and_claw_absorb_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -609,26 +625,28 @@ class spell_dru_maul: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 damage = GetHitDamage();
+                        int32 l_Damage = GetHitDamage();
 
                         // Deals 20% more damage if target is bleeding
-                        if (target->HasAuraState(AURA_STATE_BLEEDING))
+                        if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
                         {
-                            AddPct(damage, GetSpellInfo()->Effects[EFFECT_3].BasePoints);
-                            SetHitDamage(damage);
+                            AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_3].BasePoints);
+                            SetHitDamage(l_Damage);
                         }
 
-                        if (caster->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
+                        if (l_Caster->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
                         {
-                            int32 bp = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.4f;
+                            int32 l_Bp = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.4f;
 
-                            caster->RemoveAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA);
-                            caster->CastCustomSpell(caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &bp, NULL, NULL, true);
-                            caster->CastCustomSpell(target, SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, &bp, NULL, NULL, true);
+                            l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &l_Bp, NULL, NULL, true);
+                            l_Caster->CastCustomSpell(l_Target, SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, &l_Bp, NULL, NULL, true);
+
+                            if (AuraPtr l_AuraPtr = l_Caster->GetAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
+                                l_AuraPtr->SetStackAmount(l_AuraPtr->GetStackAmount() - 1);
                         }
                     }
                 }

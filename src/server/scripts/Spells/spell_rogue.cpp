@@ -772,24 +772,49 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_cloak_and_dagger_SpellScript);
 
-            void HandleOnHit()
+            enum eSpells
+            {
+                CloakAndDagger      = 138106,
+                TeleportBack        = 36563,
+                GarroteDot          = 703,
+                FindWeekness        = 91023,
+                FindWeeknessProc    = 91021
+            };
+
+            SpellCastResult CheckCast()
             {
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
+                Unit* l_Target = GetExplTargetUnit();
+                float l_BasicRadius = 5.0f;
 
                 if (l_Target == nullptr)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (l_Caster->HasUnitState(UNIT_STATE_ROOT) && l_Target->GetDistance(l_Caster) > l_BasicRadius)
+                    return SPELL_FAILED_ROOTED;
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
-                if (l_Caster->HasAura(ROGUE_SPELL_CLOAK_AND_DAGGER) && !l_Caster->HasUnitState(UNIT_STATE_ROOT))
-                    l_Caster->CastSpell(l_Target, ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY, true);
+                if (l_Player->HasTalent(eSpells::CloakAndDagger, l_Player->GetActiveSpec()) && !l_Player->HasUnitState(UNIT_STATE_ROOT))
+                    l_Player->CastSpell(l_Target, eSpells::TeleportBack, true);
 
-                if (GetSpellInfo()->Id == ROGUE_SPELL_GARROTE_DOT && l_Caster->HasAura(ROGUE_SPELL_FIND_WEAKNESS))
-                    l_Caster->AddAura(ROGUE_SPELL_FIND_WEAKNESS_PROC, l_Target);
+                if (GetSpellInfo()->Id == eSpells::GarroteDot && l_Player->HasAura(eSpells::FindWeekness))
+                    l_Player->AddAura(eSpells::FindWeeknessProc, l_Target);
             }
 
             void Register()
             {
                 OnHit += SpellHitFn(spell_rog_cloak_and_dagger_SpellScript::HandleOnHit);
+                OnCheckCast += SpellCheckCastFn(spell_rog_cloak_and_dagger_SpellScript::CheckCast);
             }
         };
 
