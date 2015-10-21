@@ -2472,6 +2472,11 @@ class PlayerScript_ruthlessness : public PlayerScript
     public:
         PlayerScript_ruthlessness() : PlayerScript("PlayerScript_ruthlessness") { }
 
+        enum eSpells
+        {
+            RuthlessnessEnergy = 14181
+        };
+
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE || !p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
@@ -2489,6 +2494,12 @@ class PlayerScript_ruthlessness : public PlayerScript
                     p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, -(l_Duration * l_DiffVal));
                 if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
                     p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, -(l_Duration * l_DiffVal));
+
+                if (roll_chance_i(20 * -l_DiffVal))
+                {
+                    p_NewValue += 1; ///< Restore 1 combo point
+                    p_Player->CastSpell(p_Player, eSpells::RuthlessnessEnergy, true);  ///< Give 25 Energy
+                }
             }
         }
 };

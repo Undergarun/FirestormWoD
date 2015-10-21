@@ -2924,14 +2924,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                     if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
                         l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
                 }
-                else if (l_Caster->HasAura(14161)) ///< Ruthlessness
-                {
-                    if (roll_chance_i(20 * l_Combo))
-                    {
-                        m_comboPointGain += 1;
-                        l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
-                    }
-                }
             }
         }
     }
