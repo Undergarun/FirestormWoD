@@ -671,21 +671,25 @@ class boss_imperator_margok : public CreatureScript
                     case eSpells::DestructiveResonanceFortificationSearch:
                     case eSpells::DestructiveResonanceReplicationSearch:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true))
+                        Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true);
+                        if (l_Target == nullptr || me->GetDistance(l_Target) >= 100.0f)
+                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f, true);
+
+                        if (l_Target != nullptr)
                             me->CastSpell(*l_Target, eSpells::DestructiveResonanceSummon, true);
 
                         break;
                     }
                     case eSpells::ArcaneWrathSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
                             me->CastSpell(l_Target, eSpells::ArcaneWrathBranded, true);
 
                         break;
                     }
                     case eSpells::ArcaneWrathDisplacementSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
                             me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedDisplacement, true);
 
                         break;
@@ -757,7 +761,7 @@ class boss_imperator_margok : public CreatureScript
                     }
                     case eSpells::ArcaneWrathFortificationSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
                             me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedFortification, true);
 
                         break;
@@ -797,7 +801,7 @@ class boss_imperator_margok : public CreatureScript
                     }
                     case eSpells::ArcaneWrathReplicationSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
                             me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedReplication, true);
 
                         break;
