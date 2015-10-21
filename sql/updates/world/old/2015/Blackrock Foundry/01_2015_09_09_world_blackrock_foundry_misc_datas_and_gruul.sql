@@ -15,6 +15,11 @@ INSERT INTO areatrigger_teleport VALUE
 (10241, 'Blackrock Foundry - Entrance', 1205, 131.171875, 3429.481, 319.8291, 0.00135),
 (10242, 'Blackrock Foundry - Exit Target', 1116, 8074.5845, 859.86652, 34.3671, 2.8979);
 
+DELETE FROM areatrigger_scripts WHERE entry IN (10276, 10277);
+INSERT INTO areatrigger_scripts VALUES
+(10276, 'areatrigger_at_foundry_first_floor_trap'),
+(10277, 'areatrigger_at_foundry_second_floor_trap');
+
 DELETE FROM spell_script_names WHERE spell_id IN (175624, 175644, 175752, 175088, 169402, 155534, 155080, 173191, 155326, 155323, 155301);
 INSERT INTO spell_script_names VALUES
 (175624, 'spell_foundry_grievous_mortal_wounds'),
