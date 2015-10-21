@@ -5102,7 +5102,7 @@ class PlayerScript_soul_of_the_forest : public PlayerScript
             if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_DRUID || !p_Player->HasAura(eSpells::SoulOfTheForestAura))
                 return;
 
-            if (!p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_DRUID_FERAL)
+            if (p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SPEC_DRUID_FERAL)
                 return;
 
             /// Get the power earn (if > 0 ) or consum (if < 0)
