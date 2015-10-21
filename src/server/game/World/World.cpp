@@ -1510,10 +1510,6 @@ void World::SetInitialWorldSettings()
     ///- Update the realm entry in the database with the realm type from the config file
     //No SQL injection as values are treated as integers
 
-    // not send custom type REALM_FFA_PVP to realm list
-    uint32 server_type = IsFFAPvPRealm() ? uint32(REALM_TYPE_PVP) : getIntConfig(CONFIG_GAME_TYPE);
-    uint32 realm_zone = getIntConfig(CONFIG_REALM_ZONE);
-
     ///- Remove the bones (they should not exist in DB though) and old corpses after a restart
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CORPSES);
     stmt->setUInt32(0, 3 * DAY);
@@ -2614,7 +2610,6 @@ void World::Update(uint32 diff)
     // execute callbacks from sql queries that were queued recently
     ProcessQueryCallbacks();
     SetRecordDiff(RECORD_DIFF_CALLBACK, getMSTime() - diffTime);
-    diffTime = getMSTime();
     RecordTimeDiff("ProcessQueryCallbacks");
 
     ///- Erase corpses once every 20 minutes
