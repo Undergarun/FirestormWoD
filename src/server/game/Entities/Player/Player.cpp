@@ -28480,7 +28480,7 @@ PartyResult Player::CanUninviteFromGroup() const
             return ERR_NOT_LEADER;
 
         if (InBattleground())
-            return ERR_INVITE_RESTRICTED;
+            return ERR_LFG_PENDING;
     }
 
     return ERR_PARTY_RESULT_OK;
