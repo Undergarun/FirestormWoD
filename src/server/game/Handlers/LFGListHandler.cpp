@@ -89,7 +89,7 @@ void WorldSession::BuildLfgListQueueUpdate(WorldPacket* p_Data, LFGListEntry con
 {
     p_Data->Initialize(SMSG_LFG_LIST_UPDATE_STATUS);
     BuildLfgListJoinRequest(p_Data, p_Entry);
-    *p_Data << uint32(0);       ///< Unk
+    *p_Data << uint32(0);       ///< Request
     *p_Data << uint8(6);        ///< Reason
     p_Data->WriteBit(p_Listed);
     p_Data->FlushBits();
@@ -139,6 +139,7 @@ void WorldSession::HandleLfgListSearch(WorldPacket& p_RecvData)
 
 void WorldSession::SendLfgSearchResponse(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString)
 {
+    ///< see SMSG_LFGSEARCH_RESULTS for more informations
     WorldPacket l_Data(SMSG_LFG_LIST_SEARCH_RESULT);
 
     if (!sGroupFinderCategoryStore.LookupEntry(p_ActivityCategory))

@@ -194,7 +194,7 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
             totalBreedWeight += breedQualityWeights[breedQuality[p_Template->Breeds[i]]];
 
     l_BattlePetInstance->Breed = 3;
-    uint32 minBreedChances = l_BattlePetInstance->Level * totalBreedWeight * 2 / 75;
+    uint32 minBreedChances = l_BattlePetInstance->Level * totalBreedWeight * 2 / 75; ///< minBreedChances is unused
     uint32 breedChances = urand(1, totalBreedWeight);
 
     for (size_t i = 0; i < 10; ++i)
