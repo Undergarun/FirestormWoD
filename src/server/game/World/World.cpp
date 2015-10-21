@@ -1539,11 +1539,11 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
-    /*sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Archeology research site zones...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Archeology research site zones...");
     sObjectMgr->LoadResearchSiteZones();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Archeology research site loot...");
-    sObjectMgr->LoadResearchSiteLoot();*/
+    sObjectMgr->LoadResearchSiteLoot();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
     LoadGameObjectModelList();

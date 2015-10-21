@@ -9748,7 +9748,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     return NULL;
 }
 
-/*void ObjectMgr::LoadResearchSiteZones()
+void ObjectMgr::LoadResearchSiteZones()
 {
     uint32 l_OldMSTime = getMSTime();
 
@@ -9815,7 +9815,7 @@ void ObjectMgr::LoadResearchSiteLoot()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Archeology research site loot in %u ms.", (unsigned long)_researchLoot.size(), GetMSTimeDiffToNow(l_OldMSTime));
-}*/
+}
 
 void ObjectMgr::LoadSkipUpdateZone()
 {
