@@ -2912,22 +2912,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
-    /// Your finishing moves restore X Energy per combo
-    if (m_needComboPoints)
-    {
-        if (Player* l_Caster = m_caster->ToPlayer())
-        {
-            if (int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT))
-            {
-                if (l_Caster->HasAura(158476)) ///< Soul of the forest
-                {
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
-                }
-            }
-        }
-    }
-
     // Do not take combo points on dodge and miss
     if (missInfo != SPELL_MISS_NONE && m_needComboPoints &&
             m_targets.GetUnitTargetGUID() == target->targetGUID)

@@ -5085,6 +5085,34 @@ class spell_dru_treant_wrath : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Soul of the forest - 158476
+class PlayerScript_soul_of_the_forest : public PlayerScript
+{
+    public:
+        PlayerScript_soul_of_the_forest() : PlayerScript("PlayerScript_ruthlessness") { }
+
+        enum eSpells
+        {
+            SoulOfTheForestAura = 158476
+        };
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        {
+            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_DRUID || !p_Player->HasAura(eSpells::SoulOfTheForestAura))
+                return;
+
+            if (!p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_DRUID_FERAL)
+                return;
+
+            /// Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_DiffVal = p_NewValue - p_OldValue;
+
+            if (l_DiffVal < 0)
+                p_Player->EnergizeBySpell(p_Player, eSpells::SoulOfTheForestAura, 4 * -l_DiffVal, POWER_ENERGY);
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_incarnation_tree_of_life();
@@ -5176,4 +5204,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_gyph_of_the_flapping_owl();
     new spell_dru_glyph_of_rake();
     new spell_dru_treant_wrath();
+
+    /// PlayerScript
+    new PlayerScript_soul_of_the_forest();
 }
