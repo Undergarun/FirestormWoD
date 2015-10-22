@@ -1,0 +1,1 @@
+UPDATE creature_template SET ScriptName='spell_npc_sha_fire_elemental', spell1=57984, spell2=12470, spell3=13376 WHERE entry=15438;

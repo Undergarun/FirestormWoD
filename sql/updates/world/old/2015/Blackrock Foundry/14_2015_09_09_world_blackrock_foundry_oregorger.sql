@@ -108,3 +108,25 @@ INSERT INTO creature_groupsizestats (entry, difficulty, groupSize, health) VALUE
 (@REF_OREGORGER,17,23,64567493),
 (@REF_OREGORGER,17,24,67433747),
 (@REF_OREGORGER,17,25,70299883);
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_OREGORGER;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_OREGORGER, 113874, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 113875, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 113876, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 113877, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 113878, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 113879, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 113880, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 113881, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 113882, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 113883, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 113884, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 119194, 0, 1, 1, 1, 1),
+(@REF_OREGORGER, 119448, 0, 1, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_OREGORGER WHERE `entry`= @REF_OREGORGER;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_OREGORGER;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_OREGORGER, 1, 100, 1, 0, -@REF_OREGORGER, 6);

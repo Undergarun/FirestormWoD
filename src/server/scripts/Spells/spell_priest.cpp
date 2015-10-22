@@ -1955,7 +1955,7 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                     if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
                         return true;
 
-                    if (!l_FirstCaster->IsValidAssistTarget(p_Object->ToUnit()))
+                    if (l_FirstCaster && !l_FirstCaster->IsValidAssistTarget(p_Object->ToUnit()))
                         return true;
 
                     return false;

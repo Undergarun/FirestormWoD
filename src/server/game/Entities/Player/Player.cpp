@@ -4670,6 +4670,10 @@ void Player::InitSpellForLevel()
         if (l_SpecializationId == SPEC_MONK_MISTWEAVER && (l_SpellId == 674 || l_SpellId == 124146))
             continue;
 
+        // Hack fix - Monks can't get Daggers competance
+        if (getClass() == CLASS_MONK && l_SpellId == 1180)
+            continue;
+
         if (l_SpellInfo->SpellLevel <= l_Level)
             learnSpell(l_SpellId, false);
     }
@@ -28476,7 +28480,7 @@ PartyResult Player::CanUninviteFromGroup() const
             return ERR_NOT_LEADER;
 
         if (InBattleground())
-            return ERR_INVITE_RESTRICTED;
+            return ERR_LFG_PENDING;
     }
 
     return ERR_PARTY_RESULT_OK;

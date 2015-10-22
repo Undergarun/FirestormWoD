@@ -1524,6 +1524,49 @@ class spell_highmaul_phemos_whirlwind : public SpellScriptLoader
         }
 };
 
+/// Blaze (DoT) - 158241
+class spell_highmaul_blaze_dot : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_blaze_dot() : SpellScriptLoader("spell_highmaul_blaze_dot") { }
+
+        class spell_highmaul_blaze_dot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_blaze_dot_AuraScript);
+
+            enum eSpells
+            {
+                BlazeFirst  = 162901,
+                BlazeSecond = 168374
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    AreaTrigger* l_AT = l_Target->FindNearestAreaTrigger(eSpells::BlazeFirst, 1.0f);
+                    if (l_AT == nullptr)
+                        l_AT = l_Target->FindNearestAreaTrigger(eSpells::BlazeSecond, 1.0f);
+
+                    if (l_AT == nullptr)
+                        return;
+                    else
+                        p_AurEff->GetBase()->ModStackAmount(1);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_blaze_dot_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_blaze_dot_AuraScript();
+        }
+};
+
 /// Blaze - 162901
 /// Blaze - 168374
 class areatrigger_highmaul_phemos_blaze : public AreaTriggerEntityScript
@@ -1557,7 +1600,10 @@ class areatrigger_highmaul_phemos_blaze : public AreaTriggerEntityScript
                         p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                         for (Unit* l_Unit : l_TargetList)
-                            l_Caster->CastSpell(l_Unit, eSpell::BlazeDoT, true);
+                        {
+                            if (!l_Unit->HasAura(eSpell::BlazeDoT))
+                                l_Caster->CastSpell(l_Unit, eSpell::BlazeDoT, true);
+                        }
                     }
 
                     m_UpdateTimer = 500;
@@ -1587,6 +1633,7 @@ void AddSC_boss_twin_ogron()
     new spell_highmaul_twin_ogron_dispositions();
     new spell_highmaul_pulverize_third_wave();
     new spell_highmaul_phemos_whirlwind();
+    new spell_highmaul_blaze_dot();
 
     /// AreaTrigger
     new areatrigger_highmaul_phemos_blaze();

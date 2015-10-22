@@ -365,6 +365,8 @@ class boss_koragh : public CreatureScript
                         me->CastSpell(me, eSpells::KnockbackForRecharge, true);
                         me->CastSpell(me, eSpells::VulnerabilityAura, true);
 
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
                         m_Events.DelayEvent(eEvents::EventOverflowingEnergy, 20 * TimeConstants::IN_MILLISECONDS);
 
                         m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventEndOfCharging);
@@ -567,6 +569,8 @@ class boss_koragh : public CreatureScript
                         me->RemoveAura(eSpells::VulnerabilityAura);
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
                         me->GetMotionMaster()->Clear();
 
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
@@ -575,6 +579,7 @@ class boss_koragh : public CreatureScript
                         if (Creature* l_Grounding = Creature::GetCreature(*me, m_FloorRune))
                             l_Grounding->RemoveAura(eSpells::VolatileAnomaliesAura);
 
+                        m_RunicPlayersCount = 0;
                         break;
                     }
                     default:
@@ -631,7 +636,7 @@ class boss_koragh : public CreatureScript
                     }
                     case eEvents::EventSuppressionField:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM/*, 0, -10.0f*/))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
                         {
                             m_SuppressionFieldTarget = l_Target->GetGUID();
                             me->CastSpell(me, eSpells::SuppressionFieldAura, false);
@@ -1385,7 +1390,7 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                                 }
                             }
 
-                            if (!l_CanChargePlayer)
+                            if (l_Boss == nullptr || !l_Boss->IsAIEnabled)
                             {
                                 m_DamageTimer = 200;
                                 return;
@@ -1395,7 +1400,7 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                             {
                                 if (l_Iter->GetDistance(l_Target) <= 7.0f)
                                 {
-                                    if (!l_Iter->HasAura(eSpell::CausticEnergyDoT))
+                                    if (!l_Iter->HasAura(eSpell::CausticEnergyDoT) && l_CanChargePlayer)
                                     {
                                         l_Iter->CastSpell(l_Iter, eSpell::CausticEnergyDoT, true);
 
@@ -1411,6 +1416,10 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                                     if (l_Iter->HasAura(eSpell::CausticEnergyDoT))
                                         l_Iter->RemoveAura(eSpell::CausticEnergyDoT);
                                 }
+
+                                /// Must be updated
+                                l_ChargingCount = l_Boss->AI()->GetData(eDatas::DataRunicPlayersCount);
+                                l_CanChargePlayer = l_ChargingCount < l_Boss->AI()->GetData(eDatas::DataMaxRunicPlayers);
                             }
                         }
 

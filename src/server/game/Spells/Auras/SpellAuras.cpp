@@ -743,9 +743,9 @@ void Aura::_UnapplyForTarget(Unit* p_Target, Unit* p_Caster, AuraApplication * p
 
         Item* l_CastItem = m_castItemGuid ? p_Caster->ToPlayer()->GetItemByGuid(m_castItemGuid) : NULL;
 
-        if (m_spellInfo->IsCooldownStartedOnEvent() ///< IsCooldownEvent spell
+        if (m_spellInfo->IsCooldownStartedOnEvent() 									///< IsCooldownEvent spell
             && !(l_CastItem && (l_CastItem->IsHealthstone() || l_CastItem->IsPotion())) ///< Healhstones and potions should have they cooldown handled in UpdatePotionCooldown
-            && !l_MisdirectionGlyph)                ///< Glyph of Misdirection (hunter)
+            && !l_MisdirectionGlyph)                									///< Glyph of Misdirection (hunter)
             p_Caster->ToPlayer()->SendCooldownEvent(GetSpellInfo());
     }
 }

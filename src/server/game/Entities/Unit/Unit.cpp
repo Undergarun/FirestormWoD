@@ -7855,43 +7855,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 case 20154:
                     triggered_spell_id = 101423;
                     break;
-                // Beacon of Light
-                case 53651:
-                {
-                    if (Unit* beaconTarget = triggeredByAura->GetBase()->GetCaster())
-                    {
-                        // do not proc when target of beacon of light is self
-                        if (!victim || GetGUID() == beaconTarget->GetGUID())
-                            return false;
-
-                        // check if it was heal by paladin which casted this beacon of light
-                        if (beaconTarget->GetAura(53563, victim->GetGUID()))
-                        {
-                            if (beaconTarget->IsWithinLOSInMap(victim))
-                            {
-                                int32 percent = 0;
-                                switch (procSpell->Id)
-                                {
-                                    case 82327: // Holy Radiance
-                                    case 119952:// Light's Hammer
-                                    case 114871:// Holy Prism
-                                    case 85222: // Light of Dawn
-                                        percent = 15; // 15% heal from these spells
-                                        break;
-                                    default:
-                                        percent = triggerAmount; // 50% heal from all other heals
-                                        break;
-                                }
-
-                                basepoints0 = CalculatePct(damage, percent);
-                                victim->CastCustomSpell(beaconTarget, 53652, &basepoints0, NULL, NULL, true);
-                                return true;
-                            }
-                        }
-                    }
-
-                    return false;
-                }
                 case 157007:///< Beacon of Insight
                 {
                     if (!victim)
@@ -8373,6 +8336,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         {
                             if (!pPet->ToCreature()->HasSpellCooldown(procSpell->Id))
                             {
+                                pPet->SendSpellNonMeleeDamageLog(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, procDmg, procSpell->GetSchoolMask(), 0, 0, false, 0, false);
+                                pPet->DealDamage(pPet->getVictim() ? pPet->getVictim() : getVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
+                                procDmg = 0;
                                 pPet->ToCreature()->_AddCreatureSpellCooldown(procSpell->Id, time(nullptr) + 1);
                                 pPet->CastCustomSpell(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, &procDmg, NULL, NULL, true);
                             }
@@ -13710,6 +13676,7 @@ void Unit::SendMountResult(MountResult p_Error)
 
 void Unit::SetInCombatWith(Unit* enemy)
 {
+    m_attacking = enemy;
     Unit* eOwner = enemy->GetCharmerOrOwnerOrSelf();
     if (eOwner->IsPvP())
     {
@@ -17749,26 +17716,38 @@ Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist, bool p_CheckValidAssist 
     return JadeCore::Containers::SelectRandomContainerElement(targets);
 }
 
-Unit* Unit::SelectNearbyMostInjuredAlly(Unit* p_Exculde /*= nullptr*/, float p_Dist /*= NOMINAL_MELEE_RANGE*/) const
+Unit* Unit::SelectNearbyMostInjuredAlly(Unit* p_Exclude /*= nullptr*/, float p_Dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExcludeEntry /*= 0*/) const
 {
     std::list<Unit*> l_Targets;
     JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(this, this, p_Dist);
     JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(this, l_Targets, l_Check);
     VisitNearbyObject(p_Dist, l_Searcher);
 
-    if (p_Exculde)
-        l_Targets.remove(p_Exculde);
+    if (p_Exclude)
+        l_Targets.remove(p_Exclude);
 
-    /// Remove not LoS targets
-    for (std::list<Unit*>::iterator l_Iter = l_Targets.begin(); l_Iter != l_Targets.end();)
+    /// No appropriate targets
+    if (l_Targets.empty())
+        return nullptr;
+
+    l_Targets.remove_if([this, p_ExcludeEntry](Unit* p_Unit) -> bool
     {
-        if (!IsWithinLOSInMap(*l_Iter) || (*l_Iter)->isTotem() || (*l_Iter)->isSpiritService() || (*l_Iter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
-            l_Targets.erase(l_Iter++);
-        else
-            ++l_Iter;
-    }
+        if (p_Unit == nullptr)
+            return true;
 
-    // No appropriate targets
+        if (!IsWithinLOSInMap(p_Unit) || p_Unit->isTotem() || p_Unit->isSpiritService())
+            return true;
+
+        if (p_Unit->GetCreatureType() == CreatureType::CREATURE_TYPE_CRITTER)
+            return true;
+
+        if (p_Unit->GetEntry() == p_ExcludeEntry)
+            return true;
+
+        return false;
+    });
+
+    /// No appropriate targets
     if (l_Targets.empty())
         return nullptr;
 

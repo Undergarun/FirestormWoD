@@ -3601,7 +3601,7 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
     /// Hackfix @ Glyph of the Falling Avenger
     /// Since preventing the aura effect in a spell script doesn't work
     /// A better way to fix this would be to remember which effects are prevented to prevent re-application
-    if (m_spellInfo->Id == 31842 && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
+    if ((m_spellInfo->Id == 31842 || m_spellInfo->Id == 31884) && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
         return;
 
     if (apply)
@@ -7483,6 +7483,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             if (target->GetTypeId() == TYPEID_PLAYER)
                 damage *= 0.85f;
         }
+
+        ///< Glyph of Flame Shock, have to be trigger afer calculating damages bonus
+        if (GetSpellInfo()->Id == 8050 && GetCaster() && GetCaster()->HasAura(55447))
+            GetCaster()->HealBySpell(GetCaster(), GetSpellInfo(), CalculatePct(damage, 45), false);
 
         // Holy Fire ticks can trigger Atonement
         if (GetSpellInfo()->Id == 14914 && GetCaster() && GetCaster()->HasAura(81749))
