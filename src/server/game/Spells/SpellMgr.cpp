@@ -3542,6 +3542,19 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
+            case 143569:
+                spellInfo->Effects[0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                spellInfo->AttributesEx4 = 0;
+                spellInfo->AttributesEx5 = 0;
+                spellInfo->AttributesEx6 = 0;
+                spellInfo->AttributesEx9 = 0;
+                break;
+            case 167977:
+            case 169495:
+                spellInfo->AuraInterruptFlags = 0;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
                 /// Auchindon
             case 156862: ///< Drain Soul Cosmetic
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
