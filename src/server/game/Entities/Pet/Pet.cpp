@@ -560,6 +560,12 @@ void Pet::DeleteFromDB(uint32 guidlow)
 void Pet::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
 {
     Creature::setDeathState(s);
+
+    if (getDeathState() == ALIVE && getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
+        CastSpell(this, 157863, true);
+    else if (HasAura(157863))
+        RemoveAura(157863);
+
     if (getDeathState() == CORPSE)
     {
         if (getPetType() == HUNTER_PET)

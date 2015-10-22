@@ -1831,10 +1831,10 @@ class spell_monk_surging_mist: public SpellScriptLoader
 
             enum eSpells
             {
-                StanceoftheSturdyOx = 115069,
-                StanceoftheFierceTiger = 103985,
-                StanceoftheWiseSerpent = 115070,
-                StanceoftheSpiritedCrane = 154436
+                StanceoftheSturdyOx         = 115069,
+                StanceoftheFierceTiger      = 103985,
+                StanceoftheWiseSerpent      = 115070,
+                StanceoftheSpiritedCrane    = 154436
             };
 
             void HandleOnPrepare()
@@ -1861,7 +1861,7 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 if ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && !l_Player->HasAura(eSpells::StanceoftheSturdyOx)) ||
                     ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec()) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
                     l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, -30, POWER_ENERGY);
-                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && !l_Player->HasAura(eSpells::StanceoftheWiseSerpent))
                     l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
             }
 
@@ -3939,8 +3939,6 @@ class spell_monk_tiger_palm: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
-                    l_Coeff = 6.0f;
                 l_Player->RemoveAurasDueToSpell(118864); // Combo Breaker
 
                 int32 l_Damage = int32(frand(l_Coeff * l_Low, l_Coeff * l_High));

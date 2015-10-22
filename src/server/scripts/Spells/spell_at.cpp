@@ -188,26 +188,78 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
         }
 };
 
+/// last update : 6.1.2 19802
 /// Ursol Vortex - 102793
 class spell_at_druid_ursol_vortex : public AreaTriggerEntityScript
 {
     public:
         spell_at_druid_ursol_vortex(): AreaTriggerEntityScript("at_ursol_vortex") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        enum eSpells
         {
-            std::list<Unit*> targetList;
+            VortexJump = 118283,
+            VortexSnare = 127797
+        };
+
+        std::list<uint64> m_TargetList;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        {
+            std::list<Unit*> l_NewTargetList;
             float l_Radius = 8.0f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
             p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
 
-            if (!targetList.empty())
-                for (auto itr : targetList)
-                    if (!itr->HasAura(127797))
-                        l_Caster->CastSpell(itr, 127797, true);
+            for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end();)
+            {
+                Unit* l_Target = ObjectAccessor::GetUnit(*l_Caster, *l_It);
+
+                if (l_Target == nullptr)
+                {
+                    l_It = m_TargetList.erase(l_It);
+                    continue;
+                }
+
+                if (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end())
+                {
+                    if (!l_Target->HasAura(eSpells::VortexJump))
+                        l_Target->CastSpell(p_AreaTrigger, eSpells::VortexJump, true);
+                    else
+                    {
+                        l_Target->RemoveAura(eSpells::VortexJump);
+                        l_It = m_TargetList.erase(l_It);
+                        continue;
+                    }
+                }
+                ++l_It;
+            }
+
+            if (!l_NewTargetList.empty())
+            {
+                for (auto itr : l_NewTargetList)
+                {
+                    if (!itr->HasAura(eSpells::VortexSnare))
+                        l_Caster->CastSpell(itr, eSpells::VortexSnare, true);
+                    if (std::find(m_TargetList.begin(), m_TargetList.end(), itr->GetGUID()) == m_TargetList.end())
+                        m_TargetList.push_back(itr->GetGUID());
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* /*p_AreaTrigger*/, uint32 /*p_Time*/)
+        {
+            for (auto l_It : m_TargetList)
+            {
+                Unit* l_Target = ObjectAccessor::FindUnit(l_It);
+                if (l_Target)
+                {
+                    l_Target->RemoveAura(eSpells::VortexSnare);
+                    l_Target->RemoveAura(eSpells::VortexJump);
+                }
+            }
         }
 
         AreaTriggerEntityScript* GetAI() const
@@ -1244,6 +1296,60 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
         }
 };
 
+/// last update : 6.1.2 19802
+/// Charging Ox Wave - 119392
+class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_monk_charging_ox_wave() : AreaTriggerEntityScript("spell_at_monk_charging_ox_wave") { }
+
+        enum eSpells
+        {
+            Stun = 123687
+        };
+
+        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+        {
+            Position l_Position;
+            float l_Dist = 30.f;
+
+            l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
+            l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
+            l_Position.m_positionZ = p_SourcePosition.m_positionZ;
+
+            p_PathToLinearDestination.push_back(l_Position);
+            p_DestinationPosition = l_Position;
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            Unit* l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+            if (l_AreaTriggerCaster == nullptr)
+                return;
+
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 2.0f;
+
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Target : l_TargetList)
+            {
+                if (l_Target == nullptr)
+                    return;
+
+                if (!l_Target->HasAura(eSpells::Stun))
+                    l_AreaTriggerCaster->CastSpell(l_Target, eSpells::Stun, true);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_monk_charging_ox_wave();
+        }
+};
 
 void AddSC_areatrigger_spell_scripts()
 {
@@ -1276,6 +1382,7 @@ void AddSC_areatrigger_spell_scripts()
     new spell_at_monk_chi_sphere_afterlife();
     new spell_at_monk_gift_of_the_ox();
     new spell_at_monk_chi_burst();
+    new spell_at_monk_charging_ox_wave();
 
     /// Priest Area Trigger
     new spell_at_pri_divine_star();

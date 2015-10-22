@@ -1964,8 +1964,11 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
                         if (!l_Unit->HasAura(eSpell::CrystallineBarrage))
                             l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
                     }
-                    else if (l_Unit->HasAura(eSpell::CrystallineBarrage))
-                        l_Unit->RemoveAura(eSpell::CrystallineBarrage);
+                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 2.0f))
+                    {
+                        if (l_Unit->HasAura(eSpell::CrystallineBarrage))
+                            l_Unit->RemoveAura(eSpell::CrystallineBarrage);
+                    }
                 }
             }
         }

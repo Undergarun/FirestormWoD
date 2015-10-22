@@ -1577,7 +1577,7 @@ class Unit : public WorldObject
         void GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Range) const;
         Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true, bool p_Alive = true, bool p_ExcludeStealthVictim = false, bool p_CheckValidAttack = false) const;
         Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, bool p_CheckValidAssist = false) const;
-        Unit* SelectNearbyMostInjuredAlly(Unit* p_Exculde = nullptr, float p_Dist = NOMINAL_MELEE_RANGE) const;
+        Unit* SelectNearbyMostInjuredAlly(Unit* p_Exculde = nullptr, float p_Dist = NOMINAL_MELEE_RANGE, uint32 p_ExcludeEntry = 0) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
         void SendMeleeAttackStart(Unit* victim);
         bool IsVisionObscured(Unit* victim, SpellInfo const* spellInfo);
@@ -2675,6 +2675,10 @@ class Unit : public WorldObject
 
         void SetChannelSpellID(uint32 p_SpellID);
         void SetChannelSpellID(SpellInfo const* p_SpellInfo);
+
+        void SetHealingRainTrigger(uint64 p_Guid) { m_HealingRainTrigger = p_Guid; }
+        uint64 GetHealingRainTrigger() const { return m_HealingRainTrigger; }
+        uint64 m_HealingRainTrigger;
     public:
         uint64 _petBattleId;
 

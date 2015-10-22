@@ -137,16 +137,32 @@ class spell_dru_tooth_and_claw_absorb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_tooth_and_claw_absorb_AuraScript);
 
-            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
-                if (Unit* attacker = dmgInfo.GetAttacker())
-                    if (!attacker->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA))
-                        absorbAmount = 0;
+                Unit* l_Attacker = p_DmgInfo.GetAttacker();
+
+                if (l_Attacker == nullptr)
+                    return;
+
+                if (!l_Attacker->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA))
+                    p_AbsorbAmount = 0;
+            }
+
+            void AfterAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Attacker = p_DmgInfo.GetAttacker();
+
+                if (l_Attacker == nullptr || l_Caster == nullptr)
+                    return;
+
+                l_Attacker->RemoveAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, l_Caster->GetGUID());
             }
 
             void Register()
             {
                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dru_tooth_and_claw_absorb_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dru_tooth_and_claw_absorb_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -265,13 +281,14 @@ public:
                         l_Party.resize(1);
                     }
 
-                    const SpellInfo* l_DreamOfCenariusSpellInfo = l_Caster->GetAura(SPELL_DRUID_DREAM_OF_CENARIUS_RESTO_TALENT)->GetSpellInfo();
+                    SpellInfo const* l_DreamOfCenariusSpellInfo = l_Caster->GetAura(SPELL_DRUID_DREAM_OF_CENARIUS_RESTO_TALENT)->GetSpellInfo();
+                    SpellInfo const* l_DreamOfCenariusHealSpellInfo = sSpellMgr->GetSpellInfo(SPELL_DRUID_DREAM_OF_CENARIUS_HEAL);
 
-                    if (!l_DreamOfCenariusSpellInfo)
+                    if (l_DreamOfCenariusSpellInfo == nullptr || l_DreamOfCenariusHealSpellInfo == nullptr)
                         return;
 
                     int32 l_HealAmount = CalculatePct(GetHitDamage(), l_DreamOfCenariusSpellInfo->Effects[EFFECT_1].BasePoints);
-                    l_Caster->CastCustomSpell(l_Party.front(), SPELL_DRUID_DREAM_OF_CENARIUS_HEAL, &l_HealAmount, NULL, NULL, true);
+                    l_Caster->HealBySpell(l_Party.front(), l_DreamOfCenariusHealSpellInfo, l_HealAmount, false, false);
                 }
             }
         }
@@ -609,26 +626,28 @@ class spell_dru_maul: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 damage = GetHitDamage();
+                        int32 l_Damage = GetHitDamage();
 
                         // Deals 20% more damage if target is bleeding
-                        if (target->HasAuraState(AURA_STATE_BLEEDING))
+                        if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
                         {
-                            AddPct(damage, GetSpellInfo()->Effects[EFFECT_3].BasePoints);
-                            SetHitDamage(damage);
+                            AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_3].BasePoints);
+                            SetHitDamage(l_Damage);
                         }
 
-                        if (caster->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
+                        if (l_Caster->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
                         {
-                            int32 bp = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.4f;
+                            int32 l_Bp = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.4f;
 
-                            caster->RemoveAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA);
-                            caster->CastCustomSpell(caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &bp, NULL, NULL, true);
-                            caster->CastCustomSpell(target, SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, &bp, NULL, NULL, true);
+                            l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &l_Bp, NULL, NULL, true);
+                            l_Caster->CastCustomSpell(l_Target, SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, &l_Bp, NULL, NULL, true);
+
+                            if (AuraPtr l_AuraPtr = l_Caster->GetAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
+                                l_AuraPtr->SetStackAmount(l_AuraPtr->GetStackAmount() - 1);
                         }
                     }
                 }
@@ -768,107 +787,6 @@ enum UrsolsVortexSpells
     SPELL_DRUID_URSOLS_VORTEX_AREA_TRIGGER = 102793,
     SPELL_DRUID_URSOLS_VORTEX_JUMP_DEST    = 118283,
     SPELL_DRUID_URSOLS_VORTEX_SNARE        = 127797
-};
-
-/// Ursol's Vortex - 102793
-class spell_dru_ursols_vortex: public SpellScriptLoader
-{
-public:
-    spell_dru_ursols_vortex() : SpellScriptLoader("spell_dru_ursols_vortex") { }
-
-    class spell_dru_ursols_vortex_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_ursols_vortex_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                if (Unit* target = GetHitUnit())
-                    if (!target->HasAura(SPELL_DRUID_URSOLS_VORTEX_AREA_TRIGGER))
-                        l_Player->CastSpell(target, SPELL_DRUID_URSOLS_VORTEX_SNARE, true);
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_dru_ursols_vortex_SpellScript::HandleOnHit);
-        }
-    };
-
-    class spell_dru_ursols_vortex_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_ursols_vortex_AuraScript);
-
-        std::list<Unit*> targetList;
-
-        void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
-        {
-            aurEff->GetTargetList(targetList);
-
-            for (auto itr : targetList)
-            {
-                if (Unit* caster = GetCaster())
-                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_DRUID_URSOLS_VORTEX_AREA_TRIGGER))
-                        if (itr->GetDistance(dynObj) > 8.0f && !itr->HasAura(SPELL_DRUID_URSOLS_VORTEX_JUMP_DEST))
-                            itr->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_DRUID_URSOLS_VORTEX_JUMP_DEST, true);
-            }
-
-            targetList.clear();
-        }
-
-        void Register()
-        {
-            OnEffectUpdate += AuraEffectUpdateFn(spell_dru_ursols_vortex_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_ursols_vortex_SpellScript();
-    }
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_ursols_vortex_AuraScript();
-    }
-};
-
-/// Ursol's Vortex (snare) - 127797
-class spell_dru_ursols_vortex_snare: public SpellScriptLoader
-{
-    public:
-        spell_dru_ursols_vortex_snare() : SpellScriptLoader("spell_dru_ursols_vortex_snare") { }
-
-        class spell_dru_ursols_vortex_snare_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_ursols_vortex_snare_AuraScript);
-
-            std::list<Unit*> targetList;
-
-            void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
-            {
-                aurEff->GetTargetList(targetList);
-
-                for (auto itr : targetList)
-                {
-                    if (Unit* caster = GetCaster())
-                        if (AreaTrigger* areaTrigger = caster->GetAreaTrigger(SPELL_DRUID_URSOLS_VORTEX_AREA_TRIGGER))
-                            if (itr->GetDistance(areaTrigger) > 8.0f && !itr->HasAura(SPELL_DRUID_URSOLS_VORTEX_JUMP_DEST))
-                                itr->CastSpell(areaTrigger->GetPositionX(), areaTrigger->GetPositionY(), areaTrigger->GetPositionZ(), SPELL_DRUID_URSOLS_VORTEX_JUMP_DEST, true);
-                }
-
-                targetList.clear();
-            }
-
-            void Register()
-            {
-                OnEffectUpdate += AuraEffectUpdateFn(spell_dru_ursols_vortex_snare_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dru_ursols_vortex_snare_AuraScript();
-        }
 };
 
 enum DashSpells
@@ -1134,7 +1052,8 @@ class spell_dru_wild_growth : public SpellScriptLoader
         enum eSpells
         {
             TreeOfLife = 33891,
-            T10Resto2PBonus = 70658
+            T10Resto2PBonus = 70658,
+            GlyphofWildGrowth = 62970
         };
 
         class spell_dru_wild_growth_SpellScript : public SpellScript
@@ -1143,10 +1062,14 @@ class spell_dru_wild_growth : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                uint8 l_MaxTargets = GetSpellInfo()->Effects[EFFECT_2].BasePoints;
+                uint8 l_MaxTargets = GetSpellInfo()->Effects[EFFECT_2].BasePoints + 1; ///< +1 = Main Target
+                Unit* l_Caster = GetCaster();
 
-                if (GetCaster()->HasAura(eSpells::TreeOfLife))
+                if (l_Caster->HasAura(eSpells::TreeOfLife))
                     l_MaxTargets += 2;
+
+                if (l_Caster->HasAura(eSpells::GlyphofWildGrowth))
+                    l_MaxTargets += 1;
 
                 if (p_Targets.size() > l_MaxTargets)
                     JadeCore::RandomResizeList(p_Targets, l_MaxTargets);
@@ -1604,7 +1527,7 @@ class spell_dru_cat_form: public SpellScriptLoader
                 Unit* l_Target = GetTarget();
 
                 if (l_Target->HasAura(eSpells::Prowl))
-                    l_Target->RemoveAura(eSpells::Prowl, 0, 0, AURA_REMOVE_BY_CANCEL);
+                    l_Target->RemoveAura(eSpells::Prowl);
 
                 if (l_Target->HasAura(eSpells::DesplacerBeast))
                     l_Target->RemoveAura(eSpells::DesplacerBeast);
@@ -1795,7 +1718,7 @@ enum eWildMushroomDatas
 };
 
 /// Wild Mushroom (Balance) - 88747
-/// Wild Mushroom (Restoration) - 145205
+/// Wild Mushroom (Restoration) - 145205, Wild Mushroom (Restoration)(override by 146654) - 147349
 class spell_dru_wild_mushroom: public SpellScriptLoader
 {
     public:
@@ -1807,11 +1730,12 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
 
             enum eWildMushroomSpells
             {
-                HealAura                  = 81262,
-                FungalCloudArea           = 164717,
-                WildMushroomBalance       = 88747,
-                WildMushroomBirthVisual   = 94081,
-                WildMushroomRestoration   = 145205,
+                HealAura                        = 81262,
+                FungalCloudArea                 = 164717,
+                WildMushroomBalance             = 88747,
+                WildMushroomBirthVisual         = 94081,
+                WildMushroomRestoration         = 145205,
+                WildMushroomRestorationGlyph    = 147349
             };
             
             enum eWildMushroomDatas
@@ -1856,7 +1780,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     l_Summon->SetFullHealth();
                     l_Summon->CastSpell(l_Summon, eWildMushroomSpells::WildMushroomBirthVisual, true);
 
-                    if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestoration)
+                    if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestoration || GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestorationGlyph)
                         l_Summon->CastSpell(l_Summon, eWildMushroomSpells::HealAura, true);
                     else if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomBalance)
                         l_Summon->CastSpell(l_Summon, eWildMushroomSpells::FungalCloudArea, true);
@@ -3978,13 +3902,11 @@ class spell_dru_rip: public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
-                if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && p_AurEff->GetAmplitude() > 0)
-                {
-                    int32 l_TicksCount = GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude();
-                    float l_AP = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-                    int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                    p_Amount = (int32)((l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 12) / l_TicksCount);
-                }
+
+                int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+
+                if (l_Combo > 0)
+                    p_Amount *= l_Combo;
             }
 
             void Register()
@@ -5124,6 +5046,73 @@ class spell_dru_incarnation_tree_of_life : public SpellScriptLoader
         }
 };
 
+/// 113769 - Warth
+class spell_dru_treant_wrath : public SpellScriptLoader
+{
+    public:
+        spell_dru_treant_wrath() : SpellScriptLoader("spell_dru_treant_wrath") { }
+
+        class spell_dru_treant_wrath_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_treant_wrath_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_treant_wrath_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_treant_wrath_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Soul of the forest - 158476
+class PlayerScript_soul_of_the_forest : public PlayerScript
+{
+    public:
+        PlayerScript_soul_of_the_forest() : PlayerScript("PlayerScript_ruthlessness") { }
+
+        enum eSpells
+        {
+            SoulOfTheForestAura = 158476
+        };
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        {
+            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_DRUID || !p_Player->HasAura(eSpells::SoulOfTheForestAura))
+                return;
+
+            if (p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SPEC_DRUID_FERAL)
+                return;
+
+            /// Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_DiffVal = p_NewValue - p_OldValue;
+
+            if (l_DiffVal < 0)
+                p_Player->EnergizeBySpell(p_Player, eSpells::SoulOfTheForestAura, 4 * -l_DiffVal, POWER_ENERGY);
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_incarnation_tree_of_life();
@@ -5149,8 +5138,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_maul();
     new spell_dru_natures_vigil();
     new spell_dru_natures_vigil_proc();
-    new spell_dru_ursols_vortex_snare();
-    new spell_dru_ursols_vortex();
     new spell_dru_dash();
     new spell_dru_savage_defense();
     new spell_dru_lifebloom();
@@ -5216,4 +5203,8 @@ void AddSC_druid_spell_scripts()
     new spell_dru_lunar_inspiration();
     new spell_dru_gyph_of_the_flapping_owl();
     new spell_dru_glyph_of_rake();
+    new spell_dru_treant_wrath();
+
+    /// PlayerScript
+    new PlayerScript_soul_of_the_forest();
 }

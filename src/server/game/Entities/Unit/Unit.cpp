@@ -302,6 +302,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
         m_powers[i] = 0;
 
     m_lastVisibilityUpdPos = *this;
+
+    m_HealingRainTrigger = 0;
 }
 
 ////////////////////////////////////////////////////////////
@@ -790,7 +792,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     /// last update : 6.1.2 19802
     /// Stance of the Spirited Crane - 154436
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK && HasAura(154436))
+    if (GetSpellModOwner() && GetSpellModOwner()->HasAura(154436))
         if (!spellProto || (spellProto
         && spellProto->Id != 115129 && spellProto->Id != 125033 && spellProto->Id != 124098 && spellProto->Id != 132467
         && spellProto->Id != 130651 && spellProto->Id != 117993)) ///< Don't triggered by Zen Sphere, Chi Wave, Chi Burst, Chi Torpedo and Expel Harm
@@ -800,8 +802,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         std::list<Creature*> l_StatueList;
         Creature* l_Statue = nullptr;
 
-        ToPlayer()->GetCreatureListWithEntryInGrid(l_TempList, 60849, 100.0f);
-        ToPlayer()->GetCreatureListWithEntryInGrid(l_StatueList, 60849, 100.0f);
+        GetSpellModOwner()->GetCreatureListWithEntryInGrid(l_TempList, 60849, 100.0f);
+        GetSpellModOwner()->GetCreatureListWithEntryInGrid(l_StatueList, 60849, 100.0f);
 
         /// Remove other players jade statue
         for (std::list<Creature*>::iterator i = l_TempList.begin(); i != l_TempList.end(); ++i)
@@ -814,7 +816,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
 
         /// In addition, you also gain Eminence, causing you to heal the lowest health nearby target within 20 yards for an amount equal to 50% of non-autoattack damage you deal
-        CastCustomSpell(this, 126890, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence
+        CastCustomSpell(this, 126890, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetSpellModOwner()->GetGUID()); ///< Eminence
 
         if (l_StatueList.size() == 1)
         {
@@ -964,7 +966,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                     l_RageGain *= 0.5f;
             }
 
-            RewardRage(l_RageGain);
+            if (!HasAura(147297)) ///< Glyph of the Raging Whirlwind 146968 (Aura)
+                RewardRage(l_RageGain);
         }
     }
 
@@ -4427,7 +4430,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
             uint32 removedAuras = m_removedAurasCount;
-            RemoveAura(aura, AURA_REMOVE_BY_CANCEL);
+            RemoveAura(aura);
             if (m_removedAurasCount > removedAuras + 1)
                 iter = m_interruptableAuras.begin();
         }
@@ -7853,43 +7856,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 case 20154:
                     triggered_spell_id = 101423;
                     break;
-                // Beacon of Light
-                case 53651:
-                {
-                    if (Unit* beaconTarget = triggeredByAura->GetBase()->GetCaster())
-                    {
-                        // do not proc when target of beacon of light is self
-                        if (!victim || GetGUID() == beaconTarget->GetGUID())
-                            return false;
-
-                        // check if it was heal by paladin which casted this beacon of light
-                        if (beaconTarget->GetAura(53563, victim->GetGUID()))
-                        {
-                            if (beaconTarget->IsWithinLOSInMap(victim))
-                            {
-                                int32 percent = 0;
-                                switch (procSpell->Id)
-                                {
-                                    case 82327: // Holy Radiance
-                                    case 119952:// Light's Hammer
-                                    case 114871:// Holy Prism
-                                    case 85222: // Light of Dawn
-                                        percent = 15; // 15% heal from these spells
-                                        break;
-                                    default:
-                                        percent = triggerAmount; // 50% heal from all other heals
-                                        break;
-                                }
-
-                                basepoints0 = CalculatePct(damage, percent);
-                                victim->CastCustomSpell(beaconTarget, 53652, &basepoints0, NULL, NULL, true);
-                                return true;
-                            }
-                        }
-                    }
-
-                    return false;
-                }
                 case 157007:///< Beacon of Insight
                 {
                     if (!victim)
@@ -8371,6 +8337,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         {
                             if (!pPet->ToCreature()->HasSpellCooldown(procSpell->Id))
                             {
+                                pPet->SendSpellNonMeleeDamageLog(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, procDmg, procSpell->GetSchoolMask(), 0, 0, false, 0, false);
+                                pPet->DealDamage(pPet->getVictim() ? pPet->getVictim() : getVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
+                                procDmg = 0;
                                 pPet->ToCreature()->_AddCreatureSpellCooldown(procSpell->Id, time(nullptr) + 1);
                                 pPet->CastCustomSpell(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, &procDmg, NULL, NULL, true);
                             }
@@ -9719,19 +9688,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             if ((procSpell->Id != 24275 && procSpell->Id != 20271) || procEx != PROC_EX_CRITICAL_HIT)
                 return false;
-
-            break;
-        }
-        case 5301:  // Revenge (aura proc)
-        {
-            if (!(procEx & PROC_EX_DODGE) && !(procEx & PROC_EX_PARRY))
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(6572))
-                ToPlayer()->RemoveSpellCooldown(6572, true);
 
             break;
         }
@@ -11663,10 +11619,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
     /// Apply Versatility damage bonus done
     if (GetSpellModOwner())
-    {
-        if (GetSpellModOwner())
-            DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-    }
+        DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
@@ -12561,7 +12514,8 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
         return  p_Damage;
 
     Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
-
+    int32 l_Diff = 0;
+    float l_PctSpellMod = 0.0f;
     if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr)
         l_CritPctBonus = 50; ///< 150% on pvp
 
@@ -12573,10 +12527,15 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
     {
         l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
         /// adds additional damage to p_Damage (from talents)
-        if (l_ModOwner)
-            l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
-    }
+        int32 l_DamageTmp = p_Damage;
 
+        if (l_ModOwner)
+            l_Diff = l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, l_DamageTmp);
+    }
+    if (l_Diff > 0)
+        l_PctSpellMod = 100.0f / ((float)p_Damage / (float)l_Diff);
+    
+    l_CritPctBonus += l_PctSpellMod;
     p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
     return p_Damage;
@@ -13718,6 +13677,7 @@ void Unit::SendMountResult(MountResult p_Error)
 
 void Unit::SetInCombatWith(Unit* enemy)
 {
+    m_attacking = enemy;
     Unit* eOwner = enemy->GetCharmerOrOwnerOrSelf();
     if (eOwner->IsPvP())
     {
@@ -17339,7 +17299,7 @@ Player* Unit::GetSpellModOwner() const
 {
     if (GetTypeId() == TYPEID_PLAYER)
         return (Player*)this;
-    if (ToCreature()->isPet() || ToCreature()->isTotem())
+    if (ToCreature()->isPet() || ToCreature()->isTotem() || ToCreature()->isSummon() || ToCreature()->isGuardian())
     {
         Unit* owner = GetOwner();
         if (owner && owner->GetTypeId() == TYPEID_PLAYER)
@@ -17757,26 +17717,38 @@ Unit* Unit::SelectNearbyAlly(Unit* exclude, float dist, bool p_CheckValidAssist 
     return JadeCore::Containers::SelectRandomContainerElement(targets);
 }
 
-Unit* Unit::SelectNearbyMostInjuredAlly(Unit* p_Exculde /*= nullptr*/, float p_Dist /*= NOMINAL_MELEE_RANGE*/) const
+Unit* Unit::SelectNearbyMostInjuredAlly(Unit* p_Exclude /*= nullptr*/, float p_Dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExcludeEntry /*= 0*/) const
 {
     std::list<Unit*> l_Targets;
     JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(this, this, p_Dist);
     JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(this, l_Targets, l_Check);
     VisitNearbyObject(p_Dist, l_Searcher);
 
-    if (p_Exculde)
-        l_Targets.remove(p_Exculde);
+    if (p_Exclude)
+        l_Targets.remove(p_Exclude);
 
-    /// Remove not LoS targets
-    for (std::list<Unit*>::iterator l_Iter = l_Targets.begin(); l_Iter != l_Targets.end();)
+    /// No appropriate targets
+    if (l_Targets.empty())
+        return nullptr;
+
+    l_Targets.remove_if([this, p_ExcludeEntry](Unit* p_Unit) -> bool
     {
-        if (!IsWithinLOSInMap(*l_Iter) || (*l_Iter)->isTotem() || (*l_Iter)->isSpiritService() || (*l_Iter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
-            l_Targets.erase(l_Iter++);
-        else
-            ++l_Iter;
-    }
+        if (p_Unit == nullptr)
+            return true;
 
-    // No appropriate targets
+        if (!IsWithinLOSInMap(p_Unit) || p_Unit->isTotem() || p_Unit->isSpiritService())
+            return true;
+
+        if (p_Unit->GetCreatureType() == CreatureType::CREATURE_TYPE_CRITTER)
+            return true;
+
+        if (p_Unit->GetEntry() == p_ExcludeEntry)
+            return true;
+
+        return false;
+    });
+
+    /// No appropriate targets
     if (l_Targets.empty())
         return nullptr;
 

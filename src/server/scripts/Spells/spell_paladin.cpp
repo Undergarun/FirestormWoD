@@ -1946,8 +1946,7 @@ class spell_pal_holy_shock: public SpellScriptLoader
                         if (l_Caster->HasAura(PALADIN_ENHANCED_HOLY_SHOCK_PROC))
                             l_Caster->ToPlayer()->RemoveSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, true);
                         if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_DENOUNCE))
-                            if (roll_chance_i(50))
-                                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC, true);
+                            l_Caster->CastSpell(l_Caster, PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC, true);
 
                         l_Caster->CastSpell(l_Caster, PALADIN_SPELL_HOLY_SHOCK_ENERGIZE, true);
                     }
@@ -3047,7 +3046,7 @@ class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
             enum eSpells
             {
                 FlashOfLight = 19750,
-                GlyphOfLightAura = 123254
+                GlyphOfLightAura = 54957
             };
 
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
@@ -3078,6 +3077,149 @@ class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Beacon of Light - 53563, Beacon of Faith - 156910
+class spell_pal_beacon_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_beacon_of_light() : SpellScriptLoader("spell_pal_beacon_of_light") { }
+
+        class spell_pal_beacon_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_beacon_of_light_AuraScript);
+
+            enum eSpells
+            {
+                BeaconOfLight         = 53563,
+                BeaconOfLightProcAura = 53651,
+                BeaconOfFaith         = 156910,
+                BeaconOfFaithProcAura = 177173
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == eSpells::BeaconOfLight)
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::BeaconOfLightProcAura, 0, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Target->GetGUID());
+                else
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::BeaconOfFaithProcAura, 0, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Target->GetGUID());
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == eSpells::BeaconOfLight)
+                    l_Caster->RemoveAura(eSpells::BeaconOfLightProcAura, l_Target->GetGUID());
+                else
+                    l_Caster->RemoveAura(eSpells::BeaconOfFaithProcAura, l_Target->GetGUID());
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_beacon_of_light_AuraScript::OnApply, EFFECT_2, SPELL_AURA_MOD_HEALING_RECEIVED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_beacon_of_light_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_HEALING_RECEIVED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_beacon_of_light_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Beacon of Light (proc aura) - 53651, Beacon of Faith (proc aura) - 177173
+class spell_pal_beacon_of_light_proc : public SpellScriptLoader
+{
+    public:
+        spell_pal_beacon_of_light_proc() : SpellScriptLoader("spell_pal_beacon_of_light_proc") { }
+
+        class spell_pal_beacon_of_light_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_beacon_of_light_proc_AuraScript);
+
+            enum eSpells
+            {
+                BeaconOfLight           = 53563,
+                BeaconOfLightProcAura   = 53651,
+                BeaconOfFaith           = 156910,
+                BeaconOfFaithProcAura   = 177173,
+                BeaconOfLightHeal       = 53652
+            };
+
+            int32 GetPctBySpell(uint32 l_SpellID) const
+            {
+                int32 l_Percent = 0;
+
+                switch (l_SpellID)
+                {
+                case 82327: // Holy Radiance
+                case 119952:// Light's Hammer
+                case 114871:// Holy Prism
+                case 85222: // Light of Dawn
+                    l_Percent = 15; // 15% heal from these spells
+                    break;
+                default:
+                    l_Percent = 50; // 50% heal from all other heals
+                    break;
+                }
+
+                return l_Percent;
+            }
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_OwnerOfBeacon = GetTarget();
+                Unit* l_TargetOfBeacon = GetCaster();
+
+                if (l_TargetOfBeacon == nullptr)
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::BeaconOfLightHeal)
+                    return;
+
+                if (!l_TargetOfBeacon->IsWithinLOSInMap(l_OwnerOfBeacon))
+                    return;
+
+                Unit* l_TargetOfHeal = p_EventInfo.GetDamageInfo()->GetVictim();
+
+                if (l_TargetOfHeal == nullptr || !l_TargetOfHeal->IsInRaidWith(l_OwnerOfBeacon) || l_TargetOfHeal->GetGUID() == l_TargetOfBeacon->GetGUID())
+                    return;
+
+                int32 l_Bp = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), GetPctBySpell(GetSpellInfo()->Id));
+
+                if ((GetSpellInfo()->Id == eSpells::BeaconOfLightProcAura && l_TargetOfBeacon->HasAura(eSpells::BeaconOfLight)) ||
+                    (GetSpellInfo()->Id == eSpells::BeaconOfFaithProcAura && l_TargetOfBeacon->HasAura(eSpells::BeaconOfFaith)))
+                    l_OwnerOfBeacon->CastCustomSpell(l_TargetOfBeacon, eSpells::BeaconOfLightHeal, &l_Bp, NULL, NULL, true);
+                else
+                    l_OwnerOfBeacon->RemoveAura(GetSpellInfo()->Id);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_beacon_of_light_proc_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_beacon_of_light_proc_AuraScript();
+        }
+};
+
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -3106,6 +3248,8 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_beacon_of_light();
+    new spell_pal_beacon_of_light_proc();
     new spell_pal_glyph_of_flash_of_light();
     new spell_pal_shining_protector();
     new spell_pal_turn_evil();

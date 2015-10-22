@@ -1204,7 +1204,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
 
 void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTargetInfo const& p_TargetType, uint32 p_EffMask)
 {
-    Unit* l_Referer = NULL;
+    Unit* l_Referer = nullptr;
     switch (p_TargetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
@@ -1235,7 +1235,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
     if (!l_Referer)
         return;
 
-    Position const* l_Center = NULL;
+    Position const* l_Center = nullptr;
     switch (p_TargetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
@@ -1912,14 +1912,13 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
     {
         int8 l_StacksToDrop = GetSpellInfo()->Id == 116858 ? 3 : 1;
         if (GetSpellInfo()->SpellFamilyFlags & flag128(0x00000000, 0x00000000, 0x00000000, 0x00400000) &&
-            havoc->GetStackAmount() >= l_StacksToDrop && target->ToUnit() && !target->ToUnit()->HasAura(80240))
+            havoc->GetStackAmount() >= l_StacksToDrop && target->ToUnit() && !target->ToUnit()->HasAura(80240) && effIndex == EFFECT_0)
         {
             std::list<Unit*> targets;
             Unit* secondTarget = NULL;
             m_caster->GetAttackableUnitListInRange(targets, 40.0f);
 
-            if (target->ToUnit())
-                targets.remove(target->ToUnit());
+            targets.remove(target->ToUnit());
             targets.remove(m_caster);
 
             for (auto itr : targets)
@@ -2913,30 +2912,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 m_caster->SendSpellMiss(unit, m_spellInfo->Id, missInfo2);
             m_damage = 0;
             spellHitTarget = NULL;
-        }
-    }
-
-    /// Your finishing moves restore X Energy per combo
-    if (m_needComboPoints)
-    {
-        if (Player* l_Caster = m_caster->ToPlayer())
-        {
-            if (int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT))
-            {
-                if (l_Caster->HasAura(158476)) ///< Soul of the forest
-                {
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
-                }
-                else if (l_Caster->HasAura(14161)) ///< Ruthlessness
-                {
-                    if (roll_chance_i(20 * l_Combo))
-                    {
-                        m_comboPointGain += 1;
-                        l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
-                    }
-                }
-            }
         }
     }
 
@@ -4411,6 +4386,9 @@ void Spell::finish(bool ok)
 
     if (m_spellInfo->IsChanneled())
         m_caster->UpdateInterruptMask();
+
+    if (m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->IsAIEnabled)
+        m_caster->ToCreature()->AI()->OnSpellFinished(m_spellInfo);
 
     if (IsAutoActionResetSpell())
     {

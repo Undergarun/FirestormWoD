@@ -22,6 +22,7 @@
 # include "GameObjectAI.h"
 # include "Group.h"
 # include "MoveSplineInit.h"
+# include "CreatureTextMgr.h"
 
 float const g_NorthOrientation = 0.0f;
 float const g_SouthOrientation = M_PI;
@@ -64,6 +65,8 @@ enum eFoundryCreatures
     BossOregorger           = 77182,
     /// Blast Furnace
     HeartOfTheMountain      = 76806,
+    ForemanFeldspar         = 76809,
+    BlackhandCosmetic       = 76831,
     /// The Black Forge - Part 2
     /// Hans'gar & Franzok
     BossHansgar             = 76973,
@@ -96,6 +99,7 @@ enum eFoundryGameObjects
     BlastFurnaceEncounterDoor   = 230759,
     CrucibleLeft                = 233759,
     CrucibleRight               = 233839,
+    FurnaceGate                 = 227423,
     /// The Black Forge - Part 2
     BlackForgePortcullis        = 238836,
     /// Iron Assembly - Part 3
@@ -120,17 +124,25 @@ enum eFoundryDatas
     DataBlackhand,
     MaxBossData,
 
+    /// Other boss datas
+    DataForemanFeldspar     = eFoundryDatas::MaxBossData,
+
     /// Misc
     PristineTrueIronOres    = 0,
     VolatileOreGrinded      = 1,
+    PrimalElementalistTime  = 2,
 
     /// Counters
+    /// Gruul
     MaxPristineTrueIronOres = 3,
+    /// Oregorger
     MaxOreCrateSpawns       = 25,
     MaxOregorgerMovePos     = 8,
     MaxOregorgerPatterns    = 7,
     MaxOregorgerCollisions  = 8,
-    MaxOregorgerPaths       = 12
+    MaxOregorgerPaths       = 12,
+    /// Blast Furnace
+    MaxPrimalElementalists  = 4
 };
 
 enum eFoundrySpells
@@ -141,7 +153,8 @@ enum eFoundrySpells
 enum eFoundryAchievements
 {
     TheIronPrince   = 8978,
-    HeShootsHeOres  = 8979
+    HeShootsHeOres  = 8979,
+    YaWeveGotTime   = 8930
 };
 
 enum eFoundryVisuals

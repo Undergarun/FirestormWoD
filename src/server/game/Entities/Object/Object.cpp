@@ -2894,6 +2894,10 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     if (entry == 60849 || entry == 61146)
         mask = UNIT_MASK_GUARDIAN;
 
+    // Fix Storm Scarab - 51113 (is Temp Summon instead of Guardian)
+    if (entry == 51113)
+        mask = UNIT_MASK_MINION;
+
     TempSummon* summon = NULL;
     switch (mask)
     {
@@ -3329,9 +3333,8 @@ GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float
 
 Player* WorldObject::FindNearestPlayer(float range, bool alive)
 {
-    /// @TODO fix alive player search
     Player* player = NULL;
-    JadeCore::AnyPlayerInObjectRangeCheck check(this, range);
+    JadeCore::AnyPlayerInObjectRangeCheck check(this, range, alive);
     JadeCore::PlayerSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(this, player, check);
     VisitNearbyWorldObject(range, searcher);
     return player;

@@ -1381,6 +1381,26 @@ class go_challenge_orb : public GameObjectScript
         }
 };
 
+/*######
+## go_crystal_pylons (3x)
+######*/
+class go_dark_iron_mole_machine_wreckage : public GameObjectScript
+{
+    public:
+        go_dark_iron_mole_machine_wreckage() : GameObjectScript("go_dark_iron_mole_machine_wreckage") { }
+
+        bool OnGossipHello(Player* player, GameObject* go) override
+        {
+            if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+            {
+                player->PrepareQuestMenu(go->GetGUID());
+                player->SendPreparedQuest(go->GetGUID());
+            }
+
+            return true;
+        }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1426,4 +1446,5 @@ void AddSC_go_scripts()
     new go_seaforium_charge;
     new go_mage_portal_pandaria;
     new go_challenge_orb();
+    new go_dark_iron_mole_machine_wreckage();
 }

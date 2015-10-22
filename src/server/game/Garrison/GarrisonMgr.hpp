@@ -102,6 +102,8 @@ namespace MS { namespace Garrison
             GarrisonPlotInstanceInfoLocation GetPlot(uint32 p_PlotInstanceID) const;
             /// Get plot instance ID by activation game object
             uint32 GetPlotInstanceIDByActivationGameObject(uint64 p_Guid) const;
+            /// bababab
+            std::map<uint32, uint64> GetPlotsWorkOrderGob() { return m_PlotsWorkOrderGob; };
 
             /// Add mission
             bool AddMission(uint32 p_MissionRecID);
@@ -213,7 +215,7 @@ namespace MS { namespace Garrison
             std::vector<int32> GetKnownSpecializations() const;
 
             /// Get work orders
-            std::vector<GarrisonWorkOrder> GetWorkOrders() const;
+            std::vector<GarrisonWorkOrder>& GetWorkOrders();
 
             /// Update mission distribution
             void UpdateMissionDistribution(bool p_Force = false, uint32 p_ForcedCount = 0);

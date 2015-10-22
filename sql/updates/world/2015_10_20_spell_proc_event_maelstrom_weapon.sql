@@ -1,0 +1,1 @@
+UPDATE `spell_proc_event` SET `procEx`= 0x00000001 + 0x00000002 + 0x00000400 WHERE `entry`=51530;

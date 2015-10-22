@@ -1548,11 +1548,6 @@ class spell_warr_shield_barrier: public SpellScriptLoader
         }
 };
 
-enum AngerManagementSpells
-{
-    SPELL_WARR_ANGER_MANAGEMENT = 152278,
-};
-
 #define REDUCED_SPELLS_ID_MAX 13
 uint32 g_ReducedSpellsId[REDUCED_SPELLS_ID_MAX] =
 {
@@ -1571,16 +1566,26 @@ uint32 g_ReducedSpellsId[REDUCED_SPELLS_ID_MAX] =
     118038  ///< Die by the Sword
 };
 
+/// Anger Management - 152278
 class spell_warr_anger_management: public PlayerScript
 {
     public:
         spell_warr_anger_management() : PlayerScript("spell_warr_anger_management") {}
 
+        enum eSpells
+        {
+            AngerManagement = 152278,
+        };
+
         uint16 m_RageSpend = 0;
 
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen || !p_Player->HasAura(SPELL_WARR_ANGER_MANAGEMENT))
+            if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen)
+                return;
+
+            AuraEffectPtr l_AngerManagementAura = p_Player->GetAuraEffect(eSpells::AngerManagement, EFFECT_0);
+            if (!l_AngerManagementAura)
                 return;
 
             // Get the power earn (if > 0 ) or consum (if < 0)
@@ -1591,7 +1596,7 @@ class spell_warr_anger_management: public PlayerScript
                 return;
 
             m_RageSpend += -l_diffValue / p_Player->GetPowerCoeff(POWER_RAGE);
-            if (m_RageSpend >= sSpellMgr->GetSpellInfo(SPELL_WARR_ANGER_MANAGEMENT)->Effects[EFFECT_0].BasePoints)
+            if (m_RageSpend >= l_AngerManagementAura->GetAmount())
             {
                 for (int l_I = 0; l_I < REDUCED_SPELLS_ID_MAX; l_I++)
                 {
@@ -1677,6 +1682,7 @@ class spell_warr_execute: public SpellScriptLoader
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
                 int32 l_Damage = GetHitDamage();
 
                 /// If damage is 0 we should return script, to prevent double rage consuming
@@ -1702,7 +1708,9 @@ class spell_warr_execute: public SpellScriptLoader
                 if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
                     l_Aura->Remove();
 
-                if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                bool l_ApplyMastery = l_Target != nullptr && l_Target->GetHealthPct() <= 20.0f;
+
+                if (l_ApplyMastery && l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
                     float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
 
@@ -1741,6 +1749,11 @@ class spell_warr_whirlwind: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_whirlwind_SpellScript);
 
+            enum eSpells
+            {
+                GlyphOfTheRagingWhirlwind     = 146968,
+                GlyphOfTheRagingWhirlwindAura = 147297
+            };
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -1756,6 +1769,9 @@ class spell_warr_whirlwind: public SpellScriptLoader
                         l_MeatCleaverAura->RefreshSpellMods();
                     }
                 }
+
+                if (l_Caster->HasAura(eSpells::GlyphOfTheRagingWhirlwind))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfTheRagingWhirlwindAura, true);
             }
 
             void HandleOnHit()
@@ -1833,6 +1849,9 @@ class spell_warr_shield_charge: public SpellScriptLoader
                     return SPELL_FAILED_DONT_REPORT;
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_WARRIOR_PROTECTION)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->GetShapeshiftForm() != FORM_GLADIATORSTANCE)
                     return SPELL_FAILED_DONT_REPORT;
 
                 return SPELL_CAST_OK;
@@ -2591,42 +2610,6 @@ class spell_warr_unyielding_strikes : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Heroic Strike - 78
-class spell_warr_heroic_strike : public SpellScriptLoader
-{
-    public:
-        spell_warr_heroic_strike() : SpellScriptLoader("spell_warr_heroic_strike") { }
-
-        class spell_warr_heroic_strike_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_heroic_strike_SpellScript);
-
-            enum eSpells
-            {
-                UnyieldingStrikesProc = 169686
-            };
-
-            void HandleAfterHit()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(eSpells::UnyieldingStrikesProc))
-                    l_Caster->RemoveAurasDueToSpell(eSpells::UnyieldingStrikesProc);
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_warr_heroic_strike_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_heroic_strike_SpellScript();
-        }
-};
-
-/// last update : 6.1.2 19802
 /// Call by Commanding Shout - 469, Battle Shout - 6673
 /// Glyph of Mystic Shout - 58095, Glyph of Bloodcurdling Shout - 58096
 class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
@@ -2723,11 +2706,63 @@ class spell_warr_glyph_of_crow_feast : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Revenge - 5301
+class spell_warr_revenge : public SpellScriptLoader
+{
+    public:
+        spell_warr_revenge() : SpellScriptLoader("spell_warr_revenge") { }
+
+        class spell_warr_revenge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_revenge_AuraScript);
+
+            enum eSpells
+            {
+                Revenger = 6572
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (!(p_ProcInfos.GetHitMask() & (PROC_EX_PARRY | PROC_EX_DODGE)))
+                    return;
+
+                if (p_ProcInfos.GetDamageInfo() == nullptr || p_ProcInfos.GetDamageInfo()->GetVictim() == nullptr)
+                    return;
+
+                Player* l_Player = p_ProcInfos.GetDamageInfo()->GetVictim()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpellCooldown(eSpells::Revenger))
+                    l_Player->RemoveSpellCooldown(eSpells::Revenger, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_revenge_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_revenge_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_revenge();
     new spell_warr_glyph_of_crow_feast();
     new spell_warr_glyph_of_mystic_shout();
-    new spell_warr_heroic_strike();
     new spell_warr_unyielding_strikes();
     new spell_warr_defensive_stance();
     new spell_warr_glyph_of_shattering_throw();

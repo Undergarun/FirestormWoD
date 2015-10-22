@@ -1937,7 +1937,8 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
 
                 l_Caster->CastSpell(l_Target, eSpells::CascadeMarker2, true);
 
-                l_FirstCaster->CastSpell(l_Target, l_HealingSpell->Id, true);
+                if (l_FirstCaster)
+                    l_FirstCaster->CastSpell(l_Target, l_HealingSpell->Id, true);
 
                 if (l_ActualWave >= l_CascadeSpell->Effects[EFFECT_0].BasePoints)
                     return;
@@ -1954,7 +1955,7 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                     if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
                         return true;
 
-                    if (!l_FirstCaster->IsValidAssistTarget(p_Object->ToUnit()))
+                    if (l_FirstCaster && !l_FirstCaster->IsValidAssistTarget(p_Object->ToUnit()))
                         return true;
 
                     return false;

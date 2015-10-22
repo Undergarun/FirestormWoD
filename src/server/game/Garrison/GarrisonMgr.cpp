@@ -782,18 +782,8 @@ namespace MS { namespace Garrison
 
         for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
         {
-            GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second);
-
-            if (l_Gob)
-            {
-                WorldPacket l_Data(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1);
-                l_Data.appendPackGUID(l_It->second);                    ///< Object GUID
-                l_Data << uint32(1696);                                 ///< Anim Kit ID
-                l_Data.WriteBit(true);                                  ///< Maintain
-                l_Data.FlushBits();
-
-                m_Owner->GetMap()->SendToPlayers(&l_Data);
-            }
+            if (GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second))
+                l_Gob->SendGameObjectActivateAnimKit(1696);
         }
     }
 
@@ -3043,7 +3033,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get work orders
-    std::vector<GarrisonWorkOrder> Manager::GetWorkOrders() const
+    std::vector<GarrisonWorkOrder>& Manager::GetWorkOrders()
     {
         return m_WorkOrders;
     }
@@ -3474,13 +3464,7 @@ namespace MS { namespace Garrison
                     {
                         m_PlotsActivateGob[p_PlotInstanceID] = l_ActivationGob->GetGUID();
 
-                        WorldPacket l_Data(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1);
-                        l_Data.appendPackGUID(l_ActivationGob->GetGUID());      ///< Object GUID
-                        l_Data << uint32(1696);                                 ///< Anim Kit ID
-                        l_Data.WriteBit(true);                                  ///< Maintain
-                        l_Data.FlushBits();
-
-                        m_Owner->GetMap()->SendToPlayers(&l_Data);
+                        l_ActivationGob->SendGameObjectActivateAnimKit(1696);
                     }
                 }
             }

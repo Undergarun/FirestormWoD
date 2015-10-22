@@ -4429,6 +4429,26 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
+/// Remove Rigor Mortis - 73523 on Fresh Out Of The Grave quest acceptation (24959)
+class PlayerScript_gen_remove_rigor_mortis : public PlayerScript
+{
+    public:
+        PlayerScript_gen_remove_rigor_mortis() :PlayerScript("PlayerScript_gen_remove_rigor_mortis") {}
+
+        enum Constants
+        {
+            QUEST_FRESH_OUT_OF_THE_GRAVE = 24959,
+            SPELL_RIGOR_MORTIS = 73523
+        };
+
+        void OnQuestAccept(Player* p_Player, Quest const* p_Quest) override
+        {
+            if (p_Quest->GetQuestId() == Constants::QUEST_FRESH_OUT_OF_THE_GRAVE)
+                p_Player->RemoveAura(Constants::SPELL_RIGOR_MORTIS);
+        }
+};
+
+/// last update : 6.1.2 19802
 /// Savage Fortitude - 181706
 class spell_gen_savage_fortitude : public SpellScriptLoader
 {
@@ -4581,5 +4601,6 @@ void AddSC_generic_spell_scripts()
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
+    new PlayerScript_gen_remove_rigor_mortis();
     new Resolve::PlayerScript_Resolve();
 }

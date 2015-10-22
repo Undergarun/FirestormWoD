@@ -3511,6 +3511,7 @@ class Player : public Unit, public GridObject<Player>
         ChargeStorageType m_CategoryCharges;
 
         void SendSpellCharges();
+        void SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void UpdateCharges();
         bool ConsumeCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntry, uint64 p_Reductiontime);

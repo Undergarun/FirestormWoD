@@ -89,8 +89,6 @@ enum DeathKnightSpells
     DK_WOD_PVP_FROST_4P_BONUS_EFFECT            = 166057
 };
 
-uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
-
 /// Glyph of Death and Decay - 58629
 /// Call By Death and Decay 43265 & Defile 152280 (hot fix 6.0.3)
 class spell_dk_glyph_of_death_and_decay: public SpellScriptLoader
@@ -167,12 +165,26 @@ class spell_dk_plague_strike: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_plague_strike_SpellScript);
 
+            enum eSpells
+            {
+                chilblains = 50041,
+                chilblainsAura = 50435
+            };
+
             void HandleDamage(SpellEffIndex effIndex)
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(DK_SPELL_EBON_PLAGUEBRINGER))
                 {
-                    if (caster->HasAura(DK_SPELL_EBON_PLAGUEBRINGER) && GetHitUnit())
-                        caster->CastSpell(GetHitUnit(), DK_SPELL_FROST_FEVER, true);
+                    l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
+
+                    if (l_Caster->HasAura(eSpells::chilblains))
+                        l_Caster->CastSpell(l_Target, eSpells::chilblainsAura, true);
                 }
             }
 
@@ -445,6 +457,12 @@ class spell_dk_howling_blast: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_howling_blast_SpellScript);
 
+            enum eSpells
+            {
+                chilblains = 50041,
+                chilblainsAura = 50435
+            };
+
             uint64 m_TargetGUID = 0;
             bool m_HasAuraFrog = false;
 
@@ -474,6 +492,9 @@ class spell_dk_howling_blast: public SpellScriptLoader
                     SetHitDamage(GetHitDamage()/2);
 
                 l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
+
+                if (l_Caster->HasAura(eSpells::chilblains))
+                    l_Caster->CastSpell(l_Target, eSpells::chilblainsAura, true);
 
                 /// When you have Freezing Fog active, your next Howling Blast will increase Frost damage taken on all targets by 10% for 8 sec.
                 if (m_HasAuraFrog && l_Caster->HasAura(DK_WOD_PVP_FROST_4P_BONUS))
@@ -1065,16 +1086,25 @@ class spell_dk_unholy_blight: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_unholy_blight_SpellScript);
 
+            enum eSpells
+            {
+                chilblains = 50041,
+                chilblainsAura = 50435
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->CastSpell(target, DK_SPELL_BLOOD_PLAGUE, true);
-                        _player->CastSpell(target, DK_SPELL_FROST_FEVER, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
+                l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
+
+                if (l_Caster->HasAura(eSpells::chilblains))
+                    l_Caster->CastSpell(l_Target, eSpells::chilblainsAura, true);
             }
 
             void Register()
@@ -1089,7 +1119,7 @@ class spell_dk_unholy_blight: public SpellScriptLoader
         }
 };
 
-// Outbreak - 77575
+/// Outbreak - 77575
 class spell_dk_outbreak: public SpellScriptLoader
 {
     public:
@@ -1099,16 +1129,25 @@ class spell_dk_outbreak: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_outbreak_SpellScript);
 
+            enum eSpells
+            {
+                chilbrains = 50041,
+                chilbrainsAura = 50435
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->CastSpell(target, DK_SPELL_BLOOD_PLAGUE, true);
-                        _player->CastSpell(target, DK_SPELL_FROST_FEVER, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
+                l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
+
+                if (l_Caster->HasAura(eSpells::chilbrains))
+                    l_Caster->CastSpell(l_Target, eSpells::chilbrainsAura, true);
             }
 
             void Register()
@@ -1716,7 +1755,7 @@ class spell_dk_glyph_of_horn_of_winter: public SpellScriptLoader
         }
 };
 
-// Icy touch 45477
+/// Icy touch - 45477
 class spell_dk_icy_touch: public SpellScriptLoader
 {
     public:
@@ -1725,6 +1764,12 @@ class spell_dk_icy_touch: public SpellScriptLoader
         class spell_dk_icy_touch_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dk_icy_touch_SpellScript);
+
+            enum eSpells
+            {
+                chilblains = 50041,
+                chilblainsAura = 50435
+            };
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1735,6 +1780,9 @@ class spell_dk_icy_touch: public SpellScriptLoader
                     return;
 
                 GetCaster()->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
+
+                if (l_Caster->HasAura(eSpells::chilblains))
+                    l_Caster->CastSpell(l_Target, eSpells::chilblainsAura, true);
             }
 
             void Register()
@@ -1840,8 +1888,8 @@ class spell_dk_empowered_obliterate_howling_blast : public SpellScriptLoader
         }
 };
 
-// Plaguebearer - 161497
-// Called by Death Coil 47541 & Frost Strike 49143
+/// Plaguebearer - 161497
+/// Called by Death Coil 47541 & Frost Strike 49143
 class spell_dk_plaguebearer: public SpellScriptLoader
 {
     public:
@@ -1853,28 +1901,36 @@ class spell_dk_plaguebearer: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Player = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (!l_Player->HasAura(DK_SPELL_PLAGUEBEARER))
+                    if (!l_Caster->HasAura(DK_SPELL_PLAGUEBEARER))
                         return;
 
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (AuraPtr l_auraBloodPlague = GetHitUnit()->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Player->GetGUID()))
-                            l_auraBloodPlague->SetDuration(l_auraBloodPlague->GetDuration() + 4000);
+                        if (AuraPtr l_BloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
+                            l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);
 
-                        if (AuraPtr l_AuraFrostFever = GetHitUnit()->GetAura(DK_SPELL_FROST_FEVER, l_Player->GetGUID()))
-                            l_AuraFrostFever->SetDuration(l_AuraFrostFever->GetDuration() + 4000);
+                        if (AuraPtr l_FrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
+                            l_FrostFever->SetDuration(l_FrostFever->GetDuration() + 4000);
 
-                        if (l_Player->HasAura(DK_SPELL_NECROTIC_PLAGUE))
-                            l_Player->CastSpell(l_Target, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA);
+                        if (l_Caster->HasAura(DK_SPELL_NECROTIC_PLAGUE))
+                            l_Caster->CastSpell(l_Target, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA);
                     }
                 }
             }
 
+            void HandleDamage(SpellEffIndex p_EffIndex)
+            {
+                HandleOnHit();
+            }
+
             void Register()
             {
-                OnHit += SpellHitFn(spell_dk_plaguebearer_SpellScript::HandleOnHit);
+                if (m_scriptSpellId == DK_SPELL_DEATH_COIL)
+                    OnHit += SpellHitFn(spell_dk_plaguebearer_SpellScript::HandleOnHit);
+                else ///< Necessary for Frost Strike, because it has two effects
+                    OnEffectHitTarget += SpellEffectFn(spell_dk_plaguebearer_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
@@ -1901,7 +1957,7 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 NecroticPlagueEnergize = 155165
             };
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -1909,7 +1965,7 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
-                if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
+                if (AuraPtr l_AuraNecroticPlague = p_AurEff->GetBase())
                     l_AuraNecroticPlague->ModStackAmount(1);
 
                 std::list<Unit*> l_TargetList;
@@ -2109,9 +2165,11 @@ class spell_dk_chain_of_ice: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_chain_of_ice_SpellScript);
 
-            enum eSpell
+            enum eSpells
             {
                 ChainOfIceRoot = 96294,
+                chilblains = 50041,
+                chilblainsAura = 50435
             };
 
             void HandleOnHit()
@@ -2122,8 +2180,11 @@ class spell_dk_chain_of_ice: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
+                if (l_Caster->HasAura(eSpells::chilblains))
+                    l_Caster->CastSpell(l_Target, eSpells::chilblainsAura, true);
+
                 if (l_Caster->HasAura(DK_SPELL_CHILBLAINS))
-                    l_Caster->CastSpell(l_Target, eSpell::ChainOfIceRoot, true);
+                    l_Caster->CastSpell(l_Target, eSpells::ChainOfIceRoot, true);
             }
 
             void Register()
@@ -2880,50 +2941,8 @@ class spell_dk_presences : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
-/// Frost Fever - 55095
-class spell_dk_frost_fever : public SpellScriptLoader
-{
-    public:
-        spell_dk_frost_fever() : SpellScriptLoader("spell_dk_frost_fever") { }
-
-        class spell_dk_frost_fever_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_frost_fever_SpellScript);
-            
-            enum eSpells
-            {
-                chilbrains = 50041,
-                chilbrainsAura = 50435
-            };
-
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-
-                if (l_Target == nullptr)
-                    return;
-
-                if (l_Caster->HasAura(eSpells::chilbrains))
-                    l_Caster->CastSpell(l_Target, eSpells::chilbrainsAura, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_frost_fever_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_frost_fever_SpellScript();
-        }
-};
-
 void AddSC_deathknight_spell_scripts()
 {
-    new spell_dk_frost_fever();
     new spell_dk_death_coil();
     new spell_dk_empowered_obliterate_icy_touch();
     new spell_dk_empowered_obliterate_howling_blast();
@@ -2966,7 +2985,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_runic_corruption();
     new spell_dk_death_pact();
     new spell_dk_chain_of_ice();
-    new spell_dk_frost_fever();
     new spell_dk_chilblains_aura();
     new spell_dk_reaping();
     new spell_dk_mark_of_sindragosa();

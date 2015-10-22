@@ -2541,3 +2541,17 @@ void GameObject::SendTransportToOutOfRangePlayers() const
             itr->getSource()->GetSession()->SendPacket(&pkt);
     }
 }
+
+void GameObject::SendGameObjectActivateAnimKit(uint32 p_AnimKitID, bool p_Maintain /*= true*/, Player* p_Target /*= nullptr*/)
+{
+    WorldPacket l_Data(Opcodes::SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint32(p_AnimKitID);
+    l_Data.WriteBit(p_Maintain);
+    l_Data.FlushBits();
+
+    if (p_Target != nullptr)
+        p_Target->GetSession()->SendPacket(&l_Data);
+    else
+        GetMap()->SendToPlayers(&l_Data);
+}

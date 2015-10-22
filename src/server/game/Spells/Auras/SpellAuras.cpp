@@ -713,49 +713,53 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp
     }
 }
 
-void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp)
+void Aura::_UnapplyForTarget(Unit* p_Target, Unit* p_Caster, AuraApplication * p_AuraApp)
 {
     /*ASSERT(target);
     ASSERT(auraApp->GetRemoveMode());
     ASSERT(auraApp);*/
 
-    if (!target)
+    if (!p_Target)
         sLog->outAshran("Aura::_UnapplyForTarget no target[%u]", GetId());
 
-    if (!auraApp)
+    if (!p_AuraApp)
         sLog->outAshran("Aura::_UnapplyForTarget no aura app[%u]", GetId());
 
-    if (!auraApp->GetRemoveMode())
+    if (!p_AuraApp->GetRemoveMode())
         sLog->outAshran("Aura::_UnapplyForTarget no aura app remove mode[%u]", GetId());
 
-    ApplicationMap::iterator itr = m_applications.find(target->GetGUID());
+    ApplicationMap::iterator l_Itr = m_applications.find(p_Target->GetGUID());
 
     // TODO: Figure out why this happens
-    if (itr == m_applications.end())
+    if (l_Itr == m_applications.end())
     {
         sLog->outAshran("Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
-        target->GetGUIDLow(), caster ? caster->GetGUIDLow() : 0, auraApp->GetBase()->GetSpellInfo()->Id);
+        p_Target->GetGUIDLow(), p_Caster ? p_Caster->GetGUIDLow() : 0, p_AuraApp->GetBase()->GetSpellInfo()->Id);
         ASSERT(false);
     }
 
     // aura has to be already applied
 
 
-    if (itr->second != auraApp)
+    if (l_Itr->second != p_AuraApp)
         sLog->outAshran("Aura::_UnapplyForTarget itr->second != auraApp [%u]", GetId());
 
-    ASSERT(itr->second == auraApp);
-    m_applications.erase(itr);
+    ASSERT(l_Itr->second == p_AuraApp);
+    m_applications.erase(l_Itr);
 
-    m_removedApplications.push_back(auraApp);
+    m_removedApplications.push_back(p_AuraApp);
 
     // reset cooldown state for spells
-    if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+    if (p_Caster && p_Caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (m_spellInfo->IsCooldownStartedOnEvent() && auraApp->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT &&
-            !(GetSpellInfo()->Id == 34477 && caster->HasAura(56829) && (caster->GetPetGUID() == target->GetGUID())))
-            // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
-            caster->ToPlayer()->SendCooldownEvent(GetSpellInfo());
+        bool l_MisdirectionGlyph = (GetSpellInfo()->Id == 34477 && p_Caster->HasAura(56829) && (p_Caster->GetPetGUID() == p_Target->GetGUID()));
+
+        Item* l_CastItem = m_castItemGuid ? p_Caster->ToPlayer()->GetItemByGuid(m_castItemGuid) : NULL;
+
+        if (m_spellInfo->IsCooldownStartedOnEvent() 									///< IsCooldownEvent spell
+            && !(l_CastItem && (l_CastItem->IsHealthstone() || l_CastItem->IsPotion())) ///< Healhstones and potions should have they cooldown handled in UpdatePotionCooldown
+            && !l_MisdirectionGlyph)                									///< Glyph of Misdirection (hunter)
+            p_Caster->ToPlayer()->SendCooldownEvent(GetSpellInfo());
     }
 }
 
