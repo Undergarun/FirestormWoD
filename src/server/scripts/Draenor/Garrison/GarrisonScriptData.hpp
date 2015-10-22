@@ -175,7 +175,10 @@ namespace MS { namespace Garrison
         ItemNagrandArrowbloom                   = 109128,
         ItemStarflower                          = 109127,
         ItemGorgrondFlytrap                     = 109126,
-        ItemFrostWeed                           = 109124
+        ItemFrostWeed                           = 109124,
+        ItemBagOfSalvagedGoods                  = 114116,
+        ItemCrateOfSalvage                      = 114119,
+        ItemBigCrateOfSalvage                   = 114120
     };
 
     /// Waypoints

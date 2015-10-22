@@ -3408,6 +3408,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
+            case 168178: ///< Salvage (garrison loot spell)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
+                break;
             case 167650: ///< Loose Quills (Rukhmar)
             case 167630: ///< Blaze of Glory (Rukhmar)
                 spellInfo->Effects[EFFECT_0].SetRadiusIndex(EFFECT_RADIUS_5_YARDS); ///< 5yd
