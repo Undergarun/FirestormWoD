@@ -24296,7 +24296,7 @@ void Player::Say(std::string const& p_Text, uint32 const p_LangID)
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, p_LangID, l_Text);
 
     std::list<Player*> l_PlayerList;
-    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 
     for (Player* l_Target : l_PlayerList)
     {
@@ -24315,7 +24315,7 @@ void Player::Yell(std::string const& p_Text, uint32 const p_LangID)
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, p_LangID, l_Text);
 
     std::list<Player*> l_PlayerList;
-    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
 
     for (Player* l_Target : l_PlayerList)
     {
@@ -24334,7 +24334,7 @@ void Player::TextEmote(std::string const& p_Text)
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, l_Text);
 
     std::list<Player*> l_PlayerList;
-    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true);
 
     for (Player* l_Target : l_PlayerList)
     {

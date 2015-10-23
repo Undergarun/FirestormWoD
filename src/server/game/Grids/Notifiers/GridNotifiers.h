@@ -1504,7 +1504,7 @@ namespace JadeCore
     class AnyPlayerInObjectRangeCheck
     {
         public:
-            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true) : _obj(obj), _range(range), _reqAlive(reqAlive) {}
+            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true, bool p_Self = false) : _obj(obj), _range(range), _reqAlive(reqAlive), m_Self(p_Self) { }
             bool operator()(Player* u)
             {
                 if (_reqAlive && !u->isAlive())
@@ -1513,8 +1513,8 @@ namespace JadeCore
                 if (!_obj->IsWithinDistInMap(u, _range))
                     return false;
 
-                /// Don't add self
-                if (_obj->GetGUID() == u->GetGUID())
+                /// Don't add self, only for players
+                if (!m_Self && _obj->GetTypeId() == TypeID::TYPEID_PLAYER && _obj->GetGUID() == u->GetGUID())
                     return false;
 
                 return true;
@@ -1524,6 +1524,7 @@ namespace JadeCore
             WorldObject const* _obj;
             float _range;
             bool _reqAlive;
+            bool m_Self;
     };
 
     class NearestPlayerInObjectRangeCheck
