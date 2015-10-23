@@ -618,7 +618,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
                     l_Data << uint32(l_It->WorldEffectID);        ///< World Effect ID
                     l_Data << uint32(l_It->PlayerConditionID);    ///< Player Condition ID
                     l_Data << uint32(l_It->Points.size());        ///< Num Points
-                    l_Data << uint32(l_It->Unk);                  ///< Unk
+                    //l_Data << uint32(l_It->Unk);                  ///< Unk
 
                     l_Data << uint32(l_It->Points.size());
 
