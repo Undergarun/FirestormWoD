@@ -770,6 +770,16 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                     ROLLBACK(DUMP_FILE_BROKEN);
                 }
 
+                l_Index = GetFieldIndexFromColumn("petslotused", l_Columns) + 1;        ///< characters.petslotused
+                if (getnth(l_Line, l_Index).c_str() == "")
+                {
+                    if (!changenth(l_Line, l_Index, "0"))
+                    {
+                        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [characters.petslotused]");
+                        ROLLBACK(DUMP_FILE_BROKEN);
+                    }
+                }
+
                 break;
             }
             case DTT_CHAR_TABLE:
@@ -1127,7 +1137,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             default:
                 //sLog->outError("Unknown dump table type: %u", type);
                 {
-                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [36]");
+                    sLog->outSlack(true, "Transfer to realm [%u] on account [%u] failed. Reason: Unknow table", g_RealmID, p_Account);
                     ROLLBACK(DUMP_FILE_BROKEN);
                 }
                 break;
@@ -1148,7 +1158,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
     if (!CharacterDatabase.DirectCommitTransaction(l_CharTransaction))
     {
-        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [37]");
+        sLog->outSlack(true, "Transfer to realm [%u] on account [%u] failed. Reason: Character transaction fail", g_RealmID, p_Account);
         return DUMP_FILE_BROKEN;
     }
 
