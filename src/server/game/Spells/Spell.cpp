@@ -7373,6 +7373,22 @@ SpellCastResult Spell::CheckPower()
         }
     }
 
+    switch (m_spellInfo->Id)
+    {
+        case 53385:  ///< Divine Storm
+        {
+            if (m_powerCost[POWER_HOLY_POWER] != 0 && m_caster->HasAura(144595))
+            {
+                m_powerCost[POWER_HOLY_POWER] = 0;
+                m_caster->RemoveAuraFromStack(144595);
+            }
+
+            break;
+        }
+        default:
+            break;
+    }
+
     // Check power amount
     for (auto itr : m_spellInfo->SpellPowers)
     {

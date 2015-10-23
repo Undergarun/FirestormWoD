@@ -6908,6 +6908,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (procEx & (PROC_EX_INTERNAL_DOT | PROC_EX_INTERNAL_MULTISTRIKE))
                         return false;
 
+                    /// Prevent proc on victim fire mage
+                    if (procFlag & PROC_FLAG_TAKEN_DAMAGE)
+                        return false;
+
                     if (procEx & PROC_EX_CRITICAL_HIT)
                     {
                         if (!HasAura(48107))
@@ -14820,6 +14824,10 @@ void Unit::setDeathState(DeathState s)
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
 
     m_deathState = s;
+
+    /// Remove pvp bonuses from items, if we have it
+    if (s == JUST_DIED && ToPlayer())
+        ToPlayer()->RescaleAllItemsIfNeeded(true);
 }
 
 /*########################################
