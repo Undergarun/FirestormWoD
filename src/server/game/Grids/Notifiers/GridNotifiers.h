@@ -1504,7 +1504,7 @@ namespace JadeCore
     class AnyPlayerInObjectRangeCheck
     {
         public:
-            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true) : _obj(obj), _range(range), _reqAlive(reqAlive) {}
+            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true, bool p_Self = false) : _obj(obj), _range(range), _reqAlive(reqAlive), m_Self(p_Self) { }
             bool operator()(Player* u)
             {
                 if (_reqAlive && !u->isAlive())
@@ -1524,6 +1524,7 @@ namespace JadeCore
             WorldObject const* _obj;
             float _range;
             bool _reqAlive;
+            bool m_Self;
     };
 
     class NearestPlayerInObjectRangeCheck

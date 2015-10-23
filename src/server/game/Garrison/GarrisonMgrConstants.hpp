@@ -281,6 +281,9 @@ namespace MS { namespace Garrison
             Barn__Barn_Level1                           = 24,
             Barn__Barn_Level2                           = 25,
             Barn__Barn_Level3                           = 133,
+            SalvageYard_SalvageYard_Level1              = 52,
+            SalvageYard_SalvageYard_Level2              = 140,
+            SalvageYard_SalvageYard_Level3              = 141
         };
     }
 

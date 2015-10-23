@@ -1,4 +1,5 @@
 #include "GarrisonMgr.hpp"
+#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "Player.h"
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
@@ -1435,6 +1436,77 @@ namespace MS { namespace Garrison
 
                 if (l_RewardEntry->PlayerRewardXP)
                     m_PendingMissionReward.RewardFollowerXP += l_RewardEntry->PlayerRewardXP;
+            }
+
+            switch (l_MissionTemplate->RequiredLevel)
+            {
+                case 90:
+                case 91:
+                case 92:
+                case 93:
+                case 94:
+                {
+                    if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level1))
+                    {
+                        if (roll_chance_i(30))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level2))
+                    {
+                        if (roll_chance_i(50))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level3))
+                    {
+                        if (roll_chance_i(75))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
+                    }
+                    break;
+                }
+                case 95:
+                case 96:
+                case 97:
+                case 98:
+                case 99:
+                {
+                    if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level1))
+                    {
+                        if (roll_chance_i(50))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level2))
+                    {
+                        if (roll_chance_i(30))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemCrateOfSalvage, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level3))
+                    {
+                        if (roll_chance_i(50))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemCrateOfSalvage, 1));
+                    }
+                    break;
+                }
+                case 100:
+                {
+                    if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level1))
+                    {
+                        if (roll_chance_i(75))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level2))
+                    {
+                        if (roll_chance_i(50))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemCrateOfSalvage, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level3))
+                    {
+                        if (roll_chance_i(50))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBigCrateOfSalvage, 1));
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
 
             /// @TODO fix this

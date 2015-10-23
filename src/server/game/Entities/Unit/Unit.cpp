@@ -13677,7 +13677,6 @@ void Unit::SendMountResult(MountResult p_Error)
 
 void Unit::SetInCombatWith(Unit* enemy)
 {
-    m_attacking = enemy;
     Unit* eOwner = enemy->GetCharmerOrOwnerOrSelf();
     if (eOwner->IsPvP())
     {
