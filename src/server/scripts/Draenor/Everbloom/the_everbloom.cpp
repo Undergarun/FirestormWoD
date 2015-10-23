@@ -127,7 +127,7 @@ public:
                 events.ScheduleEvent(eEverbloomEvents::EventDancingThorns, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
                 break;
             case eEverbloomEvents::EventEnragedGrowth:
-                if (Creature* l_Petal = me->FindNearestCreature(eEverbloomCreature::CreatureDreadpetalToxin, 20.0f, true))
+                if (Creature* l_Petal = me->FindNearestCreature(eEverbloomCreatures::CreatureDreadpetalToxin, 20.0f, true))
                     me->CastSpell(l_Petal, eEverbloomSpells::SpellEnragedGrowth);
 
                 events.ScheduleEvent(eEverbloomEvents::EventEnragedGrowth, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
@@ -517,7 +517,7 @@ public:
                         Position l_Pos;
                         me->GetRandomNearPosition(l_Pos, 20.0f);
 
-                        me->SummonCreature(eEverbloomCreature::TriggerFrozenSnap, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4 * TimeConstants::IN_MILLISECONDS);
+                        me->SummonCreature(eEverbloomCreatures::TriggerFrozenSnap, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4 * TimeConstants::IN_MILLISECONDS);
                         events.ScheduleEvent(eEverbloomEvents::EventFrozenSnap, urand(10 * TimeConstants::IN_MILLISECONDS, 13 * TimeConstants::IN_MILLISECONDS));
                     }
                     break;
@@ -790,7 +790,7 @@ public:
                     Position l_Pos;
                     l_Caster->GetRandomNearPosition(l_Pos, 15.0f);
 
-                    l_Caster->SummonCreature(eEverbloomCreature::TriggerLivingLeaves, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
+                    l_Caster->SummonCreature(eEverbloomCreatures::TriggerLivingLeaves, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
                 }
             }
         }
