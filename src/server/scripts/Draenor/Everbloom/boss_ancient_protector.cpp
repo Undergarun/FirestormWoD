@@ -84,7 +84,7 @@ enum eAncientProtectorsTalks
 #define HostileFaction 16
 #define FriendlyFaction 35
 
-static void StartAncientProtectors(InstanceScript* p_Instance, Creature* me, Unit* /*p_Target*/)
+static void StartAncientProtectors(InstanceScript* p_Instance)
 {
     if (p_Instance == nullptr)
         return;
@@ -166,7 +166,7 @@ static bool WiningCondition(InstanceScript* p_Instance, Creature* p_Me)
 class MostCreatureHPMissingInRange
 {
     public:
-        MostCreatureHPMissingInRange(Unit const* p_Obj, float p_Range, uint32 p_HP) : m_Obj(p_Obj), m_Range(p_Range), m_HP(p_HP) {}
+        MostCreatureHPMissingInRange(Unit const* p_Obj, float p_Range, uint32 p_HP) : m_Obj(p_Obj), m_Range(p_Range), m_HP(p_HP) { }
         bool operator()(Unit* p_Unit)
         {
             if (p_Unit->isAlive() && p_Unit->isInCombat() && !m_Obj->IsHostileTo(p_Unit) && m_Obj->IsWithinDistInMap(p_Unit, m_Range) && p_Unit->GetMaxHealth() - p_Unit->GetHealth() > m_HP && p_Unit->GetTypeId() != TYPEID_PLAYER)
@@ -223,7 +223,7 @@ class boss_life_warden : public CreatureScript
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
 
-                    StartAncientProtectors(m_Instance, me, p_Who);
+                    StartAncientProtectors(m_Instance);
                 }
       
                 events.ScheduleEvent(eAncientProtectorsEvents::EventRapidTides, 30 * TimeConstants::IN_MILLISECONDS);
@@ -388,7 +388,7 @@ class boss_earthshaper_telu : public CreatureScript
                 {
                     instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
 
-                    StartAncientProtectors(m_Instance, me, p_Who);
+                    StartAncientProtectors(m_Instance);
                 }
             }
 
@@ -550,7 +550,7 @@ class boss_dulhu : public CreatureScript
                 {
                     instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
 
-                    StartAncientProtectors(m_Instance, me, p_Who);
+                    StartAncientProtectors(m_Instance);
                 }
 
                 events.ScheduleEvent(eAncientProtectorsEvents::EventNoxiusEruption, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
