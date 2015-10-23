@@ -616,7 +616,7 @@ void Log::outSlack(bool p_Error, const char* p_Message, ...)
     std::string l_SlackAppName = m_SlackAppName;
     std::string l_Message      = l_Result;
 
-    std::async(std::launch::async, [l_Message, p_Error, l_SlackApiUrl, l_SlackAppName]
+    std::thread([l_Message, p_Error, l_SlackApiUrl, l_SlackAppName]
     {
         CURL* l_Curl = curl_easy_init();
         if (l_Curl)
@@ -638,5 +638,5 @@ void Log::outSlack(bool p_Error, const char* p_Message, ...)
 
             curl_easy_cleanup(l_Curl);
         }
-    });
+    }).detach();
 }
