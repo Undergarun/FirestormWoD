@@ -1513,10 +1513,6 @@ namespace JadeCore
                 if (!_obj->IsWithinDistInMap(u, _range))
                     return false;
 
-                /// Don't add self, only for players
-                if (!m_Self && _obj->GetTypeId() == TypeID::TYPEID_PLAYER && _obj->GetGUID() == u->GetGUID())
-                    return false;
-
                 return true;
             }
 
