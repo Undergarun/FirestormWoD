@@ -1666,7 +1666,7 @@ class Unit : public WorldObject
         void ClearComboPoints();
 
         PowerTypeSet GetUsablePowers() const;
-        uint32 GetPowerIndexByClass(uint32 powerId, uint32 classId) const;
+        uint32 GetPowerIndex(uint32 powerId, uint32 classId) const;
 
         uint32 GetAttackTime(WeaponAttackType att) const
         {

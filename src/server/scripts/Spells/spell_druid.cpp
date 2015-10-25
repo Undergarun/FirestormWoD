@@ -2228,7 +2228,7 @@ class spell_dru_eclipse : public PlayerScript
             uint64 l_ActualTime = 0;
             ACE_OS::gettimeofday().msec(l_ActualTime);
 
-            uint32 l_PowerIndex = p_Player->GetPowerIndexByClass(Powers::POWER_ECLIPSE, p_Player->getClass());
+            uint32 l_PowerIndex = p_Player->GetPowerIndex(Powers::POWER_ECLIPSE, p_Player->getClass());
             if (l_PowerIndex == MAX_POWERS)
                 return;
 

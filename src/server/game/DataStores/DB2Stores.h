@@ -175,6 +175,8 @@ extern DB2Storage <TransportAnimationEntry>      sTransportAnimationStore;
 extern DB2Storage <TransportRotationEntry>       sTransportRotationStore;
 extern DB2Storage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 
+extern uint8 GetPowerIndexByClass(uint8 p_Class, uint8 p_Power);
+
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
 

@@ -1024,7 +1024,7 @@ void Player::UpdateEnergyRegen()
     if (getPowerType() != Powers::POWER_ENERGY)
         return;
 
-    uint32 l_PowerIndex = GetPowerIndexByClass(Powers::POWER_ENERGY, getClass());
+    uint32 l_PowerIndex = GetPowerIndex(Powers::POWER_ENERGY, getClass());
 
     float l_RegenFlatMultiplier = 1.0f;
     Unit::AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);

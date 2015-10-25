@@ -11946,7 +11946,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask p_SchoolMask) const
         // Base value
         l_DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
-        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+        if (GetPowerIndex(POWER_MANA, getClass()) != MAX_POWERS)
             l_DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));
 
         // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
@@ -12886,7 +12886,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
     // Healing bonus of spirit, intellect and strength
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+        if (GetPowerIndex(POWER_MANA, getClass()) != MAX_POWERS)
             AdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));
 
         // Base value
@@ -15819,51 +15819,29 @@ Unit::PowerTypeSet Unit::GetUsablePowers() const
     return l_Powers;
 }
 
-uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
+uint32 Unit::GetPowerIndex(uint32 powerId, uint32 classId) const
 {
-    uint32 l_PowerIndex = 0;
 
     // See CGUnit_C::GetPowerSlot
     if (GetTypeId() != TYPEID_PLAYER)
     {
         Powers l_DisplayPower = getPowerType();
         if (l_DisplayPower == (Powers)powerId)
-            l_PowerIndex = 0;
+            return 0;
         else if (powerId == Powers::POWER_ALTERNATE_POWER)
-            l_PowerIndex = 1;
+            return 1;
         else if (powerId == Powers::POWER_COMBO_POINT)
-            l_PowerIndex = 2;
+            return 2;
         else
-            l_PowerIndex = Powers::MAX_POWERS;
-
-        return l_PowerIndex;
+            return Powers::MAX_POWERS;
     }
 
-    ChrClassesEntry const* l_ClassEntry = sChrClassesStore.LookupEntry(classId);
-
-    ASSERT(l_ClassEntry && "Class not found");
-    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
-    {
-        ChrPowerTypesEntry const* l_PowerEntry = sChrPowerTypesStore.LookupEntry(l_I);
-        if (!l_PowerEntry)
-            continue;
-
-        if (l_PowerEntry->classId != classId)
-            continue;
-
-        if (l_PowerEntry->power == powerId)
-            return l_PowerIndex;
-
-        ++l_PowerIndex;
-    }
-
-    // return invalid value - this class doesn't use this power
-    return MAX_POWERS;
+    return GetPowerIndexByClass(classId, powerId);
 };
 
 int32 Unit::GetPower(Powers p_Power) const
 {
-    uint32 l_PowerIndex = GetPowerIndexByClass(p_Power, getClass());
+    uint32 l_PowerIndex = GetPowerIndex(p_Power, getClass());
     if (l_PowerIndex == MAX_POWERS)
         return 0;
 
@@ -15872,7 +15850,7 @@ int32 Unit::GetPower(Powers p_Power) const
 
 int32 Unit::GetMaxPower(Powers power) const
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power, getClass());
     if (powerIndex == MAX_POWERS)
         return 0;
 
@@ -15915,7 +15893,7 @@ namespace EclipsePower
 
 void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 {
-    uint32 l_PowerIndex = GetPowerIndexByClass(p_PowerType, getClass());
+    uint32 l_PowerIndex = GetPowerIndex(p_PowerType, getClass());
 
     if (l_PowerIndex == MAX_POWERS)
         return;
@@ -16002,7 +15980,7 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
 void Unit::SetMaxPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
 

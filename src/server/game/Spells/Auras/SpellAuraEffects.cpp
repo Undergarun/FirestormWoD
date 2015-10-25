@@ -5085,7 +5085,7 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
                 l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
             }
 
-            uint32 l_PowerIndex = l_Player->GetPowerIndexByClass(GetMiscValue(), l_Player->getClass());
+            uint32 l_PowerIndex = l_Player->GetPowerIndex(GetMiscValue(), l_Player->getClass());
             if (l_PowerIndex != MAX_POWERS)
             {
                 /// HACKFIX
@@ -8462,7 +8462,7 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* p_AurApp, ui
     if (!l_Player)
         return;
 
-    if (l_Player->GetPowerIndexByClass(POWER_MANA, l_Player->getClass()) == MAX_POWERS)
+    if (l_Player->GetPowerIndex(POWER_MANA, l_Player->getClass()) == MAX_POWERS)
         return;
 
     float l_Mod   = 1.f;

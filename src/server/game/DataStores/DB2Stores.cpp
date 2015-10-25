@@ -178,6 +178,7 @@ DB2Storage <TransportAnimationEntry>      sTransportAnimationStore(TransportAnim
 DB2Storage <TransportRotationEntry>       sTransportRotationStore(TransportRotationfmt);
 DB2Storage <WorldMapOverlayEntry>         sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 
+std::vector<std::vector<uint8> >         sPowersByClassStore;
 NameGenVectorArraysMap                   sGenNameVectoArraysMap;
 
 // DBC used only for initialization sTaxiPathNodeStore at startup.
@@ -442,6 +443,20 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files,  sWorldMapOverlayStore,        db2Path, "WorldMapOverlay.db2");                                              // 17399
     LoadDB2(bad_db2_files,  sMailTemplateStore,           db2Path, "MailTemplate.db2");                                                 // 17399
     LoadDB2(bad_db2_files,  sSpecializationSpellStore,    db2Path, "SpecializationSpells.db2");                                         // 17399
+
+    sPowersByClassStore.resize(MAX_CLASSES);
+
+    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
+    {
+        ChrPowerTypesEntry const* l_PowerEntry = sChrPowerTypesStore.LookupEntry(l_I);
+        if (!l_PowerEntry)
+            continue;
+
+        sPowersByClassStore[l_PowerEntry->classId].push_back(l_PowerEntry->power);
+    }
+
+    for (int l_Class = 0; l_Class < MAX_CLASSES; ++l_Class)
+        std::sort(sPowersByClassStore[l_Class].begin(), sPowersByClassStore[l_Class].end());
 
     std::set<ResearchSiteEntry const*> sResearchSiteSet;
     std::set<ResearchProjectEntry const*> sResearchProjectSet;
@@ -890,4 +905,19 @@ std::vector<uint32> GetAreasForGroup(uint32 areaGroupId)
            return itr->second;
     
     return std::vector<uint32>();
+}
+
+uint8 GetPowerIndexByClass(uint8 p_Class, uint8 p_Power)
+{
+    if (p_Class >= MAX_CLASSES)
+        return Powers::MAX_POWERS;
+
+    auto const& l_List = sPowersByClassStore[p_Class];
+    for (int l_I = 0; l_I < l_List.size(); ++l_I)
+    {
+        if (l_List[l_I] == p_Power)
+            return l_I;
+    }
+
+    return Powers::MAX_POWERS;
 }

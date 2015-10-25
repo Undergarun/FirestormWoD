@@ -3341,7 +3341,7 @@ void Player::Regenerate(Powers power)
         return;
 
     /// Skip regeneration for power type we cannot have
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
 
@@ -21066,7 +21066,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     uint32 loadedPowers = 0;
     for (uint32 i = 0; i < MAX_POWERS; ++i)
     {
-        if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
+        if (GetPowerIndex(Powers(i), getClass()) != MAX_POWERS)
         {
             uint32 savedPower = fields[47+loadedPowers].GetUInt32();
             uint32 maxPower = GetUInt32Value(UNIT_FIELD_MAX_POWER + loadedPowers);
@@ -22832,7 +22832,7 @@ void Player::SaveToDB(bool create /*=false*/)
         uint32 storedPowers = 0;
         for (uint32 i = 0; i < MAX_POWERS; ++i)
         {
-            if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
+            if (GetPowerIndex(Powers(i), getClass()) != MAX_POWERS)
             {
                 stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER + storedPowers));
                 if (++storedPowers >= MAX_POWERS_PER_CLASS)
@@ -22971,7 +22971,7 @@ void Player::SaveToDB(bool create /*=false*/)
         uint32 storedPowers = 0;
         for (uint32 i = 0; i < MAX_POWERS; ++i)
         {
-            if (GetPowerIndexByClass(Powers(i), getClass()) != MAX_POWERS)
+            if (GetPowerIndex(Powers(i), getClass()) != MAX_POWERS)
             {
                 stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_POWER + storedPowers));
                 if (++storedPowers >= MAX_POWERS_PER_CLASS)
