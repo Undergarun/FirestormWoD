@@ -1,4 +1,3 @@
-
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///  MILLENIUM-STUDIO
@@ -11,8 +10,8 @@
 
 enum eWitherbarkEvents
 {
-    ///< Witherbark
-    EventBrittleBark       = 1,
+    /// Witherbark
+    EventBrittleBark = 1,
     EventParchedGrasp,
     EventUncheckedGrowth,
     EventAgitatedWater,
@@ -22,7 +21,7 @@ enum eWitherbarkEvents
 
 enum eWitherbarkSpells
 {
-    ///< Witherbark
+    /// Witherbark
     SpellBrittleBarkAura       = 164275, ///< STUN
     SpellBrittleBarkRemoveAura = 164718, ///< remove the stun
     SpellParchedGasp           = 164357,
@@ -34,20 +33,20 @@ enum eWitherbarkSpells
 
 enum eWitherbarkActions
 {
-    ///< Witherbark
+    /// Witherbark
     ActionBrittleEffect         = 10,
     ActionBrittleDeffect,
     ActionEnergyPower,
 
-    // Magic Waters
+    /// Magic Waters
     ActionActivateWaterGlobules,
     ActionDeactiveWaterGlobules
 };
 
 enum eWitherbarkCreatures
 {
-    CreatureWaterGlobule = 81821,
-    CreatureEnchantedWatersDelete = 88862
+    CreatureWaterGlobule            = 81821,
+    CreatureEnchantedWatersDelete   = 88862
 };
 
 enum eWitherbarkTalks
@@ -57,24 +56,12 @@ enum eWitherbarkTalks
     WitherbarkKill02  = 6, ///< Feed my roots.(45111) 
     WitherbarkSpell01 = 7, ///< Refreshed.(45112)
     WitherbarkSpell02 = 8, ///< I Cannot Be Stopped.(45113)
-    WitherbarkDeath   = 9 ///< Arghh...(45109)
+    WitherbarkDeath   = 9  ///< Arghh...(45109)
 };
 
-///< Positions
-Position g_PositionAqueoursMobs[4] =
-{
-    { 410.45f, 1588.56f, 89.078f, 5.205070f }, ///< AQUEOUS_GLOBULE 1
-    { 474.81f, 1638.33f, 87.651f, 0.382940f },///< AQUEOUS_GLOBULE 2
-    { 434.33f, 1661.58f, 87.561f, 1.227150f },///< AQUEOUS_GLOBULE 3
-    { 387.49f, 1650.11f, 87.651f, 2.288160f },///< AQUEOUS_GLOBULE 4
-};
-Position g_PositionWitherbark[1] =
-{
-    { 417.79f, 1615.38f, 89.377f, 4.825330f }, ///< Witherbark
-};
 Position g_PositionEnchantedMobs[10] =
 {
-    { 474.81f, 1638.33f, 87.567f, 0.000000f }, ///< enchanted water 1 
+    { 474.81f, 1638.33f, 87.567f, 0.000000f }, ///< enchanted water 1
     { 458.76f, 1648.68f, 87.567f, 0.000000f }, ///< enchanted water 2
     { 443.61f, 1649.07f, 87.567f, 0.000000f }, ///< enchanted water 3
     { 434.33f, 1661.58f, 87.567f, 0.000000f }, ///< enchanted water 4
@@ -83,34 +70,23 @@ Position g_PositionEnchantedMobs[10] =
     { 387.49f, 1650.11f, 87.567f, 0.000000f }, ///< enchanted water 7
     { 376.22f, 1636.72f, 87.567f, 0.000000f }, ///< enchanted water 8
     { 369.48f, 1628.33f, 87.567f, 0.000000f }, ///< enchanted water 9
-    { 349.98f, 1594.22f, 87.567f, 0.000000f }, ///< enchanted water 10
+    { 349.98f, 1594.22f, 87.567f, 0.000000f }  ///< enchanted water 10
 };
-Position g_PositionUnchekedGrowth[1] =
-{
-    { 418.44f, 1616.12f, 89.292f, 4.434609f }, ///< UNCHECKED_GROWTH
-};
+
 Position g_PositionCosmeticGlobules[3] =
 {
     { 408.211f, 1589.37f, 87.908f, 0.988586f },
     { 440.903f, 1609.97f, 88.661f, 2.791076f },
-    { 404.258f, 1628.98f, 88.034f, 5.571381f },
-};
-Position g_PositionNaturalistFollower       = {440.251f, 1574.739f, 88.130f, 3.615971f};
-Position g_PositionNaturalistFollowerMov[2] =
-{
-    { 403.718f, 1563.935f, 88.180f, 2.955451f },
-    { 457.685f, 1591.681f, 86.146f, 1.012375f }
+    { 404.258f, 1628.98f, 88.034f, 5.571381f }
 };
 
-static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
+static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 {
-    std::list<Creature*> creatures;
-    GetCreatureListWithEntryInGrid(creatures, object, entry, 2500.0f);
-    if (creatures.empty())
-        return;
+    std::list<Creature*> l_CreatureList;
+    GetCreatureListWithEntryInGrid(l_CreatureList, p_Object, p_Entry, 300.0f);
 
-    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
+    for (Creature* l_Iter : l_CreatureList)
+        l_Iter->DespawnOrUnsummon();
 }
 
 #define INVISIBILE_DISPLAY 11686
@@ -120,285 +96,263 @@ static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
 /// Witherbark - 81522
 class boss_witherbark : public CreatureScript
 {
-public:
-    boss_witherbark() : CreatureScript("boss_witherbark") { }
+    public:
+        boss_witherbark() : CreatureScript("boss_witherbark") { }
 
-    struct boss_witherbarkAI : public BossAI
-    {
-        boss_witherbarkAI(Creature* p_Creature) : BossAI(p_Creature, eEverbloomData::DataWitherbark)
+        struct boss_witherbarkAI : public BossAI
         {
-            m_Instance = me->GetInstanceScript();
-
-            me->AddAura(eWitherbarkSpells::SpellBrittleBarkAura, me);
-            me->setFaction(FriendlyFaction);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-
-            SolarVisual();
-
-            m_Counting = 0;
-            m_Intro = false;
-        }
-
-        uint32 m_Counting;
-        uint32 m_CountPerRegeneration;
-        uint32 m_Power;
-        bool   m_Intro;
-        bool   m_Acheivement;
-
-        InstanceScript* m_Instance;
-
-        void Reset() override
-        {
-            _Reset();
-            events.Reset();
-
-            me->RemoveAllAuras();
-            me->SetHealth(me->GetMaxHealth());
-
-            m_Acheivement = true;
-            m_Power = 100;
-            me->SetPower(Powers::POWER_MANA, 100);
-            me->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, 100);
-            me->SetMaxPower(Powers::POWER_MANA, 100);
-            me->SetInt32Value(EUnitFields::UNIT_FIELD_MAX_POWER, 100);
-            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
-
-            me->AddAura(eWitherbarkSpells::SpellPertifiedBark, me);
-        }
-
-        void SolarVisual()
-        {
-            for (int i = 0; i < 3; i++)
+            boss_witherbarkAI(Creature* p_Creature) : BossAI(p_Creature, eEverbloomDatas::DataWitherbark)
             {
-                if (Creature* l_Cosmetic = me->SummonCreature(eWitherbarkCreatures::CreatureWaterGlobule, g_PositionCosmeticGlobules[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                {
-                    l_Cosmetic->AddUnitState(UnitState::UNIT_STATE_CANNOT_AUTOATTACK);
-                    l_Cosmetic->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                    l_Cosmetic->CastSpell(l_Cosmetic, eEverbloomSpells::SpellCosmeticRoot); ///< COSMETIC ROOTS
-                }
+                m_Instance = me->GetInstanceScript();
+
+                me->AddAura(eWitherbarkSpells::SpellBrittleBarkAura, me);
+                me->setFaction(FriendlyFaction);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                SolarVisual();
+
+                m_Counting = 0;
+                m_Intro = false;
             }
 
-            std::list<Creature*> l_TenderGuidsList;
-            me->GetCreatureListWithEntryInGrid(l_TenderGuidsList, eEverbloomCreature::CreatureEverbloomTender, 200.0f);
+            uint32 m_Counting;
+            uint32 m_CountPerRegeneration;
+            uint32 m_Power;
+            bool   m_Intro;
+            bool   m_Acheivement;
 
-            if (l_TenderGuidsList.empty())
-                return;
+            InstanceScript* m_Instance;
 
-            for (auto itr : l_TenderGuidsList)
+            void Reset() override
             {
-                itr->CastSpell(itr, eEverbloomSpells::SpellSolarChannel);
+                _Reset();
+                events.Reset();
+
+                me->RemoveAllAuras();
+                me->SetHealth(me->GetMaxHealth());
+
+                m_Acheivement = true;
+                m_Power = 100;
+                me->SetPower(Powers::POWER_MANA, 100);
+                me->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, 100);
+                me->SetMaxPower(Powers::POWER_MANA, 100);
+                me->SetInt32Value(EUnitFields::UNIT_FIELD_MAX_POWER, 100);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+
+                me->AddAura(eWitherbarkSpells::SpellPertifiedBark, me);
             }
-        }
 
-        void JustReachedHome() override
-        {
-            _JustReachedHome();
-
-            DespawnCreaturesInArea(eEverbloomCreature::CreatureEnchanctedWater, me);
-            DespawnCreaturesInArea(eWitherbarkCreatures::CreatureWaterGlobule, me);
-        }
-
-        void DoAction(int32 const p_Action) override
-        {
-            switch (p_Action)
+            void SolarVisual()
             {
-                case eWitherbarkActions::ActionEnergyPower:
+                for (uint8 l_I = 0; l_I < 3; l_I++)
                 {
-                    if (!me->isInCombat())
-                        return;
-
-                    m_Acheivement = false;
-
-                    if (m_Power < 100)
-                        m_Power += 10;
-                    break;
-                }
-                case eEverbloomActions::ActionCountPre1StBossKill:
-                {
-                    m_Counting++;
-
-                    if (m_Counting == 6 && !m_Intro)
+                    if (Creature* l_Cosmetic = me->SummonCreature(eWitherbarkCreatures::CreatureWaterGlobule, g_PositionCosmeticGlobules[l_I], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        m_Intro = true;
-                        me->SetReactState(ReactStates::REACT_DEFENSIVE);
-
-                        me->setFaction(HostileFaction);
-                        me->RemoveAllAuras();
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_UNK_15 | eUnitFlags::UNIT_FLAG_UNK_6);
+                        l_Cosmetic->AddUnitState(UnitState::UNIT_STATE_CANNOT_AUTOATTACK);
+                        l_Cosmetic->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        l_Cosmetic->CastSpell(l_Cosmetic, eEverbloomSpells::SpellCosmeticRoot); ///< COSMETIC ROOTS
                     }
-                    break;
                 }
-                case eWitherbarkActions::ActionBrittleEffect:
+
+                std::list<Creature*> l_TenderGuidsList;
+                me->GetCreatureListWithEntryInGrid(l_TenderGuidsList, eEverbloomCreatures::CreatureEverbloomTender, 200.0f);
+
+                for (Creature* l_Iter : l_TenderGuidsList)
+                    l_Iter->CastSpell(l_Iter, eEverbloomSpells::SpellSolarChannel);
+            }
+
+            void JustReachedHome() override
+            {
+                _JustReachedHome();
+
+                DespawnCreaturesInArea(eEverbloomCreatures::CreatureEnchanctedWater, me);
+                DespawnCreaturesInArea(eWitherbarkCreatures::CreatureWaterGlobule, me);
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
                 {
-                    if (!me->isInCombat())
-                        return;
-
-                    events.Reset();
-                    Talk(eWitherbarkTalks::WitherbarkSpell02);
-                    me->MonsterTextEmote("|TInterface\\Icons\\inv_misc_embers.blp:20|t %s is completely dehydrated and has |cFFFF0404|Hspell:164275|h[Brittle Bark]|h|r!", me->GetGUID(), true);
-
-                    std::list<Creature*> l_EnchantedWatersList;
-                    me->GetCreatureListWithEntryInGrid(l_EnchantedWatersList, eEverbloomCreature::CreatureEnchanctedWater, 200.0f);
-
-                    if (l_EnchantedWatersList.empty())
-                        return;
-
-                    for (auto itr : l_EnchantedWatersList)
+                    case eWitherbarkActions::ActionEnergyPower:
                     {
-                        if (itr->GetAI())
-                            itr->GetAI()->DoAction(eWitherbarkActions::ActionActivateWaterGlobules);
+                        if (!me->isInCombat())
+                            return;
+
+                        m_Acheivement = false;
+
+                        if (m_Power < 100)
+                            m_Power += 10;
+
+                        break;
                     }
-                    break;
-                }
-                case eWitherbarkActions::ActionBrittleDeffect:
-                {
-                    if (!me->isInCombat())
-                        return;
-
-                    me->MonsterTextEmote("Witherbark has absorbed enough water and become active again!", me->GetGUID(), true);
-
-                    events.Reset();
-                    events.ScheduleEvent(eWitherbarkEvents::EventParchedGrasp, 8000);
-                    events.ScheduleEvent(eWitherbarkEvents::EventUncheckedGrowth, 10000);
-
-                    Talk(eWitherbarkTalks::WitherbarkSpell01);
-
-                    std::list<Creature*> WateryCreaturesList;
-                    me->GetCreatureListWithEntryInGrid(WateryCreaturesList, eEverbloomCreature::CreatureEnchanctedWater, 300.0f);
-
-                    if (WateryCreaturesList.empty())
-                        return;
-
-                    for (auto itr : WateryCreaturesList)
+                    case eEverbloomActions::ActionCountPre1StBossKill:
                     {
-                        if (itr->GetAI())
-                            itr->GetAI()->DoAction(eWitherbarkActions::ActionDeactiveWaterGlobules);
+                        m_Counting++;
+
+                        if (m_Counting == 6 && !m_Intro)
+                        {
+                            m_Intro = true;
+                            me->SetReactState(ReactStates::REACT_DEFENSIVE);
+
+                            me->setFaction(HostileFaction);
+                            me->RemoveAllAuras();
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_UNK_15 | eUnitFlags::UNIT_FLAG_UNK_6);
+                        }
+
+                        break;
                     }
-                    break;
+                    case eWitherbarkActions::ActionBrittleEffect:
+                    {
+                        if (!me->isInCombat())
+                            return;
+
+                        events.Reset();
+                        Talk(eWitherbarkTalks::WitherbarkSpell02);
+                        me->MonsterTextEmote("|TInterface\\Icons\\inv_misc_embers.blp:20|t %s is completely dehydrated and has |cFFFF0404|Hspell:164275|h[Brittle Bark]|h|r!", me->GetGUID(), true);
+
+                        std::list<Creature*> l_EnchantedWatersList;
+                        me->GetCreatureListWithEntryInGrid(l_EnchantedWatersList, eEverbloomCreatures::CreatureEnchanctedWater, 200.0f);
+
+                        for (Creature* l_Iter : l_EnchantedWatersList)
+                        {
+                            if (l_Iter->IsAIEnabled)
+                                l_Iter->GetAI()->DoAction(eWitherbarkActions::ActionActivateWaterGlobules);
+                        }
+
+                        break;
+                    }
+                    case eWitherbarkActions::ActionBrittleDeffect:
+                    {
+                        if (!me->isInCombat())
+                            return;
+
+                        me->MonsterTextEmote("Witherbark has absorbed enough water and become active again!", me->GetGUID(), true);
+
+                        events.Reset();
+                        events.ScheduleEvent(eWitherbarkEvents::EventParchedGrasp, 8 * TimeConstants::IN_MILLISECONDS);
+                        events.ScheduleEvent(eWitherbarkEvents::EventUncheckedGrowth, 10 * TimeConstants::IN_MILLISECONDS);
+
+                        Talk(eWitherbarkTalks::WitherbarkSpell01);
+
+                        std::list<Creature*> WateryCreaturesList;
+                        me->GetCreatureListWithEntryInGrid(WateryCreaturesList, eEverbloomCreatures::CreatureEnchanctedWater, 300.0f);
+
+                        for (Creature* l_Iter : WateryCreaturesList)
+                        {
+                            if (l_Iter->IsAIEnabled)
+                                l_Iter->GetAI()->DoAction(eWitherbarkActions::ActionDeactiveWaterGlobules);
+                        }
+
+                        break;
+                    }
                 }
             }
-        }
 
-        void EnterCombat(Unit* p_Who) override
-        {
-            _EnterCombat();
-
-            Talk(eWitherbarkTalks::WitherbarkAggro);
-
-            me->RemoveAura(eWitherbarkSpells::SpellBrittleBarkAura);
-            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
-
-            events.ScheduleEvent(eWitherbarkEvents::EventParchedGrasp,       12 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eWitherbarkEvents::EventUncheckedGrowth,    20 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eEverbloomEvents::EventBarrageOfLeaves,     10 * TimeConstants::IN_MILLISECONDS);
-
-            m_CountPerRegeneration = 4 * TimeConstants::IN_MILLISECONDS;
-
-            if (m_Instance != nullptr)
+            void EnterCombat(Unit* p_Who) override
             {
-                m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
-                m_Instance->SetBossState(eEverbloomData::DataWitherbark, EncounterState::IN_PROGRESS);
-                
-                DoZoneInCombat();
-            }
+                _EnterCombat();
 
-            for (int i = 0; i < 10; i++)
-            {
-                me->SummonCreature(eEverbloomCreature::CreatureEnchanctedWater, g_PositionEnchantedMobs[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-            }
-        }
+                Talk(eWitherbarkTalks::WitherbarkAggro);
 
-        void KilledUnit(Unit* p_Who) override
-        {
-            if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
-            {
-                if (roll_chance_i(50))
-                    Talk(eWitherbarkTalks::WitherbarkKill01);
-                else
-                    Talk(eWitherbarkTalks::WitherbarkKill02);
-            }
-        }
+                me->RemoveAura(eWitherbarkSpells::SpellBrittleBarkAura);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
 
-        void JustDied(Unit* /*p_Killer*/) override
-        {       
-            _JustDied();
+                events.ScheduleEvent(eWitherbarkEvents::EventParchedGrasp,       12 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eWitherbarkEvents::EventUncheckedGrowth,    20 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eEverbloomEvents::EventBarrageOfLeaves,     10 * TimeConstants::IN_MILLISECONDS);
 
-            if (m_Acheivement)
-            {
+                m_CountPerRegeneration = 4 * TimeConstants::IN_MILLISECONDS;
+
                 if (m_Instance != nullptr)
                 {
-                    m_Instance->SetBossState(eEverbloomData::DataWitherbark, EncounterState::DONE);
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
+                
+                    DoZoneInCombat();
+                }
 
-                    if (me->GetMap()->IsHeroic())
-                    m_Instance->DoCompleteAchievement(eEverbloomAchievements::AchivementWaterManagement);
+                for (uint8 l_I = 0; l_I < 10; l_I++)
+                    me->SummonCreature(eEverbloomCreatures::CreatureEnchanctedWater, g_PositionEnchantedMobs[l_I], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+            }
+
+            void KilledUnit(Unit* p_Who) override
+            {
+                if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+                {
+                    if (roll_chance_i(50))
+                        Talk(eWitherbarkTalks::WitherbarkKill01);
+                    else
+                        Talk(eWitherbarkTalks::WitherbarkKill02);
                 }
             }
 
-            Talk(eWitherbarkTalks::WitherbarkDeath);
-
-            DespawnCreaturesInArea(eWitherbarkCreatures::CreatureWaterGlobule, me);
-            DespawnCreaturesInArea(eEverbloomCreature::CreatureEnchanctedWater, me);
-        }
-
-        void RegeneratePower(Powers m_Power, int32& value) override
-        {
-            int32 val = me->GetPower(Powers::POWER_MANA);
-
-            me->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, val);
-        }
-
-        void BrittleRegeneration(uint32 const p_Diff) 
-        {
-            me->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, m_Power);
-
-            if (m_Power <= 0 && !me->HasAura(eWitherbarkSpells::SpellBrittleBarkAura))
+            void JustDied(Unit* p_Killer) override
             {
-                me->AddAura(eWitherbarkSpells::SpellBrittleBarkAura, me);
-            }
+                _JustDied();
 
-            if (me->HasAura(eWitherbarkSpells::SpellBrittleBarkAura))
-            {
-                if (m_Power >= 100)
+                if (m_Acheivement)
                 {
-                    me->RemoveAura(eWitherbarkSpells::SpellBrittleBarkAura);
+                    if (m_Instance != nullptr && IsHeroic())
+                        m_Instance->DoCompleteAchievement(eEverbloomAchievements::AchivementWaterManagement);
                 }
+
+                Talk(eWitherbarkTalks::WitherbarkDeath);
+
+                DespawnCreaturesInArea(eWitherbarkCreatures::CreatureWaterGlobule, me);
+                DespawnCreaturesInArea(eEverbloomCreatures::CreatureEnchanctedWater, me);
             }
-            else
+
+            void RegeneratePower(Powers p_Power, int32& p_Value) override
             {
-                if (m_CountPerRegeneration <= p_Diff)
+                me->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, me->GetPower(Powers::POWER_MANA));
+            }
+
+            void BrittleRegeneration(uint32 const p_Diff)
+            {
+                me->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, m_Power);
+
+                if (m_Power <= 0 && !me->HasAura(eWitherbarkSpells::SpellBrittleBarkAura))
+                    me->AddAura(eWitherbarkSpells::SpellBrittleBarkAura, me);
+
+                if (me->HasAura(eWitherbarkSpells::SpellBrittleBarkAura))
                 {
-                    if (m_Power >= 10)
-                    {
-                        int32 val = 0;
-                        val = m_Power - 10;
-                        m_Power -= 10;
-
-                        me->SetPower(Powers::POWER_MANA, val);
-                        me->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, val);
-
-                        m_CountPerRegeneration = 3 * TimeConstants::IN_MILLISECONDS;
-                    }
+                    if (m_Power >= 100)
+                        me->RemoveAura(eWitherbarkSpells::SpellBrittleBarkAura);
                 }
                 else
-                    m_CountPerRegeneration -= p_Diff;
+                {
+                    if (m_CountPerRegeneration <= p_Diff)
+                    {
+                        if (m_Power >= 10)
+                        {
+                            int32 l_Value = 0;
+                            l_Value = m_Power - 10;
+                            m_Power -= 10;
+
+                            me->SetPower(Powers::POWER_MANA, l_Value);
+                            me->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, l_Value);
+
+                            m_CountPerRegeneration = 3 * TimeConstants::IN_MILLISECONDS;
+                        }
+                    }
+                    else
+                        m_CountPerRegeneration -= p_Diff;
+                }
             }
-        }
 
-        void UpdateAI(uint32 const p_Diff) override
-        {
-            events.Update(p_Diff);
-
-            if (!UpdateVictim())
-                return;
-
-            BrittleRegeneration(p_Diff);
-
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
-
-
-            switch (events.ExecuteEvent())
+            void UpdateAI(uint32 const p_Diff) override
             {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(p_Diff);
+
+                BrittleRegeneration(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (events.ExecuteEvent())
+                {
                     case eWitherbarkEvents::EventParchedGrasp:
                     {
                         me->CastSpell(me, eWitherbarkSpells::SpellParchedGasp);
@@ -411,182 +365,187 @@ public:
                         events.ScheduleEvent(eEverbloomEvents::EventBarrageOfLeaves, 24 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
             }
+        };
 
-            DoMeleeAttackIfReady();
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new boss_witherbarkAI(p_Creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new boss_witherbarkAI(p_Creature);
-    }
 };
-
 
 /// Everbloom Naturalist - 81819
 class the_everbloom_naturalist : public CreatureScript
 {
-public:
-    the_everbloom_naturalist() : CreatureScript("the_everbloom_naturalist") { }
+    public:
+        the_everbloom_naturalist() : CreatureScript("the_everbloom_naturalist") { }
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
-    {
-        the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        struct the_everbloom_creaturesAI : public ScriptedAI
         {
-            m_Instance = me->GetInstanceScript();
-        }
-
-        InstanceScript* m_Instance;
-
-        void Reset() override
-        {
-            events.Reset();
-
-            if (Creature* l_Globule = me->FindNearestCreature(eEverbloomCreature::CreatureGlobuleWater, 20.0f))
+            the_everbloom_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                me->CastSpell(l_Globule, eEverbloomSpells::SpellSolarChannel);
+                m_Instance = me->GetInstanceScript();
             }
-            else if (Creature* l_Globule = me->FindNearestCreature(eEverbloomCreature::TriggerTenderBeamTrigger, 50.0f))
-                me->CastSpell(l_Globule, eEverbloomSpells::SpellNaturesChanneling);
-        }
 
-        void RandomSayings()
-        {
-            if (m_Instance == nullptr)
-                return;
+            InstanceScript* m_Instance;
 
-            if (Creature* l_Witherbark = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataWitherbark)))
+            void Reset() override
             {
-                if (l_Witherbark->IsWithinDistInMap(me, 30.0f))
+                events.Reset();
+
+                if (Creature* l_Globule = me->FindNearestCreature(eEverbloomCreatures::CreatureGlobuleWater, 20.0f))
+                    me->CastSpell(l_Globule, eEverbloomSpells::SpellSolarChannel);
+                else if (Creature* l_Globule = me->FindNearestCreature(eEverbloomCreatures::TriggerTenderBeamTrigger, 50.0f))
+                    me->CastSpell(l_Globule, eEverbloomSpells::SpellNaturesChanneling);
+            }
+
+            void RandomSayings()
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Witherbark = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomBosses::BossWitherbark)))
                 {
-                    switch (urand(0, 2))
+                    if (l_Witherbark->IsWithinDistInMap(me, 30.0f))
                     {
-                    case 0:
-                        me->MonsterYell("We have not yet purified the water!", Language::LANG_UNIVERSAL, me->GetGUID());
-                        break;
-                    case 1:
-                        me->MonsterYell("We are all... doomed", Language::LANG_UNIVERSAL, me->GetGUID());
-                        break;
-                    case 2:
-                        me->MonsterYell("We have not yet purified the water!", Language::LANG_UNIVERSAL, me->GetGUID());
-                        break;
+                        switch (urand(0, 2))
+                        {
+                            case 0:
+                                me->MonsterYell("We have not yet purified the water!", Language::LANG_UNIVERSAL, me->GetGUID());
+                                break;
+                            case 1:
+                                me->MonsterYell("We are all... doomed", Language::LANG_UNIVERSAL, me->GetGUID());
+                                break;
+                            case 2:
+                                me->MonsterYell("We have not yet purified the water!", Language::LANG_UNIVERSAL, me->GetGUID());
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
-        }
 
-        void EnterCombat(Unit* pAttacker) override
-        {
-            RandomSayings();
-
-            DespawnCreaturesInArea(eEverbloomCreature::CreatureGlobuleWater, me);
-
-            events.ScheduleEvent(eEverbloomEvents::EventBarrageOfLeaves, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-            me->RemoveAura(eEverbloomSpells::SpellSolarChannel);
-        }
-
-        void JustDied(Unit* /*pKiller*/) override
-        {
-            if (m_Instance == nullptr)
-                return;
-
-            if (Creature* l_Witherbark = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataWitherbark)))
-                if (l_Witherbark->IsWithinDistInMap(me, 30.0f) && l_Witherbark->GetAI())
-                    l_Witherbark->AI()->DoAction(eEverbloomActions::ActionCountPre1StBossKill);
-        }
-
-        void UpdateAI(const uint32 pDiff) override
-        {
-            events.Update(pDiff);
-
-            if (!UpdateVictim())
-                return;
-
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
-
-            switch (events.ExecuteEvent())
+            void EnterCombat(Unit* pAttacker) override
             {
-                case eEverbloomEvents::EventBarrageOfLeaves:
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 45.0f, true))
-                        me->CastSpell(l_Target, eEverbloomSpells::SepllBarrageOfLeaves);
+                RandomSayings();
 
-                    events.ScheduleEvent(eEverbloomEvents::EventBarrageOfLeaves, 7 * TimeConstants::IN_MILLISECONDS);
-                    break;
+                DespawnCreaturesInArea(eEverbloomCreatures::CreatureGlobuleWater, me);
+
+                events.ScheduleEvent(eEverbloomEvents::EventBarrageOfLeaves, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                me->RemoveAura(eEverbloomSpells::SpellSolarChannel);
             }
 
-            DoMeleeAttackIfReady();
+            void JustDied(Unit* pKiller) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Witherbark = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomBosses::BossWitherbark)))
+                {
+                    if (l_Witherbark->IsWithinDistInMap(me, 30.0f) && l_Witherbark->IsAIEnabled)
+                        l_Witherbark->AI()->DoAction(eEverbloomActions::ActionCountPre1StBossKill);
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (events.ExecuteEvent())
+                {
+                    case eEverbloomEvents::EventBarrageOfLeaves:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            me->CastSpell(l_Target, eEverbloomSpells::SepllBarrageOfLeaves);
+
+                        events.ScheduleEvent(eEverbloomEvents::EventBarrageOfLeaves, 7 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* pCreature) const override
+        {
+            return new the_everbloom_creaturesAI(pCreature);
         }
-
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const override
-    {
-        return new the_everbloom_creaturesAI(pCreature);
-    }
 };
 
 /// Agitated Waters - 88862
 class the_everbloom_agitated_water : public CreatureScript
 {
-public:
-    the_everbloom_agitated_water() : CreatureScript("the_everbloom_agitated_water") {}
+    public:
+        the_everbloom_agitated_water() : CreatureScript("the_everbloom_agitated_water") {}
 
-    struct the_everbloom_creaturesAI : public Scripted_NoMovementAI
-    {
-        the_everbloom_creaturesAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+        struct the_everbloom_creaturesAI : public Scripted_NoMovementAI
         {
-            m_Instance = p_Creature->GetInstanceScript();
-        }
-
-        EventMap m_Events;
-        InstanceScript* m_Instance;
-        int32 m_Interval;
-        bool m_StartEvent;
-
-        void Reset() override
-        {
-            me->SetInCombatWithZone();
-            me->setFaction(HostileFaction);
-            m_Interval = 20 * TimeConstants::IN_MILLISECONDS;
-
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);      
-            events.ScheduleEvent(eWitherbarkEvents::EventShootWater, urand(4 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-        }
-
-        void DoAction(int32 const action) override
-        {
-            switch (action)
+            the_everbloom_creaturesAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
             {
-            case eWitherbarkActions::ActionActivateWaterGlobules:
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            EventMap m_Events;
+            InstanceScript* m_Instance;
+            int32 m_Interval;
+            bool m_StartEvent;
+
+            void Reset() override
+            {
+                me->SetInCombatWithZone();
+                me->setFaction(HostileFaction);
                 m_Interval = 20 * TimeConstants::IN_MILLISECONDS;
 
-                events.CancelEvent(eWitherbarkEvents::EventAqueousGlobules);
-                events.ScheduleEvent(eWitherbarkEvents::EventAqueousGlobules, urand(3 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eWitherbarkActions::ActionDeactiveWaterGlobules:
-                events.CancelEvent(eWitherbarkEvents::EventAqueousGlobules);
-                DespawnCreaturesInArea(eWitherbarkCreatures::CreatureWaterGlobule, me);
-                break;
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                events.ScheduleEvent(eWitherbarkEvents::EventShootWater, urand(4 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
             }
-        }
 
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            void DoAction(int32 const p_Action) override
             {
-                switch (eventId)
+                switch (p_Action)
+                {
+                    case eWitherbarkActions::ActionActivateWaterGlobules:
+                        m_Interval = 20 * TimeConstants::IN_MILLISECONDS;
+
+                        events.CancelEvent(eWitherbarkEvents::EventAqueousGlobules);
+                        events.ScheduleEvent(eWitherbarkEvents::EventAqueousGlobules, urand(3 * TimeConstants::IN_MILLISECONDS, 7 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    case eWitherbarkActions::ActionDeactiveWaterGlobules:
+                        events.CancelEvent(eWitherbarkEvents::EventAqueousGlobules);
+                        DespawnCreaturesInArea(eWitherbarkCreatures::CreatureWaterGlobule, me);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                events.Update(p_Diff);
+
+                switch (events.ExecuteEvent())
                 {
                     case eWitherbarkEvents::EventAqueousGlobules:
                         m_Interval -= 3 * TimeConstants::IN_MILLISECONDS;
 
                         if (roll_chance_i(40))
-                        {
-                            me->SummonCreature(eWitherbarkCreatures::CreatureWaterGlobule, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
-                        }
+                            me->SummonCreature(eWitherbarkCreatures::CreatureWaterGlobule, *me, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+
                         events.ScheduleEvent(eWitherbarkEvents::EventAqueousGlobules, urand(m_Interval, m_Interval +  (2 * TimeConstants::IN_MILLISECONDS)));
                         break;
                     case eWitherbarkEvents::EventShootWater:
@@ -595,189 +554,198 @@ public:
 
                         events.ScheduleEvent(eWitherbarkEvents::EventShootWater, urand(14 * TimeConstants::IN_MILLISECONDS, 70 * TimeConstants::IN_MILLISECONDS));
                         break;
+                    default:
+                        break;
                 }
             }
-        }
-    };
+        };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new the_everbloom_creaturesAI(p_Creature);
-    }
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new the_everbloom_creaturesAI(p_Creature);
+        }
 };
 
 /// Aqueous Globue  - 81821
 class the_everbloom_globule : public CreatureScript
 {
-public:
-    the_everbloom_globule() : CreatureScript("the_everbloom_globule") {}
+    public:
+        the_everbloom_globule() : CreatureScript("the_everbloom_globule") {}
 
-    struct the_everbloom_creaturesAI : public ScriptedAI
-    {
-        the_everbloom_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        struct the_everbloom_creaturesAI : public ScriptedAI
         {
-            m_Instance = p_Creature->GetInstanceScript();
-        }
-
-        EventMap m_Events;
-        InstanceScript* m_Instance;
-        uint32 m_DiffCheckup;
-        bool m_Caught;
-
-        void Reset() override
-        {
-            me->CastSpell(me, eWitherbarkSpells::SpellGlobueCosmetic);
-            me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->setFaction(16);
-            me->SetDisplayId(11686);
-            me->SetSpeed(UnitMoveType::MOVE_RUN, 0.4f);
- 
-            m_Caught = false;
-            m_DiffCheckup = 1 * TimeConstants::IN_MILLISECONDS;
-        }
-
-        void JustDied(Unit* /*p_Killer*/) override
-        {
-            me->CastSpell(me, eWitherbarkSpells::SpellAqueousBurst);
-        }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            if (m_Instance == nullptr)
-                return;
-
-            if (Creature* l_Witherbark = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataWitherbark)))
+            the_everbloom_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
-                if (l_Witherbark->isInCombat() && l_Witherbark->HasAura(eWitherbarkSpells::SpellBrittleBarkAura))
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            EventMap m_Events;
+            InstanceScript* m_Instance;
+            uint32 m_DiffCheckup;
+            bool m_Caught;
+
+            void Reset() override
+            {
+                me->CastSpell(me, eWitherbarkSpells::SpellGlobueCosmetic);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->setFaction(16);
+                me->SetDisplayId(11686);
+                me->SetSpeed(UnitMoveType::MOVE_RUN, 0.4f);
+ 
+                m_Caught = false;
+                m_DiffCheckup = 1 * TimeConstants::IN_MILLISECONDS;
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                me->CastSpell(me, eWitherbarkSpells::SpellAqueousBurst);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Witherbark = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomBosses::BossWitherbark)))
                 {
-                    if (!me->isMoving())
+                    if (l_Witherbark->isInCombat() && l_Witherbark->HasAura(eWitherbarkSpells::SpellBrittleBarkAura))
                     {
-                        me->GetMotionMaster()->MoveFollow(l_Witherbark, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
-                    }
+                        if (!me->isMoving())
+                            me->GetMotionMaster()->MoveFollow(l_Witherbark, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
 
-                    if (m_DiffCheckup <= p_Diff && !m_Caught)
-                    {
-                        if (l_Witherbark->IsWithinDistInMap(me, 3.0f))
+                        if (m_DiffCheckup <= p_Diff && !m_Caught)
                         {
-                            if (l_Witherbark->GetAI())
+                            if (l_Witherbark->IsWithinDistInMap(me, 3.0f))
                             {
-                                m_Caught = true;
+                                if (l_Witherbark->IsAIEnabled)
+                                {
+                                    m_Caught = true;
 
-                                int32 val = l_Witherbark->GetPower(Powers::POWER_MANA);
-                                val += 10;
+                                    int32 l_Value = l_Witherbark->GetPower(Powers::POWER_MANA);
+                                    l_Value += 10;
 
-                                l_Witherbark->AI()->DoAction(eWitherbarkActions::ActionEnergyPower);
-                                l_Witherbark->SetInt32Value(UNIT_FIELD_POWER, val);
+                                    l_Witherbark->AI()->DoAction(eWitherbarkActions::ActionEnergyPower);
+                                    l_Witherbark->SetInt32Value(UNIT_FIELD_POWER, l_Value);
 
-                                me->DespawnOrUnsummon(500);
+                                    me->DespawnOrUnsummon(500);
 
-                                m_DiffCheckup = 1 * TimeConstants::IN_MILLISECONDS;
+                                    m_DiffCheckup = 1 * TimeConstants::IN_MILLISECONDS;
+                                }
                             }
-
                         }
-                    }
                         else
                             m_DiffCheckup -= p_Diff;
+                    }
                 }
             }
-        }
-    };
+        };
 
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new the_everbloom_creaturesAI(p_Creature);
-    }
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new the_everbloom_creaturesAI(p_Creature);
+        }
 };
 
 /// Brittle Bark - 164275
 class the_everbloom_brittle_bark : public SpellScriptLoader
 {
-public:
-    the_everbloom_brittle_bark() : SpellScriptLoader("the_everbloom_brittle_bark") { }
+    public:
+        the_everbloom_brittle_bark() : SpellScriptLoader("the_everbloom_brittle_bark") { }
 
-    class the_everbloom_spells : public AuraScript
-    {
-        PrepareAuraScript(the_everbloom_spells);
-
-        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/) 
-        { 
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (l_Caster->IsInWorld() && l_Caster->isInCombat() && l_Caster->GetAI())
-                    GetCaster()->GetAI()->DoAction(eWitherbarkActions::ActionBrittleEffect);
-            }
-        }
-
-        void OnRemove(constAuraEffectPtr /*p_aurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        class the_everbloom_spells : public AuraScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareAuraScript(the_everbloom_spells);
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (l_Caster->IsInWorld() && l_Caster->isInCombat() && l_Caster->GetAI())
-                    GetCaster()->GetAI()->DoAction(eWitherbarkActions::ActionBrittleDeffect);
+                if (GetCaster() == nullptr)
+                    return;
+
+                if (Creature* l_Caster = GetCaster()->ToCreature())
+                {
+                    if (l_Caster->IsInWorld() && l_Caster->isInCombat() && l_Caster->IsAIEnabled)
+                        l_Caster->AI()->DoAction(eWitherbarkActions::ActionBrittleEffect);
+                }
             }
-        }
 
-        void Register()
+            void OnRemove(constAuraEffectPtr /*p_aurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                if (Creature* l_Caster = GetCaster()->ToCreature())
+                {
+                    if (l_Caster->IsInWorld() && l_Caster->isInCombat() && l_Caster->IsAIEnabled)
+                        l_Caster->AI()->DoAction(eWitherbarkActions::ActionBrittleDeffect);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(the_everbloom_spells::OnApply, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_STUN, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(the_everbloom_spells::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_STUN, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            AfterEffectApply += AuraEffectApplyFn(the_everbloom_spells::OnApply, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_STUN, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(the_everbloom_spells::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_STUN, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            return new the_everbloom_spells();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new the_everbloom_spells();
-    }
 };
 
 /// Agitated Waters - 177731 
 class the_everbloom_agitated_waters : public SpellScriptLoader
 {
-public:
-    the_everbloom_agitated_waters() : SpellScriptLoader("the_everbloom_agitated_waters") {}
+    public:
+        the_everbloom_agitated_waters() : SpellScriptLoader("the_everbloom_agitated_waters") {}
 
-    class the_everbloom_agitated_waters_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(the_everbloom_agitated_waters_SpellScript);
-
-        SpellCastResult CheckCast()
+        class the_everbloom_agitated_waters_SpellScript : public SpellScript
         {
-            if (GetCaster())
-            {       
-                if (InstanceScript* l_Instance = GetCaster()->GetInstanceScript())
-                {
-                    if (Creature* l_Witherbark = l_Instance->instance->GetCreature(l_Instance->GetData64(eEverbloomData::DataWitherbark)))
-                    {
-                        if (!l_Witherbark->isInCombat())
-                            return SPELL_FAILED_DONT_REPORT;
+            PrepareSpellScript(the_everbloom_agitated_waters_SpellScript);
 
-                        if (!l_Witherbark->isAlive())
-                            return SPELL_FAILED_DONT_REPORT;
+            SpellCastResult CheckCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
+                    {
+                        if (Creature* l_Witherbark = l_Instance->instance->GetCreature(l_Instance->GetData64(eEverbloomBosses::BossWitherbark)))
+                        {
+                            if (!l_Witherbark->isInCombat())
+                                return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+
+                            if (!l_Witherbark->isAlive())
+                                return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+                        }
                     }
                 }
+
+                return SpellCastResult::SPELL_CAST_OK;
             }
 
-            return SPELL_CAST_OK;
-        }
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(the_everbloom_agitated_waters_SpellScript::CheckCast);
+            }
+        };
 
-        void Register() override
+        SpellScript* GetSpellScript() const override
         {
-            OnCheckCast += SpellCheckCastFn(the_everbloom_agitated_waters_SpellScript::CheckCast);
+            return new the_everbloom_agitated_waters_SpellScript;
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new the_everbloom_agitated_waters_SpellScript;
-    }
 };
 
 void AddSC_boss_witherbark()
 {
+    /// Boss
     new boss_witherbark();
+
+    /// Npcs
     new the_everbloom_agitated_water();
     new the_everbloom_globule();
     new the_everbloom_naturalist();
+
+    /// Spells
     new the_everbloom_brittle_bark();
     new the_everbloom_agitated_waters();
 }

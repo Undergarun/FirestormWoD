@@ -3601,7 +3601,7 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
     /// Hackfix @ Glyph of the Falling Avenger
     /// Since preventing the aura effect in a spell script doesn't work
     /// A better way to fix this would be to remember which effects are prevented to prevent re-application
-    if (m_spellInfo->Id == 31842 && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
+    if ((m_spellInfo->Id == 31842 || m_spellInfo->Id == 31884) && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
         return;
 
     if (apply)
@@ -7484,6 +7484,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 damage *= 0.85f;
         }
 
+        ///< Glyph of Flame Shock, have to be trigger afer calculating damages bonus
+        if (GetSpellInfo()->Id == 8050 && GetCaster() && GetCaster()->HasAura(55447))
+            GetCaster()->HealBySpell(GetCaster(), GetSpellInfo(), CalculatePct(damage, 45), false);
+
         // Holy Fire ticks can trigger Atonement
         if (GetSpellInfo()->Id == 14914 && GetCaster() && GetCaster()->HasAura(81749))
         {
@@ -7549,7 +7553,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         int32 l_LeftDuration = l_Aura->GetDuration();
         int32 l_MaxDuration = l_Aura->GetMaxDuration();
         int32 l_Amplitude = GetAmplitude();
-        int32 l_MaxTicksCount = int32(l_MaxDuration / l_Amplitude);
+        int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
 
         /// If it was last tick, we should deal instant damage, according to left duration
         if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)

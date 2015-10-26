@@ -5199,7 +5199,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
-void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
+void Spell::EffectActivateObject(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5207,12 +5207,14 @@ void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
     if (!gameObjTarget)
         return;
 
-    ScriptInfo activateCommand;
-    activateCommand.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
+    ScriptInfo l_ActivateCommand;
+    l_ActivateCommand.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
 
-    // int32 unk = m_spellInfo->Effects[effIndex].MiscValue; // This is set for EffectActivateObject spells; needs research
+    gameObjTarget->GetMap()->ScriptCommandStart(l_ActivateCommand, 0, m_caster, gameObjTarget);
 
-    gameObjTarget->GetMap()->ScriptCommandStart(activateCommand, 0, m_caster, gameObjTarget);
+    /// Maybe it needs more research
+    if (uint32 l_MiscB = m_spellInfo->Effects[p_EffIndex].MiscValueB)
+        gameObjTarget->SendGameObjectActivateAnimKit(l_MiscB, false);
 }
 
 void Spell::EffectApplyGlyph(SpellEffIndex effIndex)

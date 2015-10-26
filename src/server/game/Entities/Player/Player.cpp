@@ -4670,6 +4670,10 @@ void Player::InitSpellForLevel()
         if (l_SpecializationId == SPEC_MONK_MISTWEAVER && (l_SpellId == 674 || l_SpellId == 124146))
             continue;
 
+        // Hack fix - Monks can't get Daggers competance
+        if (getClass() == CLASS_MONK && l_SpellId == 1180)
+            continue;
+
         if (l_SpellInfo->SpellLevel <= l_Level)
             learnSpell(l_SpellId, false);
     }
@@ -23728,10 +23732,10 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
                     && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
-                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
+                    /*stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, itr->first);
                     stmt->setUInt32(1, GetSession()->GetAccountId());
-                    accountTrans->Append(stmt);
+                    accountTrans->Append(stmt);*/
                 }
                 else
                 {
@@ -24296,7 +24300,7 @@ void Player::Say(std::string const& p_Text, uint32 const p_LangID)
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, p_LangID, l_Text);
 
     std::list<Player*> l_PlayerList;
-    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 
     for (Player* l_Target : l_PlayerList)
     {
@@ -24315,7 +24319,7 @@ void Player::Yell(std::string const& p_Text, uint32 const p_LangID)
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, p_LangID, l_Text);
 
     std::list<Player*> l_PlayerList;
-    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
 
     for (Player* l_Target : l_PlayerList)
     {
@@ -24334,7 +24338,7 @@ void Player::TextEmote(std::string const& p_Text)
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, l_Text);
 
     std::list<Player*> l_PlayerList;
-    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true);
 
     for (Player* l_Target : l_PlayerList)
     {
@@ -28480,7 +28484,7 @@ PartyResult Player::CanUninviteFromGroup() const
             return ERR_NOT_LEADER;
 
         if (InBattleground())
-            return ERR_INVITE_RESTRICTED;
+            return ERR_LFG_PENDING;
     }
 
     return ERR_PARTY_RESULT_OK;
