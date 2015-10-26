@@ -3042,9 +3042,84 @@ class spell_sha_spiritwalkers_grace : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Eye of the Storm - 157382
+class spell_sha_eye_of_the_storm : public SpellScriptLoader
+{
+    public:
+        spell_sha_eye_of_the_storm() : SpellScriptLoader("spell_sha_eye_of_the_storm") { }
+
+        class spell_sha_eye_of_the_storm_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_eye_of_the_storm_AuraScript);
+
+            enum eSpells
+            {
+                EyeOfTheStormSpeedEffect = 157384
+            };
+
+            std::list<uint64> m_TargetList;
+
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr /*p_AurEff*/)
+            {
+                Unit* l_Caster = GetCaster();
+                float l_Radius = 6.0f;
+
+                std::list<Unit*> l_AlliesList;
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_AlliesList, l_Check);
+                l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (auto l_Target : l_AlliesList)
+                {
+                    if (l_Caster->IsValidAssistTarget(l_Target) && std::find(m_TargetList.begin(), m_TargetList.end(), l_Target->GetGUID()) == m_TargetList.end())
+                    {
+                        l_Target->CastSpell(l_Target, eSpells::EyeOfTheStormSpeedEffect, true);
+                        m_TargetList.push_back(l_Target->GetGUID());
+                    }
+                }
+
+                for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end();)
+                {
+                    Unit* l_Target = ObjectAccessor::FindUnit(*l_It);
+                    if (!l_Target || (std::find(l_AlliesList.begin(), l_AlliesList.end(), l_Target) == l_AlliesList.end()))
+                    {
+                        if (l_Target)
+                            l_Target->RemoveAura(eSpells::EyeOfTheStormSpeedEffect);
+
+                        l_It = m_TargetList.erase(l_It);
+                    }
+                    else
+                        ++l_It;
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                for (uint64 l_TargetGUID : m_TargetList)
+                {
+                    Unit* l_Target = ObjectAccessor::FindUnit(l_TargetGUID);
+                    if (l_Target)
+                        l_Target->RemoveAura(eSpells::EyeOfTheStormSpeedEffect);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_sha_eye_of_the_storm_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_AREATRIGGER);
+                OnEffectRemove += AuraEffectRemoveFn(spell_sha_eye_of_the_storm_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_AREATRIGGER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_eye_of_the_storm_AuraScript();
+        }
+};
 
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_eye_of_the_storm();
     new spell_sha_spiritwalkers_grace();
     new spell_sha_pvp_restoration_4p_bonus();
     new spell_sha_natures_guardian();
