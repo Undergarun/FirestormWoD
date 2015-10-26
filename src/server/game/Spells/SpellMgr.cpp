@@ -3384,6 +3384,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 173192: ///< Cave In (Dot)
             case 159686: ///< Acidback Puddle (DoT)
             case 156203: ///< Retched Blackrock (Oregorger)
+            case 155265: ///< Containment (Primal Elementalist)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 175091: ///< Animate Slag
@@ -3399,6 +3400,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 160665: ///< Rolling Box (Oregorger)
+            case 160833: ///< Bust Loose (Heart of the Mountain)
+            case 155738: ///< Slag Pool (Heart of the Mountain)
+            case 155224: ///< Melt (Heart of the Mountain)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 155819: ///< Hunger Drive (Oregorger)
@@ -3407,7 +3411,25 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155897: ///< Earthshaking Collision (Oregorger)
                 spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
+            case 160382: ///< Defense (Security Guard)
+            case 158246: ///< Hot Blooded (Foreman Feldspar)
+            case 156932: ///< Rupture DoT (Foreman Feldspar)
+            case 155223: ///< Melt DoT (Heart of the Mountain)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
+                break;
+            case 155201: ///< Electrocution (Furnace Engineer)
+                spellInfo->Effects[EFFECT_0].ChainTarget = 2;
+                break;
+            case 155196: ///< Fixate (Slag Elemental)
+                spellInfo->MaxAffectedTargets = 1;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
+            case 168178: ///< Salvage (garrison loot spell)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
+                break;
             case 167650: ///< Loose Quills (Rukhmar)
             case 167630: ///< Blaze of Glory (Rukhmar)
                 spellInfo->Effects[EFFECT_0].SetRadiusIndex(EFFECT_RADIUS_5_YARDS); ///< 5yd
@@ -3522,6 +3544,19 @@ void SpellMgr::LoadSpellCustomAttr()
             case 164885: ///< Dreadpetal Toxin
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 143569:
+                spellInfo->Effects[0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                spellInfo->AttributesEx4 = 0;
+                spellInfo->AttributesEx5 = 0;
+                spellInfo->AttributesEx6 = 0;
+                spellInfo->AttributesEx9 = 0;
+                break;
+            case 167977:
+            case 169495:
+                spellInfo->AuraInterruptFlags = 0;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
                 /// Auchindon
             case 156862: ///< Drain Soul Cosmetic
@@ -3815,7 +3850,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
                 break;
-            case 102401:///< Wild Charge (Ally)
+            case 102401:///< Wild Charge (Unform spell)
+                spellInfo->Effects[EFFECT_1].ValueMultiplier = 25.0f;
+                spellInfo->Effects[EFFECT_1].MiscValue = 50;
+                break;
             case 94954: ///< Heroic Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
@@ -4041,22 +4079,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 142421: ///< Swiftmend (treant)
                 spellInfo->Effects[1].TargetA = TARGET_DEST_TARGET_ANY;
                 break;
-            case 53651: ///< Beacon of Light (dummy)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(48); ///< 60 yards
-                spellInfo->ProcFlags = 0x8A20;
-                break;
-            case 53563: ///< Beacon of Light
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
-                spellInfo->Effects[0].Amplitude = 1500;
-                break;
             case 156910: ///< Beacon of Faith
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
-                spellInfo->Effects[0].Amplitude = 1500;
-                spellInfo->ProcChance = 100;
+            case 53563: ///< Beacon of Light
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                break;
+            case 53651: ///< Beacon of Light
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); ///< -1ms
                 break;
             case 129869: ///< Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
@@ -6576,6 +6604,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 119392: ///< Charging Ox Wave
                 case 147490: ///< Healing Rain
                 case 120644: ///< Halo (damage)
                 case 120517: ///< Halo (heal)

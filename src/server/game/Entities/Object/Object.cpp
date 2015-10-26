@@ -3330,9 +3330,8 @@ GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float
 
 Player* WorldObject::FindNearestPlayer(float range, bool alive)
 {
-    /// @TODO fix alive player search
     Player* player = NULL;
-    JadeCore::AnyPlayerInObjectRangeCheck check(this, range);
+    JadeCore::AnyPlayerInObjectRangeCheck check(this, range, alive);
     JadeCore::PlayerSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(this, player, check);
     VisitNearbyWorldObject(range, searcher);
     return player;
@@ -3386,11 +3385,11 @@ void WorldObject::GetCreatureListInGrid(std::list<Creature*>& creatureList, floa
     cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
 }
 
-void WorldObject::GetPlayerListInGrid(std::list<Player*>& playerList, float maxSearchRange) const
+void WorldObject::GetPlayerListInGrid(std::list<Player*>& playerList, float maxSearchRange, bool p_Self /*= false*/) const
 {
-    JadeCore::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange);
+    JadeCore::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange, true, p_Self);
     JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(this, playerList, checker);
-    this->VisitNearbyWorldObject(maxSearchRange, searcher);
+    VisitNearbyWorldObject(maxSearchRange, searcher);
 }
 
 void WorldObject::GetGameObjectListWithEntryInGridAppend(std::list<GameObject*>& gameobjectList, uint32 entry, float maxSearchRange) const

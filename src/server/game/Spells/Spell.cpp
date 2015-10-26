@@ -1201,7 +1201,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
 
 void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTargetInfo const& p_TargetType, uint32 p_EffMask)
 {
-    Unit* l_Referer = NULL;
+    Unit* l_Referer = nullptr;
     switch (p_TargetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
@@ -1232,7 +1232,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
     if (!l_Referer)
         return;
 
-    Position const* l_Center = NULL;
+    Position const* l_Center = nullptr;
     switch (p_TargetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
@@ -2912,30 +2912,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
-    /// Your finishing moves restore X Energy per combo
-    if (m_needComboPoints)
-    {
-        if (Player* l_Caster = m_caster->ToPlayer())
-        {
-            if (int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT))
-            {
-                if (l_Caster->HasAura(158476)) ///< Soul of the forest
-                {
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
-                }
-                else if (l_Caster->HasAura(14161)) ///< Ruthlessness
-                {
-                    if (roll_chance_i(20 * l_Combo))
-                    {
-                        m_comboPointGain += 1;
-                        l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
-                    }
-                }
-            }
-        }
-    }
-
     // Do not take combo points on dodge and miss
     if (missInfo != SPELL_MISS_NONE && m_needComboPoints &&
             m_targets.GetUnitTargetGUID() == target->targetGUID)
@@ -4407,6 +4383,9 @@ void Spell::finish(bool ok)
 
     if (m_spellInfo->IsChanneled())
         m_caster->UpdateInterruptMask();
+
+    if (m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->IsAIEnabled)
+        m_caster->ToCreature()->AI()->OnSpellFinished(m_spellInfo);
 
     if (IsAutoActionResetSpell())
     {

@@ -1368,12 +1368,20 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
 
-    pCurrChar->HandleStoreItemCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM));
-    pCurrChar->HandleStoreGoldCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD));
-    pCurrChar->HandleStoreTitleCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE));
-    pCurrChar->HandleStoreLevelCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL));
-    pCurrChar->HandleStoreProfessionCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_STORE_PROFESSION));
-    pCurrChar->SaveToDB();
+    PreparedQueryResult l_ItemResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM);
+    PreparedQueryResult l_GoldResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD);
+    PreparedQueryResult l_TitleResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE);
+    PreparedQueryResult l_LevelResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL);
+    PreparedQueryResult l_ProfessionResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_STORE_PROFESSION);
+
+    pCurrChar->HandleStoreItemCallback(l_ItemResult);
+    pCurrChar->HandleStoreGoldCallback(l_GoldResult);
+    pCurrChar->HandleStoreTitleCallback(l_TitleResult);
+    pCurrChar->HandleStoreLevelCallback(l_LevelResult);
+    pCurrChar->HandleStoreProfessionCallback(l_ProfessionResult);
+
+    if (l_ItemResult || l_GoldResult || l_TitleResult || l_LevelResult || l_ProfessionResult)
+        pCurrChar->SaveToDB();
 
     delete l_CharacterHolder;
     delete l_LoginHolder;

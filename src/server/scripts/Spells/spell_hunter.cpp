@@ -49,7 +49,8 @@ enum HunterSpells
     HUNTER_SPELL_KILL_COMMAND                       = 34026,
     HUNTER_SPELL_KILL_COMMAND_TRIGGER               = 83381,
     HUNTER_SPELL_KILL_COMMAND_CHARGE                = 118171,
-    HUNTER_SPELL_SPIRIT_BOND                        = 118694,
+    HUNTER_SPELL_SPIRIT_BOND_BUFF                   = 118694,
+    HUNTER_SPELL_SPIRIT_BOND                        = 109212,
     SPELL_MAGE_TEMPORAL_DISPLACEMENT                = 80354,
     HUNTER_SPELL_INSANITY                           = 95809,
     SPELL_SHAMAN_SATED                              = 57724,
@@ -1238,9 +1239,9 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->GetPet() == nullptr)
-                        l_Player->RemoveAura(HUNTER_SPELL_SPIRIT_BOND);
-                    else if (!l_Player->HasAura(HUNTER_SPELL_SPIRIT_BOND))
-                        l_Player->CastSpell(l_Player, HUNTER_SPELL_SPIRIT_BOND, true);
+                        l_Player->RemoveAura(HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF);
+                    else if (!l_Player->HasAura(HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF))
+                        l_Player->CastSpell(l_Player, HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF, true);
                 }
             }
 
@@ -1251,7 +1252,7 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Caster, HUNTER_SPELL_SPIRIT_BOND, true);
+                l_Caster->CastSpell(l_Caster, HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1261,7 +1262,12 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                l_Caster->RemoveAura(HUNTER_SPELL_SPIRIT_BOND);
+                l_Caster->RemoveAura(HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF);
+                if (l_Caster->GetTypeId() == TypeID::TYPEID_PLAYER)
+                {
+                    if (Unit* l_Pet = l_Caster->ToPlayer()->GetPet())
+                        l_Pet->RemoveAura(HunterSpells::HUNTER_SPELL_SPIRIT_BOND);
+                }
             }
 
             void Register()

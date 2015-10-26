@@ -1734,26 +1734,9 @@ class spell_sha_flame_shock : public SpellScriptLoader
                 }
             }
 
-            void OnTick(constAuraEffectPtr p_AurEff)
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster == nullptr)
-                    return;
-
-                SpellInfo const* l_GlyphOfFlameShock = sSpellMgr->GetSpellInfo(eSpells::GlyphOfFlameShock);
-
-                if (l_Caster->HasAura(eSpells::GlyphOfFlameShock))
-                {
-                    int32 l_Healing = CalculatePct(p_AurEff->GetAmount(), l_GlyphOfFlameShock->Effects[EFFECT_0].BasePoints);
-                    l_Caster->HealBySpell(l_Caster, GetSpellInfo(), l_Healing, false);
-                }
-            }
-
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_flame_shock_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_flame_shock_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
