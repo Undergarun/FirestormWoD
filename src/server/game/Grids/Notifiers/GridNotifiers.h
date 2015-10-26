@@ -1514,7 +1514,7 @@ namespace JadeCore
                     return false;
 
                 /// Don't add self
-                if (_obj->GetGUID() == u->GetGUID())
+                if (!m_Self && _obj->GetTypeId() == TypeID::TYPEID_PLAYER && _obj->GetGUID() == u->GetGUID())
                     return false;
 
                 return true;
