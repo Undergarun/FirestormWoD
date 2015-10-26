@@ -2677,6 +2677,10 @@ class Unit : public WorldObject
         uint64 GetHealingRainTrigger() const { return m_HealingRainTrigger; }
         uint64 m_HealingRainTrigger;
 
+        void SetPersonnalChauffeur(uint64 p_Guid) { m_PersonnalChauffeur = p_Guid; }
+        uint64 GetPersonnalChauffeur() const { return m_PersonnalChauffeur; }
+        uint64 m_PersonnalChauffeur;
+
     public:
         uint64 _petBattleId;
 

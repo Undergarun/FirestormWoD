@@ -303,6 +303,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_lastVisibilityUpdPos = *this;
 
     m_HealingRainTrigger = 0;
+
+    m_PersonnalChauffeur = 0;
 }
 
 ////////////////////////////////////////////////////////////

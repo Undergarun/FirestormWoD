@@ -33702,6 +33702,26 @@ void Player::RewardCompletedAchievementsIfNeeded()
             }
         }
 
+        /// Hack fix for Chauffeured Chopper, item sent is a gift box, containing Horde or Alliance chopper, so no learned spell
+        if (l_ItemTemplate->ItemId == 122718)
+        {
+            switch (GetTeamId())
+            {
+                case TeamId::TEAM_ALLIANCE:
+                {
+                    l_SpellLearned = 179245;
+                    break;
+                }
+                case TeamId::TEAM_HORDE:
+                {
+                    l_SpellLearned = 179244;
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
         /// - Only support mount / pet items
         /// - Because we have not way to know if the player have already get the reward otherwise
         if (!l_SpellLearned)
