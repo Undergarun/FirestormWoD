@@ -1859,7 +1859,7 @@ class spell_monk_surging_mist: public SpellScriptLoader
                     return;
 
                 if ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && !l_Player->HasAura(eSpells::StanceoftheSturdyOx)) ||
-                    ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec()) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
+                    (((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec())) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
                     l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, -30, POWER_ENERGY);
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && !l_Player->HasAura(eSpells::StanceoftheWiseSerpent))
                     l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
