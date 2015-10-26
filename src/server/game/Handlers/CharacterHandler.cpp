@@ -1548,6 +1548,7 @@ void WorldSession::BuildCharacterRename(WorldPacket* p_Packet, ObjectGuid p_Guid
     *p_Packet << uint8(p_Result);
     p_Packet->WriteBit(p_Guid != 0);
     p_Packet->WriteBits(p_Name.size(), 6);
+    p_Packet->FlushBits();
 
     if (p_Guid != 0)
         p_Packet->appendPackGUID(p_Guid);
