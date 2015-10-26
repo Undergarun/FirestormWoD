@@ -3902,6 +3902,8 @@ class spell_dru_rip: public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
 
                 int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
