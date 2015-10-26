@@ -103,6 +103,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_TRANSFERS_DUMP, "SELECT `id`, `account`, `guid` FROM webshop_delivery_interrealm_transfer WHERE `startrealm` = ? AND state = 0", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_SEL_TRANSFERS_LOAD, "SELECT `id`, `account`, `guid`, `dump` FROM webshop_delivery_interrealm_transfer WHERE `destrealm` = ? AND state = 1", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UPD_TRANSFER_PDUMP, "UPDATE webshop_delivery_interrealm_transfer SET state = 1, dump = ? WHERE id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_SEL_TRANSFERS_EXP_LOAD, "SELECT `id`, `account`, `guid`, `dump` FROM webshop_delivery_interexp_transfer WHERE `destrealm` = ? AND state = 1", CONNECTION_ASYNC);
 
     // Battle pets
 #define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account, declinedGenitive, declinedNative, declinedAccusative, declinedInstrumental, declinedPrepositional"
