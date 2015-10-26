@@ -2227,17 +2227,6 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                 RevealingStrike        = 84617
             };
 
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(eSpells::ReltentlessStrikesAura))
-                {
-                    if (roll_chance_i(20 * l_Caster->GetPower(POWER_COMBO_POINT)))
-                        l_Caster->CastSpell(l_Caster, eSpells::ReltentlessStrikesProc, true);
-                }
-            }
-
             void HandleDamage(SpellEffIndex effIndex)
             {
                 Unit* l_Caster = GetCaster();
@@ -2287,8 +2276,6 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_rog_relentless_strikes_SpellScript::HandleOnHit);
-
                 switch (m_scriptSpellId)
                 {
                     case eSpells::Evicerate:
