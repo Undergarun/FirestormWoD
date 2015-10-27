@@ -19034,8 +19034,10 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
     if (type != CHARM_TYPE_VEHICLE && !GetCharmInfo())
-    {
         InitCharmInfo();
+
+    if (type != CHARM_TYPE_VEHICLE)
+    {
         if (type == CHARM_TYPE_POSSESS)
             GetCharmInfo()->InitPossessCreateSpells();
         else
