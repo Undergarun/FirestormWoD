@@ -5216,6 +5216,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     WorldPacket data(SMSG_UNLEARNED_SPELLS, 4 + 4);
                     data << uint32(1);  // Count spells, always one by one
                     data << uint32(spellId);
+                    data.WriteBit(0);   ///< Unk Wod
                     GetSession()->SendPacket(&data);
                 }
             }
@@ -5839,6 +5840,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         WorldPacket data(SMSG_UNLEARNED_SPELLS, 4 + 4);
         data << uint32(1);  // Count spells, always one by one
         data << uint32(spell_id);
+        data.WriteBit(0);   ///< Unk Wod
         GetSession()->SendPacket(&data);
     }
 }
@@ -9469,6 +9471,18 @@ void Player::SendPvpRewards()
 
     l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD);           ///< Conquest points from Rated BG win
     l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD);              ///< Conquest points from Arena win
+
+    l_Packet << (uint32)0;  ///< Mask
+    l_Packet << (uint32)0;  ///< RewardMoney
+    l_Packet << (uint32)0;  ///< RewardXP
+
+    l_Packet << (uint32)0;  ///< ItemCount
+    l_Packet << (uint32)0;  ///< CurrencyCount
+    l_Packet << (uint32)0;  ///< QuantityCount
+
+    l_Packet.WriteBit(false);   ///< unk
+
+    /// 2x the same reader
 
     l_Packet << (uint32)0;  ///< Mask
     l_Packet << (uint32)0;  ///< RewardMoney

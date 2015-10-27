@@ -583,7 +583,7 @@ enum Opcodes
         SMSG_GUILD_CHALLENGE_UPDATED                = 0x017E, ///< 6.2.2 20574
         SMSG_GUILD_MEMBER_RECIPES                   = 0x0000, ///< (unused)
         SMSG_GUILD_INVITE_EXPIRED                   = 0x0000, ///< (unused)
-        SMSG_GUILD_COMMAND_RESULT                   = 0x1175, ///< 6.2.2 20574
+        SMSG_GUILD_COMMAND_RESULT                   = 0x1926, ///< 6.2.2 20574
         SMSG_GUILD_CHALLENGE_COMPLETED              = 0x016D, ///< 6.2.2 20574
         SMSG_GUILD_REPUTATION_REACTION_CHANGED      = 0x112F, ///< 6.2.2 20574
         SMSG_GUILD_KNOWN_RECIPES                    = 0x017D, ///< 6.2.2 20574
@@ -1063,7 +1063,7 @@ enum Opcodes
     CMSG_SPLIT_ITEM                             = 0x120A, ///< 6.2.2 20574
     CMSG_SET_PLAYER_DECLINED_NAMES              = 0x01F9, ///< 6.2.2 20574
     CMSG_MOUNT_SET_FAVORITE                     = 0x09A4, ///< 6.2.2 20574
-    CMSG_SORT_BAGS                              = 0x1C1A, ///< 6.2.2 20574
+    CMSG_SORT_BAGS                              = 0x1BCE, ///< 6.2.2 20574
     CMSG_CHAR_RENAME                            = 0x01FC, ///< 6.2.2 20574
     CMSG_CHAR_CUSTOMIZE                         = 0x01B2, ///< 6.2.2 20574
     CMSG_CHAR_RACE_OR_FACTION_CHANGE            = 0x00B4, ///< 6.2.2 20574
