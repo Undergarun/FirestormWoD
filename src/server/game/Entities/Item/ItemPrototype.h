@@ -1010,6 +1010,17 @@ struct ItemTemplate
 
         return true;
     }
+
+    bool HasStats() const
+    {
+        for (uint8 l_I = 0; l_I < MAX_ITEM_PROTO_STATS; ++l_I)
+        {
+            if (ItemStat[l_I].ItemStatValue != 0)
+                return true;
+        }
+
+        return false;
+    }
 };
 
 enum ItemSpecStat
