@@ -1361,6 +1361,7 @@ bool Aura::CanBeSaved() const
         case 37025: // Water, Coilfang Raid
         case 36444: // Water, Lake Wintergrasp
         case 28801: // Slime, Naxxramas
+        case 168506:///< Ancient Artifact (Ashran PvP Zone)
             return false;
         default:
             break;
