@@ -2802,14 +2802,17 @@ class spell_sha_call_lightning : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Owner = l_Caster->GetOwner();
+                Unit* l_Target = GetHitUnit();
 
-                if (l_Owner == nullptr)
+                if (l_Owner == nullptr || l_Target == nullptr)
                     return;
 
                 if (l_Owner->GetTypeId() != TYPEID_PLAYER)
                     return;
 
                 int32 l_Damage = int32(l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier);
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
             }
