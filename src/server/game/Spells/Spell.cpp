@@ -4844,11 +4844,8 @@ void Spell::SendSpellStart()
 
     data << uint32(l_ExtraTargetsCount);
 
-    if (l_CastFlags & CAST_FLAG_IMMUNITY)
-    {
-        data << uint32(l_SchoolImmunityMask);
-        data << uint32(l_MechanicImmunityMask);
-    }
+    data << uint32(l_SchoolImmunityMask);
+    data << uint32(l_MechanicImmunityMask);
 
     data << uint32(l_PredictAmount);
     data << uint8(l_PredicType);
