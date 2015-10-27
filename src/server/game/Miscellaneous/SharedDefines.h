@@ -2162,7 +2162,7 @@ enum Targets
     TARGET_UNK_140                     = 140,
     TARGET_UNK_141                     = 141,
     TARGET_UNK_142                     = 142,
-    TARGET_UNK_143                     = 143,
+    TARGET_ENNEMIES_AROUND_CASTER      = 143,
     TARGET_UNK_144                     = 144,
     TARGET_UNK_145                     = 145,
     TARGET_UNK_146                     = 146,

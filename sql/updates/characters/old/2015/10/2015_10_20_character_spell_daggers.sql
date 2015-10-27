@@ -1,0 +1,1 @@
+DELETE FROM character_spell WHERE `spell`=1180 AND `guid` IN(SELECT `guid` FROM characters WHERE `class`=10);

@@ -559,7 +559,7 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
 
     if (m_Player->InBattleground())
     {
-        SendPartyResult(PARTY_CMD_INVITE, "", ERR_INVITE_RESTRICTED);
+        SendPartyResult(PARTY_CMD_INVITE, "", ERR_LFG_PENDING);
         return;
     }
 

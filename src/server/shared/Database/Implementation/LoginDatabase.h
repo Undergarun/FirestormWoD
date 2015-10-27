@@ -123,6 +123,7 @@ enum LoginDatabaseStatements
     LOGIN_SEL_TRANSFERS_DUMP,
     LOGIN_SEL_TRANSFERS_LOAD,
     LOGIN_UPD_TRANSFER_PDUMP,
+    LOGIN_SEL_TRANSFERS_EXP_LOAD,
     //////////////////////////////////////////////////////////////////////////
 
     LOGIN_SEL_BATTLEPAY_POINTS,

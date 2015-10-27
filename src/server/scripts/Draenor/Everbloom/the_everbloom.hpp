@@ -7,19 +7,28 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-enum eEverbloomData
+# include "InstanceScript.h"
+
+enum eEverbloomDatas
 {
-    DataWitherbark       = 1,
-    DataLifeWardenGola,
-    DataEarthshaperTelu,
-    DataDulhu,
-    DataXeritac,
+    /// Common bosses
+    DataWitherbark,
+    DataAncientProtectors,
     DataArchmageSol,
-    DataRpYalnu,
     DataYalnu,
+    DataMaxBosses,
+
+    /// Optional boss
+    DataXeritac,
+
+    /// Misc datas
+    DataRpYalnu,
     DataRpMage,
     DataObjectVineWall,
-    DataObjectWebDoor
+    DataObjectWebDoor,
+    DataLifeWardenGola,
+    DataEarthshaperTelu,
+    DataDulhu
 };
 
 enum eEverbloomBosses
@@ -39,7 +48,7 @@ enum eEverbloomGameObjects
     ObjectWebDoor        = 195485
 };
 
-enum eEverbloomCreature
+enum eEverbloomCreatures
 {
     // Everbloom General:
     CreatureDreadpetalToxin        = 81864,

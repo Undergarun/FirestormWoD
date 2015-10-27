@@ -137,16 +137,32 @@ class spell_dru_tooth_and_claw_absorb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_tooth_and_claw_absorb_AuraScript);
 
-            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
-                if (Unit* attacker = dmgInfo.GetAttacker())
-                    if (!attacker->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA))
-                        absorbAmount = 0;
+                Unit* l_Attacker = p_DmgInfo.GetAttacker();
+
+                if (l_Attacker == nullptr)
+                    return;
+
+                if (!l_Attacker->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA))
+                    p_AbsorbAmount = 0;
+            }
+
+            void AfterAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Attacker = p_DmgInfo.GetAttacker();
+
+                if (l_Attacker == nullptr || l_Caster == nullptr)
+                    return;
+
+                l_Attacker->RemoveAura(SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, l_Caster->GetGUID());
             }
 
             void Register()
             {
                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dru_tooth_and_claw_absorb_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dru_tooth_and_claw_absorb_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
@@ -265,13 +281,14 @@ public:
                         l_Party.resize(1);
                     }
 
-                    const SpellInfo* l_DreamOfCenariusSpellInfo = l_Caster->GetAura(SPELL_DRUID_DREAM_OF_CENARIUS_RESTO_TALENT)->GetSpellInfo();
+                    SpellInfo const* l_DreamOfCenariusSpellInfo = l_Caster->GetAura(SPELL_DRUID_DREAM_OF_CENARIUS_RESTO_TALENT)->GetSpellInfo();
+                    SpellInfo const* l_DreamOfCenariusHealSpellInfo = sSpellMgr->GetSpellInfo(SPELL_DRUID_DREAM_OF_CENARIUS_HEAL);
 
-                    if (!l_DreamOfCenariusSpellInfo)
+                    if (l_DreamOfCenariusSpellInfo == nullptr || l_DreamOfCenariusHealSpellInfo == nullptr)
                         return;
 
                     int32 l_HealAmount = CalculatePct(GetHitDamage(), l_DreamOfCenariusSpellInfo->Effects[EFFECT_1].BasePoints);
-                    l_Caster->CastCustomSpell(l_Party.front(), SPELL_DRUID_DREAM_OF_CENARIUS_HEAL, &l_HealAmount, NULL, NULL, true);
+                    l_Caster->HealBySpell(l_Party.front(), l_DreamOfCenariusHealSpellInfo, l_HealAmount, false, false);
                 }
             }
         }
@@ -609,26 +626,28 @@ class spell_dru_maul: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 damage = GetHitDamage();
+                        int32 l_Damage = GetHitDamage();
 
                         // Deals 20% more damage if target is bleeding
-                        if (target->HasAuraState(AURA_STATE_BLEEDING))
+                        if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
                         {
-                            AddPct(damage, GetSpellInfo()->Effects[EFFECT_3].BasePoints);
-                            SetHitDamage(damage);
+                            AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_3].BasePoints);
+                            SetHitDamage(l_Damage);
                         }
 
-                        if (caster->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
+                        if (l_Caster->HasAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
                         {
-                            int32 bp = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.4f;
+                            int32 l_Bp = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.4f;
 
-                            caster->RemoveAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA);
-                            caster->CastCustomSpell(caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &bp, NULL, NULL, true);
-                            caster->CastCustomSpell(target, SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, &bp, NULL, NULL, true);
+                            l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &l_Bp, NULL, NULL, true);
+                            l_Caster->CastCustomSpell(l_Target, SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, &l_Bp, NULL, NULL, true);
+
+                            if (AuraPtr l_AuraPtr = l_Caster->GetAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
+                                l_AuraPtr->SetStackAmount(l_AuraPtr->GetStackAmount() - 1);
                         }
                     }
                 }
@@ -3883,6 +3902,8 @@ class spell_dru_rip: public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
 
                 int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
@@ -5066,6 +5087,34 @@ class spell_dru_treant_wrath : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Soul of the forest - 158476
+class PlayerScript_soul_of_the_forest : public PlayerScript
+{
+    public:
+        PlayerScript_soul_of_the_forest() : PlayerScript("PlayerScript_ruthlessness") { }
+
+        enum eSpells
+        {
+            SoulOfTheForestAura = 158476
+        };
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        {
+            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_DRUID || !p_Player->HasAura(eSpells::SoulOfTheForestAura))
+                return;
+
+            if (p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SPEC_DRUID_FERAL)
+                return;
+
+            /// Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_DiffVal = p_NewValue - p_OldValue;
+
+            if (l_DiffVal < 0)
+                p_Player->EnergizeBySpell(p_Player, eSpells::SoulOfTheForestAura, 4 * -l_DiffVal, POWER_ENERGY);
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_incarnation_tree_of_life();
@@ -5157,4 +5206,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_gyph_of_the_flapping_owl();
     new spell_dru_glyph_of_rake();
     new spell_dru_treant_wrath();
+
+    /// PlayerScript
+    new PlayerScript_soul_of_the_forest();
 }

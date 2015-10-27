@@ -1296,6 +1296,60 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
         }
 };
 
+/// last update : 6.1.2 19802
+/// Charging Ox Wave - 119392
+class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_monk_charging_ox_wave() : AreaTriggerEntityScript("spell_at_monk_charging_ox_wave") { }
+
+        enum eSpells
+        {
+            Stun = 123687
+        };
+
+        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+        {
+            Position l_Position;
+            float l_Dist = 30.f;
+
+            l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
+            l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
+            l_Position.m_positionZ = p_SourcePosition.m_positionZ;
+
+            p_PathToLinearDestination.push_back(l_Position);
+            p_DestinationPosition = l_Position;
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            Unit* l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+            if (l_AreaTriggerCaster == nullptr)
+                return;
+
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 2.0f;
+
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Target : l_TargetList)
+            {
+                if (l_Target == nullptr)
+                    return;
+
+                if (!l_Target->HasAura(eSpells::Stun))
+                    l_AreaTriggerCaster->CastSpell(l_Target, eSpells::Stun, true);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_monk_charging_ox_wave();
+        }
+};
 
 void AddSC_areatrigger_spell_scripts()
 {
@@ -1328,6 +1382,7 @@ void AddSC_areatrigger_spell_scripts()
     new spell_at_monk_chi_sphere_afterlife();
     new spell_at_monk_gift_of_the_ox();
     new spell_at_monk_chi_burst();
+    new spell_at_monk_charging_ox_wave();
 
     /// Priest Area Trigger
     new spell_at_pri_divine_star();

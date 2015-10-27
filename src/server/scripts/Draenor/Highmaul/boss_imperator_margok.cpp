@@ -671,21 +671,25 @@ class boss_imperator_margok : public CreatureScript
                     case eSpells::DestructiveResonanceFortificationSearch:
                     case eSpells::DestructiveResonanceReplicationSearch:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true))
+                        Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true);
+                        if (l_Target == nullptr || me->GetDistance(l_Target) >= 100.0f)
+                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f, true);
+
+                        if (l_Target != nullptr)
                             me->CastSpell(*l_Target, eSpells::DestructiveResonanceSummon, true);
 
                         break;
                     }
                     case eSpells::ArcaneWrathSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
                             me->CastSpell(l_Target, eSpells::ArcaneWrathBranded, true);
 
                         break;
                     }
                     case eSpells::ArcaneWrathDisplacementSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
                             me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedDisplacement, true);
 
                         break;
@@ -757,7 +761,7 @@ class boss_imperator_margok : public CreatureScript
                     }
                     case eSpells::ArcaneWrathFortificationSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
                             me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedFortification, true);
 
                         break;
@@ -797,7 +801,7 @@ class boss_imperator_margok : public CreatureScript
                     }
                     case eSpells::ArcaneWrathReplicationSearcher:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 60.0f))
                             me->CastSpell(l_Target, eSpells::ArcaneWrathBrandedReplication, true);
 
                         break;
@@ -2556,7 +2560,8 @@ class spell_highmaul_branded : public SpellScriptLoader
                         {
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
-                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2666,7 +2671,8 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                         {
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
-                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2753,7 +2759,8 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                         {
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
-                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2838,7 +2845,8 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                         {
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
-                            l_AI->AddTimedDelayedOperation(100 * TimeConstants::IN_MILLISECONDS, [this, l_Guid, l_MeGuid]() -> void
+
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
