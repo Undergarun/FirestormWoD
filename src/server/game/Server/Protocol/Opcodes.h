@@ -90,10 +90,10 @@ enum Opcodes
         SMSG_LOG_XP_GAIN                            = 0x0C71, ///< 6.2.2 20574
         SMSG_LEVELUP_INFO                           = 0x0E72, ///< 6.2.2 20574
         SMSG_ITEM_PUSH_RESULT                       = 0x00E1, ///< 6.2.2 20574
-        SMSG_INIT_CURRENCY                          = 0x05A2, ///< 6.2.2 20574
-        SMSG_UPDATE_CURRENCY                        = 0x01BC, ///< 6.2.2 20574
-        SMSG_UPDATE_CURRENCY_WEEK_LIMIT             = 0x03F1, ///< 6.2.2 20574
-        SMSG_WEEKLY_RESET_CURRENCY                  = 0x1C22, ///< 6.2.2 20574
+        SMSG_INIT_CURRENCY                          = 0x0D19, ///< 6.2.2 20574
+        SMSG_UPDATE_CURRENCY                        = 0x051D, ///< 6.2.2 20574
+        SMSG_UPDATE_CURRENCY_WEEK_LIMIT             = 0x01AB, ///< 6.2.2 20574
+        SMSG_WEEKLY_RESET_CURRENCY                  = 0x050D, ///< 6.2.2 20574
         SMSG_EQUIPMENT_SET_LIST                     = 0x0C69, ///< 6.2.2 20574
         SMSG_BINDER_CONFIRM                         = 0x0DCE, ///< 6.2.2 20574
         SMSG_BIND_POINT_UPDATE                      = 0x04C9, ///< 6.2.2 20574
@@ -192,7 +192,7 @@ enum Opcodes
         SMSG_CROSSED_INEBRIATION_THRESHOLD          = 0x069E, ///< 6.2.2 20574
         SMSG_CLIENT_CONTROL_UPDATE                  = 0x0C3A, ///< 6.2.2 20574
         SMSG_AREA_TRIGGER_NO_CORPSE                 = 0x0AAB, ///< 6.2.2 20574
-        SMSG_BAG_SORT_RESULT                        = 0x0B79, ///< 6.2.2 20574
+        SMSG_BAG_SORT_RESULT                        = 0x070D, ///< 6.2.2 20574
         SMSG_VIGNETTE_UPDATE                        = 0x0419, ///< 6.2.2 20574
         SMSG_ACCOUNT_MOUNT_UPDATE                   = 0x03B4, ///< 6.2.2 20574
         SMSG_PLAY_SCENE                             = 0x09A4, ///< 6.2.2 20574
@@ -399,18 +399,18 @@ enum Opcodes
         SMSG_PET_BATTLE_SLOT_UPDATES                        = 0x0BA4, ///< 6.2.2 20574
 
         /// Instances
-        SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                     = 0x070D, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT                  = 0x0D19, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY                 = 0x051D, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_TIMER_START                     = 0x01AB, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                 = 0x050D, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE              = 0x02B9, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_START                           = 0x0932, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                = 0x0F09, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_END                             = 0x0864, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION          = 0x08AA, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED             = 0x0B34, ///< 6.2.2 20574
-        SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE = 0x0D5D, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                     = 0x02B9, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT                  = 0x0932, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY                 = 0x0F09, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_TIMER_START                     = 0x0864, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                 = 0x08AA, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE              = 0x0B34, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_START                           = 0x0D5D, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                = 0x05A2, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_END                             = 0x01BC, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION          = 0x03F1, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED             = 0x1C22, ///< 6.2.2 20574
+        SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE = 0x0B79, ///< 6.2.2 20574
         SMSG_INSTANCE_RESET                                     = 0x03B3, ///< 6.2.2 20574
         SMSG_INSTANCE_RESET_FAILED                              = 0x01FA, ///< 6.2.2 20574
         SMSG_RAID_INSTANCE_INFO                                 = 0x08FA, ///< 6.2.2 20574
