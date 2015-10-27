@@ -1834,8 +1834,11 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 StanceoftheSturdyOx         = 115069,
                 StanceoftheFierceTiger      = 103985,
                 StanceoftheWiseSerpent      = 115070,
-                StanceoftheSpiritedCrane    = 154436
+                StanceoftheSpiritedCrane    = 154436,
+                VitalMists                  = 118674
             };
+
+            float m_BasePowerConsume = 0.0f;
 
             void HandleOnPrepare()
             {
@@ -1844,11 +1847,19 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                    m_BasePowerConsume = 4.7f;
+                else
+                    m_BasePowerConsume = 30.0f;
+
                 if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
                 {
                     TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
                     GetSpell()->setTriggerCastFlags(l_Flags);
                 }
+
+                if (AuraEffectPtr l_VitalMists = l_Player->GetAuraEffect(eSpells::VitalMists, EFFECT_1))
+                    m_BasePowerConsume -= CalculatePct(m_BasePowerConsume, l_VitalMists->GetAmount() * -1);
             }
 
             void HandleAfterCast()
@@ -1859,10 +1870,10 @@ class spell_monk_surging_mist: public SpellScriptLoader
                     return;
 
                 if ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && !l_Player->HasAura(eSpells::StanceoftheSturdyOx)) ||
-                    ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec()) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
-                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, -30, POWER_ENERGY);
+                    (((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec())) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, (int32)m_BasePowerConsume * -1, POWER_ENERGY);
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && !l_Player->HasAura(eSpells::StanceoftheWiseSerpent))
-                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), m_BasePowerConsume) * -1, POWER_MANA);
             }
 
             void HandleHeal(SpellEffIndex effIndex)
