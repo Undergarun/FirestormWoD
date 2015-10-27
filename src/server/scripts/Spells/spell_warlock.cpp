@@ -3664,6 +3664,51 @@ class spell_warl_healthstone : public SpellScriptLoader
         }
 };
 
+/// Visual handler for Soul Shards
+class spell_warl_soul_shards_visual : public PlayerScript
+{
+public:
+    spell_warl_soul_shards_visual() : PlayerScript("spell_warl_soul_shards_visual")
+    {
+    }
+
+    enum eSpells
+    {
+        OneMainSoulShard = 104756,
+        TwoMainSoulShards = 123171,
+        TwoSoulShards = 104759
+
+    };
+
+    /// Override
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
+    {
+        p_Player->RemoveAura(eSpells::OneMainSoulShard);  ///< 1 center shard visual
+        p_Player->RemoveAura(eSpells::TwoMainSoulShards); ///< 2 center shards visual
+        p_Player->RemoveAura(eSpells::TwoSoulShards);     ///< 2 shards visual
+
+        if ((p_NewValue > (1 * p_Player->GetPowerCoeff(POWER_SOUL_SHARDS))) && (p_NewValue < (2 * p_Player->GetPowerCoeff(POWER_SOUL_SHARDS))))
+        {
+            p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
+        }
+        else if (p_NewValue < (3 * p_Player->GetPowerCoeff(POWER_SOUL_SHARDS)))
+        {
+            p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+        }
+        else if (p_NewValue < (4 * p_Player->GetPowerCoeff(POWER_SOUL_SHARDS)))
+        {
+            p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
+            p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+        }
+        else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(POWER_SOUL_SHARDS)))
+        {
+            p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+            p_Player->CastSpell(p_Player, eSpells::TwoSoulShards, true);
+        }
+    }
+};
+
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_demonic_servitude();
@@ -3742,4 +3787,5 @@ void AddSC_warlock_spell_scripts()
     new PlayerScript_WoDPvPDemonology2PBonus();
     new spell_warl_create_healthstone();
     new spell_warl_healthstone();
+    new spell_warl_soul_shards_visual();
 }
