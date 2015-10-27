@@ -2880,8 +2880,50 @@ class spell_rog_sinister_calling : public SpellScriptLoader
         }
 };
 
+/// Increased 40% if a dagger is equipped
+/// Call by Ambush - 8676, Hemorrhage - 16511
+class spell_rog_dagger_bonus : public SpellScriptLoader
+{
+    public:
+        spell_rog_dagger_bonus() : SpellScriptLoader("spell_rog_dagger_bonus") { }
+
+        class spell_rog_dagger_bonus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_dagger_bonus_SpellScript);
+
+            void HandleDamage(SpellEffIndex)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                Item* l_MainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                Item* l_OffItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                if (((l_MainItem && l_MainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (l_OffItem && l_OffItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
+                {
+                    int32 l_Damage = GetHitDamage();
+                    SetHitDamage(l_Damage + CalculatePct(l_Damage, 40));
+                }
+
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_dagger_bonus_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_dagger_bonus_SpellScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_dagger_bonus();
     new spell_rog_sinister_calling();
     new spell_rog_glyph_of_recovery();
     new spell_rog_anticipation();
