@@ -190,20 +190,20 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 
 DELETE FROM `reference_loot_template` WHERE entry = @REF_GRUUL;
 INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_GRUUL, 113848, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113849, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113850, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113851, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113852, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113853, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113854, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113855, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113856, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113857, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113858, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113859, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113860, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113861, 0, 1, 1, 1, 1);
+(@REF_GRUUL, 113862, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113863, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113864, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113865, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113866, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113867, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113868, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113869, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113870, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113871, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113872, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113873, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 118114, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 120078, 0, 1, 1, 1, 1);
 
 UPDATE `creature_template` SET `lootid`= @REF_GRUUL WHERE `entry`= @REF_GRUUL;
 
