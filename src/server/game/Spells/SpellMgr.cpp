@@ -145,6 +145,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_WARLOCK:
         {
+            /// Chaos Wave -- 124915, slow effect
+            if (spellproto->Id == 124915)
+                return DIMINISHING_NONE;
             // Mortal Coil -- 6789
             if (spellproto->SpellFamilyFlags[0] & 0x80000)
                 return DIMINISHING_INCAPACITATE;
@@ -5730,7 +5733,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 603:   ///< Doom
             case 103964:///< Touch of Chaos
             case 124915:///< Chaos Wave
-            case 157695:///< Demonbolt
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
                 break;
             case 127802: ///< Touch of The Grave (trigger)
@@ -5739,6 +5741,16 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 53:    ///< Backstap
                 spellInfo->Effects[0].BonusMultiplier = 0;
+                break;
+            case 86121: ///< Soul Swap
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
+            case 86213: ///< Soul Swap Exhale
+                spellInfo->Speed = 0;
+                break;
+            case 157695:///< Demonbolt
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_NOT_NEED_SHAPESHIFT;
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)

@@ -6231,7 +6231,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (m_spellInfo->Id == 1776 && !m_caster->HasAura(56809) && !target->HasInArc(static_cast<float>(M_PI), m_caster))
                 return SPELL_FAILED_NOT_INFRONT;
 
-            if (!IsTriggered())
+            if (!IsTriggered() || IsCommandDemonSpell())  ///< Comand Demon spells is triggered to allow cast while casting other spell, but should be checked for LoS rules too
             {
                 // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
                 if (m_caster->GetEntry() != WORLD_TRIGGER)
@@ -8981,6 +8981,26 @@ bool Spell::IsDarkSimulacrum() const
             if (m_spellInfo->Id == triggerSpell->Id)
                 return true;
         }
+    }
+
+    return false;
+}
+
+bool Spell::IsCommandDemonSpell() const
+{
+    switch (m_spellInfo->Id)
+    {
+        case 119905:
+        case 119907:
+        case 119909:
+        case 119910:
+        case 119911:
+        case 119913:
+        case 119914:
+        case 119915:
+            return true;
+        default:
+            return false;
     }
 
     return false;

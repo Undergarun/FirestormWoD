@@ -701,6 +701,7 @@ protected:
     void TriggerGlobalCooldown();
     void CancelGlobalCooldown();
     bool IsDarkSimulacrum() const;
+    bool IsCommandDemonSpell() const;
     bool IsMorePowerfulAura(Unit const* target) const;
 
     void SendLoot(uint64 guid, LootType loottype);

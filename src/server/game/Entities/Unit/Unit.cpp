@@ -676,6 +676,17 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
             || HasBreakableByDamageAuraType(SPELL_AURA_TRANSFORM, excludeAura));
 }
 
+bool Unit::HasAurasPreventCasting() const
+{
+    uint32 l_UnitFlags = GetUInt32Value(UNIT_FIELD_FLAGS);
+
+    if ((l_UnitFlags & UNIT_FLAG_SILENCED) || (l_UnitFlags & UNIT_FLAG_PACIFIED) || (l_UnitFlags & UNIT_FLAG_STUNNED) ||
+        (l_UnitFlags & UNIT_FLAG_CONFUSED))
+        return true;
+
+    return false;
+}
+
 void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 {
     if (!victim || !victim->isAlive() || victim->HasUnitState(UNIT_STATE_IN_FLIGHT) || (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode()))
@@ -4038,6 +4049,11 @@ void Unit::_RemoveNoStackAurasDueToAura(AuraPtr aura)
             (i->second->GetBase()->GetId() == 81206 ||
             i->second->GetBase()->GetId() == 81208 ||
             i->second->GetBase()->GetId() == 81209))
+            continue;
+
+        /// Hack fix for Corruption and Seed of Corruption
+        if ((spellProto->Id == 27243 && i->second->GetBase()->GetId() == 146739) ||
+            (spellProto->Id == 146739 && i->second->GetBase()->GetId() == 27243))
             continue;
 
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
@@ -14454,9 +14470,6 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
 void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 {
-    if (fabs(rate) <= 0.00000023841858) // From client
-        rate = 1.0f;
-
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
 
@@ -21716,8 +21729,22 @@ void Unit::WriteMovementUpdate(WorldPacket &data) const
     WorldSession::WriteMovementInfo(data, (MovementInfo*)&m_movementInfo);
 }
 
+Unit* Unit::GetSoulSwapDotTarget()
+{
+    if (Unit* soulSwapTarget = sObjectAccessor->FindUnit(soulSwapTargetGUID))
+    {
+        if (soulSwapTarget->IsInWorld())
+            return soulSwapTarget;
+        else
+            return NULL;
+    }
+    else
+        return NULL;
+}
+
 void Unit::RemoveSoulSwapDOT(Unit* target)
 {
+
     _SoulSwapDOTList.clear();
 
     AuraEffectList const mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
@@ -21731,15 +21758,37 @@ void Unit::RemoveSoulSwapDOT(Unit* target)
             continue;
 
         _SoulSwapDOTList.push_back((*iter)->GetId());
+        if (AuraPtr currentAura = target->GetAura((*iter)->GetId(), GetGUID()))
+            _SoulSwapDOTData.insert(new SoulSwapAurasData(currentAura->GetId(), currentAura->GetDuration(), currentAura->GetStackAmount(),
+            currentAura->GetEffect(0)->GetAmount(), currentAura->GetEffect(0)->GetPeriodicTimer()));
     }
 }
 
-void Unit::ApplySoulSwapDOT(Unit* target)
+void Unit::ApplySoulSwapDOT(Unit* caster, Unit* target)
 {
-    for (AuraIdList::const_iterator iter = _SoulSwapDOTList.begin(); iter != _SoulSwapDOTList.end(); ++iter)
-        CastSpell(target, (*iter), true);
+    if (caster->GetGUID() != target->GetGUID())
+    {
+        for (AuraIdList::const_iterator iter = _SoulSwapDOTList.begin(); iter != _SoulSwapDOTList.end(); ++iter)
+            AddAura((*iter), target);
+
+        // Restore all aura spell mods
+        for (std::set<SoulSwapAurasData*>::iterator itr = _SoulSwapDOTData.begin(); itr != _SoulSwapDOTData.end(); ++itr)
+        {
+            if (AuraPtr appliedAura = target->GetAura((*itr)->m_id, GetGUID()))
+            {
+                appliedAura->SetDuration((*itr)->m_duration);
+                appliedAura->SetStackAmount((*itr)->m_stacks);
+                appliedAura->GetEffect(0)->SetAmount((*itr)->m_damage);
+                appliedAura->GetEffect(0)->SetPeriodicTimer((*itr)->m_amplitude);
+                appliedAura->SetNeedClientUpdateForTargets();
+            }
+
+            delete (*itr);
+        }
+    }
 
     _SoulSwapDOTList.clear();
+    _SoulSwapDOTData.clear();
 }
 
 Unit* Unit::GetSimulacrumTarget()

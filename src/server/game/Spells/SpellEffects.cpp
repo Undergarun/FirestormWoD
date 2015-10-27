@@ -959,8 +959,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         if (Pet* pet = m_caster->ToPlayer()->GetPet())
                         {
-                            pet->CastSpell(unitTarget, 119899, true);
-                            m_caster->ToPlayer()->AddSpellCooldown(119905, 0, 30 * IN_MILLISECONDS);
+                            pet->CastSpell(unitTarget, 119899, false);
+                            m_caster->ToPlayer()->AddSpellCooldown(119905, 0, 30 * IN_MILLISECONDS, true);
                         }
 
                     break;
@@ -971,8 +971,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         if (m_caster->GetTypeId() == TYPEID_PLAYER)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
-                                pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119907, 0, 60 * IN_MILLISECONDS);
+                                pet->CastSpell(unitTarget, damage, false);
+                                m_caster->ToPlayer()->AddSpellCooldown(119907, 0, 60 * IN_MILLISECONDS, true);
                             }
                     break;
                 }
@@ -982,13 +982,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         if (m_caster->GetTypeId() == TYPEID_PLAYER)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
-                                pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119910, 0, 24 * IN_MILLISECONDS);
+                                pet->CastSpell(unitTarget, damage, false);
+                                m_caster->ToPlayer()->AddSpellCooldown(119910, 0, 24 * IN_MILLISECONDS, true);
                             }
                     break;
                 }
                 case 132409:// Spell Lock (Command Demon - Warlock)
-                    m_caster->CastSpell(unitTarget, 24259, true);
+                    m_caster->CastSpell(unitTarget, 24259, false);
                     break;
                 case 119911:// Optical Blast (Command Demon)
                 {
@@ -996,8 +996,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         if (m_caster->GetTypeId() == TYPEID_PLAYER)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
-                                pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119911, 0, 24 * IN_MILLISECONDS);
+                                pet->CastSpell(unitTarget, damage, false);
+                                m_caster->ToPlayer()->AddSpellCooldown(119911, 0, 24 * IN_MILLISECONDS, true);
                             }
                     break;
                 }
@@ -1008,7 +1008,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, 25 * IN_MILLISECONDS);
+                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, 25 * IN_MILLISECONDS, true);
                             }
 
                     break;
@@ -1020,7 +1020,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119913, 0, 25 * IN_MILLISECONDS);
+                                m_caster->ToPlayer()->AddSpellCooldown(119913, 0, 25 * IN_MILLISECONDS, true);
                             }
 
                     break;
