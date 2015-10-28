@@ -927,7 +927,7 @@ class boss_oregorger : public CreatureScript
                         break;
                 }
 
-                if (!UpdateVictim() || me->HasAura(eSpells::HungerDrivePeriodic))
+                if (!UpdateVictim() || m_Phase == ePhases::PhaseRolling;)
                     return;
 
                 m_Events.Update(p_Diff);
