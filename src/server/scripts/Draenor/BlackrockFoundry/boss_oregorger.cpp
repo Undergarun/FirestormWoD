@@ -735,6 +735,8 @@ class boss_oregorger : public CreatureScript
                             me->SetHomePosition(*me);
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
                             std::list<Creature*> l_CrateList;
                             me->GetCreatureListWithEntryInGrid(l_CrateList, eCreatures::OreCrateCosmetic, 150.0f);
 
@@ -890,6 +892,8 @@ class boss_oregorger : public CreatureScript
 
                             me->SetWalk(true);
                             me->SetSpeed(UnitMoveType::MOVE_WALK, 10.0f);
+
+                            me->SetReactState(ReactStates::REACT_PASSIVE);
 
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MovePoint(m_MoveIndex, g_MovePos[m_MoveIndex]);
