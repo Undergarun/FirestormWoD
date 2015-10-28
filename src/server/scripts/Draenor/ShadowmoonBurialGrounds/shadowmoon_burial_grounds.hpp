@@ -22,6 +22,7 @@ static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 
 #define HostileFaction 16
 #define FriendlyFaction 35
+#define InvisibleDisplay 11686
 
 enum eShadowmoonBurialGroundsDatas
 {
