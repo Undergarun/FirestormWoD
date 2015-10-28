@@ -678,8 +678,8 @@ void Map::Update(const uint32 t_diff)
     sScriptMgr->OnMapUpdate(this, t_diff);
 
     uint32 l_TimeElapsed = getMSTime() - l_Time;
-    if (l_TimeElapsed > 10)
-        sMapMgr->RegisterMapDelay(GetId(), l_TimeElapsed);
+    //if (l_TimeElapsed > 10)
+    //    sMapMgr->RegisterMapDelay(GetId(), l_TimeElapsed);
 }
 
 void Map::RemovePlayerFromMap(Player* player, bool remove)
