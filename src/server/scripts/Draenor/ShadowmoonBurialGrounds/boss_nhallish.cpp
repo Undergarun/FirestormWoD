@@ -267,9 +267,7 @@ public:
 
             // Reset phase Counter
             if (m_PhaseCounter >= 4)
-            {
                 m_PhaseCounter = 0;
-            }
 
             if (m_Vortex)
             {
@@ -376,13 +374,13 @@ public:
 
     bool OnGossipHello(Player* p_Player, Creature* p_Creature)
     {   
-        if (shadowmoon_burial_grounds_soul::shadowmoon_burial_grounds_creaturesAI* linkAI = CAST_AI(shadowmoon_burial_grounds_soul::shadowmoon_burial_grounds_creaturesAI, creature->GetAI()))
+        if (shadowmoon_burial_grounds_soul::shadowmoon_burial_grounds_creaturesAI* l_LinkAI = CAST_AI(shadowmoon_burial_grounds_soul::shadowmoon_burial_grounds_creaturesAI, p_Creature->GetAI()))
         {
-            if (linkAI && linkAI->m_HasDied)
+            if (l_LinkAI && l_LinkAI->m_HasDied)
             {
-                if (linkAI->m_VictimGUID != NULL)
+                if (l_LinkAI->m_VictimGUID != NULL)
                 {
-                    if (Unit* l_Victim = Unit::GetUnit(*creature, linkAI->m_victimGUID))
+                    if (Unit* l_Victim = Unit::GetUnit(*p_Creature, l_LinkAI->m_VictimGUID))
                     {                    
                         // Returned Soul
                         if (l_Victim->HasAura(eNhalishSpells::SpellSoulShred))
@@ -576,9 +574,7 @@ public:
                         if ((*itr)->HasAura(eNhalishSpells::SpellVoidDevestationDebuff))
                         {                           
                             if (AuraPtr l_Aura = (*itr)->GetAura(eNhalishSpells::SpellVoidDevestationDebuff))
-                            {
                                 l_Aura->SetDuration(1);
-                            }
                         }
                     }
                 }
@@ -667,9 +663,7 @@ public:
                 if (l_Caster->IsAIEnabled)
                 {
                     if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                    {
                         l_Caster->CastSpell(l_Target, eNhalishSpells::SpellVoidBlastDot);
-                    }
                 }
             }
         }
@@ -681,9 +675,7 @@ public:
                 if (Unit* l_Target = GetTarget())
                 {
                     if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
-                    {
                         l_Instance->DoRemoveAurasDueToSpellOnPlayers(eNhalishSpells::SpellVoidBlastDot);
-                    }
                 }
             }
         }
@@ -719,9 +711,7 @@ public:
                 if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
                 {
                     if (l_Caster->IsAIEnabled)
-                    {
-                        l_Caster->GetAI()->DoAction(eNhalishActions::ActionActivateVortex);
-                    }
+                      l_Caster->GetAI()->DoAction(eNhalishActions::ActionActivateVortex);
                 }
             }
         }
@@ -731,9 +721,7 @@ public:
             if (Unit* l_Caster = GetCaster())
             {
                 if (Unit* l_Target = GetTarget())
-                {
                     l_Caster->GetAI()->DoAction(eNhalishActions::ActionDeactivateVortex);
-                }
             }
         }
 
@@ -822,9 +810,8 @@ public:
                             Soul->SetPhaseMask(m_PhaseId, true);
 
                             if (Soul->IsAIEnabled)
-                            {
                                 Soul->AI()->SetGUID(GetHitUnit()->GetGUID(), 0);
-                            }
+
                             linkAI->m_PhaseCounter++;
                         }
                     }
@@ -915,9 +902,7 @@ public:
                     if ((*itr)->HasAura(eNhalishSpells::SpellVoidDevestationDebuff))
                     {
                         if (AuraPtr l_Aura = (*itr)->GetAura(eNhalishSpells::SpellVoidDevestationDebuff))
-                        {
                             l_Aura->SetDuration(1);
-                        }
                     }
                 }
             }

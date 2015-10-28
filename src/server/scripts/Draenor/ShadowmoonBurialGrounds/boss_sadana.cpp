@@ -133,6 +133,9 @@ Position const g_PositionDefiledSpiritsMovement[8] =
 uint32 g_LunarRuneEntries[3] = { eSadanaSpells::SpellLunarRuneVisual, eSadanaSpells::SpellLunarRuneVisual01, eSadanaSpells::SpellLunarRuneVisual02 };
 uint32 g_ShadowRuneEntries[3] = { eSadanaSpells::SpellShadowRuneVisual, eSadanaSpells::SpellShadowRuneVisual01, eSadanaSpells::SpellShadowRuneVisual02 };
 
+#define DaggerFallAltitude 268.028f
+#define DaggerGroundAltitude 261.308f
+
 /// Basic Event - [The message Sadana says few minutes after players entered the instance for the first time]
 class EventSadanaIntro : public BasicEvent
 {
@@ -254,7 +257,9 @@ public:
                     case eSadanaCreatures::CreatureEclipseTrigger:
                         p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                         p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                        break;             
+                        break;    
+                    default:
+                        break;
                 }
             }
         }
@@ -570,9 +575,7 @@ public:
 
                     /// Reset handling - encounter.
                     if (Creature * l_Sadana = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossSadana)))
-                    {
                         me->GetMotionMaster()->MoveFollow(l_Sadana, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
-                    }
                     break;
                 }
             }
@@ -957,9 +960,7 @@ public:
                 return;
 
             if (GetTarget()->IsAIEnabled)
-            {
                 GetTarget()->GetAI()->DoAction(eSadanaActions::ActionActivateDefiledSpirit);
-            }
         }
 
         void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -982,9 +983,7 @@ public:
                                 if (boss_sadana_bloodfury::boss_sadana_bloodfuryAI* linkAI = CAST_AI(boss_sadana_bloodfury::boss_sadana_bloodfuryAI, l_Sadana->GetAI()))
                                 {
                                     if (linkAI && linkAI->m_CommunionInAction)
-                                    {
                                         linkAI->m_CommunionInAction = false;
-                                    }
                                 }
                             }
                         }
@@ -1122,7 +1121,6 @@ public:
         return new spell_shadowmoon_burial_grounds_dark_eclipse_damage_SpellScript();
     }
 };
-
 
 void AddSC_sadana()
 {  
