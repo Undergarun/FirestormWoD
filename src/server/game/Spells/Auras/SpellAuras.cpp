@@ -2949,7 +2949,6 @@ void Aura::CallScriptEffectCalcAmountHandlers(constAuraEffectPtr aurEff, int32 &
         (*scritr)->_FinishScriptCall();
     }
 
-
     scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);

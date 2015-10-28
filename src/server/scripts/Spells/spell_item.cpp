@@ -2734,6 +2734,451 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
         }
 };
 
+/// Forgemaster's Vigor - 177096
+class spell_item_forgemasters_vigor : public SpellScriptLoader
+{
+    public:
+        spell_item_forgemasters_vigor() : SpellScriptLoader("spell_item_forgemasters_vigor") { }
+
+        class spell_item_forgemasters_vigor_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_forgemasters_vigor_AuraScript);
+
+            enum eSpell
+            {
+                HammerBlows = 177099
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (!l_Target->HasAura(eSpell::HammerBlows))
+                    {
+                        l_Target->CastSpell(l_Target, eSpell::HammerBlows, true);
+
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::HammerBlows, EFFECT_0))
+                            l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
+                    }
+                    else
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::HammerBlows))
+                            l_Aura->ModStackAmount(1);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpell::HammerBlows);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_forgemasters_vigor_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_forgemasters_vigor_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_forgemasters_vigor_AuraScript();
+        }
+};
+
+/// Hammer Blows - 177099
+class spell_item_hammer_blows : public SpellScriptLoader
+{
+    public:
+        spell_item_hammer_blows() : SpellScriptLoader("spell_item_hammer_blows") { }
+
+        class spell_item_hammer_blows_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_hammer_blows_AuraScript);
+
+            enum eSpell
+            {
+                ForgemastersVigor = 177096
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::ForgemastersVigor, EFFECT_0))
+                        p_Amount = l_AurEff->GetAmount();
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_hammer_blows_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_hammer_blows_AuraScript();
+        }
+};
+
+/// Detonation - 177067
+class spell_item_detonation : public SpellScriptLoader
+{
+    public:
+        spell_item_detonation() : SpellScriptLoader("spell_item_detonation") { }
+
+        class spell_item_detonation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_detonation_AuraScript);
+
+            enum eSpell
+            {
+                Detonating = 177070
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (!l_Target->HasAura(eSpell::Detonating))
+                    {
+                        l_Target->CastSpell(l_Target, eSpell::Detonating, true);
+
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::Detonating, EFFECT_0))
+                            l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
+                    }
+                    else
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::Detonating))
+                            l_Aura->ModStackAmount(1);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpell::Detonating);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_detonation_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_detonation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_detonation_AuraScript();
+        }
+};
+
+/// Detonating - 177070
+class spell_item_detonating : public SpellScriptLoader
+{
+    public:
+        spell_item_detonating() : SpellScriptLoader("spell_item_detonating") { }
+
+        class spell_item_detonating_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_detonating_AuraScript);
+
+            enum eSpell
+            {
+                Detonation = 177067
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Detonation, EFFECT_0))
+                        p_Amount = l_AurEff->GetAmount();
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_detonating_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_detonating_AuraScript();
+        }
+};
+
+/// Battering - 177102
+class spell_item_battering : public SpellScriptLoader
+{
+    public:
+        spell_item_battering() : SpellScriptLoader("spell_item_battering") { }
+
+        class spell_item_battering_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_battering_AuraScript);
+
+            enum eSpell
+            {
+                Cracks = 177103
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (!l_Target->HasAura(eSpell::Cracks))
+                    {
+                        l_Target->CastSpell(l_Target, eSpell::Cracks, true);
+
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::Cracks, EFFECT_0))
+                            l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
+                    }
+                    else
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::Cracks))
+                            l_Aura->ModStackAmount(1);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpell::Cracks);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_battering_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_battering_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_battering_AuraScript();
+        }
+};
+
+/// Cracks! - 177103
+class spell_item_cracks : public SpellScriptLoader
+{
+    public:
+        spell_item_cracks() : SpellScriptLoader("spell_item_cracks") { }
+
+        class spell_item_cracks_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_cracks_AuraScript);
+
+            enum eSpell
+            {
+                Battering = 177102
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Battering, EFFECT_0))
+                        p_Amount = l_AurEff->GetAmount();
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_cracks_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_cracks_AuraScript();
+        }
+};
+
+/// Sanitizing - 177086
+class spell_item_sanatizing : public SpellScriptLoader
+{
+    public:
+        spell_item_sanatizing() : SpellScriptLoader("spell_item_sanatizing") { }
+
+        class spell_item_sanatizing_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_sanatizing_AuraScript);
+
+            enum eSpell
+            {
+                CleansingSteam = 177087
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (!l_Target->HasAura(eSpell::CleansingSteam))
+                    {
+                        l_Target->CastSpell(l_Target, eSpell::CleansingSteam, true);
+
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::CleansingSteam, EFFECT_0))
+                            l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
+                    }
+                    else
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::CleansingSteam))
+                            l_Aura->ModStackAmount(1);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpell::CleansingSteam);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_sanatizing_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_sanatizing_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_sanatizing_AuraScript();
+        }
+};
+
+/// Cleansing Steam - 177087
+class spell_item_cleansing_steam : public SpellScriptLoader
+{
+    public:
+        spell_item_cleansing_steam() : SpellScriptLoader("spell_item_cleansing_steam") { }
+
+        class spell_item_cleansing_steam_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_cleansing_steam_AuraScript);
+
+            enum eSpell
+            {
+                Sanitizing = 177086
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Sanitizing, EFFECT_0))
+                        p_Amount = l_AurEff->GetAmount();
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_cleansing_steam_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_cleansing_steam_AuraScript();
+        }
+};
+
+/// Molten Metal - 177081
+class spell_item_molten_metal : public SpellScriptLoader
+{
+    public:
+        spell_item_molten_metal() : SpellScriptLoader("spell_item_molten_metal") { }
+
+        class spell_item_molten_metal_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_molten_metal_AuraScript);
+
+            enum eSpell
+            {
+                PouringSlag = 177083
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (!l_Target->HasAura(eSpell::PouringSlag))
+                    {
+                        l_Target->CastSpell(l_Target, eSpell::PouringSlag, true);
+
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::PouringSlag, EFFECT_0))
+                            l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
+                    }
+                    else
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::PouringSlag))
+                            l_Aura->ModStackAmount(1);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpell::PouringSlag);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_molten_metal_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_molten_metal_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_molten_metal_AuraScript();
+        }
+};
+
+/// Pouring Slag - 177083
+class spell_item_pouring_slag : public SpellScriptLoader
+{
+    public:
+        spell_item_pouring_slag() : SpellScriptLoader("spell_item_pouring_slag") { }
+
+        class spell_item_pouring_slag_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_pouring_slag_AuraScript);
+
+            enum eSpell
+            {
+                MoltenMetal = 177081
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::MoltenMetal, EFFECT_0))
+                        p_Amount = l_AurEff->GetAmount();
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_pouring_slag_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_pouring_slag_AuraScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2801,4 +3246,14 @@ void AddSC_item_spell_scripts()
     new spell_item_engineering_scopes("spell_item_megawatt_filament", eEngineeringScopesSpells::SpellMegawattFilament);
     new spell_item_engineering_scopes("spell_item_hemet_s_heartseeker", eEngineeringScopesSpells::HemetsHeartseeker);
     new spell_item_summon_chauffeur();
+    new spell_item_forgemasters_vigor();
+    new spell_item_hammer_blows();
+    new spell_item_detonation();
+    new spell_item_detonating();
+    new spell_item_battering();
+    new spell_item_cracks();
+    new spell_item_sanatizing();
+    new spell_item_cleansing_steam();
+    new spell_item_molten_metal();
+    new spell_item_pouring_slag();
 }

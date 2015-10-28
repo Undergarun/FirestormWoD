@@ -497,7 +497,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
                     l_ScalingClassIndex -= 1;
 
                     uint32 l_GTSpellScalingRecID = l_ScalingClassIndex * GT_MAX_LEVEL + l_Level - 1;
-                    const GtSpellScalingEntry * l_GtScaling = sGtSpellScalingStore.LookupEntry(l_GTSpellScalingRecID);
+                    GtSpellScalingEntry const* l_GtScaling = sGtSpellScalingStore.LookupEntry(l_GTSpellScalingRecID);
 
                     if (l_GtScaling)
                         l_Multiplier = l_GtScaling->value;
@@ -506,7 +506,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
                 {
                     uint32 l_ItemLevel = l_Level;
                     if (p_Item != nullptr && p_Item->GetTemplate() != nullptr)
-                        l_ItemLevel = p_Item->GetTemplate()->ItemLevel;
+                        l_ItemLevel = p_Item->GetTemplate()->ItemLevel + p_Item->GetItemLevelBonusFromItemBonuses();
 
                     RandomPropertiesPointsEntry const* l_RandomPropertiesPoints = sRandomPropertiesPointsStore.LookupEntry(l_ItemLevel);
                     if (l_RandomPropertiesPoints)

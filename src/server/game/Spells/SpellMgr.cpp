@@ -5307,8 +5307,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 6474: ///< Earthbind Totem
-            case 8145: ///< Tremor Totem effect
+            case 6474:   ///< Earthbind Totem
+            case 8145:   ///< Tremor Totem effect
+            case 177096: ///< Forgemaster's Vigor
+            case 177067: ///< Detonation
+            case 177102: ///< Battering
+            case 177086: ///< Sanitizing
+            case 177081: ///< Molten Metal
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
                 break;
             case 2484: ///< Earthbind Totem
