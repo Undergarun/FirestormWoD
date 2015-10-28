@@ -684,7 +684,7 @@ class spell_monk_chi_wave_healing_bolt: public SpellScriptLoader
         }
 };
 
-// Chi Wave (damage) - 132467 and Chi Wave (heal) - 132463
+/// Chi Wave (damage) - 132467 and Chi Wave (heal) - 132463
 class spell_monk_chi_wave_bolt: public SpellScriptLoader
 {
     public:
@@ -696,90 +696,90 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* _player = GetOriginalCaster())
+                Unit* l_OriginalCaster = GetOriginalCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_OriginalCaster == nullptr || l_Target == nullptr)
+                    return;
+
+                uint8 l_Count = 0;
+                std::list<Unit*> l_TargetList;
+                std::vector<uint64> l_ValidTargets;
+
+                if (AuraEffectPtr l_ChiWave = l_OriginalCaster->GetAuraEffect(SPELL_MONK_CHI_WAVE_TALENT_AURA, EFFECT_1))
                 {
-                    if (Unit* target = GetHitUnit())
+                    l_Count = l_ChiWave->GetAmount();
+
+                    if (l_Count >= 7)
                     {
-                        uint8 count = 0;
-                        std::list<Unit*> targetList;
-                        std::vector<uint64> validTargets;
+                        l_OriginalCaster->RemoveAura(SPELL_MONK_CHI_WAVE_TALENT_AURA);
+                        return;
+                    }
 
-                        if (AuraEffectPtr chiWave = _player->GetAuraEffect(SPELL_MONK_CHI_WAVE_TALENT_AURA, EFFECT_1))
+                    l_Count++;
+                    l_ChiWave->SetAmount(l_Count);
+                }
+                else
+                    return;
+
+                CellCoord p(JadeCore::ComputeCellCoord(l_Target->GetPositionX(), l_Target->GetPositionY()));
+                Cell cell(p);
+                cell.SetNoCreate();
+
+                JadeCore::AnyUnitInObjectRangeCheck u_check(l_OriginalCaster, 20.0f);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(l_OriginalCaster, l_TargetList, u_check);
+
+                TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, WorldTypeMapContainer> world_unit_searcher(searcher);
+                TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, GridTypeMapContainer>  grid_unit_searcher(searcher);
+
+                cell.Visit(p, world_unit_searcher, *l_OriginalCaster->GetMap(), *l_OriginalCaster, 20.0f);
+                cell.Visit(p, grid_unit_searcher, *l_OriginalCaster->GetMap(), *l_OriginalCaster, 20.0f);
+
+                for (auto itr : l_TargetList)
+                {
+                    if (!itr->IsWithinLOSInMap(l_OriginalCaster))
+                        continue;
+
+                    if (itr == l_Target)
+                        continue;
+
+                    l_ValidTargets.push_back(itr->GetGUID());
+                }
+
+                if (l_ValidTargets.empty())
+                {
+                    l_OriginalCaster->RemoveAurasDueToSpell(SPELL_MONK_CHI_WAVE_TALENT_AURA);
+                    return;
+                }
+
+                std::random_shuffle(l_ValidTargets.begin(), l_ValidTargets.end());
+
+                if (Unit* l_NewTarget = sObjectAccessor->FindUnit(l_ValidTargets.front()))
+                {
+                    if (l_OriginalCaster->IsValidAttackTarget(l_NewTarget))
+                        l_Target->CastSpell(l_NewTarget, SPELL_MONK_CHI_WAVE_DAMAGE, true, NULL, NULLAURA_EFFECT, l_OriginalCaster->GetGUID());
+                    else
+                    {
+                        std::list<Unit*> l_AlliesList;
+
+                        for (auto itr : l_ValidTargets)
                         {
-                            count = chiWave->GetAmount();
-
-                            if (count >= 7)
-                            {
-                                _player->RemoveAura(SPELL_MONK_CHI_WAVE_TALENT_AURA);
-                                return;
-                            }
-
-                            count++;
-                            chiWave->SetAmount(count);
-                        }
-                        else
-                            return;
-
-                        CellCoord p(JadeCore::ComputeCellCoord(target->GetPositionX(), target->GetPositionY()));
-                        Cell cell(p);
-                        cell.SetNoCreate();
-
-                        JadeCore::AnyUnitInObjectRangeCheck u_check(_player, 20.0f);
-                        JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(_player, targetList, u_check);
-
-                        TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, WorldTypeMapContainer> world_unit_searcher(searcher);
-                        TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, GridTypeMapContainer>  grid_unit_searcher(searcher);
-
-                        cell.Visit(p, world_unit_searcher, *_player->GetMap(), *_player, 20.0f);
-                        cell.Visit(p, grid_unit_searcher, *_player->GetMap(), *_player, 20.0f);
-
-                        for (auto itr : targetList)
-                        {
-                            if (!itr->IsWithinLOSInMap(_player))
+                            Unit* l_AllyTarget = sObjectAccessor->FindUnit(itr);
+                            if (!l_AllyTarget)
                                 continue;
 
-                            if (itr == target)
+                            if (!l_OriginalCaster->IsValidAssistTarget(l_AllyTarget))
                                 continue;
 
-                            validTargets.push_back(itr->GetGUID());
+                            l_AlliesList.push_back(sObjectAccessor->FindUnit(itr));
                         }
 
-                        if (validTargets.empty())
-                        {
-                            _player->RemoveAurasDueToSpell(SPELL_MONK_CHI_WAVE_TALENT_AURA);
+                        if (l_AlliesList.empty())
                             return;
-                        }
 
-                        std::random_shuffle(validTargets.begin(), validTargets.end());
+                        l_AlliesList.sort(JadeCore::HealthPctOrderPred());
 
-                        if (Unit* newTarget = sObjectAccessor->FindUnit(validTargets.front()))
-                        {
-                            if (_player->IsValidAttackTarget(newTarget))
-                                target->CastSpell(newTarget, SPELL_MONK_CHI_WAVE_DAMAGE, true, NULL, NULLAURA_EFFECT, _player->GetGUID());
-                            else
-                            {
-                                std::list<Unit*> alliesList;
-
-                                for (auto itr : validTargets)
-                                {
-                                    Unit* allyTarget = sObjectAccessor->FindUnit(itr);
-                                    if (!allyTarget)
-                                        continue;
-
-                                    if (_player->IsValidAttackTarget(allyTarget))
-                                        continue;
-
-                                    alliesList.push_back(sObjectAccessor->FindUnit(itr));
-                                }
-
-                                if (alliesList.empty())
-                                    return;
-
-                                alliesList.sort(JadeCore::HealthPctOrderPred());
-
-                                target->CastSpell(alliesList.front(), SPELL_MONK_CHI_WAVE_HEALING_BOLT, true, NULL, NULLAURA_EFFECT, _player->GetGUID());
-                            }
-                        }
+                        l_Target->CastSpell(l_AlliesList.front(), SPELL_MONK_CHI_WAVE_HEALING_BOLT, true, NULL, NULLAURA_EFFECT, l_OriginalCaster->GetGUID());
                     }
                 }
             }
