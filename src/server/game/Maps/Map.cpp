@@ -591,6 +591,8 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<JadeCore::Ob
 
 void Map::Update(const uint32 t_diff)
 {
+    uint32 l_Time = getMSTime();
+
     _dynamicTree.update(t_diff);
     /// update worldsessions for existing players
     for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
@@ -674,6 +676,10 @@ void Map::Update(const uint32 t_diff)
     MoveAllGameObjectsInMoveList();
 
     sScriptMgr->OnMapUpdate(this, t_diff);
+
+    uint32 l_TimeElapsed = getMSTime() - l_Time;
+    if (l_TimeElapsed > 10)
+        sMapMgr->RegisterMapDelay(GetId(), l_TimeElapsed);
 }
 
 void Map::RemovePlayerFromMap(Player* player, bool remove)
