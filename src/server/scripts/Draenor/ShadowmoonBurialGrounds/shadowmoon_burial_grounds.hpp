@@ -1,27 +1,13 @@
 
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 ///
 ///  MILLENIUM-STUDIO
 ///  Copyright 2015 Millenium-studio SARL
 ///  All Rights Reserved.
 ///
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptedCreature.h"
-
-static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
-{
-    std::list<Creature*> l_CreaturesList;
-    GetCreatureListWithEntryInGrid(l_CreaturesList, p_Object, p_Entry, 2000.0f);
-    if (l_CreaturesList.empty())
-        return;
-
-    for (std::list<Creature*>::iterator iter = l_CreaturesList.begin(); iter != l_CreaturesList.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
-}
-
-#define HostileFaction 16
-#define FriendlyFaction 35
 
 enum eShadowmoonBurialGroundsDatas
 {
@@ -29,22 +15,15 @@ enum eShadowmoonBurialGroundsDatas
     DataBossNhallish,
     DataBossBonemaw,
     DataBossNerzul,
-    DataWandererFirstTalk,
-    DataWandererSecondTalk,
-    DataWandererThirdTalk,
-    DataWandererTalksValues,
+    DataWandererTalk,
 
-    DataBonemawMouth,
-
-    /// Doors
+    // Doors
     DataStoneDoorSadana,
     DataSadanaFightDoor,
     DataNerzulDoor,
-    DataNhalishDoorEntrance,
-    DataBonemawDoorEntrance,
 
-    /// Props
-    DataNerzulProp
+    // Props
+    DataNerzulProp,
 };
 
 enum eShadowmoonBurialGroundsBosses
@@ -76,13 +55,9 @@ enum eShadowmoonBurialGroundsCreatures
     CreatureCorpseSkitterling       = 77006,
     CreatureRestlessWanderer        = 75729,
     CreatureCustomizedAltarTrigger  = 852144,
-    CreatureCrypts                  = 75977,
-    CreatureDisturbedSoul           = 76400,
-    CreatureNerzulVisual            = 79497,
-    CreatureWorldTriggerAltar       = 83816, // Loyalist and Shadowmoon Burial Grounds talking events
-    CreatureWorldTriggerSadanaRp    = 838166,
-    CreatureWeepingSpirit           = 89003,
-    CreatureBonemawMouth            = 81881,
+    CreatureCrypts = 75977,
+    CreatureDisturbedSoul = 76400,
+    CreatureNerzulVisual = 79497,
 };
 
 enum eShadowmoonBurialGroundsGameObjects
@@ -90,8 +65,6 @@ enum eShadowmoonBurialGroundsGameObjects
     GameObjectSadanaDoor      = 233919,
     GameObjectSadanaFightDoor = 233921,
     GameObjectNerzulDoor      = 233920,
-    GameObjectNhalishDoorEntrance = 227852,
-    GameObjectBonemawDoorEntrance  = 233990,
 };
 
 enum eShadowmoonBurialGroundsSpells
@@ -116,7 +89,6 @@ enum eShadowmoonBurialGroundsSpells
 
     // Reanimated Ritual Bones: 75715
     SpellVoidCleaveDamage           = 164907,
-    SpellImprisonNerbySpirits       = 164705,
 
     // Shadowmoon Bone-mender
     SpellRattlingBones = 152816,
@@ -136,7 +108,6 @@ enum eShadowmoonBurialGroundsSpells
 
     // Shadowmoon Loyalist: 75506
     // SpellShadowBolt = 152814,
-    SpellPrisonAura = 152309,
 
     // Void Spawn = 75652
     SpellVoidPulseDamageOneK = 151086,
@@ -150,11 +121,6 @@ enum eShadowmoonBurialGroundsSpells
     SpellStrangulate = 78037,
     SpellVioletLook = 154002,
     SpellVoidRay = 156920,
-    SpellShadowRitualBonesAuraCosmetic = 160530,
-    SpellGhostlyVisual = 144465,
-
-    // Water Trigger
-    SpellWaterSprout = 156682,
 };
 
 enum eShadowmoonBurialGroundsEvents
@@ -162,7 +128,6 @@ enum eShadowmoonBurialGroundsEvents
     // Monstrous Corpse Spider: 76104
     EventDeathVenom,
     EventNecroticBurst,
-    EventNecroticBurstExplosion,
 
     // Plagued Bat: 75459
     EventPlagueSpit,
@@ -192,7 +157,6 @@ enum eShadowmoonBurialGroundsEvents
 
     // Void Spawn = 75652
     EventVoidPulse,
-    EventSizeGrowth,
 
     // Roleplaying
     EventWander,
@@ -219,8 +183,6 @@ enum eShadowmoonBurialGroundsTalks
 enum eShadowmoonBurialGroundsActions
 {
     ActionCountVoidSpawnNearNerzulGate = 1,
-    ActionCrypts,
-    ActionSizeGrowth,
 };
 
 enum eShadowmoonBurialGroundsAchivement
