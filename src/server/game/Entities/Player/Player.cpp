@@ -23730,10 +23730,10 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
                     && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
-                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
+                    /*stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, itr->first);
                     stmt->setUInt32(1, GetSession()->GetAccountId());
-                    accountTrans->Append(stmt);
+                    accountTrans->Append(stmt);*/
                 }
                 else
                 {
@@ -33705,6 +33705,26 @@ void Player::RewardCompletedAchievementsIfNeeded()
             {
                 l_SpellLearned = l_ItemTemplate->Spells[l_Index].SpellId;
                 break;
+            }
+        }
+
+        /// Hack fix for Chauffeured Chopper, item sent is a gift box, containing Horde or Alliance chopper, so no learned spell
+        if (l_ItemTemplate->ItemId == 122718)
+        {
+            switch (GetTeamId())
+            {
+                case TeamId::TEAM_ALLIANCE:
+                {
+                    l_SpellLearned = 179245;
+                    break;
+                }
+                case TeamId::TEAM_HORDE:
+                {
+                    l_SpellLearned = 179244;
+                    break;
+                }
+                default:
+                    break;
             }
         }
 

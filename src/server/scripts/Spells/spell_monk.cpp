@@ -1414,32 +1414,46 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_touch_of_karma_AuraScript);
 
-            uint32 totalAbsorbAmount;
+            uint32 m_TotalAbsorbAmount;
+
+            enum eSpells
+            {
+                WoDPvPWindwalker2PBonus = 180743
+            };
 
             bool Load()
             {
-                totalAbsorbAmount = 0;
+                m_TotalAbsorbAmount = 0;
                 return true;
             }
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
-                if (GetCaster())
-                    amount = GetCaster()->GetMaxHealth();
+                Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPWindwalker2PBonus);
+
+                if (l_Caster == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                int32 l_HealthPct = GetSpellInfo()->Effects[EFFECT_2].BasePoints;
+
+                if (l_Caster->HasAura(eSpells::WoDPvPWindwalker2PBonus))
+                    l_HealthPct += l_SpellInfo->Effects[EFFECT_0].BasePoints;
+
+                p_Amount = l_Caster->CountPctFromMaxHealth(l_HealthPct);
             }
 
-            void OnAbsorb(AuraEffectPtr aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
             {
-                if (Unit* caster = dmgInfo.GetVictim())
-                {
-                    if (Unit* attacker = dmgInfo.GetAttacker())
-                    {
-                        totalAbsorbAmount += dmgInfo.GetDamage();
+                Unit* l_Caster = p_DmgInfo.GetVictim();
+                Unit* l_Attacker = p_DmgInfo.GetAttacker();
 
-                        if (attacker->HasAura(aurEff->GetSpellInfo()->Id, caster->GetGUID()))
-                            caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (totalAbsorbAmount / 6), attacker);
-                    }
-                }
+                if (l_Attacker == nullptr || l_Caster == nullptr)
+                    return;
+
+                m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
+                if (l_Attacker->HasAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (m_TotalAbsorbAmount / 6), l_Attacker);
             }
 
             void Register()
@@ -1834,8 +1848,11 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 StanceoftheSturdyOx         = 115069,
                 StanceoftheFierceTiger      = 103985,
                 StanceoftheWiseSerpent      = 115070,
-                StanceoftheSpiritedCrane    = 154436
+                StanceoftheSpiritedCrane    = 154436,
+                VitalMists                  = 118674
             };
+
+            float m_BasePowerConsume = 0.0f;
 
             void HandleOnPrepare()
             {
@@ -1844,11 +1861,19 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                    m_BasePowerConsume = 4.7f;
+                else
+                    m_BasePowerConsume = 30.0f;
+
                 if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
                 {
                     TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
                     GetSpell()->setTriggerCastFlags(l_Flags);
                 }
+
+                if (AuraEffectPtr l_VitalMists = l_Player->GetAuraEffect(eSpells::VitalMists, EFFECT_1))
+                    m_BasePowerConsume -= CalculatePct(m_BasePowerConsume, l_VitalMists->GetAmount() * -1);
             }
 
             void HandleAfterCast()
@@ -1859,10 +1884,10 @@ class spell_monk_surging_mist: public SpellScriptLoader
                     return;
 
                 if ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && !l_Player->HasAura(eSpells::StanceoftheSturdyOx)) ||
-                    ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec()) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
-                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, -30, POWER_ENERGY);
+                    (((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec())) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, (int32)m_BasePowerConsume * -1, POWER_ENERGY);
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && !l_Player->HasAura(eSpells::StanceoftheWiseSerpent))
-                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), m_BasePowerConsume) * -1, POWER_MANA);
             }
 
             void HandleHeal(SpellEffIndex effIndex)

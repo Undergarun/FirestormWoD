@@ -2667,6 +2667,73 @@ class spell_item_engineering_scopes: public SpellScriptLoader
         uint32 m_TriggeredSpellId;
 };
 
+/// Summon Chauffeur (Horde) - 179244
+/// Summon Chauffeur (Alliance) - 179245
+class spell_item_summon_chauffeur : public SpellScriptLoader
+{
+    public:
+        spell_item_summon_chauffeur() : SpellScriptLoader("spell_item_summon_chauffeur") { }
+
+        class spell_item_summon_chauffeur_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_summon_chauffeur_AuraScript);
+
+            enum eCreatures
+            {
+                HordeChauffeur      = 89713,
+                AllianceChauffeur   = 89715
+            };
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    uint32 l_Entry = 0;
+                    if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    {
+                        if (l_Target->ToPlayer()->GetTeamId() == TeamId::TEAM_ALLIANCE)
+                            l_Entry = eCreatures::AllianceChauffeur;
+                        else
+                            l_Entry = eCreatures::HordeChauffeur;
+                    }
+
+                    if (Creature* l_Chauffeur = l_Target->SummonCreature(l_Entry, *l_Target))
+                        l_Target->SetPersonnalChauffeur(l_Chauffeur->GetGUID());
+                }
+            }
+
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (Creature* l_Chauffeur = Creature::GetCreature(*l_Target, l_Target->GetPersonnalChauffeur()))
+                        l_Chauffeur->EnterVehicle(l_Target);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (Creature* l_Chauffeur = Creature::GetCreature(*l_Target, l_Target->GetPersonnalChauffeur()))
+                        l_Chauffeur->DespawnOrUnsummon();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_item_summon_chauffeur_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_item_summon_chauffeur_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_summon_chauffeur_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_summon_chauffeur_AuraScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2733,4 +2800,5 @@ void AddSC_item_spell_scripts()
     new spell_item_engineering_scopes("spell_item_oglethorpe_s_missile_splitter", eEngineeringScopesSpells::SpellOglethorpesMissileSplitter);
     new spell_item_engineering_scopes("spell_item_megawatt_filament", eEngineeringScopesSpells::SpellMegawattFilament);
     new spell_item_engineering_scopes("spell_item_hemet_s_heartseeker", eEngineeringScopesSpells::HemetsHeartseeker);
+    new spell_item_summon_chauffeur();
 }

@@ -3957,7 +3957,12 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
             charmInfo->SetIsFollowing(false);
             charmInfo->SetIsReturning(false);
         }
-        unitTarget->ToCreature()->AI()->AttackStart(m_caster);
+
+        if (CreatureAI* l_AI = unitTarget->ToCreature()->AI())
+        {
+            l_AI->OnTaunt(m_caster);
+            l_AI->AttackStart(m_caster);
+        }
     }
 }
 
