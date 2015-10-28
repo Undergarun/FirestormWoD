@@ -2561,7 +2561,7 @@ class spell_highmaul_branded : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2569,7 +2569,7 @@ class spell_highmaul_branded : public SpellScriptLoader
                                     {
                                         l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
@@ -2672,7 +2672,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2680,7 +2680,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                                     {
                                         l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
@@ -2760,7 +2760,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2768,7 +2768,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                                     {
                                         l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
@@ -2846,7 +2846,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2854,7 +2854,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                     {
                                         l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
