@@ -10,33 +10,25 @@
 #include "ScriptedCreature.h"
 #include "shadowmoon_burial_grounds.hpp"
 
-static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
-{
-    std::list<Creature*> creatures;
-    GetCreatureListWithEntryInGrid(creatures, object, entry, 10.0f);
-    if (creatures.empty())
-        return;
-
-    for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
-        (*iter)->DespawnOrUnsummon();
-}
-
-Position l_PositionDisturbedSpirits[2] = 
+Position g_PositionDisturbedSpirits[2] = 
 {
     {1699.829f, -243.255f, 250.065f, 1.164130f},
     {1699.862f, -242.144f, 250.318f, 0.891596f},
 };
 
-// Weeping Spirit - 75507
-// Restless Wanderer - 75729
+#define BurialDisplay 59486
+
+/// Weeping Spirit - 75507
+/// Restless Wanderer - 75729
 class shadowmoon_burial_grounds_spirits : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_spirits() : CreatureScript("shadowmoon_burial_grounds_spirits") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -46,58 +38,59 @@ public:
         void Reset() override
         {
             events.Reset();
-
             me->setFaction(35);
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
             switch (urand(0, 4))
             {
-            case 0:
-                me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellKneel);
-                break;
-            case 1:
-                me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellCry);
-                break;
-            case 2:
-                events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventWander, 6 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+                case 0:
+                    me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellKneel);
+                    break;
+                case 1:
+                    me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellCry);
+                    break;
+                case 2:
+                    events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventWander, 6 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                default:
+                    break;
             }        
         }
 
         void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
+        {       
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-            case eShadowmoonBurialGroundsEvents::EventWander:
-                me->GetMotionMaster()->MoveRandom(4.0f);
-                me->RemoveAllAuras();
+                case eShadowmoonBurialGroundsEvents::EventWander:
+                    me->GetMotionMaster()->MoveRandom(4.0f);
+                    me->RemoveAllAuras();
 
-                events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventWander, 6 * TimeConstants::IN_MILLISECONDS);
-                break;
+                    events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventWander, 6 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Restless Wanderer - 75729
+/// Restless Wanderer - 75729
 class shadowmoon_burial_grounds_restless_wanderer : public CreatureScript
 {
 public:
@@ -105,7 +98,7 @@ public:
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
             m_Intro = false;
@@ -116,14 +109,18 @@ public:
 
         void Reset() override
         {
+            events.Reset();
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void MoveInLineOfSight(Unit* who) override
+        void MoveInLineOfSight(Unit* p_Who) override
         {
-            if (who && who->IsInWorld() && who->GetTypeId() == TypeID::TYPEID_PLAYER && !m_Intro && me->IsWithinDistInMap(who, 40.0f))
+            if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && !m_Intro && me->IsWithinDistInMap(p_Who, 40.0f))
             {
+                if (m_Instance != nullptr)
+                    m_Instance->SetData64(eShadowmoonBurialGroundsDatas::DataWandererTalk, 0);
+
                 m_Intro = true;
 
                 switch (m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataWandererTalk))
@@ -140,24 +137,16 @@ public:
                     case 3:
                         me->MonsterYell("Nerzul cannot hear us.. He only hears Darkness now.", LANG_UNIVERSAL, me->GetGUID());
                         break;
-                }  
-
-                if (m_Instance != nullptr)
-                {
-                    m_Instance->SetData64(eShadowmoonBurialGroundsDatas::DataWandererTalk, 0);
-                }
+                    default:
+                        break;
+                }          
             }
-        }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
@@ -165,11 +154,12 @@ public:
 class shadowmoon_burial_grounds_monstrous_corpse_spider : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_monstrous_corpse_spider() : CreatureScript("shadowmoon_burial_grounds_monstrous_corpse_spider") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -179,8 +169,7 @@ public:
         void Reset() override
         {
             events.Reset();
-
-            me->setFaction(16);
+            me->setFaction(HostileFaction);
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -190,11 +179,11 @@ public:
         }
 
         void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
+        {        
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -202,41 +191,41 @@ public:
             switch (events.ExecuteEvent())
             {
                 case eShadowmoonBurialGroundsEvents::EventDeathVenom:
-                    if (Unit* target = me->getVictim())
-                        me->CastSpell(target, eShadowmoonBurialGroundsSpells::SpellDeathVenoumDamage);
-
+                    if (Unit* l_Target = me->getVictim())
+                        me->CastSpell(l_Target, eShadowmoonBurialGroundsSpells::SpellDeathVenoumDamage);
                     events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventDeathVenom, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
                     break;
                 case eShadowmoonBurialGroundsEvents::EventNecroticBurst:
-                    me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellNecroticBurstDamage, true);
-               
+                    me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellNecroticBurstDamage, true);          
                     events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventNecroticBurst + 1, 4 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eShadowmoonBurialGroundsEvents::EventNecroticBurst + 1:
                     me->Kill(me);
                     break;
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
-
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Exhume Spirits - 75979
+/// Exhume Spirits - 75979
 class shadowmoon_burial_grounds_exhume_spirits : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_exhume_spirits() : CreatureScript("shadowmoon_burial_grounds_exhume_spirits") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -245,78 +234,71 @@ public:
 
         void Reset() override
         {
-            me->setFaction(16);
+            me->setFaction(HostileFaction);
             DoZoneInCombat();
-        }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
-            DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Defiled Spirits - 75966
+/// Defiled Spirits - 75966
 class shadowmoon_burial_grounds_defiled_spirit : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_defiled_spirit() : CreatureScript("shadowmoon_burial_grounds_defiled_spirit") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
-
-            me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellVortexVisual);
-            me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellChains);
+            m_FirstUsage = false;
         }
 
         InstanceScript* m_Instance;
+        bool m_FirstUsage;
 
         void Reset() override
         {
             events.Reset();
-
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->SetFacingTo(35);
+            me->SetFacingTo(FriendlyFaction);
+
+            if (!m_FirstUsage)
+            {
+                m_FirstUsage = true;
+                me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellVortexVisual);
+                me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellChains);
+            }      
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
             me->RemoveAllAuras();
         }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
-            DoMeleeAttackIfReady();
-        }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Plague bat - 75459
+/// Plague bat - 75459
 class shadowmoon_burial_grounds_plague_bat : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_plague_bat() : CreatureScript("shadowmoon_burial_grounds_plague_bat") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -326,8 +308,7 @@ public:
         void Reset() override
         {
             events.Reset();
-
-            me->setFaction(16);
+            me->setFaction(HostileFaction);
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
         }
 
@@ -337,11 +318,11 @@ public:
         }
 
         void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
+        {       
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -349,33 +330,35 @@ public:
             switch (events.ExecuteEvent())
             {
                 case eShadowmoonBurialGroundsEvents::EventPlagueSpit:
-                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(target, eShadowmoonBurialGroundsSpells::SpellPlagueSpitDamage);
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        me->CastSpell(l_Target, eShadowmoonBurialGroundsSpells::SpellPlagueSpitDamage);
 
                     events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventPlagueSpit, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                default:
                     break;
             }
 
             DoMeleeAttackIfReady();
-
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Shadowmoon Bone-Mender - 75713
+/// Shadowmoon Bone-Mender - 75713
 class shadowmoon_burial_grounds_bone_mender : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_bone_mender() : CreatureScript("shadowmoon_burial_grounds_bone_mender") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -397,60 +380,63 @@ public:
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);     
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-            case eShadowmoonBurialGroundsEvents::EventRattlingBones:
-                me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellRattlingBones);
+                case eShadowmoonBurialGroundsEvents::EventRattlingBones:
+                    me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellRattlingBones);
 
-                events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventRattlingBones, urand(30 * TimeConstants::IN_MILLISECONDS, 38 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eShadowmoonBurialGroundsEvents::EventFratlity:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(l_Target, eShadowmoonBurialGroundsSpells::SpellShadowWordFrality);
+                    events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventRattlingBones, urand(30 * TimeConstants::IN_MILLISECONDS, 38 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                case eShadowmoonBurialGroundsEvents::EventFratlity:
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        me->CastSpell(l_Target, eShadowmoonBurialGroundsSpells::SpellShadowWordFrality);
 
-                events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventFratlity, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eShadowmoonBurialGroundsEvents::EventShadowBolt:
-                if (Unit* l_Target = me->getVictim())
-                    me->CastSpell(l_Target, eShadowmoonBurialGroundsSpells::SpellShadowBolt);
+                    events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventFratlity, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                case eShadowmoonBurialGroundsEvents::EventShadowBolt:
+                    if (Unit* l_Target = me->getVictim())
+                        me->CastSpell(l_Target, eShadowmoonBurialGroundsSpells::SpellShadowBolt);
 
-                events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventShadowBolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eShadowmoonBurialGroundsEvents::EventShadowMend:
-                if (Unit* nearestWoundedCreature = me->FindNearestCreature(eShadowmoonBurialGroundsCreatures::CreatureReinmatedRitualOfBones, 10.0f, true))
-                    me->CastSpell(nearestWoundedCreature, eShadowmoonBurialGroundsSpells::SpellShadowMend);
+                    events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventShadowBolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                case eShadowmoonBurialGroundsEvents::EventShadowMend:
+                    if (Unit* nearestWoundedCreature = me->FindNearestCreature(eShadowmoonBurialGroundsCreatures::CreatureReinmatedRitualOfBones, 10.0f, true))
+                        me->CastSpell(nearestWoundedCreature, eShadowmoonBurialGroundsSpells::SpellShadowMend);
 
-                events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventShadowMend, urand(45 * TimeConstants::IN_MILLISECONDS, 50 * TimeConstants::IN_MILLISECONDS));
-                break;
+                    events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventShadowMend, urand(45 * TimeConstants::IN_MILLISECONDS, 50 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Shadowmoon Exhumer - 77700
+/// Shadowmoon Exhumer - 77700
 class shadowmoon_burial_grounds_exhumer : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_exhumer() : CreatureScript("shadowmoon_burial_grounds_exhumer") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -460,8 +446,7 @@ public:
         void Reset() override
         {
             events.Reset();
-
-            me->setFaction(16);
+            me->setFaction(HostileFaction);
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -471,11 +456,11 @@ public:
         }
 
         void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
+        {        
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -483,15 +468,15 @@ public:
             switch (events.ExecuteEvent())
             {
                 case eShadowmoonBurialGroundsEvents::EventVoidBolt:
-                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 30.0f, true))
-                        me->CastSpell(target, eShadowmoonBurialGroundsSpells::SpellVoidBolt);
-
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                        me->CastSpell(l_Target, eShadowmoonBurialGroundsSpells::SpellVoidBolt);
                     events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventVoidBolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                     break;
                 case eShadowmoonBurialGroundsEvents::EventExhumeTheCrypts:
                     me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellExhumeTheCryptsScriptEffect);
-
                     events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventExhumeTheCrypts, urand(30 * TimeConstants::IN_MILLISECONDS, 40 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                default:
                     break;
             }
 
@@ -499,21 +484,22 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Disturbed Soul - 76400
+/// Disturbed Soul - 76400
 class shadowmoon_burial_grounds_disturbed_soul : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_disturbed_soul() : CreatureScript("shadowmoon_burial_grounds_disturbed_soul") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
             m_Intro = true;
@@ -525,67 +511,52 @@ public:
         void Reset() override
         {
             events.Reset();
-            me->setFaction(35);
+            me->setFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-
             me->GetMotionMaster()->MovePoint(0, 1720.86f, -195.381f, 251.670f);
         }
 
-        void MovementInform(uint32 /*type*/, uint32 id) override
+        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
         {
-            switch (id)
+            switch (p_Id)
             {
-            case 0:
-                me->GetMotionMaster()->MovePoint(1, 1776.33f, -192.384f, 253.420f);
-                break;
-            case 1:
-                me->GetMotionMaster()->MovePoint(2, 1793.44f, -165.260f, 263.614f);
-                break;
-            case 2:
-                me->GetMotionMaster()->MovePoint(3, 1793.738f, -141.923f, 273.013f);
-                break;
-            case 3:
-                me->GetMotionMaster()->MovePoint(4, 1795.166f, -98.746f, 273.802f);
-                break;
-            case 4:
-                me->DespawnOrUnsummon(1000);
-                break;
+                case 0:
+                    me->GetMotionMaster()->MovePoint(1, 1776.33f, -192.384f, 253.420f);
+                    break;
+                case 1:
+                    me->GetMotionMaster()->MovePoint(2, 1793.44f, -165.260f, 263.614f);
+                    break;
+                case 2:
+                    me->GetMotionMaster()->MovePoint(3, 1793.738f, -141.923f, 273.013f);
+                    break;
+                case 3:
+                    me->GetMotionMaster()->MovePoint(4, 1795.166f, -98.746f, 273.802f);
+                    break;
+                case 4:
+                    me->DespawnOrUnsummon(1000);
+                    break;
+                default:
+                    break;
             }
-        }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
-            if (!UpdateVictim())
-                return;
-
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
-
-            /*switch (events.ExecuteEvent())
-            {
-            }*/
-
-            DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Shadowmoon Enslaver - 76446
+/// Shadowmoon Enslaver - 76446
 class shadowmoon_burial_grounds_enslaver : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_enslaver() : CreatureScript("shadowmoon_burial_grounds_enslaver") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
             m_Intro = true;
@@ -597,12 +568,11 @@ public:
         void Reset() override
         {
             events.Reset();
+            me->setFaction(HostileFaction);
 
             // Void ray - cosmetic
             if (Creature* l_NearestSubjugatedSoul = me->FindNearestCreature(eShadowmoonBurialGroundsCreatures::CreatureSubjugatedSoul, 10.0f, true))
-                me->CastSpell(l_NearestSubjugatedSoul, eShadowmoonBurialGroundsSpells::SpellVoidRay);
-
-            me->setFaction(16);
+                me->CastSpell(l_NearestSubjugatedSoul, eShadowmoonBurialGroundsSpells::SpellVoidRay);          
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -611,67 +581,68 @@ public:
             {
                 m_Intro = true;
 
-                for (int i = 0; i < 2; i++)
+                for (uint8 i = 0; i < 2; i++)
                 {
-                    Creature* l_DisturbedSoul = me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureDisturbedSoul, l_PositionDisturbedSpirits[i]);
+                    Creature* l_DisturbedSoul = me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureDisturbedSoul, g_PositionDisturbedSpirits[i]);
                 }
             }
 
             // Exhume Crypts
             me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellExhumeTheCryptsScriptEffect);
-
             events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventRendingVoidLash, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventDomination, 25 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);        
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-            case eShadowmoonBurialGroundsEvents::EventRendingVoidLash:
-                if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 30.0f, true))
-                    me->CastSpell(target, eShadowmoonBurialGroundsSpells::SpellRendingVoidLash);
+                case eShadowmoonBurialGroundsEvents::EventRendingVoidLash:
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                        me->CastSpell(l_Target, eShadowmoonBurialGroundsSpells::SpellRendingVoidLash);
 
-                events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventRendingVoidLash, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eShadowmoonBurialGroundsEvents::EventDomination:
-                if (Unit* l_NearestExhumedSpirit = me->FindNearestCreature(eShadowmoonBurialGroundsCreatures::CreatureExhumeSpirit, 10.0f, true))
-                me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellDomination);
+                    events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventRendingVoidLash, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                case eShadowmoonBurialGroundsEvents::EventDomination:
+                    if (Unit* l_NearestExhumedSpirit = me->FindNearestCreature(eShadowmoonBurialGroundsCreatures::CreatureExhumeSpirit, 10.0f, true))
+                        me->CastSpell(l_NearestExhumedSpirit, eShadowmoonBurialGroundsSpells::SpellDomination);
 
-                events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventDomination, urand(30 * TimeConstants::IN_MILLISECONDS, 35 * TimeConstants::IN_MILLISECONDS));
-                break;
+                    events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventDomination, urand(30 * TimeConstants::IN_MILLISECONDS, 35 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Shadowmoon Loyalist - 75506
+/// Shadowmoon Loyalist - 75506
 class shadowmoon_burial_grounds_loyalist : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_loyalist() : CreatureScript("shadowmoon_burial_grounds_loyalist") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
-
             m_Intro = false;
         }
 
@@ -683,19 +654,19 @@ public:
             events.Reset();
         }
 
-        void MoveInLineOfSight(Unit* who) override
+        void MoveInLineOfSight(Unit* p_Who) override
         {
-            if (who && who->IsInWorld() && who->GetTypeId() == TYPEID_PLAYER && !m_Intro && me->IsWithinDistInMap(who, 15.0f))
+            if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && !m_Intro && me->IsWithinDistInMap(p_Who, 15.0f))
             {
                 m_Intro = true;
 
-                if (Creature* nearestAltarTrigger = me->FindNearestCreature(eShadowmoonBurialGroundsCreatures::CreatureCustomizedAltarTrigger, 10.0f, true))
+                if (Creature* l_NearestAltarTrigger = me->FindNearestCreature(eShadowmoonBurialGroundsCreatures::CreatureCustomizedAltarTrigger, 10.0f, true))
                 {
-                    Position position;
-                    me->GetPosition(&position);
+                    Position l_Position;
+                    me->GetPosition(&l_Position);
 
-                    nearestAltarTrigger->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellRagingSpiritVisual);
-                    nearestAltarTrigger->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureVoidSpawn, position, TEMPSUMMON_DEAD_DESPAWN);
+                    l_NearestAltarTrigger->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellRagingSpiritVisual);
+                    l_NearestAltarTrigger->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureVoidSpawn, l_Position, TEMPSUMMON_DEAD_DESPAWN);
                 }
             }
         }
@@ -712,36 +683,37 @@ public:
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);    
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-            case eShadowmoonBurialGroundsEvents::EventShadowBolt:
-                if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 25.0f, true))
-                    me->CastSpell(target, eShadowmoonBurialGroundsSpells::SpellShadowBolt);
+                case eShadowmoonBurialGroundsEvents::EventShadowBolt:
+                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 25.0f, true))
+                        me->CastSpell(target, eShadowmoonBurialGroundsSpells::SpellShadowBolt);
 
-                events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventShadowBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                break;
+                    events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventShadowBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
-
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Subjugated Soul - 76444
+/// Subjugated Soul - 76444
 class shadowmoon_burial_grounds_subjugated_soul : public CreatureScript
 {
 public:
@@ -749,7 +721,7 @@ public:
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -759,45 +731,28 @@ public:
         void Reset() override
         {
             events.Reset();
-
-            me->setFaction(16);
+            me->setFaction(HostileFaction);
             me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellStrangulate);
             me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellVioletLook);
         }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
-            if (!UpdateVictim())
-                return;
-
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
-
-            /*switch (events.ExecuteEvent())
-            {
-            }*/
-
-            DoMeleeAttackIfReady();
-        }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Void spawn - 75652
+/// Void spawn - 75652
 class shadowmoon_burial_grounds_void_spawn : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_void_spawn() : CreatureScript("shadowmoon_burial_grounds_void_spawn") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public ScriptedAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : ScriptedAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -807,8 +762,7 @@ public:
         void Reset() override
         {
             events.Reset();
-
-            me->setFaction(16);
+            me->setFaction(HostileFaction);
         }
 
         void EnterCombat(Unit* p_Attacker) override
@@ -818,44 +772,45 @@ public:
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
-
             if (!UpdateVictim())
                 return;
+
+            events.Update(p_Diff);      
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())
             {
-            case eShadowmoonBurialGroundsEvents::EventVoidPulse:
-                if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 8.0f, true))
-                    me->CastSpell(target, eShadowmoonBurialGroundsSpells::SpellVoidPulseFullDamage);
-
-                events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventVoidPulse, urand(14 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                break;
+                case eShadowmoonBurialGroundsEvents::EventVoidPulse:
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                        me->CastSpell(l_Target, eShadowmoonBurialGroundsSpells::SpellVoidPulseFullDamage);
+                    events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventVoidPulse, urand(14 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                    break;
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
-
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
-// Defiled Burial Site - 75977
+/// Defiled Burial Site - 75977
 class shadowmoon_burial_grounds_site : public CreatureScript
 {
 public:
+
     shadowmoon_burial_grounds_site() : CreatureScript("shadowmoon_burial_grounds_site") { }
 
     struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -865,17 +820,16 @@ public:
         void Reset() override
         {
             events.Reset();
-            me->setFaction(35);
+            me->setFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->SetDisplayId(59486);
-
+            me->SetDisplayId(BurialDisplay);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(pCreature);
+        return new shadowmoon_burial_grounds_creaturesAI(p_Creature);
     }
 };
 
@@ -883,6 +837,7 @@ public:
 class spell_exhume_the_crypts_script_effect : public SpellScriptLoader
 {
 public:
+
     spell_exhume_the_crypts_script_effect() : SpellScriptLoader("spell_exhume_the_crypts_script_effect")
     {
     }
@@ -891,14 +846,13 @@ public:
     {
         PrepareSpellScript(spell_exhume_the_crypts_script_effect_SpellScript)
 
-        void HandleScript(SpellEffIndex /*effIndex*/)
+        void HandleScript(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster())
                 return;
 
             std::list<Creature*> l_ListCrypts;
             GetCaster()->GetCreatureListWithEntryInGrid(l_ListCrypts, eShadowmoonBurialGroundsCreatures::CreatureCrypts, 10.0f);
-
             if (l_ListCrypts.empty())
                 return;
 
@@ -912,11 +866,11 @@ public:
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(spell_exhume_the_crypts_script_effect_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget += SpellEffectFn(spell_exhume_the_crypts_script_effect_SpellScript::HandleScript, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_exhume_the_crypts_script_effect_SpellScript();
     }

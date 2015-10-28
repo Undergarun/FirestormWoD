@@ -23076,6 +23076,12 @@ void Player::SaveToDB(bool create /*=false*/)
         m_session->AddTransactionCallback(l_CharCreateCallback);
     }
 
+    for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
+    {
+        BattlePet::Ptr l_Pet = (*l_It);
+        l_Pet->Save(accountTrans);
+    }
+
     CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);
     LoginDatabase.CommitTransaction(accountTrans);
 
@@ -23086,11 +23092,7 @@ void Player::SaveToDB(bool create /*=false*/)
     if (Pet* pet = GetPet())
         pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
 
-    for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
-    {
-        BattlePet::Ptr l_Pet = (*l_It);
-        l_Pet->Save();
-    }
+
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
@@ -32357,11 +32359,15 @@ std::shared_ptr<BattlePet> * Player::GetBattlePetCombatTeam()
 /// Reload pet battles
 void Player::ReloadPetBattles()
 {
+    SQLTransaction l_Transaction = LoginDatabase.BeginTransaction();
+
     for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
     {
         BattlePet::Ptr l_Pet = (*l_It);
-        l_Pet->Save();
+        l_Pet->Save(l_Transaction);
     }
+
+    LoginDatabase.CommitTransaction(l_Transaction);
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
     stmt->setUInt32(0, GetSession()->GetAccountId());

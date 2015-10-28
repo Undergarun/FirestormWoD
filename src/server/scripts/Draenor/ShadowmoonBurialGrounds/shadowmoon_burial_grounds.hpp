@@ -9,6 +9,19 @@
 
 #include "ScriptedCreature.h"
 
+static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
+{
+    std::list<Creature*> l_CreatureList;
+    GetCreatureListWithEntryInGrid(l_CreatureList, p_Object, p_Entry, 2000.0f);
+
+    for (Creature* l_Iter : l_CreatureList)
+        l_Iter->DespawnOrUnsummon();
+}
+
+#define HostileFaction 16
+#define FriendlyFaction 35
+#define InvisibleDisplay 11686
+
 enum eShadowmoonBurialGroundsDatas
 {
     DataBossSadana = 1,
@@ -16,14 +29,13 @@ enum eShadowmoonBurialGroundsDatas
     DataBossBonemaw,
     DataBossNerzul,
     DataWandererTalk,
-
     // Doors
     DataStoneDoorSadana,
     DataSadanaFightDoor,
     DataNerzulDoor,
-
+    DataNhalishDoorEntrance,
     // Props
-    DataNerzulProp,
+    DataNerzulProp
 };
 
 enum eShadowmoonBurialGroundsBosses
@@ -31,7 +43,7 @@ enum eShadowmoonBurialGroundsBosses
     BossBoneMaw  = 75452,
     BossNerzul   = 76407,
     BossNhallish = 75829,
-    BossSadana   = 75509,
+    BossSadana   = 75509
 };
 
 enum eShadowmoonBurialGroundsCreatures
@@ -55,16 +67,19 @@ enum eShadowmoonBurialGroundsCreatures
     CreatureCorpseSkitterling       = 77006,
     CreatureRestlessWanderer        = 75729,
     CreatureCustomizedAltarTrigger  = 852144,
-    CreatureCrypts = 75977,
-    CreatureDisturbedSoul = 76400,
-    CreatureNerzulVisual = 79497,
+    CreatureCrypts                  = 75977,
+    CreatureDisturbedSoul           = 76400,
+    CreatureNerzulVisual            = 79497,
+    CreatureWorldTriggerSadanaRp    = 23131,
+    CreatureWeepingSpirit           = 43242
+
 };
 
 enum eShadowmoonBurialGroundsGameObjects
 {
     GameObjectSadanaDoor      = 233919,
     GameObjectSadanaFightDoor = 233921,
-    GameObjectNerzulDoor      = 233920,
+    GameObjectNerzulDoor      = 233920
 };
 
 enum eShadowmoonBurialGroundsSpells
@@ -120,7 +135,7 @@ enum eShadowmoonBurialGroundsSpells
     SpellCry = 175902,
     SpellStrangulate = 78037,
     SpellVioletLook = 154002,
-    SpellVoidRay = 156920,
+    SpellVoidRay = 156920
 };
 
 enum eShadowmoonBurialGroundsEvents
@@ -168,7 +183,7 @@ enum eShadowmoonBurialGroundsEvents
     EventTalk03,
     EventTalk04,
     EventTalk05,
-    EventTalk06,
+    EventTalk06
 };
 
 enum eShadowmoonBurialGroundsTalks
@@ -182,7 +197,7 @@ enum eShadowmoonBurialGroundsTalks
 
 enum eShadowmoonBurialGroundsActions
 {
-    ActionCountVoidSpawnNearNerzulGate = 1,
+    ActionCountVoidSpawnNearNerzulGate = 1
 };
 
 enum eShadowmoonBurialGroundsAchivement
@@ -193,6 +208,6 @@ enum eShadowmoonBurialGroundsAchivement
     AchievementSoulsOfTheLosts = 9026,
     AchievementWhatsYourSign = 9018,
     // Normal: 
-    AchievementShadowmonBurialGroundsNormal = 9041,
+    AchievementShadowmonBurialGroundsNormal = 9041
 };
 

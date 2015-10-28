@@ -24,34 +24,30 @@ public:
         instance_everbloom_instancemapscript(Map* map) : InstanceScript(map) {}
 
         InstanceScript* m_Instance = this;
-
         uint64 m_SadanaGUID;
         uint64 m_NhallishGUID;
         uint64 m_BonemawGUID;
         uint64 m_NerzhulGUID;
         uint64 m_WandererFirstTalkGUID;
-
-        uint64 m_DoorGobjectSadana;
-        uint64 m_DoorGobjectNerzul;
-        uint64 m_DoorGobjectSadanaFightDoor;
-
+        uint64 m_DoorGobjectSadanaGUID;
+        uint64 m_DoorGobjectNerzulGUID;
+        uint64 m_DoorGobjectSadanaFightDoorGUID;
         uint64 m_NerzulPropGUID;
 
         void Initialize() override
         {
+            // Creatures
             m_SadanaGUID = 0;
             m_NhallishGUID = 0;
             m_BonemawGUID = 0;
             m_NerzhulGUID = 0;
+            m_NerzulPropGUID = 0;
+            m_WandererFirstTalkGUID = 0;
 
             // Doors
-            m_DoorGobjectSadana = 0;
-            m_DoorGobjectNerzul = 0;
-            m_DoorGobjectSadanaFightDoor = 0;
-
-            m_NerzulPropGUID = 0;
-
-            m_WandererFirstTalkGUID = 0;
+            m_DoorGobjectSadanaGUID = 0;
+            m_DoorGobjectNerzulGUID = 0;
+            m_DoorGobjectSadanaFightDoorGUID = 0;
         }
 
         void OnCreatureCreate(Creature* l_Creature) override
@@ -70,33 +66,31 @@ public:
                 case eShadowmoonBurialGroundsBosses::BossNerzul:
                     m_NerzhulGUID = l_Creature->GetGUID();
                     break;
-
                 case eShadowmoonBurialGroundsCreatures::CreatureNerzulVisual:
                     m_NerzulPropGUID = l_Creature->GetGUID();
+                    break;
+                default:
                     break;
             }
         }
 
         void OnUnitDeath(Unit* p_Unit) override
         {
-            Creature* l_Creature = p_Unit->ToCreature();
-            if (!l_Creature)
-                return;
-
-            switch (l_Creature->GetEntry())
+            if (Creature* l_Creature = p_Unit->ToCreature())
             {
-                case eShadowmoonBurialGroundsBosses::BossNerzul:
+                switch (l_Creature->GetEntry())
                 {
-                    // Dungeon Achievement
-                    if (p_Unit->GetMap()->IsHeroic())
+                    case eShadowmoonBurialGroundsBosses::BossNerzul:
                     {
-                        this->DoCompleteAchievement(eShadowmoonBurialGroundsAchivement::AchievementShadowmoonBurialGroundsHeroic);
+                        ///< Dungeon Achievement
+                        if (p_Unit->GetMap()->IsHeroic())
+                            this->DoCompleteAchievement(eShadowmoonBurialGroundsAchivement::AchievementShadowmoonBurialGroundsHeroic);
+                        else
+                            this->DoCompleteAchievement(eShadowmoonBurialGroundsAchivement::AchievementShadowmonBurialGroundsNormal);
+                        break;
                     }
-                    else
-                    {
-                        this->DoCompleteAchievement(eShadowmoonBurialGroundsAchivement::AchievementShadowmonBurialGroundsNormal);
-                    }
-                    break;
+                    default:
+                        break;
                 }
             }
         }
@@ -106,26 +100,28 @@ public:
             switch (p_Go->GetEntry())
             {
                 case eShadowmoonBurialGroundsGameObjects::GameObjectSadanaDoor:
-                    m_DoorGobjectSadana = p_Go->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsGameObjects::GameObjectNerzulDoor:
-                    m_DoorGobjectNerzul = p_Go->GetGUID();
+                    m_DoorGobjectSadanaGUID = p_Go->GetGUID();
                     break;
                 case eShadowmoonBurialGroundsGameObjects::GameObjectSadanaFightDoor:
-                    m_DoorGobjectNerzul = p_Go->GetGUID();
+                    m_DoorGobjectSadanaFightDoorGUID = p_Go->GetGUID();
+                    break;
+                case eShadowmoonBurialGroundsGameObjects::GameObjectNerzulDoor:
+                    m_DoorGobjectNerzulGUID = p_Go->GetGUID();
+                   break;            
+                default:
                     break;
             }
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetData(uint32 p_Type, uint32 p_Data) override
         {
-            switch (type)
+            switch (p_Type)
             {
-            case eShadowmoonBurialGroundsDatas::DataWandererTalk:
+                case eShadowmoonBurialGroundsDatas::DataWandererTalk:
                     if (m_WandererFirstTalkGUID <= 4)
-                    {
                         m_WandererFirstTalkGUID++;
-                    }
+                    break;
+                default:
                     break;
             }
         }
@@ -134,6 +130,7 @@ public:
         {
             switch (p_Identifier)
             {
+                 ///< Creatures
                 case eShadowmoonBurialGroundsDatas::DataBossSadana:
                     return m_SadanaGUID;
                     break;
@@ -150,19 +147,20 @@ public:
                     return m_WandererFirstTalkGUID;
                     break;
 
-                    // Doors
+                 ///< Doors
                 case eShadowmoonBurialGroundsDatas::DataStoneDoorSadana:
-                    return m_DoorGobjectSadana;
+                    return m_DoorGobjectSadanaGUID;
                     break;
                 case eShadowmoonBurialGroundsDatas::DataNerzulDoor:
-                    return m_DoorGobjectNerzul;
+                    return m_DoorGobjectNerzulGUID;
                     break;
                 case eShadowmoonBurialGroundsDatas::DataSadanaFightDoor:
-                    return m_DoorGobjectSadanaFightDoor;
+                    return m_DoorGobjectSadanaFightDoorGUID;
                     break;
-
                 case eShadowmoonBurialGroundsDatas::DataNerzulProp:
                     return m_NerzulPropGUID;
+                    break;
+                default:
                     break;
             }
             return 0;
