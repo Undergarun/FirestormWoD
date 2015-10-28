@@ -405,32 +405,32 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                     {
                     case -1:
                     {
-                               // We need to find the icicle with the smallest duration.
-                               int8 l_SmallestIcicle = 0;
-                               int32 l_MinDuration = 0xFFFFFF;
-                               for (int8 i = 0; i < 5; i++)
-                               {
-                                   if (AuraPtr l_TmpCurrentAura = l_Player->GetAura(IcicleAuras[i]))
-                                   {
-                                       if (l_MinDuration > l_TmpCurrentAura->GetDuration())
-                                       {
-                                           l_MinDuration = l_TmpCurrentAura->GetDuration();
-                                           l_SmallestIcicle = i;
-                                       }
-                                   }
-                               }
+                        // We need to find the icicle with the smallest duration.
+                        int8 l_SmallestIcicle = 0;
+                        int32 l_MinDuration = 0xFFFFFF;
+                        for (int8 i = 0; i < 5; i++)
+                        {
+                            if (AuraPtr l_TmpCurrentAura = l_Player->GetAura(IcicleAuras[i]))
+                            {
+                                if (l_MinDuration > l_TmpCurrentAura->GetDuration())
+                                {
+                                    l_MinDuration = l_TmpCurrentAura->GetDuration();
+                                    l_SmallestIcicle = i;
+                                }
+                            }
+                        }
 
-                               /// Launch the icicle with the smallest duration
-                               if (AuraEffectPtr l_CurrentIcicleAuraEffect = l_Player->GetAuraEffect(IcicleAuras[l_SmallestIcicle], EFFECT_0))
-                               {
-                                   int32 l_BasePoints = l_CurrentIcicleAuraEffect->GetAmount();
-                                   l_Player->CastSpell(l_Target, IcicleHits[l_SmallestIcicle], true);
-                                   l_Player->CastCustomSpell(l_Target, SPELL_MAGE_ICICLE_DAMAGE, &l_BasePoints, NULL, NULL, true);
-                                   l_Player->RemoveAura(IcicleAuras[l_SmallestIcicle]);
-                               }
+                        /// Launch the icicle with the smallest duration
+                        if (AuraEffectPtr l_CurrentIcicleAuraEffect = l_Player->GetAuraEffect(IcicleAuras[l_SmallestIcicle], EFFECT_0))
+                        {
+                            int32 l_BasePoints = l_CurrentIcicleAuraEffect->GetAmount();
+                            l_Player->CastSpell(l_Target, IcicleHits[l_SmallestIcicle], true);
+                            l_Player->CastCustomSpell(l_Target, SPELL_MAGE_ICICLE_DAMAGE, &l_BasePoints, NULL, NULL, true);
+                            l_Player->RemoveAura(IcicleAuras[l_SmallestIcicle]);
+                        }
 
-                               l_IcicleFreeSlot = l_SmallestIcicle;
-                               /// No break because we'll add the icicle in the next case
+                        l_IcicleFreeSlot = l_SmallestIcicle;
+                        /// No break because we'll add the icicle in the next case
                     }
                     case 0:
                     case 1:
@@ -438,13 +438,13 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                     case 3:
                     case 4:
                     {
-                              if (AuraPtr l_CurrentIcicleAura = l_Player->AddAura(IcicleAuras[l_IcicleFreeSlot], l_Player))
-                              {
-                                  if (AuraEffectPtr l_Effect = l_CurrentIcicleAura->GetEffect(EFFECT_0))
-                                      l_Effect->SetAmount(l_HitDamage);
-                              }
+                        if (AuraPtr l_CurrentIcicleAura = l_Player->AddAura(IcicleAuras[l_IcicleFreeSlot], l_Player))
+                        {
+                            if (AuraEffectPtr l_Effect = l_CurrentIcicleAura->GetEffect(EFFECT_0))
+                                l_Effect->SetAmount(l_HitDamage);
+                        }
 
-                              break;
+                        break;
                     }
                     }
                 }
