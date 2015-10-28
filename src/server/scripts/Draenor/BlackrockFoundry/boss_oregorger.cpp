@@ -426,7 +426,10 @@ class boss_oregorger : public CreatureScript
                     AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
                         if (m_Crates.empty())
+                        {
+                            me->CastSpell(me, eSpells::WallshakingRoar, true);
                             return;
+                        }
 
                         std::vector<uint8> l_OreCrateSpawns;
 
