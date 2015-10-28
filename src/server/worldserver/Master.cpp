@@ -380,58 +380,6 @@ const char* ipTransfert[4] =
     "37.187.68.78"      // Hellscream
 };
 
-class MopTransfersRunnable : public ACE_Based::Runnable
-{
-public:
-    MopTransfersRunnable()
-    {
-    }
-
-    void run(void)
-    {
-        while (!World::IsStopped())
-        {
-            ACE_Based::Thread::Sleep(30 * IN_MILLISECONDS);
-
-            if (!sWorld->getBoolConfig(CONFIG_MOP_TRANSFER_ENABLE))
-                continue;
-
-            PreparedStatement* l_Statement = LoginMopDatabase.GetPreparedStatement(LOGINMOP_SEL_TRANSFER);
-            l_Statement->setUInt32(0, sLog->GetRealmID());
-
-            auto l_Result = LoginMopDatabase.Query(l_Statement);
-            if (!l_Result)
-                continue;
-
-            do
-            {
-                auto l_Fields = l_Result->Fetch();
-                uint32 l_Timestamp = getMSTime();
-                uint32 l_Id = l_Fields[0].GetUInt32();
-                uint32 l_Account = l_Fields[1].GetUInt32();
-                std::string l_Dump = l_Fields[2].GetString();
-
-                std::ostringstream l_Filename;
-                l_Filename << "pdump/" << l_Account << "_" << l_Timestamp;
-
-                FILE* l_File = fopen(l_Filename.str().c_str(), "w");
-                if (!l_File)
-                    continue;
-
-                fprintf(l_File, "%s\n", l_Dump.c_str());
-                fclose(l_File);
-
-                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "", 0, true);
-                remove(l_Filename.str().c_str());
-
-                if (l_Error == DUMP_SUCCESS)
-                    LoginMopDatabase.PQuery("UPDATE transfer_ashran SET state = 2 WHERE id = %u", l_Id);
-            }
-            while (l_Result->NextRow());
-        }
-    }
-};
-
 Master::Master() { }
 
 Master::~Master() { }
@@ -517,7 +465,6 @@ int Master::Run()
     ACE_Based::Thread gmLogToDB_thread(new GmLogToDBRunnable, "GmLogToDBRunnable");
     ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable, "GmChatLogToDBRunnable");
     ACE_Based::Thread arenaLogToDB_thread(new ArenaLogToDBRunnable, "ArenaLogToDBRunnable");
-    ACE_Based::Thread l_MopTransfersThread(new MopTransfersRunnable, "MopTransfersRunnable");
 
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef _WIN32
@@ -589,8 +536,6 @@ int Master::Run()
         World::StopNow(ERROR_EXIT_CODE);
         // go down and shutdown the server
     }
-
-    //TestTransfertDump();
 
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, g_RealmID);

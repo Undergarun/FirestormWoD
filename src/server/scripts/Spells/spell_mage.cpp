@@ -1193,8 +1193,7 @@ class spell_mage_combustion: public SpellScriptLoader
                     return;
 
                 if (SpellInfo const* l_InfernoBlast = sSpellMgr->GetSpellInfo(eSpells::InfernoBlast))
-                    if (SpellCategoriesEntry const* l_InfernoBlastCategories = l_InfernoBlast->GetSpellCategories())
-                        l_Player->RestoreCharge(l_InfernoBlastCategories->ChargesCategory);
+                    l_Player->RestoreCharge(l_InfernoBlast->ChargeCategoryEntry);
 
                 int32 combustionBp = 0;
 
@@ -2736,12 +2735,48 @@ class spell_ring_of_frost_freeze : public SpellScriptLoader
         }
 };
 
+/// Ring of Frost - 113724, Ring of Frost - 140376 (override)
+class spell_mage_ring_of_frost_trigger : public SpellScriptLoader
+{
+    public:
+        spell_mage_ring_of_frost_trigger() : SpellScriptLoader("spell_mage_ring_of_frost_trigger") { }
+
+        class spell_mage_ring_of_frost_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_ring_of_frost_trigger_SpellScript);
+
+            enum eSpells
+            {
+                PresenceOfMind = 12043
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::PresenceOfMind))
+                    l_Caster->RemoveAura(eSpells::PresenceOfMind);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_mage_ring_of_frost_trigger_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_ring_of_frost_trigger_SpellScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
     new spell_areatrigger_mage_wod_frost_2p_bonus();
 
     /// Spells
+    new spell_mage_ring_of_frost_trigger();
     new spell_mage_arcane_charge();
     new spell_mage_meteor();
     new spell_mage_comet_storm();

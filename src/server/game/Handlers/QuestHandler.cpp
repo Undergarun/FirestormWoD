@@ -122,7 +122,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     if (!object || object == m_Player)
         return;
 
-    // no or incorrect quest giver
+    // no or incorrect quest giver (probably missing quest relation)
     if ((object->GetTypeId() != TYPEID_PLAYER && !object->hasQuest(questId)) ||
         (object->GetTypeId() == TYPEID_PLAYER && object != m_Player && !object->ToPlayer()->CanShareQuest(questId)))
     {
@@ -333,7 +333,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
 
     p_RecvData.readPackGUID(l_Guid);
     p_RecvData >> l_QuestId;
-    l_RespondToGiver = p_RecvData.ReadBit();
+    l_RespondToGiver = p_RecvData.ReadBit(); ///< @todo l_RespondToGiver is unused !
 
     // Verify that the guid is valid and is a questgiver or involved in the requested quest
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);

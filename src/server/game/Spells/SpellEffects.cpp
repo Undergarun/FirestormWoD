@@ -1230,7 +1230,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
-        && m_spellInfo->Category == spellInfo->Category)
+        && m_spellInfo->GetCategory() == spellInfo->GetCategory())
         m_caster->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
 
     // original caster guid only for GO cast
@@ -1280,7 +1280,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
 
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
-        && m_spellInfo->Category == spellInfo->Category)
+        && m_spellInfo->GetCategory() == spellInfo->GetCategory())
         m_caster->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
 
     // original caster guid only for GO cast
@@ -1788,7 +1788,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             /// Chi Explosion Heal -- Prevent executing both effects if BP if one is 0
             case 182078:
             {
-                SpellValue const* l_Values = m_spellValue;
                 if (!m_spellValue)
                     return;
 
@@ -1921,6 +1920,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 renew->RefreshDuration();
 
         // Mogu'Shan Vault
+        /// full magic values, please refactor me.
         if (caster && (caster->HasAura(116161) || unitTarget->HasAura(116161))) // SPELL_CROSSED_OVER
         {
             // http://fr.wowhead.com/spell=117549#english-comments
@@ -3025,7 +3025,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             // randomize position for multiple summons
                             m_caster->GetRandomPoint(*destTarget, radius, pos);
 
-                        summon = m_originalCaster->SummonCreature(entry, *destTarget, summonType, duration);
+                        summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration);
                         if (!summon)
                             continue;
 
@@ -3290,12 +3290,13 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
     /// @Todo: we need to find a better way to handle this, bool on every effect handlers, add hook ?
     switch (m_spellInfo->Id)
     {
-        case 475: // Remove Curse
+        case 475: ///< Remove Curse
+            if (m_caster->HasAura(115700)) ///< Glyph of Remove Curse
+                m_caster->AddAura(115701, m_caster);
+            break;
+        case 370: ///< Purge
             if (m_caster->HasAura(147762)) ///< Glyph of Purging
                 m_caster->CastSpell(m_caster, 53817, true); ///< Maelstrom Weapon
-            break;
-        case 370:
-            if (m_caster->HasAura(115700))
             break;
         case 527:   ///< Purify
         case 97960: ///< Cosmetic Magic Aura
@@ -3592,12 +3593,8 @@ void Spell::EffectEnchantItemPrismatic(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
     if (!itemTarget)
         return;
-
-    Player* p_caster = (Player*)m_caster;
 
     uint32 enchant_id = m_spellInfo->Effects[effIndex].MiscValue;
     if (!enchant_id)
@@ -3647,11 +3644,6 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
-
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    Player* p_caster = (Player*)m_caster;
 
     if (!itemTarget)
         return;
@@ -5207,7 +5199,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
 
-void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
+void Spell::EffectActivateObject(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5215,12 +5207,14 @@ void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
     if (!gameObjTarget)
         return;
 
-    ScriptInfo activateCommand;
-    activateCommand.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
+    ScriptInfo l_ActivateCommand;
+    l_ActivateCommand.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
 
-    // int32 unk = m_spellInfo->Effects[effIndex].MiscValue; // This is set for EffectActivateObject spells; needs research
+    gameObjTarget->GetMap()->ScriptCommandStart(l_ActivateCommand, 0, m_caster, gameObjTarget);
 
-    gameObjTarget->GetMap()->ScriptCommandStart(activateCommand, 0, m_caster, gameObjTarget);
+    /// Maybe it needs more research
+    if (uint32 l_MiscB = m_spellInfo->Effects[p_EffIndex].MiscValueB)
+        gameObjTarget->SendGameObjectActivateAnimKit(l_MiscB, false);
 }
 
 void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
@@ -7613,11 +7607,8 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     }
     else for (ItemTemplate const* l_Template : l_LootTable)
     {
-        for (SpecIndex l_ItemSpecID : l_Template->specs)
-        {
-            if (l_ItemSpecID == l_SpecID)
-                l_Items.push_back(l_Template->ItemId);
-        }
+        if (l_Template->HasSpec((SpecIndex)l_SpecID, l_Player->getLevel()))
+            l_Items.push_back(l_Template->ItemId);
     }
 
     l_Player->RemoveAurasByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT);
@@ -7784,6 +7775,7 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
+/// @todo USE ME
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -7905,8 +7897,6 @@ void Spell::EffectIncreaseSkill(SpellEffIndex p_EffIndex)
         return;
 
     int32 l_BasePoints = m_spellInfo->Effects[p_EffIndex].BasePoints;
-
-    int32 l_NewValue = std::min((int32)l_MaxSkillValue, (int32)(l_CurrentSkillValue + l_BasePoints));
 
     l_Player->UpdateSkillPro(l_SkillId, 1000, l_BasePoints);
 }

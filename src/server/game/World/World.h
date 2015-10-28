@@ -92,8 +92,8 @@ enum WorldTimers
     WUPDATE_PINGDB,
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
-    WUPDATE_TRANSFERT,
-    WUPDATE_TRANSFER_MOP,
+    WUPDATE_TRANSFER,
+    WUPDATE_TRANSFER_EXP,
     WUPDATE_COUNT
 };
 
@@ -411,6 +411,7 @@ enum WorldIntConfigs
     CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX,
     CONFIG_LAST_CLIENT_BUILD,
     CONFIG_BATTLEPAY_MIN_SECURITY,
+    CONFIG_SPELLOG_FLAGS,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -949,6 +950,7 @@ class World
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
         void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
+        void _updateTransfers();
 
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();
@@ -1056,9 +1058,9 @@ class World
 
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
-        PreparedQueryResultFuture m_transfertsDumpCallbacks;
-        PreparedQueryResultFuture m_transfertsLoadCallbacks;
-        PreparedQueryResultFuture m_transferMop;
+        PreparedQueryResultFuture m_transfersDumpCallbacks;
+        PreparedQueryResultFuture m_transfersLoadCallbacks;
+        PreparedQueryResultFuture m_transfersExpLoadCallback;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
         LexicsCutter *m_lexicsCutter;
 };

@@ -386,78 +386,84 @@ public:
         {
         }
 
-        EventMap events;
-        bool hasSaidIntro;
+        EventMap m_Events;
+        bool m_HasSaidIntro;
         uint32 spellJumpTimer;
-        bool hasScheduledFalcon;
-        uint64 playerGuid;
+        bool m_HasScheduledFalcon;
+        uint64 m_PlayerGuid;
 
-        void EnterCombat(Unit* unit)
+        void EnterCombat(Unit* p_Attacker)
         {
-            events.ScheduleEvent(EVENT_JAOMIN_JUMP, 1000);
-            events.ScheduleEvent(EVENT_JAOMIN_BUMP, 3200);
-            events.ScheduleEvent(EVENT_HIT_CIRCLE,  12000);
-            events.ScheduleEvent(EVENT_CHECK_AREA,  12500);
+            m_Events.ScheduleEvent(EVENT_JAOMIN_JUMP, 1000);
+            m_Events.ScheduleEvent(EVENT_JAOMIN_BUMP, 3200);
+            m_Events.ScheduleEvent(EVENT_HIT_CIRCLE, 12000);
+            m_Events.ScheduleEvent(EVENT_CHECK_AREA, 12500);
         }
         
         void Reset()
         {
-            events.Reset();
+            m_Events.Reset();
+            me->setFaction(7);
             me->SetReactState(REACT_DEFENSIVE);
             me->CombatStop(true);
             me->SetDisplayId(39755);
-            hasSaidIntro = false;
-            hasScheduledFalcon = false;
+            m_HasSaidIntro = false;
+            m_HasScheduledFalcon = false;
             me->HandleEmoteCommand(EMOTE_STATE_SIT);
             me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-            playerGuid = 0;
+            m_PlayerGuid = 0;
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* p_Summoned)
         {
-            if (summoned->GetEntry() == 57750) // Script of the falcon attack
+            if (p_Summoned->GetEntry() == 57750) // Script of the falcon attack
             {
-                summoned->CastSpell(me->getVictim(), 108935, true);
-                summoned->DespawnOrUnsummon();
+                p_Summoned->CastSpell(me->getVictim(), 108935, true);
+                p_Summoned->DespawnOrUnsummon();
             }
         }
         
-        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
         {
-            if (Player* player = attacker->ToPlayer())
+            if (Player* l_Player = p_Attacker->ToPlayer())
             {
-                playerGuid = player->GetGUID();
+                m_PlayerGuid = l_Player->GetGUID();
 
-                if (me->HealthBelowPctDamaged(30, damage))
+                if (me->HealthBelowPctDamaged(30, p_Damage))
                 {
-                    if (!hasScheduledFalcon)
+                    if (!m_HasScheduledFalcon)
                     {
-                        events.ScheduleEvent(EVENT_FALCON, 1000);
-                        events.ScheduleEvent(EVENT_FALCON_ATTACK, 1800);
-                        events.ScheduleEvent(EVENT_STUNNED, 2800);
-                        hasScheduledFalcon = true;
+                        m_Events.ScheduleEvent(EVENT_FALCON, 1000);
+                        m_Events.ScheduleEvent(EVENT_FALCON_ATTACK, 1800);
+                        m_Events.ScheduleEvent(EVENT_STUNNED, 2800);
+                        m_HasScheduledFalcon = true;
                     }
-                    events.CancelEvent(EVENT_JAOMIN_JUMP);
-                    events.CancelEvent(EVENT_JAOMIN_BUMP);
-                    events.CancelEvent(EVENT_HIT_CIRCLE);
+                    m_Events.CancelEvent(EVENT_JAOMIN_JUMP);
+                    m_Events.CancelEvent(EVENT_JAOMIN_BUMP);
+                    m_Events.CancelEvent(EVENT_HIT_CIRCLE);
                 }
 
-                if (me->HealthBelowPctDamaged(5, damage))
+                if (me->HealthBelowPctDamaged(5, p_Damage))
                 {
-                    player->KilledMonsterCredit(me->GetEntry(), 0);
+                    p_Damage = 0;
+                    Talk(urand(1, 6));
+                    l_Player->KilledMonsterCredit(me->GetEntry(), 0);
+                    l_Player->CombatStop(true);
+
+                    if (me->HasUnitState(UNIT_STATE_ROOT))
+                        me->ClearUnitState(UNIT_STATE_ROOT);
+
                     me->CombatStop();
-                    player->CombatStop(true);
                     me->setFaction(35);
                     me->SetFullHealth();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                    Talk(urand(1,6));
-                    events.ScheduleEvent(EVENT_RESET, 5000);
-                    damage = 0;
+
+                    m_Events.ScheduleEvent(EVENT_RESET, 5000);
                 }
 
-                if (damage > me->GetHealth())
-                    damage = 0;
+                if (p_Damage > me->GetHealth())
+                    p_Damage = 0;
             }
         }
 
@@ -465,26 +471,28 @@ public:
         {
             if (p_Action == ACTION_TALK)
             {
-                if (hasSaidIntro == false)
+                if (m_HasSaidIntro == false)
                 {
                     Talk(0);
-                    hasSaidIntro = true;
+                    m_HasSaidIntro = true;
                 }
             }
         }
 
         void UpdateAI(const uint32 diff)
         {            
-            events.Update(diff);
+            m_Events.Update(diff);
 
             if (!UpdateVictim())
             {
                 if (me->getFaction() == 35)
                 {
-                    std::list<Player*> playerList;
-                    GetPlayerListInGrid(playerList, me, 15.0f);
-                    for (auto player: playerList)
-                        if (player->GetQuestStatus(29409) == QUEST_STATUS_INCOMPLETE)
+                    std::list<Player*> l_PlayerList;
+                    GetPlayerListInGrid(l_PlayerList, me, 15.0f);
+
+                    for (Player* l_Player : l_PlayerList)
+                    {
+                        if (l_Player->GetQuestStatus(29409) == QUEST_STATUS_INCOMPLETE)
                         {
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->HandleEmoteCommand(EMOTE_STATE_STAND);
@@ -495,42 +503,43 @@ public:
                             me->SetReactState(REACT_DEFENSIVE);
                             DoAction(ACTION_TALK);
                         }
+                    }
                 }
                 return;
             }
 
-            while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 l_EventId = m_Events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (l_EventId)
                 {
                     case EVENT_JAOMIN_JUMP: // Jaomin jumps to prepare the knock
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, 108938, true);
-                        events.ScheduleEvent(EVENT_JAOMIN_JUMP, 12000);
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, 108938, true);
+                        m_Events.ScheduleEvent(EVENT_JAOMIN_JUMP, 12000);
                         break;
                     case EVENT_JAOMIN_BUMP: // Jaomin inflicts damage, next to EVENT_JAOMIN_JUMP
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, 108937, true);
-                        events.ScheduleEvent(EVENT_JAOMIN_BUMP, 12000);
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, 108937, true);
+                        m_Events.ScheduleEvent(EVENT_JAOMIN_BUMP, 12000);
                         break;
                     case EVENT_HIT_CIRCLE: // Circular knock
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, 119301, true);
-                        events.ScheduleEvent(EVENT_HIT_CIRCLE, 15000);
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, 119301, true);
+                        m_Events.ScheduleEvent(EVENT_HIT_CIRCLE, 15000);
                         break;
                     case EVENT_FALCON: // Here summons the falcon
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, 108955, true);
-                        events.ScheduleEvent(EVENT_FALCON, 12000);
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, 108955, true);
+                        m_Events.ScheduleEvent(EVENT_FALCON, 12000);
                         break;
                     case EVENT_FALCON_ATTACK: // Here, attacks w/ the falcon
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, 108935, true);
-                        events.ScheduleEvent(EVENT_FALCON_ATTACK, 12000);
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, 108935, true);
+                        m_Events.ScheduleEvent(EVENT_FALCON_ATTACK, 12000);
                         break;
                     case EVENT_STUNNED: // Here, gets stunned
                             me->CastSpell(me, 108959, true);
-                        events.ScheduleEvent(EVENT_STUNNED, 12000);
+                            m_Events.ScheduleEvent(EVENT_STUNNED, 12000);
                         break;
                     case EVENT_RESET: // Comes back to initial pos
                         Reset();

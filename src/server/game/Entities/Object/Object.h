@@ -1062,7 +1062,7 @@ class WorldObject : public Object, public WorldLocation
         void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListInGrid(std::list<Creature*>& lList, float fMaxSearchRange) const;
-        void GetPlayerListInGrid(std::list<Player*>& lList, float fMaxSearchRange) const;
+        void GetPlayerListInGrid(std::list<Player*>& lList, float fMaxSearchRange, bool p_Self = false) const;
 
         void GetGameObjectListWithEntryInGridAppend(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGridAppend(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
@@ -1200,6 +1200,7 @@ namespace JadeCore
 
         list = listCopy;
     }
+
     // Binary predicate to sort WorldObjects based on the distance to a reference WorldObject
     class ObjectDistanceOrderPred
     {
@@ -1212,6 +1213,25 @@ namespace JadeCore
         private:
             const WorldObject* m_refObj;
             const bool m_ascending;
+    };
+
+    /// Binary predicate to sort WorldObjects based on the distance to a reference Position
+    class PositionDistanceOrderPred
+    {
+        public:
+            PositionDistanceOrderPred(Position const p_RefPsos, bool p_Ascending = true) : m_RefPos(p_RefPsos), m_Ascending(p_Ascending) { }
+
+            bool operator()(WorldObject const* pLeft, WorldObject const* pRight) const
+            {
+                float l_LeftDist = pLeft->GetDistance(m_RefPos);
+                float l_RightDist = pRight->GetDistance(m_RefPos);
+
+                return m_Ascending ? l_LeftDist < l_RightDist : l_LeftDist > l_RightDist;
+            }
+
+        private:
+            Position const m_RefPos;
+            bool const m_Ascending;
     };
 }
 

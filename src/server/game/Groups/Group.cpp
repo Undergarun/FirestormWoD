@@ -657,14 +657,14 @@ bool Group::RemoveMember(uint64 p_Guid, RemoveMethod const& p_Method /*= GROUP_R
             l_Data << uint8(GetPartyFlags());
             l_Data << uint8(GetPartyIndex());
             l_Data << uint8(GetPartyType());
-            l_Data << int32(-1);
+            l_Data << int32(-1);                ///< MyIndex
             l_Data.appendPackGUID(l_GroupGUID);
             l_Data << uint32(m_UpdateCount++);
             l_Data.appendPackGUID(l_LeaderGUID);
             l_Data << uint32(l_MemberCount);
 
-            l_Data.WriteBit(false);
-            l_Data.WriteBit(false);
+            l_Data.WriteBit(false); ///< LfgInfos
+            l_Data.WriteBit(false); ///< LootSettings
             l_Data.WriteBit(false);
             l_Data.FlushBits();
 
@@ -1858,7 +1858,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         l_Data << uint8(l_MemberIT->group);
         l_Data << uint8(l_MemberIT->flags);
         l_Data << uint8(l_MemberIT->roles);
-        l_Data << uint8(0);
+        l_Data << uint8(0);                     ///< @todo class!
         l_Data.WriteString(l_MemberIT->name);
     }
 

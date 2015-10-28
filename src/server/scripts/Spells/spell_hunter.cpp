@@ -49,7 +49,8 @@ enum HunterSpells
     HUNTER_SPELL_KILL_COMMAND                       = 34026,
     HUNTER_SPELL_KILL_COMMAND_TRIGGER               = 83381,
     HUNTER_SPELL_KILL_COMMAND_CHARGE                = 118171,
-    HUNTER_SPELL_SPIRIT_BOND                        = 118694,
+    HUNTER_SPELL_SPIRIT_BOND_BUFF                   = 118694,
+    HUNTER_SPELL_SPIRIT_BOND                        = 109212,
     SPELL_MAGE_TEMPORAL_DISPLACEMENT                = 80354,
     HUNTER_SPELL_INSANITY                           = 95809,
     SPELL_SHAMAN_SATED                              = 57724,
@@ -1226,27 +1227,6 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
     public:
         spell_hun_spirit_bond_apply() : SpellScriptLoader("spell_hun_spirit_bond_apply") { }
 
-        class spell_hun_spirit_bond_apply_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_spirit_bond_apply_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_SPIRIT_BOND, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_spirit_bond_apply_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_spirit_bond_apply_SpellScript();
-        }
-
         class spell_hun_spirit_bond_apply_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_hun_spirit_bond_apply_AuraScript);
@@ -1259,15 +1239,42 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->GetPet() == nullptr)
-                        l_Player->RemoveAura(HUNTER_SPELL_SPIRIT_BOND);
-                    else if (!l_Player->HasAura(HUNTER_SPELL_SPIRIT_BOND))
-                        l_Player->CastSpell(l_Player, HUNTER_SPELL_SPIRIT_BOND, true);
+                        l_Player->RemoveAura(HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF);
+                    else if (!l_Player->HasAura(HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF))
+                        l_Player->CastSpell(l_Player, HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF, true);
+                }
+            }
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveAura(HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF);
+                if (l_Caster->GetTypeId() == TypeID::TYPEID_PLAYER)
+                {
+                    if (Unit* l_Pet = l_Caster->ToPlayer()->GetPet())
+                        l_Pet->RemoveAura(HunterSpells::HUNTER_SPELL_SPIRIT_BOND);
                 }
             }
 
             void Register()
             {
                 OnAuraUpdate += AuraUpdateFn(spell_hun_spirit_bond_apply_AuraScript::OnUpdate);
+                OnEffectApply += AuraEffectApplyFn(spell_hun_spirit_bond_apply_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_spirit_bond_apply_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2126,7 +2133,7 @@ class spell_hun_barrage : public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (!l_Target->HasAura(eSpells::BarrageTalent))
+                        if (!l_Target->HasAura(eSpells::BarrageTalent, l_Caster->GetGUID()))
                             SetHitDamage(GetHitDamage() / 2);
                     }
                 }
@@ -3223,7 +3230,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         l_Owner->ToPlayer()->AddSpellCooldown(HUNTER_SPELL_BLINK_STRIKES, 0, 20 * IN_MILLISECONDS, true);
                     }
                 }
-
                 return SPELL_CAST_OK;
             }
 
@@ -3260,9 +3266,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_FreeCostSpell)
                             l_Pet->RemoveAura(eSpells::EnhancedBasicAttacksProc);
 
-                        if (l_EnhancedBasicAttacks != nullptr && l_Hunter->HasAura(eSpells::EnhancedBasicAttacksAura) && roll_chance_i(l_EnhancedBasicAttacks->Effects[EFFECT_0].BasePoints))
-                            l_Pet->CastSpell(l_Pet, eSpells::EnhancedBasicAttacksProc, true);
-
                         /// Frenzy - 19623
                         if (l_Hunter->HasAura(HUNTER_SPELL_FRENZY) && roll_chance_i(l_Frenzy->Effects[EFFECT_1].BasePoints))
                             l_Pet->CastSpell(l_Pet, HUNTER_SPELL_FRENZY_STACKS, true);
@@ -3283,15 +3286,29 @@ class spell_hun_claw_bite : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* l_Pet = GetCaster())
+                Pet* l_Pet = GetCaster()->ToPet();
+                Unit* l_Hunter = GetCaster()->GetOwner();
+                
+                if (l_Hunter == nullptr || l_Pet == nullptr)
+                    return;
+
+                Player* l_Player = l_Hunter->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                SpellInfo const* l_EnhancedBasicAttacks = sSpellMgr->GetSpellInfo(eSpells::EnhancedBasicAttacksAura);
+
+                if (AuraPtr l_CobraStrike = l_Hunter->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
+                    l_CobraStrike->ModStackAmount(-1);
+                if (AuraPtr l_CobraStrikePet = l_Pet->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
+                    l_CobraStrikePet->ModStackAmount(-1);
+
+                if (l_EnhancedBasicAttacks != nullptr && l_Hunter->HasAura(eSpells::EnhancedBasicAttacksAura) && roll_chance_i(l_EnhancedBasicAttacks->Effects[EFFECT_0].BasePoints))
                 {
-                    if (Unit* l_Hunter = GetCaster()->GetOwner())
-                    {
-                        if (AuraPtr l_CobraStrike = l_Hunter->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
-                            l_CobraStrike->ModStackAmount(-1);
-                        if (AuraPtr l_CobraStrikePet = l_Pet->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
-                            l_CobraStrikePet->ModStackAmount(-1);
-                    }
+                    l_Pet->CastSpell(l_Pet, eSpells::EnhancedBasicAttacksProc, true);
+                    l_Pet->_AddCreatureSpellCooldown(GetSpellInfo()->Id, time(nullptr));
+                    l_Player->SendClearCooldown(GetSpellInfo()->Id, l_Pet);
                 }
             }
 
@@ -3552,8 +3569,6 @@ public:
                 {
                     if (AuraPtr l_PoisonedAmmo = l_Target->GetAura(HUNTER_SPELL_POISONED_AMMO))
                     {
-                        const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_POISONED_AMMO_AURA);
-
                         if (m_Damage > 0)
                             m_Damage = m_Damage / (l_PoisonedAmmo->GetDuration() / l_PoisonedAmmo->GetEffect(0)->GetAmplitude());
 

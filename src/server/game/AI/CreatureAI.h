@@ -145,6 +145,9 @@ class CreatureAI : public UnitAI
         /// Called when successful cast a spell
         virtual void OnSpellCasted(SpellInfo const* p_SpellInfo) { }
 
+        /// Called when a spell is finished
+        virtual void OnSpellFinished(SpellInfo const* p_SpellInfo) { }
+
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         //virtual void AttackedBy(Unit* attacker);
         virtual bool IsEscorted() { return false; }
@@ -185,6 +188,9 @@ class CreatureAI : public UnitAI
         // Called at any threat added from any attacker (before threat apply)
         virtual void OnAddThreat(Unit* /*victim*/, float& /*fThreat*/, SpellSchoolMask /*schoolMask*/, SpellInfo const* /*threatSpell*/) {}
 
+        /// Called when at HandleGarrisonGetShipmentInfoOpcode() is received
+        virtual int OnShipmentIDRequest(Player* p_Player) { return -1; }
+
         /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)
@@ -211,6 +217,8 @@ class CreatureAI : public UnitAI
         //Creature* const me;
 
         virtual void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) {}
+
+        virtual void OnVehicleExited(Unit* p_Vehicle) { }
 
         virtual void OnSpellClick(Unit* /*clicker*/) { }
 

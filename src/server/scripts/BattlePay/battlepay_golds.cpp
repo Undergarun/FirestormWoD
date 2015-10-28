@@ -13,8 +13,8 @@ namespace BattlePay
     {
         Gold10k     = 100000000U,
         Gold50k     = 500000000U,
-        Gold200k    = 2000000000U,
-        Gold500k    = 5000000000U,
+        Gold100k    = 1000000000U,
+        Gold300k    = 3000000000U,
     };
 }
 
@@ -56,6 +56,6 @@ void AddSC_BattlePay_Golds()
 {
     new BattlePay_Gold<BattlePay::Gold10k>("battlepay_gold_10k");
     new BattlePay_Gold<BattlePay::Gold50k>("battlepay_gold_50k");
-    new BattlePay_Gold<BattlePay::Gold200k>("battlepay_gold_200k");
-    new BattlePay_Gold<BattlePay::Gold500k>("battlepay_gold_500k");
+    new BattlePay_Gold<BattlePay::Gold100k>("battlepay_gold_100k");
+    new BattlePay_Gold<BattlePay::Gold300k>("battlepay_gold_300k");
 }

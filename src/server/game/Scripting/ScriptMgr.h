@@ -155,6 +155,11 @@ class ScriptMgr
         /// @p_Creature : Target creature instance
         uint32 GetDialogStatus(Player* p_Player, Creature* p_Creature);
 
+        /// Called when player asks from a creature gossip to create a shipment.
+        /// @p_Player       : Player that created the shipment
+        /// @p_Creature     : NPC that got the gossip
+        void OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID);
+
         /// Called when a CreatureAI object is needed for the creature.
         /// @p_Creature : Target creature instance
         CreatureAI* GetCreatureAI(Creature* p_Creature);

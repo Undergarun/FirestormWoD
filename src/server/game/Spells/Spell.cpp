@@ -955,7 +955,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
         case TARGET_SELECT_CATEGORY_NYI:
             break;
         default:
-            printf("Spell::SelectEffectImplicitTargets: received not implemented select target category / Spell ID = %u and Effect = %u and target type = %u \n", m_spellInfo->Id, effIndex, targetType.GetTarget());
+            printf("Spell::SelectEffectImplicitTargets: received not implemented select target category / Spell ID = %u and Effect = %d and target type = %d \n", m_spellInfo->Id, effIndex, targetType.GetTarget());
             //ASSERT(false && "Spell::SelectEffectImplicitTargets: received not implemented select target category");
             break;
     }
@@ -1201,7 +1201,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
 
 void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTargetInfo const& p_TargetType, uint32 p_EffMask)
 {
-    Unit* l_Referer = NULL;
+    Unit* l_Referer = nullptr;
     switch (p_TargetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
@@ -1232,7 +1232,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
     if (!l_Referer)
         return;
 
-    Position const* l_Center = NULL;
+    Position const* l_Center = nullptr;
     switch (p_TargetType.GetReferenceType())
     {
         case TARGET_REFERENCE_TYPE_SRC:
@@ -1909,14 +1909,13 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
     {
         int8 l_StacksToDrop = GetSpellInfo()->Id == 116858 ? 3 : 1;
         if (GetSpellInfo()->SpellFamilyFlags & flag128(0x00000000, 0x00000000, 0x00000000, 0x00400000) &&
-            havoc->GetStackAmount() >= l_StacksToDrop && target->ToUnit() && !target->ToUnit()->HasAura(80240))
+            havoc->GetStackAmount() >= l_StacksToDrop && target->ToUnit() && !target->ToUnit()->HasAura(80240) && effIndex == EFFECT_0)
         {
             std::list<Unit*> targets;
             Unit* secondTarget = NULL;
             m_caster->GetAttackableUnitListInRange(targets, 40.0f);
 
-            if (target->ToUnit())
-                targets.remove(target->ToUnit());
+            targets.remove(target->ToUnit());
             targets.remove(m_caster);
 
             for (auto itr : targets)
@@ -2913,30 +2912,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
-    /// Your finishing moves restore X Energy per combo
-    if (m_needComboPoints)
-    {
-        if (Player* l_Caster = m_caster->ToPlayer())
-        {
-            if (int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT))
-            {
-                if (l_Caster->HasAura(158476)) ///< Soul of the forest
-                {
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
-                }
-                else if (l_Caster->HasAura(14161)) ///< Ruthlessness
-                {
-                    if (roll_chance_i(20 * l_Combo))
-                    {
-                        m_comboPointGain += 1;
-                        l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
-                    }
-                }
-            }
-        }
-    }
-
     // Do not take combo points on dodge and miss
     if (missInfo != SPELL_MISS_NONE && m_needComboPoints &&
             m_targets.GetUnitTargetGUID() == target->targetGUID)
@@ -3403,11 +3378,15 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
     // trigger linked auras remove/apply
     // TODO: remove/cleanup this, as this table is not documented and people are doing stupid things with it
     if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id + SPELL_LINK_HIT))
+    {
         for (std::vector<int32>::const_iterator i = spellTriggered->begin(); i != spellTriggered->end(); ++i)
+        {
             if (*i < 0)
                 unit->RemoveAurasDueToSpell(-(*i));
             else
                 unit->CastSpell(unit, *i, true, 0, NULLAURA_EFFECT, m_caster->GetGUID());
+        }
+    }
 }
 
 void Spell::DoAllEffectOnTarget(GOTargetInfo* target)
@@ -4255,8 +4234,8 @@ void Spell::_handle_finish_phase()
 
 void Spell::SendSpellCooldown()
 {
-    Player* _player = m_caster->ToPlayer();
-    if (!_player)
+    Player* l_Player = m_caster->ToPlayer();
+    if (!l_Player)
     {
         // Handle pet cooldowns here if needed instead of in PetAI to avoid hidden cooldown restarts
         Creature* _creature = m_caster->ToCreature();
@@ -4266,11 +4245,14 @@ void Spell::SendSpellCooldown()
         return;
     }
 
+    if (l_Player && l_Player->ConsumeCharge(m_spellInfo->ChargeCategoryEntry))
+        return;
+
     // mana/health/etc potions, disabled by client (until combat out as declarate)
     if (m_CastItem && (m_CastItem->IsPotion() || m_CastItem->IsHealthstone() || m_spellInfo->IsCooldownStartedOnEvent()))
     {
         // need in some way provided data for Spell::finish SendCooldownEvent
-        _player->SetLastPotionId(m_CastItem->GetEntry());
+        l_Player->SetLastPotionId(m_CastItem->GetEntry());
         return;
     }
 
@@ -4281,7 +4263,7 @@ void Spell::SendSpellCooldown()
     if (m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
         return;
 
-    _player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : m_CastItemEntry, this);
+    l_Player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : m_CastItemEntry, this);
 }
 
 void Spell::update(uint32 difftime)
@@ -4401,6 +4383,9 @@ void Spell::finish(bool ok)
 
     if (m_spellInfo->IsChanneled())
         m_caster->UpdateInterruptMask();
+
+    if (m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->IsAIEnabled)
+        m_caster->ToCreature()->AI()->OnSpellFinished(m_spellInfo);
 
     if (IsAutoActionResetSpell())
     {
@@ -5569,8 +5554,6 @@ void Spell::TakePower()
         /// WoD Custom Script - Arcane Blast mana cost with Arcane Charge and Improved Arcane Power
         if (powerType == POWER_MANA && m_spellInfo && m_spellInfo->Id == 30451 && m_caster->HasAura(157604))
         {
-            SpellInfo const* l_ArcaneBlast = sSpellMgr->GetSpellInfo(30451);
-
             /// Arcane Charge increase mana cost of Arcane Blast
             if (AuraPtr l_ArcaneCharge = m_caster->GetAura(36032))
             {
@@ -5961,7 +5944,12 @@ void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_
     destTarget       = &m_destTargets[p_I]._position;
 
     uint8 l_Effect = m_spellInfo->Effects[p_I].Effect;
-    damage         = CalculateDamage(p_I, unitTarget);
+    damage = CalculateDamage(p_I, unitTarget);
+
+    /// Prevent recalculating base damage for every posible target in case of AoE spells 
+    /// @TODO_SOVAK: Rewrite this shit! :P
+    /*if (p_Mode == SPELL_EFFECT_HANDLE_HIT || p_Mode == SPELL_EFFECT_HANDLE_LAUNCH)
+        damage = CalculateDamage(p_I, unitTarget, p_Mode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET);*/
 
     bool l_PreventDefault = CallScriptEffectHandlers((SpellEffIndex)p_I, p_Mode);
     if (!l_PreventDefault && l_Effect < TOTAL_SPELL_EFFECTS)
@@ -6059,13 +6047,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_NOT_READY;
         }
 
-        auto const categories = m_spellInfo->GetSpellCategories();
-        if (categories && categories->ChargesCategory != 0)
-        {
-            auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-            if (category && !l_Player->CanUseCharge(category))
-                return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
-        }
+        if (!l_Player->HasCharge(m_spellInfo->ChargeCategoryEntry))
+            return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
 
         // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
         if (l_Player->GetLastPotionId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))

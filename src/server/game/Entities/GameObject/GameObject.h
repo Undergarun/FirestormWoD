@@ -1154,6 +1154,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         uint32 GetCustomFlags() const { return m_CustomFlags; }
 
+        void SendGameObjectActivateAnimKit(uint32 p_AnimKitID, bool p_Maintain = true, Player* p_Target = nullptr);
+
     protected:
         bool AIM_Initialize();
         void UpdateModel();                                 // updates model in case displayId were changed

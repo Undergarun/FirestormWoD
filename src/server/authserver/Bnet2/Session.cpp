@@ -250,7 +250,7 @@ namespace BNet2 {
             l_Result.WriteBits(false, 1);       ///< false - disable optional modules
             l_Result.WriteBits(1, 2);           ///< 1 - enable AuthResults
             l_Result.WriteBits(p_Result, 16);   ///< AuthResults (Error codes)
-            l_Result.WriteBits(0x80000000, 32); ///< Unknown*
+            l_Result.WriteBits(0x80000000, 32); ///< Wait
         }
         else
         {
@@ -261,9 +261,9 @@ namespace BNet2 {
 
             std::string l_AccountName = l_Bufffer;
 
-            l_Result.WriteBits(0, 3);
+            l_Result.WriteBits(0, 3);                   ///< Modules
             l_Result.WriteBits(0x80005000, 32);         ///< Ping request, ~10 secs
-            l_Result.WriteBits(l_HaveOptData, 1);
+            l_Result.WriteBits(l_HaveOptData, 1);       ///< Module related
 
             if (l_HaveOptData)
             {
@@ -280,14 +280,14 @@ namespace BNet2 {
 
             l_Result.WriteString("", 8, false);         ///< First Name
             l_Result.WriteString("", 8, false);         ///< Last Name
-            l_Result.WriteBits(m_AccountID, 32);
-            l_Result.WriteBits(0, 8);
-            l_Result.WriteBits(0, 64);
-            l_Result.WriteBits(0, 8);
-            l_Result.WriteString(l_AccountName, 5, false, -1);
-            l_Result.WriteBits(0, 64);
-            l_Result.WriteBits(0, 32);
-            l_Result.WriteBits(false, 1);
+            l_Result.WriteBits(m_AccountID, 32);        ///< AccountID
+            l_Result.WriteBits(0, 8);                   ///< Region
+            l_Result.WriteBits(0, 64);                  ///< Flags
+            l_Result.WriteBits(0, 8);                   ///< GameAccountRegion
+            l_Result.WriteString(l_AccountName, 5, false, -1);  ///< GameAccountName
+            l_Result.WriteBits(0, 64);                  ///< GameAccountFlags
+            l_Result.WriteBits(0, 32);                  ///< FailedLogins
+            l_Result.WriteBits(false, 1);               ///< RaF
         }
 
         Send(&l_Result);
@@ -783,10 +783,10 @@ namespace BNet2 {
 //         ));
 
 
-        l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG_IP);
+        /*l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG_IP);
         l_Stmt->setUInt32(0, m_AccountID);
         l_Stmt->setString(1, GetSocket().getRemoteAddress().c_str());
-        LoginDatabase.Execute(l_Stmt);
+        LoginDatabase.Execute(l_Stmt);*/
 
         /// User reporting
         /// Step Login (5)

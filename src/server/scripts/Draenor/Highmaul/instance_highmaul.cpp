@@ -200,7 +200,8 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::GorianCivilian:
                     case eHighmaulCreatures::RuneOfNullification:
                         p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
-                        p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                        p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                         break;
                     case eHighmaulCreatures::ImperatorMargok:
                         m_ImperatorMargokGuid = p_Creature->GetGUID();
@@ -338,6 +339,7 @@ class instance_highmaul : public InstanceMapScript
                     {
                         if (p_State != EncounterState::DONE)
                             break;
+
                         SendUpdateWorldState(eHighmaulWorldStates::DisableCrowdSound, 1);
                         SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState, 0);
                         SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState2, 0);
@@ -636,6 +638,7 @@ class instance_highmaul : public InstanceMapScript
 
             void Update(uint32 p_Diff) override
             {
+                UpdateOperations(p_Diff);
                 UpdateCombatResurrection(p_Diff);
             }
         };

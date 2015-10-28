@@ -60,12 +60,10 @@ void TotemAI::UpdateAI(uint32 const /*diff*/)
     // pointer to appropriate target if found any
     Unit* victim = i_victimGuid ? ObjectAccessor::GetUnit(*me, i_victimGuid) : NULL;
 
-    if (me->IsNonMeleeSpellCasted(false))
+    if (victim && victim->HasBreakableByDamageCrowdControlAura(me))
     {
-        if (victim && victim->HasBreakableByDamageCrowdControlAura())
-            victim = NULL;
-        else
-            return;
+        me->InterruptNonMeleeSpells(false);
+        return;
     }
 
     // Search spell
@@ -84,20 +82,25 @@ void TotemAI::UpdateAI(uint32 const /*diff*/)
         me->IsFriendlyTo(victim) || !me->canSeeOrDetect(victim) || victim->HasBreakableByDamageCrowdControlAura())
     {
         victim = NULL;
-        JadeCore::NearestAttackableNoCCUnitInObjectRangeCheck u_check(me, me, max_range);
-        JadeCore::UnitLastSearcher<JadeCore::NearestAttackableNoCCUnitInObjectRangeCheck> checker(me, victim, u_check);
-        me->VisitNearbyObject(max_range, checker);
+        if (me->GetCharmerOrOwner())
+            victim = me->GetCharmerOrOwner()->getVictim();
     }
 
     // If have target
     if (victim)
     {
-        // remember
-        i_victimGuid = victim->GetGUID();
+        if (!me->HasUnitState(UNIT_STATE_CASTING))
+        {
+            // remember or force to reselect a victim
+            if (i_victimGuid && me->GetCharmerOrOwner() && victim != me->GetCharmerOrOwner()->getVictim())
+                i_victimGuid = 0;
+            else
+                i_victimGuid = victim->GetGUID();
 
-        // attack
-        me->SetInFront(victim);                         // client change orientation by self
-        me->CastSpell(victim, me->ToTotem()->GetSpell(), false);
+            // attack
+            me->SetInFront(victim);                         // client change orientation by self
+            me->CastSpell(victim, me->ToTotem()->GetSpell(), false);
+        }
     }
     else
         i_victimGuid = 0;

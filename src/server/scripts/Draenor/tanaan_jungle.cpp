@@ -931,7 +931,7 @@ class playerScript_enter_tanaan : public PlayerScript
                 l_PhaseMask |= TanaanPhases::PhaseSouthernCageHorde;
             }
 
-            if (p_Player->GetQuestStatus(TanaanQuests::QuestCostOfWar) != QUEST_STATUS_NONE || p_Player->GetQuestStatus(TanaanQuests::QuestCostOfWar) != QUEST_STATUS_FAILED)
+            if (p_Player->GetQuestStatus(TanaanQuests::QuestCostOfWar) != QUEST_STATUS_NONE && p_Player->GetQuestStatus(TanaanQuests::QuestCostOfWar) != QUEST_STATUS_FAILED)
             {
                 l_PhaseMask &= ~TanaanPhases::PhaseGroupHouse;
                 l_PhaseMask |= TanaanPhases::PhaseAriokAltar;

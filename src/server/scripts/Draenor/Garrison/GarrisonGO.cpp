@@ -146,7 +146,13 @@ namespace MS { namespace Garrison
             if (!l_ShipmentEntry)
                 continue;
 
+
             uint32 l_RewardItemID = l_ShipmentEntry->ResultItemID;
+
+            if (l_ShipmentEntry->ID == 109) ///< Herb Garden
+                l_RewardItemID = g_HerbEntries[urand(0, 5)];
+            else if (l_RewardItemID == 114999) ///< Barn Somptuous Fur, itemID from dbc is wrong
+                l_RewardItemID = 111557;
 
             /// Adding items
             uint32 l_NoSpaceForCount = 0;
@@ -158,6 +164,12 @@ namespace MS { namespace Garrison
             if (l_Message == EQUIP_ERR_OK)
             {
                 p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID));
+
+                if (l_ShipmentEntry->ID == 109) ///< Herb Garden
+                {
+                    for (uint8 l_I = 0; l_I < 7; l_I++)
+                        p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID));
+                }
 
                 if (l_ToastStatus[l_RewardItemID] == false)
                 {
@@ -222,6 +234,112 @@ namespace MS { namespace Garrison
         return false;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    /// 234186 - Iron Trap                                                 ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    gob_IronTrap_Garrison::gob_IronTrap_Garrison()
+        : GameObjectScript("npc_IronTrap_Garr")
+    {
+    }
+
+    /// Constructor
+    /// @p_Gob : AI Owner
+    gob_IronTrap_Garrison::gob_IronTrap_GarrisonAI::gob_IronTrap_GarrisonAI(GameObject* p_Gob)
+        : GameObjectAI(p_Gob)
+    {
+        m_UpdateTimer = 0;
+    }
+
+    void gob_IronTrap_Garrison::gob_IronTrap_GarrisonAI::Reset()
+    {
+        Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)go->GetInstanceScript();
+
+        if (l_GarrisonSite == nullptr)
+            return;
+
+        Player* l_Owner = l_GarrisonSite->GetOwner();
+
+        if (l_Owner == nullptr)
+            return;
+
+        switch (l_Owner->GetTeamId())
+        {
+            case TEAM_ALLIANCE:
+                if (l_Owner->IsQuestRewarded(MS::Garrison::Quests::Alliance_BreakingIntoTheTrapGame))
+                    go->SetDisplayId(MS::Garrison::DisplayIDs::GobIronTrapDisplay);
+                else
+                {
+                    go->SetDisplayId(MS::Garrison::DisplayIDs::InvisibleDisplay);
+                    m_UpdateTimer = 1500;
+                }
+                break;
+            case TEAM_HORDE:
+                if (l_Owner->IsQuestRewarded(MS::Garrison::Quests::Horde_BreakingIntoTheTrapGame))
+                    go->SetDisplayId(MS::Garrison::DisplayIDs::GobIronTrapDisplay);
+                else
+                {
+                    go->SetDisplayId(MS::Garrison::DisplayIDs::InvisibleDisplay);
+                    m_UpdateTimer = 1500;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    void gob_IronTrap_Garrison::gob_IronTrap_GarrisonAI::UpdateAI(uint32 const p_Diff)
+    {
+        if (m_UpdateTimer)
+        {
+            if (m_UpdateTimer <= p_Diff)
+            {
+                Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)go->GetInstanceScript();
+
+                if (l_GarrisonSite == nullptr)
+                    return;
+
+                Player* l_Owner = l_GarrisonSite->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                switch (l_Owner->GetTeamId())
+                {
+                    case TEAM_ALLIANCE:
+                        if (l_Owner->IsQuestRewarded(MS::Garrison::Quests::Alliance_BreakingIntoTheTrapGame))
+                        {
+                            go->SetDisplayId(MS::Garrison::DisplayIDs::GobIronTrapDisplay);
+                            m_UpdateTimer = 0;
+                        }
+                        else
+                            m_UpdateTimer = 1500;
+                        break;
+                    case TEAM_HORDE:
+                        if (l_Owner->IsQuestRewarded(MS::Garrison::Quests::Horde_BreakingIntoTheTrapGame))
+                        {
+                            go->SetDisplayId(MS::Garrison::DisplayIDs::GobIronTrapDisplay);
+                            m_UpdateTimer = 0;
+                        }
+                        else
+                            m_UpdateTimer = 1500;
+                        break;
+                    default:
+                        break;
+                }
+
+                m_UpdateTimer = 1500;
+            }
+            else m_UpdateTimer -= p_Diff;
+        }
+    }
+
+    GameObjectAI* gob_IronTrap_Garrison::GetAI(GameObject* p_Gob) const
+    {
+        return new gob_IronTrap_GarrisonAI(p_Gob);
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -231,4 +349,5 @@ void AddSC_Garrison_GO()
     new MS::Garrison::go_garrison_outhouse;
     new MS::Garrison::go_garrison_shipment_container;
     new MS::Garrison::go_garrison_herb;
+    new MS::Garrison::gob_IronTrap_Garrison;
 }

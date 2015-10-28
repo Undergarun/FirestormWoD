@@ -17285,7 +17285,7 @@ struct PlayerCliQuestGiverAutoLaunch
     int32  QuestID;               ///< Offset 0x0008 Type _MJVTBL_INT32
 };
 
-///< CMSG_QUEST_GIVER_ACCEPT_QUEST
+///< CMSG_QUESTGIVER_ACCEPT_QUEST
 struct PlayerCliQuestGiverAcceptQuest
 {
     int32  QuestID;               ///< Offset 0x0000 Type _MJVTBL_INT32

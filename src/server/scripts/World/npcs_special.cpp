@@ -2282,10 +2282,22 @@ class npc_training_dummy : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+                if (!me->IsWithinDistInMap(p_Who, 25.f) && p_Who->isInCombat())
+                {
+                    me->RemoveAllAurasByCaster(p_Who->GetGUID());
+                    me->getHostileRefManager().deleteReference(p_Who);
+                }
+            }
+
+            void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 resetTimer = 5000;
                 damage = 0;
+
+                me->SetInCombatWith(doneBy);
+                doneBy->SetInCombatWith(me);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -2321,7 +2333,7 @@ class npc_training_dummy : public CreatureScript
                         despawnTimer -= diff;
                 }
             }
-            void MoveInLineOfSight(Unit* /*who*/){return;}
+
         };
 
         CreatureAI* GetAI(Creature* creature) const

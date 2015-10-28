@@ -134,6 +134,7 @@ class debug_commandscript: public CommandScript
                 { "hotfix",         SEC_ADMINISTRATOR,  false, &HandleHotfixOverride,              "", NULL },
                 { "adjustspline",   SEC_ADMINISTRATOR,  false, &HandleDebugAdjustSplineCommand,    "", NULL },
                 { "splinesync",     SEC_ADMINISTRATOR,  false, &HandleDebugSplineSyncCommand,      "", NULL },
+                { "mirror",         SEC_ADMINISTRATOR,  false, &HandleDebugMirrorCommand,          "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -228,13 +229,10 @@ class debug_commandscript: public CommandScript
 
             uint32 id = atoi((char*)args);
 
-            if (SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(id))
+            if (SpellCategoryEntry const* l_Category = sSpellCategoryStore.LookupEntry(id))
             {
                 if (Player* l_Player = handler->GetSession()->GetPlayer())
-                {
-                    l_Player->m_SpellChargesMap.erase(id);
-                    l_Player->SendClearSpellCharges(id);
-                }
+                    l_Player->ResetCharges(l_Category);
 
                 return true;
             }
@@ -2667,7 +2665,7 @@ class debug_commandscript: public CommandScript
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
                         if (l_Template->AllowableClass & l_ClassMask)
                         {
-                            if (!l_Template->HasClassSpec(l_ClassId))
+                            if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
                             if (l_TrinketsFind.find(l_ClassId) != l_TrinketsFind.end() && l_TrinketsFind[l_ClassId] == 2)
@@ -2710,7 +2708,7 @@ class debug_commandscript: public CommandScript
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
                         if (l_Template->AllowableClass & l_ClassMask)
                         {
-                            if (!l_Template->HasClassSpec(l_ClassId))
+                            if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
                             if (std::find(l_CloaksFind.begin(), l_CloaksFind.end(), l_ClassId) != l_CloaksFind.end())
@@ -2750,7 +2748,7 @@ class debug_commandscript: public CommandScript
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
                         if (l_Template->AllowableClass & l_ClassMask)
                         {
-                            if (!l_Template->HasClassSpec(l_ClassId))
+                            if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
                             if (std::find(l_ClassWeaponFind.begin(), l_ClassWeaponFind.end(), l_ClassId | l_Template->SubClass << 16) != l_ClassWeaponFind.end())
@@ -2847,7 +2845,7 @@ class debug_commandscript: public CommandScript
                                 }
                             }
 
-                            if (!l_Template->HasClassSpec(l_ClassId))
+                            if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
@@ -3042,6 +3040,113 @@ class debug_commandscript: public CommandScript
                 }
 
             }
+
+            return true;
+        }
+
+        static bool HandleDebugMirrorCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player*   l_Player = p_Handler->GetSession()->GetPlayer();
+            Creature* l_Target = p_Handler->getSelectedCreature();
+
+            if (l_Target == nullptr || l_Player == nullptr)
+                return false;
+
+            ///                                                   0   1       2        3         4     5           6         7           8
+            QueryResult l_Result = LoginDatabase.PQuery("SELECT race, gender, class, skinColor, face, hairStyle, hairColor, facialHair, equipment FROM character_renderer_queue ORDER BY RAND() LIMIT 1");
+            if (!l_Result)
+                return false;
+
+            Field* l_Fields = l_Result->Fetch();
+
+            ChrRacesEntry const* l_RaceEntry = sChrRacesStore.LookupEntry(l_Fields[0].GetUInt8());
+            if (!l_RaceEntry)
+                return false;
+
+            uint32 l_Display = l_Fields[1].GetUInt8() == 0 ? l_RaceEntry->model_m : l_RaceEntry->model_f;
+            std::list<uint32> l_Displays;
+
+            Tokenizer l_Equipements(l_Fields[8].GetString(), ']');
+            for (Tokenizer::const_iterator l_It = l_Equipements.begin(); l_It != l_Equipements.end(); ++l_It)
+            {
+                std::string l_DisplayIdTxt = (*l_It);
+                if (l_DisplayIdTxt == ",")
+                    continue;
+
+                for (auto l_Idx = l_DisplayIdTxt.size(); l_Idx != 0; l_Idx--)
+                {
+                    if (l_DisplayIdTxt[l_Idx] == ',')
+                    {
+                        l_Displays.push_back(atoi(l_DisplayIdTxt.substr(l_Idx + 1, std::string::npos).c_str()));
+                        break;
+                    }
+                }
+            }
+
+            /// Update display & add mirror image flags
+            l_Target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+            l_Target->SetDisplayId(l_Display);
+
+            /// Forge SMSG_UPDATE_OBJECT, client need to receive it before SMSG_MIRROR_IMAGE_COMPONENTED_DATA
+            UpdateData  l_UpdateData(l_Target->GetMapId());
+            WorldPacket l_Packet;
+            
+            l_Target->BuildValuesUpdateBlockForPlayer(&l_UpdateData, l_Player);
+
+            if (l_UpdateData.BuildPacket(&l_Packet))
+                l_Player->GetSession()->SendPacket(&l_Packet);
+
+
+            /// Forge SMSG_MIRROR_IMAGE_COMPONENTED_DATA
+            WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 76);
+
+            data.appendPackGUID(l_Target->GetGUID());
+            data << uint32(l_Display);
+            data << uint8(l_Fields[0].GetUInt8());
+            data << uint8(l_Fields[1].GetUInt8());
+            data << uint8(l_Fields[2].GetUInt8());
+            data << uint8(l_Fields[3].GetUInt8());      // skin
+            data << uint8(l_Fields[4].GetUInt8());      // face
+            data << uint8(l_Fields[5].GetUInt8());      // hair
+            data << uint8(l_Fields[6].GetUInt8());      // haircolor
+            data << uint8(l_Fields[7].GetUInt8());      // facialhair
+            data.appendPackGUID(0);
+
+            data << uint32(l_Displays.size());
+
+            for (auto l_DisplayId : l_Displays)
+                data << uint32(l_DisplayId);
+
+            /*static EquipmentSlots const itemSlots[] =
+            {
+                EQUIPMENT_SLOT_HEAD,
+                EQUIPMENT_SLOT_SHOULDERS,
+                EQUIPMENT_SLOT_BODY,
+                EQUIPMENT_SLOT_CHEST,
+                EQUIPMENT_SLOT_WAIST,
+                EQUIPMENT_SLOT_LEGS,
+                EQUIPMENT_SLOT_FEET,
+                EQUIPMENT_SLOT_WRISTS,
+                EQUIPMENT_SLOT_HANDS,
+                EQUIPMENT_SLOT_TABARD,
+                EQUIPMENT_SLOT_BACK,
+                EQUIPMENT_SLOT_END
+            };
+
+            // Display items in visible slots
+            for (EquipmentSlots const* itr = itemSlots; *itr != EQUIPMENT_SLOT_END; ++itr)
+            {
+                if (*itr == EQUIPMENT_SLOT_HEAD && l_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
+                    data << uint32(0);
+                else if (*itr == EQUIPMENT_SLOT_BACK && l_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
+                    data << uint32(0);
+                else if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Player->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (*itr * 3))))
+                    data << uint32(l_Proto->DisplayInfoID);
+                else
+                    data << uint32(0);
+            }*/
+            
+            l_Player->GetSession()->SendPacket(&data);
 
             return true;
         }

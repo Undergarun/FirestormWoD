@@ -1128,7 +1128,6 @@ class spell_monk_black_ox_statue: public SpellScriptLoader
 
                     Position pos;
                     GetExplTargetDest()->GetPosition(&pos);
-                    const SummonPropertiesEntry* properties = sSummonPropertiesStore.LookupEntry(spell->Effects[effIndex].MiscValueB);
                     TempSummon* summon = player->SummonCreature(spell->Effects[effIndex].MiscValue, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, spell->GetDuration());
                     if (!summon)
                         return;
@@ -1590,7 +1589,6 @@ class spell_monk_jade_serpent_statue: public SpellScriptLoader
 
                     Position pos;
                     GetExplTargetDest()->GetPosition(&pos);
-                    const SummonPropertiesEntry* properties = sSummonPropertiesStore.LookupEntry(spell->Effects[effIndex].MiscValueB);
                     TempSummon* summon = player->SummonCreature(spell->Effects[effIndex].MiscValue, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, spell->GetDuration());
                     if (!summon)
                         return;
@@ -1829,16 +1827,40 @@ class spell_monk_surging_mist: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_surging_mist_SpellScript);
 
+            enum eSpells
+            {
+                StanceoftheSturdyOx         = 115069,
+                StanceoftheFierceTiger      = 103985,
+                StanceoftheWiseSerpent      = 115070,
+                StanceoftheSpiritedCrane    = 154436
+            };
+
             void HandleOnPrepare()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
                 {
-                    if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
-                    {
-                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
-                        GetSpell()->setTriggerCastFlags(l_Flags);
-                    }
+                    TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                    GetSpell()->setTriggerCastFlags(l_Flags);
                 }
+            }
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && !l_Player->HasAura(eSpells::StanceoftheSturdyOx)) ||
+                    (((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec())) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, -30, POWER_ENERGY);
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && !l_Player->HasAura(eSpells::StanceoftheWiseSerpent))
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
             }
 
             void HandleHeal(SpellEffIndex effIndex)
@@ -1868,6 +1890,7 @@ class spell_monk_surging_mist: public SpellScriptLoader
             void Register()
             {
                 OnPrepare += SpellOnPrepareFn(spell_monk_surging_mist_SpellScript::HandleOnPrepare);
+                AfterCast += SpellCastFn(spell_monk_surging_mist_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_surging_mist_SpellScript::HandleGivePower, EFFECT_1, SPELL_EFFECT_ENERGIZE);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_surging_mist_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
@@ -1907,8 +1930,7 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
                 if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
                 {
                     if (SpellInfo const* l_RenewingMist = sSpellMgr->GetSpellInfo(eSpells::RenewingMist))
-                        if (SpellCategoriesEntry const* l_RenewingMistCategories = l_RenewingMist->GetSpellCategories())
-                            l_Player->RestoreCharge(l_RenewingMistCategories->ChargesCategory);
+                        l_Player->RestoreCharge(l_RenewingMist->ChargeCategoryEntry);
                 }
             }
 
@@ -2030,8 +2052,13 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
 
-                if (l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE ||
-                    l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_ENEMY_SPELL)
+                if (l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);
+                }
+
+                if (l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE)
                 {
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);
@@ -2202,7 +2229,6 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
 
             void FilterTargetsAlly(std::list<WorldObject*>& p_Targets)
             {
-                Unit* l_Caster = GetCaster();
                 Unit* l_FirstTarget = GetExplTargetUnit();
 
                 if (l_FirstTarget == nullptr)
@@ -2959,7 +2985,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 if (l_TargetOfJadeStatue == nullptr)
                     return;
 
-                int32 l_Bp = aurEff->GetAmount();
                 l_JadeStatue->CastSpell(l_TargetOfJadeStatue, GetSpellInfo()->Id, true);
             }
 
@@ -3574,6 +3599,11 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_rushing_jade_wind_AuraScript);
 
+            enum eSpells
+            {
+                StanceOfTheWiseSerpents = 115070
+            };
+
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (!GetCaster())
@@ -3588,7 +3618,7 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                     return;
 
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                if (!(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && l_Player->HasAura(eSpells::StanceOfTheWiseSerpents)))
                 {
                     l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
@@ -3643,12 +3673,10 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
-                Unit *l_Caster = GetCaster();
+                Unit* l_Caster = GetCaster();
 
                 if (l_Caster == nullptr)
                     return;
-
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
 
                 if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
                     l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());
@@ -3905,8 +3933,6 @@ class spell_monk_tiger_palm: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
-                    l_Coeff = 6.0f;
                 l_Player->RemoveAurasDueToSpell(118864); // Combo Breaker
 
                 int32 l_Damage = int32(frand(l_Coeff * l_Low, l_Coeff * l_High));
@@ -4406,8 +4432,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
                 {
                     if (SpellInfo const* l_RisingSunKick = sSpellMgr->GetSpellInfo(eSpells::RisingSunKick))
-                        if (SpellCategoriesEntry const* l_RisingSunKickCategories = l_RisingSunKick->GetSpellCategories())
-                            l_Player->RestoreCharge(l_RisingSunKickCategories->ChargesCategory);
+                            l_Player->RestoreCharge(l_RisingSunKick->ChargeCategoryEntry);
                 }
             }
 
@@ -4640,6 +4665,20 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_explosion_mistweaver_SpellScript);
 
+            void HandleOnPrepare()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
+                {
+                    TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                    GetSpell()->setTriggerCastFlags(l_Flags);
+                }
+            }
+
             void HandleDummy(SpellEffIndex effIndex)
             {
                 Unit* l_Caster = GetCaster();
@@ -4675,6 +4714,7 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleOnPrepare);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -5156,8 +5196,7 @@ public:
                 return;
 
             if (SpellInfo const* l_Roll = sSpellMgr->GetSpellInfo(eSpells::Roll))
-                if (SpellCategoriesEntry const* l_RollCategories = l_Roll->GetSpellCategories())
-                    l_Player->RestoreCharge(l_RollCategories->ChargesCategory);
+                l_Player->RestoreCharge(l_Roll->ChargeCategoryEntry);
         }
 
         void Register()

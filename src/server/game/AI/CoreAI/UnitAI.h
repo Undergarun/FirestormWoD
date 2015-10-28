@@ -149,22 +149,39 @@ class UnitAI
         {
             UNUSED(p_Param);
         }
+
         virtual uint32 GetData(uint32 id = 0) 
         {
             UNUSED(id);
             return 0; 
         }
+
+        virtual float GetFData(uint32 p_ID = 0) const
+        {
+            UNUSED(p_ID);
+            return 0.0f;
+        }
+
         virtual void SetData(uint32 id, uint32 value) 
         {
             UNUSED(id);
             UNUSED(value);
         }
+
+        virtual void SetFData(uint32 p_ID, float p_Value)
+        {
+            UNUSED(p_ID);
+            UNUSED(p_Value);
+        }
+
         virtual void SetGUID(uint64 guid, int32 id = 0)
         {
             UNUSED(guid);
             UNUSED(id);
         }
+
         virtual uint64 GetGUID(int32 id = 0) { return 0; }
+
         virtual void SetDestTarget(WorldLocation const* dest) 
         {
             UNUSED(dest);

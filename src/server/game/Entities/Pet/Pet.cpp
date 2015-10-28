@@ -349,16 +349,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         RemoveArenaAuras();
 
     // load action bar, if data broken will fill later by default spells.
-    if (!is_temporary_summoned)
-    {
-        m_charmInfo->LoadPetActionBar(fields[12].GetString());
+    m_charmInfo->LoadPetActionBar(fields[12].GetString());
 
-        _LoadSpells(spellResult, login);
-        _LoadSpellCooldowns(spellCooldownResult, login);
-        LearnPetPassives();
-        InitLevelupSpellsForLevel();
-        CastPetAuras(current);
-    }
+    _LoadSpells(spellResult, login);
+    _LoadSpellCooldowns(spellCooldownResult, login);
+    LearnPetPassives();
+    InitLevelupSpellsForLevel();
+    CastPetAuras(current);
 
     CleanupActionBar();                                     // remove unknown spells from action bar after load
 
@@ -456,10 +453,6 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
 
     // not save not player pets
     if (!IS_PLAYER_GUID(GetOwnerGUID()))
-        return;
-
-    /// Primal Elementalist - don't need to save pet to database, so mark it like stampeded
-    if (GetEntry() == 61029 || GetEntry() == 61056 || GetEntry() == 77942)
         return;
 
     Player* owner = (Player*)GetOwner();
@@ -567,6 +560,12 @@ void Pet::DeleteFromDB(uint32 guidlow)
 void Pet::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
 {
     Creature::setDeathState(s);
+
+    if (getDeathState() == ALIVE && getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
+        CastSpell(this, 157863, true);
+    else if (HasAura(157863))
+        RemoveAura(157863);
+
     if (getDeathState() == CORPSE)
     {
         if (getPetType() == HUNTER_PET)

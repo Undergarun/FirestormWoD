@@ -45,9 +45,17 @@ namespace MS { namespace Garrison
         SPELL_RIGHT_ROPE                       = 164422,
         SPELL_COMESTIC_SLEEP                   = 162907,
         SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329,
-        MultiShot   = 18651,
-        Disengage   = 82707,
-        Shoot       = 6660
+        MultiShot                              = 18651,
+        Disengage                              = 82707,
+        Shoot                                  = 6660,
+        SpellArming                            = 167920,
+        SpellIronTrap                          = 180609
+    };
+
+    enum DisplayIDs
+    {
+        InvisibleDisplay   = 11686,
+        GobIronTrapDisplay = 14212
     };
 
     /// Garrison Quests
@@ -72,24 +80,28 @@ namespace MS { namespace Garrison
             Alliance_YourFirstInscriptionWorkOrder      = 36647,
             /// Herb garden
             Alliance_ClearingTheGarden                  = 36404,
+            /// Barn
+            Alliance_BreakingIntoTheTrapGame            = 36271,
 
             /// Horde
-            QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
-            QUEST_WHAT_WE_GOT                         = 34824,
-            QUEST_BUILD_YOUR_BARRACKS                 = 34461,
-            Horde_LostInTransition                    = 37060,
-            Horde_BiggerIsBetter                      = 36567,
+            QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
+            QUEST_WHAT_WE_GOT                           = 34824,
+            QUEST_BUILD_YOUR_BARRACKS                   = 34461,
+            Horde_LostInTransition                      = 37060,
+            Horde_BiggerIsBetter                        = 36567,
             /// Small profession building quests
-            Horde_YourFirstBlacksmithingWorkOrder     = 37569,
-            Horde_YourFirstTailoringWorkOrder         = 37575,
-            Horde_YourFirstAlchemyWorkOrder           = 37568,
-            Horde_YourFirstLeatherworkingWorkOrder    = 37574,
-            Horde_YourFirstEnchantingWorkOrder        = 37570,
-            Horde_YourFirstJewelcraftingWorkOrder     = 37573,
-            Horde_YourFirstEngineeringWorkOrder       = 37571,
-            Horde_YourFirstInscriptionWorkOrder       = 37572,
+            Horde_YourFirstBlacksmithingWorkOrder       = 37569,
+            Horde_YourFirstTailoringWorkOrder           = 37575,
+            Horde_YourFirstAlchemyWorkOrder             = 37568,
+            Horde_YourFirstLeatherworkingWorkOrder      = 37574,
+            Horde_YourFirstEnchantingWorkOrder          = 37570,
+            Horde_YourFirstJewelcraftingWorkOrder       = 37573,
+            Horde_YourFirstEngineeringWorkOrder         = 37571,
+            Horde_YourFirstInscriptionWorkOrder         = 37572,
             /// Herb garden
-            Horde_ClearingTheGarden                   = 34193
+            Horde_ClearingTheGarden                     = 34193,
+            /// Barn
+            Horde_BreakingIntoTheTrapGame               = 36345
         };
     }   ///< namespace Quests
 
@@ -114,7 +126,11 @@ namespace MS { namespace Garrison
         NPC_ARCHER                                      = 87518,
         Marksman                                        = 88391,
         LunarfallRaccoon                                = 85341,
-        NpcFrostwallNibbler                             = 81967
+        NpcFrostwallNibbler                             = 81967,
+        TrapL1QuestKillCredit                           = 84882,
+        NpcFarmerLokLubSummon                           = 85093,
+        NpcHomerStonefield                              = 83967,
+        NpcTommyJoeStonefield
     };
 
     /// NPC texts id
@@ -151,7 +167,18 @@ namespace MS { namespace Garrison
     enum Items
     {
         ITEM_SHELLY_HAMBY_REPORT                = 112730,
-        ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1 = 111956
+        ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1 = 111956,
+        ItemFurryCagedBeast                     = 119813,
+        ItemLeatheryCagedBeast                  = 119814,
+        ItemFireWeed                            = 109125,
+        ItemTaladorOrchid                       = 109129,
+        ItemNagrandArrowbloom                   = 109128,
+        ItemStarflower                          = 109127,
+        ItemGorgrondFlytrap                     = 109126,
+        ItemFrostWeed                           = 109124,
+        ItemBagOfSalvagedGoods                  = 114116,
+        ItemCrateOfSalvage                      = 114119,
+        ItemBigCrateOfSalvage                   = 114120
     };
 
     /// Waypoints
@@ -207,6 +234,120 @@ namespace MS { namespace Garrison
         88228,  ///< Sergent Grinjaw
         80572   ///< Frostwall wolf
     };
+
+    /// Creatures that can be tamed with the Iron Trap for the Barn building
+    namespace BarnTameableEntries
+    {
+        /// First building level
+
+        /* Result from :
+        SELECT DISTINCT
+        ct.entry
+        FROM
+        creature_template ct
+        JOIN creature c
+        ON (c.id = ct.`entry`)
+        WHERE c.`map` = 1116       ///< Draenor
+        AND ct.`family` IN (1, 43) ///< Wolf, Clefthoof
+        AND ct.`rank` = 0          ///< Standard
+        AND ct.`type` = 1          ///< Beast
+        ORDER BY entry ASC ;*/
+        static const uint32 gFirstLevel[] =
+        {
+            72162,
+            72991,
+            73132,
+            73205,
+            73234,
+            73284,
+            73571,
+            73619,
+            73766,
+            74169,
+            74600,
+            74698,
+            74712,
+            74748,
+            75680,
+            76241,
+            76337,
+            76542,
+            76575,
+            76576,
+            76593,
+            76597,
+            76660,
+            76705,
+            76707,
+            76710,
+            76711,
+            76732,
+            76822,
+            76869,
+            76889,
+            76895,
+            76897,
+            76901,
+            76902,
+            77669,
+            77886,
+            78196,
+            78364,
+            78406,
+            78570,
+            78571,
+            78572,
+            78574,
+            78575,
+            78576,
+            78798,
+            78918,
+            78919,
+            78920,
+            79034,
+            79755,
+            80261,
+            81718,
+            81774,
+            81898,
+            81902,
+            82119,
+            82205,
+            82209,
+            82308,
+            82535,
+            83829,
+            84044,
+            84045,
+            84662,
+            84793,
+            84798,
+            85974,
+            86000,
+            86414,
+            86656,
+            86730,
+            86839,
+            86847,
+            86851,
+            86931
+        };
+    }
+
+    namespace BarnProductionTypes
+    {
+        enum
+        {
+            TypeFur     = 1,
+            TypeLeather = 2
+        };
+
+        enum ShipmentIDS
+        {
+            ShipmentFur     = 82,
+            ShipmentLeather = 85
+        };
+    }
 
     namespace HordePeonData 
     {

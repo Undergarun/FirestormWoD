@@ -1247,7 +1247,7 @@ public:
             if (l_Target == nullptr || l_Owner == nullptr)
                 return;
 
-            if (l_Owner->GetTypeId() == TypeID::TYPEID_PLAYER && l_Owner->ToPlayer()->HasSpellCooldown(PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE))
+            if (p_DmgInfo.GetSpellInfo() && ((p_DmgInfo.GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REDIRECTED) || (p_DmgInfo.GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED)))
                 return;
 
             if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
@@ -1256,9 +1256,6 @@ public:
                 {
                     if (AuraEffectPtr l_ReflectiveShield = l_Owner->GetAuraEffect(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, SpellEffIndex::EFFECT_0))
                     {
-                        if (l_Owner->GetTypeId() == TypeID::TYPEID_PLAYER)
-                            l_Owner->ToPlayer()->AddSpellCooldown(PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, 0, 200);
-
                         int32 l_Damage = CalculatePct(p_DmgInfo.GetAbsorb(), l_ReflectiveShield->GetAmount());
                         l_Owner->CastCustomSpell(l_Attacker, PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
                     }
@@ -1389,7 +1386,7 @@ class spell_pri_atonement: public SpellScriptLoader
                     return;
 
                 SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(PRIEST_ATONEMENT_AURA);
-                if (!l_SpellInfoAtonement && !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
+                if (!l_SpellInfoAtonement || !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
                     return;
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
@@ -1455,7 +1452,7 @@ class spell_pri_atonement: public SpellScriptLoader
                     return;
 
                 SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(PRIEST_ATONEMENT_AURA);
-                if (!l_SpellInfoAtonement && !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
+                if (!l_SpellInfoAtonement || !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
                     return;
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
@@ -1852,255 +1849,297 @@ class spell_pri_evangelism: public SpellScriptLoader
         }
 };
 
-// Cascade - 127630 (damage trigger) or Cascade - 120786 (heal trigger)
-class spell_pri_cascade_second: public SpellScriptLoader
+/// Cascade (holy) - 121135, Cascade (shadow) - 127632
+class spell_pri_cascade : public SpellScriptLoader
 {
     public:
-        spell_pri_cascade_second() : SpellScriptLoader("spell_pri_cascade_second") { }
+        spell_pri_cascade() : SpellScriptLoader("spell_pri_cascade") { }
 
-        class spell_pri_cascade_second_SpellScript : public SpellScript
+        class spell_pri_cascade_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_cascade_second_SpellScript);
+            PrepareSpellScript(spell_pri_cascade_SpellScript);
+
+            enum eSpells
+            {
+                CascadeHolyTrigger = 121146,
+                CascadeShadowTrigger = 127628,
+                CascadeHoly = 121135,
+                CascadeShadow = 127632
+            };
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        std::list<Unit*> checkAuras;
-                        std::list<Unit*> targetList;
-                        int32 affectedUnits = 0;
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                        _player->GetAttackableUnitListInRange(targetList, GetSpellInfo()->Effects[EFFECT_1].RadiusEntry->radiusHostile);
+                if (l_Target == nullptr)
+                    return;
 
-                        for (auto itr : targetList)
-                        {
-                            if (itr->HasAura(PRIEST_CASCADE_INVISIBLE_AURA))
-                                if (Unit* caster = itr->GetAura(PRIEST_CASCADE_INVISIBLE_AURA)->GetCaster())
-                                    if (caster->GetGUID() == _player->GetGUID())
-                                        affectedUnits++;
-                        }
-
-                        // Stop the script if the max targets is reached ...
-                        if (affectedUnits >= 15)
-                            return;
-
-                        if (AuraPtr boundNumber = _player->GetAura(PRIEST_CASCADE_INVISIBLE_AURA_2))
-                            if (boundNumber->GetCharges() >= 3)
-                                return;
-
-                        for (auto itr : targetList)
-                            checkAuras.push_back(itr);
-
-                        for (auto itr : checkAuras)
-                        {
-                            if (itr->HasAura(PRIEST_CASCADE_INVISIBLE_AURA))
-                                if (Unit* caster = itr->GetAura(PRIEST_CASCADE_INVISIBLE_AURA)->GetCaster())
-                                    if (caster->GetGUID() == _player->GetGUID())
-                                        targetList.remove(itr);
-
-                            if (!itr->IsWithinLOSInMap(_player))
-                                targetList.remove(itr);
-
-                            if (!itr->isInFront(_player))
-                                targetList.remove(itr);
-
-                            if (itr->GetGUID() == _player->GetGUID())
-                                targetList.remove(itr);
-
-                            // damage
-                            if (GetSpellInfo()->Id == 127630)
-                                if (!_player->IsValidAttackTarget(itr))
-                                    targetList.remove(itr);
-
-                            // heal
-                            if (GetSpellInfo()->Id == 120786)
-                                if (_player->IsValidAttackTarget(itr))
-                                    targetList.remove(itr);
-                        }
-
-                        // ... or if there are no targets reachable
-                        if (targetList.empty())
-                            return;
-
-                        // Each bound hit twice more targets up to 8 for the same bound
-                        JadeCore::Containers::RandomResizeList(targetList, (affectedUnits * 2));
-
-                        for (auto itr : targetList)
-                        {
-                            if (_player->HasAura(PRIEST_SHADOWFORM_STANCE))
-                            {
-                                switch (GetSpellInfo()->Id)
-                                {
-                                    // damage
-                                    case 127630:
-                                        target->CastSpell(itr, PRIEST_CASCADE_SHADOW_DAMAGE, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                        break;
-                                    // heal
-                                    case 120786:
-                                        target->CastSpell(itr, PRIEST_CASCADE_SHADOW_MISSILE, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                        target->CastSpell(itr, PRIEST_CASCADE_SHADOW_HEAL, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                switch (GetSpellInfo()->Id)
-                                {
-                                    // damage
-                                    case 127630:
-                                        target->CastSpell(itr, PRIEST_CASCADE_HOLY_DAMAGE, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                        break;
-                                    // heal
-                                    case 120786:
-                                        target->CastSpell(itr, PRIEST_CASCADE_HOLY_MISSILE, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                        target->CastSpell(itr, PRIEST_CASCADE_HOLY_HEAL, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-
-                            _player->CastSpell(itr, PRIEST_CASCADE_INVISIBLE_AURA, true);
-                        }
-
-                        if (AuraPtr boundNumber = _player->GetAura(PRIEST_CASCADE_INVISIBLE_AURA_2))
-                        {
-                            boundNumber->RefreshDuration();
-                            boundNumber->SetCharges(boundNumber->GetCharges() + 1);
-                        }
-                    }
-                }
+                if (GetSpellInfo()->Id == eSpells::CascadeHoly)
+                    l_Caster->CastSpell(l_Target, eSpells::CascadeHolyTrigger, true); ///< Visual
+                else
+                    l_Caster->CastSpell(l_Target, eSpells::CascadeShadowTrigger, true); ///< Visual
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_cascade_second_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_pri_cascade_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pri_cascade_second_SpellScript;
+            return new spell_pri_cascade_SpellScript;
         }
 };
 
-// Cascade - 120785 (holy damage) or Cascade - 127628 (shadow damage) or Cascade - 127627 (shadow missile) or Cascade - 121146 (holy missile)
-class spell_pri_cascade_trigger: public SpellScriptLoader
+/// Cascade (trigger) (heal) - 121146
+class spell_pri_cascade_trigger_holy : public SpellScriptLoader
 {
     public:
-        spell_pri_cascade_trigger() : SpellScriptLoader("spell_pri_cascade_trigger") { }
+        spell_pri_cascade_trigger_holy() : SpellScriptLoader("spell_pri_cascade_trigger_holy") { }
 
-        class spell_pri_cascade_trigger_SpellScript : public SpellScript
+        class spell_pri_cascade_trigger_holy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_cascade_trigger_SpellScript);
+            PrepareSpellScript(spell_pri_cascade_trigger_holy_SpellScript);
+
+            enum eSpells
+            {
+                CascadeHeal = 121148,
+                CascadeMarker = 127631,
+                CascadeMarker2 = 120840,
+                Cascade = 121135
+            };
 
             void HandleOnHit()
             {
-                if (GetOriginalCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                uint8 l_ActualWave = 0;
+                float l_Radius = 40.0f;
+                SpellInfo const* l_HealingSpell = sSpellMgr->GetSpellInfo(eSpells::CascadeHeal);
+                SpellInfo const* l_CascadeSpell = sSpellMgr->GetSpellInfo(eSpells::Cascade);
+
+                if (l_Target == nullptr || l_HealingSpell == nullptr || l_CascadeSpell == nullptr)
+                    return;
+
+                if (!l_Target->HasAura(eSpells::CascadeMarker))
+                    l_Caster->CastSpell(l_Target, eSpells::CascadeMarker, true); ///< Marker
+
+                Unit* l_FirstCaster = nullptr;
+
+                if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
                 {
-                    if (Player* _player = GetOriginalCaster()->ToPlayer())
+                    l_Marker->GetBase()->SetDuration(3 * IN_MILLISECONDS);
+                    l_ActualWave = l_Marker->GetAmount();
+                    l_FirstCaster = l_Marker->GetCaster();
+                }
+
+                l_Caster->CastSpell(l_Target, eSpells::CascadeMarker2, true);
+
+                if (l_FirstCaster)
+                    l_FirstCaster->CastSpell(l_Target, l_HealingSpell->Id, true);
+
+                if (l_ActualWave >= l_CascadeSpell->Effects[EFFECT_0].BasePoints)
+                    return;
+
+                std::list<Unit*> l_FriendlyUnitListTemp;
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitListTemp, l_Check);
+                l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+                l_FriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
+
+                l_FriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (l_FirstCaster && !l_FirstCaster->IsValidAssistTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
+                l_FriendlyUnitListTemp.sort(JadeCore::HealthPctOrderPred());
+                if ((uint32)l_FriendlyUnitListTemp.size() > (uint32)l_CascadeSpell->Effects[EFFECT_1].BasePoints)
+                    l_FriendlyUnitListTemp.resize(l_CascadeSpell->Effects[EFFECT_1].BasePoints);
+
+                for (auto l_Itr : l_FriendlyUnitListTemp)
+                {
+                    if (l_FirstCaster == nullptr)
+                        return;
+
+                    l_FirstCaster->CastSpell(l_Itr, eSpells::CascadeMarker, true); ///< Marker
+                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
                     {
-                        if (Unit* target = GetHitUnit())
-                        {
-                            // Trigger for SpellScript
-                            if (_player->IsValidAttackTarget(target))
-                                _player->CastSpell(target, PRIEST_CASCADE_DAMAGE_TRIGGER, true); // Only damage
-                            else
-                                _player->CastSpell(target, PRIEST_CASCADE_HOLY_TRIGGER, true); // Only heal
-                        }
+                        l_Marker->SetAmount(l_ActualWave + 1);
+                        l_Marker->GetBase()->SetDuration(3 * IN_MILLISECONDS);
                     }
+
+                    l_Target->CastSpell(l_Itr, GetSpellInfo()->Id, true);
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_cascade_trigger_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_pri_cascade_trigger_holy_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pri_cascade_trigger_SpellScript;
+            return new spell_pri_cascade_trigger_holy_SpellScript;
         }
 };
 
-// Cascade (shadow) - 127632 and Cascade - 121135
-class spell_pri_cascade_first: public SpellScriptLoader
+/// Cascade (heal) - 121148
+class spell_pri_cascade_heal : public SpellScriptLoader
 {
     public:
-        spell_pri_cascade_first() : SpellScriptLoader("spell_pri_cascade_first") { }
+        spell_pri_cascade_heal() : SpellScriptLoader("spell_pri_cascade_heal") { }
 
-        class spell_pri_cascade_first_SpellScript : public SpellScript
+        class spell_pri_cascade_heal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_cascade_first_SpellScript);
+            PrepareSpellScript(spell_pri_cascade_heal_SpellScript);
 
-            void HandleOnHit()
+            enum eSpells
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                CascadeMarker = 120840,
+            };
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_FirstCaster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                float l_Radius = 40.0f;
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraPtr l_Marker = l_Target->GetAura(120840))
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        switch (GetSpellInfo()->Id)
-                        {
-                            case 127632:
-                            {
-                                // First missile
-                                if (_player->IsValidAttackTarget(target))
-                                    _player->CastSpell(target, PRIEST_CASCADE_SHADOW_DAMAGE, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                else
-                                {
-                                    _player->CastSpell(target, PRIEST_CASCADE_SHADOW_MISSILE, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                    _player->CastSpell(target, PRIEST_CASCADE_SHADOW_HEAL, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                }
+                    Unit* l_Caster = l_Marker->GetCaster();
 
-                                break;
-                            }
-                            case 121135:
-                            {
-                                // Cast shaow cascade if needed
-                                if (_player->HasAura(15473))
-                                {
-                                    _player->CastSpell(target, 127632, true);
-                                    return;
-                                }
+                    if (l_Caster == nullptr)
+                        return;
 
-                                // First missile
-                                if (_player->IsValidAttackTarget(target))
-                                    _player->CastSpell(target, PRIEST_CASCADE_HOLY_DAMAGE, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                else
-                                {
-                                    _player->CastSpell(target, PRIEST_CASCADE_HOLY_MISSILE, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                    _player->CastSpell(target, PRIEST_CASCADE_HOLY_HEAL, true, 0, NULLAURA_EFFECT, _player->GetGUID());
-                                }
-
-                                break;
-                            }
-                        }
-
-                        // Invisible aura : Each target cannot be hit more than once time [...]
-                        _player->CastSpell(target, PRIEST_CASCADE_INVISIBLE_AURA, true);
-                        // Invisible aura 2 : [...] or Cascade can bound three times
-                        _player->CastSpell(_player, PRIEST_CASCADE_INVISIBLE_AURA_2, true); // First bound
-
-                        if (AuraPtr boundNumber = _player->GetAura(PRIEST_CASCADE_INVISIBLE_AURA_2))
-                            boundNumber->SetCharges(1);
-                    }
+                    SetHitHeal(GetHitHeal() * float(l_Caster->GetDistance(l_Target) / l_Radius));
                 }
+
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_cascade_first_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_cascade_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pri_cascade_first_SpellScript;
+            return new spell_pri_cascade_heal_SpellScript;
+        }
+};
+
+/// Cascade (trigger) (shadow) - 127628
+class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
+{
+    public:
+        spell_pri_cascade_trigger_shadow() : SpellScriptLoader("spell_pri_cascade_trigger_shadow") { }
+
+        class spell_pri_cascade_trigger_shadow_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_cascade_trigger_shadow_SpellScript);
+
+            enum eSpells
+            {
+                CascadeMarker = 120840,
+                Cascade = 127632
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                uint8 l_ActualWave = 0;
+                float l_Radius = 40.0f;
+                SpellInfo const* l_CascadeSpell = sSpellMgr->GetSpellInfo(eSpells::Cascade);
+
+                if (l_Target == nullptr || l_CascadeSpell == nullptr)
+                    return;
+
+                if (!l_Target->HasAura(eSpells::CascadeMarker))
+                    l_Caster->CastSpell(l_Target, eSpells::CascadeMarker, true); ///< Marker
+
+                Unit* l_FirstCaster = nullptr;
+
+                if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                {
+                    l_Marker->GetBase()->SetDuration(4 * IN_MILLISECONDS);
+                    l_ActualWave = l_Marker->GetAmount();
+                    l_FirstCaster = l_Marker->GetCaster();
+                }
+
+                if (l_FirstCaster == nullptr)
+                    return;
+
+                /// Scale with distance
+                int32 l_Damage = GetHitDamage() * float(l_Caster->GetDistance(l_Target) / l_Radius);
+
+                /// July 7th 2015 Cascade now deals 20% less damage in PvP combat.
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    l_Damage *= 0.80f;
+
+                SetHitDamage(l_Damage);
+
+                if (l_ActualWave >= l_CascadeSpell->Effects[EFFECT_0].BasePoints)
+                    return;
+
+                std::list<Unit*> l_UnFriendlyUnitListTemp;
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Target, l_FirstCaster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_UnFriendlyUnitListTemp, l_Check);
+                l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+                l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
+
+                l_UnFriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (!l_FirstCaster->IsValidAttackTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
+                if ((uint32)l_UnFriendlyUnitListTemp.size() > (uint32)l_CascadeSpell->Effects[EFFECT_1].BasePoints)
+                    JadeCore::RandomResizeList(l_UnFriendlyUnitListTemp, l_CascadeSpell->Effects[EFFECT_1].BasePoints);
+
+                for (auto l_Itr : l_UnFriendlyUnitListTemp)
+                {
+                    if (l_FirstCaster == nullptr)
+                        return;
+
+                    l_FirstCaster->CastSpell(l_Itr, eSpells::CascadeMarker, true); ///< Marker
+                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                    {
+                        l_Marker->SetAmount(l_ActualWave + 1);
+                        l_Marker->GetBase()->SetDuration(4 * IN_MILLISECONDS);
+                    }
+                    l_Target->CastCustomSpell(l_Itr, GetSpellInfo()->Id, NULL, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_FirstCaster->GetGUID());
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_cascade_trigger_shadow_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_cascade_trigger_shadow_SpellScript;
         }
 };
 
@@ -2477,17 +2516,21 @@ class spell_pri_penance: public SpellScriptLoader
 
                         uint8 l_Rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
 
-                        bool l_IsFriendly = l_Player->IsFriendlyTo(l_UnitTarget);
-                        /// Item - Priest WoD PvP Discipline 2P Bonus
-                        SpellInfo const* l_PvpBonusSpellEffect = l_IsFriendly ? sSpellMgr->GetSpellInfo(PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ALLY) : sSpellMgr->GetSpellInfo(PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ENEMY);
-
                         if (l_Player->IsFriendlyTo(l_UnitTarget))
+                        {
                             l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_HEAL, l_Rank), false, 0);
+                            
+                            /// Item - Priest WoD PvP Discipline 2P Bonus
+                            l_Player->CastSpell(l_UnitTarget, PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ALLY, true);
+                        }
                         else
                         {
                             l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_DAMAGE, l_Rank), false, 0);
                             if (l_Player->HasAura(PRIEST_EVANGELISM_AURA))
                                 l_Player->CastSpell(l_Player, PRIEST_EVANGELISM_STACK, true);
+                            
+                            /// Item - Priest WoD PvP Discipline 2P Bonus
+                            l_Player->CastSpell(l_UnitTarget, PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ENEMY, true);
                         }
 
                         // Divine Insight (Discipline)
@@ -3230,7 +3273,7 @@ public:
 
             if (l_Caster->HasAura(PRIEST_SPELL_CLARITY_OF_POWER))
             {
-                if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN)) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH))) ///< Shadow word: pain or Vampiric touch
+                if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID())) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID()))) ///< Shadow word: pain or Vampiric touch
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_Caster->GetAura(PRIEST_SPELL_CLARITY_OF_POWER)->GetEffect(EFFECT_0)->GetAmount()));
             }
         }
@@ -4055,9 +4098,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_devouring_plague_aura();
     new spell_pri_phantasm();
     new spell_pri_mind_spike();
-    new spell_pri_cascade_second();
-    new spell_pri_cascade_trigger();
-    new spell_pri_cascade_first();
     new spell_pri_halo();
     new spell_pri_halo_heal();
     new spell_pri_halo_damage();
@@ -4083,6 +4123,10 @@ void AddSC_priest_spell_scripts()
     new spell_pri_glyph_of_restored_faith();
     new spell_pri_dominate_mind();
     new spell_pri_spirit_shell_effect();
+    new spell_pri_cascade();
+    new spell_pri_cascade_trigger_holy();
+    new spell_pri_cascade_trigger_shadow();
+    new spell_pri_cascade_heal();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();

@@ -630,8 +630,8 @@ void CalendarMgr::SendCalendarEvent(uint64 p_Guid, CalendarEvent const& p_Calend
     for (CalendarInviteStore::const_iterator l_Iter = l_InvitList.begin(); l_Iter != l_InvitList.end(); ++l_Iter)
     {
         CalendarInvite const* l_Invite = (*l_Iter);
-        Player* l_Player = ObjectAccessor::FindPlayer(l_Invite->GetInviteeGUID());
-        uint8 l_Level = l_Player ? l_Player->getLevel() : Player::GetLevelFromDB(l_Invite->GetInviteeGUID());
+        Player* l_Invitee = ObjectAccessor::FindPlayer(l_Invite->GetInviteeGUID());
+        uint8 l_Level = l_Invitee ? l_Invitee->getLevel() : Player::GetLevelFromDB(l_Invite->GetInviteeGUID());
 
         l_Data.appendPackGUID(l_Invite->GetInviteeGUID());
         l_Data << uint64(l_Invite->GetInviteId());
@@ -668,8 +668,8 @@ void CalendarMgr::SendCalendarCommandResult(uint64 p_Guid, CalendarError p_Error
     if (Player* l_Player = ObjectAccessor::FindPlayer(p_Guid))
     {
         WorldPacket l_Data(SMSG_CALENDAR_COMMAND_RESULT, 0);
-        l_Data << uint8(0);
-        l_Data << uint8(p_Error);
+        l_Data << uint8(0);             ///< Command
+        l_Data << uint8(p_Error);       ///< Result
 
         switch (p_Error)
         {

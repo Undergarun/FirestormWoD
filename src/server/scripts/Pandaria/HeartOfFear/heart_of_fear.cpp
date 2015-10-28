@@ -489,7 +489,7 @@ class mob_set_thik_tempest : public CreatureScript
 
                 while (uint32 id = events.ExecuteEvent())
                 {
-                    if (id = EVENT_WIND_SLASH)
+                    if (id == EVENT_WIND_SLASH)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(target, SPELL_WIND_SLASH, true);

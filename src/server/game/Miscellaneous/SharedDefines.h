@@ -944,7 +944,7 @@ enum SpellAttr13
     SPELL_ATTR13_UNK15                            = 0x00008000, // 15
     SPELL_ATTR13_UNK16                            = 0x00010000, // 16
     SPELL_ATTR13_UNK17                            = 0x00020000, // 17
-    SPELL_ATTR13_UNK18                            = 0x00040000, // 18
+    SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT    = 0x00040000, // 18
     SPELL_ATTR13_UNK19                            = 0x00080000, // 19
     SPELL_ATTR13_UNK20                            = 0x00100000, // 20
     SPELL_ATTR13_UNK21                            = 0x00200000, // 21
@@ -2162,7 +2162,7 @@ enum Targets
     TARGET_UNK_140                     = 140,
     TARGET_UNK_141                     = 141,
     TARGET_UNK_142                     = 142,
-    TARGET_UNK_143                     = 143,
+    TARGET_ENNEMIES_AROUND_CASTER      = 143,
     TARGET_UNK_144                     = 144,
     TARGET_UNK_145                     = 145,
     TARGET_UNK_146                     = 146,

@@ -84,8 +84,8 @@ ChatCommand* ChatHandler::getCommandTable()
             // cache top-level commands
             size_t added = 0;
             commandTableCache = (ChatCommand*)malloc(sizeof(ChatCommand) * total);
-            memset(commandTableCache, 0, sizeof(ChatCommand) * total);
             ACE_ASSERT(commandTableCache);
+            memset(commandTableCache, 0, sizeof(ChatCommand) * total);
             for (std::vector<ChatCommand*>::const_iterator it = dynamic.begin(); it != dynamic.end(); ++it)
                 added += appendCommandTable(commandTableCache + added, *it);
         }
@@ -349,7 +349,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         SetSentErrorMessage(false);
 
         bool l_CommandResult = false;
-        MS::SignalHandler::EnableThrowExceptionAtFailure();
+        //MS::SignalHandler::EnableThrowExceptionAtFailure();
         try
         {
             l_CommandResult = (table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext);
@@ -363,7 +363,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
 
             sLog->outError(LOG_FILTER_WORLDSERVER, "Crash intercepted => ChatHandler::ExecuteCommandInTable(%p, %s, %s)", table, text, fullcmd.c_str());
         }
-        MS::SignalHandler::DisableThrowExceptionAtFailure();
+        //MS::SignalHandler::DisableThrowExceptionAtFailure();
 
         // table[i].Name == "" is special case: send original command to handler
         if (l_CommandResult)

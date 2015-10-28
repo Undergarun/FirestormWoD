@@ -6,6 +6,8 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+# include "blackrock_foundry.hpp"
+
 /// Iron Flame Binder - 87515
 class npc_foundry_iron_flame_binder : public CreatureScript
 {
@@ -1018,6 +1020,711 @@ class npc_foundry_karnor_the_cruel : public CreatureScript
         }
 };
 
+/// Iron Laborer (Cosmetic) - 78977
+class npc_foundry_iron_laborer_cosmetic : public CreatureScript
+{
+    public:
+        npc_foundry_iron_laborer_cosmetic() : CreatureScript("npc_foundry_iron_laborer_cosmetic") { }
+
+        enum eActions
+        {
+            ActionDisable   = 0,
+            ActionEvent     = 0
+        };
+
+        enum eCreature
+        {
+            IronLaborer = 78917
+        };
+
+        struct npc_foundry_iron_laborer_cosmeticAI : public ScriptedAI
+        {
+            npc_foundry_iron_laborer_cosmeticAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Started(false) { }
+
+            bool m_Started;
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eActions::ActionDisable)
+                    m_Started = true;
+            }
+
+            void MoveInLineOfSight(Unit* p_Who) override
+            {
+                if (m_Started)
+                    return;
+
+                if (p_Who->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                if (p_Who->GetDistance(me) > 30.0f)
+                    return;
+
+                m_Started = true;
+
+                std::list<Creature*> l_Creatures;
+                me->GetCreatureListWithEntryInGrid(l_Creatures, me->GetEntry(), 200.0f);
+
+                l_Creatures.remove(me);
+
+                for (Creature* l_Me : l_Creatures)
+                {
+                    if (l_Me->IsAIEnabled)
+                        l_Me->AI()->DoAction(eActions::ActionDisable);
+                }
+
+                LaunchTunnelEvent();
+            }
+
+            void LaunchTunnelEvent()
+            {
+                std::list<Creature*> l_Creatures;
+                me->GetCreatureListWithEntryInGrid(l_Creatures, eCreature::IronLaborer, 200.0f);
+
+                for (Creature* l_Laborer : l_Creatures)
+                {
+                    if (l_Laborer->IsAIEnabled)
+                        l_Laborer->AI()->DoAction(eActions::ActionEvent);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_laborer_cosmeticAI(p_Creature);
+        }
+};
+
+/// Iron Laborer - 78917
+class npc_foundry_iron_laborer : public CreatureScript
+{
+    public:
+        npc_foundry_iron_laborer() : CreatureScript("npc_foundry_iron_laborer") { }
+
+        enum eAction
+        {
+            ActionEvent
+        };
+
+        enum eCreatures
+        {
+            DarkshardAcidback   = 78801,
+            DarkshardGnasher    = 78978
+        };
+
+        enum eMoves
+        {
+            MoveFirst,
+            MoveSecond
+        };
+
+        struct npc_foundry_iron_laborerAI : public ScriptedAI
+        {
+            npc_foundry_iron_laborerAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Vehicle(p_Creature->GetVehicleKit()) { }
+
+            Vehicle* m_Vehicle;
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eAction::ActionEvent)
+                {
+                    std::list<Creature*> l_Darkshards;
+                    me->GetCreatureListWithEntryInGrid(l_Darkshards, eCreatures::DarkshardAcidback, 5.0f);
+
+                    uint8 l_DarkshardCount = 2;
+                    for (Creature* l_Darkshard : l_Darkshards)
+                    {
+                        if (l_Darkshard->GetVehicle())
+                            continue;
+
+                        l_Darkshard->EnterVehicle(me);
+
+                        if (!--l_DarkshardCount)
+                            break;
+                    }
+
+                    l_Darkshards.clear();
+
+                    me->GetCreatureListWithEntryInGrid(l_Darkshards, eCreatures::DarkshardGnasher, 20.0f);
+
+                    for (Creature* l_Darkshard : l_Darkshards)
+                    {
+                        if (l_Darkshard->IsAIEnabled)
+                            l_Darkshard->AI()->DoAction(eAction::ActionEvent);
+                    }
+
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        float l_X, l_Y, l_Z, l_O;
+
+                        l_O = me->GetOrientation();
+                        l_X = me->GetPositionX() + (30.0f * cos(l_O));
+                        l_Y = me->GetPositionY() + (30.0f * sin(l_O));
+
+                        l_Z = me->GetPositionZ();
+                        l_Z = me->GetMap()->GetHeight(me->GetPhaseMask(), l_X, l_Y, l_Z) + 1.0f;
+
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(eMoves::MoveFirst, l_X, l_Y, l_Z);
+                    });
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                switch (p_ID)
+                {
+                    case eMoves::MoveFirst:
+                    {
+                        AddTimedDelayedOperation(200, [this]() -> void
+                        {
+                            float l_X, l_Y, l_Z;
+
+                            l_X = me->GetPositionX() + (30.0f * cos(0.0f));
+                            l_Y = me->GetPositionY() + (30.0f * sin(0.0f));
+
+                            l_Z = me->GetPositionZ();
+                            l_Z = me->GetMap()->GetHeight(me->GetPhaseMask(), l_X, l_Y, l_Z);
+
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(eMoves::MoveSecond, l_X, l_Y, l_Z);
+                        });
+
+                        break;
+                    }
+                    case eMoves::MoveSecond:
+                    {
+                        m_Vehicle->RemoveAllPassengers();
+                        me->Kill(me);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_iron_laborerAI(p_Creature);
+        }
+};
+
+/// Darkshard Acidback - 78801
+class npc_foundry_darkshard_acidback : public CreatureScript
+{
+    public:
+        npc_foundry_darkshard_acidback() : CreatureScript("npc_foundry_darkshard_acidback") { }
+
+        struct npc_foundry_darkshard_acidbackAI : public ScriptedAI
+        {
+            npc_foundry_darkshard_acidbackAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void OnVehicleExited(Unit* p_Vehicle) override
+            {
+                me->SetHomePosition(*me);
+
+                if (Player* l_Target = me->SelectNearestPlayerNotGM(15.0f))
+                    AttackStart(l_Target);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_darkshard_acidbackAI(p_Creature);
+        }
+};
+
+/// Darkshard Gnasher - 78978
+class npc_foundry_darkshard_gnasher : public CreatureScript
+{
+    public:
+        npc_foundry_darkshard_gnasher() : CreatureScript("npc_foundry_darkshard_gnasher") { }
+
+        enum eAction
+        {
+            ActionEvent
+        };
+
+        enum eMoves
+        {
+            MoveFirst,
+            MoveSecond
+        };
+
+        enum eSpells
+        {
+            RollingMovement         = 159511,
+
+            ShatteringChargeSeacher = 159551,
+            ShatteringChargeTrigger = 159518,
+            ShatteringChargeEnding  = 159519,
+
+            InsatiableHungerSearch  = 159631,
+            InsatiableHungerTrigger = 159632,
+            InsatiableHungerAura    = 159700
+        };
+
+        enum eEvents
+        {
+            EventShatteringCharge = 1,
+            EventInsatiableHunger
+        };
+
+        struct npc_foundry_darkshard_gnasherAI : public ScriptedAI
+        {
+            npc_foundry_darkshard_gnasherAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Moved(false) { }
+
+            EventMap m_Events;
+
+            bool m_Moved;
+
+            uint64 m_FixateTarget;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                m_FixateTarget = 0;
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventShatteringCharge, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventInsatiableHunger, 10 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eAction::ActionEvent && !m_Moved)
+                {
+                    m_Moved = true;
+
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        me->CastSpell(me, eSpells::RollingMovement, true);
+
+                        float l_X, l_Y, l_Z, l_O;
+
+                        l_O = me->GetOrientation();
+                        l_X = me->GetPositionX() + (35.0f * cos(l_O));
+                        l_Y = me->GetPositionY() + (35.0f * sin(l_O));
+
+                        l_Z = me->GetPositionZ();
+                        l_Z = me->GetMap()->GetHeight(me->GetPhaseMask(), l_X, l_Y, l_Z);
+
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(eMoves::MoveFirst, l_X, l_Y, l_Z);
+                    });
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                switch (p_ID)
+                {
+                    case eMoves::MoveFirst:
+                    {
+                        AddTimedDelayedOperation(100, [this]() -> void
+                        {
+                            float l_X, l_Y, l_Z;
+
+                            l_X = me->GetPositionX() + (30.0f * cos(0.0f));
+                            l_Y = me->GetPositionY() + (30.0f * sin(0.0f));
+
+                            l_Z = me->GetPositionZ();
+                            l_Z = me->GetMap()->GetHeight(me->GetPhaseMask(), l_X, l_Y, l_Z);
+
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(eMoves::MoveSecond, l_X, l_Y, l_Z);
+                        });
+
+                        break;
+                    }
+                    case eMoves::MoveSecond:
+                    {
+                        me->RemoveAura(eSpells::RollingMovement);
+
+                        if (Player* l_Target = me->SelectNearestPlayerNotGM(15.0f))
+                            AttackStart(l_Target);
+
+                        break;
+                    }
+                    case EventId::EVENT_CHARGE:
+                    {
+                        me->CastSpell(me, eSpells::ShatteringChargeEnding, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::ShatteringChargeSeacher:
+                    {
+                        me->CastSpell(p_Target, eSpells::ShatteringChargeTrigger, false);
+                        break;
+                    }
+                    case eSpells::InsatiableHungerSearch:
+                    {
+                        m_FixateTarget = p_Target->GetGUID();
+                        me->CastSpell(p_Target, eSpells::InsatiableHungerTrigger, false);
+
+                        AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void { m_FixateTarget = 0; });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                if (m_FixateTarget)
+                {
+                    if (Unit* l_Target = Unit::GetUnit(*me, m_FixateTarget))
+                    {
+                        if (l_Target->isAlive())
+                        {
+                            AttackStart(l_Target);
+                            DoMeleeAttackIfReady();
+                            return;
+                        }
+                        else
+                        {
+                            me->RemoveAura(eSpells::InsatiableHungerAura);
+                            m_FixateTarget = 0;
+                        }
+                    }
+                }
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventShatteringCharge:
+                    {
+                        me->CastSpell(me, eSpells::ShatteringChargeSeacher, true);
+                        m_Events.ScheduleEvent(eEvents::EventShatteringCharge, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventInsatiableHunger:
+                    {
+                        me->CastSpell(me, eSpells::InsatiableHungerSearch, true);
+                        m_Events.ScheduleEvent(eEvents::EventInsatiableHunger, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_darkshard_gnasherAI(p_Creature);
+        }
+};
+
+/// Darkshard Crystalback - 78233
+class npc_foundry_darkshard_crystalback : public CreatureScript
+{
+    public:
+        npc_foundry_darkshard_crystalback() : CreatureScript("npc_foundry_darkshard_crystalback") { }
+
+        enum eSpells
+        {
+            Acidmaw             = 159939,
+            ShardVolleySearcher = 159769,
+            ShardVolleyTrigger  = 159775
+        };
+
+        enum eEvents
+        {
+            EventAcidMaw = 1,
+            EventShardVolley
+        };
+
+        struct npc_foundry_darkshard_crystalbackAI : public ScriptedAI
+        {
+            npc_foundry_darkshard_crystalbackAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventAcidMaw, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventShardVolley, 9 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::ShardVolleySearcher)
+                {
+                    me->CastSpell(p_Target, eSpells::ShardVolleyTrigger, true);
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventAcidMaw:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Acidmaw, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventAcidMaw, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventShardVolley:
+                    {
+                        me->CastSpell(me, eSpells::ShardVolleySearcher, false);
+                        m_Events.ScheduleEvent(eEvents::EventShardVolley, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_darkshard_crystalbackAI(p_Creature);
+        }
+};
+
+/// Slag Behemoth - 77504
+class npc_foundry_slag_behemoth : public CreatureScript
+{
+    public:
+        npc_foundry_slag_behemoth() : CreatureScript("npc_foundry_slag_behemoth") { }
+
+        enum eSpells
+        {
+            IgniteSearcher      = 156345,
+
+            VolcanicBombSearch  = 156348,
+            VolcanicBombMissile = 156413,
+
+            BlastWave           = 156446
+        };
+
+        enum eEvents
+        {
+            EventIgnite = 1,
+            EventVolcanicBomb,
+            EventBlastWave
+        };
+
+        enum eTalk
+        {
+            TalkBlastWave
+        };
+
+        enum eGameObjects
+        {
+            VolcanicBomb    = 227616,
+            IceBlock        = 201722
+        };
+
+        enum eAction
+        {
+            ActionIntro
+        };
+
+        struct npc_foundry_slag_behemothAI : public ScriptedAI
+        {
+            npc_foundry_slag_behemothAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            uint64 m_EncounterDoor;
+
+            void Reset() override
+            {
+                m_EncounterDoor = 0;
+
+                m_Events.Reset();
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (GameObject* l_FurnaceDoor = me->FindNearestGameObject(eFoundryGameObjects::BlastFurnaceEncounterDoor, 30.0f))
+                    {
+                        m_EncounterDoor = l_FurnaceDoor->GetGUID();
+                        l_FurnaceDoor->SetGoState(GOState::GO_STATE_READY);
+                    }
+                });
+
+                std::list<GameObject*> l_Gobs;
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::IceBlock, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
+
+                l_Gobs.clear();
+
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::VolcanicBomb, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventIgnite, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventVolcanicBomb, 11 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventBlastWave, 30 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (GameObject* l_FurnaceDoor = GameObject::GetGameObject(*me, m_EncounterDoor))
+                    l_FurnaceDoor->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                std::list<GameObject*> l_Gobs;
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::IceBlock, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
+
+                l_Gobs.clear();
+
+                me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::VolcanicBomb, 100.0f);
+
+                for (GameObject* l_GameObject : l_Gobs)
+                    l_GameObject->Delete();
+
+                if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
+                {
+                    if (Creature* l_Creature = Creature::GetCreature(*me, l_InstanceScript->GetData64(eFoundryCreatures::BlackhandCosmetic)))
+                    {
+                        if (l_Creature->IsAIEnabled)
+                            l_Creature->AI()->DoAction(eAction::ActionIntro);
+                    }
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::VolcanicBombSearch:
+                    {
+                        me->CastSpell(*p_Target, eSpells::VolcanicBombMissile, false);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventIgnite:
+                    {
+                        me->CastSpell(me, eSpells::IgniteSearcher, false);
+                        m_Events.ScheduleEvent(eEvents::EventIgnite, 13 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventVolcanicBomb:
+                    {
+                        me->CastSpell(me, eSpells::VolcanicBombSearch, true);
+                        m_Events.ScheduleEvent(eEvents::EventVolcanicBomb, 11 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventBlastWave:
+                    {
+                        Talk(eTalk::TalkBlastWave);
+
+                        me->CastSpell(me, eSpells::BlastWave, false);
+                        m_Events.ScheduleEvent(eEvents::EventBlastWave, 35 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_slag_behemothAI(p_Creature);
+        }
+};
+
 /// Grievous Mortal Wounds - 175624
 class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
 {
@@ -1105,7 +1812,7 @@ class spell_foundry_spinning_blade : public SpellScriptLoader
                             }
                         }
 
-                        m_CheckTimer = 500;
+                        m_CheckTimer = 200;
                     }
                     else
                         m_CheckTimer -= p_Diff;
@@ -1267,6 +1974,296 @@ class spell_foundry_gronnling_smash : public SpellScriptLoader
         }
 };
 
+/// Shattering Charge - 159518
+class spell_foundry_shattering_charge : public SpellScriptLoader
+{
+    public:
+        spell_foundry_shattering_charge() : SpellScriptLoader("spell_foundry_shattering_charge") { }
+
+        class spell_foundry_shattering_charge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_shattering_charge_AuraScript);
+
+            enum eSpell
+            {
+                ShatteringCharge = 159520
+            };
+
+            uint32 m_CheckTimer;
+
+            bool Load()
+            {
+                m_CheckTimer = 200;
+                return true;
+            }
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                if (m_CheckTimer)
+                {
+                    if (m_CheckTimer <= p_Diff)
+                    {
+                        if (Unit* l_Caster = GetCaster())
+                        {
+                            std::list<Unit*> l_TargetList;
+                            float l_Radius = 8.0f;
+
+                            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                            l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                            l_TargetList.remove(l_Caster);
+
+                            for (Unit* l_Iter : l_TargetList)
+                            {
+                                if (l_Iter->GetDistance(l_Caster) <= 2.5f)
+                                    l_Caster->CastSpell(l_Iter, eSpell::ShatteringCharge, true);
+                            }
+                        }
+
+                        m_CheckTimer = 200;
+                    }
+                    else
+                        m_CheckTimer -= p_Diff;
+                }
+            }
+
+            void Register() override
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_foundry_shattering_charge_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_shattering_charge_AuraScript();
+        }
+};
+
+/// Ignite - 156345
+class spell_foundry_ignite_aura : public SpellScriptLoader
+{
+    public:
+        spell_foundry_ignite_aura() : SpellScriptLoader("spell_foundry_ignite_aura") { }
+
+        class spell_foundry_ignite_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_ignite_aura_AuraScript);
+
+            enum eSpell
+            {
+                IgniteAoE = 156346
+            };
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetTarget())
+                        l_Caster->CastSpell(*l_Target, eSpell::IgniteAoE, true);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_ignite_aura_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_ignite_aura_AuraScript();
+        }
+};
+
+/// Blast Wave - 158424
+class spell_foundry_blast_wave : public SpellScriptLoader
+{
+    public:
+        spell_foundry_blast_wave() : SpellScriptLoader("spell_foundry_blast_wave") { }
+
+        class spell_foundry_blast_wave_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_blast_wave_SpellScript);
+
+            enum eGameObjects
+            {
+                VolcanicBomb    = 227616,
+                IceBlock        = 201722
+            };
+
+            void SelectIceBlocks(std::list<WorldObject*>& p_Targets)
+            {
+                p_Targets.clear();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    for (uint8 l_I = 0; l_I < (uint8)EFFECT_2; ++l_I)
+                    {
+                        float l_Radius = GetSpellInfo()->Effects[l_I].CalcRadius(l_Caster);
+
+                        std::list<GameObject*> l_GoBList;
+                        l_Caster->GetGameObjectListWithEntryInGrid(l_GoBList, l_I == 0 ? eGameObjects::IceBlock : eGameObjects::VolcanicBomb, l_Radius);
+
+                        for (GameObject* l_Gob : l_GoBList)
+                            p_Targets.push_back(l_Gob);
+                    }
+                }
+            }
+
+            void HandleActivateObject(SpellEffIndex p_EffIndex)
+            {
+                if (GameObject* l_GameObject = GetHitGObj())
+                    l_GameObject->Delete();
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_blast_wave_SpellScript::SelectIceBlocks, EFFECT_0, TARGET_GAMEOBJECT_SRC_AREA);
+                OnEffectHitTarget += SpellEffectFn(spell_foundry_blast_wave_SpellScript::HandleActivateObject, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_blast_wave_SpellScript();
+        }
+};
+
+/// Acidback Puddle - 159121
+class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_acidback_puddle() : AreaTriggerEntityScript("areatrigger_foundry_acidback_puddle") { }
+
+        enum eSpell
+        {
+            AcidbackPuddleDoT = 159686
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 10.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->GetDistance(p_AreaTrigger) <= 3.0f)
+                    {
+                        if (!l_Unit->HasAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID()))
+                            l_Unit->CastSpell(l_Unit, eSpell::AcidbackPuddleDoT, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    }
+                    else
+                    {
+                        if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID()))
+                            l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID());
+                    }
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_acidback_puddle();
+        }
+};
+
+/// First Floor Trap - 10276
+class areatrigger_at_foundry_first_floor_trap : public AreaTriggerScript
+{
+    public:
+        areatrigger_at_foundry_first_floor_trap() : AreaTriggerScript("areatrigger_at_foundry_first_floor_trap") { }
+
+        enum eSpell
+        {
+            KromogsFury = 175331
+        };
+
+        enum eCreature
+        {
+            KromogsWrath = 87727
+        };
+
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        {
+            float l_MaxZ = 308.45f;
+            float l_MinZ = 274.45f;
+
+            std::list<Creature*> l_WrathList;
+            p_Player->GetCreatureListWithEntryInGrid(l_WrathList, eCreature::KromogsWrath, 150.0f);
+
+            if (l_WrathList.empty())
+                return;
+
+            l_WrathList.remove_if([this, l_MaxZ, l_MinZ](Creature* p_Creature) -> bool
+            {
+                if (p_Creature == nullptr || p_Creature->GetPositionZ() >= l_MaxZ || p_Creature->GetPositionZ() <= l_MinZ)
+                    return true;
+
+                return false;
+            });
+
+            for (Creature* l_Wrath : l_WrathList)
+            {
+                if (l_Wrath->HasAura(eSpell::KromogsFury))
+                    continue;
+
+                l_Wrath->CastSpell(l_Wrath, eSpell::KromogsFury, true);
+            }
+        }
+};
+
+/// Second Floor Trap - 10277
+class areatrigger_at_foundry_second_floor_trap : public AreaTriggerScript
+{
+    public:
+        areatrigger_at_foundry_second_floor_trap() : AreaTriggerScript("areatrigger_at_foundry_second_floor_trap") { }
+
+        enum eSpell
+        {
+            KromogsFury = 175331
+        };
+
+        enum eCreature
+        {
+            KromogsWrath = 87727
+        };
+
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        {
+            float l_MaxZ = 266.06f;
+            float l_MinZ = 227.40f;
+
+            std::list<Creature*> l_WrathList;
+            p_Player->GetCreatureListWithEntryInGrid(l_WrathList, eCreature::KromogsWrath, 150.0f);
+
+            if (l_WrathList.empty())
+                return;
+
+            l_WrathList.remove_if([this, l_MaxZ, l_MinZ](Creature* p_Creature) -> bool
+            {
+                if (p_Creature == nullptr || p_Creature->GetPositionZ() >= l_MaxZ || p_Creature->GetPositionZ() <= l_MinZ)
+                    return true;
+
+                return false;
+            });
+
+            for (Creature* l_Wrath : l_WrathList)
+            {
+                if (l_Wrath->HasAura(eSpell::KromogsFury))
+                    continue;
+
+                l_Wrath->CastSpell(l_Wrath, eSpell::KromogsFury, true);
+            }
+        }
+};
+
 void AddSC_blackrock_foundry()
 {
     /// NPCs
@@ -1283,6 +2280,12 @@ void AddSC_blackrock_foundry()
     new npc_foundry_iron_journeyman();
     new npc_foundry_gronnling_laborer();
     new npc_foundry_karnor_the_cruel();
+    new npc_foundry_iron_laborer_cosmetic();
+    new npc_foundry_iron_laborer();
+    new npc_foundry_darkshard_acidback();
+    new npc_foundry_darkshard_gnasher();
+    new npc_foundry_darkshard_crystalback();
+    new npc_foundry_slag_behemoth();
 
     /// Spells
     new spell_foundry_grievous_mortal_wounds();
@@ -1290,8 +2293,16 @@ void AddSC_blackrock_foundry()
     new spell_foundry_slag_breath();
     new spell_foundry_animate_slag();
     new spell_foundry_gronnling_smash();
+    new spell_foundry_shattering_charge();
+    new spell_foundry_ignite_aura();
+    new spell_foundry_blast_wave();
 
     /// GameObjects
 
-    /// AreaTriggers
+    /// AreaTriggers (spell)
+    new areatrigger_foundry_acidback_puddle();
+
+    /// AreaTriggers (world)
+    new areatrigger_at_foundry_first_floor_trap();
+    new areatrigger_at_foundry_second_floor_trap();
 }

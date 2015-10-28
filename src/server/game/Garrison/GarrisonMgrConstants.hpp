@@ -267,7 +267,13 @@ namespace MS { namespace Garrison
             ScribesQuarters__ScribesQuarters_Level3     = 130,
             HerbGarden__HerbGarden_Level1               = 29,
             HerbGarden__HerbGarden_Level2               = 136,
-            HerbGarden__HerbGarden_Level3               = 137
+            HerbGarden__HerbGarden_Level3               = 137,
+            Barn__Barn_Level1                           = 24,
+            Barn__Barn_Level2                           = 25,
+            Barn__Barn_Level3                           = 133,
+            SalvageYard_SalvageYard_Level1              = 52,
+            SalvageYard_SalvageYard_Level2              = 140,
+            SalvageYard_SalvageYard_Level3              = 141
         };
     }
 
@@ -327,6 +333,7 @@ namespace MS { namespace Garrison
         {
             BaseA       = 15585,
             BaseH       = 20508,
+            BaseBarn    = 13845,
             AllComplete = 16091,
         };
     }
@@ -408,6 +415,11 @@ namespace MS { namespace Garrison
     {
         233248,     ///< Horde
         233250      ///< Alliance
+    };
+
+    enum GarrisonBuildingWorkOrderGameObject
+    {
+        GobBarnWOrkOrder = 238761
     };
 
     static const GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[Globals::PlotInstanceCount] =

@@ -15,6 +15,7 @@
 #include "CellImpl.h"
 #include "Vehicle.h"
 #include "VMapFactory.h"
+#include "TotemAI.h"
 
 /// Prismatic Crystal - 76933
 class spell_npc_mage_prismatic_crystal : public CreatureScript
@@ -22,15 +23,15 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
     public:
         spell_npc_mage_prismatic_crystal() : CreatureScript("npc_mage_prismatic_crystal") { }
 
+        enum eSpells
+        {
+            PrismaticCrystalAura    = 155153,
+            PrismaticCrystalDamage  = 155152
+        };
+
         struct spell_npc_mage_prismatic_crystalAI : public ScriptedAI
         {
             spell_npc_mage_prismatic_crystalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum eSpells
-            {
-                PrismaticCrystalAura    = 155153,
-                PrismaticCrystalDamage  = 155152
-            };
 
             enum eDatas
             {
@@ -99,10 +100,10 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
 };
 
 /// Frozen Orb - 45322
-class npc_frozen_orb : public CreatureScript
+class spell_npc_mage_frozen_orb : public CreatureScript
 {
     public:
-        npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
+        spell_npc_mage_frozen_orb() : CreatureScript("spell_npc_mage_frozen_orb") { }
 
         enum Constants
         {
@@ -122,12 +123,12 @@ class npc_frozen_orb : public CreatureScript
             TargetSnareAndDamage = 84721
         };
 
-        struct npc_frozen_orbAI : public ScriptedAI
+        struct spell_npc_mage_frozen_orbAI : public ScriptedAI
         {
             uint32 m_DamageTimer;
             bool m_KeepMoving;
 
-            npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
+            spell_npc_mage_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_DamageTimer = Constants::DamageDelay; ///< As we want the damage to proc on summon
                 m_KeepMoving = true;
@@ -266,10 +267,9 @@ class npc_frozen_orb : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_frozen_orbAI(creature);
+            return new spell_npc_mage_frozen_orbAI(creature);
         }
 };
-
 
 /// Shadow Reflection - 77726
 class spell_npc_rogue_shadow_reflection : public CreatureScript
@@ -413,23 +413,28 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
         }
 };
 
+/// Capacitor Totem - 61245
 class spell_npc_sha_capacitor_totem : public CreatureScript
 {
     public:
         spell_npc_sha_capacitor_totem() : CreatureScript("npc_capacitor_totem") { }
 
-        struct spell_npc_sha_capacitor_totemAI : public ScriptedAI
+        enum eSpells
         {
-            enum eSpells
-            {
-                StaticCharge = 118905
-            };
+            StaticCharge = 118905
+        };
 
+        struct spell_npc_sha_capacitor_totemAI : public TotemAI
+        {
             bool m_HasBeenCasted;
 
-            spell_npc_sha_capacitor_totemAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            spell_npc_sha_capacitor_totemAI(Creature* p_Creature) : TotemAI(p_Creature)
             {
                 m_HasBeenCasted = false;
+            }
+
+            void Reset()
+            {
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             }
 
@@ -452,26 +457,27 @@ class spell_npc_sha_capacitor_totem : public CreatureScript
         }
 };
 
+/// Spirit Link Totem - 53006
 class spell_npc_sha_spirit_link_totem : public CreatureScript
 {
     public:
         spell_npc_sha_spirit_link_totem() : CreatureScript("npc_spirit_link_totem") { }
 
-        struct spell_npc_sha_spirit_link_totemAI : public ScriptedAI
+        struct spell_npc_sha_spirit_link_totemAI : public TotemAI
         {
             uint32 CastTimer;
 
-            spell_npc_sha_spirit_link_totemAI(Creature* creature) : ScriptedAI(creature)
+            spell_npc_sha_spirit_link_totemAI(Creature* creature) : TotemAI(creature)
             {
                 CastTimer = 1000;
+            }
 
-                if (creature->GetOwner() && creature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            void Reset()
+            {
+                if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (creature->GetEntry() == 53006)
-                    {
-                        creature->CastSpell(creature, 98007, false);
-                        creature->CastSpell(creature, 98017, true);
-                    }
+                    me->CastSpell(me, 98007, false);
+                    me->CastSpell(me, 98017, true);
                 }
             }
 
@@ -499,21 +505,22 @@ class spell_npc_sha_spirit_link_totem : public CreatureScript
         }
 };
 
-/// Storm Elemental - 77936
+/// Greater Storm Elemental - 77936
+/// Primal Storm Elemental - 77942
 class spell_npc_sha_storm_elemental : public CreatureScript
 {
     public:
         spell_npc_sha_storm_elemental() : CreatureScript("npc_storm_elemental") { }
 
+        enum eSpells
+        {
+            SpellWindGust       = 157331,
+            SpellCallLightning  = 157348
+        };
+
         struct spell_npc_sha_storm_elementalAI : public ScriptedAI
         {
             spell_npc_sha_storm_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum eSpells
-            {
-                SpellWindGust       = 157331,
-                SpellCallLightning  = 157348
-            };
 
             enum eEvents
             {
@@ -582,10 +589,12 @@ class spell_npc_sha_storm_elemental : public CreatureScript
         }
 };
 
+/// Greater Fire Elemental - 15438
+/// Primal Fire Elemental - 61029
 class spell_npc_sha_fire_elemental : public CreatureScript
 {
     public:
-        spell_npc_sha_fire_elemental() : CreatureScript("npc_fire_elemental") { }
+        spell_npc_sha_fire_elemental() : CreatureScript("spell_npc_sha_fire_elemental") { }
 
         struct spell_npc_sha_fire_elementalAI : public ScriptedAI
         {
@@ -668,26 +677,29 @@ class spell_npc_sha_fire_elemental : public CreatureScript
         }
 };
 
-
+/// Greater Earth Elemental - 15352
+/// Primal Earth Elemental - 61056
 class spell_npc_sha_earth_elemental : public CreatureScript
 {
     public:
         spell_npc_sha_earth_elemental() : CreatureScript("npc_earth_elemental") { }
 
+        enum eSpells
+        {
+            AngeredEarth = 36213
+        };
+
         struct spell_npc_sha_earth_elementalAI : public ScriptedAI
         {
-            spell_npc_sha_earth_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
-
-            enum eSpells
-            {
-                AngeredEarth = 36213
-            };
-
             uint32 AngeredEarth_Timer;
+
+            spell_npc_sha_earth_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                AngeredEarth_Timer = 0;
+            }
 
             void Reset()
             {
-                AngeredEarth_Timer = 0;
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
             }
 
@@ -728,7 +740,7 @@ class spell_npc_sha_earth_elemental : public CreatureScript
         }
 };
 
-
+/// Spirit Wolf - 29264
 class spell_npc_sha_feral_spirit : public CreatureScript
 {
     public:
@@ -791,21 +803,52 @@ class spell_npc_sha_feral_spirit : public CreatureScript
         }
 };
 
+class spell_npc_sha_healing_rain : public CreatureScript
+{
+public:
+    spell_npc_sha_healing_rain() : CreatureScript("spell_npc_sha_healing_rain") { }
+
+    struct spell_npc_sha_healing_rainAI : public CreatureAI
+    {
+
+        enum eSpells : uint32
+        {
+            HealingRainVisual = 147490
+        };
+
+        spell_npc_sha_healing_rainAI(Creature* p_Creature) : CreatureAI(p_Creature)
+        {
+            me->CastSpell(me, eSpells::HealingRainVisual, true);
+        }
+
+        void UpdateAI(uint32 const p_Diff)
+        {
+            if (!me->HasAura(eSpells::HealingRainVisual))
+                me->DespawnOrUnsummon();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const
+    {
+        return new spell_npc_sha_healing_rainAI(p_Creature);
+    }
+};
+
 /// Ravager - 76168
 class spell_npc_warr_ravager : public CreatureScript
 {
     public:
         spell_npc_warr_ravager() : CreatureScript("npc_warrior_ravager") { }
 
+        enum eDatas
+        {
+            DisplayID = 55644,
+            RavagerAura = 153709
+        };
+
         struct spell_npc_warr_ravagerAI : public ScriptedAI
         {
             spell_npc_warr_ravagerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum eDatas
-            {
-                DisplayID = 55644,
-                RavagerAura = 153709
-            };
 
             void IsSummonedBy(Unit* p_Summoner)
             {
@@ -851,6 +894,30 @@ class spell_npc_warr_ravager : public CreatureScript
         }
 };
 
+/// Mocking Banner - 59390
+class spell_npc_warr_mocking_banner : public CreatureScript
+{
+    public:
+        spell_npc_warr_mocking_banner() : CreatureScript("spell_npc_warr_mocking_banner") { }
+
+        struct spell_npc_warr_mocking_bannerAI : public ScriptedAI
+        {
+            spell_npc_warr_mocking_bannerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_warr_mocking_bannerAI(p_Creature);
+        }
+};
+
+/// Wild Imp - 55659
 class spell_npc_warl_wild_imp : public CreatureScript
 {
     public:
@@ -870,37 +937,29 @@ class spell_npc_warl_wild_imp : public CreatureScript
             spell_npc_warl_wild_impAI(Creature *creature) : ScriptedAI(creature)
             {
                 m_Charges = 10;
-                me->SetReactState(REACT_HELPER);
             }
 
             void Reset()
             {
                 me->SetReactState(REACT_HELPER);
-
-                if (me->GetOwner())
-                    if (me->GetOwner()->getVictim())
-                        AttackStart(me->GetOwner()->getVictim());
             }
 
             void UpdateAI(const uint32 p_Diff)
             {
-                Unit* l_Owner = me->GetOwner();
-                if (!l_Owner)
-                    return;
-
-                if (!UpdateVictim())
+                if (Unit* l_Owner = me->GetOwner())
                 {
-                    Unit* l_OwnerTarget = nullptr;
-                    if (Player* l_Player = l_Owner->ToPlayer())
-                        l_OwnerTarget = l_Player->GetSelectedUnit();
-                    else
-                        l_OwnerTarget = l_Owner->getVictim();
+                    Unit* l_OwnerTarget = l_Owner->getVictim();
 
-                    if (l_OwnerTarget)
+                    if (l_OwnerTarget == nullptr)
+                        if (Player* l_Player = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Player->GetSelectedUnit();
+
+                    if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && (!me->getVictim() || me->getVictim() != l_OwnerTarget))
                         AttackStart(l_OwnerTarget);
-
-                    return;
                 }
+
+                if (!me->getVictim())
+                    return;
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -914,11 +973,14 @@ class spell_npc_warl_wild_imp : public CreatureScript
                 me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
                 m_Charges--;
 
-                me->EnergizeBySpell(l_Owner, eSpells::Firebolt, 5 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
+                if (Unit* l_Owner = me->GetOwner())
+                {
+                    me->EnergizeBySpell(l_Owner, eSpells::Firebolt, 5 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
 
-                if (AuraEffectPtr l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
-                    if (roll_chance_i(l_MoltenCore->GetAmount()))
-                        l_Owner->CastSpell(l_Owner, eSpells::MoltenCoreAura, true);
+                    if (AuraEffectPtr l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
+                        if (roll_chance_i(l_MoltenCore->GetAmount()))
+                            l_Owner->CastSpell(l_Owner, eSpells::MoltenCoreAura, true);
+                }
             }
         };
 
@@ -928,70 +990,7 @@ class spell_npc_warl_wild_imp : public CreatureScript
         }
 };
 
-class spell_npc_warl_imp : public CreatureScript
-{
-    public:
-        spell_npc_warl_imp() : CreatureScript("npc_imp") { }
-
-        enum eSpells
-        {
-            Firebolt = 3110
-        };
-
-        struct spell_npc_warl_impAI : public ScriptedAI
-        {
-            spell_npc_warl_impAI(Creature *creature) : ScriptedAI(creature)
-            {
-                me->SetReactState(REACT_HELPER);
-            }
-
-            void Reset()
-            {
-                me->SetReactState(REACT_HELPER);
-
-                if (me->GetOwner())
-                if (me->GetOwner()->getVictim())
-                    AttackStart(me->GetOwner()->getVictim());
-            }
-
-            void UpdateAI(const uint32 p_Diff)
-            {
-                Unit* l_Owner = me->GetOwner();
-                if (!l_Owner)
-                    return;
-
-                if (!UpdateVictim())
-                {
-                    Unit* l_OwnerTarget = nullptr;
-                    if (Player* l_Player = l_Owner->ToPlayer())
-                        l_OwnerTarget = l_Player->GetSelectedUnit();
-                    else
-                        l_OwnerTarget = l_Owner->getVictim();
-
-                    if (l_OwnerTarget)
-                        AttackStart(l_OwnerTarget);
-
-                    return;
-                }
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    return;
-
-                me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
-
-                /// Master gains 8 Demonic Fury
-                Player* l_Player = l_Owner->ToPlayer();
-                if (l_Player != nullptr && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                    l_Owner->EnergizeBySpell(l_Owner, eSpells::Firebolt, 8 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_warl_impAI(creature);
-        }
-};
-
+/// Doomguard - 78158
 class spell_npc_warl_doomguard: public CreatureScript
 {
     public:
@@ -1004,39 +1003,29 @@ class spell_npc_warl_doomguard: public CreatureScript
 
         struct spell_npc_warl_doomguardAI : public ScriptedAI
         {
-            spell_npc_warl_doomguardAI(Creature *creature) : ScriptedAI(creature)
-            {
-                me->SetReactState(REACT_HELPER);
-            }
+            spell_npc_warl_doomguardAI(Creature *creature) : ScriptedAI(creature) { }
 
             void Reset()
             {
                 me->SetReactState(REACT_HELPER);
-
-                if (me->GetOwner())
-                    if (me->GetOwner()->getVictim())
-                        AttackStart(me->GetOwner()->getVictim());
             }
 
             void UpdateAI(const uint32 p_Diff)
             {
-                Unit* l_Owner = me->GetOwner();
-                if (!l_Owner)
-                    return;
-
-                if (!UpdateVictim())
+                if (Unit* l_Owner = me->GetOwner())
                 {
-                    Unit* l_OwnerTarget = nullptr;
-                    if (Player* l_Player = l_Owner->ToPlayer())
-                        l_OwnerTarget = l_Player->GetSelectedUnit();
-                    else
-                        l_OwnerTarget = l_Owner->getVictim();
+                    Unit* l_OwnerTarget = l_Owner->getVictim();
 
-                    if (l_OwnerTarget)
+                    if (l_OwnerTarget == nullptr)
+                        if (Player* l_Player = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Player->GetSelectedUnit();
+
+                    if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && (!me->getVictim() || me->getVictim() != l_OwnerTarget))
                         AttackStart(l_OwnerTarget);
-
-                    return;
                 }
+
+                if (!me->getVictim())
+                    return;
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -1205,91 +1194,12 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
         }
 };
 
-/// Mocking Banner - 59390
-class spell_npc_warr_mocking_banner : public CreatureScript
-{
-    public:
-        spell_npc_warr_mocking_banner() : CreatureScript("spell_npc_warr_mocking_banner") { }
-
-        struct spell_npc_warr_mocking_bannerAI : public ScriptedAI
-        {
-            spell_npc_warr_mocking_bannerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            void Reset()
-            {
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new spell_npc_warr_mocking_bannerAI(p_Creature);
-        }
-};
-
-class spell_npc_searing_totem : public CreatureScript
-{
-    public:
-        spell_npc_searing_totem() : CreatureScript("spell_npc_searing_totem") { }
-
-        enum eSpells
-        {
-            Sear = 39592
-        };
-
-        struct spell_npc_searing_totemAI : public ScriptedAI
-        {
-            spell_npc_searing_totemAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            void Reset()
-            {
-                me->SetReactState(REACT_AGGRESSIVE);
-                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
-
-                if (me->GetOwner())
-                if (me->GetOwner()->getVictim())
-                    AttackStart(me->GetOwner()->getVictim());
-            }
-
-            void UpdateAI(const uint32 p_Diff)
-            {
-                Unit* l_Owner = me->GetOwner();
-                if (!l_Owner)
-                    return;
-
-                if (!UpdateVictim())
-                {
-                    Unit* l_OwnerTarget = nullptr;
-                    if (Player* l_Player = l_Owner->ToPlayer())
-                        l_OwnerTarget = l_Player->GetSelectedUnit();
-                    else
-                        l_OwnerTarget = l_Owner->getVictim();
-
-                    if (l_OwnerTarget)
-                        AttackStart(l_OwnerTarget);
-
-                    return;
-                }
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    return;
-
-                me->CastSpell(me->getVictim(), eSpells::Sear, false);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_searing_totemAI(creature);
-        }
-};
 
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
     new spell_npc_mage_prismatic_crystal();
-    new npc_frozen_orb();
+    new spell_npc_mage_frozen_orb();
 
     /// Rogue NPC
     new spell_npc_rogue_shadow_reflection();
@@ -1301,7 +1211,7 @@ void AddSC_npc_spell_scripts()
     new spell_npc_sha_fire_elemental();
     new spell_npc_sha_earth_elemental();
     new spell_npc_sha_feral_spirit();
-    new spell_npc_searing_totem();
+    new spell_npc_sha_healing_rain();
 
     /// Warrior NPC
     new spell_npc_warr_ravager();
@@ -1309,7 +1219,6 @@ void AddSC_npc_spell_scripts()
 
     /// Warlock NPC
     new spell_npc_warl_wild_imp();
-    new spell_npc_warl_imp();
     new spell_npc_warl_doomguard();
     new spell_npc_warl_demonic_gateway_purple();
     new spell_npc_warl_demonic_gateway_green();
