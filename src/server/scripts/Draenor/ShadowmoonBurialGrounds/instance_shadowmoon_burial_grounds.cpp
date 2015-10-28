@@ -24,30 +24,49 @@ public:
         instance_everbloom_instancemapscript(Map* map) : InstanceScript(map) {}
 
         InstanceScript* m_Instance = this;
+
         uint64 m_SadanaGUID;
         uint64 m_NhallishGUID;
         uint64 m_BonemawGUID;
+        uint64 m_BonemawMouthGUID;
         uint64 m_NerzhulGUID;
         uint64 m_WandererFirstTalkGUID;
-        uint64 m_DoorGobjectSadanaGUID;
-        uint64 m_DoorGobjectNerzulGUID;
-        uint64 m_DoorGobjectSadanaFightDoorGUID;
+        uint64 m_WandererSecondTalkGUID;
+        uint64 m_WandererThirdTalkGUID;
+        uint64 m_TalkValue;
+
+        uint64 m_DoorGobjectSadana;
+        uint64 m_DoorGobjectNerzul;
+        uint64 m_DoorGobjectSadanaFightDoor;
+        uint64 m_DoorGobjectNhalishEntrance;
+        uint64 m_DoorGobjectBonemawEntrance;
+
         uint64 m_NerzulPropGUID;
 
         void Initialize() override
         {
-            // Creatures
             m_SadanaGUID = 0;
             m_NhallishGUID = 0;
             m_BonemawGUID = 0;
             m_NerzhulGUID = 0;
-            m_NerzulPropGUID = 0;
-            m_WandererFirstTalkGUID = 0;
 
-            // Doors
-            m_DoorGobjectSadanaGUID = 0;
-            m_DoorGobjectNerzulGUID = 0;
-            m_DoorGobjectSadanaFightDoorGUID = 0;
+            /// Triggers
+            m_BonemawMouthGUID = 0;
+
+            /// Doors
+            m_DoorGobjectSadana = 0;
+            m_DoorGobjectSadanaFightDoor = 0;
+            m_DoorGobjectNerzul = 0;    
+            m_DoorGobjectBonemawEntrance = 0;
+            m_DoorGobjectNhalishEntrance = 0;
+
+            m_NerzulPropGUID = 0;
+
+            /// Talks
+            m_WandererFirstTalkGUID = 0;
+            m_WandererSecondTalkGUID = 0;
+            m_WandererThirdTalkGUID = 0;
+            m_TalkValue = 0;
         }
 
         void OnCreatureCreate(Creature* l_Creature) override
@@ -66,31 +85,33 @@ public:
                 case eShadowmoonBurialGroundsBosses::BossNerzul:
                     m_NerzhulGUID = l_Creature->GetGUID();
                     break;
+
                 case eShadowmoonBurialGroundsCreatures::CreatureNerzulVisual:
                     m_NerzulPropGUID = l_Creature->GetGUID();
-                    break;
-                default:
                     break;
             }
         }
 
         void OnUnitDeath(Unit* p_Unit) override
         {
-            if (Creature* l_Creature = p_Unit->ToCreature())
+            Creature* l_Creature = p_Unit->ToCreature();
+            if (!l_Creature)
+                return;
+
+            switch (l_Creature->GetEntry())
             {
-                switch (l_Creature->GetEntry())
+                case eShadowmoonBurialGroundsBosses::BossNerzul:
                 {
-                    case eShadowmoonBurialGroundsBosses::BossNerzul:
+                    // Dungeon Achievement
+                    if (p_Unit->GetMap()->IsHeroic())
                     {
-                        ///< Dungeon Achievement
-                        if (p_Unit->GetMap()->IsHeroic())
-                            this->DoCompleteAchievement(eShadowmoonBurialGroundsAchivement::AchievementShadowmoonBurialGroundsHeroic);
-                        else
-                            this->DoCompleteAchievement(eShadowmoonBurialGroundsAchivement::AchievementShadowmonBurialGroundsNormal);
-                        break;
+                        this->DoCompleteAchievement(eShadowmoonBurialGroundsAchivement::AchievementShadowmoonBurialGroundsHeroic);
                     }
-                    default:
-                        break;
+                    else
+                    {
+                        this->DoCompleteAchievement(eShadowmoonBurialGroundsAchivement::AchievementShadowmonBurialGroundsNormal);
+                    }
+                    break;
                 }
             }
         }
@@ -100,37 +121,46 @@ public:
             switch (p_Go->GetEntry())
             {
                 case eShadowmoonBurialGroundsGameObjects::GameObjectSadanaDoor:
-                    m_DoorGobjectSadanaGUID = p_Go->GetGUID();
+                    m_DoorGobjectSadana = p_Go->GetGUID();
                     break;
                 case eShadowmoonBurialGroundsGameObjects::GameObjectSadanaFightDoor:
-                    m_DoorGobjectSadanaFightDoorGUID = p_Go->GetGUID();
+                    m_DoorGobjectSadanaFightDoor = p_Go->GetGUID();
                     break;
                 case eShadowmoonBurialGroundsGameObjects::GameObjectNerzulDoor:
-                    m_DoorGobjectNerzulGUID = p_Go->GetGUID();
-                   break;            
-                default:
+                    m_DoorGobjectNerzul = p_Go->GetGUID();
+                    break;   
+                case eShadowmoonBurialGroundsGameObjects::GameObjectNhalishDoorEntrance:
+                    m_DoorGobjectNhalishEntrance = p_Go->GetGUID();
+                    break;
+                case eShadowmoonBurialGroundsGameObjects::GameObjectBonemawDoorEntrance:
+                    m_DoorGobjectBonemawEntrance = p_Go->GetGUID();
                     break;
             }
         }
-
+      
         void SetData(uint32 p_Type, uint32 p_Data) override
         {
             switch (p_Type)
             {
-                case eShadowmoonBurialGroundsDatas::DataWandererTalk:
-                    if (m_WandererFirstTalkGUID <= 4)
-                        m_WandererFirstTalkGUID++;
+                case eShadowmoonBurialGroundsDatas::DataWandererTalksValues:
+                    m_TalkValue++;
                     break;
-                default:
+                case eShadowmoonBurialGroundsDatas::DataWandererFirstTalk:
+                    m_WandererFirstTalkGUID = p_Data;
+                    break;
+                case eShadowmoonBurialGroundsDatas::DataWandererSecondTalk:
+                    m_WandererSecondTalkGUID = p_Data;
+                    break;
+                case eShadowmoonBurialGroundsDatas::DataWandererThirdTalk:
+                    m_WandererThirdTalkGUID = p_Data;
                     break;
             }
         }
-
+        
         uint64 GetData64(uint32 p_Identifier) override
         {
             switch (p_Identifier)
             {
-                 ///< Creatures
                 case eShadowmoonBurialGroundsDatas::DataBossSadana:
                     return m_SadanaGUID;
                     break;
@@ -143,24 +173,40 @@ public:
                 case eShadowmoonBurialGroundsDatas::DataBossNerzul:
                     return m_NerzhulGUID;
                     break;
-                case eShadowmoonBurialGroundsDatas::DataWandererTalk:
+                    
+                    // Talks
+                case eShadowmoonBurialGroundsDatas::DataWandererTalksValues:
+                    return m_TalkValue;
+                    break;
+                case eShadowmoonBurialGroundsDatas::DataWandererFirstTalk:
                     return m_WandererFirstTalkGUID;
                     break;
+                case eShadowmoonBurialGroundsDatas::DataWandererSecondTalk:
+                    return m_WandererSecondTalkGUID;
+                    break;
+                case eShadowmoonBurialGroundsDatas::DataWandererThirdTalk:
+                    return m_WandererThirdTalkGUID;
+                    break;
 
-                 ///< Doors
+                    // Doors
                 case eShadowmoonBurialGroundsDatas::DataStoneDoorSadana:
-                    return m_DoorGobjectSadanaGUID;
+                    return m_DoorGobjectSadana;
                     break;
                 case eShadowmoonBurialGroundsDatas::DataNerzulDoor:
-                    return m_DoorGobjectNerzulGUID;
+                    return m_DoorGobjectNerzul;
                     break;
                 case eShadowmoonBurialGroundsDatas::DataSadanaFightDoor:
-                    return m_DoorGobjectSadanaFightDoorGUID;
+                    return m_DoorGobjectSadanaFightDoor;
                     break;
+                case eShadowmoonBurialGroundsDatas::DataNhalishDoorEntrance:
+                    return m_DoorGobjectNhalishEntrance;
+                    break;
+                case eShadowmoonBurialGroundsDatas::DataBonemawDoorEntrance:
+                    return m_DoorGobjectBonemawEntrance;
+                    break;
+
                 case eShadowmoonBurialGroundsDatas::DataNerzulProp:
                     return m_NerzulPropGUID;
-                    break;
-                default:
                     break;
             }
             return 0;
