@@ -3526,6 +3526,50 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
+                /// Shadowmoon Burial Grounds
+            case 152962: ///< Soul Steal
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = NULL;
+                break;
+            case 152979: ///< Soul Shread
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 164693: ///< Lunar Runes
+            case 164695:
+            case 164696:
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); ///< 120s
+                break;
+            case 154327: ///< Domination
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 153164: ///< Dark Communion
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
+
+                spellInfo->Effects[0].TargetB = NULL;
+                spellInfo->Effects[1].TargetB = NULL;
+                spellInfo->Effects[2].TargetB = NULL;
+                break;
+            case 153153: ///< Dark Communion
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = NULL;
+                break;
+            case 153501: ///< Void Blast
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 173073: ///< Ground Marker
+                sSpellDurationStore.LookupEntry(1); ///< 10s
+                break;
+            case 153692: ///< Necrotic Pitch Debuff
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
+            case 153236: ///< DaggerFall
+                spellInfo->Effects[0].TargetA = 0;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
                 /// Everbloom
             case 164643:
             case 164886:

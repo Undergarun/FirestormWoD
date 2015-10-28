@@ -1262,10 +1262,21 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
         if (spellInfo->NeedsToBeTriggeredByCaster() && (m_spellInfo->Effects[effIndex].GetProvidedTargetMask() & TARGET_FLAG_UNIT_MASK))
             return;
 
-        if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
-            targets.SetDst(m_targets);
+        /// Shadowmoon Burial Grounds - Nhalish
+        if (m_spellInfo->Id == 153068) /// Dark Devestation - choosing random distasnce, not static 45.0f
+        {
+            Position l_ArtificialRandomPosition;
+            m_caster->GetRandomNearPosition(l_ArtificialRandomPosition, frand(1.0f, 45.0f));
 
-        targets.SetUnitTarget(m_caster);
+            targets.SetDst(l_ArtificialRandomPosition);
+        }
+        else
+        {
+            if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
+                targets.SetDst(m_targets);
+
+            targets.SetUnitTarget(m_caster);
+        }
     }
 
     CustomSpellValues values;
