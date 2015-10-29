@@ -4411,7 +4411,17 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 103965: ///< Metamorphosis (override auras)
                 spellInfo->Effects[2].SpellClassMask[0] = 64;
-                spellInfo->Effects[7].SpellClassMask[1] = 0x400;
+
+                ///< All this effects are Override with old spell id
+                spellInfo->Effects[4].Effect = SPELL_EFFECT_NONE; ///< No more use (Void Ray : 115422)
+                spellInfo->Effects[5].Effect = SPELL_EFFECT_NONE; ///< No more use (Aura of Enfeeblement : 116198)
+                spellInfo->Effects[6].Effect = SPELL_EFFECT_NONE; ///< No more use (Aura of the Elements : 116202)
+                spellInfo->Effects[7].Effect = SPELL_EFFECT_NONE; ///< No more use (Sleep : 104045)
+                spellInfo->Effects[8].Effect = SPELL_EFFECT_NONE; ///< No more use (Provocation : 97827)
+                spellInfo->Effects[9].Effect = SPELL_EFFECT_NONE;
+                spellInfo->Effects[11].Effect = SPELL_EFFECT_NONE;
+                spellInfo->Effects[14].Effect = SPELL_EFFECT_NONE; ///< No more use (Drain Life : 103990)
+                spellInfo->Effects[15].Effect = SPELL_EFFECT_NONE;
                 break;
             case 145518: ///< Genesis
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
