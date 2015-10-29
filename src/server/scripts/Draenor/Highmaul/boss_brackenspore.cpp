@@ -1431,6 +1431,15 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
                         l_AT->SetDuration(1);
                         l_Caster->CastSpell(l_Caster, eSpells::BurningInfusion, true);
                         l_Caster->CastSpell(*l_AT, eSpells::Flamethrower, true);
+
+                        if (AuraPtr l_Infusion = l_Caster->GetAura(eSpells::BurningInfusion))
+                        {
+                            if (l_Infusion->GetStackAmount() >= eHighmaulDatas::BurningInfusionNeeded)
+                            {
+                                if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
+                                    l_Instance->SetData(eHighmaulDatas::BrackensporeAchievement, 1);
+                            }
+                        }
                     }
                 }
             }
