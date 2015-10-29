@@ -1793,7 +1793,8 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
         return true;
 
     /// In case of SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, we need to check MiscValue as spell id too
-    if (m_spellInfo->Effects[m_effIndex].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)
+    if (m_spellInfo->Effects[m_effIndex].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
+        m_spellInfo->Effects[m_effIndex].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
     {
         if (m_spellInfo->Effects[m_effIndex].MiscValue == spell->Id)
             return true;
