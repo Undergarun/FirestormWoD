@@ -6011,21 +6011,25 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-    case 56446: ///< Glyph of Disengage
-        if (m_caster->HasAura(56844))
-            speedz = (75.0f * 1.5f) / 10.0f;
-        break;
-    case 102383:// Wild Charge (Moonkin)
-    case 140949:// Weak Link (Horridon - Heroic)
-        back = false;
-        break;
-    default:
-        break;
+        case 56446: ///< Glyph of Disengage
+            if (m_caster->HasAura(56844))
+                speedz = (75.0f * 1.5f) / 10.0f;
+            break;
+        case 102383:// Wild Charge (Moonkin)
+        case 140949:// Weak Link (Horridon - Heroic)
+            back = false;
+            break;
+        default:
+            break;
     }
 
     // Disengage
     if (m_spellInfo->SpellIconID == 1891)
         back = false;
+
+    /// Save Leap Back spell ID
+    m_caster->SetLastUsedLeapBackSpell(m_spellInfo->Id);
+    uint32 l_SpellId = m_caster->GetLastUsedLeapBackSpell();
 
     m_caster->JumpTo(speedxy, speedz, back);
 }

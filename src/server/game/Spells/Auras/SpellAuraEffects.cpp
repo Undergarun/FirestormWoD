@@ -7414,7 +7414,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             }
             // Custom MoP Script
             case 146739:// Corruption
-                caster->EnergizeBySpell(caster, 146739, 4, POWER_DEMONIC_FURY);
+                caster->EnergizeBySpell(caster, 146739, caster->HasAura(157098) ? 5 : 4, POWER_DEMONIC_FURY); ///< With Enhanced Corruption gives 1 additional demonic fury 
                 break;
             case 43093: case 31956: case 38801:  // Grievous Wound
             case 35321: case 38363: case 39215:  // Gushing Wound

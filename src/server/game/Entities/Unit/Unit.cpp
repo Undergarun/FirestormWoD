@@ -9669,6 +9669,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             if (Pet* pet = ToPlayer()->GetPet())
             {
+                /// If pet is already in Dark Transformation we can't add Shadow Infusion
+                if (pet->HasAura(63560))
+                    return false;
+
                 uint8 stackAmount = 0;
                 if (AuraPtr aura = pet->GetAura(trigger_spell_id))
                     stackAmount = aura->GetStackAmount();

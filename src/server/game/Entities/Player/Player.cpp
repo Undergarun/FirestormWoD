@@ -1615,6 +1615,10 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage p_Type, uint32 p_Damage)
         CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, p_Damage, &l_Absorb, &l_Resist);
     else if (p_Type == DAMAGE_FALL)
     {
+        /// Glyph of Falling Meteor - 56247
+        if (getClass() == CLASS_WARLOCK && HasAura(109151) && HasAura(56247))
+            AddPct(p_Damage, -95);
+
         // Percentage from SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT
         AuraEffectList const& mReduceFallDamagePct = GetAuraEffectsByType(SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT);
         for (AuraEffectList::const_iterator i = mReduceFallDamagePct.begin(); i != mReduceFallDamagePct.end(); ++i)
@@ -29691,6 +29695,13 @@ void Player::HandleFall(MovementInfo const& movementInfo)
         }
     }
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute
+
+    /// Handler for Disengage, should give Posthaste just after landing
+    /// If in future we have some spells with same mechanic, just need to add switch
+    if (getClass() == CLASS_HUNTER && GetLastUsedLeapBackSpell() == 56446 && HasAura(109215))
+        CastSpell(this, 118922, true);
+
+    ClearLastUsedLeapBackSpell();
 }
 
 void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/, bool p_LoginCheck /*= false*/)

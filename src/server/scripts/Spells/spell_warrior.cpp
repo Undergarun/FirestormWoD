@@ -2083,7 +2083,8 @@ class spell_warr_blood_bath : public SpellScriptLoader
                         l_ActualBloodBath->SetDuration(l_ActualBloodBath->GetMaxDuration());
                 }
                 else
-                    l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage);
+                    l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage, true);
+
                 if (AuraEffectPtr l_NewBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                     l_NewBloodBath->SetAmount(l_Damage);
             }

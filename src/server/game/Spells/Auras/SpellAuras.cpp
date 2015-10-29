@@ -173,7 +173,12 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         /// Transi - sniffed on retail
         case 7321:
             _flags |= AFLAG_UNK_20;
-
+            break;
+        /// Mortal Strike
+        case 12294:
+            if (IsSelfcasted())
+                _flags = (AFLAG_CASTER + AFLAG_POSITIVE);
+            break;
         default:
             break;
     }

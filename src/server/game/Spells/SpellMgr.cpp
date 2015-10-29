@@ -4949,9 +4949,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 109260: ///< Aspect of the Iron Hawk
                 spellInfo->Effects[0].BasePoints = -10;
                 break;
-            case 48181: ///< Haunt - hotfix 5.4.2
-                spellInfo->Effects[3].BasePoints = 35;
-                break;
             case 109306: ///< Thrill of the Hunt
                 spellInfo->ProcChance = 0;
                 break;
@@ -5749,8 +5746,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Speed = 0;
                 break;
             case 157695:///< Demonbolt
-                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NORMAL;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_NOT_NEED_SHAPESHIFT;
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
+                break;
+            case 169686:///< Unyielding Strikes
+                spellInfo->ProcCharges = 0;
+                break;
+            case 109167:///< Demonic Leap (jump)
+                spellInfo->Effects[0].MiscValue = 300;
+                break;
+            case 781:   ///< Disengage
+                spellInfo->Effects[0].TriggerSpell = 0; ///< Handled in Player::HandleFall()
+                break;
+            case 111400:///< Burning Rush
+                spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_NOT_ABOVEWATER + AURA_INTERRUPT_FLAG_NOT_UNDERWATER;
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)

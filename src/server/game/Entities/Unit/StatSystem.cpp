@@ -1606,6 +1606,10 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     /// - Automatically update weapon damage after attack power modification
     UpdateDamagePhysical(WeaponAttackType::BaseAttack);
+
+    /// Update off hand weapon damage for Shivarra and Wrathguard
+    if (GetEntry() == ENTRY_SHIVARRA || GetEntry() == ENTRY_WRATHGUARD)
+        UpdateDamagePhysical(WeaponAttackType::OffAttack);
 }
 
 // WoD updated

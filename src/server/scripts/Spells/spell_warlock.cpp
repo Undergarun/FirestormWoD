@@ -2011,7 +2011,10 @@ class spell_warl_ember_tap: public SpellScriptLoader
                     return;
                 }
 
-                int32 l_HealAmount = GetHitHeal();
+                if (!GetSpellInfo() || !GetSpellInfo()->Effects[0].BasePoints)
+                    return;
+
+                int32 l_HealAmount = l_Caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[0].BasePoints);
                 
                 if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
                 {
@@ -2954,10 +2957,12 @@ class spell_warl_immolate : public SpellScriptLoader
                 if (l_Target == nullptr || l_SpellInfo == nullptr)
                     return;
 
-                if (l_Caster->HasAura(ImmolateSpells::SpellEmpoweredImmolate) && !m_HasMarker)
+                if (l_Caster->HasAura(ImmolateSpells::SpellEmpoweredImmolate))
                 {
-                    l_Target->CastSpell(l_Target, ImmolateSpells::SpellImmolateMarker, true);
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                    if (m_HasMarker)
+                        SetHitDamage(GetHitDamage() - CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints / 2));
+                    else
+                        l_Target->CastSpell(l_Target, ImmolateSpells::SpellImmolateMarker, true);
                 }
             }
 
@@ -3001,6 +3006,21 @@ public:
     {
         PrepareAuraScript(spell_warl_siphon_life_AuraScript);
 
+        void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Target = GetTarget();
+
+            if (l_Target == nullptr)
+                return;
+
+            /// Just for Immolation
+            if (!p_AurEff->GetBase() || p_AurEff->GetBase()->GetId() != 157736)
+                return;
+
+            if (l_Target->HasAura(ImmolateSpells::SpellImmolateMarker))
+                l_Target->RemoveAura(ImmolateSpells::SpellImmolateMarker);
+        }
+
         void OnTick(constAuraEffectPtr /*aurEff*/)
         {
             if (Unit* l_Caster = GetCaster())
@@ -3012,6 +3032,7 @@ public:
 
         void Register()
         {
+            OnEffectRemove += AuraEffectRemoveFn(spell_warl_siphon_life_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_siphon_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
         }
     };

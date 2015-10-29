@@ -3128,10 +3128,7 @@ class spell_hun_disengage: public SpellScriptLoader
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
                     if (_player->HasAura(HUNTER_SPELL_POSTHASTE))
-                    {
                         _player->RemoveMovementImpairingAuras();
-                        _player->CastSpell(_player, HUNTER_SPELL_POSTHASTE_INCREASE_SPEED, true);
-                    }
                     else if (_player->HasAura(HUNTER_SPELL_NARROW_ESCAPE))
                     {
                         std::list<Unit*> unitList;

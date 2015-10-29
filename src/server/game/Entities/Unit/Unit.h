@@ -2663,6 +2663,11 @@ class Unit : public WorldObject
         bool GetPsychicHorrorGainedPower() const { return psychicHorrorGainedPower; }
         void SetPsychicHorrorGainedPower(bool gained) { psychicHorrorGainedPower = gained; }
 
+        /// helpers for LEAP_BACK spell, if need to handle something after landing
+        void SetLastUsedLeapBackSpell(uint32 l_CurrentSpellId) { l_LastUsedLeapBackSpell = l_CurrentSpellId; }
+        void ClearLastUsedLeapBackSpell() { l_LastUsedLeapBackSpell = 0; }
+        uint32 GetLastUsedLeapBackSpell() { return l_LastUsedLeapBackSpell; }
+
         void DisableHealthRegen() { m_disableHealthRegen = true; }
         void ReenableHealthRegen() { m_disableHealthRegen = false; }
         bool HealthRegenIsDisable() const { return m_disableHealthRegen; }
@@ -2855,6 +2860,7 @@ class Unit : public WorldObject
         bool m_IsDispelSuccessful;
         bool psychicHorrorGainedPower;
         uint64 soulSwapTargetGUID;
+        uint32 l_LastUsedLeapBackSpell;
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us
