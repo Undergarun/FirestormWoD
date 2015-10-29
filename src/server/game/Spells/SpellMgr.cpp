@@ -3411,6 +3411,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155897: ///< Earthshaking Collision (Oregorger)
                 spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
+            case 173461: ///< Blackrock Barrage
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
             case 160382: ///< Defense (Security Guard)
             case 158246: ///< Hot Blooded (Foreman Feldspar)
             case 156932: ///< Rupture DoT (Foreman Feldspar)

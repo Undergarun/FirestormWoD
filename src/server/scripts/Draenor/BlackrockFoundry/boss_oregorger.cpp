@@ -761,9 +761,20 @@ class boss_oregorger : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::ExplosiveShardMissile:
+                    {
+                        me->EnergizeBySpell(me, eSpells::RetchedBlackrockMissile, -5, Powers::POWER_MANA);
+                        break;
+                    }
                     case eSpells::BlackrockBarrageAoE:
                     {
                         me->EnergizeBySpell(me, eSpells::RetchedBlackrockMissile, -5, Powers::POWER_MANA);
+
+                        if (AuraPtr l_Aura = me->GetAura(eSpells::BlackrockSpines))
+                            l_Aura->DropStack();
+
+                        if (me->HasAura(eSpells::BlackrockSpines))
+                            m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 50);
+
                         break;
                     }
                     case eSpells::AcidTorrentSearcher:
@@ -997,15 +1008,6 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventBlackrockBarrage:
                     {
-                        AddTimedDelayedOperation(2050, [this]() -> void
-                        {
-                            if (AuraPtr l_Aura = me->GetAura(eSpells::BlackrockSpines))
-                                l_Aura->DropStack();
-
-                            if (me->HasAura(eSpells::BlackrockSpines))
-                                m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 50);
-                        });
-
                         me->CastSpell(me, eSpells::BlackrockBarrageAoE, false);
                         break;
                     }
@@ -1516,7 +1518,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                         if (Unit* l_Caster = GetCaster())
                         {
                             std::list<Unit*> l_TargetList;
-                            float l_Radius = 1.0f;
+                            float l_Radius = 0.5f;
 
                             JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
                             JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
