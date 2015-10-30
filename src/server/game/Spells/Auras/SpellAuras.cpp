@@ -1273,9 +1273,17 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 
     if (CallScriptCanRrefreshProcHandlers() && stackAmount >= GetStackAmount())
     {
+        /// Rend on update should deal final damage, if it has < 5 seconds left duration
+        if (m_spellInfo->Id == 772)
+        {
+            if (GetDuration() < 5 * IN_MILLISECONDS)
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_AuraOwner = GetUnitOwner())
+                        l_Caster->CastSpell(l_AuraOwner, 94009, true);
+        }
+
         RefreshSpellMods();
         RefreshTimers();
-
         // Fix Backdraft can stack up to 6 charges max
         if (m_spellInfo->Id == 117828)
             SetCharges((GetCharges() + 3) > 6 ? 6 : GetCharges() + 3);

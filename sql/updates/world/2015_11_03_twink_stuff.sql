@@ -24,3 +24,12 @@ INSERT INTO `pet_stats` VALUES (78217, 1.14, 1, 3, 1, 0.4, 1, 2, 3, -100, 0.0659
 -- fix Dark Infusion with Breath of Sindragosa
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dk_breath_of_sindragosa';
 INSERT INTO `spell_script_names` VALUES (152279 , 'spell_dk_breath_of_sindragosa');
+
+-- fix Taunt
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=355 AND `spell_effect`=71;
+REPLACE INTO `spell_linked_spell` VALUES (355, 71, 0, 'Taunt trigger Defensive Stance');
+
+-- fix Shield Charge increase damage of Heroic Strike and Revenge
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_warr_shield_charge_damage';
+INSERT INTO `spell_script_names` VALUES (78, 'spell_warr_shield_charge_damage');
+INSERT INTO `spell_script_names` VALUES (6572, 'spell_warr_shield_charge_damage');

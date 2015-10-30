@@ -5762,6 +5762,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 111400:///< Burning Rush
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_NOT_ABOVEWATER + AURA_INTERRUPT_FLAG_NOT_UNDERWATER;
                 break;
+            case 96840: ///< Flame Patch for Glyph of the Blazing Trail
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); ///< 1s
+                break;
+            case 100:   ///< Charge
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)

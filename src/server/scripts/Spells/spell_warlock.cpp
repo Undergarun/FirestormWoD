@@ -1685,7 +1685,8 @@ class spell_warl_soul_swap: public SpellScriptLoader
                 /// Target should have at least one DOT from the list
                 if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
                 {
-                    if (!l_Target->HasAura(WARLOCK_AGONY, l_Caster->GetGUID()) && !l_Target->HasAura(WARLOCK_SPELL_CORRUPTION_DOT, l_Caster->GetGUID()) && !l_Target->HasAura(WARLOCK_UNSTABLE_AFFLICTION, l_Caster->GetGUID()))
+                    if (!l_Target->HasAura(WARLOCK_AGONY, l_Caster->GetGUID()) && !l_Target->HasAura(WARLOCK_SPELL_CORRUPTION_DOT, l_Caster->GetGUID()) && 
+                        !l_Target->HasAura(WARLOCK_UNSTABLE_AFFLICTION, l_Caster->GetGUID()) && !l_Caster->HasAura(WARLOCK_SOULBURN_AURA))
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 }
 
