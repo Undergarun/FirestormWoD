@@ -41,7 +41,7 @@ INSERT INTO creature_questender VALUES
 (@REF_LADY_LIADRIN, 37550); -- Vanquisher Mythic
 
 UPDATE quest_template SET SpecialFlags = SpecialFlags | 0x01 WHERE Id IN (37540, 37551, 37552, 37543, 37547, 37548, 37541, 37549, 37550);
-UPDATE quest_template SET EndText = '$n, your courage and dedication has made Draenor a safer place. Take these armaments and go in the Light.' WHERE Id IN (37553, 37557, 37560, 37555, 37559, 37562, 37554, 37558, 37561);
+UPDATE quest_template SET EndText = '$n, your courage and dedication has made Draenor a safer place. Take these armaments and go in the Light.' WHERE Id IN (37540, 37551, 37552, 37543, 37547, 37548, 37541, 37549, 37550);
 
 # Exarch Maladaar <Speaker for the Dead>
 SET @REF_EXARCH_MALADAAR = 75028;
