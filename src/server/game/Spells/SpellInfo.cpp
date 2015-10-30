@@ -506,7 +506,12 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
                 {
                     uint32 l_ItemLevel = l_Level;
                     if (p_Item != nullptr && p_Item->GetTemplate() != nullptr)
-                        l_ItemLevel = p_Item->GetTemplate()->ItemLevel + p_Item->GetItemLevelBonusFromItemBonuses();
+                    {
+                        if (Player* l_Owner = p_Item->GetOwner())
+                            l_ItemLevel = l_Owner->GetEquipItemLevelFor(p_Item->GetTemplate(), p_Item);
+                        else
+                            l_ItemLevel = p_Item->GetTemplate()->ItemLevel;
+                    }
 
                     RandomPropertiesPointsEntry const* l_RandomPropertiesPoints = sRandomPropertiesPointsStore.LookupEntry(l_ItemLevel);
                     if (l_RandomPropertiesPoints)
