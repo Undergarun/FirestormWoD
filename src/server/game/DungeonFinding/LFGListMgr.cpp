@@ -228,6 +228,9 @@ void LFGListMgr::OnPlayerApplyForGroup(LFGListEntry::LFGListApplicationEntry p_A
     if (!l_Player)
         return;
 
+    if (l_Entry->m_Applications.find(p_Application.m_ID) != l_Entry->m_Applications.end())
+        return;
+
     l_Entry->m_Applications.insert({ p_Application.m_ID, p_Application });
     LFGListEntry::LFGListApplicationEntry* l_Application = &l_Entry->m_Applications.find(p_Application.m_ID)->second;
 
@@ -384,16 +387,9 @@ LFGListEntry::LFGListApplicationEntry* LFGListMgr::GetApplicationByID(uint32 p_I
 
 void LFGListMgr::RemoveAllApplicationsByPlayer(uint32 l_PlayerGUID, bool p_Notify /* = false */)
 {
-    for (auto& l_Group : m_LFGListQueue)
+    while (LFGListEntry::LFGListApplicationEntry* l_Application = GetApplicationByID(l_PlayerGUID))
     {
-        for (auto& l_Applicant : l_Group.second->m_Applications)
-        {
-            if (l_Applicant.second.m_PlayerLowGuid == l_PlayerGUID)
-            {
-                sLFGListMgr->ChangeApplicantStatus(&l_Applicant.second, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_CANCELLED, p_Notify);
-                break;
-            }
-        }
+        sLFGListMgr->ChangeApplicantStatus(l_Application, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_CANCELLED, p_Notify);
     }
 }
 
@@ -428,9 +424,7 @@ void LFGListEntry::Update(uint32 const p_Diff)
         l_Application.second.Update(p_Diff);
 
     if (m_Timeout <= time(nullptr)) ///< RIP
-    {
         sLFGListMgr->Remove(m_Group->GetLowGUID());
-    }
 }
 
 void LFGListEntry::LFGListApplicationEntry::Update(uint32 const p_Diff)
