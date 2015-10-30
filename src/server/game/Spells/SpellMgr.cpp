@@ -4869,6 +4869,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165440:///< Item - Paladin T17 Retribution 2P Bonus
             case 165439:///< Item - Paladin T17 Retribution 4P Bonus
             case 165446:///< Item - Paladin T17 Protection 2P Bonus
+            case 167694:///< Item - Priest T17 Discipline 4P Bonus
+            case 167684:///< Item - Priest T17 Holy 4P Bonus
+            case 165629:///< Item - Priest T17 Shadow 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
