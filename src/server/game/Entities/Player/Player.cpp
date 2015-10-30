@@ -23112,6 +23112,12 @@ void Player::SaveToDB(bool create /*=false*/)
         m_session->AddTransactionCallback(l_CharCreateCallback);
     }
 
+    for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
+    {
+        BattlePet::Ptr l_Pet = (*l_It);
+        l_Pet->Save(accountTrans);
+    }
+
     CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);
     LoginDatabase.CommitTransaction(accountTrans);
 
@@ -23122,11 +23128,7 @@ void Player::SaveToDB(bool create /*=false*/)
     if (Pet* pet = GetPet())
         pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
 
-    for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
-    {
-        BattlePet::Ptr l_Pet = (*l_It);
-        l_Pet->Save();
-    }
+
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
@@ -23764,10 +23766,10 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
                     && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
                 {
-                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
+                    /*stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, itr->first);
                     stmt->setUInt32(1, GetSession()->GetAccountId());
-                    accountTrans->Append(stmt);
+                    accountTrans->Append(stmt);*/
                 }
                 else
                 {
@@ -32512,11 +32514,15 @@ std::shared_ptr<BattlePet> * Player::GetBattlePetCombatTeam()
 /// Reload pet battles
 void Player::ReloadPetBattles()
 {
+    SQLTransaction l_Transaction = LoginDatabase.BeginTransaction();
+
     for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
     {
         BattlePet::Ptr l_Pet = (*l_It);
-        l_Pet->Save();
+        l_Pet->Save(l_Transaction);
     }
+
+    LoginDatabase.CommitTransaction(l_Transaction);
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
     stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -33854,6 +33860,26 @@ void Player::RewardCompletedAchievementsIfNeeded()
             {
                 l_SpellLearned = l_ItemTemplate->Spells[l_Index].SpellId;
                 break;
+            }
+        }
+
+        /// Hack fix for Chauffeured Chopper, item sent is a gift box, containing Horde or Alliance chopper, so no learned spell
+        if (l_ItemTemplate->ItemId == 122718)
+        {
+            switch (GetTeamId())
+            {
+                case TeamId::TEAM_ALLIANCE:
+                {
+                    l_SpellLearned = 179245;
+                    break;
+                }
+                case TeamId::TEAM_HORDE:
+                {
+                    l_SpellLearned = 179244;
+                    break;
+                }
+                default:
+                    break;
             }
         }
 

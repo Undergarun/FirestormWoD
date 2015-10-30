@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "highmaul.hpp"
+# include "highmaul.hpp"
 
 uint8 GetEnergyGainFromHealth(float p_HealthPct)
 {
@@ -312,6 +312,9 @@ class boss_tectus : public CreatureScript
                     }
                     case eActions::MoteKilled:
                     {
+                        if (m_Instance != nullptr)
+                            m_Instance->SetData(eHighmaulDatas::TectusAchievement, time(nullptr));
+
                         ++m_MoteKilled;
 
                         if (m_MoteKilled >= (eMiscs::MotesSpawnCount * 2))

@@ -3433,6 +3433,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155897: ///< Earthshaking Collision (Oregorger)
                 spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
+            case 173461: ///< Blackrock Barrage
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
             case 160382: ///< Defense (Security Guard)
             case 158246: ///< Hot Blooded (Foreman Feldspar)
             case 156932: ///< Rupture DoT (Foreman Feldspar)
@@ -3548,10 +3551,53 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
+                /// Shadowmoon Burial Grounds
+            case 152962: ///< Soul Steal
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 152979: ///< Soul Shread
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 164693: ///< Lunar Runes
+            case 164695: ///< Lunar Runes 02
+            case 164696: ///< Lunar Runes 03
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); ///< 120s
+                break;
+            case 154327: ///< Domination
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 153164: ///< Dark Communion
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = 0;
+                spellInfo->Effects[1].TargetB = 0;
+                spellInfo->Effects[2].TargetB = 0;
+                break;
+            case 153153: ///< Dark Communion
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 153501: ///< Void Blast
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 173073: ///< Ground Marker
+                sSpellDurationStore.LookupEntry(1); ///< 10s
+                break;
+            case 153692: ///< Necrotic Pitch Debuff
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
+            case 153236: ///< DaggerFall
+                spellInfo->Effects[0].TargetA = 0;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
                 /// Everbloom
-            case 164643:
-            case 164886:
-            case 169658:
+            case 164643: ///< Rending Charge
+            case 164886: ///< Dreadpetal Toxin
+            case 169658: ///< Infected Wounds
             case 164965: ///< Choking Vines
             case 164834: ///< Barrage of Leaves
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
@@ -3567,7 +3613,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
-            case 143569:
+            case 143569: ///< Sand Beam
                 spellInfo->Effects[0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->AttributesEx4 = 0;
@@ -4387,7 +4433,17 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 103965: ///< Metamorphosis (override auras)
                 spellInfo->Effects[2].SpellClassMask[0] = 64;
-                spellInfo->Effects[7].SpellClassMask[1] = 0x400;
+
+                ///< All this effects are Override with old spell id
+                spellInfo->Effects[4].Effect = SPELL_EFFECT_NONE; ///< No more use (Void Ray : 115422)
+                spellInfo->Effects[5].Effect = SPELL_EFFECT_NONE; ///< No more use (Aura of Enfeeblement : 116198)
+                spellInfo->Effects[6].Effect = SPELL_EFFECT_NONE; ///< No more use (Aura of the Elements : 116202)
+                spellInfo->Effects[7].Effect = SPELL_EFFECT_NONE; ///< No more use (Sleep : 104045)
+                spellInfo->Effects[8].Effect = SPELL_EFFECT_NONE; ///< No more use (Provocation : 97827)
+                spellInfo->Effects[9].Effect = SPELL_EFFECT_NONE;
+                spellInfo->Effects[11].Effect = SPELL_EFFECT_NONE;
+                spellInfo->Effects[14].Effect = SPELL_EFFECT_NONE; ///< No more use (Drain Life : 103990)
+                spellInfo->Effects[15].Effect = SPELL_EFFECT_NONE;
                 break;
             case 145518: ///< Genesis
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
@@ -5286,8 +5342,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 6474: ///< Earthbind Totem
-            case 8145: ///< Tremor Totem effect
+            case 6474:   ///< Earthbind Totem
+            case 8145:   ///< Tremor Totem effect
+            case 177096: ///< Forgemaster's Vigor
+            case 177067: ///< Detonation
+            case 177102: ///< Battering
+            case 177086: ///< Sanitizing
+            case 177081: ///< Molten Metal
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
                 break;
             case 2484: ///< Earthbind Totem

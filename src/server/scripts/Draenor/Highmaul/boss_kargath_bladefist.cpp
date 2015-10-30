@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "highmaul.hpp"
+# include "highmaul.hpp"
 
 Position const g_TrashsSpawnPos = { 3427.1f, 7530.21f, 55.3383f, 0.965533f };
 Position const g_VulgorMovePos = { 3449.81f, 7557.01f, 55.304f, 0.8995f };
@@ -443,6 +443,10 @@ class boss_kargath_bladefist : public CreatureScript
                         /// Breaks Pillar visual
                         me->SetControlled(true, UnitState::UNIT_STATE_ROOT);
                         me->PlayOneShotAnimKit(eDatas::AnimInterrupt);
+
+                        if (m_Instance != nullptr)
+                            m_Instance->SetData(eHighmaulDatas::KargathAchievement, 1);
+
                         break;
                     }
                     case eActions::SpawnIronBombers:

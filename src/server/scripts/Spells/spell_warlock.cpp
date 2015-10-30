@@ -2712,7 +2712,8 @@ class spell_warl_soulshatter: public SpellScriptLoader
         }
 };
 
-// Demonic Circle : Summon - 48018
+/// last update : 6.1.2 19802
+/// Demonic Circle : Summon - 48018
 class spell_warl_demonic_circle_summon: public SpellScriptLoader
 {
     public:
@@ -2722,40 +2723,41 @@ class spell_warl_demonic_circle_summon: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_demonic_circle_summon_AuraScript);
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes p_Mode)
             {
-                if (Unit* target = GetTarget())
+                if (Unit* l_Target = GetTarget())
                 {
                     // If effect is removed by expire remove the summoned demonic circle too.
-                    if (!(mode & AURA_EFFECT_HANDLE_REAPPLY))
-                        target->RemoveGameObject(WARLOCK_DEMONIC_CIRCLE_SUMMON, true);
+                    if (!(p_Mode & AURA_EFFECT_HANDLE_REAPPLY))
+                        l_Target->RemoveGameObject(WARLOCK_DEMONIC_CIRCLE_SUMMON, true);
 
-                    if (AuraApplication* circle = target->GetAuraApplication(WARLOCK_DEMONIC_CIRCLE_SUMMON, target->GetGUID()))
-                        circle->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, true);
+                    if (AuraApplication* l_Circle = l_Target->GetAuraApplication(WARLOCK_DEMONIC_CIRCLE_SUMMON, l_Target->GetGUID()))
+                        l_Circle->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, true);
                 }
             }
 
             void HandleDummyTick(constAuraEffectPtr /*aurEff*/)
             {
-                if (Unit* target = GetTarget())
-                {
-                    if (GameObject* circle = target->GetGameObject(GetId()))
-                    {
-                        // Here we check if player is in demonic circle teleport range, if so add
-                        // WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST; allowing him to cast the WARLOCK_DEMONIC_CIRCLE_TELEPORT.
-                        // If not in range remove the WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST.
+                Unit* l_Target = GetTarget();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_DEMONIC_CIRCLE_TELEPORT);
 
-                        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(WARLOCK_DEMONIC_CIRCLE_TELEPORT))
-                        {
-                            if (AuraApplication* circleSummon = target->GetAuraApplication(WARLOCK_DEMONIC_CIRCLE_SUMMON, target->GetGUID()))
-                            {
-                                if (target->IsWithinDist(circle, spellInfo->GetMaxRange(true)))
-                                    circleSummon->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, false);
-                                else
-                                    circleSummon->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, true);
-                            }
-                        }
-                    }
+                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                GameObject* l_Circle = l_Target->GetGameObject(GetId());
+
+                if (l_Circle == nullptr)
+                    return;
+
+                // Here we check if player is in demonic circle teleport range, if so add
+                // WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST; allowing him to cast the WARLOCK_DEMONIC_CIRCLE_TELEPORT.
+                // If not in range remove the WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST.
+                if (AuraApplication* l_CircleSummon = l_Target->GetAuraApplication(WARLOCK_DEMONIC_CIRCLE_SUMMON, l_Target->GetGUID()))
+                {
+                    if (l_Target->IsWithinDist(l_Circle, l_SpellInfo->GetMaxRange(true)))
+                        l_CircleSummon->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, false);
+                    else
+                        l_CircleSummon->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, true);
                 }
             }
 

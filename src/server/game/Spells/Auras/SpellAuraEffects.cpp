@@ -1800,7 +1800,8 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
         return true;
 
     /// In case of SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, we need to check MiscValue as spell id too
-    if (m_spellInfo->Effects[m_effIndex].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)
+    if (m_spellInfo->Effects[m_effIndex].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
+        m_spellInfo->Effects[m_effIndex].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
     {
         if (m_spellInfo->Effects[m_effIndex].MiscValue == spell->Id)
             return true;
@@ -1960,8 +1961,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_METAMORPHOSIS:
             spellId  = 103965;
-            spellId2 = 54817;
-            spellId3 = 54879;
             if (apply)
                 target->RemoveAura(114168); // Dark Apotheosis
             break;
@@ -7560,7 +7559,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         int32 l_LeftDuration = l_Aura->GetDuration();
         int32 l_MaxDuration = l_Aura->GetMaxDuration();
         int32 l_Amplitude = GetAmplitude();
-        int32 l_MaxTicksCount = int32(l_MaxDuration / l_Amplitude);
+        int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
 
         /// If it was last tick, we should deal instant damage, according to left duration
         if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)

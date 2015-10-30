@@ -497,7 +497,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
                     l_ScalingClassIndex -= 1;
 
                     uint32 l_GTSpellScalingRecID = l_ScalingClassIndex * GT_MAX_LEVEL + l_Level - 1;
-                    const GtSpellScalingEntry * l_GtScaling = sGtSpellScalingStore.LookupEntry(l_GTSpellScalingRecID);
+                    GtSpellScalingEntry const* l_GtScaling = sGtSpellScalingStore.LookupEntry(l_GTSpellScalingRecID);
 
                     if (l_GtScaling)
                         l_Multiplier = l_GtScaling->value;

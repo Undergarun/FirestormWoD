@@ -677,6 +677,10 @@ void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector
     if (l_ItemTemplate == nullptr)
         return;
 
+    /// Some boss loots shouldn't have bonuses, like PvE set tokens
+    if (!l_ItemTemplate->HasStats())
+        return;
+
     /// Process item bonus group
     for (auto l_ItemBonusGroupID : l_ItemTemplate->m_ItemBonusGroups)
     {

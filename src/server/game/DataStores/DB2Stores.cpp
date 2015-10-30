@@ -278,6 +278,10 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sCriteriaStore,               db2Path, "Criteria.db2");
     LoadDB2(bad_db2_files, sCriteriaTreeStore,           db2Path, "CriteriaTree.db2");
 
+    /// Ko'ragh Achievement - Pair Annihilation
+    if (CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(24693))
+        ((CriteriaEntry*)l_Criteria)->Type = AchievementCriteriaDataType::ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT;
+
     //////////////////////////////////////////////////////////////////////////
     /// Misc DB2
     //////////////////////////////////////////////////////////////////////////

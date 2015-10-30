@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "highmaul.hpp"
+# include "highmaul.hpp"
 
 Position const g_CenterPos = { 3903.39f, 8608.15f, 364.71f, 5.589f };
 
@@ -518,8 +518,14 @@ class boss_koragh : public CreatureScript
                 switch (p_ID)
                 {
                     case eDatas::DataRunicPlayersCount:
+                    {
                         m_RunicPlayersCount = p_Value;
+
+                        if (m_Instance != nullptr)
+                            m_Instance->SetData(eHighmaulDatas::KoraghNullificationBarrier, 1);
+
                         break;
+                    }
                     default:
                         break;
                 }
@@ -2003,6 +2009,9 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
                 {
                     l_Caster->CastSpell(*p_AreaTrigger, eSpells::OverflowingEnergyAoE, true);
                     p_AreaTrigger->Remove(0);
+
+                    if (InstanceScript* l_InstanceScript = l_Caster->GetInstanceScript())
+                        l_InstanceScript->SetData(eHighmaulDatas::KoraghOverflowingEnergy, 1);
                 }
             }
         }
@@ -2016,6 +2025,24 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
         AreaTriggerEntityScript* GetAI() const override
         {
             return new areatrigger_highmaul_overflowing_energy();
+        }
+};
+
+/// Pair Annihilation - 8976
+class achievement_highmaul_pair_annihilation : public AchievementCriteriaScript
+{
+    public:
+        achievement_highmaul_pair_annihilation() : AchievementCriteriaScript("achievement_highmaul_pair_annihilation") { }
+
+        bool OnCheck(Player* p_Source, Unit* /*p_Target*/) override
+        {
+            if (!p_Source || !p_Source->GetInstanceScript())
+                return false;
+
+            if (p_Source->GetInstanceScript()->GetData(eHighmaulDatas::KoraghAchievement))
+                return true;
+
+            return false;
         }
 };
 
@@ -2052,4 +2079,7 @@ void AddSC_boss_koragh()
     new areatrigger_highmaul_suppression_field();
     new areatrigger_highmaul_expel_magic_frost();
     new areatrigger_highmaul_overflowing_energy();
+
+    /// Achievement
+    new achievement_highmaul_pair_annihilation();
 }
