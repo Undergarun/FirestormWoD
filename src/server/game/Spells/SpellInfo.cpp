@@ -3888,6 +3888,12 @@ bool SpellInfo::IsCustomCharged(SpellInfo const* procSpell, Unit* caster) const
             if (caster->HasAura(115192)) // Subterfuge buff - 3s
                 return true;
             break;
+        case 165442:///< Crusader's Fury
+            if (procSpell && procSpell->Id == 157048) ///< Final Verdict
+                return true;
+            break;
+        default:
+            break;
     }
 
     return false;
