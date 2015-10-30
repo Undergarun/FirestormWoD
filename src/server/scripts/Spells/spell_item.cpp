@@ -3808,7 +3808,7 @@ class spell_item_gauntlets_of_iron : public SpellScriptLoader
             {
                 GauntletsOfGudingLight      = 115567,
                 ShadowCouncilsGloves        = 115585,
-                SoulPriestsGloves           = 115561,
+                SoulPriestsGloves           = 115562,
                 ArcanoshatterGloves         = 115552,
                 LivingWoodGrips             = 115541,
                 OgreskullBoneplateGauntlets = 115538,
