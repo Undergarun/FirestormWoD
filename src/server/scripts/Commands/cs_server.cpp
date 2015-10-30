@@ -27,6 +27,7 @@ EndScriptData */
 #include "SystemConfig.h"
 #include "Config.h"
 #include "ObjectAccessor.h"
+#include "MapManager.h"
 
 class server_commandscript: public CommandScript
 {
@@ -118,7 +119,12 @@ public:
 
         if (l_UpdateTime > 100)
         {
-            p_Handler->PSendSysMessage("Map diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_MAP));
+            p_Handler->PSendSysMessage("Global map manager diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_MAP));
+
+            auto& l_MapsDelay = sMapMgr->GetMapsDelay();
+            for (auto l_MapDelayRow : l_MapsDelay)
+                p_Handler->PSendSysMessage("Map %u diff : %u ms", l_MapDelayRow.first, l_MapDelayRow.second);
+
             p_Handler->PSendSysMessage("Battleground diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_BATTLEGROUND));
             p_Handler->PSendSysMessage("Session diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_SESSION));
             p_Handler->PSendSysMessage("Battlefield diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_BATTLEFIELD));
