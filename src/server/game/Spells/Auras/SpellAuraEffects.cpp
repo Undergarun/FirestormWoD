@@ -1969,7 +1969,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId2 = 27795;                               // must be second, this important at aura remove to prevent to early iterator invalidation.
             break;
         case FORM_SHADOW:
-            spellId = 49868;
             if (target->HasAura(107906)) // Glyph of Shadow
                 spellId2 = 107904;
             else

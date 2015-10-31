@@ -3451,6 +3451,28 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
+            case 178209: ///< Chest of Iron (T17)
+            case 178210: ///< Legs of Iron (T17)
+            case 178211: ///< Gauntlets of the Iron Conqueror (T17)
+            case 178212: ///< Helm of Iron (T17)
+            case 178213: ///< Shoulders of Iron (T17)
+            case 178216: ///< Helm of Iron (Normal - T17 - Quest)
+            case 178217: ///< Chest of Iron (Normal - T17 - Quest)
+            case 178218: ///< Legs of Iron (Normal - T17 - Quest)
+            case 178219: ///< Gauntlets of Iron (Normal - T17 - Quest)
+            case 178220: ///< Shoulders of Iron (Normal - T17 - Quest)
+            case 178221: ///< Legs of Iron (Heroic - T17 - Quest)
+            case 178222: ///< Gauntlets of Iron (Heroic - T17 - Quest)
+            case 178223: ///< Shoulders of Iron (Heroic - T17 - Quest)
+            case 178224: ///< Helm of Iron (Heroic - T17 - Quest)
+            case 178225: ///< Chest of Iron (Heroic - T17 - Quest)
+            case 178226: ///< Helm of Iron (Mythic - T17 - Quest)
+            case 178227: ///< Chest of Iron (Mythic - T17 - Quest)
+            case 178228: ///< Legs of Iron (Mythic - T17 - Quest)
+            case 178229: ///< Gauntlets of Iron (Mythic - T17 - Quest)
+            case 178230: ///< Shoulders of Iron (Mythic - T17 - Quest)
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 168178: ///< Salvage (garrison loot spell)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
@@ -4865,6 +4887,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 99209: ///< Item - Shaman T12 Enhancement 2P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 165440:///< Item - Paladin T17 Retribution 2P Bonus
+            case 165439:///< Item - Paladin T17 Retribution 4P Bonus
+            case 165446:///< Item - Paladin T17 Protection 2P Bonus
+            case 167694:///< Item - Priest T17 Discipline 4P Bonus
+            case 167684:///< Item - Priest T17 Holy 4P Bonus
+            case 165629:///< Item - Priest T17 Shadow 4P Bonus
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                break;
+            case 167697:///< Item - Paladin T17 Holy 4P Bonus
+                spellInfo->Effects[EFFECT_0].BasePoints = 20;
+                break;
+            case 530:   ///< Charm (Possess)
+                spellInfo->Effects[EFFECT_0].BasePoints = 102;
                 break;
             case 99213: ///< Item - Shaman T12 Enhancement 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
