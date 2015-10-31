@@ -360,7 +360,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
     WorldPacket l_Data(SMSG_ENUM_CHARACTERS_RESULT, 5 * 1024);
 
     l_Data.WriteBit(l_CanCreateCharacter);          ///< Allow char creation
-    l_Data.WriteBit(0);                             ///< unk
+    l_Data.WriteBit(0);                             ///< IsDeletedCharacters
     l_Data.FlushBits();
 
     l_Data << uint32(l_CharacterCount);             ///< Account character count
@@ -1550,6 +1550,7 @@ void WorldSession::BuildCharacterRename(WorldPacket* p_Packet, ObjectGuid p_Guid
     *p_Packet << uint8(p_Result);
     p_Packet->WriteBit(p_Guid != 0);
     p_Packet->WriteBits(p_Name.size(), 6);
+    p_Packet->FlushBits();
 
     if (p_Guid != 0)
         p_Packet->appendPackGUID(p_Guid);

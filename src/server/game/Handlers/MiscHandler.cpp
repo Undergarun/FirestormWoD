@@ -1359,15 +1359,15 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
     l_Data.appendPackGUID(l_PlayerGuid);
 
     size_t l_EquipmentCountPos = l_Data.wpos();
-    l_Data << uint32(l_EquipmentCount);
+    l_Data << uint32(l_EquipmentCount);             ///< Items
     size_t l_GlyphCountPos = l_Data.wpos();
-    l_Data << uint32(l_GlyphCount);
+    l_Data << uint32(l_GlyphCount);                 ///< Glyphs
     size_t l_TalentCountPos = l_Data.wpos();
-    l_Data << uint32(l_TalentCount);
+    l_Data << uint32(l_TalentCount);                ///< Talents
 
-    l_Data << int32(l_Player->getClass());
-    l_Data << int32(l_Player->GetSpecializationId(l_Player->GetActiveSpec()));
-    l_Data << int32(0);
+    l_Data << int32(l_Player->getClass());          ///< ClassID
+    l_Data << int32(l_Player->GetSpecializationId(l_Player->GetActiveSpec())); ///< SpecializationID
+    l_Data << int32(0);                             ///< GenderID
 
     for (uint8 l_Iter = 0; l_Iter < EQUIPMENT_SLOT_END; ++l_Iter)
     {
@@ -1401,7 +1401,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
         }
 
         l_Data.put(l_EnchantCountPos, l_EnchantCount);
-        l_Data.WriteBit(true);
+        l_Data.WriteBit(true);      ///< Usable
         l_Data.FlushBits();
     }
 
@@ -1412,7 +1412,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
         if (l_Player->GetGlyph(0, l_Iter) == 0)
             continue;
 
-        l_Data << uint16(l_Player->GetGlyph(0, l_Iter));               // GlyphProperties.dbc
+        l_Data << uint16(l_Player->GetGlyph(0, l_Iter));               ///< Glyph
         ++l_GlyphCount;
     }
 
@@ -1456,9 +1456,9 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
     if (l_Guild != nullptr)
     {
         uint64 l_GuildGuid = l_Guild->GetGUID();
-        l_Data.appendPackGUID(l_GuildGuid);
-        l_Data << uint32(l_Guild->GetMembersCount());
-        l_Data << uint32(l_Guild->GetAchievementMgr().GetAchievementPoints());
+        l_Data.appendPackGUID(l_GuildGuid);             ///< GuildGUID
+        l_Data << uint32(l_Guild->GetMembersCount());   ///< NumGuildMembers
+        l_Data << uint32(l_Guild->GetAchievementMgr().GetAchievementPoints());  ///< AchievementPoints
     }
 
     SendPacket(&l_Data);
@@ -1609,8 +1609,8 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
 
     // Complaint Received message
     WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
-    data << uint32(0);  // value 0xC generates a "CalendarError" in client.
-    data << uint8(0);   // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
+    data << uint32(0);  ///< ComplaintType // value 0xC generates a "CalendarError" in client.
+    data << uint8(0);   ///< Result        // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
     SendPacket(&data);
 }
 
@@ -1620,11 +1620,16 @@ void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
     std::string split_date = "01/01/01";
     recvData >> unk;
 
+    /// @todo i'm not used !
     WorldPacket data(SMSG_REALM_SPLIT);
     data.WriteBits(split_date.size(), 7);
-    data << unk;
-    data << uint32(0x00000000);                             // realm split state
-    data << split_date;
+    data << unk;                            ///< Decision
+    data << uint32(0x00000000);             ///< State
+    // split states:
+    // 0x0 realm normal
+    // 0x1 realm split
+    // 0x2 realm split pending
+    data << split_date;                     ///< Date
     SendPacket(&data);
 }
 
@@ -1958,6 +1963,7 @@ void WorldSession::HandleUndeleteCharacter(WorldPacket& /*p_RecvData*/)
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 
+///< @todo refactor me with new data
 void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const std::set<uint32> & p_TerrainSwaps, const std::set<uint32> & p_InactiveTerrainSwap)
 {
     ObjectGuid guid = m_Player->GetGUID();
@@ -1966,33 +1972,33 @@ void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const 
     uint32 inactiveSwapsCount = 0;
 
     WorldPacket l_ShiftPacket(SMSG_SET_PHASE_SHIFT, 500);
-    l_ShiftPacket.appendPackGUID(m_Player->GetGUID());
+    l_ShiftPacket.appendPackGUID(m_Player->GetGUID());      ///< CLientGUID
     // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
-    l_ShiftPacket << uint32(0x18);                          ///< flags, 0x18 most of time on retail sniff
-    l_ShiftPacket << uint32(p_PhaseIds.size());             ///< Phase.dbc ids
-    l_ShiftPacket.appendPackGUID(0);
+    l_ShiftPacket << uint32(0x18);                          ///< PhaseShiftFlags
+    l_ShiftPacket << uint32(p_PhaseIds.size());             ///< PhaseShiftCount
+    l_ShiftPacket.appendPackGUID(0);                        ///< PersonalGUID
     // Active terrain swaps, may switch with inactive terrain
 
     for (std::set<uint32>::const_iterator l_It = p_PhaseIds.begin(); l_It != p_PhaseIds.end(); ++l_It)
     {
-        l_ShiftPacket << uint16(1);
-        l_ShiftPacket << uint16(*l_It); // Most of phase id on retail sniff have 0x8000 mask
+        l_ShiftPacket << uint16(1);                         ///< PhaseFlags
+        l_ShiftPacket << uint16(*l_It);                     ///< PhaseID
     }
 
     /// Inactive terrain swaps, may switch with active terrain
-    l_ShiftPacket << uint32(p_InactiveTerrainSwap.size() * 2);
+    l_ShiftPacket << uint32(p_InactiveTerrainSwap.size() * 2);  ///< Active terrain swaps size
     for (std::set<uint32>::const_iterator l_It = p_InactiveTerrainSwap.begin(); l_It != p_InactiveTerrainSwap.end(); ++l_It)
-        l_ShiftPacket << uint16(*l_It);
+        l_ShiftPacket << uint16(*l_It);                         ///< Active terrain swap map id
 
     // WorldMapAreaId ?
-    l_ShiftPacket << unkValue;
+    l_ShiftPacket << unkValue;                                  ///< Inactive terrain swaps size used for PreloadMapIDs
     //for (uint32 i = 0; i < unkValue; i++)
-        //data << uint16(0);
+        //data << uint16(0);                                    ///< Inactive terrain swap map id
 
     /// Active terrain swaps
-    l_ShiftPacket << uint32(p_TerrainSwaps.size() * 2);
+    l_ShiftPacket << uint32(p_TerrainSwaps.size() * 2);         ///< UI map swaps size
     for (std::set<uint32>::const_iterator l_It = p_TerrainSwaps.begin(); l_It != p_TerrainSwaps.end(); ++l_It)
-        l_ShiftPacket << uint16(*l_It);
+        l_ShiftPacket << uint16(*l_It);                         ///< UI map id, WorldMapArea.dbc, controls map display
 
     SendPacket(&l_ShiftPacket);
 }

@@ -202,6 +202,7 @@ void WorldSession::HandleLfgListSearch(WorldPacket& p_RecvData)
 
 void WorldSession::SendLfgSearchResponse(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString)
 {
+    ///< see SMSG_LFGSEARCH_RESULTS for more informations
     WorldPacket l_Data(SMSG_LFG_LIST_SEARCH_RESULT);
 
     if (!sGroupFinderCategoryStore.LookupEntry(p_ActivityCategory))

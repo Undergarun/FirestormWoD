@@ -1210,7 +1210,7 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data.WriteBit(l_TwitterEnabled);                              ///< Enable ingame twitter interface 
     l_Data.WriteBit(l_CommerceSystemEnabled);                       ///< Commerce System Enabled (WoWToken)
     l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796
-    l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796 WillKickFromWorld (From TC)
+    l_Data.WriteBit(1);                                             ///< WillKickFromWorld
     l_Data.WriteBit(0);                                             ///< Unk 6.1.2 19796 -- unk block
     l_Data.FlushBits();
 

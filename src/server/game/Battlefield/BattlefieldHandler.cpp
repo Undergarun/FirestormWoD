@@ -47,6 +47,15 @@ void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 pT
 //Param1:(guid) the guid of Bf
 void WorldSession::SendBfInvitePlayerToQueue(uint64 p_Guid)
 {
+    ///< @todo check me, nothing in dump/Tc have this struc, check SMSG_BFMGR_QUEUE_INVITE
+    //uint64 QueueID;            ///< Offset 0x0000 Type _MJVTBL_UINT64
+    //uint32 InstanceID;         ///< Offset 0x0008 Type _MJVTBL_UINT32
+    //uint32 Timeout;            ///< Offset 0x000C Type _MJVTBL_UINT32
+    //int32  MapID;              ///< Offset 0x0010 Type _MJVTBL_INT32
+    //int32  MaxLevel;           ///< Offset 0x0014 Type _MJVTBL_INT32
+    //int32  MinLevel;           ///< Offset 0x0018 Type _MJVTBL_INT32
+    //int8   BattleState;        ///< Offset 0x001C Type _MJVTBL_INT8
+    //int8   Index;              ///< Offset 0x001D Type _MJVTBL_INT8
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_INVITE);
     data << uint64(p_Guid);         ///< QueueID
     data << uint8(1);               ///< BattleState
@@ -74,10 +83,10 @@ void WorldSession::SendBfQueueInviteResponse(uint64 p_Guid, uint32 p_ZoneID, boo
     l_Data << uint64(p_Guid);               ///< QueueID
     l_Data << uint32(p_ZoneID);             ///< AreaID
     l_Data << uint8((p_CanQueue ? 1 : 0));  ///< Result (0 : you cannot queue wg, 1 : you are queued)
-    l_Data << uint8(1);                     ///< Warmup
-    l_Data.appendPackGUID(0);               ///< Failed Player GUID
+    l_Data << uint8(1);                     ///< BattleState
+    l_Data.appendPackGUID(0);               ///< FailedPlayerGUID
 
-    l_Data.WriteBit((p_Full ? 0 : 1));      ///< Logging In(0 : wg full, 1 : queue for upcoming (we may need to swap it))
+    l_Data.WriteBit((p_Full ? 0 : 1));      ///< LoggingIn(0 : wg full, 1 : queue for upcoming (we may need to swap it))
     l_Data.FlushBits();
 
     SendPacket(&l_Data);

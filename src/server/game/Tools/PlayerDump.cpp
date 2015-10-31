@@ -733,21 +733,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                     ROLLBACK(DUMP_FILE_BROKEN);
                 }
 
-                /// We transfer max 50k golds
-                l_Index = GetFieldIndexFromColumn("money", l_Columns) + 1;
-                uint64 l_Gold = std::stoll(getnth(l_Line, l_Index).c_str());
-                if (l_Gold > (50000 * GOLD))
-                {
-                    char l_MaxMoney[20];
-                    snprintf(l_MaxMoney, 20, "%u", 50000U * GOLD);
-
-                    if (!changenth(l_Line, l_Index, l_MaxMoney))
-                    {
-                        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [can't change money]");
-                        ROLLBACK(DUMP_FILE_BROKEN);
-                    }
-                }
-
                 const char null[5] = "NULL";
                 l_Index = GetFieldIndexFromColumn("deleteInfos_Account", l_Columns) + 1;
                 if (!changenth(l_Line, l_Index, null))                                  ///< characters.deleteInfos_Account

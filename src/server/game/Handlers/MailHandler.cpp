@@ -753,8 +753,8 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 
     if (m_Player->unReadMails > 0)
     {
-        l_Data << float(0);                                  // float
-        l_Data << uint32(0);                                 // count
+        l_Data << float(0);                                                             ///< NextMailTime
+        l_Data << uint32(0);                                                            ///< Next
 
         uint32 l_Count = 0;
         time_t l_NowTime = time(NULL);
@@ -776,12 +776,12 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
                 continue;
 
             uint64 l_Guid = MAKE_NEW_GUID(l_Mail->sender, 0, HIGHGUID_PLAYER);
-            l_Data.appendPackGUID(l_Mail->messageType == MAIL_NORMAL ? l_Guid : 0);  // player guid
+            l_Data.appendPackGUID(l_Mail->messageType == MAIL_NORMAL ? l_Guid : 0);     ///< SenderGUID
 
-            l_Data << float(l_Mail->deliver_time - l_NowTime);
-            l_Data << uint32(l_Mail->messageType != MAIL_NORMAL ? l_Mail->sender : 0);  // non-player entries
-            l_Data << uint8(l_Mail->messageType);
-            l_Data << uint32(l_Mail->stationery);
+            l_Data << float(l_Mail->deliver_time - l_NowTime);                          ///< TimeLeft
+            l_Data << uint32(l_Mail->messageType != MAIL_NORMAL ? l_Mail->sender : 0);  ///< AltSenderID
+            l_Data << uint8(l_Mail->messageType);                                       ///< AltSenderType
+            l_Data << uint32(l_Mail->stationery);                                       ///< StationeryID
 
             l_SentSenders.insert(l_Mail->sender);
             ++l_Count;

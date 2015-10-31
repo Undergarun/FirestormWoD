@@ -2551,17 +2551,21 @@ class spell_pri_penance: public SpellScriptLoader
 
                         uint8 l_Rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
 
-                        bool l_IsFriendly = l_Player->IsFriendlyTo(l_UnitTarget);
-                        /// Item - Priest WoD PvP Discipline 2P Bonus
-                        SpellInfo const* l_PvpBonusSpellEffect = l_IsFriendly ? sSpellMgr->GetSpellInfo(PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ALLY) : sSpellMgr->GetSpellInfo(PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ENEMY);
-
                         if (l_Player->IsFriendlyTo(l_UnitTarget))
+                        {
                             l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_HEAL, l_Rank), false, 0);
+                            
+                            /// Item - Priest WoD PvP Discipline 2P Bonus
+                            l_Player->CastSpell(l_UnitTarget, PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ALLY, true);
+                        }
                         else
                         {
                             l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_DAMAGE, l_Rank), false, 0);
                             if (l_Player->HasAura(PRIEST_EVANGELISM_AURA))
                                 l_Player->CastSpell(l_Player, PRIEST_EVANGELISM_STACK, true);
+                            
+                            /// Item - Priest WoD PvP Discipline 2P Bonus
+                            l_Player->CastSpell(l_UnitTarget, PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ENEMY, true);
                         }
 
                         // Divine Insight (Discipline)

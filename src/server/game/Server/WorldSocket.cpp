@@ -141,10 +141,6 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
     gSentBytes += pkt->size() + 3;
 
-    /// Remove log for latency
-    ///if (pkt->GetOpcode() != SMSG_MONSTER_MOVE)
-    ///     sLog->outInfo(LOG_FILTER_OPCODES, "S->C: %s", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
-
 #   ifdef WIN32
     if (sWorld->getBoolConfig(CONFIG_LOG_PACKETS))
     {
@@ -741,11 +737,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* p_NewPacket)
         // Dump received packet.
         if (sPacketLog->CanLogPacket())
             sPacketLog->LogPacket(*p_NewPacket, CLIENT_TO_SERVER);
-
-        /// Remove log for latency
-        ///std::string opcodeName = GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER);
-        ///if (opcode != CMSG_MOVE_START_FORWARD)
-        ///    sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName.c_str());
 
         try
         {

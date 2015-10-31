@@ -48,7 +48,8 @@ m_EscalatedStatus(TICKET_UNASSIGNED), m_NeedResponse(false), m_Viewed(false), m_
     p_RecvData.FlushBits();
     m_Message = p_RecvData.ReadString(l_MessageLen);
 
-    bool l_NeedMoreHelp = p_RecvData.ReadBit();
+    bool l_NeedMoreHelp = p_RecvData.ReadBit(); /// non used
+    
     m_NeedResponse = p_RecvData.ReadBit();
     p_RecvData.FlushBits();
 

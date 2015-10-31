@@ -286,6 +286,8 @@ void MapManager::Update(uint32 diff)
     if (!i_timer.Passed())
         return;
 
+    m_MapsDelay.clear();
+
     /// - Start Achievement criteria update processing thread
     sAchievementMgr->PrepareCriteriaUpdateTaskThread();
 

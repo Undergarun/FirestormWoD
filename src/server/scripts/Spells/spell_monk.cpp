@@ -1128,7 +1128,6 @@ class spell_monk_black_ox_statue: public SpellScriptLoader
 
                     Position pos;
                     GetExplTargetDest()->GetPosition(&pos);
-                    const SummonPropertiesEntry* properties = sSummonPropertiesStore.LookupEntry(spell->Effects[effIndex].MiscValueB);
                     TempSummon* summon = player->SummonCreature(spell->Effects[effIndex].MiscValue, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, spell->GetDuration());
                     if (!summon)
                         return;
@@ -1604,7 +1603,6 @@ class spell_monk_jade_serpent_statue: public SpellScriptLoader
 
                     Position pos;
                     GetExplTargetDest()->GetPosition(&pos);
-                    const SummonPropertiesEntry* properties = sSummonPropertiesStore.LookupEntry(spell->Effects[effIndex].MiscValueB);
                     TempSummon* summon = player->SummonCreature(spell->Effects[effIndex].MiscValue, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, spell->GetDuration());
                     if (!summon)
                         return;
@@ -1885,7 +1883,7 @@ class spell_monk_surging_mist: public SpellScriptLoader
 
                 if ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && !l_Player->HasAura(eSpells::StanceoftheSturdyOx)) ||
                     (((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec())) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
-                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, (int32)m_BasePowerConsume * -1, POWER_ENERGY);
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, -30, POWER_ENERGY);
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && !l_Player->HasAura(eSpells::StanceoftheWiseSerpent))
                     l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), m_BasePowerConsume) * -1, POWER_MANA);
             }
@@ -2256,7 +2254,6 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
 
             void FilterTargetsAlly(std::list<WorldObject*>& p_Targets)
             {
-                Unit* l_Caster = GetCaster();
                 Unit* l_FirstTarget = GetExplTargetUnit();
 
                 if (l_FirstTarget == nullptr)
@@ -3013,7 +3010,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 if (l_TargetOfJadeStatue == nullptr)
                     return;
 
-                int32 l_Bp = aurEff->GetAmount();
                 l_JadeStatue->CastSpell(l_TargetOfJadeStatue, GetSpellInfo()->Id, true);
             }
 
@@ -3702,12 +3698,10 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
-                Unit *l_Caster = GetCaster();
+                Unit* l_Caster = GetCaster();
 
                 if (l_Caster == nullptr)
                     return;
-
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
 
                 if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
                     l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());

@@ -608,13 +608,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_effectExecuteData.clear();
 
     if (m_caster == NULL)
-    {
         sLog->outAshran("m_caster is null!! spellId %u", m_spellInfo->Id);
-    }
-    else if (sWorld->isDelete(m_caster))
-    {
-        sLog->outAshran("m_caster is null!! spellId %u", m_spellInfo->Id);
-    }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
@@ -5541,8 +5535,6 @@ void Spell::TakePower()
         /// WoD Custom Script - Arcane Blast mana cost with Arcane Charge and Improved Arcane Power
         if (powerType == POWER_MANA && m_spellInfo && m_spellInfo->Id == 30451 && m_caster->HasAura(157604))
         {
-            SpellInfo const* l_ArcaneBlast = sSpellMgr->GetSpellInfo(30451);
-
             /// Arcane Charge increase mana cost of Arcane Blast
             if (AuraPtr l_ArcaneCharge = m_caster->GetAura(36032))
             {
