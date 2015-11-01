@@ -30484,6 +30484,7 @@ void Player::ActivateSpec(uint8 spec)
     }
 
     SetActiveSpec(spec);
+    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, GetSpecializationId(spec));
 
     for (uint8 l_I = 0; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
     {
