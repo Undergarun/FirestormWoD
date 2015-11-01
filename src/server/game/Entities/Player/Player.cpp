@@ -11283,9 +11283,9 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
     }
 }
 
-void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 cast_count, uint32 p_Misc, uint32 p_Misc2)
+void Player::CastItemUseSpell(Item* p_Item, SpellCastTargets const& p_Targets, uint8 p_CastCount, uint32 p_Misc, uint32 p_Misc2)
 {
-    ItemTemplate const* l_ItemTemplate = item->GetTemplate();
+    ItemTemplate const* l_ItemTemplate = p_Item->GetTemplate();
 
     /// Special learning case
     if (l_ItemTemplate->Spells[0].SpellId == 483 || l_ItemTemplate->Spells[0].SpellId == 55884)
@@ -11297,17 +11297,17 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         if (!l_SpellInfo)
         {
             sLog->outError(LogFilterType::LOG_FILTER_PLAYER, "Player::CastItemUseSpell: Item (Entry: %u) in have wrong spell id %u, ignoring ", l_ItemTemplate->ItemId, l_LearnedSpell);
-            SendEquipError(InventoryResult::EQUIP_ERR_INTERNAL_BAG_ERROR, item, nullptr);
+            SendEquipError(InventoryResult::EQUIP_ERR_INTERNAL_BAG_ERROR, p_Item, nullptr);
             return;
         }
 
         Spell* l_Spell          = new Spell(this, l_SpellInfo, TriggerCastFlags::TRIGGERED_NONE);
-        l_Spell->m_CastItem     = item;
-        l_Spell->m_cast_count   = cast_count;  ///< Set count of casts
+        l_Spell->m_CastItem     = p_Item;
+        l_Spell->m_cast_count   = p_CastCount;  ///< Set count of casts
         l_Spell->SetSpellValue(SpellValueMod::SPELLVALUE_BASE_POINT0, l_LearningSpell);
         l_Spell->m_Misc[0] = p_Misc;
         l_Spell->m_Misc[1] = p_Misc2;
-        l_Spell->prepare(&targets);
+        l_Spell->prepare(&p_Targets);
         return;
     }
 
@@ -11320,7 +11320,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         if (l_Slot > EnchantmentSlot::ENGINEERING_ENCHANTMENT_SLOT && l_Slot < EnchantmentSlot::PROP_ENCHANTMENT_SLOT_0)    ///< Not holding enchantment id
             continue;
 
-        uint32 l_EnchantID = item->GetEnchantmentId(EnchantmentSlot(l_Slot));
+        uint32 l_EnchantID = p_Item->GetEnchantmentId(EnchantmentSlot(l_Slot));
         SpellItemEnchantmentEntry const* l_ItemEnchantEntry = sSpellItemEnchantmentStore.LookupEntry(l_EnchantID);
         if (!l_ItemEnchantEntry)
             continue;
@@ -11338,11 +11338,11 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
             }
 
             Spell* l_Spell          = new Spell(this, l_SpellInfo, (l_Count > 0) ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE);
-            l_Spell->m_CastItem     = item;
-            l_Spell->m_cast_count   = cast_count;  ///< Set count of casts
+            l_Spell->m_CastItem     = p_Item;
+            l_Spell->m_cast_count   = p_CastCount;  ///< Set count of casts
             l_Spell->m_Misc[0]      = p_Misc;
             l_Spell->m_Misc[1]      = p_Misc2;
-            l_Spell->prepare(&targets);
+            l_Spell->prepare(&p_Targets);
 
             ++l_Count;
         }
@@ -11369,11 +11369,11 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         }
 
         Spell* l_Spell            = new Spell(this, l_SpellInfo, (l_Count > 0) ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE);
-        l_Spell->m_CastItem       = item;
-        l_Spell->m_cast_count     = cast_count;    ///< set count of casts
+        l_Spell->m_CastItem       = p_Item;
+        l_Spell->m_cast_count     = p_CastCount;    ///< set count of casts
         l_Spell->m_Misc[0]        = p_Misc;
         l_Spell->m_Misc[1]        = p_Misc2;
-        l_Spell->prepare(&targets);
+        l_Spell->prepare(&p_Targets);
 
         ++l_Count;
     }
