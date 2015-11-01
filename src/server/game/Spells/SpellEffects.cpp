@@ -5239,14 +5239,14 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER || m_glyphIndex >= MAX_GLYPH_SLOT_INDEX)
+    if (m_caster->GetTypeId() != TYPEID_PLAYER || m_Misc[0] >= MAX_GLYPH_SLOT_INDEX)
         return;
 
     Player* l_Player = (Player*)m_caster;
 
     // glyph sockets level requirement
     uint8 l_MinLevel = 0;
-    switch (m_glyphIndex)
+    switch (m_Misc[0])
     {
         case 0:
         case 1:
@@ -5270,7 +5270,7 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
     {
         if (GlyphPropertiesEntry const* l_GlyphProperties = sGlyphPropertiesStore.LookupEntry(l_Glyph))
         {
-            if (GlyphSlotEntry const* l_GlyphSlot = sGlyphSlotStore.LookupEntry(l_Player->GetGlyphSlot(m_glyphIndex)))
+            if (GlyphSlotEntry const* l_GlyphSlot = sGlyphSlotStore.LookupEntry(l_Player->GetGlyphSlot(m_Misc[0])))
             {
                 if (l_GlyphProperties->TypeFlags != l_GlyphSlot->TypeFlags)
                 {
@@ -5301,29 +5301,29 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
             }
 
             // remove old glyph
-            if (uint32 l_OldGlyph = l_Player->GetGlyph(l_Player->GetActiveSpec(), m_glyphIndex))
+            if (uint32 l_OldGlyph = l_Player->GetGlyph(l_Player->GetActiveSpec(), m_Misc[0]))
             {
                 if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(l_OldGlyph))
                 {
                     l_Player->RemoveAurasDueToSpell(old_gp->SpellId);
-                    l_Player->SetGlyph(m_glyphIndex, 0);
+                    l_Player->SetGlyph(m_Misc[0], 0);
                 }
             }
 
             l_Player->CastSpell(m_caster, l_GlyphProperties->SpellId, true);
-            l_Player->SetGlyph(m_glyphIndex, l_Glyph);
+            l_Player->SetGlyph(m_Misc[0], l_Glyph);
             l_Player->SendTalentsInfoData(false);
         }
     }
     else
     {
         // remove old glyph
-        if (uint32 l_OldGlyph = l_Player->GetGlyph(l_Player->GetActiveSpec(), m_glyphIndex))
+        if (uint32 l_OldGlyph = l_Player->GetGlyph(l_Player->GetActiveSpec(), m_Misc[0]))
         {
             if (GlyphPropertiesEntry const* l_OldGlyphProperties = sGlyphPropertiesStore.LookupEntry(l_OldGlyph))
             {
                 l_Player->RemoveAurasDueToSpell(l_OldGlyphProperties->SpellId);
-                l_Player->SetGlyph(m_glyphIndex, 0);
+                l_Player->SetGlyph(m_Misc[0], 0);
                 l_Player->SendTalentsInfoData(false);
             }
         }
@@ -7319,7 +7319,7 @@ void Spell::EffectUnlearnTalent(SpellEffIndex p_EffIndex)
     if (l_Player == nullptr)
         return;
 
-    TalentEntry const* l_Talent = sTalentStore.LookupEntry(m_glyphIndex);
+    TalentEntry const* l_Talent = sTalentStore.LookupEntry(m_Misc[0]);
     if (l_Talent == nullptr)
         return;
 
@@ -7797,7 +7797,7 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
     if (!l_Player || !l_Player->GetGarrison())
         return;
 
-    l_Player->GetGarrison()->UpgradeFollowerItemLevelWith(m_AdditionalData[0], GetSpellInfo());
+    l_Player->GetGarrison()->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
 }
 
 void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
@@ -8065,12 +8065,12 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
         return;
 
     Player* l_Player = GetCaster()->ToPlayer();
-    HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(m_glyphIndex);
+    HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(m_Misc[0]);
 
     if (!l_Player || !l_HeirloomEntry)
         return;
 
-    if (l_HeirloomEntry->ItemID != m_glyphIndex)
+    if (l_HeirloomEntry->ItemID != m_Misc[0])
         return;
 
     ItemPosCountVec l_Destination;
@@ -8101,12 +8101,12 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
         return;
 
     Player* l_Player = GetCaster()->ToPlayer();
-    HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(m_glyphIndex);
+    HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(m_Misc[0]);
 
     if (!l_Player || !l_HeirloomEntry || !m_CastItem)
         return;
 
-    if (l_HeirloomEntry->ItemID != m_glyphIndex)
+    if (l_HeirloomEntry->ItemID != m_Misc[0])
         return;
 
     if (!l_Player->HasHeirloom(l_HeirloomEntry))

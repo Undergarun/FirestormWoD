@@ -515,7 +515,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_applyMultiplierMask = 0;
     m_auraScaleMask = 0;
 
-    memset(m_AdditionalData, 0, sizeof(m_AdditionalData));
+    memset(m_Misc, 0, sizeof(m_Misc));
 
     // Get data for type of attack
     switch (m_spellInfo->DmgClass)
@@ -577,7 +577,6 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     m_cast_count = 0;
     m_CastItemEntry = 0;
-    m_glyphIndex = 0;
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
     m_spellAura = NULLAURA;
@@ -6767,7 +6766,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!l_Player)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (!l_Player->HasHeirloom(m_glyphIndex))
+                if (!l_Player->HasHeirloom(m_Misc[0]))
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
                 break;
@@ -6775,7 +6774,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             case SPELL_EFFECT_UPGRADE_HEIRLOOM:
             {
                 Player* l_Player = m_caster->ToPlayer();
-                HeirloomEntry const* l_Heirloom = GetHeirloomEntryByItemID(m_glyphIndex);
+                HeirloomEntry const* l_Heirloom = GetHeirloomEntryByItemID(m_Misc[0]);
 
                 if (!l_Player || !l_Heirloom || !m_CastItem)
                     return SPELL_FAILED_BAD_TARGETS;
@@ -6799,7 +6798,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!l_Garrison)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                SpellCastResult l_Result = l_Garrison->CanUpgradeItemLevelWith(m_AdditionalData[0], GetSpellInfo());
+                SpellCastResult l_Result = l_Garrison->CanUpgradeItemLevelWith(m_Misc[0], GetSpellInfo());
                 if (l_Result != SPELL_CAST_OK)
                     return l_Result;
 

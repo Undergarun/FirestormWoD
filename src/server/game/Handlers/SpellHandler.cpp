@@ -70,7 +70,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     uint32  * l_SpellWeightQuantity = nullptr;
 
     uint32 l_SpellID            = 0;
-    uint32 l_Misc               = 0;
     uint32 l_TargetFlags        = 0;
     uint32 l_NameLenght         = 0;
     uint32 l_SpellWeightCount   = 0;
@@ -82,7 +81,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     uint8 l_Slot            = 0;
     uint8 l_PackSlot        = 0;
 
-    uint32 l_AdditionalData[2];
+    uint32 l_Misc[2];
 
     bool l_HasSourceTarget      = false;
     bool l_HasDestinationTarget = false;
@@ -99,10 +98,10 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_CastCount;
 
     for (int l_I = 0; l_I < 2; l_I++)
-        p_RecvPacket >> l_AdditionalData[l_I];
+        p_RecvPacket >> l_Misc[l_I];
 
     p_RecvPacket >> l_SpellID;
-    p_RecvPacket >> l_Misc;
+    p_RecvPacket.read_skip<uint32>();   ///< Unk
 
     l_TargetFlags           = p_RecvPacket.ReadBits(23);
     l_HasSourceTarget       = p_RecvPacket.ReadBit();
@@ -204,7 +203,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
-    if (l_IsGlyph && l_Misc >= MAX_GLYPH_SLOT_INDEX)
+    if (l_IsGlyph && l_Misc[0] >= MAX_GLYPH_SLOT_INDEX)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
@@ -298,7 +297,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     if (!sScriptMgr->OnItemUse(pUser, pItem, targets))
     {
         // no script or script not process request by self
-        pUser->CastItemUseSpell(pItem, targets, l_CastCount, l_Misc, l_AdditionalData[0], l_AdditionalData[1]);
+        pUser->CastItemUseSpell(pItem, targets, l_CastCount, l_Misc[0], l_Misc[1]);
     }
 }
 
@@ -461,7 +460,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     uint32  * l_SpellWeightQuantity = nullptr;
 
     uint32 l_SpellID            = 0;
-    uint32 l_Misc               = 0;
+    uint32 l_Misc[2]            = {0, 0};
     uint32 l_TargetFlags        = 0;
     uint32 l_NameLenght         = 0;
     uint32 l_SpellWeightCount   = 0;
@@ -482,10 +481,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_CastCount;
 
     for (int l_I = 0; l_I < 2; l_I++)
-        p_RecvPacket.read_skip<uint32>();
+        p_RecvPacket >> l_Misc[l_I];
 
     p_RecvPacket >> l_SpellID;
-    p_RecvPacket >> l_Misc;
+    p_RecvPacket.read_skip<uint32>(); // unk
 
     l_TargetFlags           = p_RecvPacket.ReadBits(23);
     l_HasSourceTarget       = p_RecvPacket.ReadBit();
@@ -742,7 +741,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);
     spell->m_cast_count = l_CastCount;                       // set count of casts
-    spell->m_glyphIndex = l_Misc;
+    spell->m_Misc[0] = l_Misc[0];
+    spell->m_Misc[1] = l_Misc[1];
     spell->prepare(&targets);
 }
 
@@ -1070,10 +1070,11 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
     uint32  * l_SpellWeightQuantity = nullptr;
 
     uint32 l_SpellID = 0;
-    uint32 l_Misc = 0;
     uint32 l_TargetFlags = 0;
     uint32 l_NameLenght = 0;
     uint32 l_SpellWeightCount = 0;
+
+    uint32 l_Misc[2] = { 0, 0 };
 
     float l_UnkFloat = 0;
 
@@ -1091,10 +1092,10 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
     p_RecvData >> l_CastCount;
 
     for (int l_I = 0; l_I < 2; l_I++)
-        p_RecvData.read_skip<uint32>();
+        p_RecvData >> l_Misc[l_I];
 
     p_RecvData >> l_SpellID;
-    p_RecvData >> l_Misc;
+    p_RecvData.read_skip<uint32>(); ///< Unk
 
     l_TargetFlags = p_RecvData.ReadBits(23);
     l_HasSourceTarget = p_RecvData.ReadBit();
@@ -1206,7 +1207,8 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
     Spell* l_Spell = new Spell(l_Mover, l_SpellInfo, TRIGGERED_NONE, 0, false);
     l_Spell->m_cast_count = l_CastCount;
     l_Spell->m_CastItemEntry = l_ItemID;
-    l_Spell->m_glyphIndex = l_Misc;
+    l_Spell->m_Misc[0] = l_Misc[0];
+    l_Spell->m_Misc[1] = l_Misc[1];
     l_Spell->prepare(&l_Targets);
 }
 //////////////////////////////////////////////////////////////////////////
