@@ -1429,8 +1429,8 @@ enum Opcodes
     /// Pet
     //////////////////////////////////////////////////////////////////////////
     CMSG_PET_NAME_QUERY                         = 0x0278, ///< 6.2.2 20574
-    CMSG_PET_RENAME                             = 0x0923, ///< 6.2.2 20574
-    CMSG_PET_ABANDON                            = 0x0133, ///< 6.2.2 20574
+    CMSG_PET_RENAME                             = 0x0133, ///< 6.2.2 20574
+    CMSG_PET_ABANDON                            = 0x0F59, ///< 6.2.2 20574
     CMSG_PET_ACTION                             = 0x0C79, ///< 6.2.2 20574
     CMSG_PET_CANCEL_AURA                        = 0x0C49, ///< 6.2.2 20574
     CMSG_PET_CAST_SPELL                         = 0x16CF, ///< 6.2.2 20574
