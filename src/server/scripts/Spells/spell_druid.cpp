@@ -5245,8 +5245,51 @@ class spell_dru_glyph_of_savagery : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Guardian of Elune - 155578
+class spell_dru_guardian_of_elune : public SpellScriptLoader
+{
+    public:
+        spell_dru_guardian_of_elune() : SpellScriptLoader("spell_dru_guardian_of_elune") { }
+
+        class spell_dru_guardian_of_elune_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_guardian_of_elune_AuraScript);
+
+            void AfterApplyRecovery(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                int32 l_DodgeChance = (int32)l_Target->GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE);
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                    l_AurEff->SetAmount(l_DodgeChance * -1);
+            }
+
+            void AfterApplyModifier(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                int32 l_DodgeChance = (int32)l_Target->GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE);
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_3))
+                    l_AurEff->SetAmount(l_DodgeChance * -1);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_guardian_of_elune_AuraScript::AfterApplyRecovery, EFFECT_2, SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_guardian_of_elune_AuraScript::AfterApplyModifier, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_guardian_of_elune_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_guardian_of_elune();
     new spell_dru_glyph_of_savagery();
     new spell_dru_astral_form();
     new spell_dru_incarnation_tree_of_life();
