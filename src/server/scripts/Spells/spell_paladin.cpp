@@ -1938,27 +1938,16 @@ class spell_pal_holy_shock_damage: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* caster = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
-                    {
-                        int32 damage = GetHitDamage();
-
-                        if (caster->getLevel() < 85)
-                        {
-                            damage = int32(GetHitDamage() * 0.15f);
-                            SetHitDamage(damage);
-                        }
-                        else if (caster->getLevel() < 90)
-                        {
-                            damage = int32(GetHitDamage() * 0.61f);
-                            SetHitDamage(damage);
-                        }
-                    }
+                    if (l_Caster->getLevel() < 85)
+                        SetHitDamage(CalculatePct(GetHitDamage(), 15));
+                    else if (l_Caster->getLevel() < 90)
+                        SetHitDamage(CalculatePct(GetHitDamage(), 61));
                 }
             }
-
-            void Register()
+            
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_pal_holy_shock_damage_SpellScript::HandleOnHit);
             }
@@ -2062,7 +2051,6 @@ class spell_pal_lay_on_hands: public SpellScriptLoader
 
             SpellCastResult CheckForbearance()
             {
-                Unit* caster = GetCaster();
                 if (Unit* target = GetExplTargetUnit())
                     if (target->HasAura(SPELL_FORBEARANCE))
                         return SPELL_FAILED_TARGET_AURASTATE;

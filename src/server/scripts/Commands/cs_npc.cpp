@@ -942,6 +942,7 @@ public:
     * additional parameter: NODEL - so no waypoints are deleted, if you
     *                       change the movement type
     */
+    /// @todo refactor this command and other move command lowguidi never used
     static bool HandleNpcSetMoveTypeCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)

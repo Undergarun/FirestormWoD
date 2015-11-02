@@ -264,7 +264,7 @@ namespace Movement
             l_Data << l_MoveSpline.facing.f.x << l_MoveSpline.facing.f.y << l_MoveSpline.facing.f.z;///< Facing position
 
         l_Data.WriteBit(0);                                                                         ///< Crz teleport
-        l_Data.WriteBits(0, 2);
+        l_Data.WriteBits(0, 2);                                                                     ///< Unk bits. 0 if monster is moving, 1 or 2 if stopped
         l_Data.FlushBits();
 
         m_Unit.SendMessageToSet(&l_Data, true);
@@ -319,14 +319,14 @@ namespace Movement
         l_Data << uint8(0);                                                                         ///< Vehicle exit Voluntary
         l_Data.appendPackGUID(l_TransportGUID);                                                     ///< Transport guid
         l_Data << int8(l_TransportSeat);                                                            ///< Transport seat
-        l_Data << uint32(0);                                                                        ///< Compressed waypoint count
+        l_Data << uint32(0);                                                                        ///< PackedDeltas
 
-        l_Data << float(loc.x);                                                                     ///< Fake WAYPOINT
+        l_Data << float(loc.x);                                                                     ///< Fake WAYPOINT it's not a fake it's packed
         l_Data << float(loc.y);                                                                     ///< Fake WAYPOINT
         l_Data << float(loc.z);                                                                     ///< Fake WAYPOINT
 
-        l_Data.WriteBits(0, 2);
-        l_Data.WriteBit(0);
+        l_Data.WriteBits(0, 2);                                                                     ///< Face
+        l_Data.WriteBit(0);                                                                         ///< SplineFilter
         l_Data.FlushBits();
 
         l_Data.WriteBit(0);

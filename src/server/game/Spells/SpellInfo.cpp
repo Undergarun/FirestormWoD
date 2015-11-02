@@ -3116,6 +3116,8 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case 62478: // Frozen Blows (Hodir)
                 case 63512: // Frozen Blows (Hodir)
                 case 73523: // Rigor Mortis
+                case 24732: // Nananananana... Bat Costume!
+                case 24740: // Wisp Costume
                     return true;
                 default:
                     break;

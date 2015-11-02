@@ -42,7 +42,7 @@ class CharacterRenderer : public PlayerScript
             l_Statement->setUInt32(4, l_SkinColor);
             l_Statement->setUInt32(5, l_Face);
             l_Statement->setUInt32(6, l_HairStyle);
-            l_Statement->setUInt32(7, l_SkinColor);
+            l_Statement->setUInt32(7, l_Haircolor);
             l_Statement->setUInt32(8, l_Facialhair);
             l_Statement->setString(9, l_Equipement.str().c_str());
             LoginDatabase.Execute(l_Statement);
