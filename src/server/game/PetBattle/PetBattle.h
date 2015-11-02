@@ -292,7 +292,7 @@ class BattlePet
         /// Load
         void CloneFrom(BattlePet::Ptr & p_BattlePet);
         /// Save
-        void Save();
+        void Save(SQLTransaction& p_Transaction);
 
         /// When a player earn a pet it will insert into his account
         void AddToPlayer(Player* p_Player);

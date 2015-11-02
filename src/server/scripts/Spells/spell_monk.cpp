@@ -684,7 +684,7 @@ class spell_monk_chi_wave_healing_bolt: public SpellScriptLoader
         }
 };
 
-// Chi Wave (damage) - 132467 and Chi Wave (heal) - 132463
+/// Chi Wave (damage) - 132467 and Chi Wave (heal) - 132463
 class spell_monk_chi_wave_bolt: public SpellScriptLoader
 {
     public:
@@ -696,90 +696,90 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* _player = GetOriginalCaster())
+                Unit* l_OriginalCaster = GetOriginalCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_OriginalCaster == nullptr || l_Target == nullptr)
+                    return;
+
+                uint8 l_Count = 0;
+                std::list<Unit*> l_TargetList;
+                std::vector<uint64> l_ValidTargets;
+
+                if (AuraEffectPtr l_ChiWave = l_OriginalCaster->GetAuraEffect(SPELL_MONK_CHI_WAVE_TALENT_AURA, EFFECT_1))
                 {
-                    if (Unit* target = GetHitUnit())
+                    l_Count = l_ChiWave->GetAmount();
+
+                    if (l_Count >= 7)
                     {
-                        uint8 count = 0;
-                        std::list<Unit*> targetList;
-                        std::vector<uint64> validTargets;
+                        l_OriginalCaster->RemoveAura(SPELL_MONK_CHI_WAVE_TALENT_AURA);
+                        return;
+                    }
 
-                        if (AuraEffectPtr chiWave = _player->GetAuraEffect(SPELL_MONK_CHI_WAVE_TALENT_AURA, EFFECT_1))
+                    l_Count++;
+                    l_ChiWave->SetAmount(l_Count);
+                }
+                else
+                    return;
+
+                CellCoord p(JadeCore::ComputeCellCoord(l_Target->GetPositionX(), l_Target->GetPositionY()));
+                Cell cell(p);
+                cell.SetNoCreate();
+
+                JadeCore::AnyUnitInObjectRangeCheck u_check(l_OriginalCaster, 20.0f);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(l_OriginalCaster, l_TargetList, u_check);
+
+                TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, WorldTypeMapContainer> world_unit_searcher(searcher);
+                TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, GridTypeMapContainer>  grid_unit_searcher(searcher);
+
+                cell.Visit(p, world_unit_searcher, *l_OriginalCaster->GetMap(), *l_OriginalCaster, 20.0f);
+                cell.Visit(p, grid_unit_searcher, *l_OriginalCaster->GetMap(), *l_OriginalCaster, 20.0f);
+
+                for (auto itr : l_TargetList)
+                {
+                    if (!itr->IsWithinLOSInMap(l_OriginalCaster))
+                        continue;
+
+                    if (itr == l_Target)
+                        continue;
+
+                    l_ValidTargets.push_back(itr->GetGUID());
+                }
+
+                if (l_ValidTargets.empty())
+                {
+                    l_OriginalCaster->RemoveAurasDueToSpell(SPELL_MONK_CHI_WAVE_TALENT_AURA);
+                    return;
+                }
+
+                std::random_shuffle(l_ValidTargets.begin(), l_ValidTargets.end());
+
+                if (Unit* l_NewTarget = sObjectAccessor->FindUnit(l_ValidTargets.front()))
+                {
+                    if (l_OriginalCaster->IsValidAttackTarget(l_NewTarget))
+                        l_Target->CastSpell(l_NewTarget, SPELL_MONK_CHI_WAVE_DAMAGE, true, NULL, NULLAURA_EFFECT, l_OriginalCaster->GetGUID());
+                    else
+                    {
+                        std::list<Unit*> l_AlliesList;
+
+                        for (auto itr : l_ValidTargets)
                         {
-                            count = chiWave->GetAmount();
-
-                            if (count >= 7)
-                            {
-                                _player->RemoveAura(SPELL_MONK_CHI_WAVE_TALENT_AURA);
-                                return;
-                            }
-
-                            count++;
-                            chiWave->SetAmount(count);
-                        }
-                        else
-                            return;
-
-                        CellCoord p(JadeCore::ComputeCellCoord(target->GetPositionX(), target->GetPositionY()));
-                        Cell cell(p);
-                        cell.SetNoCreate();
-
-                        JadeCore::AnyUnitInObjectRangeCheck u_check(_player, 20.0f);
-                        JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(_player, targetList, u_check);
-
-                        TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, WorldTypeMapContainer> world_unit_searcher(searcher);
-                        TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, GridTypeMapContainer>  grid_unit_searcher(searcher);
-
-                        cell.Visit(p, world_unit_searcher, *_player->GetMap(), *_player, 20.0f);
-                        cell.Visit(p, grid_unit_searcher, *_player->GetMap(), *_player, 20.0f);
-
-                        for (auto itr : targetList)
-                        {
-                            if (!itr->IsWithinLOSInMap(_player))
+                            Unit* l_AllyTarget = sObjectAccessor->FindUnit(itr);
+                            if (!l_AllyTarget)
                                 continue;
 
-                            if (itr == target)
+                            if (!l_OriginalCaster->IsValidAssistTarget(l_AllyTarget))
                                 continue;
 
-                            validTargets.push_back(itr->GetGUID());
+                            l_AlliesList.push_back(sObjectAccessor->FindUnit(itr));
                         }
 
-                        if (validTargets.empty())
-                        {
-                            _player->RemoveAurasDueToSpell(SPELL_MONK_CHI_WAVE_TALENT_AURA);
+                        if (l_AlliesList.empty())
                             return;
-                        }
 
-                        std::random_shuffle(validTargets.begin(), validTargets.end());
+                        l_AlliesList.sort(JadeCore::HealthPctOrderPred());
 
-                        if (Unit* newTarget = sObjectAccessor->FindUnit(validTargets.front()))
-                        {
-                            if (_player->IsValidAttackTarget(newTarget))
-                                target->CastSpell(newTarget, SPELL_MONK_CHI_WAVE_DAMAGE, true, NULL, NULLAURA_EFFECT, _player->GetGUID());
-                            else
-                            {
-                                std::list<Unit*> alliesList;
-
-                                for (auto itr : validTargets)
-                                {
-                                    Unit* allyTarget = sObjectAccessor->FindUnit(itr);
-                                    if (!allyTarget)
-                                        continue;
-
-                                    if (_player->IsValidAttackTarget(allyTarget))
-                                        continue;
-
-                                    alliesList.push_back(sObjectAccessor->FindUnit(itr));
-                                }
-
-                                if (alliesList.empty())
-                                    return;
-
-                                alliesList.sort(JadeCore::HealthPctOrderPred());
-
-                                target->CastSpell(alliesList.front(), SPELL_MONK_CHI_WAVE_HEALING_BOLT, true, NULL, NULLAURA_EFFECT, _player->GetGUID());
-                            }
-                        }
+                        l_Target->CastSpell(l_AlliesList.front(), SPELL_MONK_CHI_WAVE_HEALING_BOLT, true, NULL, NULLAURA_EFFECT, l_OriginalCaster->GetGUID());
                     }
                 }
             }
@@ -1413,32 +1413,46 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_touch_of_karma_AuraScript);
 
-            uint32 totalAbsorbAmount;
+            uint32 m_TotalAbsorbAmount;
+
+            enum eSpells
+            {
+                WoDPvPWindwalker2PBonus = 180743
+            };
 
             bool Load()
             {
-                totalAbsorbAmount = 0;
+                m_TotalAbsorbAmount = 0;
                 return true;
             }
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
-                if (GetCaster())
-                    amount = GetCaster()->GetMaxHealth();
+                Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPWindwalker2PBonus);
+
+                if (l_Caster == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                int32 l_HealthPct = GetSpellInfo()->Effects[EFFECT_2].BasePoints;
+
+                if (l_Caster->HasAura(eSpells::WoDPvPWindwalker2PBonus))
+                    l_HealthPct += l_SpellInfo->Effects[EFFECT_0].BasePoints;
+
+                p_Amount = l_Caster->CountPctFromMaxHealth(l_HealthPct);
             }
 
-            void OnAbsorb(AuraEffectPtr aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
             {
-                if (Unit* caster = dmgInfo.GetVictim())
-                {
-                    if (Unit* attacker = dmgInfo.GetAttacker())
-                    {
-                        totalAbsorbAmount += dmgInfo.GetDamage();
+                Unit* l_Caster = p_DmgInfo.GetVictim();
+                Unit* l_Attacker = p_DmgInfo.GetAttacker();
 
-                        if (attacker->HasAura(aurEff->GetSpellInfo()->Id, caster->GetGUID()))
-                            caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (totalAbsorbAmount / 6), attacker);
-                    }
-                }
+                if (l_Attacker == nullptr || l_Caster == nullptr)
+                    return;
+
+                m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
+                if (l_Attacker->HasAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (m_TotalAbsorbAmount / 6), l_Attacker);
             }
 
             void Register()
@@ -1832,8 +1846,11 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 StanceoftheSturdyOx         = 115069,
                 StanceoftheFierceTiger      = 103985,
                 StanceoftheWiseSerpent      = 115070,
-                StanceoftheSpiritedCrane    = 154436
+                StanceoftheSpiritedCrane    = 154436,
+                VitalMists                  = 118674
             };
+
+            float m_BasePowerConsume = 0.0f;
 
             void HandleOnPrepare()
             {
@@ -1842,11 +1859,19 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                    m_BasePowerConsume = 4.7f;
+                else
+                    m_BasePowerConsume = 30.0f;
+
                 if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
                 {
                     TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
                     GetSpell()->setTriggerCastFlags(l_Flags);
                 }
+
+                if (AuraEffectPtr l_VitalMists = l_Player->GetAuraEffect(eSpells::VitalMists, EFFECT_1))
+                    m_BasePowerConsume -= CalculatePct(m_BasePowerConsume, l_VitalMists->GetAmount() * -1);
             }
 
             void HandleAfterCast()
@@ -1858,9 +1883,9 @@ class spell_monk_surging_mist: public SpellScriptLoader
 
                 if ((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && !l_Player->HasAura(eSpells::StanceoftheSturdyOx)) ||
                     (((l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER || !l_Player->GetSpecializationId(l_Player->GetActiveSpec())) && !l_Player->HasAura(eSpells::StanceoftheFierceTiger))))
-                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, -30, POWER_ENERGY);
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, (int32)m_BasePowerConsume * -1, POWER_ENERGY);
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && !l_Player->HasAura(eSpells::StanceoftheWiseSerpent))
-                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), 4.7f) * -1, POWER_MANA);
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, CalculatePct(l_Player->GetMaxPower(POWER_MANA), m_BasePowerConsume) * -1, POWER_MANA);
             }
 
             void HandleHeal(SpellEffIndex effIndex)

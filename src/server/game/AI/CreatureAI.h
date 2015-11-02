@@ -185,6 +185,9 @@ class CreatureAI : public UnitAI
         // Called when a creature has one of his power set
         virtual void SetPower(Powers power, int32 value) {}
 
+        /// Called when taunted
+        virtual void OnTaunt(Unit* p_Taunter) { }
+
         // Called at any threat added from any attacker (before threat apply)
         virtual void OnAddThreat(Unit* /*victim*/, float& /*fThreat*/, SpellSchoolMask /*schoolMask*/, SpellInfo const* /*threatSpell*/) {}
 

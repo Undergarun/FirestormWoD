@@ -936,15 +936,6 @@ class World
         void ResetGuildChallenges();
         void ResetBossLooted();
 
-        std::map<Object*, bool> deleteUnits;
-        bool isDelete(Object* obj)
-        {
-            if (deleteUnits.find(obj) != deleteUnits.end())
-                if (deleteUnits[obj])
-                    return true;
-            return false;
-        }
-
         bool ModerateMessage(std::string l_Text);
     protected:
         void _UpdateGameTime();

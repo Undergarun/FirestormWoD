@@ -387,10 +387,12 @@ INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, Condi
 (13, 1, 155239, 31, 0, 3, 78463),
 (13, 1, 177434, 31, 0, 3, 76806);
 
-DELETE FROM areatrigger_template WHERE spell_id IN (156933, 155224);
+DELETE FROM areatrigger_template WHERE spell_id IN (156933, 155224, 160379, 177772);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, scale_x, scale_y, morph_curve_id, ScriptName) VALUES
 (156933, 0, 6432, 2, 0x4080, 6, 6, 513, 'areatrigger_foundry_rupture'),
-(155224, 0, 6221, 2, 0x4080, 1, 5, 1120, 'areatrigger_foundry_melt');
+(155224, 0, 6221, 2, 0x4080, 1, 5, 1120, 'areatrigger_foundry_melt'),
+(160379, 0, 6752, 2, 0x4004, 7, 7, 0, ''),
+(177772, 0, 6752, 2, 0x4000, 7, 7, 0, 'areatrigger_foundry_defense');
 
 DELETE FROM areatrigger_template WHERE spell_id = 155738;
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, data0, data1, data6, ScriptName) VALUE
@@ -485,9 +487,9 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_HEART_OF_THE_MOUNTAIN, 113894, 0, 1, 1, 1, 1),
 (@REF_HEART_OF_THE_MOUNTAIN, 113895, 0, 1, 1, 1, 1),
 (@REF_HEART_OF_THE_MOUNTAIN, 113896, 0, 1, 1, 1, 1),
-(@REF_HEART_OF_THE_MOUNTAIN, 119307, 0, 1, 1, 1, 1),
-(@REF_HEART_OF_THE_MOUNTAIN, 119313, 0, 1, 1, 1, 1),
-(@REF_HEART_OF_THE_MOUNTAIN, 119320, 0, 1, 1, 1, 1);
+(@REF_HEART_OF_THE_MOUNTAIN, 119307, 0, 1, 1, 1, 1), -- Leggings of the Iron Conqueror (Normal)
+(@REF_HEART_OF_THE_MOUNTAIN, 119313, 0, 1, 1, 1, 1), -- Leggings of the Iron Vanquisher (Normal)
+(@REF_HEART_OF_THE_MOUNTAIN, 119320, 0, 1, 1, 1, 1); -- Leggings of the Iron Protector (Normal)
 
 UPDATE `creature_template` SET `lootid`= @REF_HEART_OF_THE_MOUNTAIN WHERE `entry`= @REF_HEART_OF_THE_MOUNTAIN;
 
