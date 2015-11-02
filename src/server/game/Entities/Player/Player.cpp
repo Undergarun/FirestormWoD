@@ -19787,7 +19787,11 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
 
 void Player::TalkedToCreature(uint32 entry, uint64 guid)
 {
+    /// WTF is that shit ?
     QuestObjectiveSatisfy(entry, 1, QUEST_OBJECTIVE_TYPE_NPC /*QUEST_OBJECTIVE_TYPE_NPC_INTERACT*/, guid);
+    ///
+
+    QuestObjectiveSatisfy(entry, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, guid);
 }
 
 void Player::MoneyChanged(uint32 count)
