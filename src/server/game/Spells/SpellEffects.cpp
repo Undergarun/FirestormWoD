@@ -6172,7 +6172,7 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
 
     int32 l_Mana = 0;
     int32 l_RefundPercentage = 0;
-    for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
+    for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT * 2; ++slot)
     {
         if (!m_caster->m_SummonSlot[slot])
             continue;
