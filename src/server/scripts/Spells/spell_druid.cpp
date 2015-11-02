@@ -5176,8 +5176,76 @@ class spell_dru_astral_form : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of Savagery - 171752
+/// Call by Cat Form - 3025
+class spell_dru_glyph_of_savagery : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_savagery() : SpellScriptLoader("spell_dru_glyph_of_savagery") { }
+
+        class spell_dru_glyph_of_savagery_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_savagery_AuraScript);
+
+            enum eSpells
+            {
+                CatForm             = 3025,
+                GlyphOfSavagery     = 171752,
+                SavageRoarEffect    = 62071
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfSavagery);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if ((GetSpellInfo()->Id == eSpells::CatForm && l_Target->HasAura(eSpells::GlyphOfSavagery)) || (GetSpellInfo()->Id == eSpells::GlyphOfSavagery && l_Target->HasAura(eSpells::CatForm)))
+                    l_Target->CastSpell(l_Target, eSpells::SavageRoarEffect, true);
+
+                if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpells::SavageRoarEffect, EFFECT_0))
+                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_2].BasePoints);
+
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::SavageRoarEffect))
+                    l_Target->RemoveAura(eSpells::SavageRoarEffect);
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::CatForm:
+                    OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_savagery_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_savagery_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::GlyphOfSavagery:
+                    OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_savagery_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_savagery_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_glyph_of_savagery_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_glyph_of_savagery();
     new spell_dru_astral_form();
     new spell_dru_incarnation_tree_of_life();
     new spell_dru_celestial_alignement_marker();
