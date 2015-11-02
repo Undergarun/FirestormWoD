@@ -5115,8 +5115,70 @@ class PlayerScript_soul_of_the_forest : public PlayerScript
         }
 };
 
+/// last update : 6.1.2 19802
+/// Moonkin Form - 24858, Incarnation: Chosen of Elune 102560
+class spell_dru_astral_form : public SpellScriptLoader
+{
+    public:
+        spell_dru_astral_form() : SpellScriptLoader("spell_dru_astral_form") { }
+
+        class spell_dru_astral_form_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_astral_form_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfStars = 114301
+            };
+
+            void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfStars);
+
+                if (l_Target->HasAura(eSpells::GlyphOfStars) && l_SpellInfo != nullptr)
+                {
+                    l_Target->SetDisplayId(l_Target->GetNativeDisplayId());
+                    l_Target->CastSpell(l_Target, l_SpellInfo->Effects[EFFECT_0].BasePoints, true);
+                }
+            }
+
+            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfStars);
+
+                if (l_SpellInfo != nullptr && l_Target->HasAura(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                    l_Target->RemoveAura(l_SpellInfo->Effects[EFFECT_0].BasePoints);
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                case 24858:
+                    AfterEffectApply += AuraEffectApplyFn(spell_dru_astral_form_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_dru_astral_form_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case 102560:
+                    AfterEffectApply += AuraEffectApplyFn(spell_dru_astral_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_dru_astral_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_astral_form_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_astral_form();
     new spell_dru_incarnation_tree_of_life();
     new spell_dru_celestial_alignement_marker();
     new spell_dru_celestial_alignement();
