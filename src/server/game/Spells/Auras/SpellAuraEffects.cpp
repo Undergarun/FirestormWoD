@@ -1793,7 +1793,8 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
         return true;
 
     /// In case of SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, we need to check MiscValue as spell id too
-    if (m_spellInfo->Effects[m_effIndex].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)
+    if (m_spellInfo->Effects[m_effIndex].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
+        m_spellInfo->Effects[m_effIndex].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
     {
         if (m_spellInfo->Effects[m_effIndex].MiscValue == spell->Id)
             return true;
@@ -1953,8 +1954,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_METAMORPHOSIS:
             spellId  = 103965;
-            spellId2 = 54817;
-            spellId3 = 54879;
             if (apply)
                 target->RemoveAura(114168); // Dark Apotheosis
             break;
@@ -1963,7 +1962,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId2 = 27795;                               // must be second, this important at aura remove to prevent to early iterator invalidation.
             break;
         case FORM_SHADOW:
-            spellId = 49868;
             if (target->HasAura(107906)) // Glyph of Shadow
                 spellId2 = 107904;
             else

@@ -2667,6 +2667,1283 @@ class spell_item_engineering_scopes: public SpellScriptLoader
         uint32 m_TriggeredSpellId;
 };
 
+/// Summon Chauffeur (Horde) - 179244
+/// Summon Chauffeur (Alliance) - 179245
+class spell_item_summon_chauffeur : public SpellScriptLoader
+{
+    public:
+        spell_item_summon_chauffeur() : SpellScriptLoader("spell_item_summon_chauffeur") { }
+
+        class spell_item_summon_chauffeur_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_summon_chauffeur_AuraScript);
+
+            enum eCreatures
+            {
+                HordeChauffeur      = 89713,
+                AllianceChauffeur   = 89715
+            };
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    uint32 l_Entry = 0;
+                    if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    {
+                        if (l_Target->ToPlayer()->GetTeamId() == TeamId::TEAM_ALLIANCE)
+                            l_Entry = eCreatures::AllianceChauffeur;
+                        else
+                            l_Entry = eCreatures::HordeChauffeur;
+                    }
+
+                    if (Creature* l_Chauffeur = l_Target->SummonCreature(l_Entry, *l_Target))
+                        l_Target->SetPersonnalChauffeur(l_Chauffeur->GetGUID());
+                }
+            }
+
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (Creature* l_Chauffeur = Creature::GetCreature(*l_Target, l_Target->GetPersonnalChauffeur()))
+                        l_Chauffeur->EnterVehicle(l_Target);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (Creature* l_Chauffeur = Creature::GetCreature(*l_Target, l_Target->GetPersonnalChauffeur()))
+                        l_Chauffeur->DespawnOrUnsummon();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_item_summon_chauffeur_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_item_summon_chauffeur_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_summon_chauffeur_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_summon_chauffeur_AuraScript();
+        }
+};
+
+/// Forgemaster's Vigor - 177096
+class spell_item_forgemasters_vigor : public SpellScriptLoader
+{
+    public:
+        spell_item_forgemasters_vigor() : SpellScriptLoader("spell_item_forgemasters_vigor") { }
+
+        class spell_item_forgemasters_vigor_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_forgemasters_vigor_AuraScript);
+
+            enum eSpell
+            {
+                HammerBlows = 177099
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (!l_Target->HasAura(eSpell::HammerBlows))
+                    {
+                        l_Target->CastSpell(l_Target, eSpell::HammerBlows, true);
+
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::HammerBlows, EFFECT_0))
+                            l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
+                    }
+                    else
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::HammerBlows))
+                            l_Aura->ModStackAmount(1);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpell::HammerBlows);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_forgemasters_vigor_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_forgemasters_vigor_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_forgemasters_vigor_AuraScript();
+        }
+};
+
+/// Hammer Blows - 177099
+class spell_item_hammer_blows : public SpellScriptLoader
+{
+    public:
+        spell_item_hammer_blows() : SpellScriptLoader("spell_item_hammer_blows") { }
+
+        class spell_item_hammer_blows_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_hammer_blows_AuraScript);
+
+            enum eSpell
+            {
+                ForgemastersVigor = 177096
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::ForgemastersVigor, EFFECT_0))
+                        p_Amount = l_AurEff->GetAmount();
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_hammer_blows_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_hammer_blows_AuraScript();
+        }
+};
+
+/// Detonation - 177067
+class spell_item_detonation : public SpellScriptLoader
+{
+    public:
+        spell_item_detonation() : SpellScriptLoader("spell_item_detonation") { }
+
+        class spell_item_detonation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_detonation_AuraScript);
+
+            enum eSpell
+            {
+                Detonating = 177070
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (!l_Target->HasAura(eSpell::Detonating))
+                    {
+                        l_Target->CastSpell(l_Target, eSpell::Detonating, true);
+
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::Detonating, EFFECT_0))
+                            l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
+                    }
+                    else
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::Detonating))
+                            l_Aura->ModStackAmount(1);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpell::Detonating);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_detonation_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_detonation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_detonation_AuraScript();
+        }
+};
+
+/// Detonating - 177070
+class spell_item_detonating : public SpellScriptLoader
+{
+    public:
+        spell_item_detonating() : SpellScriptLoader("spell_item_detonating") { }
+
+        class spell_item_detonating_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_detonating_AuraScript);
+
+            enum eSpell
+            {
+                Detonation = 177067
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Detonation, EFFECT_0))
+                        p_Amount = l_AurEff->GetAmount();
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_detonating_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_detonating_AuraScript();
+        }
+};
+
+/// Battering - 177102
+class spell_item_battering : public SpellScriptLoader
+{
+    public:
+        spell_item_battering() : SpellScriptLoader("spell_item_battering") { }
+
+        class spell_item_battering_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_battering_AuraScript);
+
+            enum eSpell
+            {
+                Cracks = 177103
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (!l_Target->HasAura(eSpell::Cracks))
+                    {
+                        l_Target->CastSpell(l_Target, eSpell::Cracks, true);
+
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::Cracks, EFFECT_0))
+                            l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
+                    }
+                    else
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::Cracks))
+                            l_Aura->ModStackAmount(1);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpell::Cracks);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_battering_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_battering_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_battering_AuraScript();
+        }
+};
+
+/// Cracks! - 177103
+class spell_item_cracks : public SpellScriptLoader
+{
+    public:
+        spell_item_cracks() : SpellScriptLoader("spell_item_cracks") { }
+
+        class spell_item_cracks_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_cracks_AuraScript);
+
+            enum eSpell
+            {
+                Battering = 177102
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Battering, EFFECT_0))
+                        p_Amount = l_AurEff->GetAmount();
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_cracks_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_cracks_AuraScript();
+        }
+};
+
+/// Sanitizing - 177086
+class spell_item_sanatizing : public SpellScriptLoader
+{
+    public:
+        spell_item_sanatizing() : SpellScriptLoader("spell_item_sanatizing") { }
+
+        class spell_item_sanatizing_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_sanatizing_AuraScript);
+
+            enum eSpell
+            {
+                CleansingSteam = 177087
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (!l_Target->HasAura(eSpell::CleansingSteam))
+                    {
+                        l_Target->CastSpell(l_Target, eSpell::CleansingSteam, true);
+
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::CleansingSteam, EFFECT_0))
+                            l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
+                    }
+                    else
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::CleansingSteam))
+                            l_Aura->ModStackAmount(1);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpell::CleansingSteam);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_sanatizing_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_sanatizing_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_sanatizing_AuraScript();
+        }
+};
+
+/// Cleansing Steam - 177087
+class spell_item_cleansing_steam : public SpellScriptLoader
+{
+    public:
+        spell_item_cleansing_steam() : SpellScriptLoader("spell_item_cleansing_steam") { }
+
+        class spell_item_cleansing_steam_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_cleansing_steam_AuraScript);
+
+            enum eSpell
+            {
+                Sanitizing = 177086
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Sanitizing, EFFECT_0))
+                        p_Amount = l_AurEff->GetAmount();
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_cleansing_steam_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_cleansing_steam_AuraScript();
+        }
+};
+
+/// Molten Metal - 177081
+class spell_item_molten_metal : public SpellScriptLoader
+{
+    public:
+        spell_item_molten_metal() : SpellScriptLoader("spell_item_molten_metal") { }
+
+        class spell_item_molten_metal_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_molten_metal_AuraScript);
+
+            enum eSpell
+            {
+                PouringSlag = 177083
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (!l_Target->HasAura(eSpell::PouringSlag))
+                    {
+                        l_Target->CastSpell(l_Target, eSpell::PouringSlag, true);
+
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::PouringSlag, EFFECT_0))
+                            l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
+                    }
+                    else
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::PouringSlag))
+                            l_Aura->ModStackAmount(1);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpell::PouringSlag);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_molten_metal_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_molten_metal_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_molten_metal_AuraScript();
+        }
+};
+
+/// Pouring Slag - 177083
+class spell_item_pouring_slag : public SpellScriptLoader
+{
+    public:
+        spell_item_pouring_slag() : SpellScriptLoader("spell_item_pouring_slag") { }
+
+        class spell_item_pouring_slag_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_pouring_slag_AuraScript);
+
+            enum eSpell
+            {
+                MoltenMetal = 177081
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::MoltenMetal, EFFECT_0))
+                        p_Amount = l_AurEff->GetAmount();
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_pouring_slag_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_pouring_slag_AuraScript();
+        }
+};
+
+/// Legs of Iron (T17) - 178210
+/// Legs of Iron (Normal - T17 - Quest) - 178218
+/// Legs of Iron (Heroic - T17 - Quest) - 178221
+/// Legs of Iron (Mythic - T17 - Quest) - 178228
+class spell_item_legs_of_iron : public SpellScriptLoader
+{
+    public:
+        spell_item_legs_of_iron() : SpellScriptLoader("spell_item_legs_of_iron") { }
+
+        class spell_item_legs_of_iron_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_legs_of_iron_SpellScript);
+
+            enum eItemIDs
+            {
+                LegplatesOfGudingLight      = 115569,
+                ShadowCouncilsLeggings      = 115587,
+                SoulPriestsLeggings         = 115564,
+                ArcanoshatterLeggings       = 115554,
+                LivingWoodLegguards         = 115543,
+                OgreskullBoneplateGreaves   = 115535,
+                PoisonersLegguards          = 115573,
+                BlackhandsLegguards         = 115580,
+                LegwrapsOfTheSomberGaze     = 115557,
+                RylakstalkersLegguards      = 115546,
+                WindspeakersLegwraps        = 115575
+            };
+
+            enum eBonusIDs
+            {
+                /// For Token
+                TokenHeroic = 570,
+                TokenMythic = 569,
+                /// For T17
+                Heroic      = 566,
+                Mythic      = 567
+            };
+
+            enum eSpellIDs
+            {
+                NormalQuestToken    = 178218,
+                HeroicQuestToken    = 178221,
+                MythicQuestToken    = 178228
+            };
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Item* l_Item = GetCastItem())
+                    {
+                        uint32 l_ItemID = 0;
+                        uint32 l_Bonus  = 0;
+
+                        switch (l_Player->getClass())
+                        {
+                            case Classes::CLASS_PALADIN:
+                                l_ItemID = eItemIDs::LegplatesOfGudingLight;
+                                break;
+                            case Classes::CLASS_WARLOCK:
+                                l_ItemID = eItemIDs::ShadowCouncilsLeggings;
+                                break;
+                            case Classes::CLASS_PRIEST:
+                                l_ItemID = eItemIDs::SoulPriestsLeggings;
+                                break;
+                            case Classes::CLASS_MAGE:
+                                l_ItemID = eItemIDs::ArcanoshatterLeggings;
+                                break;
+                            case Classes::CLASS_DRUID:
+                                l_ItemID = eItemIDs::LivingWoodLegguards;
+                                break;
+                            case Classes::CLASS_DEATH_KNIGHT:
+                                l_ItemID = eItemIDs::OgreskullBoneplateGreaves;
+                                break;
+                            case Classes::CLASS_ROGUE:
+                                l_ItemID = eItemIDs::PoisonersLegguards;
+                                break;
+                            case Classes::CLASS_WARRIOR:
+                                l_ItemID = eItemIDs::BlackhandsLegguards;
+                                break;
+                            case Classes::CLASS_MONK:
+                                l_ItemID = eItemIDs::LegwrapsOfTheSomberGaze;
+                                break;
+                            case Classes::CLASS_HUNTER:
+                                l_ItemID = eItemIDs::RylakstalkersLegguards;
+                                break;
+                            case Classes::CLASS_SHAMAN:
+                                l_ItemID = eItemIDs::WindspeakersLegwraps;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (l_Item->HasItemBonus(eBonusIDs::TokenMythic))
+                            l_Bonus = eBonusIDs::Mythic;
+                        else if (l_Item->HasItemBonus(eBonusIDs::TokenHeroic))
+                            l_Bonus = eBonusIDs::Heroic;
+
+                        switch (GetSpellInfo()->Id)
+                        {
+                            case eSpellIDs::HeroicQuestToken:
+                                l_Bonus = eBonusIDs::Heroic;
+                                break;
+                            case eSpellIDs::MythicQuestToken:
+                                l_Bonus = eBonusIDs::Mythic;
+                                break;
+                            case eSpellIDs::NormalQuestToken:
+                            default:
+                                break;
+                        }
+
+                        if (l_ItemID)
+                        {
+                            /// Adding items
+                            uint32 l_NoSpaceForCount = 0;
+                            uint32 l_Count = 1;
+
+                            /// check space and find places
+                            ItemPosCountVec l_Dest;
+                            InventoryResult l_MSG = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Dest, l_ItemID, l_Count, &l_NoSpaceForCount);
+
+                            /// Convert to possible store amount
+                            if (l_MSG != InventoryResult::EQUIP_ERR_OK)
+                                l_Count -= l_NoSpaceForCount;
+
+                            /// Can't add any
+                            if (l_Count == 0 || l_Dest.empty())
+                                return;
+
+                            if (Item* l_NewItem = l_Player->StoreNewItem(l_Dest, l_ItemID, true))
+                            {
+                                if (l_Bonus)
+                                    l_NewItem->AddItemBonus(l_Bonus);
+
+                                l_Player->SendNewItem(l_NewItem, l_Count, false, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_legs_of_iron_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_legs_of_iron_SpellScript();
+        }
+};
+
+/// Chest of Iron (T17) - 178209
+/// Chest of Iron (Normal - T17 - Quest) - 178217
+/// Chest of Iron (Heroic - T17 - Quest) - 178225
+/// Chest of Iron (Mythic - T17 - Quest) - 178227
+class spell_item_chest_of_iron : public SpellScriptLoader
+{
+    public:
+        spell_item_chest_of_iron() : SpellScriptLoader("spell_item_chest_of_iron") { }
+
+        class spell_item_chest_of_iron_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_chest_of_iron_SpellScript);
+
+            enum eItemIDs
+            {
+                BattleplateOfGudingLight        = 115566,
+                ShadowCouncilsRobes             = 115588,
+                SoulPriestsRaiment              = 115560,
+                ArcanoshatterRobes              = 115550,
+                LivingWoodRaiment               = 115540,
+                OgreskullBoneplateBreastplate   = 115537,
+                PoisonersTunic                  = 115570,
+                BlackhandsChestguard            = 115582,
+                VestOfTheSomberGaze             = 115558,
+                RylakstalkersTunic              = 115548,
+                WindspeakersTunic               = 115577
+            };
+
+            enum eBonusIDs
+            {
+                /// For Token
+                TokenHeroic = 570,
+                TokenMythic = 569,
+                /// For T17
+                Heroic      = 566,
+                Mythic      = 567
+            };
+
+            enum eSpellIDs
+            {
+                NormalQuestToken    = 178217,
+                HeroicQuestToken    = 178225,
+                MythicQuestToken    = 178227
+            };
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Item* l_Item = GetCastItem())
+                    {
+                        uint32 l_ItemID = 0;
+                        uint32 l_Bonus  = 0;
+
+                        switch (l_Player->getClass())
+                        {
+                            case Classes::CLASS_PALADIN:
+                                l_ItemID = eItemIDs::BattleplateOfGudingLight;
+                                break;
+                            case Classes::CLASS_WARLOCK:
+                                l_ItemID = eItemIDs::ShadowCouncilsRobes;
+                                break;
+                            case Classes::CLASS_PRIEST:
+                                l_ItemID = eItemIDs::SoulPriestsRaiment;
+                                break;
+                            case Classes::CLASS_MAGE:
+                                l_ItemID = eItemIDs::ArcanoshatterRobes;
+                                break;
+                            case Classes::CLASS_DRUID:
+                                l_ItemID = eItemIDs::LivingWoodRaiment;
+                                break;
+                            case Classes::CLASS_DEATH_KNIGHT:
+                                l_ItemID = eItemIDs::OgreskullBoneplateBreastplate;
+                                break;
+                            case Classes::CLASS_ROGUE:
+                                l_ItemID = eItemIDs::PoisonersTunic;
+                                break;
+                            case Classes::CLASS_WARRIOR:
+                                l_ItemID = eItemIDs::BlackhandsChestguard;
+                                break;
+                            case Classes::CLASS_MONK:
+                                l_ItemID = eItemIDs::VestOfTheSomberGaze;
+                                break;
+                            case Classes::CLASS_HUNTER:
+                                l_ItemID = eItemIDs::RylakstalkersTunic;
+                                break;
+                            case Classes::CLASS_SHAMAN:
+                                l_ItemID = eItemIDs::WindspeakersTunic;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (l_Item->HasItemBonus(eBonusIDs::TokenMythic))
+                            l_Bonus = eBonusIDs::Mythic;
+                        else if (l_Item->HasItemBonus(eBonusIDs::TokenHeroic))
+                            l_Bonus = eBonusIDs::Heroic;
+
+                        switch (GetSpellInfo()->Id)
+                        {
+                            case eSpellIDs::HeroicQuestToken:
+                                l_Bonus = eBonusIDs::Heroic;
+                                break;
+                            case eSpellIDs::MythicQuestToken:
+                                l_Bonus = eBonusIDs::Mythic;
+                                break;
+                            case eSpellIDs::NormalQuestToken:
+                            default:
+                                break;
+                        }
+
+                        if (l_ItemID)
+                        {
+                            /// Adding items
+                            uint32 l_NoSpaceForCount = 0;
+                            uint32 l_Count = 1;
+
+                            /// check space and find places
+                            ItemPosCountVec l_Dest;
+                            InventoryResult l_MSG = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Dest, l_ItemID, l_Count, &l_NoSpaceForCount);
+
+                            /// Convert to possible store amount
+                            if (l_MSG != InventoryResult::EQUIP_ERR_OK)
+                                l_Count -= l_NoSpaceForCount;
+
+                            /// Can't add any
+                            if (l_Count == 0 || l_Dest.empty())
+                                return;
+
+                            if (Item* l_NewItem = l_Player->StoreNewItem(l_Dest, l_ItemID, true))
+                            {
+                                if (l_Bonus)
+                                    l_NewItem->AddItemBonus(l_Bonus);
+
+                                l_Player->SendNewItem(l_NewItem, l_Count, false, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_chest_of_iron_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_chest_of_iron_SpellScript();
+        }
+};
+
+/// Helm of Iron (T17) - 178212
+/// Helm of Iron (Normal - T17 - Quest) - 178216
+/// Helm of Iron (Heroic - T17 - Quest) - 178224
+/// Helm of Iron (Mythic - T17 - Quest) - 178226
+class spell_item_helm_of_iron : public SpellScriptLoader
+{
+    public:
+        spell_item_helm_of_iron() : SpellScriptLoader("spell_item_helm_of_iron") { }
+
+        class spell_item_helm_of_iron_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_helm_of_iron_SpellScript);
+
+            enum eItemIDs
+            {
+                HelmetOfGudingLight         = 115568,
+                ShadowCouncilsHood          = 115586,
+                SoulPriestsHood             = 115563,
+                ArcanoshatterHood           = 115553,
+                LivingWoodHeadpiece         = 115542,
+                OgreskullBoneplateGreathelm = 115539,
+                PoisonersHelmet             = 115572,
+                BlackhandsFaceguard         = 115584,
+                HelmOfTheSomberGaze         = 115556,
+                RylakstalkersHeadguard      = 115545,
+                WindspeakersFaceguard       = 115579
+            };
+
+            enum eBonusIDs
+            {
+                /// For Token
+                TokenHeroic = 570,
+                TokenMythic = 569,
+                /// For T17
+                Heroic      = 566,
+                Mythic      = 567
+            };
+
+            enum eSpellIDs
+            {
+                NormalQuestToken    = 178216,
+                HeroicQuestToken    = 178224,
+                MythicQuestToken    = 178226
+            };
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Item* l_Item = GetCastItem())
+                    {
+                        uint32 l_ItemID = 0;
+                        uint32 l_Bonus  = 0;
+
+                        switch (l_Player->getClass())
+                        {
+                            case Classes::CLASS_PALADIN:
+                                l_ItemID = eItemIDs::HelmetOfGudingLight;
+                                break;
+                            case Classes::CLASS_WARLOCK:
+                                l_ItemID = eItemIDs::ShadowCouncilsHood;
+                                break;
+                            case Classes::CLASS_PRIEST:
+                                l_ItemID = eItemIDs::SoulPriestsHood;
+                                break;
+                            case Classes::CLASS_MAGE:
+                                l_ItemID = eItemIDs::ArcanoshatterHood;
+                                break;
+                            case Classes::CLASS_DRUID:
+                                l_ItemID = eItemIDs::LivingWoodHeadpiece;
+                                break;
+                            case Classes::CLASS_DEATH_KNIGHT:
+                                l_ItemID = eItemIDs::OgreskullBoneplateGreathelm;
+                                break;
+                            case Classes::CLASS_ROGUE:
+                                l_ItemID = eItemIDs::PoisonersHelmet;
+                                break;
+                            case Classes::CLASS_WARRIOR:
+                                l_ItemID = eItemIDs::BlackhandsFaceguard;
+                                break;
+                            case Classes::CLASS_MONK:
+                                l_ItemID = eItemIDs::HelmOfTheSomberGaze;
+                                break;
+                            case Classes::CLASS_HUNTER:
+                                l_ItemID = eItemIDs::RylakstalkersHeadguard;
+                                break;
+                            case Classes::CLASS_SHAMAN:
+                                l_ItemID = eItemIDs::WindspeakersFaceguard;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (l_Item->HasItemBonus(eBonusIDs::TokenMythic))
+                            l_Bonus = eBonusIDs::Mythic;
+                        else if (l_Item->HasItemBonus(eBonusIDs::TokenHeroic))
+                            l_Bonus = eBonusIDs::Heroic;
+
+                        switch (GetSpellInfo()->Id)
+                        {
+                            case eSpellIDs::HeroicQuestToken:
+                                l_Bonus = eBonusIDs::Heroic;
+                                break;
+                            case eSpellIDs::MythicQuestToken:
+                                l_Bonus = eBonusIDs::Mythic;
+                                break;
+                            case eSpellIDs::NormalQuestToken:
+                            default:
+                                break;
+                        }
+
+                        if (l_ItemID)
+                        {
+                            /// Adding items
+                            uint32 l_NoSpaceForCount = 0;
+                            uint32 l_Count = 1;
+
+                            /// check space and find places
+                            ItemPosCountVec l_Dest;
+                            InventoryResult l_MSG = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Dest, l_ItemID, l_Count, &l_NoSpaceForCount);
+
+                            /// Convert to possible store amount
+                            if (l_MSG != InventoryResult::EQUIP_ERR_OK)
+                                l_Count -= l_NoSpaceForCount;
+
+                            /// Can't add any
+                            if (l_Count == 0 || l_Dest.empty())
+                                return;
+
+                            if (Item* l_NewItem = l_Player->StoreNewItem(l_Dest, l_ItemID, true))
+                            {
+                                if (l_Bonus)
+                                    l_NewItem->AddItemBonus(l_Bonus);
+
+                                l_Player->SendNewItem(l_NewItem, l_Count, false, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_helm_of_iron_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_helm_of_iron_SpellScript();
+        }
+};
+
+/// Shoulders of Iron (T17) - 178213
+/// Shoulders of Iron (Normal - T17 - Quest) - 178220
+/// Shoulders of Iron (Heroic - T17 - Quest) - 178223
+/// Shoulders of Iron (Mythic - T17 - Quest) - 178230
+class spell_item_shoulders_of_iron : public SpellScriptLoader
+{
+    public:
+        spell_item_shoulders_of_iron() : SpellScriptLoader("spell_item_shoulders_of_iron") { }
+
+        class spell_item_shoulders_of_iron_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_shoulders_of_iron_SpellScript);
+
+            enum eItemIDs
+            {
+                PauldronsOfGudingLight      = 115565,
+                ShadowCouncilsMantle        = 115589,
+                SoulPriestsShoulderguards   = 115561,
+                ArcanoshatterMantle         = 115551,
+                LivingWoodSpaulders         = 115544,
+                OgreskullBoneplatePauldrons = 115536,
+                PoisonersSpaulders          = 115574,
+                BlackhandsShoulderguards    = 115581,
+                MantleOfTheSomberGaze       = 115559,
+                RylakstalkersSpaulders      = 115547,
+                WindspeakersMantle          = 115579
+            };
+
+            enum eBonusIDs
+            {
+                /// For Token
+                TokenHeroic = 570,
+                TokenMythic = 569,
+                /// For T17
+                Heroic      = 566,
+                Mythic      = 567
+            };
+
+            enum eSpellIDs
+            {
+                NormalQuestToken    = 178220,
+                HeroicQuestToken    = 178223,
+                MythicQuestToken    = 178230
+            };
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Item* l_Item = GetCastItem())
+                    {
+                        uint32 l_ItemID = 0;
+                        uint32 l_Bonus  = 0;
+
+                        switch (l_Player->getClass())
+                        {
+                            case Classes::CLASS_PALADIN:
+                                l_ItemID = eItemIDs::PauldronsOfGudingLight;
+                                break;
+                            case Classes::CLASS_WARLOCK:
+                                l_ItemID = eItemIDs::ShadowCouncilsMantle;
+                                break;
+                            case Classes::CLASS_PRIEST:
+                                l_ItemID = eItemIDs::SoulPriestsShoulderguards;
+                                break;
+                            case Classes::CLASS_MAGE:
+                                l_ItemID = eItemIDs::ArcanoshatterMantle;
+                                break;
+                            case Classes::CLASS_DRUID:
+                                l_ItemID = eItemIDs::LivingWoodSpaulders;
+                                break;
+                            case Classes::CLASS_DEATH_KNIGHT:
+                                l_ItemID = eItemIDs::OgreskullBoneplatePauldrons;
+                                break;
+                            case Classes::CLASS_ROGUE:
+                                l_ItemID = eItemIDs::PoisonersSpaulders;
+                                break;
+                            case Classes::CLASS_WARRIOR:
+                                l_ItemID = eItemIDs::BlackhandsShoulderguards;
+                                break;
+                            case Classes::CLASS_MONK:
+                                l_ItemID = eItemIDs::MantleOfTheSomberGaze;
+                                break;
+                            case Classes::CLASS_HUNTER:
+                                l_ItemID = eItemIDs::RylakstalkersSpaulders;
+                                break;
+                            case Classes::CLASS_SHAMAN:
+                                l_ItemID = eItemIDs::WindspeakersMantle;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (l_Item->HasItemBonus(eBonusIDs::TokenMythic))
+                            l_Bonus = eBonusIDs::Mythic;
+                        else if (l_Item->HasItemBonus(eBonusIDs::TokenHeroic))
+                            l_Bonus = eBonusIDs::Heroic;
+
+                        switch (GetSpellInfo()->Id)
+                        {
+                            case eSpellIDs::HeroicQuestToken:
+                                l_Bonus = eBonusIDs::Heroic;
+                                break;
+                            case eSpellIDs::MythicQuestToken:
+                                l_Bonus = eBonusIDs::Mythic;
+                                break;
+                            case eSpellIDs::NormalQuestToken:
+                            default:
+                                break;
+                        }
+
+                        if (l_ItemID)
+                        {
+                            /// Adding items
+                            uint32 l_NoSpaceForCount = 0;
+                            uint32 l_Count = 1;
+
+                            /// check space and find places
+                            ItemPosCountVec l_Dest;
+                            InventoryResult l_MSG = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Dest, l_ItemID, l_Count, &l_NoSpaceForCount);
+
+                            /// Convert to possible store amount
+                            if (l_MSG != InventoryResult::EQUIP_ERR_OK)
+                                l_Count -= l_NoSpaceForCount;
+
+                            /// Can't add any
+                            if (l_Count == 0 || l_Dest.empty())
+                                return;
+
+                            if (Item* l_NewItem = l_Player->StoreNewItem(l_Dest, l_ItemID, true))
+                            {
+                                if (l_Bonus)
+                                    l_NewItem->AddItemBonus(l_Bonus);
+
+                                l_Player->SendNewItem(l_NewItem, l_Count, false, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_shoulders_of_iron_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_shoulders_of_iron_SpellScript();
+        }
+};
+
+/// Gauntlets of Iron (T17) - 178211
+/// Gauntlets of Iron (Normal - T17 - Quest) - 178219
+/// Gauntlets of Iron (Heroic - T17 - Quest) - 178222
+/// Gauntlets of Iron (Mythic - T17 - Quest) - 178229
+class spell_item_gauntlets_of_iron : public SpellScriptLoader
+{
+    public:
+        spell_item_gauntlets_of_iron() : SpellScriptLoader("spell_item_gauntlets_of_iron") { }
+
+        class spell_item_gauntlets_of_iron_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_gauntlets_of_iron_SpellScript);
+
+            enum eItemIDs
+            {
+                GauntletsOfGudingLight      = 115567,
+                ShadowCouncilsGloves        = 115585,
+                SoulPriestsGloves           = 115562,
+                ArcanoshatterGloves         = 115552,
+                LivingWoodGrips             = 115541,
+                OgreskullBoneplateGauntlets = 115538,
+                PoisonersGloves             = 115571,
+                BlackhandsHandguards        = 115583,
+                HandwrapsOfTheSomberGaze    = 115555,
+                RylakstalkersGloves         = 115549,
+                WindspeakersHandwraps       = 115578
+            };
+
+            enum eBonusIDs
+            {
+                /// For Token
+                TokenHeroic = 570,
+                TokenMythic = 569,
+                /// For T17
+                Heroic      = 566,
+                Mythic      = 567
+            };
+
+            enum eSpellIDs
+            {
+                NormalQuestToken    = 178219,
+                HeroicQuestToken    = 178222,
+                MythicQuestToken    = 178229
+            };
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Item* l_Item = GetCastItem())
+                    {
+                        uint32 l_ItemID = 0;
+                        uint32 l_Bonus  = 0;
+
+                        switch (l_Player->getClass())
+                        {
+                            case Classes::CLASS_PALADIN:
+                                l_ItemID = eItemIDs::GauntletsOfGudingLight;
+                                break;
+                            case Classes::CLASS_WARLOCK:
+                                l_ItemID = eItemIDs::ShadowCouncilsGloves;
+                                break;
+                            case Classes::CLASS_PRIEST:
+                                l_ItemID = eItemIDs::SoulPriestsGloves;
+                                break;
+                            case Classes::CLASS_MAGE:
+                                l_ItemID = eItemIDs::ArcanoshatterGloves;
+                                break;
+                            case Classes::CLASS_DRUID:
+                                l_ItemID = eItemIDs::LivingWoodGrips;
+                                break;
+                            case Classes::CLASS_DEATH_KNIGHT:
+                                l_ItemID = eItemIDs::OgreskullBoneplateGauntlets;
+                                break;
+                            case Classes::CLASS_ROGUE:
+                                l_ItemID = eItemIDs::PoisonersGloves;
+                                break;
+                            case Classes::CLASS_WARRIOR:
+                                l_ItemID = eItemIDs::BlackhandsHandguards;
+                                break;
+                            case Classes::CLASS_MONK:
+                                l_ItemID = eItemIDs::HandwrapsOfTheSomberGaze;
+                                break;
+                            case Classes::CLASS_HUNTER:
+                                l_ItemID = eItemIDs::RylakstalkersGloves;
+                                break;
+                            case Classes::CLASS_SHAMAN:
+                                l_ItemID = eItemIDs::WindspeakersHandwraps;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (l_Item->HasItemBonus(eBonusIDs::TokenMythic))
+                            l_Bonus = eBonusIDs::Mythic;
+                        else if (l_Item->HasItemBonus(eBonusIDs::TokenHeroic))
+                            l_Bonus = eBonusIDs::Heroic;
+
+                        switch (GetSpellInfo()->Id)
+                        {
+                            case eSpellIDs::HeroicQuestToken:
+                                l_Bonus = eBonusIDs::Heroic;
+                                break;
+                            case eSpellIDs::MythicQuestToken:
+                                l_Bonus = eBonusIDs::Mythic;
+                                break;
+                            case eSpellIDs::NormalQuestToken:
+                            default:
+                                break;
+                        }
+
+                        if (l_ItemID)
+                        {
+                            /// Adding items
+                            uint32 l_NoSpaceForCount = 0;
+                            uint32 l_Count = 1;
+
+                            /// check space and find places
+                            ItemPosCountVec l_Dest;
+                            InventoryResult l_MSG = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Dest, l_ItemID, l_Count, &l_NoSpaceForCount);
+
+                            /// Convert to possible store amount
+                            if (l_MSG != InventoryResult::EQUIP_ERR_OK)
+                                l_Count -= l_NoSpaceForCount;
+
+                            /// Can't add any
+                            if (l_Count == 0 || l_Dest.empty())
+                                return;
+
+                            if (Item* l_NewItem = l_Player->StoreNewItem(l_Dest, l_ItemID, true))
+                            {
+                                if (l_Bonus)
+                                    l_NewItem->AddItemBonus(l_Bonus);
+
+                                l_Player->SendNewItem(l_NewItem, l_Count, false, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_gauntlets_of_iron_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_gauntlets_of_iron_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2733,4 +4010,20 @@ void AddSC_item_spell_scripts()
     new spell_item_engineering_scopes("spell_item_oglethorpe_s_missile_splitter", eEngineeringScopesSpells::SpellOglethorpesMissileSplitter);
     new spell_item_engineering_scopes("spell_item_megawatt_filament", eEngineeringScopesSpells::SpellMegawattFilament);
     new spell_item_engineering_scopes("spell_item_hemet_s_heartseeker", eEngineeringScopesSpells::HemetsHeartseeker);
+    new spell_item_summon_chauffeur();
+    new spell_item_forgemasters_vigor();
+    new spell_item_hammer_blows();
+    new spell_item_detonation();
+    new spell_item_detonating();
+    new spell_item_battering();
+    new spell_item_cracks();
+    new spell_item_sanatizing();
+    new spell_item_cleansing_steam();
+    new spell_item_molten_metal();
+    new spell_item_pouring_slag();
+    new spell_item_legs_of_iron();
+    new spell_item_chest_of_iron();
+    new spell_item_helm_of_iron();
+    new spell_item_shoulders_of_iron();
+    new spell_item_gauntlets_of_iron();
 }

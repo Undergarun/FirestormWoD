@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "highmaul.hpp"
+# include "highmaul.hpp"
 
 Position const g_PolMovePos[3] =
 {
@@ -1407,6 +1407,12 @@ class spell_highmaul_twin_ogron_dispositions : public SpellScriptLoader
                                     l_SpellID = eSpells::FierceDisposition;
                                 else
                                     l_SpellID = eSpells::AggressiveDisposition;
+
+                                if ((int32)l_Distance > eHighmaulDatas::DispositionPCT)
+                                {
+                                    if (InstanceScript* l_Instance = l_Other->GetInstanceScript())
+                                        l_Instance->SetData(eHighmaulDatas::TwinOgronAchievement, 1);
+                                }
 
                                 if (!l_Caster->HasAura(l_SpellID))
                                     l_Caster->CastSpell(l_Caster, l_SpellID, true);

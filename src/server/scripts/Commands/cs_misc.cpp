@@ -1393,7 +1393,7 @@ class misc_commandscript: public CommandScript
 
                     PreparedStatement* l_Statement = HotfixDatabase.GetPreparedStatement(HOTFIX_SEL_ITEM_TEMPLATE_BY_NAME);
                     l_Statement->setString(0, l_ItemName);
-                    PreparedQueryResult l_Result = WorldDatabase.Query(l_Statement);
+                    PreparedQueryResult l_Result = HotfixDatabase.Query(l_Statement);
 
                     if (!l_Result)
                     {

@@ -449,6 +449,48 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
         }
 };
 
+/// Snake Trap - 34600
+/// Snake Trap (Fire - Trap Launcher) - 82949
+class spell_at_hun_snake_trap : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_hun_snake_trap() : AreaTriggerEntityScript("at_snake_trap") { }
+
+        enum eSpells
+        {
+            SummonSnakes = 57879
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster && l_CreateSpell)
+            {
+                float l_Radius = 5.0f;
+                Unit* l_Target = nullptr;
+
+                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
+                if (!l_Target)
+                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+
+                if (l_Target != nullptr)
+                {
+                    l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
+                    p_AreaTrigger->Remove(0);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_hun_snake_trap();
+        }
+};
+
 /// Ice trap effect - 13810
 class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
 {
@@ -593,51 +635,6 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
         AreaTriggerEntityScript* GetAI() const
         {
             return new spell_at_hun_explosive_trap();
-        }
-};
-
-/// Snake Trap - 34600
-/// Snake Trap (Fire - Trap Launcher) - 82949
-class spell_at_hun_snake_trap : public AreaTriggerEntityScript
-{
-    public:
-        spell_at_hun_snake_trap() : AreaTriggerEntityScript("at_snake_trap") { }
-
-        enum HunterSnakeTrap
-        {
-            SpellEntrapment     = 19387,
-            SpellEntrapmentRoot = 64803
-        };
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            auto l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-            auto l_Caster = p_AreaTrigger->GetCaster();
-
-            if (l_Caster && l_CreateSpell)
-            {
-                float l_Radius = 5.0f;
-                Unit* l_Target = nullptr;
-
-                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                if (l_Target != nullptr)
-                {
-                    if (l_Caster->HasAura(HunterSnakeTrap::SpellEntrapment)) ///< Entrapment
-                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HunterSnakeTrap::SpellEntrapmentRoot, true);
-
-                    p_AreaTrigger->Remove(0);
-                }
-            }
-        }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new spell_at_hun_snake_trap();
         }
 };
 
