@@ -524,36 +524,31 @@ class spell_dk_conversion: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_conversion_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
             {
-                if (Unit* l_unit = GetCaster())
-                    l_unit->CastSpell(l_unit, DK_SPELL_CONVERSION_REGEN, true);
+                amount = 0;
             }
 
-            /// For visual in the tooltip - need to figure out why it doesnt show up - not so important atm
-            void CalculateAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (p_AuraEffect->GetEffIndex() != EFFECT_0)
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
                     return;
 
-                if (Unit* l_Caster = GetCaster())
+                if (l_Player->GetPower(POWER_RUNIC_POWER) / l_Player->GetPowerCoeff(POWER_RUNIC_POWER) > 5)
                 {
-                    for (auto l_Itr : GetSpellInfo()->SpellPowers)
-                    {
-                        if (l_Itr->RequiredAuraSpellId && !l_Caster->HasAura(l_Itr->RequiredAuraSpellId))
-                            continue;
-
-                        Powers powerType = Powers(l_Itr->PowerType);
-                        p_Amount = l_Itr->CostPerSecond + int32(l_Itr->CostPerSecondPercentage * l_Caster->GetCreatePowers(powerType) / 100) / 10;
-                        return;
-                    }
+                    l_Player->CastSpell(l_Player, DK_SPELL_CONVERSION_REGEN, true);
+                    l_Player->EnergizeBySpell(l_Player, DK_SPELL_CONVERSION_REGEN, -5 * l_Player->GetPowerCoeff(POWER_RUNIC_POWER), POWER_RUNIC_POWER);
                 }
+                else
+                    l_Player->RemoveAura(GetSpellInfo()->Id);
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_conversion_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
