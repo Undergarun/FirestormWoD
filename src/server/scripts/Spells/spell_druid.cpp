@@ -5128,7 +5128,9 @@ class spell_dru_astral_form : public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphOfStars = 114301
+                GlyphOfStars    = 114301,
+                MoonkinForm     = 24858,
+                ChosenofElune   = 102560
             };
 
             void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -5156,11 +5158,11 @@ class spell_dru_astral_form : public SpellScriptLoader
             {
                 switch (m_scriptSpellId)
                 {
-                case 24858:
+                case eSpells::MoonkinForm:
                     AfterEffectApply += AuraEffectApplyFn(spell_dru_astral_form_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
                     AfterEffectRemove += AuraEffectRemoveFn(spell_dru_astral_form_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
                     break;
-                case 102560:
+                case eSpells::ChosenofElune:
                     AfterEffectApply += AuraEffectApplyFn(spell_dru_astral_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
                     AfterEffectRemove += AuraEffectRemoveFn(spell_dru_astral_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
                     break;
