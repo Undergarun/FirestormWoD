@@ -5964,6 +5964,10 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_spellInfo->Id == 168539 || m_spellInfo->Id == 168540)
         return SPELL_CAST_OK;
 
+    /// Hacky fix for Herb Gathering exploit
+    if (m_spellInfo->Id == 2368 && m_targets.GetGOTarget() && m_targets.GetGOTarget()->GetEntry() == 209059)
+        return SPELL_FAILED_BAD_TARGETS;
+
     // Custom Spell_failed
     if (m_spellInfo->IsCustomCastCanceled(m_caster))
         return SPELL_FAILED_DONT_REPORT;
