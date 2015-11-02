@@ -1990,6 +1990,7 @@ class Unit : public WorldObject
         uint64 GetPetGUID() const { return m_SummonSlot[SUMMON_SLOT_PET]; }
         void SetCritterGUID(uint64 guid) { SetGuidValue(UNIT_FIELD_CRITTER, guid); }
         uint64 GetCritterGUID() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
+        uint64 GetTargetGUID() const { return GetGuidValue(UNIT_FIELD_TARGET); }
 
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
         uint64 GetCharmerOrOwnerGUID() const { return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerGUID(); }
