@@ -6,7 +6,17 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "highmaul.hpp"
+# include "highmaul.hpp"
+
+Position const g_MaggotSpawnPos[eHighmaulDatas::MaxMaggotToKill] =
+{
+    { 3827.051f, 7690.205f, 23.67708f, 0.000f },
+    { 3751.507f, 7722.538f, 23.65485f, 4.332f },
+    { 3704.671f, 7700.851f, 23.60431f, 3.872f },
+    { 3687.367f, 7626.960f, 23.64627f, 1.488f },
+    { 3743.118f, 7607.410f, 23.86531f, 5.192f },
+    { 3799.805f, 7675.845f, 23.04378f, 3.110f }
+};
 
 G3D::Vector3 ComputeLocationSelection(Creature* p_Source, float p_SearchRange, float p_MinRadius, float p_Radius)
 {
@@ -156,9 +166,15 @@ class boss_the_butcher : public CreatureScript
             Wipe
         };
 
-        enum eCreature
+        enum eCreatures
         {
-            NightTwistedCadaver = 82505
+            NightTwistedCadaver = 82505,
+            Maggot              = 80728
+        };
+
+        enum eAction
+        {
+            MaggotKilled
         };
 
         struct boss_the_butcherAI : public BossAI
@@ -179,6 +195,8 @@ class boss_the_butcher : public CreatureScript
 
             /// Mythic mode only
             uint8 m_AddCount;
+
+            std::set<uint8> m_MaggotSpawned;
 
             void Reset() override
             {
@@ -212,6 +230,8 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheTenderizer);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
                 }
+
+                m_MaggotSpawned.clear();
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -239,6 +259,14 @@ class boss_the_butcher : public CreatureScript
                 {
                     m_AddCount = 0;
                     m_Events.ScheduleEvent(eEvents::EventCadaver, 18 * TimeConstants::IN_MILLISECONDS);
+                }
+
+                if (!IsLFR())
+                {
+                    uint8 l_I = urand(0, (eHighmaulDatas::MaxMaggotToKill - 1));
+
+                    me->SummonCreature(eCreatures::Maggot, g_MaggotSpawnPos[l_I]);
+                    m_MaggotSpawned.insert(l_I);
                 }
             }
 
@@ -353,7 +381,32 @@ class boss_the_butcher : public CreatureScript
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             AttackStart(l_Target);
+
+                        if (Creature* l_Maggot = me->FindNearestCreature(eCreatures::Maggot, 10.0f))
+                            me->Kill(l_Maggot);
                     });
+                }
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eAction::MaggotKilled)
+                {
+                    std::vector<uint8> l_Indexes = { 0, 1, 2, 3, 4, 5 };
+                    std::random_shuffle(l_Indexes.begin(), l_Indexes.end());
+
+                    for (uint8 l_I : l_Indexes)
+                    {
+                        if (m_MaggotSpawned.find(l_I) != m_MaggotSpawned.end())
+                            continue;
+
+                        me->SummonCreature(eCreatures::Maggot, g_MaggotSpawnPos[l_I]);
+                        m_MaggotSpawned.insert(l_I);
+                        break;
+                    }
+
+                    if (m_Instance != nullptr)
+                        m_Instance->SetData(eHighmaulDatas::ButcherAchievement, 1);
                 }
             }
 
@@ -412,6 +465,13 @@ class boss_the_butcher : public CreatureScript
                             G3D::Vector3 l_Orientation(0.0f, 4.035325f, 0.0f);
 
                             me->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Target, 37116);
+
+                            if (Creature* l_Maggot = me->FindNearestCreature(eCreatures::Maggot, 5.0f))
+                            {
+                                Position l_Pos = { l_Target.x, l_Target.y, l_Target.z };
+                                if (l_Maggot->IsNearPosition(&l_Pos, 5.0f))
+                                    me->Kill(l_Maggot);
+                            }
                         });
 
                         m_Events.ScheduleEvent(eEvents::EventCleave, 5 * TimeConstants::IN_MILLISECONDS);
@@ -464,7 +524,7 @@ class boss_the_butcher : public CreatureScript
                             float l_Orientation = frand(0, 2 * M_PI);
                             float l_X = l_PosX + (l_Radius * cos(l_Orientation));
                             float l_Y = l_PosY + (l_Radius * sin(l_Orientation));
-                            me->SummonCreature(eCreature::NightTwistedCadaver, l_X, l_Y, me->GetPositionZ());
+                            me->SummonCreature(eCreatures::NightTwistedCadaver, l_X, l_Y, me->GetPositionZ());
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventCadaver, 14 * TimeConstants::IN_MILLISECONDS);
@@ -567,6 +627,52 @@ class npc_highmaul_night_twisted_cadaver : public CreatureScript
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_highmaul_night_twisted_cadaverAI(p_Creature);
+        }
+};
+
+/// Maggot - 80728
+class npc_highmaul_maggot : public CreatureScript
+{
+    public:
+        npc_highmaul_maggot() : CreatureScript("npc_highmaul_maggot") { }
+
+        enum eAction
+        {
+            MaggotKilled
+        };
+
+        struct npc_highmaul_maggotAI : public ScriptedAI
+        {
+            npc_highmaul_maggotAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+
+            void Reset() override
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance != nullptr)
+                {
+                    if (Creature* l_Butcher = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::TheButcher)))
+                    {
+                        if (l_Butcher->IsAIEnabled)
+                            l_Butcher->AI()->DoAction(eAction::MaggotKilled);
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_maggotAI(p_Creature);
         }
 };
 
@@ -809,6 +915,7 @@ void AddSC_boss_the_butcher()
 
     /// NPCs
     new npc_highmaul_night_twisted_cadaver();
+    new npc_highmaul_maggot();
 
     /// Spells
     new spell_highmaul_heavy_handed();
@@ -816,6 +923,6 @@ void AddSC_boss_the_butcher()
     new spell_highmaul_bounding_cleave_dummy();
     new spell_highmaul_gushing_wounds();
 
-    /// AreaTriggers
+    /// AreaTrigger
     new areatrigger_highmaul_pale_vitriol();
 }

@@ -233,7 +233,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
         }
     }
 
-    p_Data << uint8(m_Slot);                                                                                    ///< Slot
+    p_Data << uint8(p_OverrideSpellID ? MAX_AURAS : m_Slot);                                                    ///< Slot
     p_Data.WriteBit(!p_Remove);                                                                                 ///< Has Aura Data
     p_Data.FlushBits();
 
@@ -1361,6 +1361,7 @@ bool Aura::CanBeSaved() const
         case 37025: // Water, Coilfang Raid
         case 36444: // Water, Lake Wintergrasp
         case 28801: // Slime, Naxxramas
+        case 168506:///< Ancient Artifact (Ashran PvP Zone)
             return false;
         default:
             break;
@@ -2948,7 +2949,6 @@ void Aura::CallScriptEffectCalcAmountHandlers(constAuraEffectPtr aurEff, int32 &
         }
         (*scritr)->_FinishScriptCall();
     }
-
 
     scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)

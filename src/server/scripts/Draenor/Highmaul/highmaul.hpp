@@ -58,6 +58,15 @@ enum eHighmaulDatas
     /// Instance datas
     ElevatorActivated = 0,
     TestsActivated,
+    KargathAchievement,
+    ButcherAchievement,
+    TectusAchievement,
+    BrackensporeAchievement,
+    TwinOgronAchievement,
+    KoraghOverflowingEnergy,
+    KoraghNullificationBarrier,
+    KoraghAchievement,
+    ImperatorAchievement,
 
     /// Misc values
     /// Global
@@ -71,11 +80,18 @@ enum eHighmaulDatas
     MaxRaidGrates,
     HighmaulSweeperCount = 2,
     HighmaulSweeperMovesCount = 9,
+    /// The Butcher
+    MaxMaggotToKill = 6,
     /// Brackenspore
     MaxCreepingMoss = 16,
     MaxFleshEaterPos = 2,
+    BurningInfusionNeeded = 15,
     /// The Market
     MaxTectusGuardians = 3,
+    /// Twin Ogron
+    DispositionPCT = 30,
+    /// Ko'ragh
+    MaxOverflowingEnergy = 14,
     /// Imperator Mar'gok
     MaxIntervalles = 2
 };
@@ -207,6 +223,17 @@ enum eHighmaulDungeons
     WalledCity      = 849,
     ArcaneSanctum   = 850,
     ImperatorsFall  = 851
+};
+
+enum eHighmaulAchievements
+{
+    FlameOn             = 8948,
+    HurryUpMaggot       = 8947,
+    MoreLikeWreckedUs   = 8974,
+    AFungusAmongUs      = 8975,
+    BrothersInArms      = 8958,
+    PairAnnihilation    = 8976,
+    LineageOfPower      = 8977
 };
 
 #endif

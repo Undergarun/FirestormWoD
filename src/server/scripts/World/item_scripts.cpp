@@ -693,6 +693,70 @@ class item_eye_of_the_black_prince : public ItemScript
         }
 };
 
+/// Clinking Present - 122718
+class item_script_clinking_present : public ItemScript
+{
+    public:
+        item_script_clinking_present() : ItemScript("item_script_clinking_present") { }
+
+        enum eItemIDs
+        {
+            HordeChauffeuredChopper     = 120968,
+            AllianceChauffeuredChopper  = 122703
+        };
+
+        bool OnOpen(Player* p_Player, Item* p_Item) override
+        {
+            if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
+                p_Player->AddItem(eItemIDs::AllianceChauffeuredChopper, 1);
+            else
+                p_Player->AddItem(eItemIDs::HordeChauffeuredChopper, 1);
+
+            return false;
+        }
+};
+
+/// Chauffeured Chopper (Horde) - 120968
+/// Chauffeured Chopper (Alliance) - 122703
+class item_script_chauffeured_chopper : public ItemScript
+{
+    public:
+        item_script_chauffeured_chopper() : ItemScript("item_script_chauffeured_chopper") { }
+
+        enum eItemIDs
+        {
+            HordeChauffeuredChopper     = 120968,
+            AllianceChauffeuredChopper  = 122703
+        };
+
+        enum eSpellIDs
+        {
+            SummonChauffeurHorde    = 179244,
+            SummonChauffeurAlliance = 179245
+        };
+
+        bool OnUse(Player* p_Player, Item* p_Item, SpellCastTargets const& p_Targets) override
+        {
+            switch (p_Item->GetEntry())
+            {
+                case eItemIDs::HordeChauffeuredChopper:
+                {
+                    p_Player->learnSpell(eSpellIDs::SummonChauffeurHorde, false);
+                    break;
+                }
+                case eItemIDs::AllianceChauffeuredChopper:
+                {
+                    p_Player->learnSpell(eSpellIDs::SummonChauffeurAlliance, false);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            return false;
+        }
+};
+
 /// Regular check about passengers (allows checks for crossfaction mount)
 class PlayerScript_VehicleCheck : public PlayerScript
 {
@@ -715,6 +779,40 @@ class PlayerScript_VehicleCheck : public PlayerScript
         }
 };
 
+/// Time-Lost Proto-Drake hacklootfix
+class PlayerScript_ProtoDrakeLootHackfix : public PlayerScript
+{
+public:
+    PlayerScript_ProtoDrakeLootHackfix() : PlayerScript("PlayerScript_ProtoDrakeLootHackfix") {}
+
+    void OnCreatureKill(Player* killer, Creature* killed)
+    {
+        if (killed->GetEntry() == 32491) ///< Time-Lost Proto-Drake
+        {
+            if (killer->AddItem(44168, 1))  ///< Reins of the Time-Lost Proto-Drake
+                ChatHandler(killer).PSendSysMessage("Reins of the Time-Lost Proto-Drake have been added to your inventory due to loot bugs.");
+            else
+            {
+                // Send by mail
+                SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+                MailDraft draft("Time-Lost Proto-Drake loot", "Due to bugs with the Time-Lost Proto-Drake, here are the Reins of the Time-Lost Proto-Drake as a loot.\n\n-Firestorm Team");
+
+                if (Item* item = Item::CreateItem(44168, 1, killer))
+                {
+                    item->SaveToDB(trans);                               // save for prevent lost at next mail load, if send fail then item will deleted
+                    draft.AddItem(item);
+                }
+
+                draft.SendMailTo(trans, MailReceiver(killer, killer->GetGUIDLow()), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
+                CharacterDatabase.CommitTransaction(trans);
+
+                ChatHandler(killer).PSendSysMessage("Your inventory seems to be full, we sent you the Reins of the Time-Lost Proto-Drake by mail.");
+            }
+        }
+    }
+};
+
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
@@ -732,6 +830,9 @@ void AddSC_item_scripts()
     new spell_draenor_profession();
     new player_draenor_profession();
     new item_eye_of_the_black_prince();
+    new item_script_clinking_present();
+    new item_script_chauffeured_chopper();
 
     new PlayerScript_VehicleCheck();
+    new PlayerScript_ProtoDrakeLootHackfix();
 }

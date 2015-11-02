@@ -118,7 +118,7 @@ void BattlePet::CloneFrom(BattlePet::Ptr & p_BattlePet)
         Abilities[l_I] = p_BattlePet->Abilities[l_I];
 }
 /// Save
-void BattlePet::Save()
+void BattlePet::Save(SQLTransaction& p_Transaction)
 {
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REP_PETBATTLE);
     l_Statement->setUInt64(0, GUID_LOPART(JournalID));
@@ -143,7 +143,7 @@ void BattlePet::Save()
     l_Statement->setString(19, DeclinedNames[2]);
     l_Statement->setString(20, DeclinedNames[3]);
     l_Statement->setString(21, DeclinedNames[4]);
-    LoginDatabase.Execute(l_Statement);
+    p_Transaction->Append(l_Statement);
 }
 
 //////////////////////////////////////////////////////////////////////////

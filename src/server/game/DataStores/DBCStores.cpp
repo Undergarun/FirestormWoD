@@ -367,6 +367,11 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesTextStore,             dbcPath, "EmotesText.dbc");                                                   // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sFactionStore,                dbcPath, "Faction.dbc");                                                      // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore,               dbcPath, "Criteria.dbc");
+
+    /// Ko'ragh Achievement - Pair Annihilation
+    if (CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(24693))
+        ((CriteriaEntry*)l_Criteria)->Type = AchievementCriteriaDataType::ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT;
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaTreeStore,           dbcPath, "CriteriaTree.dbc");                                                 // 17399
 
     for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)

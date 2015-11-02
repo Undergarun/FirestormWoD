@@ -605,13 +605,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_effectExecuteData.clear();
 
     if (m_caster == NULL)
-    {
         sLog->outAshran("m_caster is null!! spellId %u", m_spellInfo->Id);
-    }
-    else if (sWorld->isDelete(m_caster))
-    {
-        sLog->outAshran("m_caster is null!! spellId %u", m_spellInfo->Id);
-    }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
@@ -5961,6 +5955,10 @@ SpellCastResult Spell::CheckCast(bool strict)
     // Hack fixing Skulloc LOS issue with the bridge sequence
     if (m_spellInfo->Id == 168539 || m_spellInfo->Id == 168540)
         return SPELL_CAST_OK;
+
+    /// Hacky fix for Herb Gathering exploit
+    if (m_spellInfo->Id == 2368 && m_targets.GetGOTarget() && m_targets.GetGOTarget()->GetEntry() == 209059)
+        return SPELL_FAILED_BAD_TARGETS;
 
     // Custom Spell_failed
     if (m_spellInfo->IsCustomCastCanceled(m_caster))
