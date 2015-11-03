@@ -26997,7 +26997,7 @@ void Player::SendSpellHistory()
     uint64 l_CurTime = 0;
     ACE_OS::gettimeofday().msec(l_CurTime);
 
-    WorldPacket l_HistoryData(SMSG_SEND_SPELL_HISTORY);
+    WorldPacket l_HistoryData(SMSG_SEND_SPELL_HISTORY, 2 * 1024);
     l_HistoryData << uint32(GetSpellCooldownMap().size());
 
     for (SpellCooldowns::const_iterator l_Itr = GetSpellCooldownMap().begin(); l_Itr != GetSpellCooldownMap().end(); ++l_Itr)
@@ -31933,7 +31933,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         uint32 l_TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
         G3D::Vector3 l_Vector(0, 0, 0);
 
-        WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 1 + 8 + 7 * 4);
+        WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 2 + 16 + 4 + 2 + 16 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
         l_Data.appendPackGUID(GetGUID());               ///< Mover GUID
         l_Data << uint32(0);                            ///< Sequence Index
 
@@ -33077,7 +33077,7 @@ void Player::SendSpellCharges()
 
             l_Data << uint32(l_CategoryCharge.first);
             l_Data << uint32(l_CooldownDuration.count());
-            l_Data << l_CategoryCharge.second.size();
+            l_Data << uint8(l_CategoryCharge.second.size());
         }
     }
     SendDirectMessage(&l_Data);
