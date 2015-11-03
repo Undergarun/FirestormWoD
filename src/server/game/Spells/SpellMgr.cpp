@@ -4874,6 +4874,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165629:///< Item - Priest T17 Shadow 4P Bonus
             case 167702:///< Item - Shaman T17 Restoration 4P Bonus
             case 165610:///< Item - Shaman T17 Enhancement 4P Bonus
+            case 165525:///< Item - Hunter T17 Marksmanship 4P Bonus
+            case 165544:///< Item - Hunter T17 Survival 2P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
