@@ -961,7 +961,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 1);
     SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 1);
 
-    if (l_PetType == HUNTER_PET)
+    if (l_PetType == HUNTER_PET && !ToPet()->m_Stampeded)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
     UpdateAllStats();

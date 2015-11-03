@@ -8070,7 +8070,6 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
             /// Set pet at full health
             l_Pet->SetHealth(l_Pet->GetMaxHealth());
             l_Pet->SetReactState(REACT_HELPER);
-            l_Pet->m_Stampeded = true;
 
             std::list<uint32> l_SpellsToRemove;
             for (auto l_Iter : l_Pet->m_spells)
