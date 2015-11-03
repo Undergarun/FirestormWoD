@@ -4877,6 +4877,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165525:///< Item - Hunter T17 Marksmanship 4P Bonus
             case 165544:///< Item - Hunter T17 Survival 2P Bonus
             case 165450:///< Item - Warlock T17 Demonology 2P Bonus
+            case 165337:///< Item - Warrior T17 Fury 2P Bonus
+            case 165349:///< Item - Warrior T17 Fury 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
@@ -4884,6 +4886,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].BasePoints = 20;
                 break;
             case 181608:///< Inner Demon (for Warlock T17 Demonology 2P Bonus)
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
+                break;
+            case 165336:///< Item - Warrior T17 Arms 2P Bonus
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
                 break;

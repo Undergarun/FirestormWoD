@@ -196,8 +196,8 @@ class spell_warr_shield_block: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED, true);
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED, true);
             }
 
             void Register()
@@ -209,6 +209,51 @@ class spell_warr_shield_block: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warr_shield_block_SpellScript();
+        }
+};
+
+/// Shield Block (aura) - 132404
+class spell_warr_shield_block_aura : public SpellScriptLoader
+{
+    public:
+        spell_warr_shield_block_aura() : SpellScriptLoader("spell_warr_shield_block_aura") { }
+
+        class spell_warr_shield_block_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_shield_block_AuraScript);
+
+            enum eSpells
+            {
+                T17Protection4P = 165351,
+                ShieldMastery   = 169688
+            };
+
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    /// While Shield Block is active, your shield block value is increased by 5%.
+                    if (l_Target->HasAura(eSpells::T17Protection4P))
+                        l_Target->CastSpell(l_Target, eSpells::ShieldMastery, true);
+                }
+            }
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eSpells::ShieldMastery);
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_warr_shield_block_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_BLOCK_PERCENT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_warr_shield_block_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_BLOCK_PERCENT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_shield_block_AuraScript();
         }
 };
 
@@ -545,7 +590,9 @@ class spell_warr_raging_blow: public SpellScriptLoader
 
             enum eSpells
             {
-                MeatCleaverTargetModifier = 85739
+                MeatCleaverTargetModifier   = 85739,
+                T17Fury2P                   = 165337,
+                Enrage                      = 12880
             };
 
             void HandleAfterCast()
@@ -560,9 +607,20 @@ class spell_warr_raging_blow: public SpellScriptLoader
                 }
             }
 
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    /// Raging Blow critical strikes have a 20 % chance to activate Enrage.
+                    if (l_Caster->HasAura(eSpells::T17Fury2P) && GetSpell()->IsCritForTarget(GetHitUnit()) && roll_chance_i(20))
+                        l_Caster->CastSpell(l_Caster, eSpells::Enrage, true);
+                }
+            }
+
             void Register()
             {
                 AfterCast += SpellCastFn(spell_warr_raging_blow_SpellScript::HandleAfterCast);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_raging_blow_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2294,6 +2352,14 @@ class spell_warr_shield_slam : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_shield_slam_SpellScript);
 
+            enum eSpells
+            {
+                T17Protection2P = 165338,
+                GladiatorStance = 156291,
+                ShieldBlock     = 2562,
+                ShieldCharge    = 156321
+            };
+
             static float gte(int32 p_Level, int32 p_MinLevel)
             {
                 if (p_Level < p_MinLevel)
@@ -2302,7 +2368,7 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 return (float)p_Level / 100;
             }
 
-            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            void HandleDamage(SpellEffIndex p_EffIndex)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -2326,6 +2392,18 @@ class spell_warr_shield_slam : public SpellScriptLoader
                         l_Damage += CalculatePct(l_Damage, l_HeavyRepercussions->GetEffect(0)->GetAmount());
 
                 SetHitDamage(l_Damage);
+
+                /// Shield Slam has a 8% chance to automatically cast Shield Block/Shield Charge.
+                if (SpellInfo const* l_T17Protection2P = sSpellMgr->GetSpellInfo(eSpells::T17Protection2P))
+                {
+                    if (l_Caster->HasAura(l_T17Protection2P->Id) && roll_chance_i(l_T17Protection2P->ProcChance))
+                    {
+                        if (l_Caster->HasAura(eSpells::GladiatorStance))
+                            l_Caster->CastSpell(l_Target, eSpells::ShieldCharge, true);
+                        else
+                            l_Caster->CastSpell(l_Target, eSpells::ShieldBlock, true);
+                    }
+                }
             }
 
             void Register()
@@ -2558,7 +2636,15 @@ class spell_warr_activate_battle_stance : public SpellScriptLoader
 
             enum eSpells
             {
-                BattleStance = 2457
+                BattleStance            = 2457,
+                Recklessness            = 1719,
+                T17Fury4P               = 165349,
+                RampageDriver           = 165350,
+                T17Arms4P               = 165345,
+                ColossusSmash           = 86346,
+                DeadlyCalm              = 166587,
+                T17Arms2P               = 165336,
+                ColossusSmashEnergize   = 169587
             };
 
             void HandleOnHit()
@@ -2567,6 +2653,21 @@ class spell_warr_activate_battle_stance : public SpellScriptLoader
 
                 if (l_Caster->GetShapeshiftForm() == FORM_DEFENSIVESTANCE)
                     l_Caster->CastSpell(l_Caster, eSpells::BattleStance, true);
+
+                /// While Recklessness is active, your attack speed and critical strike chance increase by 6% every second.
+                if (GetSpellInfo()->Id == eSpells::Recklessness && l_Caster->HasAura(eSpells::T17Fury4P))
+                    l_Caster->CastSpell(l_Caster, eSpells::RampageDriver, true);
+
+                if (GetSpellInfo()->Id == eSpells::ColossusSmash)
+                {
+                    /// Colossus Smash has a 40 % chance to reduce the cooldown of Mortal Strike by 50 % for 10 sec.
+                    if (l_Caster->HasAura(eSpells::T17Arms4P) && roll_chance_i(40))
+                        l_Caster->CastSpell(l_Caster, eSpells::DeadlyCalm, true);
+
+                    /// Colossus Smash now generates 20 Rage.
+                    if (l_Caster->HasAura(eSpells::T17Arms2P))
+                        l_Caster->CastSpell(l_Caster, eSpells::ColossusSmashEnergize, true);
+                }
             }
 
             void Register()
