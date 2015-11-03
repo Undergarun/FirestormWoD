@@ -1629,7 +1629,7 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
 
     ASSERT(unitTarget == m_spellAura->GetOwner());
 
-    for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+    for (int i = 0; i < m_spellInfo->EffectCount; i++)
     {
         if (m_spellAura->GetEffect(i) && m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_SCHOOL_ABSORB)
         {
@@ -3979,7 +3979,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     // multiple weapon dmg effect workaround
     // execute only the last weapon damage
     // and handle all effects at once
-    for (uint32 j = effIndex + 1; j < MAX_SPELL_EFFECTS; ++j)
+    for (uint32 j = effIndex + 1; j < m_spellInfo->EffectCount; ++j)
     {
         switch (m_spellInfo->Effects[j].Effect)
         {
@@ -3988,7 +3988,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
             case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
                 return;     // we must calculate only at last weapon effect
-                break;
         }
     }
 
@@ -4082,7 +4081,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
     bool normalized = false;
     float weaponDamagePercentMod = 1.0f;
-    for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    for (int j = 0; j < m_spellInfo->EffectCount; ++j)
     {
         switch (m_spellInfo->Effects[j].Effect)
         {
@@ -4135,7 +4134,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     weaponDamage /= autoAttacksBonus;
 
     // Sequence is important
-    for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    for (int j = 0; j < m_spellInfo->EffectCount; ++j)
     {
         // We assume that a spell have at most one fixed_bonus
         // and at most one weaponDamagePercentMod

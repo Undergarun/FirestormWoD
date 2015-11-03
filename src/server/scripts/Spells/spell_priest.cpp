@@ -1544,14 +1544,15 @@ class spell_pri_purify: public SpellScriptLoader
                         DispelChargesList dispelList;
 
                         // Create dispel mask by dispel type
-                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                        SpellInfo const* l_SpellInfo = GetSpellInfo();
+                        for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                         {
-                            if (GetSpellInfo()->Effects[i].IsEffect())
+                            if (l_SpellInfo->Effects[i].IsEffect())
                             {
-                                uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                                uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_PURIFY)
-                                target->GetDispellableAuraList(caster, dispelMask, dispelList);
+                                uint32 dispel_type = l_SpellInfo->Effects[i].MiscValue;
+                                uint32 dispelMask = l_SpellInfo->GetDispelMask(DispelType(dispel_type));
+                                if (l_SpellInfo->Id == PRIEST_SPELL_PURIFY)
+                                    target->GetDispellableAuraList(caster, dispelMask, dispelList);
                             }
                         }
                         if (dispelList.empty())

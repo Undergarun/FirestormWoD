@@ -1316,12 +1316,12 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         if (!foundAura)
             continue;
 
-        int32 damage[MAX_SPELL_EFFECTS];
-        int32 baseDamage[MAX_SPELL_EFFECTS];
+        int32 damage[SpellEffIndex::MAX_EFFECTS];
+        int32 baseDamage[SpellEffIndex::MAX_EFFECTS];
         uint32 effMask = 0;
         uint32 recalculateMask = 0;
         uint8 index = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
         {
             if (aura->GetEffect(i))
             {

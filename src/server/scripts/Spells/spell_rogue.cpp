@@ -117,7 +117,7 @@ class spell_rog_anticipation : public SpellScriptLoader
 
                     int32 l_NewCombo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                     {
                         if (l_SpellInfo->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
                         {
