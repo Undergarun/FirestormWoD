@@ -1231,6 +1231,82 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
         }
 };
 
+/// Inner Demon - 82927
+/// Spawned by Inner Demon - 166862
+class spell_npc_warl_inner_demon : public CreatureScript
+{
+    public:
+        spell_npc_warl_inner_demon() : CreatureScript("spell_npc_warl_inner_demon") { }
+
+        struct spell_npc_warl_inner_demonAI : public ScriptedAI
+        {
+            spell_npc_warl_inner_demonAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                InnerDemonAura  = 181608,
+                SoulFire        = 166864
+            };
+
+            enum eEvent
+            {
+                EventSoulFire = 1
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                if (Unit* l_Owner = me->GetOwner())
+                    l_Owner->CastSpell(me, eSpells::InnerDemonAura, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.Reset();
+
+                m_Events.ScheduleEvent(eEvent::EventSoulFire, 100);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        Unit* l_OwnerTarget = nullptr;
+                        if (Player* l_Player = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Player->GetSelectedUnit();
+                        else
+                            l_OwnerTarget = l_Owner->getVictim();
+
+                        if (l_OwnerTarget)
+                            AttackStart(l_OwnerTarget);
+                    }
+
+                    return;
+                }
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                if (m_Events.ExecuteEvent() == eEvent::EventSoulFire)
+                {
+                    if (Unit* l_Target = me->getVictim())
+                        me->CastSpell(l_Target, eSpells::SoulFire, false);
+
+                    m_Events.ScheduleEvent(eEvent::EventSoulFire, 50);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new spell_npc_warl_inner_demonAI(p_Creature);
+        }
+};
 
 void AddSC_npc_spell_scripts()
 {
@@ -1259,4 +1335,5 @@ void AddSC_npc_spell_scripts()
     new spell_npc_warl_doomguard();
     new spell_npc_warl_demonic_gateway_purple();
     new spell_npc_warl_demonic_gateway_green();
+    new spell_npc_warl_inner_demon();
 }

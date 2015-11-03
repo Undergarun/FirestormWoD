@@ -12000,7 +12000,7 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
     return TakenAdvertisedBenefit;
 }
 
-bool Unit::IsSpellMultistrike(SpellInfo const* p_SpellProto) const
+bool Unit::IsSpellMultistrike() const
 {
     if (GetSpellModOwner() == nullptr)
         return false;
@@ -12020,7 +12020,7 @@ void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int
 {
     Player* l_ModOwner = GetSpellModOwner();
 
-    if (IsSpellMultistrike(p_ProcSpell) &&
+    if (IsSpellMultistrike() &&
         (p_ProcSpell->Id == 17 || p_ProcSpell->Id == 152118 || p_ProcSpell->Id == 114908 || p_ProcSpell->Id == 65148))
     {
         uint8 l_ProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
@@ -12046,13 +12046,22 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target)
 
     for (uint8 l_Idx = 0; l_Idx < l_MaxProcTimes; l_Idx++)
     {
-        if (IsSpellMultistrike(p_ProcSpell))
+        if (IsSpellMultistrike())
             l_ProcTimes++;
     }
+
     if (p_ProcSpell && p_ProcSpell->Id == 51505) ///< Lava Burst
     {
         if (roll_chance_f(GetUnitSpellCriticalChance(p_Target, p_ProcSpell, p_ProcSpell->GetSchoolMask())))
             l_ProcTimes++;
+    }
+
+    /// Item - Warlock T17 Destruction 4P Bonus
+    /// Your next Chaos Bolt will multistrike 3 additional times.
+    if (p_ProcSpell && (p_ProcSpell->Id == 116858 || p_ProcSpell->Id == 157701) && HasAura(170000))
+    {
+        RemoveAura(170000);
+        l_ProcTimes += 3;
     }
 
     return l_ProcTimes;

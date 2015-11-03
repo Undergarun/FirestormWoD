@@ -386,7 +386,6 @@ class spell_warl_grimoire_of_supremacy_effect : public SpellScriptLoader
         }
 };
 
-
 // Soulburn : Seed of Corruption - Damage - 87385
 class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
 {
@@ -1379,11 +1378,31 @@ class spell_warl_hand_of_guldan: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_hand_of_guldan_SpellScript);
 
+            enum eSpells
+            {
+                T17Demonology2P = 165450,
+                InnerDemon      = 166862
+            };
+
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, WARLOCK_HAND_OF_GULDAN_DAMAGE, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, WARLOCK_HAND_OF_GULDAN_DAMAGE, true);
+
+                    /// Hand of Gul'dan has a 50% chance empower your inner demon, temporarily bringing your Metamorphosis form out even while you are not transformed.
+                    if (Player* l_Player = l_Caster->ToPlayer())
+                    {
+                        if (!l_Player->HasSpellCooldown(eSpells::InnerDemon) && l_Player->HasAura(eSpells::T17Demonology2P) && roll_chance_i(50))
+                        {
+                            l_Player->CastSpell(l_Player, eSpells::InnerDemon, true);
+
+                            /// 45 seconds of internal cooldown
+                            l_Player->AddSpellCooldown(eSpells::InnerDemon, 0, 45 * TimeConstants::IN_MILLISECONDS);
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -2946,32 +2965,49 @@ class spell_warl_immolate : public SpellScriptLoader
 // Siphon Life
 class spell_warl_siphon_life : public SpellScriptLoader
 {
-public:
-    spell_warl_siphon_life() : SpellScriptLoader("spell_warl_siphon_life") { }
+    public:
+        spell_warl_siphon_life() : SpellScriptLoader("spell_warl_siphon_life") { }
 
-    class spell_warl_siphon_life_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warl_siphon_life_AuraScript);
-
-        void OnTick(constAuraEffectPtr /*aurEff*/)
+        class spell_warl_siphon_life_AuraScript : public AuraScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareAuraScript(spell_warl_siphon_life_AuraScript);
+
+            enum eSpells
             {
-                if (l_Caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                    l_Caster->CastSpell(l_Caster, WARLOCK_SPELL_SYPHON_LIFE, true);
+                T17Demonology4P = 165451,
+                CorruptionDoT   = 146739,
+                HandOfGuldan    = 105174
+            };
+
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
+                        l_Caster->CastSpell(l_Caster, WARLOCK_SPELL_SYPHON_LIFE, true);
+
+                    /// Hand of Gul'dan now has 1 additional maximum charge, and Corruption has a 2% chance to generate 1 charge of Hand of Gul'dan when dealing damage.
+                    if (GetSpellInfo()->Id == eSpells::CorruptionDoT && l_Caster->HasAura(eSpells::T17Demonology4P) && roll_chance_i(2))
+                    {
+                        if (Player* l_Player = l_Caster->ToPlayer())
+                        {
+                            if (SpellInfo const* l_HandOfGuldan = sSpellMgr->GetSpellInfo(eSpells::HandOfGuldan))
+                                l_Player->RestoreCharge(l_HandOfGuldan->ChargeCategoryEntry);
+                        }
+                    }
+                }
             }
-        }
 
-        void Register()
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_siphon_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_siphon_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            return new spell_warl_siphon_life_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warl_siphon_life_AuraScript();
-    }
 };
 
 // Siphon Life - 63106 
@@ -3043,7 +3079,7 @@ class spell_warl_WodPvPDemonology4PBonus : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Call by Immolation - 157736
+/// Called by Immolation - 157736
 /// Item - Warlock WoD PvP Destruction 2P Bonus
 class spell_warl_WoDPvPDestruction2PBonus : public SpellScriptLoader
 {
@@ -3057,8 +3093,24 @@ class spell_warl_WoDPvPDestruction2PBonus : public SpellScriptLoader
             enum eSpells
             {
                 WoDPvPDestruction2PBonusAura    = 171383,
-                WoDPvPDestruction2PBonus        = 171384
+                WoDPvPDestruction2PBonus        = 171384,
+                T17Destruction2P                = 165455,
+                ImmolateEnergize                = 169998
             };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Destruction2P, EFFECT_0))
+                    {
+                        if (!roll_chance_i(l_AuraEffect->GetAmount()))
+                            return;
+
+                        l_Caster->CastSpell(l_Caster, eSpells::ImmolateEnergize, true);
+                    }
+                }
+            }
 
             void HandleDispel(DispelInfo* /*dispelInfo*/)
             {
@@ -3073,6 +3125,7 @@ class spell_warl_WoDPvPDestruction2PBonus : public SpellScriptLoader
 
             void Register()
             {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_WoDPvPDestruction2PBonus_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 AfterDispel += AuraDispelFn(spell_warl_WoDPvPDestruction2PBonus_AuraScript::HandleDispel);
             }
         };
@@ -3254,8 +3307,15 @@ class spell_warl_nightfall : public SpellScriptLoader
 
             enum eSpells
             {
-                Nightfall     = 108558,
-                NightfallGain = 17941
+                Nightfall           = 108558,
+                NightfallGain       = 17941,
+                T17Affliction2P     = 165448,
+                DrainSoul           = 103103,
+                Corruption          = 146739,
+                UnstableAffliction  = 30108,
+                Agony               = 980,
+                DarkSoulMisery      = 113860,
+                T17Affliction4P     = 165449
             };
 
             void OnTick(constAuraEffectPtr p_AurEff)
@@ -3267,13 +3327,41 @@ class spell_warl_nightfall : public SpellScriptLoader
                 if (!l_Caster->HasAura(eSpells::Nightfall))
                     return;
 
-                const SpellInfo* l_SpellInfoNightfall = sSpellMgr->GetSpellInfo(eSpells::Nightfall);
+                SpellInfo const* l_SpellInfoNightfall = sSpellMgr->GetSpellInfo(eSpells::Nightfall);
                 if (!l_SpellInfoNightfall)
                     return;
 
                 uint8 l_Chance = l_SpellInfoNightfall->Effects[EFFECT_0].BasePoints / 10;
+
+                /// While channeling Drain Soul on a target afflicted by your Corruption, Unstable Affliction, and Agony, the chance for Nightfall to activate is increased by 5%.
+                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Affliction2P, EFFECT_0))
+                {
+                    if (Spell* l_Spell = l_Caster->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
+                    {
+                        if (l_Spell->GetSpellInfo()->Id == eSpells::DrainSoul)
+                        {
+                            if (Unit* l_Victim = l_Spell->GetUnitTarget())
+                            {
+                                if (l_Victim->HasAura(eSpells::Corruption, l_Caster->GetGUID()) &&
+                                    l_Victim->HasAura(eSpells::UnstableAffliction, l_Caster->GetGUID()) &&
+                                    l_Victim->HasAura(eSpells::Agony, l_Caster->GetGUID()))
+                                    l_Chance += l_AuraEffect->GetAmount();
+                            }
+                        }
+                    }
+                }
+
                 if (roll_chance_i(l_Chance))
+                {
                     l_Caster->CastSpell(l_Caster, eSpells::NightfallGain, true);
+
+                    /// When Nightfall activates, the cooldown of Dark Soul is reduced by 10 sec.
+                    if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Affliction4P, EFFECT_0))
+                    {
+                        if (Player* l_Player = l_Caster->ToPlayer())
+                            l_Player->ReduceSpellCooldown(eSpells::DarkSoulMisery, l_AuraEffect->GetAmount());
+                    }
+                }
             }
 
             void Register()
@@ -3288,37 +3376,36 @@ class spell_warl_nightfall : public SpellScriptLoader
         }
 };
 
-/// Chaos Bolt - 116858
+/// Chaos Bolt - 116858 and Chaos Bolt (Fire and Brimstone) - 157701
 class spell_warl_chaos_bolt : public SpellScriptLoader
 {
-public:
-    spell_warl_chaos_bolt() : SpellScriptLoader("spell_warl_chaos_bolt") { }
+    public:
+        spell_warl_chaos_bolt() : SpellScriptLoader("spell_warl_chaos_bolt") { }
 
-    class spell_warl_chaos_bolt_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_chaos_bolt_SpellScript);
-
-
-        void HandleAfterCast()
+        class spell_warl_chaos_bolt_SpellScript : public SpellScript
         {
-            if (Player* l_Caster = GetCaster()->ToPlayer())
-                if (AuraPtr l_Backdraft = l_Caster->GetAura(WARLOCK_BACKDRAFT))
-                    l_Backdraft->ModCharges(-3);
-        }
+            PrepareSpellScript(spell_warl_chaos_bolt_SpellScript);
 
-        void Register()
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (AuraPtr l_Backdraft = l_Caster->GetAura(WARLOCK_BACKDRAFT))
+                        l_Backdraft->ModCharges(-3);
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleAfterCast);
+            return new spell_warl_chaos_bolt_SpellScript();
         }
-
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_chaos_bolt_SpellScript();
-    }
 };
-
 
 /// Chaos Wave - 124916
 class spell_warl_chaos_wave : public SpellScriptLoader
@@ -3563,9 +3650,15 @@ enum WoDPvPDemonology2PBonusSpells
 class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
 {
     public:
-        PlayerScript_WoDPvPDemonology2PBonus() :PlayerScript("PlayerScript_WoDPvPDemonology2PBonus") {}
+        PlayerScript_WoDPvPDemonology2PBonus() :PlayerScript("PlayerScript_WoDPvPDemonology2PBonus") { }
 
-        void OnModifyHealth(Player * p_Player, int32 p_Value)
+        enum eSpells
+        {
+            T17Destruction4P    = 165452,
+            ChaoticInfusion     = 170000
+        };
+
+        void OnModifyHealth(Player* p_Player, int32 p_Value) override
         {
             if (p_Player->getClass() == CLASS_WARLOCK && p_Player->HasAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonusAura))
             {
@@ -3575,6 +3668,23 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
                 /// Remove aura if player has more than 20% life
                 if (p_Player->GetHealthPct() >= 20.0f)
                     p_Player->RemoveAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus);
+            }
+        }
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen) override
+        {
+            if (p_Regen || p_OldValue > p_NewValue || p_Power != Powers::POWER_BURNING_EMBERS)
+                return;
+
+            /// Item - Warlock T17 Destruction 4P Bonus
+            for (uint8 l_I = 0; l_I < EFFECT_4; ++l_I)
+            {
+                if (AuraEffectPtr l_AuraEffect = p_Player->GetAuraEffect(eSpells::T17Destruction4P, l_I))
+                {
+                    /// When a Burning Ember is filled up, you have a chance to cause your next Chaos Bolt to multistrike 3 additional times.
+                    if (p_OldValue < l_AuraEffect->GetAmount() && p_NewValue > l_AuraEffect->GetAmount() && roll_chance_i(15))
+                        p_Player->CastSpell(p_Player, eSpells::ChaoticInfusion, true);
+                }
             }
         }
 };

@@ -2393,7 +2393,7 @@ class Unit : public WorldObject
 
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = WeaponAttackType::BaseAttack);
         bool   isBlockCritical();
-        bool   IsSpellMultistrike(SpellInfo const* p_SpellProto) const;
+        bool   IsSpellMultistrike() const;
         uint32 GetMultistrikeBasePoints(uint32 p_Damage) const;
         void   ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType = WeaponAttackType::BaseAttack, SpellInfo const* p_ProcAura = NULL, constAuraEffectPtr p_OwnerAuraEffect = NULL);
         uint8  ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target);

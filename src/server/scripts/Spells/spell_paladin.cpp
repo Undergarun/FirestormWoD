@@ -3115,7 +3115,7 @@ class spell_pal_shining_protector : public SpellScriptLoader
 
                 for (uint8 l_Chance_number = 0; l_Chance_number < 2; ++l_Chance_number)
                 {
-                    if (l_Caster->IsSpellMultistrike(p_EventInfo.GetDamageInfo()->GetSpellInfo()))
+                    if (l_Caster->IsSpellMultistrike())
                     {
                         int32 l_Heal = CalculatePct(p_EventInfo.GetHealInfo()->GetHeal(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                         l_Caster->CastCustomSpell(l_Caster, eSpells::ShiningProtectorHeal, &l_Heal, NULL, NULL, true);
