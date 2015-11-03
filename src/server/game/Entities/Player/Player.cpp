@@ -5666,7 +5666,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     RemoveOwnedAura(spell_id, GetGUID());
 
     // remove pet auras
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
         if (PetAura const* petSpell = sSpellMgr->GetPetAura(spell_id, i))
             RemovePetAura(petSpell);
 
@@ -5822,7 +5822,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
         if (spellInfo->IsPassive())
         {
-            for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+            for (int i = 0; i < spellInfo->EffectCount; i++)
                 if (spellInfo->Effects[i].Effect == SPELL_EFFECT_DUAL_WIELD)
                 {
                     SetCanDualWield(false);
@@ -6409,13 +6409,13 @@ void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_L
 
         removeSpell(l_Iter.first, true);
 
-        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
         {
             if (l_SpellInfo->Effects[i].TriggerSpell > 0 && l_SpellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                 removeSpell(l_SpellInfo->Effects[i].TriggerSpell, true);
         }
 
-        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
         {
             if (l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
                 l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
@@ -6583,7 +6583,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
         return TRAINER_SPELL_RED;
 
     bool hasSpell = true;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
     {
         if (!trainer_spell->learnedSpell[i])
             continue;
@@ -6606,7 +6606,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
     if (getLevel() < trainer_spell->reqLevel)
         return TRAINER_SPELL_RED;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
     {
         if (!trainer_spell->learnedSpell[i])
             continue;
@@ -6633,7 +6633,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
 
     // check primary prof. limit
     // first rank of primary profession spell when there are no proffesions avalible is disabled
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
     {
         if (!trainer_spell->learnedSpell[i])
             continue;
@@ -23185,11 +23185,11 @@ void Player::_SaveAuras(SQLTransaction& trans)
 
 
         uint8 index = 0;
-        int32 damage[MAX_SPELL_EFFECTS];
-        int32 baseDamage[MAX_SPELL_EFFECTS];
+        int32 damage[SpellEffIndex::MAX_EFFECTS];
+        int32 baseDamage[SpellEffIndex::MAX_EFFECTS];
         uint32 effMask = 0;
         uint32 recalculateMask = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
         {
             if (constAuraEffectPtr effect = aura->GetEffect(i))
             {
@@ -27382,7 +27382,7 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
 
     // check learned spells state
     bool found = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < spellInfo->EffectCount; ++i)
     {
         if (spellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL && !HasSpell(spellInfo->Effects[i].TriggerSpell))
         {
@@ -30414,11 +30414,11 @@ void Player::ActivateSpec(uint8 spec)
         removeSpell(itr.first, true); // removes the talent, and all dependant, learned, and chained spells..
         if (const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(itr.first))
         {
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
+            for (uint8 i = 0; i < _spellEntry->EffectCount; ++i)                  // search through the SpellInfo for valid trigger spells
                 if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                     removeSpell(_spellEntry->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
 
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i < _spellEntry->EffectCount; ++i)
                 if (_spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || _spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
                     RemoveAurasDueToSpell(_spellEntry->Effects[i].BasePoints);
         }

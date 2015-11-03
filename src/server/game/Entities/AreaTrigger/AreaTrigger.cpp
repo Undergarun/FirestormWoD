@@ -486,7 +486,7 @@ void AreaTrigger::CastSpell(Unit* p_Target, uint32 p_SpellId)
         return;
 
     bool l_Self = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
     {
         if (l_SpellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)
         {
