@@ -748,22 +748,38 @@ class spell_npc_sha_feral_spirit : public CreatureScript
 
         enum eSpells
         {
-            SpiritLeap           = 58867,
-            SpiritWalk           = 58875,
-            SpiritHunt           = 58877,
-            GlyphOfSpiritRaptors = 147783,
-            RaptorTranform       = 147908
+            SpiritLeap                  = 58867,
+            SpiritWalk                  = 58875,
+            SpiritHunt                  = 58877,
+            GlyphOfSpiritRaptors        = 147783,
+            RaptorTranform              = 147908,
+            FeralSpiritWindfuryDriver   = 170523,
+            T17Enhancement4P            = 165610,
+            WindfuryAttack              = 170512
+        };
+
+        enum eAction
+        {
+            ActionWindfury
         };
 
         struct spell_npc_sha_feral_spiritAI : public ScriptedAI
         {
-            spell_npc_sha_feral_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            spell_npc_sha_feral_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_WindFuryCooldown(0) { }
+
+            uint32 m_WindFuryCooldown;
 
             void Reset()
             {
-                Unit* l_Owner = me->GetOwner();
-                if (l_Owner && l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors))
-                    me->CastSpell(me, eSpells::RaptorTranform, true);
+                if (Unit* l_Owner = me->GetOwner())
+                {
+                    if (l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors))
+                        me->CastSpell(me, eSpells::RaptorTranform, true);
+
+                    /// While Feral Spirits is active, [...] your wolves can proc Windfury.
+                    if (l_Owner->HasAura(eSpells::T17Enhancement4P))
+                        me->CastSpell(me, eSpells::FeralSpiritWindfuryDriver, true);
+                }
 
                 me->CastSpell(me, eSpells::SpiritWalk, true);
                 me->CastSpell(me, eSpells::SpiritHunt, true);
@@ -774,8 +790,29 @@ class spell_npc_sha_feral_spirit : public CreatureScript
                 me->CastSpell(p_Attacker, eSpells::SpiritLeap, true);
             }
 
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eAction::ActionWindfury && !m_WindFuryCooldown)
+                {
+                    if (Unit* l_Target = me->getVictim())
+                    {
+                        m_WindFuryCooldown = 5 * TimeConstants::IN_MILLISECONDS;
+
+                        uint8 l_Count = 3;
+
+                        for (uint8 l_I = 0; l_I < l_Count; l_I++)
+                            me->CastSpell(l_Target, eSpells::WindfuryAttack, true);
+                    }
+                }
+            }
+
             void UpdateAI(uint32 const p_Diff)
             {
+                if (m_WindFuryCooldown > 0 && m_WindFuryCooldown > p_Diff)
+                    m_WindFuryCooldown -= p_Diff;
+                else if (m_WindFuryCooldown > 0 && p_Diff > m_WindFuryCooldown)
+                    m_WindFuryCooldown = 0;
+
                 if (!UpdateVictim())
                 {
                     if (Unit* l_Owner = me->GetOwner())
