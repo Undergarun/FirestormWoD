@@ -522,6 +522,15 @@ uint32 ConditionMgr::GetSearcherTypeMaskForConditionList(ConditionList const& co
         if ((*i)->ReferenceId) // handle reference
         {
             ConditionReferenceContainer::const_iterator ref = ConditionReferenceStore.find((*i)->ReferenceId);
+
+            if (ref == ConditionReferenceStore.end())
+            {
+                sLog->outAshran("ConditionMgr::GetSearcherTypeMaskForConditionList - incorrect reference [%u][%u][%u] ", (*i)->ReferenceId, (*i)->SourceEntry, (*i)->SourceGroup);
+
+                /// Avoid infinite loop
+                return GRID_MAP_TYPE_MASK_ALL;
+            }
+
             ASSERT(ref != ConditionReferenceStore.end() && "ConditionMgr::GetSearcherTypeMaskForConditionList - incorrect reference");
             ElseGroupStore[(*i)->ElseGroup] &= GetSearcherTypeMaskForConditionList((*ref).second);
         }
