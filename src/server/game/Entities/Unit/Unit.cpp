@@ -8061,6 +8061,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             bp0 *= 0.6f;
                             break;
                         case 1064: // Chain Heal
+                        case 177972:///< Chain Heal (T17 - 2P proc)
                             bp0 *= 0.33f;
                             break;
                         default:
