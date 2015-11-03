@@ -704,59 +704,74 @@ class spell_mastery_ignite: public SpellScriptLoader
         }
 };
 
-// Called by 35395 - Crusader Strike, 53595 - Hammer of the Righteous, 24275 - Hammer of Wrath, 85256 - Templar's Verdict, 53385 - Divine Storm, 157048 - Final Verdict
-// 76672 - Mastery : Hand of Light
+/// Mastery : Hand of Light - 76672
 class spell_mastery_hand_of_light: public SpellScriptLoader
 {
     public:
         spell_mastery_hand_of_light() : SpellScriptLoader("spell_mastery_hand_of_light") { }
 
-        class spell_mastery_hand_of_light_SpellScript : public SpellScript
+        class spell_mastery_hand_of_light_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_mastery_hand_of_light_SpellScript);
+            PrepareAuraScript(spell_mastery_hand_of_light_AuraScript);
 
             enum eSpells
             {
-                SPELL_PAL_INQUISITION = 111341,
-                MASTERY_HAND_OF_LIGHT = 76672
+                CrusaderStrike          = 35395,
+                HammeroftheRighteous    = 53595,
+                HammerofWrath           = 24275,
+                TemplarsVerdict         = 85256,
+                DivineStorm             = 53385,
+                FinalVerdict            = 157048,
+                Inquisition             = 111341,
+                HandOfLightEffect       = 96172
             };
 
-            void HandleAfterHit()
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->GetGUID() != l_Target->GetGUID() && l_Caster->getLevel() >= 80 && l_Caster->HasAura(eSpells::MASTERY_HAND_OF_LIGHT))
-                        {
-                            uint32 l_ProcSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
-                            if (l_ProcSpellId != MASTERY_SPELL_HAND_OF_LIGHT)
-                            {
-                                float value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f;
+                PreventDefaultAction();
 
-                                int32 l_Bp = int32(CalculatePct(GetHitDamage() + GetAbsorbedDamage(), value));
+                SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
 
-                                SpellInfo const* l_Inquisition = sSpellMgr->GetSpellInfo(SPELL_PAL_INQUISITION);
-                                // [Inquisition - 84963] does increase the holy damage done by Mastery : Hand of Light - 76672
-                                if (l_Caster->HasAura(SPELL_PAL_INQUISITION))
-                                    AddPct(l_Bp, l_Inquisition->Effects[EFFECT_0].BasePoints);
+                if (l_SpellInfo == nullptr)
+                    return;
 
-                                l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_Bp, NULL, NULL, true);
-                            }
-                        }
-                    }
-                }
+                if (l_SpellInfo->Id != eSpells::CrusaderStrike && l_SpellInfo->Id != eSpells::HammeroftheRighteous 
+                    && l_SpellInfo->Id != eSpells::HammerofWrath && l_SpellInfo->Id != eSpells::TemplarsVerdict 
+                    && l_SpellInfo->Id != eSpells::DivineStorm && l_SpellInfo->Id != eSpells::FinalVerdict)
+                    return;
+
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
+                Unit* l_Caster = p_EventInfo.GetDamageInfo()->GetAttacker();
+
+                if (l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                int32 l_TotalDamage = p_EventInfo.GetDamageInfo()->GetDamage() + p_EventInfo.GetDamageInfo()->GetAbsorb();
+                float l_MasteryValue = p_AurEff->GetAmount();
+                int32 l_Bp = int32(CalculatePct(l_TotalDamage, l_MasteryValue));
+
+                SpellInfo const* l_Inquisition = sSpellMgr->GetSpellInfo(eSpells::Inquisition);
+                // [Inquisition - 84963] does increase the holy damage done by Mastery : Hand of Light - 76672
+                if (l_Caster->HasAura(eSpells::Inquisition))
+                    AddPct(l_Bp, l_Inquisition->Effects[EFFECT_0].BasePoints);
+
+                l_Caster->CastCustomSpell(l_Target, eSpells::HandOfLightEffect, &l_Bp, NULL, NULL, true);
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_mastery_hand_of_light_SpellScript::HandleAfterHit);
+                OnEffectProc += AuraEffectProcFn(spell_mastery_hand_of_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_mastery_hand_of_light_SpellScript();
+            return new spell_mastery_hand_of_light_AuraScript();
         }
 };
 
