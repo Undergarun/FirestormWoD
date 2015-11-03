@@ -1176,9 +1176,9 @@ class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
                         if (l_Caster->GetTypeId() == TypeID::TYPEID_PLAYER && m_scriptSpellId == eSpells::BestialWrath && l_Caster->HasAura(eSpells::T17BeastMaster4P))
                         {
                             Unit* l_Victim = l_Caster->ToPlayer()->GetSelectedUnit();
-                            if (!l_Caster->IsValidAttackTarget(l_Victim))
+                            if (!l_Victim || !l_Caster->IsValidAttackTarget(l_Victim))
                                 l_Victim = l_Caster->getVictim();
-                            if (!l_Caster->IsValidAttackTarget(l_Victim))
+                            if (!l_Victim || !l_Caster->IsValidAttackTarget(l_Victim))
                                 l_Victim = l_Caster;
 
                             l_Caster->CastSpell(l_Victim, eSpells::BestialWrathStampede, true);
@@ -3916,7 +3916,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_fireworks();
     new spell_hun_glyph_of_fireworks();
     new spell_hun_glyph_of_aspects();
-    new spell_hun_bestial_wrath_dispel();
     new spell_hun_bestial_wrath_dispel();
     new spell_hun_item_pvp_s13_2p();
     new spell_hun_spirit_bond();
