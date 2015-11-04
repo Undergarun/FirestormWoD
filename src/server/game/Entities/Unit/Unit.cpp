@@ -13809,6 +13809,10 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
 
             if (IsAIEnabled)
             {
+                /// Clear emote state / anim kit id before enter in combat
+                l_Creature->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
+                l_Creature->SetAIAnimKitId(0);
+
                 l_Creature->AI()->EnterCombat(p_Enemy);
 
                 if (l_Creature->isWorldBoss())
@@ -14783,6 +14787,9 @@ void Unit::setDeathState(DeathState s)
         // do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
         SetPower(getPowerType(), 0);
+
+        /// Clear emote state at death, prevent some wow error.
+        SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
 
         // Druid: Fungal Growth
         switch (GetEntry())
