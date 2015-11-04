@@ -4882,7 +4882,7 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
                 if (l_Chi == 4)
                 {
                     for (int l_I = 0; l_I < sizeof(g_MonkHealingSphereSpells) / sizeof(int); l_I++)
-                        l_Caster->CastSpell(l_Caster, g_MonkHealingSphereSpells[l_I], true);
+                        l_Caster->CastSpell(l_Target, g_MonkHealingSphereSpells[l_I], true);
                 }
 
                 l_Caster->SetPower(POWER_CHI, 0);
