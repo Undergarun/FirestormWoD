@@ -116,11 +116,17 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
         enum Spells
         {
-            FingersOfFrost       = 126084,
-            FingersOfFrostVisual = 44544,
-            FrozenOrbVisual      = 123605,
-            SelfSnare90Pct       = 82736,
-            TargetSnareAndDamage = 84721
+            FingersOfFrost          = 126084,
+            FingersOfFrostVisual    = 44544,
+            FrozenOrbVisual         = 123605,
+            SelfSnare90Pct          = 82736,
+            TargetSnareAndDamage    = 84721,
+            T17Frost2P              = 165470
+        };
+
+        enum eEvent
+        {
+            EventFingerOfFrost = 1
         };
 
         struct spell_npc_mage_frozen_orbAI : public ScriptedAI
@@ -147,11 +153,32 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
                 /// Give it a movement
                 UpdateMovement();
+
+                if (Unit* l_Owner = me->GetOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
+                        events.ScheduleEvent(eEvent::EventFingerOfFrost, l_AurEff->GetAmount());
+                }
             }
 
             void UpdateAI(const uint32 p_Diff) override
             {
+                events.Update(p_Diff);
+
+                if (events.ExecuteEvent() == eEvent::EventFingerOfFrost)
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
+                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
+
+                        if (AuraEffectPtr l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
+                            events.ScheduleEvent(eEvent::EventFingerOfFrost, l_AurEff->GetAmount());
+                    }
+                }
+
                 m_DamageTimer += p_Diff;
+
                 if (m_DamageTimer > Constants::DamageDelay)
                 {
                     /// Frozen Orb slows down when it damages an enemy

@@ -18123,6 +18123,14 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
         // Hack fix Mutilate can Trigger Blindside
         else if (spellProto && spellProto->Id == 121152 && procSpell && procSpell->Id == 1329)
             return true;
+        /// Pyroblast! must make T17 fire 4P bonus procs!
+        /// Arcane Charge must make T17 arcane 4P bonus procs!
+        else if (spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108 ||
+                 spellProto && spellProto->Id == 165476 && procSpell && procSpell->Id == 36032)
+        {
+            /// Nothing to do here
+            /// We must use the ProcsPerMinuteRate calculated after that
+        }
         else
             return false;
     }

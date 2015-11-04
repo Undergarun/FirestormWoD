@@ -4879,6 +4879,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165450:///< Item - Warlock T17 Demonology 2P Bonus
             case 165337:///< Item - Warrior T17 Fury 2P Bonus
             case 165349:///< Item - Warrior T17 Fury 4P Bonus
+            case 165469:///< Item - Mage T17 Frost 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
@@ -4897,6 +4898,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 530:   ///< Charm (Possess)
                 spellInfo->Effects[EFFECT_0].BasePoints = 102;
+                break;
+            case 36032: ///< Arcane Charge
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 99213: ///< Item - Shaman T12 Enhancement 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;

@@ -6810,19 +6810,15 @@ SpellCastResult Spell::CheckCast(bool strict)
             default:
                 break;
         }
-    }
 
-    for (uint8 i = 0; i < m_spellInfo->EffectCount; ++i)
-    {
         switch (m_spellInfo->Effects[i].ApplyAuraName)
         {
             case SPELL_AURA_MOD_STEALTH:
             {
-                if (m_caster->HasAura(94528) ||                 // Flare ///< @todo spell id removed
-                m_caster->HasAuraWithNegativeCaster(88611))     // Smoke Bomb
-                {
+                // Flare ///< @todo spell id removed && Smoke Bomb
+                if (m_caster->HasAura(94528) || m_caster->HasAuraWithNegativeCaster(88611))
                     return SPELL_FAILED_CASTER_AURASTATE;
-                }
+
                 break;
             }
             case SPELL_AURA_MOD_RANGED_HASTE:
@@ -8782,6 +8778,10 @@ bool Spell::CanProcOnTarget(Unit *target) const
 {
     // Sudden Eclipse - PVP Druid Set Bonus
     if (m_spellInfo->Id == 95746)
+        return true;
+
+    /// Arcane Charge
+    if (m_spellInfo->Id == 36032)
         return true;
 
     // swd for priest, for other it does bugs
