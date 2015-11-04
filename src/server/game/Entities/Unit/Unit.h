@@ -1841,6 +1841,7 @@ class Unit : public WorldObject
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }
         bool HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura = 0) const;
         bool HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel = NULL) const;
+        bool HasAurasPreventCasting() const;
 
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
@@ -2168,7 +2169,11 @@ class Unit : public WorldObject
         bool HasAuraWithNegativeCaster(uint32 spellid);
 
         void RemoveSoulSwapDOT(Unit* target);
-        void ApplySoulSwapDOT(Unit* target);
+        void ApplySoulSwapDOT(Unit* caster, Unit* target);
+        void SetSoulSwapDotTarget(uint64 targetGUID) { soulSwapTargetGUID = targetGUID; }
+        void RemoveSoulSwapDotTarget() { soulSwapTargetGUID = 0;  }
+        uint64 GetSoulSwapDotTargetGUID() { return soulSwapTargetGUID; }
+        Unit* GetSoulSwapDotTarget();
 
         AuraEffectPtr IsScriptOverriden(SpellInfo const* spell, int32 script) const;
         uint32 GetDiseasesByCaster(uint64 casterGUID, bool remove = false);
@@ -2658,6 +2663,11 @@ class Unit : public WorldObject
         bool GetPsychicHorrorGainedPower() const { return psychicHorrorGainedPower; }
         void SetPsychicHorrorGainedPower(bool gained) { psychicHorrorGainedPower = gained; }
 
+        /// helpers for LEAP_BACK spell, if need to handle something after landing
+        void SetLastUsedLeapBackSpell(uint32 l_CurrentSpellId) { l_LastUsedLeapBackSpell = l_CurrentSpellId; }
+        void ClearLastUsedLeapBackSpell() { l_LastUsedLeapBackSpell = 0; }
+        uint32 GetLastUsedLeapBackSpell() { return l_LastUsedLeapBackSpell; }
+
         void DisableHealthRegen() { m_disableHealthRegen = true; }
         void ReenableHealthRegen() { m_disableHealthRegen = false; }
         bool HealthRegenIsDisable() const { return m_disableHealthRegen; }
@@ -2736,6 +2746,18 @@ class Unit : public WorldObject
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         uint32 m_interruptMask;
         AuraIdList _SoulSwapDOTList;
+        struct SoulSwapAurasData
+        {
+            SoulSwapAurasData(uint32 id, int32 duration, uint8 stacks, int32 damage, int32 amplitude) : m_id(id), m_duration(duration),
+            m_stacks(stacks), m_damage(damage),
+            m_amplitude(amplitude){}
+            uint32 m_id;
+            int32 m_duration;
+            uint8 m_stacks;
+            int32 m_damage;
+            int32 m_amplitude;
+        };
+        std::set<SoulSwapAurasData*> _SoulSwapDOTData;
 
         typedef std::list<HealDone*> HealDoneList;
         typedef std::list<HealTaken*> HealTakenList;
@@ -2837,6 +2859,8 @@ class Unit : public WorldObject
         float m_CometCoordinateY;
         bool m_IsDispelSuccessful;
         bool psychicHorrorGainedPower;
+        uint64 soulSwapTargetGUID;
+        uint32 l_LastUsedLeapBackSpell;
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us

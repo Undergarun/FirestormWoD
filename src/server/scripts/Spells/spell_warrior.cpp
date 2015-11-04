@@ -664,7 +664,19 @@ class spell_warr_devaste: public SpellScriptLoader
                 }
 
                 if (l_Player->HasAura(eSpells::UnyieldingStrikesAura))
-                    l_Player->CastSpell(l_Player, eSpells::UnyieldingStrikesProc, true);
+                {
+                    /// If we already have 5 charges, we don't need to update an aura
+                    if (AuraPtr l_UnyieldingStrikes = l_Player->GetAura(eSpells::UnyieldingStrikesProc))
+                    {
+                        if (l_UnyieldingStrikes->GetStackAmount() < 6)
+                        {
+                            l_UnyieldingStrikes->SetStackAmount(l_UnyieldingStrikes->GetStackAmount() + 1);
+                            l_UnyieldingStrikes->SetDuration(l_UnyieldingStrikes->GetMaxDuration());
+                        }
+                    }
+                    else
+                        l_Player->CastSpell(l_Player, eSpells::UnyieldingStrikesProc, true);
+                }
             }
 
             void Register()
@@ -1270,6 +1282,8 @@ enum ChargeSpells
 {
     SPELL_WARR_WARBRINGER_STUN    = 7922,
     SPELL_WARR_GLYPH_OF_BULL_RUSH = 94372,
+    SPELL_WARR_FIRE_VISUAL        = 96840,
+    SPELL_WARR_GLYPH_OF_THE_BLAZING_TRAIL = 123779,
     SPELL_WARR_DOUBLE_TIME        = 103827,
     SPELL_WARR_WARBRINGER         = 103828,
     SPELL_WARR_CHARGE_ROOT        = 105771,
@@ -1340,6 +1354,10 @@ class spell_warr_charge: public SpellScriptLoader
                 return;
 
             l_Caster->CastSpell(l_Target, l_Caster->HasAura(SPELL_WARR_WARBRINGER) ? SPELL_WARR_WARBRINGER_STUN : SPELL_WARR_CHARGE_ROOT, true);
+
+            // Glyph of Blazing Trail
+            if (l_Caster->HasAura(SPELL_WARR_GLYPH_OF_THE_BLAZING_TRAIL))
+                l_Caster->CastSpell(l_Caster, SPELL_WARR_FIRE_VISUAL, true);
         }
 
         void HandleRageGain(SpellEffIndex /*effIndex*/)
@@ -2054,7 +2072,7 @@ class spell_warr_rend : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_warr_rend_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_rend_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -2129,7 +2147,8 @@ class spell_warr_blood_bath : public SpellScriptLoader
                         l_ActualBloodBath->SetDuration(l_ActualBloodBath->GetMaxDuration());
                 }
                 else
-                    l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage);
+                    l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage, true);
+
                 if (AuraEffectPtr l_NewBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                     l_NewBloodBath->SetAmount(l_Damage);
             }
@@ -2390,6 +2409,16 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 if (l_Caster->HasAura(WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED) || l_Caster->HasAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
                     if (AuraPtr l_HeavyRepercussions = l_Caster->GetAura(WARRIOR_HEAVY_REPERCUSSIONS))
                         l_Damage += CalculatePct(l_Damage, l_HeavyRepercussions->GetEffect(0)->GetAmount());
+
+                /// Shield Charge
+                if (AuraPtr l_ShieldCharge = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
+                {
+                    if (l_ShieldCharge->GetEffect(EFFECT_0))
+                        l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
+
+                    l_ShieldCharge->DropStack();
+                }
+
 
                 SetHitDamage(l_Damage);
 
@@ -2859,6 +2888,54 @@ class spell_warr_revenge : public SpellScriptLoader
         }
 };
 
+/// Shield Charge - 156321
+/// Called by Heroic Strike - 78, Revenge - 6572
+class spell_warr_shield_charge_damage : public SpellScriptLoader
+{
+    public:
+        spell_warr_shield_charge_damage() : SpellScriptLoader("spell_warr_shield_charge_damage") { }
+
+        class spell_warr_shield_charge_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_shield_charge_damage_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Caster->HasAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
+                        {
+                            int32 l_Damage = GetHitDamage();
+
+                            /// Shield Charge
+                            if (AuraPtr l_ShieldCharge = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
+                            {
+                                if (l_ShieldCharge->GetEffect(EFFECT_0))
+                                    l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
+
+                                l_ShieldCharge->DropStack();
+                            }
+
+                            SetHitDamage(l_Damage);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_shield_charge_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_shield_charge_damage_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_revenge();
@@ -2916,6 +2993,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_die_by_the_sword();
     new spell_warr_single_minded_fury();
     new spell_warr_activate_battle_stance();
+    new spell_warr_shield_charge_damage();
 
     /// Playerscripts
     new PlayerScript_second_wind();

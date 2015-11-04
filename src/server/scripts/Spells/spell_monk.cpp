@@ -1450,9 +1450,36 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 if (l_Attacker == nullptr || l_Caster == nullptr)
                     return;
 
+                Unit* l_Target;
+                std::list<Unit*> l_TargetList;
                 m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
-                if (l_Attacker->HasAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
-                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (m_TotalAbsorbAmount / 6), l_Attacker);
+
+                l_Caster->GetAttackableUnitListInRange(l_TargetList, 20.0f);
+
+                for (auto l_Itr : l_TargetList)
+                {
+                    /// Check if it has Karma
+                    if (!l_Itr->HasAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                        continue;
+
+                    /// If we can attack this target, it can't receive Karma damage too
+                    if (!l_Caster->IsValidAttackTarget(l_Itr))
+                        continue;
+
+                    /// Can't target myself
+                    if (l_Itr->GetGUID() == l_Caster->GetGUID())
+                        continue;
+
+                    // We've done, now we know who is our target
+                    l_Target = l_Itr;
+                    break;
+                }
+
+                l_TargetList.clear();
+
+                if (l_Target)
+                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (m_TotalAbsorbAmount / 6), l_Target);
+
             }
 
             void Register()

@@ -145,6 +145,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_WARLOCK:
         {
+            /// Chaos Wave -- 124915, slow effect
+            if (spellproto->Id == 124915)
+                return DIMINISHING_NONE;
             // Mortal Coil -- 6789
             if (spellproto->SpellFamilyFlags[0] & 0x80000)
                 return DIMINISHING_INCAPACITATE;
@@ -4432,8 +4435,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(21); ///< 35
                 break;
             case 103965: ///< Metamorphosis (override auras)
-                spellInfo->Effects[2].SpellClassMask[0] = 64;
-
                 ///< All this effects are Override with old spell id
                 spellInfo->Effects[4].Effect = SPELL_EFFECT_NONE; ///< No more use (Void Ray : 115422)
                 spellInfo->Effects[5].Effect = SPELL_EFFECT_NONE; ///< No more use (Aura of Enfeeblement : 116198)
@@ -4444,6 +4445,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[11].Effect = SPELL_EFFECT_NONE;
                 spellInfo->Effects[14].Effect = SPELL_EFFECT_NONE; ///< No more use (Drain Life : 103990)
                 spellInfo->Effects[15].Effect = SPELL_EFFECT_NONE;
+                break;
+            case 5857:   ///< Hellfire damage spell
+                spellInfo->AttributesEx3 = 0;
+                spellInfo->AttributesEx4 = 0;
                 break;
             case 145518: ///< Genesis
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
@@ -4960,9 +4965,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 109260: ///< Aspect of the Iron Hawk
                 spellInfo->Effects[0].BasePoints = -10;
-                break;
-            case 48181: ///< Haunt - hotfix 5.4.2
-                spellInfo->Effects[3].BasePoints = 35;
                 break;
             case 109306: ///< Thrill of the Hunt
                 spellInfo->ProcChance = 0;
@@ -5745,8 +5747,43 @@ void SpellMgr::LoadSpellCustomAttr()
             case 603:   ///< Doom
             case 103964:///< Touch of Chaos
             case 124915:///< Chaos Wave
-            case 157695:///< Demonbolt
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
+                break;
+            case 127802: ///< Touch of The Grave (trigger)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
+                break;
+            case 53:    ///< Backstap
+                spellInfo->Effects[0].BonusMultiplier = 0;
+                break;
+            case 86121: ///< Soul Swap
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
+            case 86213: ///< Soul Swap Exhale
+                spellInfo->Speed = 0;
+                break;
+            case 157695:///< Demonbolt
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NORMAL;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_NOT_NEED_SHAPESHIFT;
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
+                break;
+            case 169686:///< Unyielding Strikes
+                spellInfo->ProcCharges = 0;
+                break;
+            case 109167:///< Demonic Leap (jump)
+                spellInfo->Effects[0].MiscValue = 300;
+                break;
+            case 781:   ///< Disengage
+                spellInfo->Effects[0].TriggerSpell = 0; ///< Handled in Player::HandleFall()
+                break;
+            case 111400:///< Burning Rush
+                spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_NOT_ABOVEWATER + AURA_INTERRUPT_FLAG_NOT_UNDERWATER;
+                break;
+            case 96840: ///< Flame Patch for Glyph of the Blazing Trail
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); ///< 1s
+                break;
+            case 100:   ///< Charge
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
