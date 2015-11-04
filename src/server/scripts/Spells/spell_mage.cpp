@@ -628,15 +628,23 @@ class spell_mage_arcane_missile: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_arcane_missile_SpellScript);
 
+            enum eSpell
+            {
+                ArcaneInstability = 166872
+            };
+
             void HandleOnCast()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED);
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED);
 
                     if (l_Caster->HasSpell(SPELL_MAGE_OVERPOWERED) && l_SpellInfo != nullptr)
                         if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ARCANE_POWER, l_Caster->GetGUID()))
                             l_Aura->SetDuration(l_Aura->GetDuration() + l_SpellInfo->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+
+                    if (l_Caster->HasAura(eSpell::ArcaneInstability))
+                        l_Caster->RemoveAura(eSpell::ArcaneInstability);
                 }
             }
 
@@ -1360,7 +1368,7 @@ class spell_mage_inferno_blast: public SpellScriptLoader
 };
 
 // Evocation - 12051
-class spell_mage_evocation: public SpellScriptLoader
+class spell_mage_evocation : public SpellScriptLoader
 {
     public:
         spell_mage_evocation() : SpellScriptLoader("spell_mage_evocation") { }
@@ -1389,6 +1397,36 @@ class spell_mage_evocation: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_mage_evocation_SpellScript();
+        }
+
+        class spell_mage_evocation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_evocation_AuraScript);
+
+            enum eSpells
+            {
+                T17Arcane2P     = 165475,
+                ArcaneAffinity  = 166871
+            };
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eSpells::T17Arcane2P))
+                        l_Caster->CastSpell(l_Caster, eSpells::ArcaneAffinity, true);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_evocation_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_OBS_MOD_POWER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_evocation_AuraScript();
         }
 };
 
@@ -1798,10 +1836,37 @@ class spell_mage_ice_lance: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_ice_lance_SpellScript);
 
+            enum eSpells
+            {
+                T17Frost4P  = 165469,
+                IceShard    = 166869
+            };
+
+            enum eCreature
+            {
+                FrozenOrb = 45322
+            };
+
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
+                    /// Each Ice Lance cast while Frozen Orb is active reduces the cast time of Frostbolt by 2% and increases the damage of Frostbolt by 2% for 10 sec. Stacks up to 10 times.
+                    if (l_Caster->HasAura(eSpells::T17Frost4P))
+                    {
+                        Creature* l_FrostOrb = nullptr;
+                        for (auto l_Iter : l_Caster->m_Controlled)
+                        {
+                            if (l_Iter->GetEntry() == eCreature::FrozenOrb)
+                                l_FrostOrb = l_Iter->ToCreature();
+                        }
+
+                        if (l_FrostOrb == nullptr)
+                            return;
+
+                        l_Caster->CastSpell(l_Caster, eSpells::IceShard, true);
+                    }
+
                     if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
                     {
                         if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
@@ -1811,7 +1876,6 @@ class spell_mage_ice_lance: public SpellScriptLoader
                             l_Aura->SetDuration(l_NewDuration);
                         }
                     }
-
 
                     if (Unit* l_Target = GetHitUnit())
                     {
@@ -2770,6 +2834,92 @@ class spell_mage_ring_of_frost_trigger : public SpellScriptLoader
         }
 };
 
+/// Item - Mage T17 Fire 4P Bonus - 165459
+class spell_mage_item_t17_fire_4p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_mage_item_t17_fire_4p_bonus() : SpellScriptLoader("spell_mage_item_t17_fire_4p_bonus") { }
+
+        class spell_mage_item_t17_fire_4p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_item_t17_fire_4p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                PyroblastInstantProc    = 48108,
+                Pyromaniac              = 166868
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (!l_ProcSpell || l_ProcSpell->Id != eSpells::PyroblastInstantProc)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::Pyromaniac, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mage_item_t17_fire_4p_bonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_item_t17_fire_4p_bonus_AuraScript();
+        }
+};
+
+/// Item - Mage T17 Arcane 4P Bonus - 165476
+class spell_mage_item_t17_arcane_4p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_mage_item_t17_arcane_4p_bonus() : SpellScriptLoader("spell_mage_item_t17_arcane_4p_bonus") { }
+
+        class spell_mage_item_t17_arcane_4p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_item_t17_arcane_4p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                ArcaneCharge        = 36032,
+                ArcaneInstability   = 166872
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (!l_ProcSpell || l_ProcSpell->Id != eSpells::ArcaneCharge)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::ArcaneInstability, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mage_item_t17_arcane_4p_bonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_item_t17_arcane_4p_bonus_AuraScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
@@ -2827,6 +2977,8 @@ void AddSC_mage_spell_scripts()
     new spell_mage_polymorph();
     new spell_ring_of_frost_freeze();
     new spell_mage_cone_of_frost();
+    new spell_mage_item_t17_fire_4p_bonus();
+    new spell_mage_item_t17_arcane_4p_bonus();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

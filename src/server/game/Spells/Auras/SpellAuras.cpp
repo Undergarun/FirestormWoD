@@ -173,7 +173,12 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         /// Transi - sniffed on retail
         case 7321:
             _flags |= AFLAG_UNK_20;
-
+            break;
+        /// Mortal Strike
+        case 12294:
+            if (IsSelfcasted())
+                _flags = (AFLAG_CASTER + AFLAG_POSITIVE);
+            break;
         default:
             break;
     }
@@ -1268,9 +1273,17 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 
     if (CallScriptCanRrefreshProcHandlers() && stackAmount >= GetStackAmount())
     {
+        /// Rend on update should deal final damage, if it has < 5 seconds left duration
+        if (m_spellInfo->Id == 772)
+        {
+            if (GetDuration() < 5 * IN_MILLISECONDS)
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_AuraOwner = GetUnitOwner())
+                        l_Caster->CastSpell(l_AuraOwner, 94009, true);
+        }
+
         RefreshSpellMods();
         RefreshTimers();
-
         // Fix Backdraft can stack up to 6 charges max
         if (m_spellInfo->Id == 117828)
             SetCharges((GetCharges() + 3) > 6 ? 6 : GetCharges() + 3);
@@ -1899,6 +1912,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 break;
             }
+            case SPELLFAMILY_WARLOCK:
+                // Soulburn: Demonic Circle
+                if (m_spellInfo->Id == 79438)
+                {
+                    if (caster)
+                        caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                }
+                break;
             default:
                 break;
         }

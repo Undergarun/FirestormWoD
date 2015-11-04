@@ -35,6 +35,9 @@
 
 Log::Log() : worker(NULL)
 {
+    memset(m_LogLevelTypeByFilterCache, LOG_LEVEL_DISABLED, MAX_LOG_FILTER);
+    memset(m_LogTypePresentCache, 0, MAX_LOG_FILTER);
+
     SetRealmID(0);
     m_logsTimestamp = "_" + GetTimestampStr();
     LoadFromConfig();
@@ -66,16 +69,6 @@ std::string GetConfigStringDefault(std::string base, const char* name, const cha
 {
     base.append(name);
     return ConfigMgr::GetStringDefault(base.c_str(), value);
-}
-
-// Returns default logger if the requested logger is not found
-Logger* Log::GetLoggerByType(LogFilterType filter)
-{
-    LoggerMap::iterator it = loggers.begin();
-    while (it != loggers.end() && it->second.getType() != filter)
-        ++it;
-
-    return it == loggers.end() ? &(loggers[0]) : &(it->second);
 }
 
 Appender* Log::GetAppenderByName(std::string const& name)
@@ -222,6 +215,9 @@ void Log::CreateLoggerFromConfig(const char* name)
         return;
     }
 
+    m_LogLevelTypeByFilterCache[type] = level;
+    m_LogTypePresentCache[type] = 1;
+
     if (level < lowestLogLevel)
         lowestLogLevel = level;
 
@@ -340,6 +336,7 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
             return false;
 
         it->second.setLogLevel(newLevel);
+        m_LogLevelTypeByFilterCache[it->second.getType()] = newLevel;
     }
     else
     {
@@ -350,124 +347,6 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
         appender->setLogLevel(newLevel);
     }
     return true;
-}
-
-bool Log::ShouldLog(LogFilterType type, LogLevel level) const
-{
-    // Don't even look for a logger if the LogLevel is lower than lowest log levels across all loggers
-    if (level < lowestLogLevel)
-        return false;
-
-    LoggerMap::const_iterator it = loggers.begin();
-    while (it != loggers.end() && it->second.getType() != type)
-        ++it;
-
-    if (it != loggers.end())
-    {
-        LogLevel loggerLevel = it->second.getLogLevel();
-        return loggerLevel && loggerLevel <= level;
-    }
-
-    if (type != LOG_FILTER_GENERAL)
-        return ShouldLog(LOG_FILTER_GENERAL, level);
-
-    return false;
-}
-
-void Log::outTrace(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_TRACE))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_TRACE, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outDebug(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_DEBUG))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_DEBUG, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outInfo(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_INFO))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_INFO, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outWarn(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_WARN))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_WARN, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outError(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_ERROR))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_ERROR, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outFatal(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_FATAL))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_FATAL, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outCharDump(char const* str, uint32 accountId, uint32 guid, char const* name)
-{
-    if (!str || !ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO))
-        return;
-
-    std::ostringstream ss;
-    ss << "== START DUMP == (account: " << accountId << " guid: " << guid << " name: " << name
-        << ")\n" << str << "\n== END DUMP ==\n";
-
-    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_PLAYER_DUMP, ss.str());
-    ss.clear();
-    ss << guid << '_' << name;
-
-    msg->param1 = ss.str();
-
-    write(msg);
 }
 
 void Log::outCommand(uint32 gm_account_id  , std::string gm_account_name, 

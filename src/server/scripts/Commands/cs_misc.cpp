@@ -2697,10 +2697,9 @@ class misc_commandscript: public CommandScript
             }
 
             // Everything looks OK, create new pet
-            Pet* pet = new Pet(player, HUNTER_PET);
-            if (!pet->CreateBaseAtCreature(creatureTarget))
+            Pet* l_Pet = player->CreateTamedPetFrom(creatureTarget);
+            if (!l_Pet)
             {
-                delete pet;
                 handler->PSendSysMessage("Error 1");
                 return false;
             }
@@ -2709,34 +2708,20 @@ class misc_commandscript: public CommandScript
             creatureTarget->RemoveCorpse();
             creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-            pet->SetGuidValue(UNIT_FIELD_CREATED_BY, player->GetGUID());
-            pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, player->getFaction());
-
-            if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
-            {
-                sLog->outError(LOG_FILTER_GENERAL, "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
-                handler->PSendSysMessage("Error 2");
-                delete pet;
-                return false;
-            }
-
             // prepare visual effect for levelup
-            pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel() - 1);
+            l_Pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel() - 1);
 
-            pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
-            // this enables pet details window (Shift+P)
-            pet->InitPetCreateSpells();
-            pet->SetFullHealth();
-
-            pet->GetMap()->AddToMap(pet->ToCreature());
+            l_Pet->GetMap()->AddToMap(l_Pet->ToCreature());
 
             // visual effect for levelup
-            pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel());
+            l_Pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel());
 
-            player->SetMinion(pet, true, PET_SLOT_UNK_SLOT, pet->m_Stampeded);
-            pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
+            // caster have pet now
+            player->SetMinion(l_Pet, true, player->getSlotForNewPet(), l_Pet->m_Stampeded);
+
+            l_Pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, l_Pet->m_Stampeded);
             player->PetSpellInitialize();
-
+            player->GetSession()->SendStablePet(0);
             return true;
         }
 

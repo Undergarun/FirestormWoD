@@ -524,36 +524,31 @@ class spell_dk_conversion: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_conversion_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
             {
-                if (Unit* l_unit = GetCaster())
-                    l_unit->CastSpell(l_unit, DK_SPELL_CONVERSION_REGEN, true);
+                amount = 0;
             }
 
-            /// For visual in the tooltip - need to figure out why it doesnt show up - not so important atm
-            void CalculateAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (p_AuraEffect->GetEffIndex() != EFFECT_0)
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
                     return;
 
-                if (Unit* l_Caster = GetCaster())
+                if (l_Player->GetPower(POWER_RUNIC_POWER) / l_Player->GetPowerCoeff(POWER_RUNIC_POWER) > 5)
                 {
-                    for (auto l_Itr : GetSpellInfo()->SpellPowers)
-                    {
-                        if (l_Itr->RequiredAuraSpellId && !l_Caster->HasAura(l_Itr->RequiredAuraSpellId))
-                            continue;
-
-                        Powers powerType = Powers(l_Itr->PowerType);
-                        p_Amount = l_Itr->CostPerSecond + int32(l_Itr->CostPerSecondPercentage * l_Caster->GetCreatePowers(powerType) / 100) / 10;
-                        return;
-                    }
+                    l_Player->CastSpell(l_Player, DK_SPELL_CONVERSION_REGEN, true);
+                    l_Player->EnergizeBySpell(l_Player, DK_SPELL_CONVERSION_REGEN, -5 * l_Player->GetPowerCoeff(POWER_RUNIC_POWER), POWER_RUNIC_POWER);
                 }
+                else
+                    l_Player->RemoveAura(GetSpellInfo()->Id);
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_conversion_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -1956,8 +1951,15 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
-                if (AuraPtr l_AuraNecroticPlague = p_AurEff->GetBase())
+                int32 l_CurrentDuration = 0;
+                uint8 l_CurrentStacks = 0;
+
+                if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
+                {
                     l_AuraNecroticPlague->ModStackAmount(1);
+                    l_CurrentDuration = l_AuraNecroticPlague->GetDuration();
+                    l_CurrentStacks = l_AuraNecroticPlague->GetStackAmount();
+                }
 
                 std::list<Unit*> l_TargetList;
                 float l_Radius = 8.0f;
@@ -1985,7 +1987,17 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                     return;
 
                 if (Unit* l_NewTarget = JadeCore::Containers::SelectRandomContainerElement(l_TargetList))
+                {
                     l_Caster->CastSpell(l_NewTarget, NecroticPlagueAura, true);
+
+                    /// Copy aura data
+                    if (AuraPtr l_NewNecroticPlague = l_NewTarget->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
+                    {
+                        l_NewNecroticPlague->SetDuration(l_CurrentDuration);
+                        l_NewNecroticPlague->SetMaxDuration(l_CurrentDuration);
+                        l_NewNecroticPlague->SetStackAmount(l_CurrentStacks);
+                    }
+                }
             }
 
             void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -2974,6 +2986,57 @@ class spell_dk_presences : public SpellScriptLoader
         }
 };
 
+/// Breath of Sindragosa - 152279
+class spell_dk_breath_of_sindragosa : public SpellScriptLoader
+{
+public:
+    spell_dk_breath_of_sindragosa() : SpellScriptLoader("spell_dk_breath_of_sindragosa") { }
+
+    class spell_dk_breath_of_sindragosa_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_breath_of_sindragosa_AuraScript);
+
+        enum eSpells
+        {
+            DarkTransformation = 63560
+        };
+
+        void OnTick(constAuraEffectPtr p_AurEff)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->GetSpecializationId() == SPEC_DK_UNHOLY)
+            {
+                /// Receive Dark Infusion for every 30 runic power
+                if (p_AurEff->GetTickNumber() % 2 == 0)
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        if (!l_Pet->HasAura(eSpells::DarkTransformation))
+                            l_Player->CastSpell(l_Pet, DK_SPELL_DARK_INFUSION_STACKS, true);
+            }
+
+
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_breath_of_sindragosa_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dk_breath_of_sindragosa_AuraScript();
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_coil();
@@ -3033,6 +3096,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_blood_rites();
     new spell_dk_control_undead();
     new spell_dk_presences();
+    new spell_dk_breath_of_sindragosa();
 
     new PlayerScript_Blood_Tap();
 }

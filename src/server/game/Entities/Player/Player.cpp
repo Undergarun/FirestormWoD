@@ -1615,6 +1615,10 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage p_Type, uint32 p_Damage)
         CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, p_Damage, &l_Absorb, &l_Resist);
     else if (p_Type == DAMAGE_FALL)
     {
+        /// Glyph of Falling Meteor - 56247
+        if (getClass() == CLASS_WARLOCK && HasAura(109151) && HasAura(56247))
+            AddPct(p_Damage, -95);
+
         // Percentage from SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT
         AuraEffectList const& mReduceFallDamagePct = GetAuraEffectsByType(SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT);
         for (AuraEffectList::const_iterator i = mReduceFallDamagePct.begin(); i != mReduceFallDamagePct.end(); ++i)
@@ -26997,7 +27001,7 @@ void Player::SendSpellHistory()
     uint64 l_CurTime = 0;
     ACE_OS::gettimeofday().msec(l_CurTime);
 
-    WorldPacket l_HistoryData(SMSG_SEND_SPELL_HISTORY);
+    WorldPacket l_HistoryData(SMSG_SEND_SPELL_HISTORY, 2 * 1024);
     l_HistoryData << uint32(GetSpellCooldownMap().size());
 
     for (SpellCooldowns::const_iterator l_Itr = GetSpellCooldownMap().begin(); l_Itr != GetSpellCooldownMap().end(); ++l_Itr)
@@ -29691,6 +29695,13 @@ void Player::HandleFall(MovementInfo const& movementInfo)
         }
     }
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute
+
+    /// Handler for Disengage, should give Posthaste just after landing
+    /// If in future we have some spells with same mechanic, just need to add switch
+    if (getClass() == CLASS_HUNTER && GetLastUsedLeapBackSpell() == 56446 && HasAura(109215))
+        CastSpell(this, 118922, true);
+
+    ClearLastUsedLeapBackSpell();
 }
 
 void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/, bool p_LoginCheck /*= false*/)
@@ -31933,7 +31944,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         uint32 l_TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
         G3D::Vector3 l_Vector(0, 0, 0);
 
-        WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 1 + 8 + 7 * 4);
+        WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 2 + 16 + 4 + 2 + 16 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
         l_Data.appendPackGUID(GetGUID());               ///< Mover GUID
         l_Data << uint32(0);                            ///< Sequence Index
 
@@ -32759,7 +32770,7 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
         ilvl += item->GetItemLevelBonusFromItemBonuses();
 
     if (itemProto->PvPScalingLevel)
-        if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())
+        if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || (IsInPvPCombat() && m_deathState != JUST_DIED))
             ilvl += itemProto->PvPScalingLevel;
 
     if (uint32 minItemLevel = GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL))
@@ -33077,7 +33088,7 @@ void Player::SendSpellCharges()
 
             l_Data << uint32(l_CategoryCharge.first);
             l_Data << uint32(l_CooldownDuration.count());
-            l_Data << l_CategoryCharge.second.size();
+            l_Data << uint8(l_CategoryCharge.second.size());
         }
     }
     SendDirectMessage(&l_Data);
@@ -33908,5 +33919,32 @@ void Player::CheckTalentSpells()
         }
 
         ++l_Itr;
+    }
+}
+
+void Player::HandleWarlockWodPvpBonus()
+{
+    if (getClass() != CLASS_WARLOCK || getLevel() != 100)
+        return;
+
+    uint32 l_SpellBonusId = 0;
+    uint32 l_TriggerSpell = 0;
+
+    /// Check what's specialization bonus we need
+    if (GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
+    {
+        l_SpellBonusId = 171377;
+        l_TriggerSpell = 171378;
+    }
+    else if (GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION)
+    {
+        l_SpellBonusId = 171383;
+        l_TriggerSpell = 188168;
+    }
+
+    if (HasAura(l_SpellBonusId) && !HasSpellCooldown(l_TriggerSpell))
+    {
+        CastSpell(this, l_TriggerSpell, true);
+        AddSpellCooldown(l_TriggerSpell, 0, 15 * IN_MILLISECONDS);
     }
 }

@@ -1077,6 +1077,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
         SpellInfo* spellInfo = const_cast<SpellInfo*>(sSpellMgr->GetSpellForDifficulty(cond->SourceEntry, static_cast<Difficulty>(l_Difficulty)));
         ASSERT(spellInfo);
         std::list<uint32> sharedMasks;
+
         for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
         {
             // check if effect is already a part of some shared mask

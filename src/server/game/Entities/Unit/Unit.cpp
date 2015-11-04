@@ -676,6 +676,17 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
             || HasBreakableByDamageAuraType(SPELL_AURA_TRANSFORM, excludeAura));
 }
 
+bool Unit::HasAurasPreventCasting() const
+{
+    uint32 l_UnitFlags = GetUInt32Value(UNIT_FIELD_FLAGS);
+
+    if ((l_UnitFlags & UNIT_FLAG_SILENCED) || (l_UnitFlags & UNIT_FLAG_PACIFIED) || (l_UnitFlags & UNIT_FLAG_STUNNED) ||
+        (l_UnitFlags & UNIT_FLAG_CONFUSED))
+        return true;
+
+    return false;
+}
+
 void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 {
     if (!victim || !victim->isAlive() || victim->HasUnitState(UNIT_STATE_IN_FLIGHT) || (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode()))
@@ -1814,6 +1825,17 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     damageInfo->damage      -= resilienceReduction;
     damageInfo->cleanDamage += resilienceReduction;
 
+    // only for normal weapon damage
+    if (damageInfo->attackType == WeaponAttackType::BaseAttack || damageInfo->attackType == WeaponAttackType::OffAttack)
+    {
+        /// last update : 6.1.2 19802
+        /// Blood Horror - 111397
+        if (victim->HasAura(111397))
+        {
+            victim->CastSpell(this, 137143, true);
+            victim->RemoveAurasDueToSpell(111397);
+        }
+
     // Calculate absorb resist
     if (int32(damageInfo->damage) > 0)
     {
@@ -1834,17 +1856,6 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     }
     else // Impossible get negative result but....
         damageInfo->damage = 0;
-
-    // only for normal weapon damage
-    if (damageInfo->attackType == WeaponAttackType::BaseAttack || damageInfo->attackType == WeaponAttackType::OffAttack)
-    {
-        /// last update : 6.1.2 19802
-        /// Blood Horror - 111397
-        if (victim->HasAura(111397))
-        {
-            victim->CastSpell(this, 137143, true);
-            victim->RemoveAurasDueToSpell(111397);
-        }
 
         // Custom MoP Script - Zen Meditation - 115176
         if (AuraPtr zenMeditation = victim->GetAura(115176, victim->GetGUID()))
@@ -4038,6 +4049,11 @@ void Unit::_RemoveNoStackAurasDueToAura(AuraPtr aura)
             (i->second->GetBase()->GetId() == 81206 ||
             i->second->GetBase()->GetId() == 81208 ||
             i->second->GetBase()->GetId() == 81209))
+            continue;
+
+        /// Hack fix for Corruption and Seed of Corruption
+        if ((spellProto->Id == 27243 && i->second->GetBase()->GetId() == 146739) ||
+            (spellProto->Id == 146739 && i->second->GetBase()->GetId() == 27243))
             continue;
 
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
@@ -6908,6 +6924,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (procEx & (PROC_EX_INTERNAL_DOT | PROC_EX_INTERNAL_MULTISTRIKE))
                         return false;
 
+                    /// Prevent proc on victim fire mage
+                    if (procFlag & PROC_FLAG_TAKEN_DAMAGE)
+                        return false;
+
                     if (procEx & PROC_EX_CRITICAL_HIT)
                     {
                         if (!HasAura(48107))
@@ -8061,6 +8081,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             bp0 *= 0.6f;
                             break;
                         case 1064: // Chain Heal
+                        case 177972:///< Chain Heal (T17 - 2P proc)
                             bp0 *= 0.33f;
                             break;
                         default:
@@ -9648,6 +9669,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             if (Pet* pet = ToPlayer()->GetPet())
             {
+                /// If pet is already in Dark Transformation we can't add Shadow Infusion
+                if (pet->HasAura(63560))
+                    return false;
+
                 uint8 stackAmount = 0;
                 if (AuraPtr aura = pet->GetAura(trigger_spell_id))
                     stackAmount = aura->GetStackAmount();
@@ -11480,7 +11505,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // damage is increased by your critical strike chance
     if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 116858 || spellProto->Id == 157701 || spellProto->Id == 6353 || spellProto->Id == 104027))
     {
-        float crit_chance;
+        /// Default is 5% of crit
+        float crit_chance = 5.0f;
         crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
         DoneTotal += CalculatePct(pdamage, crit_chance);
     }
@@ -11999,7 +12025,7 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
     return TakenAdvertisedBenefit;
 }
 
-bool Unit::IsSpellMultistrike(SpellInfo const* p_SpellProto) const
+bool Unit::IsSpellMultistrike() const
 {
     if (GetSpellModOwner() == nullptr)
         return false;
@@ -12019,7 +12045,7 @@ void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int
 {
     Player* l_ModOwner = GetSpellModOwner();
 
-    if (IsSpellMultistrike(p_ProcSpell) &&
+    if (IsSpellMultistrike() &&
         (p_ProcSpell->Id == 17 || p_ProcSpell->Id == 152118 || p_ProcSpell->Id == 114908 || p_ProcSpell->Id == 65148))
     {
         uint8 l_ProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
@@ -12045,13 +12071,22 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target)
 
     for (uint8 l_Idx = 0; l_Idx < l_MaxProcTimes; l_Idx++)
     {
-        if (IsSpellMultistrike(p_ProcSpell))
+        if (IsSpellMultistrike())
             l_ProcTimes++;
     }
+
     if (p_ProcSpell && p_ProcSpell->Id == 51505) ///< Lava Burst
     {
         if (roll_chance_f(GetUnitSpellCriticalChance(p_Target, p_ProcSpell, p_ProcSpell->GetSchoolMask())))
             l_ProcTimes++;
+    }
+
+    /// Item - Warlock T17 Destruction 4P Bonus
+    /// Your next Chaos Bolt will multistrike 3 additional times.
+    if (p_ProcSpell && (p_ProcSpell->Id == 116858 || p_ProcSpell->Id == 157701) && HasAura(170000))
+    {
+        RemoveAura(170000);
+        l_ProcTimes += 3;
     }
 
     return l_ProcTimes;
@@ -12537,8 +12572,9 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
     Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
     int32 l_Diff = 0;
     float l_PctSpellMod = 0.0f;
-    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr)
-        l_CritPctBonus = 50; ///< 150% on pvp
+
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && p_SpellProto->Id != 116858)
+        l_CritPctBonus = 50; ///< 150% on pvp, except Chaos Bolt
 
     /// Special case for Prismatic Crystal - 150% crit
     if (l_ModOwner != nullptr && l_ModOwner->getClass() == CLASS_MAGE && p_Victim->GetTypeId() == TYPEID_UNIT && p_Victim->HasAura(155153))
@@ -14451,9 +14487,6 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
 void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 {
-    if (fabs(rate) <= 0.00000023841858) // From client
-        rate = 1.0f;
-
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
 
@@ -14824,6 +14857,10 @@ void Unit::setDeathState(DeathState s)
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
 
     m_deathState = s;
+
+    /// Remove pvp bonuses from items, if we have it
+    if (s == JUST_DIED && ToPlayer())
+        ToPlayer()->RescaleAllItemsIfNeeded(true);
 }
 
 /*########################################
@@ -18120,6 +18157,14 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
         // Hack fix Mutilate can Trigger Blindside
         else if (spellProto && spellProto->Id == 121152 && procSpell && procSpell->Id == 1329)
             return true;
+        /// Pyroblast! must make T17 fire 4P bonus procs!
+        /// Arcane Charge must make T17 arcane 4P bonus procs!
+        else if (spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108 ||
+                 spellProto && spellProto->Id == 165476 && procSpell && procSpell->Id == 36032)
+        {
+            /// Nothing to do here
+            /// We must use the ProcsPerMinuteRate calculated after that
+        }
         else
             return false;
     }
@@ -20565,8 +20610,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         case FORM_METAMORPHOSIS:
         {
             // Glyph of Metamorphosis
-            //if (HasAura(159680))
-            //    return 0;
+            if (HasAura(159680))
+                return 0;
             return 39261;
         }
         default:
@@ -21712,8 +21757,22 @@ void Unit::WriteMovementUpdate(WorldPacket &data) const
     WorldSession::WriteMovementInfo(data, (MovementInfo*)&m_movementInfo);
 }
 
+Unit* Unit::GetSoulSwapDotTarget()
+{
+    if (Unit* soulSwapTarget = sObjectAccessor->FindUnit(soulSwapTargetGUID))
+    {
+        if (soulSwapTarget->IsInWorld())
+            return soulSwapTarget;
+        else
+            return NULL;
+    }
+    else
+        return NULL;
+}
+
 void Unit::RemoveSoulSwapDOT(Unit* target)
 {
+
     _SoulSwapDOTList.clear();
 
     AuraEffectList const mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
@@ -21727,15 +21786,37 @@ void Unit::RemoveSoulSwapDOT(Unit* target)
             continue;
 
         _SoulSwapDOTList.push_back((*iter)->GetId());
+        if (AuraPtr currentAura = target->GetAura((*iter)->GetId(), GetGUID()))
+            _SoulSwapDOTData.insert(new SoulSwapAurasData(currentAura->GetId(), currentAura->GetDuration(), currentAura->GetStackAmount(),
+            currentAura->GetEffect(0)->GetAmount(), currentAura->GetEffect(0)->GetPeriodicTimer()));
     }
 }
 
-void Unit::ApplySoulSwapDOT(Unit* target)
+void Unit::ApplySoulSwapDOT(Unit* caster, Unit* target)
 {
-    for (AuraIdList::const_iterator iter = _SoulSwapDOTList.begin(); iter != _SoulSwapDOTList.end(); ++iter)
-        CastSpell(target, (*iter), true);
+    if (caster->GetGUID() != target->GetGUID())
+    {
+        for (AuraIdList::const_iterator iter = _SoulSwapDOTList.begin(); iter != _SoulSwapDOTList.end(); ++iter)
+            AddAura((*iter), target);
+
+        // Restore all aura spell mods
+        for (std::set<SoulSwapAurasData*>::iterator itr = _SoulSwapDOTData.begin(); itr != _SoulSwapDOTData.end(); ++itr)
+        {
+            if (AuraPtr appliedAura = target->GetAura((*itr)->m_id, GetGUID()))
+            {
+                appliedAura->SetDuration((*itr)->m_duration);
+                appliedAura->SetStackAmount((*itr)->m_stacks);
+                appliedAura->GetEffect(0)->SetAmount((*itr)->m_damage);
+                appliedAura->GetEffect(0)->SetPeriodicTimer((*itr)->m_amplitude);
+                appliedAura->SetNeedClientUpdateForTargets();
+            }
+
+            delete (*itr);
+        }
+    }
 
     _SoulSwapDOTList.clear();
+    _SoulSwapDOTData.clear();
 }
 
 Unit* Unit::GetSimulacrumTarget()

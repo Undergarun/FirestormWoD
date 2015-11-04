@@ -300,6 +300,36 @@ class spell_hun_black_arrow : public SpellScriptLoader
     public:
         spell_hun_black_arrow() : SpellScriptLoader("spell_hun_black_arrow") { }
 
+        class spell_hun_black_arrow_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_black_arrow_SpellScript);
+
+            enum eSpells
+            {
+                T17Survival2P   = 165544,
+                LockAndLoad     = 168980
+            };
+
+            void HandleApplyDoT(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eSpells::T17Survival2P))
+                        l_Caster->CastSpell(l_Caster, eSpells::LockAndLoad, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_black_arrow_SpellScript::HandleApplyDoT, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_black_arrow_SpellScript();
+        }
+
         class spell_hun_black_arrow_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_hun_black_arrow_AuraScript);
@@ -1120,18 +1150,40 @@ class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_bestial_wrath_dispel_AuraScript);
 
+            enum eSpells
+            {
+                T17BeastMaster4P        = 165518,
+                BestialWrathStampede    = 167135,
+                BestialWrath            = 19574
+            };
+
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* target = GetTarget())
+                if (Unit* l_Target = GetTarget())
                 {
-                    uint32 mechanic = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
+                    uint32 l_Mechanic = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
                                         | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
                                         | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
                                         | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
                                         | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
                                         | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
 
-                    target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetSpellInfo()->Id);
+                    l_Target->RemoveAurasWithMechanic(l_Mechanic, AURA_REMOVE_BY_DEFAULT, GetSpellInfo()->Id);
+
+                    /// While Bestial Wrath is active, one additional pet is summoned to fight with you.
+                    if (Unit* l_Caster = GetCaster())
+                    {
+                        if (l_Caster->GetTypeId() == TypeID::TYPEID_PLAYER && m_scriptSpellId == eSpells::BestialWrath && l_Caster->HasAura(eSpells::T17BeastMaster4P))
+                        {
+                            Unit* l_Victim = l_Caster->ToPlayer()->GetSelectedUnit();
+                            if (!l_Victim || !l_Caster->IsValidAttackTarget(l_Victim))
+                                l_Victim = l_Caster->getVictim();
+                            if (!l_Victim || !l_Caster->IsValidAttackTarget(l_Victim))
+                                l_Victim = l_Caster;
+
+                            l_Caster->CastSpell(l_Victim, eSpells::BestialWrathStampede, true);
+                        }
+                    }
                 }
             }
 
@@ -2524,6 +2576,12 @@ class spell_hun_kill_command: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_kill_command_SpellScript);
 
+            enum eSpells
+            {
+                T17BeastMaster2P    = 165517,
+                BestialWrath        = 19574
+            };
+
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_KILL_COMMAND))
@@ -2552,25 +2610,35 @@ class spell_hun_kill_command: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* pet = GetCaster()->GetGuardianPet())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (!pet)
-                        return;
-
-                    if (!GetExplTargetUnit())
-                        return;
-
-                    pet->CastSpell(GetExplTargetUnit(), HUNTER_SPELL_KILL_COMMAND_TRIGGER, true);
-
-                    if (pet->getVictim())
+                    /// Kill Command has a chance to reset the cooldown of Bestial Wrath.
+                    if (AuraEffectPtr l_AuraEffect = l_Player->GetAuraEffect(eSpells::T17BeastMaster2P, EFFECT_0))
                     {
-                        pet->AttackStop();
-                        pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
+                        if (l_Player->HasSpellCooldown(eSpells::BestialWrath) && roll_chance_i(l_AuraEffect->GetAmount()))
+                            l_Player->RemoveSpellCooldown(eSpells::BestialWrath, true);
                     }
-                    else
-                        pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
 
-                    pet->CastSpell(GetExplTargetUnit(), HUNTER_SPELL_KILL_COMMAND_CHARGE, true);
+                    if (Unit* l_Pet = GetCaster()->GetGuardianPet())
+                    {
+                        if (!l_Pet)
+                            return;
+
+                        if (!GetExplTargetUnit())
+                            return;
+
+                        l_Pet->CastSpell(GetExplTargetUnit(), HUNTER_SPELL_KILL_COMMAND_TRIGGER, true);
+
+                        if (l_Pet->getVictim())
+                        {
+                            l_Pet->AttackStop();
+                            l_Pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
+                        }
+                        else
+                            l_Pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
+
+                        l_Pet->CastSpell(GetExplTargetUnit(), HUNTER_SPELL_KILL_COMMAND_CHARGE, true);
+                    }
                 }
             }
 
@@ -3060,10 +3128,7 @@ class spell_hun_disengage: public SpellScriptLoader
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
                     if (_player->HasAura(HUNTER_SPELL_POSTHASTE))
-                    {
                         _player->RemoveMovementImpairingAuras();
-                        _player->CastSpell(_player, HUNTER_SPELL_POSTHASTE_INCREASE_SPEED, true);
-                    }
                     else if (_player->HasAura(HUNTER_SPELL_NARROW_ESCAPE))
                     {
                         std::list<Unit*> unitList;
@@ -3500,11 +3565,21 @@ class spell_hun_explosive_shot : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_explosive_shot_SpellScript);
 
+            enum eSpells
+            {
+                T17Survival4P   = 165545,
+                HeavyShot       = 167165
+            };
+
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
 
                 SetHitDamage((int32)(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.553f * 1.08f));
+
+                /// When you hit a target with Explosive Shot, your multistrike damage is increased by 15% for 3 sec.
+                if (l_Caster->HasAura(eSpells::T17Survival4P))
+                    l_Caster->CastSpell(l_Caster, eSpells::HeavyShot, true);
             }
 
             void Register()
@@ -3671,7 +3746,6 @@ class spell_hun_adaptation : public SpellScriptLoader
         }
 };
 
-
 /// Aimed Shot - 19434
 class spell_hun_aimed_shot : public SpellScriptLoader
 {
@@ -3681,6 +3755,12 @@ class spell_hun_aimed_shot : public SpellScriptLoader
         class spell_hun_aimed_shot_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_hun_aimed_shot_SpellScript);
+
+            enum eSpells
+            {
+                T17Marksmanship2P   = 165519,
+                AimedShotEnergize   = 167153
+            };
 
             void HandleAfterCast()
             {
@@ -3694,13 +3774,24 @@ class spell_hun_aimed_shot : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void HandleDamage(SpellEffIndex p_EffIndex)
+            {
+                /// Aimed Shot critical strikes restore 8 additional Focus.
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (GetSpell()->IsCritForTarget(GetHitUnit()) && l_Caster->HasAura(eSpells::T17Marksmanship2P))
+                        l_Caster->CastSpell(l_Caster, eSpells::AimedShotEnergize, true);
+                }
+            }
+
+            void Register() override
             {
                 AfterCast += SpellCastFn(spell_hun_aimed_shot_SpellScript::HandleAfterCast);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_aimed_shot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_hun_aimed_shot_SpellScript();
         }
@@ -3758,6 +3849,45 @@ class spell_hun_thick_hide : public SpellScriptLoader
         }
 };
 
+/// Called by Rapid Fire - 3045
+/// Item - Hunter T17 Marksmanship 4P Bonus - 165525
+class spell_hun_t17_marksmanship_4p : public SpellScriptLoader
+{
+    public:
+        spell_hun_t17_marksmanship_4p() : SpellScriptLoader("spell_hun_t17_marksmanship_4p") { }
+
+        class spell_hun_t17_marksmanship_4p_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_t17_marksmanship_4p_SpellScript);
+
+            enum eSpells
+            {
+                T17Marksmanship4P   = 165525,
+                DeadlyAimDriver     = 170186
+            };
+
+            void HandleOnHit()
+            {
+                /// While Rapid Fire is active, your critical strike damage increases by 3% per second.
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eSpells::T17Marksmanship4P))
+                        l_Caster->CastSpell(l_Caster, eSpells::DeadlyAimDriver, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_hun_t17_marksmanship_4p_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_t17_marksmanship_4p_SpellScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_thick_hide();
@@ -3783,7 +3913,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_fireworks();
     new spell_hun_glyph_of_fireworks();
     new spell_hun_glyph_of_aspects();
-    new spell_hun_bestial_wrath_dispel();
     new spell_hun_bestial_wrath_dispel();
     new spell_hun_item_pvp_s13_2p();
     new spell_hun_spirit_bond();
@@ -3825,6 +3954,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_aimed_shot();
     new spell_hun_poisoned_ammo();
     new spell_hun_adaptation();
+    new spell_hun_t17_marksmanship_4p();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();
