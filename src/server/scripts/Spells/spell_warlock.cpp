@@ -103,7 +103,6 @@ enum WarlockSpells
     WARLOCK_DEMON_AXE_TOSS                  = 89766,
     WARLOCK_LIFE_TAP                        = 1454,
     WARLOCK_GLYPH_OF_LIFE_TAP               = 63320,
-    WARLOCK_SPELL_IMMOLATE_AURA             = 157736,
     WARLOCK_GLYPH_OF_DRAIN_LIFE             = 63302,
     WARLOCK_GLYPH_OF_DARK_SOUL              = 159665,
     WARLOCK_SPELL_SYPHON_LIFE               = 63106,
@@ -2997,7 +2996,7 @@ class spell_warl_immolate : public SpellScriptLoader
                 if (l_Player->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
                     l_Player->CastSpell(l_Player, WARLOCK_SPELL_SYPHON_LIFE, true);
 
-                l_Player->CastSpell(l_Target, WARLOCK_SPELL_IMMOLATE_AURA, true);
+                l_Player->CastSpell(l_Target, WARLOCK_IMMOLATE, true);
             }
 
             void Register()
@@ -3060,7 +3059,7 @@ class spell_warl_siphon_life : public SpellScriptLoader
                     return;
 
                 /// Just for Immolation
-                if (!p_AurEff->GetBase() || p_AurEff->GetBase()->GetId() != 157736)
+                if (!p_AurEff->GetBase() || p_AurEff->GetBase()->GetId() != WARLOCK_IMMOLATE)
                     return;
 
                 if (l_Target->HasAura(ImmolateSpells::SpellImmolateMarker))
