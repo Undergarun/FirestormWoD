@@ -2655,6 +2655,7 @@ class spell_hun_kill_command: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Kill Command - 83381
 class spell_hun_kill_command_proc : public SpellScriptLoader
 {
@@ -2667,14 +2668,19 @@ class spell_hun_kill_command_proc : public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* l_Owner = GetCaster()->GetOwner())
-                {
-                    int32 l_Damage = int32(1.5 * (l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f));
-                    l_Damage = GetCaster()->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                    l_Damage = GetHitUnit()->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+                Unit* l_Target = GetHitUnit();
 
-                    SetHitDamage(l_Damage);
-                }
+                if (l_Target == nullptr || l_Owner == nullptr)
+                    return;
+
+                int32 l_Damage = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f);
+
+                l_Damage = GetCaster()->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = GetHitUnit()->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
             }
 
             void Register()
