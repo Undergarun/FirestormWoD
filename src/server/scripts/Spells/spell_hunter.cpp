@@ -517,6 +517,7 @@ class spell_hun_glyph_of_mirrored_blades : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Thunderstomp - 63900
 class spell_hun_thunderstomp : public SpellScriptLoader
 {
@@ -529,8 +530,19 @@ class spell_hun_thunderstomp : public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* l_Owner = GetCaster()->GetOwner())
-                    SetHitDamage((int32)(1.5f * (l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.250f)));
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = GetCaster()->GetOwner();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = (int32)(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.250f);
+
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
             }
 
             void Register()
@@ -2677,8 +2689,8 @@ class spell_hun_kill_command_proc : public SpellScriptLoader
 
                 int32 l_Damage = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f);
 
-                l_Damage = GetCaster()->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = GetHitUnit()->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
             }
