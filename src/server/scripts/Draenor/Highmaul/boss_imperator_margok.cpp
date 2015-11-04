@@ -1558,10 +1558,6 @@ class npc_highmaul_rune_of_displacement : public CreatureScript
     public:
         npc_highmaul_rune_of_displacement() : CreatureScript("npc_highmaul_rune_of_displacement") { }
 
-        enum eSpell
-        {
-        };
-
         struct npc_highmaul_rune_of_displacementAI : public ScriptedAI
         {
             npc_highmaul_rune_of_displacementAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -2129,10 +2125,15 @@ class npc_highmaul_gorian_warmage : public CreatureScript
         enum eSpells
         {
             /// Passive ability that buffs all allies within 25 yards, increasing their damage done by 50% and their attack and casting speed by 50%
-            DominanceAura   = 174126,
-            Fixate          = 157763,
-            Slow            = 157801,
-            NetherBlast     = 157769
+            DominanceAura               = 174126,
+            Fixate                      = 157763,
+            Slow                        = 157801,
+            NetherBlast                 = 157769,
+            /// Misc
+            FortificationAchievement    = 143809,
+            PowerOfFortification        = 155040,
+            ReplicationAchievement      = 166391,
+            PowerOfReplication          = 166389
         };
 
         enum eEvents
@@ -2140,6 +2141,11 @@ class npc_highmaul_gorian_warmage : public CreatureScript
             EventFixate = 1,
             EventSlow,
             EventNetherBlast
+        };
+
+        enum eCosmeticEvent
+        {
+            EventCheckRune = 1
         };
 
         struct npc_highmaul_gorian_warmageAI : public ScriptedAI
@@ -2152,6 +2158,7 @@ class npc_highmaul_gorian_warmage : public CreatureScript
             InstanceScript* m_Instance;
 
             EventMap m_Events;
+            EventMap m_CosmeticEvents;
 
             uint64 m_FixateTarget;
 
@@ -2174,18 +2181,47 @@ class npc_highmaul_gorian_warmage : public CreatureScript
 
                 m_Events.Reset();
 
+                m_CosmeticEvents.Reset();
+
                 m_Events.ScheduleEvent(eEvents::EventFixate, 3 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventSlow, 5 * TimeConstants::IN_MILLISECONDS);
+
+                m_CosmeticEvents.ScheduleEvent(eCosmeticEvent::EventCheckRune, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* p_Killer) override
             {
                 if (m_Instance != nullptr)
+                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    if (me->HasAura(eSpells::PowerOfFortification) && me->HasAura(eSpells::PowerOfReplication))
+                        m_Instance->SetData(eHighmaulDatas::ImperatorAchievement, 1);
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_CosmeticEvents.Update(p_Diff);
+
+                if (m_CosmeticEvents.ExecuteEvent() == eCosmeticEvent::EventCheckRune)
+                {
+                    std::list<Creature*> l_TriggerList;
+                    me->GetCreatureListWithEntryInGrid(l_TriggerList, eHighmaulGameobjects::SLGGenericMoPLargeAoI, 15.0f);
+
+                    for (Creature* l_Trigger : l_TriggerList)
+                    {
+                        if (l_Trigger->HasAura(eSpells::FortificationAchievement))
+                            me->CastSpell(me, eSpells::PowerOfFortification, true);
+                        else if (l_Trigger->HasAura(eSpells::ReplicationAchievement))
+                            me->CastSpell(me, eSpells::PowerOfReplication, true);
+                    }
+
+                    /// Don't need to do that again if the Warmage already has the two auras
+                    if (!me->HasAura(eSpells::PowerOfFortification) || !me->HasAura(eSpells::PowerOfReplication))
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvent::EventCheckRune, 1 * TimeConstants::IN_MILLISECONDS);
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2259,7 +2295,7 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
 
             void Reset() override
             {
-                if (Player* l_Target = me->SelectNearestPlayerNotGM(50.0f))
+                if (Player* l_Target = me->SelectNearestPlayerNotGM(100.0f))
                     AttackStart(l_Target);
             }
 
@@ -2561,7 +2597,7 @@ class spell_highmaul_branded : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2569,7 +2605,7 @@ class spell_highmaul_branded : public SpellScriptLoader
                                     {
                                         l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
@@ -2672,7 +2708,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2680,7 +2716,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                                     {
                                         l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
@@ -2760,7 +2796,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2768,7 +2804,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                                     {
                                         l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
@@ -2846,7 +2882,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2854,7 +2890,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                     {
                                         l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
 
-                                        uint8 l_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
+                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
@@ -3573,6 +3609,6 @@ void AddSC_boss_imperator_margok()
     new spell_highmaul_orbs_of_chaos_aura();
     new spell_highmaul_volatile_anomalies();
 
-    /// AreaTriggers
+    /// AreaTrigger
     new areatrigger_highmaul_orb_of_chaos();
 }

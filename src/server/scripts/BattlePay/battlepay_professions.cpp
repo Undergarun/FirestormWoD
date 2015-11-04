@@ -89,7 +89,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
                 l_Player->learnSpell(BattlePay::ProfessionAdditionalSpells::Prospecting, false);             ///< Prospecting
 
             /// We also need to learn it for herbalism
-            if (t_SkillID == SkillType::SKILL_HERBALISM)
+            if (t_SkillID == SkillType::SKILL_HERBALISM || t_SkillID == SkillType::SKILL_MINING)
                 l_Player->learnSpell(l_SpellID, false);
 
             l_Player->SaveToDB();

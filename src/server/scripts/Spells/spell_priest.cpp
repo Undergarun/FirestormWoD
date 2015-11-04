@@ -150,12 +150,30 @@ enum PriestSpells
 class PlayerScript_Shadow_Orb: public PlayerScript
 {
     public:
-        PlayerScript_Shadow_Orb() :PlayerScript("PlayerScript_Shadow_Orb") {}
+        PlayerScript_Shadow_Orb() :PlayerScript("PlayerScript_Shadow_Orb") { }
+
+        enum eSpell
+        {
+            T17Shadow2P = 165628
+        };
 
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             if (p_Regen)
                 return;
+
+            /// Consuming Shadow Orbs reduces the cooldown of Mind Blast by 0.5 sec per Shadow Orb consumed.
+            if (p_NewValue < p_OldValue)
+            {
+                if (AuraEffectPtr l_T17Shadow = p_Player->GetAuraEffect(eSpell::T17Shadow2P, EFFECT_0))
+                {
+                    int32 l_ConsumedOrbs = p_OldValue - p_NewValue;
+                    int32 l_ReduceCooldown = l_ConsumedOrbs * l_T17Shadow->GetAmount();
+
+                    if (p_Player->HasSpellCooldown(PRIEST_SPELL_MIND_BLAST))
+                        p_Player->ReduceSpellCooldown(PRIEST_SPELL_MIND_BLAST, l_ReduceCooldown);
+                }
+            }
 
             if (p_Power == POWER_SHADOW_ORB && p_Player->GetPower(POWER_SHADOW_ORB) > 0)
             {
@@ -273,7 +291,7 @@ enum ShadowWordDeath
     ShadowWordDeathCooldownMarker   = 95652
 };
 
-///Shadow Word: Death - 32379 and Shadow Word: Death (overrided by Glyph) - 129176
+/// Shadow Word: Death - 32379 and Shadow Word: Death (overrided by Glyph) - 129176
 class spell_pri_shadow_word_death: public SpellScriptLoader
 {
     public:
@@ -1191,6 +1209,7 @@ class spell_pri_binding_heal : public SpellScriptLoader
             return new spell_pri_binding_heal_SpellScript();
         }
 };
+
 enum MasterySpells
 {
     MASTERY_SPELL_DISCIPLINE_SHIELD = 77484
@@ -1276,6 +1295,7 @@ public:
         return new spell_pri_power_word_shield_AuraScript();
     }
 };
+
 // Smite - 585
 class spell_pri_smite: public SpellScriptLoader
 {
@@ -1524,14 +1544,15 @@ class spell_pri_purify: public SpellScriptLoader
                         DispelChargesList dispelList;
 
                         // Create dispel mask by dispel type
-                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                        SpellInfo const* l_SpellInfo = GetSpellInfo();
+                        for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                         {
-                            if (GetSpellInfo()->Effects[i].IsEffect())
+                            if (l_SpellInfo->Effects[i].IsEffect())
                             {
-                                uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                                uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_PURIFY)
-                                target->GetDispellableAuraList(caster, dispelMask, dispelList);
+                                uint32 dispel_type = l_SpellInfo->Effects[i].MiscValue;
+                                uint32 dispelMask = l_SpellInfo->GetDispelMask(DispelType(dispel_type));
+                                if (l_SpellInfo->Id == PRIEST_SPELL_PURIFY)
+                                    target->GetDispellableAuraList(caster, dispelMask, dispelList);
                             }
                         }
                         if (dispelList.empty())
@@ -1638,49 +1659,56 @@ class spell_pri_devouring_plague: public SpellScriptLoader
 // Devouring Plague Periodic Damage - 158831
 class spell_pri_devouring_plague_aura: public SpellScriptLoader
 {
-public:
-    spell_pri_devouring_plague_aura() : SpellScriptLoader("spell_pri_devouring_plague_aura") { }
+    public:
+        spell_pri_devouring_plague_aura() : SpellScriptLoader("spell_pri_devouring_plague_aura") { }
 
-    class spell_pri_devouring_plague_aura_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_devouring_plague_aura_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        class spell_pri_devouring_plague_aura_AuraScript : public AuraScript
         {
-            if (Unit* l_Caster = GetCaster())
-                amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL), sSpellMgr->GetSpellInfo(2944)->Effects[EFFECT_1].BasePoints);
-        }
+            PrepareAuraScript(spell_pri_devouring_plague_aura_AuraScript);
 
-        void OnTick(constAuraEffectPtr aurEff)
-        {
-            if (Unit* l_Caster = GetCaster())
+            enum eSpells
             {
-                int32 l_TickDamage = 1;
+                T17Shadow4P     = 165629,
+                MentalInstinct  = 167254
+            };
 
-                if (constAuraEffectPtr aurEff2 = aurEff->GetBase()->GetEffect(0))
-                    l_TickDamage *= aurEff2->GetAmount();
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL), sSpellMgr->GetSpellInfo(2944)->Effects[EFFECT_1].BasePoints);
+            }
 
-                l_Caster->CastCustomSpell(l_Caster, PRIEST_DEVOURING_PLAGUE_HEAL, &l_TickDamage, NULL, NULL, true);
-
-                if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
-                        l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
+                    int32 l_TickDamage = p_AurEff->GetAmount();
+
+                    l_Caster->CastCustomSpell(l_Caster, PRIEST_DEVOURING_PLAGUE_HEAL, &l_TickDamage, NULL, NULL, true);
+
+                    if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                    {
+                        if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                            l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
+                    }
+
+                    /// Each time Devouring Plague deals damage over time, your haste increases by 1% for 4 sec, stacking up to 12 times.
+                    if (l_Caster->HasAura(eSpells::T17Shadow4P))
+                        l_Caster->CastSpell(l_Caster, eSpells::MentalInstinct, true);
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_devouring_plague_aura_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_devouring_plague_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_devouring_plague_aura_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_devouring_plague_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            return new spell_pri_devouring_plague_aura_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_devouring_plague_aura_AuraScript();
-    }
 };
 
 /// last update : 6.1.2 19802
@@ -2483,6 +2511,11 @@ class spell_pri_penance: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_penance_SpellScript);
 
+            enum eSpell
+            {
+                T17Discipline2P = 165614
+            };
+
             bool Load()
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -2514,19 +2547,26 @@ class spell_pri_penance: public SpellScriptLoader
                         if (!l_UnitTarget->isAlive())
                             return;
 
+                        if (l_Player->HasAura(eSpell::T17Discipline2P))
+                            l_Player->CastSpell(l_Player, PRIEST_EVANGELISM_STACK, true);
+
                         uint8 l_Rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
 
-                        bool l_IsFriendly = l_Player->IsFriendlyTo(l_UnitTarget);
-                        /// Item - Priest WoD PvP Discipline 2P Bonus
-                        SpellInfo const* l_PvpBonusSpellEffect = l_IsFriendly ? sSpellMgr->GetSpellInfo(PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ALLY) : sSpellMgr->GetSpellInfo(PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ENEMY);
-
                         if (l_Player->IsFriendlyTo(l_UnitTarget))
+                        {
                             l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_HEAL, l_Rank), false, 0);
+                            
+                            /// Item - Priest WoD PvP Discipline 2P Bonus
+                            l_Player->CastSpell(l_UnitTarget, PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ALLY, true);
+                        }
                         else
                         {
                             l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_DAMAGE, l_Rank), false, 0);
                             if (l_Player->HasAura(PRIEST_EVANGELISM_AURA))
                                 l_Player->CastSpell(l_Player, PRIEST_EVANGELISM_STACK, true);
+                            
+                            /// Item - Priest WoD PvP Discipline 2P Bonus
+                            l_Player->CastSpell(l_UnitTarget, PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ENEMY, true);
                         }
 
                         // Divine Insight (Discipline)
@@ -3014,12 +3054,21 @@ class spell_pri_archangel: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_archangel_SpellScript);
 
+            enum eSpells
+            {
+                T17Discipline4P = 167694,
+                ClearThoughts   = 167695
+            };
+
             void HandleAfterCast()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (l_Caster->HasAura(ArchangelSpells::EmpoweredArchangelAura))
                         l_Caster->CastSpell(l_Caster, ArchangelSpells::EmpoweredArchangel, true);
+
+                    if (l_Caster->HasAura(eSpells::T17Discipline4P))
+                        l_Caster->CastSpell(l_Caster, eSpells::ClearThoughts, true);
                 }
             }
 
@@ -3056,7 +3105,8 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
 
             enum eSpells
             {
-                GlypheOfPrayerOfMending = 55685
+                GlypheOfPrayerOfMending = 55685,
+                T17Holy2P               = 165621
             };
 
             void HandleOnHit()
@@ -3068,10 +3118,14 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
                         l_Caster->CastSpell(l_Target, PrayerOfMendingSpells::PrayerOfMendingAura, true);
                         if (AuraPtr l_PrayerOfMendingAura = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
                         {
+                            uint8 l_Stacks = 5;
                             if (l_Caster->HasAura(eSpells::GlypheOfPrayerOfMending))
-                                l_PrayerOfMendingAura->SetStackAmount(4);
-                            else
-                                l_PrayerOfMendingAura->SetStackAmount(5);
+                                --l_Stacks;
+
+                            if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_0))
+                                l_Stacks += l_AurEff->GetAmount();
+
+                            l_PrayerOfMendingAura->SetStackAmount(l_Stacks);
                         }
                     }
                 }
@@ -3163,7 +3217,7 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Prayer of Mending Heal
+/// Prayer of Mending Heal - 33110
 class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 {
     public:
@@ -3176,7 +3230,9 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
             enum eSpells
             {
                 PriestWoDPvPHoly2PBonus = 171158,
-                Pvp2PBonusProc          = 171162
+                Pvp2PBonusProc          = 171162,
+                T17Holy4P               = 167684,
+                SerendipityStack        = 63735
             };
 
             void HandleHeal(SpellEffIndex /*p_EffIndex*/)
@@ -3185,6 +3241,9 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
+                        if (l_Caster->HasAura(eSpells::T17Holy4P) && roll_chance_i(20))
+                            l_Caster->CastSpell(l_Caster, eSpells::SerendipityStack, true);
+
                         if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(PrayerOfMendingSpells::PrayerOfMendingAura, EFFECT_0, l_Caster->GetGUID()))
                         {
                             int32 l_Heal = l_AurEff->GetAmount();
@@ -4044,8 +4103,6 @@ class PlayerScript_word_of_mending : public PlayerScript
         }
 };
 
-
-
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_dispel_mass();
@@ -4124,7 +4181,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_trigger_shadow();
     new spell_pri_cascade_heal();
 
-    /// Player Script
+    /// PlayerScripts
     new PlayerScript_Shadow_Orb();
     new PlayerScript_insanity();
     new PlayerScript_word_of_mending();

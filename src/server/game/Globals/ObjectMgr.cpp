@@ -4631,7 +4631,7 @@ void ObjectMgr::LoadQuests()
         if (!spellInfo)
             continue;
 
-        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        for (uint8 j = 0; j < spellInfo->EffectCount; ++j)
         {
             if (spellInfo->Effects[j].Effect != SPELL_EFFECT_QUEST_COMPLETE)
                 continue;
@@ -5101,7 +5101,7 @@ void ObjectMgr::LoadEventScripts()
     // Load all possible script entries from spells
     for (uint32 i = 1; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(i))
-            for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            for (uint8 j = 0; j < spell->EffectCount; ++j)
                 if (spell->Effects[j].Effect == SPELL_EFFECT_SEND_EVENT)
                     if (spell->Effects[j].MiscValue)
                         evt_scripts.insert(spell->Effects[j].MiscValue);
@@ -8569,14 +8569,14 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
         return;
     }
 
-    SpellInfo const* spellinfo = sSpellMgr->GetSpellInfo(spell);
-    if (!spellinfo)
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(spell);
+    if (!l_SpellInfo)
     {
         sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains an entry (Entry: %u) for a non-existing spell (Spell: %u), ignoring", entry, spell);
         return;
     }
 
-    if (!SpellMgr::IsSpellValid(spellinfo))
+    if (!SpellMgr::IsSpellValid(l_SpellInfo))
     {
         sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains an entry (Entry: %u) for a broken spell (Spell: %u), ignoring", entry, spell);
         return;
@@ -8598,25 +8598,25 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
     trainerSpell.reqLevel      = reqLevel;
 
     if (!trainerSpell.reqLevel)
-        trainerSpell.reqLevel = spellinfo->SpellLevel;
+        trainerSpell.reqLevel = l_SpellInfo->SpellLevel;
 
     // calculate learned spell for profession case when stored cast-spell
     trainerSpell.learnedSpell[0] = spell;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
     {
-        if (spellinfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
+        if (l_SpellInfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
             continue;
         if (trainerSpell.learnedSpell[0] == spell)
             trainerSpell.learnedSpell[0] = 0;
         // player must be able to cast spell on himself
-        if (spellinfo->Effects[i].TargetA.GetTarget() != 0 && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_TARGET_ALLY
-            && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_TARGET_ANY && spellinfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER)
+        if (l_SpellInfo->Effects[i].TargetA.GetTarget() != 0 && l_SpellInfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_TARGET_ALLY
+            && l_SpellInfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_TARGET_ANY && l_SpellInfo->Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER)
         {
             sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` has spell %u for trainer entry %u with learn effect which has incorrect target type, ignoring learn effect!", spell, entry);
             continue;
         }
 
-        trainerSpell.learnedSpell[i] = spellinfo->Effects[i].TriggerSpell;
+        trainerSpell.learnedSpell[i] = l_SpellInfo->Effects[i].TriggerSpell;
 
         if (trainerSpell.learnedSpell[i])
         {

@@ -90,9 +90,6 @@ Object::Object() : m_PackGUID(sizeof(uint64)+1)
     m_objectUpdated     = false;
 
     m_PackGUID.appendPackGUID(0);
-
-    if (sWorld->deleteUnits.find(this) != sWorld->deleteUnits.end())
-       sWorld->deleteUnits[this] = false;
 }
 
 WorldObject::~WorldObject()
@@ -111,11 +108,6 @@ WorldObject::~WorldObject()
 
 Object::~Object()
 {
-    if (sWorld->deleteUnits.find(this) != sWorld->deleteUnits.end())
-        sWorld->deleteUnits.insert(std::make_pair(this, true));
-    else
-        sWorld->deleteUnits[this] = true;
-
     if (IsInWorld())
     {
         sLog->outFatal(LOG_FILTER_GENERAL, "Object::~Object - guid=" UI64FMTD ", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
@@ -3111,6 +3103,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
     pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, 0);
     pet->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+
+    pet->m_Stampeded = stampeded;
     pet->InitStatsForLevel(getLevel());
 
     // Only slot 100, as it's not hunter pet.
