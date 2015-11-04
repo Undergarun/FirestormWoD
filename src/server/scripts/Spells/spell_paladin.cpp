@@ -975,12 +975,13 @@ class spell_pal_cleanse: public SpellScriptLoader
                         DispelChargesList dispelList;
 
                         // Create dispel mask by dispel type
-                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                        SpellInfo const* l_SpellInfo = GetSpellInfo();
+                        for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                         {
-                            if (GetSpellInfo()->Effects[i].IsEffect())
+                            if (l_SpellInfo->Effects[i].IsEffect())
                             {
-                                uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                                uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
+                                uint32 dispel_type = l_SpellInfo->Effects[i].MiscValue;
+                                uint32 dispelMask = l_SpellInfo->GetDispelMask(DispelType(dispel_type));
 
                                 // Epuration can dispell Magic with Sacred Cleansing
                                 if (dispelMask == DISPEL_MAGIC && !caster->HasAura(PALADIN_SPELL_SACRED_CLEANSING) && GetSpellInfo()->Id == 4987)

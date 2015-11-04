@@ -522,6 +522,15 @@ uint32 ConditionMgr::GetSearcherTypeMaskForConditionList(ConditionList const& co
         if ((*i)->ReferenceId) // handle reference
         {
             ConditionReferenceContainer::const_iterator ref = ConditionReferenceStore.find((*i)->ReferenceId);
+
+            if (ref == ConditionReferenceStore.end())
+            {
+                sLog->outAshran("ConditionMgr::GetSearcherTypeMaskForConditionList - incorrect reference [%u][%u][%u] ", (*i)->ReferenceId, (*i)->SourceEntry, (*i)->SourceGroup);
+
+                /// Avoid infinite loop
+                return GRID_MAP_TYPE_MASK_ALL;
+            }
+
             ASSERT(ref != ConditionReferenceStore.end() && "ConditionMgr::GetSearcherTypeMaskForConditionList - incorrect reference");
             ElseGroupStore[(*i)->ElseGroup] &= GetSearcherTypeMaskForConditionList((*ref).second);
         }
@@ -1068,7 +1077,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
         SpellInfo* spellInfo = const_cast<SpellInfo*>(sSpellMgr->GetSpellForDifficulty(cond->SourceEntry, static_cast<Difficulty>(l_Difficulty)));
         ASSERT(spellInfo);
         std::list<uint32> sharedMasks;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
         {
             // check if effect is already a part of some shared mask
             bool found = false;
@@ -1086,7 +1095,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
             // build new shared mask with found effect
             uint32 sharedMask = (1 << i);
             ConditionList* cmp = spellInfo->Effects[i].ImplicitTargetConditions;
-            for (uint8 effIndex = i + 1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+            for (uint8 effIndex = i + 1; effIndex < spellInfo->EffectCount; ++effIndex)
             {
                 if (spellInfo->Effects[effIndex].ImplicitTargetConditions == cmp)
                     sharedMask |= 1 << effIndex;
@@ -1100,12 +1109,11 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
             if (uint32 commonMask = *itr & conditionEffMask)
             {
                 uint8 firstEffIndex = 0;
-                for (; firstEffIndex < MAX_SPELL_EFFECTS; ++firstEffIndex)
-                if ((1 << firstEffIndex) & *itr)
-                    break;
-
-                if (firstEffIndex >= MAX_SPELL_EFFECTS)
-                    return false;
+                for (; firstEffIndex < SpellEffIndex::MAX_EFFECTS; ++firstEffIndex)
+                {
+                    if ((1 << firstEffIndex) & *itr)
+                        break;
+                }
 
                 // get shared data
                 ConditionList* sharedList = spellInfo->Effects[firstEffIndex].ImplicitTargetConditions;
@@ -1127,7 +1135,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
                     // add new list, create new shared mask
                     sharedList = new ConditionList();
                     bool assigned = false;
-                    for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
+                    for (uint8 i = firstEffIndex; i < spellInfo->EffectCount; ++i)
                     {
                         if ((1 << i) & commonMask)
                         {
@@ -1378,7 +1386,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
 
             uint32 origGroup = cond->SourceGroup;
 
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i < spellInfo->EffectCount; ++i)
             {
                 if (!((1<<i) & cond->SourceGroup))
                     continue;
