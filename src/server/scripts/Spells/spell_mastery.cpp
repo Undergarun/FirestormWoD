@@ -379,7 +379,7 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                     return;
 
                 /// Calculate damage
-                int32 l_HitDamage = p_EventInfo.GetDamageInfo()->GetDamage();
+                int32 l_HitDamage = p_EventInfo.GetDamageInfo()->GetDamage() + p_EventInfo.GetDamageInfo()->GetAbsorb();
 
                 /// if l_HitDamage == 0 we have a miss, so we need to except this variant
                 if (l_HitDamage != 0)
