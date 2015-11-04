@@ -3019,8 +3019,9 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphoftheLiberator = 159573,
-                GlyphofHandofFreedom = 159583
+                GlyphoftheLiberator         = 159573,
+                GlyphofHandofFreedom        = 159579,
+                GlyphofHandofFreedomEffect  = 159583
             };
 
             void HandleAfterHit()
@@ -3044,7 +3045,7 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
                 }
 
                 if (l_Player->HasAura(eSpells::GlyphofHandofFreedom))
-                    l_Player->CastSpell(l_Target, eSpells::GlyphofHandofFreedom, true);
+                    l_Player->CastSpell(l_Target, eSpells::GlyphofHandofFreedomEffect, true);
             }
 
             void Register()
