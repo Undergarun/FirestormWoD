@@ -130,6 +130,11 @@ void DamageInfo::ModifyDamage(int32 amount)
     m_damage += amount;
 }
 
+void DamageInfo::ModifyAbsorb(int32 amount)
+{
+    m_absorb += amount;
+}
+
 void DamageInfo::AbsorbDamage(uint32 amount)
 {
     amount = std::min(amount, GetDamage());
@@ -16834,6 +16839,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     DamageInfo damageInfo = DamageInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL, SPELL_DIRECT_DAMAGE);
     HealInfo healInfo = HealInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL);
     ProcEventInfo eventInfo = ProcEventInfo(actor, actionTarget, target, procFlag, 0, 0, procExtra, NULL, &damageInfo, &healInfo);
+
+    damageInfo.ModifyAbsorb(absorb);
 
     ProcTriggeredList procTriggered;
     // Fill procTriggered list
