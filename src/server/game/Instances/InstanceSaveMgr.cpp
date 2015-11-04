@@ -140,10 +140,24 @@ InstanceSave* InstanceSaveManager::GetInstanceSave(uint32 InstanceId)
 
 void InstanceSaveManager::DeleteInstanceFromDB(uint32 instanceid)
 {
-    CharacterDatabase.PQuery("DELETE FROM instance WHERE id = '%u'", instanceid);
-    CharacterDatabase.PQuery("DELETE FROM character_instance WHERE instance = '%u'", instanceid);
-    CharacterDatabase.PQuery("DELETE FROM group_instance WHERE instance = '%u'", instanceid);
-    // Respawn times should be deleted only when the map gets unloaded
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+
+    std::ostringstream l_Query;
+    std::string l_StringQuery;
+
+    l_Query << "DELETE FROM instance WHERE id = " << instanceid;
+    l_StringQuery = l_Query.str();
+    l_Transaction->Append(l_StringQuery.c_str());
+
+    l_Query << "DELETE FROM character_instance WHERE instance = " << instanceid;
+    l_StringQuery = l_Query.str();
+    l_Transaction->Append(l_StringQuery.c_str());
+
+    l_Query << "DELETE FROM group_instance WHERE instance = " << instanceid;
+    l_StringQuery = l_Query.str();
+    l_Transaction->Append(l_StringQuery.c_str());
+
+    CharacterDatabase.CommitTransaction(l_Transaction);
 }
 
 void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
@@ -153,7 +167,7 @@ void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
     {
         // save the resettime for normal instances only when they get unloaded
         if (time_t resettime = itr->second->GetResetTimeForDB())
-            CharacterDatabase.PQuery("UPDATE instance SET resettime = '%u' WHERE id = '%u'", uint32(resettime), InstanceId);
+            CharacterDatabase.PExecute("UPDATE instance SET resettime = '%u' WHERE id = '%u'", uint32(resettime), InstanceId);
 
         itr->second->SetToDelete(true);
         m_instanceSaveById.erase(itr);
@@ -192,7 +206,7 @@ void InstanceSave::SaveToDB()
         }
     }
 
-    CharacterDatabase.PQuery("INSERT INTO instance (id, map, resettime, difficulty, completedEncounters, data) VALUES ('%u', '%u', '%u', '%u', '%u', '%s')",
+    CharacterDatabase.PExecute("INSERT INTO instance (id, map, resettime, difficulty, completedEncounters, data) VALUES ('%u', '%u', '%u', '%u', '%u', '%s')",
                             m_instanceid, GetMapId(), uint32(GetResetTimeForDB()), uint8(GetDifficultyID()), completedEncounters, data.c_str());
 }
 
@@ -618,9 +632,9 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         }
 
         // delete them from the DB, even if not loaded
-        CharacterDatabase.PQuery("DELETE FROM character_instance USING character_instance LEFT JOIN instance ON character_instance.instance = id WHERE map = '%u' AND difficulty = '%u'", uint16(mapid), uint8(difficulty));
-        CharacterDatabase.PQuery("DELETE FROM group_instance USING group_instance LEFT JOIN instance on group_instance.instance = id WHERE map = '%u' AND difficulty = '%u'", uint16(mapid), uint8(difficulty));
-        CharacterDatabase.PQuery("DELETE FROM instance WHERE map = '%u' AND difficulty = '%u'", uint16(mapid), uint8(difficulty));
+        CharacterDatabase.PExecute("DELETE FROM character_instance USING character_instance LEFT JOIN instance ON character_instance.instance = id WHERE map = '%u' AND difficulty = '%u'", uint16(mapid), uint8(difficulty));
+        CharacterDatabase.PExecute("DELETE FROM group_instance USING group_instance LEFT JOIN instance on group_instance.instance = id WHERE map = '%u' AND difficulty = '%u'", uint16(mapid), uint8(difficulty));
+        CharacterDatabase.PExecute("DELETE FROM instance WHERE map = '%u' AND difficulty = '%u'", uint16(mapid), uint8(difficulty));
 
         // calculate the next reset time
         uint32 diff = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
@@ -635,7 +649,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         ScheduleReset(true, time_t(next_reset-3600), InstResetEvent(1, mapid, difficulty, 0));
 
         // Update it in the DB
-        CharacterDatabase.PQuery("UPDATE instance_reset SET resettime = '%u' WHERE mapid = '%u' AND difficulty = '%u'", uint32(next_reset), uint16(mapid), uint8(difficulty));
+        CharacterDatabase.PExecute("UPDATE instance_reset SET resettime = '%u' WHERE mapid = '%u' AND difficulty = '%u'", uint32(next_reset), uint16(mapid), uint8(difficulty));
     }
 
     // note: this isn't fast but it's meant to be executed very rarely
