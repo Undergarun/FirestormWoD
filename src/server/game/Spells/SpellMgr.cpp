@@ -3935,6 +3935,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159232:///< Ursa Major
             case 159362:///< Blood Craze
             case 76672:///< Mastery: Hand of Light
+            case 55447:///< Glyph of Flame Shock
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             case 30814: ///< Mental Quickness
