@@ -2921,8 +2921,60 @@ class spell_rog_dagger_bonus : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of Detection - 125044
+class spell_rog_gyph_of_detection : public SpellScriptLoader
+{
+    public:
+        spell_rog_gyph_of_detection() : SpellScriptLoader("spell_rog_gyph_of_detection") { }
+
+        class spell_rog_gyph_of_detection_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_gyph_of_detection_AuraScript);
+
+            enum eSpells
+            {
+                Detection = 56814
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasSpell(eSpells::Detection))
+                    l_Player->learnSpell(eSpells::Detection, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::Detection))
+                    l_Player->removeSpell(eSpells::Detection, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_rog_gyph_of_detection_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_gyph_of_detection_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_gyph_of_detection_AuraScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_gyph_of_detection();
     new spell_rog_dagger_bonus();
     new spell_rog_sinister_calling();
     new spell_rog_glyph_of_recovery();
