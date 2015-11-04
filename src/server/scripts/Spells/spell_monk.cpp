@@ -4445,7 +4445,7 @@ class spell_monk_vital_mists : public PlayerScript
 class spell_monk_item_t17_mistweaver_2p_bonus : public SpellScriptLoader
 {
     public:
-        spell_monk_item_t17_mistweaver_2p_bonus() : spell_monk_item_t17_mistweaver_2p_bonus("spell_monk_item_t17_mistweaver_2p_bonus") { }
+        spell_monk_item_t17_mistweaver_2p_bonus() : SpellScriptLoader("spell_monk_item_t17_mistweaver_2p_bonus") { }
 
         class spell_monk_item_t17_mistweaver_2p_bonus_AuraScript : public AuraScript
         {
