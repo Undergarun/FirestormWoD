@@ -149,10 +149,12 @@ void InstanceSaveManager::DeleteInstanceFromDB(uint32 instanceid)
     l_StringQuery = l_Query.str();
     l_Transaction->Append(l_StringQuery.c_str());
 
+    l_Query.str("");
     l_Query << "DELETE FROM character_instance WHERE instance = " << instanceid;
     l_StringQuery = l_Query.str();
     l_Transaction->Append(l_StringQuery.c_str());
 
+    l_Query.str("");
     l_Query << "DELETE FROM group_instance WHERE instance = " << instanceid;
     l_StringQuery = l_Query.str();
     l_Transaction->Append(l_StringQuery.c_str());
