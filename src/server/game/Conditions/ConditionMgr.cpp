@@ -1077,7 +1077,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
         SpellInfo* spellInfo = const_cast<SpellInfo*>(sSpellMgr->GetSpellForDifficulty(cond->SourceEntry, static_cast<Difficulty>(l_Difficulty)));
         ASSERT(spellInfo);
         std::list<uint32> sharedMasks;
-        for (uint8 i = 0; i < spellInfo->EffectCount; ++i)
+        for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
         {
             // check if effect is already a part of some shared mask
             bool found = false;
@@ -1109,7 +1109,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
             if (uint32 commonMask = *itr & conditionEffMask)
             {
                 uint8 firstEffIndex = 0;
-                for (; firstEffIndex < spellInfo->EffectCount; ++firstEffIndex)
+                for (; firstEffIndex < SpellEffIndex::MAX_EFFECTS; ++firstEffIndex)
                 {
                     if ((1 << firstEffIndex) & *itr)
                         break;
