@@ -547,7 +547,6 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
             l_Session->SendStablePet(0);
         });
 
-        owner->GetSession()->AddTransactionCallback(l_CallBack);
         CharacterDatabase.CommitTransaction(trans, l_CallBack);
     }
     // delete

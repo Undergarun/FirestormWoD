@@ -7011,15 +7011,10 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
 
             if (updateRealmChars)
             {
-                if (WorldSession* l_Session = sWorld->FindSession(accountId))
+                l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([accountId](bool p_Success) -> void
                 {
-                    l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([accountId](bool p_Success) -> void
-                    {
-                        sWorld->UpdateRealmCharCount(accountId);
-                    });
-
-                    l_Session->AddTransactionCallback(l_CharCreateCallback);
-                }
+                    sWorld->UpdateRealmCharCount(accountId);
+                });
             }
 
             CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);
@@ -21746,18 +21741,16 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 }
                 else
                 {
+                    uint64 l_PlayerGUID = GetGUID();
+
                     PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_REFUNDS);
                     l_Statement->setUInt32(0, item->GetGUIDLow());
                     l_Statement->setUInt32(1, GetGUIDLow());
-                    auto l_FuturResult = CharacterDatabase.AsyncQuery(l_Statement);
 
-                    WorldSession* l_Session    = GetSession();
-                    uint64        l_PlayerGUID = GetGUID();
-
-                    l_Session->AddPrepareStatementCallback(std::make_pair([l_Session, itemGuid, l_PlayerGUID](PreparedQueryResult p_Result) -> void
+                    CharacterDatabase.AsyncQuery(l_Statement, [itemGuid, l_PlayerGUID](PreparedQueryResult p_Result) -> void
                     {
-                        Player* l_Player = l_Session->GetPlayer();
-                        if (l_Player == nullptr || l_Player->GetGUID() != l_PlayerGUID)
+                        Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
+                        if (l_Player == nullptr)
                             return;
 
                         Item* l_ItemRetreive = l_Player->GetItemByGuid(MAKE_NEW_GUID(itemGuid, 0, HIGHGUID_ITEM));
@@ -21777,23 +21770,20 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                                 l_Player->GetGUIDLow(), l_Player->GetName(), l_ItemRetreive->GetGUIDLow(), l_ItemRetreive->GetEntry());
                             l_ItemRetreive->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
                         }
-                    }, l_FuturResult), true);
+                    });
                 }
             }
             else if (item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
             {
+                uint64 l_PlayerGUID = GetGUID();
+
                 PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_BOP_TRADE);
                 l_Statement->setUInt32(0, item->GetGUIDLow());
 
-                auto l_FuturResult = CharacterDatabase.AsyncQuery(l_Statement);
-
-                WorldSession* l_Session = GetSession();
-                uint64        l_PlayerGUID = GetGUID();
-
-                l_Session->AddPrepareStatementCallback(std::make_pair([l_Session, itemGuid, l_PlayerGUID](PreparedQueryResult p_Result) -> void
+                CharacterDatabase.AsyncQuery(l_Statement, [itemGuid, l_PlayerGUID](PreparedQueryResult p_Result) -> void
                 {
-                    Player* l_Player = l_Session->GetPlayer();
-                    if (l_Player == nullptr || l_Player->GetGUID() != l_PlayerGUID)
+                    Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
+                    if (l_Player == nullptr)
                         return;
 
                     Item* l_ItemRetreive = l_Player->GetItemByGuid(MAKE_NEW_GUID(itemGuid, 0, HIGHGUID_ITEM));
@@ -21816,7 +21806,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                             l_Player->GetGUIDLow(), l_Player->GetName(), l_ItemRetreive->GetGUIDLow(), l_ItemRetreive->GetEntry());
                         l_ItemRetreive->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
                     }
-                }, l_FuturResult), true);
+                });
             }
             else if (proto->HolidayId)
             {
@@ -23145,8 +23135,6 @@ void Player::SaveToDB(bool create /*=false*/)
             l_Data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
             l_Session->SendPacket(&l_Data);
         });
-
-        m_session->AddTransactionCallback(l_CharCreateCallback);
     }
 
     for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
@@ -23164,8 +23152,6 @@ void Player::SaveToDB(bool create /*=false*/)
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
         pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
-
-
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
@@ -29908,15 +29894,12 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
     if (GetPetGUID())
         return;
 
-    Pet* l_NewPet = new Pet(this);
-
-    PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, m_temporaryUnsummonedPetNumber, GetGUIDLow(), true, PET_SLOT_UNK_SLOT);
-    auto l_FuturResult = CharacterDatabase.AsyncQuery(l_PetStatement);
-
+    Pet*   l_NewPet     = new Pet(this);
     uint64 l_PlayerGUID = GetGUID();
     uint32 l_PetNumber  = m_temporaryUnsummonedPetNumber;
 
-    GetSession()->AddPrepareStatementCallback(std::make_pair([l_NewPet, l_PlayerGUID, l_PetNumber](PreparedQueryResult p_Result) -> void
+    PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, m_temporaryUnsummonedPetNumber, GetGUIDLow(), true, PET_SLOT_UNK_SLOT);
+    CharacterDatabase.AsyncQuery(l_PetStatement, [l_NewPet, l_PlayerGUID, l_PetNumber](PreparedQueryResult p_Result) -> void
     {
         if (!p_Result)
         {
@@ -29943,7 +29926,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
             if (l_Player->HasSpell(109212) && !l_Player->HasAura(118694))
                 l_Player->CastSpell(l_Player, 118694, true);
         }));
-    }, l_FuturResult), true);
+    });
 
     m_temporaryUnsummonedPetNumber = 0;
 }

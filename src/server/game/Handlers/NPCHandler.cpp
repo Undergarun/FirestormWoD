@@ -522,6 +522,9 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::SendStablePet(uint64 guid)
 {
+    if (m_Player == nullptr)
+        return;
+
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS_DETAIL);
 
     stmt->setUInt32(0, m_Player->GetGUIDLow());

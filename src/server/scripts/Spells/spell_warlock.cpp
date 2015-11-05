@@ -869,12 +869,11 @@ class spell_warl_flames_of_xoroth: public SpellScriptLoader
                     if (Pet* l_NewPet = new Pet(player, SUMMON_PET))
                     {
                         PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, player->GetLastPetNumber(), player->GetGUIDLow(), true, PET_SLOT_UNK_SLOT);
-                        auto l_FuturResult = CharacterDatabase.AsyncQuery(l_PetStatement);
 
                         uint64 l_PlayerGUID = player->GetGUID();
-                        uint32 l_PetNumber = player->GetLastPetNumber();
+                        uint32 l_PetNumber  = player->GetLastPetNumber();
 
-                        player->GetSession()->AddPrepareStatementCallback(std::make_pair([l_NewPet, l_PlayerGUID, l_PetNumber](PreparedQueryResult p_Result) -> void
+                        CharacterDatabase.AsyncQuery(l_PetStatement, [l_NewPet, l_PlayerGUID, l_PetNumber](PreparedQueryResult p_Result) -> void
                         {
                             if (!p_Result)
                             {
@@ -916,7 +915,7 @@ class spell_warl_flames_of_xoroth: public SpellScriptLoader
                                         break;
                                 }
                             }));
-                        }, l_FuturResult), true);
+                        });
                     }
                 }
             }
