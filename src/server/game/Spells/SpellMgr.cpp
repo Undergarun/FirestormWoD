@@ -4890,6 +4890,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165432:///< Item - Druid T17 Feral 4P Bonus
             case 165410:///< Item - Druid T17 Guardian 2P Bonus
             case 165478:///< Item - Rogue T17 Combat 4P Bonus
+            case 165547:///< Item - Death Knight T17 Frost 2P Bonus
+            case 165568:///< Item - Death Knight T17 Frost 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
@@ -4909,6 +4911,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 165437:///< Item - Druid T17 Restoration 2P Bonus
                 spellInfo->Effects[EFFECT_0].BasePoints = 2;
+                break;
+            case 170205:///< Item - Death Knight T17 Frost 4P Driver
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
                 break;
             case 530:   ///< Charm (Possess)
                 spellInfo->Effects[EFFECT_0].BasePoints = 102;
