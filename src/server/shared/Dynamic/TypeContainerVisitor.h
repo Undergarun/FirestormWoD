@@ -98,7 +98,7 @@ template<class VISITOR, class TYPE_CONTAINER>
 class TypeContainerVisitor
 {
     public:
-        TypeContainerVisitor(VISITOR &v) : i_visitor(v) {}
+        TypeContainerVisitor(VISITOR &v, bool p_MultiThread = false) : i_visitor(v), m_MultiThread(p_MultiThread) {}
 
         void Visit(TYPE_CONTAINER &c)
         {
@@ -110,8 +110,11 @@ class TypeContainerVisitor
             VisitorHelper(i_visitor, c);
         }
 
+        bool IsThreadSafe() const { return m_MultiThread; }
+
     private:
         VISITOR &i_visitor;
+        bool m_MultiThread;
 };
 #endif
 

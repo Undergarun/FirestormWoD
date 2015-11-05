@@ -135,6 +135,7 @@ class debug_commandscript: public CommandScript
                 { "adjustspline",   SEC_ADMINISTRATOR,  false, &HandleDebugAdjustSplineCommand,    "", NULL },
                 { "splinesync",     SEC_ADMINISTRATOR,  false, &HandleDebugSplineSyncCommand,      "", NULL },
                 { "mirror",         SEC_ADMINISTRATOR,  false, &HandleDebugMirrorCommand,          "", NULL },
+                { "visitorbench",   SEC_ADMINISTRATOR,  false, &HandleDebugVisitorBenchCommand,    "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -3040,6 +3041,57 @@ class debug_commandscript: public CommandScript
                 }
 
             }
+
+            return true;
+        }
+
+        static bool HandleDebugVisitorBenchCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            uint32 l_Dist = atoi(strtok((char*)p_Args, " "));
+            uint32 l_Loop = atoi(strtok(NULL, " "));
+
+            /// normal search
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+            uint32 l_Time = getMSTime();
+
+            for (int i = 0; i < l_Loop; i++)
+            {
+                CellCoord pair(JadeCore::ComputeCellCoord(l_Player->GetPositionX(), l_Player->GetPositionY()));
+                Cell cell(pair);
+                cell.SetNoCreate();
+
+                std::list<Creature*> l_Dummy;
+
+                JadeCore::AllCreaturesInRange check(l_Player, l_Dist);
+                JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange> searcher(l_Player, l_Dummy, check);
+                TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange>, GridTypeMapContainer> visitor(searcher, false);
+
+                cell.Visit(pair, visitor, *(l_Player->GetMap()), *l_Player, l_Dist);
+            }
+
+            uint32 l_NormalDuration = getMSTime() - l_Time;
+
+            l_Time = getMSTime();
+
+            for (int i = 0; i < l_Loop; i++)
+            {
+                CellCoord pair(JadeCore::ComputeCellCoord(l_Player->GetPositionX(), l_Player->GetPositionY()));
+                Cell cell(pair);
+                cell.SetNoCreate();
+
+                std::list<Creature*> l_Dummy;
+
+                JadeCore::AllCreaturesInRange check(l_Player, l_Dist);
+                JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange> searcher(l_Player, l_Dummy, check);
+                TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange>, GridTypeMapContainer> visitor(searcher, true);
+
+                cell.Visit(pair, visitor, *(l_Player->GetMap()), *l_Player, l_Dist);
+            }
+
+            uint32 l_MultiThreadDuration = getMSTime() - l_Time;
+
+            p_Handler->PSendSysMessage("%u search in grids for radius [%u] : normal %u ms | multithread : %u ms", l_Loop, l_Dist, l_NormalDuration, l_MultiThreadDuration);
 
             return true;
         }
