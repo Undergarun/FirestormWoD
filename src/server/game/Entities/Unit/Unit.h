@@ -1034,6 +1034,7 @@ public:
     explicit DamageInfo(CalcDamageInfo& dmgInfo);
 
     void ModifyDamage(int32 amount);
+    void ModifyAbsorb(int32 amount);
     void AbsorbDamage(uint32 amount);
     void ResistDamage(uint32 amount);
     void BlockDamage(uint32 amount);

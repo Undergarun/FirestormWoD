@@ -1746,11 +1746,6 @@ class spell_sha_flame_shock : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_flame_shock_AuraScript);
 
-            enum eSpells
-            {
-                GlyphOfFlameShock = 55447
-            };
-
             void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -3229,8 +3224,58 @@ class spell_sha_eye_of_the_storm : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of Flame Shock - 55447
+class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
+{
+    public:
+        spell_sha_glyph_of_flame_shock() : SpellScriptLoader("spell_sha_glyph_of_flame_shock") { }
+
+        class spell_sha_glyph_of_flame_shock_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_glyph_of_flame_shock_AuraScript);
+
+            enum eSpells
+            {
+                FlameShock = 8050
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::FlameShock)
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetDamage())
+                    return;
+
+                l_Caster->HealBySpell(l_Caster, p_EventInfo.GetDamageInfo()->GetSpellInfo(), CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount()), false);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_glyph_of_flame_shock_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_glyph_of_flame_shock_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_glyph_of_flame_shock();
     new spell_sha_eye_of_the_storm();
     new spell_sha_spiritwalkers_grace();
     new spell_sha_pvp_restoration_4p_bonus();

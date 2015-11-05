@@ -3934,6 +3934,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 16961:///< Primal Fury
             case 159232:///< Ursa Major
             case 159362:///< Blood Craze
+            case 76672:///< Mastery: Hand of Light
+            case 55447:///< Glyph of Flame Shock
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             case 30814: ///< Mental Quickness
@@ -4885,6 +4887,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165337:///< Item - Warrior T17 Fury 2P Bonus
             case 165349:///< Item - Warrior T17 Fury 4P Bonus
             case 165469:///< Item - Mage T17 Frost 4P Bonus
+            case 165432:///< Item - Druid T17 Feral 4P Bonus
+            case 165410:///< Item - Druid T17 Guardian 2P Bonus
+            case 165478:///< Item - Rogue T17 Combat 4P Bonus
+            case 165547:///< Item - Death Knight T17 Frost 2P Bonus
+            case 165568:///< Item - Death Knight T17 Frost 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
@@ -4892,6 +4899,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].BasePoints = 20;
                 break;
             case 181608:///< Inner Demon (for Warlock T17 Demonology 2P Bonus)
+            case 166881:///< Shadow Strikes (for Rogue T17 Subtlety 4P Bonus)
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
                 break;
@@ -4900,6 +4908,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
+                break;
+            case 165437:///< Item - Druid T17 Restoration 2P Bonus
+                spellInfo->Effects[EFFECT_0].BasePoints = 2;
+                break;
+            case 170205:///< Item - Death Knight T17 Frost 4P Driver
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
                 break;
             case 530:   ///< Charm (Possess)
                 spellInfo->Effects[EFFECT_0].BasePoints = 102;

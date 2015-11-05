@@ -7007,6 +7007,22 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             MS::Garrison::Manager::DeleteFromDB(playerguid, trans);
 
             CharacterDatabase.CommitTransaction(trans);
+            MS::Utilities::CallBackPtr l_CharCreateCallback = nullptr;
+
+            if (updateRealmChars)
+            {
+                if (WorldSession* l_Session = sWorld->FindSession(accountId))
+                {
+                    l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([accountId](bool p_Success) -> void
+                    {
+                        sWorld->UpdateRealmCharCount(accountId);
+                    });
+
+                    l_Session->AddTransactionCallback(l_CharCreateCallback);
+                }
+            }
+
+            CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);
             break;
         }
         // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
@@ -7022,9 +7038,6 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
         default:
             sLog->outError(LOG_FILTER_PLAYER, "Player::DeleteFromDB: Unsupported delete method: %u.", charDelete_method);
     }
-
-    if (updateRealmChars)
-        sWorld->UpdateRealmCharCount(accountId);
 }
 
 /**
