@@ -669,10 +669,9 @@ void KillRewarder::Reward()
                 guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
         }
     }
-
 }
 
-bool PetLoginQueryHolder::Initialize()
+bool PetQueryHolder::Initialize()
 {
     SetSize(MAX_PET_LOGIN_QUERY);
 
@@ -696,8 +695,62 @@ bool PetLoginQueryHolder::Initialize()
     stmt->setUInt32(0, m_guid);
     res &= SetPreparedQuery(PET_LOGIN_QUERY_LOADSPELLCOOLDOWN, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
+    stmt->setUInt32(0, m_guid);
+    res &= SetPreparedQuery(PET_LOGIN_QUERY_DECLINED_NAME, stmt);
+
     return res;
 }
+
+PreparedStatement* PetQueryHolder::GenerateFirstLoadStatement(uint32 p_PetEntry, uint32 p_PetNumber, uint32 p_OwnerID, bool p_CurrentPet, PetSlot p_SlotID)
+{
+    PreparedStatement* l_Statement = nullptr;
+
+    if (p_PetNumber)
+    {
+        // Known petnumber entry
+        //        0     1      2       3       4     5       6        7     8       9        10        11       12       13           14          15          16
+        // SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY);
+        l_Statement->setUInt32(0, p_OwnerID);
+        l_Statement->setUInt32(1, p_PetNumber);
+    }
+    else if (p_CurrentPet && p_SlotID != PET_SLOT_UNK_SLOT)
+    {
+        // Current pet (slot 0)
+        //        0     1     2        3       4     5       6        7      8      9        10         11      12      13           14            15          16
+        // SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
+        l_Statement->setUInt32(0, p_OwnerID);
+        l_Statement->setUInt32(1, p_SlotID);
+    }
+    else if (p_PetEntry)
+    {
+        // Known petentry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
+        //        0     1     2        3       4     5       6        7      8      9        10         11      12      13           14            15          16
+        // SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_2);
+        l_Statement->setUInt32(0, p_OwnerID);
+        l_Statement->setUInt32(1, p_PetEntry);
+        l_Statement->setUInt32(2, PET_SLOT_HUNTER_FIRST);
+        l_Statement->setUInt32(3, PET_SLOT_HUNTER_LAST);
+        l_Statement->setUInt32(4, PET_SLOT_STABLE_LAST);
+    }
+    else
+    {
+        // Any current or other non-stabled pet (for hunter "call pet")
+        //        0     1     2        3       4     5       6        7      8      9        10         11      12      13           14            15          16
+        // SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_SLOT);
+        l_Statement->setUInt32(0, p_OwnerID);
+        l_Statement->setUInt32(1, PET_SLOT_HUNTER_FIRST);
+        l_Statement->setUInt32(2, PET_SLOT_HUNTER_LAST);
+        l_Statement->setUInt32(3, p_SlotID);
+    }
+
+    return l_Statement;
+}
+
 
 // == Player ====================================================
 // we can disable this warning for this since it only
@@ -1904,10 +1957,13 @@ void Player::Update(uint32 p_time)
             _petLoginCallback.get(param);
 
             Pet* pet = new Pet(this);
-            if (!pet->LoadPetFromDB(this, 0, 0, true, PET_SLOT_ACTUAL_PET_SLOT, true, (PetLoginQueryHolder*)param, true))
-                delete pet;
+            pet->LoadPetFromDB(this, 0, 0, true, PET_SLOT_ACTUAL_PET_SLOT, false, (PetQueryHolder*)param, [param](Pet* p_Pet, bool p_Result) -> void
+            {
+                if (!p_Result)
+                    delete p_Pet;
 
-            delete param;
+                delete param;
+            });
 
             _petLoginCallback.cancel();
         }
@@ -21909,7 +21965,7 @@ void Player::LoadPet(PreparedQueryResult result)
     if (IsInWorld() && result)
     {
         Field* fields = result->Fetch();
-        PetLoginQueryHolder* queryHolder = new PetLoginQueryHolder(fields[0].GetUInt32(), result);
+        PetQueryHolder* queryHolder = new PetQueryHolder(fields[0].GetUInt32(), result);
         if (!queryHolder->Initialize())
         {
             delete queryHolder;
@@ -21917,10 +21973,6 @@ void Player::LoadPet(PreparedQueryResult result)
         }
 
         _petLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)queryHolder);
-
-        /*Pet* pet = new Pet(this);
-        if (!pet->LoadPetFromDB(this, 0, 0, true, PET_SLOT_ACTUAL_PET_SLOT))
-            delete pet;*/
     }
 }
 
@@ -29843,17 +29895,42 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
     if (GetPetGUID())
         return;
 
-    PetSlot summonSlot = PET_SLOT_UNK_SLOT;
+    Pet* l_NewPet = new Pet(this);
 
-    Pet* NewPet = new Pet(this);
+    PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, m_temporaryUnsummonedPetNumber, GetGUIDLow(), true, PET_SLOT_UNK_SLOT);
+    auto l_FuturResult = CharacterDatabase.AsyncQuery(l_PetStatement);
 
-    if (getClass() == CLASS_HUNTER)
-        summonSlot = m_currentPetSlot;
+    uint64 l_PlayerGUID = GetGUID();
+    uint32 l_PetNumber  = m_temporaryUnsummonedPetNumber;
 
-    if (!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
-        delete NewPet;
-    else if (HasSpell(109212) && !HasAura(118694)) ///< Spirit Bond have to be reload when pet reload
-        CastSpell(this, 118694, true);
+    GetSession()->AddPrepareStatementCallback(std::make_pair([l_NewPet, l_PlayerGUID, l_PetNumber](PreparedQueryResult p_Result) -> void
+    {
+        if (!p_Result)
+        {
+            delete l_NewPet;
+            return;
+        }
+
+        PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), p_Result);
+        l_PetHolder->Initialize();
+
+        auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
+
+        sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
+        {
+            Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
+            if (!l_Player)
+            {
+                delete l_NewPet;
+                return;
+            }
+
+            l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder);
+
+            if (l_Player->HasSpell(109212) && !l_Player->HasAura(118694))
+                l_Player->CastSpell(l_Player, 118694, true);
+        }));
+    }, l_FuturResult), true);
 
     m_temporaryUnsummonedPetNumber = 0;
 }

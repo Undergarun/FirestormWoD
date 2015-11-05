@@ -3000,7 +3000,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempS
     return NULL;
 }
 
-Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration, PetSlot slotID, bool stampeded)
+void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration, PetSlot slotID, bool stampeded, std::function<void(Pet*, bool)> p_Callback, bool p_ByPass)
 {
     Pet* pet = new Pet(this, petType);
 
@@ -3009,64 +3009,109 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         currentPet = false;
 
     //summoned pets always non-curent!
-    if (petType == SUMMON_PET && pet->LoadPetFromDB(this, entry, 0, currentPet, slotID, stampeded))
+    if (petType == SUMMON_PET && !p_ByPass)
     {
-        if (pet->GetOwner() && pet->GetOwner()->getClass() == CLASS_WARLOCK)
+        uint64 l_PlayerGUID = GetGUID();
+
+        PetSlot l_LoadPetSlotID = slotID;
+        if (l_LoadPetSlotID == PET_SLOT_ACTUAL_PET_SLOT)
+            l_LoadPetSlotID = m_currentPetSlot;
+
+        PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(entry, 0, GetGUIDLow(), currentPet, l_LoadPetSlotID);
+        auto l_FuturResult = CharacterDatabase.AsyncQuery(l_PetStatement);
+
+        GetSession()->AddPrepareStatementCallback(std::make_pair([entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](PreparedQueryResult p_Result) -> void
         {
-            if (pet->GetOwner()->HasAura(108503))
-                pet->GetOwner()->RemoveAura(108503);
-
-            // Supplant Command Demon
-            if (pet->GetOwner()->getLevel() >= 56)
+            if (!p_Result)
             {
-                int32 bp = 0;
-
-                pet->GetOwner()->RemoveAura(119904);
-
-                switch (pet->GetEntry())
-                {
-                    case ENTRY_IMP:
-                    case ENTRY_FEL_IMP:
-                        bp = 119905;// Cauterize Master
-                        break;
-                    case ENTRY_VOIDWALKER:
-                    case ENTRY_VOIDLORD:
-                        bp = 119907;// Disarm
-                        break;
-                    case ENTRY_SUCCUBUS:
-                        bp = 119909;// Whilplash
-                        break;
-                    case ENTRY_SHIVARRA:
-                        bp = 119913;// Fellash
-                        break;
-                    case ENTRY_FELHUNTER:
-                        bp = 119910;// Spell Lock
-                        break;
-                    case ENTRY_OBSERVER:
-                        bp = 119911;// Optical Blast
-                        break;
-                    case ENTRY_FELGUARD:
-                        bp = 119914;// Felstorm
-                        break;
-                    case ENTRY_WRATHGUARD:
-                        bp = 119915;// Wrathstorm
-                        break;
-                    default:
-                        break;
-                }
-
-                if (bp)
-                    pet->GetOwner()->CastCustomSpell(pet->GetOwner(), 119904, &bp, NULL, NULL, true);
+                Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
+                if (l_Player)
+                    l_Player->SummonPet(entry, x, y, z, ang, petType, duration, slotID, stampeded, p_Callback, true);
+                return;
             }
-        }
 
-        if (pet->IsPetGhoul())
-            pet->setPowerType(POWER_ENERGY);
+            PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), p_Result);
+            l_PetHolder->Initialize();
 
-        if (duration > 0)
-            pet->SetDuration(duration);
+            auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
 
-        return pet;
+            sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](SQLQueryHolder* p_QueryHolder) -> void
+            {
+                Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
+                if (!l_Player)
+                    return;
+
+                pet->LoadPetFromDB(l_Player, entry, 0, currentPet, l_LoadPetSlotID, stampeded, (PetQueryHolder*)p_QueryHolder, [entry, x, y, z, ang, petType, duration, slotID, l_LoadPetSlotID, stampeded, p_Callback, l_PlayerGUID](Pet* p_Pet, bool p_Result) -> void
+                {
+                    if (!p_Result)
+                    {
+                        Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
+                        if (l_Player)
+                            l_Player->SummonPet(entry, x, y, z, ang, petType, duration, slotID, stampeded, p_Callback, true);
+                        return;
+                    }
+
+                    if (p_Pet->GetOwner() && p_Pet->GetOwner()->getClass() == CLASS_WARLOCK)
+                    {
+                        if (p_Pet->GetOwner()->HasAura(108503))
+                            p_Pet->GetOwner()->RemoveAura(108503);
+
+                        // Supplant Command Demon
+                        if (p_Pet->GetOwner()->getLevel() >= 56)
+                        {
+                            int32 bp = 0;
+
+                            p_Pet->GetOwner()->RemoveAura(119904);
+
+                            switch (p_Pet->GetEntry())
+                            {
+                            case ENTRY_IMP:
+                            case ENTRY_FEL_IMP:
+                                bp = 119905;// Cauterize Master
+                                break;
+                            case ENTRY_VOIDWALKER:
+                            case ENTRY_VOIDLORD:
+                                bp = 119907;// Disarm
+                                break;
+                            case ENTRY_SUCCUBUS:
+                                bp = 119909;// Whilplash
+                                break;
+                            case ENTRY_SHIVARRA:
+                                bp = 119913;// Fellash
+                                break;
+                            case ENTRY_FELHUNTER:
+                                bp = 119910;// Spell Lock
+                                break;
+                            case ENTRY_OBSERVER:
+                                bp = 119911;// Optical Blast
+                                break;
+                            case ENTRY_FELGUARD:
+                                bp = 119914;// Felstorm
+                                break;
+                            case ENTRY_WRATHGUARD:
+                                bp = 119915;// Wrathstorm
+                                break;
+                            default:
+                                break;
+                            }
+
+                            if (bp)
+                                p_Pet->GetOwner()->CastCustomSpell(p_Pet->GetOwner(), 119904, &bp, NULL, NULL, true);
+                        }
+                    }
+
+                    if (p_Pet->IsPetGhoul())
+                        p_Pet->setPowerType(POWER_ENERGY);
+
+                    if (duration > 0)
+                        p_Pet->SetDuration(duration);
+
+                    p_Callback(p_Pet, true);
+                });
+
+            }));
+        }, l_FuturResult), true);
+        return;
     }
 
     if (stampeded)
@@ -3076,7 +3121,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     if (!entry)
     {
         delete pet;
-        return NULL;
+        p_Callback(nullptr, false);
+        return;
     }
 
     pet->Relocate(x, y, z, ang);
@@ -3084,7 +3130,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     {
         sLog->outError(LOG_FILTER_GENERAL, "Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)", pet->GetGUIDLow(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
         delete pet;
-        return NULL;
+        p_Callback(nullptr, false);
+        return;
     }
 
     Map* map = GetMap();
@@ -3093,7 +3140,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     {
         sLog->outError(LOG_FILTER_GENERAL, "no such creature entry %u", entry);
         delete pet;
-        return NULL;
+        p_Callback(nullptr, false);
+        return;
     }
 
     pet->SetCreatorGUID(GetGUID());
@@ -3191,7 +3239,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     if (duration > 0)
         pet->SetDuration(duration);
 
-    return pet;
+    p_Callback(pet, true);
+    return;
 }
 
 void Player::SendStartTimer(uint32 p_Time, uint32 p_MaxTime, uint8 p_Type)

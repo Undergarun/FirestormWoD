@@ -3833,57 +3833,68 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
 
     float x, y, z;
     owner->GetClosePoint(x, y, z, owner->GetObjectSize());
-    Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0, PetSlot(slot));
-    if (!pet)
-        return;
 
-    if (m_caster->GetTypeId() == TYPEID_UNIT)
+    uint64 l_CasterGUID          = m_caster->GetGUID();
+    SpellInfo const* l_SpellInfo = m_spellInfo;
+
+    owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0, PetSlot(slot), false, [l_CasterGUID, l_SpellInfo, petentry](Pet* p_Pet, bool p_Result) -> void
     {
-        if (m_caster->ToCreature()->isTotem())
-            pet->SetReactState(REACT_AGGRESSIVE);
-        else
-            pet->SetReactState(REACT_DEFENSIVE);
-    }
+        if (!p_Result)
+            return;
 
-    pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, m_spellInfo->Id);
+        Unit* l_Caster = p_Pet->GetUnit(*p_Pet, l_CasterGUID);
+        if (l_Caster == nullptr)
+            return;
 
-    if (m_caster->GetTypeId() == TYPEID_UNIT)
-    {
-        if (m_caster->ToCreature()->isTotem())
+        if (l_Caster->GetTypeId() == TYPEID_UNIT)
         {
-            if (pet->GetEntry() == 61029 || pet->GetEntry() == 61056)
+            if (l_Caster->ToCreature()->isTotem())
+                p_Pet->SetReactState(REACT_AGGRESSIVE);
+            else
+                p_Pet->SetReactState(REACT_DEFENSIVE);
+        }
+
+        p_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, l_SpellInfo->Id);
+
+        if (l_Caster->GetTypeId() == TYPEID_UNIT)
+        {
+            if (l_Caster->ToCreature()->isTotem())
             {
-                if (Unit* owner = m_caster->GetOwner())
+                if (p_Pet->GetEntry() == 61029 || p_Pet->GetEntry() == 61056)
                 {
-                    if (Player* _plr = owner->ToPlayer())
+                    if (Unit* l_Owner = l_Caster->GetOwner())
                     {
-                        if (pet->GetEntry() == 61029)
+                        if (Player* l_Player = l_Owner->ToPlayer())
                         {
-                            pet->addSpell(118297);  // Immolate
-                            pet->addSpell(118350);  // Empower
+                            if (p_Pet->GetEntry() == 61029)
+                            {
+                                p_Pet->addSpell(118297);  // Immolate
+                                p_Pet->addSpell(118350);  // Empower
+                            }
+                            else
+                            {
+                                p_Pet->addSpell(118337);  // Harden Skin
+                                p_Pet->addSpell(118345);  // Pulverize
+                                p_Pet->addSpell(118347);  // Reinforce
+                            }
+                            l_Player->PetSpellInitialize();
                         }
-                        else
-                        {
-                            pet->addSpell(118337);  // Harden Skin
-                            pet->addSpell(118345);  // Pulverize
-                            pet->addSpell(118347);  // Reinforce
-                        }
-                        _plr->PetSpellInitialize();
                     }
                 }
             }
         }
-    }
 
-    // generate new name for summon pet
-    if (petentry)
-    {
-        std::string new_name = sObjectMgr->GeneratePetName(petentry);
-        if (!new_name.empty())
-            pet->SetName(new_name);
-    }
+        // generate new name for summon pet
+        if (petentry)
+        {
+            std::string l_NewName = sObjectMgr->GeneratePetName(petentry);
+            if (!l_NewName.empty())
+                p_Pet->SetName(l_NewName);
+        }
+    });
 
-    ExecuteLogEffectSummonObject(effIndex, pet);
+    /// @TODO: Find a way to make that async ...
+    ///ExecuteLogEffectSummonObject(effIndex, pet);
 }
 
 void Spell::EffectLearnPetSpell(SpellEffIndex effIndex)
@@ -8053,13 +8064,15 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
         return;
 
     Player* l_Player = m_caster->ToPlayer();
-    Unit*   l_Target = unitTarget;
 
-    if (l_Target == nullptr)
+    if (unitTarget == nullptr)
         return;
 
-    uint32 l_MalusSpell = m_spellInfo->Effects[p_EffIndex].TriggerSpell;
-    bool   l_OnlyCurrentPet = l_Player->HasAuraType(SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET);
+    uint64 l_UnitTargetGUID = unitTarget->GetGUID();
+
+    uint32 l_MalusSpell          = m_spellInfo->Effects[p_EffIndex].TriggerSpell;
+    bool   l_OnlyCurrentPet      = l_Player->HasAuraType(SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET);
+    SpellInfo const* l_SpellInfo = GetSpellInfo();
 
     uint32 l_CurrentSlot = l_Player->m_currentPetSlot;
     for (uint32 l_PetSlotIndex = uint32(PET_SLOT_HUNTER_FIRST); l_PetSlotIndex <= uint32(PET_SLOT_HUNTER_LAST); ++l_PetSlotIndex)
@@ -8068,35 +8081,47 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
         {
             float l_X, l_Y, l_Z;
             l_Player->GetClosePoint(l_X, l_Y, l_Z, l_Player->GetObjectSize());
-            Pet* l_Pet = l_Player->SummonPet(0, l_X, l_Y, l_Z, l_Player->GetOrientation(), SUMMON_PET, l_Player->CalcSpellDuration(GetSpellInfo()), PetSlot(l_OnlyCurrentPet ? l_CurrentSlot : l_PetSlotIndex), true);
-            if (!l_Pet)
-                return;
-
-            if (!l_Pet->isAlive())
-                l_Pet->setDeathState(ALIVE);
-
-            /// Set pet at full health
-            l_Pet->SetHealth(l_Pet->GetMaxHealth());
-            l_Pet->SetReactState(REACT_HELPER);
-
-            std::list<uint32> l_SpellsToRemove;
-            for (auto l_Iter : l_Pet->m_spells)
-                l_SpellsToRemove.push_back(l_Iter.first);
-
-            /// Summoned pets with Stamped don't use abilities
-            for (uint32 l_ID : l_SpellsToRemove)
+            l_Player->SummonPet(0, l_X, l_Y, l_Z, l_Player->GetOrientation(), SUMMON_PET, l_Player->CalcSpellDuration(GetSpellInfo()), PetSlot(l_OnlyCurrentPet ? l_CurrentSlot : l_PetSlotIndex), true,
+                [l_MalusSpell, l_SpellInfo, l_UnitTargetGUID](Pet* p_Pet, bool p_Result) -> void
             {
-                auto l_Iter = l_Pet->m_spells.find(l_ID);
-                l_Pet->m_spells.erase(l_Iter);
-            }
+                if (!p_Result || !p_Pet)
+                    return;
 
-            l_Pet->m_autospells.clear();
-            l_Pet->m_Events.KillAllEvents(true);    ///< Disable automatic cast spells
+                Player* l_Owner  = p_Pet->GetOwner();
+                Unit*   l_Target = p_Pet->GetUnit(*p_Pet, l_UnitTargetGUID);
 
-            l_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
-            if (l_MalusSpell != 0 && l_Player->GetBattleground())
-                l_Pet->CastSpell(l_Pet, l_MalusSpell, true);
-            l_Pet->AI()->AttackStart(l_Target);
+                if (l_Owner == nullptr)
+                    return;
+
+                if (!p_Pet->isAlive())
+                    p_Pet->setDeathState(ALIVE);
+
+                /// Set pet at full health
+                p_Pet->SetHealth(p_Pet->GetMaxHealth());
+                p_Pet->SetReactState(REACT_HELPER);
+                p_Pet->m_Stampeded = true;
+
+                std::list<uint32> l_SpellsToRemove;
+                for (auto l_Iter : p_Pet->m_spells)
+                    l_SpellsToRemove.push_back(l_Iter.first);
+
+                /// Summoned pets with Stamped don't use abilities
+                for (uint32 l_ID : l_SpellsToRemove)
+                {
+                    auto l_Iter = p_Pet->m_spells.find(l_ID);
+                    p_Pet->m_spells.erase(l_Iter);
+                }
+
+                p_Pet->m_autospells.clear();
+                p_Pet->m_Events.KillAllEvents(true);    ///< Disable automatic cast spells
+
+                p_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, l_SpellInfo->Id);
+
+                if (l_MalusSpell != 0 && l_Owner->GetBattleground())
+                    p_Pet->CastSpell(p_Pet, l_MalusSpell, true);
+
+                p_Pet->AI()->AttackStart(l_Target);
+            });
         }
     }
 }

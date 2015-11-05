@@ -31,6 +31,7 @@
 #include "QueryResult.h"
 #include "Callback.h"
 #include "TimeDiffMgr.h"
+#include "DatabaseWorkerPool.h"
 
 #include <map>
 #include <set>
@@ -653,6 +654,18 @@ enum RecordDiffType
     RECORD_DIFF_MAX
 };
 
+struct QueryHolderCallback
+{
+    QueryHolderCallback(QueryResultHolderFuture p_QueryResultHolderFuture, std::function<void(SQLQueryHolder*)> p_Callback)
+    {
+        m_QueryResultHolderFuture = p_QueryResultHolderFuture;
+        m_Callback = p_Callback;
+    }
+
+    QueryResultHolderFuture m_QueryResultHolderFuture;
+    std::function<void(SQLQueryHolder*)>   m_Callback;
+};
+
 /// The World
 class World
 {
@@ -937,6 +950,14 @@ class World
         void ResetBossLooted();
 
         bool ModerateMessage(std::string l_Text);
+
+        void AddQueryHolderCallback(QueryHolderCallback p_QueryHolderCallback)
+        {
+            m_QueryHolderCallbackLock.lock();
+            m_QueryHolderCallbacksBuffer->push_front(p_QueryHolderCallback);
+            m_QueryHolderCallbackLock.unlock();
+        }
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -1054,6 +1075,14 @@ class World
         PreparedQueryResultFuture m_transfersExpLoadCallback;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
         LexicsCutter *m_lexicsCutter;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New query holder callback system
+        //////////////////////////////////////////////////////////////////////////
+        using QueryHolderCallbacks = std::forward_list<QueryHolderCallback>;
+        std::unique_ptr<QueryHolderCallbacks> m_QueryHolderCallbacks;
+        std::unique_ptr<QueryHolderCallbacks> m_QueryHolderCallbacksBuffer;
+        std::mutex m_QueryHolderCallbackLock;
 };
 
 extern uint32 g_RealmID;
