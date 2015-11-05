@@ -474,7 +474,8 @@ class iron_docks_oshir_mob_wolf_dest : public CreatureScript
                         {
                             std::list<Creature*> l_TempWolfsList;
                             me->GetCreatureListWithEntryInGrid(l_TempWolfsList, eCreatures::CreatureWolf, 2.0f);
-                            if (l_TempWolfsList.empty)
+
+                            if (l_TempWolfsList.empty())
                                 return;
 
                             for (auto l_Itr : l_TempWolfsList)
@@ -556,7 +557,8 @@ class iron_docks_oshir_mob_rylak_dest : public CreatureScript
                         {
                             std::list<Creature*> l_TempRylaksList;
                             me->GetCreatureListWithEntryInGrid(l_TempRylaksList, eCreatures::CreatureRylak, 2.0f);
-                            if (l_TempRylaksList.empty)
+
+                            if (l_TempRylaksList.empty())
                                 return;
 
                             for (auto l_Itr : l_TempRylaksList)

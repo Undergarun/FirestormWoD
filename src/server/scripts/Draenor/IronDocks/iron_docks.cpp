@@ -947,7 +947,7 @@ class iron_docks_mob_ogron : public CreatureScript
                 {
                     case eOrgonEvents::EventThunderingStomp:
                         me->CastSpell(me, eOrgonSpells::SpellThunderingStomp);
-                        events.ScheduleEvent(eOrgonEvents::EventThunderingStomp, 20 * TimeConstants::IN_MILLISECONDS));
+                        events.ScheduleEvent(eOrgonEvents::EventThunderingStomp, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eOrgonEvents::EventFlurry:
                         if (Unit* l_Target = me->getVictim())

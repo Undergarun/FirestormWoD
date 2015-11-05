@@ -189,7 +189,7 @@ public:
                 if (me->HealthBelowPct(50) && !m_DismountHeroic)
                 {
                     m_DismountHeroic = true;
-                    events.ScheduleEvent(eEvents::EventDismount, 1 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eNokgarEvents::EventDismount, 1 * TimeConstants::IN_MILLISECONDS);
                 }
 
                 if (me->HasAura(eNokgarSpells::SpellRecklessProvocation))
@@ -571,7 +571,6 @@ class iron_docks_nokgar_mob_flameslinger : public CreatureScript
                 SpellBarbedArrow         = 164370,
                 SpellRecklessProvocation = 164426,
                 SpellIntimidated         = 164504,
-                SpellBarbedArrow         = 164278,
                 SpellBurningArrow        = 164234
             };
 
