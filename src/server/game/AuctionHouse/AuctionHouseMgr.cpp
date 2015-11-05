@@ -445,7 +445,7 @@ void AuctionHouseObject::Update()
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_BY_TIME);
     stmt->setUInt32(0, (uint32)curTime+60);
     
-    PreparedQueryResult result = CharacterDatabase.AsyncQuery(stmt, [this](PreparedQueryResult& p_Result) -> void
+    PreparedQueryResult result = CharacterDatabase.AsyncQuery(stmt, [this](PreparedQueryResult const& p_Result) -> void
     {
         if (!p_Result)
             return;
