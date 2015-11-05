@@ -4889,6 +4889,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165469:///< Item - Mage T17 Frost 4P Bonus
             case 165432:///< Item - Druid T17 Feral 4P Bonus
             case 165410:///< Item - Druid T17 Guardian 2P Bonus
+            case 165478:///< Item - Rogue T17 Combat 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
@@ -4896,6 +4897,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].BasePoints = 20;
                 break;
             case 181608:///< Inner Demon (for Warlock T17 Demonology 2P Bonus)
+            case 166881:///< Shadow Strikes (for Rogue T17 Subtlety 4P Bonus)
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
                 break;
