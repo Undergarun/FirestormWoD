@@ -8,163 +8,20 @@
 
 #include "iron_docks.hpp"
 
-Position const g_StunnedAdds[3] =
-{
-    { 6848.13f, -557.67f, 5.134f, 0.167117f },
-    { 6856.76f, -570.57f, 4.741f, 1.034980f },
-    { 6868.90f, -571.93f, 5.115f, 2.466761f }
-};
-
-Position const g_CheeringSoldiers[6] =
-{
-    /// Right
-    { 6807.25f, -676.79f, 4.835f, 5.925450f },
-    { 6806.89f, -683.76f, 4.997f, 5.921500f },
-    { 6806.85f, -690.98f, 4.922f, 6.282260f },
-    /// Left
-    { 6841.64f, -683.00f, 4.835f, 3.288370f },
-    { 6841.33f, -690.54f, 4.835f, 3.146160f },
-    { 6846.15f, -696.68f, 4.914f, 2.999297f }
-};
-
-Position const g_PracticingWarriors[2] =
-{
-    { 6826.10f, -688.61f, 4.835f, 2.412430f },
-    { 6823.62f, -686.06f, 4.835f, 5.513440f }
-};
-
-Position const g_CheeringSoldiers2[10] =
-{
-    { 6620.58f, -676.56f, 4.599f, 3.959485f },
-    { 6623.64f, -680.51f, 4.601f, 3.774916f },
-    { 6624.83f, -687.18f, 4.618f, 3.158379f },
-    { 6623.84f, -694.58f, 4.607f, 2.514352f },
-    { 6620.52f, -697.97f, 4.615f, 2.202549f },
-    { 6612.53f, -698.07f, 4.660f, 1.637062f },
-    { 6604.38f, -697.10f, 4.623f, 0.887006f },
-    { 6601.72f, -693.82f, 4.629f, 0.741707f },
-    { 6600.86f, -687.21f, 4.658f, 6.278765f },
-    { 6603.08f, -678.38f, 4.626f, 5.607255f }
-};
-
-Position const g_PracticingWarriors2[2] =
-{
-    { 6614.71f, -688.92f, 4.763f, 2.389464f },
-    { 6611.09f, -685.70f, 4.773f, 5.494924f }
-};
-
-Position const g_OutTeleportPos = { 8852.49f, 1364.35f, 97.0f, 1.581f };
-
 enum eSpells
 {
-    /// Battlemaster
-    SpellBladestorm                     = 167232,
-    SpellChainDrag                      = 172860,
-    SpellChargingSlash                  = 172889,
-    SpellChargingSlashJump              = 172885,
-    /// Footsoldier
-    SpellTacticalKick                   = 169413,
-    SpellDemoralizingShout              = 169341,
-    /// Deadeye
-    SpellIronShot                       = 167239,
-    SpellLegShot                        = 167240,
-    /// Incinerator
-    SpellIncenarySlugs                  = 176902, ///< Actual full spell, blizzards are just a bunch of r tards.
-    SpellSharpnelBlast                  = 167516,
-    /// Deckhand
-    SpellHatchetToss                    = 173112,
-    /// Champion Darona
-    SpellBarbedArrowBarrageDummy        = 166923,
-    SpellBarbedArrowAreaTrigger         = 164278,
-    SpellBarbedArrowAura                = 164370,
-    SpellBarbedArrowDoT                 = 164648,
-    SpellBurningArrowDummy              = 172810,
-    SpellBurningArrowAreaTrigger        = 164234,
-    SpellBurningArrowDoT                = 164632,
-    SpellChampionsPresence              = 173091,
-    /// Siege Master Olugar
-    SpellGatecrasherDamage              = 172963,
-    SpellThrowGatecrasher               = 172952,
-    SpellPitFighter                     = 173455, ///< Upon disarm
-    SpellShatteringStrike               = 172982,
-    /// Pitwarden Gwarnok
-    SpellBrutalInspiration              = 172943,
-    /// Gromkar Technician
-    SpellFlyingHammer                   = 172703,
-    SpellHighExplosiveGrenade           = 178298,
-    SpellGreaseVial                     = 172649,
-    SpellGreaseVialEffect               = 172636,
-    /// Unruly Orgon
-    SpellFlurry                         = 178412,
-    SpellFlurryDamage                   = 178414,
-    SpellThunderingStomp                = 173135,
-    /// Rushing
-    SpellRushingStampedeVisualMovement  = 173350,
-    SpellRushingStampedeVisualHorning   = 173351,
-    SpellRushingStampedeVisualJump      = 173352,
-    SpellRushingStampedeDummyCast       = 173384,
-    SpellRushingStampedeDamage          = 173351,
-    SpellSpinyHorns                     = 158349,
-    /// Thunderlord Wrangler
-    SpellCultTraps                      = 173336,
-    SpellCultTrapsDamage                = 173324,
-    SpellRendingCleave                  = 167815,
-    SpellSpearThrow                     = 167095,
-    /// Ironwing Flamespitter
-    SpellLavaBarrageDummy               = 176356,
-    SpellLavaBarrageAreaTrigger         = 173482,
-    SpellLavaBarrageDoT                 = 173489,
-    /// Iron Star - Object
-    SpellQuietSuicide                   = 163832,
     /// Misc
     SpellSelfStun                       = 94563,
     SpellEmoteWork                      = 43831,
-    SpellEmoteFight                     = 36, ///< Actual standstate
     SpellCarryCrate                     = 173166,
     SpellCarrySack                      = 167539,
     SpellApplauseCheer                  = 84062
 };
 
-enum eEvents
+enum eEmotes
 {
-    /// Thunderlord Wrangler
-    EventCultTraps          = 1000,
-    EventSpearThrow         = 1001,
-    EventRendingCleave      = 1002,
-    /// Rushing
-    EventRushingStampede    = 1003,
-    EventRushingStampede2   = 1004,
-    /// Gromkar Battlemaster
-    EventBladestorm         = 900,
-    EventChainDrag          = 901,
-    EventChargingSlash      = 902,
-    /// Footsoldier
-    EventTacticalKick       = 903,
-    EventDemoralizingShout  = 904,
-    /// Deadeye
-    EventIronShot           = 905,
-    EventLegShot            = 906,
-    /// Incinerator
-    EventIncendinarySlug    = 907,
-    EventSharpnelBlast      = 908,
-    /// Champion Daruna
-    EventBurningArrow       = 909,
-    EventBarbedArrow        = 910,
-    EventChampionPresence   = 911,
-    /// Siege Master Olugar
-    EventGatecrasher        = 912,
-    EventShatteringStrike   = 914,
-    /// Gromkar Technician
-    EventGreaseVial         = 916,
-    EventFlyingHammer       = 917,
-    EventExplosiveGrenade   = 918,
-    /// Ogron
-    EventFlurry             = 919,
-    EventThunderingStomp    = 920,
-    /// Deck-hand
-    EventHatchetToss        = 921,
-    /// Ironwing Flamespitter
-    EventLavaBarrage        = 922
+    EmoteWork01                         = 133,
+    EmoteFight                           = 36, 
 };
 
 enum eAction
@@ -172,30 +29,52 @@ enum eAction
     ActionQuietDeath = 744
 };
 
-class explosion_iron_star : public BasicEvent
+class basicevent_explosion_iron_star : public BasicEvent
 {
     public:
-        explicit explosion_iron_star(Unit* p_Unit, Unit* p_OtherUnit, int p_Value) : m_Obj(p_Unit), m_OtherObj(p_OtherUnit), m_Modifier(p_Value) { }
+        explicit basicevent_explosion_iron_star(Unit* p_Me, uint64 p_Unit, uint64 p_OtherUnit, int p_Value) : m_Me(p_Me), m_ObjGUID(p_Unit), m_OtherObjGUID(p_OtherUnit), m_Modifier(p_Value) { }
+
+        enum eExplosionIronStarEventSpells
+        {
+            /// Iron Star - Object
+            SpellQuietSuicide = 163832
+        };
 
         bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {
+            if (!m_Me)
+                return false;
+
+            if (!m_Me->IsInWorld())
+                return false;
+
             switch (m_Modifier)
             {
                 case 0:
                 {
-                    if (m_Obj)
+                    if (m_ObjGUID != 0)
                     {
-                        if (Creature* l_Crea = m_Obj->ToCreature())
-                            l_Crea->DespawnOrUnsummon();
-                        m_Obj->CastSpell(m_Obj, eSpells::SpellQuietSuicide);
+                        if (Creature* l_Creature = Creature::GetCreature(*m_Me, m_ObjGUID))
+                        {
+                            l_Creature->DespawnOrUnsummon();
+                            l_Creature->CastSpell(l_Creature, eExplosionIronStarEventSpells::SpellQuietSuicide);
+                        }
                     }
 
                     break;
                 }
                 case 1:
                 {
-                    if (m_Obj && m_OtherObj && m_OtherObj->IsInWorld())
-                        m_OtherObj->EnterVehicle(m_Obj, 0, true);
+                    if (m_ObjGUID != 0 && m_OtherObjGUID != 0)
+                    {
+                        if (Unit* l_Unit = Unit::GetUnit(*m_Me, m_OtherObjGUID))
+                        {
+                            if (Creature* l_Creature = Creature::GetCreature(*m_Me, m_ObjGUID))
+                            {
+                                l_Unit->EnterVehicle(l_Creature, 0, true);
+                            }
+                        }
+                    }
                     break;
                 }
                 default:
@@ -206,9 +85,9 @@ class explosion_iron_star : public BasicEvent
         }
 
     private:
-        Creature* m_Storm;
-        Unit* m_Obj;
-        Unit* m_OtherObj;
+        Unit* m_Me;
+        uint64 m_ObjGUID;
+        uint64 m_OtherObjGUID;
         int m_Modifier;
 };
 
@@ -216,17 +95,40 @@ class explosion_iron_star : public BasicEvent
 class iron_docks_mob_gromkar_battlemaster : public CreatureScript
 {
     public:
+
         iron_docks_mob_gromkar_battlemaster() : CreatureScript("iron_docks_mob_gromkar_battlemaster") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            enum eGromkarEvents
+            {
+                /// Gromkar Battlemaster
+                EventBladestorm = 1,
+                EventChainDrag,
+                EventChargingSlash
+            };
+
+            enum eGromkarSpells
+            {
+                /// Battlemaster
+                SpellBladestorm        = 167232,
+                SpellChainDrag         = 172860,
+                SpellChargingSlash     = 172889,
+                SpellChargingSlashJump = 172885
+            };
+
+            void Reset() override
+            {
+                events.Reset();
+            }
+
             void EnterCombat(Unit* p_Attacker) override
             {
-                events.ScheduleEvent(eEvents::EventBladestorm, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventChainDrag, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventChargingSlash, 10 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eGromkarEvents::EventBladestorm, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eGromkarEvents::EventChainDrag, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eGromkarEvents::EventChargingSlash, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -241,22 +143,22 @@ class iron_docks_mob_gromkar_battlemaster : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventBladestorm:
-                        me->CastSpell(me, eSpells::SpellBladestorm);
-                        events.ScheduleEvent(eEvents::EventBladestorm, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case eEvents::EventChainDrag:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(l_Target, eSpells::SpellChainDrag);
-                        events.ScheduleEvent(eEvents::EventChainDrag, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case eEvents::EventChargingSlash:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(l_Target, eSpells::SpellChargingSlashJump);
-                        events.ScheduleEvent(eEvents::EventChargingSlash, urand(5 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+                    case eGromkarEvents::EventBladestorm:
+                            me->CastSpell(me, eGromkarSpells::SpellBladestorm);
+                            events.ScheduleEvent(eGromkarEvents::EventBladestorm,  35 * TimeConstants::IN_MILLISECONDS);
+                            break;
+                    case eGromkarEvents::EventChainDrag:
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                me->CastSpell(l_Target, eGromkarSpells::SpellChainDrag);
+                            events.ScheduleEvent(eGromkarEvents::EventChainDrag, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                    case eGromkarEvents::EventChargingSlash:
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                me->CastSpell(l_Target, eGromkarSpells::SpellChargingSlashJump);
+                            events.ScheduleEvent(eGromkarEvents::EventChargingSlash, 15 * TimeConstants::IN_MILLISECONDS);
+                            break;
+                        default:
+                            break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -280,25 +182,39 @@ class iron_docks_mob_gromkar_deadeye : public CreatureScript
         {
             mob_iron_docksAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
 
+            enum eDeadeyeEvents
+            {
+                /// Deadeye
+                EventIronShot = 1,
+                EventLegShot
+            };
+
+            enum eDeadeyeSpells
+            {
+                /// Deadeye
+                SpellIronShot = 167239,
+                SpellLegShot  = 167240
+            };
+
             uint32 m_VisualTimer;
 
             void Reset() override
             {
-                m_VisualTimer = 5000;
-
+                events.Reset();
+                m_VisualTimer = 5 * TimeConstants::IN_MILLISECONDS;
                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
-                events.ScheduleEvent(eEvents::EventIronShot, urand(5 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventLegShot, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eDeadeyeEvents::EventIronShot, urand(5 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eDeadeyeEvents::EventLegShot, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
             }
 
             void MoveInLineOfSight(Unit* p_Who) override
             {
-                if (p_Who->GetEntry() == eIronDocksCreatures::NpcIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
+                if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::NpcIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
                     p_Who->Kill(me);
             }
 
@@ -308,19 +224,20 @@ class iron_docks_mob_gromkar_deadeye : public CreatureScript
                 {
                     if (m_VisualTimer <= p_Diff)
                     {
-                        if (Creature* l_AcheryTarget = me->FindNearestCreature(eIronDocksCreatures::TriggerArcheryTarget, 30.0f))
+                        if (Creature* l_ArcheryTarget = me->FindNearestCreature(eIronDocksCreatures::TriggerArcheryTarget, 30.0f))
                         {
-                            l_AcheryTarget->setFaction(1);
-                            me->CastSpell(l_AcheryTarget, eSpells::SpellIronShot);
+                            l_ArcheryTarget->setFaction(1);
+                            me->CastSpell(l_ArcheryTarget, eDeadeyeSpells::SpellIronShot);
                         }
 
                         m_VisualTimer = 6 * TimeConstants::IN_MILLISECONDS;
                     }
                     else
                         m_VisualTimer -= p_Diff;
-
-                    return;
                 }
+
+                if (!UpdateVictim())
+                    return;
 
                 events.Update(p_Diff);
 
@@ -329,18 +246,18 @@ class iron_docks_mob_gromkar_deadeye : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventLegShot:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                            me->CastSpell(l_Target, eSpells::SpellLegShot);
-                        events.ScheduleEvent(eEvents::EventLegShot, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case eEvents::EventIronShot:
-                        if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, eSpells::SpellIronShot);
-                        events.ScheduleEvent(eEvents::EventIronShot, urand(5 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+                    case eDeadeyeEvents::EventLegShot:
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                me->CastSpell(l_Target, eDeadeyeSpells::SpellLegShot);
+                            events.ScheduleEvent(eDeadeyeEvents::EventLegShot, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                    case eDeadeyeEvents::EventIronShot:
+                            if (Unit* l_Target = me->getVictim())
+                                me->CastSpell(l_Target, eDeadeyeSpells::SpellIronShot);
+                            events.ScheduleEvent(eDeadeyeEvents::EventIronShot, urand(5 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        default:
+                            break;
                 }
             }
         };
@@ -357,24 +274,47 @@ class iron_docks_mob_gromkar_deadeye : public CreatureScript
 class iron_docks_mob_gromkar_footsoldier : public CreatureScript
 {
     public:
+
         iron_docks_mob_gromkar_footsoldier() : CreatureScript("iron_docks_mob_gromkar_footsoldier") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void EnterCombat(Unit* who) override
+            enum eFootSoldierEvents
             {
-                events.ScheduleEvent(eEvents::EventTacticalKick, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventDemoralizingShout, 25 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eEvents::EventChargingSlash, urand(5 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                /// Footsoldier
+                EventTacticalKick = 1,
+                EventDemoralizingShout,
+                EventChargingSlash
+            };
+
+            enum eFootSoldierSpells
+            {
+                /// Footsoldier
+                SpellTacticalKick      = 169413,
+                SpellDemoralizingShout = 169341,
+                SpellChargingSlash     = 172889,
+                SpellChargingSlashJump = 172885
+            };
+
+            void Reset() override
+            {
+                events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Who) override
+            {
+                events.ScheduleEvent(eFootSoldierEvents::EventTacticalKick, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eFootSoldierEvents::EventDemoralizingShout, 8 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eFootSoldierEvents::EventChargingSlash, 25 * TimeConstants::IN_MILLISECONDS);
 
                 me->RemoveAura(eSpells::SpellSelfStun);
             }
 
             void MoveInLineOfSight(Unit* p_Who) override
             {
-                if (p_Who->GetEntry() == eIronDocksCreatures::NpcIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
+                if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::NpcIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
                     p_Who->Kill(me);
             }
 
@@ -390,30 +330,31 @@ class iron_docks_mob_gromkar_footsoldier : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventDemoralizingShout:
-                        me->CastSpell(me, eSpells::SpellDemoralizingShout);
-                        events.ScheduleEvent(eEvents::EventDemoralizingShout, 25 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    case eEvents::EventTacticalKick:
-                        me->CastSpell(me->getVictim(), eSpells::SpellTacticalKick);
-                        events.ScheduleEvent(eEvents::EventTacticalKick, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case eEvents::EventChargingSlash:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(l_Target, eSpells::SpellChargingSlashJump);
-                        events.ScheduleEvent(eEvents::EventChargingSlash, urand(5 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+                    case eFootSoldierEvents::EventDemoralizingShout:
+                                me->CastSpell(me, eFootSoldierSpells::SpellDemoralizingShout);
+                                events.ScheduleEvent(eFootSoldierEvents::EventDemoralizingShout, 25 * TimeConstants::IN_MILLISECONDS);
+                                break;
+                    case eFootSoldierEvents::EventTacticalKick:
+                             if (Unit* l_Target = me->getVictim())
+                                 me->CastSpell(l_Target, eFootSoldierSpells::SpellTacticalKick);
+                                events.ScheduleEvent(eFootSoldierEvents::EventTacticalKick, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                                break;
+                    case eFootSoldierEvents::EventChargingSlash:
+                                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                    me->CastSpell(l_Target, eFootSoldierSpells::SpellChargingSlashJump);
+                                events.ScheduleEvent(eFootSoldierEvents::EventChargingSlash, 25 * TimeConstants::IN_MILLISECONDS);
+                                break;
+                            default:
+                                break;
                 }
 
                 DoMeleeAttackIfReady();
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
-            return new mob_iron_docksAI(creature);
+            return new mob_iron_docksAI(p_Creature);
         }
 };
 
@@ -421,26 +362,41 @@ class iron_docks_mob_gromkar_footsoldier : public CreatureScript
 class iron_docks_mob_gromkar_incinerator : public CreatureScript
 {
     public:
+
         iron_docks_mob_gromkar_incinerator() : CreatureScript("iron_docks_mob_gromkar_incinerator") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            enum eIncineratorEvents
+            {
+                /// Incinerator
+                EventIncendinarySlug = 907,
+                EventSharpnelBlast   = 908
+            };
+
+            enum eIncienratorSpells
+            {
+                /// Incinerator
+                SpellIncenarySlugs = 176902, ///< Actual full spell, blizzards are just a bunch of r tards.
+                SpellSharpnelBlast = 167516,
+                SpellIronShot      = 167239
+            };
+
             uint32 m_VisualTimer;
 
             void Reset() override
             {
+                events.Reset();
                 m_VisualTimer = 6 * TimeConstants::IN_MILLISECONDS;
-
                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-
             }
 
             void EnterCombat(Unit* p_Who) override
             {
-                events.ScheduleEvent(eEvents::EventIncendinarySlug, urand(15 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eIncineratorEvents::EventIncendinarySlug, urand(15 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -452,16 +408,17 @@ class iron_docks_mob_gromkar_incinerator : public CreatureScript
                         if (Creature* l_ArcheryTarget = me->FindNearestCreature(eIronDocksCreatures::TriggerArcheryTarget, 30.0f))
                         {
                             l_ArcheryTarget->setFaction(1);
-                            me->CastSpell(l_ArcheryTarget, eSpells::SpellIronShot);
+                            me->CastSpell(l_ArcheryTarget, eIncienratorSpells::SpellIronShot);
 
                             m_VisualTimer = 6 * TimeConstants::IN_MILLISECONDS;
                         }
                     }
                     else
                         m_VisualTimer -= p_Diff;
-
-                    return;
                 }
+
+                if (!UpdateVictim())
+                    return;
 
                 events.Update(p_Diff);
 
@@ -470,16 +427,16 @@ class iron_docks_mob_gromkar_incinerator : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventIncendinarySlug:
-                        if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, eSpells::SpellIncenarySlugs);
-                        events.ScheduleEvent(eEvents::EventIncendinarySlug, urand(15 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+                    case eIncineratorEvents::EventIncendinarySlug:
+                            if (Unit* l_Target = me->getVictim())
+                                me->CastSpell(l_Target, eIncienratorSpells::SpellIncenarySlugs);
+                            events.ScheduleEvent(eIncineratorEvents::EventIncendinarySlug, urand(15 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        default:
+                            break;
                 }
 
-                DoSpellAttackIfReady(eSpells::SpellSharpnelBlast);
+                DoSpellAttackIfReady(eIncienratorSpells::SpellSharpnelBlast);
             }
         };
 
@@ -493,6 +450,7 @@ class iron_docks_mob_gromkar_incinerator : public CreatureScript
 class iron_docks_mob_gromkar_technician : public CreatureScript
 {
     public:
+
         iron_docks_mob_gromkar_technician() : CreatureScript("iron_docks_mob_gromkar_technician") { }
 
         struct mob_iron_docksAI : public ScriptedAI
@@ -501,24 +459,41 @@ class iron_docks_mob_gromkar_technician : public CreatureScript
 
             uint32 m_VisualTimer;
 
+            enum eTechnicianEvents
+            {
+                /// Gromkar Technician
+                EventGreaseVial = 1,
+                EventFlyingHammer,
+                EventExplosiveGrenade
+            };
+
+            enum eTechnicianSpells
+            {
+                /// Gromkar Technician
+                SpellFlyingHammer         = 172703,
+                SpellHighExplosiveGrenade = 178298,
+                SpellGreaseVial           = 172649,
+                SpellGreaseVialEffect     = 172636         
+            };
+
             void Reset() override
             {
-                m_VisualTimer = 6000;
+                events.Reset();
+                m_VisualTimer = 6 * TimeConstants::IN_MILLISECONDS;
             }
 
             void EnterCombat(Unit* p_Who) override
             {
                 me->RemoveAura(eSpells::SpellEmoteWork);
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
-
-                events.ScheduleEvent(eEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eTechnicianEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
             }
 
             void MoveInLineOfSight(Unit* p_Who) override
             {
-                if (p_Who->GetEntry() == eIronDocksCreatures::NpcIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
+                if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::NpcIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
                     p_Who->Kill(me);
             }
 
@@ -528,10 +503,10 @@ class iron_docks_mob_gromkar_technician : public CreatureScript
                 {
                     if (m_VisualTimer <= p_Diff)
                     {
-                        me->RemoveAura(eSpells::SpellEmoteWork);
-                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
+                        if (me->HasAura(SpellEmoteWork))
+                        me->RemoveAura(eSpells::SpellEmoteWork);            
 
-                        switch (urand(0, 2))
+                        switch (urand(0, 1))
                         {
                             case 0: ///< Work
                                 me->CastSpell(me, eSpells::SpellEmoteWork);
@@ -539,16 +514,15 @@ class iron_docks_mob_gromkar_technician : public CreatureScript
                             case 1: ///< Craft
                                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 133);
                                 break;
-                            case 2: ///< Idle
+                            default:
                                 break;
                         }
 
-                        m_VisualTimer = 6000;
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
+                        m_VisualTimer = 6 * TimeConstants::IN_MILLISECONDS;
                     }
                     else
                         m_VisualTimer -= p_Diff;
-
-                    return;
                 }
 
                 events.Update(p_Diff);
@@ -558,23 +532,23 @@ class iron_docks_mob_gromkar_technician : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventGreaseVial:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(l_Target, eSpells::SpellGreaseVial);
-                        events.ScheduleEvent(eEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case eEvents::EventFlyingHammer:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(l_Target, eSpells::SpellFlyingHammer);
-                        events.ScheduleEvent(eEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case eEvents::EventExplosiveGrenade:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(l_Target, eSpells::SpellHighExplosiveGrenade);
-                        events.ScheduleEvent(eEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    default:
-                        break;
+                    case eTechnicianEvents::EventGreaseVial:
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                me->CastSpell(l_Target, eTechnicianSpells::SpellGreaseVial);
+                            events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        case eTechnicianEvents::EventFlyingHammer:
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                me->CastSpell(l_Target, eTechnicianSpells::SpellFlyingHammer);
+                            events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        case eTechnicianEvents::EventExplosiveGrenade:
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                me->CastSpell(l_Target, eTechnicianSpells::SpellHighExplosiveGrenade);
+                            events.ScheduleEvent(eTechnicianEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
+                            break;
+                        default:
+                            break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -588,19 +562,37 @@ class iron_docks_mob_gromkar_technician : public CreatureScript
 };
 
 /// Siegemaster Olugar - 83026
-class iron_docks_siege_master_olugar : public CreatureScript
+class iron_docks_mob_siege_master_olugar : public CreatureScript
 {
     public:
-        iron_docks_siege_master_olugar() : CreatureScript("iron_docks_siege_master_olugar") { }
+
+        iron_docks_mob_siege_master_olugar() : CreatureScript("iron_docks_mob_siege_master_olugar") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            enum eOlugarEvents
+            {
+                /// Siege Master Olugar
+                EventGatecrasher = 1,
+                EventShatteringStrike
+            };
+
+            enum eOlugarSpells
+            {
+                /// Siege Master Olugar
+                SpellGatecrasherDamage   = 172963,
+                SpellThrowGatecrasher    = 172952,
+                SpellPitFighter          = 173455, ///< Upon disarm
+                SpellShatteringStrike    = 172982
+            };
+
             uint32 m_VisualTimer;
 
             void Reset() override
             {
+                events.Reset();
                 m_VisualTimer = 16 * TimeConstants::IN_MILLISECONDS;
                 me->SetReactState(ReactStates::REACT_DEFENSIVE);
             }
@@ -608,8 +600,8 @@ class iron_docks_siege_master_olugar : public CreatureScript
             void EnterCombat(Unit* p_Who) override
             {
                 /// I don't think Darona actually shot barber arrows, wowhead is stupid. Icy veins says it aswell.
-                events.ScheduleEvent(eEvents::EventShatteringStrike, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventGatecrasher, urand(15 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eOlugarEvents::EventShatteringStrike, urand(6 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eOlugarEvents::EventGatecrasher, 20 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -623,9 +615,10 @@ class iron_docks_siege_master_olugar : public CreatureScript
                     }
                     else
                         m_VisualTimer -= p_Diff;
-
-                    return;
                 }
+
+                if (!UpdateVictim())
+                    return;
 
                 events.Update(p_Diff);
 
@@ -635,31 +628,33 @@ class iron_docks_siege_master_olugar : public CreatureScript
                 /// Pit fighter
                 if (me->HasAuraType(AuraType::SPELL_AURA_MOD_DISARM))
                 {
-                    if (!me->HasAura(eSpells::SpellPitFighter))
-                        me->AddAura(eSpells::SpellPitFighter, me);
+                    if (!me->HasAura(eOlugarSpells::SpellPitFighter))
+                        me->AddAura(eOlugarSpells::SpellPitFighter, me);
                 }
                 else
                 {
-                    if (me->HasAura(eSpells::SpellPitFighter))
-                        me->RemoveAura(eSpells::SpellPitFighter);
+                    if (me->HasAura(eOlugarSpells::SpellPitFighter))
+                        me->RemoveAura(eOlugarSpells::SpellPitFighter);
                 }
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventShatteringStrike:
-                    {
-                        if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, eSpells::SpellShatteringStrike);
-                        events.ScheduleEvent(eEvents::EventShatteringStrike, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                    case eOlugarEvents::EventShatteringStrike:
+                        {
+                            if (Unit* l_Target = me->getVictim())
+                                me->CastSpell(l_Target, eOlugarSpells::SpellShatteringStrike);
+                            events.ScheduleEvent(eOlugarEvents::EventShatteringStrike, urand(6 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        }
+                    case eOlugarEvents::EventGatecrasher:
+                        {
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                                me->CastSpell(l_Target, eOlugarSpells::SpellThrowGatecrasher);
+                            events.ScheduleEvent(eOlugarEvents::EventGatecrasher, 20 * TimeConstants::IN_MILLISECONDS);
+                            break;
+                        }
+                    default:
                         break;
-                    }
-                    case eEvents::EventGatecrasher:
-                    {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                            me->CastSpell(l_Target, eSpells::SpellThrowGatecrasher);
-                        events.ScheduleEvent(eEvents::EventGatecrasher, urand(15 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
                 }
 
                 DoMeleeAttackIfReady();
@@ -676,22 +671,45 @@ class iron_docks_siege_master_olugar : public CreatureScript
 class iron_docks_mob_champion_darona : public CreatureScript
 {
     public:
+
         iron_docks_mob_champion_darona() : CreatureScript("iron_docks_mob_champion_darona") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            enum eDorunaEvents
+            {    
+                /// Champion Daruna
+                EventBurningArrow = 1,
+                EventBarbedArrow,
+                EventChampionPresence
+            };
+
+            enum eDorunaSpells
+            {
+                /// Champion Darona
+                SpellBarbedArrowBarrageDummy = 166923,
+                SpellBarbedArrowAreaTrigger  = 164278,
+                SpellBarbedArrowAura         = 164370,
+                SpellBarbedArrowDoT          = 164648,
+                SpellBurningArrowDummy       = 172810,
+                SpellBurningArrowAreaTrigger = 164234,
+                SpellBurningArrowDoT         = 164632,
+                SpellChampionsPresence       = 173091
+            };
+
             void Reset() override
             {
-                me->CastSpell(me, eSpells::SpellChampionsPresence);
+                events.Reset();
+                me->CastSpell(me, eDorunaSpells::SpellChampionsPresence);
             }
 
             void EnterCombat(Unit* p_Who) override
             {
                 /// I don't think Darona actually shot barber arrows, wowhead is stupid. Icy veins says it aswell.
-                events.ScheduleEvent(eEvents::EventBurningArrow, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventBarbedArrow, urand(5 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eDorunaEvents::EventBurningArrow, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eDorunaEvents::EventBarbedArrow, urand(5 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -706,18 +724,18 @@ class iron_docks_mob_champion_darona : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventBurningArrow:
+                    case eDorunaEvents::EventBurningArrow:
                     {
-                        me->CastSpell(me, eSpells::SpellBurningArrowDummy);
                         me->MonsterYell("Light them up!", Language::LANG_UNIVERSAL, me->GetGUID());
-                        events.ScheduleEvent(eEvents::EventBurningArrow, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                        me->CastSpell(me, eDorunaSpells::SpellBurningArrowDummy);
+                        events.ScheduleEvent(eDorunaEvents::EventBurningArrow, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
-                    case eEvents::EventBarbedArrow:
+                    case eDorunaEvents::EventBarbedArrow:
                     {
-                        me->CastSpell(me, eSpells::SpellBarbedArrowBarrageDummy);
-                        me->AddAura(eSpells::SpellBarbedArrowAura, me);
-                        events.ScheduleEvent(eEvents::EventBarbedArrow, urand(5 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                        me->CastSpell(me, eDorunaSpells::SpellBarbedArrowBarrageDummy);
+                        me->AddAura(eDorunaSpells::SpellBarbedArrowAura, me);
+                        events.ScheduleEvent(eDorunaEvents::EventBarbedArrow, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -735,27 +753,47 @@ class iron_docks_mob_champion_darona : public CreatureScript
 };
 
 /// Pitwarden Gwarnok - 84520
-class iron_docks_gwarnok : public CreatureScript
+class iron_docks_mob_gwarnok : public CreatureScript
 {
     public:
-        iron_docks_gwarnok() : CreatureScript("iron_docks_gwarnok") { }
+
+        iron_docks_mob_gwarnok() : CreatureScript("iron_docks_mob_gwarnok") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            enum eGwarnokEvents
+            {
+                /// Gromkar Battlemaster
+                EventBladestorm = 1,
+                EventChainDrag,
+                EventChargingSlash
+            };
+
+            enum eGwarnokSpells
+            {
+                /// Pitwarden Gwarnok
+                SpellBladestorm         = 167232,
+                SpellChainDrag          = 172860,
+                SpellChargingSlash      = 172889,
+                SpellChargingSlashJump  = 172885,
+                SpellBrutalInspiration  = 172943
+            };
+
             void Reset() override
             {
+                events.Reset();
                 me->SetReactState(ReactStates::REACT_DEFENSIVE);
             }
 
             void EnterCombat(Unit* p_Who) override
             {
-                events.ScheduleEvent(eEvents::EventBladestorm, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventChargingSlash, urand(5 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventChainDrag, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eGwarnokEvents::EventBladestorm, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eGwarnokEvents::EventChargingSlash, urand(5 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eGwarnokEvents::EventChainDrag, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
 
-                me->CastSpell(me, eSpells::SpellBrutalInspiration);
+                me->CastSpell(me, eGwarnokSpells::SpellBrutalInspiration);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -770,31 +808,31 @@ class iron_docks_gwarnok : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventBladestorm:
-                    {
-                        me->CastSpell(me, eSpells::SpellBladestorm);
-                        events.ScheduleEvent(eEvents::EventBladestorm, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
-                    case eEvents::EventChargingSlash:
-                    {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                            me->CastSpell(l_Target, eSpells::SpellChargingSlashJump);
-                        events.ScheduleEvent(eEvents::EventChargingSlash, urand(5 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
-                    case eEvents::EventChainDrag:
-                    {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                    case eGwarnokEvents::EventBladestorm:
                         {
-                            me->CastSpell(l_Target, eSpells::SpellChainDrag);
-                            l_Target->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 8.0f, 5.0f, 10.0f);
+                            me->CastSpell(me, eGwarnokSpells::SpellBladestorm);
+                            events.ScheduleEvent(eGwarnokEvents::EventBladestorm, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                            break;
                         }
-                        events.ScheduleEvent(eEvents::EventChainDrag, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
-                    default:
-                        break;
+                    case eGwarnokEvents::EventChargingSlash:
+                        {
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                                me->CastSpell(l_Target, eGwarnokSpells::SpellChargingSlashJump);
+                            events.ScheduleEvent(eGwarnokEvents::EventChargingSlash, urand(5 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        }
+                    case eGwarnokEvents::EventChainDrag:
+                        {
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                            {
+                                me->CastSpell(l_Target, eGwarnokSpells::SpellChainDrag);
+                                l_Target->GetMotionMaster()->MoveJump(*me, 8.0f, 5.0f, 10.0f);
+                            }
+                            events.ScheduleEvent(eGwarnokEvents::EventChainDrag, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        }
+                        default:
+                            break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -811,18 +849,20 @@ class iron_docks_gwarnok : public CreatureScript
 class iron_docks_mob_iron_star : public CreatureScript
 {
     public:
+
         iron_docks_mob_iron_star() : CreatureScript("iron_docks_mob_iron_star") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
-            mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
 
             void Reset() override
             {
-                me->setFaction(35);
-
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                events.Reset();
+                me->setFaction(FriendlyFaction);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void DoAction(int32 const p_Action) override
@@ -830,10 +870,8 @@ class iron_docks_mob_iron_star : public CreatureScript
                 switch (p_Action)
                 {
                     case eAction::ActionQuietDeath:
-                        me->setFaction(35);
                         me->SetSpeed(UnitMoveType::MOVE_RUN, 12.0f, true);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);
-                        DoAction(eAction::ActionQuietDeath);
                         break;
                     default:
                         break;
@@ -853,24 +891,45 @@ class iron_docks_mob_iron_star : public CreatureScript
 class iron_docks_mob_ogron : public CreatureScript
 {
     public:
+
         iron_docks_mob_ogron() : CreatureScript("iron_docks_mob_ogron") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            enum eOrgonEvents
+            {
+                /// Ogron
+                EventFlurry = 1,
+                EventThunderingStomp
+            };
+
+            enum eOrgonSpells
+            {
+                /// Unruly Orgon
+                SpellFlurry          = 178412,
+                SpellFlurryDamage    = 178414,
+                SpellThunderingStomp = 173135
+            };
+
+            void Reset() override
+            {
+                events.Reset();
+            }
+
             void EnterCombat(Unit* p_Attacker) override
             {
-                events.ScheduleEvent(eEvents::EventThunderingStomp, urand(5 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventFlurry, urand(8 * TimeConstants::IN_MILLISECONDS, 13 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eOrgonEvents::EventThunderingStomp, 20 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eOrgonEvents::EventFlurry, urand(8 * TimeConstants::IN_MILLISECONDS, 13 * TimeConstants::IN_MILLISECONDS));
 
-                if (!urand(0, 2))
+                if (!roll_chance_i(30))
                     me->MonsterYell("CRUSH THEM!!", Language::LANG_UNIVERSAL, me->GetGUID());
             }
 
             void MoveInLineOfSight(Unit* p_Who) override
             {
-                if (p_Who->GetEntry() == eIronDocksCreatures::NpcIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
+                if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::NpcIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
                     p_Who->Kill(me);
             }
 
@@ -886,13 +945,14 @@ class iron_docks_mob_ogron : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventThunderingStomp:
-                        me->CastSpell(me, eSpells::SpellThunderingStomp);
-                        events.ScheduleEvent(eEvents::EventThunderingStomp, urand(5 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                    case eOrgonEvents::EventThunderingStomp:
+                        me->CastSpell(me, eOrgonSpells::SpellThunderingStomp);
+                        events.ScheduleEvent(eOrgonEvents::EventThunderingStomp, 20 * TimeConstants::IN_MILLISECONDS));
                         break;
-                    case eEvents::EventFlurry:
-                        me->CastSpell(me->getVictim(), eSpells::SpellFlurry);
-                        events.ScheduleEvent(eEvents::EventFlurry, urand(8 * TimeConstants::IN_MILLISECONDS, 13 * TimeConstants::IN_MILLISECONDS));
+                    case eOrgonEvents::EventFlurry:
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eOrgonSpells::SpellFlurry);
+                        events.ScheduleEvent(eOrgonEvents::EventFlurry, urand(8 * TimeConstants::IN_MILLISECONDS, 13 * TimeConstants::IN_MILLISECONDS));
                         break;
                     default:
                         break;
@@ -913,15 +973,30 @@ class iron_docks_mob_ogron : public CreatureScript
 class iron_docks_mob_gromkar_deck_hand : public CreatureScript
 {
     public:
+
         iron_docks_mob_gromkar_deck_hand() : CreatureScript("iron_docks_mob_gromkar_deck_hand") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            enum eDeckHandEvents
+            {
+                /// Deck-hand
+                EventHatchetToss = 921
+            };
+
+            enum eDeckHandSpells
+            {
+                /// Deckhand
+                SpellHatchetToss = 173112,  
+            };
+
             void Reset() override
             {
-                switch (urand(0, 1))
+                events.Reset();
+
+                switch (urand(0, 1)) ///< Handles visual for Deck hands.
                 {
                     case 0:
                         me->CastSpell(me, eSpells::SpellCarrySack);
@@ -929,21 +1004,23 @@ class iron_docks_mob_gromkar_deck_hand : public CreatureScript
                     case 1:
                         me->CastSpell(me, eSpells::SpellCarryCrate);
                         break;
+                    default:
+                        break;
                 }
             }
 
             void EnterCombat(Unit* p_Who) override
             {
+                // Removes to non following units.
                 me->RemoveAura(eSpells::SpellEmoteWork);
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
-
-                events.ScheduleEvent(eEvents::EventHatchetToss, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eDeckHandEvents::EventHatchetToss, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
             }
 
-            void MoveInLineOfSight(Unit* who) override
+            void MoveInLineOfSight(Unit* p_Who) override
             {
-                if (who->GetEntry() == eIronDocksCreatures::NpcIronStar && me->IsWithinDistInMap(who, 1.2f))
-                    who->Kill(me);
+                if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::NpcIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
+                    p_Who->Kill(me);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -958,51 +1035,16 @@ class iron_docks_mob_gromkar_deck_hand : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventHatchetToss:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(l_Target, eSpells::SpellHatchetToss);
-                        events.ScheduleEvent(eEvents::EventHatchetToss, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+                    case eDeckHandEvents::EventHatchetToss:
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                me->CastSpell(l_Target, eDeckHandSpells::SpellHatchetToss);
+                            events.ScheduleEvent(eDeckHandEvents::EventHatchetToss, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        default:
+                            break;
                 }
 
                 DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const override
-        {
-            return new mob_iron_docksAI(p_Creature);
-        }
-};
-
-/// Trigger_Summon_Cheering_Soldiers_2 - 99656
-class iron_docks_stunned_cheering_practicing_trigger_second_segement : public CreatureScript
-{
-    public:
-        iron_docks_stunned_cheering_practicing_trigger_second_segement() : CreatureScript("iron_docks_stunned_cheering_practicing_trigger_second_segement") { }
-
-        struct mob_iron_docksAI : public ScriptedAI
-        {
-            mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                /// Fighting Soldiers
-                for (uint8 l_I = 0; l_I < 2; l_I++)
-                {
-                    if (Creature* l_FootSoldier = me->SummonCreature(eIronDocksCreatures::NpcGromkarFootSoldier, g_PracticingWarriors2[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                        l_FootSoldier->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eSpells::SpellEmoteFight);
-                }
-
-                /// Praciticng Soldiers
-                for (uint8 l_I = 0; l_I < 10; l_I++)
-                {
-                    if (roll_chance_i(30))
-                    {
-                        if (Creature* l_CheeringSoldier = me->SummonCreature(eIronDocksCreatures::NpcGromkarFootSoldier, g_CheeringSoldiers2[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                            l_CheeringSoldier->CastSpell(l_CheeringSoldier, eSpells::SpellApplauseCheer);
-                    }
-                }
             }
         };
 
@@ -1022,70 +1064,45 @@ public:
     {
         mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
-            /// Fighting Soldiers
-            for (uint8 l_I = 0; l_I < 6; l_I++)
-            {
-                Position l_Pos;
-                me->GetRandomNearPosition(l_Pos, 10.0f);
-
-                std::list<Creature*> l_DeckhandList;
-
-                if (Creature* l_Deckhand = me->SummonCreature(eIronDocksCreatures::NpcGromkarDeckhand, l_Pos, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                {
-                    l_Deckhand->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MovementSlot::MOTION_SLOT_ACTIVE);
-                    l_DeckhandList.push_back(l_Deckhand);
-                }
-
-                for (Creature* l_Iter : l_DeckhandList)
-                {
-                    if (l_Iter->IsAIEnabled)
-                        l_Iter->AI()->Reset();
-
-                    m_Workers.push_back(l_Iter->GetGUID());
-                }
-            }
         }
+
+        enum eTechnicianEvents
+        {
+            /// Gromkar Technician
+            EventGreaseVial = 1,
+            EventFlyingHammer,
+            EventExplosiveGrenade
+        };
+
+        enum eTechnicianSpells
+        {
+            /// Gromkar Technician
+            SpellFlyingHammer         = 172703,
+            SpellHighExplosiveGrenade = 178298,
+            SpellGreaseVial           = 172649,
+            SpellGreaseVialEffect     = 172636
+        };
 
         std::list<uint64> m_Workers;
 
         void Reset() override
         {
+            events.Reset();
             me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5, true);
-
-            for (uint64 l_Iter : m_Workers)
-            {
-                if (Creature* l_Worker = Creature::GetCreature(*me, l_Iter))
-                {
-                    if (l_Worker->isAlive())
-                        l_Worker->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MovementSlot::MOTION_SLOT_ACTIVE);
-                }
-            }
         }
 
         void EnterCombat(Unit* p_Attacker) override
         {
             me->RemoveAura(eSpells::SpellEmoteWork);
-
-            events.ScheduleEvent(eEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+            events.ScheduleEvent(eTechnicianEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
         {
             if (!UpdateVictim())
-            {
-                for (uint64 itr : m_Workers)
-                {
-                    if (Creature* l_Worker = Unit::GetCreature(*me, itr))
-                    {
-                        if (l_Worker->isAlive())
-                            l_Worker->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MovementSlot::MOTION_SLOT_ACTIVE);
-                    }
-                }
-
                 return;
-            }
 
             events.Update(p_Diff);
 
@@ -1094,23 +1111,23 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case eEvents::EventGreaseVial:
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(l_Target, eSpells::SpellGreaseVial);
-                    events.ScheduleEvent(eEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                case eEvents::EventFlyingHammer:
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(l_Target, eSpells::SpellFlyingHammer);
-                    events.ScheduleEvent(eEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                case eEvents::EventExplosiveGrenade:
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(l_Target, eSpells::SpellHighExplosiveGrenade);
-                    events.ScheduleEvent(eEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                default:
-                    break;
+                case eTechnicianEvents::EventGreaseVial:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(l_Target, eTechnicianSpells::SpellGreaseVial);
+                        events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                case eTechnicianEvents::EventFlyingHammer:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(l_Target, eTechnicianSpells::SpellFlyingHammer);
+                        events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                case eTechnicianEvents::EventExplosiveGrenade:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(l_Target, eTechnicianSpells::SpellHighExplosiveGrenade);
+                        events.ScheduleEvent(eTechnicianEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
             }
 
             DoMeleeAttackIfReady();
@@ -1123,73 +1140,11 @@ public:
     }
 };
 
-/// Trigger_Summon_Cheering_Soldiers - 99655
-class iron_docks_stunned_cheering_practicing_trigger : public CreatureScript
-{
-    public:
-        iron_docks_stunned_cheering_practicing_trigger() : CreatureScript("iron_docks_stunned_cheering_practicing_trigger") { }
-
-        struct mob_iron_docksAI : public ScriptedAI
-        {
-            mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                /// Fighting Soldiers
-                for (uint8 l_I = 0; l_I < 2; l_I++)
-                {
-                    if (Creature* l_FootSoldiers = me->SummonCreature(eIronDocksCreatures::NpcGromkarFootSoldier, g_PracticingWarriors[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                        l_FootSoldiers->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, eSpells::SpellEmoteFight);
-                }
-
-                /// Praciticng Soldiers
-                for (uint8 l_I = 0; l_I < 5; l_I++)
-                {
-                    if (Creature* l_CheeringSoldiers = me->SummonCreature(eIronDocksCreatures::NpcGromkarFootSoldier, g_CheeringSoldiers[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                        l_CheeringSoldiers->CastSpell(l_CheeringSoldiers, eSpells::SpellApplauseCheer);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const override
-        {
-            return new mob_iron_docksAI(p_Creature);
-        }
-};
-
-/// Trigger_Summon_Stunned_Creatures - 99654
-class iron_docks_stunned_soldiers_trigger : public CreatureScript
-{
-    public:
-        iron_docks_stunned_soldiers_trigger() : CreatureScript("iron_docks_stunned_soldiers_trigger") { }
-
-        struct mob_iron_docksAI : public ScriptedAI
-        {
-            mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                std::list<Creature*> l_OldStunnedCreatures;
-                me->GetCreatureListWithEntryInGrid(l_OldStunnedCreatures, eIronDocksCreatures::NpcGromkarFootSoldier2, 10.0f);
-
-                for (Creature* l_Iter : l_OldStunnedCreatures)
-                    l_Iter->DespawnOrUnsummon();
-
-                for (uint8 l_I = 0; l_I <= 2; l_I++)
-                {
-                    if (Creature* l_FootSoldierStunned = me->SummonCreature(eIronDocksCreatures::NpcGromkarFootSoldier2, g_StunnedAdds[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                        l_FootSoldierStunned->AddAura(eSpells::SpellSelfStun, l_FootSoldierStunned);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const override
-        {
-            return new mob_iron_docksAI(p_Creature);
-        }
-};
-
 /// Trigger_Cannon_Event_Start - 99658
-class iron_docks_trigger_stand_third_event : public CreatureScript
+class iron_docks_mob_stand_third_event : public CreatureScript
 {
     public:
-        iron_docks_trigger_stand_third_event() : CreatureScript("iron_docks_trigger_stand_third_event") { }
+        iron_docks_mob_stand_third_event() : CreatureScript("iron_docks_mob_stand_third_event") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
@@ -1199,18 +1154,18 @@ class iron_docks_trigger_stand_third_event : public CreatureScript
 
             void Reset() override
             {
-                me->setFaction(35);
+                me->setFaction(FriendlyFaction);
                 m_CanEvent = false;
             }
 
             void MoveInLineOfSight(Unit* p_Who) override
             {
-                if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 15.0f) && !m_CanEvent)
+                if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 15.0f) && !m_CanEvent)
                 {
                     m_CanEvent = true;
 
                     if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
-                        l_InstanceScript->SetData(DataThirdEvent, uint32(true));
+                        l_InstanceScript->SetData(eIronDocksDatas::DataThirdEvent, uint32(true));
                 }
             }
         };
@@ -1235,77 +1190,11 @@ class iron_docks_trigger_cannon : public CreatureScript
 
             void Reset() override
             {
-                me->setFaction(16);
-                me->SetHealth(6000000);
-                me->SetMaxHealth(6000000);
+                me->setFaction(HostileFaction);
+                me->SetDisplayId(InvisibleDisplay);
                 me->GetMap()->SetObjectVisibility(1000.0f);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const override
-        {
-            return new mob_iron_docksAI(p_Creature);
-        }
-};
-
-/// Archery Target - 79423
-class iron_docks_archery_target : public CreatureScript
-{
-    public:
-        iron_docks_archery_target() : CreatureScript("iron_docks_archery_target") { }
-
-        struct mob_iron_docksAI : public Scripted_NoMovementAI
-        {
-            mob_iron_docksAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
-            {
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitState(UnitState::UNIT_STATE_CANNOT_AUTOATTACK);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const override
-        {
-            return new mob_iron_docksAI(p_Creature);
-        }
-};
-
-/// 86534
-class iron_docks_gatecrasher_trigger : public CreatureScript
-{
-    public:
-        iron_docks_gatecrasher_trigger() : CreatureScript("iron_docks_gatecrasher_trigger") { }
-
-        struct mob_iron_docksAI : public Scripted_NoMovementAI
-        {
-            mob_iron_docksAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
-
-            void Reset() override
-            {
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                me->SetDisplayId(11686);
-                me->setFaction(16);
-            }
-
-            void UpdateAI(uint32 const p_Diff) override
-            {
-                events.Update(p_Diff);
-
-                /// Handle hacked areatrigger dmg (it appears to be blizzlike since dbc handler summon that add,
-                /// But why the fuck would you do that if already summon an areatrigger? are they dumb? just areatrigger update blizzard, l2p
-                std::list<Player*> l_NearPlrList;
-                me->GetPlayerListInGrid(l_NearPlrList, 4.0f);
-
-                for (Player* l_Iter : l_NearPlrList)
-                {
-                    if (!l_Iter->HasAura(eSpells::SpellGatecrasherDamage))
-                    {
-                        me->CastSpell(l_Iter, eSpells::SpellGatecrasherDamage);
-
-                        if (AuraPtr l_AuraGatecrasher = l_Iter->GetAura(eSpells::SpellGatecrasherDamage))
-                            l_AuraGatecrasher->SetDuration(1);
-                    }
-                }
             }
         };
 
@@ -1319,17 +1208,40 @@ class iron_docks_gatecrasher_trigger : public CreatureScript
 class iron_docks_mob_thundering_wandler : public CreatureScript
 {
     public:
+
         iron_docks_mob_thundering_wandler() : CreatureScript("iron_docks_mob_thundering_wandler") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            enum eThunderingWandlerEvents
+            {
+                /// Thunderlord Wrangler
+                SpellCultTraps       = 173336,
+                SpellCultTrapsDamage = 173324,
+                SpellRendingCleave   = 167815,
+                SpellSpearThrow      = 167095
+            };
+
+            enum eThunderWandlerEvents
+            {
+                /// Thunderlord Wrangler
+                EventCultTraps = 1,
+                EventSpearThrow,
+                EventRendingCleave         
+            };
+
+            void Reset() override
+            {
+                events.Reset();
+            }
+
             void EnterCombat(Unit* p_Attacker) override
             {
-                events.ScheduleEvent(eEvents::EventCultTraps, 18 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eEvents::EventSpearThrow, urand(6 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eEvents::EventRendingCleave, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eThunderWandlerEvents::EventCultTraps, 18 * TimeConstants::IN_MILLISECONDS);
+                events.ScheduleEvent(eThunderWandlerEvents::EventSpearThrow, urand(6 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eThunderWandlerEvents::EventRendingCleave, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1344,24 +1256,26 @@ class iron_docks_mob_thundering_wandler : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventCultTraps:
-                        if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, eSpells::SpellCultTraps, true);
-                        me->GetMotionMaster()->MoveKnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10.0f, 8.0f);
-                        events.ScheduleEvent(eEvents::EventCultTraps, 18 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    case eEvents::EventSpearThrow:
-                        if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, eSpells::SpellSpearThrow);
-                        events.ScheduleEvent(eEvents::EventSpearThrow, urand(6 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    case eEvents::EventRendingCleave:
-                        if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, eSpells::SpellRendingCleave);
-                        events.ScheduleEvent(eEvents::EventRendingCleave, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+                    case eThunderWandlerEvents::EventCultTraps:
+                            if (Unit* l_Target = me->getVictim())
+                            {
+                                me->CastSpell(l_Target, eThunderingWandlerEvents::SpellCultTraps, true);
+                                me->GetMotionMaster()->MoveKnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10.0f, 8.0f);
+                            }
+                            events.ScheduleEvent(eThunderWandlerEvents::EventCultTraps, 18 * TimeConstants::IN_MILLISECONDS);
+                            break;
+                    case eThunderWandlerEvents::EventSpearThrow:
+                            if (Unit* l_Target = me->getVictim())
+                                me->CastSpell(l_Target, eThunderingWandlerEvents::SpellSpearThrow);
+                            events.ScheduleEvent(eThunderWandlerEvents::EventSpearThrow, urand(6 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                    case eThunderWandlerEvents::EventRendingCleave:
+                            if (Unit* l_Target = me->getVictim())
+                                me->CastSpell(l_Target, eThunderingWandlerEvents::SpellRendingCleave);
+                            events.ScheduleEvent(eThunderWandlerEvents::EventRendingCleave, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        default:
+                            break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1378,23 +1292,43 @@ class iron_docks_mob_thundering_wandler : public CreatureScript
 class iron_docks_mob_rampaging_clefthoof : public CreatureScript
 {
     public:
+
         iron_docks_mob_rampaging_clefthoof() : CreatureScript("iron_docks_mob_rampaging_clefthoof") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            enum eClefthoofEvents
+            {
+                /// Rushing
+                EventClefthoofStampede = 1,
+                EventClefthoofStampede2
+            };
+
+            enum eClefthoofSpells
+            {
+                /// Rushing
+                SpellClefthoofStampedeVisualMovement = 173350,
+                SpellClefthoofStampedeVisualHorning  = 173351,
+                SpellClefthoofStampedeVisualJump     = 173352,
+                SpellClefthoofStampedeDummyCast      = 173384,
+                SpellClefthoofStampedeDamage         = 173351,
+                SpellClefthoofSpinyHorns             = 158349
+            };
+
             uint64 m_StampedeGuid;
 
             void Reset() override
             {
+                events.Reset();
                 m_StampedeGuid = 0;
-                me->AddAura(eSpells::SpellSpinyHorns, me);
+                me->AddAura(eClefthoofSpells::SpellClefthoofSpinyHorns, me);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
-                events.ScheduleEvent(eEvents::EventRushingStampede, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eClefthoofEvents::EventClefthoofStampede, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1409,38 +1343,13 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventRushingStampede:
-                    {
-                        me->CastSpell(me, eSpells::SpellRushingStampedeVisualMovement);
-
-                        m_StampedeGuid = 0;
-
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                    case eClefthoofEvents::EventClefthoofStampede:
                         {
-                            me->CastSpell(l_Target, eSpells::SpellRushingStampedeDummyCast);
-                            m_StampedeGuid = l_Target->GetGUID();
+                            ///
+                            break;
                         }
-
-                        events.ScheduleEvent(eEvents::EventRushingStampede, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-                        events.ScheduleEvent(eEvents::EventRushingStampede2, 2500);
-                        break;
-                    }
-                    case eEvents::EventRushingStampede2:
-                    {
-                        if (Creature* l_StampedeTarget = Creature::GetCreature(*me, m_StampedeGuid))
-                        {
-                            me->GetMotionMaster()->MoveCharge(l_StampedeTarget->GetPositionX(), l_StampedeTarget->GetPositionY(), l_StampedeTarget->GetPositionZ(), 42.0f);
-                            me->CastSpell(l_StampedeTarget, eSpells::SpellRushingStampedeVisualJump);
-                            me->CastSpell(l_StampedeTarget, eSpells::SpellRushingStampedeDamage);
-                            me->CastSpell(l_StampedeTarget, eSpells::SpellRushingStampedeVisualHorning);
-
-                            me->GetMotionMaster()->Clear();
-                        }
-
-                        break;
-                    }
-                    default:
-                        break;
+                        default:
+                            break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1457,15 +1366,35 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
 class iron_docks_mob_drake : public CreatureScript
 {
     public:
+
         iron_docks_mob_drake() : CreatureScript("iron_docks_mob_drake") { }
 
         struct mob_iron_docksAI : public ScriptedAI
         {
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            enum eIronwingFlamespitterEvents
+            {
+                /// Ironwing Flamespitter
+                EventLavaBarrage = 1
+            };
+
+            enum eIronwingFlamespitterSpells
+            {
+                /// Ironwing Flamespitter
+                SpellLavaBarrageDummy       = 176356,
+                SpellLavaBarrageAreaTrigger = 173482,
+                SpellLavaBarrageDot         = 173489
+            };
+
+            void Reset() override
+            {
+                events.Reset();
+            }
+
             void EnterCombat(Unit* p_Attacker) override
             {
-                events.ScheduleEvent(eEvents::EventLavaBarrage, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eIronwingFlamespitterEvents::EventLavaBarrage, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1480,12 +1409,12 @@ class iron_docks_mob_drake : public CreatureScript
 
                 switch (events.ExecuteEvent())
                 {
-                    case eEvents::EventLavaBarrage:
-                        me->CastSpell(me, eSpells::SpellLavaBarrageDummy); // dummy
-                        events.ScheduleEvent(eEvents::EventLavaBarrage, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
+                    case eIronwingFlamespitterEvents::EventLavaBarrage:
+                            me->CastSpell(me, eIronwingFlamespitterSpells::SpellLavaBarrageDummy); // dummy
+                            events.ScheduleEvent(eIronwingFlamespitterEvents::EventLavaBarrage, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                            break;
+                        default:
+                            break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1502,11 +1431,17 @@ class iron_docks_mob_drake : public CreatureScript
 class iron_docks_spell_flurry_periodic : public SpellScriptLoader
 {
     public:
+
         iron_docks_spell_flurry_periodic() : SpellScriptLoader("iron_docks_spell_flurry_periodic") { }
 
         class iron_docks_auras : public AuraScript
         {
             PrepareAuraScript(iron_docks_auras);
+
+            enum eOrgonSpells
+            {
+                SpellFlurryDamage = 178414
+            };
 
             void HandlePeriodic(constAuraEffectPtr p_AurEff)
             {
@@ -1514,20 +1449,22 @@ class iron_docks_spell_flurry_periodic : public SpellScriptLoader
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                    std::list<Player*> l_PlrList;
-                    l_Caster->GetPlayerListInGrid(l_PlrList, 5.0f);
+                    std::list<Player*> l_PlayerList;
+                    l_Caster->GetPlayerListInGrid(l_PlayerList, 5.0f);
+                    if (l_PlayerList.empty())
+                        return;
 
-                    for (Player* l_Iter : l_PlrList)
+                    for (auto l_Itr : l_PlayerList)
                     {
-                        if (l_Caster->isInFront(l_Iter, M_PI * 0.5f))
-                            l_Caster->CastSpell(l_Iter, eSpells::SpellFlurryDamage);
+                        if (l_Caster->isInFront(l_Itr, M_PI * 0.5f))
+                            l_Caster->CastSpell(l_Itr, eOrgonSpells::SpellFlurryDamage);
                     }
                 }
             }
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_auras::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_auras::HandlePeriodic, SpellEffIndex::EFFECT_1, AuraType::SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -1541,6 +1478,7 @@ class iron_docks_spell_flurry_periodic : public SpellScriptLoader
 class iron_docks_spell_charge_forward : public SpellScriptLoader
 {
     public:
+
         iron_docks_spell_charge_forward() : SpellScriptLoader("iron_docks_spell_charge_forward") { }
 
         class iron_docks_spell_charge_forward_SpellScript : public SpellScript
@@ -1549,23 +1487,7 @@ class iron_docks_spell_charge_forward : public SpellScriptLoader
 
             void HandleCharge()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    l_Caster->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);
-
-                    if (l_Caster->IsAIEnabled)
-                        l_Caster->GetAI()->DoAction(eAction::ActionQuietDeath);
-
-                    l_Caster->SetSpeed(UnitMoveType::MOVE_RUN, 12.0f, true);
-
-                    l_Caster->m_Events.AddEvent(new explosion_iron_star(l_Caster, NULL, 0), l_Caster->m_Events.CalculateTime(6 * TimeConstants::IN_MILLISECONDS));
-
-                    /// Start visual event
-                    if (InstanceScript* l_InstanceScript = l_Caster->GetInstanceScript())
-                        l_InstanceScript->SetData(DataSecondEvent, uint32(true));
-
-                    l_Caster->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
-                }
+                // will recode from scratch
             }
 
             void Register() override
@@ -1580,72 +1502,45 @@ class iron_docks_spell_charge_forward : public SpellScriptLoader
         }
 };
 
-/// Iron Shot - 167239
-class iron_docks_spell_shoot_damage_decrease_on_dummies : public SpellScriptLoader
-{
-    public:
-        iron_docks_spell_shoot_damage_decrease_on_dummies() : SpellScriptLoader("iron_docks_spell_shoot_damage_decrease_on_dummies") { }
-
-        class iron_docks_spells : public SpellScript
-        {
-            PrepareSpellScript(iron_docks_spells);
-
-            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
-            {
-                if (Unit* l_Target = GetHitUnit())
-                {
-                    if (l_Target->GetEntry() == eIronDocksCreatures::TriggerArcheryTarget)
-                        PreventHitDamage();
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new iron_docks_spells();
-        }
-};
-
 /// Barbed Arrow Barrage - 164370
 class iron_docks_spell_barbed_arrow_aura : public SpellScriptLoader
 {
     public:
+
         iron_docks_spell_barbed_arrow_aura() : SpellScriptLoader("iron_docks_spell_barbed_arrow_aura") { }
 
-        class iron_docks_Spells : public AuraScript
+        class iron_docks_auraScript : public AuraScript
         {
-            PrepareAuraScript(iron_docks_Spells);
+            PrepareAuraScript(iron_docks_auraScript);
+
+            enum eBarbedarrowSpells
+            {
+                SpellBarbedArrowAreaTrigger = 164278
+            };
 
             void HandlePeriodic(constAuraEffectPtr /*p_AurEff*/)
             {
                 PreventDefaultAction();
 
                 if (Unit* l_Caster = GetCaster())
-                {
-                    if (!l_Caster->IsAIEnabled)
-                        return;
-
-                    if (Unit* target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
-                        l_Caster->CastSpell(target, eSpells::SpellBarbedArrowAreaTrigger);
+                {     
+                    if (l_Caster->IsAIEnabled)
+                    {
+                        if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
+                            l_Caster->CastSpell(l_Target, eBarbedarrowSpells::SpellBarbedArrowAreaTrigger);
+                    }
                 }
             }
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_Spells::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_auraScript::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new iron_docks_Spells();
+            return new iron_docks_auraScript();
         }
 };
 
@@ -1653,21 +1548,27 @@ class iron_docks_spell_barbed_arrow_aura : public SpellScriptLoader
 class iron_docks_spell_barbed_arrow_dummy : public SpellScriptLoader
 {
     public:
+
         iron_docks_spell_barbed_arrow_dummy() : SpellScriptLoader("iron_docks_spell_barbed_arrow_dummy") { }
 
         class iron_docks_spell_barbed_arrow_dummy_SpellScript : public SpellScript
         {
             PrepareSpellScript(iron_docks_spell_barbed_arrow_dummy_SpellScript);
 
+            enum eBarbedArrowSpells
+            {
+                SpellBarbedArrowAura = 164370
+            };
+            
             void HandleDummy(SpellEffIndex p_EffIndex)
             {
                 if (Unit* l_Caster = GetCaster())
-                    l_Caster->CastSpell(l_Caster, eSpells::SpellBarbedArrowAura);
+                    l_Caster->CastSpell(l_Caster, eBarbedArrowSpells::SpellBarbedArrowAura);
             }
 
             void Register() override
             {
-                OnEffectLaunch += SpellEffectFn(iron_docks_spell_barbed_arrow_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectLaunch += SpellEffectFn(iron_docks_spell_barbed_arrow_dummy_SpellScript::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1681,35 +1582,31 @@ class iron_docks_spell_barbed_arrow_dummy : public SpellScriptLoader
 class iron_docks_spell_burning_arrow_aura : public SpellScriptLoader
 {
     public:
+
         iron_docks_spell_burning_arrow_aura() : SpellScriptLoader("iron_docks_spell_burning_arrow_aura") { }
 
         class iron_docks_Spells : public AuraScript
         {
             PrepareAuraScript(iron_docks_Spells);
 
-            uint8 m_Counter;
-
-            bool Load() override
+            enum eBurningArrowSpells
             {
-                m_Counter = 0;
-                return true;
-            }
+                SpellBurningArrowDummy       = 172810,
+                SpellBurningArrowAreaTrigger = 164234,
+                SpellBurningArrowDoT         = 164632
+            };
 
             void HandlePeriodic(constAuraEffectPtr /*p_AurEff*/)
             {
                 PreventDefaultAction();
 
-                if (m_Counter < 3)
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->IsAIEnabled)
                     {
-                        if (!l_Caster->IsAIEnabled)
-                            return;
-
                         if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
                         {
-                            l_Caster->CastSpell(l_Target, eSpells::SpellBurningArrowAreaTrigger);
-                            m_Counter++;
+                            l_Caster->CastSpell(l_Target, eBurningArrowSpells::SpellBurningArrowAreaTrigger);
                         }
                     }
                 }
@@ -1717,7 +1614,7 @@ class iron_docks_spell_burning_arrow_aura : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_Spells::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_Spells::HandlePeriodic, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
@@ -1731,87 +1628,73 @@ class iron_docks_spell_burning_arrow_aura : public SpellScriptLoader
 class iron_docks_spell_charging_slash_effect : public SpellScriptLoader
 {
     public:
+
         iron_docks_spell_charging_slash_effect() : SpellScriptLoader("iron_docks_spell_charging_slash_effect") { }
 
-        class spells_iron_docks : public SpellScript
+        class spells_iron_docks_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spells_iron_docks);
+            PrepareSpellScript(spells_iron_docks_SpellScript);
+
+            enum eChargingSlashSpells
+            {
+                SpellChargingSlash     = 172889,
+                SpellChargingSlashJump = 172885
+            };
 
             void OnHitTarget()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
-                        l_Caster->CastSpell(l_Target, SpellChargingSlash);
+                        l_Caster->CastSpell(l_Target, eChargingSlashSpells::SpellChargingSlash);
                 }
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spells_iron_docks::OnHitTarget);
+                OnHit += SpellHitFn(spells_iron_docks_SpellScript::OnHitTarget);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spells_iron_docks();
+            return new spells_iron_docks_SpellScript();
         }
 };
 
-class spell_barrage_targets_los_fix : public SpellScriptLoader
+/// Lava Barrage Dummy - 
+class iron_docks_spell_lava_barrage_dummy : public SpellScriptLoader
 {
     public:
-        spell_barrage_targets_los_fix() : SpellScriptLoader("spell_barrage_targets_los_fix") { }
 
-        class spell_barrage_targets_spell_script : public SpellScript
-        {
-            PrepareSpellScript(spell_barrage_targets_spell_script);
-
-            bool Load() override
-            {
-                SpellInfo* l_SpellInfo = const_cast<SpellInfo*>(GetSpellInfo());
-                l_SpellInfo->AttributesEx2 += SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-                return true;
-            }
-
-            void Register() override
-            {
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_barrage_targets_spell_script();
-        }
-};
-
-class iron_docks_lava_barrage_dummy : public SpellScriptLoader
-{
-    public:
-        iron_docks_lava_barrage_dummy() : SpellScriptLoader("iron_docks_lava_barrage_dummy") { }
+        iron_docks_spell_lava_barrage_dummy() : SpellScriptLoader("iron_docks_spell_lava_barrage_dummy") { }
 
         class iron_docks_spells : public SpellScript
         {
             PrepareSpellScript(iron_docks_spells);
+
+            enum eLavaBarrageSpells
+            {
+                SpellLavaBarrageDummy       = 176356,
+                SpellLavaBarrageAreaTrigger = 173482,
+                SpellLavaBarrageDoT         = 173489
+            };
 
             void HandleDummy(SpellEffIndex p_EffIndex)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (!l_Caster->IsAIEnabled)
-                        return;
-
-                    for (uint8 l_I = 0; l_I < 3; l_I++)
                     {
-                        if (Unit* target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            l_Caster->CastSpell(target, eSpells::SpellLavaBarrageAreaTrigger, true);
+                        if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            l_Caster->CastSpell(l_Target, eLavaBarrageSpells::SpellLavaBarrageAreaTrigger, true);
                     }
                 }
             }
 
             void Register() override
             {
-                OnEffectLaunch += SpellEffectFn(iron_docks_spells::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectLaunch += SpellEffectFn(iron_docks_spells::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1825,34 +1708,40 @@ class iron_docks_lava_barrage_dummy : public SpellScriptLoader
 class iron_docks_area_trigger_burning_arrow : public AreaTriggerEntityScript
 {
     public:
+
         iron_docks_area_trigger_burning_arrow() : AreaTriggerEntityScript("iron_docks_area_trigger_burning_arrow") { }
 
-        uint32 m_Timer = 500;
         std::list<uint64> m_Targets;
+        uint32 m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
+
+        enum eBurningArrowSpells
+        {
+            SpellBurningArrowDummy       = 172810,
+            SpellBurningArrowAreaTrigger = 164234,
+            SpellBurningArrowDoT         = 164632
+        };
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (m_Timer <= p_Time)
             {
                 std::list<Player*> l_PlayerList;
-
-                JadeCore::AnyPlayerInObjectRangeCheck l_Check(p_AreaTrigger, 3.0f);
+                JadeCore::AnyPlayerInObjectRangeCheck l_Check(p_AreaTrigger, 2.0f);
                 JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_PlayerList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(3.0f, l_Searcher);
-
+                p_AreaTrigger->VisitNearbyObject(2.0f, l_Searcher);
                 if (l_PlayerList.empty())
                     return;
 
-                for (Player* l_Iter : l_PlayerList)
+                for (auto l_Itr : l_PlayerList)
                 {
-                    if (!l_Iter->HasAura(eSpells::SpellBurningArrowDoT))
+                    if (!l_Itr->HasAura(eBurningArrowSpells::SpellBurningArrowDoT))
                     {
-                        l_Iter->CastSpell(l_Iter, eSpells::SpellBurningArrowDoT, true);
-                        m_Targets.push_back(l_Iter->GetGUID());
+                        l_Itr->CastSpell(l_Itr, eBurningArrowSpells::SpellBurningArrowDoT, true);
+                        m_Targets.push_back(l_Itr->GetGUID());
                     }
                 }
 
-                m_Timer = 500;
+                m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
             }
             else
                 m_Timer -= p_Time;
@@ -1860,11 +1749,14 @@ class iron_docks_area_trigger_burning_arrow : public AreaTriggerEntityScript
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
+            if (m_Targets.empty())
+                return;
+
             for (uint64 l_Guid : m_Targets)
             {
                 Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                if (l_Target && l_Target->HasAura(eSpells::SpellBurningArrowDoT))
-                    l_Target->RemoveAura(eSpells::SpellBurningArrowDoT);
+                if (l_Target && l_Target->HasAura(eBurningArrowSpells::SpellBurningArrowDoT))
+                    l_Target->RemoveAura(eBurningArrowSpells::SpellBurningArrowDoT);
             }
         }
 
@@ -1875,37 +1767,44 @@ class iron_docks_area_trigger_burning_arrow : public AreaTriggerEntityScript
 };
 
 /// Lava Barrage - 173484
-class iron_docks_area_lava_barrage_effect : public AreaTriggerEntityScript
+class iron_docks_area_trigger_lava_barrage_effect : public AreaTriggerEntityScript
 {
     public:
-        iron_docks_area_lava_barrage_effect() : AreaTriggerEntityScript("iron_docks_area_lava_barrage_effect") { }
 
-        uint32 m_Timer = 500;
+        iron_docks_area_trigger_lava_barrage_effect() : AreaTriggerEntityScript("iron_docks_area_trigger_lava_barrage_effect") { }
+
+        enum eBarrageLavaSpells
+        {
+            /// Ironwing Flamespitter
+            SpellLavaBarrageDummy       = 176356,
+            SpellLavaBarrageAreaTrigger = 173482,
+            SpellLavaBarrageDot         = 173489
+        };
+
         std::list<uint64> m_Targets;
+        uint32 m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (m_Timer <= p_Time)
             {
                 std::list<Player*> l_PlayerList;
-
-                JadeCore::AnyPlayerInObjectRangeCheck l_Check(p_AreaTrigger, 3.0f);
+                JadeCore::AnyPlayerInObjectRangeCheck l_Check(p_AreaTrigger, 2.0f);
                 JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_PlayerList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(3.0f, l_Searcher);
-
+                p_AreaTrigger->VisitNearbyObject(2.0f, l_Searcher);
                 if (l_PlayerList.empty())
                     return;
 
-                for (Player* l_Iter : l_PlayerList)
+                for (auto l_Itr : l_PlayerList)
                 {
-                    if (!l_Iter->HasAura(eSpells::SpellLavaBarrageDoT))
+                    if (!l_Itr->HasAura(eBarrageLavaSpells::SpellLavaBarrageDot))
                     {
-                        l_Iter->CastSpell(l_Iter, eSpells::SpellLavaBarrageDoT);
-                        m_Targets.push_back(l_Iter->GetGUID());
+                        l_Itr->CastSpell(l_Itr, eBarrageLavaSpells::SpellLavaBarrageDot);
+                        m_Targets.push_back(l_Itr->GetGUID());
                     }
                 }
 
-                m_Timer = 500;
+                m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
             }
             else
                 m_Timer -= p_Time;
@@ -1913,17 +1812,20 @@ class iron_docks_area_lava_barrage_effect : public AreaTriggerEntityScript
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
+            if (m_Targets.empty())
+                return;
+
             for (uint64 l_Guid : m_Targets)
             {
                 Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                if (l_Target && l_Target->HasAura(eSpells::SpellLavaBarrageDoT))
-                    l_Target->RemoveAura(eSpells::SpellLavaBarrageDoT);
+                if (l_Target && l_Target->HasAura(eBarrageLavaSpells::SpellLavaBarrageDot))
+                    l_Target->RemoveAura(eBarrageLavaSpells::SpellLavaBarrageDot);
             }
         }
 
-        iron_docks_area_lava_barrage_effect* GetAI() const override
+        iron_docks_area_trigger_lava_barrage_effect* GetAI() const override
         {
-            return new iron_docks_area_lava_barrage_effect();
+            return new iron_docks_area_trigger_lava_barrage_effect();
         }
 };
 
@@ -1931,34 +1833,40 @@ class iron_docks_area_lava_barrage_effect : public AreaTriggerEntityScript
 class iron_docks_area_trigger_barbed_arrow : public AreaTriggerEntityScript
 {
     public:
-        iron_docks_area_trigger_barbed_arrow() : AreaTriggerEntityScript("iron_docks_area_trigger_barbed_arrow") { }
 
-        uint32 m_Timer = 500;
+        iron_docks_area_trigger_barbed_arrow() : AreaTriggerEntityScript("iron_docks_area_trigger_barbed_arrow") { }
+ 
+        enum eBarbedArrowSpells
+        {
+            SpellBarbedArrowAreaTrigger = 164278,
+            SpellBarbedArrowAura        = 164370,
+            SpellBarbedArrowDoT         = 164648
+        };
+
         std::list<uint64> m_Targets;
+        uint32 m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (m_Timer <= p_Time)
             {
                 std::list<Player*> l_PlayerList;
-
-                JadeCore::AnyPlayerInObjectRangeCheck l_Check(p_AreaTrigger, 3.0f);
+                JadeCore::AnyPlayerInObjectRangeCheck l_Check(p_AreaTrigger, 2.0f);
                 JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_PlayerList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(3.0f, l_Searcher);
-
+                p_AreaTrigger->VisitNearbyObject(2.0f, l_Searcher);
                 if (l_PlayerList.empty())
                     return;
 
-                for (Player* l_Iter : l_PlayerList)
+                for (auto l_Itr : l_PlayerList)
                 {
-                    if (!l_Iter->HasAura(eSpells::SpellBarbedArrowDoT))
+                    if (!l_Itr->HasAura(eBarbedArrowSpells::SpellBarbedArrowDoT))
                     {
-                        l_Iter->CastSpell(l_Iter, eSpells::SpellBarbedArrowDoT);
-                        m_Targets.push_back(l_Iter->GetGUID());
+                        l_Itr->CastSpell(l_Itr, eBarbedArrowSpells::SpellBarbedArrowDoT);
+                        m_Targets.push_back(l_Itr->GetGUID());
                     }
                 }
 
-                m_Timer = 500;
+                m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
             }
             else
                 m_Timer -= p_Time;
@@ -1966,11 +1874,14 @@ class iron_docks_area_trigger_barbed_arrow : public AreaTriggerEntityScript
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
+            if (m_Targets.empty())
+                return;
+
             for (uint64 l_Guid : m_Targets)
             {
                 Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                if (l_Target && l_Target->HasAura(eSpells::SpellBarbedArrowDoT))
-                    l_Target->RemoveAura(eSpells::SpellBarbedArrowDoT);
+                if (l_Target && l_Target->HasAura(eBarbedArrowSpells::SpellBarbedArrowDoT))
+                    l_Target->RemoveAura(eBarbedArrowSpells::SpellBarbedArrowDoT);
             }
         }
 
@@ -1980,37 +1891,43 @@ class iron_docks_area_trigger_barbed_arrow : public AreaTriggerEntityScript
         }
 };
 
+/// Grease Vial Areatrigger - 
 class iron_docks_area_trigger_oil_effect : public AreaTriggerEntityScript
 {
     public:
-        iron_docks_area_trigger_oil_effect() : AreaTriggerEntityScript("iron_docks_area_trigger_oil_effect") { }
 
-        uint32 m_Timer = 1000;
+        iron_docks_area_trigger_oil_effect() : AreaTriggerEntityScript("iron_docks_area_trigger_oil_effect") { }
+      
+        enum eGreaseVialSpells
+        {
+            SpellGreaseVial       = 172649,
+            SpellGreaseVialEffect = 172636
+        };
+
         std::list<uint64> m_Targets;
+        uint32 m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (m_Timer <= p_Time)
             {
                 std::list<Player*> l_PlayerList;
-
-                JadeCore::AnyPlayerInObjectRangeCheck l_Check(p_AreaTrigger, 3.0f);
+                JadeCore::AnyPlayerInObjectRangeCheck l_Check(p_AreaTrigger, 2.0f);
                 JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_PlayerList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(3.0f, l_Searcher);
-
+                p_AreaTrigger->VisitNearbyObject(2.0f, l_Searcher);
                 if (l_PlayerList.empty())
                     return;
 
-                for (Player* l_Iter : l_PlayerList)
+                for (auto l_Itr : l_PlayerList)
                 {
-                    if (!l_Iter->HasAura(eSpells::SpellGreaseVialEffect))
+                    if (!l_Itr->HasAura(eGreaseVialSpells::SpellGreaseVialEffect))
                     {
-                        l_Iter->CastSpell(l_Iter, eSpells::SpellGreaseVialEffect);
-                        m_Targets.push_back(l_Iter->GetGUID());
+                        l_Itr->CastSpell(l_Itr, eGreaseVialSpells::SpellGreaseVialEffect);
+                        m_Targets.push_back(l_Itr->GetGUID());
                     }
                 }
 
-                m_Timer = 1000;
+                m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
             }
             else
                 m_Timer -= p_Time;
@@ -2018,11 +1935,14 @@ class iron_docks_area_trigger_oil_effect : public AreaTriggerEntityScript
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
+            if (m_Targets.empty())
+                return;
+
             for (uint64 l_Guid : m_Targets)
             {
                 Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                if (l_Target && l_Target->HasAura(eSpells::SpellGreaseVialEffect))
-                    l_Target->RemoveAura(eSpells::SpellGreaseVialEffect);
+                if (l_Target && l_Target->HasAura(eGreaseVialSpells::SpellGreaseVialEffect))
+                    l_Target->RemoveAura(eGreaseVialSpells::SpellGreaseVialEffect);
             }
         }
 
@@ -2036,40 +1956,45 @@ class iron_docks_area_trigger_oil_effect : public AreaTriggerEntityScript
 class iron_docks_area_trigger_jagged_caltrops : public AreaTriggerEntityScript
 {
     public:
+
         iron_docks_area_trigger_jagged_caltrops() : AreaTriggerEntityScript("iron_docks_area_trigger_jagged_caltrops") { }
 
-        uint32 m_Timer = 1500;
+        enum eCaltTrapsSpells
+        {
+            SpellCultTraps       = 173336,
+            SpellCultTrapsDamage = 173324
+        };
+
         std::list<uint64> m_Targets;
+        uint32 m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (m_Timer <= p_Time)
             {
                 std::list<Player*> l_PlayerList;
-
                 JadeCore::AnyPlayerInObjectRangeCheck l_Check(p_AreaTrigger, 2.0f);
                 JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_PlayerList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(2.0f, l_Searcher);
-
                 if (l_PlayerList.empty())
                     return;
 
-                for (Player* l_Iter : l_PlayerList)
+                for (auto l_Itr : l_PlayerList)
                 {
-                    if (!l_Iter->HasAura(eSpells::SpellCultTrapsDamage))
+                    if (!l_Itr->HasAura(eCaltTrapsSpells::SpellCultTrapsDamage))
                     {
-                        l_Iter->CastSpell(l_Iter, eSpells::SpellCultTrapsDamage);
-                        m_Targets.push_back(l_Iter->GetGUID());
+                        l_Itr->CastSpell(l_Itr, eCaltTrapsSpells::SpellCultTrapsDamage);
+                        m_Targets.push_back(l_Itr->GetGUID());
 
-                        if (l_Iter->HasAura(eSpells::SpellCultTrapsDamage))
+                        if (l_Itr->HasAura(eCaltTrapsSpells::SpellCultTrapsDamage))
                         {
-                            if (AuraPtr l_Aura = l_Iter->GetAura(eSpells::SpellCultTrapsDamage))
-                                l_Aura->SetDuration(3);
+                            if (AuraPtr l_Aura = l_Itr->GetAura(eCaltTrapsSpells::SpellCultTrapsDamage))
+                                l_Aura->SetDuration(1);
                         }
                     }
                 }
 
-                m_Timer = 1500;
+                m_Timer = 1 * TimeConstants::IN_MILLISECONDS;
             }
             else
                 m_Timer -= p_Time;
@@ -2077,11 +2002,14 @@ class iron_docks_area_trigger_jagged_caltrops : public AreaTriggerEntityScript
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
+            if (m_Targets.empty())
+                return;
+
             for (uint64 l_Guid : m_Targets)
             {
                 Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                if (l_Target && l_Target->HasAura(eSpells::SpellCultTrapsDamage))
-                    l_Target->RemoveAura(eSpells::SpellCultTrapsDamage);
+                if (l_Target && l_Target->HasAura(eCaltTrapsSpells::SpellCultTrapsDamage))
+                    l_Target->RemoveAura(eCaltTrapsSpells::SpellCultTrapsDamage);
             }
         }
 
@@ -2091,48 +2019,7 @@ class iron_docks_area_trigger_jagged_caltrops : public AreaTriggerEntityScript
         }
 };
 
-/// Instance Portal (Raid: Normal, Heroic, Mythic) - 232490
-class go_iron_docks_instance_portal : public GameObjectScript
-{
-    public:
-        go_iron_docks_instance_portal() : GameObjectScript("go_iron_docks_instance_portal") { }
-
-        struct go_iron_docks_instance_portalAI : public GameObjectAI
-        {
-            go_iron_docks_instance_portalAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject)
-            {
-                m_CheckTimer = 1000;
-            }
-
-            uint32 m_CheckTimer;
-
-            void UpdateAI(uint32 p_Diff) override
-            {
-                if (m_CheckTimer)
-                {
-                    if (m_CheckTimer <= p_Diff)
-                    {
-                        m_CheckTimer = 1000;
-
-                        std::list<Player*> l_PlayerList;
-                        go->GetPlayerListInGrid(l_PlayerList, 5.0f);
-
-                        for (Player* l_Player : l_PlayerList)
-                            l_Player->TeleportTo(1116, g_OutTeleportPos);
-                    }
-                    else
-                        m_CheckTimer -= p_Diff;
-                }
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* p_GameObject) const override
-        {
-            return new go_iron_docks_instance_portalAI(p_GameObject);
-        }
-};
-
-void AddSC_iron_docks_cpp()
+void AddSC_iron_docks()
 {
     /// NPCs
     new iron_docks_mob_gromkar_battlemaster();
@@ -2140,42 +2027,28 @@ void AddSC_iron_docks_cpp()
     new iron_docks_mob_gromkar_footsoldier();
     new iron_docks_mob_gromkar_incinerator();
     new iron_docks_mob_gromkar_technician();
-    new iron_docks_siege_master_olugar();
+    new iron_docks_mob_siege_master_olugar();
     new iron_docks_mob_champion_darona();
-    new iron_docks_gwarnok();
+    new iron_docks_mob_gwarnok();
     new iron_docks_mob_iron_star();
     new iron_docks_mob_ogron();
     new iron_docks_mob_gromkar_deck_hand();
-    new iron_docks_stunned_cheering_practicing_trigger_second_segement();
     new iron_docks_mob_gromkar_technician_deckhand_leader();
-    new iron_docks_stunned_cheering_practicing_trigger();
-    new iron_docks_stunned_soldiers_trigger();
-    new iron_docks_trigger_stand_third_event();
-    new iron_docks_trigger_cannon();
-    new iron_docks_archery_target();
-    new iron_docks_gatecrasher_trigger();
     new iron_docks_mob_thundering_wandler();
     new iron_docks_mob_rampaging_clefthoof();
     new iron_docks_mob_drake();
-
     /// Spells
     new iron_docks_spell_flurry_periodic();
     new iron_docks_spell_charge_forward();
-    new iron_docks_spell_shoot_damage_decrease_on_dummies();
     new iron_docks_spell_barbed_arrow_aura();
     new iron_docks_spell_barbed_arrow_dummy();
     new iron_docks_spell_burning_arrow_aura();
     new iron_docks_spell_charging_slash_effect();
-    new spell_barrage_targets_los_fix();
-    new iron_docks_lava_barrage_dummy();
-
+    new iron_docks_spell_lava_barrage_dummy();
     /// AreaTriggers
     new iron_docks_area_trigger_burning_arrow();
-    new iron_docks_area_lava_barrage_effect();
+    new iron_docks_area_trigger_lava_barrage_effect();
     new iron_docks_area_trigger_barbed_arrow();
     new iron_docks_area_trigger_oil_effect();
     new iron_docks_area_trigger_jagged_caltrops();
-
-    /// GameObject
-    new go_iron_docks_instance_portal();
 }

@@ -17,10 +17,10 @@ static BossScenarios const g_BossScenarios[] =
     { 0,                                0                                       }
 };
 
-class iron_stars_event : public BasicEvent
+class basicevent_iron_stars : public BasicEvent
 {
     public:
-        explicit iron_stars_event(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value) { }
+        explicit basicevent_iron_stars(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value) { }
 
         bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {
@@ -44,10 +44,10 @@ class iron_stars_event : public BasicEvent
         int m_Modifier;
 };
 
-class bombard_event : public BasicEvent
+class basicevent_bombardment_bridge : public BasicEvent
 {
     public:
-        explicit bombard_event(Unit* unit, int value) : m_Obj(unit), m_Modifier(value) { }
+        explicit basicevent_bombardment_bridge(Unit* unit, int value) : m_Obj(unit), m_Modifier(value) { }
 
         bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {
@@ -59,37 +59,38 @@ class bombard_event : public BasicEvent
                     {
                         if (Creature* l_Skulloc = l_Instance->instance->GetCreature(l_Instance->GetData64(eIronDocksDatas::DataSkulloc)))
                         {
-                            switch (m_Modifier)
+                            if (l_Koramar->IsAIEnabled && l_Skulloc->IsAIEnabled && l_Zoggosh->IsAIEnabled)
                             {
-                                case 0:
+                                switch (m_Modifier)
                                 {
-                                    if (l_Koramar->IsAIEnabled)
-                                        l_Koramar->AI()->Talk(eIronDocksTalks::TalkKoramar010);
-                                    l_Koramar->m_Events.AddEvent(new bombard_event(l_Koramar, 1), l_Koramar->m_Events.CalculateTime(8000));
-                                    break;
-                                }
-                                case 1:
-                                {
-                                    if (l_Zoggosh->IsAIEnabled)
-                                        l_Zoggosh->AI()->Talk(eIronDocksTalks::TalkZoggosh04);
-                                    l_Zoggosh->m_Events.AddEvent(new bombard_event(l_Zoggosh, 9), l_Zoggosh->m_Events.CalculateTime(2000));
-                                    break;
-                                }
-                                case 9:
-                                {
-                                    if (l_Skulloc->GetVehicleKit() && l_Skulloc->GetVehicleKit()->GetPassenger(0))
+                                    case 0:
                                     {
-                                        if (Creature* l_Turret = l_Skulloc->GetVehicleKit()->GetPassenger(0)->ToCreature())
-                                        {
-                                            l_Turret->CastSpell(l_Turret, eIronDocksSpell::SpellCannonBarrageAura);
-                                            l_Turret->m_Events.AddEvent(new bombard_event(l_Turret, 9), l_Turret->m_Events.CalculateTime(7000));
-                                        }
+                                        l_Koramar->AI()->Talk(eIronDocksTalks::TalkKoramar010);
+                                        l_Koramar->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Koramar, 1), l_Koramar->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                        break;
                                     }
+                                    case 1:
+                                    {
+                                        l_Zoggosh->AI()->Talk(eIronDocksTalks::TalkZoggosh04);
+                                        l_Zoggosh->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Zoggosh, 9), l_Zoggosh->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
+                                        break;
+                                    }
+                                    case 9:
+                                    {
+                                        if (l_Skulloc->GetVehicleKit() && l_Skulloc->GetVehicleKit()->GetPassenger(0))
+                                        {
+                                            if (Creature* l_Turret = l_Skulloc->GetVehicleKit()->GetPassenger(0)->ToCreature())
+                                            {
+                                                l_Turret->CastSpell(l_Turret, eIronDocksSpell::SpellCannonBarrageAura);
+                                                l_Turret->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Turret, 9), l_Turret->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                            }
+                                        }
 
-                                    break;
+                                        break;
+                                    }
+                                    default:
+                                        break;
                                 }
-                                default:
-                                    break;
                             }
                         }
                     }
@@ -126,11 +127,9 @@ class instance_iron_docks : public InstanceMapScript
             uint64 m_GwarnokGuid;
             uint64 m_OlugarGuid;
             uint64 m_TurretGuid;
-
             /// Iron stars
             bool m_SecondEvent;
             bool m_ThirdEvent;
-
             /// Scenario handling
             uint32 m_CreatureKilled;
 
@@ -147,22 +146,18 @@ class instance_iron_docks : public InstanceMapScript
                 m_WolfGuid          = 0;
                 m_OshirGuid         = 0;
                 m_SkullocGuid       = 0;
-
                 /// Mini bosses
                 m_DarunaGuid        = 0;
                 m_GwarnokGuid       = 0;
                 m_OlugarGuid        = 0;
-
                 // Triggers
                 // Gobs
                 // Creatures
                 m_TurretGuid        = 0;
                 m_ZoggoshGuid       = 0;
                 m_KoramarGuid       = 0;
-
                 m_SecondEvent       = false;
                 m_ThirdEvent        = false;
-
                 m_CreatureKilled    = 0;
             }
 
@@ -292,7 +287,7 @@ class instance_iron_docks : public InstanceMapScript
                             m_SecondEvent = true;
 
                             if (Creature* l_Skulloc = instance->GetCreature(GetData64(eIronDocksDatas::DataSkulloc)))
-                                l_Skulloc->m_Events.AddEvent(new iron_stars_event(l_Skulloc, 0), l_Skulloc->m_Events.CalculateTime(8000));
+                                l_Skulloc->m_Events.AddEvent(new basicevent_iron_stars(l_Skulloc, 0), l_Skulloc->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
                         }
 
                         break;
@@ -304,7 +299,7 @@ class instance_iron_docks : public InstanceMapScript
                             m_ThirdEvent = true;
 
                             if (Creature* l_Skulloc = instance->GetCreature(GetData64(eIronDocksDatas::DataSkulloc)))
-                                l_Skulloc->m_Events.AddEvent(new bombard_event(l_Skulloc, 0), l_Skulloc->m_Events.CalculateTime(8000));
+                                l_Skulloc->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Skulloc, 0), l_Skulloc->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
                         }
 
                         break;
