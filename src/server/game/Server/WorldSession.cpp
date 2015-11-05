@@ -998,15 +998,12 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
     if (!m_TutorialsChanged)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HAS_TUTORIALS);
-    stmt->setUInt32(0, GetAccountId());
-    bool hasTutorials = !CharacterDatabase.Query(stmt).null();
     // Modify data in DB
-    stmt = CharacterDatabase.GetPreparedStatement(hasTutorials ? CHAR_UPD_TUTORIALS : CHAR_INS_TUTORIALS);
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        stmt->setUInt32(i, m_Tutorials[i]);
-    stmt->setUInt32(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
-    trans->Append(stmt);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_TUTORIALS);
+    for (uint8 l_I = 0; l_I < MAX_ACCOUNT_TUTORIAL_VALUES; ++l_I)
+        l_Statement->setUInt32(l_I, m_Tutorials[l_I]);
+    l_Statement->setUInt32(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
+    trans->Append(l_Statement);
 
     m_TutorialsChanged = false;
 }
