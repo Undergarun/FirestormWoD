@@ -1323,7 +1323,11 @@ enum TrinityStrings
     BattlePayReserved15,
     BattlePayReserved16,
 
-    // NOT RESERVED IDS                   14112-1999999999
+    /// Garrison
+
+    GarrisonChop
+
+    // NOT RESERVED IDS                   14113-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
 };

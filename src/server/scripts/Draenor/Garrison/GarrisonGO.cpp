@@ -163,12 +163,16 @@ namespace MS { namespace Garrison
 
             if (l_Message == EQUIP_ERR_OK)
             {
-                p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID));
+                if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID)))
+                    sScriptMgr->OnPlayerItemLooted(p_Player, l_Item);
 
                 if (l_ShipmentEntry->ID == 109) ///< Herb Garden
                 {
                     for (uint8 l_I = 0; l_I < 7; l_I++)
-                        p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID));
+                    {
+                        if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID)))
+                            sScriptMgr->OnPlayerItemLooted(p_Player, l_Item);
+                    }
                 }
 
                 if (l_ToastStatus[l_RewardItemID] == false)
@@ -340,6 +344,187 @@ namespace MS { namespace Garrison
         return new gob_IronTrap_GarrisonAI(p_Gob);
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    /// 233604 - Small Timber                                              ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    go_garrison_small_timber::go_garrison_small_timber()
+        : GameObjectScript("go_garrison_small_timber")
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a GameObjectAI object is needed for the GameObject.
+    /// @p_GameObject : GameObject instance
+    GameObjectAI* go_garrison_small_timber::GetAI(GameObject* p_GameObject) const
+    {
+        return new go_garrison_small_timberAI(p_GameObject);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    go_garrison_small_timber::go_garrison_small_timberAI::go_garrison_small_timberAI(GameObject* p_GameObject)
+        : GameObjectAI(p_GameObject)
+    {
+        m_TimberDisplayIDs.insert(std::make_pair(234193, 19771)); ///< Nagrand
+        m_TimberDisplayIDs.insert(std::make_pair(234197, 19776)); ///< Nagrand
+        m_TimberDisplayIDs.insert(std::make_pair(233604, 14683)); ///< Gorgrond
+        m_TimberDisplayIDs.insert(std::make_pair(234080, 18958)); ///< Gorgrond
+        m_TimberDisplayIDs.insert(std::make_pair(234122, 19585)); ///< Spires of Arak
+        m_TimberDisplayIDs.insert(std::make_pair(234126, 19592)); ///< Spires of Arak
+        m_TimberDisplayIDs.insert(std::make_pair(234109, 19473)); ///< Shadowmoon Valley
+        m_TimberDisplayIDs.insert(std::make_pair(234110, 19580)); ///< Shadowmoon Valley
+        m_TimberDisplayIDs.insert(std::make_pair(233922, 19864)); ///< Frostfire Ridge
+        m_TimberDisplayIDs.insert(std::make_pair(234097, 19575)); ///< Talador
+    }
+
+    bool go_garrison_small_timber::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
+    {
+        if (!p_GameObject->AI())
+            return false;
+
+        p_GameObject->AI()->SetData64(eDatas::AnimTimer, 5000);
+        p_GameObject->AI()->SetData64(eDatas::ChopCount, urand(4, 6));
+        p_GameObject->AI()->SetData64(eDatas::PlayerGuid, p_Player->GetGUID());
+        p_GameObject->AI()->DoAction(eDatas::ActionGossip);
+        p_GameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+        return true;
+    }
+
+    void go_garrison_small_timber::go_garrison_small_timberAI::DoAction(const int32 p_Action)
+    {
+        if (p_Action == 1)
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(m_PlayerGuid))
+            {
+                if (l_Player->GetTeamId() == TEAM_HORDE)
+                    go->SummonCreature(83985, *l_Player);
+                else if (l_Player->GetTeamId() == TEAM_ALLIANCE)
+                    go->SummonCreature(83950, *l_Player);
+
+                l_Player->AddItem(114781, m_ChopCount);
+            }
+        }
+    }
+
+    void go_garrison_small_timber::go_garrison_small_timberAI::SetData64(uint32 p_Id, uint64 p_Value)
+    {
+        switch (p_Id)
+        {
+            case eDatas::AnimTimer:
+                m_AnimTimer = p_Value;
+                break;
+            case eDatas::ChopCount:
+                m_ChopCount = p_Value;
+                break;
+            case eDatas::PlayerGuid:
+                m_PlayerGuid = p_Value;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void go_garrison_small_timber::go_garrison_small_timberAI::UpdateAI(uint32 p_Diff)
+    {
+        if (m_AnimTimer)
+        {
+            if (m_AnimTimer <= p_Diff)
+            {
+                if (Player* l_Player = sObjectAccessor->FindPlayer(m_PlayerGuid))
+                {
+                    if (!l_Player->GetSession())
+                        return;
+
+                    if (l_Player->HasQuest(Quests::Horde_EasingIntoLumberjacking))
+                    {
+                        /// Adding items
+                        uint32 l_NoSpaceForCount = 0;
+
+                        /// check space and find places
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, 114827, 1, &l_NoSpaceForCount);
+
+                        if (l_Message == EQUIP_ERR_OK)
+                            l_Player->StoreNewItem(l_Destination, 114827, true, Item::GenerateItemRandomPropertyId(114827));
+                        else
+                            l_Player->SendEquipError(l_Message, nullptr, nullptr, 114827);
+                    }
+                    else
+                    {
+                        /// Adding items
+                        uint32 l_NoSpaceForCount = 0;
+
+                        /// check space and find places
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, 114827, 1, &l_NoSpaceForCount);
+
+                        if (l_Message == EQUIP_ERR_OK)
+                            l_Player->StoreNewItem(l_Destination, 114827, true, Item::GenerateItemRandomPropertyId(114827));
+                        else
+                            l_Player->SendEquipError(l_Message, nullptr, nullptr, 114827);
+                    }
+
+                    l_Player->SendItemBonusDebug(m_ChopCount, l_Player->GetSession()->GetTrinityString(TrinityStrings::GarrisonChop), l_Player);
+
+                    go->CastSpell(l_Player, 170079);
+                    go->SetDisplayId(9145);
+
+                    if (Creature* l_Creature = go->FindNearestCreature(l_Player->GetTeamId() == TEAM_HORDE ? 83985 : 83950, 10.0f))
+                    {
+                        if (l_Creature->AI())
+                            l_Creature->AI()->Talk(0);
+
+                        l_Creature->DespawnOrUnsummon();
+                    }
+                }
+
+                m_AnimTimer   = 0;
+                m_RefillTimer = urand (300 * IN_MILLISECONDS, 600 * IN_MILLISECONDS); ///< You can get chop from the tree like every 5-10 minutes
+            }
+            else
+                m_AnimTimer -= p_Diff;
+        }
+        else if (m_RefillTimer)
+        {
+            if (m_RefillTimer <= p_Diff)
+            {
+                if (GameObject* l_Gob = go->FindNearestGameObject(234568, 1.0f))
+                    l_Gob->Delete();
+
+
+                if (m_TimberDisplayIDs.find(go->GetEntry()) != m_TimberDisplayIDs.end())
+                {
+                    go->SetDisplayId(m_TimberDisplayIDs[go->GetEntry()]);
+                    go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
+
+                m_RefillTimer  = 0;
+                m_RespawnTimer = 1500;
+            }
+            else
+                m_RefillTimer -= p_Diff;
+        }
+        else if (m_RespawnTimer)
+        {
+            if (m_RespawnTimer <= p_Diff)
+            {
+                if (m_TimberDisplayIDs.find(go->GetEntry()) != m_TimberDisplayIDs.end())
+                    go->SetDisplayId(m_TimberDisplayIDs[go->GetEntry()]);
+
+                m_RespawnTimer = 0;
+            }
+            else
+                m_RefillTimer -= p_Diff;
+        }
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -350,4 +535,5 @@ void AddSC_Garrison_GO()
     new MS::Garrison::go_garrison_shipment_container;
     new MS::Garrison::go_garrison_herb;
     new MS::Garrison::gob_IronTrap_Garrison;
+    new MS::Garrison::go_garrison_small_timber;
 }

@@ -82,6 +82,9 @@ namespace MS { namespace Garrison
             Alliance_ClearingTheGarden                  = 36404,
             /// Barn
             Alliance_BreakingIntoTheTrapGame            = 36271,
+            /// Lumber Mill
+            Alliance_EasingIntoLumberjacking            = 36189,
+            Alliance_TurningTimberIntoProfit            = 36192,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -101,7 +104,10 @@ namespace MS { namespace Garrison
             /// Herb garden
             Horde_ClearingTheGarden                     = 34193,
             /// Barn
-            Horde_BreakingIntoTheTrapGame               = 36345
+            Horde_BreakingIntoTheTrapGame               = 36345,
+            /// Lumber Mill
+            Horde_EasingIntoLumberjacking               = 36137,
+            Horde_TurningTimberIntoProfit               = 36138
         };
     }   ///< namespace Quests
 
@@ -330,7 +336,8 @@ namespace MS { namespace Garrison
             86839,
             86847,
             86851,
-            86931
+            86931,
+            82452
         };
     }
 
