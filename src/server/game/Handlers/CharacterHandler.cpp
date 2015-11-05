@@ -389,6 +389,17 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
     }
 
     SendPacket(&l_Data);
+
+    /// Update realm character count
+    SQLTransaction trans = LoginDatabase.BeginTransaction();
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_REALM_CHARACTERS);
+    stmt->setUInt32(0, l_CharacterCount);
+    stmt->setUInt32(1, GetAccountId());
+    stmt->setUInt32(2, g_RealmID);
+    trans->Append(stmt);
+
+    LoginDatabase.CommitTransaction(trans);
 }
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
@@ -802,17 +813,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 return;
             }
 
-            // Avoid exploit of create multiple characters with same name
-            if (!sWorld->AddCharacterName(createInfo->Name))
-            {
-                WorldPacket data(SMSG_CREATE_CHAR, 1);
-                data << uint8(CHAR_CREATE_NAME_IN_USE);
-                SendPacket(&data);
-                delete createInfo;
-                _charCreateCallback.Reset();
-                return;
-            }
-
             if (createInfo->Data.rpos() < createInfo->Data.wpos())
             {
                 uint8 unk;
@@ -932,7 +932,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 
     sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(charGuid);
     Player::DeleteFromDB(charGuid, GetAccountId());
-    sWorld->DeleteCharName(name);
 
     WorldPacket data(SMSG_CHAR_DELETE, 1);
     data << uint8(CHAR_DELETE_SUCCESS);
