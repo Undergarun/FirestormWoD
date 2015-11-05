@@ -16887,6 +16887,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             || spellProto->HasAura(SPELL_AURA_MOD_INVISIBILITY))
             active = true;
 
+        /// Item - Druid T17 Restoration 4P Bonus - 167714
+        if (spellProto->Id == 167714)
+            active = true;
+
         if (!IsTriggeredAtSpellProcEvent(target, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent))
             continue;
 
