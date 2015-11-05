@@ -959,8 +959,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         if (Pet* pet = m_caster->ToPlayer()->GetPet())
                         {
-                            pet->CastSpell(unitTarget, 119899, true);
-                            m_caster->ToPlayer()->AddSpellCooldown(119905, 0, 30 * IN_MILLISECONDS);
+                            pet->CastSpell(unitTarget, 119899, false);
+                            m_caster->ToPlayer()->AddSpellCooldown(119905, 0, 30 * IN_MILLISECONDS, true);
                         }
 
                     break;
@@ -971,8 +971,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         if (m_caster->GetTypeId() == TYPEID_PLAYER)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
-                                pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119907, 0, 60 * IN_MILLISECONDS);
+                                pet->CastSpell(unitTarget, damage, false);
+                                m_caster->ToPlayer()->AddSpellCooldown(119907, 0, 60 * IN_MILLISECONDS, true);
                             }
                     break;
                 }
@@ -982,13 +982,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         if (m_caster->GetTypeId() == TYPEID_PLAYER)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
-                                pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119910, 0, 24 * IN_MILLISECONDS);
+                                pet->CastSpell(unitTarget, damage, false);
+                                m_caster->ToPlayer()->AddSpellCooldown(119910, 0, 24 * IN_MILLISECONDS, true);
                             }
                     break;
                 }
                 case 132409:// Spell Lock (Command Demon - Warlock)
-                    m_caster->CastSpell(unitTarget, 24259, true);
+                    m_caster->CastSpell(unitTarget, 24259, false);
                     break;
                 case 119911:// Optical Blast (Command Demon)
                 {
@@ -996,8 +996,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         if (m_caster->GetTypeId() == TYPEID_PLAYER)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
-                                pet->CastSpell(unitTarget, damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119911, 0, 24 * IN_MILLISECONDS);
+                                pet->CastSpell(unitTarget, damage, false);
+                                m_caster->ToPlayer()->AddSpellCooldown(119911, 0, 24 * IN_MILLISECONDS, true);
                             }
                     break;
                 }
@@ -1008,7 +1008,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, 25 * IN_MILLISECONDS);
+                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, 25 * IN_MILLISECONDS, true);
                             }
 
                     break;
@@ -1020,7 +1020,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119913, 0, 25 * IN_MILLISECONDS);
+                                m_caster->ToPlayer()->AddSpellCooldown(119913, 0, 25 * IN_MILLISECONDS, true);
                             }
 
                     break;
@@ -1629,7 +1629,7 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
 
     ASSERT(unitTarget == m_spellAura->GetOwner());
 
-    for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+    for (int i = 0; i < m_spellInfo->EffectCount; i++)
     {
         if (m_spellAura->GetEffect(i) && m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_SCHOOL_ABSORB)
         {
@@ -1799,7 +1799,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             /// Chi Explosion Heal -- Prevent executing both effects if BP if one is 0
             case 182078:
             {
-                SpellValue const* l_Values = m_spellValue;
                 if (!m_spellValue)
                     return;
 
@@ -1932,6 +1931,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 renew->RefreshDuration();
 
         // Mogu'Shan Vault
+        /// full magic values, please refactor me.
         if (caster && (caster->HasAura(116161) || unitTarget->HasAura(116161))) // SPELL_CROSSED_OVER
         {
             // http://fr.wowhead.com/spell=117549#english-comments
@@ -3604,12 +3604,8 @@ void Spell::EffectEnchantItemPrismatic(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
     if (!itemTarget)
         return;
-
-    Player* p_caster = (Player*)m_caster;
 
     uint32 enchant_id = m_spellInfo->Effects[effIndex].MiscValue;
     if (!enchant_id)
@@ -3659,11 +3655,6 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
-
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    Player* p_caster = (Player*)m_caster;
 
     if (!itemTarget)
         return;
@@ -3988,7 +3979,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     // multiple weapon dmg effect workaround
     // execute only the last weapon damage
     // and handle all effects at once
-    for (uint32 j = effIndex + 1; j < MAX_SPELL_EFFECTS; ++j)
+    for (uint32 j = effIndex + 1; j < m_spellInfo->EffectCount; ++j)
     {
         switch (m_spellInfo->Effects[j].Effect)
         {
@@ -3997,7 +3988,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
             case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
                 return;     // we must calculate only at last weapon effect
-                break;
         }
     }
 
@@ -4091,7 +4081,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
     bool normalized = false;
     float weaponDamagePercentMod = 1.0f;
-    for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    for (int j = 0; j < m_spellInfo->EffectCount; ++j)
     {
         switch (m_spellInfo->Effects[j].Effect)
         {
@@ -4144,7 +4134,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     weaponDamage /= autoAttacksBonus;
 
     // Sequence is important
-    for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    for (int j = 0; j < m_spellInfo->EffectCount; ++j)
     {
         // We assume that a spell have at most one fixed_bonus
         // and at most one weaponDamagePercentMod
@@ -4284,6 +4274,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     /// Glyph of Rude interruption
                     if (m_spellInfo->Id == 6552 && m_originalCaster->HasAura(58372))
                         m_originalCaster->CastSpell(m_originalCaster, 86663, true);
+
+                    /// Item - Warlock WoD PvP Affliction 2P Bonus
+                    if (unitTarget->ToPlayer())
+                        unitTarget->ToPlayer()->HandleWarlockWodPvpBonus();
 
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(l_CurrentSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
@@ -6017,21 +6011,25 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-    case 56446: ///< Glyph of Disengage
-        if (m_caster->HasAura(56844))
-            speedz = (75.0f * 1.5f) / 10.0f;
-        break;
-    case 102383:// Wild Charge (Moonkin)
-    case 140949:// Weak Link (Horridon - Heroic)
-        back = false;
-        break;
-    default:
-        break;
+        case 56446: ///< Glyph of Disengage
+            if (m_caster->HasAura(56844))
+                speedz = (75.0f * 1.5f) / 10.0f;
+            break;
+        case 102383:// Wild Charge (Moonkin)
+        case 140949:// Weak Link (Horridon - Heroic)
+            back = false;
+            break;
+        default:
+            break;
     }
 
     // Disengage
     if (m_spellInfo->SpellIconID == 1891)
         back = false;
+
+    /// Save Leap Back spell ID
+    m_caster->SetLastUsedLeapBackSpell(m_spellInfo->Id);
+    uint32 l_SpellId = m_caster->GetLastUsedLeapBackSpell();
 
     m_caster->JumpTo(speedxy, speedz, back);
 }
@@ -6181,7 +6179,7 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
 
     int32 l_Mana = 0;
     int32 l_RefundPercentage = 0;
-    for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
+    for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT * 2; ++slot)
     {
         if (!m_caster->m_SummonSlot[slot])
             continue;
@@ -7800,6 +7798,7 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
+/// @todo USE ME
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -7921,8 +7920,6 @@ void Spell::EffectIncreaseSkill(SpellEffIndex p_EffIndex)
         return;
 
     int32 l_BasePoints = m_spellInfo->Effects[p_EffIndex].BasePoints;
-
-    int32 l_NewValue = std::min((int32)l_MaxSkillValue, (int32)(l_CurrentSkillValue + l_BasePoints));
 
     l_Player->UpdateSkillPro(l_SkillId, 1000, l_BasePoints);
 }
@@ -8081,7 +8078,6 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
             /// Set pet at full health
             l_Pet->SetHealth(l_Pet->GetMaxHealth());
             l_Pet->SetReactState(REACT_HELPER);
-            l_Pet->m_Stampeded = true;
 
             std::list<uint32> l_SpellsToRemove;
             for (auto l_Iter : l_Pet->m_spells)

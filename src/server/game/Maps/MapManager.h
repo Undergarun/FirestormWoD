@@ -156,6 +156,16 @@ class MapManager
             m_CriticalOperationLock.release();
         }
 
+        void RegisterMapDelay(uint32 p_MapId, uint32 p_Delay)
+        {
+            m_MapsDelay.insert(std::make_pair(p_MapId, p_Delay));
+        }
+
+        std::multimap<uint32, uint32> const& GetMapsDelay()
+        {
+            return m_MapsDelay;
+        };
+
     private:
         typedef UNORDERED_MAP<uint32, Map*> MapMapType;
         typedef std::set<uint32> InstanceIDs;
@@ -189,6 +199,9 @@ class MapManager
 
         std::queue<std::function<void()>> m_CriticalOperation;
         ACE_Thread_Mutex m_CriticalOperationLock;
+
+        std::multimap<uint32, uint32> m_MapsDelay;
+
 };
 #define sMapMgr ACE_Singleton<MapManager, ACE_Thread_Mutex>::instance()
 #endif

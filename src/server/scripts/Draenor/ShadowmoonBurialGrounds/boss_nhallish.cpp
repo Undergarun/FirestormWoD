@@ -931,7 +931,7 @@ public:
     {
     }
 
-    int m_Diff = 500;
+    uint32 m_Diff = 500;
     std::list<uint64> m_Targets;
 
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)

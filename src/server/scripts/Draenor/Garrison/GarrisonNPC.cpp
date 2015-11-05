@@ -362,7 +362,7 @@ namespace MS { namespace Garrison
         {
             if (m_Recipes)
             {
-                WorldPacket l_Data(SMSG_GARRISON_OPEN_TRADESKILL_NPC);
+                WorldPacket l_Data(SMSG_GARRISON_OPEN_TRADESKILL_NPC, 512);
                 l_Data.appendPackGUID(me->GetGUID());
                 l_Data << uint32(0);                    ///< SpellID
                 l_Data << uint32(1);                    ///< Skill line ID count

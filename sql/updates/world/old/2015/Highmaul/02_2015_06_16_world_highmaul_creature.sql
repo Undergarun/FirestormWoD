@@ -1580,10 +1580,6 @@ INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, modelid, eq
 INSERT INTO creature_addon (guid, path_id, mount, bytes1, bytes2, emote, auras, animkit) VALUE
 (LAST_INSERT_ID(), 0, 0, 0, 2, 214, '', 0);
 
-INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, MovementType, npcflag, npcflag2, unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID, isActive) VALUES (80728, 1228, 6996, 7192, 245760, 1, 0, 0, 3827.05, 7690.21, 23.6771, 0, 7200, 0, 0, 1, 0, 0, 0, 0, 33024, 2099200, 0, 0, 0, 0);
-INSERT INTO creature_addon (guid, path_id, mount, bytes1, bytes2, emote, auras, animkit) VALUE
-(LAST_INSERT_ID(), 0, 0, 0, 1, 0, '', 0);
-
 INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, MovementType, npcflag, npcflag2, unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID, isActive) VALUES (86609, 1228, 6996, 7195, 245760, 3, 0, 1, 4103.39, 7790.12, 0.336898, 0.402501, 7200, 0, 0, 4555350, 0, 0, 0, 0, 32768, 2099200, 0, 0, 0, 0);
 INSERT INTO creature_addon (guid, path_id, mount, bytes1, bytes2, emote, auras, animkit) VALUE
 (LAST_INSERT_ID(), 0, 0, 0, 1, 567, '', 0);

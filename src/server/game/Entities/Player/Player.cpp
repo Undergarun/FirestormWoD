@@ -1615,6 +1615,10 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage p_Type, uint32 p_Damage)
         CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, p_Damage, &l_Absorb, &l_Resist);
     else if (p_Type == DAMAGE_FALL)
     {
+        /// Glyph of Falling Meteor - 56247
+        if (getClass() == CLASS_WARLOCK && HasAura(109151) && HasAura(56247))
+            AddPct(p_Damage, -95);
+
         // Percentage from SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT
         AuraEffectList const& mReduceFallDamagePct = GetAuraEffectsByType(SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT);
         for (AuraEffectList::const_iterator i = mReduceFallDamagePct.begin(); i != mReduceFallDamagePct.end(); ++i)
@@ -2514,13 +2518,13 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
     *p_Data << float(l_CharacterPositionZ);                 ///< Z
     p_Data->appendPackGUID(l_CharacterGuildGuid);           ///< Character guild GUID
     *p_Data << uint32(l_CharacterFlags);                    ///< Character flags
-    *p_Data << uint32(l_CharacterCustomizationFlags);       ///< Character customization flags
+    *p_Data << uint32(l_CharacterCustomizationFlags);       ///< atLoginFlags
     *p_Data << uint32(0);                                   ///< Character Boost
     *p_Data << uint32(l_CharacterPetDisplayId);             ///< Pet DisplayID
     *p_Data << uint32(l_CharacterPetLevel);                 ///< Pet level
     *p_Data << uint32(l_CharacterPetFamily);                ///< Pet family
-    *p_Data << uint32(0);                                   ///< unk
-    *p_Data << uint32(0);                                   ///< unk
+    *p_Data << uint32(0);                                   ///< Profession 1
+    *p_Data << uint32(0);                                   ///< Profession 2
 
     /// Character visible equipment
     for (uint8 l_EquipmentSlot = 0; l_EquipmentSlot < INVENTORY_SLOT_BAG_END; ++l_EquipmentSlot)
@@ -4749,6 +4753,10 @@ void Player::InitSpellForLevel()
     // Fix Pick Lock update at each level
     if (HasSpell(1804) && getLevel() > 20)
         SetSkill(921, GetSkillStep(921), (getLevel() * 5), (getLevel() * 5));
+
+    /// Missing mining skill (shop issue)
+    if (GetSkillValue(SkillType::SKILL_MINING) >= 700 && !HasSpell(158754))
+        learnSpell(158754, false);
 }
 
 void Player::RemoveSpecializationSpells()
@@ -5662,7 +5670,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     RemoveOwnedAura(spell_id, GetGUID());
 
     // remove pet auras
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
         if (PetAura const* petSpell = sSpellMgr->GetPetAura(spell_id, i))
             RemovePetAura(petSpell);
 
@@ -5818,7 +5826,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
         if (spellInfo->IsPassive())
         {
-            for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+            for (int i = 0; i < spellInfo->EffectCount; i++)
                 if (spellInfo->Effects[i].Effect == SPELL_EFFECT_DUAL_WIELD)
                 {
                     SetCanDualWield(false);
@@ -6405,13 +6413,13 @@ void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_L
 
         removeSpell(l_Iter.first, true);
 
-        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
         {
             if (l_SpellInfo->Effects[i].TriggerSpell > 0 && l_SpellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                 removeSpell(l_SpellInfo->Effects[i].TriggerSpell, true);
         }
 
-        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
         {
             if (l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
                 l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
@@ -6579,7 +6587,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
         return TRAINER_SPELL_RED;
 
     bool hasSpell = true;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
     {
         if (!trainer_spell->learnedSpell[i])
             continue;
@@ -6602,7 +6610,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
     if (getLevel() < trainer_spell->reqLevel)
         return TRAINER_SPELL_RED;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
     {
         if (!trainer_spell->learnedSpell[i])
             continue;
@@ -6629,7 +6637,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
 
     // check primary prof. limit
     // first rank of primary profession spell when there are no proffesions avalible is disabled
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
     {
         if (!trainer_spell->learnedSpell[i])
             continue;
@@ -17491,10 +17499,10 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
     WorldPacket l_Data(SMSG_DISPLAY_TOAST, 30);
 
     l_Data << uint32(p_Count);
-    l_Data << uint8(p_Method);
+    l_Data << uint8(p_Method);                  ///< DisplayToastMethod
 
-    l_Data.WriteBit(p_BonusRoll);
-    l_Data.WriteBits(p_Type, 2);
+    l_Data.WriteBit(p_BonusRoll);               ///< Bonuses
+    l_Data.WriteBits(p_Type, 2);                ///< Context
 
     if (p_Type == TOAST_TYPE_NEW_ITEM)
     {
@@ -17503,8 +17511,8 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
 
         Item::BuildDynamicItemDatas(l_Data, p_Entry, p_ItemBonus);
 
-        l_Data << uint32(GetLootSpecId());
-        l_Data << uint32(0);                        // Unk: Quantity ?
+        l_Data << uint32(GetLootSpecId());          ///< LootSpec
+        l_Data << uint32(0);                        ///< Quantity
     }
     else
         l_Data.FlushBits();
@@ -19783,7 +19791,7 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
 
 void Player::TalkedToCreature(uint32 entry, uint64 guid)
 {
-    QuestObjectiveSatisfy(entry, 1, QUEST_OBJECTIVE_TYPE_NPC /*QUEST_OBJECTIVE_TYPE_NPC_INTERACT*/, guid);
+    QuestObjectiveSatisfy(entry, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, guid);
 }
 
 void Player::MoneyChanged(uint32 count)
@@ -23181,11 +23189,11 @@ void Player::_SaveAuras(SQLTransaction& trans)
 
 
         uint8 index = 0;
-        int32 damage[MAX_SPELL_EFFECTS];
-        int32 baseDamage[MAX_SPELL_EFFECTS];
+        int32 damage[SpellEffIndex::MAX_EFFECTS];
+        int32 baseDamage[SpellEffIndex::MAX_EFFECTS];
         uint32 effMask = 0;
         uint32 recalculateMask = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
         {
             if (constAuraEffectPtr effect = aura->GetEffect(i))
             {
@@ -26993,7 +27001,7 @@ void Player::SendSpellHistory()
     uint64 l_CurTime = 0;
     ACE_OS::gettimeofday().msec(l_CurTime);
 
-    WorldPacket l_HistoryData(SMSG_SEND_SPELL_HISTORY);
+    WorldPacket l_HistoryData(SMSG_SEND_SPELL_HISTORY, 2 * 1024);
     l_HistoryData << uint32(GetSpellCooldownMap().size());
 
     for (SpellCooldowns::const_iterator l_Itr = GetSpellCooldownMap().begin(); l_Itr != GetSpellCooldownMap().end(); ++l_Itr)
@@ -27378,7 +27386,7 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
 
     // check learned spells state
     bool found = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < spellInfo->EffectCount; ++i)
     {
         if (spellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL && !HasSpell(spellInfo->Effects[i].TriggerSpell))
         {
@@ -29687,6 +29695,13 @@ void Player::HandleFall(MovementInfo const& movementInfo)
         }
     }
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute
+
+    /// Handler for Disengage, should give Posthaste just after landing
+    /// If in future we have some spells with same mechanic, just need to add switch
+    if (getClass() == CLASS_HUNTER && GetLastUsedLeapBackSpell() == 56446 && HasAura(109215))
+        CastSpell(this, 118922, true);
+
+    ClearLastUsedLeapBackSpell();
 }
 
 void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/, bool p_LoginCheck /*= false*/)
@@ -30008,7 +30023,7 @@ void Player::SendEquipmentSetList()
         if (l_Itr->second.state == EQUIPMENT_SET_DELETED)
             continue;
 
-        l_Data << uint64(l_Itr->second.Guid);
+        l_Data << uint64(l_Itr->second.Guid);   ///< Guid
         l_Data << uint32(l_Itr->first);
         l_Data << uint32(0);
 
@@ -30410,11 +30425,11 @@ void Player::ActivateSpec(uint8 spec)
         removeSpell(itr.first, true); // removes the talent, and all dependant, learned, and chained spells..
         if (const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(itr.first))
         {
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
+            for (uint8 i = 0; i < _spellEntry->EffectCount; ++i)                  // search through the SpellInfo for valid trigger spells
                 if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                     removeSpell(_spellEntry->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
 
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i < _spellEntry->EffectCount; ++i)
                 if (_spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || _spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
                     RemoveAurasDueToSpell(_spellEntry->Effects[i].BasePoints);
         }
@@ -30442,6 +30457,7 @@ void Player::ActivateSpec(uint8 spec)
     }
 
     SetActiveSpec(spec);
+    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, GetSpecializationId(spec));
 
     for (uint8 l_I = 0; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
     {
@@ -31928,7 +31944,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         uint32 l_TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
         G3D::Vector3 l_Vector(0, 0, 0);
 
-        WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 1 + 8 + 7 * 4);
+        WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 2 + 16 + 4 + 2 + 16 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
         l_Data.appendPackGUID(GetGUID());               ///< Mover GUID
         l_Data << uint32(0);                            ///< Sequence Index
 
@@ -31936,7 +31952,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << float(p_Direction.GetPositionX());    ///< Direction X
         l_Data << float(p_Direction.GetPositionY());    ///< Direction Y
         l_Data << float(p_Direction.GetPositionZ());    ///< Direction Z
-        l_Data.WriteVector3(l_Vector);                  ///< Unk Pos
+        l_Data.WriteVector3(l_Vector);                  ///< TransportPosition
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 
@@ -32754,7 +32770,7 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
         ilvl += item->GetItemLevelBonusFromItemBonuses();
 
     if (itemProto->PvPScalingLevel)
-        if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())
+        if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || (IsInPvPCombat() && m_deathState != JUST_DIED))
             ilvl += itemProto->PvPScalingLevel;
 
     if (uint32 minItemLevel = GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL))
@@ -33072,7 +33088,7 @@ void Player::SendSpellCharges()
 
             l_Data << uint32(l_CategoryCharge.first);
             l_Data << uint32(l_CooldownDuration.count());
-            l_Data << l_CategoryCharge.second.size();
+            l_Data << uint8(l_CategoryCharge.second.size());
         }
     }
     SendDirectMessage(&l_Data);
@@ -33903,5 +33919,32 @@ void Player::CheckTalentSpells()
         }
 
         ++l_Itr;
+    }
+}
+
+void Player::HandleWarlockWodPvpBonus()
+{
+    if (getClass() != CLASS_WARLOCK || getLevel() != 100)
+        return;
+
+    uint32 l_SpellBonusId = 0;
+    uint32 l_TriggerSpell = 0;
+
+    /// Check what's specialization bonus we need
+    if (GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
+    {
+        l_SpellBonusId = 171377;
+        l_TriggerSpell = 171378;
+    }
+    else if (GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION)
+    {
+        l_SpellBonusId = 171383;
+        l_TriggerSpell = 188168;
+    }
+
+    if (HasAura(l_SpellBonusId) && !HasSpellCooldown(l_TriggerSpell))
+    {
+        CastSpell(this, l_TriggerSpell, true);
+        AddSpellCooldown(l_TriggerSpell, 0, 15 * IN_MILLISECONDS);
     }
 }

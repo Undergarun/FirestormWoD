@@ -1225,7 +1225,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
     ByteBuffer memberData;
     uint32 weeklyRepCap = uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP));
 
-    WorldPacket l_Data(SMSG_GUILD_ROSTER, 200 * 1024);
+    WorldPacket l_Data(SMSG_GUILD_ROSTER, 500 * 1024);
 
     l_Data << uint32(m_accountsNumber);
     l_Data << uint32(MS::Utilities::WowTime::Encode(m_createdDate));
@@ -1277,7 +1277,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
             }
         }
 
-        l_Data << uint32(g_RealmID);                                                                      ///< Virtual Realm Address
+        l_Data << uint32(g_RealmID);                                                                    ///< Virtual Realm Address
         l_Data << uint8(l_Flags);                                                                       ///< Status
         l_Data << uint8(l_Member->GetLevel());                                                          ///< Level
         l_Data << uint8(l_Member->GetClass());                                                          ///< Class ID

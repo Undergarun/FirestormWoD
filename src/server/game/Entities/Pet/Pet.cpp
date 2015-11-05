@@ -87,6 +87,56 @@ void Pet::AddToWorld()
         CastSpell(m_owner, 108446, true);
         m_owner->CastSpell(this, 108446, true);
     }
+
+    /// Command Demon
+    if (m_owner && m_owner->ToPlayer() && m_owner->ToPlayer()->getClass() == CLASS_WARLOCK)
+    {
+        if (m_owner->HasAura(108503))
+            m_owner->RemoveAura(108503);
+
+        // Supplant Command Demon
+        if (m_owner->getLevel() >= 56)
+        {
+            int32 bp = 0;
+
+            m_owner->RemoveAura(119904);
+
+            switch (GetEntry())
+            {
+            case ENTRY_IMP:
+            case ENTRY_FEL_IMP:
+                bp = 119905;// Cauterize Master
+                break;
+            case ENTRY_VOIDWALKER:
+            case ENTRY_VOIDLORD:
+                bp = 119907;// Disarm Removed since 6.0.2 please clean me
+                break;
+            case ENTRY_SUCCUBUS:
+                bp = 119909; // Whiplash
+                break;
+            case ENTRY_SHIVARRA:
+                bp = 119913;// Fellash
+                break;
+            case ENTRY_FELHUNTER:
+                bp = 119910;// Spell Lock
+                break;
+            case ENTRY_OBSERVER:
+                bp = 119911;// Optical Blast
+                break;
+            case ENTRY_FELGUARD:
+                bp = 119914;// Felstorm
+                break;
+            case ENTRY_WRATHGUARD:
+                bp = 119915;// Wrathstorm
+                break;
+            default:
+                break;
+            }
+
+            if (bp)
+                m_owner->CastCustomSpell(m_owner, 119904, &bp, NULL, NULL, true);
+        }
+    }
 }
 
 void Pet::RemoveFromWorld()
@@ -961,7 +1011,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 1);
     SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 1);
 
-    if (l_PetType == HUNTER_PET)
+    if (l_PetType == HUNTER_PET && !ToPet()->m_Stampeded)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
     UpdateAllStats();
@@ -1316,12 +1366,12 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         if (!foundAura)
             continue;
 
-        int32 damage[MAX_SPELL_EFFECTS];
-        int32 baseDamage[MAX_SPELL_EFFECTS];
+        int32 damage[SpellEffIndex::MAX_EFFECTS];
+        int32 baseDamage[SpellEffIndex::MAX_EFFECTS];
         uint32 effMask = 0;
         uint32 recalculateMask = 0;
         uint8 index = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
         {
             if (aura->GetEffect(i))
             {

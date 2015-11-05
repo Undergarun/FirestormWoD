@@ -35,6 +35,7 @@ EndContentData */
 #include "Spell.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "Chat.h"
 
 /*#####
 # item_only_for_flight
@@ -779,6 +780,40 @@ class PlayerScript_VehicleCheck : public PlayerScript
         }
 };
 
+/// Time-Lost Proto-Drake hacklootfix
+class PlayerScript_ProtoDrakeLootHackfix : public PlayerScript
+{
+public:
+    PlayerScript_ProtoDrakeLootHackfix() : PlayerScript("PlayerScript_ProtoDrakeLootHackfix") {}
+
+    void OnCreatureKill(Player* killer, Creature* killed)
+    {
+        if (killed->GetEntry() == 32491) ///< Time-Lost Proto-Drake
+        {
+            if (killer->AddItem(44168, 1))  ///< Reins of the Time-Lost Proto-Drake
+                ChatHandler(killer).PSendSysMessage("Reins of the Time-Lost Proto-Drake have been added to your inventory due to loot bugs.");
+            else
+            {
+                // Send by mail
+                SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+                MailDraft draft("Time-Lost Proto-Drake loot", "Due to bugs with the Time-Lost Proto-Drake, here are the Reins of the Time-Lost Proto-Drake as a loot.\n\n-Firestorm Team");
+
+                if (Item* item = Item::CreateItem(44168, 1, killer))
+                {
+                    item->SaveToDB(trans);                               // save for prevent lost at next mail load, if send fail then item will deleted
+                    draft.AddItem(item);
+                }
+
+                draft.SendMailTo(trans, MailReceiver(killer, killer->GetGUIDLow()), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
+                CharacterDatabase.CommitTransaction(trans);
+
+                ChatHandler(killer).PSendSysMessage("Your inventory seems to be full, we sent you the Reins of the Time-Lost Proto-Drake by mail.");
+            }
+        }
+    }
+};
+
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
@@ -800,4 +835,5 @@ void AddSC_item_scripts()
     new item_script_chauffeured_chopper();
 
     new PlayerScript_VehicleCheck();
+    new PlayerScript_ProtoDrakeLootHackfix();
 }
