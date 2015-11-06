@@ -20,8 +20,8 @@
 #define TRINITY_CELLIMPL_H
 
 #include <cmath>
-#include <future>
-#include <thread>
+//#include <future>
+//#include <thread>
 
 #include "Cell.h"
 #include "Map.h"
@@ -106,7 +106,7 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
     /// ========
     map.Visit(*this, visitor);
 
-    std::list<std::future<void>> l_FuturesResult;
+    std::list<std::thread> l_FuturesResult;
 
     // loop the cell range
     for (uint32 x = area.low_bound.x_coord; x <= area.high_bound.x_coord; ++x)
@@ -121,7 +121,7 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
                 r_zone.data.Part.nocreate = this->data.Part.nocreate;
 
                 if (visitor.IsThreadSafe())
-                    l_FuturesResult.push_back(std::async(std::launch::async, [&map, &r_zone, &visitor]() { map.Visit(r_zone, visitor); }));
+                    l_FuturesResult.push_back(std::thread([&map, &r_zone, &visitor]() { map.Visit(r_zone, visitor); }));
                 else
                     map.Visit(r_zone, visitor);
             }
@@ -131,7 +131,7 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
     if (visitor.IsThreadSafe())
     {
         for (auto& l_Future : l_FuturesResult)
-            l_Future.get();
+            l_Future.join();
     }
 }
 
@@ -152,7 +152,7 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
     const uint32 x_start = begin_cell.x_coord + x_shift;
     const uint32 x_end = end_cell.x_coord - x_shift;
 
-    std::list<std::future<void>> l_FuturesResult;
+    std::list<std::thread> l_FuturesResult;
 
 
     //visit central strip with constant width...
@@ -165,7 +165,7 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
             r_zone.data.Part.nocreate = this->data.Part.nocreate;
 
             if (visitor.IsThreadSafe())
-                l_FuturesResult.push_back(std::async(std::launch::async, [&map, &r_zone, &visitor]() { map.Visit(r_zone, visitor); }));
+                l_FuturesResult.push_back(std::thread([&map, &r_zone, &visitor]() { map.Visit(r_zone, visitor); }));
             else
                 map.Visit(r_zone, visitor);
         }
@@ -178,7 +178,7 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
         if (visitor.IsThreadSafe())
         {
             for (auto& l_Future : l_FuturesResult)
-                l_Future.get();
+                l_Future.join();
         }
         return;
     }
@@ -201,7 +201,7 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
             map.Visit(r_zone_left, visitor);
 
             if (visitor.IsThreadSafe())
-                l_FuturesResult.push_back(std::async(std::launch::async, [&map, &r_zone_left, &visitor]() { map.Visit(r_zone_left, visitor); }));
+                l_FuturesResult.push_back(std::thread([&map, &r_zone_left, &visitor]() { map.Visit(r_zone_left, visitor); }));
             else
                 map.Visit(r_zone_left, visitor);
 
@@ -210,7 +210,7 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
             Cell r_zone_right(cellCoord_right);
             r_zone_right.data.Part.nocreate = this->data.Part.nocreate;
             if (visitor.IsThreadSafe())
-                l_FuturesResult.push_back(std::async(std::launch::async, [&map, &r_zone_right, &visitor]() { map.Visit(r_zone_right, visitor); }));
+                l_FuturesResult.push_back(std::thread([&map, &r_zone_right, &visitor]() { map.Visit(r_zone_right, visitor); }));
             else
                 map.Visit(r_zone_right, visitor);
         }
@@ -220,7 +220,7 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
     if (visitor.IsThreadSafe())
     {
         for (auto& l_Future : l_FuturesResult)
-            l_Future.get();
+            l_Future.join();
     }
 }
 #endif
