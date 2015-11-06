@@ -1,4 +1,6 @@
-REPLACE INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUE('-40','0','84247','-2.28769','0.578986','1.47505','1.4317');
+DELETE FROM garrison_plot_content WHERE plot_type_or_building = -40 AND faction_index = 0;
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-40','0','84247','-2.28769','0.578986','1.47505','1.4317');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-40','0','-233832','0.694003','0.907112','0.979095','3.80939');
 REPLACE INTO trinity_string (entry, content_default, content_loc2, content_loc6) VALUE (14112, "|cADFF2FFF+$1i Timber |r", "|cADFF2FFF+$1i Bois |r", "|cADFF2FFF+$1i Madera |r");
 DELETE FROM gameobject WHERE id = 234568 AND map = 1116; -- Stump, temp summoned when wood is taken
 
@@ -17,6 +19,7 @@ DELETE FROM gameobject WHERE id = 234568 AND map = 1116; -- Stump, temp summoned
 
 #233604 - 234080/Gob - Small Timber
 
+	UPDATE gameobject_template SET flags = flags & ~0x04 WHERE entry = 233922;
 	UPDATE gameobject_template SET scriptname = "go_garrison_small_timber" WHERE entry IN (
 	234193,
 	234197,
