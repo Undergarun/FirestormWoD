@@ -1042,7 +1042,7 @@ class spell_monk_diffuse_magic: public SpellScriptLoader
 
                         if (AuraPtr targetAura = caster->GetAura(aura->GetSpellInfo()->Id, _player->GetGUID()))
                         {
-                            for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                            for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
                             {
                                 if (targetAura->GetEffect(i) && aura->GetEffect(i))
                                 {
@@ -4359,15 +4359,16 @@ class spell_monk_detox: public SpellScriptLoader
                 uint32 l_DispelMask = 0;
 
                 /// Create dispel mask by dispel type
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                SpellInfo const* l_SpellInfo = GetSpellInfo();
+                for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                 {
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER && i == EFFECT_2)
                         continue;
 
-                    if (GetSpellInfo()->Effects[i].IsEffect())
+                    if (l_SpellInfo->Effects[i].IsEffect())
                     {
-                        uint32 l_Dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                        l_DispelMask = GetSpellInfo()->GetDispelMask(DispelType(l_Dispel_type));
+                        uint32 l_Dispel_type = l_SpellInfo->Effects[i].MiscValue;
+                        l_DispelMask = l_SpellInfo->GetDispelMask(DispelType(l_Dispel_type));
                         l_Target->GetDispellableAuraList(l_Player, l_DispelMask, l_DispelList);
                     }
                 }

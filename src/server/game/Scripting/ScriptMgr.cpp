@@ -359,7 +359,7 @@ void ScriptMgr::FillSpellSummary()
         if (!l_TempSpell)
             continue;
 
-        for (uint32 l_J = 0; l_J < MAX_SPELL_EFFECTS; ++l_J)
+        for (uint32 l_J = 0; l_J < l_TempSpell->EffectCount; ++l_J)
         {
             /// Spell targets self.
             if (l_TempSpell->Effects[l_J].TargetA.GetTarget() == TARGET_UNIT_CASTER)

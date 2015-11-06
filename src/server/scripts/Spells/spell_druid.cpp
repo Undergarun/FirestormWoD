@@ -696,7 +696,7 @@ class spell_dru_natures_vigil: public SpellScriptLoader
                     return;
 
                 bool l_SingleTarget = false;
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                for (uint8 i = 0; i < l_SpellProcInfo->EffectCount; ++i)
                 {
                     if ((l_SpellProcInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
                         l_SpellProcInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY) &&
@@ -1395,13 +1395,14 @@ class spell_dru_natures_cure: public SpellScriptLoader
                 DispelChargesList dispelList;
 
                 // Create dispel mask by dispel type
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                SpellInfo const* l_SpellInfo = GetSpellInfo();
+                for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                 {
-                    if (!GetSpellInfo()->Effects[i].IsEffect())
+                    if (!l_SpellInfo->Effects[i].IsEffect())
                         break;
 
-                    uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                    uint32 dispelMask  = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
+                    uint32 dispel_type = l_SpellInfo->Effects[i].MiscValue;
+                    uint32 dispelMask = l_SpellInfo->GetDispelMask(DispelType(dispel_type));
 
                     target->GetDispellableAuraList(caster, dispelMask, dispelList);
                 }

@@ -61,7 +61,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
     if (spellproto->IsPositive())
         return DIMINISHING_NONE;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < spellproto->EffectCount; ++i)
     {
         if (spellproto->Effects[i].ApplyAuraName == SPELL_AURA_MOD_TAUNT)
             return DIMINISHING_TAUNT;
@@ -513,7 +513,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
     bool need_check_reagents = false;
 
     // check effects
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < spellInfo->EffectCount; ++i)
     {
         switch (spellInfo->Effects[i].Effect)
         {
@@ -1546,7 +1546,7 @@ void SpellMgr::LoadSpellLearnSkills()
         if (!entry)
             continue;
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < entry->EffectCount; ++i)
         {
             if (entry->Effects[i].Effect == SPELL_EFFECT_SKILL)
             {
@@ -1638,7 +1638,7 @@ void SpellMgr::LoadSpellLearnSpells()
         if (!entry)
             continue;
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < entry->EffectCount; ++i)
         {
             if (entry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
             {
@@ -1754,7 +1754,7 @@ void SpellMgr::LoadSpellTargetPositions()
     continue;
 
     bool found = false;
-    for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    for (uint8 j = 0; j < spellInfo->EffectCount; ++j)
     {
     switch (spellInfo->Effects[j].TargetA)
     {
@@ -2333,7 +2333,7 @@ bool IsCCSpell(SpellInfo const* p_SpellProto)
         p_SpellProto->SpellFamilyName == SPELLFAMILY_GENERIC)
         return false;
 
-    for (uint8 l_EffectIndex = 0; l_EffectIndex < MAX_SPELL_EFFECTS; l_EffectIndex++)
+    for (uint8 l_EffectIndex = 0; l_EffectIndex < p_SpellProto->EffectCount; l_EffectIndex++)
     {
         switch (p_SpellProto->Effects[l_EffectIndex].ApplyAuraName)
         {
@@ -2376,7 +2376,7 @@ void SpellMgr::LoadEnchantCustomAttr()
         if (!(spellInfo->AttributesEx2 & SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA) || !(spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT))
             continue;
 
-        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        for (uint8 j = 0; j < spellInfo->EffectCount; ++j)
         {
             if (spellInfo->Effects[j].Effect == SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
             {
@@ -2655,7 +2655,7 @@ void SpellMgr::LoadPetDefaultSpells()
         if (!spellEntry)
             continue;
 
-        for (uint8 k = 0; k < MAX_SPELL_EFFECTS; ++k)
+        for (uint8 k = 0; k < spellEntry->EffectCount; ++k)
         {
             if (spellEntry->Effects[k].Effect == SPELL_EFFECT_SUMMON || spellEntry->Effects[k].Effect == SPELL_EFFECT_SUMMON_PET)
             {
@@ -3157,7 +3157,7 @@ void SpellMgr::LoadSpellCustomAttr()
             if (!spellInfo)
                 continue;
 
-            for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            for (uint8 j = 0; j < spellInfo->EffectCount; ++j)
             {
                 switch (spellInfo->Effects[j].ApplyAuraName)
                 {
@@ -3303,7 +3303,7 @@ void SpellMgr::LoadSpellCustomAttr()
         ////////////////////////////////////
         ///      DEFINE BINARY SPELLS   ////
         ////////////////////////////////////
-        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        for (uint8 j = 0; j < spellInfo->EffectCount; ++j)
         {
             switch (spellInfo->Effects[j].Effect)
             {
@@ -4012,7 +4012,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 158639: ///< Orbs of Chaos (1 - Imperator Mar'gok)
             case 178415: ///< Orbs of Chaos (2 - Imperator Mar'gok)
-                for (uint8 l_I = EFFECT_4; l_I < MAX_EFFECTS; ++l_I)
+                for (uint8 l_I = EFFECT_4; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
                     spellInfo->Effects[l_I].Effect = 0;
 
                 break;
@@ -6733,6 +6733,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 default:
                     break;
             }
+
+            spellInfo->UpdateSpellEffectCount(); ///< Re-cache the maximum number of effects
         }
     }
 

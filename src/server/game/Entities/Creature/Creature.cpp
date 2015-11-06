@@ -1959,10 +1959,11 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)
     // This check must be done instead of 'if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))' for not break
     // the check of mechanic immunity on DB (tested) because GetCreatureTemplate()->MechanicImmuneMask and m_spellImmune[IMMUNITY_MECHANIC] don't have same data.
     bool immunedToAllEffects = true;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < spellInfo->EffectCount; ++i)
     {
         if (!spellInfo->Effects[i].IsEffect())
             continue;
+
         if (!IsImmunedToSpellEffect(spellInfo, i))
         {
             immunedToAllEffects = false;
@@ -2000,7 +2001,7 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
         }
 
         bool bcontinue = true;
-        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; j++)
+        for (uint8 j = 0; j < spellInfo->EffectCount; j++)
         {
             if ((spellInfo->Effects[j].Effect == SPELL_EFFECT_SCHOOL_DAMAGE)       ||
                 (spellInfo->Effects[j].Effect == SPELL_EFFECT_INSTAKILL)            ||
@@ -2062,7 +2063,7 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
         }
 
         bool bcontinue = true;
-        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; j++)
+        for (uint8 j = 0; j < spellInfo->EffectCount; j++)
         {
             if ((spellInfo->Effects[j].Effect == SPELL_EFFECT_HEAL))
             {

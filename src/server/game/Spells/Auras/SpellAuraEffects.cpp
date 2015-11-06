@@ -1542,7 +1542,7 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
                 {
                     if (GetMiscValue() == SPELLMOD_ALL_EFFECTS)
                     {
-                        for (uint8 i = 0; i<MAX_SPELL_EFFECTS; ++i)
+                        for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
                         {
                             if (AuraEffectPtr aurEff = aura->GetEffect(i))
                                 aurEff->RecalculateAmount(true);
@@ -3443,9 +3443,10 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
             l_VehicleId = l_CreatureTemplate->VehicleId;
 
             //some spell has one aura of mount and one of vehicle
-            for (uint32 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
-                if (GetSpellInfo()->Effects[l_I].Effect == SPELL_EFFECT_SUMMON
-                    && GetSpellInfo()->Effects[l_I].MiscValue == GetMiscValue())
+            SpellInfo const* l_SpellInfo = GetSpellInfo();
+            for (uint32 l_I = 0; l_I < l_SpellInfo->EffectCount; ++l_I)
+                if (l_SpellInfo->Effects[l_I].Effect == SPELL_EFFECT_SUMMON
+                    && l_SpellInfo->Effects[l_I].MiscValue == GetMiscValue())
                     l_DisplayId = 0;
         }
 
