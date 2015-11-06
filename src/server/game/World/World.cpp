@@ -145,6 +145,9 @@ World::World()
         m_recordDiff[i] = 0;
 
     m_lexicsCutter = nullptr;
+
+    m_QueryHolderCallbacks       = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
+    m_QueryHolderCallbacksBuffer = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
 }
 
 /// World destructor
@@ -2490,6 +2493,7 @@ void World::Update(uint32 diff)
 
     // execute callbacks from sql queries that were queued recently
     ProcessQueryCallbacks();
+
     SetRecordDiff(RECORD_DIFF_CALLBACK, getMSTime() - diffTime);
     RecordTimeDiff("ProcessQueryCallbacks");
 
@@ -3677,6 +3681,31 @@ void World::ProcessQueryCallbacks()
             _UpdateRealmCharCount(result);
             lResult.cancel();
         }
+    }
+
+    /// - Update query holder callback
+    if (!m_QueryHolderCallbacks->empty())
+    {
+        m_QueryHolderCallbacks->remove_if([](QueryHolderCallback const& p_Callback) -> bool
+        {
+            if (p_Callback.m_QueryResultHolderFuture.ready())
+            {
+                SQLQueryHolder* l_QueryHolder;
+                p_Callback.m_QueryResultHolderFuture.get(l_QueryHolder);
+
+                p_Callback.m_Callback(l_QueryHolder);
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    /// - Add query holder callback in buffer queue to real queue
+    while (!m_QueryHolderCallbacksBuffer->empty())
+    {
+        m_QueryHolderCallbacks->push_front(m_QueryHolderCallbacksBuffer->front());
+        m_QueryHolderCallbacksBuffer->pop_front();
     }
 }
 

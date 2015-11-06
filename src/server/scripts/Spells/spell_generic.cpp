@@ -297,30 +297,58 @@ class spell_gen_pet_summoned: public SpellScriptLoader
                 if (player->GetLastPetNumber())
                 {
                     PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
-                    if (Pet* newPet = new Pet(player, newPetType))
+
+                    if (Pet* l_NewPet = new Pet(player, newPetType))
                     {
-                        if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
+                        PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, player->GetLastPetNumber(), player->GetGUIDLow(), true, PET_SLOT_UNK_SLOT);
+                        auto l_FuturResult = CharacterDatabase.AsyncQuery(l_PetStatement);
+
+                        uint64 l_PlayerGUID = player->GetGUID();
+                        uint32 l_PetNumber = player->GetLastPetNumber();
+
+                        player->GetSession()->AddPrepareStatementCallback(std::make_pair([l_NewPet, l_PlayerGUID, l_PetNumber](PreparedQueryResult p_Result) -> void
                         {
-                            // revive the pet if it is dead
-                            if (newPet->getDeathState() == DEAD || newPet->getDeathState() == CORPSE)
-                                newPet->setDeathState(ALIVE);
-
-                            newPet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
-                            newPet->SetFullHealth();
-                            newPet->SetPower(newPet->getPowerType(), newPet->GetMaxPower(newPet->getPowerType()));
-
-                            switch (newPet->GetEntry())
+                            if (!p_Result)
                             {
-                                case NPC_DOOMGUARD:
-                                case NPC_INFERNAL:
-                                    newPet->SetEntry(NPC_IMP);
-                                    break;
-                                default:
-                                    break;
+                                delete l_NewPet;
+                                return;
                             }
-                        }
-                        else
-                            delete newPet;
+
+                            PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), p_Result);
+                            l_PetHolder->Initialize();
+
+                            auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
+
+                            sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
+                            {
+                                Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
+                                if (!l_Player)
+                                {
+                                    delete l_NewPet;
+                                    return;
+                                }
+
+                                l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder);
+
+                                // revive the pet if it is dead
+                                if (l_NewPet->getDeathState() == DEAD || l_NewPet->getDeathState() == CORPSE)
+                                    l_NewPet->setDeathState(ALIVE);
+
+                                l_NewPet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+                                l_NewPet->SetFullHealth();
+                                l_NewPet->SetPower(l_NewPet->getPowerType(), l_NewPet->GetMaxPower(l_NewPet->getPowerType()));
+
+                                switch (l_NewPet->GetEntry())
+                                {
+                                    case NPC_DOOMGUARD:
+                                    case NPC_INFERNAL:
+                                        l_NewPet->SetEntry(NPC_IMP);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }));
+                        }, l_FuturResult), true);
                     }
                 }
             }
