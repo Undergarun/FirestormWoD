@@ -308,7 +308,7 @@ public:
     {
         time_t l_Now = time(nullptr);
         if (l_Now - handler->GetSession()->m_TimeLastTicketOnlineList < 10)
-            return;
+            return false;
         else
             handler->GetSession()->m_TimeLastTicketOnlineList = l_Now;
 
