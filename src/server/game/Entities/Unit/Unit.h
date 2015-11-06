@@ -1034,6 +1034,7 @@ public:
     explicit DamageInfo(CalcDamageInfo& dmgInfo);
 
     void ModifyDamage(int32 amount);
+    void ModifyAbsorb(int32 amount);
     void AbsorbDamage(uint32 amount);
     void ResistDamage(uint32 amount);
     void BlockDamage(uint32 amount);
@@ -1841,6 +1842,7 @@ class Unit : public WorldObject
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }
         bool HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura = 0) const;
         bool HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel = NULL) const;
+        bool HasAurasPreventCasting() const;
 
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
@@ -1990,6 +1992,7 @@ class Unit : public WorldObject
         uint64 GetPetGUID() const { return m_SummonSlot[SUMMON_SLOT_PET]; }
         void SetCritterGUID(uint64 guid) { SetGuidValue(UNIT_FIELD_CRITTER, guid); }
         uint64 GetCritterGUID() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
+        uint64 GetTargetGUID() const { return GetGuidValue(UNIT_FIELD_TARGET); }
 
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
         uint64 GetCharmerOrOwnerGUID() const { return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerGUID(); }
@@ -2167,7 +2170,11 @@ class Unit : public WorldObject
         bool HasAuraWithNegativeCaster(uint32 spellid);
 
         void RemoveSoulSwapDOT(Unit* target);
-        void ApplySoulSwapDOT(Unit* target);
+        void ApplySoulSwapDOT(Unit* caster, Unit* target);
+        void SetSoulSwapDotTarget(uint64 targetGUID) { soulSwapTargetGUID = targetGUID; }
+        void RemoveSoulSwapDotTarget() { soulSwapTargetGUID = 0;  }
+        uint64 GetSoulSwapDotTargetGUID() { return soulSwapTargetGUID; }
+        Unit* GetSoulSwapDotTarget();
 
         AuraEffectPtr IsScriptOverriden(SpellInfo const* spell, int32 script) const;
         uint32 GetDiseasesByCaster(uint64 casterGUID, bool remove = false);
@@ -2392,7 +2399,7 @@ class Unit : public WorldObject
 
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = WeaponAttackType::BaseAttack);
         bool   isBlockCritical();
-        bool   IsSpellMultistrike(SpellInfo const* p_SpellProto) const;
+        bool   IsSpellMultistrike() const;
         uint32 GetMultistrikeBasePoints(uint32 p_Damage) const;
         void   ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType = WeaponAttackType::BaseAttack, SpellInfo const* p_ProcAura = NULL, constAuraEffectPtr p_OwnerAuraEffect = NULL);
         uint8  ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target);
@@ -2423,7 +2430,7 @@ class Unit : public WorldObject
         bool IsImmunedToDamage(SpellInfo const* spellInfo);
         virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
                                                             // redefined in Creature
-        static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = nullptr, uint8 effIndex = MAX_SPELL_EFFECTS);
+        static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = nullptr, uint8 effIndex = SpellEffIndex::MAX_EFFECTS);
         uint32 CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType=WeaponAttackType::MaxAttack);
         void CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellInfo const* spellInfo = nullptr);
         void CalcHealAbsorb(Unit* victim, const SpellInfo* spellProto, uint32 &healAmount, uint32 &absorb);
@@ -2657,6 +2664,11 @@ class Unit : public WorldObject
         bool GetPsychicHorrorGainedPower() const { return psychicHorrorGainedPower; }
         void SetPsychicHorrorGainedPower(bool gained) { psychicHorrorGainedPower = gained; }
 
+        /// helpers for LEAP_BACK spell, if need to handle something after landing
+        void SetLastUsedLeapBackSpell(uint32 l_CurrentSpellId) { l_LastUsedLeapBackSpell = l_CurrentSpellId; }
+        void ClearLastUsedLeapBackSpell() { l_LastUsedLeapBackSpell = 0; }
+        uint32 GetLastUsedLeapBackSpell() { return l_LastUsedLeapBackSpell; }
+
         void DisableHealthRegen() { m_disableHealthRegen = true; }
         void ReenableHealthRegen() { m_disableHealthRegen = false; }
         bool HealthRegenIsDisable() const { return m_disableHealthRegen; }
@@ -2738,6 +2750,18 @@ class Unit : public WorldObject
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         uint32 m_interruptMask;
         AuraIdList _SoulSwapDOTList;
+        struct SoulSwapAurasData
+        {
+            SoulSwapAurasData(uint32 id, int32 duration, uint8 stacks, int32 damage, int32 amplitude) : m_id(id), m_duration(duration),
+            m_stacks(stacks), m_damage(damage),
+            m_amplitude(amplitude){}
+            uint32 m_id;
+            int32 m_duration;
+            uint8 m_stacks;
+            int32 m_damage;
+            int32 m_amplitude;
+        };
+        std::set<SoulSwapAurasData*> _SoulSwapDOTData;
 
         typedef std::list<HealDone*> HealDoneList;
         typedef std::list<HealTaken*> HealTakenList;
@@ -2839,6 +2863,8 @@ class Unit : public WorldObject
         float m_CometCoordinateY;
         bool m_IsDispelSuccessful;
         bool psychicHorrorGainedPower;
+        uint64 soulSwapTargetGUID;
+        uint32 l_LastUsedLeapBackSpell;
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us

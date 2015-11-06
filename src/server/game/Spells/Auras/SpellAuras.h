@@ -55,6 +55,7 @@ class AuraApplication
         uint32 _effectMask;
         uint32 _effectsToApply;                        // Used only at spell hit to determine which effect should be applied
         bool _needClientUpdate:1;
+        uint8 m_EffectCount;
 
         explicit AuraApplication(Unit* target, Unit* caster, AuraPtr base, uint32 effMask);
         void _Remove();
@@ -69,7 +70,8 @@ class AuraApplication
         uint8 GetSlot() const { return m_Slot; }
         uint8 GetFlags() const { return _flags; }
         uint32 GetEffectMask() const { return _effectMask; }
-        bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return _effectMask & (1<<effect); }
+        bool HasEffect(uint8 effect) const { ASSERT(effect < SpellEffIndex::MAX_EFFECTS);  return _effectMask & (1 << effect); }
+        uint8 GetEffectCount() const { return m_EffectCount; }
         bool IsPositive() const { return _flags & AFLAG_POSITIVE; }
         bool IsSelfcasted() const { return _flags & AFLAG_CASTER; }
         uint32 GetEffectsToApply() const { return _effectsToApply; }
@@ -176,8 +178,9 @@ class Aura : public std::enable_shared_from_this<Aura>
         bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != NULLAURA_EFFECT; }
         bool HasEffectType(AuraType type) const;
         uint8 GetEffectIndexByType(AuraType type) const;
-        AuraEffectPtr GetEffect(uint8 effIndex) const { ASSERT (effIndex < MAX_SPELL_EFFECTS); return m_effects[effIndex]; }
-        uint32 GetEffectMask() const { uint32 effMask = 0; for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i) if (m_effects[i]) effMask |= 1<<i; return effMask; }
+        AuraEffectPtr GetEffect(uint8 effIndex) const { ASSERT(effIndex < SpellEffIndex::MAX_EFFECTS); return m_effects[effIndex]; }
+        uint8 GetEffectCount() const { return m_EffectCount; }
+        uint32 GetEffectMask() const { uint32 effMask = 0; for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i) if (m_effects[i]) effMask |= 1 << i; return effMask; }
         void RecalculateAmountOfEffects(bool p_Force = false);
         void HandleAllEffects(AuraApplication * aurApp, uint8 mode, bool apply);
 
@@ -257,7 +260,8 @@ class Aura : public std::enable_shared_from_this<Aura>
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
 
-        AuraEffectPtr m_effects[MAX_SPELL_EFFECTS];
+        uint8 m_EffectCount;
+        AuraEffectPtr m_effects[SpellEffIndex::MAX_EFFECTS];
         ApplicationMap m_applications;
 
         bool m_isRemoved:1;

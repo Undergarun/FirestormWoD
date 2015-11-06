@@ -119,11 +119,26 @@ m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0)
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
 
+    new TransactionCallbacks();
+
     InitializeQueryCallbackParameters();
 
     m_TransactionCallbacks             = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
     m_PreparedStatementCallbacks       = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
     m_PreparedStatementCallbacksBuffer = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
+
+    _compressionStream = new z_stream();
+    _compressionStream->zalloc = (alloc_func)NULL;
+    _compressionStream->zfree = (free_func)NULL;
+    _compressionStream->opaque = (voidpf)NULL;
+    _compressionStream->avail_in = 0;
+    _compressionStream->next_in = NULL;
+    int32 z_res = deflateInit(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION));
+    if (z_res != Z_OK)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
+        return;
+    }
 }
 
 /// WorldSession destructor
@@ -338,55 +353,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     }
     else
         m_VoteSyncTimer -= diff;
-
-    /// - Update transactions callback
-    if (!m_TransactionCallbacks->empty())
-    {
-        m_TransactionCallbackLock.lock();
-        m_TransactionCallbacks->remove_if([](MS::Utilities::CallBackPtr const& l_Callback) -> bool
-        {
-            if (l_Callback->m_State == MS::Utilities::CallBackState::Waiting)
-                return false;
-
-            l_Callback->m_CallBack(l_Callback->m_State == MS::Utilities::CallBackState::Success);
-            return true;
-        });
-        m_TransactionCallbackLock.unlock();
-    }
-
-    /// - Update prepared statements callback
-    if (!m_PreparedStatementCallbacks->empty())
-    {
-        m_PreparedStatementCallbackLock.lock();
-        m_PreparedStatementCallbacks->remove_if([](PrepareStatementCallback const& p_Callback) -> bool
-        {
-            /// If the query result is avaiable ...
-            if (p_Callback.second.ready())
-            {
-                /// Then get it
-                PreparedQueryResult l_Result;
-                p_Callback.second.get(l_Result);
-
-                /// Give the result to the callback, and execute it
-                p_Callback.first(l_Result);
-
-                /// Delete the callback from the forward list
-                return true;
-            }
-
-            /// We havn't the query result yet, we keep the callback and wait for the result!
-            return false;
-        });
-
-        m_PreparedStatementCallbackLock.unlock();
-    }
-
-    /// - Add prepared statements in buffer queue to real queue
-    while (!m_PreparedStatementCallbacksBuffer->empty())
-    {
-        m_PreparedStatementCallbacks->push_front(m_PreparedStatementCallbacksBuffer->front());
-        m_PreparedStatementCallbacksBuffer->pop_front();
-    }
 
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
@@ -976,15 +942,12 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
     if (!m_TutorialsChanged)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HAS_TUTORIALS);
-    stmt->setUInt32(0, GetAccountId());
-    bool hasTutorials = !CharacterDatabase.Query(stmt).null();
     // Modify data in DB
-    stmt = CharacterDatabase.GetPreparedStatement(hasTutorials ? CHAR_UPD_TUTORIALS : CHAR_INS_TUTORIALS);
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        stmt->setUInt32(i, m_Tutorials[i]);
-    stmt->setUInt32(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
-    trans->Append(stmt);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_TUTORIALS);
+    for (uint8 l_I = 0; l_I < MAX_ACCOUNT_TUTORIAL_VALUES; ++l_I)
+        l_Statement->setUInt32(l_I, m_Tutorials[l_I]);
+    l_Statement->setUInt32(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
+    trans->Append(l_Statement);
 
     m_TutorialsChanged = false;
 }

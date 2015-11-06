@@ -85,15 +85,20 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
     l_Statement->setUInt32(0, GetAccountId());
     l_Statement->setUInt32(1, GetAccountId());
 
-    auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
-    AddPrepareStatementCallback(std::make_pair([this, l_Product](PreparedQueryResult p_Result) -> void
+    uint32 l_AccountId = GetAccountId();
+
+    WebDatabase.AsyncQuery(l_Statement, [l_AccountId, l_Product](PreparedQueryResult p_Result) -> void
     {
-        Battlepay::Purchase* l_Purchase = sBattlepayMgr->GetPurchase(GetAccountId());
+        WorldSession* l_Session = sWorld->FindSession(l_AccountId);
+        if (l_Session == nullptr)
+            return;
+
+        Battlepay::Purchase* l_Purchase = sBattlepayMgr->GetPurchase(l_Session->GetAccountId());
 
         /// Never buy points
         if (!p_Result)
         {
-            Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
+            Battlepay::PacketFactory::SendStartPurchaseResponse(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
             return;
         }
 
@@ -101,20 +106,20 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
         Field* l_Fields = p_Result->Fetch();
         if (std::atoi(l_Fields[0].GetCString()) < (int64)l_Purchase->CurrentPrice)
         {
-            Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
+            Battlepay::PacketFactory::SendStartPurchaseResponse(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
             return;
         }
 
         /// Check bag free spaces (items)
         if (l_Product.Items.size())
         {
-            Player* l_Player = GetPlayer();
+            Player* l_Player = l_Session->GetPlayer();
             if (l_Player != nullptr && l_Product.Items.size() > l_Player->GetBagsFreeSlots())
             {
                 std::ostringstream l_Data;
-                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::NotEnoughFreeBagSlots, GetSessionDbLocaleIndex());
-                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
-                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::NotEnoughFreeBagSlots, l_Session->GetSessionDbLocaleIndex());
+                l_Player->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
                 return;
             }
         }
@@ -123,25 +128,25 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
         if (!l_Product.ScriptName.empty())
         {
             std::string l_Reason;
-            bool l_CanBuy = sScriptMgr->BattlePayCanBuy(this, l_Product, l_Reason);
+            bool l_CanBuy = sScriptMgr->BattlePayCanBuy(l_Session, l_Product, l_Reason);
             if (!l_CanBuy)
             {
                 std::ostringstream l_Data;
                 l_Data << l_Reason;
-                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
-                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                l_Session->GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
                 return;
             }
         }
 
         for (auto l_ItemProduct : l_Product.Items)
         {
-            if (sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, GetPlayer()))
+            if (sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, l_Session->GetPlayer()))
             {
                 std::ostringstream l_Data;
-                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, GetSessionDbLocaleIndex());;
-                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
-                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, l_Session->GetSessionDbLocaleIndex());;
+                l_Session->GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
                 return;
             }
         }
@@ -152,10 +157,10 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
         l_Purchase->Status = Battlepay::PacketFactory::UpdateStatus::Ready;
 
         /// Send neccesary packets to client to show the confirmation window
-        Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Ok);
-        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::Ok);
-        Battlepay::PacketFactory::SendConfirmPurchase(this, *l_Purchase);
-    }, l_FuturResult));
+        Battlepay::PacketFactory::SendStartPurchaseResponse(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::Ok);
+        Battlepay::PacketFactory::SendPurchaseUpdate(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::Ok);
+        Battlepay::PacketFactory::SendConfirmPurchase(l_Session, *l_Purchase);
+    });
 }
 
 void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
@@ -203,11 +208,16 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
     l_Statement->setUInt32(0, GetAccountId());
     l_Statement->setUInt32(1, GetAccountId());
 
-    auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
-    AddPrepareStatementCallback(std::make_pair([this, l_Purchase](PreparedQueryResult p_Result) -> void
+    uint32 l_AccountId = GetAccountId();
+
+    WebDatabase.AsyncQuery(l_Statement, [l_AccountId, l_Purchase](PreparedQueryResult p_Result) -> void
     {
         /// Never buy points
         if (!p_Result)
+            return;
+
+        WorldSession* l_Session = sWorld->FindSession(l_AccountId);
+        if (l_Session == nullptr)
             return;
 
         /// Check balance
@@ -220,13 +230,13 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
         if (!l_Product.ScriptName.empty())
         {
             std::string l_Reason;
-            bool l_CanBuy = sScriptMgr->BattlePayCanBuy(this, l_Product, l_Reason);
+            bool l_CanBuy = sScriptMgr->BattlePayCanBuy(l_Session, l_Product, l_Reason);
             if (!l_CanBuy)
             {
                 std::ostringstream l_Data;
                 l_Data << l_Reason;
-                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
-                Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::PaymentFailed);
+                l_Session->GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendPurchaseUpdate(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::PaymentFailed);
                 return;
             }
         }
@@ -234,37 +244,36 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
         /// Check bag free spaces (items)
         if (l_Product.Items.size())
         {
-            Player* l_Player = GetPlayer();
+            Player* l_Player = l_Session->GetPlayer();
             if (l_Player != nullptr && l_Product.Items.size() > l_Player->GetBagsFreeSlots())
             {
                 std::ostringstream l_Data;
-                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::NotEnoughFreeBagSlots, GetSessionDbLocaleIndex());
-                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
-                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::NotEnoughFreeBagSlots, l_Session->GetSessionDbLocaleIndex());
+                l_Player->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
                 return;
             }
         }
 
         for (auto l_ItemProduct : l_Product.Items)
         {
-            if (sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, GetPlayer()))
+            if (sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, l_Session->GetPlayer()))
             {
                 std::ostringstream l_Data;
-                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, GetSessionDbLocaleIndex());;
-                GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
-                Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+                l_Data << sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, l_Session->GetSessionDbLocaleIndex());;
+                l_Session->GetPlayer()->SendCustomMessage(Battlepay::PacketFactory::CustomMessage::GetCustomMessage(Battlepay::PacketFactory::CustomMessage::AshranStoreBuyFailed), l_Data);
+                Battlepay::PacketFactory::SendStartPurchaseResponse(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
                 return;
             }
         }
 
         /// Display "Purchase delivered" frame
-        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::Other);
+        Battlepay::PacketFactory::SendPurchaseUpdate(l_Session, *l_Purchase, Battlepay::PacketFactory::Error::Other);
 
         /// Save purchase in database (that decrease balance) & send balance update
-        sBattlepayMgr->SavePurchase(this, l_Purchase);
+        sBattlepayMgr->SavePurchase(l_Session, l_Purchase);
 
         /// Deliver purchases (items, gold, services ...etc)
-        sBattlepayMgr->ProcessDelivery(this, l_Purchase);
-
-    }, l_FuturResult));
+        sBattlepayMgr->ProcessDelivery(l_Session, l_Purchase);
+    });
 }

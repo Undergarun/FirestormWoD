@@ -1565,6 +1565,7 @@ class npc_iron_grunt : public CreatureScript
             void EnterEvadeMode()
             {
                 m_HasReset = true;
+                CreatureAI::EnterEvadeMode();
             }
 
             void MovementInform(uint32 p_Type, uint32 p_Id) override

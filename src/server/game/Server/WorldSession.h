@@ -487,34 +487,6 @@ class WorldSession
         bool HaveVoteRemainingTime() const { return m_VoteRemainingTime != 0; }
         uint32 GetVoteRemainingTime() const { return m_VoteRemainingTime; }
 
-        //////////////////////////////////////////////////////////////////////////
-        /// New callback system
-        //////////////////////////////////////////////////////////////////////////
-        void AddTransactionCallback(std::shared_ptr<MS::Utilities::Callback> p_Callback, bool p_Lock = true)
-        {
-            if (p_Lock)
-                m_TransactionCallbackLock.lock();
-
-            m_TransactionCallbacks->push_front(p_Callback);
-
-            if (p_Lock)
-                m_TransactionCallbackLock.unlock();
-        }
-
-        void AddPrepareStatementCallback(std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture> p_Callback, bool p_Buffer = false)
-        {
-            if (!p_Buffer)
-            {
-                m_PreparedStatementCallbackLock.lock();
-                m_PreparedStatementCallbacks->push_front(p_Callback);
-                m_PreparedStatementCallbackLock.unlock();
-                return;
-
-            }
-
-            m_PreparedStatementCallbacksBuffer->push_front(p_Callback);
-        }
-
         void SetServiceFlags(uint32 p_Flags);
         bool HasServiceFlags(uint32 p_Flags) const { return m_ServiceFlags & p_Flags; }
 
@@ -1233,22 +1205,6 @@ class WorldSession
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture m_CharacterLoginCallback;
         QueryResultHolderFuture m_CharacterLoginDBCallback;
-
-        //////////////////////////////////////////////////////////////////////////
-        /// New transaction query callback system
-        //////////////////////////////////////////////////////////////////////////
-        using TransactionCallbacks = std::forward_list<std::shared_ptr<MS::Utilities::Callback>>;
-        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
-        std::mutex m_TransactionCallbackLock;
-
-        //////////////////////////////////////////////////////////////////////////
-        /// New prepare statement query callback system
-        //////////////////////////////////////////////////////////////////////////
-        using PrepareStatementCallback   = std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture>;
-        using PreparedStatementCallbacks = std::forward_list<PrepareStatementCallback>;
-        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacks;
-        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
-        std::mutex m_PreparedStatementCallbackLock;
 
     private:
         // private trade methods

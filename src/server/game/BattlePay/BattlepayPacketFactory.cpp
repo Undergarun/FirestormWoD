@@ -239,23 +239,15 @@ namespace Battlepay
             if (!sWorld->getBoolConfig(CONFIG_WEB_DATABASE_ENABLE))
                 return;
 
+            uint32 l_SessionId = p_Session->GetAccountId();
+
             PreparedStatement* l_Statement = WebDatabase.GetPreparedStatement(WEB_SEL_ACCOUNT_POINTS);
             l_Statement->setUInt32(0, p_Session->GetAccountId());
             l_Statement->setUInt32(1, p_Session->GetAccountId());
 
-            auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
-
-            uint32 l_SessionId = p_Session->GetAccountId();
-
-            p_Session->AddPrepareStatementCallback(std::make_pair([l_SessionId](PreparedQueryResult p_Result) -> void
+            WebDatabase.AsyncQuery(l_Statement, [l_SessionId](PreparedQueryResult p_Result) -> void
             {
-                WorldSession* l_Session      = nullptr;
-                SessionMap const& l_Sessions = sWorld->GetAllSessions();
-
-                auto l_Itr = l_Sessions.find(l_SessionId);
-                if (l_Itr != l_Sessions.end())
-                    l_Session = l_Itr->second;
-
+                WorldSession* l_Session = sWorld->FindSession(l_SessionId);
                 if (l_Session == nullptr)
                     return;
 
@@ -273,7 +265,7 @@ namespace Battlepay
                 std::ostringstream l_Data;
                 l_Data << l_Balance;
                 l_Player->SendCustomMessage(GetCustomMessage(CustomMessage::AshranStoreBalance), l_Data);
-            }, l_FuturResult), true);
+            });
 
             if (Player* l_Player = p_Session->GetPlayer())
             {

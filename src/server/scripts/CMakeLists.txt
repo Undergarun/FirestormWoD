@@ -181,6 +181,8 @@ add_library(scripts STATIC
   ${scripts_STAT_SRCS}
   ${scripts_STAT_PCH_SRC}
 )
+
+add_definitions("-DGAME_SERVER_PROJECTS")
 set_property(TARGET scripts PROPERTY FOLDER "server")
 
 add_dependencies(scripts revision.h)

@@ -414,7 +414,7 @@ public:
             for (uint8 i = 0; i < 4; ++i)
             {
                 std::list<Creature*> addList;
-                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 300.0f);
+                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 100.0f);
 
                 if (!addList.empty())
                     for (Creature* add : addList)
@@ -423,7 +423,7 @@ public:
 
             // Resetting weapons rack available
             std::list<GameObject*> rackList;
-            GetGameObjectListWithEntryInGrid(rackList, me, GOB_WEAPON_RACK, 200.0f);
+            GetGameObjectListWithEntryInGrid(rackList, me, GOB_WEAPON_RACK, 100.0f);
 
             if (!rackList.empty())
                 for (std::list<GameObject*>::iterator itr = rackList.begin(); itr != rackList.end(); ++itr)
@@ -453,7 +453,7 @@ public:
             }
 
             std::list<GameObject*> l_DoorList;
-            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 500.0f);
+            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 200.0f);
 
             for (GameObject* l_Door : l_DoorList)
                 l_Door->SetGoState(GO_STATE_ACTIVE);
@@ -620,7 +620,7 @@ public:
         {
             if (instance)
             {
-                if (instance->IsWipe() && !me->IsInEvadeMode())
+                if (inCombat && !me->IsInEvadeMode() && instance->IsWipe())
                 {
                     EnterEvadeMode();
                     return;

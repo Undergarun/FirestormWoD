@@ -444,48 +444,50 @@ void AuctionHouseObject::Update()
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_BY_TIME);
     stmt->setUInt32(0, (uint32)curTime+60);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-        return;
-
-    do
+    
+    PreparedQueryResult result = CharacterDatabase.AsyncQuery(stmt, [this](PreparedQueryResult const& p_Result) -> void
     {
-        // from auctionhousehandler.cpp, creates auction pointer & player pointer
-        AuctionEntry* auction = GetAuction(result->Fetch()->GetUInt32());
+        if (!p_Result)
+            return;
 
-        if (!auction)
-            continue;
-
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-        ///- Either cancel the auction if there was no bidder
-        if (auction->bidder == 0)
+        do
         {
-            sAuctionMgr->SendAuctionExpiredMail(auction, trans);
-            sScriptMgr->OnAuctionExpire(this, auction);
+            // from auctionhousehandler.cpp, creates auction pointer & player pointer
+            AuctionEntry* auction = GetAuction(p_Result->Fetch()->GetUInt32());
+
+            if (!auction)
+                continue;
+
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+            ///- Either cancel the auction if there was no bidder
+            if (auction->bidder == 0)
+            {
+                sAuctionMgr->SendAuctionExpiredMail(auction, trans);
+                sScriptMgr->OnAuctionExpire(this, auction);
+            }
+            ///- Or perform the transaction
+            else
+            {
+                //we should send an "item sold" message if the seller is online
+                //we send the item to the winner
+                //we send the money to the seller
+                sAuctionMgr->SendAuctionSuccessfulMail(auction, trans);
+                sAuctionMgr->SendAuctionWonMail(auction, trans);
+                sScriptMgr->OnAuctionSuccessful(this, auction);
+            }
+
+            uint32 itemEntry = auction->itemEntry;
+
+            ///- In any case clear the auction
+            auction->DeleteFromDB(trans);
+            CharacterDatabase.CommitTransaction(trans);
+
+            sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
+            RemoveAuction(auction, itemEntry);
         }
-        ///- Or perform the transaction
-        else
-        {
-            //we should send an "item sold" message if the seller is online
-            //we send the item to the winner
-            //we send the money to the seller
-            sAuctionMgr->SendAuctionSuccessfulMail(auction, trans);
-            sAuctionMgr->SendAuctionWonMail(auction, trans);
-            sScriptMgr->OnAuctionSuccessful(this, auction);
-        }
-
-        uint32 itemEntry = auction->itemEntry;
-
-        ///- In any case clear the auction
-        auction->DeleteFromDB(trans);
-        CharacterDatabase.CommitTransaction(trans);
-
-        sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
-        RemoveAuction(auction, itemEntry);
-    }
-    while (result->NextRow());
+        while (p_Result->NextRow());
+    });
 }
 
 void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount)

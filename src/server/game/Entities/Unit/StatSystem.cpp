@@ -888,7 +888,7 @@ void Player::UpdateMasteryPercentage()
         if (l_SpellInfo != nullptr && l_SpellInfo->HasAttribute(SpellAttr8::SPELL_ATTR8_MASTERY_SPECIALIZATION))
         {
             AuraPtr l_Aura = l_Iter.second->GetBase();
-            for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+            for (uint8 l_I = 0; l_I < l_Aura->GetEffectCount(); ++l_I)
             {
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
@@ -1608,6 +1608,10 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     /// - Automatically update weapon damage after attack power modification
     UpdateDamagePhysical(WeaponAttackType::BaseAttack);
+
+    /// Update off hand weapon damage for Shivarra and Wrathguard
+    if (GetEntry() == ENTRY_SHIVARRA || GetEntry() == ENTRY_WRATHGUARD)
+        UpdateDamagePhysical(WeaponAttackType::OffAttack);
 }
 
 // WoD updated

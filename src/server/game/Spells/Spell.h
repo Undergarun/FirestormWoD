@@ -337,7 +337,7 @@ private:
 struct SpellValue
 {
     explicit  SpellValue(SpellInfo const* proto);
-    int32     EffectBasePoints[MAX_SPELL_EFFECTS];
+    int32     EffectBasePoints[SpellEffIndex::MAX_EFFECTS];
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     uint8     AuraStackAmount;
@@ -701,6 +701,7 @@ protected:
     void TriggerGlobalCooldown();
     void CancelGlobalCooldown();
     bool IsDarkSimulacrum() const;
+    bool IsCommandDemonSpell() const;
     bool IsMorePowerfulAura(Unit const* target) const;
 
     void SendLoot(uint64 guid, LootType loottype);
@@ -830,7 +831,7 @@ protected:
     };
     std::list<AreaTriggerTargetInfo> m_UniqueAreaTriggerTargetInfo;
 
-    SpellDestination m_destTargets[MAX_SPELL_EFFECTS];
+    SpellDestination m_destTargets[SpellEffIndex::MAX_EFFECTS];
 
     void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true, uint8 effectIndex = EFFECT_0);
     void AddGOTarget(GameObject* target, uint32 effectMask);

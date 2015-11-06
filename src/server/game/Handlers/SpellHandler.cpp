@@ -339,6 +339,13 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
         return;
     }
 
+    InventoryResult l_Result = m_Player->CanUseItem(l_ItemTemplate);
+    if (l_Result != InventoryResult::EQUIP_ERR_OK)
+    {
+        m_Player->SendEquipError(l_Result, l_Item, NULL);
+        return;
+    }
+
     /// Locked item
     uint32 l_LockID = l_ItemTemplate->LockID;
 
@@ -865,7 +872,7 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
     recvPacket >> slotId;
     recvPacket.readPackGUID(totemGuid);
 
-    if ((SUMMON_SLOT_TOTEM + slotId) >= MAX_TOTEM_SLOT)
+    if ((SUMMON_SLOT_TOTEM + slotId) >= MAX_TOTEM_SLOT * 2)
         return;
 
     if (!m_Player->m_SummonSlot[SUMMON_SLOT_TOTEM + slotId])

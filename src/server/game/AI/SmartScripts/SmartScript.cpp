@@ -2286,6 +2286,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 l->push_back(GetBaseObject());
             break;
         case SMART_TARGET_VICTIM:
+            if (me)
                 if (Unit* victim = me->getVictim())
                     l->push_back(victim);
             break;
