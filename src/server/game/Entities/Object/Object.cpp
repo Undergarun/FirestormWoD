@@ -2584,7 +2584,7 @@ void WorldObject::MonsterSay(const char* text, uint32 language, uint64 TargetGui
     JadeCore::MonsterCustomChatBuilder say_build(*this, CHAT_MSG_MONSTER_SAY, text, language, TargetGuid);
     JadeCore::LocalizedPacketDo<JadeCore::MonsterCustomChatBuilder> say_do(say_build);
     JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterCustomChatBuilder> > say_worker(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), say_do);
-    TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterCustomChatBuilder> >, WorldTypeMapContainer > message(say_worker, true);
+    TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterCustomChatBuilder> >, WorldTypeMapContainer > message(say_worker);
     cell.Visit(p, message, *GetMap(), *this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
 }
 
@@ -2598,7 +2598,7 @@ void WorldObject::MonsterSay(int32 textId, uint32 language, uint64 TargetGuid)
     JadeCore::MonsterChatBuilder say_build(*this, CHAT_MSG_MONSTER_SAY, textId, language, TargetGuid);
     JadeCore::LocalizedPacketDo<JadeCore::MonsterChatBuilder> say_do(say_build);
     JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterChatBuilder> > say_worker(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), say_do);
-    TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterChatBuilder> >, WorldTypeMapContainer > message(say_worker, true);
+    TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterChatBuilder> >, WorldTypeMapContainer > message(say_worker);
     cell.Visit(p, message, *GetMap(), *this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
 }
 
@@ -2612,7 +2612,7 @@ void WorldObject::MonsterYell(const char* text, uint32 language, uint64 TargetGu
     JadeCore::MonsterCustomChatBuilder say_build(*this, CHAT_MSG_MONSTER_YELL, text, language, TargetGuid);
     JadeCore::LocalizedPacketDo<JadeCore::MonsterCustomChatBuilder> say_do(say_build);
     JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterCustomChatBuilder> > say_worker(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), say_do);
-    TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterCustomChatBuilder> >, WorldTypeMapContainer > message(say_worker, true);
+    TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterCustomChatBuilder> >, WorldTypeMapContainer > message(say_worker);
     cell.Visit(p, message, *GetMap(), *this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
 }
 
@@ -2626,7 +2626,7 @@ void WorldObject::MonsterYell(int32 textId, uint32 language, uint64 TargetGuid)
     JadeCore::MonsterChatBuilder say_build(*this, CHAT_MSG_MONSTER_YELL, textId, language, TargetGuid);
     JadeCore::LocalizedPacketDo<JadeCore::MonsterChatBuilder> say_do(say_build);
     JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterChatBuilder> > say_worker(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), say_do);
-    TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterChatBuilder> >, WorldTypeMapContainer > message(say_worker, true);
+    TypeContainerVisitor<JadeCore::PlayerDistWorker<JadeCore::LocalizedPacketDo<JadeCore::MonsterChatBuilder> >, WorldTypeMapContainer > message(say_worker);
     cell.Visit(p, message, *GetMap(), *this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
 }
 
@@ -3408,7 +3408,7 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureL
 
     JadeCore::AllCreaturesOfEntryInRange check(this, entry, maxSearchRange);
     JadeCore::CreatureListSearcher<JadeCore::AllCreaturesOfEntryInRange> searcher(this, creatureList, check);
-    TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher, true);
+    TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
 
     cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
 }
@@ -3421,7 +3421,7 @@ void WorldObject::GetCreatureListInGrid(std::list<Creature*>& creatureList, floa
 
     JadeCore::AllCreaturesInRange check(this, maxSearchRange);
     JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange> searcher(this, creatureList, check);
-    TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange>, GridTypeMapContainer> visitor(searcher, true);
+    TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange>, GridTypeMapContainer> visitor(searcher);
 
     cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
 }
@@ -4004,7 +4004,7 @@ void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
         Cell cell(p);
         cell.SetNoCreate();
         WorldObjectChangeAccumulator notifier(*this, data_map);
-        TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier, true);
+        TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
         Map& map = *GetMap();
         //we must build packets for all visible players
         cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
