@@ -252,6 +252,9 @@ void TicketMgr::LoadTickets()
     for (GmTicketList::const_iterator l_Iter = m_TicketList.begin(); l_Iter != m_TicketList.end(); ++l_Iter)
         delete l_Iter->second;
 
+    /// Delete old tickets (> 2 day)
+    CharacterDatabase.PQuery("DELETE FROM gm_tickets WHERE createtime < UNIX_TIMESTAMP() - 60*60*24*2");
+
     m_TicketList.clear();
 
     m_LastTicketId = 0;

@@ -896,25 +896,32 @@ class spell_warl_flames_of_xoroth: public SpellScriptLoader
                                     return;
                                 }
 
-                                l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder);
-
-                                // revive the pet if it is dead
-                                if (l_NewPet->getDeathState() == DEAD || l_NewPet->getDeathState() == CORPSE)
-                                    l_NewPet->setDeathState(ALIVE);
-
-                                l_NewPet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
-                                l_NewPet->SetFullHealth();
-                                l_NewPet->SetPower(l_NewPet->getPowerType(), l_NewPet->GetMaxPower(l_NewPet->getPowerType()));
-
-                                switch (l_NewPet->GetEntry())
+                                l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder, [](Pet* p_Pet, bool p_Result) -> void
                                 {
-                                    case ENTRY_DOOMGUARD:
-                                    case ENTRY_INFERNAL:
-                                        l_NewPet->SetEntry(ENTRY_IMP);
-                                        break;
-                                    default:
-                                        break;
-                                }
+                                    if (!p_Result)
+                                    {
+                                        delete p_Pet;
+                                        return;
+                                    }
+
+                                    // revive the pet if it is dead
+                                    if (p_Pet->getDeathState() == DEAD || p_Pet->getDeathState() == CORPSE)
+                                        p_Pet->setDeathState(ALIVE);
+
+                                    p_Pet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+                                    p_Pet->SetFullHealth();
+                                    p_Pet->SetPower(p_Pet->getPowerType(), p_Pet->GetMaxPower(p_Pet->getPowerType()));
+
+                                    switch (p_Pet->GetEntry())
+                                    {
+                                        case ENTRY_DOOMGUARD:
+                                        case ENTRY_INFERNAL:
+                                            p_Pet->SetEntry(ENTRY_IMP);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                });
                             }));
                         });
                     }
