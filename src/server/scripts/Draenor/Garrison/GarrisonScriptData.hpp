@@ -49,7 +49,9 @@ namespace MS { namespace Garrison
         Disengage                              = 82707,
         Shoot                                  = 6660,
         SpellArming                            = 167920,
-        SpellIronTrap                          = 180609
+        SpellIronTrap                          = 180609,
+        SpellApprenticeLogging                 = 167911,
+        SpellSummonStump                       = 170079
     };
 
     enum DisplayIDs
@@ -136,7 +138,14 @@ namespace MS { namespace Garrison
         TrapL1QuestKillCredit                           = 84882,
         NpcFarmerLokLubSummon                           = 85093,
         NpcHomerStonefield                              = 83967,
-        NpcTommyJoeStonefield
+        NpcTommyJoeStonefield                           = 83968,
+        NpcHordePeon                                    = 83985,
+        NpcAllianceLumberjack                           = 83950
+    };
+
+    enum GameObjects
+    {
+        GobStump = 234568
     };
 
     /// NPC texts id
@@ -184,7 +193,9 @@ namespace MS { namespace Garrison
         ItemFrostWeed                           = 109124,
         ItemBagOfSalvagedGoods                  = 114116,
         ItemCrateOfSalvage                      = 114119,
-        ItemBigCrateOfSalvage                   = 114120
+        ItemBigCrateOfSalvage                   = 114120,
+        ItemTimber                              = 114781,
+        ItemTimberSample                        = 114827
     };
 
     /// Waypoints
@@ -204,6 +215,12 @@ namespace MS { namespace Garrison
     enum MovePointIDs
     {
         MOVE_POINT_GAZLOWE_BARRACK_A = 0
+    };
+
+    enum ObjectIDs
+    {
+        TimberWorkOrderAlly  = 37548,
+        TimberWorkOrderHorde = 37487
     };
 
     /// Garrison creation coords

@@ -146,7 +146,6 @@ namespace MS { namespace Garrison
             if (!l_ShipmentEntry)
                 continue;
 
-
             uint32 l_RewardItemID = l_ShipmentEntry->ResultItemID;
 
             if (l_ShipmentEntry->ID == 109) ///< Herb Garden
@@ -197,7 +196,6 @@ namespace MS { namespace Garrison
     go_garrison_herb::go_garrison_herb()
         : GameObjectScript("go_garrison_herb")
     {
-
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -404,11 +402,11 @@ namespace MS { namespace Garrison
             if (Player* l_Player = sObjectAccessor->FindPlayer(m_PlayerGuid))
             {
                 if (l_Player->GetTeamId() == TEAM_HORDE)
-                    go->SummonCreature(83985, *l_Player);
+                    go->SummonCreature(NPCs::NpcHordePeon, *l_Player);
                 else if (l_Player->GetTeamId() == TEAM_ALLIANCE)
-                    go->SummonCreature(83950, *l_Player);
+                    go->SummonCreature(NPCs::NpcAllianceLumberjack, *l_Player);
 
-                l_Player->AddItem(114781, m_ChopCount);
+                l_Player->AddItem(Items::ItemTimber, m_ChopCount);
             }
         }
     }
@@ -442,19 +440,19 @@ namespace MS { namespace Garrison
                     if (!l_Player->GetSession())
                         return;
 
-                    if (l_Player->HasQuest(Quests::Horde_EasingIntoLumberjacking))
+                    if (l_Player->HasQuest(Quests::Horde_EasingIntoLumberjacking) || l_Player->HasQuest(Quests::Alliance_EasingIntoLumberjacking))
                     {
                         /// Adding items
                         uint32 l_NoSpaceForCount = 0;
 
                         /// check space and find places
                         ItemPosCountVec l_Destination;
-                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, 114827, 1, &l_NoSpaceForCount);
+                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, Items::ItemTimberSample, 1, &l_NoSpaceForCount);
 
                         if (l_Message == EQUIP_ERR_OK)
-                            l_Player->StoreNewItem(l_Destination, 114827, true, Item::GenerateItemRandomPropertyId(114827));
+                            l_Player->StoreNewItem(l_Destination, Items::ItemTimberSample, true, Item::GenerateItemRandomPropertyId(Items::ItemTimberSample));
                         else
-                            l_Player->SendEquipError(l_Message, nullptr, nullptr, 114827);
+                            l_Player->SendEquipError(l_Message, nullptr, nullptr, Items::ItemTimberSample);
                     }
                     else
                     {
@@ -463,20 +461,20 @@ namespace MS { namespace Garrison
 
                         /// check space and find places
                         ItemPosCountVec l_Destination;
-                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, 114827, 1, &l_NoSpaceForCount);
+                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, Items::ItemTimber, 1, &l_NoSpaceForCount);
 
                         if (l_Message == EQUIP_ERR_OK)
-                            l_Player->StoreNewItem(l_Destination, 114827, true, Item::GenerateItemRandomPropertyId(114827));
+                            l_Player->StoreNewItem(l_Destination, Items::ItemTimber, true, Item::GenerateItemRandomPropertyId(Items::ItemTimber));
                         else
-                            l_Player->SendEquipError(l_Message, nullptr, nullptr, 114827);
+                            l_Player->SendEquipError(l_Message, nullptr, nullptr, Items::ItemTimber);
                     }
 
                     l_Player->SendItemBonusDebug(m_ChopCount, l_Player->GetSession()->GetTrinityString(TrinityStrings::GarrisonChop), l_Player);
 
-                    go->CastSpell(l_Player, 170079);
-                    go->SetDisplayId(9145);
+                    go->CastSpell(l_Player, Spells::SpellSummonStump);
+                    go->SetDisplayId(9145); ///< Invisible Display
 
-                    if (Creature* l_Creature = go->FindNearestCreature(l_Player->GetTeamId() == TEAM_HORDE ? 83985 : 83950, 10.0f))
+                    if (Creature* l_Creature = go->FindNearestCreature(l_Player->GetTeamId() == TEAM_HORDE ? NPCs::NpcHordePeon : NPCs::NpcAllianceLumberjack, 10.0f))
                     {
                         if (l_Creature->AI())
                             l_Creature->AI()->Talk(0);
@@ -495,9 +493,8 @@ namespace MS { namespace Garrison
         {
             if (m_RefillTimer <= p_Diff)
             {
-                if (GameObject* l_Gob = go->FindNearestGameObject(234568, 1.0f))
+                if (GameObject* l_Gob = go->FindNearestGameObject(GameObjects::GobStump, 1.0f))
                     l_Gob->Delete();
-
 
                 if (m_TimberDisplayIDs.find(go->GetEntry()) != m_TimberDisplayIDs.end())
                 {

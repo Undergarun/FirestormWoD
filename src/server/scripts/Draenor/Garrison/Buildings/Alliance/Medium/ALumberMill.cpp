@@ -13,7 +13,7 @@
 namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
-    /// 85048 - Farmer Lok'Lub                                             ///
+    /// 84248 - Justin Timberlord                                          ///
     //////////////////////////////////////////////////////////////////////////
 
     namespace npc_JustinTimberLordData
@@ -90,28 +90,24 @@ namespace MS { namespace Garrison
 
     bool npc_JustinTimberLord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        p_Player->PlayerTalkClass->ClearMenus();
-        MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
+        p_Player->PlayerTalkClass->ClearMenus();
 
         if (l_AI == nullptr)
             return true;
 
-        switch (p_Action)
+        if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
         {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
-                    reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
-                break;
-            default:
-                break;
+            if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
+                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
         }
+
         return true;
     }
 
     bool npc_JustinTimberLord::OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
     {
-        p_Player->CastSpell(p_Player, 167911, true);
+        p_Player->CastSpell(p_Player, Spells::SpellApprenticeLogging, true);
 
         return true;
     }
@@ -121,7 +117,7 @@ namespace MS { namespace Garrison
         if (p_BuildingID == Buildings::LumberMill_LumberMill_Level1)
         {
             if (p_Player->GetQuestStatus(Quests::Alliance_TurningTimberIntoProfit) == QUEST_STATUS_INCOMPLETE)
-                p_Player->QuestObjectiveSatisfy(37548, 1, QuestObjectiveType::QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
+                p_Player->QuestObjectiveSatisfy(ObjectIDs::TimberWorkOrderAlly, 1, QuestObjectiveType::QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
         }
     }
 

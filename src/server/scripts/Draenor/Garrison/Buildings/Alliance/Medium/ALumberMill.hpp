@@ -15,7 +15,7 @@
 namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
-    /// 85048 - Lumber Lord Oktron                                             ///
+    /// 84248 - Justin Timberlord                                          ///
     //////////////////////////////////////////////////////////////////////////
     namespace npc_JustinTimberLordData
     {

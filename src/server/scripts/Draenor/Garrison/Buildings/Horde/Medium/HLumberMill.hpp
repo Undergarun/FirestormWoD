@@ -15,7 +15,7 @@
 namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
-    /// 85048 - Lumber Lord Oktron                                             ///
+    /// 85048 - Lumber Lord Oktron                                         ///
     //////////////////////////////////////////////////////////////////////////
     namespace npc_LumberLordOktronData
     {

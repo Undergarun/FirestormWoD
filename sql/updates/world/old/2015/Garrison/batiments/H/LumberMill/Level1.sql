@@ -17,11 +17,22 @@ DELETE FROM gameobject WHERE id = 234568 AND map = 1116; -- Stump, temp summoned
 
 #233604 - 234080/Gob - Small Timber
 
-	UPDATE gameobject_template SET scriptname = "go_garrison_small_timber" WHERE entry IN (233604, 234080);
+	UPDATE gameobject_template SET scriptname = "go_garrison_small_timber" WHERE entry IN (
+	234193,
+	234197,
+	233604,
+	234080,
+	234122,
+	234126,
+	234109,
+	234110,
+	233922,
+	234097);
 	
 #83985/NPC - Peon
 
 	INSERT INTO creature_template (`entry`, `name`, `subname`, `IconName`, `RacialLeader`, `family`, `type`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `unit_flags`, `unit_flags2`, `Health_mod`, `Mana_mod`, `Armor_mod`, `rank`, `KillCredit1`, `KillCredit2`, `movementId`, `scale`, `minlevel`, `maxlevel`, `faction`, `baseattacktime`, `rangeattacktime`, `unit_class`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `speed_walk`, `speed_run`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `BuildVerified`) VALUES(83985, "Peon", "", "", 0, 0, 7, 58069, 58070, 58071, 58072, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 5, 5, 29, 2000, 2000, 1, 0, 0, 0, 0, 0, 0, 1, 1.142857, 167957, 168523, 170079, 167958, 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `name` = VALUES(`name`), `subname` = VALUES(`subname`), `IconName` = VALUES(`IconName`), `RacialLeader` = VALUES(`RacialLeader`), `family` = VALUES(`family`), `type` = VALUES(`type`), `modelid1` = VALUES(`modelid1`), `modelid2` = VALUES(`modelid2`), `modelid3` = VALUES(`modelid3`), `modelid4` = VALUES(`modelid4`), `questItem1` = VALUES(`questItem1`), `questItem2` = VALUES(`questItem2`), `questItem3` = VALUES(`questItem3`), `questItem4` = VALUES(`questItem4`), `questItem5` = VALUES(`questItem5`), `questItem6` = VALUES(`questItem6`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `Health_mod` = VALUES(`Health_mod`), `Mana_mod` = VALUES(`Mana_mod`), `Armor_mod` = VALUES(`Armor_mod`), `rank` = VALUES(`rank`), `KillCredit1` = VALUES(`KillCredit1`), `KillCredit2` = VALUES(`KillCredit2`), `movementId` = VALUES(`movementId`), `scale` = VALUES(`scale`), `minlevel` = VALUES(`minlevel`), `maxlevel` = VALUES(`maxlevel`), `faction` = VALUES(`faction`), `baseattacktime` = VALUES(`baseattacktime`), `rangeattacktime` = VALUES(`rangeattacktime`), `unit_class` = VALUES(`unit_class`), `resistance1` = VALUES(`resistance1`), `resistance2` = VALUES(`resistance2`), `resistance3` = VALUES(`resistance3`), `resistance4` = VALUES(`resistance4`), `resistance5` = VALUES(`resistance5`), `resistance6` = VALUES(`resistance6`), `speed_walk` = VALUES(`speed_walk`), `speed_run` = VALUES(`speed_run`), `spell1` = VALUES(`spell1`), `spell2` = VALUES(`spell2`), `spell3` = VALUES(`spell3`), `spell4` = VALUES(`spell4`), `spell5` = VALUES(`spell5`), `spell6` = VALUES(`spell6`), `spell7` = VALUES(`spell7`), `spell8` = VALUES(`spell8`), `BuildVerified` = VALUES(`BuildVerified`);
+	DELETE FROM creature_text WHERE entry = 83985;
 	INSERT INTO creature_text (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(83985, 0, 0, "Work complete!", 12, 0, 100) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `groupid` = VALUES(`groupid`), `id` = VALUES(`id`), `text` = VALUES(`text`), `type` = VALUES(`type`), `language` = VALUES(`language`), `probability` = VALUES(`probability`);
 	UPDATE creature_template SET scriptname = "npc_Timber_Peon" WHERE entry = 83985;
 	REPLACE INTO creature_template_addon (entry, emote) VALUE(83985, 599);
