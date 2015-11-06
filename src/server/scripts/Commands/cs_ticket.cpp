@@ -306,24 +306,12 @@ public:
 
     static bool HandleGMTicketListCommand(ChatHandler* handler, char const* /*args*/)
     {
-        time_t l_Now = time(nullptr);
-        if (l_Now - handler->GetSession()->m_TimeLastTicketOnlineList < 10)
-            return false;
-        else
-            handler->GetSession()->m_TimeLastTicketOnlineList = l_Now;
-
         sTicketMgr->ShowList(*handler, false);
         return true;
     }
 
     static bool HandleGMTicketListOnlineCommand(ChatHandler* handler, char const* /*args*/)
     {
-        time_t l_Now = time(nullptr);
-        if (l_Now - handler->GetSession()->m_TimeLastTicketOnlineList < 10)
-            return false;
-        else
-            handler->GetSession()->m_TimeLastTicketOnlineList = l_Now;
-
         sTicketMgr->ShowList(*handler, true);
         return true;
     }
