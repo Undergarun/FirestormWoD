@@ -195,7 +195,8 @@ namespace MS { namespace Garrison
         ItemCrateOfSalvage                      = 114119,
         ItemBigCrateOfSalvage                   = 114120,
         ItemTimber                              = 114781,
-        ItemTimberSample                        = 114827
+        ItemTimberSample                        = 114827,
+        ItemGarrisonResources                   = 114677
     };
 
     /// Waypoints

@@ -11,6 +11,7 @@
 #include "ScriptedGossip.h"
 #include "GameObjectAI.h"
 #include "Spell.h"
+#include "GarrisonScriptData.hpp"
 
 namespace MS { namespace Garrison 
 {
@@ -31,11 +32,11 @@ namespace MS { namespace Garrison
     {
         if (p_Player->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS) && p_Item && p_Item->GetEntry() == Items::ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1)
             p_Player->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
-        else if (p_Item->GetVisibleEntry() == 114677)
+        else if (p_Item->GetVisibleEntry() == Items::ItemGarrisonResources)
         {
             uint64 l_PlayerGuid = p_Player->GetGUID();
             uint64 l_ItemGuid = p_Item->GetGUID();
-            p_Player->ModifyCurrency(824, 30);
+            p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_GARRISON_RESSOURCES, 30);
 
             p_Player->AddCriticalOperation([l_PlayerGuid, l_ItemGuid]() -> void
             {
