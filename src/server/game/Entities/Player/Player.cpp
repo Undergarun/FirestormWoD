@@ -32902,7 +32902,10 @@ void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
     if (l_HasAnythingChanged)
     {
         if (p_KeepHPPct)
-            SetHealth(l_HealthPct * (float)GetMaxHealth() / 100.f);
+        {
+            int32 l_Health = std::max(1, int32(l_HealthPct * (float)GetMaxHealth() / 100.f));
+            SetHealth(l_Health);
+        }
 
         UpdateItemLevel();
     }
