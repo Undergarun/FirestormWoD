@@ -1268,13 +1268,14 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
                 uint32 l_Flag = 1 << (l_Title->MaskID % 32);
                 uint32 l_LowGuid = GUID_LOPART(p_OldChallenge->m_Members[l_I].m_Guid);
 
-                SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
                 PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TITLES);
                 l_Statement->setUInt32(0, l_LowGuid);
 
-                if (PreparedQueryResult l_Result = CharacterDatabase.Query(l_Statement))
+                PreparedQueryResult l_Result = CharacterDatabase.AsyncQuery(l_Statement, [l_Index, l_Flag, l_LowGuid](PreparedQueryResult& p_Result) -> void
                 {
-                    Field* l_Fields = l_Result->Fetch();
+                    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+
+                    Field* l_Fields = p_Result->Fetch();
                     char const* l_KnownTitlesStr = l_Fields[0].GetCString();
 
                     /// Title removal
@@ -1296,7 +1297,7 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
                         for (uint32 l_J = 0; l_J < l_TitleSize; ++l_J)
                             l_Stream << l_KnownTitles[l_J] << ' ';
 
-                        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
+                        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
                         l_Statement->setString(0, l_Stream.str().c_str());
                         l_Statement->setUInt32(1, l_LowGuid);
                         l_Transaction->Append(l_Statement);
@@ -1308,7 +1309,7 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
                     }
 
                     CharacterDatabase.CommitTransaction(l_Transaction);
-                }
+                });
             }
         }
     }

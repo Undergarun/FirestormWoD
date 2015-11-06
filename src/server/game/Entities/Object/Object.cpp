@@ -3018,9 +3018,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             l_LoadPetSlotID = m_currentPetSlot;
 
         PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(entry, 0, GetGUIDLow(), currentPet, l_LoadPetSlotID);
-        auto l_FuturResult = CharacterDatabase.AsyncQuery(l_PetStatement);
-
-        GetSession()->AddPrepareStatementCallback(std::make_pair([entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](PreparedQueryResult p_Result) -> void
+        CharacterDatabase.AsyncQuery(l_PetStatement, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](PreparedQueryResult p_Result) -> void
         {
             if (!p_Result)
             {
@@ -3110,7 +3108,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                 });
 
             }));
-        }, l_FuturResult), true);
+        });
         return;
     }
 
