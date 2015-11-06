@@ -20,8 +20,6 @@
 #define TRINITY_CELLIMPL_H
 
 #include <cmath>
-#include <future>
-#include <thread>
 
 #include "Cell.h"
 #include "Map.h"
@@ -99,14 +97,9 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
         return;
     }
 
-    /// Is that realy important since we're going to process all of them anyway ?
-    /// ========
-    /// - ALWAYS visit standing cell first!!! Since we deal with small radiuses
-    /// - it is very essential to call visitor for standing cell firstly...
-    /// ========
+    //ALWAYS visit standing cell first!!! Since we deal with small radiuses
+    //it is very essential to call visitor for standing cell firstly...
     map.Visit(*this, visitor);
-
-    std::list<std::future<void>> l_FuturesResult;
 
     // loop the cell range
     for (uint32 x = area.low_bound.x_coord; x <= area.high_bound.x_coord; ++x)
@@ -119,19 +112,9 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
             {
                 Cell r_zone(cellCoord);
                 r_zone.data.Part.nocreate = this->data.Part.nocreate;
-
-                if (visitor.IsThreadSafe())
-                    l_FuturesResult.push_back(std::async(std::launch::async, [&map, &r_zone, &visitor]() { map.Visit(r_zone, visitor); }));
-                else
-                    map.Visit(r_zone, visitor);
+                map.Visit(r_zone, visitor);
             }
         }
-    }
-
-    if (visitor.IsThreadSafe())
-    {
-        for (auto& l_Future : l_FuturesResult)
-            l_Future.get();
     }
 }
 
@@ -152,9 +135,6 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
     const uint32 x_start = begin_cell.x_coord + x_shift;
     const uint32 x_end = end_cell.x_coord - x_shift;
 
-    std::list<std::future<void>> l_FuturesResult;
-
-
     //visit central strip with constant width...
     for (uint32 x = x_start; x <= x_end; ++x)
     {
@@ -163,25 +143,14 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
             CellCoord cellCoord(x, y);
             Cell r_zone(cellCoord);
             r_zone.data.Part.nocreate = this->data.Part.nocreate;
-
-            if (visitor.IsThreadSafe())
-                l_FuturesResult.push_back(std::async(std::launch::async, [&map, &r_zone, &visitor]() { map.Visit(r_zone, visitor); }));
-            else
-                map.Visit(r_zone, visitor);
+            map.Visit(r_zone, visitor);
         }
     }
 
     //if x_shift == 0 then we have too small cell area, which were already
     //visited at previous step, so just return from procedure...
     if (x_shift == 0)
-    {
-        if (visitor.IsThreadSafe())
-        {
-            for (auto& l_Future : l_FuturesResult)
-                l_Future.get();
-        }
         return;
-    }
 
     uint32 y_start = end_cell.y_coord;
     uint32 y_end = begin_cell.y_coord;
@@ -200,27 +169,12 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
             r_zone_left.data.Part.nocreate = this->data.Part.nocreate;
             map.Visit(r_zone_left, visitor);
 
-            if (visitor.IsThreadSafe())
-                l_FuturesResult.push_back(std::async(std::launch::async, [&map, &r_zone_left, &visitor]() { map.Visit(r_zone_left, visitor); }));
-            else
-                map.Visit(r_zone_left, visitor);
-
             //right trapezoid cell visit
             CellCoord cellCoord_right(x_end + step, y);
             Cell r_zone_right(cellCoord_right);
             r_zone_right.data.Part.nocreate = this->data.Part.nocreate;
-            if (visitor.IsThreadSafe())
-                l_FuturesResult.push_back(std::async(std::launch::async, [&map, &r_zone_right, &visitor]() { map.Visit(r_zone_right, visitor); }));
-            else
-                map.Visit(r_zone_right, visitor);
+            map.Visit(r_zone_right, visitor);
         }
-    }
-
-
-    if (visitor.IsThreadSafe())
-    {
-        for (auto& l_Future : l_FuturesResult)
-            l_Future.get();
     }
 }
 #endif
