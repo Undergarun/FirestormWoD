@@ -484,7 +484,7 @@ namespace MS { namespace Garrison
                 }
 
                 m_AnimTimer   = 0;
-                m_RefillTimer = urand (300 * IN_MILLISECONDS, 600 * IN_MILLISECONDS); ///< You can get chop from the tree like every 5-10 minutes
+                m_RefillTimer = 450 * IN_MILLISECONDS; ///< You can get chop from the tree like every 7 minutes
             }
             else
                 m_AnimTimer -= p_Diff;
