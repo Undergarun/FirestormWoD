@@ -1,7 +1,8 @@
-REPLACE INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUE('-40','1','84248','8.09301','4.77387','1.14502','2.03218');
-REPLACE INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUE('-40','1','88792','8.92388','-3.45779','1.22526','4.80856');
-REPLACE INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUE('-40','1','84936','-3.85394','-7.74791','1.1838','2.15391');
-REPLACE INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUE('-40','1','-233832','10.8937','2.18546','0.697922','1.65911');
+DELETE FROM garrison_plot_content WHERE plot_type_or_building = -40 AND faction_index = 1;
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUE('-40','1','84248','8.09301','4.77387','1.14502','2.03218');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUE('-40','1','88792','8.92388','-3.45779','1.22526','4.80856');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUE('-40','1','84936','-3.85394','-7.74791','1.1838','2.15391');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUE('-40','1','-233832','10.8937','2.18546','0.697922','1.65911');
 
 #88792/NPC - Randal Pine
 

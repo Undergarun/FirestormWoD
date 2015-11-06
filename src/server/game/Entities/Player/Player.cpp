@@ -18264,7 +18264,7 @@ bool Player::CanRewardQuest(Quest const* p_Quest, bool msg)
 
     for (QuestObjective l_Objective : p_Quest->QuestObjectives)
     {
-        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
+        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
         {
             if (GetItemCount(l_Objective.ObjectID) < uint32(l_Objective.Amount))
             {
