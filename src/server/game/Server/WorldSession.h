@@ -1206,6 +1206,22 @@ class WorldSession
         QueryResultHolderFuture m_CharacterLoginCallback;
         QueryResultHolderFuture m_CharacterLoginDBCallback;
 
+        //////////////////////////////////////////////////////////////////////////
+        /// New transaction query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using TransactionCallbacks = std::forward_list < std::shared_ptr<MS::Utilities::Callback> > ;
+        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
+        std::mutex m_TransactionCallbackLock;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New prepare statement query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using PrepareStatementCallback = std::pair < std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture > ;
+        using PreparedStatementCallbacks = std::forward_list < PrepareStatementCallback > ;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacks;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
+        std::mutex m_PreparedStatementCallbackLock;
+
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
