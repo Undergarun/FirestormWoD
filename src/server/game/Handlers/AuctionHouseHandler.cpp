@@ -697,7 +697,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket& p_RecvData)
 
     AuctionHouseObject* l_AuctionHouse = sAuctionMgr->GetAuctionsMap(l_Auctioneer->getFaction());
 
-    WorldPacket l_Data(SMSG_AUCTION_LIST_RESULT, 2 * 1024);
+    WorldPacket l_Data(SMSG_AUCTION_LIST_RESULT, 10 * 1024);
 
     size_t l_CountPos = l_Data.wpos();
     l_Data << uint32(0);                                    // Count place holder
