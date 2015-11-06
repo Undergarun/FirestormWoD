@@ -162,7 +162,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, SQLTrans
     uint32 owner_accId = sObjectMgr->GetPlayerAccountIdByGUID(owner_guid);
     // owner exist (online or offline)
     if (owner || owner_accId)
-        MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING), AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut(), sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY)))
+        MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING), AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut()))
             .SendMailTo(trans, MailReceiver(owner, auction->owner), auction, MAIL_CHECK_MASK_COPIED);
 }
 
