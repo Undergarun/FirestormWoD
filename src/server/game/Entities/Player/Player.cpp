@@ -7006,7 +7006,6 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
 
             MS::Garrison::Manager::DeleteFromDB(playerguid, trans);
 
-            CharacterDatabase.CommitTransaction(trans);
             MS::Utilities::CallBackPtr l_CharCreateCallback = nullptr;
 
             if (updateRealmChars)
