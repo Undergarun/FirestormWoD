@@ -2619,24 +2619,29 @@ void SpellMgr::LoadPetDefaultSpells()
     uint32 countCreature = 0;
     uint32 countData = 0;
 
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
-    {
+    CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
+    uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
 
-        if (!itr->second.PetSpellDataId)
+    for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
+    {
+        CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
+        if (l_CreatureTemplate == nullptr)
+            continue;
+
+        if (!l_CreatureTemplate->PetSpellDataId)
             continue;
 
         // for creature with PetSpellDataId get default pet spells from dbc
-        CreatureSpellDataEntry const* spellDataEntry = sCreatureSpellDataStore.LookupEntry(itr->second.PetSpellDataId);
+        CreatureSpellDataEntry const* spellDataEntry = sCreatureSpellDataStore.LookupEntry(l_CreatureTemplate->PetSpellDataId);
         if (!spellDataEntry)
             continue;
 
-        int32 petSpellsId = -int32(itr->second.PetSpellDataId);
+        int32 petSpellsId = -int32(l_CreatureTemplate->PetSpellDataId);
         PetDefaultSpellsEntry petDefSpells;
         for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
             petDefSpells.spellid[j] = spellDataEntry->spellId[j];
 
-        if (LoadPetDefaultSpells_helper(&itr->second, petDefSpells))
+        if (LoadPetDefaultSpells_helper(l_CreatureTemplate, petDefSpells))
         {
             mPetDefaultSpellsMap[petSpellsId] = petDefSpells;
             ++countData;
