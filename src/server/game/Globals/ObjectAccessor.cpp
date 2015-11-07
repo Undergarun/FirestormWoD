@@ -39,8 +39,22 @@
 
 #include <cmath>
 
+uint32 ObjectAccessor::k_PlayerCacheMaxGuid;
+Player** ObjectAccessor::m_PlayersCache;
+
+uint32 ObjectAccessor::k_CreaturesCacheMaxGuid;
+Creature** ObjectAccessor::m_CreaturesCache;
+
 ObjectAccessor::ObjectAccessor()
 {
+    k_PlayerCacheMaxGuid    = ConfigMgr::GetIntDefault("PlayersCache.Size",    1000000);
+    k_CreaturesCacheMaxGuid = ConfigMgr::GetIntDefault("CreaturesCache.Size", 30000000);
+
+    m_PlayersCache = new Player*[k_PlayerCacheMaxGuid];
+    memset(m_PlayersCache, 0, sizeof(Player*) * k_PlayerCacheMaxGuid);
+
+    m_CreaturesCache = new Creature*[k_CreaturesCacheMaxGuid];
+    memset(m_CreaturesCache, 0, sizeof(Creature*)* k_CreaturesCacheMaxGuid);
 }
 
 ObjectAccessor::~ObjectAccessor()

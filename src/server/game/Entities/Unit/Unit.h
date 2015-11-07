@@ -2617,15 +2617,8 @@ class Unit : public WorldObject
         void FocusTarget(Spell const* p_FocusSpell, WorldObject* p_Target);
         void ReleaseFocus(Spell const* focusSpell);
 
-        uint32 GetHealingDoneInPastSecs(uint32 secs);
-        uint32 GetHealingTakenInPastSecs(uint32 secs);
-        uint32 GetDamageDoneInPastSecs(uint32 secs);
         uint32 GetDamageDoneInPastSecsBySpell(uint32 secs, uint32 spellId);
-        uint32 GetDamageTakenInPastSecs(uint32 secs);
-        void SetHealDone(HealDone* healDone) { m_healDone.push_back(healDone); }
-        void SetHealTaken(HealTaken* healTaken) { m_healTaken.push_back(healTaken); }
         void SetDamageDone(DamageDone* dmgDone) { m_dmgDone.push_back(dmgDone); }
-        void SetDamageTaken(DamageTaken* dmgTaken) { m_dmgTaken.push_back(dmgTaken); }
 
         // Movement info
         Movement::MoveSpline * movespline;
@@ -2736,14 +2729,8 @@ class Unit : public WorldObject
         uint32 m_interruptMask;
         AuraIdList _SoulSwapDOTList;
 
-        typedef std::list<HealDone*> HealDoneList;
-        typedef std::list<HealTaken*> HealTakenList;
         typedef std::list<DamageDone*> DmgDoneList;
-        typedef std::list<DamageTaken*> DmgTakenList;
-        HealDoneList m_healDone;
-        HealTakenList m_healTaken;
         DmgDoneList m_dmgDone;
-        DmgTakenList m_dmgTaken;
 
         float m_auraModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_END];
         float m_weaponDamage[WeaponAttackType::MaxAttack][2];
