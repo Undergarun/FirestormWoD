@@ -2750,7 +2750,7 @@ class Unit : public WorldObject
         struct SoulSwapAurasData
         {
             SoulSwapAurasData(uint32 id, uint8 stacks, int32 damage, int32 amplitude) : m_id(id), m_stacks(stacks), m_damage(damage), m_amplitude(amplitude){}
-q
+
             uint32 m_id;
             uint8 m_stacks;
             int32 m_damage;
