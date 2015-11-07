@@ -54,7 +54,7 @@ struct LFGListEntry
         uint32 GetRemainingTimeoutTime() const;
         void ResetTimeout();
 
-        void Update(uint32 const p_Diff);
+        bool Update(uint32 const p_Diff);
     };
 
     LFGListEntry()
@@ -87,8 +87,10 @@ struct LFGListEntry
     LFGListApplicationEntry* GetApplicant(uint32 p_ID);
     LFGListApplicationEntry* GetApplicantByGUIDLow(uint32 p_ID);
 
-    void Update(uint32 const p_Diff);
+    bool Update(uint32 const p_Diff);
     void ResetTimeout();
+
+    uint32 GetID() const;
 };
 
 class LFGListMgr

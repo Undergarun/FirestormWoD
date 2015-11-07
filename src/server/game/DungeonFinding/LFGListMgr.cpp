@@ -414,25 +414,47 @@ uint8 LFGListMgr::GetApplicationCountByPlayer(uint32 p_GUIDLow) const
 
 void LFGListMgr::Update(uint32 const p_Diff)
 {
-    for (auto& l_Entry : m_LFGListQueue)
-        l_Entry.second->Update(p_Diff);
-}
-
-void LFGListEntry::Update(uint32 const p_Diff)
-{
-    for (auto& l_Application : m_Applications)
-        l_Application.second.Update(p_Diff);
-
-    if (m_Timeout <= time(nullptr)) ///< RIP
-        sLFGListMgr->Remove(m_Group->GetLowGUID());
-}
-
-void LFGListEntry::LFGListApplicationEntry::Update(uint32 const p_Diff)
-{
-    if (m_Timeout <= time(nullptr)) ///< Bye bye
+    for (std::unordered_map<uint32, LFGListEntry *>::iterator l_Iter = m_LFGListQueue.begin(); l_Iter != m_LFGListQueue.end();)
     {
-        sLFGListMgr->ChangeApplicantStatus(this, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_TIMEOUT);
+        if (!l_Iter->second->Update(p_Diff))
+        {
+            sLFGListMgr->Remove((*l_Iter).second->GetID());
+            l_Iter = m_LFGListQueue.begin();
+        }
+        else
+        {
+            ++l_Iter;
+        }
     }
+}
+
+uint32 LFGListEntry::GetID() const
+{
+    return m_Group->GetLowGUID();
+}
+
+bool LFGListEntry::Update(uint32 const p_Diff)
+{
+    for (std::map<uint32, LFGListApplicationEntry>::iterator l_Iter = m_Applications.begin(); l_Iter != m_Applications.end();)
+    {
+        if (!l_Iter->second.Update(p_Diff))
+        {
+            sLFGListMgr->ChangeApplicantStatus(&l_Iter->second, LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_TIMEOUT);
+            l_Iter = m_Applications.begin();
+        }
+        else
+        {
+            ++l_Iter;
+        }
+
+    }
+
+    return m_Timeout > time(nullptr);
+}
+
+bool LFGListEntry::LFGListApplicationEntry::Update(uint32 const p_Diff)
+{
+    return m_Timeout > time(nullptr); ///< Bye bye
 }
 
 LFGListEntry::LFGListApplicationEntry* LFGListEntry::GetApplicant(uint32 p_ID)
