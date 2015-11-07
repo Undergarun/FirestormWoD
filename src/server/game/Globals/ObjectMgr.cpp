@@ -436,7 +436,7 @@ void ObjectMgr::LoadCreatureTemplates()
     m_CreatureTemplateStoreSize = l_MaxResult->Fetch()[0].GetUInt32();
     m_CreatureTemplateStore     = new CreatureTemplate*[m_CreatureTemplateStoreSize];
 
-    memset(m_CreatureTemplateStore, 0, m_CreatureTemplateStoreSize * sizeof(uint32));
+    memset(m_CreatureTemplateStore, 0, m_CreatureTemplateStoreSize * sizeof(CreatureTemplate*));
 
     uint32 count = 0;
     do
