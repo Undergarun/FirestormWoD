@@ -2282,6 +2282,9 @@ class Player : public Unit, public GridObject<Player>
          */
         void CheckTalentSpells();
 
+        /// Custom functions for spells
+        void HandleWarlockWodPvpBonus();
+
         // Dual Spec
         void UpdateSpecCount(uint8 count);
         void ActivateSpec(uint8 spec);

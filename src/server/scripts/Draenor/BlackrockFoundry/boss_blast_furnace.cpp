@@ -2361,7 +2361,7 @@ class spell_foundry_bomb_overrider : public SpellScriptLoader
                 BombAoE = 155187
             };
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2370,6 +2370,11 @@ class spell_foundry_bomb_overrider : public SpellScriptLoader
                     {
                         l_Aura->SetDuration(10 * TimeConstants::IN_MILLISECONDS);
                         l_Aura->SetMaxDuration(10 * TimeConstants::IN_MILLISECONDS);
+                    }
+                    else if (l_Target->GetMap()->IsMythic())
+                    {
+                        l_Aura->SetDuration(8 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(8 * TimeConstants::IN_MILLISECONDS);
                     }
                 }
             }
@@ -2382,7 +2387,7 @@ class spell_foundry_bomb_overrider : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_foundry_bomb_overrider_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_foundry_bomb_overrider_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_bomb_overrider_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
             }
         };

@@ -162,7 +162,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, SQLTrans
     uint32 owner_accId = sObjectMgr->GetPlayerAccountIdByGUID(owner_guid);
     // owner exist (online or offline)
     if (owner || owner_accId)
-        MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING), AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut(), sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY)))
+        MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING), AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut()))
             .SendMailTo(trans, MailReceiver(owner, auction->owner), auction, MAIL_CHECK_MASK_COPIED);
 }
 
@@ -751,7 +751,6 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
     if (!expAuctions)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> No expired auctions to delete");
-
         return;
     }
 
@@ -772,7 +771,7 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
 
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        if (auction->bidder==0)
+        if (auction->bidder == 0)
         {
             // Cancel the auction, there was no bidder
             sAuctionMgr->SendAuctionExpiredMail(auction, trans);
@@ -800,8 +799,6 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
     while (expAuctions->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Deleted %u expired auctions in %u ms", expirecount, GetMSTimeDiffToNow(oldMSTime));
-
-
 }
 
 bool AuctionEntry::LoadFromFieldList(Field* fields)
@@ -855,16 +852,17 @@ std::string AuctionEntry::BuildAuctionMailSubject(MailAuctionAnswers response) c
 {
     std::ostringstream strm;
     strm << itemEntry << ":0:" << response << ':' << Id << ':' << itemCount;
-    strm << ":0" << ":0" << ":0" << ":0" << ":0";
+    strm << ":0" << ":0" << ":0" << ":0" << ":0" << ":0" << ":0";
     return strm.str();
 }
 
-std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint64 bid, uint64 buyout, uint64 deposit, uint64 cut, uint32 deliveryTime)
+std::string AuctionEntry::BuildAuctionMailBody(uint32 p_LowGUID, uint64 p_BID, uint64 p_Buyout, uint64 p_Deposit, uint64 p_Cut)
 {
-    std::ostringstream strm;
-    strm.width(16);
-    strm << std::right << std::hex << MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);   // HIGHGUID_PLAYER always present, even for empty guids
-    strm << std::dec << ':' << bid << ':' << buyout;
-    strm << ':' << deposit << ':' << cut << ":0:";
-    return strm.str();
+    std::ostringstream l_Body;
+
+    l_Body << "Player-" << g_RealmID << '-' << std::hex << p_LowGUID;
+    l_Body << std::dec << ':' << p_BID << ':' << p_Buyout;
+    l_Body << ':' << p_Deposit << ':' << p_Cut << ":0";
+
+    return l_Body.str();
 }

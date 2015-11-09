@@ -244,8 +244,6 @@ class boss_imperator_margok : public CreatureScript
 
             uint64 m_MeleeTargetGuid;
 
-            uint8 m_BrandedStacks;
-
             bool m_IsInNova;
             uint32 m_NovaTime;
             Position m_NovaPos;
@@ -274,8 +272,6 @@ class boss_imperator_margok : public CreatureScript
                 m_Events.SetPhase(m_Phase);
 
                 m_MeleeTargetGuid = 0;
-
-                m_BrandedStacks = 0;
 
                 m_IsInNova  = false;
                 m_NovaTime  = 0;
@@ -593,8 +589,6 @@ class boss_imperator_margok : public CreatureScript
             {
                 switch (p_ID)
                 {
-                    case eDatas::BrandedStacks:
-                        return m_BrandedStacks;
                     case eDatas::PhaseID:
                         return m_Phase;
                     case eDatas::OrbOfChaosAngle:
@@ -610,15 +604,6 @@ class boss_imperator_margok : public CreatureScript
             {
                 switch (p_ID)
                 {
-                    case eDatas::BrandedStacks:
-                    {
-                        if (p_Value)
-                            ++m_BrandedStacks;
-                        else
-                            m_BrandedStacks = 0;
-
-                        break;
-                    }
                     case eDatas::OrbOfChaosAngle:
                     {
                         m_OrbCount = p_Value;
@@ -843,21 +828,11 @@ class boss_imperator_margok : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::ArcaneWrathBranded:
-                    {
-                        /// m_BrandedStacks only counts the jumps, we must add 1
-                        if (AuraPtr l_Branded = p_Target->GetAura(eSpells::ArcaneWrathBranded, me->GetGUID()))
-                            l_Branded->SetStackAmount(m_BrandedStacks + 1);
-
-                        Talk(eTalks::Branded, p_Target->GetGUID());
-                        break;
-                    }
                     case eSpells::ArcaneWrathBrandedDisplacement:
+                    case eSpells::ArcaneWrathBrandedFortification:
+                    case eSpells::ArcaneWrathBrandedReplication:
                     {
-                        /// m_BrandedStacks only counts the jumps, we must add 1
-                        if (AuraPtr l_Branded = p_Target->GetAura(eSpells::ArcaneWrathBrandedDisplacement, me->GetGUID()))
-                            l_Branded->SetStackAmount(m_BrandedStacks + 1);
-
-                        Talk(eTalks::Branded, p_Target->GetGUID());
+                        Talk(eTalks::Branded, p_Target->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                         break;
                     }
                     case eSpells::MarkOfChaosDisplacementAura:
@@ -868,27 +843,9 @@ class boss_imperator_margok : public CreatureScript
 
                         break;
                     }
-                    case eSpells::ArcaneWrathBrandedFortification:
-                    {
-                        /// m_BrandedStacks only counts the jumps, we must add 1
-                        if (AuraPtr l_Branded = p_Target->GetAura(eSpells::ArcaneWrathBrandedFortification, me->GetGUID()))
-                            l_Branded->SetStackAmount(m_BrandedStacks + 1);
-
-                        Talk(eTalks::Branded, p_Target->GetGUID());
-                        break;
-                    }
                     case eSpells::MarkOfChaosFortificationAura:
                     {
                         me->CastSpell(p_Target, eSpells::FetterMarkOfChaosRootAura, true);
-                        break;
-                    }
-                    case eSpells::ArcaneWrathBrandedReplication:
-                    {
-                        /// m_BrandedStacks only counts the jumps, we must add 1
-                        if (AuraPtr l_Branded = p_Target->GetAura(eSpells::ArcaneWrathBrandedFortification, me->GetGUID()))
-                            l_Branded->SetStackAmount(m_BrandedStacks + 1);
-
-                        Talk(eTalks::Branded, p_Target->GetGUID());
                         break;
                     }
                     case eSpells::MarkOfChaosReplicationAura:
@@ -2574,6 +2531,11 @@ class spell_highmaul_branded : public SpellScriptLoader
             BrandedStacks
         };
 
+        enum eTalk
+        {
+            Branded = 21
+        };
+
         class spell_highmaul_branded_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_highmaul_branded_AuraScript);
@@ -2616,14 +2578,14 @@ class spell_highmaul_branded : public SpellScriptLoader
                                         if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
                                         {
                                             /// Increase jump count
-                                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+                                            ++l_Stacks;
 
-                                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
-                                            return;
+                                            if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                            {
+                                                l_Aura->SetStackAmount(l_Stacks);
+                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                            }
                                         }
-
-                                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
-                                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
                                     }
                                 }
                             });
@@ -2660,6 +2622,11 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
         enum eData
         {
             BrandedStacks
+        };
+
+        enum eTalk
+        {
+            Branded = 21
         };
 
         class spell_highmaul_branded_displacement_AuraScript : public AuraScript
@@ -2727,14 +2694,14 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                                         if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
                                         {
                                             /// Increase jump count
-                                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+                                            ++l_Stacks;
 
-                                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
-                                            return;
+                                            if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                            {
+                                                l_Aura->SetStackAmount(l_Stacks);
+                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                            }
                                         }
-
-                                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
-                                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
                                     }
                                 }
                             });
@@ -2771,6 +2738,11 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
         enum eData
         {
             BrandedStacks
+        };
+
+        enum eTalk
+        {
+            Branded = 21
         };
 
         class spell_highmaul_branded_fortification_AuraScript : public AuraScript
@@ -2815,14 +2787,14 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                                         if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
                                         {
                                             /// Increase jump count
-                                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+                                            ++l_Stacks;
 
-                                            l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
-                                            return;
+                                            if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                            {
+                                                l_Aura->SetStackAmount(l_Stacks);
+                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                            }
                                         }
-
-                                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
-                                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
                                     }
                                 }
                             });
@@ -2857,6 +2829,11 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
         enum eData
         {
             BrandedStacks
+        };
+
+        enum eTalk
+        {
+            Branded = 21
         };
 
         class spell_highmaul_branded_replication_AuraScript : public AuraScript
@@ -2899,7 +2876,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                             l_JumpRange -= CalculatePct(l_JumpRange, 25.0f);
 
                                         /// In addition to Arcane Wrath's normal effects, a second player will be Branded the first time Arcane Wrath jumps.
-                                        if (!l_Stacks)
+                                        if (l_Stacks <= 1)
                                         {
                                             std::list<Player*> l_PlrList;
                                             l_Target->GetPlayerListInGrid(l_PlrList, l_JumpRange);
@@ -2910,11 +2887,14 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                                 JadeCore::RandomResizeList(l_PlrList, 2);
                                             }
 
-                                            /// Increase jump count
-                                            l_Margok->AI()->SetData(eData::BrandedStacks, 1);
-
                                             for (Player* l_Player : l_PlrList)
-                                                l_Margok->CastSpell(l_Player, GetSpellInfo()->Id, true);
+                                            {
+                                                if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_Player))
+                                                {
+                                                    l_Aura->SetStackAmount(l_Stacks);
+                                                    l_Margok->AI()->Talk(eTalk::Branded, l_Player->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                }
+                                            }
 
                                             return;
                                         }
@@ -2933,15 +2913,15 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                             if (Player* l_OtherPlayer = l_PlrList.front())
                                             {
                                                 /// Increase jump count
-                                                l_Margok->AI()->SetData(eData::BrandedStacks, 1);
+                                                ++l_Stacks;
 
-                                                l_Margok->CastSpell(l_OtherPlayer, GetSpellInfo()->Id, true);
-                                                return;
+                                                if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                                {
+                                                    l_Aura->SetStackAmount(l_Stacks);
+                                                    l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                }
                                             }
                                         }
-
-                                        /// If no player found, the debuff will drop because there will be no one within 25 yards of the afflicted player.
-                                        l_Margok->AI()->SetData(eData::BrandedStacks, 0);
                                     }
                                 }
                             });

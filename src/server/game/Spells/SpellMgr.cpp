@@ -145,6 +145,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_WARLOCK:
         {
+            /// Chaos Wave -- 124915, slow effect
+            if (spellproto->Id == 124915)
+                return DIMINISHING_NONE;
             // Mortal Coil -- 6789
             if (spellproto->SpellFamilyFlags[0] & 0x80000)
                 return DIMINISHING_INCAPACITATE;
@@ -3936,6 +3939,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 16961:///< Primal Fury
             case 159232:///< Ursa Major
             case 159362:///< Blood Craze
+            case 76672:///< Mastery: Hand of Light
+            case 55447:///< Glyph of Flame Shock
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             case 30814: ///< Mental Quickness
@@ -4437,8 +4442,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(21); ///< 35
                 break;
             case 103965: ///< Metamorphosis (override auras)
-                spellInfo->Effects[2].SpellClassMask[0] = 64;
-
                 ///< All this effects are Override with old spell id
                 spellInfo->Effects[4].Effect = SPELL_EFFECT_NONE; ///< No more use (Void Ray : 115422)
                 spellInfo->Effects[5].Effect = SPELL_EFFECT_NONE; ///< No more use (Aura of Enfeeblement : 116198)
@@ -4449,6 +4452,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[11].Effect = SPELL_EFFECT_NONE;
                 spellInfo->Effects[14].Effect = SPELL_EFFECT_NONE; ///< No more use (Drain Life : 103990)
                 spellInfo->Effects[15].Effect = SPELL_EFFECT_NONE;
+                break;
+            case 5857:   ///< Hellfire damage spell
+                spellInfo->AttributesEx3 = 0;
+                spellInfo->AttributesEx4 = 0;
                 break;
             case 145518: ///< Genesis
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
@@ -4877,14 +4884,49 @@ void SpellMgr::LoadSpellCustomAttr()
             case 167694:///< Item - Priest T17 Discipline 4P Bonus
             case 167684:///< Item - Priest T17 Holy 4P Bonus
             case 165629:///< Item - Priest T17 Shadow 4P Bonus
+            case 167702:///< Item - Shaman T17 Restoration 4P Bonus
+            case 165610:///< Item - Shaman T17 Enhancement 4P Bonus
+            case 165525:///< Item - Hunter T17 Marksmanship 4P Bonus
+            case 165544:///< Item - Hunter T17 Survival 2P Bonus
+            case 165450:///< Item - Warlock T17 Demonology 2P Bonus
+            case 165337:///< Item - Warrior T17 Fury 2P Bonus
+            case 165349:///< Item - Warrior T17 Fury 4P Bonus
+            case 165469:///< Item - Mage T17 Frost 4P Bonus
+            case 165432:///< Item - Druid T17 Feral 4P Bonus
+            case 165410:///< Item - Druid T17 Guardian 2P Bonus
+            case 165478:///< Item - Rogue T17 Combat 4P Bonus
+            case 165547:///< Item - Death Knight T17 Frost 2P Bonus
+            case 165568:///< Item - Death Knight T17 Frost 4P Bonus
+            case 165345:///< Item - Warrior T17 Arms 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
             case 167697:///< Item - Paladin T17 Holy 4P Bonus
                 spellInfo->Effects[EFFECT_0].BasePoints = 20;
                 break;
+            case 181608:///< Inner Demon (for Warlock T17 Demonology 2P Bonus)
+            case 166881:///< Shadow Strikes (for Rogue T17 Subtlety 4P Bonus)
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
+                break;
+            case 165336:///< Item - Warrior T17 Arms 2P Bonus
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
+                break;
+            case 165437:///< Item - Druid T17 Restoration 2P Bonus
+                spellInfo->Effects[EFFECT_0].BasePoints = 2;
+                break;
+            case 170205:///< Item - Death Knight T17 Frost 4P Driver
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
+                break;
             case 530:   ///< Charm (Possess)
                 spellInfo->Effects[EFFECT_0].BasePoints = 102;
+                break;
+            case 36032: ///< Arcane Charge
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 99213: ///< Item - Shaman T12 Enhancement 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -4944,9 +4986,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 109260: ///< Aspect of the Iron Hawk
                 spellInfo->Effects[0].BasePoints = -10;
-                break;
-            case 48181: ///< Haunt - hotfix 5.4.2
-                spellInfo->Effects[3].BasePoints = 35;
                 break;
             case 109306: ///< Thrill of the Hunt
                 spellInfo->ProcChance = 0;
@@ -5729,8 +5768,43 @@ void SpellMgr::LoadSpellCustomAttr()
             case 603:   ///< Doom
             case 103964:///< Touch of Chaos
             case 124915:///< Chaos Wave
-            case 157695:///< Demonbolt
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
+                break;
+            case 127802: ///< Touch of The Grave (trigger)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
+                break;
+            case 53:    ///< Backstap
+                spellInfo->Effects[0].BonusMultiplier = 0;
+                break;
+            case 86121: ///< Soul Swap
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
+            case 86213: ///< Soul Swap Exhale
+                spellInfo->Speed = 0;
+                break;
+            case 157695:///< Demonbolt
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NORMAL;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_NOT_NEED_SHAPESHIFT;
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
+                break;
+            case 169686:///< Unyielding Strikes
+                spellInfo->ProcCharges = 0;
+                break;
+            case 109167:///< Demonic Leap (jump)
+                spellInfo->Effects[0].MiscValue = 300;
+                break;
+            case 781:   ///< Disengage
+                spellInfo->Effects[0].TriggerSpell = 0; ///< Handled in Player::HandleFall()
+                break;
+            case 111400:///< Burning Rush
+                spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_NOT_ABOVEWATER + AURA_INTERRUPT_FLAG_NOT_UNDERWATER;
+                break;
+            case 96840: ///< Flame Patch for Glyph of the Blazing Trail
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); ///< 1s
+                break;
+            case 100:   ///< Charge
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)

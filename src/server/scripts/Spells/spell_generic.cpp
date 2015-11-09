@@ -4442,10 +4442,18 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                 if (l_Attacker == nullptr || l_Victim == nullptr)
                     return;
 
-                if (l_Attacker->GetGUID() == l_Victim->GetGUID())
+                if (l_Attacker->GetGUID() == l_Victim->GetGUID() || !l_Attacker->ToPlayer())
+                    return;
+
+                if (l_Attacker->ToPlayer()->HasSpellCooldown(eSpells::TouchoftheGraveEffect))
+                    return;
+
+                /// Can proc just on damage spell, also check for absorbed damage, because all damage can be absorbed but it's still damage spell
+                if (p_EventInfo.GetDamageInfo() && p_EventInfo.GetDamageInfo()->GetDamage() == 0 && p_EventInfo.GetDamageInfo()->GetAbsorb() == 0)
                     return;
 
                 l_Attacker->CastSpell(l_Victim, eSpells::TouchoftheGraveEffect, true);
+                l_Attacker->ToPlayer()->AddSpellCooldown(eSpells::TouchoftheGraveEffect, 0, 20 * IN_MILLISECONDS, true);
             }
 
             void Register()
@@ -4543,6 +4551,47 @@ class spell_gen_mark_of_warsong : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Elixir of Wandering Spirits - 147412
+class spell_gen_elixir_of_wandering_spirits : public SpellScriptLoader
+{
+public:
+    spell_gen_elixir_of_wandering_spirits() : SpellScriptLoader("spell_gen_elixir_of_wandering_spirits") { }
+
+    class spell_gen_elixir_of_wandering_spirits_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_elixir_of_wandering_spirits_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            const uint8 l_AmountOfModels = 8;
+            /// Array of all spells that change model for this item
+            static uint32 const WanderingSpiritsMorphs[l_AmountOfModels] = { 147402, 147403, 147405, 147406, 147407, 147409, 147410, 147411 };
+
+            /// Remove previus auras if have, to prevent usebug with many auras
+            for (uint8 l_I = 0; l_I < l_AmountOfModels; l_I++)
+                l_Caster->RemoveAura(WanderingSpiritsMorphs[l_I]);
+
+            l_Caster->CastSpell(l_Caster, WanderingSpiritsMorphs[urand(0, 7)], true);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_elixir_of_wandering_spirits_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_elixir_of_wandering_spirits_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_mark_of_warsong();
@@ -4630,6 +4679,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_sword_technique();
     new spell_gen_check_faction();
     new spell_gen_stoneform_dwarf_racial();
+    new spell_gen_elixir_of_wandering_spirits();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

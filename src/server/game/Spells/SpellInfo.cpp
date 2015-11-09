@@ -2943,6 +2943,10 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
             powerCost += CalculatePct(powerCost, (*i)->GetAmount());
         }
 
+        /// Hack fix: Soul Swap Exhale shouldn't take any mana
+        if (Id == 86213 && PowerType == POWER_MANA)
+            powerCost = 0;
+
         m_powerCost[POWER_TO_INDEX(PowerType)] += powerCost;
     }
 }

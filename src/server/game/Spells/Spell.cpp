@@ -3111,7 +3111,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         return SPELL_MISS_MISS;
 
     /// Hack fix for Cloak of Shadows (just Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
-    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803)
+    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803 && m_spellInfo->Id != 157695)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune
@@ -6231,7 +6231,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (m_spellInfo->Id == 1776 && !m_caster->HasAura(56809) && !target->HasInArc(static_cast<float>(M_PI), m_caster))
                 return SPELL_FAILED_NOT_INFRONT;
 
-            if (!IsTriggered())
+            if (!IsTriggered() || IsCommandDemonSpell())  ///< Comand Demon spells is triggered to allow cast while casting other spell, but should be checked for LoS rules too
             {
                 // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
                 if (m_caster->GetEntry() != WORLD_TRIGGER)
@@ -6810,19 +6810,15 @@ SpellCastResult Spell::CheckCast(bool strict)
             default:
                 break;
         }
-    }
 
-    for (uint8 i = 0; i < m_spellInfo->EffectCount; ++i)
-    {
         switch (m_spellInfo->Effects[i].ApplyAuraName)
         {
             case SPELL_AURA_MOD_STEALTH:
             {
-                if (m_caster->HasAura(94528) ||                 // Flare ///< @todo spell id removed
-                m_caster->HasAuraWithNegativeCaster(88611))     // Smoke Bomb
-                {
+                // Flare ///< @todo spell id removed && Smoke Bomb
+                if (m_caster->HasAura(94528) || m_caster->HasAuraWithNegativeCaster(88611))
                     return SPELL_FAILED_CASTER_AURASTATE;
-                }
+
                 break;
             }
             case SPELL_AURA_MOD_RANGED_HASTE:
@@ -6973,6 +6969,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     switch(m_spellInfo->Id)
     {
+        case 23517: ///< Create Healthstone
+        {
+            if (m_caster->ToPlayer() && m_caster->ToPlayer()->HasItemCount(5512, 1))
+                m_caster->ToPlayer()->DestroyItemCount(5512, 1, true);
+            break;
+        }
         case 50334: // Berserk
         case 61336: // Survival Instincts
         {
@@ -7371,6 +7373,22 @@ SpellCastResult Spell::CheckPower()
             if (failReason != SPELL_CAST_OK)
                 return failReason;
         }
+    }
+
+    switch (m_spellInfo->Id)
+    {
+        case 53385:  ///< Divine Storm
+        {
+            if (m_powerCost[POWER_HOLY_POWER] != 0 && m_caster->HasAura(144595))
+            {
+                m_powerCost[POWER_HOLY_POWER] = 0;
+                m_caster->RemoveAuraFromStack(144595);
+            }
+
+            break;
+        }
+        default:
+            break;
     }
 
     // Check power amount
@@ -8784,6 +8802,10 @@ bool Spell::CanProcOnTarget(Unit *target) const
     if (m_spellInfo->Id == 95746)
         return true;
 
+    /// Arcane Charge
+    if (m_spellInfo->Id == 36032)
+        return true;
+
     // swd for priest, for other it does bugs
     if (m_spellInfo->SpellFamilyName != SPELLFAMILY_PRIEST && !m_spellInfo->IsPositive() && m_caster->IsFriendlyTo(target))
         return false;
@@ -8965,6 +8987,26 @@ bool Spell::IsDarkSimulacrum() const
             if (m_spellInfo->Id == triggerSpell->Id)
                 return true;
         }
+    }
+
+    return false;
+}
+
+bool Spell::IsCommandDemonSpell() const
+{
+    switch (m_spellInfo->Id)
+    {
+        case 119905:
+        case 119907:
+        case 119909:
+        case 119910:
+        case 119911:
+        case 119913:
+        case 119914:
+        case 119915:
+            return true;
+        default:
+            return false;
     }
 
     return false;

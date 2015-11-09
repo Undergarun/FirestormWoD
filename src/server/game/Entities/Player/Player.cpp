@@ -1668,6 +1668,10 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage p_Type, uint32 p_Damage)
         CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, p_Damage, &l_Absorb, &l_Resist);
     else if (p_Type == DAMAGE_FALL)
     {
+        /// Glyph of Falling Meteor - 56247
+        if (getClass() == CLASS_WARLOCK && HasAura(109151) && HasAura(56247))
+            AddPct(p_Damage, -95);
+
         // Percentage from SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT
         AuraEffectList const& mReduceFallDamagePct = GetAuraEffectsByType(SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT);
         for (AuraEffectList::const_iterator i = mReduceFallDamagePct.begin(); i != mReduceFallDamagePct.end(); ++i)
@@ -7028,9 +7032,6 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
         default:
             sLog->outError(LOG_FILTER_PLAYER, "Player::DeleteFromDB: Unsupported delete method: %u.", charDelete_method);
     }
-
-    if (updateRealmChars)
-        sWorld->UpdateRealmCharCount(accountId);
 }
 
 /**
@@ -18330,7 +18331,7 @@ bool Player::CanRewardQuest(Quest const* p_Quest, bool msg)
 
     for (QuestObjective l_Objective : p_Quest->QuestObjectives)
     {
-        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
+        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
         {
             if (GetItemCount(l_Objective.ObjectID) < uint32(l_Objective.Amount))
             {
@@ -19853,7 +19854,7 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
 
 void Player::TalkedToCreature(uint32 entry, uint64 guid)
 {
-    QuestObjectiveSatisfy(entry, 1, QUEST_OBJECTIVE_TYPE_NPC /*QUEST_OBJECTIVE_TYPE_NPC_INTERACT*/, guid);
+    QuestObjectiveSatisfy(entry, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, guid);
 }
 
 void Player::MoneyChanged(uint32 count)
@@ -29744,6 +29745,13 @@ void Player::HandleFall(MovementInfo const& movementInfo)
         }
     }
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute
+
+    /// Handler for Disengage, should give Posthaste just after landing
+    /// If in future we have some spells with same mechanic, just need to add switch
+    if (getClass() == CLASS_HUNTER && GetLastUsedLeapBackSpell() == 56446 && HasAura(109215))
+        CastSpell(this, 118922, true);
+
+    ClearLastUsedLeapBackSpell();
 }
 
 void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/, bool p_LoginCheck /*= false*/)
@@ -32845,7 +32853,7 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
         ilvl += item->GetItemLevelBonusFromItemBonuses();
 
     if (itemProto->PvPScalingLevel)
-        if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())
+        if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || (IsInPvPCombat() && m_deathState != JUST_DIED))
             ilvl += itemProto->PvPScalingLevel;
 
     if (uint32 minItemLevel = GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL))
@@ -33997,5 +34005,32 @@ void Player::CheckTalentSpells()
         }
 
         ++l_Itr;
+    }
+}
+
+void Player::HandleWarlockWodPvpBonus()
+{
+    if (getClass() != CLASS_WARLOCK || getLevel() != 100)
+        return;
+
+    uint32 l_SpellBonusId = 0;
+    uint32 l_TriggerSpell = 0;
+
+    /// Check what's specialization bonus we need
+    if (GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
+    {
+        l_SpellBonusId = 171377;
+        l_TriggerSpell = 171378;
+    }
+    else if (GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION)
+    {
+        l_SpellBonusId = 171383;
+        l_TriggerSpell = 188168;
+    }
+
+    if (HasAura(l_SpellBonusId) && !HasSpellCooldown(l_TriggerSpell))
+    {
+        CastSpell(this, l_TriggerSpell, true);
+        AddSpellCooldown(l_TriggerSpell, 0, 15 * IN_MILLISECONDS);
     }
 }

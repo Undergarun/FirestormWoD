@@ -3106,9 +3106,9 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
                     p_Callback(p_Pet, true);
                 });
-
             }));
         });
+
         return;
     }
 
@@ -3149,6 +3149,8 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
     pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, 0);
     pet->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+
+    pet->m_Stampeded = stampeded;
     pet->InitStatsForLevel(getLevel());
 
     // Only slot 100, as it's not hunter pet.

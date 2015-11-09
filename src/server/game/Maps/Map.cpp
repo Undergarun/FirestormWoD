@@ -3027,7 +3027,8 @@ MapDifficulty const* Map::GetMapDifficulty() const
 bool Map::IsHeroic() const
 {
     if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
-        return difficulty->Flags & DIFFICULTY_FLAG_HEROIC;
+        return difficulty->Flags & (DIFFICULTY_FLAG_HEROIC | DIFFICULTY_FLAG_DISPLAY_HEROIC);
+
     return false;
 }
 

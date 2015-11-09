@@ -2812,11 +2812,24 @@ class spell_pal_denounce : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_denounce_SpellScript);
 
+            bool m_AlreadyDenounced;
+
             enum eSpells
             {
                 WoDPvPHoly2PBonusAura   = 170860,
                 WoDPvPHoly2PBonus       = 170866
             };
+
+            void HandleBeforeHit()
+            {
+                m_AlreadyDenounced = false;
+
+                Unit* l_Target = GetExplTargetUnit();
+                if (l_Target == nullptr)
+                    return;
+
+                m_AlreadyDenounced = l_Target->HasAura(GetSpellInfo()->Id);
+            }
 
             void HandleDamage(SpellEffIndex /*l_EffIndex*/)
             {
@@ -2830,16 +2843,27 @@ class spell_pal_denounce : public SpellScriptLoader
                     return;
 
                 int32 l_CritPctOfTarget = 0.0f;
+                ///bool l_AlreadyDenounced = l_Target->HasAura(GetSpellInfo()->Id);
 
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
-                    l_CritPctOfTarget = int32(l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE));
+                /// If target already has Denounce, we can't select his crit, because it will be 0%
+                if (m_AlreadyDenounced)
+                {
+                    if (AuraPtr l_WodPvPHoly2PBonusAura = l_Caster->GetAura(eSpells::WoDPvPHoly2PBonus))
+                        l_WodPvPHoly2PBonusAura->SetDuration(l_WodPvPHoly2PBonusAura->GetMaxDuration());
+                }
+                else
+                {
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                        l_CritPctOfTarget = int32(l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE));
 
-                if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
-                    l_Caster->CastCustomSpell(l_Caster, eSpells::WoDPvPHoly2PBonus, &l_CritPctOfTarget, NULL, NULL, true);
+                    if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
+                        l_Caster->CastCustomSpell(l_Caster, eSpells::WoDPvPHoly2PBonus, &l_CritPctOfTarget, NULL, NULL, true);
+                }
             }
 
             void Register()
             {
+                BeforeHit += SpellHitFn(spell_pal_denounce_SpellScript::HandleBeforeHit);
                 OnEffectHitTarget += SpellEffectFn(spell_pal_denounce_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
@@ -2995,8 +3019,9 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphoftheLiberator = 159573,
-                GlyphofHandofFreedom = 159583
+                GlyphoftheLiberator         = 159573,
+                GlyphofHandofFreedom        = 159579,
+                GlyphofHandofFreedomEffect  = 159583
             };
 
             void HandleAfterHit()
@@ -3020,7 +3045,7 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
                 }
 
                 if (l_Player->HasAura(eSpells::GlyphofHandofFreedom))
-                    l_Player->CastSpell(l_Target, eSpells::GlyphofHandofFreedom, true);
+                    l_Player->CastSpell(l_Target, eSpells::GlyphofHandofFreedomEffect, true);
             }
 
             void Register()
@@ -3115,7 +3140,7 @@ class spell_pal_shining_protector : public SpellScriptLoader
 
                 for (uint8 l_Chance_number = 0; l_Chance_number < 2; ++l_Chance_number)
                 {
-                    if (l_Caster->IsSpellMultistrike(p_EventInfo.GetDamageInfo()->GetSpellInfo()))
+                    if (l_Caster->IsSpellMultistrike())
                     {
                         int32 l_Heal = CalculatePct(p_EventInfo.GetHealInfo()->GetHeal(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                         l_Caster->CastCustomSpell(l_Caster, eSpells::ShiningProtectorHeal, &l_Heal, NULL, NULL, true);
