@@ -479,7 +479,8 @@ void Log::outAshran(const char* str, ...)
     fflush(ashranLog);
 }
 
-void Log::outSlack(bool p_Error, const char* p_Message, ...)
+/// Slack API Documentation : https://api.slack.com/docs/attachments
+void Log::outSlack(std::string p_Dest, std::string p_Color, const char* p_Message, ...)
 {
     if (!p_Message || !m_SlackEnable)
         return;
@@ -495,13 +496,13 @@ void Log::outSlack(bool p_Error, const char* p_Message, ...)
     std::string l_SlackAppName = m_SlackAppName;
     std::string l_Message      = l_Result;
 
-    std::thread([l_Message, p_Error, l_SlackApiUrl, l_SlackAppName]
+    std::thread([p_Dest, l_Message, p_Color, l_SlackApiUrl, l_SlackAppName]
     {
         CURL* l_Curl = curl_easy_init();
         if (l_Curl)
         {
             std::ostringstream l_PostData;
-            l_PostData << "payload={\"attachments\": [{\"pretext\": \"*" << std::string(l_SlackAppName) << "*\", \"text\": \"" << std::string(l_Message) << "\", \"color\": \"" << std::string(p_Error ? "danger" : "good") << "\", \"mrkdwn_in\": [\"pretext\", \"text\"]}]}";
+            l_PostData << "payload={\"attachments\": [{\"pretext\": \"*" << std::string(l_SlackAppName) << "*\", \"text\": \"" << std::string(l_Message) << "\", \"color\": \"" << std::string(p_Color) << "\", \"mrkdwn_in\": [\"pretext\", \"text\"]}], \"channel\": \"" << std::string(p_Dest) << "\"}";
 
             std::string l_DataTxt = l_PostData.str();
 
