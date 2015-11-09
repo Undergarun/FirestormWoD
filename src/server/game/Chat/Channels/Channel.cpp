@@ -688,6 +688,9 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         WorldPacket data;
         player->BuildPlayerChat(&data, nullptr, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);
         SendToAll(&data, !m_Players[p].IsModerator() ? p : false);
+
+        if (IsWorld())
+            sLog->outSlack("@tuxity", "", false, "%s - %s: %s", player->GetName(), sWorld->GetRealmName().c_str(), what);
     }
 }
 
