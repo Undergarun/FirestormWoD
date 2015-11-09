@@ -4892,6 +4892,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165478:///< Item - Rogue T17 Combat 4P Bonus
             case 165547:///< Item - Death Knight T17 Frost 2P Bonus
             case 165568:///< Item - Death Knight T17 Frost 4P Bonus
+            case 165345:///< Item - Warrior T17 Arms 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
