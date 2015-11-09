@@ -239,6 +239,7 @@ class spell_sha_unleashed_fury : public SpellScriptLoader
         }
 };
 
+/// last update: 6.1.2 19865
 /// Called by Chain Heal - 1064 and Chain Heal (T17 Proc) - 177972
 /// High Tide - 157154
 class spell_sha_high_tide : public SpellScriptLoader
@@ -288,7 +289,12 @@ class spell_sha_high_tide : public SpellScriptLoader
                         return;
 
                     l_TempList.sort(JadeCore::HealthPctOrderPred());
-                    uint8 l_TargetCount = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::SpellHighTide);
+
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    uint8 l_TargetCount = l_SpellInfo->Effects[EFFECT_1].BasePoints;
 
                     for (Unit* l_Unit : l_TempList)
                     {
