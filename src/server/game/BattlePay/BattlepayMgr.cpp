@@ -291,12 +291,14 @@ namespace Battlepay
         l_Statement->setUInt32(4, 1);
         l_Statement->setUInt32(5, p_Purchase->CurrentPrice);
         l_Statement->setString(6, p_Session->GetRemoteAddress());
-        auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
 
-        p_Session->AddPrepareStatementCallback(std::make_pair([p_Session](PreparedQueryResult p_Result) -> void
+        uint32 l_SessionID = p_Session->GetAccountId();
+
+        WebDatabase.AsyncQuery(l_Statement, [l_SessionID](PreparedQueryResult p_Result) -> void
         {
-            sBattlepayMgr->OnPrepareStatementCallbackEvent(p_Session, CallbackEvent::SavePurchase);
-        }, l_FuturResult), true);
+            if (WorldSession* l_Session = sWorld->FindSession(l_SessionID))
+                sBattlepayMgr->OnPrepareStatementCallbackEvent(l_Session, CallbackEvent::SavePurchase);
+        });
     }
 
     void Manager::OnPrepareStatementCallbackEvent(WorldSession* p_Session, uint8 p_CallbackEvent)

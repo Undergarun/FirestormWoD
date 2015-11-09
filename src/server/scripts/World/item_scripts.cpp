@@ -35,6 +35,7 @@ EndContentData */
 #include "Spell.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "Chat.h"
 
 /*#####
 # item_only_for_flight

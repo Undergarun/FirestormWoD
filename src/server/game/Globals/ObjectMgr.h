@@ -870,7 +870,9 @@ class ObjectMgr
         std::vector<GarrisonPlotBuildingContent> GetGarrisonPlotBuildingContent(int32 p_PlotTypeOrBuilding, uint32 p_FactionIndex);
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
-        CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
+        CreatureTemplate** GetCreatureTemplates() const { return m_CreatureTemplateStore; }
+        uint32 GetCreatureTemplateStoreSize() const { return m_CreatureTemplateStoreSize; }
+
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID);
         static uint32 ChooseDisplayId(uint32 team, const CreatureTemplate* cinfo, const CreatureData* data = NULL);
@@ -1800,7 +1802,10 @@ class ObjectMgr
 
         MapObjectGuids _mapObjectGuidsStore;
         CreatureDataContainer _creatureDataStore;
-        CreatureTemplateContainer _creatureTemplateStore;
+
+        CreatureTemplate** m_CreatureTemplateStore;
+        uint32  m_CreatureTemplateStoreSize;
+
         CreatureModelContainer _creatureModelStore;
         CreatureAddonContainer _creatureAddonStore;
         CreatureAddonContainer _creatureTemplateAddonStore;

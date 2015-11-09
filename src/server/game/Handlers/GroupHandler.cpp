@@ -1001,7 +1001,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 
                 if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
                 {
-                    for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                    for (uint8 l_Y = 0; l_Y < l_AuraApplication->GetEffectCount(); ++l_Y)
                     {
                         if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                             l_EffectCount++;
@@ -1015,7 +1015,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 
                 if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
                 {
-                    for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                    for (uint8 l_Y = 0; l_Y < l_AuraApplication->GetEffectCount(); ++l_Y)
                     {
                         if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                             *p_Data << float(l_Effect->GetAmount());
@@ -1063,7 +1063,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 
                 if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
                 {
-                    for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                    for (uint8 l_Y = 0; l_Y < l_AuraApplication->GetEffectCount(); ++l_Y)
                     {
                         if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                             l_EffectCount++;
@@ -1077,7 +1077,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 
                 if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
                 {
-                    for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                    for (uint8 l_Y = 0; l_Y < l_AuraApplication->GetEffectCount(); ++l_Y)
                     {
                         if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
                             *p_Data << float(l_Effect->GetAmount());

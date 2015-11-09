@@ -162,7 +162,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, SQLTrans
     uint32 owner_accId = sObjectMgr->GetPlayerAccountIdByGUID(owner_guid);
     // owner exist (online or offline)
     if (owner || owner_accId)
-        MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING), AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut(), sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY)))
+        MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING), AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut()))
             .SendMailTo(trans, MailReceiver(owner, auction->owner), auction, MAIL_CHECK_MASK_COPIED);
 }
 
@@ -444,48 +444,50 @@ void AuctionHouseObject::Update()
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_BY_TIME);
     stmt->setUInt32(0, (uint32)curTime+60);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-        return;
-
-    do
+    
+    PreparedQueryResult result = CharacterDatabase.AsyncQuery(stmt, [this](PreparedQueryResult const& p_Result) -> void
     {
-        // from auctionhousehandler.cpp, creates auction pointer & player pointer
-        AuctionEntry* auction = GetAuction(result->Fetch()->GetUInt32());
+        if (!p_Result)
+            return;
 
-        if (!auction)
-            continue;
-
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-        ///- Either cancel the auction if there was no bidder
-        if (auction->bidder == 0)
+        do
         {
-            sAuctionMgr->SendAuctionExpiredMail(auction, trans);
-            sScriptMgr->OnAuctionExpire(this, auction);
+            // from auctionhousehandler.cpp, creates auction pointer & player pointer
+            AuctionEntry* auction = GetAuction(p_Result->Fetch()->GetUInt32());
+
+            if (!auction)
+                continue;
+
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+            ///- Either cancel the auction if there was no bidder
+            if (auction->bidder == 0)
+            {
+                sAuctionMgr->SendAuctionExpiredMail(auction, trans);
+                sScriptMgr->OnAuctionExpire(this, auction);
+            }
+            ///- Or perform the transaction
+            else
+            {
+                //we should send an "item sold" message if the seller is online
+                //we send the item to the winner
+                //we send the money to the seller
+                sAuctionMgr->SendAuctionSuccessfulMail(auction, trans);
+                sAuctionMgr->SendAuctionWonMail(auction, trans);
+                sScriptMgr->OnAuctionSuccessful(this, auction);
+            }
+
+            uint32 itemEntry = auction->itemEntry;
+
+            ///- In any case clear the auction
+            auction->DeleteFromDB(trans);
+            CharacterDatabase.CommitTransaction(trans);
+
+            sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
+            RemoveAuction(auction, itemEntry);
         }
-        ///- Or perform the transaction
-        else
-        {
-            //we should send an "item sold" message if the seller is online
-            //we send the item to the winner
-            //we send the money to the seller
-            sAuctionMgr->SendAuctionSuccessfulMail(auction, trans);
-            sAuctionMgr->SendAuctionWonMail(auction, trans);
-            sScriptMgr->OnAuctionSuccessful(this, auction);
-        }
-
-        uint32 itemEntry = auction->itemEntry;
-
-        ///- In any case clear the auction
-        auction->DeleteFromDB(trans);
-        CharacterDatabase.CommitTransaction(trans);
-
-        sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
-        RemoveAuction(auction, itemEntry);
-    }
-    while (result->NextRow());
+        while (p_Result->NextRow());
+    });
 }
 
 void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount)
@@ -749,7 +751,6 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
     if (!expAuctions)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> No expired auctions to delete");
-
         return;
     }
 
@@ -770,7 +771,7 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
 
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        if (auction->bidder==0)
+        if (auction->bidder == 0)
         {
             // Cancel the auction, there was no bidder
             sAuctionMgr->SendAuctionExpiredMail(auction, trans);
@@ -798,8 +799,6 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
     while (expAuctions->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Deleted %u expired auctions in %u ms", expirecount, GetMSTimeDiffToNow(oldMSTime));
-
-
 }
 
 bool AuctionEntry::LoadFromFieldList(Field* fields)
@@ -853,16 +852,17 @@ std::string AuctionEntry::BuildAuctionMailSubject(MailAuctionAnswers response) c
 {
     std::ostringstream strm;
     strm << itemEntry << ":0:" << response << ':' << Id << ':' << itemCount;
-    strm << ":0" << ":0" << ":0" << ":0" << ":0";
+    strm << ":0" << ":0" << ":0" << ":0" << ":0" << ":0" << ":0";
     return strm.str();
 }
 
-std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint64 bid, uint64 buyout, uint64 deposit, uint64 cut, uint32 deliveryTime)
+std::string AuctionEntry::BuildAuctionMailBody(uint32 p_LowGUID, uint64 p_BID, uint64 p_Buyout, uint64 p_Deposit, uint64 p_Cut)
 {
-    std::ostringstream strm;
-    strm.width(16);
-    strm << std::right << std::hex << MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);   // HIGHGUID_PLAYER always present, even for empty guids
-    strm << std::dec << ':' << bid << ':' << buyout;
-    strm << ':' << deposit << ':' << cut << ":0:";
-    return strm.str();
+    std::ostringstream l_Body;
+
+    l_Body << "Player-" << g_RealmID << '-' << std::hex << p_LowGUID;
+    l_Body << std::dec << ':' << p_BID << ':' << p_Buyout;
+    l_Body << ':' << p_Deposit << ':' << p_Cut << ":0";
+
+    return l_Body.str();
 }

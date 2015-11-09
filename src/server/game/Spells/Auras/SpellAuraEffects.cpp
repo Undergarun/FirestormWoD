@@ -1542,7 +1542,7 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
                 {
                     if (GetMiscValue() == SPELLMOD_ALL_EFFECTS)
                     {
-                        for (uint8 i = 0; i<MAX_SPELL_EFFECTS; ++i)
+                        for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
                         {
                             if (AuraEffectPtr aurEff = aura->GetEffect(i))
                                 aurEff->RecalculateAmount(true);
@@ -1583,11 +1583,11 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
 
 void AuraEffect::Update(uint32 diff, Unit* caster)
 {
-    AuraPtr baseAura = GetBase();
-    if (baseAura)
-        baseAura->CallScriptEffectUpdateHandlers(diff, shared_from_this());
+    Aura* l_Base = (Aura*)m_base.get(); ///< avoid copy of Aura, AuraEffect::Update is called very often
+    if (l_Base)
+        l_Base->CallScriptEffectUpdateHandlers(diff, shared_from_this());
 
-    if (m_isPeriodic && baseAura && (baseAura->GetDuration() >= 0 || baseAura->IsPassive() || baseAura->IsPermanent()))
+    if (m_isPeriodic && l_Base && (l_Base->GetDuration() >= 0 || l_Base->IsPassive() || l_Base->IsPermanent()))
     {
         if (m_periodicTimer > int32(diff))
             m_periodicTimer -= diff;
@@ -1607,9 +1607,9 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
                     PeriodicTick(*apptItr, caster);
 
             // TEMPORARY HACKS FOR PERIODIC HANDLERS OF DYNAMIC OBJECT AURAS
-            if (baseAura->GetType() == DYNOBJ_AURA_TYPE)
+            if (l_Base->GetType() == DYNOBJ_AURA_TYPE)
             {
-                if (DynamicObject const* d_owner = baseAura->GetDynobjOwner())
+                if (DynamicObject const* d_owner = l_Base->GetDynobjOwner())
                 {
                     switch (GetSpellInfo()->Id)
                     {
@@ -1954,8 +1954,12 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_METAMORPHOSIS:
             spellId  = 103965;
+
             if (apply)
-                target->RemoveAura(114168); // Dark Apotheosis
+                target->AddAura(159687, target);
+            else
+                target->RemoveAura(159687);
+
             break;
         case FORM_SPIRITOFREDEMPTION:
             spellId  = 27792;
@@ -3176,6 +3180,11 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* p_AurApp, uint8 p_M
             p_AurApp->GetBase()->SetMaxDuration(p_AurApp->GetBase()->GetMaxDuration() + 2000);
             p_AurApp->GetBase()->RefreshDuration();
         }
+
+        /// Item - Warlock WoD PvP Affliction 2P Bonus
+        if (l_Target->ToPlayer())
+            l_Target->ToPlayer()->HandleWarlockWodPvpBonus();
+
     }
     else
     {
@@ -3443,9 +3452,10 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
             l_VehicleId = l_CreatureTemplate->VehicleId;
 
             //some spell has one aura of mount and one of vehicle
-            for (uint32 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
-                if (GetSpellInfo()->Effects[l_I].Effect == SPELL_EFFECT_SUMMON
-                    && GetSpellInfo()->Effects[l_I].MiscValue == GetMiscValue())
+            SpellInfo const* l_SpellInfo = GetSpellInfo();
+            for (uint32 l_I = 0; l_I < l_SpellInfo->EffectCount; ++l_I)
+                if (l_SpellInfo->Effects[l_I].Effect == SPELL_EFFECT_SUMMON
+                    && l_SpellInfo->Effects[l_I].MiscValue == GetMiscValue())
                     l_DisplayId = 0;
         }
 
@@ -3785,6 +3795,10 @@ void AuraEffect::HandleModFear(AuraApplication const* p_AurApp, uint8 p_Mode, bo
         l_Target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
 
+    /// Item - Warlock WoD PvP Affliction 2P Bonus
+    if (l_Target->ToPlayer())
+        l_Target->ToPlayer()->HandleWarlockWodPvpBonus();
+
     l_Target->SetControlled(p_Apply, UNIT_STATE_FLEEING);
 
     if (p_Apply)
@@ -3840,6 +3854,10 @@ void AuraEffect::HandleAuraModStun(AuraApplication const* p_AurApp, uint8 p_Mode
         l_Target->CastSpell(l_Target, 89023, true);
         l_Target->ToPlayer()->AddSpellCooldown(54943, 0, 20 * IN_MILLISECONDS);
     }
+
+    /// Item - Warlock WoD PvP Affliction 2P Bonus
+    if (l_Target->ToPlayer())
+        l_Target->ToPlayer()->HandleWarlockWodPvpBonus();
 
     l_Target->SetControlled(p_Apply, UNIT_STATE_STUNNED);
 
@@ -7396,7 +7414,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             }
             // Custom MoP Script
             case 146739:// Corruption
-                caster->EnergizeBySpell(caster, 146739, 4, POWER_DEMONIC_FURY);
+                caster->EnergizeBySpell(caster, 146739, caster->HasAura(157098) ? 5 : 4, POWER_DEMONIC_FURY); ///< With Enhanced Corruption gives 1 additional demonic fury 
                 break;
             case 43093: case 31956: case 38801:  // Grievous Wound
             case 35321: case 38363: case 39215:  // Gushing Wound

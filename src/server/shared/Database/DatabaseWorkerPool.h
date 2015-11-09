@@ -32,6 +32,10 @@
 #include "AdhocStatement.h"
 #include "MSCallback.hpp"
 
+# ifdef GAME_SERVER_PROJECTS
+#   include "World.h"
+# endif
+
 class PingOperation : public SQLOperation
 {
     //! Operation for idle delaythreads
@@ -341,6 +345,22 @@ class DatabaseWorkerPool
             return res;
         }
 
+        //! Enqueues a query in prepared format that will set the value of the PreparedQueryResultFuture return object as soon as the query is executed.
+        //! The return value is then processed in ProcessQueryCallback methods.
+        //! Statement must be prepared with CONNECTION_ASYNC flag.
+        PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt, std::function<void(PreparedQueryResult)> p_Callback)
+        {
+            PreparedQueryResultFuture res;
+            PreparedStatementTask* task = new PreparedStatementTask(stmt, res);
+            Enqueue(task);
+
+            # ifdef GAME_SERVER_PROJECTS
+                sWorld->AddPrepareStatementCallback(std::make_pair(p_Callback, res));
+            # endif
+
+            return res;
+        }
+
         //! Enqueues a vector of SQL operations (can be both adhoc and prepared) that will set the value of the QueryResultHolderFuture
         //! return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
@@ -383,6 +403,11 @@ class DatabaseWorkerPool
                     break;
             }
             #endif // TRINITY_DEBUG
+
+            #ifdef GAME_SERVER_PROJECTS
+            if (p_Callback != nullptr)
+                sWorld->AddTransactionCallback(p_Callback);
+            #endif
 
             Enqueue(new TransactionTask(transaction, p_Callback));
         }

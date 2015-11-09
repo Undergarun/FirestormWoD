@@ -15,6 +15,7 @@
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
 #include "Buildings/Alliance/Medium/ABarn.hpp"
+#include "Buildings/Alliance/Medium/ALumberMill.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 #include "Buildings/Alliance/Small/ATheForge.hpp"
@@ -32,6 +33,7 @@
 #include "Buildings/Horde/Large/HWarMill.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
 #include "Buildings/Horde/Medium/HBarn.hpp"
+#include "Buildings/Horde/Medium/HLumberMill.hpp"
 #include "Buildings/Horde/Small/HTheForge.hpp"
 #include "Buildings/Horde/Small/HTailoringEmporium.hpp"
 #include "Buildings/Horde/Small/HAlchemyLab.hpp"
@@ -362,7 +364,7 @@ namespace MS { namespace Garrison
         {
             if (m_Recipes)
             {
-                WorldPacket l_Data(SMSG_GARRISON_OPEN_TRADESKILL_NPC);
+                WorldPacket l_Data(SMSG_GARRISON_OPEN_TRADESKILL_NPC, 512);
                 l_Data.appendPackGUID(me->GetGUID());
                 l_Data << uint32(0);                    ///< SpellID
                 l_Data << uint32(1);                    ///< Skill line ID count
@@ -635,6 +637,9 @@ void AddSC_Garrison_NPC()
         /// Barn
         new MS::Garrison::npc_HomerStonefield;
         new MS::Garrison::npc_HomerStonefield_Garr_Trap;
+
+        /// Lumber Mill
+        new MS::Garrison::npc_JustinTimberLord;
     }
 
     /// Horde
@@ -695,5 +700,8 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_FarmerLokLub;
         new MS::Garrison::npc_IronTrap;
         new MS::Garrison::npc_FarmerLokLub_Trap;
+
+        /// Lumber Mill
+        new MS::Garrison::npc_LumberLordOktron;
     }
 }

@@ -60,7 +60,7 @@ std::string const* _SpellScript::_GetScriptName() const
 _SpellScript::EffectHook::EffectHook(uint8 _effIndex)
 {
     // effect index must be in range <0;2>, allow use of special effindexes
-    ASSERT(_effIndex == EFFECT_ALL || _effIndex == EFFECT_FIRST_FOUND || _effIndex < MAX_SPELL_EFFECTS);
+    ASSERT(_effIndex == EFFECT_ALL || _effIndex == EFFECT_FIRST_FOUND || _effIndex < SpellEffIndex::MAX_EFFECTS);
     effIndex = _effIndex;
 }
 
@@ -69,7 +69,7 @@ uint32 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellEn
     uint32 mask = 0;
     if ((effIndex == EFFECT_ALL) || (effIndex == EFFECT_FIRST_FOUND))
     {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < spellEntry->EffectCount; ++i)
         {
             if ((effIndex == EFFECT_FIRST_FOUND) && mask)
                 return mask;

@@ -970,7 +970,9 @@ class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
             enum eSpells
             {
                 GlyphofZenFocusAura = 159545,
-                GlyphofZenFocus = 159546
+                GlyphofZenFocus     = 159546,
+                T17Mistweaver4P     = 167718,
+                ChiEnergizer        = 169719
             };
 
             void HandleOnHit()
@@ -982,6 +984,9 @@ class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
 
                 if (l_Caster->HasAura(eSpells::GlyphofZenFocusAura))
                     l_Caster->CastSpell(l_Caster, eSpells::GlyphofZenFocus, true);
+
+                if (l_Caster->HasAura(eSpells::T17Mistweaver4P))
+                    l_Caster->CastSpell(l_Caster, eSpells::ChiEnergizer, true);
             }
 
             void Register()
@@ -1042,7 +1047,7 @@ class spell_monk_diffuse_magic: public SpellScriptLoader
 
                         if (AuraPtr targetAura = caster->GetAura(aura->GetSpellInfo()->Id, _player->GetGUID()))
                         {
-                            for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                            for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
                             {
                                 if (targetAura->GetEffect(i) && aura->GetEffect(i))
                                 {
@@ -1450,9 +1455,36 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 if (l_Attacker == nullptr || l_Caster == nullptr)
                     return;
 
+                Unit* l_Target;
+                std::list<Unit*> l_TargetList;
                 m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
-                if (l_Attacker->HasAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
-                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (m_TotalAbsorbAmount / 6), l_Attacker);
+
+                l_Caster->GetAttackableUnitListInRange(l_TargetList, 20.0f);
+
+                for (auto l_Itr : l_TargetList)
+                {
+                    /// Check if it has Karma
+                    if (!l_Itr->HasAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                        continue;
+
+                    /// If we can attack this target, it can't receive Karma damage too
+                    if (!l_Caster->IsValidAttackTarget(l_Itr))
+                        continue;
+
+                    /// Can't target myself
+                    if (l_Itr->GetGUID() == l_Caster->GetGUID())
+                        continue;
+
+                    // We've done, now we know who is our target
+                    l_Target = l_Itr;
+                    break;
+                }
+
+                l_TargetList.clear();
+
+                if (l_Target)
+                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (m_TotalAbsorbAmount / 6), l_Target);
+
             }
 
             void Register()
@@ -2376,7 +2408,6 @@ class spell_monk_zen_sphere_detonate_heal : public SpellScriptLoader
         }
 };
 
-
 enum ChiBurstSpells
 {
     SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
@@ -2503,7 +2534,9 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
             enum eSpells
             {
                 MonkWoDPvPWindwalker4PBonus = 181742,
-                MonkWoDPvPWindwalkerAura    = 181744
+                MonkWoDPvPWindwalkerAura    = 181744,
+                T17Windwalker4P             = 165402,
+                ForcefulWinds               = 166603
             };
 
             bool Validate(SpellInfo const* /*spellEntry*/)
@@ -2546,6 +2579,15 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
                         l_TigereyeBrewStacks->SetStackAmount(l_Stacks - l_StackConsumed);
                     else
                         l_Caster->RemoveAura(SPELL_MONK_TIGEREYE_BREW_STACKS);
+
+                    /// While Tigereye Brew's damage effect is active, your multistrike damage is increased by 2% per stack of Tigereye Brew consumed.
+                    if (l_Caster->HasAura(eSpells::T17Windwalker4P))
+                    {
+                        l_Caster->CastSpell(l_Caster, eSpells::ForcefulWinds, true);
+
+                        if (AuraEffectPtr l_AurEffect = l_Caster->GetAuraEffect(eSpells::ForcefulWinds, EFFECT_0))
+                            l_AurEffect->ChangeAmount(l_AurEffect->GetAmount() * l_StackConsumed);
+                    }
                 }
             }
 
@@ -2728,22 +2770,32 @@ class spell_monk_purifying_brew: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_purifying_brew_SpellScript);
 
+            enum eSpells
+            {
+                T17Brewmaster4P = 165352,
+                ElusiveBrew     = 128939
+            };
+
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Player* _player = caster->ToPlayer())
+                    AuraApplication* l_StaggerAmount = l_Caster->GetAuraApplication(SPELL_MONK_LIGHT_STAGGER);
+
+                    if (!l_StaggerAmount)
                     {
-                        AuraApplication* staggerAmount = _player->GetAuraApplication(SPELL_MONK_LIGHT_STAGGER);
+                        l_StaggerAmount = l_Caster->GetAuraApplication(SPELL_MONK_MODERATE_STAGGER);
 
-                        if (!staggerAmount)
-                            staggerAmount = _player->GetAuraApplication(SPELL_MONK_MODERATE_STAGGER);
-                        if (!staggerAmount)
-                            staggerAmount = _player->GetAuraApplication(SPELL_MONK_HEAVY_STAGGER);
-
-                        if (staggerAmount)
-                            _player->RemoveAura(staggerAmount->GetBase()->GetId());
+                        /// When clearing Moderate Stagger with Purifying Brew, you generate 1 stack of Elusive Brew.
+                        if (l_Caster->HasAura(eSpells::T17Brewmaster4P))
+                            l_Caster->CastSpell(l_Caster, eSpells::ElusiveBrew, true);
                     }
+
+                    if (!l_StaggerAmount)
+                        l_StaggerAmount = l_Caster->GetAuraApplication(SPELL_MONK_HEAVY_STAGGER);
+
+                    if (l_StaggerAmount)
+                        l_Caster->RemoveAura(l_StaggerAmount->GetBase()->GetId());
                 }
             }
 
@@ -2940,7 +2992,13 @@ class spell_monk_soothing_mist: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_soothing_mist_AuraScript);
 
-            Unit*    GetRandomPartyMember(Unit* p_JadeStatue, Unit *p_Caster, Unit *p_Target)
+            enum eSpells
+            {
+                T17Mistweaver2P = 165404,
+                Mistweaving     = 167732
+            };
+
+            Unit* GetRandomPartyMember(Unit* p_JadeStatue, Unit* p_Caster, Unit* p_Target)
             {
                 if (p_Caster == nullptr)
                     return nullptr;
@@ -2971,12 +3029,12 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 return nullptr;
             }
 
-            Unit*   GetStatueOfUnit(Unit *p_Caster)
+            Unit* GetStatueOfUnit(Unit* p_Caster) const
             {
                 if (p_Caster == nullptr)
                     return nullptr;
 
-                Unit *l_JadeStatue = nullptr;
+                Unit* l_JadeStatue = nullptr;
 
                 for (Unit::ControlList::const_iterator itr = p_Caster->m_Controlled.begin(); itr != p_Caster->m_Controlled.end(); ++itr)
                 {
@@ -3013,6 +3071,16 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 l_JadeStatue->CastSpell(l_TargetOfJadeStatue, GetSpellInfo()->Id, true);
             }
 
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                /// Every time your Soothing Mist heals a target your multistrike chance is increased by 5%.
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eSpells::T17Mistweaver2P))
+                        l_Caster->CastSpell(l_Caster, eSpells::Mistweaving, true);
+                }
+            }
+
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -3023,6 +3091,9 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
                 if (l_Target->HasAura(SPELL_MONK_SOOTHING_MIST_VISUAL))
                     l_Target->RemoveAura(SPELL_MONK_SOOTHING_MIST_VISUAL);
+
+                if (l_Caster->HasAura(eSpells::Mistweaving))
+                    l_Caster->RemoveAura(eSpells::Mistweaving);
 
                 if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_SHOOTING_MIST_AURA))
                 {
@@ -3057,7 +3128,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 l_JadeStatue->CastStop();
             }
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3077,6 +3148,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_soothing_mist_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 AfterEffectApply += AuraEffectApplyFn(spell_monk_soothing_mist_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_soothing_mist_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_monk_soothing_mist_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -3843,7 +3915,6 @@ class spell_monk_fists_of_fury_damage : public SpellScriptLoader
         }
 };
 
-
 /// Fists of Fury (Stun) - 120086
 class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 {
@@ -3868,6 +3939,44 @@ class spell_monk_fists_of_fury_stun: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_fists_of_fury_stun_SpellScript();
+        }
+};
+
+/// Fists of Fury - 113656
+class spell_monk_fists_of_fury : public SpellScriptLoader
+{
+    public:
+        spell_monk_fists_of_fury() : SpellScriptLoader("spell_monk_fists_of_fury") { }
+
+        class spell_monk_fists_of_fury_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_fists_of_fury_SpellScript);
+
+            enum eSpells
+            {
+                T17Windwalker2P = 165403,
+                TigereyeBrew    = 125195
+            };
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                /// Fists of Fury generates 1 stacks of Tigereye Brew.
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eSpells::T17Windwalker2P))
+                        l_Caster->CastSpell(l_Caster, eSpells::TigereyeBrew, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_monk_fists_of_fury_SpellScript();
         }
 };
 
@@ -4275,7 +4384,6 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
         }
 };
 
-
 enum SerenitySpells
 {
     SPELL_MONK_SERENITY = 152173
@@ -4332,6 +4440,48 @@ class spell_monk_vital_mists : public PlayerScript
         }
 };
 
+/// Called by Vital Mists - 118674
+/// Item - Monk T17 Mistweaver 2P Bonus - 165404
+class spell_monk_item_t17_mistweaver_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_monk_item_t17_mistweaver_2p_bonus() : SpellScriptLoader("spell_monk_item_t17_mistweaver_2p_bonus") { }
+
+        class spell_monk_item_t17_mistweaver_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_item_t17_mistweaver_2p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                T17Mistweaver2P = 165404,
+                VitalMistsEnerg = 169719
+            };
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::T17Mistweaver2P))
+                        return;
+
+                    /// Consuming a 5 stack of Vital Mists generates 1 Chi.
+                    if (p_AurEff->GetBase()->GetStackAmount() >= 5)
+                        l_Caster->CastSpell(l_Caster, eSpells::VitalMistsEnerg, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_monk_item_t17_mistweaver_2p_bonus_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_monk_item_t17_mistweaver_2p_bonus_AuraScript();
+        }
+};
+
 enum DetoxSpells
 {
     SPELL_MONK_GLYPH_OF_DETOX = 146954
@@ -4359,15 +4509,16 @@ class spell_monk_detox: public SpellScriptLoader
                 uint32 l_DispelMask = 0;
 
                 /// Create dispel mask by dispel type
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                SpellInfo const* l_SpellInfo = GetSpellInfo();
+                for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                 {
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER && i == EFFECT_2)
                         continue;
 
-                    if (GetSpellInfo()->Effects[i].IsEffect())
+                    if (l_SpellInfo->Effects[i].IsEffect())
                     {
-                        uint32 l_Dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                        l_DispelMask = GetSpellInfo()->GetDispelMask(DispelType(l_Dispel_type));
+                        uint32 l_Dispel_type = l_SpellInfo->Effects[i].MiscValue;
+                        l_DispelMask = l_SpellInfo->GetDispelMask(DispelType(l_Dispel_type));
                         l_Target->GetDispellableAuraList(l_Player, l_DispelMask, l_DispelList);
                     }
                 }
@@ -4731,7 +4882,7 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
                 if (l_Chi == 4)
                 {
                     for (int l_I = 0; l_I < sizeof(g_MonkHealingSphereSpells) / sizeof(int); l_I++)
-                        l_Caster->CastSpell(l_Caster, g_MonkHealingSphereSpells[l_I], true);
+                        l_Caster->CastSpell(l_Target, g_MonkHealingSphereSpells[l_I], true);
                 }
 
                 l_Caster->SetPower(POWER_CHI, 0);
@@ -5386,6 +5537,96 @@ class spell_monk_breath_of_the_serpent_tick : public SpellScriptLoader
         }
 };
 
+/// Item - Monk T17 Brewmaster 2P Bonus - 165353
+class spell_monk_item_t17_brewmaster_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_monk_item_t17_brewmaster_2p_bonus() : SpellScriptLoader("spell_monk_item_t17_brewmaster_2p_bonus") { }
+
+        class spell_monk_item_t17_brewmaster_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_item_t17_brewmaster_2p_bonus_AuraScript);
+
+            enum eSpell
+            {
+                SwiftReflexes = 165356
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (!(p_EventInfo.GetHitMask() & ProcFlagsExLegacy::PROC_EX_DODGE))
+                    return;
+
+                /// Dodging an attack generates 2 Energy.
+                l_Caster->CastSpell(l_Caster, eSpell::SwiftReflexes, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_item_t17_brewmaster_2p_bonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_monk_item_t17_brewmaster_2p_bonus_AuraScript();
+        }
+};
+
+/// Item - Monk T17 Mistweaver 4P Bonus - 167718
+class spell_monk_item_t17_mistweaver_4p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_monk_item_t17_mistweaver_4p_bonus() : SpellScriptLoader("spell_monk_item_t17_mistweaver_4p_bonus") { }
+
+        class spell_monk_item_t17_mistweaver_4p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_item_t17_mistweaver_4p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                T17Mistweaver4P = 167718,
+                SurgingMist     = 116694,
+                ChiJisGuidance  = 167717
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (!(p_EventInfo.GetHitMask() & ProcFlagsExLegacy::PROC_EX_INTERNAL_MULTISTRIKE))
+                    return;
+
+                SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (l_ProcSpell == nullptr || l_ProcSpell->Id != eSpells::SurgingMist)
+                    return;
+
+                /// Surging Mist multistrikes cause your next Thunder Focus Tea to generate 1 Chi.Stacks up to 2 times.
+                l_Caster->CastSpell(l_Caster, eSpells::ChiJisGuidance, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_item_t17_mistweaver_4p_bonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_monk_item_t17_mistweaver_4p_bonus_AuraScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_breath_of_the_serpent_tick();
@@ -5463,6 +5704,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_afterlife();
     new spell_monk_fists_of_fury_damage();
     new spell_monk_fists_of_fury_stun();
+    new spell_monk_fists_of_fury();
     new spell_monk_eminence_heal();
     new spell_monk_chi_explosion_mistweaver();
     new spell_monk_chi_explosion_heal();
@@ -5475,6 +5717,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_zen_sphere_detonate_heal();
     new spell_monk_glyph_of_freedom_roll();
     new spell_monk_crackling_tiger_lightning();
+    new spell_monk_item_t17_brewmaster_2p_bonus();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

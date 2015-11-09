@@ -1034,17 +1034,18 @@ enum PlayerLoginDBQueryIndex
     MAX_PLAYER_LOGINDB_QUERY
 };
 
-class PetLoginQueryHolder : public SQLQueryHolder
+class PetQueryHolder : public SQLQueryHolder
 {
     private:
         uint32 m_guid;
         PreparedQueryResult m_petResult;
     public:
-        PetLoginQueryHolder(uint32 guid, PreparedQueryResult result)
-            : m_guid(guid), m_petResult(result) { }
+        PetQueryHolder(uint32 guid, PreparedQueryResult p_QueryResult) : m_guid(guid), m_petResult(p_QueryResult) { }
         uint32 GetGuid() const { return m_guid; }
-        PreparedQueryResult GetPetResult() const { return m_petResult; }
         bool Initialize();
+
+        PreparedQueryResult GetPetResult() { return m_petResult; }
+        static PreparedStatement* GenerateFirstLoadStatement(uint32 p_PetEntry, uint32 p_PetNumber, uint32 p_OwnerID, bool p_CurrentPet, PetSlot p_SlotID);
 };
 
 enum PetLoginQueryIndex
@@ -1053,7 +1054,8 @@ enum PetLoginQueryIndex
     PET_LOGIN_QUERY_LOADAURAEFFECT                  = 1,
     PET_LOGIN_QUERY_LOADSPELL                       = 2,
     PET_LOGIN_QUERY_LOADSPELLCOOLDOWN               = 3,
-    MAX_PET_LOGIN_QUERY                             = 4
+    PET_LOGIN_QUERY_DECLINED_NAME                   = 4,
+    MAX_PET_LOGIN_QUERY                             = 5
 };
 
 enum PlayerDelayedOperations
@@ -1693,7 +1695,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateInnerTime (time_t time) { time_inn_enter = time; }
 
         Pet* GetPet() const;
-        Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime, PetSlot slotID = PET_SLOT_UNK_SLOT, bool stampeded = false);
+        void SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime, PetSlot slotID = PET_SLOT_UNK_SLOT, bool stampeded = false, std::function<void(Pet*, bool)> p_Callback = [](Pet*, bool){}, bool p_Bypass = false);
         void RemovePet(Pet* pet, PetSlot mode, bool returnreagent = false, bool stampeded = false);
 
         PhaseMgr& GetPhaseMgr() { return phaseMgr; }
@@ -2280,6 +2282,9 @@ class Player : public Unit, public GridObject<Player>
          * Ensure all talent spell are in talent map, otherwise unlearn them.
          */
         void CheckTalentSpells();
+
+        /// Custom functions for spells
+        void HandleWarlockWodPvpBonus();
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);

@@ -225,6 +225,14 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_TYPE_END
 };
 
+enum QuestObjectiveFlags
+{
+    QUEST_OBJECTIVE_FLAG_UNK_1 = 0x01,
+    QUEST_OBJECTIVE_FLAG_UNK_2 = 0x02,
+    QUEST_OBJECTIVE_FLAG_UNK_4 = 0x04, ///> Presumed used with type ITEM, which wouldn't need the item count to reward the quest
+    QUEST_OBJECTIVE_FLAG_UNK_8 = 0x08,
+};
+
 enum class QuestRewardItemBonus : uint32
 {
     UncommunToRare  = 171,
