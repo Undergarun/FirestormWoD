@@ -29920,10 +29920,21 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
                 return;
             }
 
-            l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder);
+            l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder, [](Pet* p_Pet, bool p_Result)
+            {
+                if (!p_Result)
+                {
+                    delete p_Pet;
+                    return;
+                }
 
-            if (l_Player->HasSpell(109212) && !l_Player->HasAura(118694))
-                l_Player->CastSpell(l_Player, 118694, true);
+                Player* l_Player = p_Pet->GetOwner();
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(109212) && !l_Player->HasAura(118694))
+                    l_Player->CastSpell(l_Player, 118694, true);
+            });
         }));
     });
 
