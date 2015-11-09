@@ -360,7 +360,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
     WorldPacket l_Data(SMSG_ENUM_CHARACTERS_RESULT, 5 * 1024);
 
     l_Data.WriteBit(l_CanCreateCharacter);          ///< Allow char creation
-    l_Data.WriteBit(0);                             ///< unk
+    l_Data.WriteBit(0);                             ///< IsDeletedCharacters
     l_Data.FlushBits();
 
     l_Data << uint32(l_CharacterCount);             ///< Account character count
@@ -389,6 +389,17 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
     }
 
     SendPacket(&l_Data);
+
+    /// Update realm character count
+    SQLTransaction trans = LoginDatabase.BeginTransaction();
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_REALM_CHARACTERS);
+    stmt->setUInt32(0, l_CharacterCount);
+    stmt->setUInt32(1, GetAccountId());
+    stmt->setUInt32(2, g_RealmID);
+    trans->Append(stmt);
+
+    LoginDatabase.CommitTransaction(trans);
 }
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
@@ -802,17 +813,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 return;
             }
 
-            // Avoid exploit of create multiple characters with same name
-            if (!sWorld->AddCharacterName(createInfo->Name))
-            {
-                WorldPacket data(SMSG_CREATE_CHAR, 1);
-                data << uint8(CHAR_CREATE_NAME_IN_USE);
-                SendPacket(&data);
-                delete createInfo;
-                _charCreateCallback.Reset();
-                return;
-            }
-
             if (createInfo->Data.rpos() < createInfo->Data.wpos())
             {
                 uint8 unk;
@@ -842,16 +842,12 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             // Player created, save it now
             newChar.SaveToDB(true);
-            createInfo->CharCount += 1;
+
+            createInfo->CharCount++;
 
             SQLTransaction trans = LoginDatabase.BeginTransaction();
 
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
-            stmt->setUInt32(0, GetAccountId());
-            stmt->setUInt32(1, g_RealmID);
-            trans->Append(stmt);
-
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS);
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_REALM_CHARACTERS);
             stmt->setUInt32(0, createInfo->CharCount);
             stmt->setUInt32(1, GetAccountId());
             stmt->setUInt32(2, g_RealmID);
@@ -936,7 +932,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 
     sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(charGuid);
     Player::DeleteFromDB(charGuid, GetAccountId());
-    sWorld->DeleteCharName(name);
 
     WorldPacket data(SMSG_CHAR_DELETE, 1);
     data << uint8(CHAR_DELETE_SUCCESS);
@@ -1368,12 +1363,20 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
 
-    pCurrChar->HandleStoreItemCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM));
-    pCurrChar->HandleStoreGoldCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD));
-    pCurrChar->HandleStoreTitleCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE));
-    pCurrChar->HandleStoreLevelCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL));
-    pCurrChar->HandleStoreProfessionCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_STORE_PROFESSION));
-    pCurrChar->SaveToDB();
+    PreparedQueryResult l_ItemResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM);
+    PreparedQueryResult l_GoldResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD);
+    PreparedQueryResult l_TitleResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE);
+    PreparedQueryResult l_LevelResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL);
+    PreparedQueryResult l_ProfessionResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_STORE_PROFESSION);
+
+    pCurrChar->HandleStoreItemCallback(l_ItemResult);
+    pCurrChar->HandleStoreGoldCallback(l_GoldResult);
+    pCurrChar->HandleStoreTitleCallback(l_TitleResult);
+    pCurrChar->HandleStoreLevelCallback(l_LevelResult);
+    pCurrChar->HandleStoreProfessionCallback(l_ProfessionResult);
+
+    if (l_ItemResult || l_GoldResult || l_TitleResult || l_LevelResult || l_ProfessionResult)
+        pCurrChar->SaveToDB();
 
     delete l_CharacterHolder;
     delete l_LoginHolder;
@@ -1540,6 +1543,7 @@ void WorldSession::BuildCharacterRename(WorldPacket* p_Packet, ObjectGuid p_Guid
     *p_Packet << uint8(p_Result);
     p_Packet->WriteBit(p_Guid != 0);
     p_Packet->WriteBits(p_Name.size(), 6);
+    p_Packet->FlushBits();
 
     if (p_Guid != 0)
         p_Packet->appendPackGUID(p_Guid);

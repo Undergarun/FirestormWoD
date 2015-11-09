@@ -1,4 +1,5 @@
 #include "GarrisonMgr.hpp"
+#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "Player.h"
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
@@ -494,6 +495,8 @@ namespace MS { namespace Garrison
     /// Save this garrison to DB
     void Manager::Save(SQLTransaction& p_Transaction)
     {
+        SQLTransaction l_GarrisonTransaction = CharacterDatabase.BeginTransaction();
+
         std::ostringstream l_KnownBluePrintsStr;
 
         for (uint32 l_I = 0; l_I < m_KnownBlueprints.size(); ++l_I)
@@ -523,7 +526,7 @@ namespace MS { namespace Garrison
         l_Stmt->setUInt32(l_Index++, m_CacheLastUsage);
         l_Stmt->setUInt32(l_Index++, m_ID);
         
-        p_Transaction->Append(l_Stmt);
+        l_GarrisonTransaction->Append(l_Stmt);
 
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         {
@@ -540,7 +543,7 @@ namespace MS { namespace Garrison
             l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].DatabaseID);
             l_BuildingStatement->setUInt32(l_Index++, m_ID);
 
-            p_Transaction->Append(l_BuildingStatement);
+            l_GarrisonTransaction->Append(l_BuildingStatement);
         }
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
@@ -559,13 +562,13 @@ namespace MS { namespace Garrison
                 l_MissionStmt->setUInt32(l_Index++, m_Missions[l_I].DatabaseID);
                 l_MissionStmt->setUInt32(l_Index++, m_ID);
 
-                p_Transaction->Append(l_MissionStmt);
+                l_GarrisonTransaction->Append(l_MissionStmt);
             }
             else
             {
                 PreparedStatement * l_MissionStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
                 l_MissionStmt->setUInt32(0, m_Missions[l_I].DatabaseID);
-                p_Transaction->Append(l_MissionStmt);
+                l_GarrisonTransaction->Append(l_MissionStmt);
             }
         }
 
@@ -592,8 +595,10 @@ namespace MS { namespace Garrison
             l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].DatabaseID);
             l_FollowerStmt->setUInt32(l_Index++, m_ID);
 
-            p_Transaction->Append(l_FollowerStmt);
+            l_GarrisonTransaction->Append(l_FollowerStmt);
         }
+
+        CharacterDatabase.CommitTransaction(l_GarrisonTransaction);
     }
 
     /// Delete garrison
@@ -782,18 +787,8 @@ namespace MS { namespace Garrison
 
         for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
         {
-            GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second);
-
-            if (l_Gob)
-            {
-                WorldPacket l_Data(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1);
-                l_Data.appendPackGUID(l_It->second);                    ///< Object GUID
-                l_Data << uint32(1696);                                 ///< Anim Kit ID
-                l_Data.WriteBit(true);                                  ///< Maintain
-                l_Data.FlushBits();
-
-                m_Owner->GetMap()->SendToPlayers(&l_Data);
-            }
+            if (GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second))
+                l_Gob->SendGameObjectActivateAnimKit(1696);
         }
     }
 
@@ -1446,6 +1441,77 @@ namespace MS { namespace Garrison
 
                 if (l_RewardEntry->BonusRewardXP)
                     m_PendingMissionReward.RewardFollowerXP += l_RewardEntry->BonusRewardXP;
+            }
+
+            switch (l_MissionTemplate->RequiredLevel)
+            {
+                case 90:
+                case 91:
+                case 92:
+                case 93:
+                case 94:
+                {
+                    if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level1))
+                    {
+                        if (roll_chance_i(30))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level2))
+                    {
+                        if (roll_chance_i(50))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level3))
+                    {
+                        if (roll_chance_i(75))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
+                    }
+                    break;
+                }
+                case 95:
+                case 96:
+                case 97:
+                case 98:
+                case 99:
+                {
+                    if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level1))
+                    {
+                        if (roll_chance_i(50))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level2))
+                    {
+                        if (roll_chance_i(30))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemCrateOfSalvage, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level3))
+                    {
+                        if (roll_chance_i(50))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemCrateOfSalvage, 1));
+                    }
+                    break;
+                }
+                case 100:
+                {
+                    if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level1))
+                    {
+                        if (roll_chance_i(75))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBagOfSalvagedGoods, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level2))
+                    {
+                        if (roll_chance_i(50))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemCrateOfSalvage, 1));
+                    }
+                    else if (HasActiveBuilding(Buildings::SalvageYard_SalvageYard_Level3))
+                    {
+                        if (roll_chance_i(50))
+                            m_PendingMissionReward.RewardItems.push_back(std::make_pair(Items::ItemBigCrateOfSalvage, 1));
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
 
             /// @TODO fix this
@@ -3431,13 +3497,7 @@ namespace MS { namespace Garrison
                     {
                         m_PlotsActivateGob[p_PlotInstanceID] = l_ActivationGob->GetGUID();
 
-                        WorldPacket l_Data(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1);
-                        l_Data.appendPackGUID(l_ActivationGob->GetGUID());      ///< Object GUID
-                        l_Data << uint32(1696);                                 ///< Anim Kit ID
-                        l_Data.WriteBit(true);                                  ///< Maintain
-                        l_Data.FlushBits();
-
-                        m_Owner->GetMap()->SendToPlayers(&l_Data);
+                        l_ActivationGob->SendGameObjectActivateAnimKit(1696);
                     }
                 }
             }

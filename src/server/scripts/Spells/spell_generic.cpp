@@ -297,30 +297,56 @@ class spell_gen_pet_summoned: public SpellScriptLoader
                 if (player->GetLastPetNumber())
                 {
                     PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
-                    if (Pet* newPet = new Pet(player, newPetType))
+
+                    if (Pet* l_NewPet = new Pet(player, newPetType))
                     {
-                        if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
+                        PreparedStatement* l_PetStatement = PetQueryHolder::GenerateFirstLoadStatement(0, player->GetLastPetNumber(), player->GetGUIDLow(), true, PET_SLOT_UNK_SLOT);
+                        uint64 l_PlayerGUID = player->GetGUID();
+                        uint32 l_PetNumber  = player->GetLastPetNumber();
+
+                        CharacterDatabase.AsyncQuery(l_PetStatement, [l_NewPet, l_PlayerGUID, l_PetNumber](PreparedQueryResult p_Result) -> void
                         {
-                            // revive the pet if it is dead
-                            if (newPet->getDeathState() == DEAD || newPet->getDeathState() == CORPSE)
-                                newPet->setDeathState(ALIVE);
-
-                            newPet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
-                            newPet->SetFullHealth();
-                            newPet->SetPower(newPet->getPowerType(), newPet->GetMaxPower(newPet->getPowerType()));
-
-                            switch (newPet->GetEntry())
+                            if (!p_Result)
                             {
-                                case NPC_DOOMGUARD:
-                                case NPC_INFERNAL:
-                                    newPet->SetEntry(NPC_IMP);
-                                    break;
-                                default:
-                                    break;
+                                delete l_NewPet;
+                                return;
                             }
-                        }
-                        else
-                            delete newPet;
+
+                            PetQueryHolder* l_PetHolder = new PetQueryHolder(p_Result->Fetch()[0].GetUInt32(), p_Result);
+                            l_PetHolder->Initialize();
+
+                            auto l_QueryHolderResultFuture = CharacterDatabase.DelayQueryHolder(l_PetHolder);
+
+                            sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
+                            {
+                                Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
+                                if (!l_Player)
+                                {
+                                    delete l_NewPet;
+                                    return;
+                                }
+
+                                l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder);
+
+                                // revive the pet if it is dead
+                                if (l_NewPet->getDeathState() == DEAD || l_NewPet->getDeathState() == CORPSE)
+                                    l_NewPet->setDeathState(ALIVE);
+
+                                l_NewPet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+                                l_NewPet->SetFullHealth();
+                                l_NewPet->SetPower(l_NewPet->getPowerType(), l_NewPet->GetMaxPower(l_NewPet->getPowerType()));
+
+                                switch (l_NewPet->GetEntry())
+                                {
+                                    case NPC_DOOMGUARD:
+                                    case NPC_INFERNAL:
+                                        l_NewPet->SetEntry(NPC_IMP);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }));
+                        });
                     }
                 }
             }
@@ -4409,10 +4435,18 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                 if (l_Attacker == nullptr || l_Victim == nullptr)
                     return;
 
-                if (l_Attacker->GetGUID() == l_Victim->GetGUID())
+                if (l_Attacker->GetGUID() == l_Victim->GetGUID() || !l_Attacker->ToPlayer())
+                    return;
+
+                if (l_Attacker->ToPlayer()->HasSpellCooldown(eSpells::TouchoftheGraveEffect))
+                    return;
+
+                /// Can proc just on damage spell, also check for absorbed damage, because all damage can be absorbed but it's still damage spell
+                if (p_EventInfo.GetDamageInfo() && p_EventInfo.GetDamageInfo()->GetDamage() == 0 && p_EventInfo.GetDamageInfo()->GetAbsorb() == 0)
                     return;
 
                 l_Attacker->CastSpell(l_Victim, eSpells::TouchoftheGraveEffect, true);
+                l_Attacker->ToPlayer()->AddSpellCooldown(eSpells::TouchoftheGraveEffect, 0, 20 * IN_MILLISECONDS, true);
             }
 
             void Register()
@@ -4510,6 +4544,47 @@ class spell_gen_mark_of_warsong : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Elixir of Wandering Spirits - 147412
+class spell_gen_elixir_of_wandering_spirits : public SpellScriptLoader
+{
+public:
+    spell_gen_elixir_of_wandering_spirits() : SpellScriptLoader("spell_gen_elixir_of_wandering_spirits") { }
+
+    class spell_gen_elixir_of_wandering_spirits_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_elixir_of_wandering_spirits_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            const uint8 l_AmountOfModels = 8;
+            /// Array of all spells that change model for this item
+            static uint32 const WanderingSpiritsMorphs[l_AmountOfModels] = { 147402, 147403, 147405, 147406, 147407, 147409, 147410, 147411 };
+
+            /// Remove previus auras if have, to prevent usebug with many auras
+            for (uint8 l_I = 0; l_I < l_AmountOfModels; l_I++)
+                l_Caster->RemoveAura(WanderingSpiritsMorphs[l_I]);
+
+            l_Caster->CastSpell(l_Caster, WanderingSpiritsMorphs[urand(0, 7)], true);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_elixir_of_wandering_spirits_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_elixir_of_wandering_spirits_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_mark_of_warsong();
@@ -4597,6 +4672,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_sword_technique();
     new spell_gen_check_faction();
     new spell_gen_stoneform_dwarf_racial();
+    new spell_gen_elixir_of_wandering_spirits();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

@@ -449,6 +449,48 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
         }
 };
 
+/// Snake Trap - 34600
+/// Snake Trap (Fire - Trap Launcher) - 82949
+class spell_at_hun_snake_trap : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_hun_snake_trap() : AreaTriggerEntityScript("at_snake_trap") { }
+
+        enum eSpells
+        {
+            SummonSnakes = 57879
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster && l_CreateSpell)
+            {
+                float l_Radius = 5.0f;
+                Unit* l_Target = nullptr;
+
+                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
+                if (!l_Target)
+                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+
+                if (l_Target != nullptr)
+                {
+                    l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
+                    p_AreaTrigger->Remove(0);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_hun_snake_trap();
+        }
+};
+
 /// Ice trap effect - 13810
 class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
 {
@@ -593,51 +635,6 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
         AreaTriggerEntityScript* GetAI() const
         {
             return new spell_at_hun_explosive_trap();
-        }
-};
-
-/// Snake Trap - 34600
-/// Snake Trap (Fire - Trap Launcher) - 82949
-class spell_at_hun_snake_trap : public AreaTriggerEntityScript
-{
-    public:
-        spell_at_hun_snake_trap() : AreaTriggerEntityScript("at_snake_trap") { }
-
-        enum HunterSnakeTrap
-        {
-            SpellEntrapment     = 19387,
-            SpellEntrapmentRoot = 64803
-        };
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            auto l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-            auto l_Caster = p_AreaTrigger->GetCaster();
-
-            if (l_Caster && l_CreateSpell)
-            {
-                float l_Radius = 5.0f;
-                Unit* l_Target = nullptr;
-
-                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                if (l_Target != nullptr)
-                {
-                    if (l_Caster->HasAura(HunterSnakeTrap::SpellEntrapment)) ///< Entrapment
-                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HunterSnakeTrap::SpellEntrapmentRoot, true);
-
-                    p_AreaTrigger->Remove(0);
-                }
-            }
-        }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new spell_at_hun_snake_trap();
         }
 };
 
@@ -1296,6 +1293,60 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
         }
 };
 
+/// last update : 6.1.2 19802
+/// Charging Ox Wave - 119392
+class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_monk_charging_ox_wave() : AreaTriggerEntityScript("spell_at_monk_charging_ox_wave") { }
+
+        enum eSpells
+        {
+            Stun = 123687
+        };
+
+        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+        {
+            Position l_Position;
+            float l_Dist = 30.f;
+
+            l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
+            l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
+            l_Position.m_positionZ = p_SourcePosition.m_positionZ;
+
+            p_PathToLinearDestination.push_back(l_Position);
+            p_DestinationPosition = l_Position;
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            Unit* l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+            if (l_AreaTriggerCaster == nullptr)
+                return;
+
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 2.0f;
+
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Target : l_TargetList)
+            {
+                if (l_Target == nullptr)
+                    return;
+
+                if (!l_Target->HasAura(eSpells::Stun))
+                    l_AreaTriggerCaster->CastSpell(l_Target, eSpells::Stun, true);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_monk_charging_ox_wave();
+        }
+};
 
 void AddSC_areatrigger_spell_scripts()
 {
@@ -1328,6 +1379,7 @@ void AddSC_areatrigger_spell_scripts()
     new spell_at_monk_chi_sphere_afterlife();
     new spell_at_monk_gift_of_the_ox();
     new spell_at_monk_chi_burst();
+    new spell_at_monk_charging_ox_wave();
 
     /// Priest Area Trigger
     new spell_at_pri_divine_star();

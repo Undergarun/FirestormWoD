@@ -591,6 +591,8 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<JadeCore::Ob
 
 void Map::Update(const uint32 t_diff)
 {
+    uint32 l_Time = getMSTime();
+
     _dynamicTree.update(t_diff);
     /// update worldsessions for existing players
     for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
@@ -674,6 +676,10 @@ void Map::Update(const uint32 t_diff)
     MoveAllGameObjectsInMoveList();
 
     sScriptMgr->OnMapUpdate(this, t_diff);
+
+    uint32 l_TimeElapsed = getMSTime() - l_Time;
+    //if (l_TimeElapsed > 10)
+    //    sMapMgr->RegisterMapDelay(GetId(), l_TimeElapsed);
 }
 
 void Map::RemovePlayerFromMap(Player* player, bool remove)
@@ -2851,22 +2857,32 @@ void InstanceMap::CreateInstanceData(bool load)
     if (load)
     {
         // TODO: make a global storage for this
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_INSTANCE);
-        stmt->setUInt16(0, uint16(GetId()));
-        stmt->setUInt32(1, i_InstanceId);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_INSTANCE);
+        l_Statement->setUInt16(0, uint16(GetId()));
+        l_Statement->setUInt32(1, i_InstanceId);
 
-        if (result)
+        uint32 l_MapId            = GetId();
+        uint32 l_InstanceId       = i_InstanceId;
+
+        CharacterDatabase.AsyncQuery(l_Statement, [l_MapId, l_InstanceId](PreparedQueryResult const& p_Result)
         {
-            Field* fields = result->Fetch();
-            std::string data = fields[0].GetString();
-            i_data->SetCompletedEncountersMask(fields[1].GetUInt32());
-            if (data != "")
+            Map* l_Map = sMapMgr->FindMap(l_MapId, l_InstanceId);
+            if (l_Map == nullptr || l_Map->ToInstanceMap() == nullptr)
+                return;
+
+            InstanceScript* l_InstanceScript = l_Map->ToInstanceMap()->GetInstanceScript();
+            if (l_InstanceScript == nullptr)
+                return;
+
+            if (p_Result)
             {
-                sLog->outDebug(LOG_FILTER_MAPS, "Loading instance data for `%s` with id %u", sObjectMgr->GetScriptName(i_script_id), i_InstanceId);
-                i_data->Load(data.c_str());
+                Field* fields = p_Result->Fetch();
+                std::string data = fields[0].GetString();
+                l_InstanceScript->SetCompletedEncountersMask(fields[1].GetUInt32());
+                if (data != "")
+                    l_InstanceScript->Load(data.c_str());
             }
-        }
+        });
     }
 }
 
@@ -3011,7 +3027,8 @@ MapDifficulty const* Map::GetMapDifficulty() const
 bool Map::IsHeroic() const
 {
     if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
-        return difficulty->Flags & DIFFICULTY_FLAG_HEROIC;
+        return difficulty->Flags & (DIFFICULTY_FLAG_HEROIC | DIFFICULTY_FLAG_DISPLAY_HEROIC);
+
     return false;
 }
 

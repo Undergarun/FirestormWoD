@@ -25,12 +25,19 @@
 #include "AppenderDB.h"
 #include "LogOperation.h"
 
+# define CURL_STATICLIB
+#include "curl/curl.h"
+
 #include <cstdarg>
 #include <cstdio>
 #include <sstream>
+#include <future>
 
 Log::Log() : worker(NULL)
 {
+    memset(m_LogLevelTypeByFilterCache, LOG_LEVEL_DISABLED, MAX_LOG_FILTER);
+    memset(m_LogTypePresentCache, 0, MAX_LOG_FILTER);
+
     SetRealmID(0);
     m_logsTimestamp = "_" + GetTimestampStr();
     LoadFromConfig();
@@ -62,16 +69,6 @@ std::string GetConfigStringDefault(std::string base, const char* name, const cha
 {
     base.append(name);
     return ConfigMgr::GetStringDefault(base.c_str(), value);
-}
-
-// Returns default logger if the requested logger is not found
-Logger* Log::GetLoggerByType(LogFilterType filter)
-{
-    LoggerMap::iterator it = loggers.begin();
-    while (it != loggers.end() && it->second.getType() != filter)
-        ++it;
-
-    return it == loggers.end() ? &(loggers[0]) : &(it->second);
 }
 
 Appender* Log::GetAppenderByName(std::string const& name)
@@ -218,6 +215,9 @@ void Log::CreateLoggerFromConfig(const char* name)
         return;
     }
 
+    m_LogLevelTypeByFilterCache[type] = level;
+    m_LogTypePresentCache[type] = 1;
+
     if (level < lowestLogLevel)
         lowestLogLevel = level;
 
@@ -336,6 +336,7 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
             return false;
 
         it->second.setLogLevel(newLevel);
+        m_LogLevelTypeByFilterCache[it->second.getType()] = newLevel;
     }
     else
     {
@@ -346,124 +347,6 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
         appender->setLogLevel(newLevel);
     }
     return true;
-}
-
-bool Log::ShouldLog(LogFilterType type, LogLevel level) const
-{
-    // Don't even look for a logger if the LogLevel is lower than lowest log levels across all loggers
-    if (level < lowestLogLevel)
-        return false;
-
-    LoggerMap::const_iterator it = loggers.begin();
-    while (it != loggers.end() && it->second.getType() != type)
-        ++it;
-
-    if (it != loggers.end())
-    {
-        LogLevel loggerLevel = it->second.getLogLevel();
-        return loggerLevel && loggerLevel <= level;
-    }
-
-    if (type != LOG_FILTER_GENERAL)
-        return ShouldLog(LOG_FILTER_GENERAL, level);
-
-    return false;
-}
-
-void Log::outTrace(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_TRACE))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_TRACE, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outDebug(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_DEBUG))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_DEBUG, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outInfo(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_INFO))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_INFO, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outWarn(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_WARN))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_WARN, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outError(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_ERROR))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_ERROR, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outFatal(LogFilterType filter, const char * str, ...)
-{
-    if (!str || !ShouldLog(filter, LOG_LEVEL_FATAL))
-        return;
-
-    va_list ap;
-    va_start(ap, str);
-
-    vlog(filter, LOG_LEVEL_FATAL, str, ap);
-
-    va_end(ap);
-}
-
-void Log::outCharDump(char const* str, uint32 accountId, uint32 guid, char const* name)
-{
-    if (!str || !ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO))
-        return;
-
-    std::ostringstream ss;
-    ss << "== START DUMP == (account: " << accountId << " guid: " << guid << " name: " << name
-        << ")\n" << str << "\n== END DUMP ==\n";
-
-    LogMessage* msg = new LogMessage(LOG_LEVEL_INFO, LOG_FILTER_PLAYER_DUMP, ss.str());
-    ss.clear();
-    ss << guid << '_' << name;
-
-    msg->param1 = ss.str();
-
-    write(msg);
 }
 
 void Log::outCommand(uint32 gm_account_id  , std::string gm_account_name, 
@@ -526,6 +409,11 @@ void Log::LoadFromConfig()
             m_logsDir.push_back('/');
     ReadAppendersFromConfig();
     ReadLoggersFromConfig();
+
+    /// Init slack
+    m_SlackEnable  = ConfigMgr::GetBoolDefault("Slack.Enable", false);
+    m_SlackApiUrl  = ConfigMgr::GetStringDefault("Slack.ApiUrl", "https://hooks.slack.com/services/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");
+    m_SlackAppName = ConfigMgr::GetStringDefault("Slack.AppName", "Firestorm - WoD");
 }
 
 void Log::outGmChat( uint32 message_type,
@@ -589,4 +477,45 @@ void Log::outAshran(const char* str, ...)
     std::string date = GetTimestampStr();
     fprintf(ashranLog, "[%s] Ashran LOG : %s\n", date.c_str(), result);
     fflush(ashranLog);
+}
+
+void Log::outSlack(bool p_Error, const char* p_Message, ...)
+{
+    if (!p_Message || !m_SlackEnable)
+        return;
+
+    char l_Result[MAX_QUERY_LEN];
+    va_list l_AP;
+
+    va_start(l_AP, p_Message);
+    vsnprintf(l_Result, MAX_QUERY_LEN, p_Message, l_AP);
+    va_end(l_AP);
+
+    std::string l_SlackApiUrl  = m_SlackApiUrl;
+    std::string l_SlackAppName = m_SlackAppName;
+    std::string l_Message      = l_Result;
+
+    std::thread([l_Message, p_Error, l_SlackApiUrl, l_SlackAppName]
+    {
+        CURL* l_Curl = curl_easy_init();
+        if (l_Curl)
+        {
+            std::ostringstream l_PostData;
+            l_PostData << "payload={\"attachments\": [{\"pretext\": \"*" << std::string(l_SlackAppName) << "*\", \"text\": \"" << std::string(l_Message) << "\", \"color\": \"" << std::string(p_Error ? "danger" : "good") << "\", \"mrkdwn_in\": [\"pretext\", \"text\"]}]}";
+
+            std::string l_DataTxt = l_PostData.str();
+
+            curl_easy_setopt(l_Curl, CURLOPT_URL,           l_SlackApiUrl.c_str());
+            curl_easy_setopt(l_Curl, CURLOPT_POSTFIELDS,    l_DataTxt.c_str());
+            curl_easy_setopt(l_Curl, CURLOPT_POSTFIELDSIZE, l_DataTxt.size());
+            curl_easy_setopt(l_Curl, CURLOPT_POST,          1);
+
+            CURLcode l_CurlResult = curl_easy_perform(l_Curl);
+
+            if (l_CurlResult != CURLE_OK)
+                fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(l_CurlResult));
+
+            curl_easy_cleanup(l_Curl);
+        }
+    }).detach();
 }

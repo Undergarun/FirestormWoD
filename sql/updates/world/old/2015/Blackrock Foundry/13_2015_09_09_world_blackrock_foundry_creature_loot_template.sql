@@ -1,3 +1,5 @@
+DELETE FROM creature_loot_template WHERE entry = 76806;
+INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (76806, 1, 100, 1, 0, -76806, 6);
 DELETE FROM creature_loot_template WHERE entry = 76877;
 INSERT INTO creature_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (76877, 1, 100, 1, 0, -76877, 6);
 DELETE FROM creature_loot_template WHERE entry = 78233;

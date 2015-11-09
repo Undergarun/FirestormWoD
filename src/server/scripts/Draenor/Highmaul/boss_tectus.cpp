@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "highmaul.hpp"
+# include "highmaul.hpp"
 
 uint8 GetEnergyGainFromHealth(float p_HealthPct)
 {
@@ -312,6 +312,9 @@ class boss_tectus : public CreatureScript
                     }
                     case eActions::MoteKilled:
                     {
+                        if (m_Instance != nullptr)
+                            m_Instance->SetData(eHighmaulDatas::TectusAchievement, time(nullptr));
+
                         ++m_MoteKilled;
 
                         if (m_MoteKilled >= (eMiscs::MotesSpawnCount * 2))
@@ -1964,8 +1967,11 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
                         if (!l_Unit->HasAura(eSpell::CrystallineBarrage))
                             l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
                     }
-                    else if (l_Unit->HasAura(eSpell::CrystallineBarrage))
-                        l_Unit->RemoveAura(eSpell::CrystallineBarrage);
+                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 2.0f))
+                    {
+                        if (l_Unit->HasAura(eSpell::CrystallineBarrage))
+                            l_Unit->RemoveAura(eSpell::CrystallineBarrage);
+                    }
                 }
             }
         }

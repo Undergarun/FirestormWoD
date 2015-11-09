@@ -227,9 +227,7 @@ public:
         uint64 l_CharacterGuid = p_Handler->GetSession()->GetPlayer()->GetGUID();
 
         PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(WORLD_SEL_MAX_CREATURE_GUID);
-        auto l_Futur = WorldDatabase.AsyncQuery(l_Statement);
-
-        p_Handler->GetSession()->AddPrepareStatementCallback(std::make_pair([l_Id, l_Teamval, l_CharacterGuid](PreparedQueryResult p_Result) -> void
+        WorldDatabase.AsyncQuery(l_Statement, [l_Id, l_Teamval, l_CharacterGuid](PreparedQueryResult p_Result) -> void
         {
             if (!p_Result)
                 return;
@@ -279,8 +277,7 @@ public:
             }
 
             sObjectMgr->AddCreatureToGrid(l_DbGuid, sObjectMgr->GetCreatureData(l_DbGuid));
-
-        }, l_Futur));
+        });
 
         return true;
     }
@@ -942,6 +939,7 @@ public:
     * additional parameter: NODEL - so no waypoints are deleted, if you
     *                       change the movement type
     */
+    /// @todo refactor this command and other move command lowguidi never used
     static bool HandleNpcSetMoveTypeCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)

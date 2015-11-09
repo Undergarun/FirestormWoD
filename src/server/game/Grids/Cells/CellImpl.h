@@ -100,19 +100,65 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
     //ALWAYS visit standing cell first!!! Since we deal with small radiuses
     //it is very essential to call visitor for standing cell firstly...
     map.Visit(*this, visitor);
-
-    // loop the cell range
-    for (uint32 x = area.low_bound.x_coord; x <= area.high_bound.x_coord; ++x)
+       
+    if (radius <= SIZE_OF_GRID_CELL)
     {
-        for (uint32 y = area.low_bound.y_coord; y <= area.high_bound.y_coord; ++y)
+        /// Y
+        /// ^
+        /// |  |-----------x-----------x-----------|
+        /// |  |           |           |           |
+        /// |  |     1     |     2     |     3     |
+        /// |  |           |           |           |
+        /// |  |-----------x-----------x-----------|
+        /// |  |           |         v |           |
+        /// |  |     4     |     C     |     5     |
+        /// |  |           |           |           |
+        /// |  |-----------x-----------x-----------|
+        /// |  |           |           |           |
+        /// |  |     6     |     7     |     8     |
+        /// |  |           |           |           |
+        /// |  |-----------x-----------x-----------|
+        /// 0 ======================================> X
+        float l_VisitorX = x_off;
+        float l_VisitorY = y_off;
+
+        #define VISIT_CHECK_CELL(mp_X, mp_Y)    do                                                                \
+                                                {                                                                 \
+                                                    CellCoord cellCoord = CellCoord(mp_X, mp_Y);                  \
+                                                    if (cellCoord != standing_cell)                               \
+                                                    {                                                             \
+                                                        Cell r_zone(cellCoord);                                   \
+                                                        r_zone.data.Part.nocreate = this->data.Part.nocreate;     \
+                                                        map.Visit(r_zone, visitor);                               \
+                                                    }                                                             \
+                                                } while (0);
+
+        VISIT_CHECK_CELL(l_VisitorX - radius, l_VisitorY + radius);     ///< Cell 1
+        VISIT_CHECK_CELL(l_VisitorX, l_VisitorY + radius);              ///< Cell 2
+        VISIT_CHECK_CELL(l_VisitorX + radius, l_VisitorY + radius);     ///< Cell 3
+        VISIT_CHECK_CELL(l_VisitorX - radius, l_VisitorY);              ///< Cell 4
+        VISIT_CHECK_CELL(l_VisitorX + radius, l_VisitorY);              ///< Cell 5
+        VISIT_CHECK_CELL(l_VisitorX - radius, l_VisitorY - radius);     ///< Cell 6
+        VISIT_CHECK_CELL(l_VisitorX, l_VisitorY - radius);              ///< Cell 7
+        VISIT_CHECK_CELL(l_VisitorX + radius, l_VisitorY - radius);     ///< Cell 8
+
+        #undef VISIT_CHECK_CELL
+    }
+    else if (radius > SIZE_OF_GRID_CELL)
+    {
+        // loop the cell range
+        for (uint32 x = area.low_bound.x_coord; x <= area.high_bound.x_coord; ++x)
         {
-            CellCoord cellCoord(x, y);
-            //lets skip standing cell since we already visited it
-            if (cellCoord != standing_cell)
+            for (uint32 y = area.low_bound.y_coord; y <= area.high_bound.y_coord; ++y)
             {
-                Cell r_zone(cellCoord);
-                r_zone.data.Part.nocreate = this->data.Part.nocreate;
-                map.Visit(r_zone, visitor);
+                CellCoord cellCoord(x, y);
+                //lets skip standing cell since we already visited it
+                if (cellCoord != standing_cell)
+                {
+                    Cell r_zone(cellCoord);
+                    r_zone.data.Part.nocreate = this->data.Part.nocreate;
+                    map.Visit(r_zone, visitor);
+                }
             }
         }
     }

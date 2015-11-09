@@ -117,7 +117,7 @@ class spell_rog_anticipation : public SpellScriptLoader
 
                     int32 l_NewCombo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                     {
                         if (l_SpellInfo->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
                         {
@@ -772,24 +772,49 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_cloak_and_dagger_SpellScript);
 
-            void HandleOnHit()
+            enum eSpells
+            {
+                CloakAndDagger      = 138106,
+                TeleportBack        = 36563,
+                GarroteDot          = 703,
+                FindWeekness        = 91023,
+                FindWeeknessProc    = 91021
+            };
+
+            SpellCastResult CheckCast()
             {
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
+                Unit* l_Target = GetExplTargetUnit();
+                float l_BasicRadius = 5.0f;
 
                 if (l_Target == nullptr)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (l_Caster->HasUnitState(UNIT_STATE_ROOT) && l_Target->GetDistance(l_Caster) > l_BasicRadius)
+                    return SPELL_FAILED_ROOTED;
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
-                if (l_Caster->HasAura(ROGUE_SPELL_CLOAK_AND_DAGGER) && !l_Caster->HasUnitState(UNIT_STATE_ROOT))
-                    l_Caster->CastSpell(l_Target, ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY, true);
+                if (l_Player->HasTalent(eSpells::CloakAndDagger, l_Player->GetActiveSpec()) && !l_Player->HasUnitState(UNIT_STATE_ROOT))
+                    l_Player->CastSpell(l_Target, eSpells::TeleportBack, true);
 
-                if (GetSpellInfo()->Id == ROGUE_SPELL_GARROTE_DOT && l_Caster->HasAura(ROGUE_SPELL_FIND_WEAKNESS))
-                    l_Caster->AddAura(ROGUE_SPELL_FIND_WEAKNESS_PROC, l_Target);
+                if (GetSpellInfo()->Id == eSpells::GarroteDot && l_Player->HasAura(eSpells::FindWeekness))
+                    l_Player->AddAura(eSpells::FindWeeknessProc, l_Target);
             }
 
             void Register()
             {
                 OnHit += SpellHitFn(spell_rog_cloak_and_dagger_SpellScript::HandleOnHit);
+                OnCheckCast += SpellCheckCastFn(spell_rog_cloak_and_dagger_SpellScript::CheckCast);
             }
         };
 
@@ -1192,8 +1217,10 @@ class spell_rog_envenom: public SpellScriptLoader
 
             enum eSpells
             {
-                SliceAndDice = 5171,
-                Tier5Bonus2P = 37169
+                SliceAndDice        = 5171,
+                Tier5Bonus2P        = 37169,
+                T17Assassination4P  = 166886,
+                EnvenomComboPoint   = 167106
             };
 
             void HandleDamage(SpellEffIndex effIndex)
@@ -1225,6 +1252,10 @@ class spell_rog_envenom: public SpellScriptLoader
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
+
+                /// Envenom refunds 1 Combo Point.
+                if (l_Caster->HasAura(eSpells::T17Assassination4P))
+                    l_Caster->CastSpell(l_Caster, eSpells::EnvenomComboPoint, true);
             }
 
             void Register()
@@ -2021,7 +2052,6 @@ public:
     }
 };
 
-
 /// Burst of Speed - 108212
 class spell_rog_burst_of_speed: public SpellScriptLoader
 {
@@ -2202,17 +2232,6 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                 RevealingStrike        = 84617
             };
 
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(eSpells::ReltentlessStrikesAura))
-                {
-                    if (roll_chance_i(20 * l_Caster->GetPower(POWER_COMBO_POINT)))
-                        l_Caster->CastSpell(l_Caster, eSpells::ReltentlessStrikesProc, true);
-                }
-            }
-
             void HandleDamage(SpellEffIndex effIndex)
             {
                 Unit* l_Caster = GetCaster();
@@ -2262,8 +2281,6 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_rog_relentless_strikes_SpellScript::HandleOnHit);
-
                 switch (m_scriptSpellId)
                 {
                     case eSpells::Evicerate:
@@ -2447,6 +2464,15 @@ class PlayerScript_ruthlessness : public PlayerScript
     public:
         PlayerScript_ruthlessness() : PlayerScript("PlayerScript_ruthlessness") { }
 
+        enum eSpells
+        {
+            RuthlessnessEnergy  = 14181,
+            T17Combat4P         = 165478,
+            Deceit              = 166878,
+            ShadowStrikesAura   = 166881,
+            ShadowStrikesProc   = 170107
+        };
+
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE || !p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
@@ -2455,15 +2481,38 @@ class PlayerScript_ruthlessness : public PlayerScript
             /// Get the power earn (if > 0 ) or consum (if < 0)
             int32 l_DiffVal = p_NewValue - p_OldValue;
 
-            if (l_DiffVal < 0 && p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+            if (l_DiffVal)
             {
-                int32 l_Duration = sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints;
-                if (p_Player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
-                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, -(l_Duration * l_DiffVal));
-                if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
-                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, -(l_Duration * l_DiffVal));
-                if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
-                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, -(l_Duration * l_DiffVal));
+                if (p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+                {
+                    int32 l_Duration = sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints;
+                    if (p_Player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
+                        p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, -(l_Duration * l_DiffVal));
+                    if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
+                        p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, -(l_Duration * l_DiffVal));
+                    if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
+                        p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, -(l_Duration * l_DiffVal));
+
+                    if (roll_chance_i(20))
+                    {
+                        p_NewValue += 1; ///< Restore 1 combo point
+                        p_Player->CastSpell(p_Player, eSpells::RuthlessnessEnergy, true);  ///< Give 25 Energy
+                    }
+                }
+
+                if (p_Player->HasAura(eSpells::T17Combat4P))
+                {
+                    /// Your finishing moves have a 4% chance per combo point to generate 5 combo points and cause your next Eviscerate to consume no Energy.
+                    if (roll_chance_i(4 * -l_DiffVal))
+                        p_Player->CastSpell(p_Player, eSpells::Deceit, true);
+                }
+
+                /// When Shadow Dance expires, your next finishing move refunds 5 combo points.
+                if (p_Player->HasAura(eSpells::ShadowStrikesAura))
+                {
+                    p_Player->RemoveAura(eSpells::ShadowStrikesAura);
+                    p_Player->CastSpell(p_Player, eSpells::ShadowStrikesProc, true);
+                }
             }
         }
 };
@@ -2857,8 +2906,245 @@ class spell_rog_sinister_calling : public SpellScriptLoader
         }
 };
 
+/// Increased 40% if a dagger is equipped
+/// Call by Ambush - 8676, Hemorrhage - 16511
+class spell_rog_dagger_bonus : public SpellScriptLoader
+{
+    public:
+        spell_rog_dagger_bonus() : SpellScriptLoader("spell_rog_dagger_bonus") { }
+
+        class spell_rog_dagger_bonus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_dagger_bonus_SpellScript);
+
+            void HandleDamage(SpellEffIndex)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                Item* l_MainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                Item* l_OffItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                if (((l_MainItem && l_MainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (l_OffItem && l_OffItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
+                {
+                    int32 l_Damage = GetHitDamage();
+                    SetHitDamage(l_Damage + CalculatePct(l_Damage, 40));
+                }
+
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_dagger_bonus_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_dagger_bonus_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Glyph of Detection - 125044
+class spell_rog_gyph_of_detection : public SpellScriptLoader
+{
+    public:
+        spell_rog_gyph_of_detection() : SpellScriptLoader("spell_rog_gyph_of_detection") { }
+
+        class spell_rog_gyph_of_detection_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_gyph_of_detection_AuraScript);
+
+            enum eSpells
+            {
+                Detection = 56814
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasSpell(eSpells::Detection))
+                    l_Player->learnSpell(eSpells::Detection, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::Detection))
+                    l_Player->removeSpell(eSpells::Detection, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_rog_gyph_of_detection_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_gyph_of_detection_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_gyph_of_detection_AuraScript();
+        }
+};
+
+/// Item - Rogue T17 Assassination 2P Bonus - 165516
+class spell_rog_item_t17_assassination_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_rog_item_t17_assassination_2p_bonus() : SpellScriptLoader("spell_rog_item_t17_assassination_2p_bonus") { }
+
+        class spell_rog_item_t17_assassination_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_item_t17_assassination_2p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                Dispatch            = 111240,
+                DispatchOverrided   = 157957,
+                MutilateRightHand   = 5374,
+                MutilateLeftHand    = 27576,
+                MutilateEnergizer   = 166885
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (!l_ProcSpell)
+                    return;
+
+                uint32 const l_AllowedSpells[4] = { eSpells::Dispatch, eSpells::DispatchOverrided, eSpells::MutilateRightHand, eSpells::MutilateLeftHand };
+
+                bool l_Found = false;
+                for (uint8 l_I = 0; l_I < 4; ++l_I)
+                {
+                    if (l_ProcSpell->Id == l_AllowedSpells[l_I])
+                    {
+                        l_Found = true;
+                        break;
+                    }
+                }
+
+                if (!l_Found)
+                    return;
+
+                if (!(p_EventInfo.GetHitMask() & ProcFlagsExLegacy::PROC_EX_CRITICAL_HIT))
+                    return;
+
+                /// Mutilate and Dispatch critical strikes restore 7 energy.
+                l_Caster->CastSpell(l_Caster, eSpells::MutilateEnergizer, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_item_t17_assassination_2p_bonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_item_t17_assassination_2p_bonus_AuraScript();
+        }
+};
+
+/// Item - Rogue T17 Subtlety 2P Bonus - 165482
+class spell_rog_item_t17_subtlety_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_rog_item_t17_subtlety_2p_bonus() : SpellScriptLoader("spell_rog_item_t17_subtlety_2p_bonus") { }
+
+        class spell_rog_item_t17_subtlety_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_item_t17_subtlety_2p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                ShadowDance = 51713,
+                QuickBlades = 165509
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (!l_ProcSpell || l_ProcSpell->Id != eSpells::ShadowDance)
+                    return;
+
+                /// When you activate Shadow Dance, you gain 60 Energy.
+                l_Caster->CastSpell(l_Caster, eSpells::QuickBlades, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_item_t17_subtlety_2p_bonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_item_t17_subtlety_2p_bonus_AuraScript();
+        }
+};
+
+/// Called by Shadow Dance - 51713
+/// Item - Rogue T17 Subtlety 4P Bonus - 165514
+class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_rog_item_t17_subtlety_4p_bonus() : SpellScriptLoader("spell_rog_item_t17_subtlety_4p_bonus") { }
+
+        class spell_rog_item_t17_subtlety_4p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_item_t17_subtlety_4p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                ShadowStrikes = 166881
+            };
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpells::ShadowStrikes, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectApplyFn(spell_rog_item_t17_subtlety_4p_bonus_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_IGNORE_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_item_t17_subtlety_4p_bonus_AuraScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_gyph_of_detection();
+    new spell_rog_dagger_bonus();
     new spell_rog_sinister_calling();
     new spell_rog_glyph_of_recovery();
     new spell_rog_anticipation();
@@ -2909,6 +3195,9 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_deep_insight();
     new spell_rog_glyph_of_energy_flows();
     new spell_rog_find_weakness();
+    new spell_rog_item_t17_assassination_2p_bonus();
+    new spell_rog_item_t17_subtlety_2p_bonus();
+    new spell_rog_item_t17_subtlety_4p_bonus();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();

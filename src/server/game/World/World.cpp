@@ -145,6 +145,13 @@ World::World()
         m_recordDiff[i] = 0;
 
     m_lexicsCutter = nullptr;
+
+    m_QueryHolderCallbacks             = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
+    m_QueryHolderCallbacksBuffer       = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
+    m_TransactionCallbacks             = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
+    m_TransactionCallbacksBuffer       = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
+    m_PreparedStatementCallbacks       = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
+    m_PreparedStatementCallbacksBuffer = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
 }
 
 /// World destructor
@@ -1136,7 +1143,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_PVP_ITEM_LEVEL_MAX]                         = ConfigMgr::GetIntDefault("PvP.Item.Level.Max", 690);
     m_int_configs[CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX]              = ConfigMgr::GetIntDefault("Challenge.Mode.Item.Level.Max", 630);
 
-    m_int_configs[CONFIG_LAST_CLIENT_BUILD]                          = ConfigMgr::GetIntDefault("LastClientBuild", 19342);
+    m_int_configs[CONFIG_LAST_CLIENT_BUILD]                          = ConfigMgr::GetIntDefault("LastClientBuild", 19865);
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = ConfigMgr::GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
     /// BattlePay configs
@@ -1509,10 +1516,6 @@ void World::SetInitialWorldSettings()
 
     ///- Update the realm entry in the database with the realm type from the config file
     //No SQL injection as values are treated as integers
-
-    // not send custom type REALM_FFA_PVP to realm list
-    uint32 server_type = IsFFAPvPRealm() ? uint32(REALM_TYPE_PVP) : getIntConfig(CONFIG_GAME_TYPE);
-    uint32 realm_zone = getIntConfig(CONFIG_REALM_ZONE);
 
     ///- Remove the bones (they should not exist in DB though) and old corpses after a restart
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CORPSES);
@@ -2036,7 +2039,7 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_REALM_STATS].SetInterval(MINUTE * IN_MILLISECONDS);
 
     m_timers[WUPDATE_TRANSFER].SetInterval(1 * IN_MILLISECONDS);
-    m_timers[WUPDATE_TRANSFER_MOP].SetInterval(1 * MINUTE * IN_MILLISECONDS);
+    m_timers[WUPDATE_TRANSFER_EXP].SetInterval(1 * MINUTE * IN_MILLISECONDS);
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
@@ -2390,126 +2393,7 @@ void World::Update(uint32 diff)
         LoginDatabase.PExecute("UPDATE realmlist SET online = %u, queue = %u where id = %u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
     }
 
-    if (m_timers[WUPDATE_TRANSFER].Passed())
-    {
-        // Prepare transfer dump callback ...
-        {
-            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERS_DUMP);
-            l_Stmt->setUInt32(0, sLog->GetRealmID());
-
-            m_transfersDumpCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
-        }
-
-        // Prepare transfer load callback ...
-        {
-            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERS_LOAD);
-            l_Stmt->setUInt32(0, sLog->GetRealmID());
-
-            m_transfersLoadCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
-        }
-
-        m_timers[WUPDATE_TRANSFER].SetInterval(HOUR * IN_MILLISECONDS);
-        m_timers[WUPDATE_TRANSFER].Reset();
-    }
-
-    if (m_transfersDumpCallbacks.ready() && m_transfersLoadCallbacks.ready())
-    {
-        PreparedQueryResult l_ToDump;
-        PreparedQueryResult l_ToLoad;
-
-        m_transfersDumpCallbacks.get(l_ToDump);
-        m_transfersLoadCallbacks.get(l_ToLoad);
-
-        if (l_ToDump)
-        {
-            do
-            {
-                Field* l_Field = l_ToDump->Fetch();
-                uint32 l_Transaction = l_Field[0].GetUInt32();
-                uint32 l_AccountID = l_Field[1].GetUInt32();
-                uint32 l_CharGUID = l_Field[2].GetUInt32();
-
-                /// Transfers aren't allowed with legacy account
-                if (l_AccountID & 0x40000000)
-                    continue;
-
-                if (Player * l_Player = sObjectMgr->GetPlayerByLowGUID(l_CharGUID))
-                    continue;
-
-                bool l_Error = true;
-                std::string l_Dump;
-
-                if (PlayerDumpWriter().GetDump(l_CharGUID, l_AccountID, l_Dump, false))
-                {
-                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_TRANSFER_PDUMP);
-                    stmt->setString(0, l_Dump);
-                    stmt->setUInt32(1, l_Transaction);
-
-                    if (LoginDatabase.DirectExecuteWithReturn(stmt))
-                    {
-                        l_Error = false;
-
-                        CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%u'", l_CharGUID);
-                        CharacterDatabase.PExecute("DELETE FROM guild_member WHERE guid = '%u'", l_CharGUID);
-                        CharacterDatabase.PExecute("UPDATE characters SET deleteInfos_Name=name, deleteInfos_Account=account, deleteDate='" UI64FMTD "', name='', account=0 WHERE guid=%u", uint64(time(NULL)), l_CharGUID);
-                    }
-                }
-
-                if (l_Error)
-                {
-                    sLog->outTrace(LOG_FILTER_WORLDSERVER, "PlayerDump fail ! (guid %u)", l_CharGUID);
-                    LoginDatabase.PExecute("UPDATE webshop_delivery_interrealm_transfer SET nb_attempt = nb_attempt + 1 WHERE id = %u", l_Transaction);
-                    continue;
-                }
-            }
-            while (l_ToDump->NextRow());
-        }
-
-        if (l_ToLoad)
-        {
-            do
-            {
-                uint32 l_Timestamp     = getMSTime();
-                Field* l_Field         = l_ToLoad->Fetch();
-                uint32 l_Transaction   = l_Field[0].GetUInt32();
-                uint32 l_AccountID     = l_Field[1].GetUInt32();
-                uint32 l_CharGUID      = l_Field[2].GetUInt32();
-                std::string l_CharDump = l_Field[3].GetString();
-
-                /// Transfers aren't allowed with legacy account
-                if (l_AccountID & 0x40000000)
-                    continue;
-
-                std::ostringstream l_Filename;
-                l_Filename << "pdump/" << l_AccountID << "_" << l_CharGUID << "_" << l_Timestamp;
-
-                FILE* l_File = fopen(l_Filename.str().c_str(), "w");
-                if (!l_File)
-                    continue;
-
-                fprintf(l_File, "%s\n", l_CharDump.c_str());
-                fclose(l_File);
-
-                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_AccountID, "#Transfer", 0);
-                remove(l_Filename.str().c_str());
-
-                if (l_Error == DUMP_SUCCESS)
-                {
-                    LoginDatabase.PQuery("UPDATE webshop_delivery_interrealm_transfer SET state = 2 WHERE id = %u", l_Transaction);
-                    continue;
-                }
-
-                LoginDatabase.PQuery("UPDATE webshop_delivery_interrealm_transfer SET error = %u, nb_attempt = nb_attempt + 1, state = 0 WHERE id = %u", (uint32)l_Error, l_Transaction);
-            }
-            while (l_ToLoad->NextRow());
-        }
-
-        m_transfersDumpCallbacks.cancel();
-        m_transfersLoadCallbacks.cancel();
-
-        m_timers[WUPDATE_TRANSFER].SetInterval(15 * MINUTE * IN_MILLISECONDS);
-        m_timers[WUPDATE_TRANSFER].Reset();
-    }
+    _updateTransfers();
 
     uint32 diffTime = getMSTime();
 
@@ -2613,8 +2497,8 @@ void World::Update(uint32 diff)
 
     // execute callbacks from sql queries that were queued recently
     ProcessQueryCallbacks();
+
     SetRecordDiff(RECORD_DIFF_CALLBACK, getMSTime() - diffTime);
-    diffTime = getMSTime();
     RecordTimeDiff("ProcessQueryCallbacks");
 
     ///- Erase corpses once every 20 minutes
@@ -3802,6 +3686,82 @@ void World::ProcessQueryCallbacks()
             lResult.cancel();
         }
     }
+
+    /// - Update querys holders callbacks
+    if (!m_QueryHolderCallbacks->empty())
+    {
+        m_QueryHolderCallbacks->remove_if([](QueryHolderCallback const& p_Callback) -> bool
+        {
+            if (p_Callback.m_QueryResultHolderFuture.ready())
+            {
+                SQLQueryHolder* l_QueryHolder;
+                p_Callback.m_QueryResultHolderFuture.get(l_QueryHolder);
+
+                p_Callback.m_Callback(l_QueryHolder);
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    /// - Add querys holders callbacks in buffer queue to real queue
+    while (!m_QueryHolderCallbacksBuffer->empty())
+    {
+        m_QueryHolderCallbacks->push_front(m_QueryHolderCallbacksBuffer->front());
+        m_QueryHolderCallbacksBuffer->pop_front();
+    }
+
+    /// - Update transactions callbacks
+    if (!m_TransactionCallbacks->empty())
+    {
+        m_TransactionCallbacks->remove_if([](MS::Utilities::CallBackPtr const& l_Callback) -> bool
+        {
+            if (l_Callback->m_State == MS::Utilities::CallBackState::Waiting)
+                return false;
+
+            l_Callback->m_CallBack(l_Callback->m_State == MS::Utilities::CallBackState::Success);
+            return true;
+        });
+    }
+
+    /// - Add transactions callbacks in buffer queue to real queue
+    while (!m_TransactionCallbacksBuffer->empty())
+    {
+        m_TransactionCallbacks->push_front(m_TransactionCallbacksBuffer->front());
+        m_TransactionCallbacksBuffer->pop_front();
+    }
+
+    /// - Update prepared statements callbacks
+    if (!m_PreparedStatementCallbacks->empty())
+    {
+        m_PreparedStatementCallbacks->remove_if([](PrepareStatementCallback const& p_Callback) -> bool
+        {
+            /// If the query result is avaiable ...
+            if (p_Callback.second.ready())
+            {
+                /// Then get it
+                PreparedQueryResult l_Result;
+                p_Callback.second.get(l_Result);
+
+                /// Give the result to the callback, and execute it
+                p_Callback.first(l_Result);
+
+                /// Delete the callback from the forward list
+                return true;
+            }
+
+            /// We havn't the query result yet, we keep the callback and wait for the result!
+            return false;
+        });
+    }
+
+    /// - Add prepared statements in buffer queue to real queue
+    while (!m_PreparedStatementCallbacksBuffer->empty())
+    {
+        m_PreparedStatementCallbacks->push_front(m_PreparedStatementCallbacksBuffer->front());
+        m_PreparedStatementCallbacksBuffer->pop_front();
+    }
 }
 
 void World::LoadCharacterNameData()
@@ -3913,4 +3873,199 @@ bool World::ModerateMessage(std::string l_Text)
         return false;
 
     return m_lexicsCutter->CheckLexics(l_Text);
+}
+
+void World::_updateTransfers()
+{
+    /// Regular transfers (realm to realm)
+    if (m_timers[WUPDATE_TRANSFER].Passed())
+    {
+        // Prepare transfer dump callback ...
+        {
+            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERS_DUMP);
+            l_Stmt->setUInt32(0, sLog->GetRealmID());
+
+            m_transfersDumpCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
+        }
+
+        // Prepare transfer load callback ...
+        {
+            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERS_LOAD);
+            l_Stmt->setUInt32(0, sLog->GetRealmID());
+
+            m_transfersLoadCallbacks = LoginDatabase.AsyncQuery(l_Stmt);
+        }
+
+        m_timers[WUPDATE_TRANSFER].SetInterval(HOUR * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFER].Reset();
+    }
+
+    if (m_transfersDumpCallbacks.ready() && m_transfersLoadCallbacks.ready())
+    {
+        PreparedQueryResult l_ToDump;
+        PreparedQueryResult l_ToLoad;
+
+        m_transfersDumpCallbacks.get(l_ToDump);
+        m_transfersLoadCallbacks.get(l_ToLoad);
+
+        if (l_ToDump)
+        {
+            do
+            {
+                Field* l_Field = l_ToDump->Fetch();
+                uint32 l_Transaction = l_Field[0].GetUInt32();
+                uint32 l_AccountID = l_Field[1].GetUInt32();
+                uint32 l_CharGUID = l_Field[2].GetUInt32();
+
+                /// Transfers aren't allowed with legacy account
+                if (l_AccountID & 0x40000000)
+                    continue;
+
+                if (Player * l_Player = sObjectMgr->GetPlayerByLowGUID(l_CharGUID))
+                    continue;
+
+                bool l_Error = true;
+                std::string l_Dump;
+
+                if (PlayerDumpWriter().GetDump(l_CharGUID, l_AccountID, l_Dump, false))
+                {
+                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_TRANSFER_PDUMP);
+                    stmt->setString(0, l_Dump);
+                    stmt->setUInt32(1, l_Transaction);
+
+                    if (LoginDatabase.DirectExecuteWithReturn(stmt))
+                    {
+                        l_Error = false;
+
+                        CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%u'", l_CharGUID);
+                        CharacterDatabase.PExecute("DELETE FROM guild_member WHERE guid = '%u'", l_CharGUID);
+                        CharacterDatabase.PExecute("UPDATE characters SET deleteInfos_Name=name, deleteInfos_Account=account, deleteDate='" UI64FMTD "', name='', account=0 WHERE guid=%u", uint64(time(NULL)), l_CharGUID);
+                    }
+                }
+
+                if (l_Error)
+                {
+                    sLog->outTrace(LOG_FILTER_WORLDSERVER, "PlayerDump fail ! (guid %u)", l_CharGUID);
+                    LoginDatabase.PExecute("UPDATE webshop_delivery_interrealm_transfer SET nb_attempt = nb_attempt + 1 WHERE id = %u", l_Transaction);
+                    continue;
+                }
+            }
+            while (l_ToDump->NextRow());
+        }
+
+        if (l_ToLoad)
+        {
+            do
+            {
+                uint32 l_Timestamp     = getMSTime();
+                Field* l_Field         = l_ToLoad->Fetch();
+                uint32 l_Transaction   = l_Field[0].GetUInt32();
+                uint32 l_AccountID     = l_Field[1].GetUInt32();
+                uint32 l_CharGUID      = l_Field[2].GetUInt32();
+                std::string l_CharDump = l_Field[3].GetString();
+
+                /// Transfers aren't allowed with legacy account
+                if (l_AccountID & 0x40000000)
+                    continue;
+
+                std::ostringstream l_Filename;
+                l_Filename << "pdump/" << l_AccountID << "_" << l_CharGUID << "_" << l_Timestamp;
+
+                FILE* l_File = fopen(l_Filename.str().c_str(), "w");
+                if (!l_File)
+                    continue;
+
+                fprintf(l_File, "%s\n", l_CharDump.c_str());
+                fclose(l_File);
+
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_AccountID, "#Transfer", 0);
+                remove(l_Filename.str().c_str());
+
+                if (l_Error == DUMP_SUCCESS)
+                {
+                    LoginDatabase.PQuery("UPDATE webshop_delivery_interrealm_transfer SET state = 2 WHERE id = %u", l_Transaction);
+                    continue;
+                }
+
+                if (l_Error != DUMP_TOO_MANY_CHARS)
+                    sLog->outSlack(true, "Transfer to realm [%u] on account [%u] failed. ErrorCode [%u]", g_RealmID, l_AccountID, l_Error);
+
+                LoginDatabase.PQuery("UPDATE webshop_delivery_interrealm_transfer SET error = %u, nb_attempt = nb_attempt + 1 WHERE id = %u", (uint32)l_Error, l_Transaction);
+            }
+            while (l_ToLoad->NextRow());
+        }
+
+        m_transfersDumpCallbacks.cancel();
+        m_transfersLoadCallbacks.cancel();
+
+        m_timers[WUPDATE_TRANSFER].SetInterval(15 * MINUTE * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFER].Reset();
+    }
+
+    /// Inter exp transfers
+    if (m_timers[WUPDATE_TRANSFER_EXP].Passed())
+    {
+        // Prepare transfer dump callback ...
+        {
+            PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_TRANSFERS_EXP_LOAD);
+            l_Stmt->setUInt32(0, sLog->GetRealmID());
+
+            m_transfersExpLoadCallback = LoginDatabase.AsyncQuery(l_Stmt);
+        }
+
+        m_timers[WUPDATE_TRANSFER_EXP].SetInterval(HOUR * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFER_EXP].Reset();
+    }
+
+    if (m_transfersExpLoadCallback.ready())
+    {
+        PreparedQueryResult l_ToLoad;
+        m_transfersExpLoadCallback.get(l_ToLoad);
+
+        if (l_ToLoad)
+        {
+            do
+            {
+                uint32 l_Timestamp     = getMSTime();
+                Field* l_Field         = l_ToLoad->Fetch();
+                uint32 l_Transaction   = l_Field[0].GetUInt32();
+                uint32 l_AccountID     = l_Field[1].GetUInt32();
+                uint32 l_CharGUID      = l_Field[2].GetUInt32();
+                std::string l_CharDump = l_Field[3].GetString();
+
+                /// Transfers aren't allowed with legacy account
+                if (l_AccountID & 0x40000000)
+                    continue;
+
+                std::ostringstream l_Filename;
+                l_Filename << "pdump/" << l_AccountID << "_" << l_CharGUID << "_" << l_Timestamp;
+
+                FILE* l_File = fopen(l_Filename.str().c_str(), "w");
+                if (!l_File)
+                    continue;
+
+                fprintf(l_File, "%s\n", l_CharDump.c_str());
+                fclose(l_File);
+
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_AccountID, "#Transfer", 0, false, AtLoginFlags::AT_LOGIN_RENAME | AtLoginFlags::AT_LOGIN_DELETE_INVALID_SPELL);
+                remove(l_Filename.str().c_str());
+
+                if (l_Error == DUMP_SUCCESS)
+                {
+                    LoginDatabase.PQuery("UPDATE webshop_delivery_interexp_transfer SET state = 2 WHERE id = %u", l_Transaction);
+                    continue;
+                }
+
+                if (l_Error != DUMP_TOO_MANY_CHARS)
+                    sLog->outSlack(true, "Inter Exp Transfer to realm [%u] on account [%u] failed. ErrorCode [%u]", g_RealmID, l_AccountID, l_Error);
+
+                LoginDatabase.PQuery("UPDATE webshop_delivery_interexp_transfer SET error = %u, nb_attempt = nb_attempt + 1 WHERE id = %u", (uint32)l_Error, l_Transaction);
+            }
+            while (l_ToLoad->NextRow());
+        }
+
+        m_transfersExpLoadCallback.cancel();
+        m_timers[WUPDATE_TRANSFER_EXP].SetInterval(20 * MINUTE * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFER_EXP].Reset();
+    }
 }

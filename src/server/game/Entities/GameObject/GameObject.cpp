@@ -1921,7 +1921,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
         return;
 
     bool self = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < spellInfo->EffectCount; ++i)
     {
         if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)
         {
@@ -2540,4 +2540,18 @@ void GameObject::SendTransportToOutOfRangePlayers() const
         if (data.BuildPacket(&pkt))
             itr->getSource()->GetSession()->SendPacket(&pkt);
     }
+}
+
+void GameObject::SendGameObjectActivateAnimKit(uint32 p_AnimKitID, bool p_Maintain /*= true*/, Player* p_Target /*= nullptr*/)
+{
+    WorldPacket l_Data(Opcodes::SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint32(p_AnimKitID);
+    l_Data.WriteBit(p_Maintain);
+    l_Data.FlushBits();
+
+    if (p_Target != nullptr)
+        p_Target->GetSession()->SendPacket(&l_Data);
+    else
+        GetMap()->SendToPlayers(&l_Data);
 }
