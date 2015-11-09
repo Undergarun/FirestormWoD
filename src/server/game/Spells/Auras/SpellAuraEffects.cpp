@@ -3486,7 +3486,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
         switch (GetId())
         {
             case 171630:                ///< Armored Razorback
-                l_DisplayId = 61484;
+                l_DisplayId = 59346;
                 break;
             case 171619:                ///< Tundra Icehoof
                 l_DisplayId = 53307;
