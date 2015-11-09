@@ -1987,6 +1987,10 @@ void Unit::HandleEmoteCommand(uint32 p_EmoteId)
 
 bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo, uint8 effIndex)
 {
+    /// custom check for Demonbolt
+    if (spellInfo && spellInfo->Id == 157695)
+        return false;
+
     // only physical spells damage gets reduced by armor
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
         return false;
@@ -4327,7 +4331,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
 
         ++iter;
 
-        if (aura != exceptAura && (!casterGUID || aura->GetCasterGUID() == casterGUID)
+        if (aura != exceptAura && aura->GetId() != exceptAuraId && (!casterGUID || aura->GetCasterGUID() == casterGUID)
             && ((negative && !aurApp->IsPositive()) || (positive && aurApp->IsPositive())))
         {
             uint32 removedAuras = m_removedAurasCount;

@@ -4382,6 +4382,28 @@ bool SpellInfo::IsRemoveLossControlEffects() const
     return false;
 }
 
+bool SpellInfo::IsRemoveFear() const
+{
+    if (HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED))
+        return true;
+
+    switch (Id)
+    {
+        case 108201:  ///< Desecrated Ground
+        case 118009:  ///< Desecrated Ground
+        case 642:     ///< Divine Shield
+        case 45438:   ///< Ice Block
+        case 18499:   ///< Berserker Rage
+        case 7744:    ///< Will of the Forsaken
+        case 49039:   ///< Lichborne
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 bool SpellInfo::DoesIgnoreGlobalCooldown(Unit* caster) const
 {
     switch (Id)
