@@ -19,6 +19,7 @@
 #include "ScriptUtils.h"
 #include "GameObjectAI.h"
 #include "Group.h"
+#include "CreatureTextMgr.h"
 
 #ifndef HIGHMAUL_HPP
 # define HIGHMAUL_HPP
