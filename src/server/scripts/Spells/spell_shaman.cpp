@@ -771,19 +771,19 @@ class spell_sha_ancestral_guidance: public SpellScriptLoader
                     eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_ANCESTRAL_GUIDANCE))
                     return;
 
-                Player* _player = GetCaster()->ToPlayer();
-                if (!_player)
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (l_Player == nullptr)
                     return;
 
-                if (Unit* target = eventInfo.GetActionTarget())
+                if (Unit* l_Target = eventInfo.GetActionTarget())
                 {
-                    int32 bp = eventInfo.GetDamageInfo()->GetDamage() > eventInfo.GetHealInfo()->GetHeal() ? eventInfo.GetDamageInfo()->GetDamage() : eventInfo.GetHealInfo()->GetHeal();
-                    if (!bp)
+                    int32 l_Bp = eventInfo.GetDamageInfo()->GetDamage() > eventInfo.GetHealInfo()->GetHeal() ? eventInfo.GetDamageInfo()->GetDamage() : eventInfo.GetHealInfo()->GetHeal();
+                    if (!l_Bp)
                         return;
 
-                    bp = int32(bp * aurEff->GetAmount() / 100);
+                    l_Bp = int32(l_Bp * aurEff->GetAmount() / 100);
 
-                    _player->CastCustomSpell(target, SPELL_SHA_ANCESTRAL_GUIDANCE, &bp, NULL, NULL, true);
+                    l_Player->CastCustomSpell(l_Target, SPELL_SHA_ANCESTRAL_GUIDANCE, &l_Bp, NULL, NULL, true);
                 }
             }
 
@@ -796,6 +796,38 @@ class spell_sha_ancestral_guidance: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_sha_ancestral_guidance_AuraScript();
+        }
+};
+
+/// last update : 6.1.2
+/// Ancestral Guidance (heal) - 114911
+class spell_sha_ancestral_guidance_heal : public SpellScriptLoader
+{
+    public:
+        spell_sha_ancestral_guidance_heal() : SpellScriptLoader("spell_sha_ancestral_guidance_heal") { }
+
+        class spell_sha_ancestral_guidance_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_ancestral_guidance_heal_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.size() > 3)
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(3);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_guidance_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_ancestral_guidance_heal_SpellScript();
         }
 };
 
@@ -3281,6 +3313,7 @@ class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
 
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_ancestral_guidance_heal();
     new spell_sha_glyph_of_flame_shock();
     new spell_sha_eye_of_the_storm();
     new spell_sha_spiritwalkers_grace();
