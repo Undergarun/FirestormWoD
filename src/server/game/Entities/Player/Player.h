@@ -3332,38 +3332,7 @@ class Player : public Unit, public GridObject<Player>
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
         //! Return collision height sent to client
-        float GetCollisionHeight(bool mounted)
-        {
-            if (mounted)
-            {
-                CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID));
-                if (!mountDisplayInfo)
-                    return GetCollisionHeight(false);
-
-                CreatureModelDataEntry const* mountModelData = sCreatureModelDataStore.LookupEntry(mountDisplayInfo->ModelId);
-                if (!mountModelData)
-                    return GetCollisionHeight(false);
-
-                CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
-                ASSERT(displayInfo);
-                CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelId);
-                ASSERT(modelData);
-
-                float scaleMod = GetFloatValue(OBJECT_FIELD_SCALE); // 99% sure about this
-
-                return scaleMod * mountModelData->MountHeight + modelData->CollisionHeight * 0.5f;
-            }
-            else
-            {
-                //! Dismounting case - use basic default model data
-                CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
-                ASSERT(displayInfo);
-                CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelId);
-                ASSERT(modelData);
-
-                return modelData->CollisionHeight;
-            }
-        }
+        float GetCollisionHeight(bool p_Mounted);
 
         uint16 GetPrimaryProfession(uint8 index) const
         {
