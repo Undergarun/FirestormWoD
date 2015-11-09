@@ -152,7 +152,7 @@ class Log
                        uint32 to_character_id, std::string to_character_name,
                        const char * str);
         void outAshran(const char* str, ...);
-        void outSlack(std::string p_Dest, std::string p_Color, const char* p_Message, ...);
+        void outSlack(std::string p_Dest, std::string p_Color, bool p_IsAttachement, const char* p_Message, ...);
 
         void EnableDBAppenders();
         static std::string GetTimestampStr();
