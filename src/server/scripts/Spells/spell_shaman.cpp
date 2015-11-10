@@ -1130,7 +1130,7 @@ class spell_sha_fulmination: public SpellScriptLoader
                                 l_Caster->CastSpell(l_Caster, eSpells::LavaSurgeProc, true);
                         }
 
-                        uint8 l_Charges =- 1;
+                        l_Charges = l_Charges - 1;
                         if (!l_Charges)
                             return;
 
@@ -2238,26 +2238,46 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_fulmination_proc_AuraScript);
 
+            enum eSpells
+            {
+                LightningBolt               = 403,
+                ChainLightning              = 421,
+                LavaBust                    = 51505,
+                ImprovedLightningShield     = 157774
+            };
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
-                Unit* target = eventInfo.GetProcTarget();
+                Unit* l_Caster = GetCaster();
 
-                if (!target)
+                if (l_Caster == nullptr)
                     return;
 
-                uint32 maxCharges = GetEffect(EFFECT_0)->CalculateAmount(GetCaster());
-                if (AuraPtr aura = GetCaster()->GetAura(SPELL_SHA_LIGHTNING_SHIELD))
-                {
-                    if (aura->GetCharges() < maxCharges)
-                        aura->SetCharges(aura->GetCharges() + 1);
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr)
+                    return;
 
-                    if (aura->GetCharges() == maxCharges && !GetCaster()->HasAura(SPELL_SHA_FULMINATION_INFO))
-                        GetCaster()->CastSpell(GetCaster(), SPELL_SHA_FULMINATION_INFO, true);
+                if (!(l_Caster->HasAura(eSpells::ImprovedLightningShield) && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::LavaBust))
+                {
+                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::LightningBolt && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ChainLightning)
+                        return;
                 }
 
+                Unit* l_Target = p_EventInfo.GetProcTarget();
+
+                if (l_Target == nullptr)
+                    return;
+
+                uint32 l_MaxCharges = GetEffect(EFFECT_0)->CalculateAmount(l_Caster);
+                if (AuraPtr l_Aura = GetCaster()->GetAura(SPELL_SHA_LIGHTNING_SHIELD))
+                {
+                    if (l_Aura->GetCharges() < l_MaxCharges)
+                        l_Aura->SetCharges(l_Aura->GetCharges() + 1);
+
+                    if (l_Aura->GetCharges() == l_MaxCharges && !l_Caster->HasAura(SPELL_SHA_FULMINATION_INFO))
+                        l_Caster->CastSpell(l_Caster, SPELL_SHA_FULMINATION_INFO, true);
+                }
             }
 
             void Register()
@@ -2536,15 +2556,6 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
                 if (l_Player->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
                     l_Player->CastSpell(l_Player, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
-                if (l_Player->HasSpell(SPELL_SHA_IMPROVED_LIGHTNING_SHIELD) && l_Player->HasSpell(SPELL_SHA_FULMINATION))
-                {
-                    AuraPtr l_LightningShield = l_Player->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
-                    if (l_LightningShield != nullptr)
-                    {
-                        if (l_LightningShield->GetCharges() < 20)
-                            l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
-                    }
-                }
 
                 /// Lavaburst deals 50% more damage with Flame Shock on target
                 /// HotFixe February 27, 2015 : Lava burst no longer deals extra damage in PvP combat for Restoration Shaman.
