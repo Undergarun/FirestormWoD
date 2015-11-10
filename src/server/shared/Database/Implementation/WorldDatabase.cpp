@@ -96,15 +96,4 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(WORLD_DEL_DISABLES, "DELETE FROM disables WHERE entry = ? AND sourceType = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(WORLD_SEL_BLACKMARKET_TEMPLATE, "SELECT id, itemEntry, itemCount, seller, startBid, duration, chance FROM blackmarket_template;", CONNECTION_SYNCH);
     PREPARE_STATEMENT(WORLD_SEL_MAX_CREATURE_GUID, "SELECT max(guid) FROM creature", CONNECTION_ASYNC);
-
-    ///////////////////////////////////////////////////////////////////////////////////
-    /// PvE Logs
-    PREPARE_STATEMENT(WORLD_INS_GUILD_RAID_PROGRESS, "INSERT INTO `guild_raid_progress` VALUE (?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(WORLD_UPD_GUILD_RAID_PROGRESS, "UPDATE `guild_raid_progress` SET `EncountersKilled` = ? WHERE `GuildID` = ? AND `MapID` = ? AND `DifficultyID` = ?");
-    PREPARE_STATEMENT(WORLD_INS_GUILD_ENCOUNTER_PROGRESS, "INSERT INTO `guild_encounter_progress` VALUE (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(WORLD_UPD_ENCOUNTER_PULL_COUNT, "UPDATE `guild_encounter_progress` SET `PullCount` = ? WHERE `GuildID` = ? AND `MapID` = ? AND `DifficultyID` = ?");
-    PREPARE_STATEMENT(WORLD_UPD_ENCOUNTER_FASTEST_KILL, "UPDATE `guild_encounter_progress` SET `FastestKill` = ? WHERE `GuildID` = ? AND `MapID` = ? AND `DifficultyID` = ?");
-    PREPARE_STATEMENT(WORLD_INS_GUILD_ENCOUNTER_ATTEMPT, "INSERT INTO `guild_encounter_attempts` VALUE (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(WORLD_INS_GUILD_ENCOUNTER_ATTEMPT_DATAS, "INSERT INTO `guild_encounter_attempts_datas` VALUE (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    ///////////////////////////////////////////////////////////////////////////////////
 }

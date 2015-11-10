@@ -105,17 +105,6 @@ enum WorldDatabaseStatements
     WORLD_SEL_BLACKMARKET_TEMPLATE,
     WORLD_SEL_MAX_CREATURE_GUID,
 
-    ///////////////////////////////////////////////////////////////////////////////////
-    /// PvE Logs
-    WORLD_INS_GUILD_RAID_PROGRESS,
-    WORLD_UPD_GUILD_RAID_PROGRESS,
-    WORLD_INS_GUILD_ENCOUNTER_PROGRESS,
-    WORLD_UPD_ENCOUNTER_PULL_COUNT,
-    WORLD_UPD_ENCOUNTER_FASTEST_KILL,
-    WORLD_INS_GUILD_ENCOUNTER_ATTEMPT,
-    WORLD_INS_GUILD_ENCOUNTER_ATTEMPT_DATAS,
-    ///////////////////////////////////////////////////////////////////////////////////
-
     MAX_WORLDDATABASE_STATEMENTS,
 };
 
