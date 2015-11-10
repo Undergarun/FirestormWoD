@@ -23,6 +23,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "Reporter.hpp"
 //#include "GameObject.h"
 //#include "Map.h"
 
@@ -149,6 +150,42 @@ struct BossScenarios
 
     uint32 m_BossID;
     uint32 m_ScenarioID;
+};
+
+struct EncounterDatas
+{
+    EncounterDatas()
+    {
+        Expansion       = 0;
+        RealmID         = 0;
+        GuildID         = 0;
+        GuildFaction    = 0;
+        GuildName       = "";
+        MapID           = 0;
+        EncounterID     = 0;
+        DifficultyID    = 0;
+        StartTime       = 0;
+        CombatDuration  = 0;
+        Success         = 0;
+        DeadCount       = 0;
+        RosterDatas     = "";
+        EncounterHealth = "";
+    }
+
+    uint32      Expansion;
+    uint32      RealmID;
+    uint32      GuildID;
+    uint32      GuildFaction;
+    std::string GuildName;
+    uint32      MapID;
+    uint32      EncounterID;
+    uint32      DifficultyID;
+    uint32      StartTime;
+    uint32      CombatDuration;
+    bool        Success;
+    uint32      DeadCount;
+    std::string RosterDatas;
+    std::string EncounterHealth;
 };
 
 enum eChallengeMedals
@@ -538,5 +575,7 @@ class InstanceScript : public ZoneScript
         uint32 m_CompletedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
         uint32 m_EncounterTime;
         uint32 m_DisabledMask;
+
+        EncounterDatas m_EncounterDatas;
 };
 #endif

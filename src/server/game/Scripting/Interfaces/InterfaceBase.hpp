@@ -56,6 +56,7 @@ struct ConditionSourceInfo;
 struct Condition;
 struct ItemTemplate;
 struct OutdoorPvPData;
+struct EncounterDatas;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 

@@ -935,8 +935,7 @@ class ScriptMgr
 
     /// Encounter scripts
     public:
-        void OnEncounterStart(InstanceScript* p_Instance, uint32 p_EncounterID);
-        void OnEncounterEnd(InstanceScript* p_Instance, uint32 p_EncounterID, bool p_Success);
+        void OnEncounterEnd(EncounterDatas const* p_EncounterDatas);
 
     private:
         /// Registered script count

@@ -21,19 +21,10 @@ class EncounterScript : public ScriptObjectImpl<false>
         EncounterScript();
 
     public:
-        /// Called when an Encounter is started
-        virtual void OnEncounterStart(InstanceScript* p_Instance, uint32 p_EncounterID)
-        {
-            UNUSED(p_Instance);
-            UNUSED(p_EncounterID);
-        }
-
         /// Called when an Encounter is ended
-        virtual void OnEncounterEnd(InstanceScript* p_Instance, uint32 p_EncounterID, bool p_Success)
+        virtual void OnEncounterEnd(EncounterDatas const* p_EncounterDatas)
         {
-            UNUSED(p_Instance);
-            UNUSED(p_EncounterID);
-            UNUSED(p_Success);
+            UNUSED(p_EncounterDatas);
         }
 };
 

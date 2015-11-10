@@ -51,6 +51,8 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_MaxInCombatResCount = 0;
     m_CombatResChargeTime = 0;
     m_NextCombatResChargeTime = 0;
+
+    m_EncounterDatas = EncounterDatas();
 }
 
 void InstanceScript::SaveToDB()
@@ -1404,7 +1406,36 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     l_Data << uint32(instance->GetPlayers().getSize());
     instance->SendToPlayers(&l_Data);
 
-    sScriptMgr->OnEncounterStart(this, p_EncounterID);
+    /// Reset datas before each attempt
+    m_EncounterDatas = EncounterDatas();
+
+    /// Register encounter datas for further logs
+    {
+        m_EncounterDatas.Expansion = instance->GetEntry()->ExpansionID;
+        m_EncounterDatas.RealmID   = g_RealmID;
+
+        Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+        {
+            if (Player* l_Player = l_Iter->getSource())
+            {
+                if (Group* l_Group = l_Player->GetGroup())
+                {
+                    if (l_Player->GetGuild() == nullptr || !l_Group->IsGuildGroup(l_Player->GetGuildId(), true, true))
+                        continue;
+
+                    m_EncounterDatas.GuildID        = l_Player->GetGuildId();
+                    m_EncounterDatas.GuildFaction   = l_Player->getFaction();
+                    m_EncounterDatas.GuildName      = l_Player->GetGuild()->GetName();
+                    break;
+                }
+            }
+        }
+
+        m_EncounterDatas.MapID          = instance->GetId();
+        m_EncounterDatas.DifficultyID   = instance->GetDifficultyID();
+        m_EncounterDatas.StartTime      = time(nullptr);
+    }
 }
 
 void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
@@ -1420,7 +1451,14 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
 
-    sScriptMgr->OnEncounterEnd(this, p_EncounterID, p_Success);
+    m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;
+    m_EncounterDatas.Success        = p_Success;
+
+    if (m_EncounterDatas.GuildID)
+        sScriptMgr->OnEncounterEnd(&m_EncounterDatas);
+
+    /// Reset datas after each attempt
+    m_EncounterDatas = EncounterDatas();
 }
 
 uint32 InstanceScript::GetEncounterIDForBoss(Creature* p_Boss) const
@@ -1553,13 +1591,10 @@ class EncounterScript_Global : public EncounterScript
     public:
         EncounterScript_Global() : EncounterScript() { }
 
-        void OnEncounterStart(InstanceScript* p_Instance, uint32 p_EncounterID) override
+        void OnEncounterEnd(EncounterDatas const* p_EncounterDatas) override
         {
+            ByteBuffer l_Datas;
 
-        }
-
-        void OnEncounterEnd(InstanceScript* p_Instance, uint32 p_EncounterID, bool p_Success) override
-        {
-
+            sReporter->EnqueueReport(l_Datas);
         }
 };

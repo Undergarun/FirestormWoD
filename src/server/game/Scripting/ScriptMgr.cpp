@@ -2370,18 +2370,9 @@ bool ScriptMgr::BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product cons
 
 //////////////////////////////////////////////////////////////////////////
 /// EncounterScripts
-void ScriptMgr::OnEncounterStart(InstanceScript* p_Instance, uint32 p_EncounterID)
+void ScriptMgr::OnEncounterEnd(EncounterDatas const* p_EncounterDatas)
 {
-    ASSERT(p_Instance);
-
-    FOREACH_SCRIPT(EncounterScript)->OnEncounterStart(p_Instance, p_EncounterID);
-}
-
-void ScriptMgr::OnEncounterEnd(InstanceScript* p_Instance, uint32 p_EncounterID, bool p_Success)
-{
-    ASSERT(p_Instance);
-
-    FOREACH_SCRIPT(EncounterScript)->OnEncounterEnd(p_Instance, p_EncounterID, p_Success);
+    FOREACH_SCRIPT(EncounterScript)->OnEncounterEnd(p_EncounterDatas);
 }
 //////////////////////////////////////////////////////////////////////////
 
