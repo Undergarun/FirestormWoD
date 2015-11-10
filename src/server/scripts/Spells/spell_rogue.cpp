@@ -2481,7 +2481,7 @@ class PlayerScript_ruthlessness : public PlayerScript
             /// Get the power earn (if > 0 ) or consum (if < 0)
             int32 l_DiffVal = p_NewValue - p_OldValue;
 
-            if (l_DiffVal)
+            if (l_DiffVal < 0)
             {
                 if (p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
                 {
