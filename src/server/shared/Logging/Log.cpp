@@ -480,7 +480,7 @@ void Log::outAshran(const char* str, ...)
 }
 
 /// Slack API Documentation : https://api.slack.com/docs/attachments
-void Log::outSlack(std::string p_Dest, std::string p_Color, bool p_IsAttachement, const char* p_Message, ...)
+void Log::outSlack(std::string const& p_Dest, std::string const& p_Color, bool p_IsAttachement, const char* p_Message, ...)
 {
     if (!p_Message || !m_SlackEnable)
         return;
