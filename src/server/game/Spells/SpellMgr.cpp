@@ -5606,6 +5606,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 13812: ///< Explosive Trap
             case 3355: ///< Freezing Trap
+            case 57879: ///< Snake Trap
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 break;
