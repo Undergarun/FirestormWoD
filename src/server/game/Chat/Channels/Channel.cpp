@@ -693,7 +693,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
 
         if (IsWorld())
         {
-            std::regex l_Filter(".*(?:(?:need|besoin|recherche).*(?:tank|dps|heal)|guild|recrute|m[eé]tier|craft|pas cher|prix|n[eé]gociable|vend).*");
+            std::regex l_Filter(".*(?:(?:need|besoin|recherche).*(?:tank|dps|heal)|guild|recrute|m[eé]tier|craft|pas cher|prix|n[eé]gociable|vend|ach[eé]te|seek|ilevel|go tag).*", std::regex_constants::icase);
 
             if (!std::regex_match(what, l_Filter))
                 sLog->outSlack("#firestorm-world", "", false, "%s - %s: %s", player->GetName(), sWorld->GetRealmName().c_str(), what);
