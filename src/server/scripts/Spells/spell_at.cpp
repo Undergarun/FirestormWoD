@@ -458,7 +458,9 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
 
         enum eSpells
         {
-            SummonSnakes = 57879
+            SummonSnakes        = 57879,
+            SpellEntrapment     = 19387,
+            SpellEntrapmentRoot = 64803
         };
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -480,6 +482,10 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
                 if (l_Target != nullptr)
                 {
                     l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
+
+                    if (l_Caster->HasAura(eSpells::SpellEntrapment)) ///< Entrapment
+                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellEntrapmentRoot, true);
+
                     p_AreaTrigger->Remove(0);
                 }
             }
