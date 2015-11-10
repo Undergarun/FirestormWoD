@@ -9749,6 +9749,9 @@ GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
 
 CreatureTemplate const* ObjectMgr::GetCreatureTemplate(uint32 p_Entry)
 {
+    if (p_Entry >= m_CreatureTemplateStoreSize)
+        return nullptr;
+
     return m_CreatureTemplateStore[p_Entry];
 }
 
