@@ -425,7 +425,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     /*----------------------*/
 
     /* process position-change */
-    WorldPacket data(SMSG_MOVE_UPDATE, p_Packet.size());
+    WorldPacket data(SMSG_MOVE_UPDATE, p_Packet.size() + 4);
     l_MovementInfo.guid = l_Mover->GetGUID();
 
     uint32 l_MSTime = getMSTime();
@@ -436,6 +436,47 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     l_MovementInfo.time = l_MovementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
 
     WorldSession::WriteMovementInfo(data, &l_MovementInfo);
+
+    switch (l_OpCode)
+    {
+        case CMSG_MOVE_SET_RUN_SPEED_CHEAT:
+            data.SetOpcode(SMSG_MOVE_UPDATE_RUN_SPEED);
+            data << float(l_Mover->GetSpeed(MOVE_RUN));
+            break;
+        case CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT:
+            data.SetOpcode(SMSG_MOVE_UPDATE_RUN_BACK_SPEED);
+            data << float(l_Mover->GetSpeed(MOVE_RUN_BACK));
+            break;
+        case CMSG_MOVE_SET_WALK_SPEED_CHEAT:
+            data.SetOpcode(SMSG_MOVE_UPDATE_WALK_SPEED);
+            data << float(l_Mover->GetSpeed(MOVE_WALK));
+            break;
+        case CMSG_MOVE_SET_SWIM_SPEED_CHEAT:
+            data.SetOpcode(SMSG_MOVE_UPDATE_SWIM_SPEED);
+            data << float(l_Mover->GetSpeed(MOVE_SWIM));
+            break;
+        case CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT:
+            data.SetOpcode(SMSG_MOVE_UPDATE_SWIM_BACK_SPEED);
+            data << float(l_Mover->GetSpeed(MOVE_SWIM_BACK));
+            break;
+        case CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT:
+            data.SetOpcode(SMSG_MOVE_UPDATE_FLIGHT_SPEED);
+            data << float(l_Mover->GetSpeed(MOVE_FLIGHT));
+            break;
+        case CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT:
+            data.SetOpcode(SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED);
+            data << float(l_Mover->GetSpeed(MOVE_FLIGHT_BACK));
+            break;
+        case CMSG_MOVE_SET_TURN_SPEED_CHEAT:
+            data.SetOpcode(SMSG_MOVE_UPDATE_TURN_RATE);
+            data << float(l_Mover->GetSpeed(MOVE_TURN_RATE));
+            break;
+        case CMSG_MOVE_SET_PITCH_SPEED_CHEAT:
+            data.SetOpcode(SMSG_MOVE_UPDATE_PITCH_RATE);
+            data << float(l_Mover->GetSpeed(MOVE_PITCH_RATE));
+            break;
+    }
+
     l_Mover->SendMessageToSet(&data, m_Player);
 
     l_Mover->m_movementInfo = l_MovementInfo;
