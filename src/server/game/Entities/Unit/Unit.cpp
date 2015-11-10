@@ -14440,6 +14440,9 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
 void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 {
+    if (fabs(rate) <= 0.00000023841858) // From client
+        rate = 1.0f;
+
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
 
