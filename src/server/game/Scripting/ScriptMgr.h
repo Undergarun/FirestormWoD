@@ -933,6 +933,11 @@ class ScriptMgr
         void OnBattlePayProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product);
         bool BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason);
 
+    /// Encounter scripts
+    public:
+        void OnEncounterStart(InstanceScript* p_Instance, uint32 p_EncounterID);
+        void OnEncounterEnd(InstanceScript* p_Instance, uint32 p_EncounterID, bool p_Success);
+
     private:
         /// Registered script count
         uint32 m_ScriptCount;

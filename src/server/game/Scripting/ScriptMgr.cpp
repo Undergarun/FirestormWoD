@@ -305,6 +305,7 @@ void ScriptMgr::Unload()
     ScriptRegistry<GuildScript>::Clear();
     ScriptRegistry<GroupScript>::Clear();
     ScriptRegistry<AreaTriggerEntityScript>::Clear();
+    ScriptRegistry<EncounterScript>::Clear();
 
     for (ExampleScriptContainer::iterator l_It = ExampleScripts.begin(); l_It != ExampleScripts.end(); ++l_It)
         delete *l_It;
@@ -2368,6 +2369,23 @@ bool ScriptMgr::BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product cons
 }
 
 //////////////////////////////////////////////////////////////////////////
+/// EncounterScripts
+void ScriptMgr::OnEncounterStart(InstanceScript* p_Instance, uint32 p_EncounterID)
+{
+    ASSERT(p_Instance);
+
+    FOREACH_SCRIPT(EncounterScript)->OnEncounterStart(p_Instance, p_EncounterID);
+}
+
+void ScriptMgr::OnEncounterEnd(InstanceScript* p_Instance, uint32 p_EncounterID, bool p_Success)
+{
+    ASSERT(p_Instance);
+
+    FOREACH_SCRIPT(EncounterScript)->OnEncounterEnd(p_Instance, p_EncounterID, p_Success);
+}
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
 /// Constructor
@@ -2596,6 +2614,11 @@ BattlePayProductScript::BattlePayProductScript(std::string p_ScriptName)
     sScriptMgr->RegisterBattlePayProductScript(p_ScriptName, this);
 }
 
+EncounterScript::EncounterScript() : ScriptObjectImpl("EncounterScript")
+{
+    ScriptRegistry<EncounterScript>::AddScript(this);
+}
+
 /// Instantiate static members of ScriptRegistry.
 template<class TScript> std::map<uint32, TScript*> ScriptRegistry<TScript>::ScriptPointerList;
 template<class TScript> uint32 ScriptRegistry<TScript>::_scriptIdCounter = 0;
@@ -2626,6 +2649,7 @@ template class ScriptRegistry<PlayerScript>;
 template class ScriptRegistry<GuildScript>;
 template class ScriptRegistry<GroupScript>;
 template class ScriptRegistry<AreaTriggerEntityScript>;
+template class ScriptRegistry<EncounterScript>;
 
 /// Undefine utility macros.
 #undef GET_SCRIPT_RET

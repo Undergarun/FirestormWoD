@@ -22,6 +22,7 @@
 #include "ZoneScript.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "ScriptMgr.h"
 //#include "GameObject.h"
 //#include "Map.h"
 

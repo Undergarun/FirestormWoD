@@ -1403,6 +1403,8 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     l_Data << uint32(instance->GetDifficultyID());
     l_Data << uint32(instance->GetPlayers().getSize());
     instance->SendToPlayers(&l_Data);
+
+    sScriptMgr->OnEncounterStart(this, p_EncounterID);
 }
 
 void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
@@ -1417,6 +1419,8 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.WriteBit(p_Success);
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
+
+    sScriptMgr->OnEncounterEnd(this, p_EncounterID, p_Success);
 }
 
 uint32 InstanceScript::GetEncounterIDForBoss(Creature* p_Boss) const
@@ -1543,3 +1547,19 @@ void InstanceScript::ConsumeCombatResurrectionCharge()
     SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_IN_COMBAT_RESURRECTION);
 }
 //////////////////////////////////////////////////////////////////////////
+
+class EncounterScript_Global : public EncounterScript
+{
+    public:
+        EncounterScript_Global() : EncounterScript() { }
+
+        void OnEncounterStart(InstanceScript* p_Instance, uint32 p_EncounterID) override
+        {
+
+        }
+
+        void OnEncounterEnd(InstanceScript* p_Instance, uint32 p_EncounterID, bool p_Success) override
+        {
+
+        }
+};
