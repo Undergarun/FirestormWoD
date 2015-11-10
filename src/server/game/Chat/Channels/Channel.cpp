@@ -16,6 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <regex>
+
 #include "Channel.h"
 #include "Chat.h"
 #include "ObjectMgr.h"
@@ -690,7 +692,12 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         SendToAll(&data, !m_Players[p].IsModerator() ? p : false);
 
         if (IsWorld())
-            sLog->outSlack("@tuxity", "", false, "%s - %s: %s", player->GetName(), sWorld->GetRealmName().c_str(), what);
+        {
+            std::regex l_Filter(".*(?:(?:need|besoin|recherche).*(?:tank|dps|heal)|guild|recrute|m[eé]tier|craft|pas cher|prix|n[eé]gociable|vend).*");
+
+            if (!std::regex_match(what, l_Filter))
+                sLog->outSlack("@tuxity", "", false, "%s - %s: %s", player->GetName(), sWorld->GetRealmName().c_str(), what);
+        }
     }
 }
 
