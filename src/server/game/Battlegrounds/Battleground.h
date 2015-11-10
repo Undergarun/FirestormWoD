@@ -885,7 +885,8 @@ class Battleground
 
         bool CanGroupEnter(GroupQueueInfo const* p_Group) const
         {
-            return GetStatus() <= BattlegroundStatus::STATUS_IN_PROGRESS && static_cast<int>(GetMaxPlayersPerTeam() - GetInvitedCount(p_Group->m_Team) - m_PlayersCount[p_Group->GetTeam()] - p_Group->m_Players.size()) >= 0;
+            return GetStatus() <= BattlegroundStatus::STATUS_IN_PROGRESS ///< BG isn't finished
+                && static_cast<int>(GetMaxPlayersPerTeam() - GetInvitedCount(p_Group->m_Team) - m_PlayersCount[p_Group->GetTeam()] - p_Group->m_Players.size()) >= 0;
         }
 
         uint32 GetBonusHonorFromKill(uint32 kills) const;

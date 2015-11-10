@@ -111,7 +111,7 @@ enum Actions
 class OrbsDespawner : public BasicEvent
 {
     public:
-        explicit OrbsDespawner(Creature* creature) : _creature(creature)
+        explicit OrbsDespawner(Creature* creature) : _creature(creature), BasicEvent()
         {
         }
 

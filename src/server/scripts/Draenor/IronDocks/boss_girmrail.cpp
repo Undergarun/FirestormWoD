@@ -56,7 +56,7 @@ class basicevent_beforegrimrail : public BasicEvent
 {
     public:
 
-        explicit basicevent_beforegrimrail(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value) { }
+        explicit basicevent_beforegrimrail(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent() { }
 
         bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {
@@ -101,7 +101,7 @@ class basicevent_aftergrimrail : public BasicEvent
 {
     public:
 
-        explicit basicevent_aftergrimrail(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value) { }
+        explicit basicevent_aftergrimrail(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent() { }
 
         bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {

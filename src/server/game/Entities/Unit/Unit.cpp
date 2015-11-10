@@ -19639,7 +19639,7 @@ class Unit::AINotifyTask : public BasicEvent
 {
     Unit& m_owner;
 public:
-    explicit AINotifyTask(Unit * me) : m_owner(*me) {
+    explicit AINotifyTask(Unit * me) : m_owner(*me), BasicEvent() {
         m_owner.m_VisibilityUpdScheduled = true;
     }
 
@@ -19665,7 +19665,7 @@ class Unit::VisibilityUpdateTask : public BasicEvent
 {
     Unit& m_owner;
 public:
-    explicit VisibilityUpdateTask(Unit * me) : m_owner(*me) {}
+    explicit VisibilityUpdateTask(Unit * me) : m_owner(*me), BasicEvent() {}
 
     virtual bool Execute(uint64 , uint32)
     {

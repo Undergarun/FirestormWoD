@@ -32,7 +32,7 @@ enum eAction
 class basicevent_explosion_iron_star : public BasicEvent
 {
     public:
-        explicit basicevent_explosion_iron_star(Unit* p_Me, uint64 p_Unit, uint64 p_OtherUnit, int p_Value) : m_Me(p_Me), m_ObjGUID(p_Unit), m_OtherObjGUID(p_OtherUnit), m_Modifier(p_Value) { }
+        explicit basicevent_explosion_iron_star(Unit* p_Me, uint64 p_Unit, uint64 p_OtherUnit, int p_Value) : m_Me(p_Me), m_ObjGUID(p_Unit), m_OtherObjGUID(p_OtherUnit), m_Modifier(p_Value), BasicEvent() { }
 
         enum eExplosionIronStarEventSpells
         {
