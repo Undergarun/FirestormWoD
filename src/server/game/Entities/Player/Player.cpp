@@ -2701,6 +2701,8 @@ void Player::SendTeleportPacket(Position& p_OldPosition)
     GetPosition(&m_mover->m_movementInfo.pos);
     Relocate(&p_OldPosition);
 
+    m_mover->m_movementInfo.time = getMSTime();
+
     WorldPacket l_TeleportUpdatePacket(SMSG_MOVE_UPDATE_TELEPORT, 300);
 
     GetSession()->WriteMovementInfo(l_TeleportUpdatePacket, &m_mover->m_movementInfo);
