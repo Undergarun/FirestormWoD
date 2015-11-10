@@ -1110,13 +1110,11 @@ class spell_sha_fulmination: public SpellScriptLoader
                         if (!l_Shield)
                             return;
 
-                        uint8 l_Charges = l_Shield->GetCharges() - 1;
-                        if (!l_Charges)
-                            return;
-
                         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE);
                         if (!l_SpellInfo)
                             return;
+
+                        uint8 l_Charges = l_Shield->GetCharges();
 
                         /// Each stack of Lightning Shield consumed by Fulmination increases your multistrike damage by 1% for 10 sec.
                         if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Elemental2P, EFFECT_0))
@@ -1131,6 +1129,10 @@ class spell_sha_fulmination: public SpellScriptLoader
                             if (l_AuraEffect->GetAmount() < (int32)l_Charges)
                                 l_Caster->CastSpell(l_Caster, eSpells::LavaSurgeProc, true);
                         }
+
+                        uint8 l_Charges =- 1;
+                        if (!l_Charges)
+                            return;
 
                         int32 l_BP = l_Caster->CalculateSpellDamage(l_Target, l_SpellInfo, EFFECT_0);
                         uint32 l_Damage = l_Charges * l_Caster->SpellDamageBonusDone(l_Target, l_SpellInfo, l_BP, EFFECT_0, SPELL_DIRECT_DAMAGE);
