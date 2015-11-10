@@ -717,7 +717,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
                     l_Msg = std::regex_replace(l_Msg, l_WoWLinkFilter, l_WoWLink2Slack.str());
                 }
 
-                sLog->outSlack("#firestorm-world", "", false, "%s - %s: %s", player->GetName(), sWorld->GetRealmName().c_str(), l_Msg.c_str());
+                sLog->outSlack("#firestorm-world", "", false, "*%s - %s*: %s", player->GetName(), sWorld->GetRealmName().c_str(), l_Msg.c_str());
             }
         }
     }
