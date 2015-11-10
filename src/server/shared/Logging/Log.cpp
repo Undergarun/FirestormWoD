@@ -412,7 +412,7 @@ void Log::LoadFromConfig()
 
     /// Init slack
     m_SlackEnable  = ConfigMgr::GetBoolDefault("Slack.Enable", false);
-    m_SlackApiUrl  = ConfigMgr::GetStringDefault("Slack.ApiUrl", "https://hooks.slack.com/services/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");
+    m_SlackApiUrl  = ConfigMgr::GetStringDefault("Slack.ApiUrl", "");
     m_SlackAppName = ConfigMgr::GetStringDefault("Slack.AppName", "Firestorm - WoD");
 }
 
@@ -482,7 +482,7 @@ void Log::outAshran(const char* str, ...)
 /// Slack API Documentation : https://api.slack.com/docs/attachments
 void Log::outSlack(std::string const& p_Dest, std::string const& p_Color, bool p_IsAttachement, const char* p_Message, ...)
 {
-    if (!p_Message || !m_SlackEnable)
+    if (!p_Message || !m_SlackEnable || m_SlackApiUrl.empty())
         return;
 
     char l_Result[MAX_QUERY_LEN];
