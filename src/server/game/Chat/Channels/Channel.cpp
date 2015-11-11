@@ -693,15 +693,15 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
 
         if (IsWorld())
         {
-            std::regex l_Filter("(?:need|besoin|recherche).*(?:tank|dps|heal)|guild|recrute|m[eé]tier|craft|pas cher|prix|n[eé]gociable|vend|ach[eé]te|seek|ilevel|go tag", std::regex_constants::icase);
+            std::regex l_WorldFilter("(?:need|besoin|recherche).*(?:tank|dps|heal)|guild|recrute|m[eé]tier|craft|pas cher|prix|n[eé]gociable|vend|ach[eé]te|seek|ilevel|go tag", std::regex_constants::icase);
 
-            if (!std::regex_search(what, l_Filter))
+            if (!std::regex_search(what, l_WorldFilter))
             {
-                std::smatch l_WoWLinkInfo;
-                std::regex l_WoWLinkFilter("\\|cff(.+)\\|H([a-z]+):([0-9]+).*\\|h(.+)\\|h\\|r");
                 std::string l_Msg = what;
+                std::smatch l_WoWLinkInfo;
+                std::regex  l_WoWLinkFilter("\\|cff([^\\|]+)\\|H([^:]+):([0-9]+)[^\\|]*\\|h([^\\|]+)\\|h\\|r");
 
-                if (std::regex_search(l_Msg, l_WoWLinkInfo, l_WoWLinkFilter))
+                while (std::regex_search(l_Msg, l_WoWLinkInfo, l_WoWLinkFilter))
                 {
                     //std::string l_ColorCode = l_WoWLinkInfo[1];
                     std::string l_Type      = l_WoWLinkInfo[2];
@@ -711,10 +711,12 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
                     if (l_Type == "talent")
                         l_Type = "spell";
 
-                    std::ostringstream l_WoWLink2Slack;
-                    l_WoWLink2Slack << "<http://www.wowhead.com/" << l_Type << "=" << l_Id << "|" << l_Name << ">";
+                    std::ostringstream l_NewMsg;
+                    l_NewMsg << l_WoWLinkInfo.prefix()
+                             << "<http://www.wowhead.com/" << l_Type << "=" << l_Id << "|" << l_Name << ">"
+                             << l_WoWLinkInfo.suffix();
 
-                    l_Msg = std::regex_replace(l_Msg, l_WoWLinkFilter, l_WoWLink2Slack.str());
+                    l_Msg = l_NewMsg.str();
                 }
 
                 sLog->outSlack("#firestorm-world", "", false, "*%s - %s*: %s", player->GetName(), sWorld->GetRealmName().c_str(), l_Msg.c_str());
