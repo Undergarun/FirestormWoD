@@ -371,6 +371,11 @@ namespace MS
                     for (std::pair<uint32, Battleground*> const& l_Pair : l_Battlegrounds)
                     {
                         Battleground* l_Bg = l_Pair.second;
+
+                        /// Players can't join already started rated battleground / arena match
+                        if (l_Bg->IsRatedBG() || l_Bg->isArena())
+                            continue;
+
                         /// We check if the number of invited/playing players and the size of this group doesn't exceed the max allowed.
                         if (l_Bg->CanGroupEnter(l_Group))
                         {

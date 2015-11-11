@@ -210,7 +210,7 @@ namespace MS
                 return nullptr;
             }
 
-            bool l_IsRatedBg = BattlegroundType::IsRated(p_BgType);
+            bool l_IsRatedBG = BattlegroundType::IsRated(p_BgType) && p_ArenaType == 0;
 
             Battleground* l_Battleground = nullptr;
 
@@ -282,7 +282,7 @@ namespace MS
             /// Generate a new instance id.
             l_Battleground->SetInstanceID(sMapMgr->GenerateInstanceId());
             m_InstanceId2Brackets[l_Battleground->GetInstanceID()] = p_BracketEntry->m_Id;
-            l_Battleground->SetClientInstanceID(CreateClientVisibleInstanceId(l_IsRatedBg ? BattlegroundType::RatedBg10v10 : p_BgType, p_BracketEntry->m_Id));
+            l_Battleground->SetClientInstanceID(CreateClientVisibleInstanceId(l_IsRatedBG ? BattlegroundType::RatedBg10v10 : p_BgType, p_BracketEntry->m_Id));
 
             /// Reset the new battleground.
             l_Battleground->Reset();
@@ -290,11 +290,11 @@ namespace MS
             /// Start the joining of the battleground.
             l_Battleground->SetStatus(STATUS_WAIT_JOIN);
             l_Battleground->SetArenaType(p_ArenaType);
-            l_Battleground->SetRatedBG(l_IsRatedBg);
+            l_Battleground->SetRatedBG(l_IsRatedBG);
             l_Battleground->SetSkirmish(p_IsSkirmish);
             l_Battleground->SetRandom(true);
             l_Battleground->SetWargame(p_IsWargame);
-            l_Battleground->SetTypeID(GetIdFromType(l_IsRatedBg ? BattlegroundType::RatedBg10v10 : p_BgType));
+            l_Battleground->SetTypeID(GetIdFromType(l_IsRatedBG ? BattlegroundType::RatedBg10v10 : p_BgType));
             l_Battleground->SetRandomTypeID(GetIdFromType(p_BgType));
             l_Battleground->InitGUID();
 

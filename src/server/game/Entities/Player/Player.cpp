@@ -8993,6 +8993,20 @@ uint32 Player::TeamForRace(uint8 race)
 
 void Player::setFactionForRace(uint8 race)
 {
+    // temporary hack for rated bg factions
+    if (HasAura(81748))
+    {
+        RemoveAura(81748);
+        AddAura(81748, this);
+        return;
+    }
+    else if (HasAura(81744))
+    {
+        RemoveAura(81744);
+        AddAura(81744, this);
+        return;
+    }
+
     m_team = TeamForRace(race);
 
     ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
