@@ -693,9 +693,9 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
 
         if (IsWorld())
         {
-            std::regex l_Filter(".*(?:(?:need|besoin|recherche).*(?:tank|dps|heal)|guild|recrute|m[eé]tier|craft|pas cher|prix|n[eé]gociable|vend|ach[eé]te|seek|ilevel|go tag).*", std::regex_constants::icase);
+            std::regex l_Filter("(?:need|besoin|recherche).*(?:tank|dps|heal)|guild|recrute|m[eé]tier|craft|pas cher|prix|n[eé]gociable|vend|ach[eé]te|seek|ilevel|go tag", std::regex_constants::icase);
 
-            if (!std::regex_match(what, l_Filter))
+            if (!std::regex_search(what, l_Filter))
             {
                 std::smatch l_WoWLinkInfo;
                 std::regex l_WoWLinkFilter("\\|cff(.+)\\|H([a-z]+):([0-9]+).*\\|h(.+)\\|h\\|r");
