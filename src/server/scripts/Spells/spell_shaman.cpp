@@ -268,9 +268,13 @@ class spell_sha_high_tide : public SpellScriptLoader
                     for (WorldObject* l_Object : p_Targets)
                         l_TargetMap.insert(std::make_pair(l_Object->GetGUID(), l_Object));
 
+                    WorldObject* l_FirstTarget = *p_Targets.begin();
+                    if (l_FirstTarget == nullptr)
+                        return;
+
                     std::list<Unit*> l_TempList;
-                    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, GetSpellInfo()->RangeEntry->maxRangeFriend);
-                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TempList, l_Check);
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_FirstTarget, l_Caster, GetSpellInfo()->RangeEntry->maxRangeFriend);
+                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_FirstTarget, l_TempList, l_Check);
                     l_Caster->VisitNearbyObject(GetSpellInfo()->RangeEntry->maxRangeFriend, l_Searcher);
 
                     l_TempList.remove_if([this, l_TargetMap, l_Caster](Unit* p_Unit) -> bool
