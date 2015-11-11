@@ -225,11 +225,10 @@ class spell_at_druid_ursol_vortex : public AreaTriggerEntityScript
 
                 if (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end())
                 {
-                    if (!l_Target->HasAura(eSpells::VortexJump))
+                    if (!l_Target->HasAura(eSpells::VortexJump, l_Caster->GetGUID()))
                         l_Target->CastSpell(p_AreaTrigger, eSpells::VortexJump, true);
                     else
                     {
-                        l_Target->RemoveAura(eSpells::VortexJump);
                         l_It = m_TargetList.erase(l_It);
                         continue;
                     }
