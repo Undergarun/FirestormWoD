@@ -55,21 +55,21 @@ std::string Reporter::BuildPvEReport(ByteBuffer p_Datas)
 {
     EasyJSon::Node<std::string> l_Node;
 
-    l_Node["Expansion"]         = std::to_string(p_Datas.read<uint32>());
-    l_Node["RealmID"]           = std::to_string(p_Datas.read<uint32>());
-    l_Node["GuildID"]           = std::to_string(p_Datas.read<uint32>());
-    l_Node["GuildFaction"]      = std::to_string(p_Datas.read<uint32>());
+    l_Node["Expansion"]         = p_Datas.read<uint32>();
+    l_Node["RealmID"]           = p_Datas.read<uint32>();
+    l_Node["GuildID"]           = p_Datas.read<uint32>();
+    l_Node["GuildFaction"]      = p_Datas.read<uint32>();
 
     std::string l_Str;
     p_Datas >> l_Str;
 
     l_Node["GuildName"]         = l_Str;
-    l_Node["MapID"]             = std::to_string(p_Datas.read<uint32>());
-    l_Node["EncounterID"]       = std::to_string(p_Datas.read<uint32>());
-    l_Node["DifficultyID"]      = std::to_string(p_Datas.read<uint32>());
-    l_Node["StartTime"]         = std::to_string(p_Datas.read<uint32>());
-    l_Node["CombatDuration"]    = std::to_string(p_Datas.read<uint32>());
-    l_Node["Success"]           = std::to_string(p_Datas.read<bool>());
+    l_Node["MapID"]             = p_Datas.read<uint32>();
+    l_Node["EncounterID"]       = p_Datas.read<uint32>();
+    l_Node["DifficultyID"]      = p_Datas.read<uint32>();
+    l_Node["StartTime"]         = p_Datas.read<uint32>();
+    l_Node["CombatDuration"]    = p_Datas.read<uint32>();
+    l_Node["Success"]           = p_Datas.read<uint8>();
 
     l_Str = "";
     p_Datas >> l_Str;
@@ -80,7 +80,7 @@ std::string Reporter::BuildPvEReport(ByteBuffer p_Datas)
     p_Datas >> l_Str;
 
     l_Node["EncounterHealth"]   = l_Str;
-    l_Node["DeadCount"]         = std::to_string(p_Datas.read<uint32>());
+    l_Node["DeadCount"]         = p_Datas.read<uint32>();
 
-    return l_Node.Serialize<std::ostringstream>();
+    return l_Node.Serialize<std::ostringstream>(true);
 }
