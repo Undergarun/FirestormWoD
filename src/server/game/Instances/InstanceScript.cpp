@@ -1456,7 +1456,30 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     m_EncounterDatas.Success        = p_Success;
 
     if (m_EncounterDatas.GuildID)
+    {
+        Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+        if (!l_PlayerList.isEmpty())
+        {
+            /// Insert count
+            m_EncounterDatas.RosterDatas += std::to_string(l_PlayerList.getSize()) + " ";
+
+            for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+            {
+                if (Player* l_Player = l_Iter->getSource())
+                {
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetGUIDLow()) + " ";
+                    m_EncounterDatas.RosterDatas += std::string(l_Player->GetName()) + " ";
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->getLevel()) + " ";
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->getClass()) + " ";
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetSpecializationId()) + " ";
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetRoleForGroup()) + " ";
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetAverageItemLevelEquipped()) + " ";
+                }
+            }
+        }
+
         sScriptMgr->OnEncounterEnd(&m_EncounterDatas);
+    }
 
     /// Reset datas after each attempt
     m_EncounterDatas = EncounterDatas();
