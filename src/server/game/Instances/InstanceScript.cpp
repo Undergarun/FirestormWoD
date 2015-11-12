@@ -1410,6 +1410,7 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     m_EncounterDatas = EncounterDatas();
 
     /// Register encounter datas for further logs
+    if (instance->IsRaid())
     {
         m_EncounterDatas.Expansion = instance->GetEntry()->ExpansionID;
         m_EncounterDatas.RealmID   = g_RealmID;
