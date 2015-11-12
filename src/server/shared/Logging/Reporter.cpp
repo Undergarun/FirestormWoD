@@ -13,38 +13,74 @@
 
 void Reporter::ScheduleNextReport()
 {
-    ByteBuffer l_ReportDatas;
+    std::string l_ReportDatas;
 
     m_ReportQueue.next(l_ReportDatas);
 
     size_t l_Size = l_ReportDatas.size();
 
-    CURL* l_Curl = nullptr;
+    CURL* l_Curl = curl_easy_init();
     CURLcode l_Res = CURLcode::CURLE_OK;
 
-    l_Curl = curl_easy_init();
     if (l_Curl)
     {
-        curl_easy_setopt(l_Curl, CURLoption::CURLOPT_URL, m_Address.c_str());
+        curl_easy_setopt(l_Curl, CURLoption::CURLOPT_URL, (m_Address + m_Index).c_str());
 
         /// If there is a redirection, the request will follow it.
         curl_easy_setopt(l_Curl, CURLoption::CURLOPT_FOLLOWLOCATION, 1L);
-
-        curl_easy_setopt(l_Curl, CURLoption::CURLOPT_POSTFIELDS, "Data=%s", l_ReportDatas.ReadString(l_Size).c_str());
+        curl_easy_setopt(l_Curl, CURLoption::CURLOPT_POSTFIELDS, l_ReportDatas.c_str());
+        curl_easy_setopt(l_Curl, CURLoption::CURLOPT_POSTFIELDSIZE, l_ReportDatas.size());
 
         /// Perform the request, res will get the return code.
         l_Res = curl_easy_perform(l_Curl);
 
         /// Check for errors.
         if (l_Res != CURLcode::CURLE_OK)
+        {
             fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(l_Res));
+            EnqueueReport(l_ReportDatas);
+        }
 
         /// Always cleanup.
         curl_easy_cleanup(l_Curl);
     }
 }
 
-void Reporter::EnqueueReport(ByteBuffer p_Datas)
+void Reporter::EnqueueReport(std::string p_Datas)
 {
     m_ReportQueue.add(p_Datas);
+}
+
+std::string Reporter::BuildPvEReport(ByteBuffer p_Datas)
+{
+    EasyJSon::Node<std::string> l_Node;
+
+    l_Node["Expansion"]         = std::to_string(p_Datas.read<uint32>());
+    l_Node["RealmID"]           = std::to_string(p_Datas.read<uint32>());
+    l_Node["GuildID"]           = std::to_string(p_Datas.read<uint32>());
+    l_Node["GuildFaction"]      = std::to_string(p_Datas.read<uint32>());
+
+    std::string l_Str;
+    p_Datas >> l_Str;
+
+    l_Node["GuildName"]         = l_Str;
+    l_Node["MapID"]             = std::to_string(p_Datas.read<uint32>());
+    l_Node["EncounterID"]       = std::to_string(p_Datas.read<uint32>());
+    l_Node["DifficultyID"]      = std::to_string(p_Datas.read<uint32>());
+    l_Node["StartTime"]         = std::to_string(p_Datas.read<uint32>());
+    l_Node["CombatDuration"]    = std::to_string(p_Datas.read<uint32>());
+    l_Node["Success"]           = std::to_string(p_Datas.read<bool>());
+
+    l_Str = "";
+    p_Datas >> l_Str;
+
+    l_Node["RosterDatas"]       = l_Str;
+
+    l_Str = "";
+    p_Datas >> l_Str;
+
+    l_Node["EncounterHealth"]   = l_Str;
+    l_Node["DeadCount"]         = std::to_string(p_Datas.read<uint32>());
+
+    return l_Node.Serialize<std::ostringstream>();
 }

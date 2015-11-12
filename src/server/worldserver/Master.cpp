@@ -443,7 +443,9 @@ int Master::Run()
 
     ///- Initializing the Reporter.
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "Reporter: Initializing instance...");
-    sReporter->SetAddress(ConfigMgr::GetStringDefault("Reporting.Address", "localhost:3000"));
+
+    sReporter->SetAddress(ConfigMgr::GetStringDefault("Reporting.Address", "http://127.0.0.1:9200/"));
+    sReporter->SetIndex(ConfigMgr::GetStringDefault("Reporting.Index", "logspve/external/"));
 
     /// Thread which repeat reporting.
     std::thread l_Reporter([]()

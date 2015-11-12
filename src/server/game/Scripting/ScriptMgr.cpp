@@ -2605,7 +2605,7 @@ BattlePayProductScript::BattlePayProductScript(std::string p_ScriptName)
     sScriptMgr->RegisterBattlePayProductScript(p_ScriptName, this);
 }
 
-EncounterScript::EncounterScript() : ScriptObjectImpl("EncounterScript")
+EncounterScript::EncounterScript(char const* p_Name) : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<EncounterScript>::AddScript(this);
 }

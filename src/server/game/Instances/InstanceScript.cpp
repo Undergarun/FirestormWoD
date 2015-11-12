@@ -1589,12 +1589,32 @@ void InstanceScript::ConsumeCombatResurrectionCharge()
 class EncounterScript_Global : public EncounterScript
 {
     public:
-        EncounterScript_Global() : EncounterScript() { }
+        EncounterScript_Global() : EncounterScript("EncounterScript_PvE_Logs") { }
 
         void OnEncounterEnd(EncounterDatas const* p_EncounterDatas) override
         {
             ByteBuffer l_Datas;
 
-            sReporter->EnqueueReport(l_Datas);
+            l_Datas << p_EncounterDatas->Expansion;
+            l_Datas << p_EncounterDatas->RealmID;
+            l_Datas << p_EncounterDatas->GuildID;
+            l_Datas << p_EncounterDatas->GuildFaction;
+            l_Datas << p_EncounterDatas->GuildName;
+            l_Datas << p_EncounterDatas->MapID;
+            l_Datas << p_EncounterDatas->EncounterID;
+            l_Datas << p_EncounterDatas->DifficultyID;
+            l_Datas << p_EncounterDatas->StartTime;
+            l_Datas << p_EncounterDatas->CombatDuration;
+            l_Datas << uint8(p_EncounterDatas->Success);
+            l_Datas << p_EncounterDatas->RosterDatas;
+            l_Datas << p_EncounterDatas->EncounterHealth;
+            l_Datas << p_EncounterDatas->DeadCount;
+
+            sReporter->EnqueueReport(sReporter->BuildPvEReport(l_Datas));
         }
 };
+
+void AddSC_EncounterScripts()
+{
+    new EncounterScript_Global();
+}

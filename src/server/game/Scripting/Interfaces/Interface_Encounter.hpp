@@ -18,7 +18,7 @@ class EncounterScript : public ScriptObjectImpl<false>
 {
     protected:
         /// Constructor
-        EncounterScript();
+        EncounterScript(char const* p_Name);
 
     public:
         /// Called when an Encounter is ended
