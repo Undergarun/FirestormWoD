@@ -40,8 +40,9 @@
 #include "Buildings/Horde/Small/HTheTannery.hpp"
 #include "Buildings/Horde/Small/HEnchanterStudy.hpp"
 #include "Buildings/Horde/Small/HGemBoutique.hpp"
-#include "Buildings/Horde/Small/HEngineeringWorks.hpp"
 #include "Buildings/Horde/Small/HScribeQuarters.hpp"
+#include "Buildings/Horde/Small/HEngineeringWorks.hpp"
+#include "Buildings/Horde/HFrostwallMines.hpp"
 #include "Buildings/Horde/HHerbGarden.hpp"
 
 #include <random>
@@ -703,5 +704,8 @@ void AddSC_Garrison_NPC()
 
         /// Lumber Mill
         new MS::Garrison::npc_LumberLordOktron;
+
+        /// Frostwall Mines
+        new MS::Garrison::npc_Gorsol;
     }
 }

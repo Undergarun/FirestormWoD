@@ -87,6 +87,8 @@ namespace MS { namespace Garrison
             /// Lumber Mill
             Alliance_EasingIntoLumberjacking            = 36189,
             Alliance_TurningTimberIntoProfit            = 36192,
+            /// Lunar Fall Excavation
+            Alliance_ThingsAreNotGorenOurWay            = 34192,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -109,7 +111,9 @@ namespace MS { namespace Garrison
             Horde_BreakingIntoTheTrapGame               = 36345,
             /// Lumber Mill
             Horde_EasingIntoLumberjacking               = 36137,
-            Horde_TurningTimberIntoProfit               = 36138
+            Horde_TurningTimberIntoProfit               = 36138,
+            /// Frostwall Mines
+            Horde_ThingsAreNotGorenOurWay                = 35154
         };
     }   ///< namespace Quests
 
@@ -140,12 +144,20 @@ namespace MS { namespace Garrison
         NpcHomerStonefield                              = 83967,
         NpcTommyJoeStonefield                           = 83968,
         NpcHordePeon                                    = 83985,
-        NpcAllianceLumberjack                           = 83950
+        NpcAllianceLumberjack                           = 83950,
+        NpcLunarfallGoren                               = 83628,
+        NpcLunarfallGorenHatchling                      = 83629,
+        NpcFrostwallGoren                               = 81362,
+        NpcFrostwallGorenHatchling                      = 81398,
+        NpcStonetooth                                   = 81396,
+        NpcAllianceMiner                                = 77361,
+        NpcHordeMiner                                   = 79837
     };
 
     enum GameObjects
     {
-        GobStump = 234568
+        GobStump           = 234568,
+        GobTrueIronDeposit = 232544
     };
 
     /// NPC texts id

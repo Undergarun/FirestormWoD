@@ -1947,6 +1947,25 @@ void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/)
         ForcedDespawn(msTimeToDespawn);
 }
 
+void Creature::DespawnCreaturesInArea(uint32 p_Entry, float p_Range)
+{
+    std::vector<uint32> l_Entries;
+    l_Entries.push_back(p_Entry);
+
+    DespawnCreaturesInArea(l_Entries, p_Range);
+}
+
+void Creature::DespawnCreaturesInArea(std::vector<uint32> p_Entry, float p_Range)
+{
+    std::list<Creature*> l_CreatureList;
+
+    for (std::vector<uint32>::iterator l_Itr = p_Entry.begin(); l_Itr != p_Entry.end(); ++l_Itr)
+        GetCreatureListWithEntryInGrid(l_CreatureList, *l_Itr, p_Range);
+
+    for (std::list<Creature*>::iterator l_Itr = l_CreatureList.begin(); l_Itr != l_CreatureList.end(); ++l_Itr)
+        (*l_Itr)->DespawnOrUnsummon();
+}
+
 bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)
 {
     if (!spellInfo)
