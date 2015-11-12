@@ -5606,7 +5606,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 13812: ///< Explosive Trap
             case 3355: ///< Freezing Trap
+            case 57879: ///< Snake Trap
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 break;
             case 84745: ///< Shallow Insight
             case 84746: ///< Moderate Insight
@@ -5831,6 +5833,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 170883: ///< Item - Rogue WoD PvP Assassination 4P Bonus
             case 165886: ///< Item - Paladin WoD PvP Retribution 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
+            case 166009: ///< Item - Hunter WoD PvP 2P Bonus
             case 162452: ///< Shadowy Insight
             case 87160:  ///< Surge of Darkness
             case 73685:  ///< Unleash Life (restoration)
