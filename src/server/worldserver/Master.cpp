@@ -455,11 +455,7 @@ int Master::Run()
             if (sReporter->HasReports())
                 sReporter->ScheduleNextReport();
 
-#ifdef _MSC_VER
-            Sleep(1);
-#elif
-            usleep(1);
-#endif
+            ACE_Based::Thread::current()->Sleep(1);
         }
     });
 
