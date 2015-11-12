@@ -1,0 +1,1 @@
+UPDATE gameobject_template SET data0 = 121857, data1 = 0, data3 = 1, data6 = 1 WHERE entry IN (205272, 209080, 203981);

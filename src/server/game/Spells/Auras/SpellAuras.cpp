@@ -43,6 +43,8 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectM
 {
     ASSERT(GetTarget() && GetBase());
 
+    m_EffectCount = GetBase()->GetEffectCount();
+
     if (GetBase()->CanBeSentToClient())
     {
         // Try find slot for aura
@@ -117,12 +119,13 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
 
     // aura is casted by self or an enemy
     // one negative effect and we know aura is negative
+    SpellInfo const* l_SpellInfo = GetBase()->GetSpellInfo();
     if (IsSelfcasted() || !caster || !caster->IsFriendlyTo(GetTarget()))
     {
         bool negativeFound = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
         {
-            if (((1<<i) & effMask) && !GetBase()->GetSpellInfo()->IsPositiveEffect(i))
+            if (((1 << i) & effMask) && !l_SpellInfo->IsPositiveEffect(i))
             {
                 negativeFound = true;
                 break;
@@ -135,9 +138,9 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
     else
     {
         bool positiveFound = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
         {
-            if (((1<<i) & effMask) && GetBase()->GetSpellInfo()->IsPositiveEffect(i))
+            if (((1 << i) & effMask) && l_SpellInfo->IsPositiveEffect(i))
             {
                 positiveFound = true;
                 break;
@@ -153,7 +156,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         _flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
 
     // there are more auras that require this flag, this is just the beginning
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
     {
         if (((1 << i) & effMask))
         {
@@ -170,7 +173,12 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         /// Transi - sniffed on retail
         case 7321:
             _flags |= AFLAG_UNK_20;
-
+            break;
+        /// Mortal Strike
+        case 12294:
+            if (IsSelfcasted())
+                _flags = (AFLAG_CASTER + AFLAG_POSITIVE);
+            break;
         default:
             break;
     }
@@ -204,21 +212,21 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
 
 void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint32 p_OverrideSpellID) const
 {
-    constAuraPtr l_Aura = GetBase();
+    constAuraPtr l_Base = GetBase();
 
     uint32 l_Flags = _flags;
 
-    if (l_Aura->GetMaxDuration() > 0 && !(l_Aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
+    if (l_Base->GetMaxDuration() > 0 && !(l_Base->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         l_Flags |= AFLAG_DURATION;
 
     uint32 l_Mask = 0;
     uint32 l_PointsCount = 0;
     bool l_AsApModifier = false;
 
-    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+    for (uint8 l_I = 0; l_I < l_Base->GetEffectCount(); ++l_I)
     {
         /// NULL if effect flag not set
-        if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
+        if (constAuraEffectPtr l_Effect = l_Base->GetEffect(l_I))
         {
             if (!HasEffect(l_I))
                 continue;
@@ -240,11 +248,11 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
     if (p_Remove)
         return;
 
-    p_Data << uint32(p_OverrideSpellID ? p_OverrideSpellID : l_Aura->GetId());                                  ///< SpellID
+    p_Data << uint32(p_OverrideSpellID ? p_OverrideSpellID : l_Base->GetId());                                  ///< SpellID
     p_Data << uint8(l_Flags);                                                                                   ///< Flags
     p_Data << uint32(l_Mask);                                                                                   ///< Active Flags
-    p_Data << uint16(l_Aura->GetCasterLevel());                                                                 ///< Cast Level
-    p_Data << uint8(l_Aura->GetSpellInfo()->StackAmount ? l_Aura->GetStackAmount() : l_Aura->GetCharges());     ///< Applications
+    p_Data << uint16(l_Base->GetCasterLevel());                                                                 ///< Cast Level
+    p_Data << uint8(l_Base->GetSpellInfo()->StackAmount ? l_Base->GetStackAmount() : l_Base->GetCharges());     ///< Applications
     p_Data << uint32(l_PointsCount + (l_PointsCount && (l_Flags & AFLAG_UNK_20) ? 1 : 0));                      ///< Points Count
     p_Data << uint32(l_AsApModifier ? l_PointsCount : 0);                                                       ///< Estimated Points
 
@@ -253,13 +261,13 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
 
     if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
     {
-        for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+        for (uint8 l_I = 0; l_I < m_EffectCount; ++l_I)
         {
             if (!HasEffect(l_I))
                 continue;
 
             /// NULL if effect flag not set
-            if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
+            if (constAuraEffectPtr l_Effect = l_Base->GetEffect(l_I))
             {
                 p_Data << float(const_cast<AuraEffect*>(l_Effect.get())->GetCalculatedAmountForClient_First());
             }
@@ -268,13 +276,13 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
 
     if (l_Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT && l_AsApModifier)
     {
-        for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+        for (uint8 l_I = 0; l_I < m_EffectCount; ++l_I)
         {
             if (!HasEffect(l_I))
                 continue;
 
             /// NULL if effect flag not set
-            if (constAuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
+            if (constAuraEffectPtr l_Effect = l_Base->GetEffect(l_I))
             {
                 p_Data << float(const_cast<AuraEffect*>(l_Effect.get())->GetCalculatedAmountForClient_Second());
             }
@@ -287,13 +295,13 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
     p_Data.FlushBits();
 
     if (!(l_Flags & AFLAG_CASTER))
-        p_Data.appendPackGUID(l_Aura->GetCasterGUID());                                                         ///< Cast Unit
+        p_Data.appendPackGUID(l_Base->GetCasterGUID());                                                         ///< Cast Unit
 
     if (l_Flags & AFLAG_DURATION)
-        p_Data << uint32(l_Aura->GetMaxDuration());                                                             ///< Duration
+        p_Data << uint32(l_Base->GetMaxDuration());                                                             ///< Duration
 
     if (l_Flags & AFLAG_DURATION)
-        p_Data << uint32(l_Aura->GetDuration());                                                                ///< Remaining
+        p_Data << uint32(l_Base->GetDuration());                                                                ///< Remaining
 }
 
 void AuraApplication::ClientUpdate(bool p_Remove)
@@ -355,14 +363,14 @@ uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibl
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i< spellProto->EffectCount; ++i)
             {
                 if (spellProto->Effects[i].IsUnitOwnedAuraEffect())
                     effMask |= 1 << i;
             }
             break;
         case TYPEID_DYNAMICOBJECT:
-            for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i< spellProto->EffectCount; ++i)
             {
                 if (spellProto->Effects[i].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA || spellProto->Effects[i].IsPeriodicEffect())
                     effMask |= 1 << i;
@@ -500,8 +508,9 @@ m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
 
 void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
 {
+    m_EffectCount = 0;
     // shouldn't be in constructor - functions in AuraEffect::AuraEffect use polymorphism
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
     {
         if (effMask & (uint8(1) << i))
         {
@@ -512,6 +521,8 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
             m_effects[i]->SetAmount(m_effects[i]->CalculateAmount(caster));
             m_effects[i]->SetCanBeRecalculated(true); ///< Because of SetAmount() we force the variable to true like it never happen
             m_effects[i]->CalculateSpellMod();
+
+            m_EffectCount = i + 1;
         }
         else
             m_effects[i] = NULLAURA_EFFECT;
@@ -537,7 +548,7 @@ void Aura::FillMechanicAndControlTypes(Mechanics& p_Mechanics, LossOfControlType
 {
     SpellInfo const* l_SpellInfo = GetSpellInfo();
 
-    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+    for (uint8 l_I = 0; l_I < l_SpellInfo->EffectCount; ++l_I)
     {
         switch (l_SpellInfo->Effects[l_I].Mechanic)
         {
@@ -603,7 +614,7 @@ void Aura::FillMechanicAndControlTypes(Mechanics& p_Mechanics, LossOfControlType
     }
 
     ///< If nothing found, we must find default values depending on AuraType
-    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+    for (uint8 l_I = 0; l_I < l_SpellInfo->EffectCount; ++l_I)
     {
         switch (l_SpellInfo->Effects[l_I].ApplyAuraName)
         {
@@ -824,15 +835,16 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
             }
         }
 
+        SpellInfo const* l_SpellInfo = GetSpellInfo();
         bool addUnit = true;
         // check target immunities
-        for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+        for (uint8 effIndex = 0; effIndex < l_SpellInfo->EffectCount; ++effIndex)
         {
-            if (itr->first->IsImmunedToSpellEffect(GetSpellInfo(), effIndex))
+            if (itr->first->IsImmunedToSpellEffect(l_SpellInfo, effIndex))
                 itr->second &= ~(1 << effIndex);
         }
         if (!itr->second
-            || itr->first->IsImmunedToSpell(GetSpellInfo())
+            || itr->first->IsImmunedToSpell(l_SpellInfo)
             || !CanBeAppliedOn(itr->first))
             addUnit = false;
 
@@ -952,7 +964,7 @@ void Aura::UpdateOwner(uint32 diff, WorldObject* owner)
         m_updateTargetMapInterval -= diff;
 
     // update aura effects
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
         if (m_effects[i])
             m_effects[i]->Update(diff, caster);
 
@@ -1096,7 +1108,7 @@ void Aura::RefreshTimers()
     if (m_spellInfo->AttributesEx8 & SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER)
     {
         int32 l_MinAmplitude = m_maxDuration;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < m_EffectCount; ++i)
         {
             if (constAuraEffectPtr l_Effect = GetEffect(i))
             {
@@ -1114,7 +1126,7 @@ void Aura::RefreshTimers()
     }
 
     /// In WoD blizzards have made "Pandemic" system for all auras
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
     {
         if (constAuraEffectPtr l_Effect = GetEffect(i))
         {
@@ -1143,7 +1155,7 @@ void Aura::RefreshTimers()
 
     RefreshDuration();
     Unit* caster = GetCaster();
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
         if (HasEffect(i))
             GetEffect(i)->CalculatePeriodic(caster, resetPeriodic, false);
 }
@@ -1222,7 +1234,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
         if (!(*apptItr)->GetRemoveMode())
             HandleAuraSpecificMods(*apptItr, caster, false, true);
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
         if (HasEffect(i))
             m_effects[i]->ChangeAmount(m_effects[i]->CalculateAmount(caster), false, true);
 
@@ -1261,9 +1273,17 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 
     if (CallScriptCanRrefreshProcHandlers() && stackAmount >= GetStackAmount())
     {
+        /// Rend on update should deal final damage, if it has < 5 seconds left duration
+        if (m_spellInfo->Id == 772)
+        {
+            if (GetDuration() < 5 * IN_MILLISECONDS)
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_AuraOwner = GetUnitOwner())
+                        l_Caster->CastSpell(l_AuraOwner, 94009, true);
+        }
+
         RefreshSpellMods();
         RefreshTimers();
-
         // Fix Backdraft can stack up to 6 charges max
         if (m_spellInfo->Id == 117828)
             SetCharges((GetCharges() + 3) > 6 ? 6 : GetCharges() + 3);
@@ -1275,7 +1295,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
             SetCharges(CalcMaxCharges());
 
         // FIXME: not a best way to synchronize charges, but works
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < m_EffectCount; ++i)
             if (AuraEffectPtr aurEff = GetEffect(i))
                 if (aurEff->GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER || aurEff->GetAuraType() == SPELL_AURA_ADD_PCT_MODIFIER)
                     if (SpellModifier* mod = aurEff->GetSpellModifier())
@@ -1294,7 +1314,7 @@ void Aura::RefreshSpellMods()
 
 bool Aura::IsArea() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
     {
         if (HasEffect(i) && GetSpellInfo()->Effects[i].IsAreaAuraEffect())
             return true;
@@ -1446,7 +1466,7 @@ void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint
     m_isUsingCharges = m_procCharges != 0;
     m_stackAmount = stackamount;
     Unit* caster = GetCaster();
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
         if (m_effects[i])
         {
             m_effects[i]->SetAmount(amount[i]);
@@ -1459,7 +1479,7 @@ void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint
 
 bool Aura::HasEffectType(AuraType type) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
     {
         if (HasEffect(i) && m_effects[i]->GetAuraType() == type)
             return true;
@@ -1469,19 +1489,19 @@ bool Aura::HasEffectType(AuraType type) const
 
 uint8 Aura::GetEffectIndexByType(AuraType type) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
     {
         if (HasEffect(i) && m_effects[i]->GetAuraType() == type)
             return i;
     }
-    return MAX_SPELL_EFFECTS;
+    return SpellEffIndex::MAX_EFFECTS;
 }
 
 void Aura::RecalculateAmountOfEffects(bool p_Force)
 {
     ASSERT (!IsRemoved());
     Unit* caster = GetCaster();
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
         if (HasEffect(i))
             m_effects[i]->RecalculateAmount(caster, p_Force);
 }
@@ -1489,7 +1509,7 @@ void Aura::RecalculateAmountOfEffects(bool p_Force)
 void Aura::HandleAllEffects(AuraApplication * aurApp, uint8 mode, bool apply)
 {
     ASSERT (!IsRemoved());
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
         if (m_effects[i] && !IsRemoved())
             m_effects[i]->HandleEffect(aurApp, mode, apply);
 }
@@ -1892,6 +1912,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 break;
             }
+            case SPELLFAMILY_WARLOCK:
+                // Soulburn: Demonic Circle
+                if (m_spellInfo->Id == 79438)
+                {
+                    if (caster)
+                        caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                }
+                break;
             default:
                 break;
         }
@@ -2284,7 +2312,7 @@ void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* cast
     if (!caster || aurApp->GetRemoveMode())
         return;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
     {
         if (!HasEffect(i))
             continue;
@@ -2352,7 +2380,8 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     if (IsPassive() && sameCaster && m_spellInfo->IsDifferentRankOf(existingSpellInfo))
         return false;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    uint8 l_MaxEffectCount = std::max(existingSpellInfo->EffectCount, m_spellInfo->EffectCount);
+    for (uint8 i = 0; i < l_MaxEffectCount; ++i)
     {
         // prevent remove triggering aura by triggered aura
         if (existingSpellInfo->Effects[i].TriggerSpell == GetId()
@@ -2389,7 +2418,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
             return true;
 
         // check same periodic auras
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint32 i = 0; i < m_spellInfo->EffectCount; ++i)
         {
             // area auras should not stack (shaman totem)
             if (m_spellInfo->Effects[i].Effect != SPELL_EFFECT_APPLY_AURA
@@ -2518,7 +2547,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     bool isVehicleAura1 = false;
     bool isVehicleAura2 = false;
     uint8 i = 0;
-    while (i < MAX_SPELL_EFFECTS && !(isVehicleAura1 && isVehicleAura2))
+    while (i < m_spellInfo->EffectCount && !(isVehicleAura1 && isVehicleAura2))
     {
         if (m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_CONTROL_VEHICLE)
             isVehicleAura1 = true;
@@ -2667,7 +2696,7 @@ void Aura::TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
     CallScriptProcHandlers(const_cast<AuraApplication const*>(aurApp), eventInfo);
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < m_EffectCount; ++i)
         if (aurApp->HasEffect(i))
             // OnEffectProc / AfterEffectProc hooks handled in AuraEffect::HandleProc()
             GetEffect(i)->HandleProc(aurApp, eventInfo);
@@ -3267,7 +3296,7 @@ void UnitAura::Remove(AuraRemoveMode removeMode)
 
 void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
 {
-    for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+    for (uint8 effIndex = 0; effIndex < m_EffectCount; ++effIndex)
     {
         if (!HasEffect(effIndex))
             continue;
@@ -3359,7 +3388,7 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* /*caster
     Unit* dynObjOwnerCaster = GetDynobjOwner()->GetCaster();
     float radius = GetDynobjOwner()->GetRadius();
 
-    for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+    for (uint8 effIndex = 0; effIndex < m_EffectCount; ++effIndex)
     {
         if (!HasEffect(effIndex))
             continue;

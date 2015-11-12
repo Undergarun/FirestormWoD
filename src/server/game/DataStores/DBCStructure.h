@@ -24,6 +24,7 @@
 #include "Define.h"
 #include "Path.h"
 #include "Util.h"
+#include "SharedDefines.h"
 
 #include <map>
 #include <set>
@@ -1433,7 +1434,6 @@ struct SpellEffectScalingEntry
     uint32  Id;                                             // 4        m_SpellEffectID
 };
 
-#define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 4294967295
 
 struct SpellAuraOptionsEntry
@@ -2419,7 +2419,7 @@ struct SpellEffect
     {
         for (int i = 0; i < Difficulty::MaxDifficulties; i++)
         {
-            for (int y = 0; y < MAX_SPELL_EFFECTS; y++)
+            for (int y = 0; y < SpellEffIndex::MAX_EFFECTS; y++)
             {
                 effects[i][y] = 0;
             }

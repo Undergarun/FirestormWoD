@@ -914,7 +914,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             {
                 uint64 newItemIdNum = sObjectMgr->GenerateVoidStorageItemId();
                 char newItemId[20];
-                snprintf(newItemId, 20, "%ull", newItemIdNum);
+                snprintf(newItemId, 20, UI64FMTD, newItemIdNum);
 
                 uint32 l_Index = GetFieldIndexFromColumn("itemId", l_Columns) + 1;
                 if (!changenth(l_Line, l_Index, newItemId))                             ///< character_void_storage.itemId update
@@ -1122,7 +1122,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             default:
                 //sLog->outError("Unknown dump table type: %u", type);
                 {
-                    sLog->outSlack(true, "Transfer to realm [%u] on account [%u] failed. Reason: Unknow table", g_RealmID, p_Account);
+                    sLog->outSlack("#jarvis", "danger", true, "Transfer to realm [%u] on account [%u] failed. Reason: Unknow table", g_RealmID, p_Account);
                     ROLLBACK(DUMP_FILE_BROKEN);
                 }
                 break;
@@ -1143,7 +1143,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
     if (!CharacterDatabase.DirectCommitTransaction(l_CharTransaction))
     {
-        sLog->outSlack(true, "Transfer to realm [%u] on account [%u] failed. Reason: Character transaction fail", g_RealmID, p_Account);
+        sLog->outSlack("#jarvis", "danger", true, "Transfer to realm [%u] on account [%u] failed. Reason: Character transaction fail", g_RealmID, p_Account);
         return DUMP_FILE_BROKEN;
     }
 

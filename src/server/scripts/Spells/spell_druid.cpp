@@ -624,6 +624,12 @@ class spell_dru_maul: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_maul_SpellScript);
 
+            enum eSpells
+            {
+                T17Guardian4P   = 165423,
+                PrimalMending   = 177969
+            };
+
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -645,6 +651,10 @@ class spell_dru_maul: public SpellScriptLoader
 
                             l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_TOOTH_AND_CLAW_ABSORB, &l_Bp, NULL, NULL, true);
                             l_Caster->CastCustomSpell(l_Target, SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA, &l_Bp, NULL, NULL, true);
+
+                            /// Applying Tooth and Claw to a target increases the healing of your next Frenzied Regeneration by 10%. Stacks up to 3 times.
+                            if (l_Caster->HasAura(eSpells::T17Guardian4P))
+                                l_Caster->CastSpell(l_Caster, eSpells::PrimalMending, true);
 
                             if (AuraPtr l_AuraPtr = l_Caster->GetAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
                                 l_AuraPtr->SetStackAmount(l_AuraPtr->GetStackAmount() - 1);
@@ -696,7 +706,7 @@ class spell_dru_natures_vigil: public SpellScriptLoader
                     return;
 
                 bool l_SingleTarget = false;
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                for (uint8 i = 0; i < l_SpellProcInfo->EffectCount; ++i)
                 {
                     if ((l_SpellProcInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
                         l_SpellProcInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY) &&
@@ -1395,13 +1405,14 @@ class spell_dru_natures_cure: public SpellScriptLoader
                 DispelChargesList dispelList;
 
                 // Create dispel mask by dispel type
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                SpellInfo const* l_SpellInfo = GetSpellInfo();
+                for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                 {
-                    if (!GetSpellInfo()->Effects[i].IsEffect())
+                    if (!l_SpellInfo->Effects[i].IsEffect())
                         break;
 
-                    uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                    uint32 dispelMask  = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
+                    uint32 dispel_type = l_SpellInfo->Effects[i].MiscValue;
+                    uint32 dispelMask = l_SpellInfo->GetDispelMask(DispelType(dispel_type));
 
                     target->GetDispellableAuraList(caster, dispelMask, dispelList);
                 }
@@ -3499,7 +3510,6 @@ class spell_dru_glyph_of_travel: public SpellScriptLoader
         }
 };
 
-
 enum SpellsRake
 {
     SPELL_DRU_RAKE_STUNT = 163505,
@@ -4052,6 +4062,25 @@ class spell_dru_entangling_energy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_entangling_energy_SpellScript);
 
+            enum eSpells
+            {
+                T17Balance4P        = 166677,
+                CelestialAlignment  = 112071
+            };
+
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return;
+
+                    /// Wrath and Starfire casts reduce the cooldown of Celestial Alignment by 3 sec.
+                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::T17Balance4P, EFFECT_0))
+                        l_Caster->ToPlayer()->ReduceSpellCooldown(eSpells::CelestialAlignment, l_AurEff->GetAmount());
+                }
+            }
+
             void HandleAfterHit()
             {
                 Unit* l_Caster = GetCaster();
@@ -4105,6 +4134,7 @@ class spell_dru_entangling_energy : public SpellScriptLoader
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_dru_entangling_energy_SpellScript::HandleAfterCast);
                 AfterHit += SpellHitFn(spell_dru_entangling_energy_SpellScript::HandleAfterHit);
             }
         };
@@ -4427,7 +4457,6 @@ enum WodPvpRestoration2pSpells
     SPELL_DRU_WOD_PVP_2P_BONUS_EFFECT = 170856
 
 };
-
 
 /// Last Update - 6.1.2
 /// Item - Druid WoD PvP Restoration 2P Bonus - 170853
@@ -5115,8 +5144,460 @@ class PlayerScript_soul_of_the_forest : public PlayerScript
         }
 };
 
+/// last update : 6.1.2 19802
+/// Moonkin Form - 24858, Incarnation: Chosen of Elune 102560
+class spell_dru_astral_form : public SpellScriptLoader
+{
+    public:
+        spell_dru_astral_form() : SpellScriptLoader("spell_dru_astral_form") { }
+
+        class spell_dru_astral_form_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_astral_form_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfStars    = 114301,
+                MoonkinForm     = 24858,
+                ChosenofElune   = 102560
+            };
+
+            void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfStars);
+
+                if (l_Target->HasAura(eSpells::GlyphOfStars) && l_SpellInfo != nullptr)
+                {
+                    l_Target->SetDisplayId(l_Target->GetNativeDisplayId());
+                    l_Target->CastSpell(l_Target, l_SpellInfo->Effects[EFFECT_0].BasePoints, true);
+                }
+            }
+
+            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfStars);
+
+                if (l_SpellInfo != nullptr && l_Target->HasAura(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                    l_Target->RemoveAura(l_SpellInfo->Effects[EFFECT_0].BasePoints);
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::MoonkinForm:
+                    AfterEffectApply += AuraEffectApplyFn(spell_dru_astral_form_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_dru_astral_form_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::ChosenofElune:
+                    AfterEffectApply += AuraEffectApplyFn(spell_dru_astral_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_dru_astral_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_astral_form_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Glyph of Savagery - 171752
+/// Call by Cat Form - 3025
+class spell_dru_glyph_of_savagery : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_savagery() : SpellScriptLoader("spell_dru_glyph_of_savagery") { }
+
+        class spell_dru_glyph_of_savagery_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_savagery_AuraScript);
+
+            enum eSpells
+            {
+                CatForm             = 3025,
+                GlyphOfSavagery     = 171752,
+                SavageRoarEffect    = 62071
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfSavagery);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if ((GetSpellInfo()->Id == eSpells::CatForm && l_Target->HasAura(eSpells::GlyphOfSavagery)) || (GetSpellInfo()->Id == eSpells::GlyphOfSavagery && l_Target->HasAura(eSpells::CatForm)))
+                {
+                    l_Target->CastSpell(l_Target, eSpells::SavageRoarEffect, true);
+
+                    if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpells::SavageRoarEffect, EFFECT_0))
+                        l_AuraEffect->SetAmount(l_AuraEffect->GetAmount() - l_SpellInfo->Effects[EFFECT_1].BasePoints);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::SavageRoarEffect))
+                    l_Target->RemoveAura(eSpells::SavageRoarEffect);
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::CatForm:
+                    OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_savagery_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_savagery_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::GlyphOfSavagery:
+                    OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_savagery_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_savagery_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_glyph_of_savagery_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Guardian of Elune - 155578
+class spell_dru_guardian_of_elune : public SpellScriptLoader
+{
+    public:
+        spell_dru_guardian_of_elune() : SpellScriptLoader("spell_dru_guardian_of_elune") { }
+
+        class spell_dru_guardian_of_elune_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_guardian_of_elune_AuraScript);
+
+            void AfterApplyRecovery(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                int32 l_DodgeChance = (int32)l_Target->GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE);
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                    l_AurEff->SetAmount(l_DodgeChance * -1);
+            }
+
+            void AfterApplyModifier(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                int32 l_DodgeChance = (int32)l_Target->GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE);
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_3))
+                    l_AurEff->SetAmount(l_DodgeChance * -1);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_guardian_of_elune_AuraScript::AfterApplyRecovery, EFFECT_2, SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_guardian_of_elune_AuraScript::AfterApplyModifier, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_guardian_of_elune_AuraScript();
+        }
+};
+
+/// Item - Druid T17 Feral 2P Bonus - 165431
+class spell_dru_item_t17_feral_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dru_item_t17_feral_2p_bonus() : SpellScriptLoader("spell_dru_item_t17_feral_2p_bonus") { }
+
+        class spell_dru_item_t17_feral_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_item_t17_feral_2p_bonus_AuraScript);
+
+            enum eSpell
+            {
+                ScentOfBlood = 169752
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                /// Dealing bleed damage generates 1 Energy.
+                SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (!l_ProcSpell || l_ProcSpell->Mechanic != Mechanics::MECHANIC_BLEED)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpell::ScentOfBlood, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_item_t17_feral_2p_bonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_item_t17_feral_2p_bonus_AuraScript();
+        }
+};
+
+/// Called by Berserk (for Cat Form) - 106951
+/// Item - Druid T17 Feral 4P Bonus - 165432
+class spell_dru_item_t17_feral_4p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dru_item_t17_feral_4p_bonus() : SpellScriptLoader("spell_dru_item_t17_feral_4p_bonus") { }
+
+        class spell_dru_item_t17_feral_4p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_item_t17_feral_4p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                T17Feral4P              = 165432,
+                T17Feral4PProcDriver    = 166639
+            };
+
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eSpells::T17Feral4P))
+                        l_Caster->CastSpell(l_Caster, eSpells::T17Feral4PProcDriver, true);
+                }
+            }
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->RemoveAura(eSpells::T17Feral4PProcDriver);
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_item_t17_feral_4p_bonus_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_dru_item_t17_feral_4p_bonus_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_item_t17_feral_4p_bonus_AuraScript();
+        }
+};
+
+/// Item - Druid T17 Feral 2P Bonus Proc Driver - 166639
+class spell_dru_item_t17_feral_4p_bonus_proc_driver : public SpellScriptLoader
+{
+    public:
+        spell_dru_item_t17_feral_4p_bonus_proc_driver() : SpellScriptLoader("spell_dru_item_t17_feral_4p_bonus_proc_driver") { }
+
+        class spell_dru_item_t17_feral_4p_bonus_proc_driver_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_item_t17_feral_4p_bonus_proc_driver_AuraScript);
+
+            enum eSpells
+            {
+                T17Feral4P      = 165432,
+                GushingWound    = 166638
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                /// While Berserk is active, special attacks deal an additional 30% bleed damage to the target over 6 sec.
+                AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::T17Feral4P, EFFECT_0);
+                if (l_AurEff == NULLAURA_EFFECT)
+                {
+                    p_AurEff->GetBase()->Remove();
+                    return;
+                }
+
+                Unit* l_Target = p_EventInfo.GetActionTarget();
+                if (l_Target == nullptr || l_Target == l_Caster)
+                    return;
+
+                SpellInfo const* l_Trigger  = sSpellMgr->GetSpellInfo(eSpells::GushingWound);
+                int32 l_Damage              = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), l_AurEff->GetAmount());
+                int32 l_PreviousTotalDamage = 0;
+
+                if (AuraEffectPtr l_OldWounds = l_Target->GetAuraEffect(eSpells::GushingWound, EFFECT_0, l_Caster->GetGUID()))
+                {
+                    int32 l_PeriodicDamage  = l_OldWounds->GetAmount();
+                    int32 l_Duration        = l_OldWounds->GetBase()->GetDuration();
+                    int32 l_Amplitude       = l_OldWounds->GetAmplitude();
+
+                    if (l_Amplitude)
+                        l_PreviousTotalDamage = l_PeriodicDamage * (l_Duration / l_Amplitude);
+
+                    l_PreviousTotalDamage /= (l_Trigger->GetMaxDuration() / l_Trigger->Effects[EFFECT_0].Amplitude);
+                }
+
+                if (l_Trigger->Effects[EFFECT_0].Amplitude)
+                    l_Damage /= (l_Trigger->GetMaxDuration() / l_Trigger->Effects[EFFECT_0].Amplitude);
+
+                l_Damage += l_PreviousTotalDamage;
+
+                if (AuraPtr l_Wounds = l_Target->GetAura(eSpells::GushingWound, l_Caster->GetGUID()))
+                    l_Wounds->RefreshDuration();
+                else
+                    l_Caster->CastSpell(l_Target, eSpells::GushingWound, true);
+
+                if (AuraEffectPtr l_NewWounds = l_Target->GetAuraEffect(eSpells::GushingWound, EFFECT_0, l_Caster->GetGUID()))
+                    l_NewWounds->SetAmount(l_Damage);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_item_t17_feral_4p_bonus_proc_driver_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_item_t17_feral_4p_bonus_proc_driver_AuraScript();
+        }
+};
+
+/// Called by Tooth and Claw buff - 135286
+/// Item - Druid T17 Guardian 2P Bonus - 165410
+class spell_dru_item_t17_guardian_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dru_item_t17_guardian_2p_bonus() : SpellScriptLoader("spell_dru_item_t17_guardian_2p_bonus") { }
+
+        class spell_dru_item_t17_guardian_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_item_t17_guardian_2p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                T17Guardian2P       = 165432,
+                ToothAndClawProc    = 166639
+            };
+
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eSpells::T17Guardian2P))
+                        l_Caster->CastSpell(l_Caster, eSpells::ToothAndClawProc, true);
+                }
+            }
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->RemoveAura(eSpells::ToothAndClawProc);
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_item_t17_guardian_2p_bonus_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_dru_item_t17_guardian_2p_bonus_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_item_t17_guardian_2p_bonus_AuraScript();
+        }
+};
+
+/// Item - Druid T17 Restoration 4P Bonus - 167714
+class spell_dru_item_t17_restoration_4p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dru_item_t17_restoration_4p_bonus() : SpellScriptLoader("spell_dru_item_t17_restoration_4p_bonus") { }
+
+        class spell_dru_item_t17_restoration_4p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_item_t17_restoration_4p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                HealingTouch    = 5185,
+                NaturesWisdom   = 167715
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                /// When you cast 2 sequential Healing Touch spells, the mana cost of your next Wild Growth is reduced by 25%.
+                SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (!l_ProcSpell)
+                    return;
+
+                uint32 l_FlagsNot = ProcFlagsExLegacy::PROC_EX_INTERNAL_DOT | ProcFlagsExLegacy::PROC_EX_INTERNAL_HOT;
+                l_FlagsNot |= ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_MULTISTRIKE;
+
+                if (p_EventInfo.GetHitMask() & l_FlagsNot)
+                    return;
+
+                if (AuraEffectPtr l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_0))
+                {
+                    if (l_ProcSpell->Id != eSpells::HealingTouch)
+                    {
+                        l_AurEff->ChangeAmount(2);
+                        return;
+                    }
+
+                    l_AurEff->ChangeAmount(l_AurEff->GetAmount() - 1);
+
+                    if (l_AurEff->GetAmount() <= 0)
+                    {
+                        l_AurEff->ChangeAmount(2);
+                        l_Caster->CastSpell(l_Caster, eSpells::NaturesWisdom, true);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_item_t17_restoration_4p_bonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_item_t17_restoration_4p_bonus_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_guardian_of_elune();
+    new spell_dru_glyph_of_savagery();
+    new spell_dru_astral_form();
     new spell_dru_incarnation_tree_of_life();
     new spell_dru_celestial_alignement_marker();
     new spell_dru_celestial_alignement();
@@ -5206,6 +5687,11 @@ void AddSC_druid_spell_scripts()
     new spell_dru_gyph_of_the_flapping_owl();
     new spell_dru_glyph_of_rake();
     new spell_dru_treant_wrath();
+    new spell_dru_item_t17_feral_2p_bonus();
+    new spell_dru_item_t17_feral_4p_bonus();
+    new spell_dru_item_t17_feral_4p_bonus_proc_driver();
+    new spell_dru_item_t17_guardian_2p_bonus();
+    new spell_dru_item_t17_restoration_4p_bonus();
 
     /// PlayerScript
     new PlayerScript_soul_of_the_forest();

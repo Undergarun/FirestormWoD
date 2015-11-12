@@ -861,7 +861,7 @@ void AddSC_boss_roltall();
 void AddSC_boss_gugrokk();
 
 /* Iron Docks */
-void AddSC_iron_docks_cpp();
+void AddSC_iron_docks();
 void AddSC_instance_iron_docks();
 void AddSC_boss_nokgar();
 void AddSC_boss_skulloc();
@@ -1823,7 +1823,7 @@ void AddDraenorScripts()
     AddSC_boss_gugrokk();
 
     /// Iron Docks
-    AddSC_iron_docks_cpp();
+    AddSC_iron_docks();
     AddSC_instance_iron_docks();
     AddSC_boss_nokgar();
     AddSC_boss_skulloc();

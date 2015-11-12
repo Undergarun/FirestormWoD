@@ -96,7 +96,7 @@ typedef std::vector<uint32> AutoSpellList;
 #define PET_FOCUS_REGEN_INTERVAL 1 * IN_MILLISECONDS
 
 class Player;
-class PetLoginQueryHolder;
+class PetQueryHolder;
 
 class Pet : public Guardian
 {
@@ -118,7 +118,7 @@ class Pet : public Guardian
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
         bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
-        bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false, PetSlot slotID = PET_SLOT_UNK_SLOT, bool stampeded = false, PetLoginQueryHolder* holder = NULL, bool login = false);
+        void LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false, PetSlot slotID = PET_SLOT_UNK_SLOT, bool stampeded = false, PetQueryHolder* holder = nullptr, std::function<void(Pet*, bool)> p_Callback = [](Pet*, bool){});
         bool isBeingLoaded() const { return m_loading;}
         void SavePetToDB(PetSlot mode, bool stampeded = false);
         void Remove(PetSlot mode, bool returnreagent = false, bool stampeded = false);
@@ -156,11 +156,11 @@ class Pet : public Guardian
         void CastPetAura(PetAura const* aura);
         bool IsPetAura(constAuraPtr aura);
 
-        void _LoadSpellCooldowns(PreparedQueryResult result, bool login = false);
+        void _LoadSpellCooldowns(PreparedQueryResult result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
-        void _LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEffectResult, uint32 timediff, bool login = false);
+        void _LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEffectResult, uint32 timediff);
         void _SaveAuras(SQLTransaction& trans);
-        void _LoadSpells(PreparedQueryResult result, bool login = false);
+        void _LoadSpells(PreparedQueryResult result);
         void _SaveSpells(SQLTransaction& trans);
 
         bool addSpell(uint32 spellId, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);

@@ -1544,14 +1544,15 @@ class spell_pri_purify: public SpellScriptLoader
                         DispelChargesList dispelList;
 
                         // Create dispel mask by dispel type
-                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                        SpellInfo const* l_SpellInfo = GetSpellInfo();
+                        for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                         {
-                            if (GetSpellInfo()->Effects[i].IsEffect())
+                            if (l_SpellInfo->Effects[i].IsEffect())
                             {
-                                uint32 dispel_type = GetSpellInfo()->Effects[i].MiscValue;
-                                uint32 dispelMask = GetSpellInfo()->GetDispelMask(DispelType(dispel_type));
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_PURIFY)
-                                target->GetDispellableAuraList(caster, dispelMask, dispelList);
+                                uint32 dispel_type = l_SpellInfo->Effects[i].MiscValue;
+                                uint32 dispelMask = l_SpellInfo->GetDispelMask(DispelType(dispel_type));
+                                if (l_SpellInfo->Id == PRIEST_SPELL_PURIFY)
+                                    target->GetDispellableAuraList(caster, dispelMask, dispelList);
                             }
                         }
                         if (dispelList.empty())
@@ -1891,7 +1892,8 @@ class spell_pri_cascade : public SpellScriptLoader
                 CascadeHolyTrigger = 121146,
                 CascadeShadowTrigger = 127628,
                 CascadeHoly = 121135,
-                CascadeShadow = 127632
+                CascadeShadow = 127632,
+                CascadeMarker = 127631
             };
 
             void HandleOnHit()
@@ -1901,6 +1903,10 @@ class spell_pri_cascade : public SpellScriptLoader
 
                 if (l_Target == nullptr)
                     return;
+
+                l_Caster->CastSpell(l_Target, eSpells::CascadeMarker, true); ///< Marker
+                if (constAuraEffectPtr l_Marker = l_Caster->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                    l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
 
                 if (GetSpellInfo()->Id == eSpells::CascadeHoly)
                     l_Caster->CastSpell(l_Target, eSpells::CascadeHolyTrigger, true); ///< Visual
@@ -1934,7 +1940,6 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
             {
                 CascadeHeal = 121148,
                 CascadeMarker = 127631,
-                CascadeMarker2 = 120840,
                 Cascade = 121135
             };
 
@@ -1950,24 +1955,19 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                 if (l_Target == nullptr || l_HealingSpell == nullptr || l_CascadeSpell == nullptr)
                     return;
 
-                if (!l_Target->HasAura(eSpells::CascadeMarker))
-                    l_Caster->CastSpell(l_Target, eSpells::CascadeMarker, true); ///< Marker
-
                 Unit* l_FirstCaster = nullptr;
 
                 if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
                 {
-                    l_Marker->GetBase()->SetDuration(3 * IN_MILLISECONDS);
+                    l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
                     l_ActualWave = l_Marker->GetAmount();
                     l_FirstCaster = l_Marker->GetCaster();
                 }
 
-                l_Caster->CastSpell(l_Target, eSpells::CascadeMarker2, true);
-
                 if (l_FirstCaster)
                     l_FirstCaster->CastSpell(l_Target, l_HealingSpell->Id, true);
 
-                if (l_ActualWave >= l_CascadeSpell->Effects[EFFECT_0].BasePoints)
+                if (l_ActualWave > l_CascadeSpell->Effects[EFFECT_0].BasePoints)
                     return;
 
                 std::list<Unit*> l_FriendlyUnitListTemp;
@@ -1998,10 +1998,10 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                         return;
 
                     l_FirstCaster->CastSpell(l_Itr, eSpells::CascadeMarker, true); ///< Marker
-                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0, l_FirstCaster->GetGUID()))
                     {
                         l_Marker->SetAmount(l_ActualWave + 1);
-                        l_Marker->GetBase()->SetDuration(3 * IN_MILLISECONDS);
+                        l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
                     }
 
                     l_Target->CastSpell(l_Itr, GetSpellInfo()->Id, true);
@@ -2095,14 +2095,11 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                 if (l_Target == nullptr || l_CascadeSpell == nullptr)
                     return;
 
-                if (!l_Target->HasAura(eSpells::CascadeMarker))
-                    l_Caster->CastSpell(l_Target, eSpells::CascadeMarker, true); ///< Marker
-
                 Unit* l_FirstCaster = nullptr;
 
-                if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                if (constAuraEffectPtr l_Marker = l_Caster->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
                 {
-                    l_Marker->GetBase()->SetDuration(4 * IN_MILLISECONDS);
+                    l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
                     l_ActualWave = l_Marker->GetAmount();
                     l_FirstCaster = l_Marker->GetCaster();
                 }
@@ -2119,7 +2116,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
 
                 SetHitDamage(l_Damage);
 
-                if (l_ActualWave >= l_CascadeSpell->Effects[EFFECT_0].BasePoints)
+                if (l_ActualWave > l_CascadeSpell->Effects[EFFECT_0].BasePoints)
                     return;
 
                 std::list<Unit*> l_UnFriendlyUnitListTemp;
@@ -2149,11 +2146,12 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                         return;
 
                     l_FirstCaster->CastSpell(l_Itr, eSpells::CascadeMarker, true); ///< Marker
-                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0, l_FirstCaster->GetGUID()))
                     {
                         l_Marker->SetAmount(l_ActualWave + 1);
-                        l_Marker->GetBase()->SetDuration(4 * IN_MILLISECONDS);
+                        l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
                     }
+
                     l_Target->CastCustomSpell(l_Itr, GetSpellInfo()->Id, NULL, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_FirstCaster->GetGUID());
                 }
             }

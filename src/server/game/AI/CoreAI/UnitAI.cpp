@@ -204,7 +204,7 @@ void UnitAI::FillAISpellInfo()
             UPDATE_TARGET(AITARGET_SELF)
         else
         {
-            for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            for (uint8 j = 0; j < spellInfo->EffectCount; ++j)
             {
                 uint32 targetType = spellInfo->Effects[j].TargetA.GetTarget();
 

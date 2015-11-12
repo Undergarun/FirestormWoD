@@ -58,48 +58,48 @@ void TotemAI::UpdateAI(uint32 const /*diff*/)
         return;
 
     // pointer to appropriate target if found any
-    Unit* victim = i_victimGuid ? ObjectAccessor::GetUnit(*me, i_victimGuid) : NULL;
+    Unit* l_Victim = i_victimGuid ? ObjectAccessor::GetUnit(*me, i_victimGuid) : NULL;
 
-    if (victim && victim->HasBreakableByDamageCrowdControlAura(me))
+    if (l_Victim && l_Victim->HasBreakableByDamageCrowdControlAura(me))
     {
         me->InterruptNonMeleeSpells(false);
         return;
     }
 
     // Search spell
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->ToTotem()->GetSpell());
-    if (!spellInfo)
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(me->ToTotem()->GetSpell());
+    if (!l_SpellInfo)
         return;
 
     // Get spell range
-    float max_range = spellInfo->GetMaxRange(false);
+    float max_range = l_SpellInfo->GetMaxRange(false);
 
     // SPELLMOD_RANGE not applied in this place just because not existence range mods for attacking totems
 
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-    if (!victim ||
-        !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) ||
-        me->IsFriendlyTo(victim) || !me->canSeeOrDetect(victim) || victim->HasBreakableByDamageCrowdControlAura())
+    if (!l_Victim ||
+        !l_Victim->isTargetableForAttack() || !me->IsWithinDistInMap(l_Victim, max_range) ||
+        me->IsFriendlyTo(l_Victim) || !me->canSeeOrDetect(l_Victim) || l_Victim->HasBreakableByDamageCrowdControlAura())
     {
-        victim = NULL;
+        l_Victim = NULL;
         if (me->GetCharmerOrOwner())
-            victim = me->GetCharmerOrOwner()->getVictim();
+            l_Victim = ObjectAccessor::GetUnit(*me, me->GetCharmerOrOwner()->GetTargetGUID());
     }
 
     // If have target
-    if (victim)
+    if (l_Victim)
     {
         if (!me->HasUnitState(UNIT_STATE_CASTING))
         {
             // remember or force to reselect a victim
-            if (i_victimGuid && me->GetCharmerOrOwner() && victim != me->GetCharmerOrOwner()->getVictim())
+            if (i_victimGuid && me->GetCharmerOrOwner() && l_Victim != ObjectAccessor::GetUnit(*me, me->GetCharmerOrOwner()->GetTargetGUID()))
                 i_victimGuid = 0;
             else
-                i_victimGuid = victim->GetGUID();
+                i_victimGuid = l_Victim->GetGUID();
 
             // attack
-            me->SetInFront(victim);                         // client change orientation by self
-            me->CastSpell(victim, me->ToTotem()->GetSpell(), false);
+            me->SetInFront(l_Victim);                         // client change orientation by self
+            me->CastSpell(l_Victim, me->ToTotem()->GetSpell(), false);
         }
     }
     else

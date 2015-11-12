@@ -116,11 +116,17 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
         enum Spells
         {
-            FingersOfFrost       = 126084,
-            FingersOfFrostVisual = 44544,
-            FrozenOrbVisual      = 123605,
-            SelfSnare90Pct       = 82736,
-            TargetSnareAndDamage = 84721
+            FingersOfFrost          = 126084,
+            FingersOfFrostVisual    = 44544,
+            FrozenOrbVisual         = 123605,
+            SelfSnare90Pct          = 82736,
+            TargetSnareAndDamage    = 84721,
+            T17Frost2P              = 165470
+        };
+
+        enum eEvent
+        {
+            EventFingerOfFrost = 1
         };
 
         struct spell_npc_mage_frozen_orbAI : public ScriptedAI
@@ -147,11 +153,32 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
                 /// Give it a movement
                 UpdateMovement();
+
+                if (Unit* l_Owner = me->GetOwner())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
+                        events.ScheduleEvent(eEvent::EventFingerOfFrost, l_AurEff->GetAmount());
+                }
             }
 
             void UpdateAI(const uint32 p_Diff) override
             {
+                events.Update(p_Diff);
+
+                if (events.ExecuteEvent() == eEvent::EventFingerOfFrost)
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
+                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
+
+                        if (AuraEffectPtr l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
+                            events.ScheduleEvent(eEvent::EventFingerOfFrost, l_AurEff->GetAmount());
+                    }
+                }
+
                 m_DamageTimer += p_Diff;
+
                 if (m_DamageTimer > Constants::DamageDelay)
                 {
                     /// Frozen Orb slows down when it damages an enemy
@@ -610,7 +637,7 @@ class spell_npc_sha_fire_elemental : public CreatureScript
             enum fireSpells
             {
                 SPELL_SHAMAN_FIRE_BLAST     = 57984,
-                SPELL_SHAMAN_FIRE_NOVA      = 12470,
+                SPELL_SHAMAN_FIRE_NOVA      = 117588,
                 SPELL_SHAMAN_FIRE_SHIELD    = 13376
             };
 
@@ -748,22 +775,38 @@ class spell_npc_sha_feral_spirit : public CreatureScript
 
         enum eSpells
         {
-            SpiritLeap           = 58867,
-            SpiritWalk           = 58875,
-            SpiritHunt           = 58877,
-            GlyphOfSpiritRaptors = 147783,
-            RaptorTranform       = 147908
+            SpiritLeap                  = 58867,
+            SpiritWalk                  = 58875,
+            SpiritHunt                  = 58877,
+            GlyphOfSpiritRaptors        = 147783,
+            RaptorTranform              = 147908,
+            FeralSpiritWindfuryDriver   = 170523,
+            T17Enhancement4P            = 165610,
+            WindfuryAttack              = 170512
+        };
+
+        enum eAction
+        {
+            ActionWindfury
         };
 
         struct spell_npc_sha_feral_spiritAI : public ScriptedAI
         {
-            spell_npc_sha_feral_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            spell_npc_sha_feral_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_WindFuryCooldown(0) { }
+
+            uint32 m_WindFuryCooldown;
 
             void Reset()
             {
-                Unit* l_Owner = me->GetOwner();
-                if (l_Owner && l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors))
-                    me->CastSpell(me, eSpells::RaptorTranform, true);
+                if (Unit* l_Owner = me->GetOwner())
+                {
+                    if (l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors))
+                        me->CastSpell(me, eSpells::RaptorTranform, true);
+
+                    /// While Feral Spirits is active, [...] your wolves can proc Windfury.
+                    if (l_Owner->HasAura(eSpells::T17Enhancement4P))
+                        me->CastSpell(me, eSpells::FeralSpiritWindfuryDriver, true);
+                }
 
                 me->CastSpell(me, eSpells::SpiritWalk, true);
                 me->CastSpell(me, eSpells::SpiritHunt, true);
@@ -774,8 +817,29 @@ class spell_npc_sha_feral_spirit : public CreatureScript
                 me->CastSpell(p_Attacker, eSpells::SpiritLeap, true);
             }
 
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eAction::ActionWindfury && !m_WindFuryCooldown)
+                {
+                    if (Unit* l_Target = me->getVictim())
+                    {
+                        m_WindFuryCooldown = 5 * TimeConstants::IN_MILLISECONDS;
+
+                        uint8 l_Count = 3;
+
+                        for (uint8 l_I = 0; l_I < l_Count; l_I++)
+                            me->CastSpell(l_Target, eSpells::WindfuryAttack, true);
+                    }
+                }
+            }
+
             void UpdateAI(uint32 const p_Diff)
             {
+                if (m_WindFuryCooldown > 0 && m_WindFuryCooldown > p_Diff)
+                    m_WindFuryCooldown -= p_Diff;
+                else if (m_WindFuryCooldown > 0 && p_Diff > m_WindFuryCooldown)
+                    m_WindFuryCooldown = 0;
+
                 if (!UpdateVictim())
                 {
                     if (Unit* l_Owner = me->GetOwner())
@@ -1194,6 +1258,82 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
         }
 };
 
+/// Inner Demon - 82927
+/// Spawned by Inner Demon - 166862
+class spell_npc_warl_inner_demon : public CreatureScript
+{
+    public:
+        spell_npc_warl_inner_demon() : CreatureScript("spell_npc_warl_inner_demon") { }
+
+        struct spell_npc_warl_inner_demonAI : public ScriptedAI
+        {
+            spell_npc_warl_inner_demonAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                InnerDemonAura  = 181608,
+                SoulFire        = 166864
+            };
+
+            enum eEvent
+            {
+                EventSoulFire = 1
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                if (Unit* l_Owner = me->GetOwner())
+                    l_Owner->CastSpell(me, eSpells::InnerDemonAura, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.Reset();
+
+                m_Events.ScheduleEvent(eEvent::EventSoulFire, 100);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        Unit* l_OwnerTarget = nullptr;
+                        if (Player* l_Player = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Player->GetSelectedUnit();
+                        else
+                            l_OwnerTarget = l_Owner->getVictim();
+
+                        if (l_OwnerTarget)
+                            AttackStart(l_OwnerTarget);
+                    }
+
+                    return;
+                }
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                if (m_Events.ExecuteEvent() == eEvent::EventSoulFire)
+                {
+                    if (Unit* l_Target = me->getVictim())
+                        me->CastSpell(l_Target, eSpells::SoulFire, false);
+
+                    m_Events.ScheduleEvent(eEvent::EventSoulFire, 50);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new spell_npc_warl_inner_demonAI(p_Creature);
+        }
+};
 
 void AddSC_npc_spell_scripts()
 {
@@ -1222,4 +1362,5 @@ void AddSC_npc_spell_scripts()
     new spell_npc_warl_doomguard();
     new spell_npc_warl_demonic_gateway_purple();
     new spell_npc_warl_demonic_gateway_green();
+    new spell_npc_warl_inner_demon();
 }

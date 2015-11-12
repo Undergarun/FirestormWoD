@@ -518,7 +518,7 @@ namespace MS
                 if (l_Time == uint32(-1))
                     l_Time = 0;
 
-                WorldPacket l_Data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+                WorldPacket l_Data(SMSG_AREA_SPIRIT_HEALER_TIME, 16 + 2 + 4);
                 l_Data.appendPackGUID(p_Guid);
                 l_Data << uint32(l_Time);
 
