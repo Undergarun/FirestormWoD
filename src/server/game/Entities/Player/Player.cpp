@@ -18391,6 +18391,21 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             if (!l_ItemTemplate)
                 return false;
 
+            /// Hackfix, but fix lot of quests since the selection work client-side
+            /// See quest 24970 with a hunter
+            {
+                /// - We have find the reward, check if player can store it
+                ItemPosCountVec l_Dest;
+                InventoryResult l_Result = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count);
+                if (l_Result != EQUIP_ERR_OK)
+                {
+                    SendEquipError(l_Result, NULL, NULL, l_DynamicReward->ItemId);
+                    return false;
+                }
+
+                return true;
+            }
+
             uint32 l_Specialization = GetSpecializationId(GetActiveSpec());
             if (!l_Specialization)
                 l_Specialization = GetDefaultSpecId();
@@ -18659,7 +18674,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             if (!l_ItemTemplate)
                 break;
 
-            switch (l_DynamicReward->Type)
+            /*switch (l_DynamicReward->Type)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                 {
@@ -18676,7 +18691,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                     break;
                 default:
                     continue;
-            }
+            }*/
 
             ItemPosCountVec l_Dest;
             if (CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count) == EQUIP_ERR_OK)
