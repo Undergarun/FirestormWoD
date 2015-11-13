@@ -86,7 +86,7 @@ enum eNyamiCreatures
 class EventPostNyamiFight : public BasicEvent
 {
 public:
-    explicit EventPostNyamiFight(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value)
+    explicit EventPostNyamiFight(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
     {
     }
 

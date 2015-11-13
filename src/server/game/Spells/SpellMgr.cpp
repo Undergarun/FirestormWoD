@@ -4750,6 +4750,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->DurationEntry = durationIndex;
                 break;
             }
+            case 81744: ///< Horde    (rated battleground faction override)
+            case 81748: ///< Alliance (rated battleground faction override)
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
+                break;
             case 159226: ///< Solar storm (Skyreach)
             case 153759: ///< WindWalls (Skyreach)
             case 153139: ///< Four winds (Skyreach)

@@ -16,6 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <regex>
+
 #include "Channel.h"
 #include "Chat.h"
 #include "ObjectMgr.h"
@@ -688,6 +690,38 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         WorldPacket data;
         player->BuildPlayerChat(&data, nullptr, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);
         SendToAll(&data, !m_Players[p].IsModerator() ? p : false);
+
+        if (IsWorld())
+        {
+            std::regex l_WorldFilter("(?:need|besoin|recherche).*(?:tank|dps|heal)|guild|recrute|m[eé]tier|craft|pas cher|prix|n[eé]gociable|vend|ach[eé]te|seek|ilevel|go tag", std::regex_constants::icase);
+
+            if (!std::regex_search(what, l_WorldFilter))
+            {
+                std::string l_Msg = what;
+                std::smatch l_WoWLinkInfo;
+                std::regex  l_WoWLinkFilter("\\|cff([^\\|]+)\\|H([^:]+):([0-9]+)[^\\|]*\\|h([^\\|]+)\\|h\\|r");
+
+                while (std::regex_search(l_Msg, l_WoWLinkInfo, l_WoWLinkFilter))
+                {
+                    //std::string l_ColorCode = l_WoWLinkInfo[1];
+                    std::string l_Type      = l_WoWLinkInfo[2];
+                    std::string l_Id        = l_WoWLinkInfo[3];
+                    std::string l_Name      = l_WoWLinkInfo[4];
+
+                    if (l_Type == "talent")
+                        l_Type = "spell";
+
+                    std::ostringstream l_NewMsg;
+                    l_NewMsg << l_WoWLinkInfo.prefix()
+                             << "<http://www.wowhead.com/" << l_Type << "=" << l_Id << "|" << l_Name << ">"
+                             << l_WoWLinkInfo.suffix();
+
+                    l_Msg = l_NewMsg.str();
+                }
+
+                sLog->outSlack("#firestorm-world", "", false, "*%s - %s*: %s", player->GetName(), sWorld->GetRealmName().c_str(), l_Msg.c_str());
+            }
+        }
     }
 }
 

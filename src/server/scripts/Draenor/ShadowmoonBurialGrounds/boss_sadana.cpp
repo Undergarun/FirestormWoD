@@ -155,7 +155,7 @@ class EventSadanaIntro : public BasicEvent
 {
 public:
 
-    explicit EventSadanaIntro(Unit* unit) : m_Obj(unit)
+    explicit EventSadanaIntro(Unit* unit) : m_Obj(unit), BasicEvent()
     {
     }
 

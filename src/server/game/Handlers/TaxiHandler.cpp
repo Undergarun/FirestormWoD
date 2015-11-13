@@ -78,6 +78,12 @@ void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& p_RecvPacket)
         return;
     }
 
+    if (p_RecvPacket.GetOpcode() == CMSG_ENABLE_TAXI_NODE)
+    {
+        SendLearnNewTaxiNode(l_Unit);
+        return;
+    }
+
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);

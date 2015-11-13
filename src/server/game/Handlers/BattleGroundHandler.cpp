@@ -933,8 +933,6 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet)
 
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for rated battleground as group bg queue type %u bg type %u: GUID %u, NAME %s", l_BgQueueTypeId, l_BgTypeId, l_Member->GetGUIDLow(), l_Member->GetName());
     }
-
-    //sBattlegroundMgr->ScheduleQueueUpdate(l_MatchmakerRating, 0, l_BgQueueTypeId, l_BgTypeId, l_BracketEntry->GetBracketId());
 }
 
 void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & p_Packet)
