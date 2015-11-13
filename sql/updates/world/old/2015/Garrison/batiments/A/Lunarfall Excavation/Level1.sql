@@ -54,12 +54,5 @@ INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 DELETE FROM creature_template_addon WHERE entry = 77361;
 insert into `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) values('77361','0','0','0','2','233','','0');
 
--- 232544 True Iron Deposit
-
--- 232542 Blackrock Deposit
-
--- 232543 Rich Blackrock Deposit
-
--- 232545
+DELETE FROM gameobject WHERE id IN (232542, 232543, 232544, 232545) AND map in (1331, 1330); -- Garrison lvl 2 (A/H)
 UPDATE gameobject_template SET data17 = 43000 WHERE entry IN (232542, 232543, 232544, 232545);
-

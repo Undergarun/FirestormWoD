@@ -10,6 +10,7 @@
 
 #include "../../GarrisonScriptData.hpp"
 #include "../../GarrisonNPC.hpp"
+#include "../GatheringBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison
@@ -77,6 +78,109 @@ namespace MS { namespace Garrison
         { -8.8705f, -74.1551f, 20.77180f, 5.93412f }
     };
 
+    static const SequencePosition g_MineLeftSideDeposits[] =
+    {
+        { -21.2715f,  -13.8611f, -59.2858f, 2.9218f },
+        { 12.1809f,    24.8398f, -38.5510f, 4.4419f },
+        { 9.6880f,     16.0787f, -36.2726f, 5.7378f },
+        { 17.4994f,    15.7274f, -36.9667f, 1.9954f },
+        { 22.5201f,    21.6839f, -38.5308f, 1.7127f },
+        { 28.2479f,    26.9864f, -39.6607f, 1.7048f },
+        { 39.2003f,    27.8017f, -42.6060f, 5.3648f },
+        { 38.9916f,    18.4105f, -43.6418f, 4.1906f },
+        { 33.5117f,    10.8657f, -42.5858f, 3.9079f },
+        { 24.7082f,     7.4141f, -39.7118f, 4.0846f },
+        { 20.5722f,     5.1232f, -38.0943f, 4.4246f },
+        { 13.0901f,     4.3822f, -34.8394f, 3.4390f },
+        { 8.9483f,     -1.6505f, -32.8574f, 5.3082f },
+        { -4.8052f,    -8.5462f, -55.9181f, 2.9088f },
+        { -12.2454f,   -4.4723f, -55.4827f, 3.1075f },
+        { -19.4561f,   -3.1426f, -56.0133f, 4.1560f },
+        { -30.3754f,   -2.0047f, -55.6653f, 4.4898f },
+        { 28.3093f,   -36.2669f, -29.4803f, 0.6296f },
+        { 36.7683f,   -34.9415f, -29.8132f, 1.2202f },
+        { 44.8613f,   -31.3961f, -29.9007f, 6.1014f },
+        { 49.2182f,   -44.6013f, -28.6273f, 4.9084f },
+        { 59.0344f,   -57.2235f, -27.6171f, 5.6946f },
+        { 59.9181f,   -63.6607f, -25.8761f, 4.9799f },
+        { 60.4903f,   -72.1911f, -25.4847f, 5.2626f },
+        { 59.4616f,   -79.9830f, -24.2250f, 4.2377f },
+        { 54.8163f,   -86.7227f, -22.4267f, 4.8856f },
+        { 22.2959f,  -117.3376f,  -3.6874f, 3.6997f },
+        { 15.8191f,  -112.7528f,  -3.6108f, 3.4601f },
+        { 8.4303f,   -113.2307f,  -0.5374f, 3.3502f },
+        { -2.0537f,  -112.4389f,   4.5311f, 3.3580f },
+        { -9.5442f,  -109.5809f,   8.9928f, 3.4130f },
+        { -14.9442f, -108.5923f,  10.8239f, 4.2102f },
+        { -17.3592f,  -98.1804f,  11.1821f, 1.7362f },
+        { -17.6374f,  -89.5104f,  13.2508f, 1.3081f },
+        { -15.7798f,  -82.9398f,  16.0685f, 1.2571f },
+        { -11.6099f,  -77.1702f,  18.9313f, 1.3427f },
+        { -5.5295f,   -70.6920f,  21.5120f, 0.7772f },
+        { 2.5470f,    -70.1050f,  24.9173f, 0.4748f },
+        { 12.3125f,   -69.5385f,  29.1250f, 0.1599f }
+    };
+
+    static const SequencePosition g_MineRightSideDeposits[] =
+    {
+        { 9.4030f,   -79.2071f,    27.6849f, 3.7272f },
+        { 0.3343f,   -84.5890f,    20.9980f, 4.1160f },
+        { -6.1773f,  -89.2095f,    15.7820f, 6.0481f },
+        { -8.3468f,  -95.0270f,    11.9934f, 0.1183f },
+        { -4.6753f,  -99.9309f,     8.3208f, 1.5242f },
+        { 0.4708f,  -102.9879f,     4.3263f, 1.4456f },
+        { 5.5319f,  -103.7457f,     1.8457f, 1.5045f },
+        { 9.0834f,  -104.3205f,    -0.3793f, 1.0294f },
+        { 15.1476f, -103.6681f,    -3.1618f, 1.8658f },
+        { 21.4066f, -103.9364f,    -3.9799f, 1.2886f },
+        { 23.3676f, -104.8962f,   -20.5796f, 2.9143f },
+        { 38.3432f, -119.9020f,   -21.0272f, 5.6483f },
+        { 43.6404f, -112.5980f,   -20.7993f, 2.6363f },
+        { 32.1395f,  -89.8483f,   -20.5642f, 1.7959f },
+        { 37.7903f,  -85.0931f,   -21.6949f, 1.3757f },
+        { 43.0758f,  -75.4841f,   -24.3843f, 2.3300f },
+        { 46.1104f,  -66.4390f,   -27.1028f, 2.1415f },
+        { 40.3559f,  -57.4901f,   -27.5191f, 3.6141f },
+        { 36.7049f,  -52.2187f,   -28.4205f, 2.8484f },
+        { 28.5692f,  -47.1683f,   -28.9980f, 3.7987f },
+        { 22.7923f,  -45.5326f,   -29.3045f, 3.4688f },
+        { -32.0448f,   9.9907f,   -56.0018f, 1.2854f },
+        { -21.6306f,  16.5841f,   -55.6365f, 1.3522f },
+        { -12.6015f,  16.3066f,   -55.9601f, 0.5550f },
+        { -6.1370f,   19.7570f,   -55.9856f, 0.3272f },
+        { 2.8862f,    15.6458f,   -55.1730f, 5.8211f },
+        { 8.5669f,    11.3826f,   -55.3300f, 0.0798f },
+        { 6.7312f,     1.1474f,   -55.7901f, 0.0445f },
+        { -14.2025f,   3.3835f,   -31.1417f, 2.2742f },
+        { -5.3802f,    5.2938f,   -32.1254f, 0.8919f },
+        { -0.1000f,   15.0299f,   -34.7130f, 2.7258f },
+        { 0.5284f,    22.3085f,   -36.3094f, 1.3435f },
+        { -23.7055f,  -0.7925f,   -56.8947f, 0.1179f },
+        { -16.2427f,  -3.1806f,   -59.2778f, 6.2401f },
+        { -12.5898f, -13.8761f,   -61.5426f, 4.7399f }
+    };
+
+    /// Herbs game object entries
+    extern std::vector<uint32> g_DepositsEntry;
+
+    /// FarmSimulator/GoatSimulator positions
+    extern std::vector<GatheringPlotInfos> g_MineDeposits;
+
+    class npc_GorsolAI : public GatheringBuildingMaster<&g_MineDeposits>
+    {
+        public:
+            /// Constructor
+            npc_GorsolAI(Creature* p_Creature);
+
+            virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+
+            /// Select game object entry for a fresh gathering spawn
+            /// @p_MiscData : Misc data
+            virtual uint32 SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData) override;
+
+            virtual void DoAction(int32 const p_Param) override;
+    };
+
     //////////////////////////////////////////////////////////////////////////
     /// 81688 - Gorsol                                                     ///
     //////////////////////////////////////////////////////////////////////////
@@ -85,6 +189,10 @@ namespace MS { namespace Garrison
         public:
             /// Constructor
             npc_Gorsol();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature * p_Creature) const;
 
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
@@ -100,18 +208,9 @@ namespace MS { namespace Garrison
 
             virtual bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override;
 
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const;
+            static std::vector<SequencePosition> CalculateDepositsPositions();
 
-            /// Creature AI
-            struct npc_GorsolAI : public GarrisonNPCAI
-            {
-                /// Constructor
-                npc_GorsolAI(Creature* p_Creature);
-
-                virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
-            };
+            static void SummonDeposits(std::vector<SequencePosition> p_SpawnPos, GarrisonNPCAI* l_AI);
     };
 
 }   ///< namespace Garrison

@@ -10,6 +10,7 @@
 
 #include "../../GarrisonScriptData.hpp"
 #include "../../GarrisonNPC.hpp"
+#include "../GatheringBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
@@ -22,9 +23,31 @@ namespace MS { namespace Garrison
         };
     }
 
+    /// Herbs game object entries
+    extern std::vector<uint32> g_AllyDepositsEntry;
+
+    /// FarmSimulator/GoatSimulator positions
+    extern std::vector<GatheringPlotInfos> g_AllyMineDeposits;
+
     //////////////////////////////////////////////////////////////////////////
     /// 77730 - Timothy Leens                                              ///
     //////////////////////////////////////////////////////////////////////////
+
+    class npc_TimothyLeensAI : public GatheringBuildingMaster<&g_AllyMineDeposits>
+    {
+        public:
+            /// Constructor
+            npc_TimothyLeensAI(Creature* p_Creature);
+
+            virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+
+            /// Select game object entry for a fresh gathering spawn
+            /// @p_MiscData : Misc data
+            virtual uint32 SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData) override;
+
+            virtual void DoAction(int32 const p_Param) override;
+    };
+
     class npc_TimothyLeens : public CreatureScript
     {
         public:
@@ -45,18 +68,13 @@ namespace MS { namespace Garrison
 
             virtual bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override;
 
+            static std::vector<SequencePosition> CalculateDepositsPositions();
+
+            static void SummonDeposits(std::vector<SequencePosition> p_SpawnPos, GarrisonNPCAI* l_AI);
+
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const;
-
-            /// Creature AI
-            struct npc_TimothyLeensAI : public GarrisonNPCAI
-            {
-                /// Constructor
-                npc_TimothyLeensAI(Creature* p_Creature);
-
-                virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
-            };
+            CreatureAI* GetAI(Creature* p_Creature) const;
     };
 
 }   ///< namespace Garrison

@@ -156,8 +156,12 @@ namespace MS { namespace Garrison
 
     enum GameObjects
     {
-        GobStump           = 234568,
-        GobTrueIronDeposit = 232544
+        GobStump                = 234568,
+        GobBlackrockDeposit     = 232542,
+        GobRichBlackrockDeposit = 232543,
+        GobTrueIronDeposit      = 232544,
+        GobRichTrueIronDeposit  = 232545
+
     };
 
     /// NPC texts id
@@ -208,7 +212,10 @@ namespace MS { namespace Garrison
         ItemBigCrateOfSalvage                   = 114120,
         ItemTimber                              = 114781,
         ItemTimberSample                        = 114827,
-        ItemGarrisonResources                   = 114677
+        ItemGarrisonResources                   = 114677,
+        ItemMine                                = 116055,
+        ItemBlackrockOre                        = 109118,
+        ItemTrueIronOre                         = 109119
     };
 
     /// Waypoints

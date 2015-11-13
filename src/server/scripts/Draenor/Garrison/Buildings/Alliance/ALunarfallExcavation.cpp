@@ -18,6 +18,30 @@
 
 namespace MS { namespace Garrison 
 {
+    std::vector<uint32> g_AllyDepositsEntry
+    {
+    232542, ///< GameObjects::GobBlackrockDeposit
+    232543, ///< GameObjects::GobRichBlackrockDeposit
+    232544, ///< GameObjects::GobTrueIronDeposit
+    232545  ///< GameObjects::GobRichTrueIronDeposit
+};
+
+    std::vector<GatheringPlotInfos> g_AllyMineDeposits
+    {
+        /// Level 1
+        { 1, -21.2715f, -13.8611f, -59.2858f, 2.9218f }, //
+        { 1, 38.9916f, 18.4105f, -43.6418f, 4.1906f },//
+        { 1, -30.3754f, -2.0047f, -55.6653f, 4.4898f },//
+        { 1, 54.8163f, -86.7227f, -22.4267f, 4.8856f },//
+        { 1, -15.7798f, -82.9398f, 16.0685f, 1.2571f },//
+        { 1, 5.5319f, -103.7457f, 1.8457f, 1.5045f },//
+        { 1, 43.0758f, -75.4841f, -24.3843f, 2.3300f },//
+        { 1, -5.3802f, 5.2938f, -32.1254f, 0.8919f }//
+        /// Level 2
+
+        /// Level 3
+    };
+
     //////////////////////////////////////////////////////////////////////////
     /// 77730 - Timothy Leens                                             ////
     //////////////////////////////////////////////////////////////////////////
@@ -31,6 +55,40 @@ namespace MS { namespace Garrison
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
+
+    std::vector<SequencePosition> npc_TimothyLeens::CalculateDepositsPositions()
+    {
+        std::vector<SequencePosition> l_DepositsPositions;
+
+        for (SequencePosition l_Position : g_MineLeftSideDeposits)
+        {
+            if (l_DepositsPositions.size() < 10 && roll_chance_i(50))
+                l_DepositsPositions.push_back(l_Position);
+            else if (l_DepositsPositions.size() >= 10)
+                break;
+        }
+
+        for (SequencePosition l_Position : g_MineRightSideDeposits)
+        {
+            if (l_DepositsPositions.size() >= 10 && l_DepositsPositions.size() < 20 && roll_chance_i(50))
+                l_DepositsPositions.push_back(l_Position);
+            else if (l_DepositsPositions.size() >= 20)
+                break;
+        }
+
+        return l_DepositsPositions;
+    }
+
+    void npc_TimothyLeens::SummonDeposits(std::vector<SequencePosition> p_SpawnPos, GarrisonNPCAI* l_AI)
+    {
+        for (SequencePosition l_Position : p_SpawnPos)
+        {
+            if (roll_chance_i(50)) ///< Blackrock Deposit
+                l_AI->SummonRelativeGameObject(roll_chance_i(20) ? GameObjects::GobRichBlackrockDeposit : GameObjects::GobBlackrockDeposit, l_Position.X, l_Position.Y, l_Position.Z, l_Position.O);
+            else ///< True Iron Deposit
+                l_AI->SummonRelativeGameObject(roll_chance_i(20) ? GameObjects::GobRichTrueIronDeposit : GameObjects::GobTrueIronDeposit, l_Position.X, l_Position.Y, l_Position.Z, l_Position.O);
+        }
+    }
 
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
@@ -85,28 +143,34 @@ namespace MS { namespace Garrison
         {
             CreatureAI* l_AI = p_Creature->AI();
 
-            if (l_AI == nullptr)
+            if (l_AI == nullptr || p_Player == nullptr || p_Creature == nullptr || p_Creature->GetScriptName() != CreatureScript::GetName())
                 return true;
 
-            std::vector<uint32> l_CreatureEntries = { NPCs::NpcFrostwallGorenHatchling, NPCs::NpcFrostwallGoren, NPCs::NpcStonetooth };
+            GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<GarrisonNPCAI*>(l_AI);
+
+            std::vector<uint32> l_CreatureEntries = { NPCs::NpcLunarfallGoren, NPCs::NpcLunarfallGorenHatchling, NPCs::NpcStonetooth };
             p_Creature->DespawnCreaturesInArea(l_CreatureEntries, 100.0f);
 
             std::list<Creature*> l_MinersList;
             p_Creature->GetCreatureListWithEntryInGrid(l_MinersList, NPCs::NpcAllianceMiner, 150.0f);
 
-            if (l_MinersList.empty())
+            if (l_GarrisonAI)
             {
-                for (SequencePosition l_Pos : g_MinersPositions)
+                if (l_MinersList.empty())
                 {
-                    if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
+                    for (SequencePosition l_Pos : g_MinersPositions)
                     {
-                        if (Creature* l_Creature = reinterpret_cast<GarrisonNPCAI*>(l_AI)->SummonRelativeCreature(NPCs::NpcAllianceMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                        if (Creature* l_Creature = l_GarrisonAI->SummonRelativeCreature(NPCs::NpcAllianceMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
                             l_Creature->GetMotionMaster()->MoveRandom(7.0f);
 
                         if (Manager* l_Garrison = p_Player->GetGarrison())
-                            l_Garrison->ActivateBuilding(reinterpret_cast<GarrisonNPCAI*>(l_AI)->GetPlotInstanceID());
+                            l_Garrison->ActivateBuilding(l_GarrisonAI->GetPlotInstanceID());
                     }
                 }
+
+//                 std::vector<SequencePosition> l_DepositsPositions = CalculateDepositsPositions();
+//                 SummonDeposits(l_DepositsPositions, l_GarrisonAI);
+                l_GarrisonAI->DoAction(0);
             }
         }
 
@@ -118,7 +182,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_TimothyLeens::GetAI(Creature* p_Creature) const
+    CreatureAI* npc_TimothyLeens::GetAI(Creature* p_Creature) const
     {
         return new npc_TimothyLeensAI(p_Creature);
     }
@@ -127,13 +191,13 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_TimothyLeens::npc_TimothyLeensAI::npc_TimothyLeensAI(Creature* p_Creature)
-        : GarrisonNPCAI(p_Creature)
+    npc_TimothyLeensAI::npc_TimothyLeensAI(Creature* p_Creature)
+        : GatheringBuildingMaster(p_Creature)
     {
         SetAIObstacleManagerEnabled(true);
     }
 
-    void npc_TimothyLeens::npc_TimothyLeensAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_TimothyLeensAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
@@ -161,7 +225,10 @@ namespace MS { namespace Garrison
         }
         else
         {
-            std::vector<uint32> l_CreatureEntries = { NPCs::NpcFrostwallGorenHatchling, NPCs::NpcFrostwallGoren, NPCs::NpcStonetooth };
+//             std::vector<SequencePosition> l_DepositsPositions = CalculateDepositsPositions();
+//             SummonDeposits(l_DepositsPositions, this);
+
+            std::vector<uint32> l_CreatureEntries = { NPCs::NpcLunarfallGorenHatchling, NPCs::NpcLunarfallGoren, NPCs::NpcStonetooth };
             me->DespawnCreaturesInArea(l_CreatureEntries, 100.0f);
 
             std::list<Creature*> l_MinersList;
@@ -176,6 +243,25 @@ namespace MS { namespace Garrison
                 }
             }
         }
+    }
+
+    void npc_TimothyLeensAI::DoAction(int32 const p_Param)
+    {
+        InitGatheringPlots(0);
+    }
+
+    /// Select game object entry for a fresh gathering spawn
+    /// @p_MiscData : Misc data
+    uint32 npc_TimothyLeensAI::SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData)
+    {
+        uint32 l_Entry = 0;
+
+        if (roll_chance_i(50))
+            l_Entry = roll_chance_i(20) ? GameObjects::GobRichBlackrockDeposit : GameObjects::GobBlackrockDeposit;
+        else ///< True Iron Deposit
+            l_Entry = roll_chance_i(20) ? GameObjects::GobRichTrueIronDeposit : GameObjects::GobTrueIronDeposit;
+
+        return l_Entry;
     }
 
 }   ///< namespace Garrison
