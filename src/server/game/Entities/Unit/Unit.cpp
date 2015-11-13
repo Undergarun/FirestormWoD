@@ -758,7 +758,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    /// @todo update me ? 
+    /// @todo update me ?
     /// Custom MoP Script
     if (ToPlayer() && getClass() == CLASS_MONK && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_MONK_BREWMASTER && HasAura(115315))
     {
@@ -1126,9 +1126,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 }
             }
         }
-        
+
         /// Mastery: Primal Tenacity - 155783
-        /// Proc just from physical attack 
+        /// Proc just from physical attack
         if (damage && cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_DRUID && victim->ToPlayer()->GetSpecializationId(victim->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_GUARDIAN)
         {
             /// Apply absorb just in case if this damage not absorbed
@@ -1203,7 +1203,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 //         std::string l_SpeName = "";
 //         if (l_Row != nullptr)
 //             l_SpeName = l_Row->specializationName;
-// 
+//
 //         sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::BattlegroundDealDamageWatcher>::Craft
 //                           (
 //                           GetGUIDLow(),
@@ -1253,7 +1253,7 @@ uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMas
         l_Stagger -= l_Mastery;
     }
 
-    /// Brewmaster Training : Your Fortifying Brew also increase stagger amount by 20% 
+    /// Brewmaster Training : Your Fortifying Brew also increase stagger amount by 20%
     if (p_Victim->HasSpell(120954) && p_Victim->HasAura(117967))
         l_Stagger -= 0.20f;                             ///< last update 6.1.2 19711
     /// Shuffle also increase stagger amount by 10%
@@ -1547,7 +1547,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     /// Apply Versatility damage bonus taken
-    if (GetSpellModOwner()) 
+    if (GetSpellModOwner())
     {
         if (victim->GetSpellModOwner())
             damage -= CalculatePct(damage, victim->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
@@ -12596,7 +12596,7 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
     }
     if (l_Diff > 0)
         l_PctSpellMod = 100.0f / ((float)p_Damage / (float)l_Diff);
-    
+
     l_CritPctBonus += l_PctSpellMod;
     p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
@@ -15437,7 +15437,7 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
             break;
         }
     }
-    
+
     duration = int32(duration * mod);
     return mod;
 }
@@ -19485,7 +19485,7 @@ AuraPtr Unit::ToggleAura(uint32 spellId, Unit* target)
         target->RemoveAurasDueToSpell(spellId);
         return NULLAURA;
     }
-    
+
     return target->AddAura(spellId, target);
 }
 
@@ -21817,8 +21817,10 @@ void Unit::ApplySoulSwapDOT(Unit* caster, Unit* target)
             {
                 appliedAura->SetDuration((*itr)->m_duration);
                 appliedAura->SetStackAmount((*itr)->m_stacks);
-                appliedAura->GetEffect(0)->SetAmount((*itr)->m_damage);
-                appliedAura->GetEffect(0)->SetPeriodicTimer((*itr)->m_amplitude);
+                if (appliedAura->GetEffect(EFFECT_0)) {
+                    appliedAura->GetEffect(EFFECT_0)->SetAmount((*itr)->m_damage);
+                    appliedAura->GetEffect(EFFECT_0)->SetPeriodicTimer((*itr)->m_amplitude);
+                }
                 appliedAura->SetNeedClientUpdateForTargets();
             }
 
