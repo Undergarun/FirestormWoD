@@ -523,6 +523,7 @@ public:
     void EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex);
     void EffectStampede(SpellEffIndex p_EffIndex);
     void EffectCreateHeirloom(SpellEffIndex p_EffIndex);
+    void EffectLearnFollowerAbility(SpellEffIndex p_EffIndex);
     void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
     void EffectChangeItemBonus(SpellEffIndex p_EffIndex);
 

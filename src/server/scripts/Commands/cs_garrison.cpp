@@ -36,7 +36,11 @@ class garrison_commandscript: public CommandScript
 
             static ChatCommand followerCommandTable[] =
             {
-                { "add", SEC_GAMEMASTER, true, &HandleFollowerAddCommand, "", NULL },
+                { "add",        SEC_GAMEMASTER, true, &HandleFollowerAddCommand,    "", NULL },
+                { "remove",     SEC_GAMEMASTER, true, &HandleFollowerRemoveCommand, "", NULL },
+                { "reroll",     SEC_GAMEMASTER, true, &HandleFollowerRerollCommand, "", NULL },
+                { "list",       SEC_GAMEMASTER, true, &HandleFollowerListCommand,   "", NULL },
+                { "promote",    SEC_GAMEMASTER, true, &HandleFollowerPromoteCommand,"", NULL },
                 { NULL,        0,               false,  NULL, "", NULL }
             };
 
@@ -75,10 +79,17 @@ class garrison_commandscript: public CommandScript
                 { NULL,        0,               false,  NULL, "", NULL }
             };
 
+            static ChatCommand shipyardCommandTable[] =
+            {
+                { "open",       SEC_ADMINISTRATOR, false, &HandleShipyardOpen, NULL      },
+                { NULL,         0,                 false, NULL, "", NULL                 }
+            };
+
             static ChatCommand commandTable[] =
             {
-                { "garrison",   SEC_GAMEMASTER, false, NULL, "", garrisonCommandTable },
-                { NULL,         0,              false, NULL, "", NULL }
+                { "garrison",   SEC_GAMEMASTER,    false, NULL, "", garrisonCommandTable },
+                { "shipyard",   SEC_ADMINISTRATOR, false, NULL, "", shipyardCommandTable },
+                { NULL,         0,                 false, NULL, "", NULL                 }
             };
             return commandTable;
         }
@@ -630,6 +641,24 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
+        static bool HandleFollowerPromoteCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!p_Args)
+                return false;
+
+            uint32 l_FollowerID = atoi(p_Args);
+            return l_TargetPlayer->GetGarrison()->LevelUpFollower(l_FollowerID);
+        }
+
         static bool HandleFollowerAddCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
@@ -667,6 +696,68 @@ class garrison_commandscript: public CommandScript
                     return l_TargetPlayer->GetGarrison()->AddFollower(l_FollowerID);
                 }
             }
+
+            return true;
+        }
+
+        static bool HandleFollowerRemoveCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!p_Args)
+                return false;
+
+            uint32 l_FollowerID = atoi(p_Args);
+            return l_TargetPlayer->GetGarrison()->RemoveFollower(l_FollowerID, true);
+        }
+
+        static bool HandleFollowerRerollCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!p_Args)
+                return false;
+
+            uint32 l_FollowerID = atoi(p_Args);
+            l_TargetPlayer->GetGarrison()->GenerateFollowerAbilities(l_FollowerID, true, true, true, true);
+
+            return true;
+        }
+
+        static bool HandleFollowerListCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_Type  = 0;
+
+            if (p_Args)
+                l_Type = atoi(p_Args);
+
+            auto l_List = l_TargetPlayer->GetGarrison()->GenerateFollowerTextList(l_Type);
+
+            for (auto l_Str  : l_List)
+                p_Handler->SendSysMessage(l_Str.c_str());
 
             return true;
         }
@@ -797,6 +888,21 @@ class garrison_commandscript: public CommandScript
                     }
                 }
             }
+            return true;
+        }
+
+        static bool HandleShipyardOpen(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            return true;
         }
 };
 

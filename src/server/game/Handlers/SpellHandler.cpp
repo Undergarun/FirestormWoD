@@ -101,7 +101,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         p_RecvPacket >> l_Misc[l_I];
 
     p_RecvPacket >> l_SpellID;
-    p_RecvPacket.read_skip<uint32>();   ///< Unk
+    printf("%i\n", p_RecvPacket.read<uint32>());
 
     l_TargetFlags           = p_RecvPacket.ReadBits(23);
     l_HasSourceTarget       = p_RecvPacket.ReadBit();
@@ -158,6 +158,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
+    printf("%016llX %016llX %016llX %016llX %016llX %016llX\n", l_TargetItemGUID, l_SourceTargetGUID, l_DestinationTargetGUID, l_TargetGUID, l_UnkGUID, l_ItemGUID);
     //////////////////////////////////////////////////////////////////////////
 
     if (l_SpellWeightCount)

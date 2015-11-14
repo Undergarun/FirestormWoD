@@ -281,10 +281,21 @@ void PhaseData::SendPhaseshiftToPlayer()
             l_TerrainSwaps.insert((*l_IT)->terrainswapmap);
     }
 
-    if (player->GetGarrison() && player->GetGarrison()->GetGarrisonSiteLevelEntry() && (player->GetMapId() == MS::Garrison::Globals::BaseMap || player->IsInGarrison()))
+    if (player->GetGarrison() && player->GetGarrison()->GetGarrisonSiteLevelEntry())
     {
-        l_InactiveTerrainSwap.insert(player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID);
-        player->GetGarrison()->GetTerrainSwaps(l_TerrainSwaps);
+        if (player->GetMapId() == MS::Garrison::Globals::BaseMap || player->IsInGarrison())
+        {
+            l_InactiveTerrainSwap.insert(player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID);
+            player->GetGarrison()->GetTerrainSwaps(l_TerrainSwaps);
+        }
+
+        if (player->GetGarrison()->HasShipyard() && (player->GetMapId() == MS::Garrison::Globals::BaseMap || player->IsInShipyard() || player->IsInGarrison()))
+        {
+            /// Blizz are weird people
+            l_InactiveTerrainSwap.insert(MS::Garrison::ShipyardMapId::Alliance);
+            l_InactiveTerrainSwap.insert(MS::Garrison::ShipyardMapId::Horde);
+            player->GetGarrison()->GetShipyardTerainSwaps(l_TerrainSwaps);
+        }
     }
 
     player->GetSession()->SendSetPhaseShift(l_PhaseIDs, l_TerrainSwaps, l_InactiveTerrainSwap);

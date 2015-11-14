@@ -571,6 +571,15 @@ namespace MS { namespace Garrison
 
     };
 
+    // Fleet Command Talbe
+    class npc_FleetCommandTable : public CreatureScript
+    {
+        public:
+            npc_FleetCommandTable();
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 

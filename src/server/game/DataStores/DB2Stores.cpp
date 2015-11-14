@@ -103,6 +103,7 @@ DB2Storage <GarrMissionXEncouterEntry>      sGarrMissionXEncouterStore(GarrMissi
 DB2Storage <GarrBuildingEntry>              sGarrBuildingStore(GarrBuildingEntryfmt);
 DB2Storage <GarrPlotBuildingEntry>          sGarrPlotBuildingStore(GarrPlotBuildingEntryfmt);
 DB2Storage <GarrFollowerEntry>              sGarrFollowerStore(GarrFollowerEntryfmt);
+DB2Storage <GarrFollowerTypeEntry>          sGarrFollowerTypeStore(GarrFollowerTypefmt);
 DB2Storage <GarrAbilityEntry>               sGarrAbilityStore(GarrAbilityEntryfmt);
 DB2Storage <GarrAbilityEffectEntry>         sGarrAbilityEffectStore(GarrAbilityEffectEntryfmt);
 DB2Storage <GarrFollowerXAbilityEntry>      sGarrFollowerXAbilityStore(GarrFollowerXAbilityEntryfmt);
@@ -373,6 +374,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrBuildingStore,              db2Path, "GarrBuilding.db2"                                                     );
     LoadDB2(bad_db2_files, sGarrPlotBuildingStore,          db2Path, "GarrPlotBuilding.db2"                                                 );
     LoadDB2(bad_db2_files, sGarrFollowerStore,              db2Path, "GarrFollower.db2"                                                     );
+    LoadDB2(bad_db2_files, sGarrFollowerTypeStore,          db2Path, "GarrFollowerType.db2"                                                 );
     LoadDB2(bad_db2_files, sGarrAbilityStore,               db2Path, "GarrAbility.db2"                                                      );
     LoadDB2(bad_db2_files, sGarrAbilityEffectStore,         db2Path, "GarrAbilityEffect.db2"                                                );
     LoadDB2(bad_db2_files, sGarrFollowerXAbilityStore,      db2Path, "GarrFollowerXAbility.db2"                                             );

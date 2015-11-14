@@ -316,7 +316,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
     &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
-    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY  NYI
+    &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
@@ -7801,7 +7801,6 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
-/// @todo USE ME
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -8124,6 +8123,24 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
         l_Item->AddItemBonus(l_UpgradeId);
         l_Player->SendNewItem(l_Item, 1, false, false, false);
     }
+}
+
+void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    Player* l_Player = GetCaster()->ToPlayer();
+    MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    SpellCastResult l_Result = l_Garrison->CanLearnTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), p_EffIndex);
+    if (l_Result != SPELL_CAST_OK)
+        return;
+
+    l_Garrison->LearnFollowerTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), p_EffIndex);
 }
 
 void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)

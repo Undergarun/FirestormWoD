@@ -1631,6 +1631,7 @@ class Player : public Unit, public GridObject<Player>
         MS::Garrison::Manager * GetGarrison();
         void CreateGarrison();
         bool IsInGarrison() const;
+        bool IsInShipyard() const;
         int32 GetGarrisonMapID() const;
         void DeleteGarrison();
 

@@ -6793,6 +6793,25 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 break;
             }
+            case SPELL_EFFECT_TEACH_FOLLOWER_ABILITY:
+            {
+                Player* l_Player = m_caster->ToPlayer();
+
+                if (!l_Player)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
+
+                if (!l_Garrison)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                printf("%i %i\n", m_Misc[0], m_Misc[1]);
+                SpellCastResult l_Result = l_Garrison->CanLearnTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), i);
+                if (l_Result != SPELL_CAST_OK)
+                    return l_Result;
+
+                break;
+            }
             case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
             {
                 Player* l_Player = m_caster->ToPlayer();

@@ -942,7 +942,7 @@ enum Opcodes
         SMSG_GARRISON_REMOVE_FOLLOWER_RESULT                            = 0x0000,
         SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT                       = 0x0000,
         SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT                  = 0x0745, ///< 6.2.2 20574
-        SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x0747, ///< 6.2.2 20574
+        SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x03D7, ///< 6.2.2 20574
         SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x0BC1, ///< 6.2.2 20574
         SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x0757, ///< 6.2.2 20574
         SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x0352, ///< 6.2.2 20574
@@ -957,6 +957,7 @@ enum Opcodes
         SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0705, ///< 6.2.2 20574
         SMSG_GARRISON_OPEN_TRADESKILL_NPC                               = 0x0311, ///< 6.2.2 20574
         SMSG_GARRISON_SET_MISSION_NPC                                   = 0x0F07, ///< 6.2.2 20574
+        SMSG_GARRISON_FOLLOWER_DELETE_NOTIFY                            = 0x0303, ///< 6.2.2 20574
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1006,6 +1007,10 @@ enum Opcodes
     CMSG_GET_SHIPMENTS                                      = 0x1C0E, ///< 6.2.2 20574
     CMSG_REQUEST_SET_MISSION_NPC                            = 0x1236, ///< 6.2.2 20574
 
+    /// Shipyard
+    CMSG_GARRISON_FOLLOWER_RENAME                           = 0x1820, ///< 6.2.2 20574
+    CMSG_GARRISON_DECOMISSION_SHIP                          = 0x0505, ///< 6.2.2 20574
+
     //////////////////////////////////////////////////////////////////////////
     /// User Router
     //////////////////////////////////////////////////////////////////////////
@@ -1054,7 +1059,7 @@ enum Opcodes
     CMSG_SET_TITLE                              = 0x11CF, ///< 6.2.2 20574
     CMSG_PLAYED_TIME                            = 0x0158, ///< 6.2.2 20574
     CMSG_SAVE_EQUIPMENT_SET                     = 0x060A, ///< 6.2.2 20574
-    CMSG_USE_EQUIPMENT_SET                      = 0x0599, ///< 6.2.2 20574
+    CMSG_USE_EQUIPMENT_SET                      = 0x104C, ///< 6.2.2 20574
     CMSG_DELETE_EQUIPMENT_SET                   = 0x1E69, ///< 6.2.2 20574
     CMSG_WHO                                    = 0x0829, ///< 6.2.2 20574
     CMSG_SOCKET_GEMS                            = 0x0F9A, ///< 6.2.2 20574
@@ -1161,7 +1166,7 @@ enum Opcodes
     CMSG_TUTORIAL                               = 0x01A1, ///< 6.2.2 20574
     CMSG_SET_SPECIALIZATION                     = 0x1320, ///< 6.2.2 20574
     CMSG_SET_WATCHED_FACTION                    = 0x06DA, ///< 6.2.2 20574
-    CMSG_SET_FACTION_INACTIVE                   = 0x104C, ///< 6.2.2 20574
+    CMSG_SET_FACTION_INACTIVE                   = 0x0C71, ///< 6.2.2 20574
     CMSG_AREATRIGGER                            = 0x12D0, ///< 6.2.2 20574
     CMSG_GAMEOBJECT_REPORT_USE                  = 0x06CE, ///< 6.2.2 20574
     CMSG_GAMEOBJECT_USE                         = 0x05DA, ///< 6.2.2 20574
@@ -1170,9 +1175,9 @@ enum Opcodes
     CMSG_REPOP_REQUEST                          = 0x0F8D, ///< 6.2.2 20574
     CMSG_RECLAIM_CORPSE                         = 0x0C39, ///< 6.2.2 20574
     CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT      = 0x09A1, ///< 6.2.2 20574
-    CMSG_QUERY_CORPSE_TRANSPORT                 = 0x0559, ///< 6.2.2 20574
+    CMSG_QUERY_CORPSE_TRANSPORT                 = 0x0039, ///< 6.2.2 20574
     CMSG_RETURN_TO_GRAVEYARD                    = 0x0A17, ///< 6.2.2 20574
-    CMSG_CLOSE_INTERACTION                      = 0x0E98, ///< 6.2.2 20574
+    CMSG_CLOSE_INTERACTION                      = 0x0559, ///< 6.2.2 20574
     CMSG_ITEM_REFUND_INFO                       = 0x061E, ///< 6.2.2 20574
     CMSG_FAR_SIGHT                              = 0x0E97, ///< 6.2.2 20574
     CMSG_MOUNTSPECIAL_ANIM                      = 0x0948, ///< 6.2.2 20574
@@ -1180,7 +1185,7 @@ enum Opcodes
     CMSG_NEXT_CINEMATIC_CAMERA                  = 0x0E32, ///< 6.2.2 20574
     CMSG_COMPLETE_CINEMATIC                     = 0x0FDA, ///< 6.2.2 20574
     CMSG_REQUEST_CEMETERY_LIST                  = 0x0957, ///< 6.2.2 20574
-    CMSG_TOTEM_DESTROYED                        = 0x0FCE, ///< 6.2.2 20574
+    CMSG_TOTEM_DESTROYED                        = 0x0E98, ///< 6.2.2 20574
     CMSG_CONFIRM_RESPEC_WIPE                    = 0x0151, ///< 6.2.2 20574
     CMSG_CANCEL_TRADE                           = 0x115F, ///< 6.2.2 20574
     CMSG_SET_TRADE_CURRENCY                     = 0x1C4B, ///< 6.2.2 20574
@@ -1518,9 +1523,9 @@ enum Opcodes
 
     /// Guild finding
     CMSG_LF_GUILD_ADD_RECRUIT                      = 0x0279, ///< 6.2.2 20574
-    CMSG_LF_GUILD_BROWSE                           = 0x0AA5, ///< 6.2.2 20574
+    CMSG_LF_GUILD_BROWSE                           = 0x0379, ///< 6.2.2 20574
     CMSG_LF_GUILD_DECLINE_RECRUIT                  = 0x0AA5, ///< 6.2.2 20574
-    CMSG_LF_GUILD_GET_APPLICATIONS                 = 0x0379, ///< 6.2.2 20574
+    CMSG_LF_GUILD_GET_APPLICATIONS                 = 0x0A7D, ///< 6.2.2 20574
     CMSG_LF_GUILD_GET_RECRUITS                     = 0x1CD4, ///< 6.2.2 20574
     CMSG_LF_GUILD_POST_REQUEST                     = 0x1ED1, ///< 6.2.2 20574
     CMSG_LF_GUILD_REMOVE_RECRUIT                   = 0x00BD, ///< 6.2.2 20574

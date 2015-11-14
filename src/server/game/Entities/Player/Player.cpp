@@ -32895,6 +32895,14 @@ bool Player::IsInGarrison() const
     return false;
 }
 
+bool Player::IsInShipyard() const
+{
+    if (!m_Garrison)
+        return false;
+
+    return m_Garrison->HasShipyard() ? m_Garrison->GetShipyardMapId() : false;
+}
+
 int32 Player::GetGarrisonMapID() const
 {
     if (!m_Garrison)

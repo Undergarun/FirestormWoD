@@ -24,11 +24,33 @@ namespace MS { namespace Garrison
 
             /// Follower can earn XP
             bool CanXP();
+
             /// Earn XP
-            uint32 EarnXP(uint32 p_XP);
+            uint32 EarnXP(uint32 p_XP, Player* p_SendUpdateTo = nullptr);
 
             /// Write follower into a packet
-            void Write(ByteBuffer & p_Buffer);
+            void Write(ByteBuffer & p_Buffer) const;
+
+            /// Get the DBC Entry
+            GarrFollowerEntry const* GetEntry() const;
+
+            /// Returns true if follower is a ship
+            bool IsShip() const;
+
+            /// Returns true if follower is a npc
+            bool IsNPC() const;
+
+            /// Sends follower update
+            void SendFollowerUpdate(WorldSession* p_Session) const;
+
+            /// Sends follower update
+            void SendFollowerUpdate(Player* p_Player) const;
+
+            /// Gets the real name of the follower
+            std::string GetRealName(uint32 p_FactionIndex) const;
+
+            /// Returns the required amount of xp for next level
+            uint32 GetRequiredLevelUpXP() const;
 
         public:
             uint32 DatabaseID;          ///< Database ID
@@ -41,8 +63,12 @@ namespace MS { namespace Garrison
             uint32 CurrentBuildingID;   ///< Current assigned building ID
             uint32 CurrentMissionID;    ///< Current assigned mission ID
             uint32 Flags;               ///< Follower flags
+            std::string ShipName;       ///< Ship Name - empty for default
 
             std::vector<uint32> Abilities;  ///< Follower abilities
+
+        private:
+            uint32 _EarnXP(uint32 p_XP);
 
     };
 

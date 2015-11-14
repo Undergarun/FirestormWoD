@@ -3212,6 +3212,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 switch (spellInfo->Effects[j].Effect)
                 {
                     case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
+                    case SPELL_EFFECT_TEACH_FOLLOWER_ABILITY:
                         spellInfo->Effects[j].TargetA = TARGET_UNIT_CASTER;
                         spellInfo->Effects[j].TargetB = TARGET_UNIT_CASTER;
 
@@ -6830,7 +6831,7 @@ void SpellMgr::LoadSpellCustomAttr()
             }
 
             /// Our targetting system is weird as fuck - would need a full rewrite for this to work properly, do not touch - hours of debugging
-            if (spellInfo->HasEffect(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL))
+            if (spellInfo->HasEffect(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL) || spellInfo->HasEffect(SPELL_EFFECT_TEACH_FOLLOWER_ABILITY))
                 spellInfo->ExplicitTargetMask = TARGET_FLAG_NONE;
 
             spellInfo->UpdateSpellEffectCount(); ///< Re-cache the maximum number of effects

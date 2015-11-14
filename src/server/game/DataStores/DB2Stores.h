@@ -101,6 +101,7 @@ extern DB2Storage <GarrMissionXEncouterEntry>       sGarrMissionXEncouterStore;
 extern DB2Storage <GarrBuildingEntry>               sGarrBuildingStore;
 extern DB2Storage <GarrPlotBuildingEntry>           sGarrPlotBuildingStore;
 extern DB2Storage <GarrFollowerEntry>               sGarrFollowerStore;
+extern DB2Storage <GarrFollowerTypeEntry>           sGarrFollowerTypeStore;
 extern DB2Storage <GarrAbilityEntry>                sGarrAbilityStore;
 extern DB2Storage <GarrAbilityEffectEntry>          sGarrAbilityEffectStore;
 extern DB2Storage <GarrFollowerXAbilityEntry>       sGarrFollowerXAbilityStore;

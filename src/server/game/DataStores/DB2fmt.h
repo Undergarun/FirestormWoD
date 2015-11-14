@@ -153,8 +153,9 @@ const char GarrPlotBuildingEntryfmt[] =
     FT_END
 };
 
-const char GarrFollowerEntryfmt[] = "nxiiiiiiiiiiiiiissiiiixx";
-const char GarrAbilityEntryfmt[] = "nissiiix";
+const char GarrFollowerEntryfmt[] = "niiiiiiiiiiiiiiissiiiixx";
+const char GarrFollowerTypefmt[] = "niiii";
+const char GarrAbilityEntryfmt[] = "nissiiii";
 const char GarrAbilityEffectEntryfmt[] = "niiiiiffiiix";
 const char GarrFollowerXAbilityEntryfmt[] =
 {

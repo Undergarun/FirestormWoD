@@ -23,20 +23,39 @@ namespace MS { namespace Garrison
             MaxLevel                        = 3,
             MaxFollowerPerMission           = 3,
             MaxFollowerLevel                = 100,
-            MaxActiveFollower               = 20,
-            MaxFollowerItemLevel            = 675,
             FollowerActivationCost          = (250 * GOLD),
             FollowerActivationMaxStack      = 1,
             BaseMap                         = 1116,
-            PlotInstanceCount               = 40,
+            PlotInstanceCount               = 42,
             CurrencyID                      = 824,
             CacheMinToken                   = 5,
             CacheHeftyToken                 = 200,
             CacheMaxToken                   = 500,
             CacheTokenGenerateTime          = (10 * MINUTE),
             MissionDistributionInterval     = (25 * MINUTE),
+            DefaultFollowerItemLevel        = 600,
+            ShipyardBuildingType            = 9
         };
     }
+
+    namespace ShipyardMapId
+    {
+        enum : uint32
+        {
+            Alliance    = 1473,
+            Horde       = 1474
+        };
+    }
+
+    namespace ShipyardTerainSwaps
+    {
+        enum Alliance : uint32
+        {
+            Part1 = 992,
+            Part2 = 683,
+            Part3 = 910
+        };
+    };
 
     namespace FactionIndex
     {
@@ -351,6 +370,18 @@ namespace MS { namespace Garrison
         };
     }
 
+
+    namespace FollowerTypeFlags
+    {
+        enum : uint32
+        {
+            CanRenameFollower           = 1,    ///< The specified type can be renamed, eg ships - LUA RenameFollower
+            CanStartMissionPastSoftCap  = 2,    ///< You can start a mission above follower soft cap - LUA AllowMissionStartAboveSoftCap
+            Unk1                        = 4,    /// Unk, only regular follower has it
+            Unk2                        = 8,    /// Unk, only ships have it
+        };
+    };
+
     static const uint32 gGarrisonBuildingMaxWorkOrderPerBuildingLevel[Globals::MaxLevel] =
     {
         7,
@@ -461,6 +492,7 @@ namespace MS { namespace Garrison
         {       6,          63,         1847.615f,    134.7257f,    78.10705f,   2.7052600f  },
         {       6,          67,         2031.594f,    174.4410f,    84.36597f,   2.8361600f  },
         {       6,          81,         1914.083f,    354.1875f,    88.96585f,  -1.8763060f  },
+        //{       6,          98,         0.f,          0.f,          0.f,         0.f,        },
         /// Horde Level 1
         {     258,          18,         5645.124f,   4508.9600f,   119.27010f,   2.0423500f  },
         {     258,          23,         5575.461f,   4459.3380f,   130.36810f,   0.9599311f  },
@@ -483,7 +515,8 @@ namespace MS { namespace Garrison
         {     259,          59,         5399.831f,   4465.9760f,   114.53970f,   0.8464847f  },
         {     259,          63,         5415.374f,   4586.4390f,   136.58310f,   2.3561950f  },
         {     259,          67,         5476.589f,   4622.7070f,   134.44980f,  -1.3962630f  },
-        {     259,          81,         5626.042f,   4660.6960f,   142.45800f,  -1.9024090f  }
+        {     259,          81,         5626.042f,   4660.6960f,   142.45800f,  -1.9024090f  },
+        //{     259,          98,         0.f,         0.f,          0.f,         0.f,         }
     };
 
     /// Cache game object position for each faction / level

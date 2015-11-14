@@ -544,36 +544,47 @@ struct GarrPlotBuildingEntry
 struct GarrFollowerEntry
 {
     uint32 ID;                                                      ///< 0
-    uint32 Class[2];                                                ///< 1-2
-    uint32 HordeUiAnimRaceInfoID;                                   ///< 3
-    uint32 AllianceUiAnimRaceInfoID;                                ///< 4
-    uint32 Quality;                                                 ///< 5
-    uint32 HordeGarrClassSecID;                                     ///< 6      GarrClassSpec.db2
-    uint32 AllianceGarrClassSecID;                                  ///< 7
-    uint32 HordeGarrFollItemSetID;                                  ///< 8
-    uint32 AllianceGarrFollItemSetID;                               ///< 9
-    int32  Level;                                                   ///< 10
-    int32  ItemLevelWeapon;                                         ///< 11
-    int32  ItemLevelArmor;                                          ///< 12
-    uint32 Unk;                                                     ///< 13
-    uint32 Flags;                                                   ///< 14
-    char * HordeSourceText;                                         ///< 15     Descr1 : zoneH (where you find this follower)
-    char * AllinaceSourceText;                                      ///< 16     Descr2 : zoneA (where you find this follower)
-    int32  Unk1;                                                    ///< 17     H
-    int32  Unk2;                                                    ///< 18     A
-    uint32 HordePortraitIconID;                                     ///< 19
-    uint32 AlliancePortraitIconID;                                  ///< 20
+    uint32 Type;                                                    ///< 1
+    uint32 CreatureID[2];                                           ///< 2-3
+    uint32 HordeUiAnimRaceInfoID;                                   ///< 4
+    uint32 AllianceUiAnimRaceInfoID;                                ///< 5
+    uint32 Quality;                                                 ///< 6
+    uint32 HordeGarrClassSecID;                                     ///< 7      GarrClassSpec.db2
+    uint32 AllianceGarrClassSecID;                                  ///< 8
+    uint32 HordeGarrFollItemSetID;                                  ///< 9
+    uint32 AllianceGarrFollItemSetID;                               ///< 10
+    int32  Level;                                                   ///< 11
+    int32  ItemLevelWeapon;                                         ///< 12
+    int32  ItemLevelArmor;                                          ///< 13
+    uint32 Unk;                                                     ///< 14
+    uint32 Flags;                                                   ///< 15
+    char * HordeSourceText;                                         ///< 16     Descr1 : zoneH (where you find this follower)
+    char * AllinaceSourceText;                                      ///< 17     Descr2 : zoneA (where you find this follower)
+    int32  Unk1;                                                    ///< 18     H
+    int32  Unk2;                                                    ///< 19     A
+    uint32 HordePortraitIconID;                                     ///< 20
+    uint32 AlliancePortraitIconID;                                  ///< 21
+};
+
+struct GarrFollowerTypeEntry
+{
+    uint32 ID;                                                      ///< 0
+    uint32 SoftCap;                                                 ///< 1
+    uint32 SoftCapBuildingIncreaseID;                               ///< 2
+    uint32 MaxItemLevel;                                            ///< 3
+    uint32 Flags;                                                   ///< 4
 };
 
 struct GarrAbilityEntry
 {
     uint32 ID;                                                      ///< 0
-    uint32 Flags;                                                   ///< 1
+    uint32 AbilityType;                                             ///< 1
     char * Name;                                                    ///< 2
     char * Description;                                             ///< 3
     uint32 IconID;                                                  ///< 4
     uint32 OtherfactionGarrAbilityID;                               ///< 5
     uint32 Category;                                                ///< 6
+    uint32 FollowerType;                                            ///< 7
 };
 
 struct GarrAbilityEffectEntry
