@@ -35,8 +35,6 @@ class Reporter
 
         void EnqueueReport(std::string p_Datas);
 
-        std::string BuildPvEReport(ByteBuffer p_Datas);
-
         static inline bool IsBase64(uint8 p_Char)
         {
             return (isalnum(p_Char) || (p_Char == '+') || (p_Char == '/'));

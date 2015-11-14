@@ -1634,7 +1634,7 @@ class EncounterScript_Global : public EncounterScript
             l_Datas << p_EncounterDatas->EncounterHealth;
             l_Datas << p_EncounterDatas->DeadCount;
 
-            sReporter->EnqueueReport(sReporter->BuildPvEReport(l_Datas));
+            //sReporter->EnqueueReport(sReporter->BuildPvEReport(l_Datas));
         }
 };
 

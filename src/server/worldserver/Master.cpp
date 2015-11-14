@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -415,6 +415,50 @@ int Master::Run()
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Daemon PID: %u\n", pid);
     }
 
+
+    sReporter->SetAddress(ConfigMgr::GetStringDefault("Reporting.Address", "http://5.196.83.82:9200/"));
+    sReporter->SetIndex(ConfigMgr::GetStringDefault("Reporting.Index", "logspve/external/"));
+
+    /// Thread which repeat reporting.
+    std::thread l_Reporter([]()
+    {
+        while (!World::IsStopped())
+        {
+            if (sReporter->HasReports())
+                sReporter->ScheduleNextReport();
+
+            ACE_Based::Thread::current()->Sleep(1);
+        }
+    });
+
+    EasyJSon::Node<std::string> l_Node;
+
+    l_Node["Expansion"] = Expansion::EXPANSION_WARLORDS_OF_DRAENOR;
+    l_Node["RealmID"] = 1;
+    l_Node["GuildID"] = 1;
+    l_Node["GuildFaction"] = HORDE;
+
+    std::wstring l_Name = L"кирилската"; 
+    std::string l_Output = "";
+
+    WStrToUtf8(l_Name, l_Output);
+
+    l_Node["GuildName"] = l_Output;
+    l_Node["MapID"] = 50;
+    l_Node["EncounterID"] = 70;
+    l_Node["DifficultyID"] = 80;
+    l_Node["StartTime"] = 8000;
+    l_Node["CombatDuration"] = 1000;
+    l_Node["Success"] = 1;
+
+    l_Node["RosterDatas"] = "";
+
+
+    l_Node["EncounterHealth"] = "";
+    l_Node["DeadCount"] = 25;
+
+    sReporter->EnqueueReport(l_Node.Serialize<std::ostringstream>(true));
+
     ///- Start the databases
     if (!_StartDB())
         return 1;
@@ -443,21 +487,6 @@ int Master::Run()
 
     ///- Initializing the Reporter.
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "Reporter: Initializing instance...");
-
-    sReporter->SetAddress(ConfigMgr::GetStringDefault("Reporting.Address", "http://127.0.0.1:9200/"));
-    sReporter->SetIndex(ConfigMgr::GetStringDefault("Reporting.Index", "logspve/external/"));
-
-    /// Thread which repeat reporting.
-    std::thread l_Reporter([]()
-    {
-        while (!World::IsStopped())
-        {
-            if (sReporter->HasReports())
-                sReporter->ScheduleNextReport();
-
-            ACE_Based::Thread::current()->Sleep(1);
-        }
-    });
 
     ///- Launch WorldRunnable thread
     ACE_Based::Thread world_thread(new WorldRunnable, "WorldRunnable");
