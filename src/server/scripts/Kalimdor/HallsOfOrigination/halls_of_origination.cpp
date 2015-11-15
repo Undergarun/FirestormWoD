@@ -436,7 +436,10 @@ class npc_water_warden_water_bubble : public CreatureScript
             void UpdateAI(const uint32 diff)
             {
                 if (!me->GetOwner())
+                {
                     me->DespawnOrUnsummon();
+                    return;
+                }
 
                 if (me->GetOwner()->isAlive())
                     me->DespawnOrUnsummon();
