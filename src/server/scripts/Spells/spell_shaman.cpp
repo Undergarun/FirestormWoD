@@ -239,6 +239,7 @@ class spell_sha_unleashed_fury : public SpellScriptLoader
         }
 };
 
+/// last update: 6.1.2 19865
 /// Called by Chain Heal - 1064 and Chain Heal (T17 Proc) - 177972
 /// High Tide - 157154
 class spell_sha_high_tide : public SpellScriptLoader
@@ -267,9 +268,13 @@ class spell_sha_high_tide : public SpellScriptLoader
                     for (WorldObject* l_Object : p_Targets)
                         l_TargetMap.insert(std::make_pair(l_Object->GetGUID(), l_Object));
 
+                    WorldObject* l_FirstTarget = *p_Targets.begin();
+                    if (l_FirstTarget == nullptr)
+                        return;
+
                     std::list<Unit*> l_TempList;
-                    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, GetSpellInfo()->RangeEntry->maxRangeFriend);
-                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TempList, l_Check);
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_FirstTarget, l_Caster, GetSpellInfo()->RangeEntry->maxRangeFriend);
+                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_FirstTarget, l_TempList, l_Check);
                     l_Caster->VisitNearbyObject(GetSpellInfo()->RangeEntry->maxRangeFriend, l_Searcher);
 
                     l_TempList.remove_if([this, l_TargetMap, l_Caster](Unit* p_Unit) -> bool
@@ -288,7 +293,12 @@ class spell_sha_high_tide : public SpellScriptLoader
                         return;
 
                     l_TempList.sort(JadeCore::HealthPctOrderPred());
-                    uint8 l_TargetCount = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::SpellHighTide);
+
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    uint8 l_TargetCount = l_SpellInfo->Effects[EFFECT_1].BasePoints;
 
                     for (Unit* l_Unit : l_TempList)
                     {
@@ -765,19 +775,19 @@ class spell_sha_ancestral_guidance: public SpellScriptLoader
                     eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_ANCESTRAL_GUIDANCE))
                     return;
 
-                Player* _player = GetCaster()->ToPlayer();
-                if (!_player)
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (l_Player == nullptr)
                     return;
 
-                if (Unit* target = eventInfo.GetActionTarget())
+                if (Unit* l_Target = eventInfo.GetActionTarget())
                 {
-                    int32 bp = eventInfo.GetDamageInfo()->GetDamage() > eventInfo.GetHealInfo()->GetHeal() ? eventInfo.GetDamageInfo()->GetDamage() : eventInfo.GetHealInfo()->GetHeal();
-                    if (!bp)
+                    int32 l_Bp = eventInfo.GetDamageInfo()->GetDamage() > eventInfo.GetHealInfo()->GetHeal() ? eventInfo.GetDamageInfo()->GetDamage() : eventInfo.GetHealInfo()->GetHeal();
+                    if (!l_Bp)
                         return;
 
-                    bp = int32(bp * aurEff->GetAmount() / 100);
+                    l_Bp = int32(l_Bp * aurEff->GetAmount() / 100);
 
-                    _player->CastCustomSpell(target, SPELL_SHA_ANCESTRAL_GUIDANCE, &bp, NULL, NULL, true);
+                    l_Player->CastCustomSpell(l_Target, SPELL_SHA_ANCESTRAL_GUIDANCE, &l_Bp, NULL, NULL, true);
                 }
             }
 
@@ -790,6 +800,38 @@ class spell_sha_ancestral_guidance: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_sha_ancestral_guidance_AuraScript();
+        }
+};
+
+/// last update : 6.1.2
+/// Ancestral Guidance (heal) - 114911
+class spell_sha_ancestral_guidance_heal : public SpellScriptLoader
+{
+    public:
+        spell_sha_ancestral_guidance_heal() : SpellScriptLoader("spell_sha_ancestral_guidance_heal") { }
+
+        class spell_sha_ancestral_guidance_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_ancestral_guidance_heal_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.size() > 3)
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(3);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_guidance_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_ancestral_guidance_heal_SpellScript();
         }
 };
 
@@ -1072,13 +1114,11 @@ class spell_sha_fulmination: public SpellScriptLoader
                         if (!l_Shield)
                             return;
 
-                        uint8 l_Charges = l_Shield->GetCharges() - 1;
-                        if (!l_Charges)
-                            return;
-
                         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE);
                         if (!l_SpellInfo)
                             return;
+
+                        uint8 l_Charges = l_Shield->GetCharges();
 
                         /// Each stack of Lightning Shield consumed by Fulmination increases your multistrike damage by 1% for 10 sec.
                         if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Elemental2P, EFFECT_0))
@@ -1093,6 +1133,10 @@ class spell_sha_fulmination: public SpellScriptLoader
                             if (l_AuraEffect->GetAmount() < (int32)l_Charges)
                                 l_Caster->CastSpell(l_Caster, eSpells::LavaSurgeProc, true);
                         }
+
+                        l_Charges = l_Charges - 1;
+                        if (!l_Charges)
+                            return;
 
                         int32 l_BP = l_Caster->CalculateSpellDamage(l_Target, l_SpellInfo, EFFECT_0);
                         uint32 l_Damage = l_Charges * l_Caster->SpellDamageBonusDone(l_Target, l_SpellInfo, l_BP, EFFECT_0, SPELL_DIRECT_DAMAGE);
@@ -2198,26 +2242,46 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_fulmination_proc_AuraScript);
 
+            enum eSpells
+            {
+                LightningBolt               = 403,
+                ChainLightning              = 421,
+                LavaBust                    = 51505,
+                ImprovedLightningShield     = 157774
+            };
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
-                Unit* target = eventInfo.GetProcTarget();
+                Unit* l_Caster = GetCaster();
 
-                if (!target)
+                if (l_Caster == nullptr)
                     return;
 
-                uint32 maxCharges = GetEffect(EFFECT_0)->CalculateAmount(GetCaster());
-                if (AuraPtr aura = GetCaster()->GetAura(SPELL_SHA_LIGHTNING_SHIELD))
-                {
-                    if (aura->GetCharges() < maxCharges)
-                        aura->SetCharges(aura->GetCharges() + 1);
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr)
+                    return;
 
-                    if (aura->GetCharges() == maxCharges && !GetCaster()->HasAura(SPELL_SHA_FULMINATION_INFO))
-                        GetCaster()->CastSpell(GetCaster(), SPELL_SHA_FULMINATION_INFO, true);
+                if (!(l_Caster->HasAura(eSpells::ImprovedLightningShield) && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::LavaBust))
+                {
+                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::LightningBolt && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ChainLightning)
+                        return;
                 }
 
+                Unit* l_Target = p_EventInfo.GetProcTarget();
+
+                if (l_Target == nullptr)
+                    return;
+
+                uint32 l_MaxCharges = GetEffect(EFFECT_0)->CalculateAmount(l_Caster);
+                if (AuraPtr l_Aura = GetCaster()->GetAura(SPELL_SHA_LIGHTNING_SHIELD))
+                {
+                    if (l_Aura->GetCharges() < l_MaxCharges)
+                        l_Aura->SetCharges(l_Aura->GetCharges() + 1);
+
+                    if (l_Aura->GetCharges() == l_MaxCharges && !l_Caster->HasAura(SPELL_SHA_FULMINATION_INFO))
+                        l_Caster->CastSpell(l_Caster, SPELL_SHA_FULMINATION_INFO, true);
+                }
             }
 
             void Register()
@@ -2496,15 +2560,6 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
                 if (l_Player->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
                     l_Player->CastSpell(l_Player, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
-                if (l_Player->HasSpell(SPELL_SHA_IMPROVED_LIGHTNING_SHIELD) && l_Player->HasSpell(SPELL_SHA_FULMINATION))
-                {
-                    AuraPtr l_LightningShield = l_Player->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
-                    if (l_LightningShield != nullptr)
-                    {
-                        if (l_LightningShield->GetCharges() < 20)
-                            l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
-                    }
-                }
 
                 /// Lavaburst deals 50% more damage with Flame Shock on target
                 /// HotFixe February 27, 2015 : Lava burst no longer deals extra damage in PvP combat for Restoration Shaman.
@@ -3275,6 +3330,7 @@ class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
 
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_ancestral_guidance_heal();
     new spell_sha_glyph_of_flame_shock();
     new spell_sha_eye_of_the_storm();
     new spell_sha_spiritwalkers_grace();

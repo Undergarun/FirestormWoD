@@ -21619,7 +21619,7 @@ void Unit::RemoveSoulSwapDOT(Unit* target)
 
         _SoulSwapDOTList.push_back((*iter)->GetId());
         if (AuraPtr currentAura = target->GetAura((*iter)->GetId(), GetGUID()))
-            _SoulSwapDOTData.insert(new SoulSwapAurasData(currentAura->GetId(), currentAura->GetStackAmount(),
+            _SoulSwapDOTData.insert(new SoulSwapAurasData(currentAura->GetId(), currentAura->GetDuration(), currentAura->GetStackAmount(),
             currentAura->GetEffect(0)->GetAmount(), currentAura->GetEffect(0)->GetPeriodicTimer()));
     }
 }
@@ -21636,6 +21636,7 @@ void Unit::ApplySoulSwapDOT(Unit* caster, Unit* target)
         {
             if (AuraPtr appliedAura = target->GetAura((*itr)->m_id, GetGUID()))
             {
+                appliedAura->SetDuration((*itr)->m_duration);
                 appliedAura->SetStackAmount((*itr)->m_stacks);
                 if (appliedAura->GetEffect(EFFECT_0)) {
                     appliedAura->GetEffect(EFFECT_0)->SetAmount((*itr)->m_damage);

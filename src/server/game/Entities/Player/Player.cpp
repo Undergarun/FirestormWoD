@@ -31532,6 +31532,41 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
     SendDirectMessage(&l_Data);
 }
 
+float Player::GetCollisionHeight(bool p_Mounted)
+{
+    if (p_Mounted)
+    {
+        CreatureDisplayInfoEntry const* l_MountDisplayInfos = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(EUnitFields::UNIT_FIELD_MOUNT_DISPLAY_ID));
+        if (!l_MountDisplayInfos)
+            return GetCollisionHeight(false);
+
+        CreatureModelDataEntry const* l_CreatureModelData = sCreatureModelDataStore.LookupEntry(l_MountDisplayInfos->ModelId);
+        if (!l_CreatureModelData)
+            return GetCollisionHeight(false);
+
+        CreatureDisplayInfoEntry const* l_DisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
+        ASSERT (l_DisplayInfo);
+
+        CreatureModelDataEntry const* l_ModelData = sCreatureModelDataStore.LookupEntry(l_DisplayInfo->ModelId);
+        ASSERT (l_ModelData);
+
+        float l_ScaleMod = GetFloatValue(EObjectFields::OBJECT_FIELD_SCALE); ///< 99% sure about this
+
+        return l_ScaleMod * l_CreatureModelData->MountHeight + l_ModelData->CollisionHeight * 0.5f;
+    }
+    else
+    {
+        /// Dismounting case - use basic default model data
+        CreatureDisplayInfoEntry const* l_DisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
+        ASSERT (l_DisplayInfo);
+
+        CreatureModelDataEntry const* l_ModelData = sCreatureModelDataStore.LookupEntry(l_DisplayInfo->ModelId);
+        ASSERT (l_ModelData);
+
+        return l_ModelData->CollisionHeight;
+    }
+}
+
 void Player::SetMover(Unit* target)
 {
     m_mover->m_movedPlayer = NULL;

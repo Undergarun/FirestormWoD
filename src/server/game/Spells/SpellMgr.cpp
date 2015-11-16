@@ -3437,6 +3437,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
+            case 159115: ///< Erupt (Firecaller)
+                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+                break;
             case 178209: ///< Chest of Iron (T17)
             case 178210: ///< Legs of Iron (T17)
             case 178211: ///< Gauntlets of the Iron Conqueror (T17)
@@ -4021,10 +4024,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
             case 158639: ///< Orbs of Chaos (1 - Imperator Mar'gok)
-            case 178415: ///< Orbs of Chaos (2 - Imperator Mar'gok)
-                for (uint8 l_I = EFFECT_4; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
+                for (uint8 l_I = SpellEffIndex::EFFECT_8; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
                     spellInfo->Effects[l_I].Effect = 0;
-
                 break;
             case 154901: ///< Seal Conduit (third)
                 spellInfo->MaxAffectedTargets = 3;
@@ -5616,7 +5617,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 13812: ///< Explosive Trap
             case 3355: ///< Freezing Trap
+            case 57879: ///< Snake Trap
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 break;
             case 84745: ///< Shallow Insight
             case 84746: ///< Moderate Insight
@@ -5841,6 +5844,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 170883: ///< Item - Rogue WoD PvP Assassination 4P Bonus
             case 165886: ///< Item - Paladin WoD PvP Retribution 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
+            case 166009: ///< Item - Hunter WoD PvP 2P Bonus
             case 162452: ///< Shadowy Insight
             case 87160:  ///< Surge of Darkness
             case 73685:  ///< Unleash Life (restoration)

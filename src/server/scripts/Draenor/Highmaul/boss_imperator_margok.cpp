@@ -3493,28 +3493,12 @@ class areatrigger_highmaul_orb_of_chaos : public AreaTriggerEntityScript
                     if (Creature* l_Prison = p_Caster->FindNearestCreature(eHighmaulCreatures::KingPrison, 150.0f))
                         l_Angle = p_Caster->GetAngle(l_Prison);
 
-                    uint8 l_Count = l_Margok->AI()->GetData(eData::OrbOfChaosAngle);
-                    bool l_Reset = false;
-                    switch (l_Count)
-                    {
-                        case 0:
-                            l_Angle += -(2.0f * M_PI / 6.0f);
-                            break;
-                        case 1:
-                            l_Angle += -(M_PI / 6.0f);
-                            break;
-                        case 2:
-                            l_Angle += M_PI / 6.0f;
-                            break;
-                        case 3:
-                            l_Angle += 2.0f * M_PI / 6.0f;
-                            l_Reset = true;
-                            break;
-                        default:
-                            break;
-                    }
+                    uint8 l_Count       = l_Margok->AI()->GetData(eData::OrbOfChaosAngle);
+                    float l_AddedVal    = 2 * M_PI / 8.0f;
 
-                    if (l_Reset)
+                    l_Angle = l_Angle + (l_Count * l_AddedVal);
+
+                    if (l_Count >= 7)
                         l_Margok->AI()->SetData(eData::OrbOfChaosAngle, 0);
                     else
                         l_Margok->AI()->SetData(eData::OrbOfChaosAngle, ++l_Count);

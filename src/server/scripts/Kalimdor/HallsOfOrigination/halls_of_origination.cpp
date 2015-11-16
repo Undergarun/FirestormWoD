@@ -35,7 +35,7 @@ enum Spells
 
     // Earth Warden
     SPELL_IMPALE                = 77235,
-    SPELL_ROCKWAVE              = 77234,    
+    SPELL_ROCKWAVE              = 77234,
 };
 
 enum Events
@@ -47,7 +47,7 @@ enum Events
     EVENT_LAVA_ERUPTION     = 2,
     EVENT_RAGING_INFERNO    = 3,
 
-    // Water Warden         
+    // Water Warden
     EVENT_BUBBLE_BOUND      = 4,
 
     // Earth Warden
@@ -66,7 +66,7 @@ enum Events
     EVENT_TALK_8            = 15,
     EVENT_TALK_9            = 16,
     EVENT_TALK_10           = 17,
-    EVENT_TALK_11           = 18,    
+    EVENT_TALK_11           = 18,
 };
 
 enum Adds
@@ -89,7 +89,7 @@ class npc_air_warden : public CreatureScript
 {
     public:
         npc_air_warden() : CreatureScript("npc_air_warden") {}
- 
+
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_air_wardenAI(creature);
@@ -113,7 +113,7 @@ class npc_air_warden : public CreatureScript
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
 			    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
- 
+
             InstanceScript* pInstance;
             EventMap events;
 
@@ -133,14 +133,14 @@ class npc_air_warden : public CreatureScript
                 if (pInstance)
                     pInstance->SetData(DATA_WARDENS, 1);
             }
-        
+
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
-                                       
+
                 events.Update(diff);
- 
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
@@ -152,7 +152,7 @@ class npc_air_warden : public CreatureScript
                         if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
                             DoCast(pTarget, SPELL_WIND_SNEAR);
                         events.ScheduleEvent(EVENT_WIND_SNEAR, urand(7000, 10000));
-                        break;                                                 
+                        break;
                     }
                 }
 
@@ -165,7 +165,7 @@ class npc_flame_warden : public CreatureScript
 {
     public:
         npc_flame_warden() : CreatureScript("npc_flame_warden") {}
- 
+
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_flame_wardenAI(creature);
@@ -189,7 +189,7 @@ class npc_flame_warden : public CreatureScript
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
 			    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
- 
+
             InstanceScript* pInstance;
             EventMap events;
 
@@ -215,9 +215,9 @@ class npc_flame_warden : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-                                       
+
                 events.Update(diff);
- 
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
@@ -246,7 +246,7 @@ class npc_water_warden : public CreatureScript
 {
     public:
         npc_water_warden() : CreatureScript("npc_water_warden") {}
- 
+
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_water_wardenAI(creature);
@@ -270,7 +270,7 @@ class npc_water_warden : public CreatureScript
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
 			    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
- 
+
             InstanceScript* pInstance;
             EventMap events;
 
@@ -295,9 +295,9 @@ class npc_water_warden : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-                                       
+
                 events.Update(diff);
- 
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
@@ -322,7 +322,7 @@ class npc_earth_warden : public CreatureScript
 {
     public:
         npc_earth_warden() : CreatureScript("npc_earth_warden") {}
- 
+
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_earth_wardenAI(creature);
@@ -346,7 +346,7 @@ class npc_earth_warden : public CreatureScript
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
 			    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
- 
+
             InstanceScript* pInstance;
             EventMap events;
 
@@ -372,9 +372,9 @@ class npc_earth_warden : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-                                       
+
                 events.Update(diff);
- 
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
@@ -455,7 +455,7 @@ class npc_halls_of_origination_brann_bronzebeard : public CreatureScript
 {
     public:
         npc_halls_of_origination_brann_bronzebeard() : CreatureScript("npc_halls_of_origination_brann_bronzebeard") {}
- 
+
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_halls_of_origination_brann_bronzebeardAI(creature);
@@ -492,7 +492,7 @@ class npc_halls_of_origination_brann_bronzebeard : public CreatureScript
                 pInstance = pCreature->GetInstanceScript();
                 pCreature->setActive(true);
             }
- 
+
             InstanceScript* pInstance;
             EventMap events;
 
@@ -524,7 +524,7 @@ class npc_halls_of_origination_brann_bronzebeard : public CreatureScript
             }
 
             void UpdateAI(const uint32 diff)
-            {        
+            {
                 events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())

@@ -5235,10 +5235,11 @@ class spell_dru_glyph_of_savagery : public SpellScriptLoader
                     return;
 
                 if ((GetSpellInfo()->Id == eSpells::CatForm && l_Target->HasAura(eSpells::GlyphOfSavagery)) || (GetSpellInfo()->Id == eSpells::GlyphOfSavagery && l_Target->HasAura(eSpells::CatForm)))
+                {
                     l_Target->CastSpell(l_Target, eSpells::SavageRoarEffect, true);
 
-                if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpells::SavageRoarEffect, EFFECT_0))
-                    l_AuraEffect->ChangeAmount(l_SpellInfo->Effects[EFFECT_2].BasePoints);
+                    if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpells::SavageRoarEffect, EFFECT_0))
+                        l_AuraEffect->ChangeAmount(l_SpellInfo->Effects[EFFECT_2].BasePoints);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)

@@ -5,8 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#include "../Horde/HFrostwallMines.hpp"
-#include "ALunarfallExcavation.hpp"
+#include "HFrostwallMines.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -16,17 +15,17 @@
 #include "../../GarrisonScriptData.hpp"
 #include "../../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
-    std::vector<uint32> g_AllyDepositsEntry
+    std::vector<uint32> g_DepositsEntry
     {
-    232542, ///< GameObjects::GobBlackrockDeposit
-    232543, ///< GameObjects::GobRichBlackrockDeposit
-    232544, ///< GameObjects::GobTrueIronDeposit
-    232545  ///< GameObjects::GobRichTrueIronDeposit
-};
+        232542, ///< GameObjects::GobBlackrockDeposit
+        232543, ///< GameObjects::GobRichBlackrockDeposit
+        232544, ///< GameObjects::GobTrueIronDeposit
+        232545  ///< GameObjects::GobRichTrueIronDeposit
+    };
 
-    std::vector<GatheringPlotInfos> g_AllyMineDeposits
+    std::vector<GatheringPlotInfos> g_MineDeposits
     {
         /// Level 1
         { 1, -21.2715f, -13.8611f, -59.2858f, 2.9218f }, //
@@ -47,8 +46,8 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_TimothyLeens::npc_TimothyLeens()
-        : CreatureScript("npc_TimothyLeens_Garr")
+    npc_Gorsol::npc_Gorsol()
+        : CreatureScript("npc_Gorsol_Garr")
     {
 
     }
@@ -56,7 +55,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    std::vector<SequencePosition> npc_TimothyLeens::CalculateDepositsPositions()
+    std::vector<SequencePosition> npc_Gorsol::CalculateDepositsPositions()
     {
         std::vector<SequencePosition> l_DepositsPositions;
 
@@ -79,7 +78,7 @@ namespace MS { namespace Garrison
         return l_DepositsPositions;
     }
 
-    void npc_TimothyLeens::SummonDeposits(std::vector<SequencePosition> p_SpawnPos, GarrisonNPCAI* l_AI)
+    void npc_Gorsol::SummonDeposits(std::vector<SequencePosition> p_SpawnPos, GarrisonNPCAI* l_AI)
     {
         for (SequencePosition l_Position : p_SpawnPos)
         {
@@ -93,22 +92,22 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
     /// @p_Creature   : Target GameObject instance
-    bool npc_TimothyLeens::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    bool npc_Gorsol::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Alliance_ThingsAreNotGorenOurWay);
+        Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Horde_ThingsAreNotGorenOurWay);
 
         if (l_Quest == nullptr)
             return true;
 
-        if (p_Player->IsQuestRewarded(Quests::Alliance_ThingsAreNotGorenOurWay) ||
-            (p_Player->GetQuestStatus(Quests::Alliance_ThingsAreNotGorenOurWay) == QUEST_STATUS_INCOMPLETE))
+        if (p_Player->IsQuestRewarded(Quests::Horde_ThingsAreNotGorenOurWay) ||
+            (p_Player->GetQuestStatus(Quests::Horde_ThingsAreNotGorenOurWay) == QUEST_STATUS_INCOMPLETE))
         {
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Can you refine this draenic stone into ore for me?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
-        else if (p_Player->GetQuestStatus(Quests::Alliance_ThingsAreNotGorenOurWay) == QUEST_STATUS_NONE)
+        else if (p_Player->GetQuestStatus(Quests::Horde_ThingsAreNotGorenOurWay) == QUEST_STATUS_NONE)
             p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-        else if (p_Player->GetQuestStatus(Quests::Alliance_ThingsAreNotGorenOurWay) == QUEST_STATUS_COMPLETE)
+        else if (p_Player->GetQuestStatus(Quests::Horde_ThingsAreNotGorenOurWay) == QUEST_STATUS_COMPLETE)
             p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
 
         return true;
@@ -119,7 +118,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_TimothyLeens::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_Gorsol::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         p_Player->PlayerTalkClass->ClearMenus();
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
@@ -137,9 +136,9 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_TimothyLeens::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_Gorsol::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
     {
-        if (p_Quest->GetQuestId() == Quests::Alliance_ThingsAreNotGorenOurWay)
+        if (p_Quest->GetQuestId() == Quests::Horde_ThingsAreNotGorenOurWay)
         {
             CreatureAI* l_AI = p_Creature->AI();
 
@@ -148,11 +147,11 @@ namespace MS { namespace Garrison
 
             GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<GarrisonNPCAI*>(l_AI);
 
-            std::vector<uint32> l_CreatureEntries = { NPCs::NpcLunarfallGoren, NPCs::NpcLunarfallGorenHatchling, NPCs::NpcStonetooth };
+            std::vector<uint32> l_CreatureEntries = { NPCs::NpcFrostwallGoren, NPCs::NpcFrostwallGorenHatchling, NPCs::NpcStonetooth };
             p_Creature->DespawnCreaturesInArea(l_CreatureEntries, 100.0f);
 
             std::list<Creature*> l_MinersList;
-            p_Creature->GetCreatureListWithEntryInGrid(l_MinersList, NPCs::NpcAllianceMiner, 150.0f);
+            p_Creature->GetCreatureListWithEntryInGrid(l_MinersList, NPCs::NpcHordeMiner, 150.0f);
 
             if (l_GarrisonAI)
             {
@@ -160,7 +159,7 @@ namespace MS { namespace Garrison
                 {
                     for (SequencePosition l_Pos : g_MinersPositions)
                     {
-                        if (Creature* l_Creature = l_GarrisonAI->SummonRelativeCreature(NPCs::NpcAllianceMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                        if (Creature* l_Creature = l_GarrisonAI->SummonRelativeCreature(NPCs::NpcHordeMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
                             l_Creature->GetMotionMaster()->MoveRandom(7.0f);
 
                         if (Manager* l_Garrison = p_Player->GetGarrison())
@@ -170,6 +169,7 @@ namespace MS { namespace Garrison
 
 //                 std::vector<SequencePosition> l_DepositsPositions = CalculateDepositsPositions();
 //                 SummonDeposits(l_DepositsPositions, l_GarrisonAI);
+
                 l_GarrisonAI->DoAction(0);
             }
         }
@@ -182,22 +182,22 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI* npc_TimothyLeens::GetAI(Creature* p_Creature) const
+    CreatureAI * npc_Gorsol::GetAI(Creature* p_Creature) const
     {
-        return new npc_TimothyLeensAI(p_Creature);
+        return new npc_GorsolAI(p_Creature);
     }
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_TimothyLeensAI::npc_TimothyLeensAI(Creature* p_Creature)
+    npc_GorsolAI::npc_GorsolAI(Creature* p_Creature)
         : GatheringBuildingMaster(p_Creature)
     {
         SetAIObstacleManagerEnabled(true);
     }
 
-    void npc_TimothyLeensAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_GorsolAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
@@ -209,17 +209,17 @@ namespace MS { namespace Garrison
         if (!l_Owner)
             return;
 
-        if (!l_Owner->IsQuestRewarded(Quests::Alliance_ThingsAreNotGorenOurWay))
+        if (!l_Owner->IsQuestRewarded(Quests::Horde_ThingsAreNotGorenOurWay))
         {
             for (SequencePosition l_Pos : g_GorenHatchlingPositions)
             {
-                if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcLunarfallGoren, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcFrostwallGorenHatchling, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
                     l_Creature->GetMotionMaster()->MoveRandom(7.0f);
             }
 
             for (SequencePosition l_Pos : g_GorenPositions)
             {
-                if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcLunarfallGorenHatchling, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcFrostwallGoren, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
                     l_Creature->GetMotionMaster()->MoveRandom(7.0f);
             }
         }
@@ -228,31 +228,31 @@ namespace MS { namespace Garrison
 //             std::vector<SequencePosition> l_DepositsPositions = CalculateDepositsPositions();
 //             SummonDeposits(l_DepositsPositions, this);
 
-            std::vector<uint32> l_CreatureEntries = { NPCs::NpcLunarfallGorenHatchling, NPCs::NpcLunarfallGoren, NPCs::NpcStonetooth };
+            std::vector<uint32> l_CreatureEntries = { NPCs::NpcFrostwallGorenHatchling, NPCs::NpcFrostwallGoren, NPCs::NpcStonetooth };
             me->DespawnCreaturesInArea(l_CreatureEntries, 100.0f);
 
             std::list<Creature*> l_MinersList;
-            me->GetCreatureListWithEntryInGrid(l_MinersList, NPCs::NpcAllianceMiner, 150.0f);
+            me->GetCreatureListWithEntryInGrid(l_MinersList, NPCs::NpcHordeMiner, 150.0f);
 
             if (l_MinersList.empty())
             {
                 for (SequencePosition l_Pos : g_MinersPositions)
                 {
-                    if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcAllianceMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                    if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcHordeMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
                         l_Creature->GetMotionMaster()->MoveRandom(3.0f);
                 }
             }
         }
     }
 
-    void npc_TimothyLeensAI::DoAction(int32 const p_Param)
+    void npc_GorsolAI::DoAction(int32 const p_Param)
     {
         InitGatheringPlots(0);
     }
 
     /// Select game object entry for a fresh gathering spawn
     /// @p_MiscData : Misc data
-    uint32 npc_TimothyLeensAI::SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData)
+    uint32 npc_GorsolAI::SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData)
     {
         uint32 l_Entry = 0;
 

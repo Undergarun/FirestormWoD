@@ -699,7 +699,9 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
             {
                 std::string l_Msg = what;
                 std::smatch l_WoWLinkInfo;
-                std::regex  l_WoWLinkFilter("\\|cff([^\\|]+)\\|H([^:]+):([0-9]+)[^\\|]*\\|h([^\\|]+)\\|h\\|r");
+                std::regex  l_WoWLinkFilter("\\|cff([a-z0-9]+)\\|H([a-z]+):([a-zA-Z0-9-]*)(?::([^:]+))?.*\\|h(\\[.*\\]+)\\|h\\|r");
+
+                /// http://wowprogramming.com/docs/api_types section: hyperlink
 
                 while (std::regex_search(l_Msg, l_WoWLinkInfo, l_WoWLinkFilter))
                 {
@@ -708,8 +710,16 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
                     std::string l_Id        = l_WoWLinkInfo[3];
                     std::string l_Name      = l_WoWLinkInfo[4];
 
-                    if (l_Type == "talent")
+                    if (l_Type == "talent" || l_Type == "enchant")
                         l_Type = "spell";
+
+                    if (l_Type == "trade")
+                    {
+                        l_Type = "spell";
+                        l_Id   = l_WoWLinkInfo[4];
+                    }
+
+                    std::string l_Name = l_WoWLinkInfo[5];
 
                     std::ostringstream l_NewMsg;
                     l_NewMsg << l_WoWLinkInfo.prefix()
