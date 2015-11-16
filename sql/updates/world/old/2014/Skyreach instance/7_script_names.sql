@@ -66,5 +66,3 @@ update creature_template set modelid1=61365 where entry=76119;
 UPDATE creature_template SET flags_extra=128 WHERE entry=76119;
 
 update instance_template set script='instance_Skyreach' where map=1209;
-
-SELECT * FROM creature_template WHERE entry=76267;
