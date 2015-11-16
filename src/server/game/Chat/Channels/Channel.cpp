@@ -699,7 +699,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
             {
                 std::string l_Msg = what;
                 std::smatch l_WoWLinkInfo;
-                std::regex  l_WoWLinkFilter("\\|cff([a-z0-9]+)\\|H([a-z]+):([a-zA-Z0-9-]*)(?::([^:]+))?.*\\|h(\\[.*\\]+)\\|h\\|r");
+                std::regex  l_WoWLinkFilter("\\|cff([a-z0-9]+)\\|H([a-z]+):([a-zA-Z0-9-]*)(?::([^:\\|]+))?[^\\|]*\\|h(\\[[^\\|]+\\]+)\\|h\\|r");
 
                 /// http://wowprogramming.com/docs/api_types section: hyperlink
                 while (std::regex_search(l_Msg, l_WoWLinkInfo, l_WoWLinkFilter))
@@ -707,17 +707,24 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
                     //std::string l_ColorCode = l_WoWLinkInfo[1];
                     std::string l_Type      = l_WoWLinkInfo[2];
                     std::string l_Id        = l_WoWLinkInfo[3];
+                    std::string l_Name      = l_WoWLinkInfo[5];
 
-                    if (l_Type == "talent" || l_Type == "enchant")
+                    if (l_Type == "enchant")
                         l_Type = "spell";
+
+                    if (l_Type == "talent")
+                    {
+                        /// *Doing a hand gesture* you saw nothing.
+                        /// Use http://www.wowhead.com/search?q=TALENT_NAME#talents because the id it's not the talent spell id
+                        l_Type = "search?q";
+                        l_Id = l_Name + "#talents";
+                    }
 
                     if (l_Type == "trade")
                     {
                         l_Type = "spell";
                         l_Id   = l_WoWLinkInfo[4];
                     }
-
-                    std::string l_Name = l_WoWLinkInfo[5];
 
                     std::ostringstream l_NewMsg;
                     l_NewMsg << l_WoWLinkInfo.prefix()
