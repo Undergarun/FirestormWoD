@@ -23189,6 +23189,7 @@ void Player::SaveInventoryAndGoldToDB(SQLTransaction& trans)
 {
     _SaveInventory(trans);
     _SaveCurrency(trans);
+    _SaveVoidStorage(trans);
     SaveGoldToDB(trans);
 }
 
