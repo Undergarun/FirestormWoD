@@ -1409,10 +1409,11 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     /// Reset datas before each attempt
     m_EncounterDatas = EncounterDatas();
 
+    m_EncounterDatas.Expansion = instance->GetEntry()->ExpansionID;
+
     /// Register encounter datas for further logs
-    if (instance->IsRaid())
+    if (instance->IsRaid() && m_EncounterDatas.Expansion == Expansion::EXPANSION_WARLORDS_OF_DRAENOR)
     {
-        m_EncounterDatas.Expansion = instance->GetEntry()->ExpansionID;
         m_EncounterDatas.RealmID   = g_RealmID;
 
         Map::PlayerList const& l_PlayerList = instance->GetPlayers();
