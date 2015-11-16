@@ -389,6 +389,29 @@ inline std::string UrlEncode(const std::string & p_Value)
 
     return l_Espaced.str();
 }
+
+inline std::wstring UrlEncode(std::wstring const& p_Value)
+{
+    std::wostringstream l_Espaced;
+
+    l_Espaced.fill(L'0');
+    l_Espaced << std::hex;
+
+    for (std::wstring::const_iterator l_I = p_Value.begin(); l_I != p_Value.end(); ++l_I)
+    {
+        std::wstring::value_type l_Char = (*l_I);
+
+        if (iswalnum(l_Char) || l_Char == L'-' || l_Char == L'_' || l_Char == L'.' || l_Char == L'~')
+        {
+            l_Espaced << l_Char;
+            continue;
+        }
+
+        l_Espaced << L'%' << std::setw(2) << int((wchar_t)l_Char);
+    }
+
+    return l_Espaced.str();
+}
 #endif
 
 //handler for operations on large flags

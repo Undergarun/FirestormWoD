@@ -3161,7 +3161,7 @@ class debug_commandscript: public CommandScript
             l_Datas.RealmID         = g_RealmID;
             l_Datas.GuildID         = 9;
             l_Datas.GuildFaction    = TeamId::TEAM_HORDE;
-            l_Datas.GuildName       = "Testvoleur";
+            l_Datas.GuildName       = p_Handler->GetSession()->GetPlayer()->GetGuildName();
             l_Datas.MapID           = 1205;                                         ///< Blackrock Foundry
             l_Datas.DifficultyID    = 16;                                           ///< Mythic mode
             l_Datas.StartTime       = time(nullptr);

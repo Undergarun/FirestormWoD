@@ -1427,7 +1427,7 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
 
                     m_EncounterDatas.GuildID        = l_Player->GetGuildId();
                     m_EncounterDatas.GuildFaction   = l_Player->getFaction();
-                    m_EncounterDatas.GuildName      = l_Player->GetGuild()->GetName();
+                    m_EncounterDatas.GuildName      = l_Player->GetGuildName();
                     break;
                 }
             }
@@ -1461,19 +1461,19 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
         if (!l_PlayerList.isEmpty())
         {
             /// Insert count
-            m_EncounterDatas.RosterDatas += std::to_string(l_PlayerList.getSize()) + " ";
+            m_EncounterDatas.RosterDatas += std::to_string(l_PlayerList.getSize()) + ' ';
 
             for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
             {
                 if (Player* l_Player = l_Iter->getSource())
                 {
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetGUIDLow()) + " ";
-                    m_EncounterDatas.RosterDatas += std::string(l_Player->GetName()) + " ";
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->getLevel()) + " ";
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->getClass()) + " ";
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetSpecializationId()) + " ";
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetRoleForGroup()) + " ";
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetAverageItemLevelEquipped()) + " ";
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetGUIDLow()) + ' ';
+                    m_EncounterDatas.RosterDatas += l_Player->GetName() + ' ';
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->getLevel()) + ' ';
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->getClass()) + ' ';
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetSpecializationId()) + ' ';
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetRoleForGroup()) + ' ';
+                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetAverageItemLevelEquipped()) + ' ';
                 }
             }
         }
@@ -1617,24 +1617,24 @@ class EncounterScript_Global : public EncounterScript
 
         void OnEncounterEnd(EncounterDatas const* p_EncounterDatas) override
         {
-            ByteBuffer l_Datas;
+            EasyJSon::Node<std::string> l_Node;
 
-            l_Datas << p_EncounterDatas->Expansion;
-            l_Datas << p_EncounterDatas->RealmID;
-            l_Datas << p_EncounterDatas->GuildID;
-            l_Datas << p_EncounterDatas->GuildFaction;
-            l_Datas << p_EncounterDatas->GuildName;
-            l_Datas << p_EncounterDatas->MapID;
-            l_Datas << p_EncounterDatas->EncounterID;
-            l_Datas << p_EncounterDatas->DifficultyID;
-            l_Datas << p_EncounterDatas->StartTime;
-            l_Datas << p_EncounterDatas->CombatDuration;
-            l_Datas << uint8(p_EncounterDatas->Success);
-            l_Datas << p_EncounterDatas->RosterDatas;
-            l_Datas << p_EncounterDatas->EncounterHealth;
-            l_Datas << p_EncounterDatas->DeadCount;
+            l_Node["Expansion"]        = p_EncounterDatas->Expansion;
+            l_Node["RealmID"]          = p_EncounterDatas->RealmID;
+            l_Node["GuildID"]          = p_EncounterDatas->GuildID;
+            l_Node["GuildFaction"]     = p_EncounterDatas->GuildFaction;
+            l_Node["GuildName"]        = p_EncounterDatas->GuildName;
+            l_Node["MapID"]            = p_EncounterDatas->MapID;
+            l_Node["EncounterID"]      = p_EncounterDatas->EncounterID;
+            l_Node["DifficultyID"]     = p_EncounterDatas->DifficultyID;
+            l_Node["StartTime"]        = p_EncounterDatas->StartTime;
+            l_Node["CombatDuration"]   = p_EncounterDatas->CombatDuration;
+            l_Node["Success"]          = p_EncounterDatas->Success;
+            l_Node["RosterDatas"]      = p_EncounterDatas->RosterDatas;
+            l_Node["EncounterHealth"]  = p_EncounterDatas->EncounterHealth;
+            l_Node["DeadCount"]        = p_EncounterDatas->DeadCount;
 
-            sReporter->EnqueueReport(sReporter->BuildPvEReport(l_Datas));
+            sReporter->EnqueueReport(l_Node.Serialize<std::ostringstream>(true));
         }
 };
 

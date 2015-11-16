@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "Reporter.hpp"
+#include <EasyJSon.hpp>
 //#include "GameObject.h"
 //#include "Map.h"
 
@@ -160,7 +161,6 @@ struct EncounterDatas
         RealmID         = 0;
         GuildID         = 0;
         GuildFaction    = 0;
-        GuildName       = "";
         MapID           = 0;
         EncounterID     = 0;
         DifficultyID    = 0;
@@ -168,24 +168,22 @@ struct EncounterDatas
         CombatDuration  = 0;
         Success         = 0;
         DeadCount       = 0;
-        RosterDatas     = "";
-        EncounterHealth = "";
     }
 
-    uint32      Expansion;
-    uint32      RealmID;
-    uint32      GuildID;
-    uint32      GuildFaction;
-    std::string GuildName;
-    uint32      MapID;
-    uint32      EncounterID;
-    uint32      DifficultyID;
-    uint32      StartTime;
-    uint32      CombatDuration;
-    bool        Success;
-    uint32      DeadCount;
-    std::string RosterDatas;
-    std::string EncounterHealth;
+    uint32          Expansion;
+    uint32          RealmID;
+    uint32          GuildID;
+    uint32          GuildFaction;
+    std::string     GuildName;
+    uint32          MapID;
+    uint32          EncounterID;
+    uint32          DifficultyID;
+    uint32          StartTime;
+    uint32          CombatDuration;
+    bool            Success;
+    uint32          DeadCount;
+    std::string     RosterDatas;
+    std::string     EncounterHealth;
 };
 
 enum eChallengeMedals

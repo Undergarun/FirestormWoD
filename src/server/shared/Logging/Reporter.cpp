@@ -27,9 +27,15 @@ void Reporter::ScheduleNextReport()
         curl_easy_setopt(l_Curl, CURLoption::CURLOPT_URL, (m_Address + m_Index).c_str());
 
         /// If there is a redirection, the request will follow it.
-        curl_easy_setopt(l_Curl, CURLoption::CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(l_Curl, CURLoption::CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(l_Curl, CURLoption::CURLOPT_POSTFIELDS, l_ReportDatas.c_str());
         curl_easy_setopt(l_Curl, CURLoption::CURLOPT_POSTFIELDSIZE, l_ReportDatas.size());
+        curl_easy_setopt(l_Curl, CURLoption::CURLOPT_POST, 1);
+
+        struct curl_slist* l_Headers = nullptr;
+        l_Headers = curl_slist_append(l_Headers, "Content-Type: application/x-www-form-urlencoded");
+
+        curl_easy_setopt(l_Curl, CURLoption::CURLOPT_HTTPHEADER, l_Headers);
 
         /// Perform the request, res will get the return code.
         l_Res = curl_easy_perform(l_Curl);
@@ -43,44 +49,11 @@ void Reporter::ScheduleNextReport()
 
         /// Always cleanup.
         curl_easy_cleanup(l_Curl);
+        curl_slist_free_all(l_Headers);
     }
 }
 
 void Reporter::EnqueueReport(std::string p_Datas)
 {
     m_ReportQueue.add(p_Datas);
-}
-
-std::string Reporter::BuildPvEReport(ByteBuffer p_Datas)
-{
-    EasyJSon::Node<std::string> l_Node;
-
-    l_Node["Expansion"]         = p_Datas.read<uint32>();
-    l_Node["RealmID"]           = p_Datas.read<uint32>();
-    l_Node["GuildID"]           = p_Datas.read<uint32>();
-    l_Node["GuildFaction"]      = p_Datas.read<uint32>();
-
-    std::string l_Str;
-    p_Datas >> l_Str;
-
-    l_Node["GuildName"]         = l_Str;
-    l_Node["MapID"]             = p_Datas.read<uint32>();
-    l_Node["EncounterID"]       = p_Datas.read<uint32>();
-    l_Node["DifficultyID"]      = p_Datas.read<uint32>();
-    l_Node["StartTime"]         = p_Datas.read<uint32>();
-    l_Node["CombatDuration"]    = p_Datas.read<uint32>();
-    l_Node["Success"]           = p_Datas.read<uint8>();
-
-    l_Str = "";
-    p_Datas >> l_Str;
-
-    l_Node["RosterDatas"]       = l_Str;
-
-    l_Str = "";
-    p_Datas >> l_Str;
-
-    l_Node["EncounterHealth"]   = l_Str;
-    l_Node["DeadCount"]         = p_Datas.read<uint32>();
-
-    return l_Node.Serialize<std::ostringstream>(true);
 }
