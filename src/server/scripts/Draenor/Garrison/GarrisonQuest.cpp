@@ -30,24 +30,70 @@ namespace MS { namespace Garrison
     /// @p_Item   : New looted item instance
     void GarrisonQuestPlayerScript::OnItemLooted(Player* p_Player, Item* p_Item)
     {
+        uint32 l_NoSpaceForCount = 0;
+        ItemPosCountVec l_Destination;
+
         if (p_Player->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS) && p_Item && p_Item->GetEntry() == Items::ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1)
-            p_Player->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
-        else if (p_Item->GetVisibleEntry() == Items::ItemGarrisonResources)
         {
-            uint64 l_PlayerGuid = p_Player->GetGUID();
-            uint64 l_ItemGuid = p_Item->GetGUID();
-            p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_GARRISON_RESSOURCES, 30);
+            p_Player->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
+            return;
+        }
 
-            p_Player->AddCriticalOperation([l_PlayerGuid, l_ItemGuid]() -> void
+        switch (p_Item->GetVisibleEntry())
+        {
+            case Items::ItemGarrisonResources:
             {
-                if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
-                {
-                    uint32 l_DestroyCount = 1;
+                uint64 l_PlayerGuid = p_Player->GetGUID();
+                uint64 l_ItemGuid = p_Item->GetGUID();
+                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_GARRISON_RESSOURCES, 30);
 
-                    if (Item* l_Item = l_Player->GetItemByGuid(l_ItemGuid))
-                        l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
+                p_Player->AddCriticalOperation([l_PlayerGuid, l_ItemGuid]() -> void
+                {
+                    if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                    {
+                        uint32 l_DestroyCount = 1;
+
+                        if (Item* l_Item = l_Player->GetItemByGuid(l_ItemGuid))
+                            l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
+                    }
+                });
+                break;
+            }
+            case Items::ItemMine:
+            {
+                uint64 l_PlayerGuid  = p_Player->GetGUID();
+                uint64 l_ItemGuid    = p_Item->GetGUID();
+                uint32 l_RewardID    = roll_chance_i(50) ? Items::ItemTrueIronOre : Items::ItemBlackrockOre;
+                uint32 l_RewardCount = 5;
+
+                p_Player->AddCriticalOperation([l_PlayerGuid, l_ItemGuid]() -> void
+                {
+                    if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                    {
+                        uint32 l_DestroyCount = 1;
+
+                        if (Item* l_Item = l_Player->GetItemByGuid(l_ItemGuid))
+                            l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
+                    }
+                });
+
+                InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardID, l_RewardCount, &l_NoSpaceForCount);
+
+                if (l_Message == EQUIP_ERR_OK)
+                {
+                    if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
+                        p_Player->SendNewItem(l_Item, l_RewardCount, true, false, false);
                 }
-            });
+                else
+                    p_Player->SendEquipError(l_Message, nullptr, nullptr, l_RewardID);
+
+                if (roll_chance_i(30))
+                    p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, roll_chance_i(25) ? urand(5, 10) : urand(1, 5));
+
+                break;
+            }
+            default:
+                break;
         }
     }
 

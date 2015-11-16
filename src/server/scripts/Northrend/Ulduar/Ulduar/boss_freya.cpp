@@ -251,7 +251,7 @@ class StartMovementEvent : public BasicEvent
 {
     public:
         StartMovementEvent(Creature* summoner, Creature* owner)
-            : _summoner(summoner), _owner(owner)
+            : _summoner(summoner), _owner(owner), BasicEvent()
         {
         }
 

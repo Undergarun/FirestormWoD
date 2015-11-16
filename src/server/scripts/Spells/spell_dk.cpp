@@ -3071,8 +3071,6 @@ public:
 
         void OnTick(constAuraEffectPtr p_AurEff)
         {
-            PreventDefaultAction();
-
             Unit* l_Caster = GetCaster();
             if (l_Caster == nullptr)
                 return;

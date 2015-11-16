@@ -13,7 +13,7 @@
 class EventTuulaniIntroduction : public BasicEvent
 {
 public:
-    explicit EventTuulaniIntroduction(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    explicit EventTuulaniIntroduction(Unit* unit, int value) : m_Obj(unit), m_Modifier(value), BasicEvent()
     {
     }
 
@@ -192,7 +192,7 @@ private:
 class ClappingEvent : public BasicEvent
 {
 public:
-    explicit ClappingEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    explicit ClappingEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value), BasicEvent()
     {
     }
 
@@ -234,7 +234,7 @@ private:
 class ArcaneBombEvent : public BasicEvent
 {
 public:
-    explicit ArcaneBombEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    explicit ArcaneBombEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value), BasicEvent()
     {
     }
 

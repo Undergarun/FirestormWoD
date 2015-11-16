@@ -1961,6 +1961,47 @@ class spell_rog_stealth: public SpellScriptLoader
     }
 };
 
+/// Stealth - 158185
+class spell_rog_stealth_effect : public SpellScriptLoader
+{
+    public:
+        spell_rog_stealth_effect() : SpellScriptLoader("spell_rog_stealth_effect") { }
+
+        enum eSpells
+        {
+            Stealth = 1784,
+            StealthTriggered1 = 158188,
+        };
+
+        class spell_rog_stealth_effect_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_stealth_effect_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::StealthTriggered1))
+                    l_Caster->RemoveAura(eSpells::StealthTriggered1);
+                if (l_Caster->HasAura(eSpells::Stealth))
+                    l_Caster->RemoveAura(eSpells::Stealth);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_effect_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_stealth_effect_AuraScript();
+        }
+};
+
 /// Vanish - 1856
 /// Called by Vanish triggered spell - 131361
 class spell_rog_vanish : public SpellScriptLoader
@@ -2481,7 +2522,7 @@ class PlayerScript_ruthlessness : public PlayerScript
             /// Get the power earn (if > 0 ) or consum (if < 0)
             int32 l_DiffVal = p_NewValue - p_OldValue;
 
-            if (l_DiffVal)
+            if (l_DiffVal < 0)
             {
                 if (p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
                 {
@@ -3143,6 +3184,7 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_stealth_effect();
     new spell_rog_gyph_of_detection();
     new spell_rog_dagger_bonus();
     new spell_rog_sinister_calling();

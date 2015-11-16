@@ -3929,26 +3929,59 @@ class spell_gen_selfie_camera : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_selfie_camera_AuraScript);
 
+            uint64 m_PhotoBinberGUID = 0;
+
+            enum eData
+            {
+                PhotoBomberNPC  = 91977,
+                VisualKit       = 54168
+            };
+
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
-                        return;
+                Unit* l_Caster = GetCaster();
 
-                    l_Caster->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                l_Caster->ToPlayer()->SendPlaySpellVisualKit(eData::VisualKit, 2, 0);
+
+                std::list<Creature*> l_ListPhotoBomber;
+
+                l_Caster->GetCreatureListWithEntryInGrid(l_ListPhotoBomber, eData::PhotoBomberNPC, 100.0f);
+
+                /// Remove other players Master PhotoBomber
+                for (std::list<Creature*>::iterator l_Itr = l_ListPhotoBomber.begin(); l_Itr != l_ListPhotoBomber.end(); l_Itr++)
+                {
+                    Unit* l_Owner = (*l_Itr)->GetOwner();
+
+                    if (l_Owner != nullptr && l_Owner->GetGUID() == l_Caster->GetGUID() && (*l_Itr)->isSummon())
+                    {
+                        m_PhotoBinberGUID = (*l_Itr)->GetGUID();
+                        break;
+                    }
                 }
             }
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
-                        return;
+                Creature* l_PhotoBomber = ObjectAccessor::FindCreature(m_PhotoBinberGUID);
 
-                    l_Caster->ToPlayer()->CancelSpellVisualKit(54168);
-                }
+                if (l_PhotoBomber != nullptr)
+                    l_PhotoBomber->DespawnOrUnsummon();
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                l_Caster->ToPlayer()->CancelSpellVisualKit(eData::VisualKit);
             }
 
             void Register()

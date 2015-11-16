@@ -79,7 +79,7 @@ enum eKaatharTriggers
 class EventNyamiEscape : public BasicEvent
 {
 public:
-    explicit EventNyamiEscape(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value)
+    explicit EventNyamiEscape(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
     {
     }
 
@@ -188,7 +188,7 @@ private:
 class EventPostKaathar : public BasicEvent
 {
 public:
-    explicit EventPostKaathar(Unit* unit, int value) : m_Obj(unit), m_Modifier(value)
+    explicit EventPostKaathar(Unit* unit, int value) : m_Obj(unit), m_Modifier(value), BasicEvent()
     {
     }
 

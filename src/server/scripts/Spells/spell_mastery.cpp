@@ -202,6 +202,7 @@ class spell_mastery_sniper_training : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Sniper Training: Recently Moved - 168809
 class spell_mastery_recently_moved : public SpellScriptLoader
 {
@@ -219,21 +220,14 @@ class spell_mastery_recently_moved : public SpellScriptLoader
 
             void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
             {
-                if (!GetCaster())
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
                     return;
 
-                Unit* l_Caster = GetCaster();
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
-                {
-                    if (Player* l_Player = l_Caster->ToPlayer())
-                    {
-                        float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.5f;
-                        int32 l_BasePoints = l_Mastery + 1; ///< Sniper Training - blizzard 6.1 hotfix
-
-                        l_Player->CastCustomSpell(l_Player, Masteries::SniperTrainingAura, &l_BasePoints, &l_BasePoints, &l_BasePoints, &l_BasePoints, NULL, NULL, true);
-                    }
-                }
+                    l_Caster->CastSpell(l_Caster, Masteries::SniperTrainingAura, true);
             }
 
             void Register()

@@ -9018,6 +9018,20 @@ uint32 Player::TeamForRace(uint8 race)
 
 void Player::setFactionForRace(uint8 race)
 {
+    // temporary hack for rated bg factions
+    if (HasAura(81748))
+    {
+        RemoveAura(81748);
+        AddAura(81748, this);
+        return;
+    }
+    else if (HasAura(81744))
+    {
+        RemoveAura(81744);
+        AddAura(81744, this);
+        return;
+    }
+
     m_team = TeamForRace(race);
 
     ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
@@ -18418,6 +18432,21 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             if (!l_ItemTemplate)
                 return false;
 
+            /// Hackfix, but fix lot of quests since the selection work client-side
+            /// See quest 24970 with a hunter
+            {
+                /// - We have find the reward, check if player can store it
+                ItemPosCountVec l_Dest;
+                InventoryResult l_Result = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count);
+                if (l_Result != EQUIP_ERR_OK)
+                {
+                    SendEquipError(l_Result, NULL, NULL, l_DynamicReward->ItemId);
+                    return false;
+                }
+
+                return true;
+            }
+
             uint32 l_Specialization = GetSpecializationId(GetActiveSpec());
             if (!l_Specialization)
                 l_Specialization = GetDefaultSpecId();
@@ -18686,7 +18715,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             if (!l_ItemTemplate)
                 break;
 
-            switch (l_DynamicReward->Type)
+            /*switch (l_DynamicReward->Type)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                 {
@@ -18703,7 +18732,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                     break;
                 default:
                     continue;
-            }
+            }*/
 
             ItemPosCountVec l_Dest;
             if (CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count) == EQUIP_ERR_OK)
@@ -31554,6 +31583,41 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
     l_Data << uint32(l_MountDisplayInfo->Displayid);
     l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
     SendDirectMessage(&l_Data);
+}
+
+float Player::GetCollisionHeight(bool p_Mounted)
+{
+    if (p_Mounted)
+    {
+        CreatureDisplayInfoEntry const* l_MountDisplayInfos = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(EUnitFields::UNIT_FIELD_MOUNT_DISPLAY_ID));
+        if (!l_MountDisplayInfos)
+            return GetCollisionHeight(false);
+
+        CreatureModelDataEntry const* l_CreatureModelData = sCreatureModelDataStore.LookupEntry(l_MountDisplayInfos->ModelId);
+        if (!l_CreatureModelData)
+            return GetCollisionHeight(false);
+
+        CreatureDisplayInfoEntry const* l_DisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
+        ASSERT (l_DisplayInfo);
+
+        CreatureModelDataEntry const* l_ModelData = sCreatureModelDataStore.LookupEntry(l_DisplayInfo->ModelId);
+        ASSERT (l_ModelData);
+
+        float l_ScaleMod = GetFloatValue(EObjectFields::OBJECT_FIELD_SCALE); ///< 99% sure about this
+
+        return l_ScaleMod * l_CreatureModelData->MountHeight + l_ModelData->CollisionHeight * 0.5f;
+    }
+    else
+    {
+        /// Dismounting case - use basic default model data
+        CreatureDisplayInfoEntry const* l_DisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
+        ASSERT (l_DisplayInfo);
+
+        CreatureModelDataEntry const* l_ModelData = sCreatureModelDataStore.LookupEntry(l_DisplayInfo->ModelId);
+        ASSERT (l_ModelData);
+
+        return l_ModelData->CollisionHeight;
+    }
 }
 
 void Player::SetMover(Unit* target)

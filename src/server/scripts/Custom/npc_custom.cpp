@@ -228,7 +228,7 @@ class HighmaulTestEnable : public BasicEvent
     };
 
     public:
-        HighmaulTestEnable(uint64 p_Guid) : m_Guid(p_Guid) { }
+        HighmaulTestEnable(uint64 p_Guid) : m_Guid(p_Guid), BasicEvent() { }
         virtual ~HighmaulTestEnable() {}
 
         virtual bool Execute(uint64 p_EndTime, uint32 p_Time)
@@ -262,7 +262,7 @@ class HighmaulTestEnable : public BasicEvent
 /// ('300008','1','1637','5170','1','4294967295','0','0','1606.946167','-4384.196289','20.702406','3.469189','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
 /// ('300008','1116','6755','7367','1','4294967295','0','0','3477.581543','7437.905762','31.542486','4.521338','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
 /// ('300008','1228','6996','7395','1','4294967295','0','0','3486.217041','7592.922852','10.485300','1.551457','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL);
-/// REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc2`) VALUE ('14112','Hey, great adventurer, come to me in your faction capital, to access fastly our last testable content ! Newest raids, bosses, get directly teleported to the destination you are looking for.','Hé, cher aventurier, venez me voir dans la capitale de votre faction, pour accéder rapidement à notre dernier contenu testable ! Derniers raids, boss, soyez directement téléporté à la destination de votre choix.');
+/// REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc2`) VALUE ('20000','Hey, great adventurer, come to me in your faction capital, to access fastly our last testable content! Newest raids, bosses, get directly teleported to the destination you are looking for.','Hé, cher aventurier, venez me voir dans la capitale de votre faction, pour accéder rapidement à notre dernier contenu testable ! Derniers raids, boss, soyez directement téléporté à la destination de votre choix.');
 class npc_highmaul_tests_manager : public CreatureScript
 {
     public:
@@ -397,7 +397,7 @@ class npc_highmaul_tests_manager : public CreatureScript
                     if (m_YellTimer <= p_Diff)
                     {
                         /// "Hey $N, come to me in your faction capital, to access fastly our last testable content ! Newest raids, boss, get directly teleported to the destination you are looking for."
-                        me->YellToZone(14112, LANG_UNIVERSAL, 0);
+                        me->YellToZone(TrinityStrings::WarnRaidTests, LANG_UNIVERSAL, 0);
                         m_YellTimer = 300 * IN_MILLISECONDS;
                     }
                     else

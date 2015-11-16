@@ -109,7 +109,7 @@ static void ShootBeam(Unit* p_Caster)
 class basic_event_fix_movement_chase : public BasicEvent
 {
     public:
-        explicit basic_event_fix_movement_chase(Unit* p_Unit) : m_Obj(p_Unit) { }
+        explicit basic_event_fix_movement_chase(Unit* p_Unit) : m_Obj(p_Unit), BasicEvent() { }
 
         bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {

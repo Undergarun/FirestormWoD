@@ -401,28 +401,28 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
     Object*     l_Object            = m_Player;
     bool        l_LegacyRewardFound = false;
 
-    if (!l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
+    /// - No package id, we use legacy item choice
+    if (l_Quest->GetQuestPackageID() == 0)
     {
-        /// - No package id, we use legacy item choice
-        if (l_Quest->GetQuestPackageID() == 0)
+        for (int l_I = 0; l_I < QUEST_REWARD_CHOICES_COUNT; l_I++)
         {
-            for (int l_I = 0; l_I < QUEST_REWARD_CHOICES_COUNT; l_I++)
+            if (l_Quest->RewardChoiceItemId[l_I] == l_RewardEntry)
             {
-                if (l_Quest->RewardChoiceItemId[l_I] == l_RewardEntry)
-                {
-                    l_Slot = l_I;
-                    l_LegacyRewardFound = true;
-                    break;
-                }
-            }
-
-            if (!l_LegacyRewardFound)
-            {
-                sLog->outError(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (probably packet hacking)", m_Player->GetName(), m_Player->GetGUIDLow(), l_RewardEntry);
-                return;
+                l_Slot = l_I;
+                l_LegacyRewardFound = true;
+                break;
             }
         }
 
+        if (!l_LegacyRewardFound)
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (probably packet hacking)", m_Player->GetName(), m_Player->GetGUIDLow(), l_RewardEntry);
+            return;
+        }
+    }
+
+    if (!l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
+    {
         l_Object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
         if (!l_Object || !l_Object->hasInvolvedQuest(l_QuestId))
             return;
