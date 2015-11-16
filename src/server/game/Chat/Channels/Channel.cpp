@@ -719,8 +719,6 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
                         l_Id   = l_WoWLinkInfo[4];
                     }
 
-                    std::string l_Name = l_WoWLinkInfo[5];
-
                     std::ostringstream l_NewMsg;
                     l_NewMsg << l_WoWLinkInfo.prefix()
                              << "<http://www.wowhead.com/" << l_Type << "=" << l_Id << "|" << l_Name << ">"
