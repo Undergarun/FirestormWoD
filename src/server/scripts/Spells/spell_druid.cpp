@@ -5240,6 +5240,7 @@ class spell_dru_glyph_of_savagery : public SpellScriptLoader
 
                     if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpells::SavageRoarEffect, EFFECT_0))
                         l_AuraEffect->ChangeAmount(l_SpellInfo->Effects[EFFECT_2].BasePoints);
+                }
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
