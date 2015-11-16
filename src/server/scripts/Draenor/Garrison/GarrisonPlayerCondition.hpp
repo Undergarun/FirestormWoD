@@ -64,6 +64,7 @@ namespace MS { namespace Garrison
     };
 
     using PlayerCondition_HasHerbGarden                     = GarrisonHasBuildingTypePlayerCondition<26967, BuildingType::Farm>;
+    using PlayerCondition_HasMine                           = GarrisonHasBuildingTypePlayerCondition<43000, BuildingType::Mine>; ///< Custom condition, to avoid conflict with herbs system
 
     using PlayerCondition_AlchemyLab_Level2                 = GarrisonHasBuildingPlayerCondition<27405, Buildings::AlchemyLab__AlchemyLab_Level2>;
     using PlayerCondition_AlchemyLab_Level3                 = GarrisonHasBuildingPlayerCondition<27406, Buildings::AlchemyLab__AlchemyLab_Level3>;
