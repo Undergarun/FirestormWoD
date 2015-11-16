@@ -5793,9 +5793,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Speed = 0;
                 break;
             case 157695:///< Demonbolt
-                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NORMAL;
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_NOT_NEED_SHAPESHIFT;
-                spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
                 break;
             case 169686:///< Unyielding Strikes
                 spellInfo->ProcCharges = 0;
