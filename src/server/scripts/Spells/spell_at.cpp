@@ -225,11 +225,10 @@ class spell_at_druid_ursol_vortex : public AreaTriggerEntityScript
 
                 if (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end())
                 {
-                    if (!l_Target->HasAura(eSpells::VortexJump))
+                    if (!l_Target->HasAura(eSpells::VortexJump, l_Caster->GetGUID()))
                         l_Target->CastSpell(p_AreaTrigger, eSpells::VortexJump, true);
                     else
                     {
-                        l_Target->RemoveAura(eSpells::VortexJump);
                         l_It = m_TargetList.erase(l_It);
                         continue;
                     }
@@ -425,14 +424,15 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
                 float l_Radius = 5.0f;
                 Unit* l_Target = nullptr;
 
-                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
                 p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
                 if (l_Target != nullptr)
                 {
+                    l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellIceTrapEffect, true);
 
                     if (l_Caster->HasAura(eSpells::SpellEntrapment)) ///< Entrapment
@@ -458,7 +458,9 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
 
         enum eSpells
         {
-            SummonSnakes = 57879
+            SummonSnakes        = 57879,
+            SpellEntrapment     = 19387,
+            SpellEntrapmentRoot = 64803
         };
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -471,15 +473,20 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
                 float l_Radius = 5.0f;
                 Unit* l_Target = nullptr;
 
-                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
                 p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
                 if (l_Target != nullptr)
                 {
+                    l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
+
+                    if (l_Caster->HasAura(eSpells::SpellEntrapment)) ///< Entrapment
+                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellEntrapmentRoot, true);
+
                     p_AreaTrigger->Remove(0);
                 }
             }
@@ -566,8 +573,8 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
                 float l_Radius = 2.0f;
                 Unit* l_Target = nullptr;
 
-                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
                 p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
@@ -615,11 +622,11 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
 
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                float l_Radius = 5.0f;
+                float l_Radius = 2.0f;
                 Unit* l_Target = nullptr;
 
-                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
                 p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
