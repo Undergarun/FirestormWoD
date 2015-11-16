@@ -1615,7 +1615,7 @@ class EncounterScript_Global : public EncounterScript
 
         void OnEncounterEnd(EncounterDatas const* p_EncounterDatas) override
         {
-            JSonBlob l_Node;
+            EasyJSon::Node<std::string> l_Node;
 
             l_Node["Expansion"]        = p_EncounterDatas->Expansion;
             l_Node["RealmID"]          = p_EncounterDatas->RealmID;

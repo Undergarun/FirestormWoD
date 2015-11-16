@@ -3154,6 +3154,8 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugPvELogsCommand(ChatHandler* p_Handler, char const* p_Args)
         {
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
             EncounterDatas l_Datas;
 
             l_Datas.EncounterID     = 1704;                                         ///< BlackHand
@@ -3161,13 +3163,24 @@ class debug_commandscript: public CommandScript
             l_Datas.RealmID         = g_RealmID;
             l_Datas.GuildID         = 9;
             l_Datas.GuildFaction    = TeamId::TEAM_HORDE;
-            l_Datas.GuildName       = p_Handler->GetSession()->GetPlayer()->GetGuildName();
+            l_Datas.GuildName = l_Player->GetGuildName();
             l_Datas.MapID           = 1205;                                         ///< Blackrock Foundry
             l_Datas.DifficultyID    = 16;                                           ///< Mythic mode
             l_Datas.StartTime       = time(nullptr);
             l_Datas.CombatDuration  = 7 * TimeConstants::MINUTE;
             l_Datas.Success         = true;
             l_Datas.DeadCount       = 2;
+
+            RosterData l_Data;
+            l_Data.GuidLow      = l_Player->GetGUIDLow();
+            l_Data.Name         = l_Player->GetName();
+            l_Data.Level        = l_Player->getLevel();
+            l_Data.Class        = l_Player->getClass();
+            l_Data.SpecID       = l_Player->GetSpecializationId();
+            l_Data.Role         = l_Player->GetRoleForGroup();
+            l_Data.ItemLevel    = l_Player->GetAverageItemLevelEquipped();
+
+            l_Datas.RosterDatas.push_back(l_Data);
 
             sScriptMgr->OnEncounterEnd(&l_Datas);
             return true;

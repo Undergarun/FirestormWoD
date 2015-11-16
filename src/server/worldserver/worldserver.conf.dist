@@ -3230,6 +3230,6 @@ Vip.Rate.Exchange.Triumph.In.Frost = 1
 # Datas Reporting
 
 Reporting.Address   = "http://127.0.0.1:9200/"
-Reporting.Index     = "logspve/external/"
+Reporting.Index     = "firestorm/guild_ranking/?pretty"
 
 ###################################################################################################
