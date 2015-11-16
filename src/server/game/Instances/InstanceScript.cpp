@@ -1458,23 +1458,21 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     if (m_EncounterDatas.GuildID)
     {
         Map::PlayerList const& l_PlayerList = instance->GetPlayers();
-        if (!l_PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
         {
-            /// Insert count
-            m_EncounterDatas.RosterDatas += std::to_string(l_PlayerList.getSize()) + ' ';
-
-            for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+            if (Player* l_Player = l_Iter->getSource())
             {
-                if (Player* l_Player = l_Iter->getSource())
-                {
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetGUIDLow()) + ' ';
-                    m_EncounterDatas.RosterDatas += l_Player->GetName() + ' ';
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->getLevel()) + ' ';
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->getClass()) + ' ';
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetSpecializationId()) + ' ';
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetRoleForGroup()) + ' ';
-                    m_EncounterDatas.RosterDatas += std::to_string(l_Player->GetAverageItemLevelEquipped()) + ' ';
-                }
+                RosterData l_Data;
+
+                l_Data.GuidLow      = l_Player->GetGUIDLow();
+                l_Data.Name         = l_Player->GetName();
+                l_Data.Level        = l_Player->getLevel();
+                l_Data.Class        = l_Player->getClass();
+                l_Data.SpecID       = l_Player->GetSpecializationId();
+                l_Data.Role         = l_Player->GetRoleForGroup();
+                l_Data.ItemLevel    = l_Player->GetAverageItemLevelEquipped();
+
+                m_EncounterDatas.RosterDatas.push_back(l_Data);
             }
         }
 
@@ -1617,7 +1615,7 @@ class EncounterScript_Global : public EncounterScript
 
         void OnEncounterEnd(EncounterDatas const* p_EncounterDatas) override
         {
-            EasyJSon::Node<std::string> l_Node;
+            JSonBlob l_Node;
 
             l_Node["Expansion"]        = p_EncounterDatas->Expansion;
             l_Node["RealmID"]          = p_EncounterDatas->RealmID;
@@ -1630,7 +1628,20 @@ class EncounterScript_Global : public EncounterScript
             l_Node["StartTime"]        = p_EncounterDatas->StartTime;
             l_Node["CombatDuration"]   = p_EncounterDatas->CombatDuration;
             l_Node["Success"]          = p_EncounterDatas->Success;
-            l_Node["RosterDatas"]      = p_EncounterDatas->RosterDatas;
+
+            for (std::size_t l_I = 0; l_I < p_EncounterDatas->RosterDatas.size(); ++l_I)
+            {
+                RosterData const& l_Data = p_EncounterDatas->RosterDatas[l_I];
+
+                l_Node["RosterDatas"][l_I]["Name"]      = l_Data.Name;
+                l_Node["RosterDatas"][l_I]["GuidLow"]   = l_Data.GuidLow;
+                l_Node["RosterDatas"][l_I]["Level"]     = l_Data.Level;
+                l_Node["RosterDatas"][l_I]["Class"]     = l_Data.Class;
+                l_Node["RosterDatas"][l_I]["SpecID"]    = l_Data.SpecID;
+                l_Node["RosterDatas"][l_I]["Role"]      = l_Data.Role;
+                l_Node["RosterDatas"][l_I]["ItemLevel"] = l_Data.ItemLevel;
+            }
+
             l_Node["EncounterHealth"]  = p_EncounterDatas->EncounterHealth;
             l_Node["DeadCount"]        = p_EncounterDatas->DeadCount;
 

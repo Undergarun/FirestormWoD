@@ -153,6 +153,29 @@ struct BossScenarios
     uint32 m_ScenarioID;
 };
 
+typedef EasyJSon::Node<std::string> JSonBlob;
+
+struct RosterData
+{
+    RosterData()
+    {
+        GuidLow     = 0;
+        Level       = 0;
+        Class       = 0;
+        SpecID      = 0;
+        Role        = 0;
+        ItemLevel   = 0;
+    }
+
+    uint32      GuidLow;
+    std::string Name;
+    uint8       Level;
+    uint8       Class;
+    uint32      SpecID;
+    uint32      Role;
+    uint32      ItemLevel;
+};
+
 struct EncounterDatas
 {
     EncounterDatas()
@@ -170,20 +193,20 @@ struct EncounterDatas
         DeadCount       = 0;
     }
 
-    uint32          Expansion;
-    uint32          RealmID;
-    uint32          GuildID;
-    uint32          GuildFaction;
-    std::string     GuildName;
-    uint32          MapID;
-    uint32          EncounterID;
-    uint32          DifficultyID;
-    uint32          StartTime;
-    uint32          CombatDuration;
-    bool            Success;
-    uint32          DeadCount;
-    std::string     RosterDatas;
-    std::string     EncounterHealth;
+    uint32                  Expansion;
+    uint32                  RealmID;
+    uint32                  GuildID;
+    uint32                  GuildFaction;
+    std::string             GuildName;
+    uint32                  MapID;
+    uint32                  EncounterID;
+    uint32                  DifficultyID;
+    uint32                  StartTime;
+    uint32                  CombatDuration;
+    bool                    Success;
+    uint32                  DeadCount;
+    std::vector<RosterData> RosterDatas;
+    std::string             EncounterHealth;
 };
 
 enum eChallengeMedals
