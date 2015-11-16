@@ -145,10 +145,16 @@ public:
         uint32 count = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-        CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-        for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+        CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
+        uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
+
+        for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
         {
-            uint32 id = itr->second.Entry;
+            CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
+            if (l_CreatureTemplate == nullptr)
+                continue;
+
+            uint32 id = l_CreatureTemplate->Entry;
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
             if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(id))
             {
@@ -177,7 +183,7 @@ public:
                 }
             }
 
-            std::string name = itr->second.Name;
+            std::string name = l_CreatureTemplate->Name;
             if (name.empty())
                 continue;
 

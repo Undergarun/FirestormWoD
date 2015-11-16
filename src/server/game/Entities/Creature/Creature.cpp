@@ -2711,7 +2711,7 @@ uint8 Creature::getLevelForTarget(WorldObject const* target) const
 
 std::string Creature::GetAIName() const
 {
-    return sObjectMgr->GetCreatureTemplate(GetEntry())->AIName;
+    return m_creatureInfo->AIName;
 }
 
 std::string Creature::GetScriptName() const
@@ -2721,7 +2721,7 @@ std::string Creature::GetScriptName() const
 
 uint32 Creature::GetScriptId() const
 {
-    return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
+    return m_creatureInfo->ScriptID;
 }
 
 VendorItemData const* Creature::GetVendorItems() const
