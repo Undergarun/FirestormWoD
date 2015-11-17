@@ -89,6 +89,20 @@ namespace MS { namespace Garrison
 
     };
 
+    /// Garrison deposit generic script
+    class go_garrison_deposit : public GameObjectScript
+    {
+        public:
+            /// Constructor
+            go_garrison_deposit();
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_GameObject : Target GameObject instance
+            bool OnGossipHello(Player* p_Player, GameObject* p_GameObject);
+
+    };
+
     //////////////////////////////////////////////////////////////////////////
     /// 234186 - Iron Trap                                                 ///
     //////////////////////////////////////////////////////////////////////////

@@ -47,12 +47,9 @@ INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 -- Forge
 INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-61','1','-232530','42.2627','-62.4907','30.0491','3.18522');
 
--- boss 
-INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-61','1','81396','1.26916','3.68763','-33.3223','4.37961');
-
 -- Miners
 DELETE FROM creature_template_addon WHERE entry = 77361;
 insert into `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`, `animkit`) values('77361','0','0','0','2','233','','0');
 
 DELETE FROM gameobject WHERE id IN (232542, 232543, 232544, 232545) AND map in (1331, 1330); -- Garrison lvl 2 (A/H)
-UPDATE gameobject_template SET data17 = 43000 WHERE entry IN (232542, 232543, 232544, 232545);
+UPDATE gameobject_template SET data17 = 43000, scriptname = "go_garrison_deposit" WHERE entry IN (232542, 232543, 232544, 232545);
