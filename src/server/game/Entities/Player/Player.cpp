@@ -2253,6 +2253,35 @@ void Player::Update(uint32 p_time)
 
                 m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
             }
+
+            /// Shipyard map has broken area settings
+            if (IsInShipyard())
+            {
+                uint64 l_Guid = GetGUID();
+                Map * l_Map = sMapMgr->FindBaseNonInstanceMap(MS::Garrison::Globals::BaseMap);
+
+                if (!l_Map)
+                    l_Map = sMapMgr->CreateBaseMap(MS::Garrison::Globals::BaseMap);
+
+                if (l_Map)
+                {
+                    uint32 l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area;
+
+                    l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
+                    const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
+
+                    if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()])
+                    {
+                        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                        {
+                            Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
+
+                            if (l_Player)
+                                l_Player->_SetOutOfShipyard();
+                        });
+                    }
+                }
+            }
         }
         else
             m_zoneUpdateTimer -= p_time;
@@ -10020,11 +10049,13 @@ void Player::UpdateArea(uint32 newArea)
 
     if (l_OldArea != newArea)
     {
+        uint64 l_Guid = GetGUID();
+
         sOutdoorPvPMgr->HandlePlayerLeaveArea(this, l_OldArea);
         sOutdoorPvPMgr->HandlePlayerEnterArea(this, newArea);
 
         /// Garrison phasing specific code
-        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == MS::Garrison::Globals::BaseMap || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID))
+        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == MS::Garrison::Globals::BaseMap || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID) || GetMapId() == m_Garrison->GetShipyardMapId())
         {
             Map * l_Map = sMapMgr->FindBaseNonInstanceMap(MS::Garrison::Globals::BaseMap);
 
@@ -10037,10 +10068,28 @@ void Player::UpdateArea(uint32 newArea)
                 uint32 l_DraenorBaseMap_Area;
 
                 l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
-
                 const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
 
-                uint64 l_Guid = GetGUID();
+                if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()] && IsInShipyard())
+                {
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    {
+                        Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
+
+                        if (l_Player)
+                            l_Player->_SetOutOfShipyard();
+                    });
+                }
+                else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == MS::Garrison::Globals::BaseMap)
+                {
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    {
+                        Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
+
+                        if (l_Player)
+                            l_Player->_SetInShipyard();
+                    });
+                }
 
                 if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
                 {
@@ -10088,6 +10137,7 @@ void Player::_GarrisonSetIn()
     phaseMgr.Update();
     phaseMgr.ForceMapShiftUpdate();
 }
+
 void Player::_GarrisonSetOut()
 {
     if (!m_Garrison)
@@ -10095,6 +10145,33 @@ void Player::_GarrisonSetOut()
 
     m_Garrison->OnPlayerLeave();
     m_Garrison->_SetGarrisonScript(nullptr);
+
+    SwitchToPhasedMap(MS::Garrison::Globals::BaseMap);
+
+    phaseMgr.Update();
+    phaseMgr.ForceMapShiftUpdate();
+}
+
+void Player::_SetInShipyard()
+{
+    if (!m_Garrison || !m_Garrison->HasShipyard())
+        return;
+
+    Difficulty l_DungeonDiff = DifficultyNormal;
+    std::swap(l_DungeonDiff, m_dungeonDifficulty);
+
+    SwitchToPhasedMap(m_Garrison->GetShipyardMapId());
+
+    std::swap(l_DungeonDiff, m_dungeonDifficulty);
+
+    phaseMgr.Update();
+    phaseMgr.ForceMapShiftUpdate();
+}
+
+void Player::_SetOutOfShipyard()
+{
+    if (!m_Garrison || !m_Garrison->HasShipyard())
+        return;
 
     SwitchToPhasedMap(MS::Garrison::Globals::BaseMap);
 
@@ -32897,10 +32974,7 @@ bool Player::IsInGarrison() const
 
 bool Player::IsInShipyard() const
 {
-    if (!m_Garrison)
-        return false;
-
-    return m_Garrison->HasShipyard() ? m_Garrison->GetShipyardMapId() : false;
+    return GetShipyardMapID() == GetMapId();
 }
 
 int32 Player::GetGarrisonMapID() const
@@ -32909,6 +32983,14 @@ int32 Player::GetGarrisonMapID() const
         return -1;
 
     return m_Garrison->GetGarrisonSiteLevelEntry()->MapID;
+}
+
+int32 Player::GetShipyardMapID() const
+{
+    if (!m_Garrison)
+        return -1;
+
+    return m_Garrison->GetShipyardMapId();
 }
 
 void Player::DeleteGarrison()

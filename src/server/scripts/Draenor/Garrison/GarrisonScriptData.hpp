@@ -23,9 +23,11 @@ namespace MS { namespace Garrison
         MAP_GARRISON_HORDE_LEVEL_1      = 1152,
         MAP_GARRISON_HORDE_LEVEL_2      = 1330,
         MAP_GARRISON_HORDE_LEVEL_3      = 1153,
+        MAP_GARRISON_HORDE_SHIPYARD     = 1474,
         MAP_GARRISON_ALLIANCE_LEVEL_1   = 1158,
         MAP_GARRISON_ALLIANCE_LEVEL_2   = 1331,
-        MAP_GARRISON_ALLIANCE_LEVEL_3   = 1159
+        MAP_GARRISON_ALLIANCE_LEVEL_3   = 1159,
+        MAP_GARRISON_ALLIANCE_SHIPYARD  = 1473,
     };
 
     /// Instance data common IDs

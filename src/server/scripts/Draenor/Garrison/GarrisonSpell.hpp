@@ -48,6 +48,36 @@ namespace MS { namespace Garrison
 
     };
 
+    /// Garrison Hearthstone item spell script
+    class spell_garrison_shipyard : public SpellScriptLoader
+    {
+    public:
+        /// Constructor
+        spell_garrison_shipyard();
+
+        /// Spell script
+        class spell_garrison_shipyard_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_garrison_shipyard_SpellScript);
+
+            /// On spell check cast
+            SpellCastResult HandleCheckCast();
+
+            /// On spell EFFECT_0 dummy proc
+            /// @p_EffectIndex : Effect index
+            void HandleDummy(SpellEffIndex p_EffectIndex);
+
+            /// SpellScript/AuraScript interface base
+            /// these functions are safe to override, see notes below for usage instructions
+            ///
+            /// Function in which handler functions are registered, must be implemented in script
+            void Register() override;
+        };
+
+        /// Should return a fully valid SpellScript pointer.
+        SpellScript * GetSpellScript() const override;
+
+    };
 }   ///< namespace Garrison
 }   ///< namespace MS
 

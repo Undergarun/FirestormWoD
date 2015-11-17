@@ -370,6 +370,17 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapStore,                    dbcPath, "Map.dbc");                                                          // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore, dbcPath, "MapDifficulty.dbc");                                                         // 17399
 
+    ///< Make shipyards instances
+    if (MapEntry* l_MapEntry = const_cast<MapEntry*>(sMapStore.LookupEntry(1473)))
+        l_MapEntry->instanceType = MAP_INSTANCE;
+
+    sMapDifficultyMap[1473][1] = MapDifficulty(1, 0, 40, 0, 0);
+
+    if (MapEntry* l_MapEntry = const_cast<MapEntry*>(sMapStore.LookupEntry(1474)))
+        l_MapEntry->instanceType = MAP_INSTANCE;
+
+    sMapDifficultyMap[1474][1] = MapDifficulty(1, 0, 40, 0, 0);
+
     /// Fill data
     {
         sMapDifficultyMap[0][0] = MapDifficulty(DifficultyNone, 0, 0, 0, false);                                                                              // Map 0 is missingg from MapDifficulty.dbc use this till its ported to sql

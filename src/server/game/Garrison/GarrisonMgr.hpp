@@ -289,6 +289,9 @@ namespace MS { namespace Garrison
             /// Get shipyard terain swap
             void GetShipyardTerainSwaps(std::set<uint32> & p_TerrainSwaps) const;
 
+            /// Create shipyard by spell
+            bool CreateShipyardBySpell();
+
         public:
             /// Replace garrison script
             void _SetGarrisonScript(Interfaces::GarrisonSite * p_Script)

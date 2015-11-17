@@ -838,6 +838,8 @@ void AddSC_Garrison_A3();
 void AddSC_Garrison_H1();
 void AddSC_Garrison_H2();
 void AddSC_Garrison_H3();
+void AddSC_Garrison_AS();
+void AddSC_Garrison_HS();
 void AddSC_Garrison();
 void AddSC_item_strongboxes();
 
@@ -1801,6 +1803,8 @@ void AddDraenorScripts()
     AddSC_Garrison_H1();
     AddSC_Garrison_H2();
     AddSC_Garrison_H3();
+    AddSC_Garrison_AS();
+    AddSC_Garrison_HS();
     AddSC_Garrison();
 
     /// Instance Skyreach

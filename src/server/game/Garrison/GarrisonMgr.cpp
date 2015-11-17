@@ -2604,6 +2604,12 @@ namespace MS { namespace Garrison
         else if (p_Triggered)
             l_Building.TimeBuiltEnd = l_Building.TimeBuiltStart;
 
+        if (l_BuildingEntry->Type == Globals::ShipyardBuildingType)
+        {
+            l_Building.Active = true;
+            l_Building.BuiltNotified = true;
+        }
+
         PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
 
         uint32 l_Index = 0;
@@ -4202,7 +4208,7 @@ namespace MS { namespace Garrison
     {
         auto l_Iter = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerID](GarrisonFollower P_RefFollower) -> bool
         {
-            return P_RefFollower.DatabaseID == p_FollowerID;
+            return P_RefFollower.FollowerID == p_FollowerID;
         });
 
         if (l_Iter == m_Followers.end())
@@ -4247,7 +4253,7 @@ namespace MS { namespace Garrison
     {
         auto l_Iter = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerID](GarrisonFollower P_RefFollower) -> bool
         {
-            return P_RefFollower.DatabaseID == p_FollowerID;
+            return P_RefFollower.FollowerID == p_FollowerID;
         });
 
         if (l_Iter == m_Followers.end())
@@ -4264,6 +4270,7 @@ namespace MS { namespace Garrison
         }
 
         l_Iter->Abilities[l_Index] = p_SpellInfo->Effects[p_EffIndex].MiscValue;
+        l_Iter->SendFollowerUpdate(m_Owner);
     }
 
     uint32 Manager::GetFollowerSoftCap(uint32 p_FollowerType) const
@@ -4339,22 +4346,53 @@ namespace MS { namespace Garrison
         return !HasShipyard() ? -1 : GetGarrisonFactionIndex() == FactionIndex::Alliance ? ShipyardMapId::Alliance : ShipyardMapId::Horde;
     }
 
-    void Manager::GetShipyardTerainSwaps(std::set<uint32> & p_TerrainSwaps) const
+    void Manager::GetShipyardTerainSwaps(std::set<uint32>& p_TerrainSwaps) const
     {
-       /* switch (GetGarrisonFactionIndex())
+        switch (GetGarrisonFactionIndex())
         {
             case FactionIndex::Alliance:
-            {*/
+            {
                 p_TerrainSwaps.emplace(ShipyardTerainSwaps::Part1);
                 p_TerrainSwaps.emplace(ShipyardTerainSwaps::Part2);
                 p_TerrainSwaps.emplace(ShipyardTerainSwaps::Part3);
-              //  break;
-           /* }
+                break;
+            }
             case FactionIndex::Horde:
             default:
-                break;*/
-        //}
+                break;
+        }
     }
 
+    bool Manager::CreateShipyardBySpell()
+    {
+        if (HasShipyard())
+            return false;
+
+        if (!GetGarrisonSiteLevelEntry() || GetGarrisonSiteLevelEntry()->Level != 3)
+            return false;
+
+        WorldPacket l_Data(SMSG_GARRISON_PLACE_BUILDING_RESULT, 26);
+        l_Data << uint32(PurchaseBuildingResults::Ok);
+
+        MS::Garrison::GarrisonBuilding l_Building = PurchaseBuilding(Globals::ShipyardBuildingID, Globals::ShipyardPlotID);
+
+        l_Data << uint32(l_Building.PlotInstanceID);
+        l_Data << uint32(l_Building.BuildingID);
+        l_Data << uint32(l_Building.TimeBuiltStart);
+        l_Data << uint32(l_Building.SpecID);
+        l_Data << uint32(l_Building.TimeBuiltEnd);
+        l_Data.WriteBit(l_Building.Active);
+        l_Data.FlushBits();
+
+        l_Data.WriteBit(true);                      ///< Unk bit
+        l_Data.FlushBits();
+
+        SendPacketToOwner(&l_Data);
+
+        if (m_Owner->GetAreaId() == gGarrisonShipyardAreaID[GetGarrisonFactionIndex()])
+            m_Owner->_SetInShipyard();
+
+        return true;
+    }
 }   ///< namespace Garrison
 }   ///< namespace MS

@@ -34,7 +34,9 @@ namespace MS { namespace Garrison
             CacheTokenGenerateTime          = (10 * MINUTE),
             MissionDistributionInterval     = (25 * MINUTE),
             DefaultFollowerItemLevel        = 600,
-            ShipyardBuildingType            = 9
+            ShipyardBuildingType            = 9,
+            ShipyardBuildingID              = 205,
+            ShipyardPlotID                  = 98
         };
     }
 
@@ -395,6 +397,12 @@ namespace MS { namespace Garrison
         7078    ///< Alliance
     };
 
+    static const uint32 gGarrisonShipyardAreaID[FactionIndex::Max] =
+    {
+        7765,   ///< Horde
+        7760    ///< Alliance
+    };
+
     static const uint32 gGarrisonEmptyPlotGameObject[PlotTypes::Max * FactionIndex::Max] =
     {
         /// Horde
@@ -492,7 +500,7 @@ namespace MS { namespace Garrison
         {       6,          63,         1847.615f,    134.7257f,    78.10705f,   2.7052600f  },
         {       6,          67,         2031.594f,    174.4410f,    84.36597f,   2.8361600f  },
         {       6,          81,         1914.083f,    354.1875f,    88.96585f,  -1.8763060f  },
-        //{       6,          98,         0.f,          0.f,          0.f,         0.f,        },
+        {       6,          98,         0.f,          0.f,          0.f,         0.f,        },
         /// Horde Level 1
         {     258,          18,         5645.124f,   4508.9600f,   119.27010f,   2.0423500f  },
         {     258,          23,         5575.461f,   4459.3380f,   130.36810f,   0.9599311f  },
@@ -516,7 +524,7 @@ namespace MS { namespace Garrison
         {     259,          63,         5415.374f,   4586.4390f,   136.58310f,   2.3561950f  },
         {     259,          67,         5476.589f,   4622.7070f,   134.44980f,  -1.3962630f  },
         {     259,          81,         5626.042f,   4660.6960f,   142.45800f,  -1.9024090f  },
-        //{     259,          98,         0.f,         0.f,          0.f,         0.f,         }
+        {     259,          98,         0.f,         0.f,          0.f,         0.f,         }
     };
 
     /// Cache game object position for each faction / level

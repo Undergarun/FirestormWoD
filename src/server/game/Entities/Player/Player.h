@@ -1633,6 +1633,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsInGarrison() const;
         bool IsInShipyard() const;
         int32 GetGarrisonMapID() const;
+        int32 GetShipyardMapID() const;
         void DeleteGarrison();
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
@@ -3582,6 +3583,9 @@ class Player : public Unit, public GridObject<Player>
 
         void _GarrisonSetIn();
         void _GarrisonSetOut();
+
+        void _SetInShipyard();
+        void _SetOutOfShipyard();
 
         bool AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel = 0);
         bool HasHeirloom(uint32 p_ItemID) const;
