@@ -207,7 +207,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void npc_GorsolAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Option)
+    void npc_TimothyLeensAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Option)
     {
         if (p_Quest->GetQuestId() == Quests::Alliance_ThingsAreNotGorenOurWay)
         {
