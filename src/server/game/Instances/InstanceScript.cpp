@@ -1454,6 +1454,7 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     instance->SendToPlayers(&l_Data);
 
     m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;
+    m_EncounterDatas.EndTime        = time(nullptr);
     m_EncounterDatas.Success        = p_Success;
 
     if (m_EncounterDatas.GuildID)
@@ -1628,6 +1629,7 @@ class EncounterScript_Global : public EncounterScript
             l_Node["DifficultyID"]     = p_EncounterDatas->DifficultyID;
             l_Node["StartTime"]        = p_EncounterDatas->StartTime;
             l_Node["CombatDuration"]   = p_EncounterDatas->CombatDuration;
+            l_Node["EndTime"]          = p_EncounterDatas->EndTime;
             l_Node["Success"]          = p_EncounterDatas->Success;
 
             for (std::size_t l_I = 0; l_I < p_EncounterDatas->RosterDatas.size(); ++l_I)
