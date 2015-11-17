@@ -108,6 +108,7 @@ void AddSC_npc_taxi();
 void AddSC_npc_companions();
 void AddSC_achievement_scripts();
 void AddSC_PlayerConditions();
+void AddSC_EncounterScripts();
 
 // player
 void AddSC_chat_log();
@@ -1050,6 +1051,7 @@ void AddWorldScripts()
     AddSC_achievement_scripts();
     AddSC_chat_log();
     AddSC_PlayerConditions();
+    AddSC_EncounterScripts();
 }
 
 void AddEasternKingdomsScripts()

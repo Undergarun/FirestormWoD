@@ -146,7 +146,7 @@ m_PlayerDamageReq(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemov
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_OriginalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL)
+m_creatureInfo(NULL), m_NativeCreatureInfo(nullptr), m_creatureData(NULL), m_path_id(0), m_formation(NULL)
 {
     m_valuesCount = UNIT_END;
     _dynamicValuesCount = UNIT_DYNAMIC_END;
@@ -273,6 +273,8 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
         return false;
     }
 
+    m_NativeCreatureInfo = normalInfo;
+
     // get difficulty 1 mode entry
     // Si l'entry heroic du mode de joueur est introuvable, on utilise l'entry du mode normal correpondant au nombre de joueurs du mode
     CreatureTemplate const* cinfo = nullptr;
@@ -376,7 +378,7 @@ bool Creature::UpdateEntry(uint32 p_Entry, uint32 p_Team, const CreatureData* p_
         SetSheath(SHEATH_STATE_MELEE);
 
     SelectLevel(GetCreatureTemplate());
-    setFaction(l_CreatureTemplate->faction);
+    setFaction(m_NativeCreatureInfo->faction);
 
     uint32 l_NpcFlag1       = 0;
     uint32 l_NpcFlag2       = 0;
@@ -385,7 +387,7 @@ bool Creature::UpdateEntry(uint32 p_Entry, uint32 p_Team, const CreatureData* p_
     uint32 l_UnitFlags3     = 0;
     uint32 l_DynamicFlags   = 0;
 
-    ObjectMgr::ChooseCreatureFlags(l_CreatureTemplate, l_NpcFlag1, l_NpcFlag2, l_UnitFlags1, l_UnitFlags2, l_UnitFlags3, l_DynamicFlags, p_SpawnData);
+    ObjectMgr::ChooseCreatureFlags(m_NativeCreatureInfo, l_NpcFlag1, l_NpcFlag2, l_UnitFlags1, l_UnitFlags2, l_UnitFlags3, l_DynamicFlags, p_SpawnData);
 
     if (l_CreatureTemplate->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS, l_NpcFlag1 | sGameEventMgr->GetNPCFlag(this));
@@ -2730,7 +2732,7 @@ uint8 Creature::getLevelForTarget(WorldObject const* target) const
 
 std::string Creature::GetAIName() const
 {
-    return sObjectMgr->GetCreatureTemplate(GetEntry())->AIName;
+    return m_NativeCreatureInfo->AIName;
 }
 
 std::string Creature::GetScriptName() const
@@ -2740,7 +2742,7 @@ std::string Creature::GetScriptName() const
 
 uint32 Creature::GetScriptId() const
 {
-    return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
+    return m_NativeCreatureInfo->ScriptID;
 }
 
 VendorItemData const* Creature::GetVendorItems() const

@@ -127,7 +127,7 @@ enum BG_AB_BattlegroundNodes
 
     BG_AB_DYNAMIC_NODES_COUNT   = 5,                        // dynamic nodes that can be captured
 
-    BG_AB_SPIRIT_ALIANCE        = 5,
+    BG_AB_SPIRIT_ALLIANCE       = 5,
     BG_AB_SPIRIT_HORDE          = 6,
 
     BG_AB_ALL_NODES_COUNT       = 7,                        // all nodes (dynamic and static)

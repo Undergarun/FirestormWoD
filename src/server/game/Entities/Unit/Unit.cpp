@@ -345,19 +345,10 @@ Unit::~Unit()
 
     _DeleteRemovedAuras();
 
-    for (HealDoneList::iterator itr = m_healDone.begin(); itr != m_healDone.end(); itr++)
-        delete (*itr);
-    for (HealTakenList::iterator itr = m_healTaken.begin(); itr != m_healTaken.end(); itr++)
-        delete (*itr);
     for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); itr++)
         delete (*itr);
-    for (DmgTakenList::iterator itr = m_dmgTaken.begin(); itr != m_dmgTaken.end(); itr++)
-        delete (*itr);
 
-    m_healDone.clear();
-    m_healTaken.clear();
     m_dmgDone.clear();
-    m_dmgTaken.clear();
 
     delete m_charmInfo;
     delete movespline;
@@ -388,31 +379,7 @@ void Unit::Update(uint32 p_time)
 
     _UpdateSpells(p_time);
 
-    HealDoneList::iterator healDoneNext;
-    for (HealDoneList::iterator itr = m_healDone.begin(); itr != m_healDone.end(); itr = healDoneNext)
-    {
-        healDoneNext = itr;
-        ++healDoneNext;
-
-        if ((getMSTime() - (*itr)->s_timestamp) > 60 * IN_MILLISECONDS)
-        {
-            delete (*itr);
-            m_healDone.erase(itr);
-        }
-    }
-
-    HealTakenList::iterator healTakenNext;
-    for (HealTakenList::iterator itr = m_healTaken.begin(); itr != m_healTaken.end(); itr = healTakenNext)
-    {
-        healTakenNext = itr;
-        ++healTakenNext;
-
-        if ((getMSTime() - (*itr)->s_timestamp) > 60 * IN_MILLISECONDS)
-        {
-            delete (*itr);
-            m_healTaken.erase(itr);
-        }
-    }
+    uint32 l_Now = getMSTime();
 
     DmgDoneList::iterator dmgDoneNext;
     for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); itr = dmgDoneNext)
@@ -420,23 +387,10 @@ void Unit::Update(uint32 p_time)
         dmgDoneNext = itr;
         ++dmgDoneNext;
 
-        if ((getMSTime() - (*itr)->s_timestamp) > 60 * IN_MILLISECONDS)
+        if ((l_Now - (*itr)->s_timestamp) > 60 * IN_MILLISECONDS)
         {
             delete (*itr);
             m_dmgDone.erase(itr);
-        }
-    }
-
-    DmgTakenList::iterator dmgTakenNext;
-    for (DmgTakenList::iterator itr = m_dmgTaken.begin(); itr != m_dmgTaken.end(); itr = dmgTakenNext)
-    {
-        dmgTakenNext = itr;
-        ++dmgTakenNext;
-
-        if ((getMSTime() - (*itr)->s_timestamp) > 60 * IN_MILLISECONDS)
-        {
-            delete (*itr);
-            m_dmgTaken.erase(itr);
         }
     }
 
@@ -601,7 +555,7 @@ bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
         {
             maxDist = dist;
             if (isMoving() && obj->isMoving())
-                maxDist += 4.f;
+                maxDist += 2.5f;
         }
 
         return GetExactDist(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()) < maxDist;
@@ -1216,17 +1170,17 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 //                           ));
 //     }
 
-    DamageTaken* dmgTaken = new DamageTaken(damage, getMSTime());
-    victim->SetDamageTaken(dmgTaken);
+    if (getClass() == CLASS_WARLOCK)
+    {
+        DamageDone* dmgDone = nullptr;
 
-    DamageDone* dmgDone = nullptr;
+        if (spellProto)
+            dmgDone = new DamageDone(damage, getMSTime(), spellProto->Id);
+        else
+            dmgDone = new DamageDone(damage, getMSTime(), 0);
 
-    if (spellProto)
-        dmgDone = new DamageDone(damage, getMSTime(), spellProto->Id);
-    else
-        dmgDone = new DamageDone(damage, getMSTime(), 0);
-
-    SetDamageDone(dmgDone);
+        SetDamageDone(dmgDone);
+    }
 
     return damage;
 }
@@ -2033,6 +1987,10 @@ void Unit::HandleEmoteCommand(uint32 p_EmoteId)
 
 bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo, uint8 effIndex)
 {
+    /// custom check for Demonbolt
+    if (spellInfo && spellInfo->Id == 157695)
+        return false;
+
     // only physical spells damage gets reduced by armor
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
         return false;
@@ -3371,7 +3329,7 @@ void Unit::_UpdateSpells(uint32 time)
     // m_auraUpdateIterator can be updated in indirect called code at aura remove to skip next planned to update but removed auras
     for (m_auraUpdateIterator = m_ownedAuras.begin(); m_auraUpdateIterator != m_ownedAuras.end();)
     {
-        AuraPtr i_aura = m_auraUpdateIterator->second;
+        AuraPtr& i_aura = m_auraUpdateIterator->second;
         ++m_auraUpdateIterator;                            // need shift to next for allow update if need into aura update
         i_aura->UpdateOwner(time, this);
     }
@@ -4373,7 +4331,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
 
         ++iter;
 
-        if (aura != exceptAura && (!casterGUID || aura->GetCasterGUID() == casterGUID)
+        if (aura != exceptAura && aura->GetId() != exceptAuraId && (!casterGUID || aura->GetCasterGUID() == casterGUID)
             && ((negative && !aurApp->IsPositive()) || (positive && aurApp->IsPositive())))
         {
             uint32 removedAuras = m_removedAurasCount;
@@ -11120,12 +11078,6 @@ void Unit::SetCharm(Unit* charm, bool apply)
 int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto)
 {
     int32 gain = 0;
-
-    HealTaken* healTaken = new HealTaken(addhealth, getMSTime());
-    SetHealTaken(healTaken);
-
-    HealDone* healDone = new HealDone(addhealth, getMSTime());
-    SetHealDone(healDone);
 
     if (victim->IsAIEnabled)
         victim->GetAI()->HealReceived(this, addhealth);
@@ -21697,46 +21649,6 @@ bool Unit::IsSplineFinished() const
     return movespline->Finalized();
 }
 
-/* In the next functions, we keep 1 minute of last damage */
-uint32 Unit::GetHealingDoneInPastSecs(uint32 secs)
-{
-    uint32 heal = 0;
-
-    for (HealDoneList::iterator itr = m_healDone.begin(); itr != m_healDone.end(); itr++)
-    {
-        if ((getMSTime() - (*itr)->s_timestamp) <= (secs * IN_MILLISECONDS))
-            heal += (*itr)->s_heal;
-    }
-
-    return heal;
-};
-
-uint32 Unit::GetHealingTakenInPastSecs(uint32 secs)
-{
-    uint32 heal = 0;
-
-    for (HealTakenList::iterator itr = m_healTaken.begin(); itr != m_healTaken.end(); itr++)
-    {
-        if ((getMSTime() - (*itr)->s_timestamp) <= (secs * IN_MILLISECONDS))
-            heal += (*itr)->s_heal;
-    }
-
-    return heal;
-};
-
-uint32 Unit::GetDamageDoneInPastSecs(uint32 secs)
-{
-    uint32 damage = 0;
-
-    for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); itr++)
-    {
-        if ((getMSTime() - (*itr)->s_timestamp) <= (secs * IN_MILLISECONDS))
-            damage += (*itr)->s_damage;
-    }
-
-    return damage;
-};
-
 uint32 Unit::GetDamageDoneInPastSecsBySpell(uint32 p_Secs, uint32 p_SpellId)
 {
     uint32 damage = 0;
@@ -21749,19 +21661,6 @@ uint32 Unit::GetDamageDoneInPastSecsBySpell(uint32 p_Secs, uint32 p_SpellId)
 
     return damage;
 };
-
-uint32 Unit::GetDamageTakenInPastSecs(uint32 secs)
-{
-    uint32 damage = 0;
-
-    for (DmgTakenList::iterator itr = m_dmgTaken.begin(); itr != m_dmgTaken.end(); itr++)
-    {
-        if ((getMSTime() - (*itr)->s_timestamp) <= (secs * IN_MILLISECONDS))
-            damage += (*itr)->s_damage;
-    }
-
-    return damage;
-}
 
 void Unit::WriteMovementUpdate(WorldPacket &data) const
 {
