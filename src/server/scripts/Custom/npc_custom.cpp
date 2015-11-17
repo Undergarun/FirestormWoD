@@ -123,7 +123,7 @@ class npc_world_boss_gossip : public CreatureScript
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Rukhmar, please.", GOSSIP_SENDER_MAIN, eActions::SelectRukhmar);
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Tarlna, please.", GOSSIP_SENDER_MAIN, eActions::SelectTarlna);
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Drov, please.", GOSSIP_SENDER_MAIN, eActions::SelectDrov);
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go Blackrock Foundry, please.", GOSSIP_SENDER_MAIN, eActions::);
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go Blackrock Foundry, please.", GOSSIP_SENDER_MAIN, eActions::SelectBlackrock);
             p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 
             return true;
