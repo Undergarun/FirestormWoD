@@ -1003,10 +1003,10 @@ class npc_highmaul_breaker_of_frost : public CreatureScript
 };
 
 /// Volatile Anomaly - 79956
-class npc_highmaul_volatile_anomaly : public CreatureScript
+class npc_highmaul_koragh_volatile_anomaly : public CreatureScript
 {
     public:
-        npc_highmaul_volatile_anomaly() : CreatureScript("npc_highmaul_volatile_anomaly") { }
+        npc_highmaul_koragh_volatile_anomaly() : CreatureScript("npc_highmaul_koragh_volatile_anomaly") { }
 
         enum eSpells
         {
@@ -1015,9 +1015,9 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
             SuppressionFieldSilence = 162595
         };
 
-        struct npc_highmaul_volatile_anomalyAI : public ScriptedAI
+        struct npc_highmaul_koragh_volatile_anomalyAI : public ScriptedAI
         {
-            npc_highmaul_volatile_anomalyAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_koragh_volatile_anomalyAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_Exploded = false;
             }
@@ -1048,7 +1048,7 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
-            return new npc_highmaul_volatile_anomalyAI(p_Creature);
+            return new npc_highmaul_koragh_volatile_anomalyAI(p_Creature);
         }
 };
 
@@ -2056,7 +2056,7 @@ void AddSC_boss_koragh()
     new npc_highmaul_breaker_of_fire();
     new npc_highmaul_wild_flames();
     new npc_highmaul_breaker_of_frost();
-    new npc_highmaul_volatile_anomaly();
+    new npc_highmaul_koragh_volatile_anomaly();
 
     /// GameObjects
     new go_highmaul_chain();

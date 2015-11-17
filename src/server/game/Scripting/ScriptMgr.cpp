@@ -305,6 +305,7 @@ void ScriptMgr::Unload()
     ScriptRegistry<GuildScript>::Clear();
     ScriptRegistry<GroupScript>::Clear();
     ScriptRegistry<AreaTriggerEntityScript>::Clear();
+    ScriptRegistry<EncounterScript>::Clear();
 
     for (ExampleScriptContainer::iterator l_It = ExampleScripts.begin(); l_It != ExampleScripts.end(); ++l_It)
         delete *l_It;
@@ -2368,6 +2369,14 @@ bool ScriptMgr::BattlePayCanBuy(WorldSession* p_Session, Battlepay::Product cons
 }
 
 //////////////////////////////////////////////////////////////////////////
+/// EncounterScripts
+void ScriptMgr::OnEncounterEnd(EncounterDatas const* p_EncounterDatas)
+{
+    FOREACH_SCRIPT(EncounterScript)->OnEncounterEnd(p_EncounterDatas);
+}
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
 /// Constructor
@@ -2596,6 +2605,11 @@ BattlePayProductScript::BattlePayProductScript(std::string p_ScriptName)
     sScriptMgr->RegisterBattlePayProductScript(p_ScriptName, this);
 }
 
+EncounterScript::EncounterScript(char const* p_Name) : ScriptObjectImpl(p_Name)
+{
+    ScriptRegistry<EncounterScript>::AddScript(this);
+}
+
 /// Instantiate static members of ScriptRegistry.
 template<class TScript> std::map<uint32, TScript*> ScriptRegistry<TScript>::ScriptPointerList;
 template<class TScript> uint32 ScriptRegistry<TScript>::_scriptIdCounter = 0;
@@ -2626,6 +2640,7 @@ template class ScriptRegistry<PlayerScript>;
 template class ScriptRegistry<GuildScript>;
 template class ScriptRegistry<GroupScript>;
 template class ScriptRegistry<AreaTriggerEntityScript>;
+template class ScriptRegistry<EncounterScript>;
 
 /// Undefine utility macros.
 #undef GET_SCRIPT_RET

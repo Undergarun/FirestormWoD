@@ -223,7 +223,7 @@ faction = 16,
 unit_class = 2,
 type_flags = 2097224,
 type_flags2 = 128,
-ScriptName = 'npc_highmaul_volatile_anomaly'
+ScriptName = 'npc_highmaul_koragh_volatile_anomaly'
 WHERE entry = 79956;
 
 UPDATE creature_model_info SET bounding_radius = 1.5, combat_reach = 9.5 WHERE modelid = 54825;
