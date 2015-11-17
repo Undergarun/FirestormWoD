@@ -136,47 +136,6 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_Gorsol::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
-    {
-        if (p_Quest->GetQuestId() == Quests::Horde_ThingsAreNotGorenOurWay)
-        {
-            CreatureAI* l_AI = p_Creature->AI();
-
-            if (l_AI == nullptr || p_Player == nullptr || p_Creature == nullptr || p_Creature->GetScriptName() != CreatureScript::GetName())
-                return true;
-
-            GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<GarrisonNPCAI*>(l_AI);
-
-            std::vector<uint32> l_CreatureEntries = { NPCs::NpcFrostwallGoren, NPCs::NpcFrostwallGorenHatchling, NPCs::NpcStonetooth };
-            p_Creature->DespawnCreaturesInArea(l_CreatureEntries, 100.0f);
-
-            std::list<Creature*> l_MinersList;
-            p_Creature->GetCreatureListWithEntryInGrid(l_MinersList, NPCs::NpcHordeMiner, 150.0f);
-
-            if (l_GarrisonAI)
-            {
-                if (l_MinersList.empty())
-                {
-                    for (SequencePosition l_Pos : g_MinersPositions)
-                    {
-                        if (Creature* l_Creature = l_GarrisonAI->SummonRelativeCreature(NPCs::NpcHordeMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
-                            l_Creature->GetMotionMaster()->MoveRandom(7.0f);
-
-                        if (Manager* l_Garrison = p_Player->GetGarrison())
-                            l_Garrison->ActivateBuilding(l_GarrisonAI->GetPlotInstanceID());
-                    }
-                }
-
-//                 std::vector<SequencePosition> l_DepositsPositions = CalculateDepositsPositions();
-//                 SummonDeposits(l_DepositsPositions, l_GarrisonAI);
-
-                l_GarrisonAI->DoAction(0);
-            }
-        }
-
-        return true;
-    }
-
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -195,6 +154,31 @@ namespace MS { namespace Garrison
         : GatheringBuildingMaster(p_Creature)
     {
         SetAIObstacleManagerEnabled(true);
+    }
+
+    void npc_GorsolAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Option)
+    {
+        if (p_Quest->GetQuestId() == Quests::Horde_ThingsAreNotGorenOurWay)
+        {
+            std::vector<uint32> l_CreatureEntries = { NPCs::NpcFrostwallGoren, NPCs::NpcFrostwallGorenHatchling, NPCs::NpcStonetooth };
+            me->DespawnCreaturesInArea(l_CreatureEntries, 100.0f);
+
+            std::list<Creature*> l_MinersList;
+            me->GetCreatureListWithEntryInGrid(l_MinersList, NPCs::NpcHordeMiner, 150.0f);
+
+            if (l_MinersList.empty())
+            {
+                for (SequencePosition l_Pos : g_MinersPositions)
+                {
+                    if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcHordeMiner, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                        l_Creature->GetMotionMaster()->MoveRandom(7.0f);
+
+                    if (Manager* l_Garrison = p_Player->GetGarrison())
+                        l_Garrison->ActivateBuilding(GetPlotInstanceID());
+                }
+            }
+            InitGatheringPlots(0);
+        }
     }
 
     void npc_GorsolAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
@@ -222,6 +206,8 @@ namespace MS { namespace Garrison
                 if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcFrostwallGoren, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
                     l_Creature->GetMotionMaster()->MoveRandom(7.0f);
             }
+
+            SummonRelativeCreature(NPCs::NpcStonetooth, 1.26916f, 3.68763f, -33.3223f, 4.37961f, TEMPSUMMON_MANUAL_DESPAWN);
         }
         else
         {
@@ -243,11 +229,6 @@ namespace MS { namespace Garrison
                 }
             }
         }
-    }
-
-    void npc_GorsolAI::DoAction(int32 const p_Param)
-    {
-        InitGatheringPlots(0);
     }
 
     /// Select game object entry for a fresh gathering spawn

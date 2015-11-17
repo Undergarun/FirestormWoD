@@ -64,9 +64,6 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 -- Thermal Anvil
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-61','0','-233443','30.1852','-61.202','30.4427','0.916295');
 
--- boss 
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-61','0','81396','1.26916','3.68763','-33.3223','4.37961');
-
 -- Mine Shipment
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-61','1','-239237','38.5198','-61.2837','30.0886','4.71848');
 

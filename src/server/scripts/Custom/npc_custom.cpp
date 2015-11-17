@@ -52,19 +52,23 @@ class npc_world_boss_gossip : public CreatureScript
             SelectRukhmar     = 1001,
             SelectTarlna      = 1002,
             SelectDrov        = 1003,
-            TpAloneRukhmar    = 1004,
-            TpGroupRukhmar    = 1005,
-            TpAloneTarlna     = 1006,
-            TpGroupTarlna     = 1007,
-            TpAloneDrov       = 1008,
-            TpGroupDrov       = 1009,
+            SelectBlackrock   = 1004,
+            TpAloneRukhmar    = 1005,
+            TpGroupRukhmar    = 1006,
+            TpAloneTarlna     = 1007,
+            TpGroupTarlna     = 1008,
+            TpAloneDrov       = 1009,
+            TpGroupDrov       = 1010,
+            TpAloneBlackrock  = 1011,
+            TpGroupBlackrock  = 1012,
         };
 
         enum Destinations
         {
-            DestinationRukhmar = 1,
-            DestinationTarlna  = 2,
-            DestinationDrov    = 3
+            DestinationRukhmar          = 1,
+            DestinationTarlna           = 2,
+            DestinationDrov             = 3,
+            DestinationBlackRockFoundry = 4
         };
 
         void TeleportPlayer(Player* p_Player, uint8 p_Destination)
@@ -79,6 +83,9 @@ class npc_world_boss_gossip : public CreatureScript
                     break;
                 case Destinations::DestinationDrov:
                     p_Player->TeleportTo(1116, 7330.3f, 1455.87f, 81.76f, 6.08f);
+                    break;
+                case Destinations::DestinationBlackRockFoundry:
+                    p_Player->TeleportTo(1116, 7856.9667f, 555.5454f, 124.1314f, 6.08f);
                     break;
             }
         }
@@ -103,6 +110,9 @@ class npc_world_boss_gossip : public CreatureScript
                         case Destinations::DestinationDrov:
                             TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationDrov);
                             break;
+                        case Destinations::DestinationBlackRockFoundry:
+                            p_Player->TeleportTo(1116, 7856.9667f, 555.5454f, 124.1314f, 6.08f);
+                            break;
                     }
                 }
             }
@@ -113,6 +123,7 @@ class npc_world_boss_gossip : public CreatureScript
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Rukhmar, please.", GOSSIP_SENDER_MAIN, eActions::SelectRukhmar);
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Tarlna, please.", GOSSIP_SENDER_MAIN, eActions::SelectTarlna);
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Drov, please.", GOSSIP_SENDER_MAIN, eActions::SelectDrov);
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go Blackrock Foundry, please.", GOSSIP_SENDER_MAIN, eActions::);
             p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 
             return true;
@@ -140,6 +151,11 @@ class npc_world_boss_gossip : public CreatureScript
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Drov with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupDrov);
                     p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
                     break;
+                case eActions::SelectBlackrock:
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Blackrock Foundry alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneBlackrock);
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Blackrock Foundry with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupBlackrock);
+                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+                    break;
                 case eActions::TpAloneRukhmar:
                     TeleportPlayer(p_Player, Destinations::DestinationRukhmar);
                     break;
@@ -157,6 +173,12 @@ class npc_world_boss_gossip : public CreatureScript
                     break;
                 case eActions::TpGroupDrov:
                     TeleportGroup(p_Player, Destinations::DestinationDrov);
+                    break;
+                case eActions::TpAloneBlackrock:
+                    TeleportPlayer(p_Player, Destinations::DestinationBlackRockFoundry);
+                    break;
+                case eActions::TpGroupBlackrock:
+                    TeleportGroup(p_Player, Destinations::DestinationBlackRockFoundry);
                     break;
                 default:
                     break;
