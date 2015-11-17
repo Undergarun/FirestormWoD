@@ -1987,10 +1987,9 @@ void Unit::HandleEmoteCommand(uint32 p_EmoteId)
 
 bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo, uint8 effIndex)
 {
-    /// custom check for Demonbolt
-    if (spellInfo && spellInfo->Id == 157695)
+    /// spells with SPELL_SCHOOL_MASK_ALL can't be reduced by armor
+    if (schoolMask == SPELL_SCHOOL_MASK_ALL)
         return false;
-
     // only physical spells damage gets reduced by armor
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
         return false;
@@ -2217,7 +2216,24 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(victim->GetGUID());
         if (!aurApp)
             continue;
-        if (!(absorbAurEff->GetMiscValue() & schoolMask))
+
+        /// Check if we can select information about aura spell
+        if (!aurApp->GetBase() || !aurApp->GetBase()->GetSpellInfo())
+            continue;
+
+        /// Check MiscValue from SpellInfo, not from loaded inforamation
+        SpellInfo const* l_CurrentSpellInfo = sSpellMgr->GetSpellInfo(aurApp->GetBase()->GetSpellInfo()->Id);
+        uint8 l_SpellEffIndex = absorbAurEff->GetEffIndex();
+        if (!l_CurrentSpellInfo)
+            continue;
+        int32 l_SpellEffMiscValue = l_CurrentSpellInfo->Effects[l_SpellEffIndex].MiscValue;
+
+        /// Check if this school absorb spell should have effect on current spell
+        if (!(l_SpellEffMiscValue & schoolMask))
+            continue;
+
+        /// Check for physical damage - for example Demonbolt (SPELL_SCHOOL_MASK_ALL) into Anti-Magic Shell (SPELL_SCHOOL_MASK_SPELL)
+        if (!(l_SpellEffMiscValue & SPELL_SCHOOL_MASK_NORMAL) && (schoolMask & SPELL_SCHOOL_MASK_NORMAL))
             continue;
 
         // get amount which can be still absorbed by the aura
@@ -12227,7 +12243,8 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
         // Do not add a break here, case fallthrough is intentional! Adding a break will make above spells unable to crit.
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
-            if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
+            /// For physical damage, but spells with SPELL_SCHOOL_MASK_ALL should select crit here
+            if (schoolMask & SPELL_SCHOOL_MASK_NORMAL && schoolMask != SPELL_SCHOOL_MASK_ALL)
                 crit_chance = 0.0f;
             // For other schools
             else if (GetTypeId() == TYPEID_PLAYER)

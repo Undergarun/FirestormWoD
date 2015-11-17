@@ -1264,8 +1264,8 @@ class spell_rog_envenom: public SpellScriptLoader
                 if (l_Caster->HasAura(eSpells::RelentlessStrikes))
                 {
                     if (SpellInfo const* l_RelentlessStrikes = sSpellMgr->GetSpellInfo(eSpells::Ruthlessness))
-                    if (roll_chance_i(l_RelentlessStrikes->Effects[0].PointsPerComboPoint * l_ComboPoint))
-                            l_Caster->CastSpell(l_Caster, eSpells::RelentlessStrikesProc, true);
+                        if (roll_chance_i(l_RelentlessStrikes->Effects[0].PointsPerComboPoint * l_ComboPoint))
+                                l_Caster->CastSpell(l_Caster, eSpells::RelentlessStrikesProc, true);
                 }
             }
 
