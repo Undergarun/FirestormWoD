@@ -277,6 +277,9 @@ namespace MS { namespace Garrison
             LumberMill_LumberMill_Level1                = 40,
             LumberMill_LumberMill_Level2                = 41,
             LumberMill_LumberMill_Level3                = 138,
+            LunarfallExcavation_FrostwallMines_Level1   = 61,
+            LunarfallExcavation_FrostwallMines_Level2   = 62,
+            LunarfallExcavation_FrostwallMines_Level3   = 63
         };
     }
 
