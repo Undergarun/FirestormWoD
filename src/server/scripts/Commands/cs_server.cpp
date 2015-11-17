@@ -331,7 +331,7 @@ private:
             return false;
 
         // #delay [#exit_code] [reason]
-        std::regex regex("([0-9]+) ([0-9]*) ?(.*)");
+        std::regex regex("([0-9]+) ?([0-9]*) ?(.*)");
         std::cmatch cm;
 
         if (!std::regex_match(args, cm, regex))
