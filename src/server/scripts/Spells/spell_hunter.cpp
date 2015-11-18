@@ -365,7 +365,7 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
-                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id);
+                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
                 }
             }
 
