@@ -5846,6 +5846,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 73685:  ///< Unleash Life (restoration)
             case 118864: ///< Combo Breaker (tiger palm)
             case 116768: ///< Combo Breaker (blackout kick)
+            case 64803: ///< Entrapment
+            case 135373: ///< Entrapment
                 spellInfo->ProcFlags = 0;
                 break;
             /// All spells - ProcCharges = 1

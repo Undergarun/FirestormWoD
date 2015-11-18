@@ -10065,13 +10065,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
             break;
         }
-        case 64803: // Entrapment
-        {
-            // Snake trap double proc handling
-            if (procSpell && procSpell->Id == 57879)
-                return false;
-            break;
-        }
         case 135288:// Tooth and Claw
         {
             if (procSpell)
