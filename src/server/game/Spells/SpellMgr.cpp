@@ -3425,7 +3425,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160382: ///< Defense (Security Guard)
             case 158246: ///< Hot Blooded (Foreman Feldspar)
             case 156932: ///< Rupture DoT (Foreman Feldspar)
-            case 155223: ///< Melt DoT (Heart of the Mountain)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
@@ -3461,6 +3460,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 178229: ///< Gauntlets of Iron (Mythic - T17 - Quest)
             case 178230: ///< Shoulders of Iron (Mythic - T17 - Quest)
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                break;
+            case 155200: ///< Burn (Slag Elemental)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 168178: ///< Salvage (garrison loot spell)
