@@ -984,6 +984,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             {
                                 pet->CastSpell(unitTarget, damage, false);
                                 m_caster->ToPlayer()->AddSpellCooldown(119910, 0, 24 * IN_MILLISECONDS, true);
+                                m_caster->ToPlayer()->AddSpellCooldown(132409, 0, 24 * IN_MILLISECONDS, true); ///< Grimoire of Sacrifice spell
                             }
                     break;
                 }
@@ -1796,6 +1797,15 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
         switch (m_spellInfo->Id)
         {
+            /// Healthstone
+            case 6262:
+            {
+                /// Glyph of Healthstone
+                if (effIndex == EFFECT_0 && caster->HasAura(56224))
+                    return;
+
+                break;
+            }
             /// Chi Explosion Heal -- Prevent executing both effects if BP if one is 0
             case 182078:
             {
@@ -6431,6 +6441,18 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     //m_ObjToDel.push_back(pGameObj);
 
     cMap->AddToMap(pGameObj);
+
+    /// Glyph of Soulwell
+    if (m_spellInfo->Id == 29893 && m_caster->HasAura(58094))
+    {
+        if (GameObject* l_SoulWell = pGameObj)
+        {
+            SpellInfo const* l_GlyphOfSoulWell = sSpellMgr->GetSpellInfo(58094);
+
+            if (l_GlyphOfSoulWell && l_GlyphOfSoulWell->Effects[0].MiscValueB)
+                m_caster->CastSpell(l_SoulWell, l_GlyphOfSoulWell->Effects[0].MiscValueB, true);
+        }
+    }
 
     if (uint32 linkedEntry = pGameObj->GetGOInfo()->GetLinkedGameObjectEntry())
     {
