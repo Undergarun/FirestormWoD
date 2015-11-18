@@ -7878,16 +7878,17 @@ float Player::GetRatingBonusValue(CombatRating cr) const
     return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr)) / 1070; // temp hack
 }
 
-float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
+float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType p_AttType) const
 {
-    switch (attType)
+    float l_BaseExpertise = 7.5f;
+    switch (p_AttType)
     {
         case WeaponAttackType::BaseAttack:
-            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE);
+            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
         case WeaponAttackType::OffAttack:
-            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE);
+            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
         case WeaponAttackType::RangedAttack:
-            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE);
+            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE) / 4.0f;
         default:
             break;
     }

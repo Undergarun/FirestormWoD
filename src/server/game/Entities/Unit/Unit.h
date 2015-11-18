@@ -1773,16 +1773,14 @@ class Unit : public WorldObject
         float CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature);
 
         float MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell, WeaponAttackType p_AttType) const;
-        float MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spell);
         SpellMissInfo MagicSpellHitResult(Unit* p_Victim, SpellInfo const* p_Spell);
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spell, bool canReflect = false);
 
-        float GetUnitDodgeChance(Unit const* p_Attacker) const;
-        float GetUnitParryChance(Unit const* p_Attacker) const;
-        float GetUnitBlockChance(Unit const* p_Attacker) const;
-        float GetUnitMissChancePhysical(Unit const* p_Attacker, WeaponAttackType attType) const;
-        float GetUnitMissChanceSpell(Unit const* p_Attacker) const;
+        float GetUnitDodgeChanceAgainst(Unit const* p_Attacker) const;
+        float GetUnitParryChanceAgainst(Unit const* p_Attacker) const;
+        float GetUnitBlockChanceAgainst(Unit const* p_Attacker) const;
+        float GetUnitMissChance(Unit const* p_Attacker, WeaponAttackType attType) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
         int32 GetMechanicResistChance(const SpellInfo* spell);
         bool CanUseAttackType(uint8 attacktype) const
@@ -1798,12 +1796,10 @@ class Unit : public WorldObject
 
         virtual uint32 GetBlockPercent() { return 30; }
 
-        uint32 GetUnitMeleeSkill(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         float GetWeaponProcChance() const;
         float GetPPMProcChance(uint32 WeaponSpeed, float PPM,  const SpellInfo* spellProto) const;
 
         MeleeHitOutcome RollMeleeOutcomeAgainst (Unit* victim, WeaponAttackType attType);
-        MeleeHitOutcome RollMeleeOutcomeAgainst (Unit* victim, WeaponAttackType attType, int32 crit_chance, int32 miss_chance, int32 dodge_chance, int32 parry_chance, int32 block_chance);
 
         bool isVendor()       const { return HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR); }
         bool isTrainer()      const { return HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_TRAINER); }
