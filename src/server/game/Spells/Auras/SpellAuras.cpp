@@ -986,6 +986,9 @@ void Aura::Update(uint32 diff, Unit* caster)
         {
             for (auto itr : m_spellInfo->SpellPowers)
             {
+                if (caster->GetTypeId() == TypeID::TYPEID_PLAYER && caster->ToPlayer()->GetCommandStatus(CHEAT_POWER))
+                    break;
+
                 if (itr->RequiredAuraSpellId && !caster->HasAura(itr->RequiredAuraSpellId))
                     continue;
 
