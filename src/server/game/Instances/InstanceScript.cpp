@@ -1414,7 +1414,8 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     /// Register encounter datas for further logs
     if (instance->IsRaid() && m_EncounterDatas.Expansion == Expansion::EXPANSION_WARLORDS_OF_DRAENOR)
     {
-        m_EncounterDatas.RealmID   = g_RealmID;
+        m_EncounterDatas.RealmID        = g_RealmID;
+        m_EncounterDatas.EncounterID    = p_EncounterID;
 
         Map::PlayerList const& l_PlayerList = instance->GetPlayers();
         for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
