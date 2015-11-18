@@ -1797,15 +1797,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
         switch (m_spellInfo->Id)
         {
-            /// Healthstone
-            case 6262:
-            {
-                /// Glyph of Healthstone
-                if (effIndex == EFFECT_0 && caster->HasAura(56224))
-                    return;
-
-                break;
-            }
             /// Chi Explosion Heal -- Prevent executing both effects if BP if one is 0
             case 182078:
             {
