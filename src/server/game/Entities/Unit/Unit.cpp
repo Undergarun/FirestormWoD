@@ -21726,12 +21726,15 @@ void Unit::ApplySoulSwapDOT(Unit* caster, Unit* target)
         for (AuraIdList::const_iterator iter = _SoulSwapDOTList.begin(); iter != _SoulSwapDOTList.end(); ++iter)
             AddAura((*iter), target);
 
-        // Restore all aura spell mods
+        /// Restore all aura spell mods
         for (std::set<SoulSwapAurasData*>::iterator itr = _SoulSwapDOTData.begin(); itr != _SoulSwapDOTData.end(); ++itr)
         {
             if (AuraPtr appliedAura = target->GetAura((*itr)->m_id, GetGUID()))
             {
-                appliedAura->SetDuration((*itr)->m_duration);
+                /// Maybe we should refresh duration
+                if (!GetSoulSwapRefreshDuration())
+                    appliedAura->SetDuration((*itr)->m_duration);
+
                 appliedAura->SetStackAmount((*itr)->m_stacks);
                 if (appliedAura->GetEffect(EFFECT_0)) {
                     appliedAura->GetEffect(EFFECT_0)->SetAmount((*itr)->m_damage);

@@ -1763,16 +1763,36 @@ class spell_warl_soul_swap: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
+                bool l_HasSoulburnAura = l_Caster->HasAura(WARLOCK_SOULBURN_AURA);
+
+                /// Soul Swap launch spell
                 if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
                 {
-                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
-                    // Soul Swap override spell
-                    l_Caster->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_AURA, true);
-                    l_Caster->RemoveSoulSwapDOT(l_Target);
+                    /// Soulburn: Applies Corruption, Unstable Affliction, and Agony without requiring a previous copy.
+                    if (l_HasSoulburnAura)
+                    {
+                        l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
+                        l_Caster->CastSpell(l_Target, WARLOCK_AGONY, true);
+                        l_Caster->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
+                        l_Caster->CastSpell(l_Target, WARLOCK_UNSTABLE_AFFLICTION, true);
 
-                    /// Store Soul Swap target GUID
-                    l_Caster->SetSoulSwapDotTarget(l_Target->GetGUID());
+                        l_Caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
+                    }
+                    /// Simple cast of Soul Swap, without Soulburn
+                    else
+                    {
+                        l_Target->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_VISUAL, true);
+                        // Soul Swap override spell
+                        l_Caster->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_AURA, true);
+                        l_Caster->RemoveSoulSwapDOT(l_Target);
+
+                        /// Store Soul Swap target GUID
+                        l_Caster->SetSoulSwapDotTarget(l_Target->GetGUID());
+                        /// Save that at the moment we don't need refresh duration
+                        l_Caster->SetSoulSwapRefreshDuration(false);
+                    }
                 }
+                /// Soul Swap finish (exhale) spell
                 else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
                 {
                     l_Caster->ApplySoulSwapDOT(l_Caster, l_Target);
@@ -1783,16 +1803,6 @@ class spell_warl_soul_swap: public SpellScriptLoader
 
                     /// Set Soul Swap target GUID to NULL
                     l_Caster->RemoveSoulSwapDotTarget();
-                }
-
-                /// Soulburn: Applies Corruption, Unstable Affliction, and Agony without requiring a previous copy.
-                if (l_Caster->HasAura(WARLOCK_SOULBURN_AURA))
-                {
-                    l_Caster->CastSpell(l_Target, WARLOCK_AGONY, true);
-                    l_Caster->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
-                    l_Caster->CastSpell(l_Target, WARLOCK_UNSTABLE_AFFLICTION, true);
-                    
-                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
                 }
             }
 

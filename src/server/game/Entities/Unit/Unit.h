@@ -2175,6 +2175,8 @@ class Unit : public WorldObject
         void RemoveSoulSwapDotTarget() { soulSwapTargetGUID = 0;  }
         uint64 GetSoulSwapDotTargetGUID() { return soulSwapTargetGUID; }
         Unit* GetSoulSwapDotTarget();
+        void SetSoulSwapRefreshDuration(bool refresh) { soulSwapRefreshDuration = refresh; }
+        bool GetSoulSwapRefreshDuration() { return soulSwapRefreshDuration; }
 
         AuraEffectPtr IsScriptOverriden(SpellInfo const* spell, int32 script) const;
         uint32 GetDiseasesByCaster(uint64 casterGUID, bool remove = false);
@@ -2848,6 +2850,7 @@ class Unit : public WorldObject
         bool m_IsDispelSuccessful;
         bool psychicHorrorGainedPower;
         uint64 soulSwapTargetGUID;
+        bool soulSwapRefreshDuration;
         uint32 l_LastUsedLeapBackSpell;
 
         Diminishing m_Diminishing;
