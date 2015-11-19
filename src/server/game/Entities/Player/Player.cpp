@@ -10055,7 +10055,7 @@ void Player::UpdateArea(uint32 newArea)
         sOutdoorPvPMgr->HandlePlayerEnterArea(this, newArea);
 
         /// Garrison phasing specific code
-        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == MS::Garrison::Globals::BaseMap || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID) || GetMapId() == m_Garrison->GetShipyardMapId())
+        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == MS::Garrison::Globals::BaseMap || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID || GetMapId() == MS::Garrison::ShipyardMapId::Alliance || GetMapId() == MS::Garrison::ShipyardMapId::Horde))
         {
             Map * l_Map = sMapMgr->FindBaseNonInstanceMap(MS::Garrison::Globals::BaseMap);
 
@@ -29566,6 +29566,10 @@ bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone, uint32 spellId) const
             }
             return true;
     }
+
+    if (mapid == MS::Garrison::Globals::BaseMap || (m_Garrison && (mapid == (m_Garrison->GetGarrisonSiteLevelEntry() ? m_Garrison->GetGarrisonSiteLevelEntry()->MapID : -1) || (mapid == m_Garrison->GetShipyardMapId()))))
+        return HasSpell(191645);    ///< Draenor Pathfinder
+
     return false;
 }
 

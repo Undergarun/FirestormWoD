@@ -4343,7 +4343,7 @@ namespace MS { namespace Garrison
 
     uint32 Manager::GetShipyardMapId() const
     {
-        return !HasShipyard() ? -1 : GetGarrisonFactionIndex() == FactionIndex::Alliance ? ShipyardMapId::Alliance : ShipyardMapId::Horde;
+        return !HasShipyard() || !m_Owner ? -1 : GetGarrisonFactionIndex() == FactionIndex::Alliance ? ShipyardMapId::Alliance : ShipyardMapId::Horde;
     }
 
     void Manager::GetShipyardTerainSwaps(std::set<uint32>& p_TerrainSwaps) const

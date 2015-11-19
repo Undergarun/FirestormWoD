@@ -81,13 +81,13 @@ typedef std::chrono::system_clock Clock;
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
-/// 6.2.2 20444
+/// 6.2.3 20726
 enum ToastTypes
 {
     TOAST_TYPE_NONE         = 0,
-    TOAST_TYPE_NEW_CURRENCY = 1,
-    TOAST_TYPE_NEW_ITEM     = 2,
-    TOAST_TYPE_MONEY        = 3,
+    TOAST_TYPE_NEW_ITEM     = 1,
+    TOAST_TYPE_MONEY        = 2,
+    TOAST_TYPE_NEW_CURRENCY = 3,
 };
 
 /// 6.0.3 19116

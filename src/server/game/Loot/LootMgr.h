@@ -76,8 +76,8 @@ enum PermissionTypes
 
 enum LootItemType
 {
-    LOOT_ITEM_TYPE_ITEM     = 0,
-    LOOT_ITEM_TYPE_CURRENCY = 2, // Guessed ????
+    LOOT_ITEM_TYPE_CURRENCY = 0, // Guessed ????
+    LOOT_ITEM_TYPE_ITEM     = 2,
 };
 
 enum LootType
