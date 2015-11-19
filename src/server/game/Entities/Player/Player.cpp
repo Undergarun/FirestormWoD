@@ -7040,7 +7040,6 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
 
             MS::Garrison::Manager::DeleteFromDB(playerguid, trans);
 
-            CharacterDatabase.CommitTransaction(trans);
             MS::Utilities::CallBackPtr l_CharCreateCallback = nullptr;
 
             if (updateRealmChars)
@@ -7913,16 +7912,17 @@ float Player::GetRatingBonusValue(CombatRating cr) const
     return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr)) / 1070; // temp hack
 }
 
-float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
+float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType p_AttType) const
 {
-    switch (attType)
+    float l_BaseExpertise = 7.5f;
+    switch (p_AttType)
     {
         case WeaponAttackType::BaseAttack:
-            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE);
+            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
         case WeaponAttackType::OffAttack:
-            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE);
+            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
         case WeaponAttackType::RangedAttack:
-            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE);
+            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE) / 4.0f;
         default:
             break;
     }
@@ -18430,7 +18430,7 @@ bool Player::CanRewardQuest(Quest const* p_Quest, bool msg)
 
     for (QuestObjective l_Objective : p_Quest->QuestObjectives)
     {
-        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
+        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
         {
             if (GetItemCount(l_Objective.ObjectID) < uint32(l_Objective.Amount))
             {
@@ -20618,7 +20618,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     SetUInt32Value(PLAYER_FIELD_HAIR_COLOR_ID, fields[9].GetUInt32());
     SetUInt32Value(PLAYER_FIELD_REST_STATE, fields[10].GetUInt32());
     SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_GENDER, fields[5].GetUInt8());
@@ -20661,7 +20660,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     // init saved position, and fix it later if problematic
     uint32 transGUID = uint32(fields[31].GetUInt32());
 
@@ -20676,7 +20674,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     std::string taxi_nodes = fields[38].GetString();
     l_Times.push_back(getMSTime() - l_StartTime);
-
 
 #define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
 
@@ -20698,7 +20695,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     _LoadBGData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBGDATA));
     _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
     l_Times.push_back(getMSTime() - l_StartTime);
-
 
     GetSession()->SetPlayer(this);
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
@@ -20730,7 +20726,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         if (MalDeRez)
             AddAura(15007, this);
 
-        mustResurrectFromUnlock = true;
+        mustResurrectFromUnlock = HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST);
         RelocateToHomebind();
     }
     else if (!mapEntry || !IsPositionValid())
@@ -20934,7 +20930,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
     if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId) && !map->IsBattlegroundOrArena())
     {
@@ -20986,7 +20981,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     m_stableSlots = fields[33].GetUInt8();
     if (m_stableSlots > MAX_PET_STABLES)
     {
@@ -21033,7 +21027,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     // reset stats before loading any modifiers
     InitStatsForLevel();
     InitGlyphsForLevel();
@@ -21041,7 +21034,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     InitRunes();
 
     l_Times.push_back(getMSTime() - l_StartTime);
-
 
     // rest bonus can only be calculated after InitStatsForLevel()
     m_rest_bonus = fields[21].GetFloat();
@@ -21081,7 +21073,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     // sanity check
     if (GetSpecsCount() > MAX_TALENT_SPECS || GetActiveSpec() > MAX_TALENT_SPEC || GetSpecsCount() < MIN_TALENT_SPECS)
     {
@@ -21101,7 +21092,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_CHAR_LOADSPELLS));
 
     l_Times.push_back(getMSTime() - l_StartTime);
-
 
     // Load of account spell, we must load it like that because it's stored in realmd database
     // With actual implementation, we can use QueryHolder only with single database
@@ -21139,7 +21129,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS));
     _LoadQuestObjectiveStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS));
@@ -21152,7 +21141,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     // after spell and quest load
     InitTalentForLevel();
     l_Times.push_back(getMSTime() - l_StartTime);
@@ -21162,7 +21150,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     learnDefaultSpells();
     l_Times.push_back(getMSTime() - l_StartTime);
-
 
     // must be before inventory (some items required reputation check)
     m_reputationMgr.LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADREPUTATION));
@@ -21176,7 +21163,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     UpdateItemDuration(time_diff, true);
 
     l_Times.push_back(getMSTime() - l_StartTime);
-
 
     _LoadActions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACTIONS));
 
@@ -21198,14 +21184,12 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     _LoadSpellCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
     _LoadChargesCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS));
     _LoadCompletedChallenges(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES));
     _LoadDailyLootsCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS));
 
     l_Times.push_back(getMSTime() - l_StartTime);
-
 
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
@@ -21243,7 +21227,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetPower(POWER_ECLIPSE, 0);
 
     l_Times.push_back(getMSTime() - l_StartTime);
-
 
     // must be after loading spells and talents
     Tokenizer talentTrees(fields[26].GetString(), ' ', MAX_TALENT_SPECS);
@@ -21312,7 +21295,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     // RaF stuff.
     m_grantableLevels = fields[64].GetUInt8();
 
@@ -21341,7 +21323,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
-
     // Set realmID
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
     ReloadPetBattles();
@@ -21352,7 +21333,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         m_Garrison = l_Garrison;
     else
         delete l_Garrison;
-
 
     l_Times.push_back(getMSTime() - l_StartTime);
     RewardCompletedAchievementsIfNeeded();
@@ -30038,10 +30018,21 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
                 return;
             }
 
-            l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder);
+            l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder, [](Pet* p_Pet, bool p_Result)
+            {
+                if (!p_Result)
+                {
+                    delete p_Pet;
+                    return;
+                }
 
-            if (l_Player->HasSpell(109212) && !l_Player->HasAura(118694))
-                l_Player->CastSpell(l_Player, 118694, true);
+                Player* l_Player = p_Pet->GetOwner();
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(109212) && !l_Player->HasAura(118694))
+                    l_Player->CastSpell(l_Player, 118694, true);
+            });
         }));
     });
 
@@ -31723,6 +31714,41 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
     l_Data << uint32(l_MountDisplayInfo->Displayid);
     l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
     SendDirectMessage(&l_Data);
+}
+
+float Player::GetCollisionHeight(bool p_Mounted)
+{
+    if (p_Mounted)
+    {
+        CreatureDisplayInfoEntry const* l_MountDisplayInfos = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(EUnitFields::UNIT_FIELD_MOUNT_DISPLAY_ID));
+        if (!l_MountDisplayInfos)
+            return GetCollisionHeight(false);
+
+        CreatureModelDataEntry const* l_CreatureModelData = sCreatureModelDataStore.LookupEntry(l_MountDisplayInfos->ModelId);
+        if (!l_CreatureModelData)
+            return GetCollisionHeight(false);
+
+        CreatureDisplayInfoEntry const* l_DisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
+        ASSERT (l_DisplayInfo);
+
+        CreatureModelDataEntry const* l_ModelData = sCreatureModelDataStore.LookupEntry(l_DisplayInfo->ModelId);
+        ASSERT (l_ModelData);
+
+        float l_ScaleMod = GetFloatValue(EObjectFields::OBJECT_FIELD_SCALE); ///< 99% sure about this
+
+        return l_ScaleMod * l_CreatureModelData->MountHeight + l_ModelData->CollisionHeight * 0.5f;
+    }
+    else
+    {
+        /// Dismounting case - use basic default model data
+        CreatureDisplayInfoEntry const* l_DisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
+        ASSERT (l_DisplayInfo);
+
+        CreatureModelDataEntry const* l_ModelData = sCreatureModelDataStore.LookupEntry(l_DisplayInfo->ModelId);
+        ASSERT (l_ModelData);
+
+        return l_ModelData->CollisionHeight;
+    }
 }
 
 void Player::SetMover(Unit* target)

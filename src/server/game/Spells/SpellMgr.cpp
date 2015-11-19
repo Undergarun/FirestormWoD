@@ -2622,24 +2622,29 @@ void SpellMgr::LoadPetDefaultSpells()
     uint32 countCreature = 0;
     uint32 countData = 0;
 
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
-    {
+    CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
+    uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
 
-        if (!itr->second.PetSpellDataId)
+    for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
+    {
+        CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
+        if (l_CreatureTemplate == nullptr)
+            continue;
+
+        if (!l_CreatureTemplate->PetSpellDataId)
             continue;
 
         // for creature with PetSpellDataId get default pet spells from dbc
-        CreatureSpellDataEntry const* spellDataEntry = sCreatureSpellDataStore.LookupEntry(itr->second.PetSpellDataId);
+        CreatureSpellDataEntry const* spellDataEntry = sCreatureSpellDataStore.LookupEntry(l_CreatureTemplate->PetSpellDataId);
         if (!spellDataEntry)
             continue;
 
-        int32 petSpellsId = -int32(itr->second.PetSpellDataId);
+        int32 petSpellsId = -int32(l_CreatureTemplate->PetSpellDataId);
         PetDefaultSpellsEntry petDefSpells;
         for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
             petDefSpells.spellid[j] = spellDataEntry->spellId[j];
 
-        if (LoadPetDefaultSpells_helper(&itr->second, petDefSpells))
+        if (LoadPetDefaultSpells_helper(l_CreatureTemplate, petDefSpells))
         {
             mPetDefaultSpellsMap[petSpellsId] = petDefSpells;
             ++countData;
@@ -3443,7 +3448,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160382: ///< Defense (Security Guard)
             case 158246: ///< Hot Blooded (Foreman Feldspar)
             case 156932: ///< Rupture DoT (Foreman Feldspar)
-            case 155223: ///< Melt DoT (Heart of the Mountain)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
@@ -3454,6 +3458,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155196: ///< Fixate (Slag Elemental)
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 159115: ///< Erupt (Firecaller)
+                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
                 break;
             case 178209: ///< Chest of Iron (T17)
             case 178210: ///< Legs of Iron (T17)
@@ -3476,6 +3483,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 178229: ///< Gauntlets of Iron (Mythic - T17 - Quest)
             case 178230: ///< Shoulders of Iron (Mythic - T17 - Quest)
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                break;
+            case 155200: ///< Burn (Slag Elemental)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 168178: ///< Salvage (garrison loot spell)
@@ -4039,10 +4049,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
             case 158639: ///< Orbs of Chaos (1 - Imperator Mar'gok)
-            case 178415: ///< Orbs of Chaos (2 - Imperator Mar'gok)
-                for (uint8 l_I = EFFECT_4; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
+                for (uint8 l_I = SpellEffIndex::EFFECT_8; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
                     spellInfo->Effects[l_I].Effect = 0;
-
                 break;
             case 154901: ///< Seal Conduit (third)
                 spellInfo->MaxAffectedTargets = 3;
@@ -4915,6 +4923,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165478:///< Item - Rogue T17 Combat 4P Bonus
             case 165547:///< Item - Death Knight T17 Frost 2P Bonus
             case 165568:///< Item - Death Knight T17 Frost 4P Bonus
+            case 165345:///< Item - Warrior T17 Arms 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
@@ -5627,7 +5636,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 13812: ///< Explosive Trap
             case 3355: ///< Freezing Trap
+            case 57879: ///< Snake Trap
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 break;
             case 84745: ///< Shallow Insight
             case 84746: ///< Moderate Insight
@@ -5779,6 +5790,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ValueMultiplier = 0;
                 break;
             case 165201:///< Mind blast (reduce cooldown from haste)
+            case 56242: ///< Glyph of Imp Swarm
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
                 spellInfo->Effects[1].MiscValue = 11;
                 break;
@@ -5801,7 +5813,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Speed = 0;
                 break;
             case 157695:///< Demonbolt
-                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_NORMAL;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_NOT_NEED_SHAPESHIFT;
                 spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
                 break;
@@ -5852,11 +5863,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 170883: ///< Item - Rogue WoD PvP Assassination 4P Bonus
             case 165886: ///< Item - Paladin WoD PvP Retribution 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
+            case 166009: ///< Item - Hunter WoD PvP 2P Bonus
             case 162452: ///< Shadowy Insight
             case 87160:  ///< Surge of Darkness
             case 73685:  ///< Unleash Life (restoration)
             case 118864: ///< Combo Breaker (tiger palm)
             case 116768: ///< Combo Breaker (blackout kick)
+            case 64803: ///< Entrapment
+            case 135373: ///< Entrapment
                 spellInfo->ProcFlags = 0;
                 break;
             /// All spells - ProcCharges = 1

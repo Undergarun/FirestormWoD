@@ -4002,6 +4002,14 @@ void Spell::cast(bool skipCheck)
     if (m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
         m_caster->ToCreature()->AI()->OnSpellCasted(m_spellInfo);
 
+    /// Soul Swap - if we have copied DOTs and cast any other spell, soul swap will refresh duration of all DOTs
+    if (m_caster->ToPlayer() && m_caster->getClass() == CLASS_WARLOCK && m_caster->ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
+    {
+        /// Ignore generic proc spells like Soul Shards (visual), Life Steal etc, also ignore Soul Swap spell
+        if (m_spellInfo && m_spellInfo->Id != 86121 && m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && _triggeredCastFlags == TRIGGERED_NONE && m_caster->HasAura(86211))
+            m_caster->SetSoulSwapRefreshDuration(true);
+    }
+
     // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed 
     if (m_caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && m_caster->isMoving() && !m_caster->HasAura(119048) && m_spellInfo->CalcCastTime(m_caster) > 0)
         m_caster->CastSpell(m_caster, 119050, true);
@@ -7006,6 +7014,11 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
         default: break;
     }
+
+    /// Fix a bug when spells can be casted in fear
+    if (m_caster->HasAuraType(SPELL_AURA_MOD_FEAR) || m_caster->HasAuraType(SPELL_AURA_MOD_FEAR_2))
+        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear())
+            return SPELL_FAILED_FLEEING;
 
     // hex
     if (m_caster->HasAuraWithMechanic(1 << MECHANIC_POLYMORPH))

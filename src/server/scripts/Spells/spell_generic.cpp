@@ -327,25 +327,32 @@ class spell_gen_pet_summoned: public SpellScriptLoader
                                     return;
                                 }
 
-                                l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder);
-
-                                // revive the pet if it is dead
-                                if (l_NewPet->getDeathState() == DEAD || l_NewPet->getDeathState() == CORPSE)
-                                    l_NewPet->setDeathState(ALIVE);
-
-                                l_NewPet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
-                                l_NewPet->SetFullHealth();
-                                l_NewPet->SetPower(l_NewPet->getPowerType(), l_NewPet->GetMaxPower(l_NewPet->getPowerType()));
-
-                                switch (l_NewPet->GetEntry())
+                                l_NewPet->LoadPetFromDB(l_Player, 0, l_PetNumber, true, PET_SLOT_UNK_SLOT, false, (PetQueryHolder*)p_QueryHolder, [](Pet* p_Pet, bool p_Result) -> void
                                 {
-                                    case NPC_DOOMGUARD:
-                                    case NPC_INFERNAL:
-                                        l_NewPet->SetEntry(NPC_IMP);
-                                        break;
-                                    default:
-                                        break;
-                                }
+                                    if (!p_Result)
+                                    {
+                                        delete p_Pet;
+                                        return;
+                                    }
+
+                                    // revive the pet if it is dead
+                                    if (p_Pet->getDeathState() == DEAD || p_Pet->getDeathState() == CORPSE)
+                                        p_Pet->setDeathState(ALIVE);
+
+                                    p_Pet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+                                    p_Pet->SetFullHealth();
+                                    p_Pet->SetPower(p_Pet->getPowerType(), p_Pet->GetMaxPower(p_Pet->getPowerType()));
+
+                                    switch (p_Pet->GetEntry())
+                                    {
+                                        case NPC_DOOMGUARD:
+                                        case NPC_INFERNAL:
+                                            p_Pet->SetEntry(NPC_IMP);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                });
                             }));
                         });
                     }
@@ -3923,26 +3930,64 @@ class spell_gen_selfie_camera : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_selfie_camera_AuraScript);
 
+            uint64 m_PhotoBinberGUID = 0;
+
+            enum eData
+            {
+                PhotoBomberNPC  = 91977,
+                VisualKit       = 54168
+            };
+
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
-                        return;
+                Unit* l_Caster = GetCaster();
 
-                    l_Caster->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                l_Caster->ToPlayer()->SendPlaySpellVisualKit(eData::VisualKit, 2, 0);
+
+                std::list<Creature*> l_ListPhotoBomber;
+
+                l_Caster->GetCreatureListWithEntryInGrid(l_ListPhotoBomber, eData::PhotoBomberNPC, 100.0f);
+
+                /// Remove other players Master PhotoBomber
+                for (std::list<Creature*>::iterator i = l_ListPhotoBomber.begin(); i != l_ListPhotoBomber.end();)
+                {
+                    Unit* l_Owner = (*i)->GetOwner();
+
+                    if (l_Owner != nullptr && l_Owner->GetGUID() == l_Caster->GetGUID() && (*i)->isSummon())
+                    {
+                        ++i;
+                        continue;
+                    }
+
+                    l_ListPhotoBomber.remove((*i));
                 }
+
+                for (auto l_Itr : l_ListPhotoBomber)
+                    m_PhotoBinberGUID = l_Itr->GetGUID();
             }
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
-                        return;
+                Creature* l_PhotoBomber = ObjectAccessor::FindCreature(m_PhotoBinberGUID);
 
-                    l_Caster->ToPlayer()->CancelSpellVisualKit(54168);
-                }
+                if (l_PhotoBomber != nullptr)
+                    l_PhotoBomber->DespawnOrUnsummon();
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                l_Caster->ToPlayer()->CancelSpellVisualKit(eData::VisualKit);
             }
 
             void Register()
@@ -4586,8 +4631,43 @@ public:
     }
 };
 
+/// Shadowmeld - 58984
+class spell_gen_shadowmeld : public SpellScriptLoader
+{
+    public:
+        spell_gen_shadowmeld() : SpellScriptLoader("spell_gen_shadowmeld") { }
+
+        class spell_gen_shadowmeld_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_shadowmeld_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                /// 6.1 Hotfixes: March 23 - Should drop the character from pvp combat
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->IsInPvPCombat())
+                    l_Player->SetInPvPCombat(false);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_shadowmeld_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_TOTAL_THREAT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_shadowmeld_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_shadowmeld();
     new spell_gen_mark_of_warsong();
     new spell_gen_savage_fortitude();
     new spell_dru_touch_of_the_grave();

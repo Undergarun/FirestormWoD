@@ -173,7 +173,8 @@ class boss_oregorger : public CreatureScript
         enum eCosmeticEvents
         {
             EventCheckTrashs = 1,
-            EventCollectOre
+            EventCollectOre,
+            EventCheckLastCollision
         };
 
         enum eCreatures
@@ -195,6 +196,7 @@ class boss_oregorger : public CreatureScript
         enum eDatas
         {
             DataMitigationPct,
+            MoveResetRolling,
             MovementFinished = 666
         };
 
@@ -249,6 +251,8 @@ class boss_oregorger : public CreatureScript
             uint8 m_PathCount;
 
             std::set<uint64> m_BlackrockOres;
+
+            uint32 m_LastCollisionTime;
 
             void Reset() override
             {
@@ -317,14 +321,32 @@ class boss_oregorger : public CreatureScript
                 m_PathCount = 0;
 
                 m_BlackrockOres.clear();
+
+                m_LastCollisionTime = 0;
             }
 
             void JustSummoned(Creature* p_Summon) override
             {
-                if (p_Summon->GetEntry() == eCreatures::BlackrockOre)
-                    m_BlackrockOres.insert(p_Summon->GetGUID());
-                else if (p_Summon->GetEntry() == eCreatures::UnstableSlag)
-                    p_Summon->CastSpell(p_Summon, eSpells::ExpelUnstableSlagVisual, true);
+                switch (p_Summon->GetEntry())
+                {
+                    case eCreatures::OreCrate:
+                    {
+                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                        break;
+                    }
+                    case eCreatures::BlackrockOre:
+                    {
+                        m_BlackrockOres.insert(p_Summon->GetGUID());
+                        break;
+                    }
+                    case eCreatures::UnstableSlag:
+                    {
+                        p_Summon->CastSpell(p_Summon, eSpells::ExpelUnstableSlagVisual, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
 
                 BossAI::JustSummoned(p_Summon);
             }
@@ -488,7 +510,7 @@ class boss_oregorger : public CreatureScript
                             {
                                 l_Crate->SetReactState(ReactStates::REACT_PASSIVE);
                                 l_Crate->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                                l_Crate->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+                                l_Crate->AddUnitState(UnitState::UNIT_STATE_STUNNED | UnitState::UNIT_STATE_ROOT);
                                 l_Crate->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                                 l_Crate->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
                             }
@@ -518,6 +540,8 @@ class boss_oregorger : public CreatureScript
                             me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
                         }
                     });
+
+                    m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckLastCollision, 1 * TimeConstants::IN_MILLISECONDS);
                 }
                 /// When Oregorger reaches full Mana, Phase One restarts.
                 else if (p_Value == 100)
@@ -530,6 +554,7 @@ class boss_oregorger : public CreatureScript
                     me->RemoveAura(eSpells::RollingFuryAura);
 
                     m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventCollectOre);
+                    m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventCheckLastCollision);
 
                     AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
@@ -664,43 +689,10 @@ class boss_oregorger : public CreatureScript
                             return;
                         }
 
-                        m_PathCount = 0;
-
-                        me->RemoveAura(eSpells::RollingFuryAura);
-
-                        me->CastSpell(me, eSpells::EarthshakingCollision, true);
-
-                        /// In Mythic difficulty, these collisions also leave Unstable Slag residue at the location of the collision.
-                        /// Unstable Slag explodes if another collision occurs at the same location.
-                        if (IsMythic())
-                        {
-                            if (Creature* l_Slag = me->FindNearestCreature(eCreatures::UnstableSlag, 2.0f))
-                            {
-                                l_Slag->CastSpell(l_Slag, eSpells::UnstableSlagExplosionAT, true);
-
-                                //////////////////////////////////////////////////////////////////////////
-                                /// MISSING AREATRIGGER TEMPLATE DATAS FOR MYTHIC
-                                //////////////////////////////////////////////////////////////////////////
-                            }
-                            else
-                                me->CastSpell(me, eSpells::ExpelUnstableSlagSummon, true);
-                        }
-
-                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            SelectPath();
-                        });
-
-                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            me->CastSpell(me, eSpells::RollingFuryAura, true);
-
-                            if (m_NextPos.m_positionX != 0.0f)
-                                me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
-                            else
-                                me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
-                        });
+                        HandleCollisionPoint();
                     }
+                    else if (p_ID == eDatas::MoveResetRolling)
+                        HandleCollisionPoint();
 
                     return;
                 }
@@ -934,6 +926,21 @@ class boss_oregorger : public CreatureScript
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCollectOre, 200);
                         break;
                     }
+                    case eCosmeticEvents::EventCheckLastCollision:
+                    {
+                        if (time(nullptr) >= (m_LastCollisionTime + 15 * TimeConstants::IN_MILLISECONDS))
+                        {
+                            G3D::Vector2 l_Point = GetNearestIntersectionPoint(me, 0.0f).first;
+
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(eDatas::MoveResetRolling, l_Point.x, l_Point.y, me->GetPositionZ());
+
+                            m_LastCollisionTime = 0;
+                        }
+
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckLastCollision, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -999,7 +1006,7 @@ class boss_oregorger : public CreatureScript
                     case eEvents::EventBlackrockSpines:
                     {
                         if (AuraPtr l_Aura = me->AddAura(eSpells::BlackrockSpines, me))
-                            l_Aura->SetStackAmount(IsMythic() ? 5 : 3);
+                            l_Aura->ModStackAmount(IsMythic() ? 5 : 3);
 
                         Talk(eTalks::BlackrockBarrage);
                         m_Events.ScheduleEvent(eEvents::EventBlackrockSpines, 19 * TimeConstants::IN_MILLISECONDS);
@@ -1316,6 +1323,48 @@ class boss_oregorger : public CreatureScript
                 }
 
                 return l_Pos;
+            }
+
+            void HandleCollisionPoint()
+            {
+                m_LastCollisionTime = time(nullptr);
+
+                m_PathCount = 0;
+
+                me->RemoveAura(eSpells::RollingFuryAura);
+
+                me->CastSpell(me, eSpells::EarthshakingCollision, true);
+
+                /// In Mythic difficulty, these collisions also leave Unstable Slag residue at the location of the collision.
+                /// Unstable Slag explodes if another collision occurs at the same location.
+                if (IsMythic())
+                {
+                    if (Creature* l_Slag = me->FindNearestCreature(eCreatures::UnstableSlag, 2.0f))
+                    {
+                        l_Slag->CastSpell(l_Slag, eSpells::UnstableSlagExplosionAT, true);
+
+                        //////////////////////////////////////////////////////////////////////////
+                        /// MISSING AREATRIGGER TEMPLATE DATAS FOR MYTHIC
+                        //////////////////////////////////////////////////////////////////////////
+                    }
+                    else
+                        me->CastSpell(me, eSpells::ExpelUnstableSlagSummon, true);
+                }
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    SelectPath();
+                });
+
+                AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->CastSpell(me, eSpells::RollingFuryAura, true);
+
+                    if (m_NextPos.m_positionX != 0.0f)
+                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
+                    else
+                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                });
             }
         };
 

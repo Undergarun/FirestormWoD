@@ -340,8 +340,6 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 ExplosiveShot   = 53301
             };
 
-            bool m_AlreadyProcLockAndLoad = false;
-
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (GetCaster() == nullptr)
@@ -351,11 +349,6 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 {
                     if (!roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
                         return;
-
-                    if (m_AlreadyProcLockAndLoad)
-                        return;
-
-                    m_AlreadyProcLockAndLoad = true;
 
                     if (l_Player->HasSpellCooldown(eSpells::ExplosiveShot))
                         l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot, true);
@@ -372,7 +365,7 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
-                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id);
+                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
                 }
             }
 
@@ -3592,8 +3585,13 @@ class spell_hun_explosive_shot : public SpellScriptLoader
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                SetHitDamage((int32)(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.553f * 1.08f));
+                int32 l_Damage = (int32)(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.553f);
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
 
                 /// When you hit a target with Explosive Shot, your multistrike damage is increased by 15% for 3 sec.
                 if (l_Caster->HasAura(eSpells::T17Survival4P))
@@ -3906,6 +3904,59 @@ class spell_hun_t17_marksmanship_4p : public SpellScriptLoader
         }
 };
 
+/// Trap Launcher - 77769
+class spell_hun_trap_launcher : public SpellScriptLoader
+{
+    public:
+        spell_hun_trap_launcher() : SpellScriptLoader("spell_hun_trap_launcher") { }
+
+        class spell_hun_trap_launcher_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_trap_launcher_AuraScript);
+
+            enum eSpells
+            {
+                GLYPH_OF_SNAKE_TRAP = 159470
+            };
+
+            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (AuraEffectPtr l_GlyphOfSnakeTrapEff = l_Player->GetAuraEffect(GLYPH_OF_SNAKE_TRAP, EFFECT_0))
+                        l_GlyphOfSnakeTrapEff->ChangeAmount(p_Amount, true, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    SpellInfo const* l_GlyphOfSnakeTrap = sSpellMgr->GetSpellInfo(159470);
+                    if (!l_GlyphOfSnakeTrap)
+                        return;
+
+                    int32 l_SpellId = l_GlyphOfSnakeTrap->Effects[EFFECT_0].BasePoints;
+                    if (AuraEffectPtr l_GlyphOfSnakeTrapEff = l_Player->GetAuraEffect(GLYPH_OF_SNAKE_TRAP, EFFECT_0))
+                        l_GlyphOfSnakeTrapEff->ChangeAmount(l_SpellId, true, true);
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_trap_launcher_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_trap_launcher_AuraScript::OnRemove, EFFECT_3, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_trap_launcher_AuraScript();
+        }
+};
+
+
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_thick_hide();
@@ -3973,6 +4024,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_poisoned_ammo();
     new spell_hun_adaptation();
     new spell_hun_t17_marksmanship_4p();
+    new spell_hun_trap_launcher();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();

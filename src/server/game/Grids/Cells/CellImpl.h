@@ -100,8 +100,23 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
     //ALWAYS visit standing cell first!!! Since we deal with small radiuses
     //it is very essential to call visitor for standing cell firstly...
     map.Visit(*this, visitor);
-       
-    if (radius <= SIZE_OF_GRID_CELL)
+    /*
+    auto l_CurrentCellCoord = JadeCore::ComputeCellCoord(x_off, y_off);
+    float l_VisitorX = l_CurrentCellCoord.x_coord;
+    float l_VisitorY = l_CurrentCellCoord.y_coord;
+
+    #define VISIT_CHECK_CELL(mp_X, mp_Y)    do                                                                \
+                                            {                                                                 \
+                                                CellCoord cellCoord = CellCoord(mp_X, mp_Y);                  \
+                                                if (cellCoord != standing_cell)                               \
+                                                {                                                             \
+                                                    Cell r_zone(cellCoord);                                   \
+                                                    r_zone.data.Part.nocreate = this->data.Part.nocreate;     \
+                                                    map.Visit(r_zone, visitor);                               \
+                                                }                                                             \
+                                            } while (0);
+
+    if (radius <= SIZE_OF_GRID_CELL || radius <= (2 * SIZE_OF_GRID_CELL))
     {
         /// Y
         /// ^
@@ -119,32 +134,45 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
         /// |  |           |           |           |
         /// |  |-----------x-----------x-----------|
         /// 0 ======================================> X
-        float l_VisitorX = x_off;
-        float l_VisitorY = y_off;
 
-        #define VISIT_CHECK_CELL(mp_X, mp_Y)    do                                                                \
-                                                {                                                                 \
-                                                    CellCoord cellCoord = CellCoord(mp_X, mp_Y);                  \
-                                                    if (cellCoord != standing_cell)                               \
-                                                    {                                                             \
-                                                        Cell r_zone(cellCoord);                                   \
-                                                        r_zone.data.Part.nocreate = this->data.Part.nocreate;     \
-                                                        map.Visit(r_zone, visitor);                               \
-                                                    }                                                             \
-                                                } while (0);
-
-        VISIT_CHECK_CELL(l_VisitorX - radius, l_VisitorY + radius);     ///< Cell 1
-        VISIT_CHECK_CELL(l_VisitorX, l_VisitorY + radius);              ///< Cell 2
-        VISIT_CHECK_CELL(l_VisitorX + radius, l_VisitorY + radius);     ///< Cell 3
-        VISIT_CHECK_CELL(l_VisitorX - radius, l_VisitorY);              ///< Cell 4
-        VISIT_CHECK_CELL(l_VisitorX + radius, l_VisitorY);              ///< Cell 5
-        VISIT_CHECK_CELL(l_VisitorX - radius, l_VisitorY - radius);     ///< Cell 6
-        VISIT_CHECK_CELL(l_VisitorX, l_VisitorY - radius);              ///< Cell 7
-        VISIT_CHECK_CELL(l_VisitorX + radius, l_VisitorY - radius);     ///< Cell 8
-
-        #undef VISIT_CHECK_CELL
+        VISIT_CHECK_CELL(l_VisitorX - 1,    l_VisitorY + 1);     ///< Cell 1
+        VISIT_CHECK_CELL(l_VisitorX,        l_VisitorY + 1);     ///< Cell 2
+        VISIT_CHECK_CELL(l_VisitorX + 1,    l_VisitorY + 1);     ///< Cell 3
+        VISIT_CHECK_CELL(l_VisitorX - 1,    l_VisitorY);         ///< Cell 4
+        VISIT_CHECK_CELL(l_VisitorX + 1,    l_VisitorY);         ///< Cell 5
+        VISIT_CHECK_CELL(l_VisitorX - 1,    l_VisitorY - 1);     ///< Cell 6
+        VISIT_CHECK_CELL(l_VisitorX,        l_VisitorY - 1);     ///< Cell 7
+        VISIT_CHECK_CELL(l_VisitorX + 1,    l_VisitorY - 1);     ///< Cell 8
     }
-    else if (radius > SIZE_OF_GRID_CELL)
+
+    if (radius > SIZE_OF_GRID_CELL && radius <= (2 * SIZE_OF_GRID_CELL))
+    {
+        /// Up area
+        VISIT_CHECK_CELL(l_VisitorX - 2,  l_VisitorY + 2);
+        VISIT_CHECK_CELL(l_VisitorX - 1,  l_VisitorY + 2);
+        VISIT_CHECK_CELL(l_VisitorX,      l_VisitorY + 2);
+        VISIT_CHECK_CELL(l_VisitorX + 1,  l_VisitorY + 2);
+        VISIT_CHECK_CELL(l_VisitorX + 2,  l_VisitorY + 2);
+
+        /// Left area
+        VISIT_CHECK_CELL(l_VisitorX - 2,  l_VisitorY + 1);
+        VISIT_CHECK_CELL(l_VisitorX - 2,  l_VisitorY);
+        VISIT_CHECK_CELL(l_VisitorX - 2,  l_VisitorY - 1);
+        
+        /// Right area
+        VISIT_CHECK_CELL(l_VisitorX + 2,  l_VisitorY + 1);
+        VISIT_CHECK_CELL(l_VisitorX + 2,  l_VisitorY);
+        VISIT_CHECK_CELL(l_VisitorX + 2,  l_VisitorY - 1);
+
+        /// Down area
+        VISIT_CHECK_CELL(l_VisitorX - 2,  l_VisitorY - 2);
+        VISIT_CHECK_CELL(l_VisitorX - 1,  l_VisitorY - 2);
+        VISIT_CHECK_CELL(l_VisitorX,      l_VisitorY - 2);
+        VISIT_CHECK_CELL(l_VisitorX + 1,  l_VisitorY - 2);
+        VISIT_CHECK_CELL(l_VisitorX + 2,  l_VisitorY - 2);
+    }
+
+    if (radius > (2 * SIZE_OF_GRID_CELL))*/
     {
         // loop the cell range
         for (uint32 x = area.low_bound.x_coord; x <= area.high_bound.x_coord; ++x)
@@ -162,6 +190,8 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
             }
         }
     }
+
+    //#undef VISIT_CHECK_CELL
 }
 
 template<class T, class CONTAINER>

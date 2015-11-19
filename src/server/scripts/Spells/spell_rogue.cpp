@@ -1220,7 +1220,10 @@ class spell_rog_envenom: public SpellScriptLoader
                 SliceAndDice        = 5171,
                 Tier5Bonus2P        = 37169,
                 T17Assassination4P  = 166886,
-                EnvenomComboPoint   = 167106
+                EnvenomComboPoint   = 167106,
+                Ruthlessness        = 14161,
+                RelentlessStrikes   = 58423,
+                RelentlessStrikesProc = 14181
             };
 
             void HandleDamage(SpellEffIndex effIndex)
@@ -1256,6 +1259,14 @@ class spell_rog_envenom: public SpellScriptLoader
                 /// Envenom refunds 1 Combo Point.
                 if (l_Caster->HasAura(eSpells::T17Assassination4P))
                     l_Caster->CastSpell(l_Caster, eSpells::EnvenomComboPoint, true);
+
+                /// Relentless Strikes
+                if (l_Caster->HasAura(eSpells::RelentlessStrikes))
+                {
+                    if (SpellInfo const* l_RelentlessStrikes = sSpellMgr->GetSpellInfo(eSpells::Ruthlessness))
+                        if (roll_chance_i(l_RelentlessStrikes->Effects[0].PointsPerComboPoint * l_ComboPoint))
+                                l_Caster->CastSpell(l_Caster, eSpells::RelentlessStrikesProc, true);
+                }
             }
 
             void Register()
@@ -1476,6 +1487,13 @@ class spell_rog_crimson_tempest: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_crimson_tempest_SpellScript);
 
+            enum eSpells
+            {
+                Ruthlessness = 14161,
+                RelentlessStrikes = 58423,
+                RelentlessStrikesProc = 14181
+            };
+
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
@@ -1503,6 +1521,19 @@ class spell_rog_crimson_tempest: public SpellScriptLoader
                         }
 
                         SetHitDamage(l_Damage);
+
+                        /// Relentless Strikes
+                        if (l_Player->HasAura(eSpells::RelentlessStrikes) && !l_Player->HasSpellCooldown(eSpells::RelentlessStrikesProc))
+                        {
+                            if (SpellInfo const* l_RelentlessStrikes = sSpellMgr->GetSpellInfo(eSpells::Ruthlessness))
+                            {
+                                if (roll_chance_i(l_RelentlessStrikes->Effects[0].PointsPerComboPoint * l_ComboPoint))
+                                {
+                                    l_Player->CastSpell(l_Player, eSpells::RelentlessStrikesProc, true);
+                                    l_Player->AddSpellCooldown(eSpells::RelentlessStrikesProc, 0, 2 * IN_MILLISECONDS); ///< Custom cooldown to prevent multiprocs
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -2481,7 +2512,7 @@ class PlayerScript_ruthlessness : public PlayerScript
             /// Get the power earn (if > 0 ) or consum (if < 0)
             int32 l_DiffVal = p_NewValue - p_OldValue;
 
-            if (l_DiffVal)
+            if (l_DiffVal < 0)
             {
                 if (p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
                 {

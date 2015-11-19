@@ -276,9 +276,7 @@ namespace MS { namespace Garrison
                 uint32 l_NextSpawnTimeStamp = atol(l_Datas[l_Index++]);
                 uint32 l_BuildingLevel = atol(l_Datas[l_Index++]);
 
-                float l_UnpackedX = 0;
-                float l_UnpackedY = 0;
-                float l_UnpackedZ = 0;
+                float l_UnpackedX, l_UnpackedY, l_UnpackedZ = 0;
 
                 *(uint32*)(&l_UnpackedX) = (p_GUID & 0x00000000FFFFFFFF) >> 0;
                 *(uint32*)(&l_UnpackedY) = (p_GUID & 0xFFFFFFFF00000000) >> 32;

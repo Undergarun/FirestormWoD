@@ -1191,6 +1191,9 @@ class WorldSession
         /// Auto sort bags.
         void HandleSortBags(WorldPacket& p_RecvData);
 
+        /// Gms command cooldowns (performances)
+        time_t m_TimeLastTicketOnlineList;
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();

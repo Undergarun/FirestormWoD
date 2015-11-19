@@ -3107,9 +3107,9 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
                     p_Callback(p_Pet, true);
                 });
-
             }));
         });
+
         return;
     }
 

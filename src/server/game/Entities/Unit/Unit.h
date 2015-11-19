@@ -723,7 +723,7 @@ enum eUnitFlags2
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
     UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
-    UNIT_FLAG2_UNK3                         = 0x00080000,   ///< Remove Hightlight on cursor 
+    UNIT_FLAG2_UNK3                         = 0x00080000,   ///< Remove Hightlight on cursor
     UNIT_FLAG2_UNK4                         = 0x00100000,
     UNIT_FLAG2_UNK5                         = 0x00200000,
     UNIT_FLAG2_UNK6                         = 0x00400000,
@@ -1773,16 +1773,14 @@ class Unit : public WorldObject
         float CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature);
 
         float MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell, WeaponAttackType p_AttType) const;
-        float MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spell);
         SpellMissInfo MagicSpellHitResult(Unit* p_Victim, SpellInfo const* p_Spell);
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spell, bool canReflect = false);
 
-        float GetUnitDodgeChance(Unit const* p_Attacker) const;
-        float GetUnitParryChance(Unit const* p_Attacker) const;
-        float GetUnitBlockChance(Unit const* p_Attacker) const;
-        float GetUnitMissChancePhysical(Unit const* p_Attacker, WeaponAttackType attType) const;
-        float GetUnitMissChanceSpell(Unit const* p_Attacker) const;
+        float GetUnitDodgeChanceAgainst(Unit const* p_Attacker) const;
+        float GetUnitParryChanceAgainst(Unit const* p_Attacker) const;
+        float GetUnitBlockChanceAgainst(Unit const* p_Attacker) const;
+        float GetUnitMissChance(Unit const* p_Attacker, WeaponAttackType attType) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
         int32 GetMechanicResistChance(const SpellInfo* spell);
         bool CanUseAttackType(uint8 attacktype) const
@@ -1798,12 +1796,10 @@ class Unit : public WorldObject
 
         virtual uint32 GetBlockPercent() { return 30; }
 
-        uint32 GetUnitMeleeSkill(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         float GetWeaponProcChance() const;
         float GetPPMProcChance(uint32 WeaponSpeed, float PPM,  const SpellInfo* spellProto) const;
 
         MeleeHitOutcome RollMeleeOutcomeAgainst (Unit* victim, WeaponAttackType attType);
-        MeleeHitOutcome RollMeleeOutcomeAgainst (Unit* victim, WeaponAttackType attType, int32 crit_chance, int32 miss_chance, int32 dodge_chance, int32 parry_chance, int32 block_chance);
 
         bool isVendor()       const { return HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR); }
         bool isTrainer()      const { return HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_TRAINER); }
@@ -2175,6 +2171,8 @@ class Unit : public WorldObject
         void RemoveSoulSwapDotTarget() { soulSwapTargetGUID = 0;  }
         uint64 GetSoulSwapDotTargetGUID() { return soulSwapTargetGUID; }
         Unit* GetSoulSwapDotTarget();
+        void SetSoulSwapRefreshDuration(bool refresh) { soulSwapRefreshDuration = refresh; }
+        bool GetSoulSwapRefreshDuration() { return soulSwapRefreshDuration; }
 
         AuraEffectPtr IsScriptOverriden(SpellInfo const* spell, int32 script) const;
         uint32 GetDiseasesByCaster(uint64 casterGUID, bool remove = false);
@@ -2624,15 +2622,8 @@ class Unit : public WorldObject
         void FocusTarget(Spell const* p_FocusSpell, WorldObject* p_Target);
         void ReleaseFocus(Spell const* focusSpell);
 
-        uint32 GetHealingDoneInPastSecs(uint32 secs);
-        uint32 GetHealingTakenInPastSecs(uint32 secs);
-        uint32 GetDamageDoneInPastSecs(uint32 secs);
         uint32 GetDamageDoneInPastSecsBySpell(uint32 secs, uint32 spellId);
-        uint32 GetDamageTakenInPastSecs(uint32 secs);
-        void SetHealDone(HealDone* healDone) { m_healDone.push_back(healDone); }
-        void SetHealTaken(HealTaken* healTaken) { m_healTaken.push_back(healTaken); }
         void SetDamageDone(DamageDone* dmgDone) { m_dmgDone.push_back(dmgDone); }
-        void SetDamageTaken(DamageTaken* dmgTaken) { m_dmgTaken.push_back(dmgTaken); }
 
         // Movement info
         Movement::MoveSpline * movespline;
@@ -2763,14 +2754,8 @@ class Unit : public WorldObject
         };
         std::set<SoulSwapAurasData*> _SoulSwapDOTData;
 
-        typedef std::list<HealDone*> HealDoneList;
-        typedef std::list<HealTaken*> HealTakenList;
         typedef std::list<DamageDone*> DmgDoneList;
-        typedef std::list<DamageTaken*> DmgTakenList;
-        HealDoneList m_healDone;
-        HealTakenList m_healTaken;
         DmgDoneList m_dmgDone;
-        DmgTakenList m_dmgTaken;
 
         float m_auraModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_END];
         float m_weaponDamage[WeaponAttackType::MaxAttack][2];
@@ -2864,6 +2849,7 @@ class Unit : public WorldObject
         bool m_IsDispelSuccessful;
         bool psychicHorrorGainedPower;
         uint64 soulSwapTargetGUID;
+        bool soulSwapRefreshDuration;
         uint32 l_LastUsedLeapBackSpell;
 
         Diminishing m_Diminishing;

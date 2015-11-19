@@ -1590,11 +1590,11 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
 
 void AuraEffect::Update(uint32 diff, Unit* caster)
 {
-    AuraPtr baseAura = GetBase();
-    if (baseAura)
-        baseAura->CallScriptEffectUpdateHandlers(diff, shared_from_this());
+    Aura* l_Base = (Aura*)m_base.get(); ///< avoid copy of Aura, AuraEffect::Update is called very often
+    if (l_Base)
+        l_Base->CallScriptEffectUpdateHandlers(diff, shared_from_this());
 
-    if (m_isPeriodic && baseAura && (baseAura->GetDuration() >= 0 || baseAura->IsPassive() || baseAura->IsPermanent()))
+    if (m_isPeriodic && l_Base && (l_Base->GetDuration() >= 0 || l_Base->IsPassive() || l_Base->IsPermanent()))
     {
         if (m_periodicTimer > int32(diff))
             m_periodicTimer -= diff;
@@ -1614,9 +1614,9 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
                     PeriodicTick(*apptItr, caster);
 
             // TEMPORARY HACKS FOR PERIODIC HANDLERS OF DYNAMIC OBJECT AURAS
-            if (baseAura->GetType() == DYNOBJ_AURA_TYPE)
+            if (l_Base->GetType() == DYNOBJ_AURA_TYPE)
             {
-                if (DynamicObject const* d_owner = baseAura->GetDynobjOwner())
+                if (DynamicObject const* d_owner = l_Base->GetDynobjOwner())
                 {
                     switch (GetSpellInfo()->Id)
                     {
@@ -3493,7 +3493,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
         switch (GetId())
         {
             case 171630:                ///< Armored Razorback
-                l_DisplayId = 61484;
+                l_DisplayId = 59346;
                 break;
             case 171619:                ///< Tundra Icehoof
                 l_DisplayId = 53307;
@@ -5350,16 +5350,21 @@ void AuraEffect::HandleModHitChance(AuraApplication const* aurApp, uint8 mode, b
 
     Unit* target = aurApp->GetTarget();
 
-    target->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
-    target->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
-
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
+        target->ToPlayer()->UpdateMeleeHitChances();
+        target->ToPlayer()->UpdateRangedHitChances();
+
         if (Pet* pet = target->ToPlayer()->GetPet())
         {
             pet->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
             pet->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
         }
+    }
+    else
+    {
+        target->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
+        target->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
     }
 }
 
@@ -5370,13 +5375,15 @@ void AuraEffect::HandleModSpellHitChance(AuraApplication const* aurApp, uint8 mo
 
     Unit* target = aurApp->GetTarget();
 
-    target->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
-
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
+        target->ToPlayer()->UpdateSpellHitChances();
+
         if (Pet* pet = target->ToPlayer()->GetPet())
             pet->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
     }
+    else
+        target->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
 }
 
 void AuraEffect::HandleModSpellCritChance(AuraApplication const* aurApp, uint8 mode, bool apply) const

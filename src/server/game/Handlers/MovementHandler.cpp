@@ -119,7 +119,12 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         else if (Battleground* bg = m_Player->GetBattleground())
         {
             if (m_Player->IsInvitedForBattlegroundInstance(m_Player->GetBattlegroundId()))
+            {
                 bg->AddPlayer(m_Player);
+
+                /// Remove battleground queue status from BGmgr
+                sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true, MS::Battlegrounds::GetSchedulerType(bg->GetTypeID()));
+            }
         }
     }
 
@@ -425,7 +430,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 
     uint32 l_MSTime = getMSTime();
 
-    //if (m_clientTimeDelay == 0)
+    if (m_clientTimeDelay == 0)
         m_clientTimeDelay = l_MSTime - l_MovementInfo.time;
 
     l_MovementInfo.time = l_MovementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
@@ -1045,7 +1050,7 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
                 break;
 
             case MSEAlive32:
-                p_Data << p_MovementInformation->Alive32;
+                p_Data << uint32(0);
                 break;
 
             case MSEUnkCounter:

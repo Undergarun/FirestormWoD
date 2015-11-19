@@ -2107,10 +2107,16 @@ void LoadLootTemplates_Creature()
     uint32 count = LootTemplates_Creature.LoadAndCollectLootIds(lootIdSet);
 
     // Remove real entries and check loot existence
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
+    uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
+
+    for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
     {
-        if (uint32 lootid = itr->second.lootid)
+        CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
+        if (l_CreatureTemplate == nullptr)
+            continue;
+
+        if (uint32 lootid = l_CreatureTemplate->lootid)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
                 LootTemplates_Creature.ReportNotExistedId(lootid);
@@ -2286,10 +2292,16 @@ void LoadLootTemplates_Pickpocketing()
     uint32 count = LootTemplates_Pickpocketing.LoadAndCollectLootIds(lootIdSet);
 
     // Remove real entries and check loot existence
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
+    uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
+
+    for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
     {
-        if (uint32 lootid = itr->second.pickpocketLootId)
+        CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
+        if (l_CreatureTemplate == nullptr)
+            continue;
+
+        if (uint32 lootid = l_CreatureTemplate->pickpocketLootId)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
                 LootTemplates_Pickpocketing.ReportNotExistedId(lootid);
@@ -2373,10 +2385,16 @@ void LoadLootTemplates_Skinning()
     uint32 count = LootTemplates_Skinning.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
+    uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
+
+    for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
     {
-        if (uint32 lootid = itr->second.SkinLootId)
+        CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
+        if (l_CreatureTemplate == nullptr)
+            continue;
+
+        if (uint32 lootid = l_CreatureTemplate->SkinLootId)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
                 LootTemplates_Skinning.ReportNotExistedId(lootid);

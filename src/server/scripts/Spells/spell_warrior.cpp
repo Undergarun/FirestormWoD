@@ -1784,15 +1784,6 @@ class spell_warr_execute: public SpellScriptLoader
                 if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
                     l_Aura->Remove();
 
-                bool l_ApplyMastery = l_Target != nullptr && l_Target->GetHealthPct() <= 20.0f;
-
-                if (l_ApplyMastery && l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
-                {
-                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
-
-                    l_Damage += CalculatePct(l_Damage, l_MasteryValue);
-                }
-                
                 SetHitDamage(l_Damage);
             }
 

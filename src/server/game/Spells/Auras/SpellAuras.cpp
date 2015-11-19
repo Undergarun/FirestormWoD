@@ -999,6 +999,9 @@ void Aura::Update(uint32 diff, Unit* caster)
         {
             for (auto itr : m_spellInfo->SpellPowers)
             {
+                if (caster->GetTypeId() == TypeID::TYPEID_PLAYER && caster->ToPlayer()->GetCommandStatus(CHEAT_POWER))
+                    break;
+
                 if (itr->RequiredAuraSpellId && !caster->HasAura(itr->RequiredAuraSpellId))
                     continue;
 
@@ -1734,7 +1737,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Glyph of Polymorph
                         if (caster && caster->HasAura(56375))
                         {
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, 0, 159625); ///< Except Glyph of the Inquisitor damage spell
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         }

@@ -637,7 +637,7 @@ class spell_npc_sha_fire_elemental : public CreatureScript
             enum fireSpells
             {
                 SPELL_SHAMAN_FIRE_BLAST     = 57984,
-                SPELL_SHAMAN_FIRE_NOVA      = 12470,
+                SPELL_SHAMAN_FIRE_NOVA      = 117588,
                 SPELL_SHAMAN_FIRE_SHIELD    = 13376
             };
 

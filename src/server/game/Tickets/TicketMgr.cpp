@@ -171,9 +171,8 @@ std::string GmTicket::FormatMessageString(ChatHandler& p_Handler, bool p_Detaile
     l_SS << p_Handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(l_CurTime - m_CreateTime, true, false)).c_str());
     l_SS << p_Handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(l_CurTime - m_LastModifiedTime, true, false)).c_str());
 
-    std::string l_Name;
-    if (sObjectMgr->GetPlayerNameByGUID(m_AssignedTo, l_Name))
-        l_SS << p_Handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, l_Name.c_str());
+    if (Player* l_Player = sObjectAccessor->FindPlayer(m_AssignedTo))
+        l_SS << p_Handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, l_Player->GetName());
 
     if (p_Detailed)
     {
@@ -251,6 +250,9 @@ void TicketMgr::LoadTickets()
 
     for (GmTicketList::const_iterator l_Iter = m_TicketList.begin(); l_Iter != m_TicketList.end(); ++l_Iter)
         delete l_Iter->second;
+
+    /// Delete old tickets (> 2 day)
+    CharacterDatabase.PQuery("DELETE FROM gm_tickets WHERE createtime < UNIX_TIMESTAMP() - 60*60*24*2");
 
     m_TicketList.clear();
 

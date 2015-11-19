@@ -4154,7 +4154,7 @@ class gob_worldbreaker_side_turret : public GameObjectScript
                 p_Player->GetPosition(&l_Pos);
 
                 if (!g_TasteOfIronPlayerScript->m_PlayerSceneFirstInstanceId[p_Player->GetGUID()])
-                    g_TasteOfIronPlayerScript->m_PlayerSceneFirstInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneShootingGallery, 16, l_Pos);
+                    g_TasteOfIronPlayerScript->m_PlayerSceneFirstInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneShootingGallery, 63, l_Pos);
             }
             return true;
         }

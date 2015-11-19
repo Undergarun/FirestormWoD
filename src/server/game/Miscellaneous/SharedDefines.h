@@ -408,6 +408,10 @@ enum SpellSchoolMask
 
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 {
+    /// For SPELL_SCHOOL_MASK_ALL return first spell mask, not physical
+    if (mask == SPELL_SCHOOL_MASK_ALL)
+        return SPELL_SCHOOL_HOLY;
+
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (mask & (1 << i))
             return SpellSchools(i);

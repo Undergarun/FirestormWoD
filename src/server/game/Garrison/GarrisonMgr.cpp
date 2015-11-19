@@ -936,9 +936,12 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
         {
-            if (l_Position.GetExactDist2d(m_Plots[l_I].X, m_Plots[l_I].Y) < l_Position.GetExactDist2d(l_Plot.X, l_Plot.Y)
-                && l_Position.GetExactDist2d(m_Plots[l_I].X, m_Plots[l_I].Y) < 35)
-                l_Plot = m_Plots[l_I];
+            if (l_Position.GetExactDist2d(m_Plots[l_I].X, m_Plots[l_I].Y) < l_Position.GetExactDist2d(l_Plot.X, l_Plot.Y))
+            {
+                /// Specific check for mine, plot surface is way bigger than other plots
+                if (GetBuilding(m_Plots[l_I].PlotInstanceID).BuildingID == 61 || l_Position.GetExactDist2d(m_Plots[l_I].X, m_Plots[l_I].Y) < 35.0f)
+                    l_Plot = m_Plots[l_I];
+            }
         }
 
         return l_Plot;

@@ -720,6 +720,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void RemoveCorpse(bool setSpawnTime = true);
 
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
+        void DespawnCreaturesInArea(uint32 p_Entry, float p_Range = 100.0f);
+        void DespawnCreaturesInArea(std::vector<uint32> p_Entry, float p_Range = 100.0f);
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
@@ -860,6 +862,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool DisableReputationGain;
 
         CreatureTemplate const* m_creatureInfo;             ///< in difficulty mode > 0 can different from sObjectMgr->GetCreatureTemplate(GetEntry())
+        CreatureTemplate const* m_NativeCreatureInfo;
         CreatureData const* m_creatureData;
 
         uint16 m_LootMode;                                  ///< bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
