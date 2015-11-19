@@ -684,6 +684,9 @@ void WorldSession::HandleSetTradeGoldOpcode(WorldPacket& p_RecvData)
     if (!l_MyTrade)
         return;
 
+    if (!m_Player->HasEnoughMoney(l_Gold))
+        l_Gold = m_Player->GetMoney();
+
     // Gold can be incorrect, but this is checked at trade finished.
     m_Player->IncreaseClientStateIndex();
     l_MyTrade->SetMoney(l_Gold);

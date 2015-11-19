@@ -92,18 +92,27 @@ class boss_heart_of_the_mountain : public CreatureScript
             EventBlast,
             EventSlagElemental,
             EventFirecaller,
-            EventSecurityGuard,
+            EventSpawnSecurityGuard,
             EventHeat,
             EventMelt
         };
 
+        enum eCosmeticEvents
+        {
+            EventFurnaceEngineer = 1,
+            EventSecurityGuard,
+            EventBellowsOperator
+        };
+
         enum eActions
         {
+            ActionPhase2                = 1,
             ActionBlastIncreased        = 2,
             ActionFreeFury              = 2,
             ActionElementalistKilled    = 3,
             ActionSwitchToPhase2        = 3,
-            ActionFuryDead              = 4
+            ActionFuryDead              = 4,
+            ActionBellowsOperators      = 3
         };
 
         enum eVisuals
@@ -114,10 +123,15 @@ class boss_heart_of_the_mountain : public CreatureScript
 
         enum eCreatures
         {
-            PrimalElementalist  = 76815,
-            SecurityGuardFight  = 76812,
-            Firecaller          = 76821,
-            SlagElemental       = 78463
+            PrimalElementalist      = 76815,
+            Firecaller              = 76821,
+            SlagElemental           = 78463,
+            BellowsOperator         = 76811,
+            CosmBellowsOperator     = 88821,
+            /// During fight
+            FurnaceEngineerFight    = 76810,
+            BellowsOperatorFight    = 76811,
+            SecurityGuardFight      = 76812
         };
 
         enum eDatas
@@ -136,6 +150,7 @@ class boss_heart_of_the_mountain : public CreatureScript
             InstanceScript* m_Instance;
 
             EventMap m_Events;
+            EventMap m_CosmeticEvents;
 
             bool m_Enabled;
 
@@ -145,6 +160,7 @@ class boss_heart_of_the_mountain : public CreatureScript
             void Reset() override
             {
                 m_Events.Reset();
+                m_CosmeticEvents.Reset();
 
                 _Reset();
 
@@ -208,6 +224,10 @@ class boss_heart_of_the_mountain : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventBerserker, 780 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventWarnBlast, GetBlastTimer() - 3 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventBlast, GetBlastTimer());
+
+                m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventFurnaceEngineer, GetSummoningTimer());
+                m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventSecurityGuard, GetSummoningTimer());
+                m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventBellowsOperator, GetSummoningTimer());
             }
 
             void JustReachedHome() override
@@ -289,13 +309,11 @@ class boss_heart_of_the_mountain : public CreatureScript
                                     l_Gate->SetGoState(GOState::GO_STATE_ACTIVE);
                                     l_Gate->SetFlag(EGameObjectFields::GAMEOBJECT_FIELD_FLAGS, GameObjectFlags::GO_FLAG_IN_USE);
                                 }
-
-                                if (Creature* l_Foreman = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::ForemanFeldspar)))
-                                {
-                                    if (l_Foreman->IsAIEnabled)
-                                        l_Foreman->AI()->DoAction(eActions::ActionSwitchToPhase2);
-                                }
                             }
+
+                            m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventBellowsOperator);
+                            m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventSecurityGuard);
+                            m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventFurnaceEngineer);
                         });
 
                         AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -352,7 +370,18 @@ class boss_heart_of_the_mountain : public CreatureScript
                             m_Events.ScheduleEvent(eEvents::EventSlagElemental, 13 * TimeConstants::IN_MILLISECONDS);
 
                         m_Events.ScheduleEvent(eEvents::EventFirecaller, 76 * TimeConstants::IN_MILLISECONDS);
-                        m_Events.ScheduleEvent(eEvents::EventSecurityGuard, 71 * TimeConstants::IN_MILLISECONDS + 500);
+                        m_Events.ScheduleEvent(eEvents::EventSpawnSecurityGuard, 71 * TimeConstants::IN_MILLISECONDS + 500);
+
+                        std::list<Creature*> l_OperatorList;
+                        me->GetCreatureListWithEntryInGrid(l_OperatorList, eCreatures::BellowsOperator, 150.0f);
+                        me->GetCreatureListWithEntryInGrid(l_OperatorList, eCreatures::CosmBellowsOperator, 150.0f);
+
+                        for (Creature* l_Operator : l_OperatorList)
+                        {
+                            if (l_Operator->IsAIEnabled)
+                                l_Operator->AI()->DoAction(eActions::ActionPhase2);
+                        }
+
                         break;
                     }
                     default:
@@ -413,7 +442,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                             me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
 
                             m_Events.CancelEvent(eEvents::EventFirecaller);
-                            m_Events.CancelEvent(eEvents::EventSecurityGuard);
+                            m_Events.CancelEvent(eEvents::EventSpawnSecurityGuard);
                             m_Events.CancelEvent(eEvents::EventSlagElemental);
 
                             AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -449,6 +478,74 @@ class boss_heart_of_the_mountain : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_CosmeticEvents.Update(p_Diff);
+
+                switch (m_CosmeticEvents.ExecuteEvent())
+                {
+                    case eCosmeticEvents::EventFurnaceEngineer:
+                    {
+                        for (uint8 l_I = 0; l_I < 2; ++l_I)
+                        {
+                            if (Creature* l_Engineer = me->SummonCreature(eCreatures::FurnaceEngineerFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
+                            {
+                                float l_O = l_Engineer->GetAngle(me);
+                                float l_X = l_Engineer->GetPositionX() + 30.0f * cos(l_O);
+                                float l_Y = l_Engineer->GetPositionY() + 30.0f * sin(l_O);
+
+                                l_Engineer->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f);
+                            }
+                        }
+
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventFurnaceEngineer, GetSummoningTimer());
+                        break;
+                    }
+                    case eCosmeticEvents::EventSecurityGuard:
+                    {
+                        for (uint8 l_I = 0; l_I < 2; ++l_I)
+                        {
+                            if (Creature* l_Guard = me->SummonCreature(eCreatures::SecurityGuardFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
+                            {
+                                float l_O = l_Guard->GetAngle(me);
+                                float l_X = l_Guard->GetPositionX() + 30.0f * cos(l_O);
+                                float l_Y = l_Guard->GetPositionY() + 30.0f * sin(l_O);
+
+                                l_Guard->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f);
+                            }
+                        }
+
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventSecurityGuard, GetSummoningTimer());
+                        break;
+                    }
+                    case eCosmeticEvents::EventBellowsOperator:
+                    {
+                        if (m_Instance != nullptr)
+                        {
+                            if (Creature* l_Foreman = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::ForemanFeldspar)))
+                            {
+                                if (l_Foreman->IsAIEnabled)
+                                    l_Foreman->AI()->DoAction(eActions::ActionBellowsOperators);
+                            }
+                        }
+
+                        for (uint8 l_I = 0; l_I < 2; ++l_I)
+                        {
+                            if (Creature* l_Operator = me->SummonCreature(eCreatures::BellowsOperatorFight, g_BellowsOperatorSpawns[l_I]))
+                            {
+                                float l_O = l_Operator->GetAngle(me);
+                                float l_X = l_Operator->GetPositionX() + 12.0f * cos(l_O);
+                                float l_Y = l_Operator->GetPositionY() + 12.0f * sin(l_O);
+
+                                l_Operator->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f);
+                            }
+                        }
+
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventBellowsOperator, GetSummoningTimer());
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
                 UpdateOperations(p_Diff);
 
                 if (!UpdateVictim())
@@ -492,8 +589,8 @@ class boss_heart_of_the_mountain : public CreatureScript
                                     if (Creature* l_Elemental = me->SummonCreature(eCreatures::SlagElemental, g_EncounterAddSpawns[l_I][urand(0, 2)]))
                                     {
                                         float l_O = l_Elemental->GetAngle(l_Fury);
-                                        float l_X = l_Elemental->GetPositionX() + 20.0f * cos(l_O);
-                                        float l_Y = l_Elemental->GetPositionY() + 20.0f * sin(l_O);
+                                        float l_X = l_Elemental->GetPositionX() + 30.0f * cos(l_O);
+                                        float l_Y = l_Elemental->GetPositionY() + 30.0f * sin(l_O);
 
                                         l_Elemental->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
                                     }
@@ -515,8 +612,8 @@ class boss_heart_of_the_mountain : public CreatureScript
                                     if (Creature* l_Firecaller = me->SummonCreature(eCreatures::Firecaller, g_EncounterAddSpawns[l_I][urand(0, 2)]))
                                     {
                                         float l_O = l_Firecaller->GetAngle(l_Fury);
-                                        float l_X = l_Firecaller->GetPositionX() + 20.0f * cos(l_O);
-                                        float l_Y = l_Firecaller->GetPositionY() + 20.0f * sin(l_O);
+                                        float l_X = l_Firecaller->GetPositionX() + 30.0f * cos(l_O);
+                                        float l_Y = l_Firecaller->GetPositionY() + 30.0f * sin(l_O);
 
                                         l_Firecaller->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
                                     }
@@ -527,7 +624,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventFirecaller, 45 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
-                    case eEvents::EventSecurityGuard:
+                    case eEvents::EventSpawnSecurityGuard:
                     {
                         if (m_Instance != nullptr)
                         {
@@ -538,8 +635,8 @@ class boss_heart_of_the_mountain : public CreatureScript
                                     if (Creature* l_Guard = me->SummonCreature(eCreatures::SecurityGuardFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
                                     {
                                         float l_O = l_Guard->GetAngle(l_Fury);
-                                        float l_X = l_Guard->GetPositionX() + 20.0f * cos(l_O);
-                                        float l_Y = l_Guard->GetPositionY() + 20.0f * sin(l_O);
+                                        float l_X = l_Guard->GetPositionX() + 30.0f * cos(l_O);
+                                        float l_Y = l_Guard->GetPositionY() + 30.0f * sin(l_O);
 
                                         l_Guard->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
                                     }
@@ -547,7 +644,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                             }
                         }
 
-                        m_Events.ScheduleEvent(eEvents::EventSecurityGuard, 40 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventSpawnSecurityGuard, 40 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventHeat:
@@ -609,6 +706,22 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                 return l_Time;
             }
+
+            uint32 GetSummoningTimer() const
+            {
+                uint32 l_Timer = 0;
+
+                if (IsLFR())
+                    l_Timer = 65 * TimeConstants::IN_MILLISECONDS;
+                else if (IsHeroic())
+                    l_Timer = 55 * TimeConstants::IN_MILLISECONDS;
+                else if (IsMythic())
+                    l_Timer = 40 * TimeConstants::IN_MILLISECONDS;
+                else
+                    l_Timer = 60 * TimeConstants::IN_MILLISECONDS;
+
+                return l_Timer;
+            }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
@@ -639,14 +752,10 @@ class boss_foreman_feldspar : public CreatureScript
         enum eCreatures
         {
             /// Before fight
-            SecurityGuard           = 88818,
-            FurnaceEngineer         = 88820,
-            BellowsOperator         = 88821,
-            HeatRegulator           = 76808,
-            /// During fight
-            FurnaceEngineerFight    = 76810,
-            BellowsOperatorFight    = 76811,
-            SecurityGuardFight      = 76812
+            SecurityGuard   = 88818,
+            FurnaceEngineer = 88820,
+            BellowsOperator = 88821,
+            HeatRegulator   = 76808
         };
 
         enum eActions
@@ -654,15 +763,12 @@ class boss_foreman_feldspar : public CreatureScript
             ActionActivateBellows,
             ActionRegulatorDestroyed,
             ActionBlastIncreased,
-            ActionSwitchToPhase2
+            ActionBellowsOperators
         };
 
         enum eEvents
         {
             EventBerserker = 1,
-            EventFurnaceEngineer,
-            EventSecurityGuard,
-            EventBellowsOperator,
             EventPyroclasm,
             EventRupture
         };
@@ -752,9 +858,6 @@ class boss_foreman_feldspar : public CreatureScript
                 }
 
                 m_Events.ScheduleEvent(eEvents::EventBerserker, 780 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventFurnaceEngineer, GetSummoningTimer());
-                m_Events.ScheduleEvent(eEvents::EventSecurityGuard, GetSummoningTimer());
-                m_Events.ScheduleEvent(eEvents::EventBellowsOperator, GetSummoningTimer());
                 m_Events.ScheduleEvent(eEvents::EventPyroclasm, 18 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventRupture, 26 * TimeConstants::IN_MILLISECONDS);
             }
@@ -804,11 +907,9 @@ class boss_foreman_feldspar : public CreatureScript
                         Talk(eTalks::BlastIncreased);
                         break;
                     }
-                    case eActions::ActionSwitchToPhase2:
+                    case eActions::ActionBellowsOperators:
                     {
-                        m_Events.CancelEvent(eEvents::EventFurnaceEngineer);
-                        m_Events.CancelEvent(eEvents::EventSecurityGuard);
-                        m_Events.CancelEvent(eEvents::EventBellowsOperator);
+                        Talk(eTalks::BellowsOperators);
                         break;
                     }
                     default:
@@ -848,77 +949,6 @@ class boss_foreman_feldspar : public CreatureScript
                     case eEvents::EventBerserker:
                     {
                         me->CastSpell(me, eFoundrySpells::Berserker, true);
-                        break;
-                    }
-                    case eEvents::EventFurnaceEngineer:
-                    {
-                        if (m_Instance != nullptr)
-                        {
-                            if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
-                            {
-                                for (uint8 l_I = 0; l_I < 2; ++l_I)
-                                {
-                                    if (Creature* l_Engineer = me->SummonCreature(eCreatures::FurnaceEngineerFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
-                                    {
-                                        float l_O = l_Engineer->GetAngle(l_Fury);
-                                        float l_X = l_Engineer->GetPositionX() + 20.0f * cos(l_O);
-                                        float l_Y = l_Engineer->GetPositionY() + 20.0f * sin(l_O);
-
-                                        l_Engineer->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
-                                    }
-                                }
-                            }
-                        }
-
-                        m_Events.ScheduleEvent(eEvents::EventFurnaceEngineer, GetSummoningTimer());
-                        break;
-                    }
-                    case eEvents::EventSecurityGuard:
-                    {
-                        if (m_Instance != nullptr)
-                        {
-                            if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
-                            {
-                                for (uint8 l_I = 0; l_I < 2; ++l_I)
-                                {
-                                    if (Creature* l_Guard = me->SummonCreature(eCreatures::SecurityGuardFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
-                                    {
-                                        float l_O = l_Guard->GetAngle(l_Fury);
-                                        float l_X = l_Guard->GetPositionX() + 20.0f * cos(l_O);
-                                        float l_Y = l_Guard->GetPositionY() + 20.0f * sin(l_O);
-
-                                        l_Guard->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
-                                    }
-                                }
-                            }
-                        }
-
-                        m_Events.ScheduleEvent(eEvents::EventSecurityGuard, GetSummoningTimer());
-                        break;
-                    }
-                    case eEvents::EventBellowsOperator:
-                    {
-                        Talk(eTalks::BellowsOperators);
-
-                        if (m_Instance != nullptr)
-                        {
-                            if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
-                            {
-                                for (uint8 l_I = 0; l_I < 2; ++l_I)
-                                {
-                                    if (Creature* l_Operator = me->SummonCreature(eCreatures::BellowsOperatorFight, g_BellowsOperatorSpawns[l_I]))
-                                    {
-                                        float l_O = l_Operator->GetAngle(l_Fury);
-                                        float l_X = l_Operator->GetPositionX() + 12.0f * cos(l_O);
-                                        float l_Y = l_Operator->GetPositionY() + 12.0f * sin(l_O);
-
-                                        l_Operator->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
-                                    }
-                                }
-                            }
-                        }
-
-                        m_Events.ScheduleEvent(eEvents::EventBellowsOperator, GetSummoningTimer());
                         break;
                     }
                     case eEvents::EventPyroclasm:
@@ -989,22 +1019,6 @@ class boss_foreman_feldspar : public CreatureScript
                         }
                     }
                 }
-            }
-
-            uint32 GetSummoningTimer() const
-            {
-                uint32 l_Timer = 0;
-
-                if (IsLFR())
-                    l_Timer = 65 * TimeConstants::IN_MILLISECONDS;
-                else if (IsHeroic())
-                    l_Timer = 55 * TimeConstants::IN_MILLISECONDS;
-                else if (IsMythic())
-                    l_Timer = 40 * TimeConstants::IN_MILLISECONDS;
-                else
-                    l_Timer = 60 * TimeConstants::IN_MILLISECONDS;
-
-                return l_Timer;
             }
         };
 
@@ -1368,9 +1382,10 @@ class npc_foundry_bellows_operator : public CreatureScript
             Loading = 155181
         };
 
-        enum eAction
+        enum eActions
         {
-            ActionActivateBellows
+            ActionActivateBellows,
+            ActionPhase2
         };
 
         enum eCosmeticEvent
@@ -1414,9 +1429,23 @@ class npc_foundry_bellows_operator : public CreatureScript
             {
                 switch (p_Action)
                 {
-                    case eAction::ActionActivateBellows:
+                    case eActions::ActionActivateBellows:
                     {
                         m_CosmeticEvent.ScheduleEvent(eCosmeticEvent::EventActivateBellows, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eActions::ActionPhase2:
+                    {
+                        me->ExitVehicle();
+
+                        me->InterruptNonMeleeSpells(true);
+
+                        me->RemoveAura(eSpells::Loading);
+                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                        if (Player* l_Target = me->SelectNearestPlayerNotGM(50.0f))
+                            AttackStart(l_Target);
+
                         break;
                     }
                     default:
@@ -1519,8 +1548,6 @@ class npc_foundry_heat_regulator : public CreatureScript
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
                 me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-
                 GameObject* l_Regulator = me->FindNearestGameObject(eGameObjects::LeftHeatRegulator, 10.0f);
                 if (l_Regulator == nullptr)
                     l_Regulator = me->FindNearestGameObject(eGameObjects::RightHeatRegulator, 10.0f);
@@ -1533,6 +1560,12 @@ class npc_foundry_heat_regulator : public CreatureScript
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
+
+                /// Must be done at next update
+                AddTimedDelayedOperation(100, [this]() -> void
+                {
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                });
             }
 
             void EnterEvadeMode() override
@@ -1600,9 +1633,15 @@ class npc_foundry_security_guard : public CreatureScript
     public:
         npc_foundry_security_guard() : CreatureScript("npc_foundry_security_guard") { }
 
-        enum eSpell
+        enum eSpells
         {
-            DefenseAura = 160379
+            DefenseAura     = 160379,   ///< Only for LFR
+            DefenseMissile  = 177773
+        };
+
+        enum eEvent
+        {
+            EventDefense = 1
         };
 
         enum eCreature
@@ -1612,13 +1651,17 @@ class npc_foundry_security_guard : public CreatureScript
 
         struct npc_foundry_security_guardAI : public ScriptedAI
         {
-            npc_foundry_security_guardAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_SwitchStatePct(50) { }
+            npc_foundry_security_guardAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            int32 m_SwitchStatePct;
+            EventMap m_Events;
 
             void Reset() override
             {
-                me->RemoveAura(eSpell::DefenseAura);
+                m_Events.Reset();
+
+                me->RemoveAllAreasTrigger();
+
+                me->RemoveAura(eSpells::DefenseAura);
 
                 me->SetCanDualWield(false);
 
@@ -1632,14 +1675,45 @@ class npc_foundry_security_guard : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void JustDied(Unit* p_Killer) override
             {
-                if (me->HasAura(eSpell::DefenseAura))
+                me->RemoveAllAreasTrigger();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventDefense, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
                     return;
 
-                /// In Mythic Difficulty, the Bellows Operators will stop operating the bellows of the furnace and engage players in melee combat after reaching 50% health remaining.
-                if (me->HealthBelowPctDamaged(m_SwitchStatePct, p_Damage))
-                    me->CastSpell(me, eSpell::DefenseAura, false);
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventDefense:
+                    {
+                        if (IsLFR())
+                            me->CastSpell(me, eSpells::DefenseAura, false);
+                        else
+                            me->CastSpell(*me, eSpells::DefenseMissile, false);
+
+                        m_Events.ScheduleEvent(eEvent::EventDefense, 40 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
             }
         };
 
@@ -1753,7 +1827,21 @@ class npc_foundry_furnace_engineer : public CreatureScript
             void OnSpellFinished(SpellInfo const* p_SpellInfo) override
             {
                 if (p_SpellInfo->Id == eSpells::Repair)
+                {
                     m_IsInRepair = false;
+
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        AttackStart(l_Target);
+                }
+            }
+
+            void OnTaunt(Unit* p_Taunter) override
+            {
+                if (!m_IsInRepair)
+                    return;
+
+                me->InterruptNonMeleeSpells(true);
+                me->GetMotionMaster()->Clear();
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1833,6 +1921,8 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
 
             bool m_MustExplode;
 
+            uint32 m_DespawnTimer;
+
             void Reset() override
             {
                 me->CastSpell(me, eSpells::ClusterOfLitBombs, true);
@@ -1842,6 +1932,21 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
 
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_INTERACT_SPELL_ID, eSpells::BombOverrider);
+
+                if (IsMythic())
+                    m_DespawnTimer = 8 * TimeConstants::IN_MILLISECONDS;
+                else if (IsHeroic())
+                    m_DespawnTimer = 10 * TimeConstants::IN_MILLISECONDS;
+                else
+                    m_DespawnTimer = 15 * TimeConstants::IN_MILLISECONDS;
+
+                if (AuraPtr l_Aura = me->GetAura(eSpells::ClusterOfLitBombs))
+                {
+                    l_Aura->SetDuration(m_DespawnTimer);
+                    l_Aura->SetMaxDuration(m_DespawnTimer);
+                }
+
+                me->DespawnOrUnsummon(m_DespawnTimer);
             }
 
             void OnSpellClick(Unit* p_Clicker) override
@@ -1850,6 +1955,9 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
                     return;
 
                 p_Clicker->CastSpell(p_Clicker, eSpells::BombOverrider, true);
+
+                if (AuraPtr l_Bomb = p_Clicker->GetAura(eSpells::BombOverrider))
+                    l_Bomb->SetDuration(m_DespawnTimer);
 
                 if (AuraPtr l_Aura = me->GetAura(eSpells::ClusterOfLitBombs))
                     l_Aura->DropCharge();
@@ -1865,6 +1973,13 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
             {
                 if (m_MustExplode)
                     me->CastSpell(me, eSpells::BombAoEDespawn, true);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_DespawnTimer -= p_Diff;
+
+                ScriptedAI::UpdateAI(p_Diff);
             }
         };
 
@@ -1886,7 +2001,8 @@ class npc_foundry_slag_elemental : public CreatureScript
             Fixate          = 155196,
             SlagBomb        = 176133,
             DamageShield    = 155176,
-            Reanimate       = 155213
+            Reanimate       = 155213,
+            DropTarget      = 101438
         };
 
         enum eCreature
@@ -1926,6 +2042,15 @@ class npc_foundry_slag_elemental : public CreatureScript
                     me->SetMaxPower(Powers::POWER_ENERGY, 100);
 
                     m_Events.ScheduleEvent(eEvent::EventBurn, 5 * TimeConstants::IN_MILLISECONDS);
+                });
+
+                AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (!m_Target)
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            AttackStart(l_Target);
+                    }
                 });
             }
 
@@ -1972,16 +2097,22 @@ class npc_foundry_slag_elemental : public CreatureScript
                     {
                         me->RemoveAura(eSpells::SlagBomb);
 
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                        me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
 
                         AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             Reset();
 
                             me->CastSpell(me, eSpells::Fixate, true);
+
+                            me->SetPower(Powers::POWER_ENERGY, 0);
+                            me->SetMaxPower(Powers::POWER_ENERGY, 100);
+
+                            m_Events.ScheduleEvent(eEvent::EventBurn, 5 * TimeConstants::IN_MILLISECONDS);
                         });
 
                         break;
@@ -2016,13 +2147,21 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                     m_Target = 0;
 
-                    me->SetHealth(1);
-                    me->CastSpell(me, eSpells::SlagBomb, false);
+                    me->GetMotionMaster()->Clear();
+                    me->StopMoving();
 
-                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                    me->RemoveAllAuras();
+
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                     me->SetReactState(ReactStates::REACT_PASSIVE);
+                    me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                    me->SetHealth(1);
+
+                    me->CastSpell(me, eSpells::DropTarget, true);
+                    me->CastSpell(me, eSpells::SlagBomb, false);
                 }
             }
 
@@ -2035,7 +2174,7 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->GetReactState() == ReactStates::REACT_PASSIVE)
+                if (me->GetReactState() == ReactStates::REACT_PASSIVE)
                     return;
 
                 if (Player* l_Target = Player::GetPlayer(*me, m_Target))
@@ -2088,16 +2227,14 @@ class npc_foundry_firecaller : public CreatureScript
             /// Fight
             CauterizeWounds = 155186,
             LavaBurst       = 159408,
-            VolatileFire    = 176121,
-            Erupt           = 159115    ///< Not in LFR
+            VolatileFire    = 176121
         };
 
         enum eEvents
         {
             EventCauterizeWounds = 1,
             EventLavaBurst,
-            EventVolatileFire,
-            EventErupt
+            EventVolatileFire
         };
 
         enum eCreature
@@ -2126,9 +2263,6 @@ class npc_foundry_firecaller : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventCauterizeWounds, 8 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventLavaBurst, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventVolatileFire, 2 * TimeConstants::IN_MILLISECONDS);
-
-                if (!IsLFR())
-                    m_Events.ScheduleEvent(eEvents::EventErupt, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -2179,31 +2313,6 @@ class npc_foundry_firecaller : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::VolatileFire, false);
                         m_Events.ScheduleEvent(eEvents::EventVolatileFire, 10 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
-                    case eEvents::EventErupt:
-                    {
-                        std::list<Creature*> l_Elementals;
-                        me->GetCreatureListWithEntryInGrid(l_Elementals, eCreature::SlagElemental, 40.0f);
-
-                        if (!l_Elementals.empty())
-                        {
-                            l_Elementals.remove_if([this](Creature* p_Creature) -> bool
-                            {
-                                if (p_Creature == nullptr || !p_Creature->HasAura(eSpells::Dormant))
-                                    return true;
-
-                                return false;
-                            });
-
-                            if (!l_Elementals.empty())
-                            {
-                                if (Unit* l_Target = (*l_Elementals.begin()))
-                                    me->CastSpell(l_Target, eSpells::Erupt, false);
-                            }
-                        }
-
-                        m_Events.ScheduleEvent(eEvents::EventErupt, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2301,6 +2410,24 @@ class spell_foundry_bomb_overrider : public SpellScriptLoader
                 BombAoE = 155187
             };
 
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    AuraPtr l_Aura = p_AurEff->GetBase();
+                    if (l_Target->GetMap()->IsHeroic())
+                    {
+                        l_Aura->SetDuration(10 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(10 * TimeConstants::IN_MILLISECONDS);
+                    }
+                    else if (l_Target->GetMap()->IsMythic())
+                    {
+                        l_Aura->SetDuration(8 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(8 * TimeConstants::IN_MILLISECONDS);
+                    }
+                }
+            }
+
             void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
@@ -2309,6 +2436,7 @@ class spell_foundry_bomb_overrider : public SpellScriptLoader
 
             void Register() override
             {
+                AfterEffectApply += AuraEffectApplyFn(spell_foundry_bomb_overrider_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_bomb_overrider_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -2598,14 +2726,14 @@ class spell_foundry_melt_aura : public SpellScriptLoader
 
 /// Crucible (Left) - 233757
 /// Crucible (Right) - 233758
-class go_founrdy_crucible : public GameObjectScript
+class go_foundry_crucible : public GameObjectScript
 {
     public:
-        go_founrdy_crucible() : GameObjectScript("go_founrdy_crucible_left") { }
+        go_foundry_crucible() : GameObjectScript("go_foundry_crucible") { }
 
-        struct go_founrdy_crucibleAI : public GameObjectAI
+        struct go_foundry_crucibleAI : public GameObjectAI
         {
-            go_founrdy_crucibleAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+            go_foundry_crucibleAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
 
             EventMap m_Events;
 
@@ -2685,7 +2813,7 @@ class go_founrdy_crucible : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* p_GameObject) const override
         {
-            return new go_founrdy_crucibleAI(p_GameObject);
+            return new go_foundry_crucibleAI(p_GameObject);
         }
 };
 
@@ -2910,7 +3038,7 @@ class areatrigger_foundry_melt : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 5.0f;
+                float l_Radius = 15.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -2918,7 +3046,7 @@ class areatrigger_foundry_melt : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), l_Radius))
+                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 5.0f))
                     {
                         if (l_Unit->HasAura(eSpell::MeltDoT))
                             l_Unit->RemoveAura(eSpell::MeltDoT);
@@ -2930,6 +3058,72 @@ class areatrigger_foundry_melt : public AreaTriggerEntityScript
         AreaTriggerEntityScript* GetAI() const override
         {
             return new areatrigger_foundry_melt();
+        }
+};
+
+/// Defense - 177772
+class areatrigger_foundry_defense : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_defense() : AreaTriggerEntityScript("areatrigger_foundry_defense") { }
+
+        enum eSpell
+        {
+            DefenseAura = 160382
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 15.0f;
+
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->GetDistance(p_AreaTrigger) <= 3.5f)
+                    {
+                        if (!l_Unit->HasAura(eSpell::DefenseAura))
+                            l_Caster->CastSpell(l_Unit, eSpell::DefenseAura, true);
+                    }
+                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 3.5f))
+                    {
+                        if (l_Unit->HasAura(eSpell::DefenseAura))
+                            l_Unit->RemoveAura(eSpell::DefenseAura);
+                    }
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 3.5f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), l_Radius))
+                    {
+                        if (l_Unit->HasAura(eSpell::DefenseAura))
+                            l_Unit->RemoveAura(eSpell::DefenseAura);
+                    }
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_defense();
         }
 };
 
@@ -2961,10 +3155,11 @@ void AddSC_boss_blast_furnace()
     new spell_foundry_melt_aura();
 
     /// GameObject
-    new go_founrdy_crucible();
+    new go_foundry_crucible();
 
     /// AreaTriggers
     new areatrigger_foundry_rupture();
     new areatrigger_foundry_slag_pool();
     new areatrigger_foundry_melt();
+    new areatrigger_foundry_defense();
 }

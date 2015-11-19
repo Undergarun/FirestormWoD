@@ -173,7 +173,8 @@ class boss_oregorger : public CreatureScript
         enum eCosmeticEvents
         {
             EventCheckTrashs = 1,
-            EventCollectOre
+            EventCollectOre,
+            EventCheckLastCollision
         };
 
         enum eCreatures
@@ -195,6 +196,7 @@ class boss_oregorger : public CreatureScript
         enum eDatas
         {
             DataMitigationPct,
+            MoveResetRolling,
             MovementFinished = 666
         };
 
@@ -236,6 +238,7 @@ class boss_oregorger : public CreatureScript
 
             float m_MitigationPct;
 
+            std::set<uint64> m_Crates;
             std::set<uint8> m_CratesToActivate;
             std::set<uint8> m_ActivatedCrates;
             uint8 m_ActivatedCratesCount;
@@ -248,6 +251,8 @@ class boss_oregorger : public CreatureScript
             uint8 m_PathCount;
 
             std::set<uint64> m_BlackrockOres;
+
+            uint32 m_LastCollisionTime;
 
             void Reset() override
             {
@@ -278,7 +283,10 @@ class boss_oregorger : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(l_CrateList, eCreatures::OreCrateCosmetic, 150.0f);
 
                 for (Creature* l_Crate : l_CrateList)
+                {
+                    m_Crates.insert(l_Crate->GetGUID());
                     l_Crate->Respawn();
+                }
 
                 l_CrateList.clear();
 
@@ -313,20 +321,42 @@ class boss_oregorger : public CreatureScript
                 m_PathCount = 0;
 
                 m_BlackrockOres.clear();
+
+                m_LastCollisionTime = 0;
             }
 
             void JustSummoned(Creature* p_Summon) override
             {
-                if (p_Summon->GetEntry() == eCreatures::BlackrockOre)
-                    m_BlackrockOres.insert(p_Summon->GetGUID());
-                else if (p_Summon->GetEntry() == eCreatures::UnstableSlag)
-                    p_Summon->CastSpell(p_Summon, eSpells::ExpelUnstableSlagVisual, true);
+                switch (p_Summon->GetEntry())
+                {
+                    case eCreatures::OreCrate:
+                    {
+                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                        break;
+                    }
+                    case eCreatures::BlackrockOre:
+                    {
+                        m_BlackrockOres.insert(p_Summon->GetGUID());
+                        break;
+                    }
+                    case eCreatures::UnstableSlag:
+                    {
+                        p_Summon->CastSpell(p_Summon, eSpells::ExpelUnstableSlagVisual, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                BossAI::JustSummoned(p_Summon);
             }
 
             void SummonedCreatureDespawn(Creature* p_Summon) override
             {
                 if (p_Summon->GetEntry() == eCreatures::BlackrockOre)
                     m_BlackrockOres.erase(p_Summon->GetGUID());
+
+                BossAI::SummonedCreatureDespawn(p_Summon);
             }
 
             bool CanRespawn() override
@@ -380,7 +410,7 @@ class boss_oregorger : public CreatureScript
                     return;
 
                 /// Phase One lasts until Oregorger runs out of Mana, at which point he enters Phase Two.
-                if (p_Value == 0)
+                if (p_Value == 0 && m_Phase == ePhases::PhaseFight)
                 {
                     m_Events.Reset();
 
@@ -417,11 +447,11 @@ class boss_oregorger : public CreatureScript
 
                     AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        std::list<Creature*> l_CrateList;
-                        me->GetCreatureListWithEntryInGrid(l_CrateList, eCreatures::OreCrateCosmetic, 150.0f);
-
-                        if (l_CrateList.empty())
+                        if (m_Crates.empty())
+                        {
+                            me->CastSpell(me, eSpells::WallshakingRoar, true);
                             return;
+                        }
 
                         std::vector<uint8> l_OreCrateSpawns;
 
@@ -444,13 +474,24 @@ class boss_oregorger : public CreatureScript
                             if (l_Count <= 0)
                                 break;
 
-                            l_CrateList.sort(JadeCore::PositionDistanceOrderPred(g_OreCrateSpawnPos[l_I]));
-
-                            if (Creature* l_Crate = (*l_CrateList.begin()))
+                            Creature* l_NearestCrate = nullptr;
+                            float l_Dist = 100000.0f;
+                            for (uint64 l_Guid : m_Crates)
                             {
-                                l_Crate->CastSpell(g_OreCrateSpawnPos[l_I], eSpells::RollingBox, true);
-                                l_Crate->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                                if (Creature* l_Crate = Creature::GetCreature(*me, l_Guid))
+                                {
+                                    if (l_Crate->GetDistance(g_OreCrateSpawnPos[l_I]) < l_Dist)
+                                    {
+                                        l_NearestCrate = l_Crate;
+                                        l_Dist = me->GetDistance(l_Crate);
+                                    }
+                                }
                             }
+
+                            m_Crates.erase(l_NearestCrate->GetGUID());
+
+                            l_NearestCrate->CastSpell(g_OreCrateSpawnPos[l_I], eSpells::RollingBox, true);
+                            l_NearestCrate->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
 
                             --l_Count;
                             m_ActivatedCrates.insert(l_I);
@@ -469,7 +510,7 @@ class boss_oregorger : public CreatureScript
                             {
                                 l_Crate->SetReactState(ReactStates::REACT_PASSIVE);
                                 l_Crate->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                                l_Crate->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+                                l_Crate->AddUnitState(UnitState::UNIT_STATE_STUNNED | UnitState::UNIT_STATE_ROOT);
                                 l_Crate->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                                 l_Crate->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
                             }
@@ -499,6 +540,8 @@ class boss_oregorger : public CreatureScript
                             me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
                         }
                     });
+
+                    m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckLastCollision, 1 * TimeConstants::IN_MILLISECONDS);
                 }
                 /// When Oregorger reaches full Mana, Phase One restarts.
                 else if (p_Value == 100)
@@ -511,6 +554,7 @@ class boss_oregorger : public CreatureScript
                     me->RemoveAura(eSpells::RollingFuryAura);
 
                     m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventCollectOre);
+                    m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventCheckLastCollision);
 
                     AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
@@ -645,43 +689,10 @@ class boss_oregorger : public CreatureScript
                             return;
                         }
 
-                        m_PathCount = 0;
-
-                        me->RemoveAura(eSpells::RollingFuryAura);
-
-                        me->CastSpell(me, eSpells::EarthshakingCollision, true);
-
-                        /// In Mythic difficulty, these collisions also leave Unstable Slag residue at the location of the collision.
-                        /// Unstable Slag explodes if another collision occurs at the same location.
-                        if (IsMythic())
-                        {
-                            if (Creature* l_Slag = me->FindNearestCreature(eCreatures::UnstableSlag, 2.0f))
-                            {
-                                l_Slag->CastSpell(l_Slag, eSpells::UnstableSlagExplosionAT, true);
-
-                                //////////////////////////////////////////////////////////////////////////
-                                /// MISSING AREATRIGGER TEMPLATE DATAS FOR MYTHIC
-                                //////////////////////////////////////////////////////////////////////////
-                            }
-                            else
-                                me->CastSpell(me, eSpells::ExpelUnstableSlagSummon, true);
-                        }
-
-                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            SelectPath();
-                        });
-
-                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            me->CastSpell(me, eSpells::RollingFuryAura, true);
-
-                            if (m_NextPos.m_positionX != 0.0f)
-                                me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
-                            else
-                                me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
-                        });
+                        HandleCollisionPoint();
                     }
+                    else if (p_ID == eDatas::MoveResetRolling)
+                        HandleCollisionPoint();
 
                     return;
                 }
@@ -718,6 +729,17 @@ class boss_oregorger : public CreatureScript
                             me->SetSpeed(UnitMoveType::MOVE_WALK, 2.85714f);
                             me->SetHomePosition(*me);
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                            std::list<Creature*> l_CrateList;
+                            me->GetCreatureListWithEntryInGrid(l_CrateList, eCreatures::OreCrateCosmetic, 150.0f);
+
+                            m_Crates.clear();
+
+                            for (Creature* l_Crate : l_CrateList)
+                                m_Crates.insert(l_Crate->GetGUID());
+
                             break;
                         }
                         default:
@@ -731,9 +753,20 @@ class boss_oregorger : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::ExplosiveShardMissile:
+                    {
+                        me->EnergizeBySpell(me, eSpells::RetchedBlackrockMissile, -5, Powers::POWER_MANA);
+                        break;
+                    }
                     case eSpells::BlackrockBarrageAoE:
                     {
                         me->EnergizeBySpell(me, eSpells::RetchedBlackrockMissile, -5, Powers::POWER_MANA);
+
+                        if (AuraPtr l_Aura = me->GetAura(eSpells::BlackrockSpines))
+                            l_Aura->DropStack();
+
+                        if (me->HasAura(eSpells::BlackrockSpines))
+                            m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 50);
+
                         break;
                     }
                     case eSpells::AcidTorrentSearcher:
@@ -866,6 +899,8 @@ class boss_oregorger : public CreatureScript
                             me->SetWalk(true);
                             me->SetSpeed(UnitMoveType::MOVE_WALK, 10.0f);
 
+                            me->SetReactState(ReactStates::REACT_PASSIVE);
+
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MovePoint(m_MoveIndex, g_MovePos[m_MoveIndex]);
 
@@ -891,11 +926,26 @@ class boss_oregorger : public CreatureScript
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCollectOre, 200);
                         break;
                     }
+                    case eCosmeticEvents::EventCheckLastCollision:
+                    {
+                        if (time(nullptr) >= (m_LastCollisionTime + 15 * TimeConstants::IN_MILLISECONDS))
+                        {
+                            G3D::Vector2 l_Point = GetNearestIntersectionPoint(me, 0.0f).first;
+
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MovePoint(eDatas::MoveResetRolling, l_Point.x, l_Point.y, me->GetPositionZ());
+
+                            m_LastCollisionTime = 0;
+                        }
+
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckLastCollision, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
                     default:
                         break;
                 }
 
-                if (!UpdateVictim() || me->HasAura(eSpells::HungerDrivePeriodic))
+                if (!UpdateVictim() || m_Phase == ePhases::PhaseRolling)
                     return;
 
                 m_Events.Update(p_Diff);
@@ -956,7 +1006,7 @@ class boss_oregorger : public CreatureScript
                     case eEvents::EventBlackrockSpines:
                     {
                         if (AuraPtr l_Aura = me->AddAura(eSpells::BlackrockSpines, me))
-                            l_Aura->SetStackAmount(IsMythic() ? 5 : 3);
+                            l_Aura->ModStackAmount(IsMythic() ? 5 : 3);
 
                         Talk(eTalks::BlackrockBarrage);
                         m_Events.ScheduleEvent(eEvents::EventBlackrockSpines, 19 * TimeConstants::IN_MILLISECONDS);
@@ -965,15 +1015,6 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventBlackrockBarrage:
                     {
-                        AddTimedDelayedOperation(2050, [this]() -> void
-                        {
-                            if (AuraPtr l_Aura = me->GetAura(eSpells::BlackrockSpines))
-                                l_Aura->DropStack();
-
-                            if (me->HasAura(eSpells::BlackrockSpines))
-                                m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 50);
-                        });
-
                         me->CastSpell(me, eSpells::BlackrockBarrageAoE, false);
                         break;
                     }
@@ -1063,7 +1104,7 @@ class boss_oregorger : public CreatureScript
                 uint8 l_ID = 0;
 
                 /////////////////////////////////////////////////////////////////////
-                /// Try to choose a point with blackrock ores to eat
+                /// Try to choose a point with Blackrock ores to eat
                 if (!m_BlackrockOres.empty())
                 {
                     float l_MinDistA = 100000.0f;
@@ -1072,6 +1113,9 @@ class boss_oregorger : public CreatureScript
                     Position l_PosA, l_PosB;
                     PointData l_PointA = g_CollisionPoints[l_Choices.first - 1];
                     PointData l_PointB = g_CollisionPoints[l_Choices.second - 1];
+
+                    uint8 l_CenterCount = 0;
+                    uint8 l_OutterCount = 0;
 
                     l_PosA.m_positionX = (g_OregorgerPatternsX[l_PointA.I] + g_OregorgerPatternsX[l_PointA.I - 1]) / 2.0f;
                     l_PosA.m_positionY = (g_OregorgerPatternsY[l_PointA.J] + g_OregorgerPatternsY[l_PointA.J - 1]) / 2.0f;
@@ -1085,6 +1129,12 @@ class boss_oregorger : public CreatureScript
                     {
                         if (Creature* l_Ore = Creature::GetCreature(*me, l_Guid))
                         {
+                            /// Count the ores
+                            if (IsCenterPos(l_Ore->m_positionX, l_Ore->m_positionY))
+                                l_CenterCount++;
+                            else
+                                l_OutterCount++;
+
                             if (l_Ore->GetDistance(l_PosA) < l_MinDistA)
                                 l_MinDistA = l_Ore->GetDistance(l_PosA);
 
@@ -1093,10 +1143,30 @@ class boss_oregorger : public CreatureScript
                         }
                     }
 
-                    if (l_MinDistA < l_MinDistB)
-                        l_ID = l_Choices.first;
+                    /// If more ores at center than at outter of the room, move to center
+                    if (l_CenterCount > l_OutterCount)
+                    {
+                        if (IsCenterPos(l_PosA.m_positionX, l_PosA.m_positionY))
+                            l_ID = l_Choices.first;
+                        else
+                            l_ID = l_Choices.second;
+                    }
+                    /// If more ores at outter than at center of the room, move to outter
+                    else if (l_OutterCount > l_CenterCount)
+                    {
+                        if (!IsCenterPos(l_PosA.m_positionX, l_PosA.m_positionY))
+                            l_ID = l_Choices.first;
+                        else
+                            l_ID = l_Choices.second;
+                    }
+                    /// If it's equal, move to the nearest ore
                     else
-                        l_ID = l_Choices.second;
+                    {
+                        if (l_MinDistA < l_MinDistB)
+                            l_ID = l_Choices.first;
+                        else
+                            l_ID = l_Choices.second;
+                    }
                 }
                 /// If no ore to eat, choose randomly
                 else
@@ -1253,6 +1323,48 @@ class boss_oregorger : public CreatureScript
                 }
 
                 return l_Pos;
+            }
+
+            void HandleCollisionPoint()
+            {
+                m_LastCollisionTime = time(nullptr);
+
+                m_PathCount = 0;
+
+                me->RemoveAura(eSpells::RollingFuryAura);
+
+                me->CastSpell(me, eSpells::EarthshakingCollision, true);
+
+                /// In Mythic difficulty, these collisions also leave Unstable Slag residue at the location of the collision.
+                /// Unstable Slag explodes if another collision occurs at the same location.
+                if (IsMythic())
+                {
+                    if (Creature* l_Slag = me->FindNearestCreature(eCreatures::UnstableSlag, 2.0f))
+                    {
+                        l_Slag->CastSpell(l_Slag, eSpells::UnstableSlagExplosionAT, true);
+
+                        //////////////////////////////////////////////////////////////////////////
+                        /// MISSING AREATRIGGER TEMPLATE DATAS FOR MYTHIC
+                        //////////////////////////////////////////////////////////////////////////
+                    }
+                    else
+                        me->CastSpell(me, eSpells::ExpelUnstableSlagSummon, true);
+                }
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    SelectPath();
+                });
+
+                AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->CastSpell(me, eSpells::RollingFuryAura, true);
+
+                    if (m_NextPos.m_positionX != 0.0f)
+                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
+                    else
+                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                });
             }
         };
 
@@ -1455,7 +1567,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                         if (Unit* l_Caster = GetCaster())
                         {
                             std::list<Unit*> l_TargetList;
-                            float l_Radius = 1.0f;
+                            float l_Radius = 0.5f;
 
                             JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
                             JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);

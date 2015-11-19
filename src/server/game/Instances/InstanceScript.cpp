@@ -51,6 +51,8 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_MaxInCombatResCount = 0;
     m_CombatResChargeTime = 0;
     m_NextCombatResChargeTime = 0;
+
+    m_EncounterDatas = EncounterDatas();
 }
 
 void InstanceScript::SaveToDB()
@@ -1268,13 +1270,14 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
                 uint32 l_Flag = 1 << (l_Title->MaskID % 32);
                 uint32 l_LowGuid = GUID_LOPART(p_OldChallenge->m_Members[l_I].m_Guid);
 
-                SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
                 PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TITLES);
                 l_Statement->setUInt32(0, l_LowGuid);
 
-                if (PreparedQueryResult l_Result = CharacterDatabase.Query(l_Statement))
+                PreparedQueryResult l_Result = CharacterDatabase.AsyncQuery(l_Statement, [l_Index, l_Flag, l_LowGuid](PreparedQueryResult const& p_Result) -> void
                 {
-                    Field* l_Fields = l_Result->Fetch();
+                    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+
+                    Field* l_Fields = p_Result->Fetch();
                     char const* l_KnownTitlesStr = l_Fields[0].GetCString();
 
                     /// Title removal
@@ -1296,7 +1299,7 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
                         for (uint32 l_J = 0; l_J < l_TitleSize; ++l_J)
                             l_Stream << l_KnownTitles[l_J] << ' ';
 
-                        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
+                        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
                         l_Statement->setString(0, l_Stream.str().c_str());
                         l_Statement->setUInt32(1, l_LowGuid);
                         l_Transaction->Append(l_Statement);
@@ -1308,7 +1311,7 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
                     }
 
                     CharacterDatabase.CommitTransaction(l_Transaction);
-                }
+                });
             }
         }
     }
@@ -1402,6 +1405,38 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     l_Data << uint32(instance->GetDifficultyID());
     l_Data << uint32(instance->GetPlayers().getSize());
     instance->SendToPlayers(&l_Data);
+
+    /// Reset datas before each attempt
+    m_EncounterDatas = EncounterDatas();
+
+    /// Register encounter datas for further logs
+    if (instance->IsRaid())
+    {
+        m_EncounterDatas.Expansion = instance->GetEntry()->ExpansionID;
+        m_EncounterDatas.RealmID   = g_RealmID;
+
+        Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+        {
+            if (Player* l_Player = l_Iter->getSource())
+            {
+                if (Group* l_Group = l_Player->GetGroup())
+                {
+                    if (l_Player->GetGuild() == nullptr || !l_Group->IsGuildGroup(l_Player->GetGuildId(), true, true))
+                        continue;
+
+                    m_EncounterDatas.GuildID        = l_Player->GetGuildId();
+                    m_EncounterDatas.GuildFaction   = l_Player->getFaction();
+                    m_EncounterDatas.GuildName      = l_Player->GetGuildName();
+                    break;
+                }
+            }
+        }
+
+        m_EncounterDatas.MapID          = instance->GetId();
+        m_EncounterDatas.DifficultyID   = instance->GetDifficultyID();
+        m_EncounterDatas.StartTime      = time(nullptr);
+    }
 }
 
 void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
@@ -1416,6 +1451,36 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.WriteBit(p_Success);
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
+
+    m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;
+    m_EncounterDatas.Success        = p_Success;
+
+    if (m_EncounterDatas.GuildID)
+    {
+        Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+        {
+            if (Player* l_Player = l_Iter->getSource())
+            {
+                RosterData l_Data;
+
+                l_Data.GuidLow      = l_Player->GetGUIDLow();
+                l_Data.Name         = l_Player->GetName();
+                l_Data.Level        = l_Player->getLevel();
+                l_Data.Class        = l_Player->getClass();
+                l_Data.SpecID       = l_Player->GetSpecializationId();
+                l_Data.Role         = l_Player->GetRoleForGroup();
+                l_Data.ItemLevel    = l_Player->GetAverageItemLevelEquipped();
+
+                m_EncounterDatas.RosterDatas.push_back(l_Data);
+            }
+        }
+
+        sScriptMgr->OnEncounterEnd(&m_EncounterDatas);
+    }
+
+    /// Reset datas after each attempt
+    m_EncounterDatas = EncounterDatas();
 }
 
 uint32 InstanceScript::GetEncounterIDForBoss(Creature* p_Boss) const
@@ -1542,3 +1607,49 @@ void InstanceScript::ConsumeCombatResurrectionCharge()
     SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_IN_COMBAT_RESURRECTION);
 }
 //////////////////////////////////////////////////////////////////////////
+
+class EncounterScript_Global : public EncounterScript
+{
+    public:
+        EncounterScript_Global() : EncounterScript("EncounterScript_PvE_Logs") { }
+
+        void OnEncounterEnd(EncounterDatas const* p_EncounterDatas) override
+        {
+            EasyJSon::Node<std::string> l_Node;
+
+            l_Node["Expansion"]        = p_EncounterDatas->Expansion;
+            l_Node["RealmID"]          = p_EncounterDatas->RealmID;
+            l_Node["GuildID"]          = p_EncounterDatas->GuildID;
+            l_Node["GuildFaction"]     = p_EncounterDatas->GuildFaction;
+            l_Node["GuildName"]        = p_EncounterDatas->GuildName;
+            l_Node["MapID"]            = p_EncounterDatas->MapID;
+            l_Node["EncounterID"]      = p_EncounterDatas->EncounterID;
+            l_Node["DifficultyID"]     = p_EncounterDatas->DifficultyID;
+            l_Node["StartTime"]        = p_EncounterDatas->StartTime;
+            l_Node["CombatDuration"]   = p_EncounterDatas->CombatDuration;
+            l_Node["Success"]          = p_EncounterDatas->Success;
+
+            for (std::size_t l_I = 0; l_I < p_EncounterDatas->RosterDatas.size(); ++l_I)
+            {
+                RosterData const& l_Data = p_EncounterDatas->RosterDatas[l_I];
+
+                l_Node["RosterDatas"][l_I]["Name"]      = l_Data.Name;
+                l_Node["RosterDatas"][l_I]["GuidLow"]   = l_Data.GuidLow;
+                l_Node["RosterDatas"][l_I]["Level"]     = l_Data.Level;
+                l_Node["RosterDatas"][l_I]["Class"]     = l_Data.Class;
+                l_Node["RosterDatas"][l_I]["SpecID"]    = l_Data.SpecID;
+                l_Node["RosterDatas"][l_I]["Role"]      = l_Data.Role;
+                l_Node["RosterDatas"][l_I]["ItemLevel"] = l_Data.ItemLevel;
+            }
+
+            l_Node["EncounterHealth"]  = p_EncounterDatas->EncounterHealth;
+            l_Node["DeadCount"]        = p_EncounterDatas->DeadCount;
+
+            sReporter->EnqueueReport(l_Node.Serialize<std::ostringstream>(true));
+        }
+};
+
+void AddSC_EncounterScripts()
+{
+    new EncounterScript_Global();
+}

@@ -281,6 +281,11 @@ class spell_dk_dark_transformation_form: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_dark_transformation_form_SpellScript);
 
+            enum eSpell
+            {
+                T17Unholy4P = 165574
+            };
+
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
@@ -297,6 +302,26 @@ class spell_dk_dark_transformation_form: public SpellScriptLoader
                         /// When you activate Dark Transformation, your Shadow damage dealt is increased  by 20% for 15 sec.
                         if (l_Player->HasAura(DK_WOD_PVP_UNHOLY_4P_BONUS))
                             l_Player->CastSpell(l_Player, DK_WOD_PVP_UNHOLY_4P_BONUS_EFFECT, true);
+
+                        if (l_Player->HasAura(eSpell::T17Unholy4P))
+                        {
+                            std::list<uint8> l_LstRunesUsed;
+
+                            for (uint8 i = 0; i < MAX_RUNES; ++i)
+                            {
+                                if (l_Player->GetRuneCooldown(i))
+                                    l_LstRunesUsed.push_back(i);
+                            }
+
+                            if (l_LstRunesUsed.empty())
+                                return;
+
+                            uint8 l_RuneRandom = JadeCore::Containers::SelectRandomContainerElement(l_LstRunesUsed);
+
+                            l_Player->SetRuneCooldown(l_RuneRandom, 0);
+                            l_Player->ConvertRune(l_RuneRandom, RUNE_DEATH);
+                            l_Player->ResyncRunes(MAX_RUNES);
+                        }
                     }
                 }
             }
@@ -524,36 +549,31 @@ class spell_dk_conversion: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_conversion_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
             {
-                if (Unit* l_unit = GetCaster())
-                    l_unit->CastSpell(l_unit, DK_SPELL_CONVERSION_REGEN, true);
+                amount = 0;
             }
 
-            /// For visual in the tooltip - need to figure out why it doesnt show up - not so important atm
-            void CalculateAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (p_AuraEffect->GetEffIndex() != EFFECT_0)
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
                     return;
 
-                if (Unit* l_Caster = GetCaster())
+                if (l_Player->GetPower(POWER_RUNIC_POWER) / l_Player->GetPowerCoeff(POWER_RUNIC_POWER) > 5)
                 {
-                    for (auto l_Itr : GetSpellInfo()->SpellPowers)
-                    {
-                        if (l_Itr->RequiredAuraSpellId && !l_Caster->HasAura(l_Itr->RequiredAuraSpellId))
-                            continue;
-
-                        Powers powerType = Powers(l_Itr->PowerType);
-                        p_Amount = l_Itr->CostPerSecond + int32(l_Itr->CostPerSecondPercentage * l_Caster->GetCreatePowers(powerType) / 100) / 10;
-                        return;
-                    }
+                    l_Player->CastSpell(l_Player, DK_SPELL_CONVERSION_REGEN, true);
+                    l_Player->EnergizeBySpell(l_Player, DK_SPELL_CONVERSION_REGEN, -5 * l_Player->GetPowerCoeff(POWER_RUNIC_POWER), POWER_RUNIC_POWER);
                 }
+                else
+                    l_Player->RemoveAura(GetSpellInfo()->Id);
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_conversion_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -608,13 +628,13 @@ class spell_dk_soul_reaper: public SpellScriptLoader
 
             enum eSpells
             {
-                ImprovedSoulReaper = 157342
+                ImprovedSoulReaper  = 157342,
+                T17Unholy2P         = 165575
             };
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (l_Caster == nullptr)
                     return;
 
@@ -623,9 +643,24 @@ class spell_dk_soul_reaper: public SpellScriptLoader
 
                 AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                 if (removeMode == AURA_REMOVE_BY_DEATH)
-                    GetCaster()->CastSpell(GetCaster(), DK_SPELL_SOUL_REAPER_HASTE, true);
+                    l_Caster->CastSpell(l_Caster, DK_SPELL_SOUL_REAPER_HASTE, true);
                 else if (removeMode == AURA_REMOVE_BY_EXPIRE && GetTarget()->GetHealthPct() < (float)l_HealthPctMax)
-                    GetCaster()->CastSpell(GetTarget(), DK_SPELL_SOUL_REAPER_DAMAGE, true);
+                {
+                    l_Caster->CastSpell(GetTarget(), DK_SPELL_SOUL_REAPER_DAMAGE, true);
+
+                    /// When Soul Reaper deals its bonus damage to a target, you gain 5 stacks of Shadow Infusion.
+                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::T17Unholy2P, EFFECT_0))
+                    {
+                        if (Player* l_Player = l_Caster->ToPlayer())
+                        {
+                            for (uint8 l_I = 0; l_I < (uint8)l_AurEff->GetAmount(); ++l_I)
+                            {
+                                if (Pet* l_Pet = l_Player->GetPet())
+                                    l_Caster->CastSpell(l_Pet, DK_SPELL_DARK_INFUSION_STACKS, true);
+                            }
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -678,22 +713,50 @@ class spell_dk_pillar_of_frost: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_pillar_of_frost_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            enum eSpells
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->ApplySpellImmune(DK_SPELL_PILLAR_OF_FROST, IMMUNITY_MECHANIC, MECHANIC_KNOCKOUT, false);
+                T17Frost2P              = 165547,
+                PillarOfFrostEnergize   = 167171,
+                T17Frost4P              = 165568,
+                T17Frost4PDriver        = 167655,
+                T17Frost4PDriverPeriod  = 170205
+            };
+
+            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    l_Target->ApplySpellImmune(DK_SPELL_PILLAR_OF_FROST, IMMUNITY_MECHANIC, MECHANIC_KNOCKOUT, false);
+
+                    /// When Pillar of Frost fades, your rune weapon discharges the souls at your current target, dealing 30% damage per soul.
+                    if (l_Target->HasAura(eSpells::T17Frost4PDriver))
+                    {
+                        l_Target->RemoveAura(eSpells::T17Frost4PDriver);
+                        l_Target->CastSpell(l_Target, eSpells::T17Frost4PDriverPeriod, true);
+                    }
+                }
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->ApplySpellImmune(DK_SPELL_PILLAR_OF_FROST, IMMUNITY_MECHANIC, MECHANIC_KNOCKOUT, true);
+                if (Unit* l_Target = GetTarget())
+                {
+                    l_Target->ApplySpellImmune(DK_SPELL_PILLAR_OF_FROST, IMMUNITY_MECHANIC, MECHANIC_KNOCKOUT, true);
+
+                    /// Activating Pillar of Frost generates 30 Runic Power.
+                    if (l_Target->HasAura(eSpells::T17Frost2P))
+                        l_Target->CastSpell(l_Target, eSpells::PillarOfFrostEnergize, true);
+
+                    /// While Pillar of Frost is active, your special attacks trap a soul in your rune weapon.
+                    if (l_Target->HasAura(eSpells::T17Frost4P))
+                        l_Target->CastSpell(l_Target, eSpells::T17Frost4PDriver, true);
+                }
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_dk_pillar_of_frost_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_dk_pillar_of_frost_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dk_pillar_of_frost_AuraScript::AfterApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dk_pillar_of_frost_AuraScript::AfterRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1353,16 +1416,8 @@ class spell_dk_anti_magic_zone: public SpellScriptLoader
                 return true;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(DK_SPELL_ANTI_MAGIC_SHELL_TALENT))
-                    return false;
-                return true;
-            }
-
             void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                SpellInfo const* talentSpell = sSpellMgr->GetSpellInfo(DK_SPELL_ANTI_MAGIC_SHELL_TALENT);
                 amount = 136800;
                 if (Player* player = GetCaster()->ToPlayer())
                      amount += int32(player->GetStat(STAT_STRENGTH) * 4);
@@ -1614,7 +1669,6 @@ class spell_dk_death_grip: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
 
                 int32 l_Damage = GetEffectValue();
@@ -1965,8 +2019,15 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
-                if (AuraPtr l_AuraNecroticPlague = p_AurEff->GetBase())
+                int32 l_CurrentDuration = 0;
+                uint8 l_CurrentStacks = 0;
+
+                if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
+                {
                     l_AuraNecroticPlague->ModStackAmount(1);
+                    l_CurrentDuration = l_AuraNecroticPlague->GetDuration();
+                    l_CurrentStacks = l_AuraNecroticPlague->GetStackAmount();
+                }
 
                 std::list<Unit*> l_TargetList;
                 float l_Radius = 8.0f;
@@ -1994,7 +2055,17 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                     return;
 
                 if (Unit* l_NewTarget = JadeCore::Containers::SelectRandomContainerElement(l_TargetList))
+                {
                     l_Caster->CastSpell(l_NewTarget, NecroticPlagueAura, true);
+
+                    /// Copy aura data
+                    if (AuraPtr l_NewNecroticPlague = l_NewTarget->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
+                    {
+                        l_NewNecroticPlague->SetDuration(l_CurrentDuration);
+                        l_NewNecroticPlague->SetMaxDuration(l_CurrentDuration);
+                        l_NewNecroticPlague->SetStackAmount(l_CurrentStacks);
+                    }
+                }
             }
 
             void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -2983,6 +3054,245 @@ class spell_dk_presences : public SpellScriptLoader
         }
 };
 
+/// Breath of Sindragosa - 152279
+class spell_dk_breath_of_sindragosa : public SpellScriptLoader
+{
+public:
+    spell_dk_breath_of_sindragosa() : SpellScriptLoader("spell_dk_breath_of_sindragosa") { }
+
+    class spell_dk_breath_of_sindragosa_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_breath_of_sindragosa_AuraScript);
+
+        enum eSpells
+        {
+            DarkTransformation = 63560
+        };
+
+        void OnTick(constAuraEffectPtr p_AurEff)
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->GetSpecializationId() == SPEC_DK_UNHOLY)
+            {
+                /// Receive Dark Infusion for every 30 runic power
+                if (p_AurEff->GetTickNumber() % 2 == 0)
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        if (!l_Pet->HasAura(eSpells::DarkTransformation))
+                            l_Player->CastSpell(l_Pet, DK_SPELL_DARK_INFUSION_STACKS, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_breath_of_sindragosa_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dk_breath_of_sindragosa_AuraScript();
+    }
+};
+
+/// Called by Scent of Blood - 50421
+/// Item - Death Knight T17 Blood 2P Bonus - 167192
+class spell_dk_item_t17_blood_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dk_item_t17_blood_2p_bonus() : SpellScriptLoader("spell_dk_item_t17_blood_2p_bonus") { }
+
+        class spell_dk_item_t17_blood_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_item_t17_blood_2p_bonus_AuraScript);
+
+            enum eSpells
+            {
+                T17Blood2P      = 167192,
+                VampiricBlood   = 55233
+            };
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    /// Each stack of Scent of Blood consumed reduces the cooldown of Vampiric Blood by 5 sec.
+                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::T17Blood2P, EFFECT_0))
+                    {
+                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
+
+                        if (l_Caster->GetTypeId() == TypeID::TYPEID_PLAYER)
+                            l_Caster->ToPlayer()->ReduceSpellCooldown(eSpells::VampiricBlood, l_Stacks * l_AurEff->GetAmount());
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectApplyFn(spell_dk_item_t17_blood_2p_bonus_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_item_t17_blood_2p_bonus_AuraScript();
+        }
+};
+
+/// Blood Shield - 77535
+class spell_dk_blood_shield : public SpellScriptLoader
+{
+    public:
+        spell_dk_blood_shield() : SpellScriptLoader("spell_dk_blood_shield") { }
+
+        class spell_dk_blood_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_blood_shield_AuraScript);
+
+            enum eSpells
+            {
+                T17Blood4P = 165571
+            };
+
+            void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    /// While Vampiric Blood is active, your Blood Shield cannot be reduced below 3% of your maximum health.
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpells::T17Blood4P, EFFECT_0))
+                    {
+                        int32 l_FutureAbsorb = p_AurEff->GetAmount() - p_AbsorbAmount;
+                        int32 l_MinimaAbsorb = l_Target->CountPctFromMaxHealth(l_AurEff->GetAmount());
+
+                        /// We need to add some absorb amount to correct the absorb amount after that, and set it to 3% of max health
+                        if (l_FutureAbsorb < l_MinimaAbsorb)
+                        {
+                            int32 l_AddedAbsorb = l_MinimaAbsorb - l_FutureAbsorb;
+                            p_AurEff->ChangeAmount(p_AurEff->GetAmount() + l_AddedAbsorb);
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_blood_shield_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_blood_shield_AuraScript();
+        }
+};
+
+/// Item - Death Knight T17 Frost 4P Driver - 167655
+class spell_dk_item_t17_frost_4p_driver : public SpellScriptLoader
+{
+    public:
+        spell_dk_item_t17_frost_4p_driver() : SpellScriptLoader("spell_dk_item_t17_frost_4p_driver") { }
+
+        class spell_dk_item_t17_frost_4p_driver_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_item_t17_frost_4p_driver_AuraScript);
+
+            enum eSpells
+            {
+                FrozenRuneblade = 170202
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (l_ProcSpell == nullptr)
+                    return;
+
+                Unit* l_Target = p_EventInfo.GetActionTarget();
+                if (l_Target == nullptr || l_Target == l_Caster)
+                    return;
+
+                /// While Pillar of Frost is active, your special attacks trap a soul in your rune weapon.
+                l_Caster->CastSpell(l_Target, eSpells::FrozenRuneblade, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_item_t17_frost_4p_driver_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_item_t17_frost_4p_driver_AuraScript();
+        }
+};
+
+/// Item - Death Knight T17 Frost 4P Driver (Periodic) - 170205
+class spell_dk_item_t17_frost_4p_driver_periodic : public SpellScriptLoader
+{
+    public:
+        spell_dk_item_t17_frost_4p_driver_periodic() : SpellScriptLoader("spell_dk_item_t17_frost_4p_driver_periodic") { }
+
+        class spell_dk_item_t17_frost_4p_driver_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_item_t17_frost_4p_driver_periodic_AuraScript);
+
+            enum eSpells
+            {
+                FrozenRunebladeMainHand = 165569,
+                FrozenRunebladeOffHand  = 178808,
+                FrozenRunebladeStacks   = 170202
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Unit* l_Target = l_Caster->getVictim();
+                if (l_Target == nullptr)
+                    return;
+
+                if (Player* l_Player = l_Caster->ToPlayer())
+                {
+                    if (AuraPtr l_Aura = l_Player->GetAura(eSpells::FrozenRunebladeStacks))
+                    {
+                        if (Item* l_MainHand = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_MAINHAND))
+                            l_Player->CastSpell(l_Target, eSpells::FrozenRunebladeMainHand, true);
+
+                        if (Item* l_OffHand = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_OFFHAND))
+                            l_Player->CastSpell(l_Target, eSpells::FrozenRunebladeOffHand, true);
+
+                        l_Aura->DropStack();
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_item_t17_frost_4p_driver_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_item_t17_frost_4p_driver_periodic_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_coil();
@@ -3042,6 +3352,11 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_blood_rites();
     new spell_dk_control_undead();
     new spell_dk_presences();
+    new spell_dk_breath_of_sindragosa();
+    new spell_dk_item_t17_blood_2p_bonus();
+    new spell_dk_blood_shield();
+    new spell_dk_item_t17_frost_4p_driver();
+    new spell_dk_item_t17_frost_4p_driver_periodic();
 
     new PlayerScript_Blood_Tap();
 }

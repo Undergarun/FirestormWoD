@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "highmaul.hpp"
+# include "highmaul.hpp"
 
 DoorData const g_DoorData[] =
 {
@@ -45,6 +45,7 @@ class instance_highmaul : public InstanceMapScript
                 m_ArenaMasterGuid           = 0;
 
                 m_KargathBladefistGuid      = 0;
+                m_KargathAchievement        = true;
                 m_JhornTheMadGuid           = 0;
                 m_ThoktarIronskullGuid      = 0;
                 m_ArenaElevatorGuid         = 0;
@@ -62,16 +63,27 @@ class instance_highmaul : public InstanceMapScript
                 m_DrunkenBileslingerCount   = 0;
 
                 m_TheButcherGuid            = 0;
+                m_MaggotKilled              = 0;
 
                 m_BrackensporeGuid          = 0;
+                m_BrackensporeAchievement   = false;
 
                 m_TectusGuid                = 0;
+                m_MoteOfTectusTime          = 0;
+                m_TectusAchievement         = false;
                 m_GuardiansGuids.resize(eHighmaulDatas::MaxTectusGuardians);
 
                 m_PhemosGuid                = 0;
                 m_PolGuid                   = 0;
+                m_TwinOgronAchievement      = true;
 
                 m_KoraghGuid                = 0;
+                m_OverflowingEnergies       = 0;
+                m_NullificationBarrier      = false;
+
+                m_ImperatorMargokGuid       = 0;
+                m_HighCouncilorMalgris      = 0;
+                m_ImperatorAchievement      = false;
 
                 m_PlayerPhases.clear();
             }
@@ -83,6 +95,7 @@ class instance_highmaul : public InstanceMapScript
 
             /// The Coliseum
             uint64 m_KargathBladefistGuid;
+            bool   m_KargathAchievement;
             uint64 m_JhornTheMadGuid;
             uint64 m_ThoktarIronskullGuid;
             uint64 m_ArenaElevatorGuid;
@@ -98,24 +111,32 @@ class instance_highmaul : public InstanceMapScript
 
             /// The Underbelly
             uint64 m_TheButcherGuid;
+            uint8  m_MaggotKilled;
 
             /// Gorian Strand
             uint64 m_BrackensporeGuid;
+            bool   m_BrackensporeAchievement;
 
             /// The Market
             uint64 m_TectusGuid;
+            uint32 m_MoteOfTectusTime;
+            bool   m_TectusAchievement;
             std::vector<uint64> m_GuardiansGuids;
 
             /// The Gorthenon
             uint64 m_PhemosGuid;
             uint64 m_PolGuid;
+            bool   m_TwinOgronAchievement;
 
             /// Chamber of Nullification
             uint64 m_KoraghGuid;
+            uint8  m_OverflowingEnergies;
+            bool   m_NullificationBarrier;
 
             /// Throne of the Imperator
             uint64 m_ImperatorMargokGuid;
             uint64 m_HighCouncilorMalgris;
+            bool   m_ImperatorAchievement;
 
             /// Phasing
             std::map<uint32, uint32> m_PlayerPhases;
@@ -200,7 +221,8 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::GorianCivilian:
                     case eHighmaulCreatures::RuneOfNullification:
                         p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
-                        p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                        p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                         break;
                     case eHighmaulCreatures::ImperatorMargok:
                         m_ImperatorMargokGuid = p_Creature->GetGUID();
@@ -336,14 +358,171 @@ class instance_highmaul : public InstanceMapScript
                 {
                     case eHighmaulDatas::BossKargathBladefist:
                     {
-                        if (p_State != EncounterState::DONE)
-                            break;
+                        switch (p_State)
+                        {
+                            case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_KargathAchievement = true;
+                                break;
+                            }
+                            case EncounterState::DONE:
+                            {
+                                SendUpdateWorldState(eHighmaulWorldStates::DisableCrowdSound, 1);
+                                SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState, 0);
+                                SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState2, 0);
+                                PlaySceneForPlayers(g_PlayScenePos, 1338);
+                                CastSpellToPlayers(instance, nullptr, eHighmaulSpells::ChogallNight, true);
 
-                        SendUpdateWorldState(eHighmaulWorldStates::DisableCrowdSound, 1);
-                        SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState, 0);
-                        SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState2, 0);
-                        PlaySceneForPlayers(g_PlayScenePos, 1338);
-                        CastSpellToPlayers(instance, nullptr, eHighmaulSpells::ChogallNight, true);
+                                if (!instance->IsLFR() && m_KargathAchievement)
+                                    DoCompleteAchievement(eHighmaulAchievements::FlameOn);
+
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
+                    case eHighmaulDatas::BossTheButcher:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_MaggotKilled = 0;
+                                break;
+                            }
+                            case EncounterState::DONE:
+                            {
+                                if (!instance->IsLFR() && m_MaggotKilled >= eHighmaulDatas::MaxMaggotToKill)
+                                    DoCompleteAchievement(eHighmaulAchievements::HurryUpMaggot);
+
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
+                    case eHighmaulDatas::BossTectus:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_MoteOfTectusTime  = 0;
+                                m_TectusAchievement = false;
+                                break;
+                            }
+                            case EncounterState::DONE:
+                            {
+                                if (!instance->IsLFR() && m_TectusAchievement)
+                                    DoCompleteAchievement(eHighmaulAchievements::MoreLikeWreckedUs);
+
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
+                    case eHighmaulDatas::BossBrackenspore:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_BrackensporeAchievement = false;
+                                break;
+                            }
+                            case EncounterState::DONE:
+                            {
+                                if (!instance->IsLFR() && m_BrackensporeAchievement)
+                                    DoCompleteAchievement(eHighmaulAchievements::AFungusAmongUs);
+
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
+                    case eHighmaulDatas::BossTwinOgron:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_TwinOgronAchievement = true;
+                                break;
+                            }
+                            case EncounterState::DONE:
+                            {
+                                if (!instance->IsLFR() && m_TwinOgronAchievement)
+                                    DoCompleteAchievement(eHighmaulAchievements::BrothersInArms);
+
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
+                    case eHighmaulDatas::BossKoragh:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_OverflowingEnergies = 0;
+                                m_NullificationBarrier = false;
+                                break;
+                            }
+                            case EncounterState::DONE:
+                            {
+                                if (!instance->IsLFR() && m_NullificationBarrier && m_OverflowingEnergies < eHighmaulDatas::MaxOverflowingEnergy)
+                                    DoCompleteAchievement(eHighmaulAchievements::PairAnnihilation);
+
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
+                    case eHighmaulDatas::BossImperatorMargok:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_ImperatorAchievement = false;
+                                break;
+                            }
+                            case EncounterState::DONE:
+                            {
+                                if (!instance->IsLFR() && m_ImperatorAchievement)
+                                    DoCompleteAchievement(eHighmaulAchievements::LineageOfPower);
+
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
                         break;
                     }
                     default:
@@ -385,6 +564,61 @@ class instance_highmaul : public InstanceMapScript
 
                         break;
                     }
+                    case eHighmaulDatas::KargathAchievement:
+                    {
+                        /// Defeat Kargath Bladefist in Highmaul without destroying any Fire Pillars on Normal difficulty or higher.
+                        m_KargathAchievement = false;
+                        break;
+                    }
+                    case eHighmaulDatas::ButcherAchievement:
+                    {
+                        /// Cause the Butcher in Highmaul to slay 6 Maggots before defeating him on Normal difficulty or higher.
+                        m_MaggotKilled++;
+                        break;
+                    }
+                    case eHighmaulDatas::TectusAchievement:
+                    {
+                        if (!m_MoteOfTectusTime)
+                            m_MoteOfTectusTime = p_Data;
+                        else
+                        {
+                            /// Defeat Tectus in Highmaul by destroying all eight Motes of Tectus within 10 seconds of each other on Normal difficulty or higher.
+                            if (p_Data > (m_MoteOfTectusTime + 10))
+                                m_TectusAchievement = false;
+                            else
+                                m_TectusAchievement = true;
+                        }
+                        break;
+                    }
+                    case eHighmaulDatas::BrackensporeAchievement:
+                    {
+                        /// Gain 15 stacks of Burning Infusion and then defeat Brackenspore in Highmaul on Normal difficulty or higher.
+                        m_BrackensporeAchievement = true;
+                        break;
+                    }
+                    case eHighmaulDatas::TwinOgronAchievement:
+                    {
+                        /// Defeat the Twin Ogron in Highmaul without their Disposition ever exceeding 30% on Normal difficulty or higher.
+                        m_TwinOgronAchievement = false;
+                        break;
+                    }
+                    /// Defeat Ko'ragh in Highmaul with fewer than 15 Overflowing Energy orbs touching the ground or players without Nullification Barrier, on Normal difficulty or higher.
+                    case eHighmaulDatas::KoraghOverflowingEnergy:
+                    {
+                        ++m_OverflowingEnergies;
+                        break;
+                    }
+                    case eHighmaulDatas::KoraghNullificationBarrier:
+                    {
+                        m_NullificationBarrier = true;
+                        break;
+                    }
+                    case eHighmaulDatas::ImperatorAchievement:
+                    {
+                        /// Empower and defeat a Fortified Replicating Gorian Warmage and then defeat Imperator Mar'gok in Highmaul on Normal difficulty or higher.
+                        m_ImperatorAchievement = true;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -398,6 +632,8 @@ class instance_highmaul : public InstanceMapScript
                         return m_ArenaElevatorActivated;
                     case eHighmaulDatas::TestsActivated:
                         return m_ForTests;
+                    case eHighmaulDatas::KoraghAchievement:
+                        return !instance->IsLFR() && m_NullificationBarrier && m_OverflowingEnergies < eHighmaulDatas::MaxOverflowingEnergy;
                     default:
                         return 0;
                 }

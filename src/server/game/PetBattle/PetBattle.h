@@ -292,7 +292,7 @@ class BattlePet
         /// Load
         void CloneFrom(BattlePet::Ptr & p_BattlePet);
         /// Save
-        void Save();
+        void Save(SQLTransaction& p_Transaction);
 
         /// When a player earn a pet it will insert into his account
         void AddToPlayer(Player* p_Player);
@@ -488,7 +488,7 @@ struct PetBattleEvent
     uint32 AbilityEffectID;         ///< Id of an ability effect (used for client animation)
     uint32 BuffTurn;                ///< Buff rel turn count/id
     uint32 RoundTurn;               ///< Turn in round turn see  PetBattle::RoundTurn (used for order sync)
-    uint32 StackDepth;                   ///< unk
+    uint32 StackDepth;              ///< unk
 
     PetBattleEventUpdateList Updates;   ///< Event updates, client support more than 1 update pet event, but never seen more than 1 update per event on retails
 };
@@ -511,8 +511,8 @@ struct PetBattleRequest
     PetBattleType RequestType;                  ///< Battle request type (PETBATTLE_TYPE_PVE / PETBATTLE_TYPE_PVP_DUEL / PETBATTLE_TYPE_PVP_MATCHMAKING)
     float PetBattleCenterPosition[3];           ///< Pet battlefield center position
     float TeamPosition[MAX_PETBATTLE_TEAM][3];  ///< Teams position
-    float BattleFacing;                             ///< unk
-    uint32 LocationResult;                            ///< unk
+    float BattleFacing;                         ///< unk
+    uint32 LocationResult;                      ///< unk
 };
 
 //////////////////////////////////////////////////////////////////////////

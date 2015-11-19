@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "highmaul.hpp"
+# include "highmaul.hpp"
 
 Position const g_CenterPos = { 3903.39f, 8608.15f, 364.71f, 5.589f };
 
@@ -365,6 +365,8 @@ class boss_koragh : public CreatureScript
                         me->CastSpell(me, eSpells::KnockbackForRecharge, true);
                         me->CastSpell(me, eSpells::VulnerabilityAura, true);
 
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
                         m_Events.DelayEvent(eEvents::EventOverflowingEnergy, 20 * TimeConstants::IN_MILLISECONDS);
 
                         m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventEndOfCharging);
@@ -516,8 +518,14 @@ class boss_koragh : public CreatureScript
                 switch (p_ID)
                 {
                     case eDatas::DataRunicPlayersCount:
+                    {
                         m_RunicPlayersCount = p_Value;
+
+                        if (m_Instance != nullptr)
+                            m_Instance->SetData(eHighmaulDatas::KoraghNullificationBarrier, 1);
+
                         break;
+                    }
                     default:
                         break;
                 }
@@ -567,6 +575,8 @@ class boss_koragh : public CreatureScript
                         me->RemoveAura(eSpells::VulnerabilityAura);
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
                         me->GetMotionMaster()->Clear();
 
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
@@ -575,6 +585,7 @@ class boss_koragh : public CreatureScript
                         if (Creature* l_Grounding = Creature::GetCreature(*me, m_FloorRune))
                             l_Grounding->RemoveAura(eSpells::VolatileAnomaliesAura);
 
+                        m_RunicPlayersCount = 0;
                         break;
                     }
                     default:
@@ -631,7 +642,7 @@ class boss_koragh : public CreatureScript
                     }
                     case eEvents::EventSuppressionField:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM/*, 0, -10.0f*/))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
                         {
                             m_SuppressionFieldTarget = l_Target->GetGUID();
                             me->CastSpell(me, eSpells::SuppressionFieldAura, false);
@@ -992,10 +1003,10 @@ class npc_highmaul_breaker_of_frost : public CreatureScript
 };
 
 /// Volatile Anomaly - 79956
-class npc_highmaul_volatile_anomaly : public CreatureScript
+class npc_highmaul_koragh_volatile_anomaly : public CreatureScript
 {
     public:
-        npc_highmaul_volatile_anomaly() : CreatureScript("npc_highmaul_volatile_anomaly") { }
+        npc_highmaul_koragh_volatile_anomaly() : CreatureScript("npc_highmaul_koragh_volatile_anomaly") { }
 
         enum eSpells
         {
@@ -1004,9 +1015,9 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
             SuppressionFieldSilence = 162595
         };
 
-        struct npc_highmaul_volatile_anomalyAI : public ScriptedAI
+        struct npc_highmaul_koragh_volatile_anomalyAI : public ScriptedAI
         {
-            npc_highmaul_volatile_anomalyAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_koragh_volatile_anomalyAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_Exploded = false;
             }
@@ -1037,7 +1048,7 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
-            return new npc_highmaul_volatile_anomalyAI(p_Creature);
+            return new npc_highmaul_koragh_volatile_anomalyAI(p_Creature);
         }
 };
 
@@ -1385,7 +1396,7 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                                 }
                             }
 
-                            if (!l_CanChargePlayer)
+                            if (l_Boss == nullptr || !l_Boss->IsAIEnabled)
                             {
                                 m_DamageTimer = 200;
                                 return;
@@ -1395,7 +1406,7 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                             {
                                 if (l_Iter->GetDistance(l_Target) <= 7.0f)
                                 {
-                                    if (!l_Iter->HasAura(eSpell::CausticEnergyDoT))
+                                    if (!l_Iter->HasAura(eSpell::CausticEnergyDoT) && l_CanChargePlayer)
                                     {
                                         l_Iter->CastSpell(l_Iter, eSpell::CausticEnergyDoT, true);
 
@@ -1411,6 +1422,10 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                                     if (l_Iter->HasAura(eSpell::CausticEnergyDoT))
                                         l_Iter->RemoveAura(eSpell::CausticEnergyDoT);
                                 }
+
+                                /// Must be updated
+                                l_ChargingCount = l_Boss->AI()->GetData(eDatas::DataRunicPlayersCount);
+                                l_CanChargePlayer = l_ChargingCount < l_Boss->AI()->GetData(eDatas::DataMaxRunicPlayers);
                             }
                         }
 
@@ -1994,6 +2009,9 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
                 {
                     l_Caster->CastSpell(*p_AreaTrigger, eSpells::OverflowingEnergyAoE, true);
                     p_AreaTrigger->Remove(0);
+
+                    if (InstanceScript* l_InstanceScript = l_Caster->GetInstanceScript())
+                        l_InstanceScript->SetData(eHighmaulDatas::KoraghOverflowingEnergy, 1);
                 }
             }
         }
@@ -2010,6 +2028,24 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
         }
 };
 
+/// Pair Annihilation - 8976
+class achievement_highmaul_pair_annihilation : public AchievementCriteriaScript
+{
+    public:
+        achievement_highmaul_pair_annihilation() : AchievementCriteriaScript("achievement_highmaul_pair_annihilation") { }
+
+        bool OnCheck(Player* p_Source, Unit* /*p_Target*/) override
+        {
+            if (!p_Source || !p_Source->GetInstanceScript())
+                return false;
+
+            if (p_Source->GetInstanceScript()->GetData(eHighmaulDatas::KoraghAchievement))
+                return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_koragh()
 {
     /// Boss
@@ -2020,7 +2056,7 @@ void AddSC_boss_koragh()
     new npc_highmaul_breaker_of_fire();
     new npc_highmaul_wild_flames();
     new npc_highmaul_breaker_of_frost();
-    new npc_highmaul_volatile_anomaly();
+    new npc_highmaul_koragh_volatile_anomaly();
 
     /// GameObjects
     new go_highmaul_chain();
@@ -2043,4 +2079,7 @@ void AddSC_boss_koragh()
     new areatrigger_highmaul_suppression_field();
     new areatrigger_highmaul_expel_magic_frost();
     new areatrigger_highmaul_overflowing_energy();
+
+    /// Achievement
+    new achievement_highmaul_pair_annihilation();
 }

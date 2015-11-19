@@ -429,11 +429,12 @@ public:
     int32  ScalingClass;
     float  NerfFactor;
     int32  NerfMaxLevel;
-    SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
+    SpellEffectInfo Effects[SpellEffIndex::MAX_EFFECTS];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
     std::list<SpellPowerEntry const*> SpellPowers;
     uint32 ResearchProject;
+    uint8 EffectCount;
 
     // SpecializationSpellEntry
     std::list<uint32> SpecializationIdList;
@@ -602,6 +603,7 @@ public:
     bool IsRequireAdditionalTargetCheck() const;
     bool IsNeedToCheckSchoolImmune() const;
     bool IsRemoveLossControlEffects() const;
+    bool IsRemoveFear() const;
     bool DoesIgnoreGlobalCooldown(Unit* caster) const;
 
     Classes GetClassIDBySpellFamilyName() const;
@@ -643,6 +645,9 @@ public:
     void _UnloadImplicitTargetConditionLists();
 
     std::string GetNameForLogging() const;
+
+    /// Cache the maximum number of effects
+    void UpdateSpellEffectCount();
 };
 
 #endif // _SPELLINFO_H

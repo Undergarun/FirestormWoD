@@ -44,7 +44,7 @@ extern int m_ServiceStatus;
 void WorldRunnable::run()
 {
     /// - Register signal handler for current thread
-    signal(SIGSEGV, &MS::SignalHandler::OnSignalReceive);
+    //signal(SIGSEGV, &MS::SignalHandler::OnSignalReceive);
 
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();

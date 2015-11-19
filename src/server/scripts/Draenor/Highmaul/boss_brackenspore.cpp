@@ -566,7 +566,10 @@ class boss_brackenspore : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventScheduleEnergy:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            AttackStart(l_Target);
                         me->CastSpell(me, eSpells::EnergyRegen, true);
+                        me->GetMotionMaster()->Clear();
                         break;
                     case eEvents::EventRot:
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
@@ -1431,6 +1434,15 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
                         l_AT->SetDuration(1);
                         l_Caster->CastSpell(l_Caster, eSpells::BurningInfusion, true);
                         l_Caster->CastSpell(*l_AT, eSpells::Flamethrower, true);
+
+                        if (AuraPtr l_Infusion = l_Caster->GetAura(eSpells::BurningInfusion))
+                        {
+                            if (l_Infusion->GetStackAmount() >= eHighmaulDatas::BurningInfusionNeeded)
+                            {
+                                if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
+                                    l_Instance->SetData(eHighmaulDatas::BrackensporeAchievement, 1);
+                            }
+                        }
                     }
                 }
             }

@@ -999,3 +999,25 @@ INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, modelid, eq
 INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, MovementType, npcflag, npcflag2, unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID, isActive) VALUES (78801, 1205, 6967, 6967, 245760, 1, 0, 0, 30.4296, 3509.38, 280.327, 4.82004, 7200, 0, 0, 1, 0, 0, 0, 0, 32768, 2099200, 0, 0, 0, 0);
 INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, MovementType, npcflag, npcflag2, unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID, isActive) VALUES (78801, 1205, 6967, 6967, 245760, 1, 0, 0, 41.1357, 3509.98, 280.089, 4.56243, 7200, 0, 0, 1, 0, 0, 0, 0, 32768, 2099200, 0, 0, 0, 0);
 INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, MovementType, npcflag, npcflag2, unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID, isActive) VALUES (78801, 1205, 6967, 6967, 245760, 1, 0, 0, 35.4131, 3510.38, 280.23, 4.82004, 7200, 0, 0, 1, 0, 0, 0, 0, 32768, 2099200, 0, 0, 0, 0);
+
+INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, position_x, position_y, position_z, orientation, unit_flags) VALUES
+(87727, 1205, 6967, 6967, 114688, 1, 179.2743, 3354.524, 244.274, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 217.5104, 3341.702, 291.0694, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 146.2031, 3361.693, 256.9818, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 197.033, 3369.767, 238.9688, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 170.0069, 3353.729, 247.2837, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 232.8767, 3342.362, 296.4824, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 145.6754, 3411.405, 264.127, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 199.9757, 3394.077, 230.9865, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 250.3281, 3360.919, 306.4229, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 136.8507, 3389.259, 261.3849, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 196.8368, 3385.356, 277.1982, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 245.2205, 3349.425, 301.3727, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 139.6181, 3375.612, 259.6509, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 206, 3347.002, 286.9114, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 198.9549, 3355.664, 284.0327, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 137.941, 3403.79, 262.0942, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 197.2656, 3370.406, 279.7297, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 158.2483, 3355.654, 252.7712, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 197.7188, 3381.51, 234.9701, 4.335092, 33554690),
+(87727, 1205, 6967, 6967, 114688, 1, 189.7882, 3358.934, 241.5016, 4.335092, 33554690);

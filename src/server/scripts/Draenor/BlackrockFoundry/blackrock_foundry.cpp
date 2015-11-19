@@ -2174,6 +2174,96 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
         }
 };
 
+/// First Floor Trap - 10276
+class areatrigger_at_foundry_first_floor_trap : public AreaTriggerScript
+{
+    public:
+        areatrigger_at_foundry_first_floor_trap() : AreaTriggerScript("areatrigger_at_foundry_first_floor_trap") { }
+
+        enum eSpell
+        {
+            KromogsFury = 175331
+        };
+
+        enum eCreature
+        {
+            KromogsWrath = 87727
+        };
+
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        {
+            float l_MaxZ = 308.45f;
+            float l_MinZ = 274.45f;
+
+            std::list<Creature*> l_WrathList;
+            p_Player->GetCreatureListWithEntryInGrid(l_WrathList, eCreature::KromogsWrath, 150.0f);
+
+            if (l_WrathList.empty())
+                return;
+
+            l_WrathList.remove_if([this, l_MaxZ, l_MinZ](Creature* p_Creature) -> bool
+            {
+                if (p_Creature == nullptr || p_Creature->GetPositionZ() >= l_MaxZ || p_Creature->GetPositionZ() <= l_MinZ)
+                    return true;
+
+                return false;
+            });
+
+            for (Creature* l_Wrath : l_WrathList)
+            {
+                if (l_Wrath->HasAura(eSpell::KromogsFury))
+                    continue;
+
+                l_Wrath->CastSpell(l_Wrath, eSpell::KromogsFury, true);
+            }
+        }
+};
+
+/// Second Floor Trap - 10277
+class areatrigger_at_foundry_second_floor_trap : public AreaTriggerScript
+{
+    public:
+        areatrigger_at_foundry_second_floor_trap() : AreaTriggerScript("areatrigger_at_foundry_second_floor_trap") { }
+
+        enum eSpell
+        {
+            KromogsFury = 175331
+        };
+
+        enum eCreature
+        {
+            KromogsWrath = 87727
+        };
+
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        {
+            float l_MaxZ = 266.06f;
+            float l_MinZ = 227.40f;
+
+            std::list<Creature*> l_WrathList;
+            p_Player->GetCreatureListWithEntryInGrid(l_WrathList, eCreature::KromogsWrath, 150.0f);
+
+            if (l_WrathList.empty())
+                return;
+
+            l_WrathList.remove_if([this, l_MaxZ, l_MinZ](Creature* p_Creature) -> bool
+            {
+                if (p_Creature == nullptr || p_Creature->GetPositionZ() >= l_MaxZ || p_Creature->GetPositionZ() <= l_MinZ)
+                    return true;
+
+                return false;
+            });
+
+            for (Creature* l_Wrath : l_WrathList)
+            {
+                if (l_Wrath->HasAura(eSpell::KromogsFury))
+                    continue;
+
+                l_Wrath->CastSpell(l_Wrath, eSpell::KromogsFury, true);
+            }
+        }
+};
+
 void AddSC_blackrock_foundry()
 {
     /// NPCs
@@ -2209,6 +2299,10 @@ void AddSC_blackrock_foundry()
 
     /// GameObjects
 
-    /// AreaTriggers
+    /// AreaTriggers (spell)
     new areatrigger_foundry_acidback_puddle();
+
+    /// AreaTriggers (world)
+    new areatrigger_at_foundry_first_floor_trap();
+    new areatrigger_at_foundry_second_floor_trap();
 }

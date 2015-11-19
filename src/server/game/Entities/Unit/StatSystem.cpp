@@ -886,7 +886,7 @@ void Player::UpdateMasteryPercentage()
         if (l_SpellInfo != nullptr && l_SpellInfo->HasAttribute(SpellAttr8::SPELL_ATTR8_MASTERY_SPECIALIZATION))
         {
             AuraPtr l_Aura = l_Iter.second->GetBase();
-            for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+            for (uint8 l_I = 0; l_I < l_Aura->GetEffectCount(); ++l_I)
             {
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
@@ -902,6 +902,24 @@ void Player::UpdateMasteryPercentage()
             }
         }
     }
+}
+
+void Player::UpdateMeleeHitChances()
+{
+    m_modMeleeHitChance = 7.5f + (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
+    m_modMeleeHitChance += GetRatingBonusValue(CR_HIT_MELEE);
+}
+
+void Player::UpdateRangedHitChances()
+{
+    m_modRangedHitChance = 7.5f + (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
+    m_modRangedHitChance += GetRatingBonusValue(CR_HIT_RANGED);
+}
+
+void Player::UpdateSpellHitChances()
+{
+    m_modSpellHitChance = 15.0f + (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
+    m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
 }
 
 void Player::UpdateAllSpellCritChances()
@@ -1606,6 +1624,10 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     /// - Automatically update weapon damage after attack power modification
     UpdateDamagePhysical(WeaponAttackType::BaseAttack);
+
+    /// Update off hand weapon damage for Shivarra and Wrathguard
+    if (GetEntry() == ENTRY_SHIVARRA || GetEntry() == ENTRY_WRATHGUARD)
+        UpdateDamagePhysical(WeaponAttackType::OffAttack);
 }
 
 // WoD updated

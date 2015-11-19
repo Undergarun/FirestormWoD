@@ -121,10 +121,28 @@ class ObjectAccessor
         // Player may be not in world while in ObjectAccessor
         static Player* GetObjectInWorld(uint64 guid, Player* /*typeSpecifier*/)
         {
-            Player* player = HashMapHolder<Player>::Find(guid);
+            uint32 l_LowPart = GUID_LOPART(guid);
+            Player* player   = nullptr;
+
+            if (l_LowPart < k_PlayerCacheMaxGuid)
+                player = m_PlayersCache[l_LowPart];
+            else
+                player = HashMapHolder<Player>::Find(guid);
+
             if (player && player->IsInWorld())
                 return player;
-            return NULL;
+
+            return nullptr;
+        }
+
+        static Creature* GetObjectInWorld(uint64 guid, Creature* /*typeSpecifier*/)
+        {
+            uint32 l_LowPart = GUID_LOPART(guid);
+
+            if (l_LowPart <  k_CreaturesCacheMaxGuid)
+                return m_CreaturesCache[l_LowPart];
+
+            return HashMapHolder<Creature>::Find(guid);
         }
 
         static Unit* GetObjectInWorld(uint64 guid, Unit* /*typeSpecifier*/)
@@ -221,9 +239,41 @@ class ObjectAccessor
             return HashMapHolder<GameObject>::GetContainer();
         }
 
+        static void AddObject(Player* object)
+        {
+            if (object->GetGUIDLow() < k_PlayerCacheMaxGuid)
+                m_PlayersCache[object->GetGUIDLow()] = object;
+
+            HashMapHolder<Player>::Insert(object);
+        }
+
+        static void AddObject(Creature* object)
+        {
+            if (object->GetGUIDLow() < k_CreaturesCacheMaxGuid)
+                m_CreaturesCache[object->GetGUIDLow()] = object;
+
+            HashMapHolder<Creature>::Insert(object);
+        }
+
         template<class T> static void AddObject(T* object)
         {
             HashMapHolder<T>::Insert(object);
+        }
+
+        static void RemoveObject(Player* object)
+        {
+            if (object->GetGUIDLow() < k_PlayerCacheMaxGuid)
+                m_PlayersCache[object->GetGUIDLow()] = nullptr;
+
+            HashMapHolder<Player>::Remove(object);
+        }
+
+        static void RemoveObject(Creature* object)
+        {
+            if (object->GetGUIDLow() < k_CreaturesCacheMaxGuid)
+                m_CreaturesCache[object->GetGUIDLow()] = nullptr;
+
+            HashMapHolder<Creature>::Remove(object);
         }
 
         template<class T> static void RemoveObject(T* object)
@@ -271,6 +321,12 @@ class ObjectAccessor
 
         ACE_Thread_Mutex i_objectLock;
         ACE_RW_Thread_Mutex i_corpseLock;
+
+        static uint32 k_PlayerCacheMaxGuid;
+        static Player** m_PlayersCache;
+
+        static uint32 k_CreaturesCacheMaxGuid;
+        static Creature** m_CreaturesCache;
 };
 
 #define sObjectAccessor ACE_Singleton<ObjectAccessor, ACE_Null_Mutex>::instance()

@@ -733,21 +733,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                     ROLLBACK(DUMP_FILE_BROKEN);
                 }
 
-                /// We transfer max 50k golds
-                l_Index = GetFieldIndexFromColumn("money", l_Columns) + 1;
-                uint64 l_Gold = std::stoll(getnth(l_Line, l_Index).c_str());
-                if (l_Gold > (50000 * GOLD))
-                {
-                    char l_MaxMoney[20];
-                    snprintf(l_MaxMoney, 20, "%u", 50000U * GOLD);
-
-                    if (!changenth(l_Line, l_Index, l_MaxMoney))
-                    {
-                        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [can't change money]");
-                        ROLLBACK(DUMP_FILE_BROKEN);
-                    }
-                }
-
                 const char null[5] = "NULL";
                 l_Index = GetFieldIndexFromColumn("deleteInfos_Account", l_Columns) + 1;
                 if (!changenth(l_Line, l_Index, null))                                  ///< characters.deleteInfos_Account
@@ -768,6 +753,16 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                 {
                     sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [11]");
                     ROLLBACK(DUMP_FILE_BROKEN);
+                }
+
+                l_Index = GetFieldIndexFromColumn("petslotused", l_Columns) + 1;        ///< characters.petslotused
+                if (getnth(l_Line, l_Index).c_str() == "")
+                {
+                    if (!changenth(l_Line, l_Index, "0"))
+                    {
+                        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [characters.petslotused]");
+                        ROLLBACK(DUMP_FILE_BROKEN);
+                    }
                 }
 
                 break;
@@ -919,7 +914,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             {
                 uint64 newItemIdNum = sObjectMgr->GenerateVoidStorageItemId();
                 char newItemId[20];
-                snprintf(newItemId, 20, "%ull", newItemIdNum);
+                snprintf(newItemId, 20, UI64FMTD, newItemIdNum);
 
                 uint32 l_Index = GetFieldIndexFromColumn("itemId", l_Columns) + 1;
                 if (!changenth(l_Line, l_Index, newItemId))                             ///< character_void_storage.itemId update
@@ -1127,7 +1122,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             default:
                 //sLog->outError("Unknown dump table type: %u", type);
                 {
-                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [36]");
+                    sLog->outSlack("#jarvis", "danger", true, "Transfer to realm [%u] on account [%u] failed. Reason: Unknow table", g_RealmID, p_Account);
                     ROLLBACK(DUMP_FILE_BROKEN);
                 }
                 break;
@@ -1148,7 +1143,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
     if (!CharacterDatabase.DirectCommitTransaction(l_CharTransaction))
     {
-        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [37]");
+        sLog->outSlack("#jarvis", "danger", true, "Transfer to realm [%u] on account [%u] failed. Reason: Character transaction fail", g_RealmID, p_Account);
         return DUMP_FILE_BROKEN;
     }
 

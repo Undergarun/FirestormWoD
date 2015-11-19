@@ -274,6 +274,8 @@ include_directories(
   ${MSFRAMEWORK_INCLUDE_DIR}
 )
 
+add_definitions("-DGAME_SERVER_PROJECTS")
+
 add_library(game STATIC
   ${game_STAT_SRCS}
   ${game_STAT_PCH_SRC}

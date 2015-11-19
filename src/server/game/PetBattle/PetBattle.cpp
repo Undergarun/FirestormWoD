@@ -118,7 +118,7 @@ void BattlePet::CloneFrom(BattlePet::Ptr & p_BattlePet)
         Abilities[l_I] = p_BattlePet->Abilities[l_I];
 }
 /// Save
-void BattlePet::Save()
+void BattlePet::Save(SQLTransaction& p_Transaction)
 {
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REP_PETBATTLE);
     l_Statement->setUInt64(0, GUID_LOPART(JournalID));
@@ -143,7 +143,7 @@ void BattlePet::Save()
     l_Statement->setString(19, DeclinedNames[2]);
     l_Statement->setString(20, DeclinedNames[3]);
     l_Statement->setString(21, DeclinedNames[4]);
-    LoginDatabase.Execute(l_Statement);
+    p_Transaction->Append(l_Statement);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1208,7 +1208,7 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                 if (p_WinnerTeamID == l_CurrentTeamID && l_AvailablePetCount && BattleType == PETBATTLE_TYPE_PVE && l_CurrentPet->IsAlive()
                     && l_CurrentPet->Level < BATTLEPET_MAX_LEVEL && FightedPets.find(l_CurrentPet->ID) != FightedPets.end())
                 {
-                    uint32  l_MyTeamPetCount = Teams[l_CurrentTeamID]->TeamPetCount;
+                    uint32  l_MyTeamPetCount = Teams[l_CurrentTeamID]->TeamPetCount; ///< l_MyTeamPetCount is never used
                     uint32  l_XpEarn = 0;
                     float   l_XpMod[] = { 1.f, 1.f, 0.5f };
 
@@ -1433,7 +1433,7 @@ bool PetBattle::CanCast(uint32 p_TeamID, uint32 p_AbilityID)
 /// Prepare cast
 void PetBattle::PrepareCast(uint32 p_TeamID, uint32 p_AbilityID)
 {
-    BattlePetAbilityEntry const* l_AbilityInfo = sBattlePetAbilityStore.LookupEntry(p_AbilityID);
+    BattlePetAbilityEntry const* l_AbilityInfo = sBattlePetAbilityStore.LookupEntry(p_AbilityID); ///< l_AbilityInfo is never used
 
     PetBattleAbilityTurn l_AbilityTurn;
     memset(&l_AbilityTurn, 0, sizeof(l_AbilityTurn));

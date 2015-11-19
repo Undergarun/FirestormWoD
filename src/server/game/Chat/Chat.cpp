@@ -348,8 +348,10 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
 
         SetSentErrorMessage(false);
 
-        bool l_CommandResult = false;
-        MS::SignalHandler::EnableThrowExceptionAtFailure();
+        bool   l_CommandResult = false;
+        uint32 l_TimeStamp     = getMSTime();
+
+        //MS::SignalHandler::EnableThrowExceptionAtFailure();
         try
         {
             l_CommandResult = (table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext);
@@ -363,7 +365,11 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
 
             sLog->outError(LOG_FILTER_WORLDSERVER, "Crash intercepted => ChatHandler::ExecuteCommandInTable(%p, %s, %s)", table, text, fullcmd.c_str());
         }
-        MS::SignalHandler::DisableThrowExceptionAtFailure();
+        //MS::SignalHandler::DisableThrowExceptionAtFailure();
+
+        uint32 l_CommandExecutionTime = getMSTime() - l_TimeStamp;
+        if (l_CommandExecutionTime > 10)
+            sLog->outAshran("Commmand [%s] take %u ms to execute", fullcmd.c_str(), l_CommandExecutionTime);
 
         // table[i].Name == "" is special case: send original command to handler
         if (l_CommandResult)

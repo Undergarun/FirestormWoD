@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "highmaul.hpp"
+# include "highmaul.hpp"
 
 Position const g_TrashsSpawnPos = { 3427.1f, 7530.21f, 55.3383f, 0.965533f };
 Position const g_VulgorMovePos = { 3449.81f, 7557.01f, 55.304f, 0.8995f };
@@ -443,6 +443,10 @@ class boss_kargath_bladefist : public CreatureScript
                         /// Breaks Pillar visual
                         me->SetControlled(true, UnitState::UNIT_STATE_ROOT);
                         me->PlayOneShotAnimKit(eDatas::AnimInterrupt);
+
+                        if (m_Instance != nullptr)
+                            m_Instance->SetData(eHighmaulDatas::KargathAchievement, 1);
+
                         break;
                     }
                     case eActions::SpawnIronBombers:
@@ -707,6 +711,10 @@ class boss_kargath_bladefist : public CreatureScript
                     case eEvents::EventBerserkerRush:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                            me->CastSpell(l_Target, eSpells::SpellBerserkerRush, false);
+                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 1, -5.0f))
+                            me->CastSpell(l_Target, eSpells::SpellBerserkerRush, false);
+                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, eSpells::SpellBerserkerRush, false);
 
                         Talk(eTalks::BerserkerRush);
@@ -2401,7 +2409,8 @@ class npc_highmaul_chain_hurl_vehicle : public CreatureScript
         {
             ChainHurlJumpDest   = 159995,
             Obscured            = 160131,
-            Chain               = 159531
+            Chain               = 159531,
+            FlameJetDoT         = 159311
         };
 
         enum eAction
@@ -2433,6 +2442,9 @@ class npc_highmaul_chain_hurl_vehicle : public CreatureScript
                 {
                     if (!m_Rotate && p_Apply)
                         m_Rotate = true;
+
+                    if (p_Apply && p_Passenger != nullptr)
+                        p_Passenger->RemoveAura(eSpells::FlameJetDoT);
 
                     return;
                 }
@@ -2706,6 +2718,11 @@ class spell_highmaul_impale : public SpellScriptLoader
             OpenWounds = 159178
         };
 
+        enum eCreature
+        {
+            AreaTriggerForCrowd = 79260
+        };
+
         class spell_highmaul_impale_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_highmaul_impale_AuraScript);
@@ -2720,6 +2737,21 @@ class spell_highmaul_impale : public SpellScriptLoader
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_DEATH)
                     l_Caster->CastSpell(l_Target, eSpell::OpenWounds, true);
+
+                if (Creature* l_Trigger = l_Target->FindNearestCreature(eCreature::AreaTriggerForCrowd, 50.0f))
+                {
+                    if (l_Target->GetDistance(l_Trigger) >= 10.0f)
+                    {
+                        float l_O = l_Target->GetAngle(l_Trigger);
+                        float l_X = l_Target->GetPositionX() + 5.0f * cos(l_O);
+                        float l_Y = l_Target->GetPositionY() + 5.0f * sin(l_O);
+                        float l_Z = l_Caster->GetPositionZ();
+
+                        Position const l_Pos = { l_X, l_Y, l_Z, l_O };
+                        l_Target->ExitVehicle(&l_Pos);
+                        return;
+                    }
+                }
 
                 l_Target->ExitVehicle();
             }
@@ -3617,7 +3649,8 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
         enum eSpells
         {
             FlameJet            = 159311,
-            BerserkerRushAura   = 159028
+            BerserkerRushAura   = 159028,
+            Obscured            = 160131
         };
 
         enum eCreature
@@ -3635,7 +3668,7 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 10.0f;
+                float l_Radius = 15.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -3643,7 +3676,7 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    if (l_Unit->IsOnVehicle())
+                    if (l_Unit->IsOnVehicle() || l_Unit->HasAura(eSpells::Obscured))
                     {
                         if (l_Unit->HasAura(eSpells::FlameJet))
                             l_Unit->RemoveAura(eSpells::FlameJet);

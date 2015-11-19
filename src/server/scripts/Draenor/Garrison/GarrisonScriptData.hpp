@@ -49,7 +49,9 @@ namespace MS { namespace Garrison
         Disengage                              = 82707,
         Shoot                                  = 6660,
         SpellArming                            = 167920,
-        SpellIronTrap                          = 180609
+        SpellIronTrap                          = 180609,
+        SpellApprenticeLogging                 = 167911,
+        SpellSummonStump                       = 170079
     };
 
     enum DisplayIDs
@@ -82,6 +84,11 @@ namespace MS { namespace Garrison
             Alliance_ClearingTheGarden                  = 36404,
             /// Barn
             Alliance_BreakingIntoTheTrapGame            = 36271,
+            /// Lumber Mill
+            Alliance_EasingIntoLumberjacking            = 36189,
+            Alliance_TurningTimberIntoProfit            = 36192,
+            /// Lunar Fall Excavation
+            Alliance_ThingsAreNotGorenOurWay            = 34192,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -101,7 +108,12 @@ namespace MS { namespace Garrison
             /// Herb garden
             Horde_ClearingTheGarden                     = 34193,
             /// Barn
-            Horde_BreakingIntoTheTrapGame               = 36345
+            Horde_BreakingIntoTheTrapGame               = 36345,
+            /// Lumber Mill
+            Horde_EasingIntoLumberjacking               = 36137,
+            Horde_TurningTimberIntoProfit               = 36138,
+            /// Frostwall Mines
+            Horde_ThingsAreNotGorenOurWay                = 35154
         };
     }   ///< namespace Quests
 
@@ -130,7 +142,26 @@ namespace MS { namespace Garrison
         TrapL1QuestKillCredit                           = 84882,
         NpcFarmerLokLubSummon                           = 85093,
         NpcHomerStonefield                              = 83967,
-        NpcTommyJoeStonefield
+        NpcTommyJoeStonefield                           = 83968,
+        NpcHordePeon                                    = 83985,
+        NpcAllianceLumberjack                           = 83950,
+        NpcLunarfallGoren                               = 83628,
+        NpcLunarfallGorenHatchling                      = 83629,
+        NpcFrostwallGoren                               = 81362,
+        NpcFrostwallGorenHatchling                      = 81398,
+        NpcStonetooth                                   = 81396,
+        NpcAllianceMiner                                = 77361,
+        NpcHordeMiner                                   = 79837
+    };
+
+    enum GameObjects
+    {
+        GobStump                = 234568,
+        GobBlackrockDeposit     = 232542,
+        GobRichBlackrockDeposit = 232543,
+        GobTrueIronDeposit      = 232544,
+        GobRichTrueIronDeposit  = 232545
+
     };
 
     /// NPC texts id
@@ -175,7 +206,16 @@ namespace MS { namespace Garrison
         ItemNagrandArrowbloom                   = 109128,
         ItemStarflower                          = 109127,
         ItemGorgrondFlytrap                     = 109126,
-        ItemFrostWeed                           = 109124
+        ItemFrostWeed                           = 109124,
+        ItemBagOfSalvagedGoods                  = 114116,
+        ItemCrateOfSalvage                      = 114119,
+        ItemBigCrateOfSalvage                   = 114120,
+        ItemTimber                              = 114781,
+        ItemTimberSample                        = 114827,
+        ItemGarrisonResources                   = 114677,
+        ItemMine                                = 116055,
+        ItemBlackrockOre                        = 109118,
+        ItemTrueIronOre                         = 109119
     };
 
     /// Waypoints
@@ -195,6 +235,12 @@ namespace MS { namespace Garrison
     enum MovePointIDs
     {
         MOVE_POINT_GAZLOWE_BARRACK_A = 0
+    };
+
+    enum ObjectIDs
+    {
+        TimberWorkOrderAlly  = 37548,
+        TimberWorkOrderHorde = 37487
     };
 
     /// Garrison creation coords
@@ -327,7 +373,8 @@ namespace MS { namespace Garrison
             86839,
             86847,
             86851,
-            86931
+            86931,
+            82452
         };
     }
 

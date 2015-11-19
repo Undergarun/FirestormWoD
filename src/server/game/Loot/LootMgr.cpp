@@ -1000,8 +1000,8 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
         p_Data.appendPackGUID(0);                           ///< Loot Obj
         p_Data << uint8(6);                                 ///< Failure reason
         p_Data << uint8(0);                                 ///< Acquire Reason
-        p_Data << uint8(0);
-        p_Data << uint8(0);
+        p_Data << uint8(0);                                 ///< LootMethod
+        p_Data << uint8(0);                                 ///< Threshold
         p_Data << uint32(0);                                ///< Coins
         p_Data << uint32(0);                                ///< Item count
         p_Data << uint32(0);                                ///< Currency count
@@ -1062,9 +1062,9 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);        ///< Ui Type
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                     l_ItemsDataBuffer.FlushBits();
-                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].count);
-                    l_ItemsDataBuffer << uint8(l_SlotType);
-                    l_ItemsDataBuffer << uint8(l_I);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].count);       ///< Quantity
+                    l_ItemsDataBuffer << uint8(l_SlotType);                     ///< LootItemType
+                    l_ItemsDataBuffer << uint8(l_I);                            ///< LootListID
                     l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemid);
                     l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].randomSuffix);
                     l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].randomPropertyId);
@@ -1342,7 +1342,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     switch (lv.permission)
                     {
                         case MASTER_PERMISSION:
-                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER); ///< @todo slottype IS UNUSED
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
@@ -1458,7 +1458,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     switch (lv.permission)
                     {
                         case MASTER_PERMISSION:
-                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER); ///< @todo slottype IS UNUSED 
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
@@ -2107,10 +2107,16 @@ void LoadLootTemplates_Creature()
     uint32 count = LootTemplates_Creature.LoadAndCollectLootIds(lootIdSet);
 
     // Remove real entries and check loot existence
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
+    uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
+
+    for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
     {
-        if (uint32 lootid = itr->second.lootid)
+        CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
+        if (l_CreatureTemplate == nullptr)
+            continue;
+
+        if (uint32 lootid = l_CreatureTemplate->lootid)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
                 LootTemplates_Creature.ReportNotExistedId(lootid);
@@ -2286,10 +2292,16 @@ void LoadLootTemplates_Pickpocketing()
     uint32 count = LootTemplates_Pickpocketing.LoadAndCollectLootIds(lootIdSet);
 
     // Remove real entries and check loot existence
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
+    uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
+
+    for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
     {
-        if (uint32 lootid = itr->second.pickpocketLootId)
+        CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
+        if (l_CreatureTemplate == nullptr)
+            continue;
+
+        if (uint32 lootid = l_CreatureTemplate->pickpocketLootId)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
                 LootTemplates_Pickpocketing.ReportNotExistedId(lootid);
@@ -2373,10 +2385,16 @@ void LoadLootTemplates_Skinning()
     uint32 count = LootTemplates_Skinning.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
+    CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
+    uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
+
+    for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
     {
-        if (uint32 lootid = itr->second.SkinLootId)
+        CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
+        if (l_CreatureTemplate == nullptr)
+            continue;
+
+        if (uint32 lootid = l_CreatureTemplate->SkinLootId)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
                 LootTemplates_Skinning.ReportNotExistedId(lootid);

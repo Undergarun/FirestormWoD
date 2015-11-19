@@ -271,6 +271,15 @@ namespace MS { namespace Garrison
             Barn__Barn_Level1                           = 24,
             Barn__Barn_Level2                           = 25,
             Barn__Barn_Level3                           = 133,
+            SalvageYard_SalvageYard_Level1              = 52,
+            SalvageYard_SalvageYard_Level2              = 140,
+            SalvageYard_SalvageYard_Level3              = 141,
+            LumberMill_LumberMill_Level1                = 40,
+            LumberMill_LumberMill_Level2                = 41,
+            LumberMill_LumberMill_Level3                = 138,
+            LunarfallExcavation_FrostwallMines_Level1   = 61,
+            LunarfallExcavation_FrostwallMines_Level2   = 62,
+            LunarfallExcavation_FrostwallMines_Level3   = 63
         };
     }
 

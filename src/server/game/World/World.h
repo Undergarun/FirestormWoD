@@ -31,6 +31,7 @@
 #include "QueryResult.h"
 #include "Callback.h"
 #include "TimeDiffMgr.h"
+#include "DatabaseWorkerPool.h"
 
 #include <map>
 #include <set>
@@ -93,7 +94,7 @@ enum WorldTimers
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
     WUPDATE_TRANSFER,
-    WUPDATE_TRANSFER_MOP,
+    WUPDATE_TRANSFER_EXP,
     WUPDATE_COUNT
 };
 
@@ -653,6 +654,18 @@ enum RecordDiffType
     RECORD_DIFF_MAX
 };
 
+struct QueryHolderCallback
+{
+    QueryHolderCallback(QueryResultHolderFuture p_QueryResultHolderFuture, std::function<void(SQLQueryHolder*)> p_Callback)
+    {
+        m_QueryResultHolderFuture = p_QueryResultHolderFuture;
+        m_Callback = p_Callback;
+    }
+
+    QueryResultHolderFuture m_QueryResultHolderFuture;
+    std::function<void(SQLQueryHolder*)>   m_Callback;
+};
+
 /// The World
 class World
 {
@@ -794,9 +807,9 @@ class World
         /// Are we in the middle of a shutdown?
         bool IsShuttingDown() const { return m_ShutdownTimer > 0; }
         uint32 GetShutDownTimeLeft() const { return m_ShutdownTimer; }
-        void ShutdownServ(uint32 time, uint32 options, uint8 exitcode);
+        void ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason = std::string());
         void ShutdownCancel();
-        void ShutdownMsg(bool show = false, Player* player = NULL);
+        void ShutdownMsg(bool show = false, Player* player = NULL, const std::string& reason = std::string());
         static uint8 GetExitCode() { return m_ExitCode; }
         static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
         static bool IsStopped() { return m_stopEvent.value(); }
@@ -917,17 +930,6 @@ class World
 
         void UpdatePhaseDefinitions();
 
-        bool AddCharacterName(std::string name)
-        {
-            if (nameMap.find(name) != nameMap.end())
-                return false;
-
-            nameMap[name] = true;
-            return true;
-        }
-
-        void DeleteCharName(std::string name) { nameMap.erase(name); }
-
         void SetRecordDiff(RecordDiffType recordDiff, uint32 diff) { m_recordDiff[recordDiff] = diff; }
         uint32 GetRecordDiff(RecordDiffType recordDiff) { return m_recordDiff[recordDiff]; }
 
@@ -936,20 +938,37 @@ class World
         void ResetGuildChallenges();
         void ResetBossLooted();
 
-        std::map<Object*, bool> deleteUnits;
-        bool isDelete(Object* obj)
+        bool ModerateMessage(std::string l_Text);
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New callback system
+        //////////////////////////////////////////////////////////////////////////
+        void AddTransactionCallback(std::shared_ptr<MS::Utilities::Callback> p_Callback)
         {
-            if (deleteUnits.find(obj) != deleteUnits.end())
-                if (deleteUnits[obj])
-                    return true;
-            return false;
+            m_TransactionCallbackLock.lock();
+            m_TransactionCallbacksBuffer->push_front(p_Callback);
+            m_TransactionCallbackLock.unlock();
         }
 
-        bool ModerateMessage(std::string l_Text);
+        void AddPrepareStatementCallback(std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture> p_Callback)
+        {
+            m_PreparedStatementCallbackLock.lock();
+            m_PreparedStatementCallbacksBuffer->push_front(p_Callback);
+            m_PreparedStatementCallbackLock.unlock();
+        }
+
+        void AddQueryHolderCallback(QueryHolderCallback p_QueryHolderCallback)
+        {
+            m_QueryHolderCallbackLock.lock();
+            m_QueryHolderCallbacksBuffer->push_front(p_QueryHolderCallback);
+            m_QueryHolderCallbackLock.unlock();
+        }
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
         void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
+        void _updateTransfers();
 
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();
@@ -1053,15 +1072,38 @@ class World
         std::map<uint32, CharacterNameData> _characterNameDataMap;
         void LoadCharacterNameData();
 
-        std::map<std::string, bool> nameMap;
-
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
         PreparedQueryResultFuture m_transfersDumpCallbacks;
         PreparedQueryResultFuture m_transfersLoadCallbacks;
-        PreparedQueryResultFuture m_transferMop;
+        PreparedQueryResultFuture m_transfersExpLoadCallback;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
         LexicsCutter *m_lexicsCutter;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New query holder callback system
+        //////////////////////////////////////////////////////////////////////////
+        using QueryHolderCallbacks = std::forward_list<QueryHolderCallback>;
+        std::unique_ptr<QueryHolderCallbacks> m_QueryHolderCallbacks;
+        std::unique_ptr<QueryHolderCallbacks> m_QueryHolderCallbacksBuffer;
+        std::mutex m_QueryHolderCallbackLock;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New transaction query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using TransactionCallbacks = std::forward_list<std::shared_ptr<MS::Utilities::Callback>>;
+        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
+        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacksBuffer;
+        std::mutex m_TransactionCallbackLock;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New prepare statement query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using PrepareStatementCallback = std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture>;
+        using PreparedStatementCallbacks = std::forward_list<PrepareStatementCallback>;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacks;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
+        std::mutex m_PreparedStatementCallbackLock;
 };
 
 extern uint32 g_RealmID;

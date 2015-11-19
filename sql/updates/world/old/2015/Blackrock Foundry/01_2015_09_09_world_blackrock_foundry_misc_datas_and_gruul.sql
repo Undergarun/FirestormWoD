@@ -15,6 +15,11 @@ INSERT INTO areatrigger_teleport VALUE
 (10241, 'Blackrock Foundry - Entrance', 1205, 131.171875, 3429.481, 319.8291, 0.00135),
 (10242, 'Blackrock Foundry - Exit Target', 1116, 8074.5845, 859.86652, 34.3671, 2.8979);
 
+DELETE FROM areatrigger_scripts WHERE entry IN (10276, 10277);
+INSERT INTO areatrigger_scripts VALUES
+(10276, 'areatrigger_at_foundry_first_floor_trap'),
+(10277, 'areatrigger_at_foundry_second_floor_trap');
+
 DELETE FROM spell_script_names WHERE spell_id IN (175624, 175644, 175752, 175088, 169402, 155534, 155080, 173191, 155326, 155323, 155301);
 INSERT INTO spell_script_names VALUES
 (175624, 'spell_foundry_grievous_mortal_wounds'),
@@ -185,20 +190,20 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 
 DELETE FROM `reference_loot_template` WHERE entry = @REF_GRUUL;
 INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_GRUUL, 113848, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113849, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113850, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113851, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113852, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113853, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113854, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113855, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113856, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113857, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113858, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113859, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113860, 0, 1, 1, 1, 1),
-(@REF_GRUUL, 113861, 0, 1, 1, 1, 1);
+(@REF_GRUUL, 113862, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113863, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113864, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113865, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113866, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113867, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113868, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113869, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113870, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113871, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113872, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 113873, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 118114, 0, 1, 1, 1, 1),
+(@REF_GRUUL, 120078, 0, 1, 1, 1, 1);
 
 UPDATE `creature_template` SET `lootid`= @REF_GRUUL WHERE `entry`= @REF_GRUUL;
 

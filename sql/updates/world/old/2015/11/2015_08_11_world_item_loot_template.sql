@@ -1,0 +1,1 @@
+UPDATE item_loot_template SET ChanceOrQuestChance = 100, groupid = 0 WHERE entry IN(120354, 120355,  120356, 120353,  118065, 118094);

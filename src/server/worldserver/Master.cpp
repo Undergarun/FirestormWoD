@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -50,7 +50,7 @@
 #include "RealmList.h"
 
 #include "BigNumber.h"
-//#include <Reporting/Reporter.hpp>
+#include "Reporter.hpp"
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -380,58 +380,6 @@ const char* ipTransfert[4] =
     "37.187.68.78"      // Hellscream
 };
 
-class MopTransfersRunnable : public ACE_Based::Runnable
-{
-public:
-    MopTransfersRunnable()
-    {
-    }
-
-    void run(void)
-    {
-        while (!World::IsStopped())
-        {
-            ACE_Based::Thread::Sleep(30 * IN_MILLISECONDS);
-
-            if (!sWorld->getBoolConfig(CONFIG_MOP_TRANSFER_ENABLE))
-                continue;
-
-            PreparedStatement* l_Statement = LoginMopDatabase.GetPreparedStatement(LOGINMOP_SEL_TRANSFER);
-            l_Statement->setUInt32(0, sLog->GetRealmID());
-
-            auto l_Result = LoginMopDatabase.Query(l_Statement);
-            if (!l_Result)
-                continue;
-
-            do
-            {
-                auto l_Fields = l_Result->Fetch();
-                uint32 l_Timestamp = getMSTime();
-                uint32 l_Id = l_Fields[0].GetUInt32();
-                uint32 l_Account = l_Fields[1].GetUInt32();
-                std::string l_Dump = l_Fields[2].GetString();
-
-                std::ostringstream l_Filename;
-                l_Filename << "pdump/" << l_Account << "_" << l_Timestamp;
-
-                FILE* l_File = fopen(l_Filename.str().c_str(), "w");
-                if (!l_File)
-                    continue;
-
-                fprintf(l_File, "%s\n", l_Dump.c_str());
-                fclose(l_File);
-
-                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "#Transfer", 0, true, 3093);
-                remove(l_Filename.str().c_str());
-
-                if (l_Error == DUMP_SUCCESS)
-                    LoginMopDatabase.PQuery("UPDATE transfer_ashran SET state = 2 WHERE id = %u", l_Id);
-            }
-            while (l_Result->NextRow());
-        }
-    }
-};
-
 Master::Master() { }
 
 Master::~Master() { }
@@ -467,10 +415,6 @@ int Master::Run()
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Daemon PID: %u\n", pid);
     }
 
-    ///- Initializing the Reporter.
-    //sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
-    //sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
-
     ///- Start the databases
     if (!_StartDB())
         return 1;
@@ -497,6 +441,24 @@ int Master::Run()
     Handler.register_handler(SIGBREAK, &SignalBREAK);
     #endif /* _WIN32 */
 
+    ///- Initializing the Reporter.
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Reporter: Initializing instance...");
+
+    sReporter->SetAddress(ConfigMgr::GetStringDefault("Reporting.Address", "http://127.0.0.1:9200/"));
+    sReporter->SetIndex(ConfigMgr::GetStringDefault("Reporting.Index", "firestorm/guild_ranking/?pretty"));
+
+    /// Thread which repeat reporting.
+    std::thread l_Reporter([]()
+    {
+        while (!World::IsStopped())
+        {
+            if (sReporter->HasReports())
+                sReporter->ScheduleNextReport();
+
+            ACE_Based::Thread::current()->Sleep(1);
+        }
+    });
+
     ///- Launch WorldRunnable thread
     ACE_Based::Thread world_thread(new WorldRunnable, "WorldRunnable");
     world_thread.setPriority(ACE_Based::Highest);
@@ -517,7 +479,6 @@ int Master::Run()
     ACE_Based::Thread gmLogToDB_thread(new GmLogToDBRunnable, "GmLogToDBRunnable");
     ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable, "GmChatLogToDBRunnable");
     ACE_Based::Thread arenaLogToDB_thread(new ArenaLogToDBRunnable, "ArenaLogToDBRunnable");
-    ACE_Based::Thread l_MopTransfersThread(new MopTransfersRunnable, "MopTransfersRunnable");
 
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef _WIN32
@@ -599,6 +560,7 @@ int Master::Run()
     // since worldrunnable uses them, it will crash if unloaded after master
     world_thread.wait();
     rar_thread.wait();
+    l_Reporter.join();
 
     if (soap_thread)
     {

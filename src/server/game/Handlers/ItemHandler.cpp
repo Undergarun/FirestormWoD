@@ -1770,8 +1770,10 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 
         if (l_HasItemBonus)
         {
+            uint8  l_Context = 0;
             uint32 l_ItemBonusCount = 0;
 
+            p_Packet >> l_Context;
             p_Packet >> l_ItemBonusCount;                           ///< Bonus count
 
             for (uint32 l_Y = 0; l_Y < l_ItemBonusCount; ++l_Y)

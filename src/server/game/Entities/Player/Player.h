@@ -1033,17 +1033,18 @@ enum PlayerLoginDBQueryIndex
     MAX_PLAYER_LOGINDB_QUERY
 };
 
-class PetLoginQueryHolder : public SQLQueryHolder
+class PetQueryHolder : public SQLQueryHolder
 {
     private:
         uint32 m_guid;
         PreparedQueryResult m_petResult;
     public:
-        PetLoginQueryHolder(uint32 guid, PreparedQueryResult result)
-            : m_guid(guid), m_petResult(result) { }
+        PetQueryHolder(uint32 guid, PreparedQueryResult p_QueryResult) : m_guid(guid), m_petResult(p_QueryResult) { }
         uint32 GetGuid() const { return m_guid; }
-        PreparedQueryResult GetPetResult() const { return m_petResult; }
         bool Initialize();
+
+        PreparedQueryResult GetPetResult() { return m_petResult; }
+        static PreparedStatement* GenerateFirstLoadStatement(uint32 p_PetEntry, uint32 p_PetNumber, uint32 p_OwnerID, bool p_CurrentPet, PetSlot p_SlotID);
 };
 
 enum PetLoginQueryIndex
@@ -1052,7 +1053,8 @@ enum PetLoginQueryIndex
     PET_LOGIN_QUERY_LOADAURAEFFECT                  = 1,
     PET_LOGIN_QUERY_LOADSPELL                       = 2,
     PET_LOGIN_QUERY_LOADSPELLCOOLDOWN               = 3,
-    MAX_PET_LOGIN_QUERY                             = 4
+    PET_LOGIN_QUERY_DECLINED_NAME                   = 4,
+    MAX_PET_LOGIN_QUERY                             = 5
 };
 
 enum PlayerDelayedOperations
@@ -1692,7 +1694,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateInnerTime (time_t time) { time_inn_enter = time; }
 
         Pet* GetPet() const;
-        Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime, PetSlot slotID = PET_SLOT_UNK_SLOT, bool stampeded = false);
+        void SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime, PetSlot slotID = PET_SLOT_UNK_SLOT, bool stampeded = false, std::function<void(Pet*, bool)> p_Callback = [](Pet*, bool){}, bool p_Bypass = false);
         void RemovePet(Pet* pet, PetSlot mode, bool returnreagent = false, bool stampeded = false);
 
         PhaseMgr& GetPhaseMgr() { return phaseMgr; }
@@ -2280,6 +2282,9 @@ class Player : public Unit, public GridObject<Player>
          */
         void CheckTalentSpells();
 
+        /// Custom functions for spells
+        void HandleWarlockWodPvpBonus();
+
         // Dual Spec
         void UpdateSpecCount(uint8 count);
         void ActivateSpec(uint8 spec);
@@ -2602,6 +2607,9 @@ class Player : public Unit, public GridObject<Player>
 
         float GetPvpHealingBonus() const;
 
+        void UpdateMeleeHitChances();
+        void UpdateRangedHitChances();
+        void UpdateSpellHitChances();
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);
         void UpdateArmorPenetration(int32 amount);
@@ -3327,38 +3335,7 @@ class Player : public Unit, public GridObject<Player>
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
         //! Return collision height sent to client
-        float GetCollisionHeight(bool mounted)
-        {
-            if (mounted)
-            {
-                CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID));
-                if (!mountDisplayInfo)
-                    return GetCollisionHeight(false);
-
-                CreatureModelDataEntry const* mountModelData = sCreatureModelDataStore.LookupEntry(mountDisplayInfo->ModelId);
-                if (!mountModelData)
-                    return GetCollisionHeight(false);
-
-                CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
-                ASSERT(displayInfo);
-                CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelId);
-                ASSERT(modelData);
-
-                float scaleMod = GetFloatValue(OBJECT_FIELD_SCALE); // 99% sure about this
-
-                return scaleMod * mountModelData->MountHeight + modelData->CollisionHeight * 0.5f;
-            }
-            else
-            {
-                //! Dismounting case - use basic default model data
-                CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
-                ASSERT(displayInfo);
-                CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelId);
-                ASSERT(modelData);
-
-                return modelData->CollisionHeight;
-            }
-        }
+        float GetCollisionHeight(bool p_Mounted);
 
         uint16 GetPrimaryProfession(uint8 index) const
         {

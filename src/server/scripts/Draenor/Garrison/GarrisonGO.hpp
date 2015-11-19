@@ -89,6 +89,20 @@ namespace MS { namespace Garrison
 
     };
 
+    /// Garrison deposit generic script
+    class go_garrison_deposit : public GameObjectScript
+    {
+        public:
+            /// Constructor
+            go_garrison_deposit();
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_GameObject : Target GameObject instance
+            bool OnGossipHello(Player* p_Player, GameObject* p_GameObject);
+
+    };
+
     //////////////////////////////////////////////////////////////////////////
     /// 234186 - Iron Trap                                                 ///
     //////////////////////////////////////////////////////////////////////////
@@ -113,6 +127,56 @@ namespace MS { namespace Garrison
 
                 virtual void Reset() override;
 
+                virtual void UpdateAI(uint32 p_Diff) override;
+            };
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    /// 233604 - Small Timber                                              ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Garrison shipment container generic script
+    class go_garrison_small_timber : public GameObjectScript
+    {
+        public:
+            /// Constructor
+            go_garrison_small_timber();
+
+            enum eDatas
+            {
+                ActionGossip = 1,
+                ChopCount,
+                AnimTimer,
+                PlayerGuid
+            };
+
+            /// Called when a GameObjectAI object is needed for the GameObject.
+            /// @p_GameObject : GameObject instance
+            GameObjectAI* GetAI(GameObject * p_GameObject) const override;
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_GameObject : Target GameObject instance
+            bool OnGossipHello(Player * p_Player, GameObject * p_GameObject);
+
+            struct go_garrison_small_timberAI : public GameObjectAI
+            {
+                /// Constructor
+                go_garrison_small_timberAI(GameObject * p_GameObject);
+
+                uint32 m_AnimTimer    = 0;
+                uint32 m_RefillTimer  = 0;
+                uint32 m_RespawnTimer = 0;
+                uint32 m_ChopCount    = 0;
+                uint64 m_PlayerGuid   = 0;
+                std::map<uint32, uint32> m_TimberDisplayIDs;
+
+                virtual void DoAction(const int32 p_Action) override;
+
+                virtual void SetData64(uint32 p_Id, uint64 p_Value) override;
+
+                /// Called when a player opens a gossip dialog with the GameObject.
+                /// @p_Player     : Source player instance
                 virtual void UpdateAI(uint32 p_Diff) override;
             };
     };

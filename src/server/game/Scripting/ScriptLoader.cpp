@@ -108,6 +108,7 @@ void AddSC_npc_taxi();
 void AddSC_npc_companions();
 void AddSC_achievement_scripts();
 void AddSC_PlayerConditions();
+void AddSC_EncounterScripts();
 
 // player
 void AddSC_chat_log();
@@ -861,7 +862,7 @@ void AddSC_boss_roltall();
 void AddSC_boss_gugrokk();
 
 /* Iron Docks */
-void AddSC_iron_docks_cpp();
+void AddSC_iron_docks();
 void AddSC_instance_iron_docks();
 void AddSC_boss_nokgar();
 void AddSC_boss_skulloc();
@@ -1050,6 +1051,7 @@ void AddWorldScripts()
     AddSC_achievement_scripts();
     AddSC_chat_log();
     AddSC_PlayerConditions();
+    AddSC_EncounterScripts();
 }
 
 void AddEasternKingdomsScripts()
@@ -1823,7 +1825,7 @@ void AddDraenorScripts()
     AddSC_boss_gugrokk();
 
     /// Iron Docks
-    AddSC_iron_docks_cpp();
+    AddSC_iron_docks();
     AddSC_instance_iron_docks();
     AddSC_boss_nokgar();
     AddSC_boss_skulloc();

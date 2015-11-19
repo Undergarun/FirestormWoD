@@ -196,8 +196,8 @@ void TempSummon::InitStats(uint32 duration)
         if (uint32 slot = m_Properties->Slot)
         {
             // Totemic Persistence
-            if (slot != 1 && isTotem() && owner->HasAura(108284) && owner->m_SummonSlot[slot] && !owner->m_SummonSlot[slot + MAX_TOTEM_SLOT - 1])
-                slot += MAX_TOTEM_SLOT - 1;
+            if (slot != SUMMON_SLOT_TOTEM && isTotem() && owner->HasAura(108284) && owner->m_SummonSlot[slot] && !owner->m_SummonSlot[slot + MAX_TOTEM_SLOT - SUMMON_SLOT_TOTEM])
+                slot += MAX_TOTEM_SLOT - SUMMON_SLOT_TOTEM;
 
             if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
             {

@@ -240,7 +240,7 @@ UPDATE creature_template SET
     unit_class              = 8,
     dmg_multiplier          = 4,
     ScriptName              = 'npc_highmaul_gorian_warmage',
-    mechanic_immune_mask    = 617299839
+    mechanic_immune_mask    = 617299807
 WHERE entry = 78121;
 
 UPDATE creature_model_info SET bounding_radius = 0.9, combat_reach = 4.5 WHERE modelid = 54330;
@@ -398,7 +398,7 @@ INSERT INTO creature_text VALUES
 (77428, 18, 1, 'Learn your place.', 14, 0, 100, 0, 0, 42031, 'MargokSlay2'),
 (77428, 19, 0, 'I tire of this. Begone!', 14, 0, 100, 0, 0, 42016, 'MargokBerserk'),
 (77428, 20, 0, 'I... am... king...', 14, 0, 100, 0, 0, 42017, 'MargokDeath'),
-(77428, 21, 0, '|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t You have been branded by |cFFF00000|Hspell:156238|h[Arcane Wrath]|h|r!', 41, 0, 100, 0, 0, 0, 'MargokBranded'),
+(77428, 21, 0, '|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t You have been branded by |cFFF00000|Hspell:156238|h[Arcane Wrath]|h|r!', 42, 0, 100, 0, 0, 0, 'MargokBranded'),
 (77428, 22, 0, '|TINTERFACE\\ICONS\\spell_Mage_NetherTempest.blp:20|t |cFFF00000|Hspell:158648|h[Orbs of Chaos]|h|r explode from $n!', 41, 0, 100, 0, 0, 0, 'MargokOrbsOfChaos'),
 
 (77637, 0, 0, '$n detonated Destructive Resonance!', 16, 0, 100, 0, 0, 0, 'MargokDestructiveResonance');
