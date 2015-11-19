@@ -1145,6 +1145,10 @@ class spell_npc_warl_demonic_gateway_purple : public CreatureScript
                 if (p_Clicker->HasAura(eGatewaySpells::CooldownMarker))
                     return;
 
+                /// Can't use gates in control
+                if (p_Clicker->isFeared() || p_Clicker->isInStun() || p_Clicker->isConfused())
+                    return;
+
                 Unit* l_Owner = me->GetOwner();
                 if (!l_Owner || !l_Owner->ToPlayer())
                     return;
@@ -1167,6 +1171,12 @@ class spell_npc_warl_demonic_gateway_purple : public CreatureScript
                 for (auto itr : l_GreenGates)
                 {
                     p_Clicker->CastSpell(p_Clicker, eGatewaySpells::CooldownMarker, true);
+
+                    Unit* l_CurrentGateOwner = itr->GetOwner();
+
+                    /// Can't teleport to other players Gates
+                    if (l_CurrentGateOwner && l_Owner != l_CurrentGateOwner)
+                        continue;
 
                     // Init dest coordinates
                     float x, y, z;
@@ -1215,6 +1225,10 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
                 if (p_Clicker->HasAura(eGatewaySpells::CooldownMarker))
                     return;
 
+                /// Can't use gates in control
+                if (p_Clicker->isFeared() || p_Clicker->isInStun() || p_Clicker->isConfused())
+                    return;
+
                 Unit* l_Owner = me->GetOwner();
                 if (!l_Owner || !l_Owner->ToPlayer())
                     return;
@@ -1236,6 +1250,12 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
                 l_PurpleGates.sort(JadeCore::DistanceCompareOrderPred(me));
                 for (auto itr : l_PurpleGates)
                 {
+                    Unit* l_CurrentGateOwner = itr->GetOwner();
+
+                    /// Can't teleport to other players Gates
+                    if (l_CurrentGateOwner && l_Owner != l_CurrentGateOwner)
+                        continue;
+
                     p_Clicker->CastSpell(p_Clicker, eGatewaySpells::CooldownMarker, true);
 
                     // Init dest coordinates

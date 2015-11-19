@@ -5883,6 +5883,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = 0;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_NONE;
                 break;
+            case 111771: ///< Demonic Gateway (launch spell)
+                spellInfo->Effects[1].Effect = 0;
+                break;
             case 113890: ///< Demonic Gateway
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 break;

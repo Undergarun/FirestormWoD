@@ -1845,6 +1845,7 @@ class Unit : public WorldObject
         bool isFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR) || HasAuraType(SPELL_AURA_MOD_FEAR_2); }
         bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2); }
         bool isInStun() const { return HasAuraType(SPELL_AURA_MOD_STUN); }
+        bool isConfused() const { return HasAuraType(SPELL_AURA_MOD_CONFUSE); }
         bool IsPolymorphed() const;
 
         bool isFrozen() const;
