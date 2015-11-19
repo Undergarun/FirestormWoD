@@ -4978,9 +4978,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 50887: ///< Icy Talons - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 45;
                 break;
-            case 12294: ///< Mortal strike - hotfix 5.4.2
-                spellInfo->Effects[2].BasePoints = 215;
-                break;
             case 774: ///< Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
                 spellInfo->Effects[2].Effect = 0;
                 break;
