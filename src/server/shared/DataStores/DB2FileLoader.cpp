@@ -231,6 +231,8 @@ uint32 DB2FileLoader::GetFormatStringsFields(const char * format)
     return stringfields;
 }
 
+static char const* const nullStr = "";
+
 char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, std::set<LocalizedString*> & p_LocalizedString)
 {
 
@@ -305,8 +307,6 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
 
     return dataTable;
 }
-
-static char const* const nullStr = "";
 
 char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* dataTable, uint32 p_Locale)
 {
