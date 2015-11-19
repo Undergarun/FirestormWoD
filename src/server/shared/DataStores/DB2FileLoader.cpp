@@ -295,7 +295,7 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
                     offset += 1;
                     break;
                 case FT_STRING:
-                    *((LocalizedString**)(&dataTable[offset])) = new LocalizedString();   // will be replaces non-empty or "" strings in AutoProduceStrings
+                    *((LocalizedString**)(&dataTable[offset])) = new LocalizedString(nullStr);   // will be replaces non-empty or "" strings in AutoProduceStrings
                     p_LocalizedString.emplace(*((LocalizedString**)(&dataTable[offset])));
                     offset += sizeof(LocalizedString*);
                     break;
