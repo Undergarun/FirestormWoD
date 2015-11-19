@@ -18079,8 +18079,11 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
     // Check spellProcEvent data requirements
     if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
-        // Hack Fix Backdraft can be triggered if damage are absorbed
-        if (spellProto && spellProto->Id == 117896 && procSpell && procSpell->Id == 17962 && procExtra && (procExtra & PROC_EX_ABSORB))
+        /// Hack Fix Grimoire of Synergy can be triggered if damage is absorbed
+        if (spellProto && spellProto->Id == 171975 && procSpell && procExtra && (procExtra & PROC_EX_ABSORB))
+            return true;
+        // Hack Fix Backdraft can be triggered if damage is absorbed
+        else if (spellProto && spellProto->Id == 117896 && procSpell && procSpell->Id == 17962 && procExtra && (procExtra & PROC_EX_ABSORB))
             return true;
         else if (spellProto && spellProto->Id == 44448 && procSpell &&
             (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!

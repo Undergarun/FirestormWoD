@@ -1416,6 +1416,10 @@ bool Aura::CanBeSentToClient() const
     if (GetId() == 115098)
         return false;
 
+    /// Grimoire of Synergy
+    if (GetId() == 171975)
+        return true;
+
     if (!IsPassive())
         return true;
 
@@ -3329,6 +3333,10 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
                 Pet* l_Pet = GetUnitOwner()->ToPlayer()->GetPet();
                 if (l_Pet != nullptr)
                     targetList.push_back(l_Pet);
+
+                /// Hack fix for Grimoire of Synergy
+                if (GetSpellInfo()->Id == 171975)
+                    targetList.push_back(GetUnitOwner());
             }
         }
         else

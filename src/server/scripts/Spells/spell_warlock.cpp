@@ -3726,23 +3726,33 @@ class spell_warl_grimoire_of_synergy : public SpellScriptLoader
             {
                 Unit* l_Target = GetTarget();
 
-                if (Player* l_Player = l_Target->ToPlayer())
+                /// If procs on warlock, we should add buff on pet
+                if (l_Target->GetTypeId() == TYPEID_PLAYER && l_Target->ToPlayer())
                 {
-                    Pet* l_Pet = l_Player->GetPet();
+                    if (Pet* l_Pet = l_Target->ToPlayer()->GetPet())
+                    {
+                        if (!l_Pet)
+                            return;
 
-                    if (l_Pet == nullptr)
-                        return;
-
-                    l_Player->CastSpell(l_Pet, eSpells::GrimoireofSynergyBuff, true);
+                        l_Target->CastSpell(l_Pet, eSpells::GrimoireofSynergyBuff, true);
+                    }
                 }
-                else if (Unit* l_Owner = l_Target->GetOwner())
-                    l_Target->CastSpell(l_Owner, eSpells::GrimoireofSynergyBuff, true);
+                /// If procs on pet, we should add buff on warlock
+                else if (l_Target->GetTypeId() == TYPEID_UNIT)
+                {
+                    if (Unit* l_Owner = l_Target->GetOwner())
+                    {
+                        if (!l_Owner)
+                            return;
+
+                        l_Target->CastSpell(l_Owner, eSpells::GrimoireofSynergyBuff, true);
+                    }
+                }
             }
 
             void Register()
             {
                 OnEffectProc += AuraEffectProcFn(spell_warl_grimoire_of_synergy_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-                OnEffectProc += AuraEffectProcFn(spell_warl_grimoire_of_synergy_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
 
