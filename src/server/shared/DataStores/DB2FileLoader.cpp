@@ -297,8 +297,9 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
                     offset += 1;
                     break;
                 case FT_STRING:
-                    *((LocalizedString**)(&dataTable[offset])) = new LocalizedString(nullStr);   // will be replaces non-empty or "" strings in AutoProduceStrings
-                    p_LocalizedString.emplace(*((LocalizedString**)(&dataTable[offset])));
+                    LocalizedString* l_Str = new LocalizedString(nullStr);
+                    *((LocalizedString**)(&dataTable[offset])) = l_Str;   // will be replaces non-empty or "" strings in AutoProduceStrings
+                    p_LocalizedString.emplace(l_Str);
                     offset += sizeof(LocalizedString*);
                     break;
             }
@@ -346,9 +347,12 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
                     break;
                 case FT_STRING:
                 {
+                    /*
+                    uhm WTF ? THis breaks every fields, gets properly Generated later @ AutoProduceStrings
                     LocalizedString ** l_PtrPtr = ((LocalizedString**)(&dataTable[offset]));
                     char ** l_StrPtrMemoryPos = (char **)(&(*l_PtrPtr)->Str[p_Locale]);
                     *l_StrPtrMemoryPos = &stringHoldersPool[stringHoldersRecordPoolSize * y + stringHolderSize*stringFieldNum];
+                    */
 
                     ++stringFieldNum;
                     offset += sizeof(LocalizedString*);
@@ -393,13 +397,11 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uin
             case FT_STRING:
             {
                 // fill only not filled entries
-                LocalizedString ** l_PtrPtr = ((LocalizedString**)(&dataTable[offset]));
-                char ** l_StrPtrMemoryPos = (char **)(&(*l_PtrPtr)->Str[p_Locale]);
-
-                if (*l_StrPtrMemoryPos == nullStr)
+                LocalizedString* l_PtrPtr = *((LocalizedString**)(&dataTable[offset]));
+                if (l_PtrPtr->Str[p_Locale] == nullStr)
                 {
-                    const char * st = getRecord(y).getString(x);
-                    *l_StrPtrMemoryPos = stringPool + (st - (const char*)stringTable);
+                    const char* st = getRecord(y).getString(x);
+                    l_PtrPtr->Str[p_Locale] = stringPool + (st - (const char*)stringTable);
                 }
 
                 offset += sizeof(LocalizedString*);

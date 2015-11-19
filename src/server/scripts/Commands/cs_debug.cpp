@@ -2656,7 +2656,8 @@ class debug_commandscript: public CommandScript
                 if (sSpellMgr->GetItemSourceSkills(l_Template->ItemId) != nullptr)
                     continue;
 
-                if (std::string(l_Template->Name1->Get(LOCALE_enUS)).find(l_SearchString) == std::string::npos)
+                printf("%s == %s\n", l_Template->Name1->Get(sWorld->GetDefaultDbcLocale()), l_SearchString.c_str());
+                if (std::string(l_Template->Name1->Get(sWorld->GetDefaultDbcLocale())).find(l_SearchString) == std::string::npos)
                     continue;
 
                 if (l_Template->InventoryType == INVTYPE_TRINKET)
