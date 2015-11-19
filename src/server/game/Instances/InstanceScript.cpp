@@ -1428,7 +1428,7 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
                         continue;
 
                     m_EncounterDatas.GuildID        = l_Player->GetGuildId();
-                    m_EncounterDatas.GuildFaction   = l_Player->getFaction();
+                    m_EncounterDatas.GuildFaction   = l_Player->GetTeamId();
                     m_EncounterDatas.GuildName      = l_Player->GetGuildName();
                     break;
                 }
