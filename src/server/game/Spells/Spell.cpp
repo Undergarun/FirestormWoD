@@ -3999,6 +3999,19 @@ void Spell::cast(bool skipCheck)
 
     CallScriptAfterCastHandlers();
 
+    /// Trigger all effects if this spell should do that after cast
+    if (IsSpellTriggeredAfterCast())
+    {
+        // triggered spell pointer can be not set in some cases
+        // this is needed for proper apply of triggered spell mods
+        m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
+
+        // Take mods after trigger spell (needed for 14177 to affect 48664)
+        // mods are taken only on succesfull cast and independantly from targets of the spell
+        m_caster->ToPlayer()->RemoveSpellMods(this);
+        m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+    }
+
     if (m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
         m_caster->ToCreature()->AI()->OnSpellCasted(m_spellInfo);
 
@@ -4447,7 +4460,7 @@ void Spell::finish(bool ok)
     }
 
     // potions disabled by client, send event "not in combat" if need
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && !IsSpellTriggeredAfterCast())
     {
         if (!m_triggeredByAuraSpell)
             m_caster->ToPlayer()->UpdatePotionCooldown(this);
@@ -9117,6 +9130,19 @@ bool Spell::IsMorePowerfulAura(Unit const* target) const
                 break;
         }
     }
+    return false;
+}
+
+bool Spell::IsSpellTriggeredAfterCast() const
+{
+    switch (m_spellInfo->Id)
+    {
+        case 29722:  ///< Incinerate
+            return true;
+        default:
+            return false;
+    }
+
     return false;
 }
 

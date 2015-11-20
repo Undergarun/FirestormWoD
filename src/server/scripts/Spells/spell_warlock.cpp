@@ -82,6 +82,8 @@ enum WarlockSpells
     WARLOCK_SUCCUBUS_WHIPLASH               = 137706,
     WARLOCK_FELHUNTER_SPELL_LOCK            = 132409,
     WARLOCK_FELGUARD_PURSUIT                = 132410,
+    WARLOCK_INFERNAL_METEOR_STRIKE          = 171017,
+    WARLOCK_DOOMGUARD_SHADOW_LOCK           = 171139,
     WARLOCK_SHADOW_BOLT                     = 686,
     WARLOCK_TWILIGHT_WARD                   = 6229,
     WARLOCK_TWILIGHT_WARD_METAMORPHOSIS     = 104048,
@@ -766,6 +768,12 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
                                     break;
                                 case ENTRY_FELGUARD:
                                     bp = WARLOCK_FELGUARD_PURSUIT;
+                                    break;
+                                case ENTRY_INFERNAL_PET:
+                                    bp = WARLOCK_INFERNAL_METEOR_STRIKE;
+                                    break;
+                                case ENTRY_DOOMGUARD_PET:
+                                    bp = WARLOCK_DOOMGUARD_SHADOW_LOCK;
                                     break;
                                 default:
                                     break;
@@ -4060,6 +4068,46 @@ class spell_warl_glyph_of_life_tap_periodic : public SpellScriptLoader
         }
 };
 
+/// Cripple - 170995
+class spell_warl_cripple_doomguard : public SpellScriptLoader
+{
+public:
+    spell_warl_cripple_doomguard() : SpellScriptLoader("spell_warl_cripple_doomguard") { }
+
+    class spell_warl_cripple_doomguard_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_cripple_doomguard_SpellScript);
+
+        void HandleAfterHit()
+        {
+            if (!GetCaster() || !GetCaster()->ToPet())
+                return;
+
+            if (Pet* l_Pet = GetCaster()->ToPet())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    /// 4 seconds duration in PVP
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                        if (AuraPtr l_Cripple = l_Target->GetAura(GetSpellInfo()->Id))
+                            l_Cripple->SetDuration(4000);
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_warl_cripple_doomguard_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_cripple_doomguard_SpellScript();
+    }
+};
+
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_glyph_of_life_tap_periodic();
@@ -4142,4 +4190,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_healthstone();
     new spell_warl_soul_shards_visual();
     new spell_warl_command_demon_spells();
+    new spell_warl_cripple_doomguard();
 }

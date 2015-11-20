@@ -3758,6 +3758,19 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// I guess spellmod type is failed here because of -75% damage
                 spellInfo->Effects[EFFECT_5].MiscValue = SPELLMOD_DAMAGE;
                 spellInfo->Effects[EFFECT_5].BasePoints = -65;
+                /// Hack Fix, try to add visual effect for Chaos Bolt with Fire and Brimstone (157701) from Chaos Bolt (116858)
+                /// TODO !!! Didn't help !!! Chaos Bolt with FaB doesn't have visual model !!!
+                spellInfo->Effects[EFFECT_7].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_7].ApplyAuraName = SPELL_AURA_CHANGE_VISUAL_EFFECT;
+                spellInfo->Effects[EFFECT_7].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_7].BasePoints = 116858;
+                spellInfo->Effects[EFFECT_7].ValueMultiplier = 116858;
+                spellInfo->Effects[EFFECT_7].MiscValue = 157701;
+                spellInfo->Effects[EFFECT_7].MiscValueB = 116858;
+                break;
+            /// Second try to fix, didn't help too.
+            case 157701:///< Chaos Bolt
+                spellInfo->SpellVisual[0] = 45351; ///< Set a visual id from working Chaos Bolt.
                 break;
             case 162472:///< Earth Breaker (Vul'gor)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
@@ -5817,6 +5830,15 @@ void SpellMgr::LoadSpellCustomAttr()
             case 100:   ///< Charge
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 break;
+            case 47753: ///< Divine Aegis
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                spellInfo->Effects[0].BonusMultiplier = 0;
+                break;
+            case 170995:///< Cripple
+                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(2); ///< 250ms - hack fix to imagine Seduction mechanic
+                spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
@@ -5825,10 +5847,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 22599: ///< Chromatic Mantle of the Dawn
             case 86273: ///< Illuminated Healing 
             case 1752:  ///< Sinister Strike
-                spellInfo->Effects[0].BonusMultiplier = 0;
-                break;
-            case 47753: ///< Divine Aegis
-                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
             /// All spells - ProcFlags = 0

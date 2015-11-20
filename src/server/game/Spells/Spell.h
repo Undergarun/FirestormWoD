@@ -704,6 +704,7 @@ protected:
     bool IsDarkSimulacrum() const;
     bool IsCommandDemonSpell() const;
     bool IsMorePowerfulAura(Unit const* target) const;
+    bool IsSpellTriggeredAfterCast() const;
 
     void SendLoot(uint64 guid, LootType loottype);
 
