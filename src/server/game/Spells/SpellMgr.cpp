@@ -4460,6 +4460,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 = 0;
                 spellInfo->AttributesEx4 = 0;
                 break;
+           case 77219: ///< Mastery: Master Demonologist
+                spellInfo->Effects[1].SpellClassMask[0] |= 0x1040;
+                spellInfo->Effects[1].SpellClassMask[3] |= 0x40000000;
+                spellInfo->Effects[2].SpellClassMask[0] |= 0x1040;
+                spellInfo->Effects[2].SpellClassMask[3] |= 0x40000000;
+                break;
             case 145518: ///< Genesis
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
