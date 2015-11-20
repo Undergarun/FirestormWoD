@@ -424,7 +424,7 @@ namespace MS { namespace Garrison
     /// @p_Action   : Action
     bool npc_GarrisonFord::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        if (!p_Player->GetGarrison())
+        if (p_Player->getLevel() >= 88 && !p_Player->GetGarrison())
         {
             p_Player->CLOSE_GOSSIP_MENU();
             p_Player->CreateGarrison();
