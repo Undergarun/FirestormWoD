@@ -517,6 +517,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void UpdateStatsForLevel();
         void UpdateGroupSizeStats();
         void LoadEquipment(int8 p_ID = 1, bool p_Force = false);
+        void LoadSpecialEquipment(uint32 p_First, uint32 p_Second = 0, uint32 p_Third = 0);
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 

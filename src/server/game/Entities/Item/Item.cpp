@@ -2418,3 +2418,130 @@ uint32 Item::GetAppearanceModID() const
 
     return l_Appearance;
 }
+
+bool Item::SubclassesCompatibleForRandomWeapon(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified)
+{
+    if (!p_Transmogrifier || !p_Transmogrified)
+        return false;
+
+    /// One-Handed can be transmogrified to each other
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_SWORD ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_FIST_WEAPON) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_SWORD ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_FIST_WEAPON))
+        return true;
+
+    /// Two-Handed
+    /// Two-handed axes, maces, and swords can be Transmogrified to each other.
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2 ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_STAFF) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2 ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_STAFF))
+        return true;
+
+    return false;
+}
+
+bool Item::CanTransmogrifyIntoRandomWeapon(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified)
+{
+    if (!p_Transmogrified || !p_Transmogrifier)
+        return false;
+
+    if (p_Transmogrified->ItemId == p_Transmogrifier->ItemId)
+        return false;
+
+    if (p_Transmogrified->Class != ITEM_CLASS_WEAPON || p_Transmogrifier->Class != ITEM_CLASS_WEAPON)
+        return false;
+
+    if (p_Transmogrified->InventoryType != INVTYPE_2HWEAPON &&
+        p_Transmogrified->InventoryType != INVTYPE_WEAPONMAINHAND &&
+        p_Transmogrified->InventoryType != INVTYPE_WEAPONOFFHAND)
+        return false;
+
+    if (p_Transmogrifier->InventoryType != INVTYPE_2HWEAPON &&
+        p_Transmogrifier->InventoryType != INVTYPE_WEAPONMAINHAND &&
+        p_Transmogrifier->InventoryType != INVTYPE_WEAPONOFFHAND)
+        return false;
+
+    if (!p_Transmogrifier->CanTransmogrify() || !p_Transmogrified->CanBeTransmogrified())
+        return false;
+
+    if (!SubclassesCompatibleForRandomWeapon(p_Transmogrifier, p_Transmogrified))
+        return false;
+
+    return true;
+}
+
+void Item::RandomWeaponTransmogrificationFromPrimaryBag(Player* p_Player, Item* p_Transmogrified, bool p_Apply)
+{
+    if (!p_Player || !p_Transmogrified)
+        return;
+
+    uint8 l_TransmogrifiedItemSlot = p_Transmogrified->GetSlot();
+    /// Wrong transmogrified item, we can change just weapons
+    if (l_TransmogrifiedItemSlot != EQUIPMENT_SLOT_MAINHAND && l_TransmogrifiedItemSlot != EQUIPMENT_SLOT_OFFHAND)
+        return;
+
+    /// Apply transmogrification on weapon
+    if (p_Apply)
+    {
+        /// Find item template of Transmogrified weapon
+        ItemTemplate const* l_TransmogrifiedTemplate = p_Transmogrified->GetTemplate();
+        if (!l_TransmogrifiedTemplate)
+            return;
+
+        /// Select random weapon from primary bag
+        uint32 l_RandomWeaponId = p_Player->GetRandomWeaponFromPrimaryBag(l_TransmogrifiedTemplate);
+
+        /// Find item template of Transmogrifier weapon
+        ItemTemplate const* l_TransmogrifierTemplate = sObjectMgr->GetItemTemplate(l_RandomWeaponId);
+        if (!l_TransmogrifierTemplate)
+            return;
+
+        /// Find item in player inventory
+        Item* l_Transmogrifier = p_Player->GetItemByEntry(l_TransmogrifiedTemplate->ItemId);
+        if (!l_Transmogrifier)
+            return;
+
+        /// Apply transmogrification on weapon
+        p_Transmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_TransmogrifierTemplate->ItemId);
+        p_Transmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+        p_Player->SetVisibleItemSlot(l_TransmogrifiedItemSlot, p_Transmogrified);
+
+        p_Transmogrified->UpdatePlayedTime(p_Player);
+
+        p_Transmogrified->SetOwnerGUID(p_Player->GetGUID());
+        p_Transmogrified->SetNotRefundable(p_Player);
+        p_Transmogrified->ClearSoulboundTradeable(p_Player);
+
+        /// Some rules for Transmogrifier weapon
+        if (l_Transmogrifier != nullptr)
+        {
+            if (l_TransmogrifierTemplate->Bonding == BIND_WHEN_EQUIPED || l_TransmogrifierTemplate->Bonding == BIND_WHEN_USE)
+                l_Transmogrifier->SetBinding(true);
+
+            l_Transmogrifier->SetOwnerGUID(p_Player->GetGUID());
+            l_Transmogrifier->SetNotRefundable(p_Player);
+            l_Transmogrifier->ClearSoulboundTradeable(p_Player);
+        }
+    }
+    /// Remove transmogrification from weapon
+    else
+    {
+        p_Transmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
+        p_Transmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+        p_Player->SetVisibleItemSlot(l_TransmogrifiedItemSlot, p_Transmogrified);
+    }
+}

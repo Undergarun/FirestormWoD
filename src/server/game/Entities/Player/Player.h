@@ -2295,6 +2295,7 @@ class Player : public Unit, public GridObject<Player>
 
         /// Custom functions for spells
         void HandleWarlockWodPvpBonus();
+        uint32 GetRandomWeaponFromPrimaryBag(ItemTemplate const* p_Transmogrified) const;
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);

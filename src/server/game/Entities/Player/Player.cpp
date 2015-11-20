@@ -34297,3 +34297,43 @@ void Player::HandleWarlockWodPvpBonus()
         AddSpellCooldown(l_TriggerSpell, 0, 15 * IN_MILLISECONDS);
     }
 }
+
+uint32 Player::GetRandomWeaponFromPrimaryBag(ItemTemplate const* p_Transmogrified) const
+{
+    uint32 l_AllItemsInPrimaryBag[16];
+    uint8 l_ArrayCapacity = 0;
+
+    for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
+    {
+        if (Item* l_FoundItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (ItemTemplate const* l_FoundItemTemplate = l_FoundItem->GetTemplate())
+            {
+                if (l_FoundItemTemplate->Class != ITEM_CLASS_WEAPON)
+                    continue;
+
+                if (!Item::CanTransmogrifyIntoRandomWeapon(l_FoundItemTemplate, p_Transmogrified))
+                    continue;
+
+                if (l_FoundItemTemplate->ItemId != 0)
+                {
+                    l_AllItemsInPrimaryBag[l_ArrayCapacity] = l_FoundItemTemplate->ItemId;
+                    l_ArrayCapacity++;
+                }
+            }
+        }
+    }
+
+    /// If we have just one item, we should take it
+    if (l_ArrayCapacity == 1)
+        return l_AllItemsInPrimaryBag[0];
+
+    /// Select random weapon id from primary bag if we have many items
+    if (l_ArrayCapacity > 1)
+    {
+        int32 l_RandomWeapon = urand(0, l_ArrayCapacity - 1);
+        return l_AllItemsInPrimaryBag[l_RandomWeapon];
+    }
+
+    return 0;
+}

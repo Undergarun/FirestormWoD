@@ -288,6 +288,19 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
                 SetUInt32Value(UNIT_FIELD_SEX, 0x400); // class = rogue
                 setPowerType(POWER_ENERGY); // Warlock's pets have energy
             }
+
+            if (cinfo && cinfo->Entry == 17252)
+            {
+                if (owner && owner->HasAura(56246) && owner->ToPlayer())
+                {
+                    /// Get item template for Fel Guard weapon
+                    if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(12784))
+                    {
+                        uint32 l_RandomItemId = owner->ToPlayer()->GetRandomWeaponFromPrimaryBag(l_ItemTemplate);
+                        LoadSpecialEquipment(l_RandomItemId);
+                    }
+                }
+            }
             break;
         case HUNTER_PET:
             SetUInt32Value(UNIT_FIELD_SEX, 0x02020300); // class = warrior, gender = none, power = focus

@@ -1621,6 +1621,25 @@ void Creature::LoadEquipment(int8 p_ID, bool p_Force /*= true*/)
         m_canDualWield = true;
 }
 
+void Creature::LoadSpecialEquipment(uint32 p_First, uint32 p_Second, uint32 p_Third)
+{
+    int8 p_ID = -1;
+
+    EquipmentInfo const* l_EquipInfos = sObjectMgr->GetEquipmentInfo(GetEntry(), p_ID);
+    if (!l_EquipInfos)
+        return;
+
+    m_equipmentId = p_ID;
+
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, p_First);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 1, p_Second);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 2, p_Third);
+
+    /// Check if creature has two weapons, and set dual wield
+    if (p_First && p_Second)
+        m_canDualWield = true;
+}
+
 bool Creature::hasQuest(uint32 quest_id) const
 {
     QuestRelationBounds qr = sObjectMgr->GetCreatureQuestRelationBounds(GetEntry());
