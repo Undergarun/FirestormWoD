@@ -94,6 +94,12 @@ void Pet::AddToWorld()
         if (m_owner->HasAura(108503))
             m_owner->RemoveAura(108503);
 
+        /// Threatening Presence - special ability for some warlock pets
+        if (GetEntry() == ENTRY_FELGUARD || GetEntry() == ENTRY_WRATHGUARD)
+            learnSpell(134477);
+        else if (GetEntry() == ENTRY_VOIDWALKER || GetEntry() == ENTRY_VOIDLORD)
+            learnSpell(112042);
+
         // Supplant Command Demon
         if (m_owner->getLevel() >= 56)
         {
