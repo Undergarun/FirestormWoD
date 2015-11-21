@@ -4555,3 +4555,16 @@ void SpellInfo::UpdateSpellEffectCount()
             EffectCount = l_I + 1;
     }
 }
+
+bool SpellInfo::IsAffectedByWodAuraSystem() const
+{
+    switch (Id)
+    {
+        case 158831: ///< Devouring Plague DOT
+            return false;
+        default:
+            return true;
+    }
+
+    return true;
+}

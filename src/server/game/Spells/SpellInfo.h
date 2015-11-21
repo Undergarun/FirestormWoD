@@ -649,6 +649,9 @@ public:
 
     /// Cache the maximum number of effects
     void UpdateSpellEffectCount();
+
+    /// Handler for new Wod aura system
+    bool SpellInfo::IsAffectedByWodAuraSystem() const;
 };
 
 #endif // _SPELLINFO_H

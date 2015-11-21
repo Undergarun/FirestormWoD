@@ -1674,8 +1674,10 @@ class spell_pri_devouring_plague_aura: public SpellScriptLoader
 
             void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
             {
+                /// Devouring Plague periodic damage deals 100% from instant damage in 6 seconds
+                /// Instant damage is ~300% spd, 300 /6 = 50% per tick
                 if (Unit* l_Caster = GetCaster())
-                    amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL), sSpellMgr->GetSpellInfo(2944)->Effects[EFFECT_1].BasePoints);
+                    amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL), 50);
             }
 
             void OnTick(constAuraEffectPtr p_AurEff)

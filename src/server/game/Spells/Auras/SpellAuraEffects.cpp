@@ -7580,48 +7580,52 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     /// In WoD blizzards have implemented system of "not full finaly tick damage"
     if (AuraPtr l_Aura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
     {
-        int32 l_LeftDuration = l_Aura->GetDuration();
-        int32 l_MaxDuration = l_Aura->GetMaxDuration();
-        int32 l_Amplitude = GetAmplitude();
-        int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
-
-        /// If it was last tick, we should deal instant damage, according to left duration
-        if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
+        /// Check if we need to use new wod aura system
+        if (GetSpellInfo() && GetSpellInfo()->IsAffectedByWodAuraSystem())
         {
-            uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
+            int32 l_LeftDuration = l_Aura->GetDuration();
+            int32 l_MaxDuration = l_Aura->GetMaxDuration();
+            int32 l_Amplitude = GetAmplitude();
+            int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
 
-            bool l_CritAdditional = CanPeriodicTickCrit(target, caster);
-            uint32 l_AbsorbAdditional = 0;
-            uint32 l_ResistAdditional = 0;
+            /// If it was last tick, we should deal instant damage, according to left duration and this left damage can be dealed just if left duration smaller then amplitude
+            if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
+            {
+                uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
 
-            if (l_CritAdditional)
-                damage = caster->SpellCriticalDamageBonus(m_spellInfo, l_LeftDamage, target);
+                bool l_CritAdditional = CanPeriodicTickCrit(target, caster);
+                uint32 l_AbsorbAdditional = 0;
+                uint32 l_ResistAdditional = 0;
 
-            caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, GetSpellInfo());
+                if (l_CritAdditional)
+                    damage = caster->SpellCriticalDamageBonus(m_spellInfo, l_LeftDamage, target);
 
-            caster->DealDamageMods(target, damage, &l_AbsorbAdditional);
+                caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, GetSpellInfo());
 
-            // Set trigger flag for additional proc
-            uint32 l_ProcAttacker = PROC_FLAG_DONE_PERIODIC;
-            uint32 l_ProcVictim = PROC_FLAG_TAKEN_PERIODIC;
-            uint32 l_ProcEx = (l_CritAdditional ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_DOT;
-            if (l_AbsorbAdditional)
-                l_ProcEx |= PROC_EX_ABSORB;
+                caster->DealDamageMods(target, damage, &l_AbsorbAdditional);
 
-            l_LeftDamage = (l_LeftDamage <= l_AbsorbAdditional + l_ResistAdditional) ? 0 : (l_LeftDamage - l_AbsorbAdditional - l_ResistAdditional);
-            if (l_LeftDamage)
-                l_ProcVictim |= PROC_FLAG_TAKEN_DAMAGE;
+                // Set trigger flag for additional proc
+                uint32 l_ProcAttacker = PROC_FLAG_DONE_PERIODIC;
+                uint32 l_ProcVictim = PROC_FLAG_TAKEN_PERIODIC;
+                uint32 l_ProcEx = (l_CritAdditional ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_DOT;
+                if (l_AbsorbAdditional)
+                    l_ProcEx |= PROC_EX_ABSORB;
 
-            int32 l_OverkillAdditional = l_LeftDamage - target->GetHealth();
-            if (l_OverkillAdditional < 0)
-                l_OverkillAdditional = 0;
+                l_LeftDamage = (l_LeftDamage <= l_AbsorbAdditional + l_ResistAdditional) ? 0 : (l_LeftDamage - l_AbsorbAdditional - l_ResistAdditional);
+                if (l_LeftDamage)
+                    l_ProcVictim |= PROC_FLAG_TAKEN_DAMAGE;
 
-            SpellPeriodicAuraLogInfo pInfo(CONST_CAST(AuraEffect, shared_from_this()), l_LeftDamage, l_OverkillAdditional, l_AbsorbAdditional, l_ResistAdditional, 0.0f, l_CritAdditional);
-            target->SendPeriodicAuraLog(&pInfo);
+                int32 l_OverkillAdditional = l_LeftDamage - target->GetHealth();
+                if (l_OverkillAdditional < 0)
+                    l_OverkillAdditional = 0;
 
-            caster->ProcDamageAndSpell(target, l_ProcAttacker, l_ProcVictim, l_ProcEx, l_LeftDamage, l_AbsorbAdditional, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
+                SpellPeriodicAuraLogInfo pInfo(CONST_CAST(AuraEffect, shared_from_this()), l_LeftDamage, l_OverkillAdditional, l_AbsorbAdditional, l_ResistAdditional, 0.0f, l_CritAdditional);
+                target->SendPeriodicAuraLog(&pInfo);
 
-            caster->DealDamage(target, l_LeftDamage, NULL, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+                caster->ProcDamageAndSpell(target, l_ProcAttacker, l_ProcVictim, l_ProcEx, l_LeftDamage, l_AbsorbAdditional, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
+
+                caster->DealDamage(target, l_LeftDamage, NULL, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+            }
         }
     }
 

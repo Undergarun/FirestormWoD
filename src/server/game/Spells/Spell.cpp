@@ -3294,6 +3294,25 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         // Haste modifies duration of channeled spells
                         if (m_spellInfo->IsChanneled())
                             m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
+                        /// If this aura not affected by new wod aura system, we should change amplitude according to amount of haste
+                        else if (GetSpellInfo() && !GetSpellInfo()->IsAffectedByWodAuraSystem() && m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
+                        {
+                            int32 l_OriginalDuration = duration;
+                            float l_HastePct = m_originalCaster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED);
+                            duration = 0;
+                            for (uint8 l_I = 0; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
+                            {
+                                if (constAuraEffectPtr l_Effect = m_spellAura->GetEffect(l_I))
+                                {
+                                    if (int32 l_Amplitude = l_Effect->GetAmplitude())  // amplitude is hastened by UNIT_FIELD_MOD_CASTING_SPEED
+                                        duration = int32(l_OriginalDuration / (2.0f - l_HastePct));
+                                }
+                            }
+
+                            // if there is no periodic effect
+                            if (!duration)
+                                duration = int32(l_OriginalDuration * (2.0f - l_HastePct));
+                        }
                     }
 
                     if (duration != m_spellAura->GetMaxDuration())

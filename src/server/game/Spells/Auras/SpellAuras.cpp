@@ -1141,14 +1141,17 @@ void Aura::RefreshTimers()
         }
     }
 
-    /// In WoD blizzards have made "Pandemic" system for all auras
-    for (uint8 i = 0; i < m_EffectCount; ++i)
+    /// In WoD blizzards have made "Pandemic" system for all auras, check if we need to use it
+    if (GetSpellInfo() && GetSpellInfo()->IsAffectedByWodAuraSystem())
     {
-        if (constAuraEffectPtr l_Effect = GetEffect(i))
+        for (uint8 i = 0; i < m_EffectCount; ++i)
         {
-            /// If it's a DoT or a HoT we should apply "Pandemic" system for it
-            if (l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE || l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
-                l_IsAffectedByPandemic = true;
+            if (constAuraEffectPtr l_Effect = GetEffect(i))
+            {
+                /// If it's a DoT or a HoT we should apply "Pandemic" system for it
+                if (l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE || l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
+                    l_IsAffectedByPandemic = true;
+            }
         }
     }
 
