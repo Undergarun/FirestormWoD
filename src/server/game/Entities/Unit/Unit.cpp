@@ -16714,12 +16714,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (AuraApplication* aura = GetAuraApplication(108839, GetGUID()))
             aura->GetBase()->DropStack();
 
-    // Hack Fix for Invigoration
-    if (GetTypeId() == TYPEID_UNIT && GetOwner() && GetOwner()->ToPlayer() && GetOwner()->HasAura(53253) &&
-        damage > 0 && ToPet() && ToPet()->IsPermanentPetFor(GetOwner()->ToPlayer()))
-        if (roll_chance_i(15))
-            GetOwner()->EnergizeBySpell(GetOwner(), 53253, 20, POWER_FOCUS);
-
     // Fix Drop charge for Killing Machine
     if (GetTypeId() == TYPEID_PLAYER && HasAura(51124) && getClass() == CLASS_DEATH_KNIGHT && procSpell && (procSpell->Id == 49020 || procSpell->Id == 49143 || procSpell->Id == 66198 || procSpell->Id == 66196))
     {
