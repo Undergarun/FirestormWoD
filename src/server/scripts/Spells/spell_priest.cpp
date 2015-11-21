@@ -2972,6 +2972,11 @@ class spell_pri_void_tendrils: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_void_tendrils_SpellScript);
 
+            enum eSpells
+            {
+                VoidTendrilsGrasp = 114404
+            };
+
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())

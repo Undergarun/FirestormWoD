@@ -2840,6 +2840,14 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
+        case 127665: ///< Void Tendrils
+        {
+            /// Set special UnitFlags and Type
+            ((SummonPropertiesEntry*)properties)->Flags = (UNIT_FLAG_DISABLE_MOVE + UNIT_FLAG_PVP_ATTACKABLE + UNIT_FLAG_PVP);
+            ((SummonPropertiesEntry*)properties)->Type = SUMMON_TYPE_TOTEM;
+
+            break;
+        }
         case 124927: ///< Call Dog
             if (m_originalCaster->ToPlayer())
                 m_originalCaster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 60 * IN_MILLISECONDS);
@@ -2990,6 +2998,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
                     if (!summon || !summon->isTotem())
                         return;
+
+                    /// Void Tendrils - must be 13% of priest max health
+                    if (m_spellInfo->Id == 127665)
+                        damage = m_caster->CountPctFromMaxHealth(13);
 
                     /// Glyph of Totemic Vigor
                     if (AuraEffectPtr l_GlyphOfTotemicVigor = m_caster->GetAuraEffect(63298, EFFECT_0))

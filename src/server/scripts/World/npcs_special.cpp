@@ -3891,6 +3891,7 @@ class npc_transcendence_spirit : public CreatureScript
 enum voidTendrilsSpells
 {
     SPELL_VOID_TENDRILS_ROOT = 108920,
+    SPELL_VOID_TENDRILS_GRASP = 114404
 };
 
 class npc_void_tendrils : public CreatureScript
@@ -3917,12 +3918,18 @@ class npc_void_tendrils : public CreatureScript
             void SetGUID(uint64 guid, int32)
             {
                 targetGUID = guid;
+
+                if (Unit* l_Target = ObjectAccessor::FindUnit(targetGUID))
+                    me->CastSpell(l_Target, SPELL_VOID_TENDRILS_GRASP, true);
             }
 
             void JustDied(Unit* killer)
             {
                 if (Unit* m_target = ObjectAccessor::FindUnit(targetGUID))
+                {
                     m_target->RemoveAura(SPELL_VOID_TENDRILS_ROOT);
+                    m_target->RemoveAura(SPELL_VOID_TENDRILS_GRASP);
+                }
             }
 
             void IsSummonedBy(Unit* owner)
@@ -3930,8 +3937,6 @@ class npc_void_tendrils : public CreatureScript
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER)
                 {
                     me->SetLevel(owner->getLevel());
-                    me->SetMaxHealth(owner->CountPctFromMaxHealth(20));
-                    me->SetHealth(me->GetMaxHealth());
                     // Set no damage
                     me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 0.0f);
                     me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 0.0f);
@@ -3946,6 +3951,10 @@ class npc_void_tendrils : public CreatureScript
             {
                 if (!(ObjectAccessor::FindUnit(targetGUID)))
                     me->DespawnOrUnsummon();
+
+                if (Unit* l_Target = ObjectAccessor::FindUnit(targetGUID))
+                    if (!l_Target->HasAura(SPELL_VOID_TENDRILS_GRASP) && !l_Target->HasAura(SPELL_VOID_TENDRILS_ROOT))
+                        me->DespawnOrUnsummon();
             }
         };
 
