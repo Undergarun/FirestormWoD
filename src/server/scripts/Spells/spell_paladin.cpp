@@ -75,6 +75,7 @@ enum PaladinSpells
     PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE    = 88852,
     PALADIN_SPELL_BEACON_OF_LIGHT               = 53563,
     PALADIN_SPELL_BEACON_OF_FAITH               = 156910,
+    PALADIN_SPELL_SELFLESS_HEALER_VISUAL        = 128863,
     PALADIN_SPELL_SELFLESS_HEALER_STACK         = 114250,
     PALADIN_SPELL_SELFLESS_HEALER               = 85804,
     PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC  = 132403,
@@ -2787,6 +2788,10 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
                     return;
 
                 l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
+
+                if (AuraPtr l_SelflessHealer = l_Caster->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
+                    if (l_SelflessHealer->GetStackAmount() == 3)
+                        l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_VISUAL, true);
             }
 
             void Register()

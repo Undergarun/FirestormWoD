@@ -227,11 +227,6 @@ class spell_at_druid_ursol_vortex : public AreaTriggerEntityScript
                 {
                     if (!l_Target->HasAura(eSpells::VortexJump, l_Caster->GetGUID()))
                         l_Target->CastSpell(p_AreaTrigger, eSpells::VortexJump, true);
-                    else
-                    {
-                        l_It = m_TargetList.erase(l_It);
-                        continue;
-                    }
                 }
                 ++l_It;
             }

@@ -5839,6 +5839,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                 break;
+            case 118283:///< Ursol's Vortex
+                spellInfo->Effects[0].ValueMultiplier = 60;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
