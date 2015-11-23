@@ -4120,6 +4120,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 152150:///< Death from Above (periodic dummy)
                 spellInfo->Effects[5].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->PreventionType = SpellPreventionMask::Pacify;
                 break;
             case 178236:///< Death from Above (jump dest)
                 spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
