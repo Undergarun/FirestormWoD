@@ -3425,7 +3425,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160382: ///< Defense (Security Guard)
             case 158246: ///< Hot Blooded (Foreman Feldspar)
             case 156932: ///< Rupture DoT (Foreman Feldspar)
-            case 155223: ///< Melt DoT (Heart of the Mountain)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
@@ -3461,6 +3460,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 178229: ///< Gauntlets of Iron (Mythic - T17 - Quest)
             case 178230: ///< Shoulders of Iron (Mythic - T17 - Quest)
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                break;
+            case 155200: ///< Burn (Slag Elemental)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 168178: ///< Salvage (garrison loot spell)
@@ -4458,6 +4460,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 = 0;
                 spellInfo->AttributesEx4 = 0;
                 break;
+           case 77219: ///< Mastery: Master Demonologist
+                spellInfo->Effects[1].SpellClassMask[0] |= 0x1040;
+                spellInfo->Effects[1].SpellClassMask[3] |= 0x40000000;
+                spellInfo->Effects[2].SpellClassMask[0] |= 0x1040;
+                spellInfo->Effects[2].SpellClassMask[3] |= 0x40000000;
+                break;
             case 145518: ///< Genesis
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
@@ -4970,23 +4978,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81662: ///< Will of the Necropolis
                 spellInfo->Effects[0].BasePoints = 25;
                 break;
-            case 146512:///< Fortitude - hotfix 5.4.2
-                spellInfo->Effects[0].BasePoints = 2600;
-                break;
             case 91107: ///< Unholy Might
                 spellInfo->OverrideSpellList.push_back(109260); ///< Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
-                break;
-            case 24858: ///< Moonkin form - hotfix 5.4.2
-                spellInfo->Effects[2].BasePoints = 100;
-                break;
-            case 50887: ///< Icy Talons - hotfix 5.4.2
-                spellInfo->Effects[0].BasePoints = 45;
-                break;
-            case 12294: ///< Mortal strike - hotfix 5.4.2
-                spellInfo->Effects[2].BasePoints = 215;
-                break;
-            case 774: ///< Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
-                spellInfo->Effects[2].Effect = 0;
                 break;
             case 53490: ///< Bullheaded
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
@@ -5005,9 +4998,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].BasePoints = 10;
                 spellInfo->Effects[1].RadiusEntry = sSpellRadiusStore.LookupEntry(12); ///< 100 yards
                 spellInfo->Effects[1].MiscValue = 127;
-                break;
-            case 982: ///< Revive Pet - hotfix 5.4.2
-                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(5); ///< 2s
                 break;
             case 116014: ///< Rune of Power
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
@@ -5771,6 +5761,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ValueMultiplier = 0;
                 break;
             case 165201:///< Mind blast (reduce cooldown from haste)
+            case 56242: ///< Glyph of Imp Swarm
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
                 spellInfo->Effects[1].MiscValue = 11;
                 break;
@@ -5793,8 +5784,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Speed = 0;
                 break;
             case 157695:///< Demonbolt
-                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_NOT_NEED_SHAPESHIFT;
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
                 break;
             case 169686:///< Unyielding Strikes
                 spellInfo->ProcCharges = 0;
@@ -5849,6 +5840,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 73685:  ///< Unleash Life (restoration)
             case 118864: ///< Combo Breaker (tiger palm)
             case 116768: ///< Combo Breaker (blackout kick)
+            case 64803: ///< Entrapment
+            case 135373: ///< Entrapment
                 spellInfo->ProcFlags = 0;
                 break;
             /// All spells - ProcCharges = 1

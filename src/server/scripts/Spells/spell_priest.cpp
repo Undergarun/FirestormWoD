@@ -3520,7 +3520,7 @@ enum MindFlay
     GlyphOfMindFlayTick = 120587
 };
 
-/// Mind Flay - 15407
+/// Mind Flay - 15407, Mind Flay (Insanity) - 129197
 class spell_pri_mind_flay : public SpellScriptLoader
 {
     public:
