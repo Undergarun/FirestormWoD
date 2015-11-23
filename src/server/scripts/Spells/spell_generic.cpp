@@ -3954,21 +3954,16 @@ class spell_gen_selfie_camera : public SpellScriptLoader
                 l_Caster->GetCreatureListWithEntryInGrid(l_ListPhotoBomber, eData::PhotoBomberNPC, 100.0f);
 
                 /// Remove other players Master PhotoBomber
-                for (std::list<Creature*>::iterator i = l_ListPhotoBomber.begin(); i != l_ListPhotoBomber.end();)
+                for (std::list<Creature*>::iterator l_Itr = l_ListPhotoBomber.begin(); l_Itr != l_ListPhotoBomber.end(); l_Itr++)
                 {
-                    Unit* l_Owner = (*i)->GetOwner();
+                    Unit* l_Owner = (*l_Itr)->GetOwner();
 
-                    if (l_Owner != nullptr && l_Owner->GetGUID() == l_Caster->GetGUID() && (*i)->isSummon())
+                    if (l_Owner != nullptr && l_Owner->GetGUID() == l_Caster->GetGUID() && (*l_Itr)->isSummon())
                     {
-                        ++i;
-                        continue;
+                        m_PhotoBinberGUID = (*l_Itr)->GetGUID();
+                        break;
                     }
-
-                    l_ListPhotoBomber.remove((*i));
                 }
-
-                for (auto l_Itr : l_ListPhotoBomber)
-                    m_PhotoBinberGUID = l_Itr->GetGUID();
             }
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)

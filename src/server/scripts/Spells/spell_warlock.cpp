@@ -2919,6 +2919,7 @@ class spell_warl_demonic_circle_teleport: public SpellScriptLoader
                         player->m_movementInfo.pos.m_positionY = player->GetPositionY();
                         player->m_movementInfo.pos.m_positionZ = player->GetPositionZ();
                         player->m_movementInfo.pos.m_orientation = player->GetOrientation();
+                        player->m_movementInfo.time = getMSTime();
                         WorldSession::WriteMovementInfo(data, &player->m_movementInfo);
                         player->SendMessageToSet(&data, player);
                     }

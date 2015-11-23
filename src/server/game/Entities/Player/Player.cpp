@@ -2701,6 +2701,8 @@ void Player::SendTeleportPacket(Position& p_OldPosition)
     GetPosition(&m_mover->m_movementInfo.pos);
     Relocate(&p_OldPosition);
 
+    m_mover->m_movementInfo.time = getMSTime();
+
     WorldPacket l_TeleportUpdatePacket(SMSG_MOVE_UPDATE_TELEPORT, 300);
 
     GetSession()->WriteMovementInfo(l_TeleportUpdatePacket, &m_mover->m_movementInfo);
@@ -8992,6 +8994,20 @@ uint32 Player::TeamForRace(uint8 race)
 
 void Player::setFactionForRace(uint8 race)
 {
+    // temporary hack for rated bg factions
+    if (HasAura(81748))
+    {
+        RemoveAura(81748);
+        AddAura(81748, this);
+        return;
+    }
+    else if (HasAura(81744))
+    {
+        RemoveAura(81744);
+        AddAura(81744, this);
+        return;
+    }
+
     m_team = TeamForRace(race);
 
     ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
@@ -18376,6 +18392,21 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             if (!l_ItemTemplate)
                 return false;
 
+            /// Hackfix, but fix lot of quests since the selection work client-side
+            /// See quest 24970 with a hunter
+            {
+                /// - We have find the reward, check if player can store it
+                ItemPosCountVec l_Dest;
+                InventoryResult l_Result = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count);
+                if (l_Result != EQUIP_ERR_OK)
+                {
+                    SendEquipError(l_Result, NULL, NULL, l_DynamicReward->ItemId);
+                    return false;
+                }
+
+                return true;
+            }
+
             uint32 l_Specialization = GetSpecializationId(GetActiveSpec());
             if (!l_Specialization)
                 l_Specialization = GetDefaultSpecId();
@@ -18644,7 +18675,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             if (!l_ItemTemplate)
                 break;
 
-            switch (l_DynamicReward->Type)
+            /*switch (l_DynamicReward->Type)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                 {
@@ -18661,7 +18692,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                     break;
                 default:
                     continue;
-            }
+            }*/
 
             ItemPosCountVec l_Dest;
             if (CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count) == EQUIP_ERR_OK)
@@ -23139,6 +23170,7 @@ void Player::SaveInventoryAndGoldToDB(SQLTransaction& trans)
 {
     _SaveInventory(trans);
     _SaveCurrency(trans);
+    _SaveVoidStorage(trans);
     SaveGoldToDB(trans);
 }
 

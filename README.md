@@ -29,7 +29,7 @@ In order to complete the installation of the core, you need some other dependenc
 - LibCurl, under linux its the package libcurl4-openssl-dev, under windows you may have to compile it your self,
 - EasyJson headers, for that you only need to execute in your git repo :
 ```
-git submodule init && gitsubmodule update --remote
+git submodule init && git submodule update --remote
 ```
 
 - The MS framework that can be found on : https://github.com/MilleniumStudio/ms_framework, you need to generate the solution with cmake, compile it with visual studio or whatever favorite compiler. Then generate the INSTALL project in visual studio or make install with gcc for exemple.

@@ -14,7 +14,7 @@
 class EventTeleportPlayer : public BasicEvent
 {
 public:
-    explicit EventTeleportPlayer(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value)
+    explicit EventTeleportPlayer(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
     {
     }
 
