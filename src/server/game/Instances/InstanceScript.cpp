@@ -1458,7 +1458,7 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     m_EncounterDatas.EndTime        = time(nullptr);
     m_EncounterDatas.Success        = p_Success;
 
-    if (m_EncounterDatas.GuildID)
+    if (m_EncounterDatas.GuildID || instance->IsLFR())
     {
         Map::PlayerList const& l_PlayerList = instance->GetPlayers();
         for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)

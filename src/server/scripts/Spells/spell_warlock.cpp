@@ -1763,16 +1763,36 @@ class spell_warl_soul_swap: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
+                bool l_HasSoulburnAura = l_Caster->HasAura(WARLOCK_SOULBURN_AURA);
+
+                /// Soul Swap launch spell
                 if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
                 {
-                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
-                    // Soul Swap override spell
-                    l_Caster->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_AURA, true);
-                    l_Caster->RemoveSoulSwapDOT(l_Target);
+                    /// Soulburn: Applies Corruption, Unstable Affliction, and Agony without requiring a previous copy.
+                    if (l_HasSoulburnAura)
+                    {
+                        l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
+                        l_Caster->CastSpell(l_Target, WARLOCK_AGONY, true);
+                        l_Caster->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
+                        l_Caster->CastSpell(l_Target, WARLOCK_UNSTABLE_AFFLICTION, true);
 
-                    /// Store Soul Swap target GUID
-                    l_Caster->SetSoulSwapDotTarget(l_Target->GetGUID());
+                        l_Caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
+                    }
+                    /// Simple cast of Soul Swap, without Soulburn
+                    else
+                    {
+                        l_Target->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_VISUAL, true);
+                        // Soul Swap override spell
+                        l_Caster->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_AURA, true);
+                        l_Caster->RemoveSoulSwapDOT(l_Target);
+
+                        /// Store Soul Swap target GUID
+                        l_Caster->SetSoulSwapDotTarget(l_Target->GetGUID());
+                        /// Save that at the moment we don't need refresh duration
+                        l_Caster->SetSoulSwapRefreshDuration(false);
+                    }
                 }
+                /// Soul Swap finish (exhale) spell
                 else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
                 {
                     l_Caster->ApplySoulSwapDOT(l_Caster, l_Target);
@@ -1783,16 +1803,6 @@ class spell_warl_soul_swap: public SpellScriptLoader
 
                     /// Set Soul Swap target GUID to NULL
                     l_Caster->RemoveSoulSwapDotTarget();
-                }
-
-                /// Soulburn: Applies Corruption, Unstable Affliction, and Agony without requiring a previous copy.
-                if (l_Caster->HasAura(WARLOCK_SOULBURN_AURA))
-                {
-                    l_Caster->CastSpell(l_Target, WARLOCK_AGONY, true);
-                    l_Caster->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
-                    l_Caster->CastSpell(l_Target, WARLOCK_UNSTABLE_AFFLICTION, true);
-                    
-                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
                 }
             }
 
@@ -3917,46 +3927,134 @@ public:
 /// 119905 - (Cauterize Master), 119907 - (Disarm), 119909 - (Whiplash), 119913 - (Fellash), 119910 - (Spell Lock), 119911 - (Optical Blast), 119914 - (Felstorm), 119915 - (Wrathstorm)
 class spell_warl_command_demon_spells : public SpellScriptLoader
 {
-public:
-    spell_warl_command_demon_spells() : SpellScriptLoader("spell_warl_command_demon_spells") { }
+    public:
+        spell_warl_command_demon_spells() : SpellScriptLoader("spell_warl_command_demon_spells") { }
 
-    class spell_warl_command_demon_spells_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_command_demon_spells_SpellScript);
-
-        SpellCastResult CheckConditions()
+        class spell_warl_command_demon_spells_SpellScript : public SpellScript
         {
-            Unit* l_Caster = GetCaster();
+            PrepareSpellScript(spell_warl_command_demon_spells_SpellScript);
 
-            if (l_Caster == nullptr || !l_Caster->ToPlayer())
-                return SPELL_FAILED_DONT_REPORT;
+            SpellCastResult CheckConditions()
+            {
+                Unit* l_Caster = GetCaster();
 
-            Pet* l_Pet = l_Caster->ToPlayer()->GetPet();
+                if (l_Caster == nullptr || !l_Caster->ToPlayer())
+                    return SPELL_FAILED_DONT_REPORT;
 
-            if (l_Pet == nullptr)
-                return SPELL_FAILED_DONT_REPORT;
+                Pet* l_Pet = l_Caster->ToPlayer()->GetPet();
 
-            if (l_Pet->HasAurasPreventCasting())
-                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                if (l_Pet == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
 
-            return SPELL_CAST_OK;
-        }
+                if (l_Pet->HasAurasPreventCasting())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                return SPELL_CAST_OK;
+            }
 
 
-        void Register()
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_warl_command_demon_spells_SpellScript::CheckConditions);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCheckCast += SpellCheckCastFn(spell_warl_command_demon_spells_SpellScript::CheckConditions);
+            return new spell_warl_command_demon_spells_SpellScript();
         }
-    };
+};
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_command_demon_spells_SpellScript();
-    }
+/// Glyph of Life Pact - 159669
+class spell_warl_glyph_of_life_tap : public SpellScriptLoader
+{
+    public:
+        spell_warl_glyph_of_life_tap() : SpellScriptLoader("spell_warl_glyph_of_life_tap") { }
+
+        class spell_warl_glyph_of_life_tap_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_glyph_of_life_tap_AuraScript);
+
+            enum eSpells
+            {
+                GlyphofLifePactPeriodic = 162640
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                sLog->outError(LOG_FILTER_GENERAL, "PASSSSSSSSSSSSSSSSSSSSSSs");
+                if (!l_Player->HasAura(eSpells::GlyphofLifePactPeriodic))
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofLifePactPeriodic, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eSpells::GlyphofLifePactPeriodic))
+                    l_Player->RemoveAura(eSpells::GlyphofLifePactPeriodic);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_glyph_of_life_tap_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warl_glyph_of_life_tap_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_glyph_of_life_tap_AuraScript();
+        }
+};
+
+/// Glyph of Life Pact  - 162640
+class spell_warl_glyph_of_life_tap_periodic : public SpellScriptLoader
+{
+    public:
+        spell_warl_glyph_of_life_tap_periodic() : SpellScriptLoader("spell_warl_glyph_of_life_tap_periodic") { }
+
+        class spell_warl_glyph_of_life_tap_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_glyph_of_life_tap_periodic_AuraScript);
+
+            enum eSpells
+            {
+                LifePactDamage = 162647
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->GetHealthPct() > (float)p_AurEff->GetBase()->GetEffect(EFFECT_2)->GetAmount())
+                    l_Target->CastSpell(l_Target, eSpells::LifePactDamage, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_glyph_of_life_tap_periodic_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_glyph_of_life_tap_periodic_AuraScript();
+        }
 };
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_glyph_of_life_tap_periodic();
+    new spell_warl_glyph_of_life_tap();
     new spell_warl_demonic_servitude();
     new spell_warl_fire_and_brimstone();
     new spell_warl_haunt();

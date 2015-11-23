@@ -1335,6 +1335,80 @@ class spell_npc_warl_inner_demon : public CreatureScript
         }
 };
 
+/// last update : 6.1.2 19802
+/// Force of Nature (treant resto) - 54983
+class spell_npc_dru_force_of_nature_resto : public CreatureScript
+{
+    public:
+        spell_npc_dru_force_of_nature_resto() : CreatureScript("npc_dru_force_of_nature_resto") { }
+
+        enum eSpells
+        {
+            HealingTouch = 113828
+        };
+
+        struct spell_npc_dru_force_of_nature_resto_impAI : public ScriptedAI
+        {
+            spell_npc_dru_force_of_nature_resto_impAI(Creature *creature) : ScriptedAI(creature)
+            {
+            }
+
+            void Reset()
+            {
+                me->SetReactState(REACT_HELPER);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                Unit* l_Target = nullptr;
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                if (Unit* l_Owner = me->GetOwner())
+                {
+                    l_Target = l_Owner->getVictim();
+
+                    if (l_Target == nullptr)
+                    {
+                        if (Player* l_Player = l_Owner->ToPlayer())
+                            l_Target = l_Player->GetSelectedUnit();
+                    }
+
+                }
+
+                if (l_Target == nullptr)
+                {
+                    std::list<Unit*> l_FriendlyUnitList;
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(me, me, 40.0f);
+                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(me, l_FriendlyUnitList, l_Check);
+                    me->VisitNearbyObject(40.0f, l_Searcher);
+
+                    if (l_FriendlyUnitList.size() > 1)
+                    {
+                        l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
+                        l_FriendlyUnitList.resize(1);
+                    }
+
+                    l_Target = l_FriendlyUnitList.front();
+                }
+
+                if (l_Target == nullptr)
+                    return;
+                
+                if (!me->IsValidAssistTarget(l_Target))
+                    return;
+
+                me->CastSpell(l_Target, eSpells::HealingTouch, false);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_dru_force_of_nature_resto_impAI(creature);
+        }
+};
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
@@ -1363,4 +1437,7 @@ void AddSC_npc_spell_scripts()
     new spell_npc_warl_demonic_gateway_purple();
     new spell_npc_warl_demonic_gateway_green();
     new spell_npc_warl_inner_demon();
+
+    /// Druid NPC
+    new spell_npc_dru_force_of_nature_resto();
 }
