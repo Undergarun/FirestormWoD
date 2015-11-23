@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -50,7 +50,7 @@
 #include "RealmList.h"
 
 #include "BigNumber.h"
-//#include <Reporting/Reporter.hpp>
+#include "Reporter.hpp"
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -415,10 +415,6 @@ int Master::Run()
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Daemon PID: %u\n", pid);
     }
 
-    ///- Initializing the Reporter.
-    //sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
-    //sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
-
     ///- Start the databases
     if (!_StartDB())
         return 1;
@@ -444,6 +440,24 @@ int Master::Run()
     #ifdef _WIN32
     Handler.register_handler(SIGBREAK, &SignalBREAK);
     #endif /* _WIN32 */
+
+    ///- Initializing the Reporter.
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Reporter: Initializing instance...");
+
+    sReporter->SetAddress(ConfigMgr::GetStringDefault("Reporting.Address", "http://127.0.0.1:9200/"));
+    sReporter->SetIndex(ConfigMgr::GetStringDefault("Reporting.Index", "firestorm/guild_ranking/?pretty"));
+
+    /// Thread which repeat reporting.
+    std::thread l_Reporter([]()
+    {
+        while (!World::IsStopped())
+        {
+            if (sReporter->HasReports())
+                sReporter->ScheduleNextReport();
+
+            ACE_Based::Thread::current()->Sleep(1);
+        }
+    });
 
     ///- Launch WorldRunnable thread
     ACE_Based::Thread world_thread(new WorldRunnable, "WorldRunnable");
@@ -546,6 +560,7 @@ int Master::Run()
     // since worldrunnable uses them, it will crash if unloaded after master
     world_thread.wait();
     rar_thread.wait();
+    l_Reporter.join();
 
     if (soap_thread)
     {

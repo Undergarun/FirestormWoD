@@ -3737,48 +3737,50 @@ bool SpellInfo::IsIgnoringCombat() const
     {
         /// Meteor
         case 153561:
-        // Marked for Death
+        /// Marked for Death
         case 137619:
-        // Slice and Dice
+        /// Slice and Dice
         case 5171:
         case 6434:
         case 6774:
-        // Honor Among Thieves
+        /// Honor Among Thieves
         case 51698:
         case 51699:
         case 51700:
         case 51701:
         case 52916:
-        // Divine Hymn
+        /// Divine Hymn
         case 64843:
         case 64844:
         case 70619:
-        // Shadowmeld
+        /// Shadowmeld
         case 58984:
-        // Blackjack
+        /// Blackjack
         case 79124:
         case 79126:
-        // Venomous Wounds
+        /// Venomous Wounds
         case 79136:
-        // Master Poisoner
+        /// Master Poisoner
         case 93068:
-        // Blind
+        /// Blind
         case 2094:
-        // Ignite
+        /// Ignite
         case 12654:
-        // Resistance is Futile
+        /// Resistance is Futile
         case 83676:
-        // Vendeta
+        /// Vendeta
         case 79140:
-        // Earth Shield
+        /// Earth Shield
         case 379:
-        // Earthliving Weapon proc
+        /// Earthliving Weapon proc
         case 51730:
-        // Ancestral Vigor
+        /// Ancestral Vigor
         case 105284:
-        // Ancestral Fortitude
+        /// Ancestral Fortitude
         case 16177:
         case 16236:
+         /// Ysera's Gift
+        case 145110:
             return true;
         default: break;
     }
@@ -4379,6 +4381,28 @@ bool SpellInfo::IsRemoveLossControlEffects() const
         case 42292: // Pvp Trinket
         case 59752: // Every Man for Himself (racical)
         case 108201:// Desecrated Ground
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool SpellInfo::IsRemoveFear() const
+{
+    if (HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED))
+        return true;
+
+    switch (Id)
+    {
+        case 108201:  ///< Desecrated Ground
+        case 118009:  ///< Desecrated Ground
+        case 642:     ///< Divine Shield
+        case 45438:   ///< Ice Block
+        case 18499:   ///< Berserker Rage
+        case 7744:    ///< Will of the Forsaken
+        case 49039:   ///< Lichborne
             return true;
         default:
             break;

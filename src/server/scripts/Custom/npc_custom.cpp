@@ -52,19 +52,23 @@ class npc_world_boss_gossip : public CreatureScript
             SelectRukhmar     = 1001,
             SelectTarlna      = 1002,
             SelectDrov        = 1003,
-            TpAloneRukhmar    = 1004,
-            TpGroupRukhmar    = 1005,
-            TpAloneTarlna     = 1006,
-            TpGroupTarlna     = 1007,
-            TpAloneDrov       = 1008,
-            TpGroupDrov       = 1009,
+            SelectBlackrock   = 1004,
+            TpAloneRukhmar    = 1005,
+            TpGroupRukhmar    = 1006,
+            TpAloneTarlna     = 1007,
+            TpGroupTarlna     = 1008,
+            TpAloneDrov       = 1009,
+            TpGroupDrov       = 1010,
+            TpAloneBlackrock  = 1011,
+            TpGroupBlackrock  = 1012,
         };
 
         enum Destinations
         {
-            DestinationRukhmar = 1,
-            DestinationTarlna  = 2,
-            DestinationDrov    = 3
+            DestinationRukhmar          = 1,
+            DestinationTarlna           = 2,
+            DestinationDrov             = 3,
+            DestinationBlackRockFoundry = 4
         };
 
         void TeleportPlayer(Player* p_Player, uint8 p_Destination)
@@ -79,6 +83,9 @@ class npc_world_boss_gossip : public CreatureScript
                     break;
                 case Destinations::DestinationDrov:
                     p_Player->TeleportTo(1116, 7330.3f, 1455.87f, 81.76f, 6.08f);
+                    break;
+                case Destinations::DestinationBlackRockFoundry:
+                    p_Player->TeleportTo(1116, 7856.9667f, 555.5454f, 124.1314f, 6.08f);
                     break;
             }
         }
@@ -103,6 +110,9 @@ class npc_world_boss_gossip : public CreatureScript
                         case Destinations::DestinationDrov:
                             TeleportPlayer(l_GroupMember->ToPlayer(), Destinations::DestinationDrov);
                             break;
+                        case Destinations::DestinationBlackRockFoundry:
+                            p_Player->TeleportTo(1116, 8084.64f, 855.51f, 34.3623f, 6.037f);
+                            break;
                     }
                 }
             }
@@ -113,6 +123,7 @@ class npc_world_boss_gossip : public CreatureScript
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Rukhmar, please.", GOSSIP_SENDER_MAIN, eActions::SelectRukhmar);
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Tarlna, please.", GOSSIP_SENDER_MAIN, eActions::SelectTarlna);
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go to Drov, please.", GOSSIP_SENDER_MAIN, eActions::SelectDrov);
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to go Blackrock Foundry, please.", GOSSIP_SENDER_MAIN, eActions::SelectBlackrock);
             p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 
             return true;
@@ -140,6 +151,11 @@ class npc_world_boss_gossip : public CreatureScript
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Drov with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupDrov);
                     p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
                     break;
+                case eActions::SelectBlackrock:
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to test Blackrock Foundry alone.", GOSSIP_SENDER_MAIN, eActions::TpAloneBlackrock);
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to fight Blackrock Foundry with my group.", GOSSIP_SENDER_MAIN, eActions::TpGroupBlackrock);
+                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+                    break;
                 case eActions::TpAloneRukhmar:
                     TeleportPlayer(p_Player, Destinations::DestinationRukhmar);
                     break;
@@ -157,6 +173,12 @@ class npc_world_boss_gossip : public CreatureScript
                     break;
                 case eActions::TpGroupDrov:
                     TeleportGroup(p_Player, Destinations::DestinationDrov);
+                    break;
+                case eActions::TpAloneBlackrock:
+                    TeleportPlayer(p_Player, Destinations::DestinationBlackRockFoundry);
+                    break;
+                case eActions::TpGroupBlackrock:
+                    TeleportGroup(p_Player, Destinations::DestinationBlackRockFoundry);
                     break;
                 default:
                     break;
@@ -255,7 +277,7 @@ class HighmaulTestEnable : public BasicEvent
 
 /// 300008 - Highmaul Tests Manager
 /// No SQL commit with this script, must stay on PTR.
-/// REPLACE INTO creature_template VALUE ('300008','0','0','35231','0','0','0','Highmaul Tests Manager','','','','0','103','103','6','0','35','1','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','1','518','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','0','0','1','0','0','0','npc_highmaul_tests_manager','1');
+/// REPLACE INTO creature_template VALUE ('300008','0','0','35231','0','0','0','PvE Tests Manager','','','','0','103','103','6','0','35','1','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','1','518','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','0','0','1','0','0','0','npc_pve_tests_manager','1');
 /// DELETE FROM creature WHERE id = 300008;
 /// INSERT INTO creature (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES
 /// ('300008','0','12','7486','1','4294967295','0','0','-8932.997','537.873413','94.678825','0.676821','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
@@ -263,14 +285,15 @@ class HighmaulTestEnable : public BasicEvent
 /// ('300008','1116','6755','7367','1','4294967295','0','0','3477.581543','7437.905762','31.542486','4.521338','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
 /// ('300008','1228','6996','7395','1','4294967295','0','0','3486.217041','7592.922852','10.485300','1.551457','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL);
 /// REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc2`) VALUE ('20000','Hey, great adventurer, come to me in your faction capital, to access fastly our last testable content! Newest raids, bosses, get directly teleported to the destination you are looking for.','Hé, cher aventurier, venez me voir dans la capitale de votre faction, pour accéder rapidement à notre dernier contenu testable ! Derniers raids, boss, soyez directement téléporté à la destination de votre choix.');
-class npc_highmaul_tests_manager : public CreatureScript
+class npc_pve_tests_manager : public CreatureScript
 {
     public:
-        npc_highmaul_tests_manager() : CreatureScript("npc_highmaul_tests_manager") { }
+        npc_pve_tests_manager() : CreatureScript("npc_pve_tests_manager") { }
 
         enum eActions
         {
             /// Gossip select
+            /// Highmaul
             SelectHighmaul      = 1000,
             SelectKargath       = 1001,
             SelectButcher       = 1002,
@@ -279,7 +302,12 @@ class npc_highmaul_tests_manager : public CreatureScript
             SelectTwinOgron     = 1005,
             SelectKoragh        = 1006,
             SelectMargok        = 1007,
+            /// Blackrock Foundry
+            SelectBlackrock     = 1008,
+            SelectBRFAlone      = 1009,
+            SelectBRFGroup      = 1010,
             /// Boss select
+            /// Highmaul
             KargathGroup        = 10001,
             ButcherGroup        = 10002,
             BrackensporeGroup   = 10003,
@@ -297,6 +325,7 @@ class npc_highmaul_tests_manager : public CreatureScript
         bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
         {
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "I want to do some tests in Highmaul.", GOSSIP_SENDER_MAIN, eActions::SelectHighmaul);
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "I want to do some tests in Blackrock Foundry.", GOSSIP_SENDER_MAIN, eActions::SelectBlackrock);
             p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
             return true;
         }
@@ -309,7 +338,7 @@ class npc_highmaul_tests_manager : public CreatureScript
             if (!p_Creature->IsAIEnabled)
                 return true;
 
-            npc_highmaul_tests_manager::npc_highmaul_tests_managerAI* l_AI = CAST_AI(npc_highmaul_tests_manager::npc_highmaul_tests_managerAI, p_Creature->GetAI());
+            npc_pve_tests_manager::npc_pve_tests_managerAI* l_AI = CAST_AI(npc_pve_tests_manager::npc_pve_tests_managerAI, p_Creature->GetAI());
             if (l_AI == nullptr)
                 return true;
 
@@ -353,6 +382,11 @@ class npc_highmaul_tests_manager : public CreatureScript
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "I want to fight Imperator Mar'gok with my group.", GOSSIP_SENDER_MAIN, eActions::MargokGroup);
                     p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
                     break;
+                case eActions::SelectBlackrock:
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "I want to be teleported to Blackrock Foundry alone.", GOSSIP_SENDER_MAIN, eActions::SelectBRFAlone);
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "I want to be teleported to Blackrock Foundry with my group.", GOSSIP_SENDER_MAIN, eActions::SelectBRFGroup);
+                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+                    break;
                 case eActions::KargathGroup:
                     l_AI->TeleportGroup(p_Player, eHighmaulDests::DestinationKargath);
                     break;
@@ -374,6 +408,12 @@ class npc_highmaul_tests_manager : public CreatureScript
                 case eActions::MargokGroup:
                     l_AI->TeleportGroup(p_Player, eHighmaulDests::DestinationMargok);
                     break;
+                case eActions::SelectBRFAlone:
+                    p_Player->TeleportTo(1116, 8084.64f, 855.51f, 34.3623f, 6.037f);
+                    break;
+                case eActions::SelectBRFGroup:
+                    l_AI->TeleportGroup(p_Player, 8084.64f, 855.51f, 34.3623f, 6.037f);
+                    break;
                 default:
                     break;
             }
@@ -381,9 +421,9 @@ class npc_highmaul_tests_manager : public CreatureScript
             return true;
         }
 
-        struct npc_highmaul_tests_managerAI : public ScriptedAI
+        struct npc_pve_tests_managerAI : public ScriptedAI
         {
-            npc_highmaul_tests_managerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_pve_tests_managerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_YellTimer = 300 * IN_MILLISECONDS;
             }
@@ -434,16 +474,34 @@ class npc_highmaul_tests_manager : public CreatureScript
                         TeleportPlayer(l_GroupMember->ToPlayer(), p_Destination);
                 }
             }
+
+            void TeleportGroup(Player* p_Player, float p_X, float p_Y, float p_Z, float p_O)
+            {
+                if (p_Player->GetGroup() == nullptr)
+                {
+                    me->MonsterSay("Sorry, but you must be in a raid group to test this boss.", LANG_UNIVERSAL, 0);
+                    return;
+                }
+
+                std::list<Unit*> l_PlayerList;
+                p_Player->GetRaidMembers(l_PlayerList);
+
+                for (Unit* l_GroupMember : l_PlayerList)
+                {
+                    if (l_GroupMember->GetTypeId() == TypeID::TYPEID_PLAYER)
+                        l_GroupMember->ToPlayer()->TeleportTo(1116, p_X, p_Y, p_Z, p_O);
+                }
+            }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
-            return new npc_highmaul_tests_managerAI(p_Creature);
+            return new npc_pve_tests_managerAI(p_Creature);
         }
 };
 
 void AddSC_npc_custom()
 {
     new npc_world_boss_gossip();
-    new npc_highmaul_tests_manager();
+    new npc_pve_tests_manager();
 }

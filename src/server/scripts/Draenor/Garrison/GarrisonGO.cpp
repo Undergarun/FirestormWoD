@@ -229,7 +229,54 @@ namespace MS { namespace Garrison
         {
             Creature* l_Creature = HashMapHolder<Creature>::Find(l_CreatureGUID);
 
-            if (l_Creature)
+            if (l_Creature && l_Creature->AI())
+                l_Creature->AI()->SetGUID(l_PackedValue, CreatureAIDataIDs::GatheredPos);
+        }
+
+        return false;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    go_garrison_deposit::go_garrison_deposit()
+        : GameObjectScript("go_garrison_deposit")
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the GameObject.
+    /// @p_Player     : Source player instance
+    /// @p_GameObject : Target GameObject instance
+    bool go_garrison_deposit::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
+    {
+        Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)p_GameObject->GetInstanceScript();
+
+        if (!l_GarrisonSite)
+            return true;
+
+        Player* l_Owner = l_GarrisonSite->GetOwner();
+
+        if (l_Owner != p_Player)
+            return true;
+
+        float l_BaseX = p_GameObject->GetPositionX();
+        float l_BaseY = p_GameObject->GetPositionY();
+
+        uint64 l_PackedValue = 0;
+        l_PackedValue |= ((uint64)*(uint32*)(&l_BaseX)) << 0;
+        l_PackedValue |= ((uint64)*(uint32*)(&l_BaseY)) << 32;
+
+        std::vector<uint64> l_Creatures = l_Owner->GetGarrison()->GetBuildingCreaturesByBuildingType(BuildingType::Mine);
+
+        for (uint64 l_CreatureGUID : l_Creatures)
+        {
+            Creature* l_Creature = HashMapHolder<Creature>::Find(l_CreatureGUID);
+
+            if (l_Creature && l_Creature->AI())
                 l_Creature->AI()->SetGUID(l_PackedValue, CreatureAIDataIDs::GatheredPos);
         }
 
@@ -531,6 +578,7 @@ void AddSC_Garrison_GO()
     new MS::Garrison::go_garrison_outhouse;
     new MS::Garrison::go_garrison_shipment_container;
     new MS::Garrison::go_garrison_herb;
+    new MS::Garrison::go_garrison_deposit;
     new MS::Garrison::gob_IronTrap_Garrison;
     new MS::Garrison::go_garrison_small_timber;
 }

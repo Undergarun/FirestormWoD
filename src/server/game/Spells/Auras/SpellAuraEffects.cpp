@@ -5343,16 +5343,21 @@ void AuraEffect::HandleModHitChance(AuraApplication const* aurApp, uint8 mode, b
 
     Unit* target = aurApp->GetTarget();
 
-    target->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
-    target->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
-
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
+        target->ToPlayer()->UpdateMeleeHitChances();
+        target->ToPlayer()->UpdateRangedHitChances();
+
         if (Pet* pet = target->ToPlayer()->GetPet())
         {
             pet->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
             pet->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
         }
+    }
+    else
+    {
+        target->m_modMeleeHitChance += (apply) ? GetAmount() : (-GetAmount());
+        target->m_modRangedHitChance += (apply) ? GetAmount() : (-GetAmount());
     }
 }
 
@@ -5363,13 +5368,15 @@ void AuraEffect::HandleModSpellHitChance(AuraApplication const* aurApp, uint8 mo
 
     Unit* target = aurApp->GetTarget();
 
-    target->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
-
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
+        target->ToPlayer()->UpdateSpellHitChances();
+
         if (Pet* pet = target->ToPlayer()->GetPet())
             pet->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
     }
+    else
+        target->m_modSpellHitChance += (apply) ? GetAmount(): (-GetAmount());
 }
 
 void AuraEffect::HandleModSpellCritChance(AuraApplication const* aurApp, uint8 mode, bool apply) const

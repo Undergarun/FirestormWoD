@@ -178,7 +178,7 @@ namespace MS { namespace Garrison
             /// @p_MiscData : Misc data
             virtual uint32 SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData) override;
 
-            virtual void DoAction(int32 const p_Param) override;
+            virtual void sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Option) override;
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -205,8 +205,6 @@ namespace MS { namespace Garrison
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
             virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            virtual bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override;
 
             static std::vector<SequencePosition> CalculateDepositsPositions();
 

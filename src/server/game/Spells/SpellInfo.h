@@ -604,6 +604,7 @@ public:
     bool IsRequireAdditionalTargetCheck() const;
     bool IsNeedToCheckSchoolImmune() const;
     bool IsRemoveLossControlEffects() const;
+    bool IsRemoveFear() const;
     bool DoesIgnoreGlobalCooldown(Unit* caster) const;
 
     Classes GetClassIDBySpellFamilyName() const;

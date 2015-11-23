@@ -135,6 +135,7 @@ class debug_commandscript: public CommandScript
                 { "adjustspline",   SEC_ADMINISTRATOR,  false, &HandleDebugAdjustSplineCommand,    "", NULL },
                 { "splinesync",     SEC_ADMINISTRATOR,  false, &HandleDebugSplineSyncCommand,      "", NULL },
                 { "mirror",         SEC_ADMINISTRATOR,  false, &HandleDebugMirrorCommand,          "", NULL },
+                { "pvelogs",        SEC_ADMINISTRATOR,  false, &HandleDebugPvELogsCommand,         "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -3148,6 +3149,41 @@ class debug_commandscript: public CommandScript
             
             l_Player->GetSession()->SendPacket(&data);
 
+            return true;
+        }
+
+        static bool HandleDebugPvELogsCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+            EncounterDatas l_Datas;
+
+            l_Datas.EncounterID     = 1704;                                         ///< BlackHand
+            l_Datas.Expansion       = Expansion::EXPANSION_WARLORDS_OF_DRAENOR;
+            l_Datas.RealmID         = g_RealmID;
+            l_Datas.GuildID         = 9;
+            l_Datas.GuildFaction    = TeamId::TEAM_HORDE;
+            l_Datas.GuildName = l_Player->GetGuildName();
+            l_Datas.MapID           = 1205;                                         ///< Blackrock Foundry
+            l_Datas.DifficultyID    = 16;                                           ///< Mythic mode
+            l_Datas.StartTime       = time(nullptr);
+            l_Datas.CombatDuration  = 7 * TimeConstants::MINUTE;
+            l_Datas.EndTime         = l_Datas.StartTime + l_Datas.CombatDuration;
+            l_Datas.Success         = true;
+            l_Datas.DeadCount       = 2;
+
+            RosterData l_Data;
+            l_Data.GuidLow      = l_Player->GetGUIDLow();
+            l_Data.Name         = l_Player->GetName();
+            l_Data.Level        = l_Player->getLevel();
+            l_Data.Class        = l_Player->getClass();
+            l_Data.SpecID       = l_Player->GetSpecializationId();
+            l_Data.Role         = l_Player->GetRoleForGroup();
+            l_Data.ItemLevel    = l_Player->GetAverageItemLevelEquipped();
+
+            l_Datas.RosterDatas.push_back(l_Data);
+
+            sScriptMgr->OnEncounterEnd(&l_Datas);
             return true;
         }
 };

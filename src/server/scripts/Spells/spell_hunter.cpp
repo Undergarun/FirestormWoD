@@ -340,8 +340,6 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 ExplosiveShot   = 53301
             };
 
-            bool m_AlreadyProcLockAndLoad = false;
-
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (GetCaster() == nullptr)
@@ -351,11 +349,6 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 {
                     if (!roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
                         return;
-
-                    if (m_AlreadyProcLockAndLoad)
-                        return;
-
-                    m_AlreadyProcLockAndLoad = true;
 
                     if (l_Player->HasSpellCooldown(eSpells::ExplosiveShot))
                         l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot, true);
@@ -372,7 +365,7 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
-                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id);
+                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
                 }
             }
 
@@ -3928,23 +3921,23 @@ class spell_hun_trap_launcher : public SpellScriptLoader
 
             void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraEffectPtr l_GlyphOfSnakeTrapEff = l_Player->GetAuraEffect(GLYPH_OF_SNAKE_TRAP, EFFECT_0))
+                    if (AuraEffectPtr l_GlyphOfSnakeTrapEff = l_Caster->GetAuraEffect(GLYPH_OF_SNAKE_TRAP, EFFECT_0))
                         l_GlyphOfSnakeTrapEff->ChangeAmount(p_Amount, true, true);
                 }
             }
 
             void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
                     SpellInfo const* l_GlyphOfSnakeTrap = sSpellMgr->GetSpellInfo(159470);
                     if (!l_GlyphOfSnakeTrap)
                         return;
 
                     int32 l_SpellId = l_GlyphOfSnakeTrap->Effects[EFFECT_0].BasePoints;
-                    if (AuraEffectPtr l_GlyphOfSnakeTrapEff = l_Player->GetAuraEffect(GLYPH_OF_SNAKE_TRAP, EFFECT_0))
+                    if (AuraEffectPtr l_GlyphOfSnakeTrapEff = l_Caster->GetAuraEffect(GLYPH_OF_SNAKE_TRAP, EFFECT_0))
                         l_GlyphOfSnakeTrapEff->ChangeAmount(l_SpellId, true, true);
                 }
             }
