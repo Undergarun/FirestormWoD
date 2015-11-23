@@ -264,6 +264,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Glyph of Explosive Trap -- 149575 maybe? @todo
             // return DIMINISHING_AOE_KNOCKBACK;
 
+            /// Entrapment
+            if (spellproto->Id == 64803)
+                return DIMINISHING_ROOT;
             // Charge (Tenacity pet) -- 53148, no flags (5526)
             if (spellproto->SpellIconID == 1559 && spellproto->SpellVisual[0] == 39480)
                 return DIMINISHING_ROOT;
