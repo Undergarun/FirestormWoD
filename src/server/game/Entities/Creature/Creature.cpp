@@ -1631,9 +1631,9 @@ void Creature::LoadSpecialEquipment(uint32 p_First, uint32 p_Second, uint32 p_Th
 
     m_equipmentId = p_ID;
 
-    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, p_First);
-    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 1, p_Second);
-    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 2, p_Third);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, p_First);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 1, p_Second);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, p_Third);
 
     /// Check if creature has two weapons, and set dual wield
     if (p_First && p_Second)
