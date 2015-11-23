@@ -4483,6 +4483,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 = 0;
                 spellInfo->AttributesEx4 = 0;
                 break;
+           case 77219: ///< Mastery: Master Demonologist
+                spellInfo->Effects[1].SpellClassMask[0] |= 0x1040;
+                spellInfo->Effects[1].SpellClassMask[3] |= 0x40000000;
+                spellInfo->Effects[2].SpellClassMask[0] |= 0x1040;
+                spellInfo->Effects[2].SpellClassMask[3] |= 0x40000000;
+                break;
             case 145518: ///< Genesis
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
@@ -4989,23 +4995,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81662: ///< Will of the Necropolis
                 spellInfo->Effects[0].BasePoints = 25;
                 break;
-            case 146512:///< Fortitude - hotfix 5.4.2
-                spellInfo->Effects[0].BasePoints = 2600;
-                break;
             case 91107: ///< Unholy Might
                 spellInfo->OverrideSpellList.push_back(109260); ///< Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
-                break;
-            case 24858: ///< Moonkin form - hotfix 5.4.2
-                spellInfo->Effects[2].BasePoints = 100;
-                break;
-            case 50887: ///< Icy Talons - hotfix 5.4.2
-                spellInfo->Effects[0].BasePoints = 45;
-                break;
-            case 12294: ///< Mortal strike - hotfix 5.4.2
-                spellInfo->Effects[2].BasePoints = 215;
-                break;
-            case 774: ///< Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
-                spellInfo->Effects[2].Effect = 0;
                 break;
             case 53490: ///< Bullheaded
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
@@ -5024,9 +5015,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].BasePoints = 10;
                 spellInfo->Effects[1].RadiusEntry = sSpellRadiusStore.LookupEntry(12); ///< 100 yards
                 spellInfo->Effects[1].MiscValue = 127;
-                break;
-            case 982: ///< Revive Pet - hotfix 5.4.2
-                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(5); ///< 2s
                 break;
             case 116014: ///< Rune of Power
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
