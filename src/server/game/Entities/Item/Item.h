@@ -485,8 +485,8 @@ class Item : public Object
         uint32 GetAppearanceModID() const;
 
         static bool SubclassesCompatibleForRandomWeapon(ItemTemplate const* p_Transmogrified, ItemTemplate const* p_Transmogrifier);
-        static bool Item::CanTransmogrifyIntoRandomWeapon(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified);
-        void Item::RandomWeaponTransmogrificationFromPrimaryBag(Player* p_Player, Item* p_Transmogrified, bool p_Apply);
+        static bool CanTransmogrifyIntoRandomWeapon(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified);
+        void RandomWeaponTransmogrificationFromPrimaryBag(Player* p_Player, Item* p_Transmogrified, bool p_Apply);
 
     private:
         std::string m_text;

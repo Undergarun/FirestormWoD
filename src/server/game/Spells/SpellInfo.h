@@ -651,7 +651,7 @@ public:
     void UpdateSpellEffectCount();
 
     /// Handler for new Wod aura system
-    bool SpellInfo::IsAffectedByWodAuraSystem() const;
+    bool IsAffectedByWodAuraSystem() const;
 };
 
 #endif // _SPELLINFO_H
