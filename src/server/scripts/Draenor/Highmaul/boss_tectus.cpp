@@ -183,7 +183,8 @@ class boss_tectus : public CreatureScript
             {
                 m_Events.Reset();
 
-                _Reset();
+                if (me->GetEntry() == eHighmaulCreatures::Tectus)
+                    _Reset();
 
                 me->CastSpell(me, eSpells::ZeroPowerZeroRegen, true);
 
@@ -351,7 +352,8 @@ class boss_tectus : public CreatureScript
                     return;
                 }
 
-                _EnterCombat();
+                if (me->GetEntry() == eHighmaulCreatures::Tectus)
+                    _EnterCombat();
 
                 m_Events.ScheduleEvent(eEvents::EventCrystallineBarrage, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventFracture, 8 * TimeConstants::IN_MILLISECONDS);
@@ -390,7 +392,8 @@ class boss_tectus : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
-                _JustDied();
+                if (me->GetEntry() == eHighmaulCreatures::Tectus)
+                    _JustDied();
 
                 me->RemoveAllAreasTrigger();
 

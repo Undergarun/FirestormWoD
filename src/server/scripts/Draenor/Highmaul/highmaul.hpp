@@ -171,6 +171,8 @@ enum eHighmaulGameobjects
     Earthwall2              = 237778,
     Earthwall3              = 237779,
     Earthwall4              = 237780,
+    HighmaulLFRDoor         = 239126,
+    HighmaulLFRDoorColiseum = 239125,
 
     /// Twin Ogron's Doors
     TwinOgronEntrance       = 236211,
