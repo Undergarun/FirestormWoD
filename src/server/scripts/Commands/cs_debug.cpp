@@ -2603,7 +2603,7 @@ class debug_commandscript: public CommandScript
 
             const uint32 l_HordeMask = 0xFE5FFBB2;
             const uint32 l_AllianceMask = 0xFD7FFC4D;
-            const uint32 l_ItemLevel = 670;
+            const uint32 l_ItemLevel = 725;
             const uint32 l_BagItemId = 114821;
 
             std::string l_SearchString = p_Args; /// Case sensitive search
