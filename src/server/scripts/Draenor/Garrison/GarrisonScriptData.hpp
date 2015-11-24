@@ -278,109 +278,109 @@ namespace MS { namespace Garrison
         80572   ///< Frostwall wolf
     };
 
-    /// Creatures that can be tamed with the Iron Trap for the Barn building
-    namespace BarnTameableEntries
+    namespace Barn
     {
-        /// First building level
-
-        /* Result from :
-        SELECT DISTINCT
-        ct.entry
-        FROM
-        creature_template ct
-        JOIN creature c
-        ON (c.id = ct.`entry`)
-        WHERE c.`map` = 1116       ///< Draenor
-        AND ct.`family` IN (1, 43) ///< Wolf, Clefthoof
-        AND ct.`rank` = 0          ///< Standard
-        AND ct.`type` = 1          ///< Beast
-        ORDER BY entry ASC ;*/
-        static const uint32 gFirstLevel[] =
+        /// Creatures that can be tamed with the Iron Trap for the Barn building
+        namespace TameableEntries
         {
-            72162,
-            72991,
-            73132,
-            73205,
-            73234,
-            73284,
-            73571,
-            73619,
-            73766,
-            74169,
-            74600,
-            74698,
-            74712,
-            74748,
-            75680,
-            76241,
-            76337,
-            76542,
-            76575,
-            76576,
-            76593,
-            76597,
-            76660,
-            76705,
-            76707,
-            76710,
-            76711,
-            76732,
-            76822,
-            76869,
-            76889,
-            76895,
-            76897,
-            76901,
-            76902,
-            77669,
-            77886,
-            78196,
-            78364,
-            78406,
-            78570,
-            78571,
-            78572,
-            78574,
-            78575,
-            78576,
-            78798,
-            78918,
-            78919,
-            78920,
-            79034,
-            79755,
-            80261,
-            81718,
-            81774,
-            81898,
-            81902,
-            82119,
-            82205,
-            82209,
-            82308,
-            82535,
-            83829,
-            84044,
-            84045,
-            84662,
-            84793,
-            84798,
-            85974,
-            86000,
-            86414,
-            86656,
-            86730,
-            86839,
-            86847,
-            86851,
-            86931,
-            82452
-        };
-    }
+            /// First building level
 
-    namespace BarnProductionTypes
-    {
-        enum
+            /* Result from :
+            SELECT DISTINCT
+            ct.entry
+            FROM
+            creature_template ct
+            JOIN creature c
+            ON (c.id = ct.`entry`)
+            WHERE c.`map` = 1116       ///< Draenor
+            AND ct.`family` IN (1, 43) ///< Wolf, Clefthoof
+            AND ct.`rank` = 0          ///< Standard
+            AND ct.`type` = 1          ///< Beast
+            ORDER BY entry ASC ;*/
+            static const uint32 gFirstLevel[] =
+            {
+                72162,
+                72991,
+                73132,
+                73205,
+                73234,
+                73284,
+                73571,
+                73619,
+                73766,
+                74169,
+                74600,
+                74698,
+                74712,
+                74748,
+                75680,
+                76241,
+                76337,
+                76542,
+                76575,
+                76576,
+                76593,
+                76597,
+                76660,
+                76705,
+                76707,
+                76710,
+                76711,
+                76732,
+                76822,
+                76869,
+                76889,
+                76895,
+                76897,
+                76901,
+                76902,
+                77669,
+                77886,
+                78196,
+                78364,
+                78406,
+                78570,
+                78571,
+                78572,
+                78574,
+                78575,
+                78576,
+                78798,
+                78918,
+                78919,
+                78920,
+                79034,
+                79755,
+                80261,
+                81718,
+                81774,
+                81898,
+                81902,
+                82119,
+                82205,
+                82209,
+                82308,
+                82535,
+                83829,
+                84044,
+                84045,
+                84662,
+                84793,
+                84798,
+                85974,
+                86000,
+                86414,
+                86656,
+                86730,
+                86839,
+                86847,
+                86851,
+                86931,
+                82452
+            };
+        }
+
+        enum ProductionTypes
         {
             TypeFur     = 1,
             TypeLeather = 2
@@ -390,6 +390,37 @@ namespace MS { namespace Garrison
         {
             ShipmentFur     = 82,
             ShipmentLeather = 85
+        };
+    }
+
+    namespace TavernDatas
+    {
+        static const std::vector<uint32> g_QuestGiverEntries
+        {
+            87991,
+            87992,
+            87994,
+            87995,
+            87996,
+            87997,
+            87998,
+            87999,
+            88000,
+            88001,
+            88002,
+            88003,
+            88004,
+            88005,
+            88006,
+            88007,
+            88024,
+            88025,
+            88026,
+            88027,
+            88013,
+            88023,
+            88017,
+            88022
         };
     }
 

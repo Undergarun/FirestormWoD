@@ -2337,6 +2337,7 @@ void World::Update(uint32 diff)
     if (m_gameTime > m_NextDailyQuestReset)
     {
         ResetDailyQuests();
+        ResetGarrisonDatas();
         m_NextDailyQuestReset += DAY;
     }
 
@@ -3394,6 +3395,15 @@ void World::ResetDailyQuests()
     sPoolMgr->ChangeDailyQuests();
 
     sAnticheatMgr->ResetDailyReportStates();
+}
+
+void World::ResetGarrisonDatas()
+{
+    for (SessionMap::const_iterator l_Itr = m_sessions.begin(); l_Itr != m_sessions.end(); ++l_Itr)
+    {
+        if (l_Itr->second->GetPlayer())
+            l_Itr->second->GetPlayer()->ResetGarrisonDatas();
+    }
 }
 
 void World::ResetCurrencyWeekCap()

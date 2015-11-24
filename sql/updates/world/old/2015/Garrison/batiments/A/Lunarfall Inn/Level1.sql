@@ -133,4 +133,5 @@ INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 ('-34','1','-233460','4.84011','-2.02342','0.320763','3.91851'),
 ('-34','1','-233460','2.44275','-1.93866','0.315498','5.59535');
 
+UPDATE creature_template SET scriptname = "npc_MadisonClark_Garr" WHERE entry = 77368;
 

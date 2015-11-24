@@ -18,6 +18,7 @@
 #include "Buildings/Alliance/Medium/ALumberMill.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
+#include "Buildings/Alliance/Medium/ALunarfallInn.hpp"
 #include "Buildings/Alliance/Small/ATheForge.hpp"
 #include "Buildings/Alliance/Small/ATailoringEmporium.hpp"
 #include "Buildings/Alliance/Small/AAlchemyLab.hpp"
@@ -34,6 +35,7 @@
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
 #include "Buildings/Horde/Medium/HBarn.hpp"
 #include "Buildings/Horde/Medium/HLumberMill.hpp"
+#include "Buildings/Horde/Medium/HFrostwallTavern.hpp"
 #include "Buildings/Horde/Small/HTheForge.hpp"
 #include "Buildings/Horde/Small/HTailoringEmporium.hpp"
 #include "Buildings/Horde/Small/HAlchemyLab.hpp"
@@ -273,6 +275,12 @@ namespace MS { namespace Garrison
 
     }
 
+    /// When the daily garrison datas are reset
+    void GarrisonNPCAI::OnDataReset()
+    {
+
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -310,6 +318,8 @@ namespace MS { namespace Garrison
             m_BuildingID = p_Value;
             OnSetBuildingID(m_BuildingID);
         }
+        else if (p_ID == CreatureAIDataIDs::DailyReset)
+            OnDataReset();
     }
 
     /// Get UInt32 value
@@ -641,6 +651,9 @@ void AddSC_Garrison_NPC()
 
         /// Lumber Mill
         new MS::Garrison::npc_JustinTimberLord;
+
+        /// Lunarfall Inn
+        new MS::Garrison::npc_MadisonClark;
     }
 
     /// Horde
@@ -707,5 +720,8 @@ void AddSC_Garrison_NPC()
 
         /// Frostwall Mines
         new MS::Garrison::npc_Gorsol;
+
+        /// Frostwall Tavern
+        new MS::Garrison::npc_Murg;
     }
 }

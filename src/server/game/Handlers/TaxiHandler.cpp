@@ -65,12 +65,16 @@ void WorldSession::SendTaxiStatus(uint64 p_Guid)
 
 void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& p_RecvPacket)
 {
+    Player* l_Player = GetPlayer();
     uint64 l_UnitGuid;
+
+    if (l_Player == nullptr)
+        return;
 
     p_RecvPacket.readPackGUID(l_UnitGuid);
 
     // cheating checks
-    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_UnitGuid, UNIT_NPC_FLAG_FLIGHTMASTER);
+    Creature* l_Unit = l_Player->GetNPCIfCanInteractWith(l_UnitGuid, UNIT_NPC_FLAG_FLIGHTMASTER);
 
     if (!l_Unit)
     {
@@ -79,8 +83,10 @@ void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& p_RecvPacket)
     }
 
     // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    if (l_Player->HasUnitState(UNIT_STATE_DIED))
+        l_Player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    l_Player->TalkedToCreature(l_Unit->GetEntry(), l_UnitGuid);
 
     // unknown taxi node case
     if (SendLearnNewTaxiNode(l_Unit))

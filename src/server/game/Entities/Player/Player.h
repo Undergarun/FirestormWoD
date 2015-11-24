@@ -1997,6 +1997,7 @@ class Player : public Unit, public GridObject<Player>
         void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
         void ResetDailyQuestStatus();
+        void ResetGarrisonDatas();
         void ResetWeeklyQuestStatus();
         void ResetMonthlyQuestStatus();
         void ResetSeasonalQuestStatus(uint16 event_id);

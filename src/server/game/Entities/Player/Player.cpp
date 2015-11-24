@@ -9752,6 +9752,8 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
                 return;
             }
 
+            QuestObjectiveSatisfy(p_CurrencyID, p_Count, QUEST_OBJECTIVE_TYPE_CURRENCY);
+
             WorldPacket l_Packet(SMSG_UPDATE_CURRENCY);
 
             l_Packet << uint32(p_CurrencyID);
@@ -10028,7 +10030,7 @@ void Player::UpdateArea(uint32 newArea)
                 {
                     sMapMgr->AddCriticalOperation([l_Guid]() -> void
                     {
-                        Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
+                        Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
                         if (l_Player)
                             l_Player->_GarrisonSetOut();
@@ -10038,7 +10040,7 @@ void Player::UpdateArea(uint32 newArea)
                 {
                     sMapMgr->AddCriticalOperation([l_Guid]() -> void
                     {
-                        Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
+                        Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
                         if (l_Player)
                             l_Player->_GarrisonSetIn();
@@ -18477,8 +18479,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         }
 
         // not all Quest Objective types need to be tracked, some such as reputation are handled/checked externally
-        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CURRENCY
-            || l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL
+        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY
@@ -27609,6 +27610,26 @@ void Player::ResetDailyQuestStatus()
     WorldPacket data(SMSG_DAILY_QUESTS_RESET);
     data << uint32(l_Dailies.size());
     GetSession()->SendPacket(&data);
+}
+
+void Player::ResetGarrisonDatas()
+{
+    if (MS::Garrison::Manager* l_Garrison = GetGarrison())
+    {
+        if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        {
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(MS::Garrison::BuildingType::Inn);
+
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+            {
+                if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
+                {
+                    if (l_Creature->AI())
+                        l_Creature->AI()->SetData(MS::Garrison::CreatureAIDataIDs::DailyReset, 0);
+                }
+            }
+        }
+    }
 }
 
 void Player::ResetWeeklyQuestStatus()
