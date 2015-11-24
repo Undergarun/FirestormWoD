@@ -4117,6 +4117,11 @@ class spell_monk_blackout_kick: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_blackout_kick_SpellScript);
 
+            enum eSpells
+            {
+                GlyphofBlackoutKick = 132005
+            };
+
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (!GetCaster())
@@ -4146,7 +4151,7 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 }
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER && l_Player->getLevel() >= 20)
                 {
-                    if (l_Target->isInBack(l_Player))
+                    if (l_Target->isInBack(l_Player) || l_Player->HasAura(eSpells::GlyphofBlackoutKick))
                     {
                         int32 l_Bp0 = CalculatePct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
                         if (AuraPtr l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
