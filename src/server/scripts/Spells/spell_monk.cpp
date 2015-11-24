@@ -3310,30 +3310,38 @@ class spell_monk_provoke: public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                Unit* l_Target = GetExplTargetUnit();
-                if (!l_Target)
-                    return SPELL_FAILED_NO_VALID_TARGETS;
-                else if (l_Target->GetTypeId() == TYPEID_PLAYER)
-                    return SPELL_FAILED_BAD_TARGETS;
-                else if (!l_Target->IsWithinLOSInMap(GetCaster()))
-                    return SPELL_FAILED_LINE_OF_SIGHT;
+                Unit* l_Caster = GetCaster();
+                if (l_Caster)
+                {
+                    Unit* l_Target = GetExplTargetUnit();
+                    if (!l_Target)
+                        return SPELL_FAILED_NO_VALID_TARGETS;
+                    else if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                        return SPELL_FAILED_BAD_TARGETS;
+                    else if (!l_Target->IsWithinLOSInMap(GetCaster()))
+                        return SPELL_FAILED_LINE_OF_SIGHT;
 
-                if (l_Target->GetEntry() == eNpcs::BlackOxStatue)
-                    m_IsMultiTarget = true;
+                    if (l_Target->GetEntry() == eNpcs::BlackOxStatue && l_Target->GetOwnerGUID() == l_Caster->GetGUID())
+                        m_IsMultiTarget = true;
+                    else if (!l_Caster->IsValidAttackTarget(l_Target))
+                        return SPELL_FAILED_TARGET_FRIENDLY;
+                }
+
                 return SPELL_CAST_OK;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
-                    if (caster->getClass() == CLASS_MONK && caster->GetTypeId() == TYPEID_PLAYER)
-                    if (Unit* target = GetHitUnit())
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
                     {
                         if (m_IsMultiTarget)
-                            caster->CastSpell(target, eSpells::ProvokeMultiTarget, true);
+                            l_Target->CastSpell(l_Target, eSpells::ProvokeMultiTarget, true);
                         else
-                            caster->CastSpell(target, eSpells::ProvokeSingleTarget, true);
+                            l_Caster->CastSpell(l_Target, eSpells::ProvokeSingleTarget, true);
                     }
+                }
             }
 
             void Register()
