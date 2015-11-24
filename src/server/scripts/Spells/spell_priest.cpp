@@ -1905,7 +1905,7 @@ class spell_pri_cascade : public SpellScriptLoader
                     return;
 
                 l_Caster->CastSpell(l_Target, eSpells::CascadeMarker, true); ///< Marker
-                if (constAuraEffectPtr l_Marker = l_Caster->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
                     l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
 
                 if (GetSpellInfo()->Id == eSpells::CascadeHoly)
@@ -2083,7 +2083,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
 
             enum eSpells
             {
-                CascadeMarker = 120840,
+                CascadeMarker = 127631,
                 Cascade = 127632
             };
 
@@ -2100,7 +2100,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
 
                 Unit* l_FirstCaster = nullptr;
 
-                if (constAuraEffectPtr l_Marker = l_Caster->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
                 {
                     l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
                     l_ActualWave = l_Marker->GetAmount();
@@ -2127,7 +2127,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_UnFriendlyUnitListTemp, l_Check);
                 l_Target->VisitNearbyObject(l_Radius, l_Searcher);
 
-                l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
+                l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker, l_FirstCaster->GetGUID()));
 
                 l_UnFriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
                 {
@@ -2154,7 +2154,6 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                         l_Marker->SetAmount(l_ActualWave + 1);
                         l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
                     }
-
                     l_Target->CastCustomSpell(l_Itr, GetSpellInfo()->Id, NULL, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_FirstCaster->GetGUID());
                 }
             }
