@@ -3360,6 +3360,17 @@ GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
     return go;
 }
 
+GameObject* WorldObject::FindNearestGameObject(float p_Range) const
+{
+    GameObject* l_GameObject = nullptr;
+
+    JadeCore::NearestGameObjectInObjectRangeCheck l_Checker(*this, p_Range);
+    JadeCore::GameObjectLastSearcher<JadeCore::NearestGameObjectInObjectRangeCheck> l_Searcher(this, l_GameObject, l_Checker);
+    VisitNearbyGridObject(p_Range, l_Searcher);
+
+    return l_GameObject;
+}
+
 GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float range) const
 {
     GameObject* go = NULL;

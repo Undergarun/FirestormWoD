@@ -1763,6 +1763,18 @@ class npc_foundry_blackrock_enforcer : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventIntimidation, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
+            void JustDied(Unit* p_Killer) override
+            {
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    if (Creature* l_Hansgar = Creature::GetCreature(*me, l_Instance->GetData64(eFoundryCreatures::BossHansgar)))
+                    {
+                        if (l_Hansgar->IsAIEnabled)
+                            l_Hansgar->AI()->SetGUID(me->GetGUID(), 0);
+                    }
+                }
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 if (!UpdateVictim())
@@ -1843,6 +1855,18 @@ class npc_foundry_blackrock_forge_specialist : public CreatureScript
             {
                 m_Events.ScheduleEvent(eEvents::EventRendingSlash, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventShreddingSpear, 8 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    if (Creature* l_Hansgar = Creature::GetCreature(*me, l_Instance->GetData64(eFoundryCreatures::BossHansgar)))
+                    {
+                        if (l_Hansgar->IsAIEnabled)
+                            l_Hansgar->AI()->SetGUID(me->GetGUID(), 0);
+                    }
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -2412,13 +2436,13 @@ class areatrigger_foundry_fire_bomb : public AreaTriggerEntityScript
                 {
                     if (l_Unit->GetDistance(p_AreaTrigger) <= 12.0f)
                     {
-                        if (!l_Unit->HasAura(eSpell::FireBombDoT))
-                            l_Unit->CastSpell(l_Unit, eSpell::FireBombDoT, true);
+                        if (!l_Unit->HasAura(eSpell::FireBombDoT, l_Caster->GetGUID()))
+                            l_Caster->CastSpell(l_Unit, eSpell::FireBombDoT, true);
                     }
-                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 12.0f))
+                    else
                     {
-                        if (l_Unit->HasAura(eSpell::FireBombDoT))
-                            l_Unit->RemoveAura(eSpell::FireBombDoT);
+                        if (l_Unit->HasAura(eSpell::FireBombDoT, l_Caster->GetGUID()))
+                            l_Unit->RemoveAura(eSpell::FireBombDoT, l_Caster->GetGUID());
                     }
                 }
             }
@@ -2437,11 +2461,8 @@ class areatrigger_foundry_fire_bomb : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 12.0f))
-                    {
-                        if (l_Unit->HasAura(eSpell::FireBombDoT))
-                            l_Unit->RemoveAura(eSpell::FireBombDoT);
-                    }
+                    if (l_Unit->HasAura(eSpell::FireBombDoT, l_Caster->GetGUID()))
+                        l_Unit->RemoveAura(eSpell::FireBombDoT, l_Caster->GetGUID());
                 }
             }
         }
