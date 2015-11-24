@@ -2259,7 +2259,7 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                 Envenom                = 32645,
                 ReltentlessStrikesAura = 58423,
                 Recuperate             = 73651,
-                DeadlyThrow            = 84747,
+                DeadlyThrow            = 26679,
                 RevealingStrike        = 84617
             };
 

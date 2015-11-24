@@ -127,7 +127,7 @@ enum eTeronogorTransformations
 class EventTeronogorTransform : public BasicEvent
 {
 public:
-    explicit EventTeronogorTransform(Unit* p_Unit, int32 p_Value, int32 p_TransformationType) : m_Obj(p_Unit), m_Modifier(p_Value), m_tType(p_TransformationType)
+    explicit EventTeronogorTransform(Unit* p_Unit, int32 p_Value, int32 p_TransformationType) : m_Obj(p_Unit), m_Modifier(p_Value), m_tType(p_TransformationType), BasicEvent()
     {
     }
 
@@ -214,7 +214,7 @@ private:
 class EventTeronogorPostDeath : public BasicEvent
 {
 public:
-    explicit EventTeronogorPostDeath(Unit* p_Unit, int32 p_Value) : m_Obj(p_Unit), m_Modifier(p_Value)
+    explicit EventTeronogorPostDeath(Unit* p_Unit, int32 p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
     {
     }
 
@@ -1106,7 +1106,7 @@ public:
 class auchindon_soul_transportation_event : public BasicEvent
 {
 public:
-    explicit auchindon_soul_transportation_event(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value)
+    explicit auchindon_soul_transportation_event(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
     {
     }
 

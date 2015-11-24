@@ -189,6 +189,7 @@ struct EncounterDatas
         DifficultyID    = 0;
         StartTime       = 0;
         CombatDuration  = 0;
+        EndTime         = 0;
         Success         = 0;
         DeadCount       = 0;
     }
@@ -203,6 +204,7 @@ struct EncounterDatas
     uint32      DifficultyID;
     uint32      StartTime;
     uint32      CombatDuration;
+    uint32      EndTime;
     bool        Success;
     uint32      DeadCount;
     RosterDatas RosterDatas;

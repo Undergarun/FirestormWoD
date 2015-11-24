@@ -264,6 +264,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Glyph of Explosive Trap -- 149575 maybe? @todo
             // return DIMINISHING_AOE_KNOCKBACK;
 
+            /// Entrapment
+            if (spellproto->Id == 64803)
+                return DIMINISHING_ROOT;
             // Charge (Tenacity pet) -- 53148, no flags (5526)
             if (spellproto->SpellIconID == 1559 && spellproto->SpellVisual[0] == 39480)
                 return DIMINISHING_ROOT;
@@ -4117,6 +4120,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 152150:///< Death from Above (periodic dummy)
                 spellInfo->Effects[5].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->PreventionType = SpellPreventionMask::Pacify;
                 break;
             case 178236:///< Death from Above (jump dest)
                 spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
@@ -4759,6 +4763,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->DurationEntry = durationIndex;
                 break;
             }
+            case 81744: ///< Horde    (rated battleground faction override)
+            case 81748: ///< Alliance (rated battleground faction override)
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
+                break;
             case 159226: ///< Solar storm (Skyreach)
             case 153759: ///< WindWalls (Skyreach)
             case 153139: ///< Four winds (Skyreach)

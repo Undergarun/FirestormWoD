@@ -702,6 +702,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
                 std::regex  l_WoWLinkFilter("\\|cff([a-z0-9]+)\\|H([a-z]+):([a-zA-Z0-9-]*)(?::([^:\\|]+))?[^\\|]*\\|h(\\[[^\\|]+\\]+)\\|h\\|r");
 
                 /// http://wowprogramming.com/docs/api_types section: hyperlink
+
                 while (std::regex_search(l_Msg, l_WoWLinkInfo, l_WoWLinkFilter))
                 {
                     //std::string l_ColorCode = l_WoWLinkInfo[1];

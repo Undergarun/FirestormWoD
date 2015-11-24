@@ -92,6 +92,9 @@ void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& p_RecvPacket)
     if (SendLearnNewTaxiNode(l_Unit))
         return;
 
+    if (p_RecvPacket.GetOpcode() == CMSG_ENABLE_TAXI_NODE && getDialogStatus(m_Player, l_Unit, DIALOG_STATUS_NONE) != DIALOG_STATUS_NONE)
+        return;
+
     // known taxi node case
     SendTaxiMenu(l_Unit);
 }
@@ -160,7 +163,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature * p_Unit)
         WorldPacket l_TaxiNodeStatusMsg(SMSG_TAXI_NODE_STATUS, 16 + 2 + 1);
 
         l_TaxiNodeStatusMsg.appendPackGUID(p_Unit->GetGUID());
-        l_TaxiNodeStatusMsg.WriteBits(GetPlayer()->m_taxi.IsTaximaskNodeKnown(l_CurrentLocation) ? 1 : 0, 2);
+        l_TaxiNodeStatusMsg.WriteBits(0, 2);
 
         SendPacket(&l_TaxiNodeStatusMsg);
 

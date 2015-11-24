@@ -201,7 +201,7 @@ Position const SummonPositions[7] =
 class DaranavanMoveEvent : public BasicEvent
 {
     public:
-        DaranavanMoveEvent(Creature& darnavan) : _darnavan(darnavan) { }
+        DaranavanMoveEvent(Creature& darnavan) : _darnavan(darnavan), BasicEvent() { }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/)
         {

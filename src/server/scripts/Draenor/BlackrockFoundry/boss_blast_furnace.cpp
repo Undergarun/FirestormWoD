@@ -1821,7 +1821,11 @@ class npc_foundry_furnace_engineer : public CreatureScript
                     return;
 
                 if (p_ID == eMove::MoveRegulator)
+                {
                     me->CastSpell(me, eSpells::Repair, false);
+
+                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                }
             }
 
             void OnSpellFinished(SpellInfo const* p_SpellInfo) override
@@ -1877,6 +1881,8 @@ class npc_foundry_furnace_engineer : public CreatureScript
 
                         if (Unit* l_Regulator = me->FindNearestCreature(eCreatures::HeatRegulator, 100.0f))
                         {
+                            me->SetReactState(ReactStates::REACT_PASSIVE);
+
                             if (l_Regulator->GetDistance(l_LeftPos) < l_Regulator->GetDistance(l_RightPos))
                                 me->GetMotionMaster()->MovePoint(eMove::MoveRegulator, l_LeftPos);
                             else
@@ -2724,6 +2730,53 @@ class spell_foundry_melt_aura : public SpellScriptLoader
         }
 };
 
+/// Repair - 155179
+class spell_foundry_repair : public SpellScriptLoader
+{
+    public:
+        spell_foundry_repair() : SpellScriptLoader("spell_foundry_repair") { }
+
+        class spell_foundry_repair_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_repair_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    int32 l_BasePoint = std::max(1, GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                    if (l_Caster->GetMap()->IsLFR())
+                        l_BasePoint = 1;
+                    else if (l_Caster->GetMap()->IsHeroic())
+                        l_BasePoint = 3;
+                    else if (l_Caster->GetMap()->IsMythic())
+                        l_BasePoint = 5;
+                    else
+                        l_BasePoint = 2;
+
+                    int32 l_MaxValue    = 300;
+                    int32 l_Duration    = 1 * TimeConstants::IN_MILLISECONDS * (l_MaxValue / l_BasePoint);
+
+                    p_Amount = l_BasePoint;
+
+                    p_AurEff->GetBase()->SetMaxDuration(l_Duration);
+                    p_AurEff->GetBase()->SetDuration(l_Duration);
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_foundry_repair_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_repair_AuraScript();
+        }
+};
+
 /// Crucible (Left) - 233757
 /// Crucible (Right) - 233758
 class go_foundry_crucible : public GameObjectScript
@@ -3153,6 +3206,7 @@ void AddSC_boss_blast_furnace()
     new spell_foundry_shields_down();
     new spell_foundry_volatile_fire();
     new spell_foundry_melt_aura();
+    new spell_foundry_repair();
 
     /// GameObject
     new go_foundry_crucible();

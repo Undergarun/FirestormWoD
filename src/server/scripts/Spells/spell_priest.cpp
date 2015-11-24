@@ -1955,11 +1955,14 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                 if (l_Target == nullptr || l_HealingSpell == nullptr || l_CascadeSpell == nullptr)
                     return;
 
+                if (!l_Target->HasAura(eSpells::CascadeMarker, l_Caster->GetGUID()))
+                    l_Caster->CastSpell(l_Target, eSpells::CascadeMarker, true); ///< Marker
+
                 Unit* l_FirstCaster = nullptr;
 
-                if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0, l_Caster->GetGUID()))
                 {
-                    l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
+                    l_Marker->GetBase()->SetDuration(l_CascadeSpell->GetSpellCooldowns()->CategoryRecoveryTime);
                     l_ActualWave = l_Marker->GetAmount();
                     l_FirstCaster = l_Marker->GetCaster();
                 }
@@ -1998,10 +2001,10 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                         return;
 
                     l_FirstCaster->CastSpell(l_Itr, eSpells::CascadeMarker, true); ///< Marker
-                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0, l_FirstCaster->GetGUID()))
+                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0, l_Caster->GetGUID()))
                     {
                         l_Marker->SetAmount(l_ActualWave + 1);
-                        l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
+                        l_Marker->GetBase()->SetDuration(l_CascadeSpell->GetSpellCooldowns()->CategoryRecoveryTime);
                     }
 
                     l_Target->CastSpell(l_Itr, GetSpellInfo()->Id, true);
