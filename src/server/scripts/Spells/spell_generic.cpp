@@ -4630,8 +4630,43 @@ public:
     }
 };
 
+/// Shadowmeld - 58984
+class spell_gen_shadowmeld : public SpellScriptLoader
+{
+    public:
+        spell_gen_shadowmeld() : SpellScriptLoader("spell_gen_shadowmeld") { }
+
+        class spell_gen_shadowmeld_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_shadowmeld_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                /// 6.1 Hotfixes: March 23 - Should drop the character from pvp combat
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->IsInPvPCombat())
+                    l_Player->SetInPvPCombat(false);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_shadowmeld_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_TOTAL_THREAT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_shadowmeld_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_shadowmeld();
     new spell_gen_mark_of_warsong();
     new spell_gen_savage_fortitude();
     new spell_dru_touch_of_the_grave();

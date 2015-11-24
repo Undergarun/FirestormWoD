@@ -2608,6 +2608,9 @@ class Player : public Unit, public GridObject<Player>
 
         float GetPvpHealingBonus() const;
 
+        void UpdateMeleeHitChances();
+        void UpdateRangedHitChances();
+        void UpdateSpellHitChances();
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);
         void UpdateArmorPenetration(int32 amount);
