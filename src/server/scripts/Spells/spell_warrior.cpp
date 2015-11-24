@@ -1765,21 +1765,22 @@ class spell_warr_execute: public SpellScriptLoader
                 if (l_Damage == 0)
                     return;
 
-                int32 l_MaxConsumed = (GetSpellInfo()->Effects[EFFECT_2].BasePoints < 0 ? -GetSpellInfo()->Effects[EFFECT_2].BasePoints : GetSpellInfo()->Effects[EFFECT_2].BasePoints) * l_Caster->GetPowerCoeff(POWER_RAGE);
+                if (l_Target->GetHealthPct() < 20.0f) ///< Sudden Death: however when you use the proc at execute range (<20% HP) it will still consume extra rage and do the extra damage just with no initial cost.
+                {
+                    int32 l_MaxConsumed = (GetSpellInfo()->Effects[EFFECT_2].BasePoints < 0 ? -GetSpellInfo()->Effects[EFFECT_2].BasePoints : GetSpellInfo()->Effects[EFFECT_2].BasePoints) * l_Caster->GetPowerCoeff(POWER_RAGE);
 
-                /// consuming up to 30 additional Rage to deal up to 405% additional damage
-                int32 l_RageConsumed = 0;
-                
-                if (l_Caster->GetPower(POWER_RAGE) > l_MaxConsumed)
-                    l_RageConsumed = l_MaxConsumed;
-                else
-                    l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
+                    /// consuming up to 30 additional Rage to deal up to 405% additional damage
+                    int32 l_RageConsumed = 0;
 
-                l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
+                    if (l_Caster->GetPower(POWER_RAGE) > l_MaxConsumed)
+                        l_RageConsumed = l_MaxConsumed;
+                    else
+                        l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
 
-                /// Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
-                l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
-
+                    l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
+                    /// Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
+                    l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
+                }
                 /// Sudden Death
                 if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
                     l_Aura->Remove();

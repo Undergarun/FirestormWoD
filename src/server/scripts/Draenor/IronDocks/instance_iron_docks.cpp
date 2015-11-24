@@ -20,7 +20,7 @@ static BossScenarios const g_BossScenarios[] =
 class basicevent_iron_stars : public BasicEvent
 {
     public:
-        explicit basicevent_iron_stars(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value) { }
+        explicit basicevent_iron_stars(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent() { }
 
         bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {
@@ -47,7 +47,7 @@ class basicevent_iron_stars : public BasicEvent
 class basicevent_bombardment_bridge : public BasicEvent
 {
     public:
-        explicit basicevent_bombardment_bridge(Unit* unit, int value) : m_Obj(unit), m_Modifier(value) { }
+        explicit basicevent_bombardment_bridge(Unit* unit, int value) : m_Obj(unit), m_Modifier(value), BasicEvent() { }
 
         bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {

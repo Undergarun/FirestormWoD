@@ -14433,6 +14433,9 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
 void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 {
+    if (fabs(rate) <= 0.00000023841858) // From client
+        rate = 1.0f;
+
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
 
@@ -14547,7 +14550,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         }
 
         WorldPacket l_SelfPacket;
-        WorldPacket l_BroadcastPacket;
 
         switch (p_MovementType)
         {
@@ -14557,14 +14559,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_SelfPacket.appendPackGUID(GetGUID());
                 l_SelfPacket << uint32(0);
                 l_SelfPacket << float(GetSpeed(p_MovementType));
-
-                if (GetTypeId() == TYPEID_PLAYER)
-                {
-                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_WALK_SPEED, 200);
-                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
-                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
-                }
-
                 break;
             }
             case MOVE_RUN:
@@ -14573,14 +14567,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_SelfPacket.appendPackGUID(GetGUID());
                 l_SelfPacket << uint32(0);
                 l_SelfPacket << float(GetSpeed(p_MovementType));
-
-                if (GetTypeId() == TYPEID_PLAYER)
-                {
-                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_RUN_SPEED, 200);
-                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
-                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
-                }
-
                 break;
             }
             case MOVE_RUN_BACK:
@@ -14589,14 +14575,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_SelfPacket.appendPackGUID(GetGUID());
                 l_SelfPacket << uint32(0);
                 l_SelfPacket << float(GetSpeed(p_MovementType));
-
-                if (GetTypeId() == TYPEID_PLAYER)
-                {
-                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_RUN_BACK_SPEED, 200);
-                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
-                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
-                }
-
                 break;
             }
             case MOVE_SWIM:
@@ -14605,14 +14583,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_SelfPacket.appendPackGUID(GetGUID());
                 l_SelfPacket << uint32(0);
                 l_SelfPacket << float(GetSpeed(p_MovementType));
-
-                if (GetTypeId() == TYPEID_PLAYER)
-                {
-                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_SWIM_SPEED, 200);
-                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
-                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
-                }
-
                 break;
             }
             case MOVE_SWIM_BACK:
@@ -14621,15 +14591,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_SelfPacket.appendPackGUID(GetGUID());
                 l_SelfPacket << uint32(0);
                 l_SelfPacket << float(GetSpeed(p_MovementType));
-
-                if (GetTypeId() == TYPEID_PLAYER)
-                {
-                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_SWIM_BACK_SPEED, 200);
-                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
-                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
-                }
-
-
                 break;
             }
             case MOVE_TURN_RATE:
@@ -14638,14 +14599,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_SelfPacket.appendPackGUID(GetGUID());
                 l_SelfPacket << uint32(0);
                 l_SelfPacket << float(GetSpeed(p_MovementType));
-
-                if (GetTypeId() == TYPEID_PLAYER)
-                {
-                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_TURN_RATE, 200);
-                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
-                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
-                }
-
                 break;
             }
             case MOVE_FLIGHT:
@@ -14654,14 +14607,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_SelfPacket.appendPackGUID(GetGUID());
                 l_SelfPacket << uint32(0);
                 l_SelfPacket << float(GetSpeed(p_MovementType));
-
-                if (GetTypeId() == TYPEID_PLAYER)
-                {
-                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_FLIGHT_SPEED, 200);
-                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
-                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
-                }
-
                 break;
             }
             case MOVE_FLIGHT_BACK:
@@ -14670,14 +14615,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_SelfPacket.appendPackGUID(GetGUID());
                 l_SelfPacket << uint32(0);
                 l_SelfPacket << float(GetSpeed(p_MovementType));
-
-                if (GetTypeId() == TYPEID_PLAYER)
-                {
-                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED, 200);
-                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
-                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
-                }
-
                 break;
             }
             case MOVE_PITCH_RATE:
@@ -14686,14 +14623,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_SelfPacket.appendPackGUID(GetGUID());
                 l_SelfPacket << uint32(0);
                 l_SelfPacket << float(GetSpeed(p_MovementType));
-
-                if (GetTypeId() == TYPEID_PLAYER)
-                {
-                    l_BroadcastPacket.Initialize(SMSG_MOVE_UPDATE_PITCH_RATE, 200);
-                    ToPlayer()->GetSession()->WriteMovementInfo(l_BroadcastPacket, &m_movementInfo);
-                    l_BroadcastPacket << float(GetSpeed(p_MovementType));
-                }
-
                 break;
             }
             default:
@@ -14701,10 +14630,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
-        {
             ToPlayer()->GetSession()->SendPacket(&l_SelfPacket);
-            SendMessageToSet(&l_BroadcastPacket, false);
-        }
         else
             SendMessageToSet(&l_SelfPacket, true);
     }
@@ -19672,7 +19598,7 @@ class Unit::AINotifyTask : public BasicEvent
 {
     Unit& m_owner;
 public:
-    explicit AINotifyTask(Unit * me) : m_owner(*me) {
+    explicit AINotifyTask(Unit * me) : m_owner(*me), BasicEvent() {
         m_owner.m_VisibilityUpdScheduled = true;
     }
 
@@ -19698,7 +19624,7 @@ class Unit::VisibilityUpdateTask : public BasicEvent
 {
     Unit& m_owner;
 public:
-    explicit VisibilityUpdateTask(Unit * me) : m_owner(*me) {}
+    explicit VisibilityUpdateTask(Unit * me) : m_owner(*me), BasicEvent() {}
 
     virtual bool Execute(uint64 , uint32)
     {
@@ -19759,7 +19685,7 @@ void Unit::SendMoveKnockBack(Player* p_Player, float p_SpeedXY, float p_SpeedZ, 
     uint32 l_MSTime = getMSTime();
 
     m_movementInfo.time             = l_MSTime;
-    m_movementInfo.Alive32          = l_MSTime;
+    m_movementInfo.Alive32          = 0;
     m_movementInfo.HasFallData      = true;
     m_movementInfo.fallTime         = 0;
     m_movementInfo.hasFallDirection = true;

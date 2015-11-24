@@ -165,7 +165,7 @@ Position const SindragosaFlyInPos  = {4419.190f, 2484.360f, 232.5150f, 3.141593f
 class FrostwyrmLandEvent : public BasicEvent
 {
     public:
-        FrostwyrmLandEvent(Creature& owner, Position const& dest) : _owner(owner), _dest(dest) { }
+        FrostwyrmLandEvent(Creature& owner, Position const& dest) : _owner(owner), _dest(dest), BasicEvent() { }
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
         {

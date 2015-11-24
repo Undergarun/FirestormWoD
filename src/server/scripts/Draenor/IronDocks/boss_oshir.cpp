@@ -59,7 +59,7 @@ class basicevent_before_oshir : public BasicEvent
 {
     public:
 
-        explicit basicevent_before_oshir(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value) { }
+        explicit basicevent_before_oshir(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent() { }
 
         bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {
@@ -114,7 +114,7 @@ class basicevent_cosmetic_oshir : public BasicEvent
 {
     public:
 
-        explicit basicevent_cosmetic_oshir(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value) { }
+        explicit basicevent_cosmetic_oshir(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent() { }
 
         bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
         {

@@ -266,6 +266,10 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
     SendPacket(&l_Data);
 
     SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_NO_ERROR);
+
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+    m_Player->SaveInventoryAndGoldToDB(l_Transaction);
+    CharacterDatabase.CommitTransaction(l_Transaction);
 }
 
 void WorldSession::HandleVoidSwapItem(WorldPacket & p_Packet)

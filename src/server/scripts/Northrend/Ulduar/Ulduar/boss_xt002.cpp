@@ -675,7 +675,7 @@ class mob_pummeller : public CreatureScript
 class BoomEvent : public BasicEvent
 {
     public:
-        BoomEvent(Creature* me) : _me(me) {}
+        BoomEvent(Creature* me) : _me(me), BasicEvent() {}
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/)
         {
