@@ -767,6 +767,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_Garrison = nullptr;
     m_GarrisonUpdateTimer.SetInterval(2 * IN_MILLISECONDS);
 
+    m_VoidStorageLoaded = false;
+
     CurrentPlayedMovie = 0;
 
     m_speakTime = 0;
@@ -21136,6 +21138,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     if (IsVoidStorageUnlocked())
         _LoadVoidStorage(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE));
+
+    m_VoidStorageLoaded = true;
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
