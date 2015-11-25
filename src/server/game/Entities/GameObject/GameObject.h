@@ -1156,6 +1156,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void SendGameObjectActivateAnimKit(uint32 p_AnimKitID, bool p_Maintain = true, Player* p_Target = nullptr);
 
+        /// Event handler
+        EventProcessor m_Events;
+
     protected:
         bool AIM_Initialize();
         void UpdateModel();                                 // updates model in case displayId were changed

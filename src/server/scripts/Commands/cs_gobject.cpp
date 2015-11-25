@@ -41,7 +41,8 @@ class gobject_commandscript: public CommandScript
                 { "state",          SEC_GAMEMASTER,     false, &HandleGameObjectSetStateCommand,  "", NULL },
                 { "flags",          SEC_ADMINISTRATOR,  false, &HandleGameObjectSetFlagsCommand,  "", NULL },
                 { "field",          SEC_ADMINISTRATOR,  false, &HandleGameObjectSetFieldCommand,  "", NULL },
-                { "animkit",        SEC_ADMINISTRATOR,  false, &HandleGameObjectSetAnimKitCOmmand,"", NULL },
+                { "animkit",        SEC_ADMINISTRATOR,  false, &HandleGameObjectSetAnimKitCommand,"", NULL },
+                { "activateanim",   SEC_ADMINISTRATOR,  false, &HandleGameObjectActivateAnim,     "", NULL },
                 { NULL,             0,                  false, NULL,                              "", NULL }
             };
             static ChatCommand gobjectGetCommandTable[] =
@@ -768,7 +769,7 @@ class gobject_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGameObjectSetAnimKitCOmmand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGameObjectSetAnimKitCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             uint32 l_GuidLow = GetGuidLowFromArgsOrLastTargetedGo(p_Handler, p_Args);
             if (!l_GuidLow)
@@ -794,6 +795,41 @@ class gobject_commandscript: public CommandScript
 
             l_GameObject->SetAIAnimKitId(l_Val);
             p_Handler->PSendSysMessage("Set AnimkitID %u for GameObject %u.", l_Val, l_GuidLow);
+            return true;
+        }
+
+        static bool HandleGameObjectActivateAnim(ChatHandler* p_Handler, char const* p_Args)
+        {
+            uint32 l_GuidLow = GetGuidLowFromArgsOrLastTargetedGo(p_Handler, p_Args);
+            if (!l_GuidLow)
+                return false;
+
+            GameObject* l_GameObject = nullptr;
+
+            if (GameObjectData const* l_GameObjectData = sObjectMgr->GetGOData(l_GuidLow))
+                l_GameObject = p_Handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(l_GuidLow, l_GameObjectData->id);
+
+            if (!l_GameObject)
+            {
+                p_Handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, l_GuidLow);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_Value = strtok(nullptr, " ");
+            if (!l_Value)
+                return false;
+
+            uint32 l_Val = atoi(l_Value);
+
+            char* l_MaintainChar = strtok(nullptr, " ");
+            if (!l_MaintainChar)
+                return false;
+
+            bool l_Maintain = atoi(l_MaintainChar);
+
+            l_GameObject->SendGameObjectActivateAnimKit(l_Val, l_Maintain);
+            p_Handler->PSendSysMessage("Activate anim kit %u, maintained %u for GameObject %u.", l_Val, l_Maintain, l_GuidLow);
             return true;
         }
 

@@ -115,6 +115,8 @@ void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 
     if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
         RemoveFromOwner();
+
+    m_Events.KillAllEvents(false);
 }
 
 void GameObject::RemoveFromOwner()
@@ -387,6 +389,8 @@ void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
 
 void GameObject::Update(uint32 diff)
 {
+    m_Events.Update(diff);
+
     if (!AI())
     {
         if (!AIM_Initialize())

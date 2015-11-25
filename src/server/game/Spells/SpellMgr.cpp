@@ -3467,6 +3467,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155200: ///< Burn (Slag Elemental)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            case 156220: ///< Tactical Retreat
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 168178: ///< Salvage (garrison loot spell)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
