@@ -1941,7 +1941,7 @@ class spell_highmaul_raving_assault : public SpellScriptLoader
         }
 };
 
-/// Crystalline Barrage - 162370
+/// Crystalline Barrage - 162371
 class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
 {
     public:
