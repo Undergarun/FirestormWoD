@@ -288,6 +288,9 @@ class spell_sha_high_tide : public SpellScriptLoader
                     JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_FirstTarget, l_Caster, GetSpellInfo()->RangeEntry->maxRangeFriend);
                     JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_FirstTarget, l_TempList, l_Check);
                     l_Caster->VisitNearbyObject(GetSpellInfo()->RangeEntry->maxRangeFriend, l_Searcher);
+                    
+                    if (l_TempList.empty())
+                        return;
 
                     l_TempList.remove_if([this, l_TargetMap, l_Caster](Unit* p_Unit) -> bool
                     {
