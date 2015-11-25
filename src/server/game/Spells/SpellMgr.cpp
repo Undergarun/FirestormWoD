@@ -6775,6 +6775,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcCharges = 1;
                 spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 0x10000000;
                 break;
+            case 89792: ///< Flee
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetB = Targets::TARGET_UNIT_SUMMONER;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetB = Targets::TARGET_UNIT_SUMMONER;
+                break;
             default:
                 break;
         }
