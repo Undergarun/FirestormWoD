@@ -72,7 +72,7 @@ namespace MS
 
                     /// Create automatic remove events.
                     BGQueueRemoveEvent* l_RemoveEvent = new BGQueueRemoveEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, l_BgQueueTypeId, p_GroupInfo->m_RemoveInviteTime);
-                    l_Player->m_Events.AddEvent(l_RemoveEvent, m_Events.CalculateTime(INVITE_ACCEPT_WAIT_TIME));
+                    l_Player->m_Events.AddEvent(l_RemoveEvent, l_Player->m_Events.CalculateTime(INVITE_ACCEPT_WAIT_TIME));
 
                     uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(p_GroupInfo->m_BgTypeId == BattlegroundType::RandomBattleground ? BattlegroundType::RandomBattleground : p_GroupInfo->m_BgTypeId);
 

@@ -176,7 +176,7 @@ struct ManaVoidSelector : public std::unary_function<Unit*, bool>
 class DelayedCastEvent : public BasicEvent
 {
     public:
-        DelayedCastEvent(Creature* trigger, uint32 spellId, uint64 originalCaster, uint32 despawnTime) : _trigger(trigger), _originalCaster(originalCaster), _spellId(spellId), _despawnTime(despawnTime)
+        DelayedCastEvent(Creature* trigger, uint32 spellId, uint64 originalCaster, uint32 despawnTime) : _trigger(trigger), _originalCaster(originalCaster), _spellId(spellId), _despawnTime(despawnTime), BasicEvent()
         {
         }
 
@@ -198,7 +198,7 @@ class DelayedCastEvent : public BasicEvent
 class AuraRemoveEvent : public BasicEvent
 {
     public:
-        AuraRemoveEvent(Creature* trigger, uint32 spellId) : _trigger(trigger), _spellId(spellId)
+        AuraRemoveEvent(Creature* trigger, uint32 spellId) : _trigger(trigger), _spellId(spellId), BasicEvent()
         {
         }
 
@@ -216,7 +216,7 @@ class AuraRemoveEvent : public BasicEvent
 class ValithriaDespawner : public BasicEvent
 {
     public:
-        explicit ValithriaDespawner(Creature* creature) : _creature(creature)
+        explicit ValithriaDespawner(Creature* creature) : _creature(creature), BasicEvent()
         {
         }
 

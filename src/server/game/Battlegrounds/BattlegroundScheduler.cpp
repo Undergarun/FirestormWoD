@@ -155,15 +155,15 @@ namespace MS
             /// We specify the wishes of the group.
             switch (p_BgTypeId)
             {
-            case BattlegroundType::RandomBattleground:
-                l_GroupQueue->m_WantedBGs = BattlegroundMasks::AllBattlegrounds;
-                break;
-            case BattlegroundType::AllArenas:
-                l_GroupQueue->m_WantedBGs = BattlegroundMasks::AllArenas;
-                break;
-            default:
-                l_GroupQueue->m_WantedBGs = 1LL << p_BgTypeId;
-                break;
+                case BattlegroundType::RandomBattleground:
+                    l_GroupQueue->m_WantedBGs = BattlegroundMasks::AllBattlegrounds;
+                    break;
+                case BattlegroundType::AllArenas:
+                    l_GroupQueue->m_WantedBGs = BattlegroundMasks::AllArenas;
+                    break;
+                default:
+                    l_GroupQueue->m_WantedBGs = 1LL << p_BgTypeId;
+                    break;
             }
 
             /// Handling black wishes.
@@ -371,6 +371,11 @@ namespace MS
                     for (std::pair<uint32, Battleground*> const& l_Pair : l_Battlegrounds)
                     {
                         Battleground* l_Bg = l_Pair.second;
+
+                        /// Players can't join already started rated battleground / arena match
+                        if (l_Bg->IsRatedBG() || l_Bg->isArena())
+                            continue;
+
                         /// We check if the number of invited/playing players and the size of this group doesn't exceed the max allowed.
                         if (l_Bg->CanGroupEnter(l_Group))
                         {
@@ -442,15 +447,15 @@ namespace MS
                             /// We get the maximum of players according to the arena type.
                             switch (BattlegroundType::GetArenaType(l_BgType))
                             {
-                            case ArenaType::Arena2v2:
-                                l_MaxPlayerPerTeam = 2;
-                                break;
-                            case ArenaType::Arena3v3:
-                                l_MaxPlayerPerTeam = 3;
-                                break;
-                            case ArenaType::Arena5v5:
-                                l_MaxPlayerPerTeam = 5;
-                                break;
+                                case ArenaType::Arena2v2:
+                                    l_MaxPlayerPerTeam = 2;
+                                    break;
+                                case ArenaType::Arena3v3:
+                                    l_MaxPlayerPerTeam = 3;
+                                    break;
+                                case ArenaType::Arena5v5:
+                                    l_MaxPlayerPerTeam = 5;
+                                    break;
                             }
 
                             /// Arena type couldn't be deduced.
@@ -492,24 +497,24 @@ namespace MS
 
                             switch (l_BgType)
                             {
-                            case BattlegroundType::RatedBg10v10:
-                                l_NumberOfPlayersRequired = 10;
-                                break;
-                            case BattlegroundType::RatedBg15v15:
-                                l_NumberOfPlayersRequired = 15;
-                                break;
-                            case BattlegroundType::RatedBg25v25:
-                                l_NumberOfPlayersRequired = 25;
-                                break;
-                            case BattlegroundType::Arena2v2:
-                                l_NumberOfPlayersRequired = 2;
-                                break;
-                            case BattlegroundType::Arena3v3:
-                                l_NumberOfPlayersRequired = 3;
-                                break;
-                            case BattlegroundType::Arena5v5:
-                                l_NumberOfPlayersRequired = 5;
-                                break;
+                                case BattlegroundType::RatedBg10v10:
+                                    l_NumberOfPlayersRequired = 10;
+                                    break;
+                                case BattlegroundType::RatedBg15v15:
+                                    l_NumberOfPlayersRequired = 15;
+                                    break;
+                                case BattlegroundType::RatedBg25v25:
+                                    l_NumberOfPlayersRequired = 25;
+                                    break;
+                                case BattlegroundType::Arena2v2:
+                                    l_NumberOfPlayersRequired = 2;
+                                    break;
+                                case BattlegroundType::Arena3v3:
+                                    l_NumberOfPlayersRequired = 3;
+                                    break;
+                                case BattlegroundType::Arena5v5:
+                                    l_NumberOfPlayersRequired = 5;
+                                    break;
                             }
 
                             /// Battleground is not known as a rated one.
@@ -743,9 +748,15 @@ namespace MS
                         /// We iterate over pairs of groups and check if they match according to the MatchMaking Rating.
                         for (GroupQueueInfo* l_Group : l_Groups)
                         {
+                            if (!BattlegroundType::IsArena(l_DecidedBg))
+                                sLog->outAshran("BattlegroundScheduler::FindMatches: rated battleground");
+
                             /// We check if their MMR are matching.
                             if (l_Previous && AreMatching(l_Previous, l_Group))
                             {
+                                if (!BattlegroundType::IsArena(l_DecidedBg))
+                                    sLog->outAshran("BattlegroundScheduler::FindMatches: rated battleground MMR check OK");
+
                                 /// Players can't decide on which kind of battleground there are playing, so it's a basic random.
                                 BattlegroundType::Type l_RatedBg = BattlegroundType::None;
                                 if (BattlegroundType::IsArena(l_DecidedBg))
@@ -757,6 +768,9 @@ namespace MS
                                 Battleground* l_Bg = sBattlegroundMgr->CreateNewBattleground(l_RatedBg, Brackets::RetreiveFromId(l_BracketId), BattlegroundType::GetArenaType(l_DecidedBg), false);
                                 if (l_Bg == nullptr)
                                     continue;
+
+                                if (!BattlegroundType::IsArena(l_DecidedBg))
+                                    sLog->outAshran("BattlegroundScheduler::FindMatches: rated battleground created");
 
                                 /// Add groups to the battleground and remove them from waiting groups list.
                                 RemoveGroupFromQueues(l_Group);

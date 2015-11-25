@@ -1409,11 +1409,13 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     /// Reset datas before each attempt
     m_EncounterDatas = EncounterDatas();
 
+    m_EncounterDatas.Expansion = instance->GetEntry()->ExpansionID;
+
     /// Register encounter datas for further logs
-    if (instance->IsRaid())
+    if (instance->IsRaid() && m_EncounterDatas.Expansion == Expansion::EXPANSION_WARLORDS_OF_DRAENOR)
     {
-        m_EncounterDatas.Expansion = instance->GetEntry()->ExpansionID;
-        m_EncounterDatas.RealmID   = g_RealmID;
+        m_EncounterDatas.RealmID        = g_RealmID;
+        m_EncounterDatas.EncounterID    = p_EncounterID;
 
         Map::PlayerList const& l_PlayerList = instance->GetPlayers();
         for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
@@ -1426,7 +1428,7 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
                         continue;
 
                     m_EncounterDatas.GuildID        = l_Player->GetGuildId();
-                    m_EncounterDatas.GuildFaction   = l_Player->getFaction();
+                    m_EncounterDatas.GuildFaction   = l_Player->GetTeamId();
                     m_EncounterDatas.GuildName      = l_Player->GetGuildName();
                     break;
                 }
@@ -1453,9 +1455,10 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     instance->SendToPlayers(&l_Data);
 
     m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;
+    m_EncounterDatas.EndTime        = time(nullptr);
     m_EncounterDatas.Success        = p_Success;
 
-    if (m_EncounterDatas.GuildID)
+    if (m_EncounterDatas.GuildID || instance->IsLFR())
     {
         Map::PlayerList const& l_PlayerList = instance->GetPlayers();
         for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
@@ -1627,6 +1630,7 @@ class EncounterScript_Global : public EncounterScript
             l_Node["DifficultyID"]     = p_EncounterDatas->DifficultyID;
             l_Node["StartTime"]        = p_EncounterDatas->StartTime;
             l_Node["CombatDuration"]   = p_EncounterDatas->CombatDuration;
+            l_Node["EndTime"]          = p_EncounterDatas->EndTime;
             l_Node["Success"]          = p_EncounterDatas->Success;
 
             for (std::size_t l_I = 0; l_I < p_EncounterDatas->RosterDatas.size(); ++l_I)

@@ -257,6 +257,14 @@ class spell_sha_high_tide : public SpellScriptLoader
                 SpellRiptide    = 61295
             };
 
+            uint64 m_MainTargetGUID = 0;
+
+            void HandleBeforeCast()
+            {
+                if (Unit* l_MainTarget = GetExplTargetUnit())
+                    m_MainTargetGUID = l_MainTarget->GetGUID();
+            }
+
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
                 if (Unit* l_Caster = GetCaster())
@@ -268,7 +276,11 @@ class spell_sha_high_tide : public SpellScriptLoader
                     for (WorldObject* l_Object : p_Targets)
                         l_TargetMap.insert(std::make_pair(l_Object->GetGUID(), l_Object));
 
-                    WorldObject* l_FirstTarget = *p_Targets.begin();
+                    if (!m_MainTargetGUID)
+                        return;
+
+                    Unit* l_FirstTarget = ObjectAccessor::FindUnit(m_MainTargetGUID);
+
                     if (l_FirstTarget == nullptr)
                         return;
 
@@ -313,6 +325,7 @@ class spell_sha_high_tide : public SpellScriptLoader
 
             void Register()
             {
+                BeforeCast += SpellCastFn(spell_sha_high_tide_SpellScript::HandleBeforeCast);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_high_tide_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
             }
         };
