@@ -128,3 +128,19 @@
 	UPDATE creature_template SET npcflag = 2 WHERE entry = 91589;
 	REPLACE INTO creature_queststarter VALUE (91589, 38356);
 	REPLACE INTO creature_questender   VALUE (91589, 38356);
+
+#34823/Quest - Ogron Live
+
+	UPDATE quest_template SET ExclusiveGroup = 0, prevquestid = 0, nextquestid = 0, NextQuestIdChain = 0 WHERE id = 34823;
+
+#35176/Quest - Keeping it Together
+
+	insert into `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) values('84455','0','0','0','64','0','100','0','0','0','0','0','33','84455','0','0','0','0','0','0','0','0','0','0','0','0','0','Assistant Brightstone kill credit');
+
+#33787/Quest - Fiona s solution
+
+	REPLACE INTO creature_loot_template VALUE (82427, 108396, -100, 1, 1, 1, 1, '');
+
+#33263/Quest - Gloomshade Grove -- TEMPFIX, quest to script
+
+	UPDATE quest_template SET method = 0, flags = flags | 0x00010000 WHERE id = 33263; -- autocomp
