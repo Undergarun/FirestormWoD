@@ -236,7 +236,9 @@ enum eHighmaulAchievements
     AFungusAmongUs      = 8975,
     BrothersInArms      = 8958,
     PairAnnihilation    = 8976,
-    LineageOfPower      = 8977
+    LineageOfPower      = 8977,
+    AheadOfTheCurve     = 9441,
+    CuttingEdge         = 9442
 };
 
 #endif
