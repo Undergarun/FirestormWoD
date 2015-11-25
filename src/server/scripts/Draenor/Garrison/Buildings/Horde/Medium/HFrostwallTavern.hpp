@@ -33,6 +33,8 @@ namespace MS { namespace Garrison
             /// Constructor
             npc_MurgAI(Creature* p_Creature);
 
+            virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+
             virtual void OnDataReset() override;
     };
 
