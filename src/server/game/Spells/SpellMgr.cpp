@@ -3640,10 +3640,61 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx6 = 0;
                 spellInfo->AttributesEx9 = 0;
                 break;
-            case 167977:
-            case 169495:
-                spellInfo->AuraInterruptFlags = 0;
+                /// Iron Docks 
+            case 178154:  ///< Acid Spit
+            case 178155:  ///< Acid Spit Trigger Missile
+            case 163705:  ///< Abrupt Restoration
+            case 163689:  ///< Sanguine Sphere
+            case 176287:  ///< Chain Drag
+            case 172885:  ///< Charging Slash
+            case 168348:  ///< Rapid Fire
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 168537:  ///< Cannon Barrage:
+                spellInfo->Effects[0].Amplitude = 1000; // was 400
+                break;
+            case 164632:  ///< Burning Arrow
+            case 164648:  ///< Barbed Arrow Dot
+            case 173324:  ///< Jagged Caltrops Dot
+            case 178156:  ///< Acid Splash
+            case 172963:  ///  Gatecrasher
+            case 173517:  /// Lava Blast
+            case 164734:  /// Shredding Swipes
+            case 173349:  /// Trampled
+            case 173489:  /// Lava Barrage
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 164504:  /// Initimidated
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 162424:  ///< Feeding Frenzy
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(563); // 20500ms
+                break;
+            case 163379:  ///< Big Boom
+                spellInfo->InterruptFlags = 0;
+                break;
+            case 165152:  ///< Lava Sweep
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[0].Amplitude = 1000;
+                break;
+            case 172636:  ///< Grease Vial
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 166923:  ///< Barbed Arrow Barrage
+                spellInfo->Effects[0].BasePoints = 164370;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 163740: ///< Tainted Blood
+                // case 163668: ///< Flaming Slash
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_NEARBY_ENEMY;
+                break;
+            case 169132: ///< Back Draft
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
                 break;
                 /// Auchindon
             case 156862: ///< Drain Soul Cosmetic

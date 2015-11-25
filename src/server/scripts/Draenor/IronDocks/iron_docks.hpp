@@ -63,6 +63,14 @@ Position const g_PracticingWarriors2[2] =
 
 Position const g_OutTeleportPos = { 8852.49f, 1364.35f, 97.0f, 1.581f };
 
+Position const g_TrainSpawnPos  = { 6617.87f, -1200.69f, 9.801f, 3.089053f };
+
+Position const g_TrainMovePos[2]  = 
+{ 
+    { 6503.10f, -1200.09f, 9.802f, 3.282539f },
+    { 6407.73f, -1200.30f, 9.800f, 3.126752f }  
+};
+
 #define FriendlyFaction 35
 #define HostileFaction 16
 #define InvisibleDisplay 11686
@@ -99,61 +107,75 @@ enum eIronDocksDatas
     DataKoramar,
     /// Datas
     DataSecondEvent,
-    DataThirdEvent
+    DataThirdEvent,
+    /// Encounter Gates
+    DataEncounterGateOshir,
 };
 
 enum eIronDocksCreatures
 {
     /// Bosses and Etc
-    BossFleshrenderNokgar           = 81305,  ///< http://www.wowhead.com/npc=81305/fleshrender-nokgar
-    BossDreadfang                   = 81297,  ///< http://www.wowhead.com/npc=81297/dreadfang
-    BossOshir                       = 79852,  ///< http://www.wowhead.com/npc=79852/oshir
-    BossSkulloc                     = 83612,  ///< http://www.wowhead.com/npc=83612/skulloc
-    BossTurret                      = 84215,
-    NpcZoggosh                      = 83616,  ///< http://www.wowhead.com/npc=83616/zoggosh
-    NpcKoramar                      = 83613,  ///< http://www.wowhead.com/npc=83613/koramar
-    NpcMakogg                       = 80805,  ///< http://www.wowhead.com/npc=80805/makogg-emberblade
-    NpcNox                          = 80808,  ///< http://www.wowhead.com/npc=80808/neesa-nox
-    NpcDuguru                       = 80816,
-
+    CreatureFleshrenderNokgar            = 81305,  ///< http://www.wowhead.com/npc=81305/fleshrender-nokgar
+    CreatureDreadfang                    = 81297,  ///< http://www.wowhead.com/npc=81297/dreadfang
+    CreatureOshir                         = 79852,  ///< http://www.wowhead.com/npc=79852/oshir
+    CreatureSkulloc                      = 83612,  ///< http://www.wowhead.com/npc=83612/skulloc
+    CreatureTurret                       = 84215,
+    CreatureZoggosh                      = 83616,  ///< http://www.wowhead.com/npc=83616/zoggosh
+    CreatureKoramar                      = 83613,  ///< http://www.wowhead.com/npc=83613/koramar
+    CreatureMakogg                       = 80805,  ///< http://www.wowhead.com/npc=80805/makogg-emberblade
+    CreatureNox                          = 80808,  ///< http://www.wowhead.com/npc=80808/neesa-nox
+    CreatureDuguru                       = 80816,
     /// Boss Adds
-    NpcGromkarFlameslinger          = 81279,  ///< http://www.wowhead.com/npc=81279/gromkar-flameslinger
+    CreatureGromkarFlameslinger          = 81279,  ///< http://www.wowhead.com/npc=81279/gromkar-flameslinger
     /// Mini bosses
-    NpcChampionDruna                = 81603,  ///< http://www.wowhead.com/npc=81603/champion-druna
-    NpcSiegemasterOlugar            = 83026,  ///< http://www.wowhead.com/npc=83026/siegemaster-olugar
-    NpcPitwardenGwarnok             = 84520,  ///< http://www.wowhead.com/npc=84520/pitwarden-gwarnok
+    CreatureChampionDruna                = 81603,  ///< http://www.wowhead.com/npc=81603/champion-druna
+    CreatureSiegemasterOlugar            = 83026,  ///< http://www.wowhead.com/npc=83026/siegemaster-olugar
+    CreaturePitwardenGwarnok             = 84520,  ///< http://www.wowhead.com/npc=84520/pitwarden-gwarnok
     /// Trash
-    NpcGromkarFootSoldier           = 85997,  ///< http://www.wowhead.com/npc=85997/gromkar-footsoldier
-    NpcGromkarDeckhand              = 83762,  ///< http://www.wowhead.com/npc=83762/gromkar-deckhand
+    CreatureGromkarFootSoldier           = 85997,  ///< http://www.wowhead.com/npc=85997/gromkar-footsoldier
+    CreatureGromkarDeckhand              = 83762,  ///< http://www.wowhead.com/npc=83762/gromkar-deckhand
     /// Triggers
-    TriggerArcheryTarget            = 79423,
-    TriggerCannonBarrageTarget      = 99657,
-    TriggerCannonBarrageTarget2     = 100981,
-    TriggerCannonBarrageTarget3     = 100982,
-    TriggerCannonBarrageInBossFight = 354315,
+    CreatureArcheryTarget                = 79423,
+    CreatureCannonBarrageTarget          = 99657,
+    CreatureCannonBarrageTarget2         = 100981,
+    CreatureCannonBarrageTarget3         = 100982,
+    CreatureCannonBarrageInBossFight     = 354315,
     /// Custom
-    NpcGromkarFootSoldier2          = 859977, ///< http://www.wowhead.com/npc=85997/gromkar-footsoldier
+    CreatureGromkarFootSoldier2          = 859977, ///< http://www.wowhead.com/npc=85997/gromkar-footsoldier
     /// MISV
-    NpcIronStar                     = 81247
+    CreatureIronStar                     = 81247,
+    CreatureTrain                        = 83673
 };
 
 enum eIronDocksAchievements
 {
-    MilitaristicExpansionist    = 9083,
-    HeroicIronDocks             = 9047,
-    NormalIronDocks             = 9038
-};
-
-enum eIronDocksTalks
-{
-    TalkZoggosh03_2 = 12, ///< Sir.. they're messing with the Iron Stars (44050)
-    TalkKoramar010  = 25, ///< Hah! will you look on that, maybe I understimated them.. Zoggosh, prepare Skuloc let them have a taste of what he has to offer. (46901)
-    TalkZoggosh04   = 13  ///< Igniting the cannon sir! (44051)
+    AchievementMilitaristicExpansionist    = 9083,
+    AchievementHeroicIronDocks             = 9047,
+    AchievementNormalIronDocks             = 9038
 };
 
 enum eIronDocksSpell
 {
     SpellCannonBarrageAura = 168537
+};
+
+enum eIronDocksActions
+{
+    ActionActivateGrimrailEvent = 1,
+    ActionActivateBridgeBombardmement,
+    ActionUnloadPassengerShootIronStar,
+    ActionAcitvateIronStar,
+    ActionLeaveTurret,
+    ActionBombardBridge,
+    ActionFireArrows,
+    ActionBurningArrowSingle,
+    ActionBarbedArrowSingle
+};
+
+enum eIronDocksMovementInformed
+{
+    MovementInformWanlderingThundlerOshirThirdKill = 1,
+    MovementInformedWalderingThundlerOshirKills
 };
 
 enum eIronDocksScenario
@@ -175,7 +197,15 @@ enum eIronDocksScenario
 
 enum eIronDocksGameObject
 {
-    ChallengeModeDoor = 211989
+    GameObjectChallengeModeDoor = 211989,
+    GameObjectIronHordeCageDoor01 = 239229,
+    GameObjectIronHordeCageDoor02 = 239218,
+    GameObjectIronHordeCageDoor03 = 239221,
+    GameObjectIronHordeCageDoor04 = 239219,
+    GameObjectIronHordeCageDoor05 = 239230,
+    GameObjectIronHordeCageDoor06 = 239216,
+    GameObjectIronHordeCageDoor07 = 239227,
+    GameObjectEncounterGateOshir  = 233817
 };
 
 #endif ///< IRON_DOCKS_HPP
