@@ -393,37 +393,6 @@ namespace MS { namespace Garrison
         };
     }
 
-    namespace TavernDatas
-    {
-        static const std::vector<uint32> g_QuestGiverEntries
-        {
-            87991,
-            87992,
-            87994,
-            87995,
-            87996,
-            87997,
-            87998,
-            87999,
-            88000,
-            88001,
-            88002,
-            88003,
-            88004,
-            88005,
-            88006,
-            88007,
-            88024,
-            88025,
-            88026,
-            88027,
-            88013,
-            88023,
-            88017,
-            88022
-        };
-    }
-
     namespace HordePeonData 
     {
         enum

@@ -2352,7 +2352,6 @@ void World::Update(uint32 diff)
     if (m_gameTime > m_NextMonthlyQuestReset)
         ResetMonthlyQuests();
 
-
     if (m_gameTime > m_NextRandomBGReset)
         ResetRandomBG();
 
@@ -3403,8 +3402,16 @@ void World::ResetGarrisonDatas()
 {
     for (SessionMap::const_iterator l_Itr = m_sessions.begin(); l_Itr != m_sessions.end(); ++l_Itr)
     {
-        if (l_Itr->second->GetPlayer())
-            l_Itr->second->GetPlayer()->ResetGarrisonDatas();
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA);
+        CharacterDatabase.Execute(stmt);
+
+        Player* l_Player = l_Itr->second->GetPlayer();
+
+        if (l_Player)
+        {
+            l_Player->CleanGarrisonTavernData();
+            l_Player->ResetGarrisonDatas();
+        }
     }
 }
 

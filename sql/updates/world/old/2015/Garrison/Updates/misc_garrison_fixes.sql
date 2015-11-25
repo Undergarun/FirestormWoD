@@ -31,7 +31,7 @@
 
 	UPDATE creature_template SET npcflag = 131 WHERE entry = 91025;
 	DELETE FROM creature WHERE id = 91025;
-	INSERT INTO INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES('91025','1331','7078','7211','2','1','0','0','1937.66','330.089','91.764','6.21431','300','0','0','40','0','0','0','0','0','2048','0','0','0','0',NULL);
+	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES('91025','1331','7078','7211','2','1','0','0','1937.66','330.089','91.764','6.21431','300','0','0','40','0','0','0','0','0','2048','0','0','0','0',NULL);
 	REPLACE INTO npc_vendor (entry, item, extendedCost) VALUES
 	(91025, 120945, 5815), -- 5 somptuous fur
 	(91025, 122549, 5829), -- 60 somptuous fur
