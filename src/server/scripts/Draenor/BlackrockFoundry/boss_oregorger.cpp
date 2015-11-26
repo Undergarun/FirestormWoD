@@ -229,7 +229,6 @@ class boss_oregorger : public CreatureScript
             uint8 m_MoveIndex;
 
             bool m_VolatileOre;
-            uint64 m_VolatileOreGuid;
 
             uint8 m_Phase;
 
@@ -297,11 +296,13 @@ class boss_oregorger : public CreatureScript
 
                 m_MoveIndex = 0;
 
-                if (GameObject* l_Ore = GameObject::GetGameObject(*me, m_VolatileOreGuid))
-                    l_Ore->Delete();
+                if (GameObject* l_Ore = GameObject::GetGameObject(*me, m_Instance->GetData64(eFoundryGameObjects::VolatileBlackrockOre)))
+                {
+                    l_Ore->Respawn();
+                    l_Ore->SetFlag(EGameObjectFields::GAMEOBJECT_FIELD_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
+                }
 
                 m_VolatileOre = false;
-                m_VolatileOreGuid = 0;
 
                 m_Phase = ePhases::PhaseFight;
 
@@ -418,12 +419,12 @@ class boss_oregorger : public CreatureScript
 
                     m_Phase = ePhases::PhaseRolling;
 
-                    if (!m_VolatileOre)
+                    if (!m_VolatileOre && m_Instance != nullptr)
                     {
                         m_VolatileOre = true;
 
-                        if (GameObject* l_Ore = me->SummonGameObject(eGameObject::VolatileBlackrockOre, g_VolatileOreSpawn, 0.0f, 0.0f, 0.0f, 0.0f, 0))
-                            m_VolatileOreGuid = l_Ore->GetGUID();
+                        if (GameObject* l_Ore = GameObject::GetGameObject(*me, m_Instance->GetData64(eFoundryGameObjects::VolatileBlackrockOre)))
+                            l_Ore->RemoveFlag(EGameObjectFields::GAMEOBJECT_FIELD_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
                     }
 
                     m_PathCount = 0;
@@ -764,9 +765,6 @@ class boss_oregorger : public CreatureScript
                         if (AuraPtr l_Aura = me->GetAura(eSpells::BlackrockSpines))
                             l_Aura->DropStack();
 
-                        if (me->HasAura(eSpells::BlackrockSpines))
-                            m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 50);
-
                         break;
                     }
                     case eSpells::AcidTorrentSearcher:
@@ -928,7 +926,7 @@ class boss_oregorger : public CreatureScript
                     }
                     case eCosmeticEvents::EventCheckLastCollision:
                     {
-                        if (time(nullptr) >= (m_LastCollisionTime + 15 * TimeConstants::IN_MILLISECONDS))
+                        if (time(nullptr) >= (m_LastCollisionTime + 10))
                         {
                             G3D::Vector2 l_Point = GetNearestIntersectionPoint(me, 0.0f).first;
 
@@ -1015,7 +1013,11 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventBlackrockBarrage:
                     {
+                        if (!me->HasAura(eSpells::BlackrockSpines))
+                            break;
+
                         me->CastSpell(me, eSpells::BlackrockBarrageAoE, false);
+                        m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 2200);
                         break;
                     }
                     default:
@@ -1757,19 +1759,44 @@ class go_foundry_volatile_blackrock_ore : public GameObjectScript
     public:
         go_foundry_volatile_blackrock_ore() : GameObjectScript("go_foundry_volatile_blackrock_ore") { }
 
+        enum eSpell
+        {
+            HarvestVolatileBlackrock = 163453
+        };
+
         struct go_foundry_volatile_blackrock_oreAI : public GameObjectAI
         {
-            go_foundry_volatile_blackrock_oreAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject), m_Deleted(false) { }
+            go_foundry_volatile_blackrock_oreAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject), m_Activated(false), m_Deleted(false) { }
 
+            bool m_Activated;
             bool m_Deleted;
+
+            bool GossipHello(Player* p_Player) override
+            {
+                if (!m_Activated)
+                {
+                    m_Activated = true;
+                    p_Player->CastSpell(go, eSpell::HarvestVolatileBlackrock, false);
+                }
+
+                return false;
+            }
 
             void OnStateChanged(uint32 p_State) override
             {
-                if (p_State == GOState::GO_STATE_READY && !m_Deleted)
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
-                    m_Deleted = true;
-                    go->Delete();
-                }
+                    if (m_Activated && !m_Deleted)
+                    {
+                        m_Deleted = true;
+                        go->Delete();
+                    }
+                });
+            }
+
+            void UpdateAI(uint32 p_Diff) override
+            {
+                UpdateOperations(p_Diff);
             }
         };
 

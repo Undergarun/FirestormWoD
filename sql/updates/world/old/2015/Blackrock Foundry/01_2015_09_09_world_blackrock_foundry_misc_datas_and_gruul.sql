@@ -42,6 +42,8 @@ DELETE FROM conditions WHERE SourceEntry IN (175088);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
 (13, 1, 175088, 31, 0, 3, 87595);
 
+UPDATE creature_template SET ScriptName = 'npc_foundry_spinning_blade' WHERE entry = 88008;
+
 SET @REF_GRUUL = 76877;
 
 DELETE FROM creature_text WHERE entry IN (87771, @REF_GRUUL);

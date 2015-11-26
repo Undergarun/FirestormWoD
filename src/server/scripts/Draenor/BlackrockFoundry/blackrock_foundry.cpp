@@ -836,12 +836,15 @@ class npc_foundry_gronnling_laborer : public CreatureScript
         {
             Enrage          = 18501,
             GronnlingSmash  = 169402,
-            EarthAttack     = 165318
+            EarthAttack     = 165318,
+            HeadSmashDmg    = 170604,
+            HeadSmashDust   = 165427
         };
 
-        enum eEvent
+        enum eEvents
         {
-            EventGronnlingSmash = 1
+            EventGronnlingSmash = 1,
+            EventHeadSmash
         };
 
         struct npc_foundry_gronnling_laborerAI : public ScriptedAI
@@ -861,7 +864,8 @@ class npc_foundry_gronnling_laborer : public CreatureScript
 
                 me->RemoveAura(eSpells::EarthAttack);
 
-                m_Events.ScheduleEvent(eEvent::EventGronnlingSmash, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventGronnlingSmash, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventHeadSmash, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -885,10 +889,21 @@ class npc_foundry_gronnling_laborer : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
-                    case eEvent::EventGronnlingSmash:
+                    case eEvents::EventGronnlingSmash:
                     {
                         me->CastSpell(me, eSpells::GronnlingSmash, false);
-                        m_Events.ScheduleEvent(eEvent::EventGronnlingSmash, 10 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventGronnlingSmash, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventHeadSmash:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        {
+                            me->CastSpell(l_Target, eSpells::HeadSmashDmg, true);
+                            me->CastSpell(me, eSpells::HeadSmashDust, true);
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventHeadSmash, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1959,7 +1974,7 @@ class spell_foundry_gronnling_smash : public SpellScriptLoader
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
-                    l_Target->CastSpell(l_Target, eSpell::GronnlingSmashAoE, true);
+                    l_Target->CastSpell(l_Target, eSpell::GronnlingSmashAoE, TriggerCastFlags::TRIGGERED_IGNORE_CAST_IN_PROGRESS);
             }
 
             void Register() override

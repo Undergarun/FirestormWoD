@@ -24,6 +24,7 @@ class boss_gruul_foundry : public CreatureScript
             RageRegenerationAura    = 155534,
             ModScale95_120Pct       = 123978,
             PristineOre             = 165186,
+            CaveInDoT               = 173192,
             /// Inferno Slice
             InfernoSlice            = 155080,
             InfernoStrike           = 162322,
@@ -228,6 +229,7 @@ class boss_gruul_foundry : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InfernoStrike);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::PetrifyStacks);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::PetrifiedStun);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CaveInDoT);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::GruulBonus, true);
 
@@ -266,6 +268,7 @@ class boss_gruul_foundry : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InfernoStrike);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::PetrifyStacks);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::PetrifiedStun);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CaveInDoT);
                 }
             }
 
@@ -766,56 +769,60 @@ class spell_foundry_cave_in : public SpellScriptLoader
                 CaveInDoT = 173192
             };
 
-            uint32 m_CheckTimer;
-
-            bool Load()
-            {
-                m_CheckTimer = 200;
-                return true;
-            }
-
             void OnUpdate(uint32 p_Diff)
             {
-                if (m_CheckTimer)
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (m_CheckTimer <= p_Diff)
+                    std::list<Unit*> l_TargetList;
+                    float l_Radius = 15.0f;
+
+                    JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                    l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                    l_TargetList.remove(l_Caster);
+
+                    for (Unit* l_Iter : l_TargetList)
                     {
-                        if (Unit* l_Caster = GetCaster())
+                        if (l_Iter->GetDistance(l_Caster) <= 4.5f)
                         {
-                            std::list<Unit*> l_TargetList;
-                            float l_Radius = 15.0f;
-
-                            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
-                            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
-                            l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
-
-                            l_TargetList.remove(l_Caster);
-
-                            for (Unit* l_Iter : l_TargetList)
-                            {
-                                if (l_Iter->GetDistance(l_Caster) <= 4.5f)
-                                {
-                                    if (!l_Iter->HasAura(eSpell::CaveInDoT))
-                                        l_Caster->CastSpell(l_Iter, eSpell::CaveInDoT, true);
-                                }
-                                else
-                                {
-                                    if (l_Iter->HasAura(eSpell::CaveInDoT))
-                                        l_Iter->RemoveAura(eSpell::CaveInDoT);
-                                }
-                            }
+                            if (!l_Iter->HasAura(eSpell::CaveInDoT, l_Caster->GetGUID()))
+                                l_Caster->CastSpell(l_Iter, eSpell::CaveInDoT, true);
                         }
-
-                        m_CheckTimer = 500;
+                        else
+                        {
+                            if (l_Iter->HasAura(eSpell::CaveInDoT, l_Caster->GetGUID()))
+                                l_Iter->RemoveAura(eSpell::CaveInDoT);
+                        }
                     }
-                    else
-                        m_CheckTimer -= p_Diff;
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    std::list<Unit*> l_TargetList;
+                    float l_Radius = 15.0f;
+
+                    JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                    l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                    l_TargetList.remove(l_Caster);
+
+                    for (Unit* l_Iter : l_TargetList)
+                    {
+                        if (l_Iter->HasAura(eSpell::CaveInDoT, l_Caster->GetGUID()))
+                            l_Iter->RemoveAura(eSpell::CaveInDoT);
+                    }
                 }
             }
 
             void Register() override
             {
                 OnAuraUpdate += AuraUpdateFn(spell_foundry_cave_in_AuraScript::OnUpdate);
+                OnEffectRemove += AuraEffectRemoveFn(spell_foundry_cave_in_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_AREATRIGGER, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
