@@ -4882,6 +4882,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 117708: ///< Maddening Shout
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                 break;
+            case 17076: ///< Glyph of Rejuvenation
+                spellInfo->Effects[0].BasePoints = 0;
+                break;
             case 118047: ///< Pillage
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CHARGE;
                 spellInfo->Effects[0].TriggerSpell = 0;
