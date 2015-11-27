@@ -2034,7 +2034,6 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 GlyphofRenewedTea = 159496
             };
 
-
             bool Validate(SpellInfo const* /*spell*/)
             {
                 update = 0;
@@ -2100,22 +2099,16 @@ class spell_monk_renewing_mist: public SpellScriptLoader
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (l_Caster == nullptr)
                     return;
 
-                if (AuraPtr uplift = l_Caster->GetAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster->GetGUID()))
+                if (l_Caster->HasAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster->GetGUID()))
                     l_Caster->RemoveAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster->GetGUID());
 
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
 
-                if (l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE)
-                {
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);
-                }
-
-                if (l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE)
+                if ((l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE) ||
+                    (l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_ENEMY_SPELL))
                 {
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);

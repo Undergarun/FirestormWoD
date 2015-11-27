@@ -27,3 +27,22 @@ DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_suppression_
 INSERT INTO spell_script_names VALUES
 (161328, 'spell_highmaul_suppression_field_aura'),
 (174404, 'spell_highmaul_frozen_core');
+
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_highmaul_volatile_anomalies';
+INSERT INTO spell_script_names VALUE
+(157265, 'spell_highmaul_volatile_anomalies');
+
+DELETE FROM spell_script_names WHERE spell_id = 158241;
+INSERT INTO spell_script_names VALUE (158241, 'spell_highmaul_blaze_dot');
+
+DELETE FROM creature WHERE id = 80728 AND map = 1228;
+
+UPDATE creature_template SET ScriptName = 'npc_highmaul_maggot' WHERE entry = 80728;
+
+DELETE FROM achievement_criteria_data WHERE criteria_id = 24693;
+INSERT INTO achievement_criteria_data VALUE
+(24693, 11, 0, 0, 'achievement_highmaul_pair_annihilation');
+
+UPDATE creature_template SET mechanic_immune_mask = 617299807 WHERE entry = 78121;
+
+UPDATE creature_template SET ScriptName = 'npc_highmaul_koragh_volatile_anomaly' WHERE entry = 79956;

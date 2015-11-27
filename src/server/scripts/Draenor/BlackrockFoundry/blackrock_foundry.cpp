@@ -836,12 +836,15 @@ class npc_foundry_gronnling_laborer : public CreatureScript
         {
             Enrage          = 18501,
             GronnlingSmash  = 169402,
-            EarthAttack     = 165318
+            EarthAttack     = 165318,
+            HeadSmashDmg    = 170604,
+            HeadSmashDust   = 165427
         };
 
-        enum eEvent
+        enum eEvents
         {
-            EventGronnlingSmash = 1
+            EventGronnlingSmash = 1,
+            EventHeadSmash
         };
 
         struct npc_foundry_gronnling_laborerAI : public ScriptedAI
@@ -861,7 +864,8 @@ class npc_foundry_gronnling_laborer : public CreatureScript
 
                 me->RemoveAura(eSpells::EarthAttack);
 
-                m_Events.ScheduleEvent(eEvent::EventGronnlingSmash, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventGronnlingSmash, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventHeadSmash, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -885,10 +889,21 @@ class npc_foundry_gronnling_laborer : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
-                    case eEvent::EventGronnlingSmash:
+                    case eEvents::EventGronnlingSmash:
                     {
                         me->CastSpell(me, eSpells::GronnlingSmash, false);
-                        m_Events.ScheduleEvent(eEvent::EventGronnlingSmash, 10 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventGronnlingSmash, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventHeadSmash:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        {
+                            me->CastSpell(l_Target, eSpells::HeadSmashDmg, true);
+                            me->CastSpell(me, eSpells::HeadSmashDust, true);
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventHeadSmash, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2142,7 +2157,7 @@ class spell_foundry_gronnling_smash : public SpellScriptLoader
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
-                    l_Target->CastSpell(l_Target, eSpell::GronnlingSmashAoE, true);
+                    l_Target->CastSpell(l_Target, eSpell::GronnlingSmashAoE, TriggerCastFlags::TRIGGERED_IGNORE_CAST_IN_PROGRESS);
             }
 
             void Register() override
@@ -2382,7 +2397,7 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 10.0f;
+                float l_Radius = 15.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -2392,13 +2407,35 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
                 {
                     if (l_Unit->GetDistance(p_AreaTrigger) <= 3.0f)
                     {
-                        if (!l_Unit->HasAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID()))
-                            l_Unit->CastSpell(l_Unit, eSpell::AcidbackPuddleDoT, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                        if (!l_Unit->HasAura(eSpell::AcidbackPuddleDoT))
+                            l_Unit->CastSpell(l_Unit, eSpell::AcidbackPuddleDoT, true);
                     }
-                    else
+                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 3.0f))
                     {
-                        if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID()))
-                            l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID());
+                        if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT))
+                            l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT);
+                    }
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 6.5f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 3.0f))
+                    {
+                        if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT))
+                            l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT);
                     }
                 }
             }

@@ -102,6 +102,7 @@ enum eFoundryGameObjects
     FurnaceGate                 = 227423,
     /// The Black Forge - Part 2
     BlackForgePortcullis        = 238836,
+    VolatileBlackrockOre        = 237308,
     HansgarAndFranzokEntrance   = 229318,
     HansgarAndFranzokExit       = 229319,
     /// Iron Assembly - Part 3
