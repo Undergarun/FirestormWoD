@@ -16,7 +16,7 @@ INSERT INTO spell_script_names VALUES
 (163453, 'spell_foundry_harvest_volatile_blackrock'),
 (163455, 'spell_foundry_throw_volatile_ore');
 
-UPDATE creature_template SET modelid1 = 53766, modelid2 = 0 WHERE entry = 77261;
+UPDATE creature_template SET modelid1 = 53766, modelid2 = 0, minlevel = 100, maxlevel = 100, faction = 14 WHERE entry = 77261;
 
 SET @REF_OREGORGER = 77182;
 

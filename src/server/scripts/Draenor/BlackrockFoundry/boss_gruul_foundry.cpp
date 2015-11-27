@@ -792,7 +792,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
                         else
                         {
                             if (l_Iter->HasAura(eSpell::CaveInDoT, l_Caster->GetGUID()))
-                                l_Iter->RemoveAura(eSpell::CaveInDoT);
+                                l_Iter->RemoveAura(eSpell::CaveInDoT, l_Caster->GetGUID());
                         }
                     }
                 }
@@ -814,7 +814,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
                     for (Unit* l_Iter : l_TargetList)
                     {
                         if (l_Iter->HasAura(eSpell::CaveInDoT, l_Caster->GetGUID()))
-                            l_Iter->RemoveAura(eSpell::CaveInDoT);
+                            l_Iter->RemoveAura(eSpell::CaveInDoT, l_Caster->GetGUID());
                     }
                 }
             }

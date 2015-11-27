@@ -278,6 +278,8 @@ class boss_oregorger : public CreatureScript
                 else
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
+                m_Crates.clear();
+
                 std::list<Creature*> l_CrateList;
                 me->GetCreatureListWithEntryInGrid(l_CrateList, eCreatures::OreCrateCosmetic, 150.0f);
 
@@ -338,6 +340,10 @@ class boss_oregorger : public CreatureScript
                     case eCreatures::BlackrockOre:
                     {
                         m_BlackrockOres.insert(p_Summon->GetGUID());
+                        p_Summon->SetReactState(ReactStates::REACT_PASSIVE);
+                        p_Summon->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         break;
                     }
                     case eCreatures::UnstableSlag:
@@ -754,17 +760,9 @@ class boss_oregorger : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::ExplosiveShardMissile:
-                    {
-                        me->EnergizeBySpell(me, eSpells::RetchedBlackrockMissile, -5, Powers::POWER_MANA);
-                        break;
-                    }
                     case eSpells::BlackrockBarrageAoE:
                     {
                         me->EnergizeBySpell(me, eSpells::RetchedBlackrockMissile, -5, Powers::POWER_MANA);
-
-                        if (AuraPtr l_Aura = me->GetAura(eSpells::BlackrockSpines))
-                            l_Aura->DropStack();
-
                         break;
                     }
                     case eSpells::AcidTorrentSearcher:
@@ -1008,16 +1006,18 @@ class boss_oregorger : public CreatureScript
 
                         Talk(eTalks::BlackrockBarrage);
                         m_Events.ScheduleEvent(eEvents::EventBlackrockSpines, 19 * TimeConstants::IN_MILLISECONDS);
-                        m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 100);
+                        m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventBlackrockBarrage:
                     {
-                        if (!me->HasAura(eSpells::BlackrockSpines))
+                        if (AuraPtr l_Aura = me->GetAura(eSpells::BlackrockSpines))
+                            l_Aura->DropStack();
+                        else
                             break;
 
                         me->CastSpell(me, eSpells::BlackrockBarrageAoE, false);
-                        m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 2200);
+                        m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 2 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1417,12 +1417,7 @@ class npc_foundry_crate_ore : public CreatureScript
                     if (Creature* l_Oregorger = Creature::GetCreature(*me, l_Instance->GetData64(eFoundryCreatures::BossOregorger)))
                     {
                         if (Creature* l_Ore = l_Oregorger->SummonCreature(eCreature::BlackrockOre, *me))
-                        {
-                            l_Ore->SetReactState(ReactStates::REACT_PASSIVE);
-                            l_Ore->AddUnitState(UnitState::UNIT_STATE_STUNNED);
-                            l_Ore->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                             l_Ore->SendPlaySpellVisual(eVisual::BlackrockOreVisual, l_Ore, 0.0f, 0.0f, Position());
-                        }
                     }
                 }
             }
@@ -1569,7 +1564,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                         if (Unit* l_Caster = GetCaster())
                         {
                             std::list<Unit*> l_TargetList;
-                            float l_Radius = 0.5f;
+                            float l_Radius = 0.1f;
 
                             JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
                             JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
@@ -1707,7 +1702,7 @@ class areatrigger_foundry_retched_blackrock : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 6.5;
+                float l_Radius = 6.5f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);

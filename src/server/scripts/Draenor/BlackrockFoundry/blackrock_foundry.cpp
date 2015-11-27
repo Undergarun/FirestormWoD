@@ -2161,7 +2161,7 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 10.0f;
+                float l_Radius = 15.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -2171,13 +2171,35 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
                 {
                     if (l_Unit->GetDistance(p_AreaTrigger) <= 3.0f)
                     {
-                        if (!l_Unit->HasAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID()))
-                            l_Unit->CastSpell(l_Unit, eSpell::AcidbackPuddleDoT, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                        if (!l_Unit->HasAura(eSpell::AcidbackPuddleDoT))
+                            l_Unit->CastSpell(l_Unit, eSpell::AcidbackPuddleDoT, true);
                     }
-                    else
+                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 3.0f))
                     {
-                        if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID()))
-                            l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT, l_Caster->GetGUID());
+                        if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT))
+                            l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT);
+                    }
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 6.5f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 3.0f))
+                    {
+                        if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT))
+                            l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT);
                     }
                 }
             }

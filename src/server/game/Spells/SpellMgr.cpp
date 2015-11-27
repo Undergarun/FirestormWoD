@@ -3423,6 +3423,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
             case 173461: ///< Blackrock Barrage
+                spellInfo->CasterAuraSpell = 0;
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 160382: ///< Defense (Security Guard)
