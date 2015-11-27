@@ -3038,8 +3038,6 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* p_Victim, SpellInfo const* p_Spell
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
     l_HitChance += int32(m_modSpellHitChance * 100.0f);
 
-    RoundToInterval(l_HitChance, 100, 10000);
-
     int32 l_Tmp = 10000 - l_HitChance;
 
     int32 l_Rand = irand(0, 10000);
