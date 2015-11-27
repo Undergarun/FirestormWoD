@@ -143,7 +143,7 @@ namespace MS { namespace Garrison
             /// Get followers
             std::vector<GarrisonFollower> GetFollowers() const;
             /// Get follower
-            GarrisonFollower GetFollower(uint32 p_FollowerID) const;
+            GarrisonFollower* GetFollower(uint32 p_FollowerID);
             /// Get activated followers count
             uint32 GetActivatedFollowerCount() const;
             /// Get num follower activation remaining

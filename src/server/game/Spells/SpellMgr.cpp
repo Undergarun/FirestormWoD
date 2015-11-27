@@ -6834,7 +6834,7 @@ void SpellMgr::LoadSpellCustomAttr()
             }
 
             ///< This must be re-done if targets changed since the spellinfo load
-            spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
+            spellInfo->ExplicitTargetMask = spellInfo->Effects[0].Effect == SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL ? TARGET_FLAG_UNIT : spellInfo->_GetExplicitTargetMask();
 
             switch (spellInfo->Id)
             {
