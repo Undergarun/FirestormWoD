@@ -67,13 +67,17 @@ void RespawnBrothers(Creature* p_Source, InstanceScript* p_Instance)
     }
 }
 
-void StartBrothers(Creature* p_Source, Unit* p_Target)
+void StartBrothers(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instance)
 {
-    if (p_Source == nullptr || p_Target == nullptr)
+    if (p_Source == nullptr || p_Target == nullptr || p_Instance == nullptr)
         return;
 
-    if (Creature* l_Other = p_Source->FindNearestCreature((p_Source->GetEntry() == eFoundryCreatures::BossFranzok) ? eFoundryCreatures::BossHansgar : eFoundryCreatures::BossFranzok, 30.0f))
-        l_Other->AI()->AttackStart(p_Target);
+    uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::BossFranzok) ? eFoundryCreatures::BossHansgar : eFoundryCreatures::BossFranzok;
+    if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
+    {
+        if (l_Other->IsAIEnabled)
+            l_Other->AI()->AttackStart(p_Target);
+    }
 }
 
 /// This class is used to activate Stamping Press
@@ -122,13 +126,18 @@ class boss_hansgar : public CreatureScript
         enum eSpells
         {
             /// Misc
-            PumpedUp        = 155665,
-            TacticalRetreat = 156220,
-            BoundByBlood    = 161029
+            PumpedUp            = 155665,
+            TacticalRetreat     = 156220,
+            BoundByBlood        = 161029,
+            /// Body Slam
+            JumpSlamSearcher    = 157922,
+            JumpSlamCast        = 157923,
+            BodySlamTriggered   = 154785
         };
 
         enum eEvents
         {
+            EventBodySlam = 1
         };
 
         enum eCosmeticEvents
@@ -144,9 +153,10 @@ class boss_hansgar : public CreatureScript
 
         enum eVisuals
         {
-            AnimStamp1  = 5924,
-            AnimStamp2  = 6741,
-            AnimStamp3  = 5836
+            AnimStamp1      = 5924,
+            AnimStamp2      = 6741,
+            AnimStamp3      = 5836,
+            BodySlamVisual  = 38379
         };
 
         enum eCreatures
@@ -224,8 +234,17 @@ class boss_hansgar : public CreatureScript
             uint8 m_State;
             std::vector<int32> m_SwitchStatePct;
 
+            uint8 m_BodySlamJumps;
+
+            bool CanRespawn() override
+            {
+                return false;
+            }
+
             void Reset() override
             {
+                ClearDelayedOperations();
+
                 m_Events.Reset();
                 m_CosmeticEvents.Reset();
 
@@ -247,13 +266,22 @@ class boss_hansgar : public CreatureScript
                         me->GetCreatureListWithEntryInGrid(l_TrashList, eCreatures::BlackrockForgeSpecialist, 50.0f);
 
                         for (Creature* l_Trash : l_TrashList)
+                        {
+                            l_Trash->Respawn();
                             m_IntroTrashs.insert(l_Trash->GetGUID());
+                        }
                     });
                 }
 
                 me->CastSpell(me, eSpells::PumpedUp, true);
 
                 m_State = 0;
+
+                m_BodySlamJumps = 0;
+
+                me->setPowerType(Powers::POWER_ENERGY);
+                me->SetMaxPower(Powers::POWER_ENERGY, 100);
+                me->SetPower(Powers::POWER_ENERGY, 0);
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -271,7 +299,7 @@ class boss_hansgar : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-                StartBrothers(me, p_Attacker);
+                StartBrothers(me, p_Attacker, m_Instance);
 
                 AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
@@ -280,19 +308,18 @@ class boss_hansgar : public CreatureScript
 
                 if (Creature* l_Other = me->FindNearestCreature(eFoundryCreatures::BossFranzok, 150.0f))
                     me->AddAura(eSpells::BoundByBlood, l_Other);
+
+                m_Events.ScheduleEvent(eEvents::EventBodySlam, 20 * TimeConstants::IN_MILLISECONDS + 500);
             }
 
             void EnterEvadeMode() override
             {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
                 CreatureAI::EnterEvadeMode();
 
                 RespawnBrothers(me, m_Instance);
-            }
-
-            void JustReachedHome() override
-            {
-                if (m_Instance != nullptr)
-                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
             void JustDied(Unit* p_Killer) override
@@ -329,6 +356,18 @@ class boss_hansgar : public CreatureScript
             {
                 if (p_Target == nullptr)
                     return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::JumpSlamSearcher:
+                    {
+                        me->SendPlaySpellVisual(eVisuals::BodySlamVisual, p_Target, 20.0f, 0.0f, Position());
+                        me->CastSpell(p_Target, eSpells::JumpSlamCast, false);
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             /// Handle that only for Hans'gar is enough, brothers have shared health
@@ -443,6 +482,26 @@ class boss_hansgar : public CreatureScript
                 }
             }
 
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                switch (p_ID)
+                {
+                    case eSpells::JumpSlamCast:
+                    {
+                        me->CastSpell(me, eSpells::BodySlamTriggered, true);
+
+                        --m_BodySlamJumps;
+
+                        if (m_BodySlamJumps)
+                            me->CastSpell(me, eSpells::JumpSlamSearcher, true);
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
             uint32 GetData(uint32 p_ID) override
             {
                 switch (p_ID)
@@ -478,8 +537,7 @@ class boss_hansgar : public CreatureScript
 
                     m_SmartStampCollisions.clear();
 
-                    ActivatePress(eGameObjects::StampingPress09, true);
-                    ActivatePress(eGameObjects::StampingPress11, true);
+                    DeactivatePress();
 
                     if (m_Instance != nullptr)
                     {
@@ -499,6 +557,12 @@ class boss_hansgar : public CreatureScript
                         me->SetHomePosition(*me);
                     });
                 }
+            }
+
+            void RegeneratePower(Powers p_Power, int32& p_Value)
+            {
+                /// Hans'gar only regens by script
+                p_Value = 0;
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -557,11 +621,28 @@ class boss_hansgar : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_BodySlamJumps)
                     return;
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case eEvents::EventBodySlam:
+                    {
+                        int32 l_Power = me->GetPower(Powers::POWER_RAGE);
+
+                        if (l_Power >= 75)
+                            m_BodySlamJumps = 5;
+                        else if (l_Power >= 50)
+                            m_BodySlamJumps = 4;
+                        else if (l_Power >= 25)
+                            m_BodySlamJumps = 3;
+                        else
+                            m_BodySlamJumps = 2;
+
+                        me->CastSpell(me, eSpells::JumpSlamSearcher, true);
+                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 20 * TimeConstants::IN_MILLISECONDS + 500);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -694,8 +775,15 @@ class boss_franzok : public CreatureScript
 
             bool m_IntroDone;
 
+            bool CanRespawn() override
+            {
+                return false;
+            }
+
             void Reset() override
             {
+                ClearDelayedOperations();
+
                 m_Events.Reset();
                 m_CosmeticEvents.Reset();
 
@@ -704,6 +792,10 @@ class boss_franzok : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 me->CastSpell(me, eSpells::PumpedUp, true);
+
+                me->setPowerType(Powers::POWER_ENERGY);
+                me->SetMaxPower(Powers::POWER_ENERGY, 100);
+                me->SetPower(Powers::POWER_ENERGY, 0);
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -721,7 +813,7 @@ class boss_franzok : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-                StartBrothers(me, p_Attacker);
+                StartBrothers(me, p_Attacker, m_Instance);
 
                 Talk(eTalks::Aggro);
 
@@ -847,6 +939,29 @@ class boss_franzok : public CreatureScript
                 }
             }
 
+            void RegeneratePower(Powers p_Power, int32& p_Value)
+            {
+                /// Hans'gar only regens by script
+                p_Value = 0;
+            }
+
+            void OnCalculateCastingTime(SpellInfo const* p_SpellInfo, int32& p_CastingTime) override
+            {
+                if (p_SpellInfo->Id == eSpells::SpellDisruptingRoar)
+                {
+                    int32 l_Rage = me->GetPower(Powers::POWER_RAGE);
+
+                    if (l_Rage >= 75)
+                        p_CastingTime = 500 + 1 * TimeConstants::IN_MILLISECONDS;
+                    else if (l_Rage >= 50)
+                        p_CastingTime = 2 * TimeConstants::IN_MILLISECONDS;
+                    else if (l_Rage >= 25)
+                        p_CastingTime = 500 + 2 * TimeConstants::IN_MILLISECONDS;
+                    else
+                        p_CastingTime = 3 * TimeConstants::IN_MILLISECONDS;
+                }
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
@@ -870,10 +985,26 @@ class boss_franzok : public CreatureScript
                     }
                     case eEvents::EventSkullcracker:
                     {
+                        CustomSpellValues l_Values;
+
+                        int32 l_Count = 0;
+                        int32 l_Rage = me->GetPower(Powers::POWER_RAGE);
+
+                        if (l_Rage >= 75)
+                            l_Count = 5;
+                        else if (l_Rage >= 50)
+                            l_Count = 4;
+                        else if (l_Rage >= 25)
+                            l_Count = 3;
+                        else
+                            l_Count = 2;
+
+                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, l_Count);
+
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 5.0f))
-                            me->CastSpell(l_Target, eSpells::Skullcracker, false);
+                            me->CastCustomSpell(eSpells::Skullcracker, l_Values, l_Target, false);
                         else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::Skullcracker, false);
+                            me->CastCustomSpell(eSpells::Skullcracker, l_Values, l_Target, false);
 
                         m_Events.ScheduleEvent(eEvents::EventSkullcracker, 21 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -928,6 +1059,42 @@ class npc_foundry_scorching_burns : public CreatureScript
         }
 };
 
+/// Pumped Up - 155665
+class spell_foundry_pumped_up : public SpellScriptLoader
+{
+    public:
+        spell_foundry_pumped_up() : SpellScriptLoader("spell_foundry_pumped_up") { }
+
+        class spell_foundry_pumped_up_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_pumped_up_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                    {
+                        int32 l_Pct = 100 - (int32)l_Target->GetHealthPct();
+
+                        l_Target->SetPower(Powers::POWER_RAGE, l_Pct * 10);
+                        l_AurEff->ChangeAmount(l_Pct);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_pumped_up_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_pumped_up_AuraScript();
+        }
+};
+
 void AddSC_boss_hansgar_and_franzok()
 {
     /// Bosses
@@ -936,4 +1103,7 @@ void AddSC_boss_hansgar_and_franzok()
 
     /// Creatures
     new npc_foundry_scorching_burns();
+
+    /// Spells
+    new spell_foundry_pumped_up();
 }

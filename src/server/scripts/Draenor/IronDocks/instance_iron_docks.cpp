@@ -195,15 +195,6 @@ class instance_iron_docks : public InstanceMapScript
                     m_ConditionCompleted = true;
             }
 
-            void SetData(uint32 p_Type, uint32 p_Data) override
-            {
-                switch (p_Type)
-                {
-                    default:
-                        break;
-                }
-            }
-
             uint64 GetData64(uint32 p_Type) override
             {
                 switch (p_Type)
