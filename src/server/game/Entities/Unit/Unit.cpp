@@ -255,18 +255,9 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
         m_createStats[i] = 0.0f;
 
     m_attacking = NULL;
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        m_modMeleeHitChance = 7.5f;
-        m_modRangedHitChance = 7.5f;
-        m_modSpellHitChance = 15.0f;
-    }
-    else
-    {
-        m_modMeleeHitChance = 0.0f;
-        m_modRangedHitChance = 0.0f;
-        m_modSpellHitChance = 0.0f;
-    }
+    m_modMeleeHitChance = 0.0f;
+    m_modRangedHitChance = 0.0f;
+    m_modSpellHitChance = 0.0f;
     m_baseSpellCritChance = 5;
 
     m_CombatTimer = 0;
@@ -2571,24 +2562,36 @@ void Unit::HandleProcExtraAttackFor(Unit* victim)
 
 MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType attType)
 {
+    // This is only wrapper
+
+    // Miss chance based on melee
+    float miss_chance = MeleeSpellMissChance(victim, NULL, attType);
+
+    // Critical hit chance
+    float crit_chance = GetUnitCriticalChance(attType, victim);
+
+    float dodge_chance = victim->GetUnitDodgeChance(this);
+    float block_chance = victim->GetUnitBlockChance(this);
+    float parry_chance = victim->GetUnitParryChance(this);
+
+    return RollMeleeOutcomeAgainst(victim, attType, int32(crit_chance*100), int32(miss_chance*100), int32(dodge_chance*100), int32(parry_chance*100), int32(block_chance*100));
+}
+
+MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType attType, int32 crit_chance, int32 miss_chance, int32 dodge_chance, int32 parry_chance, int32 block_chance)
+{
+    if (victim->HasAuraType(SPELL_AURA_DEFLECT_FRONT_SPELLS) && victim->isInFront(this))
+        return MELEE_HIT_MISS;
+
+    MeleeHitOutcome l_HitResult = MELEE_HIT_NORMAL;
+    SpellMissInfo l_SpellResult = SPELL_MISS_NONE;
+    if (victim->ToCreature() && victim->IsAIEnabled)
+        ((Unit*)victim)->ToCreature()->GetAI()->CheckHitResult(l_HitResult, l_SpellResult, (Unit*)this);
+
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return MELEE_HIT_EVADE;
 
-    // Miss chance based on melee
-    int32 miss_chance = int32(MeleeSpellMissChance(victim, NULL, attType) * 100);
-
-    // Critical hit chance
-    int32 crit_chance = int32(GetUnitCriticalChance(attType, victim) * 100);
-
-    int32 dodge_chance = int32(victim->GetUnitDodgeChanceAgainst(this) * 100);
-    int32 block_chance = int32(victim->GetUnitBlockChanceAgainst(this) * 100);
-    int32 parry_chance = int32(victim->GetUnitParryChanceAgainst(this) * 100);
-
-    int32 sum = 0, tmp = 0;
-    int32 roll = urand (0, 10000);
-
-    int32 attackerLevel = getLevelForTarget(victim);
-    int32 victimLevel = getLevelForTarget(this);
+    int32    sum = 0, tmp = 0;
+    int32    roll = urand (0, 10000);
 
     tmp = miss_chance;
 
@@ -2616,7 +2619,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
         }
 
         // Modify dodge chance by attacker SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
-        dodge_chance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
+        dodge_chance+= GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
         dodge_chance = int32(float(dodge_chance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
 
         tmp = dodge_chance;
@@ -2628,11 +2631,26 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
     // check if attack comes from behind, nobody can parry or block if attacker is behind
     if (!(!victim->HasInArc(M_PI, this) && !victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
     {
+        float l_ExpertisePercentage = 0.0f;
         // Reduce parry chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
-            parry_chance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
+            l_ExpertisePercentage = int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
         else
+        {
+            if (isPet() && GetOwner())
+                if (GetOwner()->ToPlayer())
+                    l_ExpertisePercentage -= int32(((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
+
             parry_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
+        }
+
+        if (victim->getLevel() >= getLevel())
+        {
+            uint8 l_LevelDiff = std::min(victim->getLevel() - getLevel(), 3);
+            l_ExpertisePercentage -= g_BaseEnemyParryChance[l_LevelDiff] * 100.0f;
+        }
+
+        parry_chance -= int32(l_ExpertisePercentage);
 
         if (victim->GetTypeId() == TYPEID_PLAYER || !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
         {
@@ -2663,28 +2681,37 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
     }
 
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
-    if (attType != WeaponAttackType::RangedAttack &&
-        (GetTypeId() == TYPEID_PLAYER || isPet()) &&
-        victim->GetTypeId() != TYPEID_PLAYER && !victim->isPet() &&
-        attackerLevel + 3 < victimLevel)
+    if (attType != WeaponAttackType::RangedAttack && (GetTypeId() == TYPEID_PLAYER || ToCreature()->isPet()) &&
+        victim->ToCreature() && !victim->ToCreature()->isPet() && victim->getLevel() > (getLevel() + 2))
     {
-        // cap possible value (with bonuses > max skill)
-        tmp = (10 + 10 * (victimLevel - attackerLevel)) * 100;
-        if (roll < (sum += tmp))
+        ///@todo Patch 6.0.2 (2014-10-14): All characters now have a 100% chance to hit, 0% chance to be dodged, 3% chance to be parried, and 0% chance for glancing blows, when fighting creatures up to 3 levels higher (bosses included).
+        // Anytime a character makes a melee attack on a level ?? boss
+        // there is a 24% chance that blow will be glancing
+        // dealing 75% damage and being unable to crit.
+        // See: http://us.battle.net/wow/en/forum/topic/7593402521#4
+        if (roll_chance_i(24))
             return MELEE_HIT_GLANCING;
     }
 
-    // mobs can score crushing blows if they're 4 or more levels above victim
-    if (attackerLevel >= victimLevel + 4 &&
+    /// @todo check the data from theorycraft and other
+    // Need to do some researchs about crushing blows at Mists of Pandaria
+    /*if (getLevelForTarget(victim) >= victim->getLevelForTarget(this) + 4 &&
         // can be from by creature (if can) or from controlled player that considered as creature
         !IsControlledByPlayer() &&
         !(GetTypeId() == TYPEID_UNIT && ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRUSH))
     {
-        // add 2% chance per level, min. is 15%
-        tmp = attackerLevel - victimLevel * 1000 - 1500;
-        if (roll < (sum += tmp))
-            return MELEE_HIT_CRUSHING;
-    }
+        // when their weapon skill is 15 or more above victim's defense skill
+        tmp = victimMaxSkillValueForLevel;
+        // tmp = mob's level * 5 - player's current defense skill
+        tmp = attackerMaxSkillValueForLevel - tmp;
+        if (tmp >= 15)
+        {
+            // add 2% chance per lacking skill point, min. is 15%
+            tmp = tmp * 200 - 1500;
+            if (roll < (sum += tmp))
+                return MELEE_HIT_CRUSHING;
+        }
+    }*/
 
     return MELEE_HIT_NORMAL;
 }
@@ -2769,7 +2796,7 @@ bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttac
             victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK)
                 return false;
 
-        if (roll_chance_f(victim->GetUnitBlockChanceAgainst(this)))
+        if (roll_chance_f(victim->GetUnitBlockChance(this)))
             return true;
     }
     return false;
@@ -2916,7 +2943,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (canDodge)
     {
         // Roll dodge
-        int32 dodgeChance = int32(victim->GetUnitDodgeChanceAgainst(this) * 100.0f);
+        int32 dodgeChance = int32(victim->GetUnitDodgeChance(this) * 100.0f);
         // Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
         dodgeChance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
         dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
@@ -2935,20 +2962,30 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (canParry)
     {
         // Roll parry
-        int32 parryChance = int32(victim->GetUnitParryChanceAgainst(this) * 100.0f);
+        int32 parryChance = int32(victim->GetUnitParryChance(this) * 100.0f);
+        float l_ExpertisePercentage = 0.0f;
+
         // Reduce parry chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
-            parryChance = ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f;
+            l_ExpertisePercentage = ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f;
         else
         {
             if (isPet() && GetOwner())
             {
                 if (GetOwner()->ToPlayer())
-                    parryChance = ((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f;
+                    l_ExpertisePercentage = ((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f;
             }
 
             parryChance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
         }
+
+        if (victim->getLevel() >= getLevel())
+        {
+            uint8 l_LevelDiff = std::min(victim->getLevel() - getLevel(), 3);
+            l_ExpertisePercentage -= g_BaseEnemyParryChance[l_LevelDiff] * 100.0f;
+        }
+
+        parryChance -= int32(l_ExpertisePercentage);
 
         if (parryChance < 0)
             parryChance = 0;
@@ -2960,7 +2997,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canBlock)
     {
-        int32 blockChance = int32(victim->GetUnitBlockChanceAgainst(this) * 100.0f);
+        int32 blockChance = int32(victim->GetUnitBlockChance(this) * 100.0f);
         if (blockChance < 0)
             blockChance = 0;
         tmp += blockChance;
@@ -2991,66 +3028,17 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* p_Victim, SpellInfo const* p_Spell
         return SPELL_MISS_NONE;
     }
 
-    // PvP - PvE spell misschances per leveldif > 2
-    int32 lchance = p_Victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
-    int32 thisLevel = getLevelForTarget(p_Victim);
-    if (GetTypeId() == TYPEID_UNIT && ToCreature()->isTrigger())
-        thisLevel = std::max<int32>(thisLevel, p_Spell->SpellLevel);
+    uint32 l_Roll = urand(0, 10000);
 
-    int32 leveldif = int32(p_Victim->getLevelForTarget(this)) - thisLevel;
-    int32 levelBasedHitDiff = leveldif;
-
-    // Calculate hit chance
-    int32 modHitChance = 100;
-    if (levelBasedHitDiff >= 0)
-    {
-        if (p_Victim->GetTypeId() != TYPEID_PLAYER)
-        {
-            modHitChance = 94 - 3 * std::min(levelBasedHitDiff, 3);
-            levelBasedHitDiff -= 3;
-        }
-        else
-        {
-            modHitChance = 96 - std::min(levelBasedHitDiff, 2);
-            levelBasedHitDiff -= 2;
-        }
-        if (levelBasedHitDiff > 0)
-            modHitChance -= lchance * std::min(levelBasedHitDiff, 7);
-    }
-    else
-        modHitChance = 97 - levelBasedHitDiff;
-
-    // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
-    if (p_Spell && p_Spell->Id)
-    {
-        if (Player* l_ModOwner = GetSpellModOwner())
-            l_ModOwner->ApplySpellMod(p_Spell->Id, SPELLMOD_RESIST_MISS_CHANCE, modHitChance);
-    }
-
-    // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will ignore target's avoidance effects
-    if (p_Spell && !(p_Spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT))
-    {
-        // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
-        modHitChance += p_Victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, p_Spell->GetSchoolMask());
-    }
-
-    int32 l_HitChance = modHitChance * 100;
-    // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
-    l_HitChance += int32(m_modSpellHitChance * 100.0f);
-
-    int32 l_Tmp = 10000 - l_HitChance;
-
-    int32 l_Rand = irand(0, 10000);
-
-    if (l_Rand < l_Tmp)
+    // Roll miss
+    uint32 l_Tmp = uint32(MagicSpellMissChance(p_Victim, p_Spell)) * 100;
+    if (l_Roll < l_Tmp)
         return SPELL_MISS_MISS;
 
+    // Roll resist
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    int32 l_ResistChance = p_Victim->GetMechanicResistChance(p_Spell) * 100;
-    l_Tmp += l_ResistChance;
-
-    // Roll chance
-    if (l_Rand < l_Tmp)
+    l_Tmp += p_Victim->GetMechanicResistChance(p_Spell) * 100;
+    if (l_Roll < l_Tmp)
         return SPELL_MISS_RESIST;
 
     // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will additionally fully ignore
@@ -3063,7 +3051,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* p_Victim, SpellInfo const* p_Spell
     {
         int32 l_DeflectChance = p_Victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
         l_Tmp += l_DeflectChance;
-        if (l_Rand < l_Tmp)
+        if (l_Roll < l_Tmp)
             return SPELL_MISS_DEFLECT;
     }
 
@@ -3153,7 +3141,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
     return SPELL_MISS_NONE;
 }
 
-float Unit::GetUnitDodgeChanceAgainst(Unit const* p_Attacker) const
+float Unit::GetUnitDodgeChance(Unit const* p_Attacker) const
 {
     if (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
@@ -3164,23 +3152,22 @@ float Unit::GetUnitDodgeChanceAgainst(Unit const* p_Attacker) const
         l_Chance = GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE);
     else
     {
-        if (ToCreature()->isTotem())
-            l_Chance = 0.0f;
-        else
+        if (!ToCreature()->isTotem())
         {
-            float l_Dodge = 3.0f + GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
-            int32 l_LevelDiff = getLevelForTarget(p_Attacker) - p_Attacker->getLevelForTarget(this);
-            if (l_LevelDiff > 0)
-                l_Dodge += 1.5f * l_LevelDiff;
+            if (getLevel() >= p_Attacker->getLevel())
+            {
+                uint8 l_LevelDiff = std::min(getLevel() - p_Attacker->getLevel(), STATS_CHANCE_SIZE - 1);
+                l_Chance = g_BaseEnemyDodgeChance[l_LevelDiff];
+            }
 
-            l_Chance = l_Dodge;
+            l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
         }
     }
 
     return l_Chance;
 }
 
-float Unit::GetUnitParryChanceAgainst(Unit const* p_Attacker) const
+float Unit::GetUnitParryChance(Unit const* p_Attacker) const
 {
     if (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
@@ -3201,30 +3188,62 @@ float Unit::GetUnitParryChanceAgainst(Unit const* p_Attacker) const
     }
     else if (GetTypeId() == TYPEID_UNIT)
     {
-        l_Chance = 6.0f;
-        int32 l_LevelDiff = getLevelForTarget(p_Attacker) - p_Attacker->getLevelForTarget(this);
-        if (l_LevelDiff > 0)
-            l_Chance += 1.5f * l_LevelDiff;
+        if (GetCreatureType() == CREATURE_TYPE_HUMANOID)
+        {
+            if (getLevel() >= p_Attacker->getLevel())
+            {
+                uint8 l_LevelDiff = std::min(getLevel() - p_Attacker->getLevel(), STATS_CHANCE_SIZE - 1);
+                l_Chance = g_BaseEnemyParryChance[l_LevelDiff];
+            }
 
-        l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
+            l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
+
+            // Tanks specializations have a better chance to parry (+3%)
+            if (p_Attacker->GetTypeId() == TYPEID_PLAYER)
+                if (p_Attacker->ToPlayer()->IsActiveSpecTankSpec())
+                    l_Chance += 3.0f;
+        }
     }
-
-    return l_Chance > 0.0f ? l_Chance : 0.0f;
-}
-
-float Unit::GetUnitMissChance(Unit const* p_Attacker, WeaponAttackType p_AttType) const
-{
-    float l_Chance = 5.00f;
-
-    if (p_AttType == WeaponAttackType::RangedAttack)
-        l_Chance -= GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE);
-    else
-        l_Chance -= GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE);
 
     return l_Chance;
 }
 
-float Unit::GetUnitBlockChanceAgainst(Unit const* p_Attacker) const
+float Unit::GetUnitMissChancePhysical(Unit const* p_Attacker, WeaponAttackType p_AttType) const
+{
+    float l_Chance = 0.0f;
+
+    if (getLevel() >= p_Attacker->getLevel())
+    {
+        uint8 l_LevelDiff = std::min(getLevel() - p_Attacker->getLevel(), STATS_CHANCE_SIZE - 1);
+        l_Chance += g_BaseMissChancePhysical[l_LevelDiff];
+    }
+
+    if (p_AttType == WeaponAttackType::RangedAttack)
+        l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE);
+    else
+        l_Chance += -(GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE));
+
+    return l_Chance;
+}
+
+float Unit::GetUnitMissChanceSpell(Unit const* p_Attacker) const
+{
+    float l_Chance = 0.0f;
+
+    if (getLevel() >= p_Attacker->getLevel())
+    {
+        uint8 l_LevelDiff = std::min(getLevel() - p_Attacker->getLevel(), STATS_CHANCE_SIZE - 1);
+        // TODO check PvE and PvP spell misschance
+        /// http://wow.gamepedia.com/Spell_hit
+        l_Chance += g_BaseMissChanceSpell[l_LevelDiff];
+    }
+
+    l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE);
+
+    return l_Chance;
+}
+
+float Unit::GetUnitBlockChance(Unit const* p_Attacker) const
 {
     if (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
@@ -3234,7 +3253,7 @@ float Unit::GetUnitBlockChanceAgainst(Unit const* p_Attacker) const
         if (l_Player->CanBlock())
         {
             Item* l_Item = l_Player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-            if (l_Item && !l_Item->CantBeUse() && l_Item->GetTemplate()->InventoryType == INVTYPE_SHIELD)
+            if (l_Item && !l_Item->CantBeUse())
                 return GetFloatValue(PLAYER_FIELD_BLOCK_PERCENTAGE);
         }
         // is player but has no block ability or no not broken shield equipped
@@ -3247,13 +3266,15 @@ float Unit::GetUnitBlockChanceAgainst(Unit const* p_Attacker) const
         else
         {
             float l_Block = 3.0f;
-            int32 l_LevelDiff = getLevelForTarget(p_Attacker) - p_Attacker->getLevelForTarget(this);
-            if (l_LevelDiff > 0)
-                l_Block += 1.5f * l_LevelDiff;
-
             l_Block += GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
 
-            return l_Block > 0.0f ? l_Block : 0.0f;
+            if (getLevel() > p_Attacker->getLevel())
+            {
+                uint8 l_LevelDiff = getLevel() - p_Attacker->getLevel();
+                l_Block += 1.5f * l_LevelDiff;
+            }
+
+            return l_Block;
         }
     }
 }
@@ -19505,7 +19526,7 @@ void Unit::ApplyResilience(Unit const* p_Victim, int32* p_Damage) const
 float Unit::MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell, WeaponAttackType p_AttType) const
 {
     // Calculate miss chance
-    float l_MissChance = p_Victim->GetUnitMissChance(this, p_AttType);
+    float l_MissChance = p_Victim->GetUnitMissChancePhysical(this, p_AttType);
 
     if (p_Spell && !p_Spell->Id && haveOffhandWeapon())
         l_MissChance += 17;
@@ -19520,19 +19541,53 @@ float Unit::MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell,
             l_ModOwner->ApplySpellMod(p_Spell->Id, SPELLMOD_RESIST_MISS_CHANCE, l_HitChance);
     }
 
-    l_MissChance += l_HitChance - 100.0f;
-
     // Increase hit chance from attacker auras and attacker ratings
     if (p_AttType == WeaponAttackType::RangedAttack)
-        l_MissChance -= m_modRangedHitChance;
+        l_HitChance += m_modRangedHitChance;
     else
-        l_MissChance -= m_modMeleeHitChance;
+        l_HitChance += m_modMeleeHitChance;
 
-    // Limit miss chance from 0 to 77%
+    l_MissChance += l_HitChance - 100.0f;
+
     if (l_MissChance < 0.0f)
         return 0.0f;
-    if (l_MissChance > 77.0f)
-        return 77.0f;
+    if (l_MissChance > 100.0f)
+        return 100.0f;
+
+    return l_MissChance;
+}
+
+float Unit::MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell) const
+{
+    // Calculate miss chance
+    float l_MissChance = p_Victim->GetUnitMissChanceSpell(this);
+
+    // Calculate hit chance
+    float l_HitChance = 100.0f;
+
+    // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
+    if (p_Spell && p_Spell->Id)
+    {
+        if (Player* l_ModOwner = GetSpellModOwner())
+            l_ModOwner->ApplySpellMod(p_Spell->Id, SPELLMOD_RESIST_MISS_CHANCE, l_HitChance);
+    }
+
+    // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will ignore target's avoidance effects
+    if (p_Spell && !(p_Spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT))
+    {
+        // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
+        l_HitChance += p_Victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, p_Spell->GetSchoolMask());
+    }
+
+    // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
+    l_HitChance += m_modSpellHitChance;
+
+    l_MissChance += l_HitChance - 100.0f;
+
+    if (l_MissChance < 0.0f)
+        return 0.0f;
+    if (l_MissChance > 100.0f)
+        return 100.0f;
 
     return l_MissChance;
 }
