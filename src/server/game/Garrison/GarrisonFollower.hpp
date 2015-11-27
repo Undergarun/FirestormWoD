@@ -24,11 +24,21 @@ namespace MS { namespace Garrison
 
             /// Follower can earn XP
             bool CanXP();
+
             /// Earn XP
             uint32 EarnXP(uint32 p_XP);
 
+            /// Set new Armor Ilvl
+            void SetArmorItemLevel(uint32 p_NewIlvl);
+
+            /// Set new Weapon Ilvl
+            void SetWeaponItemLevel(uint32 p_NewIlvl);
+
             /// Write follower into a packet
             void Write(ByteBuffer & p_Buffer);
+
+            /// Send Follower Update Packet
+            void UpdateFollower(Player* p_Player);
 
         public:
             uint32 DatabaseID;          ///< Database ID

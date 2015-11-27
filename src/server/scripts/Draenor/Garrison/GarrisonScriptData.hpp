@@ -113,7 +113,8 @@ namespace MS { namespace Garrison
             Horde_EasingIntoLumberjacking               = 36137,
             Horde_TurningTimberIntoProfit               = 36138,
             /// Frostwall Mines
-            Horde_ThingsAreNotGorenOurWay                = 35154
+            Horde_ThingsAreNotGorenOurWay               = 35154,
+            Horde_MissionProbable                       = 34775
         };
     }   ///< namespace Quests
 

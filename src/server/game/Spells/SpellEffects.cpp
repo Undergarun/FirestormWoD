@@ -7822,7 +7822,6 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
-/// @todo USE ME
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -7831,39 +7830,59 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
     if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
         return;
 
-    Player * l_Player = unitTarget->ToPlayer();
+    Player* l_Player = unitTarget->ToPlayer();
+    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
 
-    if (!l_Player || !l_Player->GetGarrison())
+    if (!l_Player || !l_GarrisonMgr)
         return;
 
     bool l_IsArmor = !!m_spellInfo->Effects[p_EffIndex].MiscValue;
     uint32 l_FollowerEntry = m_glyphIndex;
-    uint32 l_NewValue = 0;
 
-    printf("Follower entry %u \n", m_glyphIndex);
-    if (m_spellInfo->Effects[EFFECT_1].Effect == SPELL_EFFECT_DUMMY)
+    MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(l_FollowerEntry);
+
+    if (l_Follower != nullptr && l_Follower->FollowerID != 0)
     {
-        l_NewValue = m_spellInfo->Effects[EFFECT_1].BasePoints;
-    }
-    else
-    {
-        if (l_IsArmor)
-            l_NewValue = /*OldArmorValue*/0 + m_spellInfo->Effects[p_EffIndex].BasePoints;
+        uint32 l_NewValue = 0;
+        uint32 l_OldArmorValue = l_Follower->ItemLevelArmor;
+        uint32 l_OldWeaponValue = l_Follower->ItemLevelWeapon;
+
+        printf("Follower entry %u \n", m_glyphIndex);
+
+        if (m_spellInfo->Effects[EFFECT_1].Effect == SPELL_EFFECT_DUMMY)
+            l_NewValue = m_spellInfo->Effects[EFFECT_1].BasePoints;
         else
-            l_NewValue = /*OldWeponValue*/0 + m_spellInfo->Effects[p_EffIndex].BasePoints;
-    }
+        {
+            if (l_IsArmor)
+                l_NewValue = l_OldArmorValue + m_spellInfo->Effects[p_EffIndex].BasePoints;
+            else
+                l_NewValue = l_OldWeaponValue + m_spellInfo->Effects[p_EffIndex].BasePoints;
+        }
 
-    uint32 l_Value = m_spellInfo->Effects[p_EffIndex].MiscValueB;
+        uint32 l_MaxIlvl = m_spellInfo->Effects[p_EffIndex].MiscValueB;
 
-    /// Armor case
-    if (l_IsArmor)
-    {
-
-    }
-    /// Weapon case
-    else
-    {
-
+        if (l_IsArmor) ///< Armor case
+        {
+            if ((uint32)l_Follower->ItemLevelArmor < l_MaxIlvl)
+            {
+                l_Follower->SetArmorItemLevel(l_NewValue);
+                l_Follower->UpdateFollower(l_Player);
+                l_GarrisonMgr->Save(CharacterDatabase.BeginTransaction());
+            }
+            else
+                SendCastResult(SPELL_FAILED_GARRISON_FOLLOWER_MAX_ITEM_LEVEL);
+        }
+        else ///< Weapon case
+        {
+            if ((uint32)l_Follower->ItemLevelWeapon < l_MaxIlvl)
+            {
+                l_Follower->SetWeaponItemLevel(l_NewValue);
+                l_Follower->UpdateFollower(l_Player);
+                l_GarrisonMgr->Save(CharacterDatabase.BeginTransaction());
+            }
+            else
+                SendCastResult(SPELL_FAILED_GARRISON_FOLLOWER_MAX_ITEM_LEVEL);
+        }
     }
 }
 
