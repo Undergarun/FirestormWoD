@@ -31104,19 +31104,29 @@ uint32 Player::GetAverageItemLevelTotal()
         }
     }
 
-    uint32 l_Sum = 0;
+    int32 l_Sum = 0;
     uint32 l_Count = 0;
+    bool l_HasTwoHanded = false;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
+        // don't check tabard, ranged, offhand or shirt
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
             continue;
 
-        if (i == EQUIPMENT_SLOT_OFFHAND && !l_EquipItemLevel[i])
-            continue;
+        Item* l_Item = m_items[i];
+        if (l_Item && l_Item->GetTemplate())
+        {
+            if (i == EQUIPMENT_SLOT_MAINHAND && l_Item->GetTemplate()->IsTwoHandedWeapon())
+                l_HasTwoHanded = true;
 
-        l_Sum += l_EquipItemLevel[i];
-        ++l_Count;
+            l_Sum += l_EquipItemLevel[i];
+            ++l_Count;
+        }
+        else if (i == EQUIPMENT_SLOT_OFFHAND && !CanTitanGrip() && (l_HasTwoHanded))
+            continue;
+        else
+            ++l_Count;
     }
 
     if (!l_Count)
