@@ -18531,6 +18531,32 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         {
             Map* l_InstanceMap = l_KilledCreature->GetMap();
 
+            if (l_InstanceMap->IsLFR())
+            {
+                Map::PlayerList const& l_PlayerList = l_InstanceMap->GetPlayers();
+                if (l_PlayerList.isEmpty())
+                    return;
+
+                /// Handle end of dungeon rewarding for LFR
+                if (l_KilledCreature->GetNativeTemplate()->flags_extra & CreatureFlagsExtra::CREATURE_FLAG_EXTRA_DUNGEON_END_BOSS)
+                {
+                    for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = l_Itr->getSource())
+                        {
+                            uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                            if (!l_KilledCreature || l_Player->IsAtGroupRewardDistance(l_KilledCreature))
+                                sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+                        }
+                    }
+                }
+
+                /// Handle loot assignation for LFR
+                Player* l_Player = l_PlayerList.begin()->getSource();
+                if (l_Player && l_Player->GetGroup())
+                    sLFGMgr->AutomaticLootAssignation(l_KilledCreature, l_Player->GetGroup());
+            }
+
             /// @TODO: do instance binding anyway if the charmer/owner is offline
             if (l_InstanceMap->IsDungeon() && l_KillerPlayer)
             {
