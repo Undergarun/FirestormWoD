@@ -3471,6 +3471,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156220: ///< Tactical Retreat
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
+            case 157923: ///< Jump Slam
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 168178: ///< Salvage (garrison loot spell)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;

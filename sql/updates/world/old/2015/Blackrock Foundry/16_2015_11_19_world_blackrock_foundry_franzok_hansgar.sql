@@ -4,30 +4,21 @@ DELETE FROM areatrigger_template WHERE spell_id = 160259;
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, ScriptName) VALUES
 (160259, 0, 6742, 12, 12, 16384, 'areatrigger_foundry_fire_bomb');
 
--- DELETE FROM areatrigger_template WHERE spell_id IN (155995, 160578);
--- INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, data0, data1, data6) VALUES
--- (155995, 0, 6731, 1, 1, 4096, -10, 7.5, 4),
--- (155995, 0, 6731, 1, 1, 4096, -10, -7.5, 4),
--- (155995, 0, 6731, 1, 1, 4096, 10, -7.5, 4),
--- (155995, 0, 6731, 1, 1, 4096, 10, 7.5, 4),
--- (160578, 0, 6771, 1, 1, 4096, -10, 7.5, 4),
--- (160578, 0, 6771, 1, 1, 4096, -10, -7.5, 4),
--- (160578, 0, 6771, 1, 1, 4096, 10, -7.5, 4),
--- (160578, 0, 6771, 1, 1, 4096, 10, 7.5, 4);
-
-DELETE FROM spell_script_names WHERE spell_id IN (160092, 155665);
+DELETE FROM spell_script_names WHERE spell_id IN (160092, 155665, 156938);
 INSERT INTO spell_script_names VALUE
 (160092, 'spell_foundry_rending_slash'),
-(155665, 'spell_foundry_pumped_up');
+(155665, 'spell_foundry_pumped_up'),
+(156938, 'spell_foundry_crippling_suplex');
 
 DELETE FROM areatrigger_scripts WHERE entry = 9998;
 INSERT INTO areatrigger_scripts VALUE
 (9998, 'areatrigger_at_foundry_hansgar_and_franzok_entrance');
 
-DELETE FROM conditions WHERE SourceEntry IN (177379);
+DELETE FROM conditions WHERE SourceEntry IN (177379, 156611);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
 (13, 1, 177379, 31, 0, 3, 237598),
-(13, 1, 177379, 31, 0, 3, 237597);
+(13, 1, 177379, 31, 0, 3, 237597),
+(13, 1, 156611, 31, 0, 3, 76974);
 
 SET @REF_HANSGAR = 76973;
 SET @REF_FRANZOK = 76974;
