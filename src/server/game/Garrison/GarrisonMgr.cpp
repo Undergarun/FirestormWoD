@@ -493,7 +493,7 @@ namespace MS { namespace Garrison
     }
 
     /// Save this garrison to DB
-    void Manager::Save(SQLTransaction& p_Transaction)
+    void Manager::Save()
     {
         SQLTransaction l_GarrisonTransaction = CharacterDatabase.BeginTransaction();
 
@@ -582,6 +582,44 @@ namespace MS { namespace Garrison
             PreparedStatement* l_FollowerStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_FOLLOWER);
 
             l_Index = 0;
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].FollowerID);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Level);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].XP);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Quality);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelArmor);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelWeapon);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].CurrentMissionID);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].CurrentBuildingID);
+            l_FollowerStmt->setString(l_Index++, l_Abilities.str());
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Flags);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].DatabaseID);
+            l_FollowerStmt->setUInt32(l_Index++, m_ID);
+
+            l_GarrisonTransaction->Append(l_FollowerStmt);
+        }
+
+        CharacterDatabase.CommitTransaction(l_GarrisonTransaction);
+    }
+
+    /// Update Follower in database
+    void Manager::SaveFollowersToDB(uint32 p_Entry /*= 0*/)
+    {
+        SQLTransaction l_GarrisonTransaction = CharacterDatabase.BeginTransaction();
+
+        for (uint32 l_I = 0; l_I < m_Followers.size(); ++l_I)
+        {
+            /// Save only one if specified
+            if (p_Entry && p_Entry != m_Followers.FollowerID)
+                continue;
+
+            std::ostringstream l_Abilities;
+
+            for (uint32 l_Y = 0; l_Y < m_Followers[l_I].Abilities.size(); ++l_Y)
+                l_Abilities << m_Followers[l_I].Abilities[l_Y] << ' ';
+
+            PreparedStatement* l_FollowerStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_FOLLOWER);
+
+            uint8 l_Index = 0;
             l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].FollowerID);
             l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Level);
             l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].XP);

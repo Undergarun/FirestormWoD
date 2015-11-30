@@ -37,8 +37,12 @@ namespace MS { namespace Garrison
             void Create();
             /// Load
             bool Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult, PreparedQueryResult p_WorkOrderResult);
+
             /// Save this garrison to DB
-            void Save(SQLTransaction& p_Transaction);
+            void Save();
+
+            /// Save Follower(s) to database
+            void SaveFollowersToDB(uint32 p_Entry = 0);
 
             /// Delete garrison
             static void DeleteFromDB(uint64 p_PlayerGUID, SQLTransaction p_Transation);
