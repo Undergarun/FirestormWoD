@@ -96,7 +96,7 @@ namespace MS { namespace Garrison
                 const Quest         * l_QuestTemplate   = sObjectMgr->GetQuestTemplate(l_QuestID);
                 const SpellInfo     * l_SpellInfo       = sSpellMgr->GetSpellInfo(l_QuestTemplate->GetRewSpellCast());
 
-                if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue).FollowerID == 0)
+                if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue) == nullptr)
                     AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
             }
         }
@@ -379,7 +379,7 @@ namespace MS { namespace Garrison
                     const Quest         * l_QuestTemplate = sObjectMgr->GetQuestTemplate(l_QuestID);
                     const SpellInfo     * l_SpellInfo = sSpellMgr->GetSpellInfo(l_QuestTemplate->GetRewSpellCast());
 
-                    if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue).FollowerID == 0)
+                    if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue) == nullptr)
                         AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
                 }
             }
@@ -493,7 +493,7 @@ namespace MS { namespace Garrison
     }
 
     /// Save this garrison to DB
-    void Manager::Save(SQLTransaction& p_Transaction)
+    void Manager::Save()
     {
         SQLTransaction l_GarrisonTransaction = CharacterDatabase.BeginTransaction();
 
@@ -582,6 +582,44 @@ namespace MS { namespace Garrison
             PreparedStatement* l_FollowerStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_FOLLOWER);
 
             l_Index = 0;
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].FollowerID);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Level);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].XP);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Quality);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelArmor);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].ItemLevelWeapon);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].CurrentMissionID);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].CurrentBuildingID);
+            l_FollowerStmt->setString(l_Index++, l_Abilities.str());
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Flags);
+            l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].DatabaseID);
+            l_FollowerStmt->setUInt32(l_Index++, m_ID);
+
+            l_GarrisonTransaction->Append(l_FollowerStmt);
+        }
+
+        CharacterDatabase.CommitTransaction(l_GarrisonTransaction);
+    }
+
+    /// Update Follower in database
+    void Manager::SaveFollowersToDB(uint32 p_Entry /*= 0*/)
+    {
+        SQLTransaction l_GarrisonTransaction = CharacterDatabase.BeginTransaction();
+
+        for (uint32 l_I = 0; l_I < m_Followers.size(); ++l_I)
+        {
+            /// Save only one if specified
+            if (p_Entry && p_Entry != m_Followers[l_I].FollowerID)
+                continue;
+
+            std::ostringstream l_Abilities;
+
+            for (uint32 l_Y = 0; l_Y < m_Followers[l_I].Abilities.size(); ++l_Y)
+                l_Abilities << m_Followers[l_I].Abilities[l_Y] << ' ';
+
+            PreparedStatement* l_FollowerStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_FOLLOWER);
+
+            uint8 l_Index = 0;
             l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].FollowerID);
             l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].Level);
             l_FollowerStmt->setUInt32(l_Index++, m_Followers[l_I].XP);
@@ -2319,7 +2357,7 @@ namespace MS { namespace Garrison
     /// Add follower
     bool Manager::AddFollower(uint32 p_FollowerID)
     {
-        if (GetFollower(p_FollowerID).FollowerID != 0)
+        if (GetFollower(p_FollowerID) == nullptr)
             return false;
 
         GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
@@ -2466,18 +2504,15 @@ namespace MS { namespace Garrison
     }
 
     /// Get follower
-    GarrisonFollower Manager::GetFollower(uint32 p_FollowerID) const
+    GarrisonFollower* Manager::GetFollower(uint32 p_FollowerID)
     {
         for (uint32 l_I = 0; l_I < m_Followers.size(); l_I++)
         {
             if (m_Followers[l_I].FollowerID == p_FollowerID)
-                return m_Followers[l_I];
+                return &m_Followers[l_I];
         }
 
-        GarrisonFollower l_FailResult;
-        l_FailResult.FollowerID = 0;
-
-        return l_FailResult;
+        return nullptr;
     }
 
     /// Get activated followers count

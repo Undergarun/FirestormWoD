@@ -99,7 +99,34 @@ namespace MS { namespace Garrison
 
         return 0;
     }
-    
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    void GarrisonFollower::SetArmorItemLevel(uint32 p_NewIlvl)
+    {
+        ItemLevelArmor = p_NewIlvl;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    void GarrisonFollower::SetWeaponItemLevel(uint32 p_NewIlvl)
+    {
+        ItemLevelWeapon = p_NewIlvl;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// needs SendDirectMessage to player, complete class to get player and garrison
+    void GarrisonFollower::UpdateFollower(Player* p_Player)
+    {
+        WorldPacket l_Update(SMSG_GARRISON_UPDATE_FOLLOWER, 500);
+        Write(l_Update);
+        p_Player->SendDirectMessage(&l_Update);
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -122,6 +149,5 @@ namespace MS { namespace Garrison
         for (uint32 l_Y = 0; l_Y < this->Abilities.size(); ++l_Y)
             p_Buffer << int32(this->Abilities[l_Y]);
     }
-
 }   ///< namespace Garrison
 }   ///< namespace MS
