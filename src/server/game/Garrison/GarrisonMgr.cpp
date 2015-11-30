@@ -609,7 +609,7 @@ namespace MS { namespace Garrison
         for (uint32 l_I = 0; l_I < m_Followers.size(); ++l_I)
         {
             /// Save only one if specified
-            if (p_Entry && p_Entry != m_Followers.FollowerID)
+            if (p_Entry && p_Entry != m_Followers[l_I].FollowerID)
                 continue;
 
             std::ostringstream l_Abilities;
