@@ -767,6 +767,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_Garrison = nullptr;
     m_GarrisonUpdateTimer.SetInterval(2 * IN_MILLISECONDS);
 
+    m_VoidStorageLoaded = false;
+
     CurrentPlayedMovie = 0;
 
     m_speakTime = 0;
@@ -21091,6 +21093,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     if (IsVoidStorageUnlocked())
         _LoadVoidStorage(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE));
 
+    m_VoidStorageLoaded = true;
+
     // update items with duration and realtime
     UpdateItemDuration(time_diff, true);
 
@@ -23451,6 +23455,12 @@ void Player::_SaveInventory(SQLTransaction& trans)
 
 void Player::_SaveVoidStorage(SQLTransaction& trans)
 {
+    if (!m_VoidStorageLoaded)
+    {
+        sLog->outAshran("Trying to save Void Storage before loaded it!");
+        return;
+    }
+
     PreparedStatement* stmt = NULL;
     uint32 lowGuid = GetGUIDLow();
 
@@ -31158,19 +31168,29 @@ uint32 Player::GetAverageItemLevelTotal()
         }
     }
 
-    uint32 l_Sum = 0;
+    int32 l_Sum = 0;
     uint32 l_Count = 0;
+    bool l_HasTwoHanded = false;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
+        // don't check tabard, ranged, offhand or shirt
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
             continue;
 
-        if (i == EQUIPMENT_SLOT_OFFHAND && !l_EquipItemLevel[i])
-            continue;
+        Item* l_Item = m_items[i];
+        if (l_Item && l_Item->GetTemplate())
+        {
+            if (i == EQUIPMENT_SLOT_MAINHAND && l_Item->GetTemplate()->IsTwoHandedWeapon())
+                l_HasTwoHanded = true;
 
-        l_Sum += l_EquipItemLevel[i];
-        ++l_Count;
+            l_Sum += l_EquipItemLevel[i];
+            ++l_Count;
+        }
+        else if (i == EQUIPMENT_SLOT_OFFHAND && !CanTitanGrip() && (l_HasTwoHanded))
+            continue;
+        else
+            ++l_Count;
     }
 
     if (!l_Count)

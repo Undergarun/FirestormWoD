@@ -3627,6 +3627,8 @@ class Player : public Unit, public GridObject<Player>
 
         BossLooted m_BossLooted;
 
+        bool m_VoidStorageLoaded;
+
     private:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
