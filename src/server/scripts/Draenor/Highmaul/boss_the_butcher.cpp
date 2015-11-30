@@ -318,13 +318,6 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::ButcherBonusLoot, true);
-
-                    if (IsLFR())
-                    {
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                    }
                 }
             }
 

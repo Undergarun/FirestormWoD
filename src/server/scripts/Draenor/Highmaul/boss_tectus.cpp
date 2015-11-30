@@ -419,13 +419,6 @@ class boss_tectus : public CreatureScript
                     }
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::TectusBonus, true);
-
-                    if (IsLFR())
-                    {
-                        Player* l_Player = l_PlayerList.begin()->getSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                    }
                 }
 
                 std::list<Creature*> l_Creatures;

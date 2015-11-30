@@ -606,13 +606,6 @@ class boss_oregorger : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExplosiveShardAoE);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::OregorgerBonusLoot, true);
-
-                    if (IsLFR())
-                    {
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                    }
                 }
             }
 
