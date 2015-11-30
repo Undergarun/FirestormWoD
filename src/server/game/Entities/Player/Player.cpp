@@ -23142,7 +23142,7 @@ void Player::SaveToDB(bool create /*=false*/)
     trans->Append(stmt);
 
     if (m_Garrison)
-        m_Garrison->Save(trans);    
+        m_Garrison->Save();
 
     if (m_mailsUpdated)                                     //save mails only when needed
         _SaveMail(trans);
