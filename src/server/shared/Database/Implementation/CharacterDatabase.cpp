@@ -692,6 +692,11 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_WORKORDER,       "DELETE FROM character_garrison_work_order WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_WORKORDERS,      "DELETE FROM character_garrison_work_order WHERE garrison_id = (SELECT b.id FROM character_garrison b WHERE b.character_guid = ? LIMIT 1)", CONNECTION_ASYNC);
 
+    PREPARE_STATEMENT(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR, "INSERT INTO character_garrison_daily_tavern_data (CharacterGuid, NpcEntry) VALUES (?,?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_DAILY_TAVERN_DATA_CHAR, "SELECT CharacterGuid, NpcEntry FROM character_garrison_daily_tavern_data WHERE CharacterGuid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA_CHAR, "DELETE FROM character_garrison_daily_tavern_data WHERE CharacterGuid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA, "DELETE FROM character_garrison_daily_tavern_data", CONNECTION_ASYNC);
+
     // Battle pets
     PREPARE_STATEMENT(CHAR_UPD_LAST_BATTLEPET, "UPDATE characters SET lastbattlepet = ? WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_LAST_BATTLEPET, "SELECT lastbattlepet FROM characters WHERE guid = ? AND lastbattlepet != 0", CONNECTION_ASYNC);

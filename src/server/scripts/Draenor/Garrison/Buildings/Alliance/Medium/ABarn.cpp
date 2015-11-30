@@ -182,15 +182,15 @@ namespace MS { namespace Garrison
             case GOSSIP_ACTION_INFO_DEF + 2: ///< Send shipment for fur
                 if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
                 {
-                    l_AI->SetData(1, MS::Garrison::BarnProductionTypes::TypeFur);
-                    reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::BarnProductionTypes::ShipmentIDS::ShipmentFur); ///< Fur
+                    l_AI->SetData(1, MS::Garrison::Barn::ProductionTypes::TypeFur);
+                    reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentFur); ///< Fur
                 }
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3: ///< Send shipment for leather
                 if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
                 {
-                    l_AI->SetData(1, MS::Garrison::BarnProductionTypes::TypeLeather);
-                    reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::BarnProductionTypes::ShipmentIDS::ShipmentLeather); ///< Leather
+                    l_AI->SetData(1, MS::Garrison::Barn::ProductionTypes::TypeLeather);
+                    reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather); ///< Leather
                 }
                 break;
             default:
@@ -218,10 +218,10 @@ namespace MS { namespace Garrison
     {
         switch (m_ProductionChosen)
         {
-            case MS::Garrison::BarnProductionTypes::TypeFur:
-                return MS::Garrison::BarnProductionTypes::ShipmentIDS::ShipmentFur;
-            case MS::Garrison::BarnProductionTypes::TypeLeather:
-                return MS::Garrison::BarnProductionTypes::ShipmentIDS::ShipmentLeather;
+            case MS::Garrison::Barn::ProductionTypes::TypeFur:
+                return MS::Garrison::Barn::ShipmentIDS::ShipmentFur;
+            case MS::Garrison::Barn::ProductionTypes::TypeLeather:
+                return MS::Garrison::Barn::ShipmentIDS::ShipmentLeather;
             default:
                 return -1;
         }

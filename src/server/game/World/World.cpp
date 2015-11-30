@@ -2344,6 +2344,7 @@ void World::Update(uint32 diff)
     if (m_gameTime > m_NextDailyQuestReset)
     {
         ResetDailyQuests();
+        ResetGarrisonDatas();
         m_NextDailyQuestReset += DAY;
     }
 
@@ -2357,7 +2358,6 @@ void World::Update(uint32 diff)
     /// Handle monthly quests reset time
     if (m_gameTime > m_NextMonthlyQuestReset)
         ResetMonthlyQuests();
-
 
     if (m_gameTime > m_NextRandomBGReset)
         ResetRandomBG();
@@ -3403,6 +3403,23 @@ void World::ResetDailyQuests()
     sPoolMgr->ChangeDailyQuests();
 
     sAnticheatMgr->ResetDailyReportStates();
+}
+
+void World::ResetGarrisonDatas()
+{
+    for (SessionMap::const_iterator l_Itr = m_sessions.begin(); l_Itr != m_sessions.end(); ++l_Itr)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA);
+        CharacterDatabase.Execute(stmt);
+
+        Player* l_Player = l_Itr->second->GetPlayer();
+
+        if (l_Player)
+        {
+            l_Player->CleanGarrisonTavernData();
+            l_Player->ResetGarrisonDatas();
+        }
+    }
 }
 
 void World::ResetCurrencyWeekCap()

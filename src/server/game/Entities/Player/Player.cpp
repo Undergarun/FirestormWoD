@@ -9798,6 +9798,8 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
                 return;
             }
 
+            QuestObjectiveSatisfy(p_CurrencyID, p_Count, QUEST_OBJECTIVE_TYPE_CURRENCY);
+
             WorldPacket l_Packet(SMSG_UPDATE_CURRENCY);
 
             l_Packet << uint32(p_CurrencyID);
@@ -10081,7 +10083,7 @@ void Player::UpdateArea(uint32 newArea)
                 {
                     sMapMgr->AddCriticalOperation([l_Guid]() -> void
                     {
-                        Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
+                        Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
                         if (l_Player)
                             l_Player->_GarrisonSetOut();
@@ -10091,7 +10093,7 @@ void Player::UpdateArea(uint32 newArea)
                 {
                     sMapMgr->AddCriticalOperation([l_Guid]() -> void
                     {
-                        Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
+                        Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
                         if (l_Player)
                             l_Player->_GarrisonSetIn();
@@ -18551,8 +18553,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         }
 
         // not all Quest Objective types need to be tracked, some such as reputation are handled/checked externally
-        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CURRENCY
-            || l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL
+        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY
@@ -21318,6 +21319,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     else
         delete l_Garrison;
 
+    _LoadGarrisonTavernDatas(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS_TAVERNDATA));
+
     l_Times.push_back(getMSTime() - l_StartTime);
     RewardCompletedAchievementsIfNeeded();
     CheckTalentSpells();
@@ -22354,6 +22357,47 @@ void Player::_LoadSpells(PreparedQueryResult result)
             addSpell(fields[0].GetUInt32(), fields[1].GetBool(), false, false, fields[2].GetBool(), true, fields[3].GetBool());
         }
         while (result->NextRow());
+    }
+}
+
+void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
+{
+    if (p_Result)
+    {
+        do
+        {
+            Field* fields = p_Result->Fetch();
+
+            uint32 l_NpcEntry = fields[1].GetUInt32();
+            SetGarrisonTavernData(l_NpcEntry);
+        }
+        while (p_Result->NextRow());
+    }
+    else
+    {
+        if (GetGarrison() != nullptr && GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
+        {
+            if (roll_chance_i(50))
+            {
+                uint32 l_Entry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
+
+                CleanGarrisonTavernData();
+                AddGarrisonTavernData(l_Entry);
+            }
+            else
+            {
+                uint32 l_FirstEntry  = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
+                uint32 l_SecondEntry = 0;
+
+                do
+                    l_SecondEntry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
+                while (l_SecondEntry == l_FirstEntry);
+
+                CleanGarrisonTavernData();
+                AddGarrisonTavernData(l_FirstEntry);
+                AddGarrisonTavernData(l_SecondEntry);
+            }
+        }
     }
 }
 
@@ -27702,6 +27746,26 @@ void Player::ResetDailyQuestStatus()
     GetSession()->SendPacket(&data);
 }
 
+void Player::ResetGarrisonDatas()
+{
+    if (MS::Garrison::Manager* l_Garrison = GetGarrison())
+    {
+        if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        {
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(MS::Garrison::BuildingType::Inn);
+
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+            {
+                if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
+                {
+                    if (l_Creature->AI())
+                        l_Creature->AI()->SetData(MS::Garrison::CreatureAIDataIDs::DailyReset, 0);
+                }
+            }
+        }
+    }
+}
+
 void Player::ResetWeeklyQuestStatus()
 {
     if (m_weeklyquests.empty())
@@ -31157,19 +31221,29 @@ uint32 Player::GetAverageItemLevelTotal()
         }
     }
 
-    uint32 l_Sum = 0;
+    int32 l_Sum = 0;
     uint32 l_Count = 0;
+    bool l_HasTwoHanded = false;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
+        // don't check tabard, ranged, offhand or shirt
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
             continue;
 
-        if (i == EQUIPMENT_SLOT_OFFHAND && !l_EquipItemLevel[i])
-            continue;
+        Item* l_Item = m_items[i];
+        if (l_Item && l_Item->GetTemplate())
+        {
+            if (i == EQUIPMENT_SLOT_MAINHAND && l_Item->GetTemplate()->IsTwoHandedWeapon())
+                l_HasTwoHanded = true;
 
-        l_Sum += l_EquipItemLevel[i];
-        ++l_Count;
+            l_Sum += l_EquipItemLevel[i];
+            ++l_Count;
+        }
+        else if (i == EQUIPMENT_SLOT_OFFHAND && !CanTitanGrip() && (l_HasTwoHanded))
+            continue;
+        else
+            ++l_Count;
     }
 
     if (!l_Count)
@@ -32881,6 +32955,22 @@ void Player::DeleteGarrison()
 
     delete m_Garrison;
     m_Garrison = nullptr;
+}
+
+void Player::AddGarrisonTavernData(uint32 p_Data)
+{
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR);
+
+    l_Stmt->setUInt32(0, GetGUIDLow());
+    l_Stmt->setUInt32(1, p_Data);
+    CharacterDatabase.AsyncQuery(l_Stmt);
+
+    SetGarrisonTavernData(p_Data);
+}
+
+void Player::SetGarrisonTavernData(uint32 p_Data)
+{
+    m_GarrisonDailyTavernData.push_back(p_Data);
 }
 
 Stats Player::GetPrimaryStat() const

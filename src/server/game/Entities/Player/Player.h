@@ -1023,6 +1023,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_BOSS_LOOTED                  = 59,
     PLAYER_LOGIN_QUERY_WORLD_STATES                 = 60,
     PLAYER_LOGIN_QUERY_STORE_PROFESSION             = 61,
+    PLAYER_LOGIN_QUERY_GARRISON_MISSIONS_TAVERNDATA = 62,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1620,11 +1621,15 @@ class Player : public Unit, public GridObject<Player>
         std::string afkMsg;
         std::string dndMsg;
 
-        MS::Garrison::Manager * GetGarrison();
+        MS::Garrison::Manager* GetGarrison();
         void CreateGarrison();
         bool IsInGarrison() const;
         int32 GetGarrisonMapID() const;
         void DeleteGarrison();
+        std::vector<uint32> GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
+        void AddGarrisonTavernData(uint32 p_Data);
+        void SetGarrisonTavernData(uint32 p_Data);
+        void CleanGarrisonTavernData() { m_GarrisonDailyTavernData.clear(); };
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 
@@ -1998,6 +2003,7 @@ class Player : public Unit, public GridObject<Player>
         void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
         void ResetDailyQuestStatus();
+        void ResetGarrisonDatas();
         void ResetWeeklyQuestStatus();
         void ResetMonthlyQuestStatus();
         void ResetSeasonalQuestStatus(uint16 event_id);
@@ -3723,6 +3729,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadBossLooted(PreparedQueryResult p_Result);
         void _LoadWorldStates(PreparedQueryResult p_Result);
+        void _LoadGarrisonTavernDatas(PreparedQueryResult p_Result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -4019,7 +4026,8 @@ class Player : public Unit, public GridObject<Player>
         //////////////////////////////////////////////////////////////////////////
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
-        MS::Garrison::Manager * m_Garrison;
+        MS::Garrison::Manager* m_Garrison;
+        std::vector<uint32> m_GarrisonDailyTavernData;
         IntervalTimer m_GarrisonUpdateTimer;
 
         //////////////////////////////////////////////////////////////////////////

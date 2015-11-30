@@ -30,6 +30,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_PristineTrueIronOres      = 0;
 
                 m_OregorgerGuid             = 0;
+                m_VolatileOreGuid           = 0;
                 m_VolatileOreGrinded        = false;
 
                 m_HeartOfTheMountain        = 0;
@@ -45,6 +46,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint8 m_PristineTrueIronOres;
 
             uint64 m_OregorgerGuid;
+            uint64 m_VolatileOreGuid;
             bool m_VolatileOreGrinded;
 
             /// Blast Furnace
@@ -97,6 +99,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::FurnacePortcullis:
                     case eFoundryGameObjects::BlastFurnaceEncounterDoor:
                         AddDoor(p_GameObject, true);
+                        break;
+                    case eFoundryGameObjects::VolatileBlackrockOre:
+                        m_VolatileOreGuid = p_GameObject->GetGUID();
                         break;
                     case eFoundryGameObjects::CrucibleLeft:
                     case eFoundryGameObjects::CrucibleRight:
@@ -261,6 +266,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_ForemanFeldspar;
                     case eFoundryCreatures::BlackhandCosmetic:
                         return m_CosmeticBlackhand;
+                    case eFoundryGameObjects::VolatileBlackrockOre:
+                        return m_VolatileOreGuid;
                     case eFoundryGameObjects::FurnaceGate:
                         return m_FurnaceGate;
                     default:

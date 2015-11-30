@@ -532,6 +532,14 @@ class instance_highmaul : public InstanceMapScript
                                 if (!instance->IsLFR() && m_ImperatorAchievement)
                                     DoCompleteAchievement(eHighmaulAchievements::LineageOfPower);
 
+                                if (instance->IsMythic())
+                                {
+                                    DoCompleteAchievement(eHighmaulAchievements::AheadOfTheCurve);
+                                    DoCompleteAchievement(eHighmaulAchievements::CuttingEdge);
+                                }
+                                else if (instance->IsHeroic())
+                                    DoCompleteAchievement(eHighmaulAchievements::AheadOfTheCurve);
+
                                 break;
                             }
                             default:

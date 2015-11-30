@@ -77,6 +77,7 @@ class boss_heart_of_the_mountain : public CreatureScript
             BlastWaveCosmetic   = 177388,
             Containment         = 155265,
             ContainedDNT        = 177434,
+            MeltDoT             = 155223,
             /// Encounter
             Blast               = 155209,
             SlagPoolAreatrigger = 155738,
@@ -248,6 +249,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                 {
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Heat);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Tempered);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MeltDoT);
                 }
 
                 me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
@@ -278,6 +280,7 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Heat);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Tempered);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MeltDoT);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::BlastFurnaceBonus, true);
 
@@ -1821,7 +1824,11 @@ class npc_foundry_furnace_engineer : public CreatureScript
                     return;
 
                 if (p_ID == eMove::MoveRegulator)
+                {
                     me->CastSpell(me, eSpells::Repair, false);
+
+                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                }
             }
 
             void OnSpellFinished(SpellInfo const* p_SpellInfo) override
@@ -1877,6 +1884,14 @@ class npc_foundry_furnace_engineer : public CreatureScript
 
                         if (Unit* l_Regulator = me->FindNearestCreature(eCreatures::HeatRegulator, 100.0f))
                         {
+                            if (l_Regulator->IsFullHealth())
+                            {
+                                m_Events.ScheduleEvent(eEvents::EventRepair, 20 * TimeConstants::IN_MILLISECONDS);
+                                break;
+                            }
+
+                            me->SetReactState(ReactStates::REACT_PASSIVE);
+
                             if (l_Regulator->GetDistance(l_LeftPos) < l_Regulator->GetDistance(l_RightPos))
                                 me->GetMotionMaster()->MovePoint(eMove::MoveRegulator, l_LeftPos);
                             else
@@ -2724,6 +2739,117 @@ class spell_foundry_melt_aura : public SpellScriptLoader
         }
 };
 
+/// Repair - 155179
+class spell_foundry_repair : public SpellScriptLoader
+{
+    public:
+        spell_foundry_repair() : SpellScriptLoader("spell_foundry_repair") { }
+
+        class spell_foundry_repair_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_repair_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetTarget())
+                    {
+                        if (l_Target->IsFullHealth())
+                            l_Caster->InterruptNonMeleeSpells(true);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_repair_AuraScript::OnTick, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_repair_AuraScript();
+        }
+
+        class spell_foundry_repair_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_repair_SpellScript);
+
+            void HandleApplyHeal(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    int32 l_BasePoint = 2;
+
+                    if (l_Caster->GetMap()->IsLFR())
+                        l_BasePoint = 1;
+                    else if (l_Caster->GetMap()->IsHeroic())
+                        l_BasePoint = 3;
+                    else if (l_Caster->GetMap()->IsMythic())
+                        l_BasePoint = 5;
+
+                    int32 l_MaxValue = 300;
+                    int32 l_Duration = 1 * TimeConstants::IN_MILLISECONDS * (l_MaxValue / l_BasePoint);
+
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, p_EffIndex, l_Caster->GetGUID()))
+                        {
+                            l_AuraEffect->ChangeAmount(l_BasePoint);
+                            l_AuraEffect->GetBase()->SetMaxDuration(l_Duration);
+                            l_AuraEffect->GetBase()->SetDuration(l_Duration);
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_foundry_repair_SpellScript::HandleApplyHeal, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_repair_SpellScript();
+        }
+};
+
+/// Heart of the Furnace - 155288
+class spell_foundry_heart_of_the_furnace : public SpellScriptLoader
+{
+    public:
+        spell_foundry_heart_of_the_furnace() : SpellScriptLoader("spell_foundry_heart_of_the_furnace") { }
+
+        class spell_foundry_heart_of_the_furnace_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_heart_of_the_furnace_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (GetTarget() == nullptr)
+                    return;
+
+                if (Creature* l_Boss = GetTarget()->ToCreature())
+                {
+                    if (boss_heart_of_the_mountain::boss_heart_of_the_mountainAI* l_AI = CAST_AI(boss_heart_of_the_mountain::boss_heart_of_the_mountainAI, l_Boss->GetAI()))
+                        p_AurEff->GetBase()->GetEffect(EFFECT_0)->ChangeAmount(l_AI->GetBlastTimer() / TimeConstants::IN_MILLISECONDS);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_heart_of_the_furnace_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_heart_of_the_furnace_AuraScript();
+        }
+};
+
 /// Crucible (Left) - 233757
 /// Crucible (Right) - 233758
 class go_foundry_crucible : public GameObjectScript
@@ -3153,6 +3279,8 @@ void AddSC_boss_blast_furnace()
     new spell_foundry_shields_down();
     new spell_foundry_volatile_fire();
     new spell_foundry_melt_aura();
+    new spell_foundry_repair();
+    new spell_foundry_heart_of_the_furnace();
 
     /// GameObject
     new go_foundry_crucible();

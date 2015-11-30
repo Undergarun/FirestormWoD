@@ -860,6 +860,7 @@ enum LifebloomSpells
     SPELL_DRUID_CLEARCASTING = 16870
 };
 
+/// last update : 6.1.2
 /// Rejuvenation - 774 (germination effect)
 class spell_dru_rejuvenation : public SpellScriptLoader
 {
@@ -929,7 +930,6 @@ public:
             }
         }
 
-
         void Register()
         {
             BeforeHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleBeforeHit);
@@ -940,6 +940,12 @@ public:
     class spell_dru_rejuvenation_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_dru_rejuvenation_AuraScript);
+
+        enum eSpells
+        {
+            GlyphofRejuvenation         = 17076,
+            GlyphofRejuvenationEffect   = 96206
+        };
 
         void HandleCalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
@@ -954,8 +960,40 @@ public:
             }
         }
 
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            if (AuraEffectPtr l_GlyphOfRejuvenation = l_Caster->GetAuraEffect(eSpells::GlyphofRejuvenation, EFFECT_0))
+            {
+                l_GlyphOfRejuvenation->SetAmount(l_GlyphOfRejuvenation->GetAmount() + 1);
+                if (l_GlyphOfRejuvenation->GetAmount() >= 3)
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphofRejuvenationEffect, true);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            if (AuraEffectPtr l_GlyphOfRejuvenation = l_Caster->GetAuraEffect(eSpells::GlyphofRejuvenation, EFFECT_0))
+            {
+                l_GlyphOfRejuvenation->SetAmount(l_GlyphOfRejuvenation->GetAmount() - 1);
+                if (l_GlyphOfRejuvenation->GetAmount() < 3)
+                    l_Caster->RemoveAura(eSpells::GlyphofRejuvenationEffect);
+            }
+        }
+
         void Register()
         {
+            OnEffectApply += AuraEffectApplyFn(spell_dru_rejuvenation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_dru_rejuvenation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rejuvenation_AuraScript::HandleCalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
         }
     };

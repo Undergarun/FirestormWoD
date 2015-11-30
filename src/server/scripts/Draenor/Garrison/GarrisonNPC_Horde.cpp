@@ -12,6 +12,8 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
+#include "Sites/GarrisonSiteBase.hpp"
+#include "GarrisonScriptData.hpp"
 
 #include <random>
 
@@ -262,6 +264,15 @@ namespace MS { namespace Garrison
     {
         if (p_Type == POINT_MOTION_TYPE && p_ID == MovePointIDs::MOVE_POINT_GAZLOWE_BARRACK_A)
         {
+            if (Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript())
+            {
+                if (Player* l_Player = l_GarrisonSite->GetOwner())
+                {
+                    l_Player->QuestObjectiveSatisfy(39015, 1, 14);
+                    l_Player->QuestObjectiveSatisfy(39012, 1, 14);
+                }
+            }
+
             m_DelayedOperations.push([this]() -> void
             {
                 me->SetFacingTo(4.13f);

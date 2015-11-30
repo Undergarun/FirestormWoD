@@ -983,6 +983,7 @@ class World
         void InitGuildChallengesResetTime();
         void InitBossLootedResetTime();
         void ResetDailyQuests();
+        void ResetGarrisonDatas();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
         void ResetRandomBG();

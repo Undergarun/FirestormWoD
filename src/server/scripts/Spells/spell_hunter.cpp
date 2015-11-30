@@ -2186,14 +2186,25 @@ class spell_hun_barrage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (!l_Target->HasAura(eSpells::BarrageTalent, l_Caster->GetGUID()))
-                            SetHitDamage(GetHitDamage() / 2);
-                    }
-                }
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                float l_Mindamage = 0.0f;
+                float l_Maxdamage = 0.0f;
+
+                l_Player->CalculateMinMaxDamage(WeaponAttackType::RangedAttack, true, true, l_Mindamage, l_Maxdamage);
+               
+                int32 l_Damage = (l_Mindamage + l_Maxdamage) / 2 * 0.7f;
+
+                if (!l_Target->HasAura(eSpells::BarrageTalent, l_Player->GetGUID()))
+                    l_Damage /= 2;
+
+                l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                SetHitDamage(l_Damage);
             }
 
             void Register()
@@ -3423,8 +3434,11 @@ class spell_hun_spirit_mend : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_AuraEffect->GetAmplitude() && GetMaxDuration())
-                        l_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 2.0f) / (GetMaxDuration() / l_AuraEffect->GetAmplitude());
+                    if (Unit* l_Owner = l_Caster->GetOwner())
+                    {
+                        if (l_AuraEffect->GetAmplitude() && GetMaxDuration())
+                            l_Amount = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 2.0f);
+                    }
                 }
             }
 
@@ -3446,13 +3460,14 @@ class spell_hun_spirit_mend : public SpellScriptLoader
             void HandleHeal(SpellEffIndex l_Idx)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Owner  = l_Caster->GetOwner();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Owner == nullptr)
                     return;
 
-                int32 l_Heal = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f);
-                l_Heal = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, l_Idx, SPELL_DIRECT_DAMAGE);
+                int32 l_Heal = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f);
+                l_Heal = l_Owner->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, l_Idx, SPELL_DIRECT_DAMAGE);
                 l_Heal = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Heal, SPELL_DIRECT_DAMAGE);
                 SetHitHeal(l_Heal);
             }

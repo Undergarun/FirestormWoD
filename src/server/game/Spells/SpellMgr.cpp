@@ -264,6 +264,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Glyph of Explosive Trap -- 149575 maybe? @todo
             // return DIMINISHING_AOE_KNOCKBACK;
 
+            /// Entrapment
+            if (spellproto->Id == 64803)
+                return DIMINISHING_ROOT;
             // Charge (Tenacity pet) -- 53148, no flags (5526)
             if (spellproto->SpellIconID == 1559 && spellproto->SpellVisual[0] == 39480)
                 return DIMINISHING_ROOT;
@@ -3420,6 +3423,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
             case 173461: ///< Blackrock Barrage
+                spellInfo->CasterAuraSpell = 0;
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 160382: ///< Defense (Security Guard)
@@ -3634,10 +3638,61 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx6 = 0;
                 spellInfo->AttributesEx9 = 0;
                 break;
-            case 167977:
-            case 169495:
-                spellInfo->AuraInterruptFlags = 0;
+                /// Iron Docks 
+            case 178154:  ///< Acid Spit
+            case 178155:  ///< Acid Spit Trigger Missile
+            case 163705:  ///< Abrupt Restoration
+            case 163689:  ///< Sanguine Sphere
+            case 176287:  ///< Chain Drag
+            case 172885:  ///< Charging Slash
+            case 168348:  ///< Rapid Fire
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 168537:  ///< Cannon Barrage:
+                spellInfo->Effects[0].Amplitude = 1000; // was 400
+                break;
+            case 164632:  ///< Burning Arrow
+            case 164648:  ///< Barbed Arrow Dot
+            case 173324:  ///< Jagged Caltrops Dot
+            case 178156:  ///< Acid Splash
+            case 172963:  ///  Gatecrasher
+            case 173517:  /// Lava Blast
+            case 164734:  /// Shredding Swipes
+            case 173349:  /// Trampled
+            case 173489:  /// Lava Barrage
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 164504:  /// Initimidated
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 162424:  ///< Feeding Frenzy
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(563); // 20500ms
+                break;
+            case 163379:  ///< Big Boom
+                spellInfo->InterruptFlags = 0;
+                break;
+            case 165152:  ///< Lava Sweep
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[0].Amplitude = 1000;
+                break;
+            case 172636:  ///< Grease Vial
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 166923:  ///< Barbed Arrow Barrage
+                spellInfo->Effects[0].BasePoints = 164370;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 163740: ///< Tainted Blood
+                // case 163668: ///< Flaming Slash
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_NEARBY_ENEMY;
+                break;
+            case 169132: ///< Back Draft
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
                 break;
                 /// Auchindon
             case 156862: ///< Drain Soul Cosmetic
@@ -4117,6 +4172,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 152150:///< Death from Above (periodic dummy)
                 spellInfo->Effects[5].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->PreventionType = SpellPreventionMask::Pacify;
                 break;
             case 178236:///< Death from Above (jump dest)
                 spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
@@ -4826,6 +4882,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 117708: ///< Maddening Shout
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
+                break;
+            case 17076: ///< Glyph of Rejuvenation
+                spellInfo->Effects[0].BasePoints = 0;
                 break;
             case 118047: ///< Pillage
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CHARGE;
@@ -6720,6 +6779,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcCharges = 1;
                 spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 0x10000000;
                 break;
+            case 89792: ///< Flee
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetB = Targets::TARGET_UNIT_SUMMONER;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetB = Targets::TARGET_UNIT_SUMMONER;
+                break;
             default:
                 break;
         }
@@ -6779,7 +6842,7 @@ void SpellMgr::LoadSpellCustomAttr()
             }
 
             ///< This must be re-done if targets changed since the spellinfo load
-            spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
+            spellInfo->ExplicitTargetMask = spellInfo->Effects[0].Effect == SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL ? TARGET_FLAG_UNIT : spellInfo->_GetExplicitTargetMask();
 
             switch (spellInfo->Id)
             {

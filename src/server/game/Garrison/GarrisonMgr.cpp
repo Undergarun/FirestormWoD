@@ -96,7 +96,7 @@ namespace MS { namespace Garrison
                 const Quest         * l_QuestTemplate   = sObjectMgr->GetQuestTemplate(l_QuestID);
                 const SpellInfo     * l_SpellInfo       = sSpellMgr->GetSpellInfo(l_QuestTemplate->GetRewSpellCast());
 
-                if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue).FollowerID == 0)
+                if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue) == nullptr)
                     AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
             }
         }
@@ -379,7 +379,7 @@ namespace MS { namespace Garrison
                     const Quest         * l_QuestTemplate = sObjectMgr->GetQuestTemplate(l_QuestID);
                     const SpellInfo     * l_SpellInfo = sSpellMgr->GetSpellInfo(l_QuestTemplate->GetRewSpellCast());
 
-                    if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue).FollowerID == 0)
+                    if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue) == nullptr)
                         AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
                 }
             }
@@ -2319,7 +2319,7 @@ namespace MS { namespace Garrison
     /// Add follower
     bool Manager::AddFollower(uint32 p_FollowerID)
     {
-        if (GetFollower(p_FollowerID).FollowerID != 0)
+        if (GetFollower(p_FollowerID) == nullptr)
             return false;
 
         GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
@@ -2466,18 +2466,15 @@ namespace MS { namespace Garrison
     }
 
     /// Get follower
-    GarrisonFollower Manager::GetFollower(uint32 p_FollowerID) const
+    GarrisonFollower* Manager::GetFollower(uint32 p_FollowerID)
     {
         for (uint32 l_I = 0; l_I < m_Followers.size(); l_I++)
         {
             if (m_Followers[l_I].FollowerID == p_FollowerID)
-                return m_Followers[l_I];
+                return &m_Followers[l_I];
         }
 
-        GarrisonFollower l_FailResult;
-        l_FailResult.FollowerID = 0;
-
-        return l_FailResult;
+        return nullptr;
     }
 
     /// Get activated followers count
