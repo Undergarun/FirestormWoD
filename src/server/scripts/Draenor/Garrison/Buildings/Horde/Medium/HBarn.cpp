@@ -103,14 +103,14 @@ namespace MS { namespace Garrison
             case GOSSIP_ACTION_INFO_DEF + 2: ///< Send shipment for fur
                 if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
                 {
-                    l_AI->SetData(1, MS::Garrison::Barn::ProductionTypes::TypeFur);
+                    l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFur);
                     reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentFur); ///< Fur
                 }
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3: ///< Send shipment for leather
                 if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
                 {
-                    l_AI->SetData(1, MS::Garrison::Barn::ProductionTypes::TypeLeather);
+                    l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather);
                     reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather); ///< Leather
                 }
                 break;
@@ -132,9 +132,9 @@ namespace MS { namespace Garrison
     {
         switch (m_ProductionChosen)
         {
-            case MS::Garrison::Barn::ProductionTypes::TypeFur:
+            case MS::Garrison::Barn::ShipmentIDS::ShipmentFur:
                 return MS::Garrison::Barn::ShipmentIDS::ShipmentFur;
-            case MS::Garrison::Barn::ProductionTypes::TypeLeather:
+            case MS::Garrison::Barn::ShipmentIDS::ShipmentLeather:
                 return MS::Garrison::Barn::ShipmentIDS::ShipmentLeather;
             default:
                 return -1;

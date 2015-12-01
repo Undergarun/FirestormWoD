@@ -381,12 +381,6 @@ namespace MS { namespace Garrison
             };
         }
 
-        enum ProductionTypes
-        {
-            TypeFur     = 1,
-            TypeLeather = 2
-        };
-
         enum ShipmentIDS
         {
             ShipmentFur     = 82,
