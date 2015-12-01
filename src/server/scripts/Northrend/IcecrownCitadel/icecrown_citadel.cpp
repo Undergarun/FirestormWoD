@@ -569,7 +569,7 @@ class FrostwingGauntletRespawner
 class CaptainSurviveTalk : public BasicEvent
 {
     public:
-        explicit CaptainSurviveTalk(Creature const& owner) : _owner(owner) { }
+        explicit CaptainSurviveTalk(Creature const& owner) : _owner(owner), BasicEvent() { }
 
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
         {

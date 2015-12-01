@@ -19,6 +19,7 @@ DoorData const g_DoorData[] =
     { eHighmaulGameobjects::Earthwall2,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::Earthwall3,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::Earthwall4,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::HighmaulLFRDoor,    eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::TwinOgronEntrance,  eHighmaulDatas::BossTwinOgron,          DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::TwinOgronExit,      eHighmaulDatas::BossTwinOgron,          DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::FelBreakerEntrance, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
@@ -91,6 +92,8 @@ class instance_highmaul : public InstanceMapScript
             bool m_Initialized;
             bool m_ForTests;
 
+            uint32 m_DungeonID;
+
             uint64 m_ArenaMasterGuid;
 
             /// The Coliseum
@@ -122,6 +125,7 @@ class instance_highmaul : public InstanceMapScript
             uint32 m_MoteOfTectusTime;
             bool   m_TectusAchievement;
             std::vector<uint64> m_GuardiansGuids;
+            uint64 m_ColiseumLFRDoor;
 
             /// The Gorthenon
             uint64 m_PhemosGuid;
@@ -281,6 +285,9 @@ class instance_highmaul : public InstanceMapScript
                 switch (p_GameObject->GetEntry())
                 {
                     case eHighmaulGameobjects::GateArenaExit:
+                        if (!instance->IsLFR())
+                            AddDoor(p_GameObject, true);
+                        break;
                     case eHighmaulGameobjects::FungalGiantDoor:
                     case eHighmaulGameobjects::EarthenPillar:
                     case eHighmaulGameobjects::WindDoor:
@@ -294,6 +301,7 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::FelBreakerExitDoor:
                     case eHighmaulGameobjects::ThroneRoomDoor:
                     case eHighmaulGameobjects::StairBlockingDoor:
+                    case eHighmaulGameobjects::HighmaulLFRDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eHighmaulGameobjects::ArenaElevator:
@@ -319,6 +327,9 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::RaidGrate4:
                         m_RaidGrateGuids[eHighmaulDatas::RaidGrate004] = p_GameObject->GetGUID();
                         break;
+                    case eHighmaulGameobjects::HighmaulLFRDoorColiseum:
+                        m_ColiseumLFRDoor = p_GameObject->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -329,6 +340,9 @@ class instance_highmaul : public InstanceMapScript
                 switch (p_GameObject->GetEntry())
                 {
                     case eHighmaulGameobjects::GateArenaExit:
+                        if (!instance->IsLFR())
+                            AddDoor(p_GameObject, false);
+                        break;
                     case eHighmaulGameobjects::FungalGiantDoor:
                     case eHighmaulGameobjects::EarthenPillar:
                     case eHighmaulGameobjects::WindDoor:
@@ -342,6 +356,7 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::FelBreakerExitDoor:
                     case eHighmaulGameobjects::ThroneRoomDoor:
                     case eHighmaulGameobjects::StairBlockingDoor:
+                    case eHighmaulGameobjects::HighmaulLFRDoor:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -516,6 +531,14 @@ class instance_highmaul : public InstanceMapScript
                             {
                                 if (!instance->IsLFR() && m_ImperatorAchievement)
                                     DoCompleteAchievement(eHighmaulAchievements::LineageOfPower);
+
+                                if (instance->IsMythic())
+                                {
+                                    DoCompleteAchievement(eHighmaulAchievements::AheadOfTheCurve);
+                                    DoCompleteAchievement(eHighmaulAchievements::CuttingEdge);
+                                }
+                                else if (instance->IsHeroic())
+                                    DoCompleteAchievement(eHighmaulAchievements::AheadOfTheCurve);
 
                                 break;
                             }
@@ -712,12 +735,15 @@ class instance_highmaul : public InstanceMapScript
                 switch (p_BossID)
                 {
                     case eHighmaulDatas::BossTwinOgron:
-                        if (GetBossState(eHighmaulDatas::BossKargathBladefist) != EncounterState::DONE)
+                        if (m_DungeonID != eHighmaulDungeons::ArcaneSanctum && GetBossState(eHighmaulDatas::BossKargathBladefist) != EncounterState::DONE)
                             return false;
                         break;
                     case eHighmaulDatas::BossKoragh:
-                    case eHighmaulDatas::BossImperatorMargok:
                         if (GetBossState(p_BossID - 1) != EncounterState::DONE)
+                            return false;
+                        break;
+                    case eHighmaulDatas::BossImperatorMargok:
+                        if (m_DungeonID != eHighmaulDungeons::ImperatorsFall && GetBossState(p_BossID - 1) != EncounterState::DONE)
                             return false;
                         break;
                     default:
@@ -743,10 +769,10 @@ class instance_highmaul : public InstanceMapScript
                 if (m_PlayerPhases.find(p_Player->GetGUIDLow()) == m_PlayerPhases.end())
                     m_PlayerPhases.insert(std::make_pair(p_Player->GetGUIDLow(), p_Player->GetPhaseMask()));
 
+                bool l_ChogallNight = false;
                 if (GetBossState(eHighmaulDatas::BossKargathBladefist) == EncounterState::DONE)
                 {
-                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
-                    p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
+                    l_ChogallNight = true;
 
                     /// We don't need to update the enter pos if player is summoned by his allies
                     if (!p_Player->IsSummoned())
@@ -768,24 +794,18 @@ class instance_highmaul : public InstanceMapScript
                         });
                     }
                 }
-                else
-                {
-                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
-                    p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
-                    p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
-                }
 
                 /// Disable non available bosses for LFR
                 if (!m_Initialized)
                 {
                     m_Initialized = true;
 
-                    uint32 l_DungeonID = p_Player->GetGroup() ? sLFGMgr->GetDungeon(p_Player->GetGroup()->GetGUID()) : 0;
+                    m_DungeonID = p_Player->GetGroup() ? sLFGMgr->GetDungeon(p_Player->GetGroup()->GetGUID()) : 0;
 
                     if (!instance->IsLFR())
-                        l_DungeonID = 0;
+                        m_DungeonID = 0;
 
-                    switch (l_DungeonID)
+                    switch (m_DungeonID)
                     {
                         case eHighmaulDungeons::WalledCity:
                         {
@@ -809,6 +829,10 @@ class instance_highmaul : public InstanceMapScript
                             l_DisabledMask |= (1 << eHighmaulDatas::BossImperatorMargok);
 
                             SetDisabledBosses(l_DisabledMask);
+
+                            if (GameObject* l_Door = sObjectAccessor->FindGameObject(m_ColiseumLFRDoor))
+                                l_Door->SetGoState(GOState::GO_STATE_ACTIVE);
+
                             break;
                         }
                         case eHighmaulDungeons::ImperatorsFall:
@@ -828,6 +852,28 @@ class instance_highmaul : public InstanceMapScript
                         default:
                             break;
                     }
+                }
+
+                switch (m_DungeonID)
+                {
+                    case eHighmaulDungeons::ArcaneSanctum:
+                    case eHighmaulDungeons::ImperatorsFall:
+                        l_ChogallNight = true;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (l_ChogallNight)
+                {
+                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
+                    p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
+                }
+                else
+                {
+                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
+                    p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
+                    p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
                 }
             }
 

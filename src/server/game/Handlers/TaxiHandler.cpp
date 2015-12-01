@@ -65,12 +65,16 @@ void WorldSession::SendTaxiStatus(uint64 p_Guid)
 
 void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& p_RecvPacket)
 {
+    Player* l_Player = GetPlayer();
     uint64 l_UnitGuid;
+
+    if (l_Player == nullptr)
+        return;
 
     p_RecvPacket.readPackGUID(l_UnitGuid);
 
     // cheating checks
-    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_UnitGuid, UNIT_NPC_FLAG_FLIGHTMASTER);
+    Creature* l_Unit = l_Player->GetNPCIfCanInteractWith(l_UnitGuid, UNIT_NPC_FLAG_FLIGHTMASTER);
 
     if (!l_Unit)
     {
@@ -79,11 +83,16 @@ void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& p_RecvPacket)
     }
 
     // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    if (l_Player->HasUnitState(UNIT_STATE_DIED))
+        l_Player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    l_Player->TalkedToCreature(l_Unit->GetEntry(), l_UnitGuid);
 
     // unknown taxi node case
     if (SendLearnNewTaxiNode(l_Unit))
+        return;
+
+    if (p_RecvPacket.GetOpcode() == CMSG_ENABLE_TAXI_NODE && getDialogStatus(m_Player, l_Unit, DIALOG_STATUS_NONE) != DIALOG_STATUS_NONE)
         return;
 
     // known taxi node case
@@ -154,7 +163,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature * p_Unit)
         WorldPacket l_TaxiNodeStatusMsg(SMSG_TAXI_NODE_STATUS, 16 + 2 + 1);
 
         l_TaxiNodeStatusMsg.appendPackGUID(p_Unit->GetGUID());
-        l_TaxiNodeStatusMsg.WriteBits(GetPlayer()->m_taxi.IsTaximaskNodeKnown(l_CurrentLocation) ? 1 : 0, 2);
+        l_TaxiNodeStatusMsg.WriteBits(0, 2);
 
         SendPacket(&l_TaxiNodeStatusMsg);
 

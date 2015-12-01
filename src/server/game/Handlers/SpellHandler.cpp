@@ -197,7 +197,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
             case SPELL_EFFECT_APPLY_GLYPH:
                 l_IsGlyph = true;
                 break;
-
+            case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
+                l_TargetGUID = pUser->GetGUID();
+                break;
             default:
                 break;
         }

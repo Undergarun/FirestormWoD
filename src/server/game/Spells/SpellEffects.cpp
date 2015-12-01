@@ -1920,7 +1920,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         if (caster && caster->getClass() == CLASS_PRIEST && caster->HasAura(77485) && caster->getLevel() >= 80 && addhealth)
         {
             float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.30f / 100.0f;
-            int32 bp = (Mastery * addhealth) / 6;
+            int32 bp = (Mastery * addhealth) / 2;
 
             bp += unitTarget->GetRemainingPeriodicAmount(caster->GetGUID(), 77489, SPELL_AURA_PERIODIC_HEAL);
 
@@ -7834,9 +7834,10 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
     if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
         return;
 
-    Player * l_Player = unitTarget->ToPlayer();
+    Player* l_Player = unitTarget->ToPlayer();
+    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
 
-    if (!l_Player || !l_Player->GetGarrison())
+    if (!l_Player || !l_GarrisonMgr)
         return;
 
     l_Player->GetGarrison()->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());

@@ -463,7 +463,7 @@ class StartMovementEvent : public BasicEvent
 {
     public:
         StartMovementEvent(Creature* summoner, Creature* owner)
-            : _summoner(summoner), _owner(owner)
+            : _summoner(summoner), _owner(owner), BasicEvent()
         {
         }
 
@@ -484,7 +484,7 @@ class TriggerWickedSpirit : public BasicEvent
 {
     public:
         explicit TriggerWickedSpirit(Creature* owner)
-            : _owner(owner), _counter(13)
+            : _owner(owner), _counter(13), BasicEvent()
         {
         }
 

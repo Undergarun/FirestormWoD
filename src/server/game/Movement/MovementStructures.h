@@ -84,6 +84,7 @@ MovementStatusElements MovementGlobalSequence[] =
     MSEHasFallData,
     MSEZeroBit,
     MSEZeroBit,
+    MSEZeroBit,
 
     MSETransportGuid,
     MSETransportPositionX,
@@ -124,6 +125,7 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEMovementFlags2,
     MSEHasTransportData,
     MSEHasFallData,
+    MSEZeroBit,
     MSEZeroBit,
     MSEZeroBit,
     MSEFlushBits,

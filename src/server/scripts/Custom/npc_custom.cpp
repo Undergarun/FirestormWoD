@@ -250,7 +250,7 @@ class HighmaulTestEnable : public BasicEvent
     };
 
     public:
-        HighmaulTestEnable(uint64 p_Guid) : m_Guid(p_Guid) { }
+        HighmaulTestEnable(uint64 p_Guid) : m_Guid(p_Guid), BasicEvent() { }
         virtual ~HighmaulTestEnable() {}
 
         virtual bool Execute(uint64 p_EndTime, uint32 p_Time)

@@ -2034,7 +2034,6 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 GlyphofRenewedTea = 159496
             };
 
-
             bool Validate(SpellInfo const* /*spell*/)
             {
                 update = 0;
@@ -2100,22 +2099,16 @@ class spell_monk_renewing_mist: public SpellScriptLoader
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (l_Caster == nullptr)
                     return;
 
-                if (AuraPtr uplift = l_Caster->GetAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster->GetGUID()))
+                if (l_Caster->HasAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster->GetGUID()))
                     l_Caster->RemoveAura(SPELL_MONK_UPLIFT_ALLOWING_CAST, l_Caster->GetGUID());
 
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
 
-                if (l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE)
-                {
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);
-                }
-
-                if (l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE)
+                if ((l_Caster->HasAura(SPELL_MONK_ITEM_2_S12_MISTWEAVER) && l_RemoveMode == AURA_REMOVE_BY_EXPIRE) ||
+                    (l_Caster->HasAura(eSpells::GlyphofRenewedTea) && l_RemoveMode == AURA_REMOVE_BY_ENEMY_SPELL))
                 {
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_MANA_TEA_STACKS, true);
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_PLUS_ONE_MANA_TEA, true);
@@ -3310,30 +3303,38 @@ class spell_monk_provoke: public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                Unit* l_Target = GetExplTargetUnit();
-                if (!l_Target)
-                    return SPELL_FAILED_NO_VALID_TARGETS;
-                else if (l_Target->GetTypeId() == TYPEID_PLAYER)
-                    return SPELL_FAILED_BAD_TARGETS;
-                else if (!l_Target->IsWithinLOSInMap(GetCaster()))
-                    return SPELL_FAILED_LINE_OF_SIGHT;
+                Unit* l_Caster = GetCaster();
+                if (l_Caster)
+                {
+                    Unit* l_Target = GetExplTargetUnit();
+                    if (!l_Target)
+                        return SPELL_FAILED_NO_VALID_TARGETS;
+                    else if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                        return SPELL_FAILED_BAD_TARGETS;
+                    else if (!l_Target->IsWithinLOSInMap(GetCaster()))
+                        return SPELL_FAILED_LINE_OF_SIGHT;
 
-                if (l_Target->GetEntry() == eNpcs::BlackOxStatue)
-                    m_IsMultiTarget = true;
+                    if (l_Target->GetEntry() == eNpcs::BlackOxStatue && l_Target->GetOwnerGUID() == l_Caster->GetGUID())
+                        m_IsMultiTarget = true;
+                    else if (!l_Caster->IsValidAttackTarget(l_Target))
+                        return SPELL_FAILED_TARGET_FRIENDLY;
+                }
+
                 return SPELL_CAST_OK;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
-                    if (caster->getClass() == CLASS_MONK && caster->GetTypeId() == TYPEID_PLAYER)
-                    if (Unit* target = GetHitUnit())
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
                     {
                         if (m_IsMultiTarget)
-                            caster->CastSpell(target, eSpells::ProvokeMultiTarget, true);
+                            l_Target->CastSpell(l_Target, eSpells::ProvokeMultiTarget, true);
                         else
-                            caster->CastSpell(target, eSpells::ProvokeSingleTarget, true);
+                            l_Caster->CastSpell(l_Target, eSpells::ProvokeSingleTarget, true);
                     }
+                }
             }
 
             void Register()
@@ -4109,6 +4110,11 @@ class spell_monk_blackout_kick: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_blackout_kick_SpellScript);
 
+            enum eSpells
+            {
+                GlyphofBlackoutKick = 132005
+            };
+
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (!GetCaster())
@@ -4138,7 +4144,7 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 }
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER && l_Player->getLevel() >= 20)
                 {
-                    if (l_Target->isInBack(l_Player))
+                    if (l_Target->isInBack(l_Player) || l_Player->HasAura(eSpells::GlyphofBlackoutKick))
                     {
                         int32 l_Bp0 = CalculatePct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
                         if (AuraPtr l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))

@@ -2927,6 +2927,7 @@ class spell_warl_demonic_circle_teleport: public SpellScriptLoader
                         player->m_movementInfo.pos.m_positionY = player->GetPositionY();
                         player->m_movementInfo.pos.m_positionZ = player->GetPositionZ();
                         player->m_movementInfo.pos.m_orientation = player->GetOrientation();
+                        player->m_movementInfo.time = getMSTime();
                         WorldSession::WriteMovementInfo(data, &player->m_movementInfo);
                         player->SendMessageToSet(&data, player);
                     }
@@ -3853,6 +3854,7 @@ class spell_warl_create_healthstone: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Healthstone - 6262
 class spell_warl_healthstone : public SpellScriptLoader
 {
@@ -3871,7 +3873,7 @@ class spell_warl_healthstone : public SpellScriptLoader
             void HandleHeal(SpellEffIndex p_EffIndex)
             {
                 if (GetCaster()->HasAura(eSpells::GlyphOfHealthstone))
-                    PreventHitDefaultEffect(p_EffIndex);
+                    PreventHitHeal();
             }
 
             void HandlePeriodicHeal(SpellEffIndex /*p_EffIndex*/)

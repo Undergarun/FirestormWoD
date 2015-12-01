@@ -171,6 +171,8 @@ enum eHighmaulGameobjects
     Earthwall2              = 237778,
     Earthwall3              = 237779,
     Earthwall4              = 237780,
+    HighmaulLFRDoor         = 239126,
+    HighmaulLFRDoorColiseum = 239125,
 
     /// Twin Ogron's Doors
     TwinOgronEntrance       = 236211,
@@ -234,7 +236,9 @@ enum eHighmaulAchievements
     AFungusAmongUs      = 8975,
     BrothersInArms      = 8958,
     PairAnnihilation    = 8976,
-    LineageOfPower      = 8977
+    LineageOfPower      = 8977,
+    AheadOfTheCurve     = 9441,
+    CuttingEdge         = 9442
 };
 
 #endif

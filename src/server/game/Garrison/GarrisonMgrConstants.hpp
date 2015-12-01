@@ -243,6 +243,7 @@ namespace MS { namespace Garrison
             BuildingID      = 10002,
             PlotInstanceID  = 10003,
             GatheredPos     = 10004,
+            DailyReset      = 10005,
             HasRecipe       = 0x40000000
         };
     }
@@ -310,7 +311,10 @@ namespace MS { namespace Garrison
             LumberMill_LumberMill_Level3                = 138,
             LunarfallExcavation_FrostwallMines_Level1   = 61,
             LunarfallExcavation_FrostwallMines_Level2   = 62,
-            LunarfallExcavation_FrostwallMines_Level3   = 63
+            LunarfallExcavation_FrostwallMines_Level3   = 63,
+            LunarfallInn_FrostwallTavern_Level1         = 34,
+            LunarfallInn_FrostwallTavern_Level2         = 35,
+            LunarfallInn_FrostwallTavern_Level3         = 36
         };
     }
 
@@ -560,6 +564,37 @@ namespace MS { namespace Garrison
         237723,         ///< Hefty
         237724          ///< Full
     };
+
+    namespace TavernDatas
+    {
+        static const std::vector<uint32> g_QuestGiverEntries
+        {
+            87991,
+            87992,
+            87994,
+            87995,
+            87996,
+            87997,
+            87998,
+            87999,
+            88000,
+            88001,
+            88002,
+            88003,
+            88004,
+            88005,
+            88006,
+            88007,
+            88024,
+            88025,
+            88026,
+            88027,
+            88013,
+            88023,
+            88017,
+            88022
+        };
+    }
 
 }   ///< namespace Garrison
 }   ///< namespace MS

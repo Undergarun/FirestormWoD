@@ -1506,15 +1506,14 @@ class spell_pal_word_of_glory_heal: public SpellScriptLoader
 
                         SetHitHeal((GetHitHeal() / 3) * l_Power);
 
-                        if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
+                        if (l_Target->GetGUID() == l_Caster->GetGUID())
                         {
                             if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_BASTION_OF_GLORY))
                             {
-                                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_BASTION_OF_GLORY))
-                                {
-                                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Aura->GetStackAmount()));
-                                    l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_BASTION_OF_GLORY);
-                                }
+                                l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_BASTION_OF_GLORY);
+
+                                int32 l_AdditionalHeal = CalculatePct(GetHitHeal(), l_Aura->GetEffect(EFFECT_0)->GetAmount() * l_Aura->GetStackAmount());
+                                SetHitHeal(GetHitHeal() + l_AdditionalHeal);
                             }
                         }
 

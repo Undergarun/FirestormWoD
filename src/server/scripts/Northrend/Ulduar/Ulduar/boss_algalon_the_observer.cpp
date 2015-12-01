@@ -240,7 +240,7 @@ Position const BrannOutroPos[3] =
 class ActivateLivingConstellation : public BasicEvent
 {
     public:
-        ActivateLivingConstellation(Unit* owner) : _owner(owner), _instance(owner->GetInstanceScript())
+        ActivateLivingConstellation(Unit* owner) : _owner(owner), _instance(owner->GetInstanceScript()), BasicEvent()
         {
         }
 
@@ -262,7 +262,7 @@ class ActivateLivingConstellation : public BasicEvent
 class CosmicSmashDamageEvent : public BasicEvent
 {
     public:
-        CosmicSmashDamageEvent(Unit* caster) : _caster(caster)
+        CosmicSmashDamageEvent(Unit* caster) : _caster(caster), BasicEvent()
         {
         }
 
@@ -279,7 +279,7 @@ class CosmicSmashDamageEvent : public BasicEvent
 class SummonUnleashedDarkMatter : public BasicEvent
 {
     public:
-        SummonUnleashedDarkMatter(Unit* caster) : _caster(caster)
+        SummonUnleashedDarkMatter(Unit* caster) : _caster(caster), BasicEvent()
         {
         }
 

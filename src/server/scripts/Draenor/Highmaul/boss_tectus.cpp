@@ -183,7 +183,8 @@ class boss_tectus : public CreatureScript
             {
                 m_Events.Reset();
 
-                _Reset();
+                if (me->GetEntry() == eHighmaulCreatures::Tectus)
+                    _Reset();
 
                 me->CastSpell(me, eSpells::ZeroPowerZeroRegen, true);
 
@@ -351,7 +352,8 @@ class boss_tectus : public CreatureScript
                     return;
                 }
 
-                _EnterCombat();
+                if (me->GetEntry() == eHighmaulCreatures::Tectus)
+                    _EnterCombat();
 
                 m_Events.ScheduleEvent(eEvents::EventCrystallineBarrage, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventFracture, 8 * TimeConstants::IN_MILLISECONDS);
@@ -390,7 +392,8 @@ class boss_tectus : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
-                _JustDied();
+                if (me->GetEntry() == eHighmaulCreatures::Tectus)
+                    _JustDied();
 
                 me->RemoveAllAreasTrigger();
 
@@ -1938,7 +1941,7 @@ class spell_highmaul_raving_assault : public SpellScriptLoader
         }
 };
 
-/// Crystalline Barrage - 162370
+/// Crystalline Barrage - 162371
 class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
 {
     public:
@@ -1954,7 +1957,7 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 5.0f;
+                float l_Radius = 10.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -1968,6 +1971,28 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
                             l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
                     }
                     else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 2.0f))
+                    {
+                        if (l_Unit->HasAura(eSpell::CrystallineBarrage))
+                            l_Unit->RemoveAura(eSpell::CrystallineBarrage);
+                    }
+                }
+            }
+        }
+        
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 10.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+                
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 2.0f))
                     {
                         if (l_Unit->HasAura(eSpell::CrystallineBarrage))
                             l_Unit->RemoveAura(eSpell::CrystallineBarrage);

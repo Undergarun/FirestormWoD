@@ -767,6 +767,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_Garrison = nullptr;
     m_GarrisonUpdateTimer.SetInterval(2 * IN_MILLISECONDS);
 
+    m_VoidStorageLoaded = false;
+
     CurrentPlayedMovie = 0;
 
     m_speakTime = 0;
@@ -2731,6 +2733,8 @@ void Player::SendTeleportPacket(Position& p_OldPosition)
 
     GetPosition(&m_mover->m_movementInfo.pos);
     Relocate(&p_OldPosition);
+
+    m_mover->m_movementInfo.time = getMSTime();
 
     WorldPacket l_TeleportUpdatePacket(SMSG_MOVE_UPDATE_TELEPORT, 300);
 
@@ -7912,17 +7916,16 @@ float Player::GetRatingBonusValue(CombatRating cr) const
     return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr)) / 1070; // temp hack
 }
 
-float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType p_AttType) const
+float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
 {
-    float l_BaseExpertise = 7.5f;
-    switch (p_AttType)
+    switch (attType)
     {
         case WeaponAttackType::BaseAttack:
-            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE);
         case WeaponAttackType::OffAttack:
-            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE);
         case WeaponAttackType::RangedAttack:
-            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE);
         default:
             break;
     }
@@ -9026,6 +9029,20 @@ uint32 Player::TeamForRace(uint8 race)
 
 void Player::setFactionForRace(uint8 race)
 {
+    // temporary hack for rated bg factions
+    if (HasAura(81748))
+    {
+        RemoveAura(81748);
+        AddAura(81748, this);
+        return;
+    }
+    else if (HasAura(81744))
+    {
+        RemoveAura(81744);
+        AddAura(81744, this);
+        return;
+    }
+
     m_team = TeamForRace(race);
 
     ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
@@ -9799,6 +9816,8 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
                 return;
             }
 
+            QuestObjectiveSatisfy(p_CurrencyID, p_Count, QUEST_OBJECTIVE_TYPE_CURRENCY);
+
             WorldPacket l_Packet(SMSG_UPDATE_CURRENCY);
 
             l_Packet << uint32(p_CurrencyID);
@@ -10095,7 +10114,7 @@ void Player::UpdateArea(uint32 newArea)
                 {
                     sMapMgr->AddCriticalOperation([l_Guid]() -> void
                     {
-                        Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
+                        Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
                         if (l_Player)
                             l_Player->_GarrisonSetOut();
@@ -10105,7 +10124,7 @@ void Player::UpdateArea(uint32 newArea)
                 {
                     sMapMgr->AddCriticalOperation([l_Guid]() -> void
                     {
-                        Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
+                        Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
                         if (l_Player)
                             l_Player->_GarrisonSetIn();
@@ -18474,6 +18493,21 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             if (!l_ItemTemplate)
                 return false;
 
+            /// Hackfix, but fix lot of quests since the selection work client-side
+            /// See quest 24970 with a hunter
+            {
+                /// - We have find the reward, check if player can store it
+                ItemPosCountVec l_Dest;
+                InventoryResult l_Result = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count);
+                if (l_Result != EQUIP_ERR_OK)
+                {
+                    SendEquipError(l_Result, NULL, NULL, l_DynamicReward->ItemId);
+                    return false;
+                }
+
+                return true;
+            }
+
             uint32 l_Specialization = GetSpecializationId(GetActiveSpec());
             if (!l_Specialization)
                 l_Specialization = GetDefaultSpecId();
@@ -18576,8 +18610,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         }
 
         // not all Quest Objective types need to be tracked, some such as reputation are handled/checked externally
-        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CURRENCY
-            || l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL
+        if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_SPELL
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY
@@ -18742,7 +18775,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             if (!l_ItemTemplate)
                 break;
 
-            switch (l_DynamicReward->Type)
+            /*switch (l_DynamicReward->Type)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                 {
@@ -18759,7 +18792,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                     break;
                 default:
                     continue;
-            }
+            }*/
 
             ItemPosCountVec l_Dest;
             if (CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count) == EQUIP_ERR_OK)
@@ -21159,6 +21192,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     if (IsVoidStorageUnlocked())
         _LoadVoidStorage(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE));
 
+    m_VoidStorageLoaded = true;
+
     // update items with duration and realtime
     UpdateItemDuration(time_diff, true);
 
@@ -21333,6 +21368,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         m_Garrison = l_Garrison;
     else
         delete l_Garrison;
+
+    _LoadGarrisonTavernDatas(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS_TAVERNDATA));
 
     l_Times.push_back(getMSTime() - l_StartTime);
     RewardCompletedAchievementsIfNeeded();
@@ -22373,6 +22410,47 @@ void Player::_LoadSpells(PreparedQueryResult result)
     }
 }
 
+void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
+{
+    if (p_Result)
+    {
+        do
+        {
+            Field* fields = p_Result->Fetch();
+
+            uint32 l_NpcEntry = fields[1].GetUInt32();
+            SetGarrisonTavernData(l_NpcEntry);
+        }
+        while (p_Result->NextRow());
+    }
+    else
+    {
+        if (GetGarrison() != nullptr && GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
+        {
+            if (roll_chance_i(50))
+            {
+                uint32 l_Entry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
+
+                CleanGarrisonTavernData();
+                AddGarrisonTavernData(l_Entry);
+            }
+            else
+            {
+                uint32 l_FirstEntry  = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
+                uint32 l_SecondEntry = 0;
+
+                do
+                    l_SecondEntry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
+                while (l_SecondEntry == l_FirstEntry);
+
+                CleanGarrisonTavernData();
+                AddGarrisonTavernData(l_FirstEntry);
+                AddGarrisonTavernData(l_SecondEntry);
+            }
+        }
+    }
+}
+
 void Player::_LoadGroup(PreparedQueryResult result)
 {
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
@@ -23175,7 +23253,7 @@ void Player::SaveToDB(bool create /*=false*/)
     trans->Append(stmt);
 
     if (m_Garrison)
-        m_Garrison->Save(trans);    
+        m_Garrison->Save();
 
     if (m_mailsUpdated)                                     //save mails only when needed
         _SaveMail(trans);
@@ -23250,6 +23328,7 @@ void Player::SaveInventoryAndGoldToDB(SQLTransaction& trans)
 {
     _SaveInventory(trans);
     _SaveCurrency(trans);
+    _SaveVoidStorage(trans);
     SaveGoldToDB(trans);
 }
 
@@ -23487,6 +23566,12 @@ void Player::_SaveInventory(SQLTransaction& trans)
 
 void Player::_SaveVoidStorage(SQLTransaction& trans)
 {
+    if (!m_VoidStorageLoaded)
+    {
+        sLog->outAshran("Trying to save Void Storage before loaded it!");
+        return;
+    }
+
     PreparedStatement* stmt = NULL;
     uint32 lowGuid = GetGUIDLow();
 
@@ -27725,6 +27810,26 @@ void Player::ResetDailyQuestStatus()
     GetSession()->SendPacket(&data);
 }
 
+void Player::ResetGarrisonDatas()
+{
+    if (MS::Garrison::Manager* l_Garrison = GetGarrison())
+    {
+        if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        {
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(MS::Garrison::BuildingType::Inn);
+
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+            {
+                if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
+                {
+                    if (l_Creature->AI())
+                        l_Creature->AI()->SetData(MS::Garrison::CreatureAIDataIDs::DailyReset, 0);
+                }
+            }
+        }
+    }
+}
+
 void Player::ResetWeeklyQuestStatus()
 {
     if (m_weeklyquests.empty())
@@ -31180,19 +31285,29 @@ uint32 Player::GetAverageItemLevelTotal() const
         }
     }
 
-    uint32 l_Sum = 0;
+    int32 l_Sum = 0;
     uint32 l_Count = 0;
+    bool l_HasTwoHanded = false;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
+        // don't check tabard, ranged, offhand or shirt
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
             continue;
 
-        if (i == EQUIPMENT_SLOT_OFFHAND && !l_EquipItemLevel[i])
-            continue;
+        Item* l_Item = m_items[i];
+        if (l_Item && l_Item->GetTemplate())
+        {
+            if (i == EQUIPMENT_SLOT_MAINHAND && l_Item->GetTemplate()->IsTwoHandedWeapon())
+                l_HasTwoHanded = true;
 
-        l_Sum += l_EquipItemLevel[i];
-        ++l_Count;
+            l_Sum += l_EquipItemLevel[i];
+            ++l_Count;
+        }
+        else if (i == EQUIPMENT_SLOT_OFFHAND && !CanTitanGrip() && (l_HasTwoHanded))
+            continue;
+        else
+            ++l_Count;
     }
 
     if (!l_Count)
@@ -33034,6 +33149,22 @@ void Player::DeleteGarrison()
 
     delete m_Garrison;
     m_Garrison = nullptr;
+}
+
+void Player::AddGarrisonTavernData(uint32 p_Data)
+{
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR);
+
+    l_Stmt->setUInt32(0, GetGUIDLow());
+    l_Stmt->setUInt32(1, p_Data);
+    CharacterDatabase.AsyncQuery(l_Stmt);
+
+    SetGarrisonTavernData(p_Data);
+}
+
+void Player::SetGarrisonTavernData(uint32 p_Data)
+{
+    m_GarrisonDailyTavernData.push_back(p_Data);
 }
 
 Stats Player::GetPrimaryStat() const

@@ -3294,6 +3294,7 @@ class debug_commandscript: public CommandScript
             l_Datas.DifficultyID    = 16;                                           ///< Mythic mode
             l_Datas.StartTime       = time(nullptr);
             l_Datas.CombatDuration  = 7 * TimeConstants::MINUTE;
+            l_Datas.EndTime         = l_Datas.StartTime + l_Datas.CombatDuration;
             l_Datas.Success         = true;
             l_Datas.DeadCount       = 2;
 

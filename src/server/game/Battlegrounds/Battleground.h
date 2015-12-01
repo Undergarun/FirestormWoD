@@ -584,7 +584,7 @@ enum BattlegroundTimeIntervals
     RESURRECTION_INTERVAL           = 30000,                // ms
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
-    INVITE_ACCEPT_WAIT_TIME         = 20000,                // ms
+    INVITE_ACCEPT_WAIT_TIME         = 30000,                // ms
     TIME_AUTOCLOSE_BATTLEGROUND     = 120000,               // ms
     MAX_OFFLINE_TIME                = 300,                  // secs
     RESPAWN_ONE_DAY                 = 86400,                // secs
@@ -885,7 +885,8 @@ class Battleground
 
         bool CanGroupEnter(GroupQueueInfo const* p_Group) const
         {
-            return GetStatus() <= BattlegroundStatus::STATUS_IN_PROGRESS && static_cast<int>(GetMaxPlayersPerTeam() - GetInvitedCount(p_Group->m_Team) - m_PlayersCount[p_Group->GetTeam()] - p_Group->m_Players.size()) >= 0;
+            return GetStatus() <= BattlegroundStatus::STATUS_IN_PROGRESS ///< BG isn't finished
+                && static_cast<int>(GetMaxPlayersPerTeam() - GetInvitedCount(p_Group->m_Team) - m_PlayersCount[p_Group->GetTeam()] - p_Group->m_Players.size()) >= 0;
         }
 
         uint32 GetBonusHonorFromKill(uint32 kills) const;

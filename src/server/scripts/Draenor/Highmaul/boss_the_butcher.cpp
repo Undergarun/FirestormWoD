@@ -858,7 +858,7 @@ class spell_highmaul_gushing_wounds : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (p_AurEff->GetBase()->GetStackAmount() >= 6)
+                    if (p_AurEff->GetBase()->GetStackAmount() >= 5)
                         l_Target->CastSpell(l_Target, eSpell::GushingWoundsKill, true);
                 }
             }

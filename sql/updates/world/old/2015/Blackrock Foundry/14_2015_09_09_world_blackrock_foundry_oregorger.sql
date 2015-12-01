@@ -16,9 +16,7 @@ INSERT INTO spell_script_names VALUES
 (163453, 'spell_foundry_harvest_volatile_blackrock'),
 (163455, 'spell_foundry_throw_volatile_ore');
 
-DELETE FROM gameobject_template WHERE entry = 237308;
-INSERT INTO gameobject_template VALUE
-(237308, 1, 16411, 'Volatile Blackrock Ore', '', '', '', 35, 32, 1.5, 0, 0, 0, 0, 0, 0, 0, 2197, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 'go_foundry_volatile_blackrock_ore', 19865);
+UPDATE creature_template SET modelid1 = 53766, modelid2 = 0, minlevel = 100, maxlevel = 100, faction = 14 WHERE entry = 77261;
 
 SET @REF_OREGORGER = 77182;
 

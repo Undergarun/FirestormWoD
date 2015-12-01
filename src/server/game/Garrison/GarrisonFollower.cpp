@@ -217,6 +217,5 @@ namespace MS { namespace Garrison
         p_Buffer.FlushBits();
         p_Buffer.WriteString(this->ShipName);
     }
-
 }   ///< namespace Garrison
 }   ///< namespace MS

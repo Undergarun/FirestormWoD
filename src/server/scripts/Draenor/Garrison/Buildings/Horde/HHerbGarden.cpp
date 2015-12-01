@@ -243,7 +243,7 @@ namespace MS { namespace Garrison
 
                 /// Test for removing already selected option
 
-                uint32 l_Type = reinterpret_cast<GatheringBuildingMaster<&g_AllyHerbGardenFlowerPlot>*>(p_Creature->AI())->GetGatheringMiscData();
+                uint32 l_Type = reinterpret_cast<GatheringBuildingMaster<&g_HordeHerbGardenFlowerPlot>*>(p_Creature->AI())->GetGatheringMiscData();
 
                 if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Frostweed])
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Frostweed.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);

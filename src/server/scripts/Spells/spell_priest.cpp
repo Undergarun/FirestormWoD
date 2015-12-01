@@ -1907,7 +1907,7 @@ class spell_pri_cascade : public SpellScriptLoader
                     return;
 
                 l_Caster->CastSpell(l_Target, eSpells::CascadeMarker, true); ///< Marker
-                if (constAuraEffectPtr l_Marker = l_Caster->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
                     l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
 
                 if (GetSpellInfo()->Id == eSpells::CascadeHoly)
@@ -1940,9 +1940,10 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
 
             enum eSpells
             {
-                CascadeHeal = 121148,
-                CascadeMarker = 127631,
-                Cascade = 121135
+                CascadeHeal         = 121148,
+                CascadeMarker       = 127631,
+                CascadeMarker2      = 120840,
+                Cascade             = 121135
             };
 
             void HandleOnHit()
@@ -1961,13 +1962,16 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
 
                 if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
                 {
-                    l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
+                    l_Marker->GetBase()->SetDuration(l_CascadeSpell->GetSpellCooldowns()->CategoryRecoveryTime);
                     l_ActualWave = l_Marker->GetAmount();
                     l_FirstCaster = l_Marker->GetCaster();
                 }
 
                 if (l_FirstCaster)
+                {
+                    l_Caster->CastSpell(l_Target, eSpells::CascadeMarker2, true);
                     l_FirstCaster->CastSpell(l_Target, l_HealingSpell->Id, true);
+                }
 
                 if (l_ActualWave > l_CascadeSpell->Effects[EFFECT_0].BasePoints)
                     return;
@@ -1977,7 +1981,8 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                 JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitListTemp, l_Check);
                 l_Target->VisitNearbyObject(l_Radius, l_Searcher);
 
-                l_FriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
+                if (l_FirstCaster)
+                    l_FriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker, l_FirstCaster->GetGUID()));
 
                 l_FriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
                 {
@@ -2000,10 +2005,10 @@ class spell_pri_cascade_trigger_holy : public SpellScriptLoader
                         return;
 
                     l_FirstCaster->CastSpell(l_Itr, eSpells::CascadeMarker, true); ///< Marker
-                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0, l_FirstCaster->GetGUID()))
+                    if (AuraEffectPtr l_Marker = l_Itr->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0, l_Caster->GetGUID()))
                     {
                         l_Marker->SetAmount(l_ActualWave + 1);
-                        l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
+                        l_Marker->GetBase()->SetDuration(l_CascadeSpell->GetSpellCooldowns()->CategoryRecoveryTime);
                     }
 
                     l_Target->CastSpell(l_Itr, GetSpellInfo()->Id, true);
@@ -2034,7 +2039,7 @@ class spell_pri_cascade_heal : public SpellScriptLoader
 
             enum eSpells
             {
-                CascadeMarker = 120840,
+                CascadeMarker2 = 120840
             };
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
@@ -2046,7 +2051,7 @@ class spell_pri_cascade_heal : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (AuraPtr l_Marker = l_Target->GetAura(120840))
+                if (AuraPtr l_Marker = l_Target->GetAura(eSpells::CascadeMarker2))
                 {
                     Unit* l_Caster = l_Marker->GetCaster();
 
@@ -2082,7 +2087,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
 
             enum eSpells
             {
-                CascadeMarker = 120840,
+                CascadeMarker = 127631,
                 Cascade = 127632
             };
 
@@ -2099,7 +2104,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
 
                 Unit* l_FirstCaster = nullptr;
 
-                if (constAuraEffectPtr l_Marker = l_Caster->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
+                if (constAuraEffectPtr l_Marker = l_Target->GetAuraEffect(eSpells::CascadeMarker, EFFECT_0))
                 {
                     l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
                     l_ActualWave = l_Marker->GetAmount();
@@ -2126,7 +2131,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_UnFriendlyUnitListTemp, l_Check);
                 l_Target->VisitNearbyObject(l_Radius, l_Searcher);
 
-                l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker));
+                l_UnFriendlyUnitListTemp.remove_if(JadeCore::UnitAuraCheck(true, eSpells::CascadeMarker, l_FirstCaster->GetGUID()));
 
                 l_UnFriendlyUnitListTemp.remove_if([this, l_FirstCaster](WorldObject* p_Object) -> bool
                 {
@@ -2153,7 +2158,6 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                         l_Marker->SetAmount(l_ActualWave + 1);
                         l_Marker->GetBase()->SetDuration(10 * IN_MILLISECONDS);
                     }
-
                     l_Target->CastCustomSpell(l_Itr, GetSpellInfo()->Id, NULL, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_FirstCaster->GetGUID());
                 }
             }

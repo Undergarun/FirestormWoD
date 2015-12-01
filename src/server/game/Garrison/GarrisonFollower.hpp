@@ -28,6 +28,12 @@ namespace MS { namespace Garrison
             /// Earn XP
             uint32 EarnXP(uint32 p_XP, Player* p_SendUpdateTo = nullptr);
 
+            /// Set new Armor Ilvl
+            void SetArmorItemLevel(uint32 p_NewIlvl);
+
+            /// Set new Weapon Ilvl
+            void SetWeaponItemLevel(uint32 p_NewIlvl);
+
             /// Write follower into a packet
             void Write(ByteBuffer & p_Buffer) const;
 
@@ -51,6 +57,9 @@ namespace MS { namespace Garrison
 
             /// Returns the required amount of xp for next level
             uint32 GetRequiredLevelUpXP() const;
+
+            /// Send Follower Update Packet
+            void UpdateFollower(Player* p_Player);
 
         public:
             uint32 DatabaseID;          ///< Database ID

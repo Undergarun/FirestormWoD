@@ -179,6 +179,10 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
             if (IsSelfcasted())
                 _flags = (AFLAG_CASTER + AFLAG_POSITIVE);
             break;
+        /// Final Verdict
+        case 157048:
+            _flags = (AFLAG_CASTER + AFLAG_POSITIVE);
+            break;
         default:
             break;
     }

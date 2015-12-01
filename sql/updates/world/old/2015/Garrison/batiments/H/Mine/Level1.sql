@@ -65,7 +65,8 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-61','0','-233443','30.1852','-61.202','30.4427','0.916295');
 
 -- Mine Shipment
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-61','1','-239237','38.5198','-61.2837','30.0886','4.71848');
+DELETE FROM gameobject WHERE id = 239237;
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-61','0','-239237','38.5198','-61.2837','30.0886','4.71848');
 
 -- Miners
 DELETE FROM creature_template_addon WHERE entry = 79837;

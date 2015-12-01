@@ -2622,6 +2622,7 @@ bool Group::IsGuildGroup(uint32 p_GuildID, bool p_SameMap, bool p_SameInstanceID
     uint32 l_MapID = 0;
     uint32 l_InstanceID = 0;
     uint32 l_Counter = 0;
+    uint32 l_MembersCount = GetMembersCount();
 
     std::vector<Player*> l_Members;
 
@@ -2671,6 +2672,16 @@ bool Group::IsGuildGroup(uint32 p_GuildID, bool p_SameMap, bool p_SameInstanceID
                         break;
                     case Difficulty::Difficulty40:
                         if (l_Counter >= 30)
+                            l_IsOkay = true;
+                        break;
+                    case Difficulty::DifficultyRaidNormal:
+                    case Difficulty::DifficultyRaidHeroic:
+                        /// Handle scaled difficulties
+                        if (/*l_Counter >= 8 &&*/ l_Counter >= CalculatePct(l_MembersCount, 80))
+                            l_IsOkay = true;
+                        break;
+                    case Difficulty::DifficultyRaidMythic:
+                        if (l_Counter >= 16)
                             l_IsOkay = true;
                         break;
                     default:

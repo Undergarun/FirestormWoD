@@ -1287,10 +1287,19 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
 
     if (player)
     {
-        // Do next only if found in battleground
+        /// Do next only if found in battleground
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);  // We're not in BG.
-        // reset destination bg team
+
+        /// reset destination bg team
         player->SetBGTeam(0);
+
+        /// Remove faction override aura
+        if (IsRatedBG())
+        {
+            player->RemoveAura(81748);
+            player->RemoveAura(81744);
+        }
+
         player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 3, 0);
         player->RemoveBattlegroundQueueJoinTime(bgQueueTypeId);
 
@@ -1490,8 +1499,10 @@ void Battleground::AddPlayer(Player* player)
     AddOrSetPlayerToCorrectBgGroup(player, team);
 
     if (IsRatedBG())
+    {
         if (player->GetTeam() != player->GetBGTeam())
-            player->setFaction(player->GetBGTeam() == ALLIANCE ? 2668 : 2667);
+            player->AddAura(player->GetBGTeam() == ALLIANCE ? 81748 : 81744, player);
+    }
 
     // Log
     sLog->outInfo(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Player %s joined the battle.", player->GetName());
