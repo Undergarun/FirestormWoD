@@ -107,7 +107,7 @@ public:
 
     bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
     {
-   
+
         if (InstanceScript* l_Instance = m_Obj->GetInstanceScript())
         {
             if (Creature* l_Zoggosh = l_Instance->instance->GetCreature(l_Instance->GetData64(eIronDocksDatas::DataZuggosh)))
@@ -196,7 +196,7 @@ public:
                                 {
                                     l_Koramar->AI()->Talk(eTalks::TalkKoramarBombardmenet01);
                                     break;
-                                }          
+                                }
                                 default:
                                     break;
                             }
@@ -332,7 +332,7 @@ class boss_skulloc : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.Reset();       
+                events.Reset();
 
                 if (me->GetMap())
                 {
@@ -342,7 +342,7 @@ class boss_skulloc : public CreatureScript
                 m_BombardmentReady = false;
                 m_Vehicle->InstallAllAccessories(false);
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             }
 
@@ -356,7 +356,7 @@ class boss_skulloc : public CreatureScript
             }
 
             void EnterCombat(Unit* /*p_Who*/) override
-            {            
+            {
                 events.ScheduleEvent(eSkullocEvents::EventCannonBarragePre, 50 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eSkullocEvents::EventBackdraft, 20 * TimeConstants::IN_MILLISECONDS);
                 if (m_Instance != nullptr)
@@ -417,7 +417,7 @@ class boss_skulloc : public CreatureScript
                 {
                     m_BombardmentReady = true;
                     me->SetReactState(ReactStates::REACT_PASSIVE);
-                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                     events.ScheduleEvent(eSkullocEvents::EventCannonBarrage, 5 * TimeConstants::IN_MILLISECONDS);
                 }
@@ -459,7 +459,7 @@ class boss_skulloc : public CreatureScript
                         {
                             if (m_BombardmentReady)
                             {
-                                m_BombardmentReady = false;                              
+                                m_BombardmentReady = false;
                                 if (Unit* l_Unit = m_Vehicle->GetPassenger(0))
                                 {
                                     l_Unit->CastSpell(l_Unit, eSkullocSpells::SpellCannonBarrageAura);
@@ -656,7 +656,7 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
 
             enum eTurretSpells
             {
-                SpellRapidFire = 156628             
+                SpellRapidFire = 156628
             };
 
             enum eTurretEvents
@@ -679,11 +679,11 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
                 }
                 m_TargetGuid = 0;
                 ASSERT(m_Vehicle);
-                me->setFaction(HostileFaction);       
+                me->setFaction(HostileFaction);
                 me->SetUnitMovementFlags(MovementFlags::MOVEMENTFLAG_ROOT);
                 DespawnCreaturesInArea(eIronDocksCreatures::CreatureZoggosh, me);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE); 
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                 events.ScheduleEvent(eTurretEvents::EventInstallAccessories, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
@@ -700,7 +700,7 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
                 switch (p_Action)
                 {
                     case eIronDocksActions::ActionLeaveTurret:
-                        {                                   
+                        {
                             if (m_Instance != nullptr)
                             {
                                 if (Creature* l_Zoggosh = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataZuggosh)))
@@ -714,7 +714,7 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
                                         l_Zoggosh->Attack(l_Target, true);
                                 }
                             }
-                  
+
                             me->CombatStop();
                             me->setFaction(FriendlyFaction);
                             me->DespawnOrUnsummon();
@@ -730,7 +730,7 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
             }
 
             void UpdateAI(uint32 const p_Diff) override
-            {       
+            {
                 events.Update(p_Diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))

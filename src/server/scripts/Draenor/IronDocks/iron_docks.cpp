@@ -27,7 +27,7 @@ enum eMovementInformed
 enum eEmotes
 {
     EmoteWork01                         = 133,
-    EmoteFight                          = 36, 
+    EmoteFight                          = 36,
 };
 
 enum eAction
@@ -119,7 +119,7 @@ class iron_docks_mob_gromkar_battlemaster : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case eGromkarEvents::EventBladestorm:
-                            me->CastSpell(me, eGromkarSpells::SpellBladestorm);             
+                            me->CastSpell(me, eGromkarSpells::SpellBladestorm);
                             break;
                     case eGromkarEvents::EventChainDrag:
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
@@ -287,7 +287,7 @@ class iron_docks_mob_gromkar_footsoldier : public CreatureScript
                 me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, eFootSoldierEmotes::EmoteBeg);
                 events.ScheduleEvent(eFootSoldierEvents::EventTacticalKick, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
                 events.ScheduleEvent(eFootSoldierEvents::EventDemoralizingShout, 8 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eFootSoldierEvents::EventChargingSlash, 25 * TimeConstants::IN_MILLISECONDS);               
+                events.ScheduleEvent(eFootSoldierEvents::EventChargingSlash, 25 * TimeConstants::IN_MILLISECONDS);
             }
 
             void MoveInLineOfSight(Unit* p_Who) override
@@ -450,14 +450,14 @@ class iron_docks_mob_gromkar_technician : public CreatureScript
                 EventFlyingHammer,
                 EventExplosiveGrenade
             };
-   
+
             uint32 m_VisualTimer;
 
             void Reset() override
             {
                 events.Reset();
                 m_VisualTimer = 6 * TimeConstants::IN_MILLISECONDS;
-                me->CastSpell(me, eTechnicianSpells::SpellArmedWithExplosives);       
+                me->CastSpell(me, eTechnicianSpells::SpellArmedWithExplosives);
             }
 
             void EnterCombat(Unit* p_Who) override
@@ -482,7 +482,7 @@ class iron_docks_mob_gromkar_technician : public CreatureScript
                     if (m_VisualTimer <= p_Diff)
                     {
                         if (me->HasAura(eSpells::SpellEmoteWork))
-                        me->RemoveAura(eSpells::SpellEmoteWork);            
+                        me->RemoveAura(eSpells::SpellEmoteWork);
 
                         switch (urand(0, 1))
                         {
@@ -525,7 +525,7 @@ class iron_docks_mob_gromkar_technician : public CreatureScript
                             break;
                         case eTechnicianEvents::EventExplosiveGrenade:
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                                me->CastSpell(l_Target, eTechnicianSpells::SpellHighExplosiveGrenade);                       
+                                me->CastSpell(l_Target, eTechnicianSpells::SpellHighExplosiveGrenade);
                             me->RemoveAura(eTechnicianSpells::SpellArmedWithExplosives);
                             break;
                         default:
@@ -671,7 +671,7 @@ public:
         {
             me->setFaction(HostileFaction);
             m_DamageDiff = 1 * TimeConstants::IN_MILLISECONDS;
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -714,7 +714,7 @@ class iron_docks_mob_champion_darona : public CreatureScript
             mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             enum eDorunaEvents
-            {    
+            {
                 /// Champion Daruna
                 EventBurningArrow = 1,
                 EventBarbedArrow,
@@ -761,7 +761,7 @@ class iron_docks_mob_champion_darona : public CreatureScript
                     case eDorunaEvents::EventBurningArrow:
                     {
                         me->MonsterYell("Light them up!", Language::LANG_UNIVERSAL, me->GetGUID());
-                        ///< Commands the Flameslinger to shoot         
+                        ///< Commands the Flameslinger to shoot
                         std::list<Creature*> l_ListFlameSlingers;
                         me->GetCreatureListWithEntryInGrid(l_ListFlameSlingers, eIronDocksCreatures::CreatureGromkarFlameslinger, 200.0f);
                         if (!l_ListFlameSlingers.empty())
@@ -959,13 +959,13 @@ class iron_docks_mob_iron_star : public CreatureScript
                         {
                             if (l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER)
                                 continue;
-                          
+
                             l_Unit->SetFacingToObject(me);
                             l_Unit->CastSpell(l_Unit, eIronStarSpells::SpellAlert, true);
                             me->m_Events.AddEvent(new basicevent_kill(m_Instance, me->GetGUID(), l_Unit->GetGUID()), me->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
                         }
                     }
-        
+
                     if (!m_Event)
                     {
                         if (Player* l_Player = me->FindNearestPlayer(2.0f, true))
@@ -1105,7 +1105,7 @@ class iron_docks_mob_gromkar_deck_hand : public CreatureScript
             enum eDeckHandSpells
             {
                 /// Deckhand
-                SpellHatchetToss = 173112,  
+                SpellHatchetToss = 173112,
             };
 
             void Reset() override
@@ -1410,7 +1410,7 @@ class iron_docks_mob_thundering_wandler : public CreatureScript
                 /// Thunderlord Wrangler
                 EventCultTraps = 1,
                 EventSpearThrow,
-                EventRendingCleave         
+                EventRendingCleave
             };
 
             InstanceScript* m_Instance;
@@ -1562,7 +1562,7 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
             {
                 if (p_Id == eMovementInformed::MovementInformedClefthoofTargetArrivDest)
                 {
-                    m_Stampede = false;          
+                    m_Stampede = false;
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                     me->RemoveAura(eClefthoofSpells::SpellClefthoofStampedeVisualMovement);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
@@ -1610,7 +1610,7 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
                                 me->SetReactState(ReactStates::REACT_PASSIVE);
                                 m_StampedeDiff = 1 * TimeConstants::IN_MILLISECONDS;
                                 me->CastSpell(l_Target, eClefthoofSpells::SpellClefthoofStampedeDummyCast);
-                                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);                                                             
+                                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                             }
                             events.ScheduleEvent(eClefthoofEvents::EventClefthoofStampede, 25 * TimeConstants::IN_MILLISECONDS);
                             break;
@@ -1799,7 +1799,7 @@ class iron_docks_spell_charge_forward : public SpellScriptLoader
                         if (Unit* l_Unit = l_Caster->GetVehicleKit()->GetPassenger(0))
                         {
                             l_Caster->GetVehicleKit()->RemoveAllPassengers(true);
-                            
+
                             if (l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER)
                             {
                                 if (Unit* l_UnitSelection = l_Unit->ToPlayer()->GetSelectedUnit())
@@ -1825,7 +1825,7 @@ class iron_docks_spell_charge_forward : public SpellScriptLoader
         }
 };
 
-/// Lava Blast - 173514 
+/// Lava Blast - 173514
 class iron_docks_spell_lava_blast : public SpellScriptLoader
 {
     public:
@@ -1846,7 +1846,7 @@ class iron_docks_spell_lava_blast : public SpellScriptLoader
                 PreventDefaultAction();
 
                 if (Unit* l_Caster = GetCaster())
-                {     
+                {
                     if (l_Caster->IsAIEnabled)
                     {
                         if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
@@ -1888,7 +1888,7 @@ class iron_docks_spell_barbed_arrow_aura : public SpellScriptLoader
                 PreventDefaultAction();
 
                 if (Unit* l_Caster = GetCaster())
-                {     
+                {
                     if (l_Caster->IsAIEnabled)
                     {
                         if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
@@ -1909,7 +1909,7 @@ class iron_docks_spell_barbed_arrow_aura : public SpellScriptLoader
         }
 };
 
-/// Barbed Arrows - 164371 
+/// Barbed Arrows - 164371
 class iron_docks_spell_barbed_arrow_dummy : public SpellScriptLoader
 {
     public:
@@ -1924,7 +1924,7 @@ class iron_docks_spell_barbed_arrow_dummy : public SpellScriptLoader
             {
                 SpellBarbedArrowAura = 164370
             };
-            
+
             void HandleDummy(SpellEffIndex p_EffIndex)
             {
                 if (Unit* l_Caster = GetCaster())
@@ -1943,7 +1943,7 @@ class iron_docks_spell_barbed_arrow_dummy : public SpellScriptLoader
         }
 };
 
-/// Trampling Stampede - 173384 
+/// Trampling Stampede - 173384
 class iron_docks_spell_trampling_stampede : public SpellScriptLoader
 {
 public:
@@ -2255,7 +2255,7 @@ class iron_docks_area_trigger_barbed_arrow : public AreaTriggerEntityScript
     public:
 
         iron_docks_area_trigger_barbed_arrow() : AreaTriggerEntityScript("iron_docks_area_trigger_barbed_arrow") { }
- 
+
         enum eBarbedArrowSpells
         {
             SpellBarbedArrowAreaTrigger = 164278,
@@ -2311,13 +2311,13 @@ class iron_docks_area_trigger_barbed_arrow : public AreaTriggerEntityScript
         }
 };
 
-/// Grease Vial - 172629 
+/// Grease Vial - 172629
 class iron_docks_area_trigger_oil_effect : public AreaTriggerEntityScript
 {
     public:
 
         iron_docks_area_trigger_oil_effect() : AreaTriggerEntityScript("iron_docks_area_trigger_oil_effect") { }
-      
+
         enum eGreaseVialSpells
         {
             SpellGreaseVial       = 172649,
@@ -2344,7 +2344,7 @@ class iron_docks_area_trigger_oil_effect : public AreaTriggerEntityScript
                     if (!l_Itr->HasAura(eGreaseVialSpells::SpellGreaseVialEffect)) // Visual only
                     {
                         l_Itr->CastSpell(l_Itr, eGreaseVialSpells::SpellGreaseVialEffect);
-                        m_Targets.push_back(l_Itr->GetGUID());               
+                        m_Targets.push_back(l_Itr->GetGUID());
                     }
 
                     if (l_Itr->HasUnitState(UnitState::UNIT_STATE_CASTING)) // Aura effect hardcoded
@@ -2407,7 +2407,7 @@ class iron_docks_area_trigger_jagged_caltrops : public AreaTriggerEntityScript
                     if (!l_Itr->HasAura(eCaltTrapsSpells::SpellCultTrapsDamage))
                     {
                         l_Itr->CastSpell(l_Itr, eCaltTrapsSpells::SpellCultTrapsDamage);
-                        m_Targets.push_back(l_Itr->GetGUID());               
+                        m_Targets.push_back(l_Itr->GetGUID());
                     }
                 }
 
@@ -2436,7 +2436,7 @@ class iron_docks_area_trigger_jagged_caltrops : public AreaTriggerEntityScript
         }
 };
 
-/// Lava Blast - 173518 
+/// Lava Blast - 173518
 class iron_docks_area_trigger_lava_blast : public AreaTriggerEntityScript
 {
 public:

@@ -20,7 +20,7 @@ enum eYells
     /// After Death
     TalkZoggosh01   = 8,    ///< Sir, they've breached the gates! Nok'gar is.. dead!! We should pick anchor and prepare to sail to Talador. Right now! (44047)
     TalkKoramar01   = 23,   ///< Calm yourself.. Zoggosh. We'll do no such thing, if these weaklings are so eager to die then we should obliged! (43899)
-    TalkKoramar0222 = 24    ///< Zoggosh.. do not question my authority. This isn't just any Groon, this is Skuloc son of Grool.. the blood of a champion course through his veins.. I'm not concerned with these whelps. (43900)  
+    TalkKoramar0222 = 24    ///< Zoggosh.. do not question my authority. This isn't just any Groon, this is Skuloc son of Grool.. the blood of a champion course through his veins.. I'm not concerned with these whelps. (43900)
 };
 
 enum eSpells
@@ -74,7 +74,7 @@ class basicevent_nokgar_death : public BasicEvent
                     if (Creature* l_Koramar = l_Instance->instance->GetCreature(l_Instance->GetData64(eIronDocksDatas::DataKoramar)))
                     {
                         if (Creature* l_Skulloc = l_Instance->instance->GetCreature(l_Instance->GetData64(eIronDocksDatas::DataSkulloc)))
-                        {                  
+                        {
                             if (l_Zoggosh->IsAIEnabled && l_Koramar->IsAIEnabled)
                             {
                                 switch (m_Modifier)
@@ -120,7 +120,7 @@ public:
         }
 
         enum eNokgarSpells
-        {          
+        {
             SpellWarsongFlag = 168531,
             SpellBarbedArrow = 164370,
             SpellRecklessProvocation = 164426,
@@ -228,7 +228,7 @@ public:
             {
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
                 if (Creature* l_Wolf = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataMountWolf)))
-                    l_Wolf->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);           
+                    l_Wolf->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
             }
 
             _JustDied();
@@ -246,7 +246,7 @@ public:
 
             if (m_Instance != nullptr)
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
-    
+
             StopArchers();
             _JustReachedHome();
             me->DespawnOrUnsummon();
@@ -302,7 +302,7 @@ public:
 
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                         me->Attack(l_Target, true);
-             
+
                     m_Dismounted = true;
                     events.SetPhase(1);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
@@ -353,7 +353,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                 SpellShreddingSwipesDot        = 164734,
                 SpellShreddingSwipesJump       = 164735,
                 SpellShreddingSwipesDummy      = 164730,
-                SpellShreddingSwipesAuraRemove = 164733      
+                SpellShreddingSwipesAuraRemove = 164733
             };
 
             enum eDreadfangEvents
@@ -374,17 +374,17 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
             bool m_Dead;
 
             void Reset() override
-            {             
+            {
                 events.Reset();
                 m_Dead = false;
                 m_Dismounted = false;
-                m_ShreddingStrikes = false;      
+                m_ShreddingStrikes = false;
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                 m_ShreddingStrikeTimer = 1 * TimeConstants::IN_MILLISECONDS;
                 me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                 me->RemoveFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);        
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 std::list<Creature*> l_ListFlameSlingers;
                 me->GetCreatureListWithEntryInGrid(l_ListFlameSlingers, eIronDocksCreatures::CreatureGromkarFlameslinger, 200.0f);
                 if (!l_ListFlameSlingers.empty())
@@ -401,7 +401,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                 {
                     if (l_Nokgar->IsAIEnabled)
                         l_Nokgar->GetAI()->Reset();
-                }            
+                }
             }
 
             void EnterCombat(Unit* p_Who) override
@@ -557,10 +557,10 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                             m_ShreddingStrikeTimer = 1 * TimeConstants::IN_MILLISECONDS;
                             me->SetReactState(ReactStates::REACT_PASSIVE);
                             me->AddAura(eDreadfangSpells::SpellShreddingSwipesAuraRemove, me);
-                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);    
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 50.0f, true))
                                 me->GetMotionMaster()->MovePoint(eMovementInformed::MovementInformDreadfangShreddingStrikes, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ());
-                            events.ScheduleEvent(eDreadfangEvents::EventShreddingSwipes, 50 * TimeConstants::IN_MILLISECONDS);            
+                            events.ScheduleEvent(eDreadfangEvents::EventShreddingSwipes, 50 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
                         default:
@@ -614,7 +614,7 @@ class iron_docks_nokgar_mob_flameslinger : public CreatureScript
             uint8 m_Shots02;
 
             void Reset() override
-            {          
+            {
                 m_Shots01 = 0;
                 m_Shots02 = 0;
                 events.Reset();
@@ -622,7 +622,7 @@ class iron_docks_nokgar_mob_flameslinger : public CreatureScript
                 me->SetHover(true);
                 me->RemoveAllAuras();
                 me->setFaction(HostileFaction);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);            
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void DoAction(int32 const p_Action) override
@@ -656,7 +656,7 @@ class iron_docks_nokgar_mob_flameslinger : public CreatureScript
                             {
                                 if (Player* l_Target = me->FindNearestPlayer(400.0f, true))
                                     me->CastSpell(l_Target, eFlameslingerSpells::SpellBurningArrow, true);
-              
+
                                 m_Shots01++;
                                 if (m_Shots01 >= 4)
                                 {
@@ -671,7 +671,7 @@ class iron_docks_nokgar_mob_flameslinger : public CreatureScript
                             {
                                 if (Player* l_Target = me->FindNearestPlayer(400.0f, true))
                                     me->CastSpell(l_Target, eFlameslingerSpells::SpellBarbedArrowAura, true);
-            
+
                                 m_Shots02++;
                                 if (m_Shots02 >= 4)
                                 {
@@ -734,6 +734,6 @@ void AddSC_boss_nokgar()
     new boss_nokgar(); /// 81305
     new iron_docks_nokgar_mob_flameslinger(); /// 81279
     new iron_docks_nokgar_mob_dreadfang(); /// 81297
-    /// Spells 
+    /// Spells
     new iron_docks_nokgar_spell_intimidated(); /// 164504
 }
