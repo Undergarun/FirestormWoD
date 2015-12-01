@@ -3423,6 +3423,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
             case 173461: ///< Blackrock Barrage
+                spellInfo->CasterAuraSpell = 0;
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 160382: ///< Defense (Security Guard)
@@ -4881,6 +4882,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 117708: ///< Maddening Shout
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
+                break;
+            case 17076: ///< Glyph of Rejuvenation
+                spellInfo->Effects[0].BasePoints = 0;
                 break;
             case 118047: ///< Pillage
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CHARGE;
@@ -6774,6 +6778,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165462: ///< Unleash Flame
                 spellInfo->ProcCharges = 1;
                 spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 0x10000000;
+                break;
+            case 89792: ///< Flee
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetB = Targets::TARGET_UNIT_SUMMONER;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetB = Targets::TARGET_UNIT_SUMMONER;
                 break;
             default:
                 break;

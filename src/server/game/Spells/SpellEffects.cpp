@@ -1919,7 +1919,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         if (caster && caster->getClass() == CLASS_PRIEST && caster->HasAura(77485) && caster->getLevel() >= 80 && addhealth)
         {
             float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.30f / 100.0f;
-            int32 bp = (Mastery * addhealth) / 6;
+            int32 bp = (Mastery * addhealth) / 2;
 
             bp += unitTarget->GetRemainingPeriodicAmount(caster->GetGUID(), 77489, SPELL_AURA_PERIODIC_HEAL);
 

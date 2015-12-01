@@ -2538,6 +2538,7 @@ class spell_item_throw_mantra: public SpellScriptLoader
         }
 };
 
+/// Ancient Knowledge - 127250
 class spell_item_ancient_knowledge : public SpellScriptLoader
 {
     public:
@@ -2558,15 +2559,39 @@ class spell_item_ancient_knowledge : public SpellScriptLoader
                 return SpellCastResult::SPELL_CAST_OK;
             }
 
-            void Register()
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_item_ancient_knowledge_SpellScript::CheckCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_item_ancient_knowledge_SpellScript();
+        }
+
+        class spell_item_ancient_knowledge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_ancient_knowledge_AuraScript);
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (l_Target->getLevel() >= 85)
+                        Remove();
+                }
+            }
+
+            void Register() override
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_item_ancient_knowledge_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_ancient_knowledge_AuraScript();
         }
 };
 

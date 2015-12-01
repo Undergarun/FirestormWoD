@@ -2186,14 +2186,25 @@ class spell_hun_barrage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (!l_Target->HasAura(eSpells::BarrageTalent, l_Caster->GetGUID()))
-                            SetHitDamage(GetHitDamage() / 2);
-                    }
-                }
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                float l_Mindamage = 0.0f;
+                float l_Maxdamage = 0.0f;
+
+                l_Player->CalculateMinMaxDamage(WeaponAttackType::RangedAttack, true, true, l_Mindamage, l_Maxdamage);
+               
+                int32 l_Damage = (l_Mindamage + l_Maxdamage) / 2 * 0.7f;
+
+                if (!l_Target->HasAura(eSpells::BarrageTalent, l_Player->GetGUID()))
+                    l_Damage /= 2;
+
+                l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                SetHitDamage(l_Damage);
             }
 
             void Register()

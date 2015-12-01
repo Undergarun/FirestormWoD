@@ -2887,6 +2887,9 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                                 JadeCore::RandomResizeList(l_PlrList, 2);
                                             }
 
+                                            /// Increase jump count
+                                            ++l_Stacks;
+
                                             for (Player* l_Player : l_PlrList)
                                             {
                                                 if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_Player))
