@@ -129,6 +129,7 @@ class boss_oregorger : public CreatureScript
             RollingFuryVisual           = 174183,
             RollingBox                  = 160665,
             WallshakingRoar             = 160662,
+            EarthshakingStomp           = 159958,
             /// Phase 1
             /// Acid Maw
             AcidMawDoT                  = 173471,
@@ -174,7 +175,8 @@ class boss_oregorger : public CreatureScript
         {
             EventCheckTrashs = 1,
             EventCollectOre,
-            EventCheckLastCollision
+            EventCheckLastCollision,
+            EventSoftEnrage
         };
 
         enum eCreatures
@@ -937,6 +939,20 @@ class boss_oregorger : public CreatureScript
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckLastCollision, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
+                    case eCosmeticEvents::EventSoftEnrage:
+                    {
+                        m_Phase = ePhases::PhaseFight;
+
+                        me->RemoveAura(eSpells::HungerDrivePeriodic);
+                        me->RemoveAura(eSpells::RollingFuryAura);
+
+                        m_Events.Reset();
+                        m_CosmeticEvents.Reset();
+
+                        me->CastSpell(me, eSpells::EarthshakingStomp, false);
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventSoftEnrage, 1 * TimeConstants::IN_MILLISECONDS + 500);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1037,6 +1053,8 @@ class boss_oregorger : public CreatureScript
 
                 if (me->HasAura(eSpells::BlackrockSpines))
                     m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 100);
+
+                m_CosmeticEvents.RescheduleEvent(eCosmeticEvents::EventSoftEnrage, 7 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             }
 
             uint8 GetCollisionOrIntersectionPoint(uint8 p_I, uint8 p_J) const
