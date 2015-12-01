@@ -16,6 +16,7 @@
 #include "CreatureAI.h"
 #include "Chat.h"
 #include "ScriptMgr.h"
+#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
 void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 {
@@ -656,7 +657,7 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
     if (!l_Count)
         l_Count = 1;
 
-    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER);
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER);
 
     if (!l_Unit)
     {
@@ -679,6 +680,13 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
         if (l_BuildingID)
         {
             l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, true);
+
+            if (l_ShipmentID == MS::Garrison::Barn::ShipmentIDS::ShipmentFur)
+            {
+                if (l_Unit->AI())
+                    l_ShipmentID = l_Unit->AI()->OnShipmentIDRequest(m_Player);
+            }
+
             sScriptMgr->OnShipmentCreated(m_Player, l_Unit, l_BuildingID);
         }
     }
