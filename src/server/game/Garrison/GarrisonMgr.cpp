@@ -2357,7 +2357,7 @@ namespace MS { namespace Garrison
     /// Add follower
     bool Manager::AddFollower(uint32 p_FollowerID)
     {
-        if (GetFollower(p_FollowerID) == nullptr)
+        if (GetFollower(p_FollowerID) != nullptr)
             return false;
 
         GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
@@ -2366,7 +2366,7 @@ namespace MS { namespace Garrison
             return false;
 
         GarrisonFollower l_Follower;
-        l_Follower.DatabaseID                = sObjectMgr->GetNewGarrisonFollowerID();
+        l_Follower.DatabaseID           = sObjectMgr->GetNewGarrisonFollowerID();
         l_Follower.FollowerID           = p_FollowerID;
         l_Follower.Level                = l_Entry->Level;
         l_Follower.XP                   = 0;
