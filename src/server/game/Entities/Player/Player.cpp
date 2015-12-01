@@ -32596,12 +32596,19 @@ void Player::ReloadPetBattles()
         BattlePet::Ptr l_Pet = (*l_It);
         l_Pet->Save(l_Transaction);
     }
+    
+    uint64 l_ThisGUID = GetGUID();
+    MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_ThisGUID](bool p_Success) -> void
+    {
+        if (Player * l_This = HashMapHolder<Player>::Find(l_ThisGUID))
+        {
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
+            stmt->setUInt32(0, l_This->GetSession()->GetAccountId());
+            l_This->_petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
+        }
+    });
 
-    LoginDatabase.CommitTransaction(l_Transaction);
-
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
-    stmt->setUInt32(0, GetSession()->GetAccountId());
-    _petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
+    LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
 }
 
 /// PetBattleCountBattleSpecies
