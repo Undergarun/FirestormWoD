@@ -2331,7 +2331,7 @@ namespace MS { namespace Garrison
     bool Manager::AddFollower(uint32 p_FollowerID)
     {
         auto l_TempFollower = GetFollower(p_FollowerID);
-        if (l_TempFollower.FollowerID != 0)
+        if (l_TempFollower->FollowerID != 0)
             return false;
 
         GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
