@@ -7822,6 +7822,8 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
+
+
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -7865,7 +7867,11 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
         {
             if ((uint32)l_Follower->ItemLevelArmor < l_MaxIlvl)
             {
-                l_Follower->SetArmorItemLevel(l_NewValue);
+                if ((uint32)l_Follower->ItemLevelArmor + l_NewValue >= l_MaxIlvl)
+                    l_Follower->SetArmorItemLevel(l_MaxIlvl);
+                else
+                    l_Follower->SetArmorItemLevel(l_NewValue);
+
                 l_Follower->UpdateFollower(l_Player);
                 l_GarrisonMgr->Save(CharacterDatabase.BeginTransaction());
             }
@@ -7876,7 +7882,11 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
         {
             if ((uint32)l_Follower->ItemLevelWeapon < l_MaxIlvl)
             {
-                l_Follower->SetWeaponItemLevel(l_NewValue);
+                if ((uint32)l_Follower->ItemLevelWeapon + l_NewValue >= l_MaxIlvl)
+                    l_Follower->SetWeaponItemLevel(l_MaxIlvl);
+                else
+                    l_Follower->SetWeaponItemLevel(l_NewValue);
+
                 l_Follower->UpdateFollower(l_Player);
                 l_GarrisonMgr->Save(CharacterDatabase.BeginTransaction());
             }
