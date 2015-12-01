@@ -2446,7 +2446,7 @@ class spell_pri_psychic_horror: public SpellScriptLoader
         }
 };
 
-// Guardian Spirit - 47788
+/// Guardian Spirit - 47788
 class spell_pri_guardian_spirit: public SpellScriptLoader
 {
     public:
@@ -2456,48 +2456,46 @@ class spell_pri_guardian_spirit: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_guardian_spirit_AuraScript);
 
-            int32 healPct;
-
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(PRIEST_SPELL_GUARDIAN_SPIRIT_HEAL))
                     return false;
+
                 return true;
             }
 
-            bool Load()
-            {
-                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                return true;
-            }
-
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool & /*canBeRecalculated*/)
             {
                 // Set absorbtion amount to unlimited
-                amount = -1;
+                p_Amount = -1;
             }
 
-            void Absorb(AuraEffectPtr /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffectPtr /*aurEff*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
                 Unit* target = GetTarget();
-                if (dmgInfo.GetDamage() < target->GetHealth())
+                if (p_DmgInfo.GetDamage() < target->GetHealth())
+                {
+                    PreventDefaultAction();
                     return;
+                }
 
-                int32 healAmount = int32(target->CountPctFromMaxHealth(healPct));
+                p_AbsorbAmount = p_DmgInfo.GetDamage();
+
                 // remove the aura now, we don't want 40% healing bonus
-                Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                target->CastCustomSpell(target, PRIEST_SPELL_GUARDIAN_SPIRIT_HEAL, &healAmount, NULL, NULL, true);
-                absorbAmount = dmgInfo.GetDamage();
+                Remove(AuraRemoveMode::AURA_REMOVE_BY_ENEMY_SPELL);
+
+                int32 l_Amount = int32(target->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                target->CastCustomSpell(target, PRIEST_SPELL_GUARDIAN_SPIRIT_HEAL, &l_Amount, nullptr, nullptr, true);
             }
 
-            void Register()
+            void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_guardian_spirit_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_SCHOOL_ABSORB);
                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_guardian_spirit_AuraScript::Absorb, EFFECT_2, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_pri_guardian_spirit_AuraScript();
         }
