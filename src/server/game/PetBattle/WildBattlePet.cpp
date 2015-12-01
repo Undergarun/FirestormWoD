@@ -25,6 +25,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "DB2Stores.h"
 #include <stdexcept>
 #include <algorithm>
 
@@ -62,10 +63,6 @@ void WildBattlePetZonePools::LoadPoolTemplate(Field* l_Fields)
 
 void WildBattlePetZonePools::Populate()
 {
-    // TMP DISABLE
-    if (g_RealmID != 5)
-        return;
-
     for (size_t l_I = 0; l_I < m_Templates.size(); l_I++)
     {
         WildBattlePetPoolTemplate* l_Template = &m_Templates[l_I];
@@ -165,6 +162,8 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
         return;
     }
 
+    l_ReplacementCreature->SetHomePosition(p_Creature->m_positionX, p_Creature->m_positionY, p_Creature->m_positionZ, p_Creature->m_orientation);
+
     // BattlePet fill data
     p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()] = std::shared_ptr<BattlePetInstance>(new BattlePetInstance());
     std::shared_ptr<BattlePetInstance> l_BattlePetInstance = p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()];
@@ -188,15 +187,13 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
       1, 0, 3, 3, 3, 2, 2, 2, 1, 1, 1 };
 
     uint32 totalBreedWeight = 0;
-
     for (size_t i = 0; i < 10; ++i)
         if (p_Template->Breeds[i] < 23)
             totalBreedWeight += breedQualityWeights[breedQuality[p_Template->Breeds[i]]];
 
     l_BattlePetInstance->Breed = 3;
-    uint32 minBreedChances = l_BattlePetInstance->Level * totalBreedWeight * 2 / 75; ///< minBreedChances is unused
+    uint32 minBreedChances = l_BattlePetInstance->Level * totalBreedWeight * 2 / 75;
     uint32 breedChances = urand(1, totalBreedWeight);
-
     for (size_t i = 0; i < 10; ++i)
     {
         if (p_Template->Breeds[i] >= 23)
@@ -246,7 +243,11 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
     l_ReplacementCreature->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, l_BattlePetInstance->Level);
     l_ReplacementCreature->GetMotionMaster()->MoveRandom(1.5f);
 
-    p_Creature->GetMap()->AddToMap(l_ReplacementCreature);
+    if (!p_Creature->GetMap()->AddToMap(l_ReplacementCreature))
+    {
+        delete l_ReplacementCreature;
+        return;
+    }
 
     // Despawn replaced creature
     p_Creature->ForcedDespawn();
@@ -304,8 +305,6 @@ void WildBattlePetMgr::Load()
     }
 
     uint32 l_Count = 0;
-    uint32 l_OldMSTime = getMSTime();
-
     do
     {
         Field* l_Fields = l_Result->Fetch();
@@ -352,27 +351,19 @@ void WildBattlePetMgr::Load()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u species definitions in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u species definitions.", l_Count);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 void WildBattlePetMgr::PopulateAll()
 {
-    // TMP DISABLE
-    if (g_RealmID != 5)
-        return;
-
     for (std::map<uint32, std::map<uint32, WildBattlePetZonePools> >::iterator l_It = m_PoolsByMap.begin(); l_It != m_PoolsByMap.end(); l_It++)
         for (std::map<uint32, WildBattlePetZonePools>::iterator l_It2 = l_It->second.begin(); l_It2 != l_It->second.end(); l_It2++)
             (*l_It2).second.Populate();
 }
 void WildBattlePetMgr::PopulateMap(uint32 p_MapID)
 {
-    // TMP DISABLE
-    if (g_RealmID != 5)
-        return;
-
     if (m_PoolsByMap.find(p_MapID) == m_PoolsByMap.end())
         return;
 
