@@ -385,15 +385,15 @@ enum Opcodes
         /// Pet Battle opcodes
         SMSG_BATTLE_PET_JOURNAL                             = 0x1C35, ///< 6.1.2 19783
         SMSG_QUERY_PET_NAME_RESPONSE                        = 0x023D, ///< 6.1.2 19783
-        SMSG_PETBATTLE_REQUEST_FAILED                       = 0x0000,
-        SMSG_PETBATTLE_FIRST_ROUND                          = 0x0000,
-        SMSG_PETBATTLE_FULL_UPDATE                          = 0x0000,
-        SMSG_PETBATTLE_FINALIZE_LOCATION                    = 0x0000,
+        SMSG_PETBATTLE_REQUEST_FAILED                       = 0x0EB5, ///< 6.1.2 19783
+        SMSG_PETBATTLE_FIRST_ROUND                          = 0x08A1, ///< 6.1.2 19783
+        SMSG_PETBATTLE_FULL_UPDATE                          = 0x17B6, ///< 6.1.2 19783
+        SMSG_PETBATTLE_FINALIZE_LOCATION                    = 0x0A35, ///< 6.1.2 19783
         SMSG_PETBATTLE_PVP_CHALLENGE                        = 0x0000,
-        SMSG_PETBATTLE_ROUND_RESULT                         = 0x0000,
+        SMSG_PETBATTLE_ROUND_RESULT                         = 0x0292, ///< 6.1.2 19783
         SMSG_PETBATTLE_REPLACEMENTS_MADE                    = 0x0000,
-        SMSG_PETBATTLE_FINAL_ROUND                          = 0x0000,
-        SMSG_PETBATTLE_FINISHED                             = 0x0000,
+        SMSG_PETBATTLE_FINAL_ROUND                          = 0x18B6, ///< 6.1.2 19783
+        SMSG_PETBATTLE_FINISHED                             = 0x19B6, ///< 6.1.2 19783
         SMSG_PET_BATTLE_SLOT_UPDATES                        = 0x1D21, ///< 6.1.2 19783
 
         /// Instances

@@ -110,11 +110,10 @@ enum eBattlePetRequests
     PETBATTLE_REQUEST_NEED_TO_BE_TRAINER                = 11,
     PETBATTLE_REQUEST_DECLINED                          = 12,
     PETBATTLE_REQUEST_ALREADY_IN_PETBATTLE              = 13,
-    PETBATTLE_REQUEST_NEED_PET_IN_SLOTS                 = 14,
-    PETBATTLE_REQUEST_PET_ALL_DEAD                      = 15,
-    PETBATTLE_REQUEST_NEED_AT_LEAST_1_PET_IN_SLOT       = 16,
-    PETBATTLE_REQUEST_CODEX_LOCKED_BY_AN_ANOTHER_USER   = 17,
-    PETBATTLE_REQUEST_TARGET_IN_A_BATTLEPET             = 18
+    PETBATTLE_REQUEST_PET_ALL_DEAD                      = 14,
+    PETBATTLE_REQUEST_NEED_PET_IN_SLOTS                 = 15,
+    PETBATTLE_REQUEST_CODEX_LOCKED_BY_AN_ANOTHER_USER   = 16,
+    PETBATTLE_REQUEST_TARGET_IN_A_BATTLEPET             = 17,
 };
 
 enum BattlePetState
@@ -371,14 +370,14 @@ class BattlePetInstance : public BattlePet
 /// Pet battle event type
 enum PetBattleEventType
 {
-    PETBATTLE_EVENT_UPDATE_TRIGGER          = 0,    // 0 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_NPC_EMOTE        = 1,    // 7 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_FRONTPET         = 2,    // 6 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_HEALTH           = 3,    // 5 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_SPEED            = 4,    // 4 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_ABILITY_CHANGE   = 5,    // 2 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_STATE            = 6,    // 3 on 5.4.7
-    PETBATTLE_EVENT_UPDATE_BUFF             = 7,    // 1 on 5.4.7
+    PETBATTLE_EVENT_UPDATE_TRIGGER          = 0,
+    PETBATTLE_EVENT_UPDATE_SPEED            = 1,
+    PETBATTLE_EVENT_UPDATE_NPC_EMOTE        = 2,
+    PETBATTLE_EVENT_UPDATE_FRONTPET         = 3,
+    PETBATTLE_EVENT_UPDATE_HEALTH           = 4,
+    PETBATTLE_EVENT_UPDATE_BUFF             = 5,
+    PETBATTLE_EVENT_UPDATE_STATE            = 6,
+    PETBATTLE_EVENT_UPDATE_ABILITY_CHANGE   = 7
 };
 
 /// Pet battle event
