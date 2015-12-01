@@ -1541,14 +1541,14 @@ enum Opcodes
     CMSG_PETBATTLE_RENAME                          = 0x0B37,   ///< 6.1.2 19783
     CMSG_PETBATTLE_CAGE_PET                        = 0x0000,
     CMSG_PETBATTLE_QUERY_NAME                      = 0x0AFC,   ///< 6.1.2 19783
-    CMSG_PETBATTLE_REQUEST_WILD                    = 0x0000,
+    CMSG_PETBATTLE_REQUEST_WILD                    = 0x1FAC,   ///< 6.1.2 19783
     CMSG_PETBATTLE_REQUEST_PVP                     = 0x0000,
     CMSG_PETBATTLE_JOIN_QUEUE                      = 0x0000,
     CMSG_PETBATTLE_REQUEST_UPDATE                  = 0x0000,
     CMSG_PETBATTLE_CANCEL_REQUEST_PVP_MATCHMAKING  = 0x0000,
-    CMSG_PETBATTLE_INPUT                           = 0x0000,
+    CMSG_PETBATTLE_INPUT                           = 0x071F,   ///< 6.1.2 19783
     CMSG_PETBATTLE_INPUT_NEW_FRONT_PET             = 0x0000,
-    CMSG_BATTLEPET_SET_BATTLESLOT                  = 0x120B,
+    CMSG_BATTLEPET_SET_BATTLESLOT                  = 0x17BD,   ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay

@@ -727,40 +727,17 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         return;
 
     PetBattleRequest* l_BattleRequest = sPetBattleSystem->CreateRequest(m_Player->GetGUID());
-    ObjectGuid l_OpponentGuid;
+    uint64 l_OpponentGuid;
 
-    p_RecvData >> l_BattleRequest->PetBattleCenterPosition[1] >> l_BattleRequest->PetBattleCenterPosition[2];
+    p_RecvData.readPackGUID(l_OpponentGuid);
+    p_RecvData >> l_BattleRequest->LocationResult;
+    p_RecvData >> l_BattleRequest->PetBattleCenterPosition[0];
+    p_RecvData >> l_BattleRequest->PetBattleCenterPosition[1];
+    p_RecvData >> l_BattleRequest->PetBattleCenterPosition[2];
+    p_RecvData >> l_BattleRequest->BattleFacing;
 
     for (int l_CurrentTeamID = 0; l_CurrentTeamID < MAX_PETBATTLE_TEAM; l_CurrentTeamID++)
-        p_RecvData >> l_BattleRequest->TeamPosition[l_CurrentTeamID][1] >> l_BattleRequest->TeamPosition[l_CurrentTeamID][2] >> l_BattleRequest->TeamPosition[l_CurrentTeamID][0];
-
-    p_RecvData >> l_BattleRequest->PetBattleCenterPosition[0];
-
-    l_OpponentGuid[4] = p_RecvData.ReadBit();
-    l_OpponentGuid[1] = p_RecvData.ReadBit();
-    l_OpponentGuid[0] = p_RecvData.ReadBit();
-    l_OpponentGuid[5] = p_RecvData.ReadBit();
-    bool l_HasLocationResult    = !p_RecvData.ReadBit();
-    bool l_HasBattleFacing      = !p_RecvData.ReadBit();
-    l_OpponentGuid[7] = p_RecvData.ReadBit();
-    l_OpponentGuid[6] = p_RecvData.ReadBit();
-    l_OpponentGuid[2] = p_RecvData.ReadBit();
-    l_OpponentGuid[3] = p_RecvData.ReadBit();
-
-    p_RecvData.ReadByteSeq(l_OpponentGuid[3]);
-    p_RecvData.ReadByteSeq(l_OpponentGuid[2]);
-    p_RecvData.ReadByteSeq(l_OpponentGuid[6]);
-    p_RecvData.ReadByteSeq(l_OpponentGuid[1]);
-    p_RecvData.ReadByteSeq(l_OpponentGuid[7]);
-    p_RecvData.ReadByteSeq(l_OpponentGuid[5]);
-    p_RecvData.ReadByteSeq(l_OpponentGuid[4]);
-    p_RecvData.ReadByteSeq(l_OpponentGuid[0]);
-
-    if (l_HasLocationResult)
-        p_RecvData >> l_BattleRequest->LocationResult;
-
-    if (l_HasBattleFacing)
-        p_RecvData >> l_BattleRequest->BattleFacing;
+        p_RecvData >> l_BattleRequest->TeamPosition[l_CurrentTeamID][0] >> l_BattleRequest->TeamPosition[l_CurrentTeamID][1] >> l_BattleRequest->TeamPosition[l_CurrentTeamID][2];
 
     l_BattleRequest->RequestType    = PETBATTLE_TYPE_PVE;
     l_BattleRequest->OpponentGuid   = l_OpponentGuid;
@@ -1056,37 +1033,14 @@ void WorldSession::HandlePetBattleInput(WorldPacket& p_RecvData)
     uint32  l_Ability       = 0;
     uint32  l_Turn          = 0;
 
-    bool byte13             = !p_RecvData.ReadBit();
-    bool byte14             = p_RecvData.ReadBit();
-    bool l_HasAbility       = !p_RecvData.ReadBit();
-    bool l_HasNewFrontPet   = !p_RecvData.ReadBit();
-    bool byte12             = !p_RecvData.ReadBit();
-    bool l_HasActionType    = !p_RecvData.ReadBit();
-    bool l_HasTurn          = !p_RecvData.ReadBit();
+    p_RecvData >> l_Action;
+    p_RecvData >> l_NewFrontPetID;
+    p_RecvData.read_skip<uint8>();
+    p_RecvData.read_skip<uint8>();
+    p_RecvData >> l_Ability;
+    p_RecvData >> l_Turn;
 
-    if (byte13)
-    {
-        uint8 l_Value;
-        p_RecvData >> l_Value;
-    }
-
-    if (l_HasNewFrontPet)
-        p_RecvData >> l_NewFrontPetID;
-
-    if (l_HasTurn)
-        p_RecvData >> l_Turn;
-
-    if (l_HasAbility)
-        p_RecvData >> l_Ability;
-
-    if (byte12)
-    {
-        uint8 l_Value;
-        p_RecvData >> l_Value;
-    }
-
-    if (l_HasActionType)
-        p_RecvData >> l_Action;
+    p_RecvData.ReadBit();
 
     if (l_Action == PETBATTLE_ACTION_LEAVE_PETBATTLE)
     {
@@ -1115,7 +1069,7 @@ void WorldSession::HandlePetBattleInput(WorldPacket& p_RecvData)
         return;
     }
 
-    if (l_HasActionType)
+    if (l_Action)
     {
         uint32 l_PlayerTeamID = 0;
 

@@ -1203,7 +1203,7 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                     l_CurrentPet->Health = 0;
 
                 if (p_Aborted && p_WinnerTeamID != l_CurrentTeamID)
-                    AddPct(l_CurrentPet->Health, -GetForfeitHealthPenalityPct());    ///< 10% health loose on forfeit
+                    l_CurrentPet->Health = AddPct(l_CurrentPet->Health, -GetForfeitHealthPenalityPct());    ///< 10% health loose on forfeit
 
                 if (p_WinnerTeamID == l_CurrentTeamID && l_AvailablePetCount && BattleType == PETBATTLE_TYPE_PVE && l_CurrentPet->IsAlive()
                     && l_CurrentPet->Level < BATTLEPET_MAX_LEVEL && FightedPets.find(l_CurrentPet->ID) != FightedPets.end())
