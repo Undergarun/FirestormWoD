@@ -366,8 +366,12 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Psychic Horror -- 64044
             if (spellproto->SpellFamilyFlags[2] & 0x2000)
                 return DIMINISHING_INCAPACITATE;
+
             /// Shackle Undead -- 9484
             if (spellproto->Id == 9484)
+                return DIMINISHING_DISORIENT;
+            /// Sin and Punishment -- 87204
+            if (spellproto->Id == 87204)
                 return DIMINISHING_DISORIENT;
 
             // Psychic Scream -- 8122
