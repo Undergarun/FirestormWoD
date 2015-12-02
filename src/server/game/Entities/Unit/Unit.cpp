@@ -3443,7 +3443,8 @@ void Unit::SetCurrentCastedSpell(Spell* pSpell)
         case CURRENT_GENERIC_SPELL:
         {
             // generic spells always break channeled not delayed spells
-            InterruptSpell(CURRENT_CHANNELED_SPELL, false);
+            if (!(pSpell->getTriggerCastFlags() & TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                InterruptSpell(CURRENT_CHANNELED_SPELL, false);
 
             // autorepeat breaking
             if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL])

@@ -765,10 +765,6 @@ class instance_highmaul : public InstanceMapScript
             {
                 InstanceScript::OnPlayerEnter(p_Player);
 
-                /// We must save the player phases to prevent some bugs
-                if (m_PlayerPhases.find(p_Player->GetGUIDLow()) == m_PlayerPhases.end())
-                    m_PlayerPhases.insert(std::make_pair(p_Player->GetGUIDLow(), p_Player->GetPhaseMask()));
-
                 bool l_ChogallNight = false;
                 if (GetBossState(eHighmaulDatas::BossKargathBladefist) == EncounterState::DONE)
                 {
@@ -865,13 +861,9 @@ class instance_highmaul : public InstanceMapScript
                 }
 
                 if (l_ChogallNight)
-                {
-                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
-                }
                 else
                 {
-                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
                     p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                     p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
                 }
@@ -883,15 +875,6 @@ class instance_highmaul : public InstanceMapScript
 
                 p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                 p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
-
-                /// We must restore original phasing for each players
-                if (m_PlayerPhases.find(p_Player->GetGUIDLow()) != m_PlayerPhases.end())
-                {
-                    p_Player->SetPhaseMask(m_PlayerPhases[p_Player->GetGUIDLow()], true);
-                    m_PlayerPhases.erase(p_Player->GetGUIDLow());
-                }
-                else
-                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
             }
 
             void SendUpdateWorldState(uint32 p_Field, uint32 p_Value)
@@ -910,10 +893,7 @@ class instance_highmaul : public InstanceMapScript
                 for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
                 {
                     if (Player* l_Player = l_Iter->getSource())
-                    {
                         l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
-                        l_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
-                    }
                 }
             }
 

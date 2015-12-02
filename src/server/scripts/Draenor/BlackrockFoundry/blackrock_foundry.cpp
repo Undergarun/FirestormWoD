@@ -2405,12 +2405,12 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    if (l_Unit->GetDistance(p_AreaTrigger) <= 3.0f)
+                    if (l_Unit->GetDistance(p_AreaTrigger) <= 2.8f)
                     {
                         if (!l_Unit->HasAura(eSpell::AcidbackPuddleDoT))
                             l_Unit->CastSpell(l_Unit, eSpell::AcidbackPuddleDoT, true);
                     }
-                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 3.0f))
+                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 2.8f))
                     {
                         if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT))
                             l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT);
@@ -2432,7 +2432,25 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 3.0f))
+                    std::list<AreaTrigger*> l_ATList;
+                    l_Unit->GetAreatriggerListInRange(l_ATList, 2.8f);
+
+                    if (l_ATList.empty())
+                    {
+                        if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT))
+                            l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT);
+                    }
+
+                    uint32 l_SpellID = p_AreaTrigger->GetSpellId();
+                    l_ATList.remove_if([this, l_SpellID](AreaTrigger* p_AreaTrigger) -> bool
+                    {
+                        if (p_AreaTrigger == nullptr || p_AreaTrigger->GetSpellId() != l_SpellID)
+                            return true;
+
+                        return false;
+                    });
+
+                    if (l_ATList.empty())
                     {
                         if (l_Unit->HasAura(eSpell::AcidbackPuddleDoT))
                             l_Unit->RemoveAura(eSpell::AcidbackPuddleDoT);

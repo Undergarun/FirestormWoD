@@ -448,7 +448,7 @@ class boss_gruul_foundry : public CreatureScript
                     }
                     case eEvents::EventCaveIn:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f))
                             me->SummonCreature(eCreatures::TriggerCaveIn, *l_Target);
                         else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             me->SummonCreature(eCreatures::TriggerCaveIn, *l_Target);
