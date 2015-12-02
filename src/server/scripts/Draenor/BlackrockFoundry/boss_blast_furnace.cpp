@@ -1737,15 +1737,13 @@ class npc_foundry_furnace_engineer : public CreatureScript
         {
             Electrocution   = 155201,
             Bomb            = 155192,
-            DropLitBombs    = 174726,
-            Repair          = 155179
+            DropLitBombs    = 174726
         };
 
         enum eEvents
         {
             EventElectrocution = 1,
-            EventBomb,
-            EventRepair
+            EventBomb
         };
 
         enum eTalk
@@ -1753,15 +1751,9 @@ class npc_foundry_furnace_engineer : public CreatureScript
             BombWarning = 8
         };
 
-        enum eCreatures
+        enum eCreature
         {
-            HeatRegulator       = 76808,
-            EngineerForFight    = 76810
-        };
-
-        enum eMove
-        {
-            MoveRegulator = 1
+            EngineerForFight = 76810
         };
 
         struct npc_foundry_furnace_engineerAI : public ScriptedAI
@@ -1770,15 +1762,11 @@ class npc_foundry_furnace_engineer : public CreatureScript
 
             EventMap m_Events;
 
-            bool m_IsInRepair;
-
             void Reset() override
             {
                 m_Events.Reset();
 
-                m_IsInRepair = false;
-
-                if (me->GetEntry() == eCreatures::EngineerForFight)
+                if (me->GetEntry() == eCreature::EngineerForFight)
                 {
                     AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
@@ -1792,7 +1780,6 @@ class npc_foundry_furnace_engineer : public CreatureScript
             {
                 m_Events.ScheduleEvent(eEvents::EventElectrocution, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventBomb, 10 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventRepair, 15 * TimeConstants::IN_MILLISECONDS);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -1818,42 +1805,9 @@ class npc_foundry_furnace_engineer : public CreatureScript
                 me->CastSpell(me, eSpells::DropLitBombs, true);
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
-            {
-                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
-                    return;
-
-                if (p_ID == eMove::MoveRegulator)
-                {
-                    me->CastSpell(me, eSpells::Repair, false);
-
-                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                }
-            }
-
-            void OnSpellFinished(SpellInfo const* p_SpellInfo) override
-            {
-                if (p_SpellInfo->Id == eSpells::Repair)
-                {
-                    m_IsInRepair = false;
-
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                        AttackStart(l_Target);
-                }
-            }
-
-            void OnTaunt(Unit* p_Taunter) override
-            {
-                if (!m_IsInRepair)
-                    return;
-
-                me->InterruptNonMeleeSpells(true);
-                me->GetMotionMaster()->Clear();
-            }
-
             void UpdateAI(uint32 const p_Diff) override
             {
-                if (!UpdateVictim() || m_IsInRepair)
+                if (!UpdateVictim())
                     return;
 
                 m_Events.Update(p_Diff);
@@ -1875,32 +1829,6 @@ class npc_foundry_furnace_engineer : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::Bomb, false);
                         m_Events.ScheduleEvent(eEvents::EventBomb, 15 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
-                    case eEvents::EventRepair:
-                    {
-                        Position const l_LeftPos = { 147.85f, 3572.02f, 218.251f, 0.507f };
-                        Position const l_RightPos = { 247.14f, 3572.02f, 218.246f, 2.794f };
-
-                        if (Unit* l_Regulator = me->FindNearestCreature(eCreatures::HeatRegulator, 100.0f))
-                        {
-                            if (l_Regulator->IsFullHealth())
-                            {
-                                m_Events.ScheduleEvent(eEvents::EventRepair, 20 * TimeConstants::IN_MILLISECONDS);
-                                break;
-                            }
-
-                            me->SetReactState(ReactStates::REACT_PASSIVE);
-
-                            if (l_Regulator->GetDistance(l_LeftPos) < l_Regulator->GetDistance(l_RightPos))
-                                me->GetMotionMaster()->MovePoint(eMove::MoveRegulator, l_LeftPos);
-                            else
-                                me->GetMotionMaster()->MovePoint(eMove::MoveRegulator, l_RightPos);
-
-                            m_IsInRepair = true;
-                        }
-
-                        m_Events.ScheduleEvent(eEvents::EventRepair, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2739,83 +2667,6 @@ class spell_foundry_melt_aura : public SpellScriptLoader
         }
 };
 
-/// Repair - 155179
-class spell_foundry_repair : public SpellScriptLoader
-{
-    public:
-        spell_foundry_repair() : SpellScriptLoader("spell_foundry_repair") { }
-
-        class spell_foundry_repair_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_foundry_repair_AuraScript);
-
-            void OnTick(constAuraEffectPtr p_AurEff)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetTarget())
-                    {
-                        if (l_Target->IsFullHealth())
-                            l_Caster->InterruptNonMeleeSpells(true);
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_repair_AuraScript::OnTick, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_foundry_repair_AuraScript();
-        }
-
-        class spell_foundry_repair_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_foundry_repair_SpellScript);
-
-            void HandleApplyHeal(SpellEffIndex p_EffIndex)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    int32 l_BasePoint = 2;
-
-                    if (l_Caster->GetMap()->IsLFR())
-                        l_BasePoint = 1;
-                    else if (l_Caster->GetMap()->IsHeroic())
-                        l_BasePoint = 3;
-                    else if (l_Caster->GetMap()->IsMythic())
-                        l_BasePoint = 5;
-
-                    int32 l_MaxValue = 300;
-                    int32 l_Duration = 1 * TimeConstants::IN_MILLISECONDS * (l_MaxValue / l_BasePoint);
-
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, p_EffIndex, l_Caster->GetGUID()))
-                        {
-                            l_AuraEffect->ChangeAmount(l_BasePoint);
-                            l_AuraEffect->GetBase()->SetMaxDuration(l_Duration);
-                            l_AuraEffect->GetBase()->SetDuration(l_Duration);
-                        }
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_foundry_repair_SpellScript::HandleApplyHeal, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_foundry_repair_SpellScript();
-        }
-};
-
 /// Heart of the Furnace - 155288
 class spell_foundry_heart_of_the_furnace : public SpellScriptLoader
 {
@@ -3279,7 +3130,6 @@ void AddSC_boss_blast_furnace()
     new spell_foundry_shields_down();
     new spell_foundry_volatile_fire();
     new spell_foundry_melt_aura();
-    new spell_foundry_repair();
     new spell_foundry_heart_of_the_furnace();
 
     /// GameObject
