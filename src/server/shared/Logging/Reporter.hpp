@@ -21,6 +21,7 @@ class Reporter
 
         Reporter() { }
 
+        void SetActiveState(bool p_Apply) { m_Enabled = p_Apply; }
         void SetAddress(std::string const p_Address) { m_Address = p_Address; }
         void SetIndex(std::string const p_Index) { m_Index = p_Index; }
 
@@ -33,6 +34,7 @@ class Reporter
     private:
         ACE_Based::LockedQueue<std::string, ACE_Thread_Mutex> m_ReportQueue;
 
+        bool        m_Enabled;
         std::string m_Address;
         std::string m_Index;
 };

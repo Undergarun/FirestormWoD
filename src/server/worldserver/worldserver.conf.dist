@@ -3229,6 +3229,7 @@ Vip.Rate.Exchange.Triumph.In.Frost = 1
 ###################################################################################################
 # Datas Reporting
 
+Reporting.Enabled   = 0
 Reporting.Address   = "http://127.0.0.1:9200/"
 Reporting.Index     = "firestorm/guild_ranking/?pretty"
 
