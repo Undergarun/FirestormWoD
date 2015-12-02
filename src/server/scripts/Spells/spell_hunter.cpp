@@ -3536,6 +3536,7 @@ static uint32 const g_VisualSpells[3] =
     ThrilloftheHunt::VisualEffect3
 };
 
+/// last update : 6.1.2 19802
 /// Thrill of the Hunt - 109396
 class PlayerScript_thrill_of_the_hunt: public PlayerScript
 {
@@ -3566,6 +3567,7 @@ class PlayerScript_thrill_of_the_hunt: public PlayerScript
         }
 };
 
+/// last update : 6.1.2 19802
 /// Thrill of the Hunt - 34720
 class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
 {
