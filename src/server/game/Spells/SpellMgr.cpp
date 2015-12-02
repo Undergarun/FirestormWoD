@@ -3469,6 +3469,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
+            case 163661: ///< Cho'gall Night
+                spellInfo->EffectCount = 2;
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_PHASE;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_1].MiscValue = 2;
+                break;
             case 168178: ///< Salvage (garrison loot spell)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
                 break;
