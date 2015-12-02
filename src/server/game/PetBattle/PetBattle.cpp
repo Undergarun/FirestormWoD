@@ -915,6 +915,7 @@ void PetBattle::AddPet(uint32 p_TeamID, std::shared_ptr<BattlePetInstance> p_Pet
     p_Pet->TeamID               = p_TeamID;
     p_Pet->PetBattleInstance    = this;
     p_Pet->OldLevel             = p_Pet->Level;
+    p_Pet->OldXP                = p_Pet->OldXP;
 
     TotalPetCount++;
     Teams[p_TeamID]->TeamPetCount++;

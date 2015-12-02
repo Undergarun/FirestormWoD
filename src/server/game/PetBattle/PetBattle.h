@@ -360,6 +360,7 @@ class BattlePetInstance : public BattlePet
         PetBattle * PetBattleInstance;                      ///< Pet battle instance helper
 
         uint32      OldLevel;
+        uint32      OldXP;
 
         BattlePet::Ptr  OriginalBattlePet;
 };
