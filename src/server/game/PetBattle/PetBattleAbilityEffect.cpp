@@ -885,8 +885,6 @@ bool PetBattleAbilityEffect::HandleRampingDamage()
 
 bool PetBattleAbilityEffect::HandleHealLastHitTaken()
 {
-    uint32 flags = 0;
-
     CalculateHit(EffectInfo->prop[1]);
 
     // Recovery
@@ -896,21 +894,25 @@ bool PetBattleAbilityEffect::HandleHealLastHitTaken()
 
 bool PetBattleAbilityEffect::HandleRemoveAura()
 {
-    CalculateHit(EffectInfo->prop[0]);
+    /// Data for this effect are unknown so we assume 100% unaura 
+    ///CalculateHit(EffectInfo->prop[0]);
+    ///
+    ///if (!(Flags & FailFlags))
+    ///{
+    ///    for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); l_It++)
+    ///    {
+    ///        if (!(*l_It)->Expired && (*l_It)->TargetPetID == Target && (*l_It)->AbilityID == AbilityID)
+    ///        {
+    ///            /// Make aura expired
+    ///            (*l_It)->Expire(PetBattleInstance);
+    ///        }
+    ///    }
+    ///}
+    ///
+    ///return !(Flags & FailFlags);
 
-    if (!(Flags & FailFlags))
-    {
-        for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); l_It++)
-        {
-            if (!(*l_It)->Expired && (*l_It)->TargetPetID == Target && (*l_It)->AbilityID == AbilityID)
-            {
-                /// Make aura expired
-                (*l_It)->Expire(PetBattleInstance);
-            }
-        }
-    }
-
-    return !(Flags & FailFlags);
+    CalculateHit(100);
+    return true;
 }
 
 bool PetBattleAbilityEffect::HandleModState()
