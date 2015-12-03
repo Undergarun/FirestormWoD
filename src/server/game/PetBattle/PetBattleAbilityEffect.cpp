@@ -744,15 +744,18 @@ bool PetBattleAbilityEffect::HandleDamage()
 {
     CalculateHit(EffectInfo->prop[1]);
 
-    if (EffectInfo->prop[2])
-        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
+    /*if (EffectInfo->prop[3])
+        Flags |= ?*/
 
-    return Damage(Target, CalculateDamage(EffectInfo->prop[0]));
+    return Damage(Target, CalculateDamage(EffectInfo->prop[0]), EffectInfo->prop[2]);
 }
 
 bool PetBattleAbilityEffect::HandleWitchingDamage()
 {
     CalculateHit(EffectInfo->prop[1]);
+
+    if (EffectInfo->prop[2])
+        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
 
     /// Witching
     int32 l_Damage = EffectInfo->prop[0];
@@ -760,7 +763,7 @@ bool PetBattleAbilityEffect::HandleWitchingDamage()
     if (GetHealth(Caster) * 100 / GetMaxHealth(Caster) < EffectInfo->prop[2])
         l_Damage *= 2;
 
-    return Damage(Target, CalculateDamage(l_Damage), EffectInfo->prop[2]);
+    return Damage(Target, CalculateDamage(l_Damage));
 }
 
 bool PetBattleAbilityEffect::HandleStateDamage()
