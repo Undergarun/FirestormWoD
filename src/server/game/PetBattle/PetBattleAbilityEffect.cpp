@@ -254,12 +254,12 @@ uint32 PetBattleAbilityEffect::GetPetType()
     return BATTLEPET_PETTYPE_HUMANOID;
 }
 
-bool PetBattleAbilityEffect::Damage(uint32 l_Target, int32 l_Damage)
+bool PetBattleAbilityEffect::Damage(uint32 l_Target, int32 l_Damage, bool p_CantBeAvoidBlockedDodged)
 {
     if (!(Flags & FailFlags) && l_Damage <= 0)
         Flags |= PETBATTLE_EVENT_FLAG_MISS;
 
-    if (!(Flags & FailFlags))
+    if (!(Flags & FailFlags) && !p_CantBeAvoidBlockedDodged)
     {
         for (uint32 l_PetID = 0; l_PetID < (MAX_PETBATTLE_SLOTS * MAX_PETBATTLE_TEAM); ++l_PetID)
         {
@@ -754,16 +754,13 @@ bool PetBattleAbilityEffect::HandleWitchingDamage()
 {
     CalculateHit(EffectInfo->prop[1]);
 
-    if (EffectInfo->prop[2])
-        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
-
     /// Witching
     int32 l_Damage = EffectInfo->prop[0];
 
     if (GetHealth(Caster) * 100 / GetMaxHealth(Caster) < EffectInfo->prop[2])
         l_Damage *= 2;
 
-    return Damage(Target, CalculateDamage(l_Damage));
+    return Damage(Target, CalculateDamage(l_Damage), EffectInfo->prop[2]);
 }
 
 bool PetBattleAbilityEffect::HandleStateDamage()

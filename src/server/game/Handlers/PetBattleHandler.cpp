@@ -719,6 +719,7 @@ void WorldSession::HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData)
     }
 
     m_Player->UpdateBattlePetCombatTeam();
+    SendPetBattleJournalBattleSlotUpdate();
 }
 
 void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
