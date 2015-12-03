@@ -223,6 +223,8 @@ enum BattlePetState
     BATTLEPET_STATE_Passive_Elite                   = 153,
     BATTLEPET_STATE_Cosmetic_Chaos                  = 158,
     BATTLEPET_STATE_Passive_Boss                    = 162,
+    BATTLEPET_STATE_Cosmetic_TreasureGoblin         = 176,
+    BATTLEPET_STATE_Ignore_Damage_Below_Threshold   = 191,
     NUM_BATTLEPET_STATES
 };
 
