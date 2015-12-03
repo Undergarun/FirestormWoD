@@ -1111,7 +1111,7 @@ class WorldObject : public Object, public WorldLocation
         virtual float GetStationaryO() const { return GetOrientation(); }
 
         uint16 GetAIAnimKitId() const { return m_AIAnimKitId; }
-        void SetAIAnimKitId(uint16 animKitId);
+        void SetAIAnimKitId(uint16 animKitId, bool p_Packet = true);
         uint16 GetMovementAnimKitId() const { return m_MovementAnimKitId; }
         void SetMovementAnimKitId(uint16 animKitId);
         uint16 GetMeleeAnimKitId() const { return m_MeleeAnimKitId; }

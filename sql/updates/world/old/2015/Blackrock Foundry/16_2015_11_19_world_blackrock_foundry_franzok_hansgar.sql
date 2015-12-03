@@ -4,11 +4,12 @@ DELETE FROM areatrigger_template WHERE spell_id = 160259;
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, ScriptName) VALUES
 (160259, 0, 6742, 12, 12, 16384, 'areatrigger_foundry_fire_bomb');
 
-DELETE FROM spell_script_names WHERE spell_id IN (160092, 155665, 156938);
+DELETE FROM spell_script_names WHERE spell_id IN (160092, 155665, 156938, 156892);
 INSERT INTO spell_script_names VALUE
 (160092, 'spell_foundry_rending_slash'),
 (155665, 'spell_foundry_pumped_up'),
-(156938, 'spell_foundry_crippling_suplex');
+(156938, 'spell_foundry_crippling_suplex'),
+(156892, 'spell_foundry_body_slam_red_arrow');
 
 DELETE FROM areatrigger_scripts WHERE entry = 9998;
 INSERT INTO areatrigger_scripts VALUE

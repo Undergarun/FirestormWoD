@@ -4031,7 +4031,7 @@ uint64 WorldObject::GetTransGUID() const
     return 0;
 }
 
-void WorldObject::SetAIAnimKitId(uint16 p_AnimKitID)
+void WorldObject::SetAIAnimKitId(uint16 p_AnimKitID, bool p_Packet /*= true*/)
 {
     if (m_AIAnimKitId == p_AnimKitID)
         return;
@@ -4041,11 +4041,13 @@ void WorldObject::SetAIAnimKitId(uint16 p_AnimKitID)
 
     m_AIAnimKitId = p_AnimKitID;
 
-    WorldPacket l_Data(SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
-    l_Data.appendPackGUID(GetGUID());
-    l_Data << uint16(p_AnimKitID);
-
-    SendMessageToSet(&l_Data, true);
+    if (p_Packet)
+    {
+        WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint16(p_AnimKitID);
+        SendMessageToSet(&l_Data, true);
+    }
 }
 
 void WorldObject::SetMovementAnimKitId(uint16 p_AnimKitID)

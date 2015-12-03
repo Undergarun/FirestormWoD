@@ -3469,8 +3469,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
             case 156220: ///< Tactical Retreat
+            case 156883: ///< Tactical Retreat (Other)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
+            case 155747: ///< Body Slam
             case 157923: ///< Jump Slam
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 30;

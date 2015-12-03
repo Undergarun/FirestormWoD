@@ -33,7 +33,10 @@ Position const g_StampingPressIntroPos[2] =
 Position const g_HansgarJumpPosIn = { 103.434f, 3517.066f, 130.1161f, 0.0f };
 Position const g_FranzokJumpPosIn = { 102.6545f, 3465.035f, 130.2772f, 0.0f };
 
-Position const g_HansgarJumpPosOut = { 88.03299f, 3467.769f, 138.4438f, 0.0f };
+Position const g_HansgarJumpPosOut = { 88.03299f, 3467.769f, 138.4438f, 3.141593f };
+Position const g_HansgarJumpPosRetreat = { 85.60069f, 3517.861f, 138.235f, 3.141593f };
+
+float const g_HansgarRetreatOrientation = 5.94246f;
 
 struct StampingPressData
 {
@@ -69,6 +72,7 @@ void RespawnBrothers(Creature* p_Source, InstanceScript* p_Instance)
 
 void StartBrothers(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instance)
 {
+    return;
     if (p_Source == nullptr || p_Target == nullptr || p_Instance == nullptr)
         return;
 
@@ -90,7 +94,12 @@ class StampingPressActivation : public BasicEvent
         virtual bool Execute(uint64 p_EndTime, uint32 p_Time)
         {
             if (GameObject* l_GameObject = HashMapHolder<GameObject>::Find(m_Guid))
+            {
                 l_GameObject->SendGameObjectActivateAnimKit(m_AnimID, m_Maintain);
+
+                /// Register AnimKitID to send it in UpdateObject
+                l_GameObject->SetAIAnimKitId(m_AnimID, false);
+            }
 
             return true;
         }
@@ -128,13 +137,17 @@ class boss_hansgar : public CreatureScript
             /// Misc
             PumpedUp                = 155665,
             TacticalRetreat         = 156220,
+            TacticalRetreatOther    = 156883,
             BoundByBlood            = 161029,
             ShatteredVertebrae      = 157139,
             AftershockDoT           = 157853,
+            NotReady                = 158656,
             /// Body Slam
             JumpSlamSearcher        = 157922,
             JumpSlamCast            = 157923,
             BodySlamTriggered       = 154785,
+            BodySlamRedArrowAura    = 156892,
+            BodySlamOut             = 155747,
             /// Crippling Suplex
             CripplingSuplexScript   = 156546,   ///< This triggers 156547
             CripplingSuplexJump     = 156547,   ///< Force player to enter boss
@@ -163,7 +176,8 @@ class boss_hansgar : public CreatureScript
             AnimStamp1      = 5924,
             AnimStamp2      = 6741,
             AnimStamp3      = 5836,
-            BodySlamVisual  = 38379
+            BodySlamVisual  = 38379,
+            ChainPullVisual = 6006
         };
 
         enum eCreatures
@@ -195,12 +209,18 @@ class boss_hansgar : public CreatureScript
             StampingPress01     = 229591,
             StampingPress02     = 229592,
             StampingPress03     = 229593,
-            SmartStampCollision = 231082
+            SmartStampCollision = 231082,
+            ConveyorBelt002     = 230481,
+            ConveyorBelt001     = 230482,
+            ConveyorBelt003     = 230483,
+            ConveyorBelt004     = 230484,
+            ConveyorBelt005     = 230485
         };
 
         enum eDatas
         {
-            MaxStampingPresses = 20
+            MaxStampingPresses  = 20,
+            MaxConveyorBelts    = 5
         };
 
         enum eStates
@@ -245,6 +265,8 @@ class boss_hansgar : public CreatureScript
             uint8 m_BodySlamJumps;
             uint64 m_BodySlamTarget;
 
+            uint32 m_DisabledBelt;
+
             bool CanRespawn() override
             {
                 return false;
@@ -284,14 +306,23 @@ class boss_hansgar : public CreatureScript
 
                 me->CastSpell(me, eSpells::PumpedUp, true);
 
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
                 m_State = 0;
 
                 m_BodySlamJumps = 0;
                 m_BodySlamTarget = 0;
 
+                m_DisabledBelt = 0;
+
                 me->setPowerType(Powers::POWER_ENERGY);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
                 me->SetPower(Powers::POWER_ENERGY, 0);
+
+                me->SetAIAnimKitId(0);
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -366,10 +397,19 @@ class boss_hansgar : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::JumpSlamCast:
+                    case eSpells::BodySlamOut:
                     {
                         if (Unit* l_Target = Unit::GetUnit(*me, m_BodySlamTarget))
-                            me->GetMotionMaster()->MoveJump(*l_Target, 30.0f, 10.0f, eSpells::JumpSlamCast);
+                        {
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MoveJump(*l_Target, 30.0f, 10.0f, p_SpellInfo->Id);
+                        }
 
+                        break;
+                    }
+                    case eSpells::TacticalRetreat:
+                    {
+                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 3 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -389,6 +429,8 @@ class boss_hansgar : public CreatureScript
                         /// Red arrow on affected target
                         me->SendPlaySpellVisual(eVisuals::BodySlamVisual, p_Target, 20.0f, 0.0f, Position());
                         me->CastSpell(p_Target, eSpells::JumpSlamCast, false);
+
+                        me->SetFacingTo(me->GetAngle(p_Target));
 
                         m_BodySlamTarget = p_Target->GetGUID();
                         break;
@@ -415,11 +457,15 @@ class boss_hansgar : public CreatureScript
                         /// Handle "phase" switch
                         case eStates::HansgarOut1:
                         {
-                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            me->GetMotionMaster()->Clear();
+                            me->SetReactState(ReactStates::REACT_PASSIVE);
 
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(l_Target, eSpells::CripplingSuplexScript, true);
+
+                            m_Events.CancelEvent(eEvents::EventBodySlam);
 
                             uint32 l_Time = 4 * TimeConstants::IN_MILLISECONDS;
                             AddTimedDelayedOperation(l_Time, [this]() -> void
@@ -428,17 +474,18 @@ class boss_hansgar : public CreatureScript
                                 me->CastSpell(me, eSpells::CripplingSuplexSwitch, true);
                             });
 
-                            l_Time += 2 * TimeConstants::IN_MILLISECONDS;
+                            l_Time += 3 * TimeConstants::IN_MILLISECONDS;
                             AddTimedDelayedOperation(l_Time, [this]() -> void
                             {
-                                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-
-                                me->CastSpell(g_HansgarJumpPosOut, eSpells::TacticalRetreat, true);
                                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                                me->GetMotionMaster()->Clear();
+                                me->CastSpell(g_HansgarJumpPosOut, eSpells::TacticalRetreat, true);
+
                                 Talk(eTalks::ActivateAssemblyLine);
                             });
 
+                            StartSearingPlatesEvent();
                             break;
                         }
                         case eStates::BothInArena2:
@@ -448,9 +495,12 @@ class boss_hansgar : public CreatureScript
                         }
                         case eStates::FranzokOut:
                         case eStates::BothInArena3:
+                            break;
                         case eStates::HansgarOut2:
                         {
                             Talk(eTalks::ActivateAssemblyLine);
+
+                            StartSearingPlatesEvent();
                             break;
                         }
                         case eStates::BothInArenaFinal:
@@ -542,6 +592,7 @@ class boss_hansgar : public CreatureScript
                 switch (p_ID)
                 {
                     case eSpells::JumpSlamCast:
+                    case eSpells::BodySlamOut:
                     {
                         me->CastSpell(me, eSpells::BodySlamTriggered, true);
 
@@ -550,6 +601,22 @@ class boss_hansgar : public CreatureScript
                         if (m_BodySlamJumps)
                             me->CastSpell(me, eSpells::JumpSlamSearcher, true);
 
+                        if (p_ID == eSpells::BodySlamOut)
+                        {
+                            me->RemoveAura(eSpells::NotReady);
+
+                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                me->GetMotionMaster()->Clear();
+                                me->CastSpell(g_HansgarJumpPosRetreat, eSpells::TacticalRetreatOther, true);
+                            });
+                        }
+
+                        break;
+                    }
+                    case eSpells::TacticalRetreatOther:
+                    {
+                        me->SetAIAnimKitId(eVisuals::ChainPullVisual);
                         break;
                     }
                     default:
@@ -603,6 +670,7 @@ class boss_hansgar : public CreatureScript
                         }
                     }
 
+                    me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveJump(g_HansgarJumpPosIn, 30.0f, 10.0f);
 
                     AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -694,15 +762,35 @@ class boss_hansgar : public CreatureScript
                         else
                             m_BodySlamJumps = 2;
 
-                        me->CastSpell(me, eSpells::JumpSlamSearcher, true);
-                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 20 * TimeConstants::IN_MILLISECONDS + 500);
+                        /// When Hans'gar is out, jumps only once
+                        if (me->GetReactState() == ReactStates::REACT_PASSIVE)
+                        {
+                            me->CastSpell(me, eSpells::NotReady, true);
+
+                            me->SetAIAnimKitId(0);
+
+                            m_BodySlamJumps = 1;
+
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            {
+                                m_BodySlamTarget = l_Target->GetGUID();
+
+                                me->SetFacingTo(me->GetAngle(l_Target));
+                                me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
+                            }
+                        }
+                        else
+                            me->CastSpell(me, eSpells::JumpSlamSearcher, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
                         break;
                 }
 
-                DoMeleeAttackIfReady();
+                if (me->GetReactState() == ReactStates::REACT_AGGRESSIVE)
+                    DoMeleeAttackIfReady();
             }
 
             void ActivatePress(uint32 p_Entry, bool p_Maintain = false)
@@ -745,6 +833,72 @@ class boss_hansgar : public CreatureScript
 
                         l_Press->m_Events.AddEvent(new StampingPressActivation(l_StampingPress.StampingPress, eVisuals::AnimStamp3, true),
                             l_Press->m_Events.CalculateTime(1));
+                    }
+                }
+            }
+
+            void StartSearingPlatesEvent()
+            {
+                /// CoveyorBelt Entry - StampingPresses Y pos (or Scorching Burns Y pos)
+                using ConveyorDatas = std::map <uint32, float>;
+
+                ConveyorDatas const l_ConveyorBeltPos =
+                {
+                    { eGameObjects::ConveyorBelt001, 3521.840088f },
+                    { eGameObjects::ConveyorBelt002, 3507.370117f },
+                    { eGameObjects::ConveyorBelt003, 3492.929932f },
+                    { eGameObjects::ConveyorBelt004, 3478.469971f },
+                    { eGameObjects::ConveyorBelt005, 3463.969961f }
+                };
+
+                ConveyorDatas const l_ConveyorBeltBurns =
+                {
+                    { eGameObjects::ConveyorBelt001, 3522.769043f },
+                    { eGameObjects::ConveyorBelt002, 3507.606934f },
+                    { eGameObjects::ConveyorBelt003, 3492.773926f },
+                    { eGameObjects::ConveyorBelt004, 3477.840088f },
+                    { eGameObjects::ConveyorBelt005, 3461.691895f }
+                };
+
+                /// The searing plates come in waves, and there are two different ways in which the searing plates can be laid out.
+                if (urand(0, 1))
+                {
+                    /// One way is that 5 searing plates enter the room, each located on one of the 5 belts, but these plates are not aligned with one another.
+                    /// This means that players can use one of the gaps between the plates to avoid taking damage.
+                }
+                else
+                {
+                    /// Another way is that 4 searing plates enter the room, each located on one of the 5 belts.
+                    /// These 4 plates are perfectly aligned, but the 5th conveyor belt has no plate and thus provides a large gap through which players can move.
+                    /// With each wave, the gap moves to a different conveyor belt, but the gaps are always located on adjacent belts.
+                    /// Sometimes, however, when the gap is located on a belt that is at the edge of the room, the next gap can be on belt that is on the opposite edge.
+
+                    if (!m_DisabledBelt)
+                        m_DisabledBelt = urand(eGameObjects::ConveyorBelt002, eGameObjects::ConveyorBelt005);
+                    else
+                    {
+                        if (m_DisabledBelt > eGameObjects::ConveyorBelt002 && m_DisabledBelt < eGameObjects::ConveyorBelt005)
+                            m_DisabledBelt += (urand(0, 1) ? -1 : 1);
+                        else
+                        {
+                            if (m_DisabledBelt == eGameObjects::ConveyorBelt002)
+                                m_DisabledBelt = (urand(0, 1) ? eGameObjects::ConveyorBelt001 : eGameObjects::ConveyorBelt005);
+                            else ///< m_DisabledBelt == eGameObjects::ConveyorBelt005
+                                m_DisabledBelt = (urand(0, 1) ? eGameObjects::ConveyorBelt002 : eGameObjects::ConveyorBelt004);
+                        }
+                    }
+
+                    for (auto l_Datas : l_ConveyorBeltPos)
+                    {
+                        if (l_Datas.first == m_DisabledBelt)
+                            continue;
+
+                        auto l_BurnsDatas = l_ConveyorBeltBurns.find(l_Datas.first);
+                        if (l_BurnsDatas == l_ConveyorBeltBurns.end())
+                            continue;
+
+                        float l_PressY = l_Datas.second;
+                        float l_BurnsY = l_BurnsDatas->second;
                     }
                 }
             }
@@ -1253,6 +1407,42 @@ class spell_foundry_crippling_suplex : public SpellScriptLoader
         }
 };
 
+/// Pumped Up - 155665
+class spell_foundry_body_slam_red_arrow : public SpellScriptLoader
+{
+    public:
+        spell_foundry_body_slam_red_arrow() : SpellScriptLoader("spell_foundry_body_slam_red_arrow") { }
+
+        class spell_foundry_body_slam_red_arrow_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_body_slam_red_arrow_AuraScript);
+
+            enum eSpell
+            {
+                BodySlam = 155747
+            };
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetTarget())
+                        l_Caster->CastSpell(l_Target, eSpell::BodySlam, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_foundry_body_slam_red_arrow_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_body_slam_red_arrow_AuraScript();
+        }
+};
+
 void AddSC_boss_hansgar_and_franzok()
 {
     /// Bosses
@@ -1265,4 +1455,5 @@ void AddSC_boss_hansgar_and_franzok()
     /// Spells
     new spell_foundry_pumped_up();
     new spell_foundry_crippling_suplex();
+    new spell_foundry_body_slam_red_arrow();
 }
