@@ -1420,6 +1420,7 @@ void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
     {
         case 49575: ///< Death Grip
         case 92832: ///< Leap of Faith
+        case 118283: ///< Ursol's Vortex
             m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ);
             break;
         case 49376: ///< Wild Charge
