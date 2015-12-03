@@ -1915,17 +1915,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             }
         }
 
-        // 77485 - Mastery : Echo of Light
-        if (caster && caster->getClass() == CLASS_PRIEST && caster->HasAura(77485) && caster->getLevel() >= 80 && addhealth)
-        {
-            float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.30f / 100.0f;
-            int32 bp = (Mastery * addhealth) / 2;
-
-            bp += unitTarget->GetRemainingPeriodicAmount(caster->GetGUID(), 77489, SPELL_AURA_PERIODIC_HEAL);
-
-            m_caster->CastCustomSpell(unitTarget, 77489, &bp, NULL, NULL, true);
-        }
-
         // Chakra : Serenity - 81208
         if (caster && addhealth && caster->HasAura(81208) && m_spellInfo->Effects[0].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY) // Single heal target
             if (AuraPtr renew = unitTarget->GetAura(139, caster->GetGUID()))
