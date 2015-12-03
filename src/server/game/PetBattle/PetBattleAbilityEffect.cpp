@@ -776,7 +776,7 @@ bool PetBattleAbilityEffect::HandleStateDamage()
     int32 l_Damage = CalculateDamage(EffectInfo->prop[0]);
 
     /// Double base damage is the state in Prop[3] is on
-    if (EffectInfo->prop[4] != 0 && GetState(Target, EffectInfo->prop[3]) == 1)
+    if (EffectInfo->prop[3] != 0 && GetState(Target, EffectInfo->prop[3]) == 1)
         l_Damage *= 2;
 
     return Damage(Target, l_Damage);
