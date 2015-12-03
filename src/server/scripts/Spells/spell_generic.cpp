@@ -4723,6 +4723,52 @@ class spell_gen_draenic_philosophers : public SpellScriptLoader
         }
 };
 
+/// Power handler
+/// Reset timer to correctly start decreasing power at 10 sec
+class spell_gen_power_handler : public PlayerScript
+{
+    public:
+        spell_gen_power_handler() : PlayerScript("spell_gen_power_handler") {}
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        {
+            if (p_Player->isInCombat())
+                return;
+
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_DiffValue = p_NewValue - p_OldValue;
+            if (l_DiffValue < 0)
+                return;
+
+            switch (p_Player->getClass())
+            {
+                case CLASS_PALADIN:
+                    if (p_Power == POWER_HOLY_POWER)
+                        p_Player->setHolyPowerRegenTimerCount(0);
+                    break;
+                case CLASS_MONK:
+                    if (p_Power == POWER_CHI)
+                        p_Player->setChiPowerRegenTimerCount(0);
+                    break;
+            }
+        }
+
+        void OnLeaveCombat(Player* p_Player)
+        {
+            switch (p_Player->getClass())
+            {
+                case CLASS_PALADIN:
+                    if (p_Player->GetPower(POWER_HOLY_POWER))
+                        p_Player->setHolyPowerRegenTimerCount(0);
+                    break;
+                case CLASS_MONK:
+                    if (p_Player->GetPower(POWER_CHI))
+                        p_Player->setChiPowerRegenTimerCount(0);
+                    break;
+            }
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_draenic_philosophers();
@@ -4818,4 +4864,5 @@ void AddSC_generic_spell_scripts()
     new PlayerScript_Touch_Of_Elune();
     new PlayerScript_gen_remove_rigor_mortis();
     new Resolve::PlayerScript_Resolve();
+    new spell_gen_power_handler();
 }

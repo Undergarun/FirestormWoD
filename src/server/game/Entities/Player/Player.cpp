@@ -3277,12 +3277,10 @@ void Player::RegenerateAll()
     switch (l_Class)
     {
         case Classes::CLASS_PALADIN:
-            if (!isInCombat())
-                m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            m_holyPowerRegenTimerCount += m_RegenPowerTimer;
             break;
         case Classes::CLASS_MONK:
-            if (!isInCombat())
-                m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            m_chiPowerRegenTimerCount += m_RegenPowerTimer;
             break;
         case Classes::CLASS_HUNTER:
             m_focusRegenTimerCount += m_RegenPowerTimer;
