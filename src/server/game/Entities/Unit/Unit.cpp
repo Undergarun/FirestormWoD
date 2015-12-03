@@ -12072,7 +12072,8 @@ void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 
             l_InitialDamage /= 2;
     }
 
-    for (uint8 l_Idx = 0; l_Idx < ProcTimesMultistrike(p_ProcSpell, p_Target); l_Idx++)
+    uint8 l_ProcTimes = ProcTimesMultistrike(p_ProcSpell, p_Target);
+    for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
     {
         bool l_IsCrit = false;
 
