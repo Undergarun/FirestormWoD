@@ -768,19 +768,18 @@ bool PetBattleAbilityEffect::HandleWitchingDamage()
 
 bool PetBattleAbilityEffect::HandleStateDamage()
 {
-    // State
-    if (!GetState(Caster, EffectInfo->prop[2]))
+    // In some case, proc only if caster state prop[2] is on
+    if (EffectInfo->prop[2] != 0 && !GetState(Caster, EffectInfo->prop[2]))
         return false;
-
-    if (!GetState(Target, EffectInfo->prop[3]))
-        return false;
-
-    if (EffectInfo->prop[4])
-        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
 
     CalculateHit(EffectInfo->prop[1]);
+    int32 l_Damage = CalculateDamage(EffectInfo->prop[0]);
 
-    return Damage(Target, CalculateDamage(EffectInfo->prop[0]));
+    /// Double base damage is the state in Prop[3] is on
+    if (EffectInfo->prop[4] != 0 && GetState(Target, EffectInfo->prop[3]) == 1)
+        l_Damage *= 2;
+
+    return Damage(Target, l_Damage);
 }
 
 bool PetBattleAbilityEffect::HandleSetState()
