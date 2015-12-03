@@ -4659,8 +4659,73 @@ class spell_gen_shadowmeld : public SpellScriptLoader
         }
 };
 
+enum DraenicPhilosophers
+{
+    ForceAura       = 60229,
+    AgilityAura     = 60233,
+    IntellectAura   = 60234
+};
+
+static uint32 const g_DraenicAuras[3] =
+{
+    DraenicPhilosophers::ForceAura,
+    DraenicPhilosophers::AgilityAura,
+    DraenicPhilosophers::IntellectAura
+};
+
+static Stats const g_DraenicStats[3] =
+{
+    STAT_STRENGTH,
+    STAT_AGILITY,
+    STAT_INTELLECT
+};
+
+/// last update : 6.1.2 19802
+/// Draenic Philosopher's Stone - 157136
+class spell_gen_draenic_philosophers : public SpellScriptLoader
+{
+    public:
+        spell_gen_draenic_philosophers() : SpellScriptLoader("spell_gen_draenic_philosophers") { }
+
+        class spell_gen_draenic_philosophers_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_draenic_philosophers_AuraScript);
+
+            int32 m_Value = 1414;
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Target = GetTarget();
+                Stats l_MaxStatValue = STAT_STRENGTH;
+
+                for (int8 l_I = 0; l_I < 3; l_I++)
+                {
+                    if (l_Target->GetStat(g_DraenicStats[l_I]) >= l_Target->GetStat(g_DraenicStats[l_MaxStatValue]))
+                        l_MaxStatValue = (Stats)l_I;
+                }
+
+                l_Target->CastSpell(l_Target, g_DraenicAuras[l_MaxStatValue], true);
+                if (AuraEffectPtr l_DreanicAura = l_Target->GetAuraEffect(g_DraenicAuras[l_MaxStatValue], EFFECT_0))
+                    l_DreanicAura->ChangeAmount(m_Value);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_draenic_philosophers_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_draenic_philosophers_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_draenic_philosophers();
     new spell_gen_shadowmeld();
     new spell_gen_mark_of_warsong();
     new spell_gen_savage_fortitude();
