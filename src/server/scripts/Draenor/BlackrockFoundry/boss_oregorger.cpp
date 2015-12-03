@@ -497,6 +497,9 @@ class boss_oregorger : public CreatureScript
                                 }
                             }
 
+                            if (l_NearestCrate == nullptr)
+                                return;
+
                             m_Crates.erase(l_NearestCrate->GetGUID());
 
                             l_NearestCrate->CastSpell(g_OreCrateSpawnPos[l_I], eSpells::RollingBox, true);
