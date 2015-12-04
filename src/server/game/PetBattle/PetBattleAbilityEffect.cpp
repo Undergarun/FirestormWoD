@@ -1408,7 +1408,13 @@ bool PetBattleAbilityEffect::HandleDamageAuraToggleAura()
 
 bool PetBattleAbilityEffect::HandleHealthConsume()
 {
-    return SetHealth(Target, GetHealth(Target) - CalculatePct(GetMaxHealth(Target), EffectInfo->prop[0]));
+    int32 l_HealthConsumePct = EffectInfo->prop[0];
+
+    /// Hotfix for http://wowhead.com/petability=758
+    if (AbilityID == 758)
+        l_HealthConsumePct = 50;
+
+    return SetHealth(Target, GetHealth(Target) - CalculatePct(GetMaxHealth(Target), l_HealthConsumePct));
 }
 
 bool PetBattleAbilityEffect::HandleSwap()
