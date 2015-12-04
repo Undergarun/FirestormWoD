@@ -941,15 +941,63 @@ bool PetBattleAbilityEffect::HandlePositiveAura()
 
 bool PetBattleAbilityEffect::HandleHealPetType()
 {
-    BattlePetSpeciesEntry const* casterSpeciesInfo = sBattlePetSpeciesStore.LookupEntry(PetBattleInstance->Pets[Caster]->Species);
-    if (casterSpeciesInfo && casterSpeciesInfo->type != EffectInfo->prop[2])
-        return false;
-
-    BattlePetSpeciesEntry const* targetSpeciesInfo = sBattlePetSpeciesStore.LookupEntry(PetBattleInstance->Pets[Target]->Species);
-    if (targetSpeciesInfo && targetSpeciesInfo->type != EffectInfo->prop[3])
-        return false;
+    /// Handle only first effect of this type
+    /// Don't know how to handle it properly
+    /// http://wowhead.com/petability=533
+    /// http://wowhead.com/petability=922
+    if (EffectInfo->effectIndex != 2)
+        return true;
 
     CalculateHit(EffectInfo->prop[1]);
+
+    int32 l_ModPercent = CalculatePct(GetState(Caster, BATTLEPET_STATE_Stat_Power), 5);
+    l_ModPercent += GetState(Caster, BATTLEPET_STATE_Mod_HealingDealtPercent);
+
+    int32 l_TypeA = EffectInfo->prop[2];
+    int32 l_TypeB = EffectInfo->prop[3];
+    
+    if ((l_TypeA && !l_TypeB) || (!l_TypeA && l_TypeB))
+    {
+        int32 l_FinalType = l_TypeA ? l_TypeA : l_TypeB;
+
+        uint32 l_Team = PetBattleInstance->Pets[Caster]->TeamID;
+
+        for (uint32 l_I = 0; l_I < (MAX_PETBATTLE_SLOTS * MAX_PETBATTLE_TEAM); ++l_I)
+        {
+            std::shared_ptr<BattlePetInstance> l_CurrentPet = PetBattleInstance->Pets[l_I];
+
+            if (l_CurrentPet)
+            {
+                BattlePetSpeciesEntry const* l_BattlePetSpeciesEntry = sBattlePetSpeciesStore.LookupEntry(l_CurrentPet->Species);
+                if (l_BattlePetSpeciesEntry && l_BattlePetSpeciesEntry->type == l_FinalType)
+                {
+                    int32 l_Heal = (EffectInfo->prop[0] / 2) + CalculatePct((EffectInfo->prop[0] / 2), l_ModPercent + GetState(l_CurrentPet->ID, BATTLEPET_STATE_Mod_HealingTakenPercent));
+                    Heal(l_CurrentPet->ID, l_Heal);
+                }
+            }
+        }
+    }
+    else if (l_TypeA == l_TypeB)
+    {
+        int32 l_FinalType = l_TypeA;
+
+        uint32 l_Team = PetBattleInstance->Pets[Caster]->TeamID;
+
+        for (uint32 l_I = 0; l_I < (MAX_PETBATTLE_SLOTS * MAX_PETBATTLE_TEAM); ++l_I)
+        {
+            std::shared_ptr<BattlePetInstance> l_CurrentPet = PetBattleInstance->Pets[l_I];
+
+            if (l_CurrentPet)
+            {
+                BattlePetSpeciesEntry const* l_BattlePetSpeciesEntry = sBattlePetSpeciesStore.LookupEntry(l_CurrentPet->Species);
+                if (l_BattlePetSpeciesEntry && l_BattlePetSpeciesEntry->type == l_FinalType)
+                {
+                    int32 l_Heal = (EffectInfo->prop[0] / 2) + CalculatePct((EffectInfo->prop[0] / 2), l_ModPercent + GetState(l_CurrentPet->ID, BATTLEPET_STATE_Mod_HealingTakenPercent));
+                    Heal(l_CurrentPet->ID, l_Heal);
+                }
+            }
+        }
+    }
 
     return Heal(Target, CalculateHeal(EffectInfo->prop[0]));
 }
