@@ -990,7 +990,7 @@ bool PetBattleAbilityEffect::HandleExtraAttackIfMoreFaster()
 
 bool PetBattleAbilityEffect::HandleHealState()
 {
-    if (!GetState(Caster, EffectInfo->prop[2]) || !GetState(Target, EffectInfo->prop[3]))
+    if (EffectInfo->prop[3] && !GetState(Target, EffectInfo->prop[3]))
         return false;
 
     CalculateHit(EffectInfo->prop[1]);
