@@ -16568,7 +16568,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     /// Multistrike...
     int32 l_TotalDamage = damage + absorb;
     if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL) &&
-        l_TotalDamage && target && GetSpellModOwner() && !(procSpell && !procSpell->IsPositive() && target->GetGUID() == GetGUID()))
+        l_TotalDamage && target && GetSpellModOwner() && !(procSpell && (!procSpell->IsPositive() && !procSpell->IsHealingSpell()) && target->GetGUID() == GetGUID()))
         {
         /// ...grants your spells, abilities, and auto-attacks...
         if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
