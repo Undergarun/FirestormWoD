@@ -282,6 +282,21 @@ class instance_blackrock_foundry : public InstanceMapScript
                 if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                     return false;
 
+                switch (p_BossID)
+                {
+                    case eFoundryDatas::DataBlastFurnace:
+                    {
+                        /// Oregroger and Gruul must be defeated to starts Blast Furnace encounter
+                        if (GetBossState(eFoundryDatas::DataOregorger) != EncounterState::DONE ||
+                            GetBossState(eFoundryDatas::DataGruul) != EncounterState::DONE)
+                            return false;
+
+                        return true;
+                    }
+                    default:
+                        break;
+                }
+
                 return true;
             }
 
