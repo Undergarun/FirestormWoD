@@ -2727,7 +2727,7 @@ class spell_dk_glyph_of_the_skeleton : public SpellScriptLoader
         }
 };
 
-// Improved Death Grip - 157367
+/// Improved Death Grip - 157367
 class spell_dk_improved_death_grip : public SpellScriptLoader
 {
     public:
@@ -2743,7 +2743,7 @@ class spell_dk_improved_death_grip : public SpellScriptLoader
                 ChainsOfIce = 45524
             };
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2757,7 +2757,7 @@ class spell_dk_improved_death_grip : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dk_improved_death_grip_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_dk_improved_death_grip_SpellScript::HandleAfterHit);
             }
         };
 

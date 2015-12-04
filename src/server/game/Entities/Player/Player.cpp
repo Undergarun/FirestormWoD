@@ -3277,16 +3277,10 @@ void Player::RegenerateAll()
     switch (l_Class)
     {
         case Classes::CLASS_PALADIN:
-            if (!isInCombat())
-                m_holyPowerRegenTimerCount += m_RegenPowerTimer;
-            else
-                m_holyPowerRegenTimerCount = 0;
+            m_holyPowerRegenTimerCount += m_RegenPowerTimer;
             break;
         case Classes::CLASS_MONK:
-            if (!isInCombat())
-                m_chiPowerRegenTimerCount += m_RegenPowerTimer;
-            else
-                m_holyPowerRegenTimerCount = 0;
+            m_chiPowerRegenTimerCount += m_RegenPowerTimer;
             break;
         case Classes::CLASS_HUNTER:
             m_focusRegenTimerCount += m_RegenPowerTimer;
@@ -3334,14 +3328,6 @@ void Player::RegenerateAll()
     Regenerate(POWER_MANA);
     Regenerate(POWER_ENERGY);
 
-    if (m_focusRegenTimerCount >= 1000)
-    {
-        if (l_Class == CLASS_HUNTER)
-            Regenerate(POWER_FOCUS);
-
-        m_focusRegenTimerCount -= 1000;
-    }
-
     if (m_regenTimerCount >= 2000)
     {
         // Not in combat or they have regeneration
@@ -3355,6 +3341,14 @@ void Player::RegenerateAll()
         Regenerate(POWER_RAGE);
 
         m_regenTimerCount -= 2000;
+    }
+
+    if (m_focusRegenTimerCount >= 1000)
+    {
+        if (l_Class == CLASS_HUNTER)
+            Regenerate(POWER_FOCUS);
+
+        m_focusRegenTimerCount -= 1000;
     }
 
     if (m_holyPowerRegenTimerCount >= 10000 && l_Class == CLASS_PALADIN)
