@@ -772,6 +772,9 @@ bool PetBattleAbilityEffect::HandleStateDamage()
     if (EffectInfo->prop[2] != 0 && !GetState(Caster, EffectInfo->prop[2]))
         return false;
 
+    if (EffectInfo->prop[4])
+        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
+
     CalculateHit(EffectInfo->prop[1]);
     int32 l_Damage = CalculateDamage(EffectInfo->prop[0]);
 
