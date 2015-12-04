@@ -1327,11 +1327,16 @@ bool PetBattleAbilityEffect::HandleResurect()
 
 bool PetBattleAbilityEffect::HandleKill()
 {
+    /// @TODO Figure out what to do with prop[1] & prop[3]
     CalculateHit(EffectInfo->prop[0]);
-    if (!Flags && (GetState(Caster, EffectInfo->prop[1]) || GetState(Target, EffectInfo->prop[2])))
-        Flags |= PETBATTLE_EVENT_FLAG_IMMUNE;
 
-    Kill(Target);
+    int32 l_ImmuneStateCondition = EffectInfo->prop[2];
+
+    if (!l_ImmuneStateCondition || !GetState(GetActiveOpponent(), l_ImmuneStateCondition))
+        Kill(GetActiveOpponent());
+
+    if (!l_ImmuneStateCondition || !GetState(Caster, l_ImmuneStateCondition))
+        Kill(Caster);
 
     return !(Flags & FailFlags);
 }
