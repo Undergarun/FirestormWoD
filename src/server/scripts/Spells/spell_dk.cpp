@@ -1376,8 +1376,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                         if (l_SpellInfo == nullptr)
                             return;
 
-                        int32 l_Reduce = 100 * (m_AmountAbsorb - m_Absorbed) / m_AmountAbsorb / 5;
-
+                        int32 l_Reduce = ((45 * IN_MILLISECONDS) / 100) * (m_Absorbed / (m_AmountAbsorb / 100));
                         l_Caster->ReduceSpellCooldown(GlyphOfRegenerativeMagicSpells::AntiMagicShellSpell, l_Reduce);
                     }
                 }
