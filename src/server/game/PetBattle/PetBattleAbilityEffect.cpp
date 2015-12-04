@@ -934,9 +934,9 @@ bool PetBattleAbilityEffect::HandleModState()
 
 bool PetBattleAbilityEffect::HandlePositiveAura()
 {
-    CalculateHit(EffectInfo->prop[0]);
+    CalculateHit(EffectInfo->prop[1]);
 
-    return AddAura(Target, EffectInfo->prop[1], 0);
+    return AddAura(Target, EffectInfo->prop[2], 0);
 }
 
 bool PetBattleAbilityEffect::HandleHealPetType()
