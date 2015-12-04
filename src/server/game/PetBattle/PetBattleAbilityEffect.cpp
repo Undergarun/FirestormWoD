@@ -754,13 +754,13 @@ bool PetBattleAbilityEffect::HandleWitchingDamage()
 {
     CalculateHit(EffectInfo->prop[1]);
 
-    if (EffectInfo->prop[2])
-        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
-
     /// Witching
-    int32 l_Damage = EffectInfo->prop[0];
+    int32 l_Damage        = EffectInfo->prop[0];
+    int32 l_CasterHealPct = (GetHealth(Caster) * 100) / GetMaxHealth(Caster);
 
-    if (GetHealth(Caster) * 100 / GetMaxHealth(Caster) < EffectInfo->prop[2])
+    if (EffectInfo->prop[2] && l_CasterHealPct < EffectInfo->prop[2])
+        l_Damage *= 2;
+    else if (GetHealth(Target) > GetHealth(Caster))                     ///< http://fr.wowhead.com/petability=253/repliquer
         l_Damage *= 2;
 
     return Damage(Target, CalculateDamage(l_Damage));
