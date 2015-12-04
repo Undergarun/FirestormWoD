@@ -195,19 +195,12 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* p_Battle)
             ObjectGuid l_JournalID = (p_Battle->BattleType == PETBATTLE_TYPE_PVE && l_TeamID == PETBATTLE_PVE_TEAM_ID) ? 0 : l_Pet->JournalID;
 
             uint32 l_AbilityCount = 0;
-            uint32 l_CooldownCount = 0;
             uint32 l_StatesCount = 0;
-
-            for (int l_Ability = 0; l_Ability < MAX_PETBATTLE_ABILITIES; l_Ability++)
-            {
-                if (l_Pet->Abilities[l_Ability])
-                    l_AbilityCount++;
-            }
 
             for (uint8 l_AbilitySlot = 0; l_AbilitySlot < MAX_PETBATTLE_ABILITIES; l_AbilitySlot++)
             {
-                if (l_Pet->Cooldowns[l_AbilitySlot] != -1)
-                    l_CooldownCount++;
+                if (l_Pet->Abilities[l_AbilitySlot])
+                    l_AbilityCount++;
             }
 
             for (int l_State = 0; l_State < NUM_BATTLEPET_STATES; ++l_State)
@@ -242,7 +235,7 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* p_Battle)
             l_Packet << uint16(l_Pet->Flags & ~PETBATTLE_FLAG_CAPTURED);
             l_Packet << uint8(l_PetID);
             l_Packet << uint32(l_AbilityCount);
-            l_Packet << uint32(l_CooldownCount);
+            l_Packet << uint32(0);
             l_Packet << uint32(l_StatesCount);
 
             for (uint8 l_CurrentAbilitySlot = 0; l_CurrentAbilitySlot < MAX_PETBATTLE_ABILITIES; l_CurrentAbilitySlot++)
@@ -251,19 +244,7 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* p_Battle)
                 {
                     l_Packet << uint32(l_Pet->Abilities[l_CurrentAbilitySlot]);
                     l_Packet << uint16(l_Pet->Cooldowns[l_CurrentAbilitySlot]);
-                    l_Packet << uint16(0);
-                    l_Packet << uint8(l_CurrentAbilitySlot);
-                    l_Packet << uint8(l_Pet->ID);
-                }
-            }
-
-            for (uint8 l_CurrentAbilitySlot = 0; l_CurrentAbilitySlot < MAX_PETBATTLE_ABILITIES; l_CurrentAbilitySlot++)
-            {
-                if (l_Pet->Cooldowns[l_CurrentAbilitySlot] != -1)
-                {
-                    l_Packet << uint32(l_Pet->Abilities[l_CurrentAbilitySlot]);
-                    l_Packet << uint16(l_Pet->Cooldowns[l_CurrentAbilitySlot]);
-                    l_Packet << uint16(0);
+                    l_Packet << uint16(l_Pet->Lockdowns[l_CurrentAbilitySlot]);
                     l_Packet << uint8(l_CurrentAbilitySlot);
                     l_Packet << uint8(l_Pet->ID);
                 }
@@ -330,7 +311,7 @@ void WorldSession::SendPetBattleFirstRound(PetBattle* p_Battle)
 
         for (uint8 l_AbilitySlot = 0; l_AbilitySlot < MAX_PETBATTLE_ABILITIES; l_AbilitySlot++)
         {
-            if (p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot] != -1)
+            if (p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot] != -1 || p_Battle->Pets[l_CurrentPetslot]->Lockdowns[l_AbilitySlot] != 0)
                 l_CooldownCount++;
         }
     }
@@ -408,11 +389,11 @@ void WorldSession::SendPetBattleFirstRound(PetBattle* p_Battle)
 
         for (uint8 l_AbilitySlot = 0; l_AbilitySlot < MAX_PETBATTLE_ABILITIES; l_AbilitySlot++)
         {
-            if (p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot] != -1)
+            if (p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot] != -1 || p_Battle->Pets[l_CurrentPetslot]->Lockdowns[l_AbilitySlot] != 0)
             {
                 l_Packet << uint32(p_Battle->Pets[l_CurrentPetslot]->Abilities[l_AbilitySlot]);
                 l_Packet << uint16(p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot]);
-                l_Packet << uint16(0);
+                l_Packet << uint16(p_Battle->Pets[l_CurrentPetslot]->Lockdowns[l_AbilitySlot]);
                 l_Packet << uint8(l_AbilitySlot);
                 l_Packet << uint8(p_Battle->Pets[l_CurrentPetslot]->ID);
             }
@@ -441,7 +422,7 @@ void WorldSession::SendPetBattleRoundResult(PetBattle* p_Battle)
 
         for (uint8 l_AbilitySlot = 0; l_AbilitySlot < MAX_PETBATTLE_ABILITIES; l_AbilitySlot++)
         {
-            if (p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot] != -1)
+            if (p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot] != -1 || p_Battle->Pets[l_CurrentPetslot]->Lockdowns[l_AbilitySlot] != 0)
                 l_CooldownCount++;
         }
     }
@@ -519,11 +500,11 @@ void WorldSession::SendPetBattleRoundResult(PetBattle* p_Battle)
 
         for (uint8 l_AbilitySlot = 0; l_AbilitySlot < MAX_PETBATTLE_ABILITIES; l_AbilitySlot++)
         {
-            if (p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot] != -1)
+            if (p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot] != -1 || p_Battle->Pets[l_CurrentPetslot]->Lockdowns[l_AbilitySlot] != 0)
             {
                 l_Packet << uint32(p_Battle->Pets[l_CurrentPetslot]->Abilities[l_AbilitySlot]);
                 l_Packet << uint16(p_Battle->Pets[l_CurrentPetslot]->Cooldowns[l_AbilitySlot]);
-                l_Packet << uint16(0);
+                l_Packet << uint16(p_Battle->Pets[l_CurrentPetslot]->Lockdowns[l_AbilitySlot]);
                 l_Packet << uint8(l_AbilitySlot);
                 l_Packet << uint8(p_Battle->Pets[l_CurrentPetslot]->ID);
             }
