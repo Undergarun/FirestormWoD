@@ -926,7 +926,10 @@ void PetBattle::AddPet(uint32 p_TeamID, std::shared_ptr<BattlePetInstance> p_Pet
     p_Pet->States[0] = 1;
 
     for (uint32 l_CurrentAbilitySlot = 0; l_CurrentAbilitySlot < MAX_PETBATTLE_ABILITIES; l_CurrentAbilitySlot++)
+    {
         p_Pet->Cooldowns[l_CurrentAbilitySlot] = -1;
+        p_Pet->Lockdowns[l_CurrentAbilitySlot] = 0;
+    }
 
     //////////////////////////////////////////////////////////////////////////
     /// State calculation part

@@ -355,7 +355,8 @@ class BattlePetInstance : public BattlePet
         uint32      TeamID;                                 ///< Team ID
         uint32      ID;                                     ///< Rel id for battle (0 - 1 - 2 - 3 - 4 - 5)
 
-        int32       Cooldowns[MAX_PETBATTLE_ABILITIES];     ///< Pet cool downs
+        int32       Cooldowns[MAX_PETBATTLE_ABILITIES];     ///< Pet cooldowns
+        int32       Lockdowns[MAX_PETBATTLE_ABILITIES];     ///< Pet lockdowns
         int32       States[NUM_BATTLEPET_STATES];           ///< Pet states
 
         PetBattle * PetBattleInstance;                      ///< Pet battle instance helper
