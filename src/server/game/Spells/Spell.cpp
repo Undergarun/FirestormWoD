@@ -7657,8 +7657,17 @@ SpellCastResult Spell::CheckItems()
                 if (!targetItem)
                     return SPELL_FAILED_ITEM_NOT_FOUND;
 
-                if (targetItem->GetTemplate()->ItemLevel < m_spellInfo->BaseLevel)
+                uint32 l_ItemLevel = 0;
+                if (Player* l_Owner = targetItem->GetOwner())
+                    l_ItemLevel = l_Owner->GetEquipItemLevelFor(targetItem->GetTemplate(), targetItem);
+                else
+                    l_ItemLevel = targetItem->GetTemplate()->ItemLevel;
+
+                if (l_ItemLevel < m_spellInfo->BaseLevel)
                     return SPELL_FAILED_LOWLEVEL;
+
+                if (l_ItemLevel > m_spellInfo->MaxLevel)
+                    return SPELL_FAILED_HIGHLEVEL;
 
                 bool isItemUsable = false;
                 for (uint8 e = 0; e < MAX_ITEM_PROTO_SPELLS; ++e)
