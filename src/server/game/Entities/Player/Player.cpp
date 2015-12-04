@@ -29192,7 +29192,7 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
     AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator l_Idx = l_RegenAura.begin(); l_Idx != l_RegenAura.end(); ++l_Idx)
     {
-        if ((*l_Idx)->GetMiscValue() == POWER_RUNES && RuneType((*l_Idx)->GetMiscValueB()) == runeType)
+        if ((*l_Idx)->GetMiscValue() == POWER_RUNES)
             l_Modifier += (float)(*l_Idx)->GetAmount() / 100.0f;
     }
 

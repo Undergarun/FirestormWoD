@@ -5071,7 +5071,7 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
             l_Player->UpdateManaRegen();
             break;
         case POWER_RUNES:
-            l_Player->UpdateRuneRegen(RuneType(GetMiscValueB()));
+            l_Player->UpdateAllRunesRegen();
             break;
         case POWER_ENERGY:
             l_Player->UpdateEnergyRegen();

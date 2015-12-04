@@ -3480,6 +3480,17 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[EFFECT_1].MiscValue = 2;
                 break;
+            case 51460:  ///< Runic Corruption
+                spellInfo->EffectCount = 1;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_3].Effect = 0;
+                spellInfo->Effects[EFFECT_3].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_4].Effect = 0;
+                spellInfo->Effects[EFFECT_4].ApplyAuraName = 0;
+                break;
             case 168178: ///< Salvage (garrison loot spell)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
                 break;

@@ -2621,7 +2621,6 @@ class Player : public Unit, public GridObject<Player>
         void UpdateManaRegen();
         void UpdateEnergyRegen();
         void UpdateFocusRegen();
-        void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
         float GetRegenForPower(Powers p_Power);
         void setHolyPowerRegenTimerCount(uint32 p_Value) { m_holyPowerRegenTimerCount = p_Value; }

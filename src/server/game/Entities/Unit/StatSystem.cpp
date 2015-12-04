@@ -1044,33 +1044,6 @@ void Player::UpdateFocusRegen()
     SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
 }
 
-void Player::UpdateRuneRegen(RuneType p_Rune)
-{
-    if (p_Rune > RuneType::NUM_RUNE_TYPES)
-        return;
-
-    uint32 l_Cooldown = 0;
-
-    for (uint8 l_I = 0; l_I < MAX_RUNES; ++l_I)
-    {
-        if (GetBaseRune(l_I) == p_Rune)
-        {
-            l_Cooldown = GetRuneBaseCooldown(l_I);
-            break;
-        }
-    }
-
-    if (l_Cooldown <= 0)
-        return;
-
-    float l_Regen = float(1 * TimeConstants::IN_MILLISECONDS) / float(l_Cooldown);
-
-    if (l_Regen < 0.0099999998f)
-        l_Regen = 0.01f;
-
-    SetFloatValue(EPlayerFields::PLAYER_FIELD_RUNE_REGEN + uint8(p_Rune), l_Regen);
-}
-
 void Player::UpdateAllRunesRegen()
 {
     if (getClass() != Classes::CLASS_DEATH_KNIGHT)
@@ -1123,7 +1096,7 @@ float Player::GetRegenForPower(Powers p_Power)
     float l_Total = 1.0f;
 
     l_HastePct = GetFloatValue(EUnitFields::UNIT_FIELD_MOD_HASTE_REGEN);
-    l_Total = l_BaseRegen * l_HastePct * l_Pct;
+    l_Total = l_BaseRegen * l_HastePct / l_Pct;
 
     return l_Total;
 }
