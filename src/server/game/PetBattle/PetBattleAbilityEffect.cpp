@@ -101,7 +101,7 @@ static PetBattleAbilityEffectHandler Handlers[MAX_PETBATTLE_EFFECT_TYPES] =
     /* EFFECT 65  */{&PetBattleAbilityEffect::HandleDamageStateBonus,           PETBATTLE_TARGET_TARGET},
     /* EFFECT 66  */{&PetBattleAbilityEffect::HandleDamageRuthless,             PETBATTLE_TARGET_TARGET},
     /* EFFECT 67  */{&PetBattleAbilityEffect::HandleEqualizeLife,               PETBATTLE_TARGET_TARGET},
-    /* EFFECT 68  */{&PetBattleAbilityEffect::HandleDamageCasterPercent,        PETBATTLE_TARGET_TARGET},
+    /* EFFECT 68  */{&PetBattleAbilityEffect::HandleDamageCasterPercent,        PETBATTLE_TARGET_CASTER},
     /* EFFECT 69  */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 70  */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 71  */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
@@ -1261,13 +1261,13 @@ bool PetBattleAbilityEffect::HandleEqualizeLife()
 
 bool PetBattleAbilityEffect::HandleDamageCasterPercent()
 {
+    if (EffectInfo->prop[2])
+        Target = GetActiveOpponent();
+
     CalculateHit(EffectInfo->prop[1]);
 
-    if (EffectInfo->prop[2])
-        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
-
     int32 damage = CalculateDamage(CalculatePct(GetMaxHealth(Caster), EffectInfo->prop[0]));
-    return Damage(Target, damage);
+    return Damage(Target, damage, true);
 }
 
 bool PetBattleAbilityEffect::HandleHealToggleAura()
