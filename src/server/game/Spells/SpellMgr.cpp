@@ -6743,11 +6743,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 169092: ///< Temporal Crystal
                 spellInfo->Effects[EFFECT_0].ItemType = 0;
                 break;
+            case 124280:// Touch of Karma (DoT)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
             case 49016: // Unholy Frenzy
             case 87023: // Cauterize
             case 110914:// Dark Bargain (DoT)
             case 113344:// Bloodbath (DoT)
-            case 124280:// Touch of Karma (DoT)
             case 148022:// Icicle hit
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
                 break;
