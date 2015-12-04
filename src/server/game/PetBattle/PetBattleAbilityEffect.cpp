@@ -204,7 +204,7 @@ static PetBattleAbilityEffectHandler Handlers[MAX_PETBATTLE_EFFECT_TYPES] =
     /* EFFECT 168 */{&PetBattleAbilityEffect::HandleNegativeAura,               PETBATTLE_TARGET_TARGET},
     /* EFFECT 169 */{&PetBattleAbilityEffect::HandleStateDamage,                PETBATTLE_TARGET_HEAD},
     /* EFFECT 170 */{&PetBattleAbilityEffect::HandleWeatherDamage,              PETBATTLE_TARGET_TARGET},
-    /* EFFECT 171 */{&PetBattleAbilityEffect::HandleHealOnSpecificWeather,      PETBATTLE_TARGET_TARGET},
+    /* EFFECT 171 */{&PetBattleAbilityEffect::HandleHealOnSpecificWeather,      PETBATTLE_TARGET_CASTER},
     /* EFFECT 172 */{&PetBattleAbilityEffect::HandleAuraCondAccuracyState,      PETBATTLE_TARGET_TARGET},
     /* EFFECT 173 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 174 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
@@ -1032,12 +1032,20 @@ bool PetBattleAbilityEffect::HandleExtraAttackIfLessFaster()
 
 bool PetBattleAbilityEffect::HandleHealOnSpecificWeather()
 {
-    if (!GetState(Caster, EffectInfo->prop[2]) || !GetState(Target, EffectInfo->prop[3]))
+    int32 l_RequiredState = EffectInfo->prop[2];
+
+    if (l_RequiredState && !GetState(Caster, l_RequiredState))
         return false;
 
     CalculateHit(EffectInfo->prop[1]);
 
-    return Heal(Target, CalculateHeal(EffectInfo->prop[0]));
+    int32 l_HealBase = EffectInfo->prop[0];
+    int32 l_HealBonusOnStateID = EffectInfo->prop[3];
+
+    if (l_HealBonusOnStateID && GetState(Caster, l_HealBonusOnStateID))
+        l_HealBase *= 2;
+
+    return Heal(Target, CalculateHeal(l_HealBase));
 }
 
 bool PetBattleAbilityEffect::HandleWeatherAura()
