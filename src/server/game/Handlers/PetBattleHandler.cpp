@@ -375,7 +375,7 @@ void WorldSession::SendPetBattleFinalRound(PetBattle* p_Battle)
         l_Packet << int32(p_Battle->Pets[l_CurrentPetslot]->InfoMaxHealth);
         l_Packet << uint16(p_Battle->Pets[l_CurrentPetslot]->OldLevel);
         l_Packet << uint8(p_Battle->Pets[l_CurrentPetslot]->ID);
-        
+
         l_Packet.WriteBit(p_Battle->CatchedPetId == l_CurrentPetslot);
         l_Packet.WriteBit(p_Battle->CatchedPetId == l_CurrentPetslot);
         l_Packet.WriteBit(p_Battle->Pets[l_CurrentPetslot]->OldXP != p_Battle->Pets[l_CurrentPetslot]->XP);
