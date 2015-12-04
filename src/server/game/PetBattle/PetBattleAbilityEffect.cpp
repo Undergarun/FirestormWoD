@@ -1215,8 +1215,9 @@ bool PetBattleAbilityEffect::HandleDamageRuthless()
     CalculateHit(EffectInfo->prop[1]);
 
     int32 damage = EffectInfo->prop[0];
+    int32 l_TargetHealthPct = (GetHealth(Target) * 100) / GetMaxHealth(Target);
 
-    if (GetHealth(Target) * 100 / GetMaxHealth(Target) < 25)
+    if (l_TargetHealthPct < 25)
         damage += CalculatePct(damage, EffectInfo->prop[2]);
 
     return Damage(Target, CalculateDamage(damage));
