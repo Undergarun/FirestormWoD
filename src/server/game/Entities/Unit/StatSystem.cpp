@@ -1046,25 +1046,29 @@ void Player::UpdateFocusRegen()
 
 void Player::UpdateRuneRegen(RuneType p_Rune)
 {
-    if (p_Rune > NUM_RUNE_TYPES)
+    if (p_Rune > RuneType::NUM_RUNE_TYPES)
         return;
 
     uint32 l_Cooldown = 0;
 
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-        if (GetBaseRune(i) == p_Rune)
+    for (uint8 l_I = 0; l_I < MAX_RUNES; ++l_I)
+    {
+        if (GetBaseRune(l_I) == p_Rune)
         {
-            l_Cooldown = GetRuneBaseCooldown(i);
+            l_Cooldown = GetRuneBaseCooldown(l_I);
             break;
         }
+    }
 
     if (l_Cooldown <= 0)
         return;
 
-    float l_Regen = float(1 * IN_MILLISECONDS) / float(l_Cooldown);
-    l_Regen *= 2.f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+    float l_Regen = float(1 * TimeConstants::IN_MILLISECONDS) / float(l_Cooldown);
 
-    SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(p_Rune), l_Regen);
+    if (l_Regen < 0.0099999998f)
+        l_Regen = 0.01f;
+
+    SetFloatValue(EPlayerFields::PLAYER_FIELD_RUNE_REGEN + uint8(p_Rune), l_Regen);
 }
 
 void Player::UpdateAllRunesRegen()
@@ -1072,17 +1076,16 @@ void Player::UpdateAllRunesRegen()
     if (getClass() != Classes::CLASS_DEATH_KNIGHT)
         return;
 
-    for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
+    for (uint8 l_I = 0; l_I < RuneType::NUM_RUNE_TYPES; ++l_I)
     {
-        if (uint32 l_Cooldown = GetRuneTypeBaseCooldown(RuneType(i)))
+        if (uint32 l_Cooldown = GetRuneTypeBaseCooldown(RuneType(l_I)))
         {
-            float l_Regen = float(1 * IN_MILLISECONDS) / float(l_Cooldown);
-            l_Regen *= 2.f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+            float l_Regen = float(1 * TimeConstants::IN_MILLISECONDS) / float(l_Cooldown);
 
             if (l_Regen < 0.0099999998f)
                 l_Regen = 0.01f;
 
-            SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, l_Regen);
+            SetFloatValue(EPlayerFields::PLAYER_FIELD_RUNE_REGEN + l_I, l_Regen);
         }
     }
 
@@ -1100,7 +1103,6 @@ float Player::GetRegenForPower(Powers p_Power)
         /// I've done some tests and now it's fine, please don't touch, just if server version is changed and client-part value is fixed
         case Powers::POWER_FOCUS:
             return -1.0f;
-            break;
         case Powers::POWER_ENERGY:
         case Powers::POWER_RUNES:
             l_BaseRegen = 10.0f;
@@ -1114,13 +1116,13 @@ float Player::GetRegenForPower(Powers p_Power)
     for (Unit::AuraEffectList::const_iterator l_Iter = l_ModPowerRegenPCT.begin(); l_Iter != l_ModPowerRegenPCT.end(); ++l_Iter)
     {
         if (Powers((*l_Iter)->GetMiscValue()) == p_Power)
-            l_Pct += (*l_Iter)->GetAmount() / 100.0f;
+            l_Pct += (float)(*l_Iter)->GetAmount() / 100.0f;
     }
 
     float l_HastePct = 1.0f;
     float l_Total = 1.0f;
 
-    l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+    l_HastePct = GetFloatValue(EUnitFields::UNIT_FIELD_MOD_HASTE_REGEN);
     l_Total = l_BaseRegen * l_HastePct * l_Pct;
 
     return l_Total;
