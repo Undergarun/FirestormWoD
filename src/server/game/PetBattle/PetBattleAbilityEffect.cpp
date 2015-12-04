@@ -744,8 +744,8 @@ bool PetBattleAbilityEffect::HandleDamage()
 {
     CalculateHit(EffectInfo->prop[1]);
 
-    /*if (EffectInfo->prop[3])
-        Flags |= ?*/
+    if (EffectInfo->prop[2])
+        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
 
     return Damage(Target, CalculateDamage(EffectInfo->prop[0]), EffectInfo->prop[2]);
 }
@@ -768,7 +768,7 @@ bool PetBattleAbilityEffect::HandleWitchingDamage()
 
 bool PetBattleAbilityEffect::HandleStateDamage()
 {
-    // In some case, proc only if caster state prop[2] is on
+    /// In some case, proc only if caster state prop[2] is on
     if (EffectInfo->prop[2] != 0 && !GetState(Caster, EffectInfo->prop[2]))
         return false;
 
@@ -963,7 +963,7 @@ bool PetBattleAbilityEffect::HandleHealPetType()
 
     uint32 l_Team = PetBattleInstance->Pets[Caster]->TeamID;
 
-    for (uint32 l_I = 0; l_I < (MAX_PETBATTLE_SLOTS * MAX_PETBATTLE_TEAM); ++l_I)
+    for (uint8 l_I = 0; l_I < (MAX_PETBATTLE_SLOTS * MAX_PETBATTLE_TEAM); ++l_I)
     {
         std::shared_ptr<BattlePetInstance> l_CurrentPet = PetBattleInstance->Pets[l_I];
 

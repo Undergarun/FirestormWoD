@@ -112,7 +112,7 @@ enum eBattlePetRequests
     PETBATTLE_REQUEST_PET_ALL_DEAD                      = 14,
     PETBATTLE_REQUEST_NEED_PET_IN_SLOTS                 = 15,
     PETBATTLE_REQUEST_CODEX_LOCKED_BY_AN_ANOTHER_USER   = 16,
-    PETBATTLE_REQUEST_TARGET_IN_A_BATTLEPET             = 17,
+    PETBATTLE_REQUEST_TARGET_IN_A_BATTLEPET             = 17
 };
 
 enum BattlePetState

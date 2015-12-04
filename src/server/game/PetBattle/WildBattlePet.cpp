@@ -162,7 +162,7 @@ void WildBattlePetZonePools::ReplaceCreature(Creature* p_Creature, WildBattlePet
         return;
     }
 
-    l_ReplacementCreature->SetHomePosition(p_Creature->m_positionX, p_Creature->m_positionY, p_Creature->m_positionZ, p_Creature->m_orientation);
+    l_ReplacementCreature->SetHomePosition(*l_ReplacementCreature);
 
     // BattlePet fill data
     p_Template->ReplacedBattlePetInstances[l_ReplacementCreature->GetGUID()] = std::shared_ptr<BattlePetInstance>(new BattlePetInstance());

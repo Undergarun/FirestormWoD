@@ -32600,7 +32600,7 @@ void Player::ReloadPetBattles()
     uint64 l_ThisGUID = GetGUID();
     MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_ThisGUID](bool p_Success) -> void
     {
-        if (Player * l_This = HashMapHolder<Player>::Find(l_ThisGUID))
+        if (Player* l_This = HashMapHolder<Player>::Find(l_ThisGUID))
         {
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
             stmt->setUInt32(0, l_This->GetSession()->GetAccountId());
