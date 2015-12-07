@@ -4424,10 +4424,10 @@ enum VitalMistsSpell
 };
 
 /// Vital Mists - 118674  
-class spell_monk_vital_mists : public PlayerScript
+class spell_monk_vital_mists_power : public PlayerScript
 {
     public:
-        spell_monk_vital_mists() :PlayerScript("spell_monk_vital_mists") {}
+        spell_monk_vital_mists_power() : PlayerScript("spell_monk_vital_mists_power") {}
 
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
@@ -4447,44 +4447,55 @@ class spell_monk_vital_mists : public PlayerScript
 };
 
 /// Called by Vital Mists - 118674
-/// Item - Monk T17 Mistweaver 2P Bonus - 165404
-class spell_monk_item_t17_mistweaver_2p_bonus : public SpellScriptLoader
+class spell_monk_vital_mists : public SpellScriptLoader
 {
     public:
-        spell_monk_item_t17_mistweaver_2p_bonus() : SpellScriptLoader("spell_monk_item_t17_mistweaver_2p_bonus") { }
+        spell_monk_vital_mists() : SpellScriptLoader("spell_monk_vital_mists") { }
 
-        class spell_monk_item_t17_mistweaver_2p_bonus_AuraScript : public AuraScript
+        class spell_monk_vital_mists_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_monk_item_t17_mistweaver_2p_bonus_AuraScript);
+            PrepareAuraScript(spell_monk_vital_mists_AuraScript);
 
             enum eSpells
             {
-                T17Mistweaver2P = 165404,
-                VitalMistsEnerg = 169719
+                VitalMistsVisual5Stacks = 122107,
+                T17Mistweaver2P         = 165404,
+                VitalMistsEnerg         = 169719
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (!l_Caster->HasAura(eSpells::T17Mistweaver2P))
-                        return;
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-                    /// Consuming a 5 stack of Vital Mists generates 1 Chi.
-                    if (p_AurEff->GetBase()->GetStackAmount() >= 5)
+                if (p_AurEff->GetBase()->GetStackAmount() >= 5)
+                    l_Caster->CastSpell(l_Caster, eSpells::VitalMistsVisual5Stacks, true);
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                l_Caster->RemoveAura(eSpells::VitalMistsVisual5Stacks);
+
+                if (l_Caster->HasAura(eSpells::T17Mistweaver2P))
+                    if (p_AurEff->GetBase()->GetStackAmount() >= 5) ///< Consuming a 5 stack of Vital Mists generates 1 Chi.
                         l_Caster->CastSpell(l_Caster, eSpells::VitalMistsEnerg, true);
-                }
             }
 
             void Register() override
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_monk_item_t17_mistweaver_2p_bonus_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_monk_vital_mists_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY));
+                OnEffectRemove += AuraEffectRemoveFn(spell_monk_vital_mists_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new spell_monk_item_t17_mistweaver_2p_bonus_AuraScript();
+            return new spell_monk_vital_mists_AuraScript();
         }
 };
 
@@ -5724,8 +5735,9 @@ void AddSC_monk_spell_scripts()
     new spell_monk_glyph_of_freedom_roll();
     new spell_monk_crackling_tiger_lightning();
     new spell_monk_item_t17_brewmaster_2p_bonus();
+    new spell_monk_vital_mists();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
-    new spell_monk_vital_mists();
+    new spell_monk_vital_mists_power();
 }

@@ -55,5 +55,8 @@ void Reporter::ScheduleNextReport()
 
 void Reporter::EnqueueReport(std::string p_Datas)
 {
+    if (!m_Enabled)
+        return;
+
     m_ReportQueue.add(p_Datas);
 }

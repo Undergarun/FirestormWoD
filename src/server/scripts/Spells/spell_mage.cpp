@@ -1739,7 +1739,7 @@ class spell_mage_ice_barrier: public SpellScriptLoader
         }
 };
 
-/// Call by Arcane Blast - 30451, Fireball - 133, Frostbolt - 116 and Frostfire Bolt 44614
+/// Call by Arcane Blast - 30451, Fireball - 133, Frostbolt - 116 and Frostfire Bolt - 44614
 /// Unstable Magic - 157976
 class spell_mage_unstable_magic: public SpellScriptLoader
 {
@@ -2071,7 +2071,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                         (*itr)->GetPosition(&l_Position);
 
                         // Apply aura on hostile creatures in the grid
-                        (*itr)->GetCreatureListInGrid(l_TempListCreature, 5.0f);
+                        (*itr)->GetCreatureListInGrid(l_TempListCreature, -2.0f);
                         for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
                         {
                             if (!(*i)->IsWithinDist3d(&l_Position, 1.0f) && (*i)->IsHostileTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE) && l_Caster->IsValidAttackTarget(*i))
@@ -2079,7 +2079,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                         }
 
                         // Apply aura on hostile players in the grid
-                        (*itr)->GetPlayerListInGrid(l_TempListPlayer, 5.0f);
+                        (*itr)->GetPlayerListInGrid(l_TempListPlayer, -2.0f);
                         for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
                         {
                             if (!(*i)->IsWithinDist3d(&l_Position, 1.0f) && (*i)->IsHostileTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE) && l_Caster->IsValidAttackTarget(*i))

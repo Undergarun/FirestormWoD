@@ -497,6 +497,9 @@ class boss_oregorger : public CreatureScript
                                 }
                             }
 
+                            if (l_NearestCrate == nullptr)
+                                return;
+
                             m_Crates.erase(l_NearestCrate->GetGUID());
 
                             l_NearestCrate->CastSpell(g_OreCrateSpawnPos[l_I], eSpells::RollingBox, true);
@@ -869,19 +872,23 @@ class boss_oregorger : public CreatureScript
                         me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::DarkshardCrystalback, 150.0f);
                         me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::DarkshardGnasher, 150.0f);
 
-                        if (l_CreatureList.empty())
-                            break;
+                        bool l_IsEmpty = l_CreatureList.empty();
 
-                        l_CreatureList.remove_if([this](Creature* p_Creature) -> bool
+                        if (!l_IsEmpty)
                         {
-                            if (p_Creature == nullptr || !p_Creature->isAlive())
-                                return true;
-
-                            return false;
-                        });
+                            l_CreatureList.remove_if([this](Creature* p_Creature) -> bool
+                            {
+                                if (p_Creature == nullptr || !p_Creature->isAlive())
+                                    return true;
+    
+                                return false;
+                            });
+                        }
+                        
+                        l_IsEmpty = l_CreatureList.empty();
 
                         /// All trashes are dead, launch move
-                        if (l_CreatureList.empty())
+                        if (l_IsEmpty)
                         {
                             m_Init = true;
 

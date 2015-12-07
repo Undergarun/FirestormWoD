@@ -361,6 +361,11 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sDestructibleModelDataStore,  dbcPath, "DestructibleModelData.dbc");                                        // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sDifficultyStore,             dbcPath, "Difficulty.dbc");                                                   // 19027
     LoadDBC(availableDbcLocales, bad_dbc_files, sDungeonEncounterStore,       dbcPath, "DungeonEncounter.dbc");                                             // 17399
+
+    /// Gruul Encounter (Blackrock Foundry)
+    if (DungeonEncounterEntry const* l_Encounter = sDungeonEncounterStore.LookupEntry(1691))
+        ((DungeonEncounterEntry*)l_Encounter)->CreatureDisplayID = 55050;
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sDurabilityCostsStore,        dbcPath, "DurabilityCosts.dbc");                                              // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sDurabilityQualityStore,      dbcPath, "DurabilityQuality.dbc");                                            // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesStore,                 dbcPath, "Emotes.dbc");                                                       // 17399

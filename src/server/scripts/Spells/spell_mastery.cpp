@@ -288,7 +288,8 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
         }
 };
 
-// Mastery: Echo of Light - 77485
+/// last update : 6.1.2
+/// Mastery: Echo of Light - 77485
 class spell_mastery_echo_of_light: public SpellScriptLoader
 {
     public:
@@ -314,7 +315,7 @@ class spell_mastery_echo_of_light: public SpellScriptLoader
                     return;
 
                 float Mastery = plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
-                int32 bp = (Mastery * eventInfo.GetHealInfo()->GetHeal()) / 6;
+                int32 bp = (Mastery * eventInfo.GetHealInfo()->GetHeal()) / 2;
 
                 bp += unitTarget->GetRemainingPeriodicAmount(plr->GetGUID(), SPELL_PRIEST_ECHO_OF_LIGHT, SPELL_AURA_PERIODIC_HEAL);
                 plr->CastCustomSpell(unitTarget, SPELL_PRIEST_ECHO_OF_LIGHT, &bp, NULL, NULL, true);

@@ -1420,6 +1420,7 @@ void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
     {
         case 49575: ///< Death Grip
         case 92832: ///< Leap of Faith
+        case 118283: ///< Ursol's Vortex
             m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ);
             break;
         case 49376: ///< Wild Charge
@@ -1917,17 +1918,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                     }
                 }
             }
-        }
-
-        // 77485 - Mastery : Echo of Light
-        if (caster && caster->getClass() == CLASS_PRIEST && caster->HasAura(77485) && caster->getLevel() >= 80 && addhealth)
-        {
-            float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.30f / 100.0f;
-            int32 bp = (Mastery * addhealth) / 2;
-
-            bp += unitTarget->GetRemainingPeriodicAmount(caster->GetGUID(), 77489, SPELL_AURA_PERIODIC_HEAL);
-
-            m_caster->CastCustomSpell(unitTarget, 77489, &bp, NULL, NULL, true);
         }
 
         // Chakra : Serenity - 81208

@@ -1164,24 +1164,27 @@ class debug_commandscript: public CommandScript
             if (!result)
                 return false;
 
-            uint8 failNum = (uint8)atoi(result);
+            uint32 failNum = atoi(result);
             if (failNum == 0 && *result != '0')
                 return false;
 
             char* fail1 = strtok(NULL, " ");
-            uint8 failArg1 = fail1 ? (uint8)atoi(fail1) : 0;
+            uint32 failArg1 = fail1 ? atoi(fail1) : 0;
 
             char* fail2 = strtok(NULL, " ");
-            uint8 failArg2 = fail2 ? (uint8)atoi(fail2) : 0;
+            uint32 failArg2 = fail2 ? atoi(fail2) : 0;
 
             WorldPacket data(SMSG_CAST_FAILED, 5);
-            data << uint8(0);
-            data << uint32(133);
-            data << uint8(failNum);
+
+            data << uint32(133);        ///< SpellID
+            data << uint32(failNum);    ///< Problem
+
             if (fail1 || fail2)
                 data << uint32(failArg1);
             if (fail2)
                 data << uint32(failArg2);
+
+            data << uint8(0);           ///< CastCount
 
             handler->GetSession()->SendPacket(&data);
 

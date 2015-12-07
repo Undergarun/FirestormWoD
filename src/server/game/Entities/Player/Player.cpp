@@ -3277,16 +3277,10 @@ void Player::RegenerateAll()
     switch (l_Class)
     {
         case Classes::CLASS_PALADIN:
-            if (!isInCombat())
-                m_holyPowerRegenTimerCount += m_RegenPowerTimer;
-            else
-                m_holyPowerRegenTimerCount = 0;
+            m_holyPowerRegenTimerCount += m_RegenPowerTimer;
             break;
         case Classes::CLASS_MONK:
-            if (!isInCombat())
-                m_chiPowerRegenTimerCount += m_RegenPowerTimer;
-            else
-                m_holyPowerRegenTimerCount = 0;
+            m_chiPowerRegenTimerCount += m_RegenPowerTimer;
             break;
         case Classes::CLASS_HUNTER:
             m_focusRegenTimerCount += m_RegenPowerTimer;
@@ -3334,14 +3328,6 @@ void Player::RegenerateAll()
     Regenerate(POWER_MANA);
     Regenerate(POWER_ENERGY);
 
-    if (m_focusRegenTimerCount >= 1000)
-    {
-        if (l_Class == CLASS_HUNTER)
-            Regenerate(POWER_FOCUS);
-
-        m_focusRegenTimerCount -= 1000;
-    }
-
     if (m_regenTimerCount >= 2000)
     {
         // Not in combat or they have regeneration
@@ -3355,6 +3341,14 @@ void Player::RegenerateAll()
         Regenerate(POWER_RAGE);
 
         m_regenTimerCount -= 2000;
+    }
+
+    if (m_focusRegenTimerCount >= 1000)
+    {
+        if (l_Class == CLASS_HUNTER)
+            Regenerate(POWER_FOCUS);
+
+        m_focusRegenTimerCount -= 1000;
     }
 
     if (m_holyPowerRegenTimerCount >= 10000 && l_Class == CLASS_PALADIN)
@@ -29192,20 +29186,17 @@ void Player::UpdateCharmedAI()
 
 uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 {
-    float l_RegenRate = 1.f / RUNE_BASE_COOLDOWN;
-    float l_HastePct = 0.0f;
+    float l_Cooldown = RUNE_BASE_COOLDOWN * GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+    float l_Modifier = 1.0f;
 
     AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator l_Idx = l_RegenAura.begin(); l_Idx != l_RegenAura.end(); ++l_Idx)
     {
-        if ((*l_Idx)->GetMiscValue() == POWER_RUNES && RuneType((*l_Idx)->GetMiscValueB()) == runeType)
-            AddPct(l_RegenRate, (*l_Idx)->GetAmount());
+        if ((*l_Idx)->GetMiscValue() == POWER_RUNES)
+            l_Modifier += (float)(*l_Idx)->GetAmount() / 100.0f;
     }
 
-    float l_Cooldown = 1.f / l_RegenRate;
-    l_Cooldown *= 1.0f - ((1.0f / GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) - 1.0f));
-
-    return l_Cooldown;
+    return l_Cooldown / l_Modifier;
 }
 
 void Player::RemoveRunesBySpell(uint32 spell_id)

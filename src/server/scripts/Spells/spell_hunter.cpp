@@ -3522,7 +3522,22 @@ class spell_hun_mend_pet : public SpellScriptLoader
         }
 };
 
-// Thrill of the Hunt - 109396
+enum ThrilloftheHunt
+{
+    VisualEffect1 = 170620,
+    VisualEffect2 = 170621,
+    VisualEffect3 = 170622
+};
+
+static uint32 const g_VisualSpells[3] =
+{
+    ThrilloftheHunt::VisualEffect1,
+    ThrilloftheHunt::VisualEffect2,
+    ThrilloftheHunt::VisualEffect3
+};
+
+/// last update : 6.1.2 19802
+/// Thrill of the Hunt - 109396
 class PlayerScript_thrill_of_the_hunt: public PlayerScript
 {
     public:
@@ -3541,9 +3556,71 @@ class PlayerScript_thrill_of_the_hunt: public PlayerScript
                 for (int8 i = 0; i < ((l_diffValue / 10) * -1); ++i)
                 {
                     if (roll_chance_i(sSpellMgr->GetSpellInfo(HUNTER_SPELL_THRILL_OF_THE_HUNT)->Effects[EFFECT_0].BasePoints))
+                    {
                         p_Player->CastSpell(p_Player, HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC, true);
+                        for (int8 l_I = 3; l_I >= 0; l_I--)
+                            p_Player->CastSpell(p_Player, g_VisualSpells[l_I], true);
+                        break;
+                    }
                 }
             }
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Thrill of the Hunt - 34720
+class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
+{
+    public:
+        spell_hun_thrill_of_the_hunt() : SpellScriptLoader("spell_hun_thrill_of_the_hunt") { }
+
+        class spell_hun_exotic_munitions_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_exotic_munitions_AuraScript);
+
+            uint8 m_ActualCharges = 3;
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                for (int8 l_I = 3; l_I >= 0; l_I--)
+                    l_Caster->RemoveAura(g_VisualSpells[l_I]);
+            }
+
+            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                for (; p_AurEff->GetBase()->GetCharges() < m_ActualCharges; m_ActualCharges--)
+                {
+                    for (int8 l_I = 3; l_I >= 0; l_I--)
+                    {
+                        if (l_Caster->HasAura(g_VisualSpells[l_I]))
+                        {
+                            l_Caster->RemoveAura(g_VisualSpells[l_I]);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_hun_exotic_munitions_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_exotic_munitions_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_exotic_munitions_AuraScript();
         }
 };
 
@@ -3974,6 +4051,7 @@ class spell_hun_trap_launcher : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_thrill_of_the_hunt();
     new spell_hun_thick_hide();
     new spell_hun_lesser_proportion();
     new spell_hun_glyph_of_lesser_proportion();

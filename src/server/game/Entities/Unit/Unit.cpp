@@ -3074,7 +3074,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
 
     // All positive spells can`t miss
     // TODO: client not show miss log for this spells - so need find info for this in dbc and use it!
-    if (spell->IsPositive()
+    if ((spell->IsPositive() || spell->IsHealingSpell())
         &&(!IsHostileTo(victim)))  // prevent from affecting enemy by "positive" spell
         return SPELL_MISS_NONE;
     // Check for immune
@@ -12072,7 +12072,8 @@ void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 
             l_InitialDamage /= 2;
     }
 
-    for (uint8 l_Idx = 0; l_Idx < ProcTimesMultistrike(p_ProcSpell, p_Target); l_Idx++)
+    uint8 l_ProcTimes = ProcTimesMultistrike(p_ProcSpell, p_Target);
+    for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
     {
         bool l_IsCrit = false;
 
@@ -14687,6 +14688,7 @@ void Unit::setDeathState(DeathState s)
 
         StopMoving();
         ExitVehicle();
+
         UnsummonAllTotems();
         RemoveAllControlled();
         RemoveAllAurasOnDeath();
@@ -16566,7 +16568,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     /// Multistrike...
     int32 l_TotalDamage = damage + absorb;
     if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL) &&
-        l_TotalDamage && target && GetSpellModOwner() && !(procSpell && !procSpell->IsPositive() && target->GetGUID() == GetGUID()))
+        l_TotalDamage && target && GetSpellModOwner() && !(procSpell && (!procSpell->IsPositive() && !procSpell->IsHealingSpell()) && target->GetGUID() == GetGUID()))
         {
         /// ...grants your spells, abilities, and auto-attacks...
         if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
