@@ -711,7 +711,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
 
         WorldPacket data;
         player->BuildPlayerChat(&data, nullptr, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);
-        SendToAll(&data, !m_Players[p].IsModerator() ? p : false);
+        SendToAll(&data, !m_Players[p].IsModerator() ? p : false, p);
 
         if (IsWorld())
         {
@@ -852,12 +852,17 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
     }
 }
 
-void Channel::SendToAll(WorldPacket* data, uint64 p)
+void Channel::SendToAll(WorldPacket* data, uint64 p, uint64 p_SenderGUID)
 {
     uint32 l_SenderLocaleMask = 0;
 
-    if ((IsWorld() || IsConstant()) && p && m_Players.find(p) != m_Players.end())
-        l_SenderLocaleMask = m_Players[p].LocaleFilter;
+    if ((IsWorld() || IsConstant()) && p_SenderGUID && m_Players.find(p_SenderGUID) != m_Players.end())
+    {
+        if (Player* l_Player = ObjectAccessor::FindPlayer(p_SenderGUID))
+            l_SenderLocaleMask = 1 << (l_Player->GetSession()->GetSessionDbLocaleIndex() + 1);
+        else
+            l_SenderLocaleMask = m_Players[p_SenderGUID].LocaleFilter;
+    }
 
     m_Lock.acquire();
     for (PlayerList::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
@@ -867,7 +872,7 @@ void Channel::SendToAll(WorldPacket* data, uint64 p)
         {
             if (!p || !player->GetSocial()->HasIgnore(GUID_LOPART(p)))
             {
-                if ((IsWorld() || IsConstant()) && (m_Players[player->GetGUID()].LocaleFilter & l_SenderLocaleMask) != 0)
+                if ((IsWorld() || IsConstant()) && (i->second.LocaleFilter & l_SenderLocaleMask) != 0)
                     player->GetSession()->SendPacket(data);
                 else if (!(IsWorld() || IsConstant()))
                     player->GetSession()->SendPacket(data);
