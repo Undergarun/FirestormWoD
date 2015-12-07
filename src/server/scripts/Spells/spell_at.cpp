@@ -206,7 +206,7 @@ class spell_at_druid_ursol_vortex : public AreaTriggerEntityScript
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_NewTargetList;
-            float l_Radius = 8.0f;
+            float l_Radius = 3.5f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
@@ -229,6 +229,7 @@ class spell_at_druid_ursol_vortex : public AreaTriggerEntityScript
                         l_Target->CastSpell(p_AreaTrigger, eSpells::VortexJump, true);
                     else
                     {
+                        l_Target->RemoveAura(eSpells::VortexSnare);
                         l_It = m_TargetList.erase(l_It);
                         continue;
                     }

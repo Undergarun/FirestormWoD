@@ -1466,6 +1466,8 @@ void World::LoadConfigSettings(bool reload)
 
     m_int_configs[CONFIG_SPELLOG_FLAGS] = ConfigMgr::GetIntDefault("SpellLog.Flags", SPELLLOG_OUTPUT_FLAG_PLAYER);
 
+    sReporter->SetActiveState(ConfigMgr::GetBoolDefault("Reporting.Enabled", false));
+
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }

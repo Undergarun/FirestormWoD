@@ -366,8 +366,12 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Psychic Horror -- 64044
             if (spellproto->SpellFamilyFlags[2] & 0x2000)
                 return DIMINISHING_INCAPACITATE;
+
             /// Shackle Undead -- 9484
             if (spellproto->Id == 9484)
+                return DIMINISHING_DISORIENT;
+            /// Sin and Punishment -- 87204
+            if (spellproto->Id == 87204)
                 return DIMINISHING_DISORIENT;
 
             // Psychic Scream -- 8122
@@ -3469,6 +3473,24 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
+            case 163661: ///< Cho'gall Night
+                spellInfo->EffectCount = 2;
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_PHASE;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_1].MiscValue = 2;
+                break;
+            case 51460:  ///< Runic Corruption
+                spellInfo->EffectCount = 1;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_3].Effect = 0;
+                spellInfo->Effects[EFFECT_3].ApplyAuraName = 0;
+                spellInfo->Effects[EFFECT_4].Effect = 0;
+                spellInfo->Effects[EFFECT_4].ApplyAuraName = 0;
+                break;
             case 168178: ///< Salvage (garrison loot spell)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
                 break;
@@ -6732,11 +6754,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 169092: ///< Temporal Crystal
                 spellInfo->Effects[EFFECT_0].ItemType = 0;
                 break;
+            case 124280:// Touch of Karma (DoT)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
             case 49016: // Unholy Frenzy
             case 87023: // Cauterize
             case 110914:// Dark Bargain (DoT)
             case 113344:// Bloodbath (DoT)
-            case 124280:// Touch of Karma (DoT)
             case 148022:// Icicle hit
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
                 break;

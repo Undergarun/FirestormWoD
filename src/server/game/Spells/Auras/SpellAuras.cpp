@@ -1341,7 +1341,8 @@ bool Aura::IsDeathPersistent() const
 
 bool Aura::CanBeSaved() const
 {
-    if (GetId() == 54637)
+    /// Blood of the North and Cho'gall Night (for phase handling)
+    if (GetId() == 54637 || GetId() == 163661)
         return true;
 
     if (IsPassive())

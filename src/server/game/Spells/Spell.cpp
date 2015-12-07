@@ -599,7 +599,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     // Patch 1.2 notes: Spell Reflection no longer reflects abilities
     m_canReflect = m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !(m_spellInfo->Attributes & SPELL_ATTR0_ABILITY)
         && !(m_spellInfo->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED) && !(m_spellInfo->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
-        && !m_spellInfo->IsPassive() && !m_spellInfo->IsPositive();
+        && !m_spellInfo->IsPassive() && !m_spellInfo->IsHealingSpell() && !m_spellInfo->IsPositive();
 
     CleanupTargetList();
     m_effectExecuteData.clear();
@@ -7657,8 +7657,17 @@ SpellCastResult Spell::CheckItems()
                 if (!targetItem)
                     return SPELL_FAILED_ITEM_NOT_FOUND;
 
-                if (targetItem->GetTemplate()->ItemLevel < m_spellInfo->BaseLevel)
+                uint32 l_ItemLevel = 0;
+                if (Player* l_Owner = targetItem->GetOwner())
+                    l_ItemLevel = l_Owner->GetEquipItemLevelFor(targetItem->GetTemplate(), targetItem);
+                else
+                    l_ItemLevel = targetItem->GetTemplate()->ItemLevel;
+
+                if (l_ItemLevel < m_spellInfo->BaseLevel)
                     return SPELL_FAILED_LOWLEVEL;
+
+                if (l_ItemLevel > m_spellInfo->MaxLevel)
+                    return SPELL_FAILED_HIGHLEVEL;
 
                 bool isItemUsable = false;
                 for (uint8 e = 0; e < MAX_ITEM_PROTO_SPELLS; ++e)

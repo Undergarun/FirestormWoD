@@ -43,6 +43,7 @@ INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, Condi
 (13, 1, 175088, 31, 0, 3, 87595);
 
 UPDATE creature_template SET modelid1 = 38795, modelid2 = 0, ScriptName = 'npc_foundry_spinning_blade' WHERE entry = 88008;
+UPDATE creature_template SET minlevel = 101, maxlevel = 101, faction = 14, ScriptName = 'npc_foundry_living_flames' WHERE entry = 87993;
 
 SET @REF_GRUUL = 76877;
 
