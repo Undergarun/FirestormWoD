@@ -169,7 +169,7 @@ void Channel::CleanOldChannelsInDB()
 /// @p_Player : Player instance to update
 void Channel::UpdateChatLocaleFiltering(Player* p_Player)
 {
-    if (!IsWorld() || !p_Player)
+    if (!(IsWorld() || IsConstant()) || !p_Player)
         return;
 
     if (m_Players.find(p_Player->GetGUID()) == m_Players.end())
@@ -236,7 +236,7 @@ void Channel::Join(uint64 p, const char *pass)
     pinfo.flags = MEMBER_FLAG_NONE;
     pinfo.LocaleFilter = 0xFFFFFFFF;
 
-    if (IsWorld() && !player->GetSession()->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
+    if ((IsWorld() || IsConstant()) && !player->GetSession()->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
     {
         pinfo.LocaleFilter = 1 << (player->GetSession()->GetSessionDbLocaleIndex() + 1);
     }
@@ -856,7 +856,7 @@ void Channel::SendToAll(WorldPacket* data, uint64 p)
 {
     uint32 l_SenderLocaleMask = 0;
 
-    if (IsWorld() && p && m_Players.find(p) != m_Players.end())
+    if ((IsWorld() || IsConstant()) && p && m_Players.find(p) != m_Players.end())
         l_SenderLocaleMask = m_Players[p].LocaleFilter;
 
     m_Lock.acquire();
@@ -867,9 +867,9 @@ void Channel::SendToAll(WorldPacket* data, uint64 p)
         {
             if (!p || !player->GetSocial()->HasIgnore(GUID_LOPART(p)))
             {
-                if (IsWorld() && (m_Players[player->GetGUID()].LocaleFilter & l_SenderLocaleMask) != 0)
+                if ((IsWorld() || IsConstant()) && (m_Players[player->GetGUID()].LocaleFilter & l_SenderLocaleMask) != 0)
                     player->GetSession()->SendPacket(data);
-                else if (!IsWorld())
+                else if (!(IsWorld() || IsConstant()))
                     player->GetSession()->SendPacket(data);
             }
         }

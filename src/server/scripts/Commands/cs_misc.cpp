@@ -140,7 +140,7 @@ class misc_commandscript: public CommandScript
             WorldSession* l_PlayerSession = p_Handler->GetSession();
 
             if (!l_PlayerSession)
-                return;
+                return true;
 
             if (l_PlayerSession->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
             {
@@ -155,6 +155,8 @@ class misc_commandscript: public CommandScript
 
             if (l_PlayerSession->GetPlayer())
                 l_PlayerSession->GetPlayer()->UpdateChatLocaleFiltering();
+
+            return true;
         }
 
         static bool HandleWargameCommand(ChatHandler* p_Handler, char const* p_Args)
