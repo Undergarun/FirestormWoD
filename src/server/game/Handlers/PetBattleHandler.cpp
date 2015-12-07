@@ -243,7 +243,7 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* p_Battle)
                 if (l_Pet->Abilities[l_CurrentAbilitySlot])
                 {
                     l_Packet << uint32(l_Pet->Abilities[l_CurrentAbilitySlot]);
-                    l_Packet << uint16(l_Pet->Cooldowns[l_CurrentAbilitySlot]);
+                    l_Packet << uint16(0/*l_Pet->Cooldowns[l_CurrentAbilitySlot]*/);    ///< Sending cooldown at -1 make client disable it
                     l_Packet << uint16(l_Pet->Lockdowns[l_CurrentAbilitySlot]);
                     l_Packet << uint8(l_CurrentAbilitySlot);
                     l_Packet << uint8(l_Pet->ID);
