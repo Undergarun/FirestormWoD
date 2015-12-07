@@ -3472,6 +3472,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155200: ///< Burn (Slag Elemental)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            case 156324: ///< Acid Torrent (AoE)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 163661: ///< Cho'gall Night
                 spellInfo->EffectCount = 2;
