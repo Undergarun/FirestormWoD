@@ -129,9 +129,32 @@ class misc_commandscript: public CommandScript
                 { "playall",            SEC_GAMEMASTER,     false,  &HandlePlayAllCommand,          "", NULL },
                 { "selectfaction",      SEC_ADMINISTRATOR,  false,  &HandleSelectFactionCommand,    "", NULL },
                 { "wargame",            SEC_GAMEMASTER,     false,  &HandleWargameCommand,          "", NULL },
+                { "chatfilter",         SEC_PLAYER,         false,  &HandleToggleChatFiltering,     "", NULL },
                 { NULL,                 0,                  false,  NULL,                           "", NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleToggleChatFiltering(ChatHandler* p_Handler, char const* p_Args)
+        {
+            WorldSession* l_PlayerSession = p_Handler->GetSession();
+
+            if (!l_PlayerSession)
+                return;
+
+            if (l_PlayerSession->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
+            {
+                l_PlayerSession->UnsetServiceFlags(ServiceFlags::NoChatLocaleFiltering);
+                p_Handler->SendSysMessage(LANG_CHANNEL_CHAT_LOCALE_FILTERING_OFF);
+            }
+            else
+            {
+                l_PlayerSession->SetServiceFlags(ServiceFlags::NoChatLocaleFiltering);
+                p_Handler->SendSysMessage(LANG_CHANNEL_CHAT_LOCALE_FILTERING_ON);
+            }
+
+            if (l_PlayerSession->GetPlayer())
+                l_PlayerSession->GetPlayer()->UpdateChatLocaleFiltering();
         }
 
         static bool HandleWargameCommand(ChatHandler* p_Handler, char const* p_Args)

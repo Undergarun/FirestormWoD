@@ -7702,6 +7702,17 @@ void Player::CleanupChannels()
     sLog->outDebug(LOG_FILTER_CHATSYS, "Player: channels cleaned up!");
 }
 
+void Player::UpdateChatLocaleFiltering()
+{
+    for (auto l_It = m_channels.begin(); l_It != m_channels.end(); ++l_It)
+    {
+        Channel* l_Channel = (*l_It);
+
+        if (l_Channel)
+            l_Channel->UpdateChatLocaleFiltering(this);
+    }
+}
+
 void Player::UpdateLocalChannels(uint32 newZone)
 {
     if (GetSession()->PlayerLoading() && !IsBeingTeleportedFar())

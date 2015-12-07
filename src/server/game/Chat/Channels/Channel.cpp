@@ -165,6 +165,22 @@ void Channel::CleanOldChannelsInDB()
     }
 }
 
+/// Update world chat locale filtering for a specific player
+/// @p_Player : Player instance to update
+void Channel::UpdateChatLocaleFiltering(Player* p_Player)
+{
+    if (!IsWorld() || !p_Player)
+        return;
+
+    if (m_Players.find(p_Player->GetGUID()) == m_Players.end())
+        return;
+
+    if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
+        m_Players[p_Player->GetGUID()].LocaleFilter = 0xFFFFFFFF;
+    else
+        m_Players[p_Player->GetGUID()].LocaleFilter = 1 << (p_Player->GetSession()->GetSessionDbLocaleIndex() + 1);
+}
+
 void Channel::Join(uint64 p, const char *pass)
 {
     WorldPacket data;
@@ -218,6 +234,12 @@ void Channel::Join(uint64 p, const char *pass)
     PlayerInfo pinfo;
     pinfo.player = p;
     pinfo.flags = MEMBER_FLAG_NONE;
+    pinfo.LocaleFilter = 0xFFFFFFFF;
+
+    if (IsWorld() && !player->GetSession()->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
+    {
+        pinfo.LocaleFilter = 1 << (player->GetSession()->GetSessionDbLocaleIndex() + 1);
+    }
 
     m_Lock.acquire();
     m_Players[p] = pinfo;
@@ -832,6 +854,11 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
 
 void Channel::SendToAll(WorldPacket* data, uint64 p)
 {
+    uint32 l_SenderLocaleMask = 0;
+
+    if (IsWorld() && p && m_Players.find(p) != m_Players.end())
+        l_SenderLocaleMask = m_Players[p].LocaleFilter;
+
     m_Lock.acquire();
     for (PlayerList::const_iterator i = m_Players.begin(); i != m_Players.end(); ++i)
     {
@@ -839,7 +866,12 @@ void Channel::SendToAll(WorldPacket* data, uint64 p)
         if (player)
         {
             if (!p || !player->GetSocial()->HasIgnore(GUID_LOPART(p)))
-                player->GetSession()->SendPacket(data);
+            {
+                if (IsWorld() && (m_Players[player->GetGUID()].LocaleFilter & l_SenderLocaleMask) != 0)
+                    player->GetSession()->SendPacket(data);
+                else if (!IsWorld())
+                    player->GetSession()->SendPacket(data);
+            }
         }
     }
     m_Lock.release();

@@ -120,12 +120,21 @@ enum ChannelMemberFlags
     // 0x80
 };
 
+class Player;
+
 class Channel
 {
     struct PlayerInfo
     {
         uint64 player;
         uint8 flags;
+        uint32 LocaleFilter;
+
+        PlayerInfo()
+            : LocaleFilter(0xFFFFFFFF)
+        {
+
+        }
 
         bool HasFlag(uint8 flag) const { return flags & flag; }
         void SetFlag(uint8 flag) { if (!HasFlag(flag)) flags |= flag; }
@@ -290,6 +299,11 @@ class Channel
         void LeaveNotify(uint64 guid);                                          // invisible notify
         void SetOwnership(bool ownership) { m_ownership = ownership; };
         static void CleanOldChannelsInDB();
+
+        /// Update world chat locale filtering for a specific player
+        /// @p_Player : Player instance to update
+        void UpdateChatLocaleFiltering(Player* p_Player);
+
 };
 #endif
 
