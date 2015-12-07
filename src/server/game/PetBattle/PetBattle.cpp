@@ -1475,7 +1475,7 @@ PetBattleCastResult PetBattle::Cast(uint32 p_CasterPetID, uint32 p_AbilityID, ui
         return PETBATTLE_CAST_INVALID_ID;
 
     // States
-    if (!p_Turn)
+    if (!p_Turn && p_TriggerFlag == PETBATTLE_CAST_TRIGGER_NONE)
     {
         for (uint32 l_AbilityStateId = 0; l_AbilityStateId != sBattlePetAbilityStateStore.GetNumRows(); ++l_AbilityStateId)
         {
