@@ -14,11 +14,12 @@
 #include "GarrisonMgr.hpp"
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
-#include "Buildings/Alliance/Medium/ABarn.hpp"
-#include "Buildings/Alliance/Medium/ALumberMill.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
+#include "Buildings/Alliance/Large/AMageTower.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 #include "Buildings/Alliance/Medium/ALunarfallInn.hpp"
+#include "Buildings/Alliance/Medium/ABarn.hpp"
+#include "Buildings/Alliance/Medium/ALumberMill.hpp"
 #include "Buildings/Alliance/Small/ATheForge.hpp"
 #include "Buildings/Alliance/Small/ATailoringEmporium.hpp"
 #include "Buildings/Alliance/Small/AAlchemyLab.hpp"
@@ -32,6 +33,7 @@
 #include "Buildings/Alliance/AHerbGarden.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
+#include "Buildings/Horde/Large/HSpiritLodge.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
 #include "Buildings/Horde/Medium/HBarn.hpp"
 #include "Buildings/Horde/Medium/HLumberMill.hpp"
@@ -654,6 +656,9 @@ void AddSC_Garrison_NPC()
 
         /// Lunarfall Inn
         new MS::Garrison::npc_MadisonClark;
+
+        /// Mage Tower
+        new MS::Garrison::npc_ApprenticeVarNath;
     }
 
     /// Horde
@@ -723,5 +728,8 @@ void AddSC_Garrison_NPC()
 
         /// Frostwall Tavern
         new MS::Garrison::npc_Murg;
+
+        /// Spirit Lodge
+        new MS::Garrison::npc_Varsha;
     }
 }

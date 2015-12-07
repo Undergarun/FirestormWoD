@@ -89,6 +89,8 @@ namespace MS { namespace Garrison
             Alliance_TurningTimberIntoProfit            = 36192,
             /// Lunar Fall Excavation
             Alliance_ThingsAreNotGorenOurWay            = 34192,
+            /// Mage Tower
+            Alliance_PortablePortals                    = 38354,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -114,7 +116,9 @@ namespace MS { namespace Garrison
             Horde_TurningTimberIntoProfit               = 36138,
             /// Frostwall Mines
             Horde_ThingsAreNotGorenOurWay               = 35154,
-            Horde_MissionProbable                       = 34775
+            Horde_MissionProbable                       = 34775,
+            /// Spirit Lodge
+            Horde_PortablePortals                       = 38351
         };
     }   ///< namespace Quests
 
@@ -241,7 +245,8 @@ namespace MS { namespace Garrison
     enum ObjectIDs
     {
         TimberWorkOrderAlly  = 37548,
-        TimberWorkOrderHorde = 37487
+        TimberWorkOrderHorde = 37487,
+        FirstMageTowerSpiritLodgeObjectID = 91574
     };
 
     /// Garrison creation coords

@@ -764,7 +764,7 @@ struct GarrFollowerEntry
     uint32 Unk8;                                                    ///< 13
     uint32 Flags;                                                   ///< 14
     char * HordeSourceText;                                         ///< 15     Descr1 : zoneH (where you find this follower)
-    char * AllinaceSourceText;                                      ///< 16     Descr2 : zoneA (where you find this follower)
+    char * AllianceSourceText;                                      ///< 16     Descr2 : zoneA (where you find this follower)
     int32  Unk10;                                                   ///< 17     H
     int32  Unk11;                                                   ///< 18     A
     uint32 HordePortraitIconID;                                     ///< 19
