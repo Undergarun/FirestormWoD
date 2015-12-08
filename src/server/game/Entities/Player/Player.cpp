@@ -30822,30 +30822,26 @@ void Player::SendRefundInfo(Item* p_Item)
     GetSession()->SendPacket(&l_Data);
 }
 
-bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
+bool Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuses)
 {
-    uint32 _noSpaceForCount = 0;
-    ItemPosCountVec dest;
-    InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &_noSpaceForCount);
-    if (msg != EQUIP_ERR_OK)
-        count -= _noSpaceForCount;
+    ItemPosCountVec l_Dest;
+    InventoryResult l_Message = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, p_ItemId, p_Count);
 
-    if (noSpaceForCount)
-        *noSpaceForCount = _noSpaceForCount;
-
-    if (count == 0 || dest.empty())
-    {
-        // -- TODO: Send to mailbox if no space
-        ChatHandler(this).PSendSysMessage("You don't have any space in your bags.");
+    if (l_Message != EQUIP_ERR_OK)
         return false;
+
+    Item* l_Item = StoreNewItem(l_Dest, p_ItemId, true, Item::GenerateItemRandomPropertyId(p_ItemId));
+    if (l_Item)
+    {
+        for (auto l_Bonus : p_Bonuses)
+            l_Item->AddItemBonus(l_Bonus);
+
+        SendNewItem(l_Item, p_Count, true, false);
+
+        return true;
     }
 
-    Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-    if (item)
-        SendNewItem(item, count, true, false);
-    else
-        return false;
-    return true;
+    return false;
 }
 
 void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_ExtendedCost, uint8 p_Error)
@@ -31737,114 +31733,6 @@ void Player::HandleStoreTitleCallback(PreparedQueryResult p_Result)
 
 void Player::HandleStoreItemCallback(PreparedQueryResult result)
 {
-    PreparedStatement* stmt;
-    if (result)
-    {
-        uint32 ShopError = 0;
-        do
-        {
-            Field* field        = result->Fetch();
-            uint32 ShopItemid   = field[0].GetUInt32();
-            uint32 ShopCount    = field[1].GetUInt32();
-            uint32 transaction  = field[2].GetUInt32();
-
-            uint32 noSpaceForCount = 0;
-
-            // Special item, gold add 200001 - 200006
-            if (ShopItemid > 200000)
-            {
-                uint32 po = 0;
-                switch (ShopItemid)
-                {
-                    case 200001: // 150k gold
-                        po = 1500000000;
-                        break;
-                    case 200002: // 80k gold
-                        po = 800000000;
-                        break;
-                    case 200003: // 30k gold
-                        po = 300000000;
-                        break;
-                    case 200004: // 10k gold
-                        po = 100000000;
-                        break;
-                    case 200005: // 5k gold
-                        po = 50000000;
-                        break;
-                    case 200006: // 1k gold
-                        po = 10000000;
-                        break;
-                    default:
-                        po = 0;
-                        break;
-                }
-
-                if ((GetMoney() + po) > MAX_MONEY_AMOUNT)
-                {
-                    std::string message = GetSession()->GetSessionDbcLocale() == LOCALE_frFR ? "Vous avez déjà atteint la limite de pièces d'or" : "You have already reach max amount of gold";
-                    GetSession()->SendNotification(message.c_str());
-                }
-                else
-                {
-                    ModifyMoney(po);
-
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_ITEM);
-                    stmt->setInt32(0, transaction);
-                    CharacterDatabase.Execute(stmt);
-
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BOUTIQUE_ITEM_LOG);
-                    stmt->setInt32(0, transaction);
-                    stmt->setInt32(1, GetGUIDLow());
-                    stmt->setInt32(2, ShopItemid);
-                    stmt->setInt32(3, ShopCount);
-                    CharacterDatabase.Execute(stmt);
-                }
-            }
-            else
-            {
-                // noSpaceForCount > 0 = il reste des items a ajouter
-                if (AddItem(ShopItemid, ShopCount, &noSpaceForCount) && !noSpaceForCount)
-                {
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_ITEM);
-                    stmt->setInt32(0, transaction);
-                    CharacterDatabase.Execute(stmt);
-
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BOUTIQUE_ITEM_LOG);
-                    stmt->setInt32(0, transaction);
-                    stmt->setInt32(1, GetGUIDLow());
-                    stmt->setInt32(2, ShopItemid);
-                    stmt->setInt32(3, ShopCount);
-                    CharacterDatabase.Execute(stmt);
-                }
-                else
-                {
-
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_BOUTIQUE_ITEM);
-                    stmt->setInt32(0, noSpaceForCount);
-                    stmt->setInt32(1, transaction);
-                    CharacterDatabase.Execute(stmt);
-
-                    uint32 itemAdded = ShopCount - noSpaceForCount;
-
-                    if (itemAdded)
-                    {
-                        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BOUTIQUE_ITEM_LOG);
-                        stmt->setInt32(0, transaction);
-                        stmt->setInt32(1, GetGUIDLow());
-                        stmt->setInt32(2, ShopItemid);
-                        stmt->setInt32(3, ShopCount);
-                        CharacterDatabase.Execute(stmt);
-                    }
-
-                    ShopError++;
-                }
-            }
-        }
-        while(result->NextRow());
-
-        if (ShopError)
-            GetSession()->SendNotification(GetSession()->GetSessionDbcLocale() == LOCALE_frFR ? "Verifiez que vous avez assez de place dans votre inventaire." : "Check if you have free slot in your inventory");
-    }
 }
 
 void Player::HandleStoreLevelCallback(PreparedQueryResult result)

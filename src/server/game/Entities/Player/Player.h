@@ -1933,7 +1933,7 @@ class Player : public Unit, public GridObject<Player>
         void LoadCorpse();
         void LoadPet(PreparedQueryResult result);
 
-        bool AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount = NULL);
+        bool AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuses = {});
 
         uint32 m_stableSlots;
 
