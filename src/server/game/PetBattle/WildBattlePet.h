@@ -31,8 +31,6 @@
 
 class Creature;
 
-#define BREED_SIZE 10
-
 struct WildBattlePetPoolTemplate
 {
     uint32 Species;
@@ -42,7 +40,7 @@ struct WildBattlePetPoolTemplate
     uint32 RespawnTime;
     uint32 MinLevel;
     uint32 MaxLevel;
-    uint32 Breeds[BREED_SIZE];
+    uint32 Breeds[10];
 
     std::list<uint64>            ToBeReplaced;
     std::list<uint64>            Replaced;

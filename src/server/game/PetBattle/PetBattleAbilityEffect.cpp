@@ -101,7 +101,7 @@ static PetBattleAbilityEffectHandler Handlers[MAX_PETBATTLE_EFFECT_TYPES] =
     /* EFFECT 65  */{&PetBattleAbilityEffect::HandleDamageStateBonus,           PETBATTLE_TARGET_TARGET},
     /* EFFECT 66  */{&PetBattleAbilityEffect::HandleDamageRuthless,             PETBATTLE_TARGET_TARGET},
     /* EFFECT 67  */{&PetBattleAbilityEffect::HandleEqualizeLife,               PETBATTLE_TARGET_TARGET},
-    /* EFFECT 68  */{&PetBattleAbilityEffect::HandleDamageCasterPercent,        PETBATTLE_TARGET_TARGET},
+    /* EFFECT 68  */{&PetBattleAbilityEffect::HandleDamageCasterPercent,        PETBATTLE_TARGET_CASTER},
     /* EFFECT 69  */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 70  */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 71  */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
@@ -204,7 +204,7 @@ static PetBattleAbilityEffectHandler Handlers[MAX_PETBATTLE_EFFECT_TYPES] =
     /* EFFECT 168 */{&PetBattleAbilityEffect::HandleNegativeAura,               PETBATTLE_TARGET_TARGET},
     /* EFFECT 169 */{&PetBattleAbilityEffect::HandleStateDamage,                PETBATTLE_TARGET_HEAD},
     /* EFFECT 170 */{&PetBattleAbilityEffect::HandleWeatherDamage,              PETBATTLE_TARGET_TARGET},
-    /* EFFECT 171 */{&PetBattleAbilityEffect::HandleHealOnSpecificWeather,      PETBATTLE_TARGET_TARGET},
+    /* EFFECT 171 */{&PetBattleAbilityEffect::HandleHealOnSpecificWeather,      PETBATTLE_TARGET_CASTER},
     /* EFFECT 172 */{&PetBattleAbilityEffect::HandleAuraCondAccuracyState,      PETBATTLE_TARGET_TARGET},
     /* EFFECT 173 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 174 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
@@ -254,12 +254,12 @@ uint32 PetBattleAbilityEffect::GetPetType()
     return BATTLEPET_PETTYPE_HUMANOID;
 }
 
-bool PetBattleAbilityEffect::Damage(uint32 l_Target, int32 l_Damage)
+bool PetBattleAbilityEffect::Damage(uint32 l_Target, int32 l_Damage, bool p_CantBeAvoidBlockedDodged)
 {
     if (!(Flags & FailFlags) && l_Damage <= 0)
         Flags |= PETBATTLE_EVENT_FLAG_MISS;
 
-    if (!(Flags & FailFlags))
+    if (!(Flags & FailFlags) && !p_CantBeAvoidBlockedDodged)
     {
         for (uint32 l_PetID = 0; l_PetID < (MAX_PETBATTLE_SLOTS * MAX_PETBATTLE_TEAM); ++l_PetID)
         {
@@ -747,20 +747,20 @@ bool PetBattleAbilityEffect::HandleDamage()
     if (EffectInfo->prop[2])
         Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
 
-    return Damage(Target, CalculateDamage(EffectInfo->prop[0]));
+    return Damage(Target, CalculateDamage(EffectInfo->prop[0]), EffectInfo->prop[2]);
 }
 
 bool PetBattleAbilityEffect::HandleWitchingDamage()
 {
     CalculateHit(EffectInfo->prop[1]);
 
-    if (EffectInfo->prop[2])
-        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
-
     /// Witching
-    int32 l_Damage = EffectInfo->prop[0];
+    int32 l_Damage        = EffectInfo->prop[0];
+    int32 l_CasterHealPct = (GetHealth(Caster) * 100) / GetMaxHealth(Caster);
 
-    if (GetHealth(Caster) * 100 / GetMaxHealth(Caster) < EffectInfo->prop[2])
+    if (EffectInfo->prop[2] && l_CasterHealPct < EffectInfo->prop[2])
+        l_Damage *= 2;
+    else if (GetHealth(Target) > GetHealth(Caster))                     ///< http://fr.wowhead.com/petability=253/repliquer
         l_Damage *= 2;
 
     return Damage(Target, CalculateDamage(l_Damage));
@@ -768,19 +768,21 @@ bool PetBattleAbilityEffect::HandleWitchingDamage()
 
 bool PetBattleAbilityEffect::HandleStateDamage()
 {
-    // State
-    if (!GetState(Caster, EffectInfo->prop[2]))
-        return false;
-
-    if (!GetState(Target, EffectInfo->prop[3]))
+    /// In some case, proc only if caster state prop[2] is on
+    if (EffectInfo->prop[2] != 0 && !GetState(Caster, EffectInfo->prop[2]))
         return false;
 
     if (EffectInfo->prop[4])
         Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
 
     CalculateHit(EffectInfo->prop[1]);
+    int32 l_Damage = CalculateDamage(EffectInfo->prop[0]);
 
-    return Damage(Target, CalculateDamage(EffectInfo->prop[0]));
+    /// Double base damage is the state in Prop[3] is on
+    if (EffectInfo->prop[3] != 0 && GetState(Target, EffectInfo->prop[3]) == 1)
+        l_Damage *= 2;
+
+    return Damage(Target, l_Damage);
 }
 
 bool PetBattleAbilityEffect::HandleSetState()
@@ -886,8 +888,6 @@ bool PetBattleAbilityEffect::HandleRampingDamage()
 
 bool PetBattleAbilityEffect::HandleHealLastHitTaken()
 {
-    uint32 flags = 0;
-
     CalculateHit(EffectInfo->prop[1]);
 
     // Recovery
@@ -897,21 +897,25 @@ bool PetBattleAbilityEffect::HandleHealLastHitTaken()
 
 bool PetBattleAbilityEffect::HandleRemoveAura()
 {
-    CalculateHit(EffectInfo->prop[0]);
+    /// Data for this effect are unknown so we assume 100% unaura 
+    ///CalculateHit(EffectInfo->prop[0]);
+    ///
+    ///if (!(Flags & FailFlags))
+    ///{
+    ///    for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); l_It++)
+    ///    {
+    ///        if (!(*l_It)->Expired && (*l_It)->TargetPetID == Target && (*l_It)->AbilityID == AbilityID)
+    ///        {
+    ///            /// Make aura expired
+    ///            (*l_It)->Expire(PetBattleInstance);
+    ///        }
+    ///    }
+    ///}
+    ///
+    ///return !(Flags & FailFlags);
 
-    if (!(Flags & FailFlags))
-    {
-        for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); l_It++)
-        {
-            if (!(*l_It)->Expired && (*l_It)->TargetPetID == Target && (*l_It)->AbilityID == AbilityID)
-            {
-                /// Make aura expired
-                (*l_It)->Expire(PetBattleInstance);
-            }
-        }
-    }
-
-    return !(Flags & FailFlags);
+    CalculateHit(100);
+    return true;
 }
 
 bool PetBattleAbilityEffect::HandleModState()
@@ -940,15 +944,39 @@ bool PetBattleAbilityEffect::HandlePositiveAura()
 
 bool PetBattleAbilityEffect::HandleHealPetType()
 {
-    BattlePetSpeciesEntry const* casterSpeciesInfo = sBattlePetSpeciesStore.LookupEntry(PetBattleInstance->Pets[Caster]->Species);
-    if (casterSpeciesInfo && casterSpeciesInfo->type != EffectInfo->prop[2])
-        return false;
-
-    BattlePetSpeciesEntry const* targetSpeciesInfo = sBattlePetSpeciesStore.LookupEntry(PetBattleInstance->Pets[Target]->Species);
-    if (targetSpeciesInfo && targetSpeciesInfo->type != EffectInfo->prop[3])
-        return false;
+    /// Handle only first effect of this type
+    /// Don't know how to handle it properly
+    /// http://wowhead.com/petability=533
+    /// http://wowhead.com/petability=922
+    if (EffectInfo->effectIndex != 2)
+        return true;
 
     CalculateHit(EffectInfo->prop[1]);
+
+    int32 l_ModPercent = CalculatePct(GetState(Caster, BATTLEPET_STATE_Stat_Power), 5);
+    l_ModPercent += GetState(Caster, BATTLEPET_STATE_Mod_HealingDealtPercent);
+
+    BattlePetSpeciesEntry const* l_BattlePetSpeciesEntry = sBattlePetSpeciesStore.LookupEntry(PetBattleInstance->Pets[Caster]->Species);
+    int32 l_CasterType = 0;
+    if (l_BattlePetSpeciesEntry)
+        l_CasterType = l_BattlePetSpeciesEntry->type;
+
+    uint32 l_Team = PetBattleInstance->Pets[Caster]->TeamID;
+
+    for (uint8 l_I = 0; l_I < (MAX_PETBATTLE_SLOTS * MAX_PETBATTLE_TEAM); ++l_I)
+    {
+        std::shared_ptr<BattlePetInstance> l_CurrentPet = PetBattleInstance->Pets[l_I];
+
+        if (l_CurrentPet && l_CurrentPet->TeamID == l_Team)
+        {
+            l_BattlePetSpeciesEntry = sBattlePetSpeciesStore.LookupEntry(l_CurrentPet->Species);
+            if (l_BattlePetSpeciesEntry && l_BattlePetSpeciesEntry->type == l_CasterType)
+            {
+                int32 l_Heal = (EffectInfo->prop[0] / 2) + CalculatePct((EffectInfo->prop[0] / 2), l_ModPercent + GetState(l_CurrentPet->ID, BATTLEPET_STATE_Mod_HealingTakenPercent));
+                Heal(l_CurrentPet->ID, l_Heal);
+            }
+        }
+    }
 
     return Heal(Target, CalculateHeal(EffectInfo->prop[0]));
 }
@@ -965,7 +993,7 @@ bool PetBattleAbilityEffect::HandleExtraAttackIfMoreFaster()
 
 bool PetBattleAbilityEffect::HandleHealState()
 {
-    if (!GetState(Caster, EffectInfo->prop[2]) || !GetState(Target, EffectInfo->prop[3]))
+    if (EffectInfo->prop[3] && !GetState(Target, EffectInfo->prop[3]))
         return false;
 
     CalculateHit(EffectInfo->prop[1]);
@@ -1004,12 +1032,20 @@ bool PetBattleAbilityEffect::HandleExtraAttackIfLessFaster()
 
 bool PetBattleAbilityEffect::HandleHealOnSpecificWeather()
 {
-    if (!GetState(Caster, EffectInfo->prop[2]) || !GetState(Target, EffectInfo->prop[3]))
+    int32 l_RequiredState = EffectInfo->prop[2];
+
+    if (l_RequiredState && !GetState(Caster, l_RequiredState))
         return false;
 
     CalculateHit(EffectInfo->prop[1]);
 
-    return Heal(Target, CalculateHeal(EffectInfo->prop[0]));
+    int32 l_HealBase = EffectInfo->prop[0];
+    int32 l_HealBonusOnStateID = EffectInfo->prop[3];
+
+    if (l_HealBonusOnStateID && GetState(Caster, l_HealBonusOnStateID))
+        l_HealBase *= 2;
+
+    return Heal(Target, CalculateHeal(l_HealBase));
 }
 
 bool PetBattleAbilityEffect::HandleWeatherAura()
@@ -1202,11 +1238,8 @@ bool PetBattleAbilityEffect::HandleDamageStateBonus()
 {
     CalculateHit(EffectInfo->prop[1]);
 
-    if (EffectInfo->prop[4])
-        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
-
     int32 damage = EffectInfo->prop[0];
-    if (GetState(Target, EffectInfo->prop[3]))
+    if (EffectInfo->prop[3] && GetState(Target, EffectInfo->prop[3]) == EffectInfo->prop[4])
         damage += EffectInfo->prop[2];
 
     return Damage(Target, CalculateDamage(damage));
@@ -1217,8 +1250,9 @@ bool PetBattleAbilityEffect::HandleDamageRuthless()
     CalculateHit(EffectInfo->prop[1]);
 
     int32 damage = EffectInfo->prop[0];
+    int32 l_TargetHealthPct = (GetHealth(Target) * 100) / GetMaxHealth(Target);
 
-    if (GetHealth(Target) * 100 / GetMaxHealth(Target) < 25)
+    if (l_TargetHealthPct < 25)
         damage += CalculatePct(damage, EffectInfo->prop[2]);
 
     return Damage(Target, CalculateDamage(damage));
@@ -1238,13 +1272,13 @@ bool PetBattleAbilityEffect::HandleEqualizeLife()
 
 bool PetBattleAbilityEffect::HandleDamageCasterPercent()
 {
+    if (EffectInfo->prop[2])
+        Target = GetActiveOpponent();
+
     CalculateHit(EffectInfo->prop[1]);
 
-    if (EffectInfo->prop[2])
-        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
-
     int32 damage = CalculateDamage(CalculatePct(GetMaxHealth(Caster), EffectInfo->prop[0]));
-    return Damage(Target, damage);
+    return Damage(Target, damage, true);
 }
 
 bool PetBattleAbilityEffect::HandleHealToggleAura()
@@ -1304,11 +1338,16 @@ bool PetBattleAbilityEffect::HandleResurect()
 
 bool PetBattleAbilityEffect::HandleKill()
 {
+    /// @TODO Figure out what to do with prop[1] & prop[3]
     CalculateHit(EffectInfo->prop[0]);
-    if (!Flags && (GetState(Caster, EffectInfo->prop[1]) || GetState(Target, EffectInfo->prop[2])))
-        Flags |= PETBATTLE_EVENT_FLAG_IMMUNE;
 
-    Kill(Target);
+    int32 l_ImmuneStateCondition = EffectInfo->prop[2];
+
+    if (!l_ImmuneStateCondition || !GetState(GetActiveOpponent(), l_ImmuneStateCondition))
+        Kill(GetActiveOpponent());
+
+    if (!l_ImmuneStateCondition || !GetState(Caster, l_ImmuneStateCondition))
+        Kill(Caster);
 
     return !(Flags & FailFlags);
 }
@@ -1361,9 +1400,8 @@ bool PetBattleAbilityEffect::HandleDamageHitState()
     if ((!EffectInfo->prop[2] || !GetState(Caster, EffectInfo->prop[2]))
         && (!EffectInfo->prop[3] || !GetState(Target, EffectInfo->prop[3])))
         CalculateHit(EffectInfo->prop[1]);
-
-    if (EffectInfo->prop[4])
-        Flags |= PETBATTLE_EVENT_FLAG_PERIODIC;
+    else
+        CalculateHit(200);
 
     return Damage(Target, CalculateDamage(EffectInfo->prop[0]));
 }
@@ -1386,7 +1424,13 @@ bool PetBattleAbilityEffect::HandleDamageAuraToggleAura()
 
 bool PetBattleAbilityEffect::HandleHealthConsume()
 {
-    return SetHealth(Target, GetHealth(Target) - CalculatePct(GetMaxHealth(Target), EffectInfo->prop[0]));
+    int32 l_HealthConsumePct = EffectInfo->prop[0];
+
+    /// Hotfix for http://wowhead.com/petability=758
+    if (AbilityID == 758)
+        l_HealthConsumePct = 50;
+
+    return SetHealth(Target, GetHealth(Target) - CalculatePct(GetMaxHealth(Target), l_HealthConsumePct));
 }
 
 bool PetBattleAbilityEffect::HandleSwap()

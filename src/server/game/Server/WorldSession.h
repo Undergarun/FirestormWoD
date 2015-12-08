@@ -178,7 +178,8 @@ namespace ServiceFlags
 {
     enum
     {
-        Premade = 0x1
+        Premade = 0x1,
+        NoChatLocaleFiltering = 0x2
     };
 }
 
@@ -490,6 +491,7 @@ class WorldSession
         uint32 GetVoteRemainingTime() const { return m_VoteRemainingTime; }
 
         void SetServiceFlags(uint32 p_Flags);
+        void UnsetServiceFlags(uint32 p_Flags);
         bool HasServiceFlags(uint32 p_Flags) const { return m_ServiceFlags & p_Flags; }
 
     public:                                                 // opcodes handlers
