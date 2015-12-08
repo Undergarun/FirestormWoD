@@ -4725,14 +4725,14 @@ class spell_gen_draenic_philosophers : public SpellScriptLoader
 
 /// last update : 6.1.2
 /// Jard's Peculiar Energy Source - 143743
-class spell_gen_jads_peculiar_energy_source : public SpellScriptLoader
+class spell_gen_jards_peculiar_energy_source : public SpellScriptLoader
 {
     public:
-        spell_gen_jads_peculiar_energy_source() : SpellScriptLoader("spell_gen_jads_peculiar_energy_source") { }
+        spell_gen_jards_peculiar_energy_source() : SpellScriptLoader("spell_gen_jards_peculiar_energy_source") { }
 
-        class spell_gen_jads_peculiar_energy_source_SpellScript : public SpellScript
+        class spell_gen_jards_peculiar_energy_source_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_jads_peculiar_energy_source_SpellScript);
+            PrepareSpellScript(spell_gen_jards_peculiar_energy_source_SpellScript);
 
             enum eSpells 
             {
@@ -4757,13 +4757,13 @@ class spell_gen_jads_peculiar_energy_source : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_gen_jads_peculiar_energy_source_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_gen_jards_peculiar_energy_source_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_gen_jads_peculiar_energy_source_SpellScript();
+            return new spell_gen_jards_peculiar_energy_source_SpellScript();
         }
 };
 
@@ -4815,7 +4815,7 @@ class spell_gen_power_handler : public PlayerScript
 
 void AddSC_generic_spell_scripts()
 {
-    new spell_gen_jads_peculiar_energy_source();
+    new spell_gen_jards_peculiar_energy_source();
     new spell_gen_draenic_philosophers();
     new spell_gen_shadowmeld();
     new spell_gen_mark_of_warsong();
