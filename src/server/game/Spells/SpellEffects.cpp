@@ -6081,6 +6081,8 @@ void Spell::EffectQuestClear(SpellEffIndex effIndex)
 
     player->RemoveActiveQuest(quest_id);
     player->RemoveRewardedQuest(quest_id);
+
+    sScriptMgr->OnQuestCleared(player, quest);
 }
 
 void Spell::EffectSendTaxi(SpellEffIndex effIndex)

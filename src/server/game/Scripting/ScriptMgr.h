@@ -771,6 +771,10 @@ class ScriptMgr
         /// @p_Player : Player instance
         /// @p_Quest  : Removed quest
         void OnQuestAbandon(Player* p_Player, Quest const* p_Quest);
+        /// Called when player has quest removed from questlog (active or rewarded)
+        /// @p_Player : Player instance
+        /// @p_Quest  : Removed quest
+        void OnQuestCleared(Player* p_Player, Quest const* p_Quest);
         /// Called when a player validates some quest objective
         /// @p_Player      : Player instance
         /// @p_QuestID     : Quest ID

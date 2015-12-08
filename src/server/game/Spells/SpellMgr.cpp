@@ -3375,6 +3375,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 182464: ///< Portal to Garrison
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             /// Blackrock Foundry
             ///////////////////////////////////////////////////////////////////////////////////
