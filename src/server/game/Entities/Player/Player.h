@@ -2708,6 +2708,7 @@ class Player : public Unit, public GridObject<Player>
         void JoinedChannel(Channel* c);
         void LeftChannel(Channel* c);
         void CleanupChannels();
+        void UpdateChatLocaleFiltering();
         void UpdateLocalChannels(uint32 newZone);
         void LeaveLFGChannel();
 

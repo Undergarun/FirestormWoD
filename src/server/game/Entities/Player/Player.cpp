@@ -7696,6 +7696,17 @@ void Player::CleanupChannels()
     sLog->outDebug(LOG_FILTER_CHATSYS, "Player: channels cleaned up!");
 }
 
+void Player::UpdateChatLocaleFiltering()
+{
+    for (auto l_It = m_channels.begin(); l_It != m_channels.end(); ++l_It)
+    {
+        Channel* l_Channel = (*l_It);
+
+        if (l_Channel)
+            l_Channel->UpdateChatLocaleFiltering(this);
+    }
+}
+
 void Player::UpdateLocalChannels(uint32 newZone)
 {
     if (GetSession()->PlayerLoading() && !IsBeingTeleportedFar())
@@ -32587,12 +32598,19 @@ void Player::ReloadPetBattles()
         BattlePet::Ptr l_Pet = (*l_It);
         l_Pet->Save(l_Transaction);
     }
+    
+    uint64 l_ThisGUID = GetGUID();
+    MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_ThisGUID](bool p_Success) -> void
+    {
+        if (Player* l_This = HashMapHolder<Player>::Find(l_ThisGUID))
+        {
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
+            stmt->setUInt32(0, l_This->GetSession()->GetAccountId());
+            l_This->_petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
+        }
+    });
 
-    LoginDatabase.CommitTransaction(l_Transaction);
-
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
-    stmt->setUInt32(0, GetSession()->GetAccountId());
-    _petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
+    LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
 }
 
 /// PetBattleCountBattleSpecies
