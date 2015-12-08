@@ -1241,6 +1241,17 @@ bool SpellInfo::HasAura(AuraType aura) const
     return false;
 }
 
+bool SpellInfo::HasAuraPositive(AuraType aura) const
+{
+    for (uint8 i = 0; i < EffectCount; ++i)
+    {
+        if (Effects[i].IsAura(aura) && IsPositiveEffect(i))
+            return true;
+    }
+   
+    return false;
+}
+
 bool SpellInfo::HasAreaAuraEffect() const
 {
     for (uint8 i = 0; i < EffectCount; ++i)
@@ -1498,16 +1509,16 @@ bool SpellInfo::IsHealingSpell() const
         || HasEffect(SPELL_EFFECT_HEAL_PCT)
         || HasEffect(SPELL_EFFECT_HEAL_MAX_HEALTH)
         || HasEffect(SPELL_EFFECT_HEAL)
-        || HasAura(SPELL_AURA_OBS_MOD_HEALTH)
-        || HasAura(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT)
-        || HasAura(SPELL_AURA_MOD_HEALING)
-        || HasAura(SPELL_AURA_MOD_HEALING_PCT)
-        || HasAura(SPELL_AURA_MOD_HEALING_DONE)
-        || HasAura(SPELL_AURA_MOD_HEALING_DONE_PERCENT)
-        || HasAura(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT)
-        || HasAura(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER)
-        || HasAura(SPELL_AURA_MOD_BASE_HEALTH_PCT)
-        || HasAura(SPELL_AURA_PERIODIC_HEAL));
+        || HasAuraPositive(SPELL_AURA_OBS_MOD_HEALTH)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALING)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALING_PCT)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALING_DONE)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALING_DONE_PERCENT)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT)
+        || HasAuraPositive(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER)
+        || HasAuraPositive(SPELL_AURA_MOD_BASE_HEALTH_PCT)
+        || HasAuraPositive(SPELL_AURA_PERIODIC_HEAL));
 }
 
 bool SpellInfo::IsShieldingSpell() const
