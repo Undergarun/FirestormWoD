@@ -4028,7 +4028,7 @@ void Spell::cast(bool skipCheck)
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
         {
             m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-            m_caster->GetSpellHistory()->RestoreCharge(m_spellInfo->ChargeCategoryEntry);
+            m_caster->ToPlayer()->RestoreCharge(m_spellInfo->ChargeCategoryEntry);
         }
     }
 
