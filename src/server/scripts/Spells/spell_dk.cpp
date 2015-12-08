@@ -886,6 +886,26 @@ class spell_dk_death_siphon: public SpellScriptLoader
 
                 int32 bp = GetHitDamage() * (GetSpellInfo()->Effects[EFFECT_1].BasePoints / 100);
                 l_Caster->CastCustomSpell(l_Caster, DK_SPELL_DEATH_SIPHON_HEAL, &bp, NULL, NULL, true);
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                int8 l_DeathRune = -1;
+
+                for (uint8 i = 0; i < MAX_RUNES; ++i)
+                {
+                    if (l_Player->GetRuneCooldown(i) && l_Player->GetCurrentRune(i) == RUNE_DEATH)
+                    {
+                        l_DeathRune = i;
+                        break;
+                    }
+                }
+
+                if (l_DeathRune == -1)
+                    return;
+
+                l_Player->RestoreBaseRune(uint8(l_DeathRune));
             }
 
             void Register()
