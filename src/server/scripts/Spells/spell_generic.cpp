@@ -4723,6 +4723,50 @@ class spell_gen_draenic_philosophers : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2
+/// Jard's Peculiar Energy Source - 143743
+class spell_gen_jads_peculiar_energy_source : public SpellScriptLoader
+{
+    public:
+        spell_gen_jads_peculiar_energy_source() : SpellScriptLoader("spell_gen_jads_peculiar_energy_source") { }
+
+        class spell_gen_jads_peculiar_energy_source_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_jads_peculiar_energy_source_SpellScript);
+
+            enum eSpells 
+            {
+                SkyGolem                    = 139192,
+                RascalBot                   = 143714,
+                Pierre                      = 139196,
+                AdvancedRefrigerationUnit   = 139197
+            };
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->learnSpell(eSpells::SkyGolem, false);
+                l_Player->learnSpell(eSpells::RascalBot, false);
+                l_Player->learnSpell(eSpells::Pierre, false);
+                l_Player->learnSpell(eSpells::AdvancedRefrigerationUnit, false);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_jads_peculiar_energy_source_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_jads_peculiar_energy_source_SpellScript();
+        }
+};
+
 /// Power handler
 /// Reset timer to correctly start decreasing power at 10 sec
 class spell_gen_power_handler : public PlayerScript
@@ -4771,6 +4815,7 @@ class spell_gen_power_handler : public PlayerScript
 
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_jads_peculiar_energy_source();
     new spell_gen_draenic_philosophers();
     new spell_gen_shadowmeld();
     new spell_gen_mark_of_warsong();
