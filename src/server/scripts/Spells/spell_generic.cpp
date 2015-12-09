@@ -4815,6 +4815,61 @@ public:
     }
 };
 
+/// last update : 6.1.2
+/// Hardened Magnificent Hide and Its Uses - 143644
+class spell_gen_hardened_magnificient_hide_and_its_uses : public SpellScriptLoader
+{
+public:
+    spell_gen_hardened_magnificient_hide_and_its_uses() : SpellScriptLoader("spell_gen_hardened_magnificient_hide_and_its_uses") { }
+    
+    class spell_gen_hardened_magnificient_hide_and_its_uses_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_hardened_magnificient_hide_and_its_uses_SpellScript);
+        
+        enum eSpells
+        {
+            HardenMagnificentHide               = 142976,
+            AcceleratedHardenMagnificentHide    = 146923,
+            GorgeStalkerBelt                    = 142966,
+            GorgeStalkerLegplates               = 142957,
+            KrasariProwlerBelt                  = 142962,
+            KrasariProwlerBritches              = 142953,
+            PennyroyalBelt                      = 142961,
+            PennyroyalLeggings                  = 142952,
+            SnowLilyBelt                        = 142965,
+            SnowLilyBritches                    = 142956
+        };
+        
+        void HandleOnHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            
+            if (l_Player == nullptr)
+                return;
+            
+            l_Player->learnSpell(eSpells::HardenMagnificentHide, false);
+            l_Player->learnSpell(eSpells::AcceleratedHardenMagnificentHide, false);
+            l_Player->learnSpell(eSpells::GorgeStalkerBelt, false);
+            l_Player->learnSpell(eSpells::GorgeStalkerLegplates, false);
+            l_Player->learnSpell(eSpells::KrasariProwlerBelt, false);
+            l_Player->learnSpell(eSpells::KrasariProwlerBritches, false);
+            l_Player->learnSpell(eSpells::PennyroyalBelt, false);
+            l_Player->learnSpell(eSpells::PennyroyalLeggings, false);
+            l_Player->learnSpell(eSpells::SnowLilyBelt, false);
+            l_Player->learnSpell(eSpells::SnowLilyBritches, false);
+        }
+        
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_gen_hardened_magnificient_hide_and_its_uses_SpellScript::HandleOnHit);
+        }
+    };
+    
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_hardened_magnificient_hide_and_its_uses_SpellScript();
+    }
+};
 
 /// Power handler
 /// Reset timer to correctly start decreasing power at 10 sec
@@ -4866,6 +4921,7 @@ void AddSC_generic_spell_scripts()
 {
     new spell_gen_jards_peculiar_energy_source();
     new spell_gen_celestial_cloth_and_its_uses();
+    new spell_gen_hardened_magnificient_hide_and_its_uses();
     new spell_gen_draenic_philosophers();
     new spell_gen_shadowmeld();
     new spell_gen_mark_of_warsong();

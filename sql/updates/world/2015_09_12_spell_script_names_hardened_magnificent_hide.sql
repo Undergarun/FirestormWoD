@@ -1,0 +1,2 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_gen_harden_magnificient_hide_and_its_uses';
+INSERT INTO `spell_script_names` VALUES (143644, 'spell_gen_harden_magnificient_hide_and_its_uses');
