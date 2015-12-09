@@ -4813,8 +4813,61 @@ class spell_gen_power_handler : public PlayerScript
         }
 };
 
+/// Alchemist's Flask - 105617
+enum alchemists_effects
+{
+    ALCHEMISTS_STRENGTH = 79638,
+    ALCHEMISTS_AGILITY = 79639,
+    ALCHEMISTS_INTELLECT = 79640
+};
+
+class spell_gen_alchemists_flask : public SpellScriptLoader
+{
+    public:
+        spell_gen_alchemists_flask() : SpellScriptLoader("spell_gen_alchemists_flask") { }
+
+        class spell_gen_alchemists_flask_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_alchemists_flask_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (!GetCaster())
+                    return;
+
+                if (!GetHitUnit())
+                    return;
+
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    int32 agility = _player->GetTotalStatValue(STAT_AGILITY);
+                    int32 strength = _player->GetTotalStatValue(STAT_STRENGTH);
+                    int32 intellect = _player->GetTotalStatValue(STAT_INTELLECT);
+
+                    if (intellect > agility && intellect > strength)
+                        _player->CastSpell(_player, ALCHEMISTS_INTELLECT, true);
+                    else if (agility > intellect && agility > strength)
+                        _player->CastSpell(_player, ALCHEMISTS_AGILITY, true);
+                    else
+                        _player->CastSpell(_player, ALCHEMISTS_STRENGTH, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_alchemists_flask_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_alchemists_flask_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_alchemists_flask();
     new spell_gen_jards_peculiar_energy_source();
     new spell_gen_draenic_philosophers();
     new spell_gen_shadowmeld();
