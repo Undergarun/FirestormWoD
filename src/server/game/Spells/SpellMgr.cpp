@@ -3481,6 +3481,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Skills
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 169092: ///< Temporal Crystal
+                spellInfo->Effects[EFFECT_0].BasePoints = 1;
+                spellInfo->Effects[EFFECT_0].DieSides = 0;
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
             case 163661: ///< Cho'gall Night
                 spellInfo->EffectCount = 2;
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -6754,12 +6762,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 171253: ///< Garrison heartstone
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
-            case 171690: ///< Truesteel Ingot
-            case 169081: ///< War Paints
-            case 168835: ///< Hexweave Cloth
-            case 172539: ///< Antiseptic Bandage
-            case 171391: ///< Burnished Leather
-            case 169092: ///< Temporal Crystal
                 spellInfo->Effects[EFFECT_0].ItemType = 0;
                 break;
             case 124280:// Touch of Karma (DoT)
