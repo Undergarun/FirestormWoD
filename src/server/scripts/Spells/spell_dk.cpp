@@ -50,7 +50,6 @@ enum DeathKnightSpells
     DK_SPELL_SOUL_REAPER_DAMAGE                 = 114867,
     DK_SPELL_REMORSELESS_WINTER_STUN            = 115001,
     DK_SPELL_REMORSELESS_WINTER                 = 115000,
-    DK_SPELL_CONVERSION_REGEN                   = 119980,
     DK_SPELL_SCENT_OF_BLOOD                     = 49509,
     DK_SPELL_SCENT_OF_BLOOD_AURA                = 50421,
     DK_SPELL_CHAINS_OF_ICE                      = 45524,
@@ -549,30 +548,28 @@ class spell_dk_conversion: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_conversion_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+            enum eSpells
             {
-                amount = 0;
-            }
+                ConversionRegen = 119980
+            };
 
             void OnTick(constAuraEffectPtr p_AurEff)
             {
-                Player* l_Player = GetCaster()->ToPlayer();
-
-                if (l_Player == nullptr)
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
                     return;
 
-                if (l_Player->GetPower(POWER_RUNIC_POWER) / l_Player->GetPowerCoeff(POWER_RUNIC_POWER) > 5)
-                {
-                    l_Player->CastSpell(l_Player, DK_SPELL_CONVERSION_REGEN, true);
-                    l_Player->EnergizeBySpell(l_Player, DK_SPELL_CONVERSION_REGEN, -5 * l_Player->GetPowerCoeff(POWER_RUNIC_POWER), POWER_RUNIC_POWER);
-                }
-                else
-                    l_Player->RemoveAura(GetSpellInfo()->Id);
+                int32 l_CurrentPower = l_Caster->GetPower(POWER_RUNIC_POWER) / l_Caster->GetPowerCoeff(POWER_RUNIC_POWER);
+
+                if (l_CurrentPower < p_AurEff->GetAmount())
+                    l_Caster->RemoveAura(GetSpellInfo()->Id);
+
+                l_Caster->CastSpell(l_Caster, eSpells::ConversionRegen, true);
+                l_Caster->EnergizeBySpell(l_Caster, eSpells::ConversionRegen, -(p_AurEff->GetAmount() * l_Caster->GetPowerCoeff(POWER_RUNIC_POWER)), POWER_RUNIC_POWER);
             }
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_conversion_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -889,6 +886,26 @@ class spell_dk_death_siphon: public SpellScriptLoader
 
                 int32 bp = GetHitDamage() * (GetSpellInfo()->Effects[EFFECT_1].BasePoints / 100);
                 l_Caster->CastCustomSpell(l_Caster, DK_SPELL_DEATH_SIPHON_HEAL, &bp, NULL, NULL, true);
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                int8 l_DeathRune = -1;
+
+                for (uint8 i = 0; i < MAX_RUNES; ++i)
+                {
+                    if (l_Player->GetRuneCooldown(i) && l_Player->GetCurrentRune(i) == RUNE_DEATH)
+                    {
+                        l_DeathRune = i;
+                        break;
+                    }
+                }
+
+                if (l_DeathRune == -1)
+                    return;
+
+                l_Player->RestoreBaseRune(uint8(l_DeathRune));
             }
 
             void Register()

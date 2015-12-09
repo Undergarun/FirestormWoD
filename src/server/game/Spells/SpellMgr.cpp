@@ -3475,6 +3475,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156324: ///< Acid Torrent (AoE)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
+            case 177756: ///< Deafening Roar (Bellows Operator)
+                spellInfo->EffectCount = 1;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 163661: ///< Cho'gall Night
                 spellInfo->EffectCount = 2;

@@ -4486,7 +4486,7 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                     return;
 
                 l_Attacker->CastSpell(l_Victim, eSpells::TouchoftheGraveEffect, true);
-                l_Attacker->ToPlayer()->AddSpellCooldown(eSpells::TouchoftheGraveEffect, 0, 20 * IN_MILLISECONDS, true);
+                l_Attacker->ToPlayer()->AddSpellCooldown(eSpells::TouchoftheGraveEffect, 0, 15 * IN_MILLISECONDS, true);
             }
 
             void Register()
@@ -4725,14 +4725,14 @@ class spell_gen_draenic_philosophers : public SpellScriptLoader
 
 /// last update : 6.1.2
 /// Jard's Peculiar Energy Source - 143743
-class spell_gen_jads_peculiar_energy_source : public SpellScriptLoader
+class spell_gen_jards_peculiar_energy_source : public SpellScriptLoader
 {
     public:
-        spell_gen_jads_peculiar_energy_source() : SpellScriptLoader("spell_gen_jads_peculiar_energy_source") { }
+        spell_gen_jards_peculiar_energy_source() : SpellScriptLoader("spell_gen_jards_peculiar_energy_source") { }
 
-        class spell_gen_jads_peculiar_energy_source_SpellScript : public SpellScript
+        class spell_gen_jards_peculiar_energy_source_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_jads_peculiar_energy_source_SpellScript);
+            PrepareSpellScript(spell_gen_jards_peculiar_energy_source_SpellScript);
 
             enum eSpells 
             {
@@ -4757,15 +4757,64 @@ class spell_gen_jads_peculiar_energy_source : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_gen_jads_peculiar_energy_source_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_gen_jards_peculiar_energy_source_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_gen_jads_peculiar_energy_source_SpellScript();
+            return new spell_gen_jards_peculiar_energy_source_SpellScript();
         }
 };
+
+/// last update : 6.1.2
+/// Celestial Cloth and Its Uses - 143626
+class spell_gen_celestial_cloth_and_its_uses : public SpellScriptLoader
+{
+public:
+    spell_gen_celestial_cloth_and_its_uses() : SpellScriptLoader("spell_gen_celestial_cloth_and_its_uses") { }
+    
+    class spell_gen_celestial_cloth_and_its_uses_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_celestial_cloth_and_its_uses_SpellScript);
+        
+        enum eSpells
+        {
+            CelestialCloth              = 143011,
+            AcceleratedCelestialCloth   = 146925,
+            BeltOfTheNightSky           = 142964,
+            LeggingsOfTheNightSky       = 142955,
+            WhiteCloudBelt              = 142960,
+            WhiteCloudLeggings          = 142951
+        };
+        
+        void HandleOnHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            
+            if (l_Player == nullptr)
+                return;
+            
+            l_Player->learnSpell(eSpells::CelestialCloth, false);
+            l_Player->learnSpell(eSpells::AcceleratedCelestialCloth, false);
+            l_Player->learnSpell(eSpells::BeltOfTheNightSky, false);
+            l_Player->learnSpell(eSpells::LeggingsOfTheNightSky, false);
+            l_Player->learnSpell(eSpells::WhiteCloudBelt, false);
+            l_Player->learnSpell(eSpells::WhiteCloudLeggings, false);
+        }
+        
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_gen_celestial_cloth_and_its_uses_SpellScript::HandleOnHit);
+        }
+    };
+    
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_celestial_cloth_and_its_uses_SpellScript();
+    }
+};
+
 
 /// Power handler
 /// Reset timer to correctly start decreasing power at 10 sec
@@ -4815,7 +4864,8 @@ class spell_gen_power_handler : public PlayerScript
 
 void AddSC_generic_spell_scripts()
 {
-    new spell_gen_jads_peculiar_energy_source();
+    new spell_gen_jards_peculiar_energy_source();
+    new spell_gen_celestial_cloth_and_its_uses();
     new spell_gen_draenic_philosophers();
     new spell_gen_shadowmeld();
     new spell_gen_mark_of_warsong();

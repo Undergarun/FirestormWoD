@@ -298,11 +298,17 @@ class boss_heart_of_the_mountain : public CreatureScript
                 {
                     case eSpells::BustLoose:
                     {
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(500, [this]() -> void
                         {
                             Position const l_TeleportPos = { 197.707f, 3529.08f, 217.234f, me->GetOrientation() };
 
                             me->CastSpell(l_TeleportPos, eSpells::BustLooseSecond, true);
+                        });
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Position const l_TeleportPos = { 197.9002f, 3530.093f, 217.234f, me->GetOrientation() };
+
                             me->NearTeleportTo(l_TeleportPos);
 
                             if (m_Instance != nullptr)
@@ -1382,7 +1388,13 @@ class npc_foundry_bellows_operator : public CreatureScript
 
         enum eSpells
         {
-            Loading = 155181
+            Loading         = 155181,
+            DeafeningRoar   = 177756
+        };
+
+        enum eEvent
+        {
+            EventDeafeningRoar = 1
         };
 
         enum eActions
@@ -1406,12 +1418,14 @@ class npc_foundry_bellows_operator : public CreatureScript
         {
             npc_foundry_bellows_operatorAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_SwitchStatePct(50) { }
 
+            EventMap m_Events;
             EventMap m_CosmeticEvent;
 
             int32 m_SwitchStatePct;
 
             void Reset() override
             {
+                m_Events.Reset();
                 m_CosmeticEvent.Reset();
 
                 me->RemoveAura(eSpells::Loading);
@@ -1453,6 +1467,7 @@ class npc_foundry_bellows_operator : public CreatureScript
                         if (Player* l_Target = me->SelectNearestPlayerNotGM(50.0f))
                             AttackStart(l_Target);
 
+                        m_Events.ScheduleEvent(eEvent::EventDeafeningRoar, urand(5 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     default:
@@ -1511,6 +1526,23 @@ class npc_foundry_bellows_operator : public CreatureScript
 
                 if (!UpdateVictim())
                     return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventDeafeningRoar:
+                    {
+                        me->CastSpell(me, eSpells::DeafeningRoar, false);
+                        m_Events.ScheduleEvent(eEvent::EventDeafeningRoar, urand(15 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                        break;
+                    }
+                    default:
+                        break;
+                }
 
                 DoMeleeAttackIfReady();
             }
@@ -2088,8 +2120,12 @@ class npc_foundry_slag_elemental : public CreatureScript
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
-                if (p_Damage >= me->GetHealth())
+                if (p_Damage >= me->GetHealth() && me->GetReactState() != ReactStates::REACT_PASSIVE)
                 {
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                    me->RemoveAllAuras();
+
                     p_Damage = 0;
 
                     m_Target = 0;
@@ -2097,12 +2133,9 @@ class npc_foundry_slag_elemental : public CreatureScript
                     me->GetMotionMaster()->Clear();
                     me->StopMoving();
 
-                    me->RemoveAllAuras();
-
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
-                    me->SetReactState(ReactStates::REACT_PASSIVE);
                     me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
                     me->SetHealth(1);
@@ -2705,6 +2738,74 @@ class spell_foundry_heart_of_the_furnace : public SpellScriptLoader
         }
 };
 
+/// Deafening Roar - 177756
+class spell_foundry_deafening_roar : public SpellScriptLoader
+{
+    public:
+        spell_foundry_deafening_roar() : SpellScriptLoader("spell_foundry_deafening_roar") { }
+
+        class spell_foundry_deafening_roar_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_deafening_roar_SpellScript);
+
+            enum eSpells
+            {
+                TargetRestrict  = 24605,
+
+                Bomb            = 155192,
+                BombOther       = 174716
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpells::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Angle = 2 * M_PI / 360 * l_Restriction->ConeAngle;
+                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster, l_Angle))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void HandleDamage(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        l_Target->RemoveAura(eSpells::Bomb);
+                        l_Target->RemoveAura(eSpells::BombOther);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_deafening_roar_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_deafening_roar_SpellScript();
+        }
+};
+
 /// Crucible (Left) - 233757
 /// Crucible (Right) - 233758
 class go_foundry_crucible : public GameObjectScript
@@ -3135,6 +3236,7 @@ void AddSC_boss_blast_furnace()
     new spell_foundry_volatile_fire();
     new spell_foundry_melt_aura();
     new spell_foundry_heart_of_the_furnace();
+    new spell_foundry_deafening_roar();
 
     /// GameObject
     new go_foundry_crucible();

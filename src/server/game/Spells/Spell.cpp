@@ -4026,7 +4026,10 @@ void Spell::cast(bool skipCheck)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
         //Clear spell cooldowns after every spell is cast if .cheat cooldown is enabled.
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
+        {
             m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
+            m_caster->ToPlayer()->RestoreCharge(m_spellInfo->ChargeCategoryEntry);
+        }
     }
 
     SetExecutedCurrently(false);

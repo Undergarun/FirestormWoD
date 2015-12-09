@@ -2365,7 +2365,7 @@ enum PsychicHorror_Spell
     PRIEST_SPELL_PSYCHIC_HORROR = 64044
 };
 
-// Psychic Horror - 64044
+/// Psychic Horror - 64044
 class spell_pri_psychic_horror: public SpellScriptLoader
 {
     public:
@@ -2399,12 +2399,10 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                             if (AuraPtr l_PsychicHorror = l_Target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
                             {
                                 l_Caster->SetPsychicHorrorGainedPower(true);
-
                                 int32 l_CurrentPowerUsed = l_Caster->GetPower(POWER_SHADOW_ORB) + 1;
-                                if (l_CurrentPowerUsed > 2) ///< Maximum 3 Shadow Orb can be consumed (1 of them is base spell cost)
-                                    l_CurrentPowerUsed = 2;
-                                 l_Caster->ModifyPower(POWER_SHADOW_ORB, -l_CurrentPowerUsed);
-                                    
+                                if (l_CurrentPowerUsed > 3) ///< Maximum 3 Shadow Orb can be consumed (1 of them is base spell cost)
+                                    l_CurrentPowerUsed = 3;
+                                l_Caster->ModifyPower(POWER_SHADOW_ORB, -(l_CurrentPowerUsed - 1));
 
                                 int32 l_MaxDuration = l_PsychicHorror->GetMaxDuration();
                                 int32 l_NewDuration = l_MaxDuration + (GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed) * IN_MILLISECONDS;
