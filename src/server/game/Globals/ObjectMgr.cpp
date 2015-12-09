@@ -7685,11 +7685,15 @@ void ObjectMgr::LoadQuestPOI()
         uint32 l_WorldEffectID      = l_Fields[8].GetUInt32();
         uint32 l_PlayerConditionID  = l_Fields[9].GetUInt32();
         uint32 l_Unk                = l_Fields[10].GetUInt32();
+        
+        
+        if (l_QuestId < int32(POIs.size()) && l_ObjectiveIndex < int32(POIs[l_QuestId].size()))
+        {
+            QuestPOI l_POI(l_BlobIndex, l_ObjectiveIndex, l_MapID, l_WorldMapAreaId, l_Floor, l_Priority, l_Flags, l_WorldEffectID, l_PlayerConditionID, l_Unk);
+            l_POI.Points = POIs[l_QuestId][l_BlobIndex];
 
-        QuestPOI l_POI(l_BlobIndex, l_ObjectiveIndex, l_MapID, l_WorldMapAreaId, l_Floor, l_Priority, l_Flags, l_WorldEffectID, l_PlayerConditionID, l_Unk);
-        l_POI.Points = POIs[l_QuestId][l_BlobIndex];
-
-        _questPOIStore[l_QuestId].push_back(l_POI);
+            _questPOIStore[l_QuestId].push_back(l_POI);
+        }
 
         ++count;
     }
