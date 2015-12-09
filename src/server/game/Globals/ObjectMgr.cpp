@@ -5420,7 +5420,7 @@ void ObjectMgr::LoadInstanceEncounters()
     uint32 l_OldMSTime = getMSTime();
     uint32 l_Counter = 0;
 
-    for (uint32 l_Index = 0; l_Index <= sDungeonEncounterStore.GetLastEntry(); ++l_Index)
+    for (uint32 l_Index = 0; l_Index <= sDungeonEncounterStore.GetNumRows(); ++l_Index)
     {
         if (DungeonEncounterEntry const* l_Encounter = sDungeonEncounterStore.LookupEntry(l_Index))
         {
