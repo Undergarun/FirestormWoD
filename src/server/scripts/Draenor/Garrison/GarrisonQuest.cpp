@@ -419,6 +419,7 @@ namespace MS { namespace Garrison
             case GarrisonPortals::DraenorZones::ZoneSpiresOfArak:
             case GarrisonPortals::DraenorZones::ZoneTalador:
                 UpdateDraenorPhaseMask(p_Player);
+                p_Player->QuestObjectiveSatisfy(ObjectIDs::MageTowerQuestActivateOgreWaygate, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
                 break;
             default:
                 break;

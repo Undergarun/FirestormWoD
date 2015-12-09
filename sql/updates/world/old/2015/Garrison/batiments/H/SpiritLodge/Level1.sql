@@ -21,7 +21,7 @@ INSERT INTO quest_template_objective (QuestID, TYPE, ObjectID, Amount, Descripti
 
 #79836/NPC - Gez la -- QuestGiver
 
-	UPDATE creature_template SET npcflag = npcflag | 2 WHERE entry = 79836;
+	UPDATE creature_template SET npcflag = npcflag | 1 | 2 WHERE entry = 79836;
 	DELETE FROM creature_queststarter WHERE id = 79836;
 	DELETE FROM creature_questender WHERE id = 79836;
 	INSERT INTO creature_queststarter VALUES (79836, 38351), (79836, 36848);
@@ -54,3 +54,8 @@ insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask
 insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('89236','1116','6719','7122','1','4294967295','0','1','1068.45','-1118.52','-81.8779','0.0155017','120','0','0','1','0','0','1','0','0','0','0','0','0','0',NULL);
 
 UPDATE creature_template SET npcflag = npcflag | 1, scriptname = "npc_AncientWaygateProtector_Garr" WHERE entry IN (89233, 89236, 89234, 89235, 89232, 89230);
+
+REPLACE INTO trinity_string (entry, content_default, content_loc2, content_loc3) VALUES
+(14113, "You have not enough Ogre Waystones.", "Vous n'avez pas assez de Pierres d'accès Ogre.", "Du hast nicht genügend Ogerportalsteine."),
+(14114, "You already have the maximum activated portals count, depending of your Mage Tower/Spirit Lodge level.", "Vous avez déjà le nombre maximum de portails actifs, correspondant au niveau de votre tour des mages.", "Sie haben bereits die maximale anzahl der aktivierten Portale, je nach der Stufe Ihres Magierturms/Geisterhauses."), 
+(14115, "You don't own the required building to use this portal yet.", "Vous n'avez pas encore construit le bâtiment nécessaire pour utiliser ce portail.", "Sie besitzen nicht das erforderliche Gebäude, um das Portal zu verwenden");

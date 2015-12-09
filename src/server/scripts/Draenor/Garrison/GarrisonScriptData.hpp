@@ -225,7 +225,7 @@ namespace MS { namespace Garrison
             TaladorWorldGob          = 236906,
             NagrandWorldGob          = 236910,
             ShadowmoonValleyWorldGob = 236912,
-            GorgrondWorldGob         = 236765,
+            GorgrondWorldGob         = 236765
         };
 
         enum GarrisonGobs
@@ -332,7 +332,8 @@ namespace MS { namespace Garrison
     {
         TimberWorkOrderAlly  = 37548,
         TimberWorkOrderHorde = 37487,
-        FirstMageTowerSpiritLodgeObjectID = 91574
+        FirstMageTowerSpiritLodgeObjectID = 91574,
+        MageTowerQuestActivateOgreWaygate = 39133
     };
 
     /// Garrison creation coords

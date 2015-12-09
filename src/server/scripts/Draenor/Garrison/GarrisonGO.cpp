@@ -569,11 +569,126 @@ namespace MS { namespace Garrison
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    /// 236911, 236774, 236906, 236910, 236912, 236765                     ///
+    /// Deactivated Portals from Mage Tower                                ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    go_garrison_deactivated_mage_portal::go_garrison_deactivated_mage_portal()
+        : GameObjectScript("go_garrison_deactivated_mage_portal")
+    {
+    }
+
+    bool go_garrison_deactivated_mage_portal::OnGameObjectSpellCasterUse(const GameObject* p_GameObject, Player* p_User) const
+    {
+        uint8 l_BuildingLevel = 0;
+
+        if (p_User->GetGarrison())
+        {
+            std::vector<GarrisonBuilding> l_Buildings = p_User->GetGarrison()->GetBuildings();
+
+            for (GarrisonBuilding l_Building : l_Buildings)
+            {
+                switch (l_Building.BuildingID)
+                {
+                    case Buildings::MageTower_SpiritLodge_Level1:
+                        l_BuildingLevel = 1;
+                        break;
+                    case Buildings::MageTower_SpiritLodge_Level2:
+                        l_BuildingLevel = 2;
+                        break;
+                    case Buildings::MageTower_SpiritLodge_Level3:
+                        l_BuildingLevel = 3;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if (!l_BuildingLevel)
+        {
+            if (p_User->GetSession())
+                ChatHandler(p_User).PSendSysMessage(TrinityStrings::GarrisonNoMageTower);
+
+            return false;
+        }
+        if (!p_User->HasItemCount(117491, 25))
+        {
+            if (p_User->GetSession())
+                ChatHandler(p_User).PSendSysMessage(TrinityStrings::GarrisonPortalNoItemCount);
+
+            return false;
+        }
+
+        std::vector<uint32> const l_QuestList =
+        {
+            GarrisonPortals::PortalsQuests::QuestFrostfireRidge,
+            GarrisonPortals::PortalsQuests::QuestGorgrond,
+            GarrisonPortals::PortalsQuests::QuestNagrand,
+            GarrisonPortals::PortalsQuests::QuestShadowmoon,
+            GarrisonPortals::PortalsQuests::QuestSpiresOfArak,
+            GarrisonPortals::PortalsQuests::QuestTalador
+        };
+
+        uint8 l_Itr = 0;
+
+        for (uint32 l_QuestID : l_QuestList)
+        {
+            if (!p_User->IsQuestRewarded(l_QuestID))
+            {
+                if (l_Itr >= l_BuildingLevel)
+                {
+                    if (p_User->GetSession())
+                        ChatHandler(p_User).PSendSysMessage(TrinityStrings::GarrisonTooMuchPortals);
+
+                    return false;
+                }
+
+                switch (l_QuestID)
+                {
+                    case GarrisonPortals::PortalsQuests::QuestFrostfireRidge:
+                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneFrostfireRidge)
+                            return true;
+                        break;
+                    case GarrisonPortals::PortalsQuests::QuestGorgrond:
+                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneGorgrond)
+                            return true;
+                        break;
+                    case GarrisonPortals::PortalsQuests::QuestNagrand:
+                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneNagrand)
+                            return true;
+                        break;
+                    case GarrisonPortals::PortalsQuests::QuestShadowmoon:
+                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneShadowmoon)
+                            return true;
+                        break;
+                    case GarrisonPortals::PortalsQuests::QuestSpiresOfArak:
+                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneSpiresOfArak)
+                            return true;
+                        break;
+                    case GarrisonPortals::PortalsQuests::QuestTalador:
+                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneTalador)
+                            return true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+                l_Itr++;
+        }
+
+        return false;
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
 void AddSC_Garrison_GO()
 {
+    new MS::Garrison::go_garrison_deactivated_mage_portal;
     new MS::Garrison::go_garrison_cache;
     new MS::Garrison::go_garrison_outhouse;
     new MS::Garrison::go_garrison_shipment_container;

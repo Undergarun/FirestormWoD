@@ -213,6 +213,7 @@ namespace MS { namespace Garrison
             PlotInstanceID  = 10003,
             GatheredPos     = 10004,
             DailyReset      = 10005,
+            OwnerGuid       = 10006,
             HasRecipe       = 0x40000000
         };
     }

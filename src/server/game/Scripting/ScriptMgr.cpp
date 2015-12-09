@@ -917,6 +917,14 @@ bool ScriptMgr::OnGameObjectElevatorCheck(const GameObject * p_GameObject) const
     return tmpscript->OnGameObjectElevatorCheck(p_GameObject);
 }
 
+bool ScriptMgr::OnGameObjectSpellCasterUse(GameObject const* p_GameObject, Player* p_User) const
+{
+    ASSERT(p_GameObject);
+
+    GET_SCRIPT_RET(GameObjectScript, p_GameObject->GetScriptId(), tmpscript, true);
+    return tmpscript->OnGameObjectSpellCasterUse(p_GameObject, p_User);
+}
+
 /// Called when a GameObjectAI object is needed for the GameObject.
 /// @p_GameObject : GameObject instance
 GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject * p_GameObject)

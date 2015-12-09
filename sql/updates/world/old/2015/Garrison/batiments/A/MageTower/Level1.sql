@@ -32,7 +32,7 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 
 #77367/NPC - Archmage Kem -- QuestGiver
 
-	UPDATE creature_template SET npcflag = npcflag | 2 WHERE entry = 77367;
+	UPDATE creature_template SET npcflag = npcflag | 1 | 2 WHERE entry = 77367;
 	DELETE FROM creature_queststarter WHERE id = 77367;
 	DELETE FROM creature_questender WHERE id = 77367;
 	INSERT INTO creature_queststarter VALUES (77367, 38354), (77367, 36848);
@@ -41,6 +41,11 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 #91582/NPC - Apprentice Var Nath -- Work Orders
 
 	UPDATE creature_template SET npcflag = npcflag | 1, npcflag2 = 32, subname = "Work Orders", scriptname = "npc_ApprenticeVarNath_Garr" WHERE entry = 91582;
+
+#36848/Quest - Ogre Waygates -- Remove useless disable
+
+	DELETE FROM disables WHERE sourcetype = 1 AND entry = 36848;
+	UPDATE quest_template_objective SET flags = flags & ~0x02 WHERE questid = 36848 AND TYPE = 14;
 
 #82571/NPC - Atheeru Palestar -- Summons special pnjs (Amperial Construct)
 
@@ -84,3 +89,11 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 	insert into `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `custom_flags`, `protect_anti_doublet`) values('236908','1116','6662','6662','1','1073741824','2516.49','2549.96','167.11','0','0','0','0','0','120','255','1','0','0',NULL);
 	insert into `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `custom_flags`, `protect_anti_doublet`) values('236908','1116','6755','6755','1','1073741824','3173.82','7483.46','9.70391','0','0','0','0','0','120','255','1','0','0',NULL);
 	insert into `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `custom_flags`, `protect_anti_doublet`) values('236908','1116','6721','7320','1','1073741824','7712.46','320.927','137.597','1.71977','0','0','0.757767','0.652526','300','0','1','0','0',NULL);
+
+	UPDATE gameobject_template SET scriptname = "go_garrison_deactivated_mage_portal" WHERE entry IN (
+	236911,
+    236774,
+    236906,
+    236910,
+    236912,
+    236765);

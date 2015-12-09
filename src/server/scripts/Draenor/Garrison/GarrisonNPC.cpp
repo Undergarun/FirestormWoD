@@ -55,7 +55,7 @@ namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr), m_Owner(nullptr)
     {
 
     }
@@ -322,6 +322,12 @@ namespace MS { namespace Garrison
         }
         else if (p_ID == CreatureAIDataIDs::DailyReset)
             OnDataReset();
+    }
+
+    void GarrisonNPCAI::SetGUID(uint64 p_Guid, int32 p_Id)
+    {
+        if (p_Id == CreatureAIDataIDs::OwnerGuid)
+            m_Owner = ObjectAccessor::GetPlayer(*me, p_Guid);
     }
 
     /// Get UInt32 value
