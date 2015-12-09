@@ -574,13 +574,13 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                 {
                     if (Unit* l_Owner = me->GetOwner())
                     {
-                        Unit* l_OwnerTarget = nullptr;
-                        if (Player* l_Player = l_Owner->ToPlayer())
-                            l_OwnerTarget = l_Player->GetSelectedUnit();
+                        Unit* l_OwnerTarget = NULL;
+                        if (Player* l_Plr = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Plr->GetSelectedUnit();
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget)
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
@@ -656,16 +656,16 @@ class spell_npc_sha_fire_elemental : public CreatureScript
             {
                 if (!UpdateVictim())
                 {
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* l_Owner = me->GetOwner())
                     {
-                        Unit* ownerTarget = NULL;
-                        if (Player* plr = owner->ToPlayer())
-                            ownerTarget = plr->GetSelectedUnit();
+                        Unit* l_OwnerTarget = NULL;
+                        if (Player* l_Plr = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Plr->GetSelectedUnit();
                         else
-                            ownerTarget = owner->getVictim();
+                            l_OwnerTarget = l_Owner->getVictim();
 
-                        if (ownerTarget)
-                            AttackStart(ownerTarget);
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget))
+                            AttackStart(l_OwnerTarget);
                     }
 
                     return;
@@ -734,16 +734,16 @@ class spell_npc_sha_earth_elemental : public CreatureScript
             {
                 if (!UpdateVictim())
                 {
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* l_Owner = me->GetOwner())
                     {
-                        Unit* ownerTarget = NULL;
-                        if (Player* plr = owner->ToPlayer())
-                            ownerTarget = plr->GetSelectedUnit();
+                        Unit* l_OwnerTarget = NULL;
+                        if (Player* l_Plr = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Plr->GetSelectedUnit();
                         else
-                            ownerTarget = owner->getVictim();
+                            l_OwnerTarget = l_Owner->getVictim();
 
-                        if (ownerTarget)
-                            AttackStart(ownerTarget);
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget))
+                            AttackStart(l_OwnerTarget);
                     }
 
                     return;
