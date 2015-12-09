@@ -2795,6 +2795,10 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
             l_CastTime /= 2;
     }
 
+    /// Flayer
+    if (HasEffect(SPELL_EFFECT_SKINNING) && p_Caster->HasAura(68978))
+        l_CastTime = CalculatePct(l_CastTime, 66);
+
     /// Elegon - Overloaded
     if (p_Caster && p_Caster->HasAura(117204))
     {
