@@ -1151,8 +1151,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
         return -1;
     }
 
-    //                                                    0       1          2       3    4  5      6          7       8         9      10    11       12                           13
-    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, username, UNIX_TIMESTAMP(joindate), service_flags FROM account  WHERE id = %u", l_AccountID);
+    //                                                    0       1          2       3    4  5      6          7       8         9      10    11       12                           13             14
+    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, username, UNIX_TIMESTAMP(joindate), service_flags, custom_flags FROM account  WHERE id = %u", l_AccountID);
 
     /// Stop if the account is not found
     if (!l_Result)
@@ -1172,6 +1172,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     uint32 l_ServerExpansion    = sWorld->getIntConfig(CONFIG_EXPANSION);
     uint32 l_JoinDateTimestamp  = l_Fields[12].GetUInt32();
     uint32 l_ServiceFlags       = l_Fields[13].GetUInt32();
+    uint32 l_CustomFlags        = l_Fields[14].GetUInt32();
 
     if (l_AccountExpansion > l_ServerExpansion)
         l_AccountExpansion = l_ServerExpansion;
@@ -1302,7 +1303,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     LoginDatabase.PExecute("UPDATE account SET last_ip = '%s' WHERE username = '%s'", l_SessionIP.c_str(), l_EscapedAccountName.c_str());
 
     /// NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(l_AccountID, this, AccountTypes(l_AccountGMLevel), l_AccountIsPremium, l_AccountPremiumType, l_AccountExpansion, l_MuteTime, l_AccountLocale, l_Recruiter, l_AccountIsRecruiter, l_VoteRemainingTime, l_ServiceFlags), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(l_AccountID, this, AccountTypes(l_AccountGMLevel), l_AccountIsPremium, l_AccountPremiumType, l_AccountExpansion, l_MuteTime, l_AccountLocale, l_Recruiter, l_AccountIsRecruiter, l_VoteRemainingTime, l_ServiceFlags, l_CustomFlags), -1);
 
     m_Crypt.Init(&l_SessionKey);
 

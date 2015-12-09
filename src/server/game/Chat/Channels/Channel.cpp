@@ -175,7 +175,7 @@ void Channel::UpdateChatLocaleFiltering(Player* p_Player)
     if (m_Players.find(p_Player->GetGUID()) == m_Players.end())
         return;
 
-    if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
+    if (p_Player->GetSession()->HasCustomFlags(AccountCustomFlags::NoChatLocaleFiltering))
         m_Players[p_Player->GetGUID()].LocaleFilter = 0xFFFFFFFF;
     else
         m_Players[p_Player->GetGUID()].LocaleFilter = 1 << (p_Player->GetSession()->GetSessionDbLocaleIndex() + 1);
@@ -236,7 +236,7 @@ void Channel::Join(uint64 p, const char *pass)
     pinfo.flags = MEMBER_FLAG_NONE;
     pinfo.LocaleFilter = 0xFFFFFFFF;
 
-    if ((IsWorld() || IsConstant()) && !player->GetSession()->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
+    if ((IsWorld() || IsConstant()) && player && player->GetSession() && !player->GetSession()->HasCustomFlags(AccountCustomFlags::NoChatLocaleFiltering))
     {
         pinfo.LocaleFilter = 1 << (player->GetSession()->GetSessionDbLocaleIndex() + 1);
     }
