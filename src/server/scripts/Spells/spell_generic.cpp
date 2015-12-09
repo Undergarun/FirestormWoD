@@ -4865,8 +4865,43 @@ class spell_gen_alchemists_flask : public SpellScriptLoader
         }
 };
 
+/// Potion of Illusion - 80265
+class spell_gen_potion_of_illusion : public SpellScriptLoader
+{
+    public:
+        spell_gen_potion_of_illusion() : SpellScriptLoader("spell_gen_potion_of_illusion") { }
+
+        class spell_gen_potion_of_illusion_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_potion_of_illusion_SpellScript);
+
+            enum eSpells
+            {
+                Illusion = 80396
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, eSpells::Illusion, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_potion_of_illusion_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_potion_of_illusion_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_potion_of_illusion();
     new spell_gen_alchemists_flask();
     new spell_gen_jards_peculiar_energy_source();
     new spell_gen_draenic_philosophers();
