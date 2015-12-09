@@ -3844,53 +3844,55 @@ void Unit::_ApplyAuraEffect(AuraPtr aura, uint32 effIndex)
 
 // handles effects of aura application
 // should be done after registering aura in lists
-void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask)
+void Unit::_ApplyAura(AuraApplication* p_AurApp, uint32 p_EffMask)
 {
-    AuraPtr aura = aurApp->GetBase();
+    AuraPtr l_Aura = p_AurApp->GetBase();
 
-    _RemoveNoStackAurasDueToAura(aura);
+    _RemoveNoStackAurasDueToAura(l_Aura);
 
-    if (aurApp->GetRemoveMode())
+    if (p_AurApp->GetRemoveMode())
         return;
 
-    // Update target aura state flag
-    if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState())
-        ModifyAuraState(aState, true);
+    /// Update target aura state flag
+    if (AuraStateType l_AState = l_Aura->GetSpellInfo()->GetAuraState())
+        ModifyAuraState(l_AState, true);
 
-    if (aurApp->GetRemoveMode())
+    if (p_AurApp->GetRemoveMode())
         return;
 
-    // Sitdown on apply aura req seated
-    if (aura->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !IsSitState())
+    /// Sitdown on apply aura req seated
+    if (l_Aura->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !IsSitState())
         SetStandState(UNIT_STAND_STATE_SIT);
 
-    Unit* caster = aura->GetCaster();
+    Unit* l_Caster = l_Aura->GetCaster();
 
-    if (aurApp->GetRemoveMode())
+    if (p_AurApp->GetRemoveMode())
         return;
 
-    aura->HandleAuraSpecificMods(aurApp, caster, true, false);
-    aura->HandleAuraSpecificPeriodics(aurApp, caster);
+    l_Aura->HandleAuraSpecificMods(p_AurApp, l_Caster, true, false);
+    l_Aura->HandleAuraSpecificPeriodics(p_AurApp, l_Caster);
 
-    // Epicurean
+    /// Epicurean
     if (GetTypeId() == TYPEID_PLAYER &&
         getRace() == RACE_PANDAREN_ALLI ||
         getRace() == RACE_PANDAREN_HORDE ||
         getRace() == RACE_PANDAREN_NEUTRAL)
     {
-        if (aura->GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_FOOD_BUFF)
+        if (l_Aura->GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_FOOD_BUFF)
         {
-            for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
-                if (aura->GetEffect(i))
-                    aura->GetEffect(i)->SetAmount(aura->GetSpellInfo()->Effects[i].BasePoints * 2);
+            for (uint8 i = 0; i < l_Aura->GetEffectCount(); ++i)
+            {
+                if (l_Aura->GetEffect(i))
+                    l_Aura->GetEffect(i)->ChangeAmount(l_Aura->GetEffect(i)->GetAmount() * 2);
+            }
         }
     }
 
-    // apply effects of the aura
-    for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
+    /// apply effects of the aura
+    for (uint8 i = 0; i < l_Aura->GetEffectCount(); ++i)
     {
-        if (effMask & 1<<i && (!aurApp->GetRemoveMode()))
-            aurApp->_HandleEffect(i, true);
+        if (p_EffMask & 1<<i && (!p_AurApp->GetRemoveMode()))
+            p_AurApp->_HandleEffect(i, true);
     }
 }
 
