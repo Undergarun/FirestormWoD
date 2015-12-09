@@ -7875,7 +7875,7 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
                     l_Follower->SetArmorItemLevel(l_NewValue);
 
                 l_Follower->UpdateFollower(l_Player);
-                l_GarrisonMgr->Save(CharacterDatabase.BeginTransaction());
+                l_GarrisonMgr->SaveFollowersToDB(l_FollowerEntry);
             }
             else
                 SendCastResult(SPELL_FAILED_GARRISON_FOLLOWER_MAX_ITEM_LEVEL);
@@ -7890,7 +7890,7 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
                     l_Follower->SetWeaponItemLevel(l_NewValue);
 
                 l_Follower->UpdateFollower(l_Player);
-                l_GarrisonMgr->Save(CharacterDatabase.BeginTransaction());
+                l_GarrisonMgr->SaveFollowersToDB(l_FollowerEntry);
             }
             else
                 SendCastResult(SPELL_FAILED_GARRISON_FOLLOWER_MAX_ITEM_LEVEL);

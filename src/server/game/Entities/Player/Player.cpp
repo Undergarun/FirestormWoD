@@ -767,6 +767,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_Garrison = nullptr;
     m_GarrisonUpdateTimer.SetInterval(2 * IN_MILLISECONDS);
 
+    m_VoidStorageLoaded = false;
+
     CurrentPlayedMovie = 0;
 
     m_speakTime = 0;
@@ -7880,17 +7882,16 @@ float Player::GetRatingBonusValue(CombatRating cr) const
     return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + cr)) / 1070; // temp hack
 }
 
-float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType p_AttType) const
+float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
 {
-    float l_BaseExpertise = 7.5f;
-    switch (p_AttType)
+    switch (attType)
     {
         case WeaponAttackType::BaseAttack:
-            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE);
         case WeaponAttackType::OffAttack:
-            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE);
         case WeaponAttackType::RangedAttack:
-            return l_BaseExpertise + GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE) / 4.0f;
+            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE);
         default:
             break;
     }
@@ -21092,6 +21093,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     if (IsVoidStorageUnlocked())
         _LoadVoidStorage(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE));
 
+    m_VoidStorageLoaded = true;
+
     // update items with duration and realtime
     UpdateItemDuration(time_diff, true);
 
@@ -23139,7 +23142,7 @@ void Player::SaveToDB(bool create /*=false*/)
     trans->Append(stmt);
 
     if (m_Garrison)
-        m_Garrison->Save(trans);    
+        m_Garrison->Save();
 
     if (m_mailsUpdated)                                     //save mails only when needed
         _SaveMail(trans);
@@ -23452,6 +23455,12 @@ void Player::_SaveInventory(SQLTransaction& trans)
 
 void Player::_SaveVoidStorage(SQLTransaction& trans)
 {
+    if (!m_VoidStorageLoaded)
+    {
+        sLog->outAshran("Trying to save Void Storage before loaded it!");
+        return;
+    }
+
     PreparedStatement* stmt = NULL;
     uint32 lowGuid = GetGUIDLow();
 
@@ -31159,19 +31168,29 @@ uint32 Player::GetAverageItemLevelTotal()
         }
     }
 
-    uint32 l_Sum = 0;
+    int32 l_Sum = 0;
     uint32 l_Count = 0;
+    bool l_HasTwoHanded = false;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
+        // don't check tabard, ranged, offhand or shirt
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
             continue;
 
-        if (i == EQUIPMENT_SLOT_OFFHAND && !l_EquipItemLevel[i])
-            continue;
+        Item* l_Item = m_items[i];
+        if (l_Item && l_Item->GetTemplate())
+        {
+            if (i == EQUIPMENT_SLOT_MAINHAND && l_Item->GetTemplate()->IsTwoHandedWeapon())
+                l_HasTwoHanded = true;
 
-        l_Sum += l_EquipItemLevel[i];
-        ++l_Count;
+            l_Sum += l_EquipItemLevel[i];
+            ++l_Count;
+        }
+        else if (i == EQUIPMENT_SLOT_OFFHAND && !CanTitanGrip() && (l_HasTwoHanded))
+            continue;
+        else
+            ++l_Count;
     }
 
     if (!l_Count)
