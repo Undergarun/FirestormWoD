@@ -3614,6 +3614,7 @@ class PlayerScript_insanity: public PlayerScript
         }
 };
 
+/// last update : 6.1.2
 /// Chakra: Sanctuary - 81206
 class spell_pri_chakra_sanctuary : public SpellScriptLoader
 {
@@ -3632,6 +3633,12 @@ class spell_pri_chakra_sanctuary : public SpellScriptLoader
                 Player* l_Player = GetCaster()->ToPlayer();
 
                 if (l_Player == nullptr)
+                    return;
+
+                uint32 l_FlagsNot = ProcFlagsExLegacy::PROC_EX_INTERNAL_DOT | ProcFlagsExLegacy::PROC_EX_INTERNAL_HOT;
+                l_FlagsNot |= ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_MULTISTRIKE;
+
+                if (p_EventInfo.GetHitMask() & l_FlagsNot)
                     return;
 
                 if (!p_EventInfo.GetDamageInfo()->GetSpellInfo()->IsHealingSpell())
