@@ -816,6 +816,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         void SetLockAI(bool lock) { m_AI_locked = lock; }
 
+        void SendAddFollowerQuery(Player* p_Player, uint32 p_Sender, uint32 p_Action, char const* p_FollowerName);
+
         uint32 m_LOSCheckTimer;
         bool m_LOSCheck_creature;
         bool m_LOSCheck_player;

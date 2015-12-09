@@ -1724,6 +1724,9 @@ void GameObject::Use(Unit* p_User)
                     return;
             }
 
+            if (!sScriptMgr->OnGameObjectSpellCasterUse(this, p_User->ToPlayer()))
+                return;
+
             p_User->RemoveAurasByType(SPELL_AURA_MOUNTED);
             spellId = info->spellcaster.spell;
 

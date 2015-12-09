@@ -213,6 +213,7 @@ namespace MS { namespace Garrison
             PlotInstanceID  = 10003,
             GatheredPos     = 10004,
             DailyReset      = 10005,
+            OwnerGuid       = 10006,
             HasRecipe       = 0x40000000
         };
     }
@@ -283,7 +284,10 @@ namespace MS { namespace Garrison
             LunarfallExcavation_FrostwallMines_Level3   = 63,
             LunarfallInn_FrostwallTavern_Level1         = 34,
             LunarfallInn_FrostwallTavern_Level2         = 35,
-            LunarfallInn_FrostwallTavern_Level3         = 36
+            LunarfallInn_FrostwallTavern_Level3         = 36,
+            MageTower_SpiritLodge_Level1                = 37,
+            MageTower_SpiritLodge_Level2                = 38,
+            MageTower_SpiritLodge_Level3                = 39
         };
     }
 
