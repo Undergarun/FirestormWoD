@@ -142,14 +142,14 @@ class misc_commandscript: public CommandScript
             if (!l_PlayerSession)
                 return true;
 
-            if (l_PlayerSession->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
+            if (l_PlayerSession->HasCustomFlags(AccountCustomFlags::NoChatLocaleFiltering))
             {
-                l_PlayerSession->UnsetServiceFlags(ServiceFlags::NoChatLocaleFiltering);
+                l_PlayerSession->UnsetCustomFlags(AccountCustomFlags::NoChatLocaleFiltering);
                 p_Handler->SendSysMessage(LANG_CHANNEL_CHAT_LOCALE_FILTERING_OFF);
             }
             else
             {
-                l_PlayerSession->SetServiceFlags(ServiceFlags::NoChatLocaleFiltering);
+                l_PlayerSession->SetCustomFlags(AccountCustomFlags::NoChatLocaleFiltering);
                 p_Handler->SendSysMessage(LANG_CHANNEL_CHAT_LOCALE_FILTERING_ON);
             }
 

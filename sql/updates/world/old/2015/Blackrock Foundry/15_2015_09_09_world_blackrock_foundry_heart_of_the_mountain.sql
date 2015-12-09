@@ -361,7 +361,7 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     '%s использует |cFFFF0000|Hspell:156446|h[Взрывную волну]|h|r! Прячься!'
 );
 
-DELETE FROM spell_script_names WHERE spell_id IN (156345, 158424, 160379, 155192, 174716, 156934, 158247, 155176, 158345, 176121, 155225, 155288);
+DELETE FROM spell_script_names WHERE spell_id IN (156345, 158424, 160379, 155192, 174716, 156934, 158247, 155176, 158345, 176121, 155225, 155288, 177756);
 INSERT INTO spell_script_names VALUES
 (156345, 'spell_foundry_ignite_aura'),
 (158424, 'spell_foundry_blast_wave'),
@@ -374,7 +374,8 @@ INSERT INTO spell_script_names VALUES
 (158345, 'spell_foundry_shields_down'),
 (176121, 'spell_foundry_volatile_fire'),
 (155225, 'spell_foundry_melt_aura'),
-(155288, 'spell_foundry_heart_of_the_furnace');
+(155288, 'spell_foundry_heart_of_the_furnace'),
+(177756, 'spell_foundry_deafening_roar');
 
 DELETE FROM gameobject_template WHERE entry = 227616;
 INSERT INTO gameobject_template VALUE

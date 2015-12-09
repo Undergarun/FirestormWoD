@@ -1325,6 +1325,9 @@ enum TrinityStrings
 
     /// Garrison
     GarrisonChop,
+    GarrisonPortalNoItemCount,
+    GarrisonTooMuchPortals,
+    GarrisonNoMageTower,
 
     /// Custom
     WarnRaidTests = 20000,

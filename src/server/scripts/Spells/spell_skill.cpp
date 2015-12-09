@@ -87,7 +87,19 @@ namespace MS { namespace Skill
             BurnishedLeather            = 110611,
 
             /// Jewelcrafting
-            TaladiteCrystal             = 115524
+            TaladiteCrystal             = 115524,
+
+            /// Engineering
+            GearspringParts             = 111366,
+
+            /// Alchemy
+            AlchemicalCatalyst          = 108996,
+
+            /// Additional rewards for daily crafting
+            SorcerousAir                = 113264,
+            SorcerousEarth              = 113263,
+            SorcerousWater              = 113262,
+            SorcerousFire               = 113261
         };
     }
 
@@ -580,11 +592,7 @@ namespace MS { namespace Skill
         {
             public:
                 /// Constructor
-                spell_Skill_GrowFromSkillLevel()
-                    : SpellScriptLoader(t_Name)
-                {
-
-                }
+                spell_Skill_GrowFromSkillLevel() : SpellScriptLoader(t_Name) { }
 
                 class spell_Skill_GrowFromSkillLevel_SpellScript : public SpellScript
                 {
@@ -622,10 +630,11 @@ namespace MS { namespace Skill
                         return SPELL_CAST_OK;
                     }
 
-                    void AfterCast()
+                    void HandleCreateItem(SpellEffIndex p_EffIndex)
                     {
-                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+                        PreventHitDefaultEffect(p_EffIndex);
 
+                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
                         if (!l_Caster)
                             return;
 
@@ -641,14 +650,73 @@ namespace MS { namespace Skill
 
                         if (l_Item)
                             l_Caster->SendNewItem(l_Item, l_RollCount, false, true);
+
+                        HandleAdditionalReagents(l_Caster);
+                    }
+
+                    void HandleAdditionalReagents(Player* p_Player)
+                    {
+                        uint32 l_ItemIDs[2] = { 0,              0           };
+                        uint32 l_Counts[2]  = { urand(0, 5),    urand(0, 5) };
+
+                        switch (t_ItemID)
+                        {
+                            /// May also create Sorcerous Air and Fire.
+                            case ItemIDs::GearspringParts:
+                                l_ItemIDs[0] = ItemIDs::SorcerousAir;
+                                l_ItemIDs[1] = ItemIDs::SorcerousFire;
+                                break;
+                            /// May also create Sorcerous Fire and Water.
+                            case ItemIDs::AlchemicalCatalyst:
+                                l_ItemIDs[0] = ItemIDs::SorcerousWater;
+                                l_ItemIDs[1] = ItemIDs::SorcerousFire;
+                                break;
+                            /// May also create Sorcerous Fire and Earth.
+                            case ItemIDs::TruesteelIngot:
+                                l_ItemIDs[0] = ItemIDs::SorcerousEarth;
+                                l_ItemIDs[1] = ItemIDs::SorcerousFire;
+                                break;
+                            /// May also create Sorcerous Water and Earth.
+                            case ItemIDs::WarPaints:
+                            case ItemIDs::BurnishedLeather:
+                                l_ItemIDs[0] = ItemIDs::SorcerousWater;
+                                l_ItemIDs[1] = ItemIDs::SorcerousEarth;
+                                break;
+                            /// May also create Sorcerous Earth and Air.
+                            case ItemIDs::TaladiteCrystal:
+                                l_ItemIDs[0] = ItemIDs::SorcerousAir;
+                                l_ItemIDs[1] = ItemIDs::SorcerousEarth;
+                                break;
+                            /// May also create Sorcerous Water and Air.
+                            case ItemIDs::HexweaveCloth:
+                                l_ItemIDs[0] = ItemIDs::SorcerousWater;
+                                l_ItemIDs[1] = ItemIDs::SorcerousAir;
+                                break;
+                            default:
+                                return;
+                        }
+
+                        for (uint8 l_I = 0; l_I < 2; ++l_I)
+                        {
+                            if (l_ItemIDs[l_I] && l_Counts[l_I])
+                            {
+                                ItemPosCountVec l_Destination;
+                                InventoryResult l_Message = p_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Destination, l_ItemIDs[l_I], l_Counts[l_I]);
+
+                                if (l_Message != InventoryResult::EQUIP_ERR_OK)
+                                    return;
+
+                                if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_ItemIDs[l_I], true, Item::GenerateItemRandomPropertyId(l_ItemIDs[l_I])))
+                                    p_Player->SendNewItem(l_Item, l_Counts[l_I], false, true);
+                            }
+                        }
                     }
 
                     void Register() override
                     {
                         OnCheckCast += SpellCheckCastFn(spell_Skill_GrowFromSkillLevel_SpellScript::CheckCast);
-                        OnHit       += SpellHitFn(spell_Skill_GrowFromSkillLevel_SpellScript::AfterCast);
+                        OnEffectHitTarget += SpellEffectFn(spell_Skill_GrowFromSkillLevel_SpellScript::HandleCreateItem, EFFECT_0, SPELL_EFFECT_CREATE_ITEM_2);
                     }
-
                 };
 
                 /// Should return a fully valid SpellScript pointer.
@@ -656,7 +724,6 @@ namespace MS { namespace Skill
                 {
                     return new spell_Skill_GrowFromSkillLevel_SpellScript();
                 }
-
         };
 
         //////////////////////////////////////////////////////////////////////////
@@ -696,6 +763,18 @@ namespace MS { namespace Skill
         using spell_Skill_Jewelcrafting_TaladiteCrystal             = spell_Skill_GrowFromSkillLevel<spell_Skill_Jewelcrafting_TaladiteCrystal_Name, SKILL_JEWELCRAFTING, ItemIDs::TaladiteCrystal>;
 
         //////////////////////////////////////////////////////////////////////////
+        /// 169080 - Gearspring Parts
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_skill_engineering_gearspring_parts_name[]       = "spell_skill_engineering_gearspring_parts";
+        using spell_skill_engineering_gearspring_parts              = spell_Skill_GrowFromSkillLevel<spell_skill_engineering_gearspring_parts_name, SKILL_ENGINEERING, ItemIDs::GearspringParts>;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 156587 - Alchemical Catalyst
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_skill_alchemy_alchemical_catalyst_name[]        = "spell_skill_alchemy_alchemical_catalyst";
+        using spell_skill_alchemy_alchemical_catalyst               = spell_Skill_GrowFromSkillLevel<spell_skill_alchemy_alchemical_catalyst_name, SKILL_ALCHEMY, ItemIDs::AlchemicalCatalyst>;
+
+        //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////////
@@ -705,78 +784,101 @@ namespace MS { namespace Skill
         {
             public:
                 /// Constructor
-                spell_Skill_Enchantment_TemporalCrystal()
-                    : SpellScriptLoader("spell_Skill_Enchantment_TemporalCrystal")
-                {
-
-                }
+                spell_Skill_Enchantment_TemporalCrystal() : SpellScriptLoader("spell_Skill_Enchantment_TemporalCrystal") { }
 
                 class spell_Skill_Enchantment_TemporalCrystal_SpellScript : public SpellScript
                 {
                     PrepareSpellScript(spell_Skill_Enchantment_TemporalCrystal_SpellScript);
 
-                    uint32 GetItemID(Player* p_Player)
+                    uint32 m_Count;
+                    uint32 m_ItemID;
+
+                    bool Load() override
                     {
-                        if (p_Player->GetSkillValue(SKILL_ENCHANTING) >= 600)
-                            return ItemIDs::TemporalCrystal;
-
-                        return ItemIDs::FracturedTemporalCrystal;
-                    }
-                    uint32 GetItemCount(Player* p_Player)
-                    {
-                        uint32 l_SkillValue     = p_Player->GetSkillValue(SKILL_ENCHANTING);
-                        uint32 l_ItemCount      = urand(3, 6);
-
-                        if (l_SkillValue < 600)
-                            l_ItemCount = 4;
-
-                        return l_ItemCount;
+                        m_ItemID    = ItemIDs::FracturedTemporalCrystal;
+                        m_Count     = urand(3, 6);
+                        return true;
                     }
 
                     SpellCastResult CheckCast()
                     {
-                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+                        Player* l_Player = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+                        if (!l_Player)
+                            return SpellCastResult::SPELL_FAILED_ERROR;
 
-                        if (!l_Caster)
-                            return SPELL_FAILED_ERROR;
+                        uint32 l_SkillValue = l_Player->GetSkillValue(SkillType::SKILL_ENCHANTING);
 
-                        ItemPosCountVec l_Destination;
-                        InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, GetItemID(l_Caster), GetItemCount(l_Caster));
-
-                        if (l_Message != EQUIP_ERR_OK)
+                        /// Low Enchanting skill may fracture the crystal when created.
+                        if (l_SkillValue < 600)
                         {
-                            l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
-                            return SPELL_FAILED_DONT_REPORT;
+                            int32 l_Chance = l_SkillValue * 100 / 600;
+                            if (roll_chance_i(l_Chance))
+                            {
+                                m_Count     = 1;
+                                m_ItemID    = ItemIDs::TemporalCrystal;
+                            }
                         }
 
-                        return SPELL_CAST_OK;
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Destination, m_ItemID, m_Count);
+
+                        if (l_Message != InventoryResult::EQUIP_ERR_OK)
+                        {
+                            l_Player->SendEquipError(InventoryResult::EQUIP_ERR_INV_FULL, nullptr);
+                            return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+                        }
+
+                        return SpellCastResult::SPELL_CAST_OK;
                     }
 
-                    void AfterCast()
+                    void HandleCreateItem(SpellEffIndex p_EffIndex)
                     {
-                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+                        PreventHitDefaultEffect(p_EffIndex);
 
-                        if (!l_Caster)
+                        Player* l_Player = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+                        if (!l_Player)
                             return;
 
                         ItemPosCountVec l_Destination;
-                        InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, GetItemID(l_Caster), GetItemCount(l_Caster));
+                        InventoryResult l_Message = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Destination, m_ItemID, m_Count);
 
-                        if (l_Message != EQUIP_ERR_OK)
+                        if (l_Message != InventoryResult::EQUIP_ERR_OK)
                             return;
 
-                        Item* l_Item = l_Caster->StoreNewItem(l_Destination, GetItemID(l_Caster), true, Item::GenerateItemRandomPropertyId(GetItemID(l_Caster)));
+                        l_Player->UpdateCraftSkill(GetSpellInfo()->Id);
 
-                        if (l_Item)
-                            l_Caster->SendNewItem(l_Item, GetItemCount(l_Caster), false, true);
+                        if (Item* l_Item = l_Player->StoreNewItem(l_Destination, m_ItemID, true, Item::GenerateItemRandomPropertyId(m_ItemID)))
+                            l_Player->SendNewItem(l_Item, m_Count, false, true);
+
+                        HandleAdditionalReagents(l_Player);
+                    }
+
+                    void HandleAdditionalReagents(Player* p_Player)
+                    {
+                        uint32 l_ItemIDs[2] = { ItemIDs::SorcerousAir,  ItemIDs::SorcerousFire  };
+                        uint32 l_Counts[2]  = { urand(0, 5),            urand(0, 5)             };
+
+                        for (uint8 l_I = 0; l_I < 2; ++l_I)
+                        {
+                            if (l_ItemIDs[l_I] && l_Counts[l_I])
+                            {
+                                ItemPosCountVec l_Destination;
+                                InventoryResult l_Message = p_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Destination, l_ItemIDs[l_I], l_Counts[l_I]);
+
+                                if (l_Message != InventoryResult::EQUIP_ERR_OK)
+                                    return;
+
+                                if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_ItemIDs[l_I], true, Item::GenerateItemRandomPropertyId(l_ItemIDs[l_I])))
+                                    p_Player->SendNewItem(l_Item, l_Counts[l_I], false, true);
+                            }
+                        }
                     }
 
                     void Register() override
                     {
                         OnCheckCast += SpellCheckCastFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::CheckCast);
-                        OnHit       += SpellHitFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::AfterCast);
+                        OnEffectHitTarget += SpellEffectFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::HandleCreateItem, EFFECT_0, SPELL_EFFECT_CREATE_ITEM_2);
                     }
-
                 };
 
                 /// Should return a fully valid SpellScript pointer.
@@ -784,7 +886,6 @@ namespace MS { namespace Skill
                 {
                     return new spell_Skill_Enchantment_TemporalCrystal_SpellScript();
                 }
-
         };
     }   ///< namespace DailyMajorSkills
 
@@ -846,4 +947,6 @@ void AddSC_spell_skill()
     new MS::Skill::DailyMajorSkills::spell_Skill_Leatherworking_BurnishedLeather();
     new MS::Skill::DailyMajorSkills::spell_Skill_Jewelcrafting_TaladiteCrystal();
     new MS::Skill::DailyMajorSkills::spell_Skill_Enchantment_TemporalCrystal();
+    new MS::Skill::DailyMajorSkills::spell_skill_engineering_gearspring_parts();
+    new MS::Skill::DailyMajorSkills::spell_skill_alchemy_alchemical_catalyst();
 }

@@ -235,6 +235,8 @@ class ScriptMgr
         /// @p_GameObject : GameObject instance
         bool OnGameObjectElevatorCheck(GameObject const* p_GameObject) const;
 
+        bool OnGameObjectSpellCasterUse(GameObject const* p_GameObject, Player* p_User) const;
+
         /// Called when a GameObjectAI object is needed for the GameObject.
         /// @p_GameObject : GameObject instance
         GameObjectAI* GetGameObjectAI(GameObject* p_GameObject);
@@ -771,6 +773,10 @@ class ScriptMgr
         /// @p_Player : Player instance
         /// @p_Quest  : Removed quest
         void OnQuestAbandon(Player* p_Player, Quest const* p_Quest);
+        /// Called when player has quest removed from questlog (active or rewarded)
+        /// @p_Player : Player instance
+        /// @p_Quest  : Removed quest
+        void OnQuestCleared(Player* p_Player, Quest const* p_Quest);
         /// Called when a player validates some quest objective
         /// @p_Player      : Player instance
         /// @p_QuestID     : Quest ID

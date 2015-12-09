@@ -203,6 +203,8 @@ namespace MS { namespace Garrison
             std::vector<uint64> GetBuildingCreaturesByBuildingType(BuildingType::Type p_Type);
             /// Get Garrison ID
             uint32 GetGarrisonID() { return m_ID; };
+            /// Get Garrison Level
+            uint32 GetGarrisonLevel() { return m_GarrisonLevel; };
 
             /// Get known blueprints
             std::vector<int32> GetKnownBlueprints() const;

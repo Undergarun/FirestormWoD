@@ -158,6 +158,14 @@ class GameObjectScript : public ScriptObjectImpl<true>, public UpdatableScript<G
             return true;
         }
 
+        virtual bool OnGameObjectSpellCasterUse(const GameObject* p_GameObject, Player* p_User) const
+        {
+            UNUSED(p_GameObject);
+            UNUSED(p_User);
+
+            return true;
+        }
+
         /// Called when a GameObjectAI object is needed for the GameObject.
         /// @p_GameObject : GameObject instance
         virtual GameObjectAI* GetAI(GameObject * p_GameObject) const 

@@ -20,12 +20,22 @@ namespace MS { namespace Garrison
     /// Garrison map ids
     enum MapIDs
     {
-        MAP_GARRISON_HORDE_LEVEL_1      = 1152,
-        MAP_GARRISON_HORDE_LEVEL_2      = 1330,
-        MAP_GARRISON_HORDE_LEVEL_3      = 1153,
-        MAP_GARRISON_ALLIANCE_LEVEL_1   = 1158,
-        MAP_GARRISON_ALLIANCE_LEVEL_2   = 1331,
-        MAP_GARRISON_ALLIANCE_LEVEL_3   = 1159
+        MapGarrisonHordeLevel1      = 1152,
+        MapGarrisonHordeLevel2      = 1330,
+        MapGarrisonHordeLevel3      = 1153,
+        MapGarrisonAllianceLevel1   = 1158,
+        MapGarrisonAllianceLevel2   = 1331,
+        MapGarrisonAllianceLevel3   = 1159
+    };
+
+    enum GarrisonPhases
+    {
+        PhaseMagePortalFrostfireRidge = 0x00000008,
+        PhaseMagePortalSpiresOfArak   = 0x00000010,
+        PhaseMagePortalTalador        = 0x00000020,
+        PhaseMagePortalNagrand        = 0x00000040,
+        PhaseMagePortalShadowmoon     = 0x00000080,
+        PhaseMagePortalGorgrond       = 0x00000100,
     };
 
     /// Instance data common IDs
@@ -51,7 +61,8 @@ namespace MS { namespace Garrison
         SpellArming                            = 167920,
         SpellIronTrap                          = 180609,
         SpellApprenticeLogging                 = 167911,
-        SpellSummonStump                       = 170079
+        SpellSummonStump                       = 170079,
+        SpellGarrisonPortal                    = 182464
     };
 
     enum DisplayIDs
@@ -89,6 +100,8 @@ namespace MS { namespace Garrison
             Alliance_TurningTimberIntoProfit            = 36192,
             /// Lunar Fall Excavation
             Alliance_ThingsAreNotGorenOurWay            = 34192,
+            /// Mage Tower
+            Alliance_PortablePortals                    = 38354,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -114,7 +127,9 @@ namespace MS { namespace Garrison
             Horde_TurningTimberIntoProfit               = 36138,
             /// Frostwall Mines
             Horde_ThingsAreNotGorenOurWay               = 35154,
-            Horde_MissionProbable                       = 34775
+            Horde_MissionProbable                       = 34775,
+            /// Spirit Lodge
+            Horde_PortablePortals                       = 38351
         };
     }   ///< namespace Quests
 
@@ -155,6 +170,82 @@ namespace MS { namespace Garrison
         NpcHordeMiner                                   = 79837
     };
 
+    namespace GarrisonPortals
+    {
+        enum DraenorZones
+        {
+            /// TODO : Handle Tanaan Jungle in build > 6.2
+            ZoneFrostfireRidge    = 6720,
+            ZoneSpiresOfArak      = 6722,
+            ZoneTalador           = 6662,
+            ZoneNagrand           = 6755,
+            ZoneShadowmoon        = 6719,
+            ZoneGorgrond          = 6721
+        };
+
+        /// Those quests are used to handle portals phasing in Garrison and in Draenor
+        enum PortalsQuests
+        {
+            QuestFrostfireRidge = 36904,
+            QuestSpiresOfArak   = 36885,
+            QuestTalador        = 36905,
+            QuestNagrand        = 36906,
+            QuestShadowmoon     = 36903,
+            QuestGorgrond       = 36886,
+            QuestTanaanJungle   = 39497
+        };
+
+        /// EffectForcePlayerInteraction, triggers a spell which completes associated quest
+        enum ActivationSpells
+        {
+            FrostfireRidgeActivationSpell = 173817,
+            SpiresOfArakActivationSpell   = 173554,
+            TaladorActivationSpell        = 173806,
+            NagrandActivationSpell        = 173809,
+            ShadowmoonActivationSpell     = 173821,
+            GorgrondActivationSpell       = 173504
+        };
+
+        /// EffectForcePlayerInteraction, triggers a spell which removes the associated quest from questlog,
+        /// being incomplete or even rewarded
+        enum DeactivationSpells
+        {
+            FrostfireRidgeDeactivationSpell = 173815,
+            SpiresOfArakDeactivationSpell   = 173550,
+            TaladorDeactivationSpell        = 173646,
+            NagrandDeactivationSpell        = 173811,
+            ShadowmoonDeactivationSpell     = 173819,
+            GorgrondDeactivationSpell       = 173493
+        };
+
+        enum WorldGobs
+        {
+            FrostfireRidgeWorldGob   = 236911,
+            SpiresOfArakWorldGob     = 236774,
+            TaladorWorldGob          = 236906,
+            NagrandWorldGob          = 236910,
+            ShadowmoonValleyWorldGob = 236912,
+            GorgrondWorldGob         = 236765
+        };
+
+        enum GarrisonGobs
+        {
+            /// Most of IDs are custom here, have them all would mean sniff them all and loose much time to farm stones on retail...
+            FrostfireRidgeBuildingGob  = 236024,
+            GorgrondBuildingGob        = 500003,
+            NagrandBuildingGob         = 500004,
+            ShadowmoonBuildingGob      = 500005,
+            SpiresOfArakBuildingGob    = 500006,
+            TaladorBuildingGob         = 500007
+        };
+
+        enum DraenorPortalPhases
+        {
+            WorldPhaseDeactivatedPortal = 0x80000000,
+            WorldPhaseActivatedPortal   = 0x40000000
+        };
+    }
+
     enum GameObjects
     {
         GobStump                = 234568,
@@ -162,7 +253,6 @@ namespace MS { namespace Garrison
         GobRichBlackrockDeposit = 232543,
         GobTrueIronDeposit      = 232544,
         GobRichTrueIronDeposit  = 232545
-
     };
 
     /// NPC texts id
@@ -241,7 +331,9 @@ namespace MS { namespace Garrison
     enum ObjectIDs
     {
         TimberWorkOrderAlly  = 37548,
-        TimberWorkOrderHorde = 37487
+        TimberWorkOrderHorde = 37487,
+        FirstMageTowerSpiritLodgeObjectID = 91574,
+        MageTowerQuestActivateOgreWaygate = 39133
     };
 
     /// Garrison creation coords
