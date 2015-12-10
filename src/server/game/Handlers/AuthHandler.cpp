@@ -73,7 +73,7 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
     WorldPacket l_Data(SMSG_AUTH_RESPONSE);
 
     CharacterTemplates const& l_CharacterTemplates = sObjectMgr->GetCharacterTemplates();
-    bool l_PremadeAvailable = m_ServiceFlags & ServiceFlags::Premade || sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED);
+    bool l_PremadeAvailable = sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED);
 
     uint32 l_PremadeCount               = l_PremadeAvailable ? l_CharacterTemplates.size() : 0;
     uint32 l_VirtualRealmsCount         = 1;

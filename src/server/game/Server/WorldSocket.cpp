@@ -1311,6 +1311,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     m_Session->ReadAddonsInfo(l_AddonsCompressedData);
     m_Session->SetClientBuild(l_ClientBuild);
     m_Session->SetAccountJoinDate(l_JoinDateTimestamp);
+    m_Session->LoadPremades();
 
     /// - First premade money
     {

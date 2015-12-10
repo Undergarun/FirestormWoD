@@ -337,6 +337,7 @@ struct CharacterTemplate
         int32 m_ItemID;
         int32 m_Faction;
         int32 m_Count;
+        int8  m_Type;
     };
 
     struct TemplateFaction
@@ -356,6 +357,8 @@ struct CharacterTemplate
     int16 m_HordeMapID;
     uint8 m_Level;
     uint64 m_Money;
+    uint8 m_HordeDefaultRace;
+    uint8 m_AllianceDefaultRace;
 
     std::list<TemplateItem> m_TemplateItems;
     std::list<TemplateFaction> m_TemplateFactions;
