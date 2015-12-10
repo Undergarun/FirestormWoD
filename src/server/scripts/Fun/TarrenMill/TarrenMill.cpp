@@ -357,7 +357,7 @@ void OutdoorPvPTarrenMillFun::CheckKillRewardConditions(Player* p_Player)
             if (l_ItemTemplate)
             {
                 uint32 l_NoSpace = 0;
-                p_Player->AddItem(l_ItemTemplate->ItemId, 1, &l_NoSpace);
+                p_Player->AddItem(l_ItemTemplate->ItemId, 1);
 
                 if (l_NoSpace)
                 {
