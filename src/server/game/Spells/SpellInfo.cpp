@@ -2774,10 +2774,6 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
     if (p_Caster)
         p_Caster->ModSpellCastTime(this, l_CastTime, p_Spell);
 
-    /// Fix Cultivation - with Herb Gathering
-    if (Id == 2366 && p_Caster && p_Caster->HasAura(20552))
-        l_CastTime = 500;
-
     /// Glyph of Capacitor Totem
     if (p_Caster && Id == 118905)
     {
