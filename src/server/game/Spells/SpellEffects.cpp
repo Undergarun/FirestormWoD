@@ -8331,4 +8331,8 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
     l_ItemTarget->RemoveItemBonus(l_OldBonusTree->ItemBonusEntry);
     l_ItemTarget->AddItemBonus(l_NewBonusTree->ItemBonusEntry);
     l_ItemTarget->SetState(ITEM_CHANGED, m_caster->ToPlayer());
+
+    /// Update item display ID if needed
+    if (l_ItemTarget->IsEquipped())
+        m_caster->ToPlayer()->SetVisibleItemSlot(l_ItemTarget->GetSlot(), l_ItemTarget);
 }
