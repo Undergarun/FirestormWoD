@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2014-2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -15,7 +16,7 @@
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
-#include "Buildings/Alliance/Large/AMageTower.hpp"
+///#include "Buildings/Alliance/Large/AMageTower.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 #include "Buildings/Alliance/Medium/ALunarfallInn.hpp"
 #include "Buildings/Alliance/Medium/ABarn.hpp"
