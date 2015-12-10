@@ -174,14 +174,6 @@ enum DB2Types : uint32
 #define VOTE_BUFF           176151
 #define VOTE_SYNC_TIMER     600000      ///< 10 mins
 
-namespace ServiceFlags
-{
-    enum
-    {
-        Premade = 0x1
-    };
-}
-
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
 class PacketFilter
@@ -491,6 +483,8 @@ class WorldSession
 
         void SetServiceFlags(uint32 p_Flags);
         bool HasServiceFlags(uint32 p_Flags) const { return m_ServiceFlags & p_Flags; }
+
+        void LoadPremades();
 
     public:                                                 // opcodes handlers
 

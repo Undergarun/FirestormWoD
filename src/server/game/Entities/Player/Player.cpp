@@ -1385,9 +1385,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 // Give bags first to the players, then the equipment
                 if (l_Proto->Class == ITEM_CLASS_CONTAINER)
                 {
-                    if (!l_Item.m_Faction || (l_Item.m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item.m_Faction == 2 && GetTeam() == HORDE))
-                        StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
-
+                    StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
                     continue;
                 }
             }
@@ -1395,8 +1393,16 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         }
 
         for (auto l_Item : l_RemainingTemplates)
-            if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && GetTeam() == HORDE))
-                StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count);
+        {
+            if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->m_ItemID))
+            {
+                if ((l_Proto->AllowableRace & getRaceMask()) == 0)
+                    continue;
+
+                if (l_Item->m_Type == 1)
+                    StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, ItemContext::RaidLfr);
+            }
+        }
     }
     else
     {
@@ -1422,6 +1428,12 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
             {
                 if (oEntry->ItemId[j] <= 0)
                     continue;
+
+                if (iProto->Class == ITEM_CLASS_ARMOR || iProto->Class == ITEM_CLASS_WEAPON)
+                {
+                    if (createInfo->OutfitId == 0)
+                        continue;
+                }
 
                 uint32 itemId = oEntry->ItemId[j];
 
@@ -1536,7 +1548,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     return true;
 }
 
-bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
+bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount, ItemContext p_ItemContext)
 {
     sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: Creating initial item, itemId = %u, count = %u", titem_id, titem_amount);
 
@@ -1548,7 +1560,15 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
         if (msg != EQUIP_ERR_OK)
             break;
 
-        EquipNewItem(eDest, titem_id, true);
+        Item* l_Item = EquipNewItem(eDest, titem_id, true);
+
+        if (l_Item && p_ItemContext != ItemContext::None)
+        {
+            std::vector<uint32> l_Bonus;
+            Item::GenerateItemBonus(titem_id, p_ItemContext, l_Bonus);
+            l_Item->AddItemBonuses(l_Bonus);
+        }
+
         AutoUnequipOffhandIfNeed();
         --titem_amount;
     }
@@ -1562,7 +1582,15 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
     InventoryResult msg = CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, titem_id, titem_amount);
     if (msg == EQUIP_ERR_OK)
     {
-        StoreNewItem(sDest, titem_id, true, Item::GenerateItemRandomPropertyId(titem_id));
+        Item* l_Item = StoreNewItem(sDest, titem_id, true, Item::GenerateItemRandomPropertyId(titem_id));
+
+        if (l_Item && p_ItemContext != ItemContext::None)
+        {
+            std::vector<uint32> l_Bonus;
+            Item::GenerateItemBonus(titem_id, p_ItemContext, l_Bonus);
+            l_Item->AddItemBonuses(l_Bonus);
+        }
+
         return true;                                        // stored
     }
 

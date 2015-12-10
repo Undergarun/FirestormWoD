@@ -3040,7 +3040,7 @@ void ObjectMgr::LoadItemSpecs()
                 if (!hasPrimary || !hasSecondary)
                     continue;
 
-                if (l_ItemTemplate.RequiredLevel > 40)
+                if (l_ItemTemplate.RequiredLevel > 40 && l_ItemTemplate.InventoryType != InventoryType::INVTYPE_CLOAK && l_ItemTemplate.Class == ItemClass::ITEM_CLASS_ARMOR)
                 {
                     uint8 l_Class = GetClassBySpec(itemSpec->SpecializationID);
                     switch (l_ItemTemplate.SubClass)
@@ -10066,7 +10066,7 @@ void ObjectMgr::LoadGuildChallengeRewardInfo()
 void ObjectMgr::LoadCharacterTemplateData()
 {
     uint32 l_OldMSTime = getMSTime();
-    QueryResult l_Result = WorldDatabase.Query("SELECT id, class, name, description, level, money, alianceX, alianceY, alianceZ, alianceO, alianceMap, hordeX, hordeY, hordeZ, hordeO, hordeMap FROM character_template WHERE disabled = 0");
+    QueryResult l_Result = WorldDatabase.Query("SELECT id, class, name, description, level, money, alianceX, alianceY, alianceZ, alianceO, alianceMap, hordeX, hordeY, hordeZ, hordeO, hordeMap, hordeDefaultRace, allianceDefaultRace FROM character_template WHERE disabled = 0");
     uint32 l_Count = 0;
 
     if (!l_Result)
@@ -10092,6 +10092,8 @@ void ObjectMgr::LoadCharacterTemplateData()
             l_CharacterTemplate->m_AlianceMapID = l_Fields[10].GetInt16();
             l_CharacterTemplate->m_HordePos.Relocate(l_Fields[11].GetFloat(), l_Fields[12].GetFloat(), l_Fields[13].GetFloat(), l_Fields[14].GetFloat());
             l_CharacterTemplate->m_HordeMapID = l_Fields[15].GetInt16();
+            l_CharacterTemplate->m_HordeDefaultRace = l_Fields[16].GetUInt8();
+            l_CharacterTemplate->m_AllianceDefaultRace = l_Fields[16].GetUInt8();
         }
 
         if (!sChrClassesStore.LookupEntry(l_CharacterTemplate->m_PlayerClass))
@@ -10111,7 +10113,7 @@ void ObjectMgr::LoadCharacterTemplateData()
         if (!l_CharacterTemplate->m_Level)
             l_CharacterTemplate->m_Level = 1;
 
-        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, faction, count FROM character_template_item WHERE id = %i OR id = %i", l_ID, MAX_CLASSES);
+        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, faction, count, type FROM character_template_item WHERE id = %i OR id = %i", l_ID, MAX_CLASSES);
         if (l_ItemResult)
         {
             do
@@ -10123,6 +10125,7 @@ void ObjectMgr::LoadCharacterTemplateData()
                     l_TemplateItem.m_ItemID = l_ItemFields[0].GetUInt32();
                     l_TemplateItem.m_Faction = l_ItemFields[1].GetUInt32();
                     l_TemplateItem.m_Count = l_ItemFields[2].GetUInt32();
+                    l_TemplateItem.m_Type = l_ItemFields[3].GetUInt8();
                 }
 
                 if (!GetItemTemplate(l_TemplateItem.m_ItemID))
