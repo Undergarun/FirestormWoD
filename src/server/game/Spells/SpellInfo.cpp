@@ -2799,6 +2799,19 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
     if (HasEffect(SPELL_EFFECT_SKINNING) && p_Caster->HasAura(68978))
         l_CastTime = CalculatePct(l_CastTime, 66);
 
+    /// Cultivation
+    if (HasEffect(SPELL_EFFECT_SKILL) && p_Caster->HasAura(20552) && AttributesEx10 & SPELL_ATTR10_HERB_GATHERING_MINING)
+    {
+        for (uint8 i = 0; i < EffectCount; ++i)
+        {
+            if (Effects[i].Effect == SPELL_EFFECT_SKILL && Effects[i].MiscValue == SKILL_HERBALISM)
+            {
+                l_CastTime = CalculatePct(l_CastTime, 66);
+                break;
+            }
+        }
+    }
+
     /// Elegon - Overloaded
     if (p_Caster && p_Caster->HasAura(117204))
     {
