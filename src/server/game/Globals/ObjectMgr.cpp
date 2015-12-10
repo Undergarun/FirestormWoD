@@ -10093,7 +10093,7 @@ void ObjectMgr::LoadCharacterTemplateData()
             l_CharacterTemplate->m_HordePos.Relocate(l_Fields[11].GetFloat(), l_Fields[12].GetFloat(), l_Fields[13].GetFloat(), l_Fields[14].GetFloat());
             l_CharacterTemplate->m_HordeMapID = l_Fields[15].GetInt16();
             l_CharacterTemplate->m_HordeDefaultRace = l_Fields[16].GetUInt8();
-            l_CharacterTemplate->m_AllianceDefaultRace = l_Fields[16].GetUInt8();
+            l_CharacterTemplate->m_AllianceDefaultRace = l_Fields[17].GetUInt8();
         }
 
         if (!sChrClassesStore.LookupEntry(l_CharacterTemplate->m_PlayerClass))
