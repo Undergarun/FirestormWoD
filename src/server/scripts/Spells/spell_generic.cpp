@@ -5003,8 +5003,79 @@ class spell_gen_potion_of_illusion : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2
+/// Hemet's Heartseeker - 173286, Megawatt Filament - 156059, Oglethorpe's Missile Splitter - 156052
+class spell_gen_inge_trigger_enchant : public SpellScriptLoader
+{
+    public:
+        spell_gen_inge_trigger_enchant() : SpellScriptLoader("spell_gen_inge_trigger_enchant") { }
+
+        class spell_gen_inge_trigger_enchant_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_inge_trigger_enchant_AuraScript);
+
+            enum eSpells
+            {
+                HemetsHeartseekerAura   = 173286,
+                HemetsHeartseeker       = 173288,
+                MegawattFilamentAura    = 156059,
+                MegawattFilament        = 156060,
+                OglethorpesMissileAura  = 156052,
+                OglethorpesMissile      = 156055
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+                
+                DamageInfo* l_DamageInfo = p_EventInfo.GetDamageInfo();
+
+                if (l_DamageInfo == nullptr)
+                    return;
+
+                Unit* l_Target = l_DamageInfo->GetVictim();
+                Unit* l_Caster = l_DamageInfo->GetAttacker();
+
+                if (l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                uint32 l_WeaponSpeed = l_Caster->GetAttackTime(WeaponAttackType::RangedAttack);
+                float l_Chance = l_Caster->GetPPMProcChance(l_WeaponSpeed, 1.55f, GetSpellInfo());
+
+                if (!roll_chance_f(l_Chance))
+                    return;
+
+                switch (GetSpellInfo()->Id)
+                {
+                case eSpells::HemetsHeartseekerAura:
+                    l_Caster->CastSpell(l_Caster, eSpells::HemetsHeartseeker, true);
+                    break;
+                case eSpells::MegawattFilamentAura:
+                    l_Caster->CastSpell(l_Caster, eSpells::MegawattFilament, true);
+                    break;
+                case eSpells::OglethorpesMissileAura:
+                    l_Caster->CastSpell(l_Caster, eSpells::OglethorpesMissile, true);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_inge_trigger_enchant_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_inge_trigger_enchant_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_inge_trigger_enchant();
     new spell_gen_potion_of_illusion();
     new spell_gen_alchemists_flask();
     new spell_gen_jards_peculiar_energy_source();
