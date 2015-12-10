@@ -665,8 +665,8 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_MadisonClark;
 
         /// Mage Tower
-        new MS::Garrison::npc_ApprenticeVarNath;
-        new MS::Garrison::npc_AncientWaygateProtector;
+        /*new MS::Garrison::npc_ApprenticeVarNath;
+        new MS::Garrison::npc_AncientWaygateProtector;*/
     }
 
     /// Horde
