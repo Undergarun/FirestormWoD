@@ -684,7 +684,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector
         if (l_ItemBonusGroup == nullptr)
             continue;
 
-        p_ItemBonus.push_back(l_ItemBonusGroup->at(rand() % l_ItemBonusGroup->size()));
+        p_ItemBonus.push_back(l_ItemBonusGroup->at(urand(0, l_ItemBonusGroup->size() - 1)));
     }
 
     /// Item bonus per item are store in ItemXBonusTree.db2
