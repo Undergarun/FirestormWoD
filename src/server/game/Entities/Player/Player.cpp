@@ -1436,11 +1436,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 if (!iProto)
                     continue;
 
-                if (iProto->Class == ITEM_CLASS_ARMOR || iProto->Class == ITEM_CLASS_WEAPON)
-                {
-                    if (createInfo->OutfitId == 0)
-                        continue;
-                }
+                if (createInfo->OutfitId == 0)
+                    continue;
 
                 // BuyCount by default
                 uint32 count = iProto->BuyCount;

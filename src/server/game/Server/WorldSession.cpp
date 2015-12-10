@@ -1537,8 +1537,11 @@ void WorldSession::LoadPremades()
 
         for (auto l_Item : l_RemainingTemplates)
         {
-            if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && l_NewCharacter.GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && l_NewCharacter.GetTeam() == HORDE))
+            if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->m_ItemID))
             {
+                if ((l_Proto->AllowableRace & l_NewCharacter.getRaceMask()) == 0)
+                    continue;
+
                 if (l_Item->m_Type == 0 || l_Type == l_Item->m_Type)
                     l_NewCharacter.StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count);
             }
