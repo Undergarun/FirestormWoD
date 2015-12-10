@@ -4697,17 +4697,26 @@ class spell_gen_draenic_philosophers : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                Unit* l_Target = GetTarget();
+                Player* l_Player = GetTarget()->ToPlayer();
                 Stats l_MaxStatValue = STAT_STRENGTH;
+
+                if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                    return;
 
                 for (int8 l_I = 0; l_I < 3; l_I++)
                 {
-                    if (l_Target->GetStat(g_DraenicStats[l_I]) >= l_Target->GetStat(g_DraenicStats[l_MaxStatValue]))
+                    if (l_Player->GetStat(g_DraenicStats[l_I]) >= l_Player->GetStat(g_DraenicStats[l_MaxStatValue]))
                         l_MaxStatValue = (Stats)l_I;
                 }
 
-                l_Target->CastSpell(l_Target, g_DraenicAuras[l_MaxStatValue], true);
-                if (AuraEffectPtr l_DreanicAura = l_Target->GetAuraEffect(g_DraenicAuras[l_MaxStatValue], EFFECT_0))
+                /// Can proc just on damage spell, also check for absorbed damage, because all damage can be absorbed but it's still damage spell
+                if (p_EventInfo.GetDamageInfo() && p_EventInfo.GetDamageInfo()->GetDamage() == 0 && p_EventInfo.GetDamageInfo()->GetAbsorb() == 0)
+                    return;
+
+                l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, 55 * IN_MILLISECONDS, true);
+
+                l_Player->CastSpell(l_Player, g_DraenicAuras[l_MaxStatValue], true);
+                if (AuraEffectPtr l_DreanicAura = l_Player->GetAuraEffect(g_DraenicAuras[l_MaxStatValue], EFFECT_0))
                     l_DreanicAura->ChangeAmount(m_Value);
             }
 
