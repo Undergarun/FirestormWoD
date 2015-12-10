@@ -27,6 +27,7 @@
 
 extern std::map<uint32, DB2StorageBase*> sDB2PerHash;
 extern std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
+extern std::map<uint32, uint32> g_ItemDisplayIDs;
 
 extern DB2Storage <SoundEntriesEntry>               sSoundEntriesStore;
 extern DB2Storage <CurrencyTypesEntry>              sCurrencyTypesStore;
@@ -117,6 +118,8 @@ extern DB2Storage<BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore;
 
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
+
+uint32 GetItemDisplayID(uint32 p_ItemID, uint32 p_AppearanceModID);
 
 extern std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 extern std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;

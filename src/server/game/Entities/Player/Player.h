@@ -2090,6 +2090,7 @@ class Player : public Unit, public GridObject<Player>
 
         void Initialize(uint32 guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
+        static uint64 GetUInt64ValueFromArray(Tokenizer const& p_Datas, uint16 p_Index);
         static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(uint64 guid);
         static uint32 GetLevelFromDB(uint64 guid);
