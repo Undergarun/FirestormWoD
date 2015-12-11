@@ -5998,7 +5998,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     /// Check specialization
-    if (!IsTriggered() && !sWorld->getBoolConfig(CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK))
+    if (!IsTriggered() && !sWorld->getBoolConfig(CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK) && !IsDarkSimulacrum())
     {
         if (Player* l_Player = m_caster->ToPlayer())
         {
