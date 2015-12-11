@@ -575,6 +575,79 @@ namespace MS { namespace Garrison
 
                 std::queue<std::function<void()>> m_DelayedOperations;  ///< Delayed operations
             };
+    };
+
+    /// Atheeru Palestar
+    class npc_garrison_atheeru_palestar : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_garrison_atheeru_palestar();
+
+            enum MiscDatas
+            {
+                NpcTextID = 92007
+            };
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_Creature   : Target creature instance
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+    };
+
+    class npc_garrison_atheeru_palestarAI : public GarrisonNPCAI
+    {
+        public:
+            /// Constructor
+            npc_garrison_atheeru_palestarAI(Creature* p_Creature);
+
+            virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+
+            void SpawnAssemblies();
+
+            void DoAction(int32 const p_Action) override;
+    };
+
+
+
+    /// Amperial Construct
+    class npc_garrison_amperial_construct : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_garrison_amperial_construct();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_garrison_amperial_constructAI : public GarrisonNPCAI
+            {
+                uint64 m_OwnerGuid;
+                uint32 m_CheckTimer;
+
+                /// Constructor
+                npc_garrison_amperial_constructAI(Creature * p_Creature);
+
+                virtual void OnSpellClick(Unit* p_Clicker) override;
+
+                virtual void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override;
+
+                virtual void SetGUID(uint64 p_Guid, int32 p_Id) override;
+
+                virtual void UpdateAI(const uint32 p_Diff) override;
+            };
 
     };
 

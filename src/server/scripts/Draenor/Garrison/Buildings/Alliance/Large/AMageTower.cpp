@@ -40,7 +40,6 @@ namespace MS { namespace Garrison
     npc_ApprenticeVarNath::npc_ApprenticeVarNath()
         : CreatureScript("npc_ApprenticeVarNath_Garr")
     {
-
     }
 
     /// Constructor
@@ -58,8 +57,21 @@ namespace MS { namespace Garrison
 
     bool npc_ApprenticeVarNath::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        if (p_Player->GetQuestStatus(Quests::Alliance_PortablePortals) == QUEST_STATUS_INCOMPLETE)
-            p_Player->QuestObjectiveSatisfy(ObjectIDs::FirstMageTowerSpiritLodgeObjectID, 1, 3);
+        p_Player->PlayerTalkClass->ClearMenus();
+        MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
+        CreatureAI* l_AI = p_Creature->AI();
+
+        if (l_AI == nullptr)
+            return true;
+
+        if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
+        {
+            if (p_Player->GetQuestStatus(Quests::Alliance_PortablePortals) == QUEST_STATUS_INCOMPLETE)
+                p_Player->QuestObjectiveSatisfy(ObjectIDs::FirstMageTowerSpiritLodgeObjectID, 1, 3);
+
+            l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFur);
+            reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
+        }
         return true;
     }
 
@@ -97,7 +109,14 @@ namespace MS { namespace Garrison
                 {
                     l_Itr++;
 
-                    switch (l_QuestID)
+                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::FrostfireRidgeBuildingGob, l_GobPos[0].X, l_GobPos[0].Y, l_GobPos[0].Z, l_GobPos[0].O);
+                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::GorgrondBuildingGob, l_GobPos[1].X, l_GobPos[1].Y, l_GobPos[1].Z, l_GobPos[1].O);
+                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::NagrandBuildingGob, l_GobPos[2].X, l_GobPos[2].Y, l_GobPos[2].Z, l_GobPos[2].O);
+                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::ShadowmoonBuildingGob, l_GobPos[3].X, l_GobPos[3].Y, l_GobPos[3].Z, l_GobPos[3].O);
+                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::SpiresOfArakBuildingGob, l_GobPos[4].X, l_GobPos[4].Y, l_GobPos[4].Z, l_GobPos[4].O);
+                    SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::TaladorBuildingGob, l_GobPos[5].X, l_GobPos[5].Y, l_GobPos[5].Z, l_GobPos[5].O);
+
+                    /*switch (l_QuestID)
                     {
                         case GarrisonPortals::PortalsQuests::QuestFrostfireRidge:
                             SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::FrostfireRidgeBuildingGob, l_GobPos[0].X, l_GobPos[0].Y, l_GobPos[0].Z, l_GobPos[0].O);
@@ -119,7 +138,7 @@ namespace MS { namespace Garrison
                             break;
                         default:
                             break;
-                    }
+                    }*/
                 }
             }
         }
@@ -199,21 +218,27 @@ namespace MS { namespace Garrison
             {
                 case GOSSIP_ACTION_INFO_DEF + 1:
                     p_Player->CastSpell(p_Player, GarrisonPortals::DeactivationSpells::FrostfireRidgeDeactivationSpell, true);
+                    p_Player->ModifyMoney(-100000);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
                     p_Player->CastSpell(p_Player, GarrisonPortals::DeactivationSpells::GorgrondDeactivationSpell, true);
+                    p_Player->ModifyMoney(-100000);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 3:
                     p_Player->CastSpell(p_Player, GarrisonPortals::DeactivationSpells::NagrandDeactivationSpell, true);
+                    p_Player->ModifyMoney(-100000);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 4:
                     p_Player->CastSpell(p_Player, GarrisonPortals::DeactivationSpells::ShadowmoonDeactivationSpell, true);
+                    p_Player->ModifyMoney(-100000);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 5:
                     p_Player->CastSpell(p_Player, GarrisonPortals::DeactivationSpells::SpiresOfArakDeactivationSpell, true);
+                    p_Player->ModifyMoney(-100000);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 6:
                     p_Player->CastSpell(p_Player, GarrisonPortals::DeactivationSpells::TaladorDeactivationSpell, true);
+                    p_Player->ModifyMoney(-100000);
                     break;
                 default:
                     break;
