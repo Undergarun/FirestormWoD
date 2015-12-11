@@ -2874,10 +2874,6 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     bool canParry = true;
     bool canBlock = spell->AttributesEx3 & SPELL_ATTR3_BLOCKABLE_SPELL;
 
-    // Death Strike can't be Parried
-    if (spell->Id == 49998)
-        canParry = false;
-
     // Same spells cannot be parry/dodge
     if (spell->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
         return SPELL_MISS_NONE;
