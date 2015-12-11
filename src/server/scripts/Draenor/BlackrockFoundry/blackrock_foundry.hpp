@@ -105,6 +105,11 @@ enum eFoundryGameObjects
     VolatileBlackrockOre        = 237308,
     HansgarAndFranzokEntrance   = 229318,
     HansgarAndFranzokExit       = 229319,
+    ConveyorBelt002             = 230481,
+    ConveyorBelt001             = 230482,
+    ConveyorBelt003             = 230483,
+    ConveyorBelt004             = 230484,
+    ConveyorBelt005             = 230485,
     /// Iron Assembly - Part 3
     IronAssembleyGate           = 238837,
     /// Blackhand's Crucible - Part 4
@@ -162,7 +167,9 @@ enum eFoundryAchievements
 
 enum eFoundryVisuals
 {
-    CrucibleVisuals = 6922
+    CrucibleVisuals = 6922,
+    ConveyorsStart  = 7621,
+    ConveyorsStop   = 7336
 };
 
 #endif

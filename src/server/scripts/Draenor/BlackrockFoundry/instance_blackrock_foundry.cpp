@@ -128,6 +128,13 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::FurnaceGate:
                         m_FurnaceGate = p_GameObject->GetGUID();
                         break;
+                    case eFoundryGameObjects::ConveyorBelt001:
+                    case eFoundryGameObjects::ConveyorBelt002:
+                    case eFoundryGameObjects::ConveyorBelt003:
+                    case eFoundryGameObjects::ConveyorBelt004:
+                    case eFoundryGameObjects::ConveyorBelt005:
+                        p_GameObject->SetAIAnimKitId(eFoundryVisuals::ConveyorsStop);
+                        break;
                     default:
                         break;
                 }

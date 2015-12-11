@@ -3075,7 +3075,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
-        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0);
+        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0, G3D::Vector3 p_TransportPos = G3D::Vector3(0.0f, 0.0f, 0.0f));
         void RemoveAllMovementForces(uint32 p_Entry = 0);
         bool HasMovementForce(uint64 p_Source = 0, bool p_IsEntry = false);
 

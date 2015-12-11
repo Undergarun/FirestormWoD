@@ -1,8 +1,12 @@
 SET NAMES utf8;
 
 DELETE FROM areatrigger_template WHERE spell_id = 160259;
-INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, ScriptName) VALUES
-(160259, 0, 6742, 12, 12, 16384, 'areatrigger_foundry_fire_bomb');
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags, ScriptName) VALUES
+(160259, 0, 6742, 2, 12, 12, 16384, 'areatrigger_foundry_fire_bomb');
+
+DELETE FROM `areatrigger_template` WHERE spell_id = 159182;
+INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`) VALUES
+(159182, 0, 6766, 1, 1, 1, 2048, 19, 7.5, 3, 19, 7.5, 3, 0, 0, '');
 
 DELETE FROM spell_script_names WHERE spell_id IN (160092, 155665, 156938, 156892);
 INSERT INTO spell_script_names VALUE

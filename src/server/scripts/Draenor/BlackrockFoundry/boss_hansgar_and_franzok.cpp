@@ -38,6 +38,48 @@ Position const g_HansgarJumpPosRetreat = { 85.60069f, 3517.861f, 138.235f, 3.141
 
 float const g_HansgarRetreatOrientation = 5.94246f;
 
+float const g_ScorchingBurnsXPos = 182.5f;
+
+/// Cyclic patterns which always happens for normal/heroic mode
+std::vector<uint32> const g_SearingPlatesCycles[5] =
+{
+    { eFoundryGameObjects::ConveyorBelt002, eFoundryGameObjects::ConveyorBelt003, eFoundryGameObjects::ConveyorBelt004, eFoundryGameObjects::ConveyorBelt005, eFoundryGameObjects::ConveyorBelt001 },
+    { eFoundryGameObjects::ConveyorBelt001, eFoundryGameObjects::ConveyorBelt002, eFoundryGameObjects::ConveyorBelt003, eFoundryGameObjects::ConveyorBelt004, eFoundryGameObjects::ConveyorBelt005 },
+    { eFoundryGameObjects::ConveyorBelt005, eFoundryGameObjects::ConveyorBelt001, eFoundryGameObjects::ConveyorBelt002, eFoundryGameObjects::ConveyorBelt003, eFoundryGameObjects::ConveyorBelt004 },
+    { eFoundryGameObjects::ConveyorBelt004, eFoundryGameObjects::ConveyorBelt005, eFoundryGameObjects::ConveyorBelt001, eFoundryGameObjects::ConveyorBelt002, eFoundryGameObjects::ConveyorBelt003 },
+    { eFoundryGameObjects::ConveyorBelt003, eFoundryGameObjects::ConveyorBelt004, eFoundryGameObjects::ConveyorBelt005, eFoundryGameObjects::ConveyorBelt001, eFoundryGameObjects::ConveyorBelt002 }
+};
+
+/// Forge Overdrive spawn pos for each Conveyor Belt
+std::map<uint32, Position const> g_ForgeOverdriveSpawnPos =
+{
+    { eFoundryGameObjects::ConveyorBelt001, { 191.8142f, 3522.539f, 130.5489f, 3.196286f } },
+    { eFoundryGameObjects::ConveyorBelt002, { 191.7986f, 3508.009f, 130.5486f, 3.147189f } },
+    { eFoundryGameObjects::ConveyorBelt003, { 191.5920f, 3492.890f, 130.5486f, 3.139562f } },
+    { eFoundryGameObjects::ConveyorBelt004, { 190.5399f, 3478.265f, 130.3344f, 3.141593f } },
+    { eFoundryGameObjects::ConveyorBelt005, { 190.8819f, 3463.978f, 130.5486f, 3.140998f } }
+};
+
+/// Forge Overdrive dest pos for each Conveyor Belt
+std::map<uint32, Position const> g_ForgeOverdriveDestPos =
+{
+    { eFoundryGameObjects::ConveyorBelt001, { 74.61285f, 3522.023f, 130.4776f, 3.196286f } },
+    { eFoundryGameObjects::ConveyorBelt002, { 72.65278f, 3507.342f, 130.7546f, 3.147189f } },
+    { eFoundryGameObjects::ConveyorBelt003, { 71.13541f, 3493.135f, 130.5421f, 3.139562f } },
+    { eFoundryGameObjects::ConveyorBelt004, { 80.53993f, 3478.265f, 130.3344f, 3.141593f } },
+    { eFoundryGameObjects::ConveyorBelt005, { 76.74827f, 3464.046f, 130.4773f, 3.140998f } }
+};
+
+/// Movement Force directions for each Conveyor Belt
+std::map<uint32, Position const> g_ConveyorForceMovesDirection =
+{
+    { eFoundryGameObjects::ConveyorBelt001, { 136.2731f, 3521.869f, 130.4693f, 0.0f } },
+    { eFoundryGameObjects::ConveyorBelt002, { 136.0504f, 3507.557f, 130.4693f, 0.0f } },
+    { eFoundryGameObjects::ConveyorBelt003, { 132.4271f, 3492.807f, 130.4693f, 0.0f } },
+    { eFoundryGameObjects::ConveyorBelt004, { 132.4292f, 3478.443f, 130.4693f, 0.0f } },
+    { eFoundryGameObjects::ConveyorBelt005, { 131.7153f, 3464.024f, 130.4693f, 0.0f } }
+};
+
 struct StampingPressData
 {
     StampingPressData()
@@ -72,7 +114,6 @@ void RespawnBrothers(Creature* p_Source, InstanceScript* p_Instance)
 
 void StartBrothers(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instance)
 {
-    return;
     if (p_Source == nullptr || p_Target == nullptr || p_Instance == nullptr)
         return;
 
@@ -168,7 +209,8 @@ class boss_hansgar : public CreatureScript
         {
             ActionIntro,
             ActionIntroFinished,
-            ActionCripplingSuplex
+            ActionCripplingSuplex,
+            ActionSearingPlate
         };
 
         enum eVisuals
@@ -184,7 +226,8 @@ class boss_hansgar : public CreatureScript
         {
             MobStampingPresses          = 78358,
             BlackrockForgeSpecialist    = 79200,
-            BlackrockEnforcer           = 79208
+            BlackrockEnforcer           = 79208,
+            ScorchingBurns              = 78823
         };
 
         enum eGameObjects
@@ -209,18 +252,15 @@ class boss_hansgar : public CreatureScript
             StampingPress01     = 229591,
             StampingPress02     = 229592,
             StampingPress03     = 229593,
-            SmartStampCollision = 231082,
-            ConveyorBelt002     = 230481,
-            ConveyorBelt001     = 230482,
-            ConveyorBelt003     = 230483,
-            ConveyorBelt004     = 230484,
-            ConveyorBelt005     = 230485
+            SmartStampCollision = 231082
         };
 
         enum eDatas
         {
             MaxStampingPresses  = 20,
-            MaxConveyorBelts    = 5
+            MaxConveyorBelts    = 5,
+            DataBeltEntry       = 0,
+            DataSpawnTimer      = 1
         };
 
         enum eStates
@@ -323,6 +363,8 @@ class boss_hansgar : public CreatureScript
                 me->SetPower(Powers::POWER_ENERGY, 0);
 
                 me->SetAIAnimKitId(0);
+
+                ResetArea();
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -490,6 +532,7 @@ class boss_hansgar : public CreatureScript
                         }
                         case eStates::BothInArena2:
                         {
+                            EndSearingPlatesEvent();
                             Talk(eTalks::ReturningFromControls);
                             break;
                         }
@@ -844,47 +887,112 @@ class boss_hansgar : public CreatureScript
 
                 ConveyorDatas const l_ConveyorBeltPos =
                 {
-                    { eGameObjects::ConveyorBelt001, 3521.840088f },
-                    { eGameObjects::ConveyorBelt002, 3507.370117f },
-                    { eGameObjects::ConveyorBelt003, 3492.929932f },
-                    { eGameObjects::ConveyorBelt004, 3478.469971f },
-                    { eGameObjects::ConveyorBelt005, 3463.969961f }
+                    { eFoundryGameObjects::ConveyorBelt001, 3521.840088f },
+                    { eFoundryGameObjects::ConveyorBelt002, 3507.370117f },
+                    { eFoundryGameObjects::ConveyorBelt003, 3492.929932f },
+                    { eFoundryGameObjects::ConveyorBelt004, 3478.469971f },
+                    { eFoundryGameObjects::ConveyorBelt005, 3463.969961f }
                 };
 
                 ConveyorDatas const l_ConveyorBeltBurns =
                 {
-                    { eGameObjects::ConveyorBelt001, 3522.769043f },
-                    { eGameObjects::ConveyorBelt002, 3507.606934f },
-                    { eGameObjects::ConveyorBelt003, 3492.773926f },
-                    { eGameObjects::ConveyorBelt004, 3477.840088f },
-                    { eGameObjects::ConveyorBelt005, 3461.691895f }
+                    { eFoundryGameObjects::ConveyorBelt001, 3522.769043f },
+                    { eFoundryGameObjects::ConveyorBelt002, 3507.606934f },
+                    { eFoundryGameObjects::ConveyorBelt003, 3492.773926f },
+                    { eFoundryGameObjects::ConveyorBelt004, 3477.840088f },
+                    { eFoundryGameObjects::ConveyorBelt005, 3461.691895f }
                 };
 
+                for (uint32 l_Entry = eFoundryGameObjects::ConveyorBelt002; l_Entry <= eFoundryGameObjects::ConveyorBelt005; ++l_Entry)
+                {
+                    if (GameObject* l_ConveyorBelt = me->FindNearestGameObject(l_Entry, 100.0f))
+                        l_ConveyorBelt->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStart);
+                }
+
                 /// The searing plates come in waves, and there are two different ways in which the searing plates can be laid out.
-                if (urand(0, 1))
+                bool l_NonAligned = IsMythic() ? urand(0, 1) : true;
+                if (l_NonAligned)
                 {
                     /// One way is that 5 searing plates enter the room, each located on one of the 5 belts, but these plates are not aligned with one another.
                     /// This means that players can use one of the gaps between the plates to avoid taking damage.
+                    /// This pattern seems to start always with the second belt -> 5th - 1st - 2nd - 3rd - 4th
+                    /// Then it moves to the left -> 1st - 2nd - 3rd - 4th - 5th ... 2nd - 3rd - 4th - 5th - 1st ...
+
+                    uint8 l_Index = 1;
+                    uint32 l_Time = 4 * TimeConstants::IN_MILLISECONDS;
+
+                    std::list<Creature*> l_BurnList;
+                    me->GetCreatureListWithEntryInGrid(l_BurnList, eCreatures::ScorchingBurns, 200.0f);
+
+                    if (l_BurnList.empty())
+                        return;
+
+                    /// Start all cycles in advance
+                    for (uint8 l_I = 0; l_I < eDatas::MaxConveyorBelts; ++l_I)
+                    {
+                        for (uint32 l_BeltEntry : g_SearingPlatesCycles[l_I])
+                        {
+                            if (GameObject* l_Belt = me->FindNearestGameObject(l_BeltEntry, 100.0f))
+                            {
+                                std::list<Creature*> l_TempList = l_BurnList;
+
+                                auto l_BurnsDatas = l_ConveyorBeltBurns.find(l_BeltEntry);
+
+                                l_TempList.remove_if([this, l_BurnsDatas](Creature* p_Creature) -> bool
+                                {
+                                    if (p_Creature == nullptr)
+                                        return true;
+
+                                    if (p_Creature->GetPositionY() != l_BurnsDatas->second)
+                                    {
+                                        Position l_Pos      = *p_Creature;
+                                        l_Pos.m_positionX   = g_ScorchingBurnsXPos;
+                                        l_Pos.m_positionY   = l_BurnsDatas->second;
+
+                                        if (!p_Creature->IsNearPosition(&l_Pos, 2.0f))
+                                            return true;
+                                    }
+
+                                    return false;
+                                });
+
+                                if (l_TempList.empty())
+                                    continue;
+
+                                if (Creature* l_Burns = l_TempList.front())
+                                {
+                                    if (l_Burns->IsAIEnabled)
+                                    {
+                                        l_Burns->AI()->SetData(eDatas::DataBeltEntry, l_BeltEntry);
+                                        l_Burns->AI()->SetData(eDatas::DataSpawnTimer, l_Time * l_Index);
+                                    }
+                                }
+                            }
+
+                            ++l_Index;
+                        }
+                    }
                 }
                 else
                 {
+                    /// This seems to be possible only during Mythic encounter
                     /// Another way is that 4 searing plates enter the room, each located on one of the 5 belts.
                     /// These 4 plates are perfectly aligned, but the 5th conveyor belt has no plate and thus provides a large gap through which players can move.
                     /// With each wave, the gap moves to a different conveyor belt, but the gaps are always located on adjacent belts.
                     /// Sometimes, however, when the gap is located on a belt that is at the edge of the room, the next gap can be on belt that is on the opposite edge.
 
-                    if (!m_DisabledBelt)
-                        m_DisabledBelt = urand(eGameObjects::ConveyorBelt002, eGameObjects::ConveyorBelt005);
+                    /*if (!m_DisabledBelt)
+                        m_DisabledBelt = urand(eFoundryGameObjects::ConveyorBelt002, eFoundryGameObjects::ConveyorBelt005);
                     else
                     {
-                        if (m_DisabledBelt > eGameObjects::ConveyorBelt002 && m_DisabledBelt < eGameObjects::ConveyorBelt005)
+                        if (m_DisabledBelt > eFoundryGameObjects::ConveyorBelt002 && m_DisabledBelt < eFoundryGameObjects::ConveyorBelt005)
                             m_DisabledBelt += (urand(0, 1) ? -1 : 1);
                         else
                         {
-                            if (m_DisabledBelt == eGameObjects::ConveyorBelt002)
-                                m_DisabledBelt = (urand(0, 1) ? eGameObjects::ConveyorBelt001 : eGameObjects::ConveyorBelt005);
-                            else ///< m_DisabledBelt == eGameObjects::ConveyorBelt005
-                                m_DisabledBelt = (urand(0, 1) ? eGameObjects::ConveyorBelt002 : eGameObjects::ConveyorBelt004);
+                            if (m_DisabledBelt == eFoundryGameObjects::ConveyorBelt002)
+                                m_DisabledBelt = (urand(0, 1) ? eFoundryGameObjects::ConveyorBelt001 : eFoundryGameObjects::ConveyorBelt005);
+                            else ///< m_DisabledBelt == eFoundryGameObjects::ConveyorBelt005
+                                m_DisabledBelt = (urand(0, 1) ? eFoundryGameObjects::ConveyorBelt002 : eFoundryGameObjects::ConveyorBelt004);
                         }
                     }
 
@@ -899,6 +1007,56 @@ class boss_hansgar : public CreatureScript
 
                         float l_PressY = l_Datas.second;
                         float l_BurnsY = l_BurnsDatas->second;
+                    }*/
+                }
+            }
+
+            void EndSearingPlatesEvent()
+            {
+                for (uint32 l_Entry = eFoundryGameObjects::ConveyorBelt002; l_Entry <= eFoundryGameObjects::ConveyorBelt005; ++l_Entry)
+                {
+                    if (GameObject* l_ConveyorBelt = me->FindNearestGameObject(l_Entry, 100.0f))
+                        l_ConveyorBelt->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStop);
+                }
+
+                /// Clear all pending cycles
+                for (uint8 l_I = 0; l_I < eDatas::MaxConveyorBelts; ++l_I)
+                {
+                    for (uint32 l_BeltEntry : g_SearingPlatesCycles[l_I])
+                    {
+                        if (GameObject* l_Belt = me->FindNearestGameObject(l_BeltEntry, 100.0f))
+                        {
+                            if (Creature* l_Burns = l_Belt->FindNearestCreature(eCreatures::ScorchingBurns, 50.0f))
+                            {
+                                if (l_Burns->IsAIEnabled)
+                                    l_Burns->AI()->Reset();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void ResetArea()
+            {
+                for (uint32 l_Entry = eFoundryGameObjects::ConveyorBelt002; l_Entry <= eFoundryGameObjects::ConveyorBelt005; ++l_Entry)
+                {
+                    if (GameObject* l_ConveyorBelt = me->FindNearestGameObject(l_Entry, 100.0f))
+                        l_ConveyorBelt->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStop);
+                }
+
+                /// Clear all pending cycles
+                for (uint8 l_I = 0; l_I < eDatas::MaxConveyorBelts; ++l_I)
+                {
+                    for (uint32 l_BeltEntry : g_SearingPlatesCycles[l_I])
+                    {
+                        if (GameObject* l_Belt = me->FindNearestGameObject(l_BeltEntry, 100.0f))
+                        {
+                            if (Creature* l_Burns = l_Belt->FindNearestCreature(eCreatures::ScorchingBurns, 50.0f))
+                            {
+                                if (l_Burns->IsAIEnabled)
+                                    l_Burns->AI()->Reset();
+                            }
+                        }
                     }
                 }
             }
@@ -1282,6 +1440,76 @@ class boss_franzok : public CreatureScript
         }
 };
 
+/// Forge Overdrive - 77258
+class npc_foundry_forge_overdrive : public CreatureScript
+{
+    public:
+        npc_foundry_forge_overdrive() : CreatureScript("npc_foundry_forge_overdrive") { }
+
+        enum eSpells
+        {
+            SearingPlatesAT     = 155994,
+            SearingPlatesDoT    = 161570
+        };
+
+        enum eMove
+        {
+            MoveDespawn = 1
+        };
+
+        struct npc_foundry_forge_overdriveAI : public ScriptedAI
+        {
+            npc_foundry_forge_overdriveAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_BeltEntry = 0;
+
+                p_Creature->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_CAN_SAFE_FALL);
+
+                p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+            }
+
+            uint32 m_BeltEntry;
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpells::SearingPlatesAT, true);
+
+                AddTimedDelayedOperation(100, [this]() -> void
+                {
+                    if (g_ForgeOverdriveDestPos.find(m_BeltEntry) != g_ForgeOverdriveDestPos.end())
+                    {
+                        Position const l_DestPos = g_ForgeOverdriveDestPos[m_BeltEntry];
+
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(eMove::MoveDespawn, l_DestPos);
+                    }
+                });
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                if (p_ID == eMove::MoveDespawn)
+                {
+                    me->RemoveAllAuras();
+                    me->DespawnOrUnsummon();
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_forge_overdriveAI(p_Creature);
+        }
+};
+
 /// Scorching Burns - 78823
 class npc_foundry_scorching_burns : public CreatureScript
 {
@@ -1290,10 +1518,27 @@ class npc_foundry_scorching_burns : public CreatureScript
 
         enum eSpells
         {
+            ScorchingBurnsAT    = 159182
         };
 
         enum eEvents
         {
+        };
+
+        enum eAction
+        {
+            ActionSearingPlate = 3
+        };
+
+        enum eCreature
+        {
+            ForgeOverdrive = 77258
+        };
+
+        enum eDatas
+        {
+            DataBeltEntry,
+            DataSpawnTimer
         };
 
         struct npc_foundry_scorching_burnsAI : public ScriptedAI
@@ -1302,13 +1547,124 @@ class npc_foundry_scorching_burns : public CreatureScript
 
             EventMap m_Events;
 
+            uint32 m_BeltEntry;
+
+            std::set<uint64> m_AffectedPlayers;
+
             void Reset() override
             {
                 m_Events.Reset();
+
+                summons.DespawnAll();
+
+                for (uint64 l_Guid : m_AffectedPlayers)
+                {
+                    if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                        l_Player->SendApplyMovementForce(me->GetGUID(), false, Position());
+                }
+
+                m_AffectedPlayers.clear();
+
+                m_BeltEntry = 0;
+
+                ClearDelayedOperations();
+            }
+
+            void SetData(uint32 p_ID, uint32 p_Value) override
+            {
+                switch (p_ID)
+                {
+                    case eDatas::DataBeltEntry:
+                    {
+                        m_BeltEntry = p_Value;
+                        break;
+                    }
+                    case eDatas::DataSpawnTimer:
+                    {
+                        AddTimedDelayedOperation(p_Value, [this]() -> void
+                        {
+                            DoAction(eAction::ActionSearingPlate);
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eAction::ActionSearingPlate:
+                    {
+                        me->CastSpell(me, eSpells::ScorchingBurnsAT, false);
+
+                        if (g_ForgeOverdriveSpawnPos.find(m_BeltEntry) != g_ForgeOverdriveSpawnPos.end())
+                        {
+                            Position const l_SpawnPos = g_ForgeOverdriveSpawnPos[m_BeltEntry];
+
+                            if (Creature* l_ForgeOverdrive = me->SummonCreature(eCreature::ForgeOverdrive, l_SpawnPos))
+                            {
+                                using ForgeOverdriveAIPtr   = npc_foundry_forge_overdrive::npc_foundry_forge_overdriveAI*;
+                                using ForgeOverdriveAI      = npc_foundry_forge_overdrive::npc_foundry_forge_overdriveAI;
+
+                                if (ForgeOverdriveAIPtr l_AI = CAST_AI(ForgeOverdriveAI, l_ForgeOverdrive->GetAI()))
+                                    l_AI->m_BeltEntry = m_BeltEntry;
+                            }
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                UpdateOperations(p_Diff);
+
+                if (g_ConveyorForceMovesDirection.find(m_BeltEntry) != g_ConveyorForceMovesDirection.end())
+                {
+                    float l_MaxDist = 84.0f;
+
+                    std::set<uint64> l_Targets;
+
+                    Map::PlayerList const& l_PlayerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+                    {
+                        if (Player* l_Player = l_Iter->getSource())
+                        {
+                            if (l_Player->GetDistance(me) >= l_MaxDist)
+                                continue;
+
+                            if (l_Player->GetPositionY() <= me->GetPositionY() + 3.5f &&
+                                l_Player->GetPositionY() >= me->GetPositionY() - 3.5f)
+                                l_Targets.insert(l_Player->GetGUID());
+                        }
+                    }
+
+                    for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                    {
+                        if (l_Targets.find((*l_Iter)) == l_Targets.end())
+                        {
+                            if (Player* l_Player = Player::GetPlayer(*me, (*l_Iter)))
+                                l_Player->SendApplyMovementForce(me->GetGUID(), false, Position());
+
+                            l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        }
+                        else
+                            ++l_Iter;
+                    }
+
+                    for (uint64 l_Guid : l_Targets)
+                    {
+                        if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                            l_Player->SendApplyMovementForce(me->GetGUID(), true, g_ConveyorForceMovesDirection[m_BeltEntry], 6.0f, 0, G3D::Vector3(-6.0f, 0.0f, 0.0f));
+                    }
+                }
             }
         };
 
@@ -1450,6 +1806,7 @@ void AddSC_boss_hansgar_and_franzok()
     new boss_franzok();
 
     /// Creatures
+    new npc_foundry_forge_overdrive();
     new npc_foundry_scorching_burns();
 
     /// Spells
