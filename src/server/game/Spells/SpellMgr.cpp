@@ -3601,9 +3601,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 97709:  ///< Altered Form (Racial)
                 spellInfo->AttributesEx4 |= SPELL_ATTR4_UNK21;
                 break;
-            case 81333:  ///< Might of the Frozen Wastes -- dont apply obliterate twice
-                spellInfo->Effects[EFFECT_1].SpellClassMask &= ~spellInfo->Effects[EFFECT_0].SpellClassMask;
-                break;
             case 159407: ///< Combo Breaker: Chi Explosion
                 spellInfo->ProcCharges = 0;
                 spellInfo->ProcFlags = 0;
