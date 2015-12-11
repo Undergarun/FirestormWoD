@@ -23,7 +23,7 @@ namespace MS { namespace Garrison
             /// Called when a player loot an item
             /// @p_Player : Player instance
             /// @p_Item   : New looted item instance
-            virtual void OnItemLooted(Player* p_Player, Item * p_Item) override;
+            virtual void OnItemLooted(Player* p_Player, Item* p_Item) override;
 
     };
 
@@ -50,8 +50,26 @@ namespace MS { namespace Garrison
             };
 
             /// Should return a fully valid SpellScript pointer.
-            SpellScript * GetSpellScript() const;
+            SpellScript* GetSpellScript() const;
 
+    };
+
+    class playerScript_Garrison_Portals_Phases : public PlayerScript
+    {
+        public:
+            playerScript_Garrison_Portals_Phases() : PlayerScript("playerScript_Garrison_Portals_Phases") { }
+
+            void UpdateGarrisonPhaseMask(Player* p_Player);
+
+            void UpdateDraenorPhaseMask(Player* p_Player);
+
+            void OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId) override;
+
+            void OnLogin(Player* p_Player) override;
+
+            void OnQuestCleared(Player* p_Player, Quest const* p_Quest) override;
+
+            void OnQuestReward(Player* p_Player, const Quest* p_Quest) override;
     };
 
 }   ///< namespace Garrison

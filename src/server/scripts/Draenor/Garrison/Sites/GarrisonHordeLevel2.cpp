@@ -22,7 +22,7 @@ namespace MS { namespace Garrison { namespace Sites
 {
     /// Constructor
     InstanceMapScript_GarrisonHordeLevel2::InstanceMapScript_GarrisonHordeLevel2()
-        : InstanceMapScript("instance_Garrison_H2", MapIDs::MAP_GARRISON_HORDE_LEVEL_2)
+        : InstanceMapScript("instance_Garrison_H2", MapIDs::MapGarrisonHordeLevel2)
     {
 
     }

@@ -45,7 +45,7 @@ class instance_iron_docks : public InstanceMapScript
             /// Scenario handling
             uint32 m_CreatureKilled;
             /// Encounter Gates
-            uint64 m_EncounterGateOshir;
+            uint64 m_EncounterGateOshirGuid;
 
             void Initialize() override
             {
@@ -74,7 +74,7 @@ class instance_iron_docks : public InstanceMapScript
                 m_ThirdEvent        = false;
                 m_CreatureKilled    = 0;
                 /// Encounter Gates
-                m_EncounterGateOshir = 0;
+                m_EncounterGateOshirGuid = 0;
             }
 
             void OnCreatureCreate(Creature* p_Creature) override
@@ -133,7 +133,7 @@ class instance_iron_docks : public InstanceMapScript
                         m_ChallengeDoorGuid = p_GameObject->GetGUID();
                         break;
                     case eIronDocksGameObject::GameObjectEncounterGateOshir:
-                        m_EncounterGateOshir = p_GameObject->GetGUID();
+                        m_EncounterGateOshirGuid = p_GameObject->GetGUID();
                         break;
                     default:
                         break;
@@ -230,7 +230,7 @@ class instance_iron_docks : public InstanceMapScript
                         return m_KoramarGuid;
                     /// Encounter Gates
                     case eIronDocksDatas::DataEncounterGateOshir:
-                        return m_EncounterGateOshir;
+                        return m_EncounterGateOshirGuid;
                         break;
                     default:
                         break;

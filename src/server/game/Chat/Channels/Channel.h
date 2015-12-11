@@ -120,12 +120,21 @@ enum ChannelMemberFlags
     // 0x80
 };
 
+class Player;
+
 class Channel
 {
     struct PlayerInfo
     {
         uint64 player;
         uint8 flags;
+        uint32 LocaleFilter;
+
+        PlayerInfo()
+            : LocaleFilter(0xFFFFFFFF)
+        {
+
+        }
 
         bool HasFlag(uint8 flag) const { return flags & flag; }
         void SetFlag(uint8 flag) { if (!HasFlag(flag)) flags |= flag; }
@@ -203,7 +212,7 @@ class Channel
         void MakeVoiceOn(WorldPacket* data, uint64 guid);                       //+ 0x22
         void MakeVoiceOff(WorldPacket* data, uint64 guid);                      //+ 0x23
 
-        void SendToAll(WorldPacket* data, uint64 p = 0);
+        void SendToAll(WorldPacket* data, uint64 p = 0, uint64 p_SenderGUID = 0);
         void SendToAllButOne(WorldPacket* data, uint64 who);
         void SendToOne(WorldPacket* data, uint64 who);
 
@@ -290,6 +299,11 @@ class Channel
         void LeaveNotify(uint64 guid);                                          // invisible notify
         void SetOwnership(bool ownership) { m_ownership = ownership; };
         static void CleanOldChannelsInDB();
+
+        /// Update world chat locale filtering for a specific player
+        /// @p_Player : Player instance to update
+        void UpdateChatLocaleFiltering(Player* p_Player);
+
 };
 #endif
 

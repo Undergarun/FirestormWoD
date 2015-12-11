@@ -1117,6 +1117,7 @@ class spell_rog_sanguinary_vein: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.1.2
 /// Hemorrhage - 16511
 class spell_rog_hemorrhage: public SpellScriptLoader
 {
@@ -1127,21 +1128,28 @@ class spell_rog_hemorrhage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_hemorrhage_SpellScript);
 
+            enum eSpells
+            {
+                GlyphofHemorrhage           = 56807,
+                GlyphofHemorrhagingVeins    = 146631
+            };
+
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGE))
-                        {
-                            if (!l_Target->HasAuraState(AURA_STATE_BLEEDING))
-                                return;
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                            SetHitDamage(0);
-                        }
-                    }
+                if (l_Caster->HasAura(eSpells::GlyphofHemorrhagingVeins))
+                    l_Caster->CastSpell(l_Target, eSpells::GlyphofHemorrhagingVeins, true);
+
+                if (l_Caster->HasAura(eSpells::GlyphofHemorrhage))
+                {
+                    if (!l_Target->HasAuraState(AURA_STATE_BLEEDING))
+                        return;
+
+                    SetHitDamage(0);
                 }
+
             }
 
             void Register()

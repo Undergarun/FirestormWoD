@@ -2588,10 +2588,11 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
     for (uint8 l_EquipmentSlot = 0; l_EquipmentSlot < INVENTORY_SLOT_BAG_END; ++l_EquipmentSlot)
     {
         uint32 l_Visualbase = l_EquipmentSlot * 3;
-        uint32 l_ItemID     = GetUInt32ValueFromArray(l_CharacterEquipment, l_Visualbase);
+        uint64 l_ItemDatas  = GetUInt64ValueFromArray(l_CharacterEquipment, l_Visualbase);
+        uint32 l_ItemID     = ((uint32*)(&l_ItemDatas))[0];
+        uint32 l_DisplayID  = ((uint32*)(&l_ItemDatas))[1];
 
-        ItemTemplate const * l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemID);
-
+        ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemID);
         if (!l_ItemTemplate)
         {
             *p_Data << uint32(0);                           ///< Item display ID
@@ -2601,13 +2602,13 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
             continue;
         }
 
-        SpellItemEnchantmentEntry const * l_ItemEnchantmentEntry = NULL;
+        SpellItemEnchantmentEntry const* l_ItemEnchantmentEntry = nullptr;
 
         uint32 l_EnchantmentData = GetUInt32ValueFromArray(l_CharacterEquipment, l_Visualbase + 1);
 
         for (uint8 l_EnchantmentSlot = PERM_ENCHANTMENT_SLOT; l_EnchantmentSlot <= TEMP_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
         {
-            /// values stored in 2 uint16
+            /// Values stored in 2 uint16
             uint32 l_EnchantmentID = 0x0000FFFF & (l_EnchantmentData >> l_EnchantmentSlot * 16);
 
             if (!l_EnchantmentID)
@@ -2619,7 +2620,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
                 break;
         }
 
-        *p_Data << uint32(l_ItemTemplate->DisplayInfoID);                                   ///< Item display ID
+        *p_Data << uint32(l_DisplayID ? l_DisplayID : l_ItemTemplate->DisplayInfoID);       ///< Item display ID
         *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->aura_id : 0);    ///< Enchantment aura ID
         *p_Data << uint8(l_ItemTemplate->InventoryType);                                    ///< Inventory type
     }
@@ -7694,6 +7695,17 @@ void Player::CleanupChannels()
             cMgr->LeftChannel(ch->GetName());               // deleted channel if empty
     }
     sLog->outDebug(LOG_FILTER_CHATSYS, "Player: channels cleaned up!");
+}
+
+void Player::UpdateChatLocaleFiltering()
+{
+    for (auto l_It = m_channels.begin(); l_It != m_channels.end(); ++l_It)
+    {
+        Channel* l_Channel = (*l_It);
+
+        if (l_Channel)
+            l_Channel->UpdateChatLocaleFiltering(this);
+    }
 }
 
 void Player::UpdateLocalChannels(uint32 newZone)
@@ -20428,6 +20440,14 @@ uint32 Player::GetUInt32ValueFromArray(Tokenizer const& data, uint16 index)
     return (uint32)atoi(data[index]);
 }
 
+uint64 Player::GetUInt64ValueFromArray(Tokenizer const& p_Datas, uint16 p_Index)
+{
+    if (p_Index >= p_Datas.size())
+        return 0;
+
+    return (uint64)strtoull(p_Datas[p_Index], nullptr, 10);
+}
+
 float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
 {
     float result;
@@ -22964,7 +22984,13 @@ void Player::SaveToDB(bool create /*=false*/)
         ss.str("");
         // cache equipment...
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 3; ++i)
-            ss << GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i) << ' ';
+        {
+            uint64 l_Value = 0;
+            ((uint32*)(&l_Value))[0] = GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i + 0);
+            ((uint32*)(&l_Value))[1] = GetItemDisplayID(((uint32*)(&l_Value))[0], (uint32)GetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + i + 1, 0));
+
+            ss << l_Value << ' ';
+        }
 
         // ...and bags for enum opcode
         for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
@@ -23094,9 +23120,16 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
 
         ss.str("");
+
         // cache equipment...
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 3; ++i)
-            ss << GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i) << ' ';
+        {
+            uint64 l_Value = 0;
+            ((uint32*)(&l_Value))[0] = GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i + 0);
+            ((uint32*)(&l_Value))[1] = GetItemDisplayID(((uint32*)(&l_Value))[0], (uint32)GetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + i + 1, 0));
+
+            ss << l_Value << ' ';
+        }
 
         // ...and bags for enum opcode
         for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
@@ -32587,12 +32620,19 @@ void Player::ReloadPetBattles()
         BattlePet::Ptr l_Pet = (*l_It);
         l_Pet->Save(l_Transaction);
     }
+    
+    uint64 l_ThisGUID = GetGUID();
+    MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_ThisGUID](bool p_Success) -> void
+    {
+        if (Player* l_This = HashMapHolder<Player>::Find(l_ThisGUID))
+        {
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
+            stmt->setUInt32(0, l_This->GetSession()->GetAccountId());
+            l_This->_petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
+        }
+    });
 
-    LoginDatabase.CommitTransaction(l_Transaction);
-
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PETBATTLE_ACCOUNT);
-    stmt->setUInt32(0, GetSession()->GetAccountId());
-    _petBattleJournalCallback = LoginDatabase.AsyncQuery(stmt);
+    LoginDatabase.CommitTransaction(l_Transaction, l_CallBack);
 }
 
 /// PetBattleCountBattleSpecies

@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2014-2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -14,11 +15,12 @@
 #include "GarrisonMgr.hpp"
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
-#include "Buildings/Alliance/Medium/ABarn.hpp"
-#include "Buildings/Alliance/Medium/ALumberMill.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
+#include "Buildings/Alliance/Large/AMageTower.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 #include "Buildings/Alliance/Medium/ALunarfallInn.hpp"
+#include "Buildings/Alliance/Medium/ABarn.hpp"
+#include "Buildings/Alliance/Medium/ALumberMill.hpp"
 #include "Buildings/Alliance/Small/ATheForge.hpp"
 #include "Buildings/Alliance/Small/ATailoringEmporium.hpp"
 #include "Buildings/Alliance/Small/AAlchemyLab.hpp"
@@ -32,6 +34,7 @@
 #include "Buildings/Alliance/AHerbGarden.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
+#include "Buildings/Horde/Large/HSpiritLodge.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
 #include "Buildings/Horde/Medium/HBarn.hpp"
 #include "Buildings/Horde/Medium/HLumberMill.hpp"
@@ -53,7 +56,7 @@ namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr), m_Owner(nullptr)
     {
 
     }
@@ -320,6 +323,12 @@ namespace MS { namespace Garrison
         }
         else if (p_ID == CreatureAIDataIDs::DailyReset)
             OnDataReset();
+    }
+
+    void GarrisonNPCAI::SetGUID(uint64 p_Guid, int32 p_Id)
+    {
+        if (p_Id == CreatureAIDataIDs::OwnerGuid)
+            m_Owner = ObjectAccessor::GetPlayer(*me, p_Guid);
     }
 
     /// Get UInt32 value
@@ -654,6 +663,10 @@ void AddSC_Garrison_NPC()
 
         /// Lunarfall Inn
         new MS::Garrison::npc_MadisonClark;
+
+        /// Mage Tower
+        new MS::Garrison::npc_ApprenticeVarNath;
+        new MS::Garrison::npc_AncientWaygateProtector;
     }
 
     /// Horde
@@ -723,5 +736,8 @@ void AddSC_Garrison_NPC()
 
         /// Frostwall Tavern
         new MS::Garrison::npc_Murg;
+
+        /// Spirit Lodge
+        new MS::Garrison::npc_Varsha;
     }
 }

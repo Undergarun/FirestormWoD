@@ -538,7 +538,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
                 l_PreciseBasePoints += frand(-l_Delta, l_Delta);
             }
 
-            l_BasePoints = int32(l_PreciseBasePoints);
+            l_BasePoints = int32(round(l_PreciseBasePoints));
 
             if (ComboScalingMultiplier)
                 l_ComboDamage = ComboScalingMultiplier * l_Multiplier;
@@ -1242,6 +1242,17 @@ bool SpellInfo::HasAura(AuraType aura) const
     return false;
 }
 
+bool SpellInfo::HasAuraPositive(AuraType aura) const
+{
+    for (uint8 i = 0; i < EffectCount; ++i)
+    {
+        if (Effects[i].IsAura(aura) && IsPositiveEffect(i))
+            return true;
+    }
+   
+    return false;
+}
+
 bool SpellInfo::HasAreaAuraEffect() const
 {
     for (uint8 i = 0; i < EffectCount; ++i)
@@ -1499,16 +1510,16 @@ bool SpellInfo::IsHealingSpell() const
         || HasEffect(SPELL_EFFECT_HEAL_PCT)
         || HasEffect(SPELL_EFFECT_HEAL_MAX_HEALTH)
         || HasEffect(SPELL_EFFECT_HEAL)
-        || HasAura(SPELL_AURA_OBS_MOD_HEALTH)
-        || HasAura(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT)
-        || HasAura(SPELL_AURA_MOD_HEALING)
-        || HasAura(SPELL_AURA_MOD_HEALING_PCT)
-        || HasAura(SPELL_AURA_MOD_HEALING_DONE)
-        || HasAura(SPELL_AURA_MOD_HEALING_DONE_PERCENT)
-        || HasAura(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT)
-        || HasAura(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER)
-        || HasAura(SPELL_AURA_MOD_BASE_HEALTH_PCT)
-        || HasAura(SPELL_AURA_PERIODIC_HEAL));
+        || HasAuraPositive(SPELL_AURA_OBS_MOD_HEALTH)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALING)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALING_PCT)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALING_DONE)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALING_DONE_PERCENT)
+        || HasAuraPositive(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT)
+        || HasAuraPositive(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER)
+        || HasAuraPositive(SPELL_AURA_MOD_BASE_HEALTH_PCT)
+        || HasAuraPositive(SPELL_AURA_PERIODIC_HEAL));
 }
 
 bool SpellInfo::IsShieldingSpell() const
@@ -2764,10 +2775,6 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
     if (p_Caster)
         p_Caster->ModSpellCastTime(this, l_CastTime, p_Spell);
 
-    /// Fix Cultivation - with Herb Gathering
-    if (Id == 2366 && p_Caster && p_Caster->HasAura(20552))
-        l_CastTime = 500;
-
     /// Glyph of Capacitor Totem
     if (p_Caster && Id == 118905)
     {
@@ -2783,6 +2790,23 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
     {
         if (p_Caster->HasAura(115933) && (p_Caster->HasAura(642)))
             l_CastTime /= 2;
+    }
+
+    /// Flayer
+    if (HasEffect(SPELL_EFFECT_SKINNING) && p_Caster->HasAura(68978))
+        l_CastTime = CalculatePct(l_CastTime, 66);
+
+    /// Cultivation
+    if (HasEffect(SPELL_EFFECT_SKILL) && p_Caster->HasAura(20552) && AttributesEx10 & SPELL_ATTR10_HERB_GATHERING_MINING)
+    {
+        for (uint8 i = 0; i < EffectCount; ++i)
+        {
+            if (Effects[i].Effect == SPELL_EFFECT_SKILL && Effects[i].MiscValue == SKILL_HERBALISM)
+            {
+                l_CastTime = CalculatePct(l_CastTime, 66);
+                break;
+            }
+        }
     }
 
     /// Elegon - Overloaded

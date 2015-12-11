@@ -8,7 +8,7 @@
 
 #include "iron_docks.hpp"
 
-enum eYells
+enum eTalks
 {
     /// Nok'gar
     SayAggro        = 0,    ///< Start the funeral pyres! (46057)
@@ -30,8 +30,8 @@ enum eSpells
     SpellRecklessProvocation        = 164426,
     SpellIntimidated                = 164504,
     /// MISC
-    SpellFeignDeath                 = 103750,
-    SpellCosmeticFeignDeath         = 166925
+    SpellFeignDeath = 103750,
+    SpellCosmeticFeignDeath = 166925
 };
 
 enum eMovementInformed
@@ -80,15 +80,15 @@ class basicevent_nokgar_death : public BasicEvent
                                 switch (m_Modifier)
                                 {
                                     case 0:
-                                        l_Zoggosh->AI()->Talk(eYells::TalkZoggosh01);
+                                        l_Zoggosh->AI()->Talk(eTalks::TalkZoggosh01);
                                         l_Zoggosh->m_Events.AddEvent(new basicevent_nokgar_death(l_Zoggosh, 1), l_Zoggosh->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     case 1:
-                                        l_Koramar->AI()->Talk(eYells::TalkKoramar01);
+                                        l_Koramar->AI()->Talk(eTalks::TalkKoramar01);
                                         l_Koramar->m_Events.AddEvent(new basicevent_nokgar_death(l_Koramar, 2), l_Koramar->m_Events.CalculateTime(12 * TimeConstants::IN_MILLISECONDS));
                                         break;
                                     case 2:
-                                        l_Koramar->AI()->Talk(eYells::TalkKoramar0222);
+                                        l_Koramar->AI()->Talk(eTalks::TalkKoramar0222);
                                         break;
                                     default:
                                         break;
@@ -185,7 +185,7 @@ public:
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && !m_Intro && me->IsWithinDistInMap(p_Who, 10.0f))
             {
                 m_Intro = true;
-                Talk(eYells::SayIntro);
+                Talk(eTalks::SayIntro);
             }
         }
 
@@ -219,7 +219,7 @@ public:
         void KilledUnit(Unit* p_Who) override
         {
             if (p_Who && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
-                Talk(eYells::SaySlay);
+                Talk(eTalks::SaySlay);
         }
 
         void JustDied(Unit* /*p_Killer*/) override
@@ -233,7 +233,7 @@ public:
 
             _JustDied();
             StopArchers();
-            Talk(eYells::SayDeath);
+            Talk(eTalks::SayDeath);
             me->m_Events.AddEvent(new basicevent_nokgar_death(me, 0), me->m_Events.CalculateTime(2 * TimeConstants::IN_MILLISECONDS));
         }
 
@@ -314,7 +314,7 @@ public:
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                         me->Attack(l_Target, true);
 
-                    Talk(eYells::SaySpell03);
+                    Talk(eTalks::SaySpell03);
                     me->MonsterTextEmote("Fleshrender Nok'gar casts |cffff0000[Reckless Provocation]|cfffaeb00!", me->GetGUID());
                     me->CastSpell(me, eNokgarSpells::SpellRecklessProvocation);
                     events.ScheduleEvent(eNokgarEvents::EventRecklessProvocation, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
@@ -417,7 +417,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
             void KilledUnit(Unit* p_Killed) override
             {
                 if (p_Killed && p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
-                    Talk(eYells::SaySlay);
+                    Talk(eTalks::SaySlay);
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -445,7 +445,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                                 if (Creature* l_Nokgar = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataNokgar)))
                                 {
                                     if (l_Nokgar->IsAIEnabled)
-                                        l_Nokgar->AI()->Talk(eYells::SaySpell04);
+                                        l_Nokgar->AI()->Talk(eTalks::SaySpell04);
                                 }
                             }
                         }
@@ -597,7 +597,8 @@ class iron_docks_nokgar_mob_flameslinger : public CreatureScript
                 SpellRecklessProvocation = 164426,
                 SpellIntimidated         = 164504,
                 SpellBurningArrow        = 164234,
-                SpellBarbedArrowAura     = 164370
+                SpellBarbedArrowAura     = 164370,
+                SpellBarbedArrowMissile  = 166914
             };
 
             enum eFlameslingerEvents
@@ -662,32 +663,41 @@ class iron_docks_nokgar_mob_flameslinger : public CreatureScript
                                 {
                                     m_Shots01 = 0;
                                     events.CancelEvent(eFlameslingerEvents::EventBurningArrow);
-                                    events.ScheduleEvent(eFlameslingerEvents::EventBurningArrowCheck, 1 * TimeConstants::IN_MILLISECONDS);
+                                    events.ScheduleEvent(eFlameslingerEvents::EventBurningArrowCheck, 500);
                                 }
-                                events.ScheduleEvent(eFlameslingerEvents::EventBurningArrow, 8 * TimeConstants::IN_MILLISECONDS);
+                                events.ScheduleEvent(eFlameslingerEvents::EventBurningArrow, 40 * TimeConstants::IN_MILLISECONDS);
                                 break;
                             }
                         case eFlameslingerEvents::EventBarbedArrows:
                             {
                                 if (Player* l_Target = me->FindNearestPlayer(400.0f, true))
-                                    me->CastSpell(l_Target, eFlameslingerSpells::SpellBarbedArrowAura, true);
+                                    me->CastSpell(l_Target, eFlameslingerSpells::SpellBarbedArrowMissile, true);
             
                                 m_Shots02++;
                                 if (m_Shots02 >= 4)
                                 {
                                     m_Shots02 = 0;
                                     events.CancelEvent(eFlameslingerEvents::EventBarbedArrows);
-                                    events.ScheduleEvent(eFlameslingerEvents::EventBurningArrowCheck, 1 * TimeConstants::IN_MILLISECONDS);
+                                    events.ScheduleEvent(eFlameslingerEvents::EventBurningArrowCheck, 500);
                                 }
-                                events.ScheduleEvent(eFlameslingerEvents::EventBarbedArrows, 13 * TimeConstants::IN_MILLISECONDS);
+                                events.ScheduleEvent(eFlameslingerEvents::EventBarbedArrows, 25 * TimeConstants::IN_MILLISECONDS);
                                 break;
                             }
                         case eFlameslingerEvents::EventBurningArrowCheck:
                             {
+                                if (m_Instance != nullptr)
+                                {
+                                    if (Creature* l_Nokgar = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataNokgar)))
+                                    {
+                                        if (l_Nokgar->IsAIEnabled)
+                                            l_Nokgar->AI()->Talk(eTalks::SayAggro);
+                                    }
+                                }
+
                                 m_Shots02 = 0;
                                 m_Shots01 = 0;
-                                events.ScheduleEvent(eFlameslingerEvents::EventBarbedArrows, 20 * TimeConstants::IN_MILLISECONDS);
-                                events.ScheduleEvent(eFlameslingerEvents::EventBurningArrow, 20 * TimeConstants::IN_MILLISECONDS);
+                                events.ScheduleEvent(eFlameslingerEvents::EventBarbedArrows, 25 * TimeConstants::IN_MILLISECONDS);
+                                events.ScheduleEvent(eFlameslingerEvents::EventBurningArrow, 40 * TimeConstants::IN_MILLISECONDS);
                                 break;
                             }
                             default:

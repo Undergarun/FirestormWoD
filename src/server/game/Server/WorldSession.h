@@ -182,6 +182,15 @@ namespace ServiceFlags
     };
 }
 
+namespace AccountCustomFlags
+{
+    enum
+    {
+        NoChatLocaleFiltering = 0x1
+    };
+}
+
+
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
 class PacketFilter
@@ -259,7 +268,7 @@ class WorldSession
 {
     public:
         WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale,
-            uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags);
+                     uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags, uint32 p_CustomFlags);
         ~WorldSession();
 
         uint64 GetWoWAccountGUID()
@@ -490,7 +499,12 @@ class WorldSession
         uint32 GetVoteRemainingTime() const { return m_VoteRemainingTime; }
 
         void SetServiceFlags(uint32 p_Flags);
+        void UnsetServiceFlags(uint32 p_Flags);
         bool HasServiceFlags(uint32 p_Flags) const { return m_ServiceFlags & p_Flags; }
+
+        void SetCustomFlags(uint32 p_Flags);
+        void UnsetCustomFlags(uint32 p_Flags);
+        bool HasCustomFlags(uint32 p_Flags) const { return m_CustomFlags & p_Flags; }
 
     public:                                                 // opcodes handlers
 
@@ -1289,6 +1303,7 @@ class WorldSession
         z_stream_s* _compressionStream;
 
         uint32 m_ServiceFlags;
+        uint32 m_CustomFlags;
         time_t m_LoginTime;
 };
 #endif

@@ -1941,6 +1941,14 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn)
     RemoveCorpse(false);
 }
 
+void Creature::SendAddFollowerQuery(Player* p_Player, uint32 p_Sender, uint32 p_Action, char const* p_FollowerName)
+{
+    char l_Text[MAX_QUERY_LEN];
+    snprintf(l_Text, MAX_QUERY_LEN, "Allow %s to join our cause ?", p_FollowerName);
+
+    p_Player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_CHAT, "Would you like to join our cause ?", p_Sender, p_Action, l_Text, 0, false);
+}
+
 void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/)
 {
     if (TempSummon* summon = this->ToTempSummon())
@@ -1974,7 +1982,7 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)
         return false;
 
     // Creature is immune to main mechanic of the spell
-    if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))
+    if (ToPet() == nullptr && GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))
         return true;
 
     // This check must be done instead of 'if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))' for not break

@@ -4026,7 +4026,10 @@ void Spell::cast(bool skipCheck)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
         //Clear spell cooldowns after every spell is cast if .cheat cooldown is enabled.
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
+        {
             m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
+            m_caster->ToPlayer()->RestoreCharge(m_spellInfo->ChargeCategoryEntry);
+        }
     }
 
     SetExecutedCurrently(false);
@@ -7666,10 +7669,10 @@ SpellCastResult Spell::CheckItems()
                 if (l_ItemLevel < m_spellInfo->BaseLevel)
                     return SPELL_FAILED_LOWLEVEL;
 
-                if (l_ItemLevel > m_spellInfo->MaxLevel)
+                if (m_spellInfo->MaxLevel && l_ItemLevel > m_spellInfo->MaxLevel)
                     return SPELL_FAILED_HIGHLEVEL;
 
-                bool isItemUsable = false;
+                bool isItemUsable = false; m_spellInfo->MaxLevel;
                 for (uint8 e = 0; e < MAX_ITEM_PROTO_SPELLS; ++e)
                 {
                     ItemTemplate const* proto = targetItem->GetTemplate();

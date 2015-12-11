@@ -31,6 +31,11 @@ enum eCreatures
     CreatureBombsquad           = 80875
 };
 
+enum eActions
+{
+    ActionMakoggWinCheck = 1
+};
+
 uint32 g_Entries[3] = { eIronDocksCreatures::CreatureMakogg, eIronDocksCreatures::CreatureDuguru, eIronDocksCreatures::CreatureNox };
 
 Position const g_Position[3] =
@@ -86,19 +91,19 @@ static void GrimailEnforcersWiningCondition(InstanceScript* p_Instance, Creature
     if (p_KillerGuid == 0)
         return;
 
-    p_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Me);
-    DespawnCreaturesInArea(eCreatures::CreatureOgreTrap, p_Me);
-    DespawnCreaturesInArea(eCreatures::CreatureBombsquad, p_Me);
     if (Creature* l_Makogg = p_Instance->instance->GetCreature(p_Instance->GetData64(eIronDocksDatas::DataGrimrailMakogg)))
     {
         if (Creature* l_Duguru = p_Instance->instance->GetCreature(p_Instance->GetData64(eIronDocksDatas::DataGrimrailDuguru)))
         {
             if (Creature* l_Noxx = p_Instance->instance->GetCreature(p_Instance->GetData64(eIronDocksDatas::DataGrimrailNoxx)))
             {
-                if (l_Makogg->isDead() && l_Duguru->isDead() && l_Noxx->isDead())
+                if (l_Duguru->isDead() && l_Noxx->isDead() && l_Makogg->isDead())
                 {
                     if (Player* l_Player = Player::GetPlayer(*p_Me, p_KillerGuid))
                     {
+                        p_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Me);
+                        DespawnCreaturesInArea(eCreatures::CreatureOgreTrap, p_Me);
+                        DespawnCreaturesInArea(eCreatures::CreatureBombsquad, p_Me);
                         l_Makogg->SetLootRecipient(l_Player);
                         p_Instance->SetBossState(eIronDocksDatas::DataGrimrail, EncounterState::DONE);
                     }
@@ -279,7 +284,7 @@ public:
             me->SetLootRecipient(NULL);
             if (m_Instance != nullptr)
                 GrimailEnforcersWiningCondition(m_Instance, me, p_Killer->GetGUID());
-        }
+         }
 
         void JustReachedHome() override
         {
@@ -317,6 +322,8 @@ public:
                     l_ListFellowGrimrail.resize(3);
                     if(Unit* l_Target = l_ListFellowGrimrail.front())
                         me->CastSpell(l_Target, eDuguruSpells::SpellSanguineSphere, true);
+
+                    me->MonsterTextEmote("Ahir'ok Dugru begins to cast |cFFFF0404|Hspell:164275|h[Sanguine Sphere]!|h|r!", me->GetGUID(), true);
                     events.ScheduleEvent(eDuguruEvents::EventSanguineSphere, 16 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -361,7 +368,9 @@ class boss_grimrail_makogg : public CreatureScript
                 SpellFlamingSlashDamage  = 163668,
                 SpellLavaSweepDamage     = 165152,
                 SpellLavaWaveCosmetic    = 98873,
-                SpellLavaWaveSwing       = 170899
+                SpellLavaWaveSwing       = 170899,
+                SpellFeignDeath          = 103750,
+                SpellCosmeticFeignDeath  = 166925
             };
 
             enum eMakoggEvents
@@ -376,10 +385,12 @@ class boss_grimrail_makogg : public CreatureScript
             uint8 m_LavaSweepers;
             bool m_First;
             bool m_LavaSweeping;
+            bool m_Dead;
 
             void Reset() override
             {  
                 events.Reset();
+                m_Dead = false;
                 m_LavaSweeping = false;
                 if (!m_First)
                 {
@@ -421,6 +432,45 @@ class boss_grimrail_makogg : public CreatureScript
                 me->SetLootRecipient(NULL);
                 if (m_Instance != nullptr)
                     GrimailEnforcersWiningCondition(m_Instance, me, p_Killer->GetGUID());
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (p_Damage && p_Damage > 0)
+                {
+                    if (p_Attacker && p_Attacker->IsInWorld())
+                    {
+                        if (!m_Dead)
+                        {
+                            if (me->GetHealthPct() <= 10)
+                            {
+                                m_Dead = true;
+                                events.Reset();
+                                me->RemoveAllAuras();
+                                me->SetFullHealth();
+                                me->CastSpell(me, eMakoggSpells::SpellFeignDeath);
+                                me->CastSpell(me, eMakoggSpells::SpellCosmeticFeignDeath);
+                                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                                me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
+                                me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                                GrimailEnforcersWiningCondition(m_Instance, me, p_Attacker->GetGUID());
+                            }
+                        }
+                    }
+                }
+            }
+
+            void DoAction(const int32 p_Action)
+            {
+                if (p_Action == eActions::ActionMakoggWinCheck)
+                {
+                    if (m_Instance != nullptr && m_Dead)
+                        GrimailEnforcersStart(m_Instance, me);
+                }
             }
 
             void JustReachedHome() override
@@ -512,7 +562,8 @@ class boss_grimrail_noxx : public CreatureScript
                 SpellJumperCables        = 163376,
                 SpellCharge              = 163635,
                 SpellBigBoom             = 163379,
-                SpellBombSquad           = 163362
+                SpellBombSquad           = 163362,
+                SpellExplosionVisual     = 34602
             };
 
             enum eNoxxEvents
@@ -829,39 +880,42 @@ class iron_docks_grimrail_spell_sanguine_sphere : public SpellScriptLoader
         }
 };
 
-/*
-/// Lava Wave - 98928 
-class iron_docks_grimrail_spell_lava_wave : public SpellScriptLoader
+
+/// Big Boom - 163379  
+class iron_docks_grimrail_spell_big_boom : public SpellScriptLoader
 {
 public:
-    iron_docks_grimrail_spell_lava_wave() : SpellScriptLoader("iron_docks_grimrail_spell_lava_wave") { }
+    iron_docks_grimrail_spell_big_boom() : SpellScriptLoader("iron_docks_grimrail_spell_big_boom") { }
 
-    class iron_docks_grimrail_spell_lava_wave_SpellScript : public SpellScript
+    class iron_docks_grimrail_spell_big_boom_SpellScript : public SpellScript
     {
-        PrepareSpellScript(iron_docks_grimrail_spell_lava_wave_SpellScript);
+        PrepareSpellScript(iron_docks_grimrail_spell_big_boom_SpellScript);
 
-        void FilterTargets(std::list<WorldObject*>& p_Targets)
+        enum eSpells
+        {
+            SpellBigBoom         = 163379,
+            SpellExplosionVisual = 34602
+        };
+
+        void HandleAfterCast()
         {
             if (!GetCaster())
                 return;
 
-            if (GetCaster()->GetMap() && GetCaster()->GetMap()->GetId() == 1195)
-                p_Targets.clear();
+            GetCaster()->CastSpell(GetCaster(), eSpells::SpellExplosionVisual);
         }
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(iron_docks_grimrail_spell_lava_wave_SpellScript::FilterTargets, EFFECT_1, TARGET_DEST_CASTER);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(iron_docks_grimrail_spell_lava_wave_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+            AfterCast += SpellCastFn(iron_docks_grimrail_spell_big_boom_SpellScript::HandleAfterCast);
         }
     };
 
     SpellScript* GetSpellScript() const
     {
-        return new iron_docks_grimrail_spell_lava_wave_SpellScript();
+        return new iron_docks_grimrail_spell_big_boom_SpellScript();
     }
 };
-*/
 
 /// Starts the Grimrail event - 10314
 class iron_docks_grimrail_at_event : public AreaTriggerScript
@@ -903,6 +957,7 @@ void AddSC_boss_grimrail()
     new iron_docks_grimrail_mob_lava_wave(); /// 95353
     /// Spells
     new iron_docks_grimrail_spell_sanguine_sphere(); /// 163689
+    new iron_docks_grimrail_spell_big_boom(); /// 163379 Visual
     //new iron_docks_grimrail_spell_lava_wave(); /// 98928 
     /// Areatrigger
     new iron_docks_grimrail_at_event(); /// 10314

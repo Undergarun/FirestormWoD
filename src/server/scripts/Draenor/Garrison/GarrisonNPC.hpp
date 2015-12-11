@@ -91,6 +91,8 @@ namespace MS { namespace Garrison
             /// @p_Z : Z coord
             void TransformCoord(float& p_X, float &p_Y, float &p_Z);
 
+            Player* GetOwner() { return m_Owner; };
+
         public:
             /// When the building ID is set
             /// @p_BuildingID : Set building ID
@@ -110,12 +112,15 @@ namespace MS { namespace Garrison
             /// @p_ID    : Value ID
             virtual uint32 GetData(uint32 p_ID) override;
 
+            virtual void SetGUID(uint64 p_Guid, int32 p_Id) override;
+
         protected:
             GarrisonPlotInstanceInfoLocation const* m_PlotInstanceLocation; ///< This creature plot
             G3D::Vector3 m_NonRotatedPlotPosition;                          ///< Cache for coord transformation
             uint32 m_BuildingID;                                            ///< This creature building ID
 
         private:
+            Player* m_Owner;
             SequencePosition * m_CoordTable;
             uint8 * m_SequenceTable;
             uint32 m_SequenceSize;

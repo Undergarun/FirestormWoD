@@ -611,6 +611,16 @@ class player_draenor_profession : public PlayerScript
 
 };
 
+/// A Treatise on the Alchemy of Draenor - 156614
+/// First Aid in Draenor - 160329
+/// Introduction to Cooking in Draenor - 160360
+/// Learning (Engineering) - 161787
+/// Learning (Enchanting) - 161788
+/// A Treatise on the Inscription of Draenor - 161789
+/// Draenor Blacksmithing - 169923
+/// Draenor Tailoring - 169924
+/// Draenor Leatherworking - 169925
+/// Draenor Jewelcrafting - 169926
 class spell_draenor_profession : public SpellScriptLoader
 {
     public:
@@ -625,11 +635,16 @@ class spell_draenor_profession : public SpellScriptLoader
 
             void HandleAfterHit()
             {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr || l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
                 std::vector<uint32> l_LinkedSpells;
 
-                if (GetCaster() && GetCaster()->ToPlayer())
+                if (l_Player)
                 {
-#define MakeVector(a) std::vector<uint32>(a, a + (sizeof(a) / sizeof(a[0])))
+#define MakeVector(a) std::vector<uint32>(a, a + (sizeof (a) / sizeof (a[0])))
                     switch (GetSpellInfo()->Id)
                     {
                         case ProfessionBookSpells::Alchemy:        l_LinkedSpells = MakeVector(ProfessionBookSpellLearnSpells::AlchemyLearnedRecipes);        break;
@@ -649,10 +664,8 @@ class spell_draenor_profession : public SpellScriptLoader
 #undef MakeVector
                 }
 
-                for (uint32 l_I = 0; l_I < l_LinkedSpells.size(); ++l_I)
-                {
-                    GetCaster()->ToPlayer()->learnSpell(l_LinkedSpells[l_I], false);
-                }
+                for (size_t l_I = 0; l_I < l_LinkedSpells.size(); ++l_I)
+                    l_Player->learnSpell(l_LinkedSpells[l_I], false);
             }
 
             void Register() override
@@ -665,7 +678,6 @@ class spell_draenor_profession : public SpellScriptLoader
         {
             return new spell_draenor_profession_SpellScript();
         }
-
 };
 
 /// Eye of the Black Prince - 93403

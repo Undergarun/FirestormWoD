@@ -142,6 +142,7 @@ class boss_oregorger : public CreatureScript
             /// Acid Torrent
             AcidTorrentSearcher         = 156240,
             AcidTorrentTriggered        = 160465,
+            AcidTorrentScriptEffect     = 156243,
             AcidTorrentDmgAndDebuff     = 156297,   ///< Main target and 20s debuff
             AcidTorrentAura             = 156300,   ///< 2s aura
             AcidTorrentMissile          = 156309,   ///< Triggers 156324, needs aura
@@ -234,9 +235,6 @@ class boss_oregorger : public CreatureScript
 
             uint8 m_Phase;
 
-            uint64 m_AcidTorrentTarget;
-            std::list<uint64> m_FrontPlayers;
-
             float m_MitigationPct;
 
             std::set<uint64> m_Crates;
@@ -254,6 +252,8 @@ class boss_oregorger : public CreatureScript
             std::set<uint64> m_BlackrockOres;
 
             uint32 m_LastCollisionTime;
+
+            uint64 m_AcidTorrentTarget;
 
             void Reset() override
             {
@@ -310,9 +310,6 @@ class boss_oregorger : public CreatureScript
 
                 m_Phase = ePhases::PhaseFight;
 
-                m_AcidTorrentTarget = 0;
-                m_FrontPlayers.clear();
-
                 m_MitigationPct = 0.0f;
 
                 m_CratesToActivate.clear();
@@ -328,6 +325,8 @@ class boss_oregorger : public CreatureScript
                 m_BlackrockOres.clear();
 
                 m_LastCollisionTime = 0;
+
+                m_AcidTorrentTarget = 0;
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -763,37 +762,40 @@ class boss_oregorger : public CreatureScript
                         me->EnergizeBySpell(me, eSpells::RetchedBlackrockMissile, -5, Powers::POWER_MANA);
                         break;
                     }
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
                     case eSpells::AcidTorrentSearcher:
                     {
-                        if (!m_AcidTorrentTarget)
-                            break;
+                        m_AcidTorrentTarget = 0;
 
-                        std::list<Player*> l_PlayerList;
-                        me->GetPlayerListInGrid(l_PlayerList, 100.0f);
+                        me->SetFacingTo(me->GetAngle(p_Target));
 
-                        if (l_PlayerList.empty())
-                            break;
+                        /// Sprays a cone of acid at a random ranged foe, inflicting 475000 to 525000 Physical damage to the closest player
+                        /// and increasing that player's damage taken from Acid Torrent by 475000 to 525000 for 20 sec.
+                        /// p_Target is already the clotest player
+                        /// Order here is important, debuff the main target to deals damage to him once
+                        me->CastSpell(p_Target, eSpells::AcidTorrentDmgAndDebuff, true);
 
-                        l_PlayerList.remove_if([this](Player* p_Player) -> bool
-                        {
-                            if (p_Player == nullptr || !p_Player->isInFront(me))
-                                return true;
+                        m_AcidTorrentTarget = p_Target->GetGUID();
 
-                            return false;
-                        });
+                        /// Cast the cone triggered to add targetting aura to each players in that cone
+                        me->CastSpell(p_Target, eSpells::AcidTorrentTriggered, true);
 
-                        if (l_PlayerList.empty())
-                            break;
+                        /// Add the targetting aura on boss, then cast the AoE spell which will affects only players with the aura
+                        me->CastSpell(me, eSpells::AcidTorrentAura, true);
 
-                        l_PlayerList.sort(JadeCore::ObjectDistanceOrderPred(me));
-
-                        m_FrontPlayers.clear();
-
-                        for (Player* l_Player : l_PlayerList)
-                            m_FrontPlayers.push_back(l_Player->GetGUID());
-
-                        if (Unit* l_Target = Unit::GetUnit(*me, m_AcidTorrentTarget))
-                            me->CastSpell(l_Target, eSpells::AcidTorrentTriggered, true);
+                        /// All other targets take up to 300000 Nature damage, reduced by the closest player's total damage mitigation.
+                        me->CastSpell(me, eSpells::AcidTorrentMissile, true);
 
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
@@ -807,42 +809,13 @@ class boss_oregorger : public CreatureScript
 
                         break;
                     }
-                    default:
-                        break;
-                }
-            }
-
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
-            {
-                if (p_Target == nullptr)
-                    return;
-
-                switch (p_SpellInfo->Id)
-                {
-                    case eSpells::AcidTorrentTriggered:
+                    case eSpells::AcidTorrentScriptEffect:
                     {
-                        bool l_First = true;
-                        for (uint64 l_Guid : m_FrontPlayers)
-                        {
-                            if (l_First)
-                            {
-                                l_First = false;
+                        /// Don't damage main target twice
+                        if (p_Target->GetGUID() == m_AcidTorrentTarget)
+                            break;
 
-                                /// Sprays a cone of acid at a random ranged foe, inflicting 475000 to 525000 Physical damage to the closest player
-                                /// and increasing that player's damage taken from Acid Torrent by 475000 to 525000 for 20 sec.
-                                if (Player* l_MainTarget = Player::GetPlayer(*me, l_Guid))
-                                    me->CastSpell(l_MainTarget, eSpells::AcidTorrentDmgAndDebuff, true);
-
-                                continue;
-                            }
-
-                            if (Player* l_Target = Player::GetPlayer(*me, l_Guid))
-                                me->CastSpell(l_Target, eSpells::AcidTorrentAura, true);
-                        }
-
-                        /// All other targets take up to 300000 Nature damage, reduced by the closest player's total damage mitigation.
-                        me->CastSpell(me, eSpells::AcidTorrentAura, true);
-                        me->CastSpell(me, eSpells::AcidTorrentMissile, true);
+                        me->CastSpell(p_Target, eSpells::AcidTorrentAura, true);
                         break;
                     }
                     case eSpells::BlackrockBarrageAoE:
@@ -997,20 +970,7 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventAcidTorrent:
                     {
-                        Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f);
-                        if (l_Target == nullptr)
-                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM);
-
-                        if (l_Target != nullptr)
-                        {
-                            float l_O = me->GetAngle(l_Target);
-
-                            me->SetFacingTo(l_O);
-                            me->SetReactState(ReactStates::REACT_PASSIVE);
-
-                            m_AcidTorrentTarget = l_Target->GetGUID();
-                        }
-
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
                         me->CastSpell(me, eSpells::AcidTorrentSearcher, false);
                         m_Events.ScheduleEvent(eEvents::EventAcidTorrent, 13 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -1550,6 +1510,59 @@ class spell_foundry_acid_torrent_aoe : public SpellScriptLoader
         }
 };
 
+/// Acid Torrent (Searcher) - 156240
+class spell_foundry_acid_torrent_searcher : public SpellScriptLoader
+{
+    public:
+        spell_foundry_acid_torrent_searcher() : SpellScriptLoader("spell_foundry_acid_torrent_searcher") { }
+
+        class spell_foundry_acid_torrent_searcher_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_acid_torrent_searcher_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Targets.remove_if([l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster))
+                        return true;
+
+                    return false;
+                });
+
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
+
+                WorldObject* l_Object = (*p_Targets.begin());
+
+                p_Targets.clear();
+                p_Targets.push_back(l_Object);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_acid_torrent_searcher_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_acid_torrent_searcher_SpellScript();
+        }
+};
+
 /// Rolling Fury - 155898
 class spell_foundry_rolling_fury_aura : public SpellScriptLoader
 {
@@ -1866,6 +1879,7 @@ void AddSC_boss_oregorger()
     /// Spells
     new spell_foundry_acid_torrent();
     new spell_foundry_acid_torrent_aoe();
+    new spell_foundry_acid_torrent_searcher();
     new spell_foundry_rolling_fury_aura();
     new spell_foundry_harvest_volatile_blackrock();
     new spell_foundry_throw_volatile_ore();

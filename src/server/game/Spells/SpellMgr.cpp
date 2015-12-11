@@ -3379,6 +3379,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 182464: ///< Portal to Garrison
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             /// Blackrock Foundry
             ///////////////////////////////////////////////////////////////////////////////////
@@ -3480,6 +3483,22 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157923: ///< Jump Slam
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 30;
+                break;
+            case 156324: ///< Acid Torrent (AoE)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                break;
+            case 177756: ///< Deafening Roar (Bellows Operator)
+                spellInfo->EffectCount = 1;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Skills
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 169092: ///< Temporal Crystal
+                spellInfo->Effects[EFFECT_0].BasePoints = 1;
+                spellInfo->Effects[EFFECT_0].DieSides = 0;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             case 163661: ///< Cho'gall Night
@@ -6755,12 +6774,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 171253: ///< Garrison heartstone
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
-            case 171690: ///< Truesteel Ingot
-            case 169081: ///< War Paints
-            case 168835: ///< Hexweave Cloth
-            case 172539: ///< Antiseptic Bandage
-            case 171391: ///< Burnished Leather
-            case 169092: ///< Temporal Crystal
                 spellInfo->Effects[EFFECT_0].ItemType = 0;
                 break;
             case 124280:// Touch of Karma (DoT)

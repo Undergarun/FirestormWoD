@@ -75,7 +75,6 @@ enum ShamanSpells
     SPELL_SHA_CONDUCTIVITY_HEAL                 = 118800,
     SPELL_SHA_GLYPH_OF_LAKESTRIDER              = 55448,
     SPELL_SHA_WATER_WALKING                     = 546,
-    SPELL_SHA_GLYPH_OF_SHAMANISTIC_RAGE         = 63280,
     SPELL_SHA_SOLAR_BEAM                        = 113286,
     SPELL_SHA_SOLAR_BEAM_SILENCE                = 113288,
     SPELL_SHA_GHOST_WOLF                        = 2645,
@@ -604,18 +603,24 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_glyph_of_shamanistic_rage_SpellScript);
 
+            enum eSpells
+            {
+                GlyphOfShamanisticRage = 63280
+            };
+
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(SPELL_SHA_GLYPH_OF_SHAMANISTIC_RAGE))
-                    {
-                        DispelChargesList dispelList;
-                        caster->GetDispellableAuraList(caster, DISPEL_ALL_MASK, dispelList);
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-                        for (auto itr : dispelList)
-                            caster->RemoveAura(itr.first);
-                    }
+                if (l_Caster->HasAura(eSpells::GlyphOfShamanisticRage))
+                {
+                    DispelChargesList l_DispelList;
+                    l_Caster->GetDispellableAuraList(l_Caster, DISPEL_ALL, l_DispelList);
+
+                    for (auto itr : l_DispelList)
+                        l_Caster->RemoveAura(itr.first);
                 }
             }
 

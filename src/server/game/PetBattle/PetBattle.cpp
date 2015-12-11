@@ -915,6 +915,7 @@ void PetBattle::AddPet(uint32 p_TeamID, std::shared_ptr<BattlePetInstance> p_Pet
     p_Pet->TeamID               = p_TeamID;
     p_Pet->PetBattleInstance    = this;
     p_Pet->OldLevel             = p_Pet->Level;
+    p_Pet->OldXP                = p_Pet->OldXP;
 
     TotalPetCount++;
     Teams[p_TeamID]->TeamPetCount++;
@@ -925,7 +926,10 @@ void PetBattle::AddPet(uint32 p_TeamID, std::shared_ptr<BattlePetInstance> p_Pet
     p_Pet->States[0] = 1;
 
     for (uint32 l_CurrentAbilitySlot = 0; l_CurrentAbilitySlot < MAX_PETBATTLE_ABILITIES; l_CurrentAbilitySlot++)
+    {
         p_Pet->Cooldowns[l_CurrentAbilitySlot] = -1;
+        p_Pet->Lockdowns[l_CurrentAbilitySlot] = 0;
+    }
 
     //////////////////////////////////////////////////////////////////////////
     /// State calculation part
@@ -1203,7 +1207,7 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                     l_CurrentPet->Health = 0;
 
                 if (p_Aborted && p_WinnerTeamID != l_CurrentTeamID)
-                    AddPct(l_CurrentPet->Health, -GetForfeitHealthPenalityPct());    ///< 10% health loose on forfeit
+                    l_CurrentPet->Health = AddPct(l_CurrentPet->Health, -GetForfeitHealthPenalityPct());    ///< 10% health loose on forfeit
 
                 if (p_WinnerTeamID == l_CurrentTeamID && l_AvailablePetCount && BattleType == PETBATTLE_TYPE_PVE && l_CurrentPet->IsAlive()
                     && l_CurrentPet->Level < BATTLEPET_MAX_LEVEL && FightedPets.find(l_CurrentPet->ID) != FightedPets.end())
@@ -1471,7 +1475,7 @@ PetBattleCastResult PetBattle::Cast(uint32 p_CasterPetID, uint32 p_AbilityID, ui
         return PETBATTLE_CAST_INVALID_ID;
 
     // States
-    if (!p_Turn)
+    if (!p_Turn && p_TriggerFlag == PETBATTLE_CAST_TRIGGER_NONE)
     {
         for (uint32 l_AbilityStateId = 0; l_AbilityStateId != sBattlePetAbilityStateStore.GetNumRows(); ++l_AbilityStateId)
         {
