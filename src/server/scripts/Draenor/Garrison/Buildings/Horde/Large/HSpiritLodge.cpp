@@ -120,9 +120,21 @@ namespace MS { namespace Garrison
 
     bool npc_Varsha::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        if (p_Player->GetQuestStatus(Quests::Horde_PortablePortals) == QUEST_STATUS_INCOMPLETE)
-            p_Player->QuestObjectiveSatisfy(ObjectIDs::FirstMageTowerSpiritLodgeObjectID, 1, 3);
+        p_Player->PlayerTalkClass->ClearMenus();
+        MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
+        CreatureAI* l_AI = p_Creature->AI();
 
+        if (l_AI == nullptr)
+            return true;
+
+        if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
+        {
+            if (p_Player->GetQuestStatus(Quests::Horde_PortablePortals) == QUEST_STATUS_INCOMPLETE)
+                p_Player->QuestObjectiveSatisfy(ObjectIDs::FirstMageTowerSpiritLodgeObjectID, 1, 3);
+
+            l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFur);
+            reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
+        }
         return true;
     }
 }   ///< namespace Garrison
