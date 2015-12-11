@@ -179,13 +179,15 @@ namespace MS { namespace Garrison
         /// UPDATE MAGE TOWER PHASEMASK DEPENDING OF QUESTS
 
         uint32   l_PhaseMask   = p_Player->GetPhaseMask();
+
+        /// Can see each deactivated portal
+        l_PhaseMask |= GarrisonPortals::DraenorPortalPhases::WorldPhaseDeactivatedPortal;
+
         Manager* l_GarrisonMgr = p_Player->GetGarrison();
 
         if (l_GarrisonMgr == nullptr)
             return;
 
-        /// Can see each deactivated portal
-        l_PhaseMask |= GarrisonPortals::DraenorPortalPhases::WorldPhaseDeactivatedPortal;
 
         if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
         {
