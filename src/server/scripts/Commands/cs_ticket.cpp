@@ -159,12 +159,15 @@ public:
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName() : "Console", NULL, NULL, NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
+        /*
         // Inform player, who submitted this ticket, that it is closed
         if (Player* submitter = ticket->GetPlayer())
         {
             if (submitter->IsInWorld())
                 submitter->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
         }
+        */
+
         return true;
     }
 
@@ -263,11 +266,13 @@ public:
         std::string msg = ticket->FormatMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName() : "Console");
         handler->SendGlobalGMSysMessage(msg.c_str());
 
+        /*
         if (Player* player = ticket->GetPlayer())
         {
             if (player->IsInWorld())
                 player->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
         }
+        */
 
         sTicketMgr->RemoveTicket(ticket->GetId());
         sTicketMgr->UpdateLastChange();
