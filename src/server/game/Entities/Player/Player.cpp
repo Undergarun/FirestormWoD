@@ -13146,6 +13146,8 @@ void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
     else
         cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetSpecializationCost();
 
+    cost = cost > MAX_TALENT_WIPE_COST ? MAX_TALENT_WIPE_COST : cost;
+
     WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM);
 
     data << uint8(specialization); // 0 : talent 1 : specialization

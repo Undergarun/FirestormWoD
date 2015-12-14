@@ -70,6 +70,15 @@ enum Roles
     ROLE_DAMAGE    = 2,
 };
 
+enum MoneyConstants
+{
+    COPPER  = 1,
+    SILVER  = COPPER * 100,
+    GOLD    = SILVER * 100
+};
+
+#define MAX_TALENT_WIPE_COST (66 * GOLD)
+
 enum SpecIndex
 {
     SPEC_NONE                   = 0,
@@ -322,13 +331,6 @@ enum ReputationRank
 #define MAX_SPILLOVER_FACTIONS 5
 
 #define REP_GUILD           1168
-
-enum MoneyConstants
-{
-    COPPER = 1,
-    SILVER = COPPER*100,
-    GOLD   = SILVER*100
-};
 
 enum Stats
 {
