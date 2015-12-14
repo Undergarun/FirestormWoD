@@ -2278,18 +2278,18 @@ class spell_pri_halo: public SpellScriptLoader
                             l_Area->GetCreatureListInGrid(l_TempListCreature, GetSpellInfo()->RangeEntry->maxRangeHostile);
                             for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
                             {
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player))
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAttackTarget(l_Player))
                                     l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAssistTarget(l_Player))
                                     l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
                             }
 
                             l_Area->GetPlayerListInGrid(l_TempListPlayer, GetSpellInfo()->RangeEntry->maxRangeHostile);
                             for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
                             {
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && (*i)->IsHostileTo(l_Player))
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAttackTarget(l_Player))
                                     l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAssistTarget(l_Player))
                                     l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
                             }
                         }
@@ -2365,7 +2365,7 @@ enum PsychicHorror_Spell
     PRIEST_SPELL_PSYCHIC_HORROR = 64044
 };
 
-// Psychic Horror - 64044
+/// Psychic Horror - 64044
 class spell_pri_psychic_horror: public SpellScriptLoader
 {
     public:
@@ -2399,12 +2399,10 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                             if (AuraPtr l_PsychicHorror = l_Target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
                             {
                                 l_Caster->SetPsychicHorrorGainedPower(true);
-
                                 int32 l_CurrentPowerUsed = l_Caster->GetPower(POWER_SHADOW_ORB) + 1;
-                                if (l_CurrentPowerUsed > 2) ///< Maximum 3 Shadow Orb can be consumed (1 of them is base spell cost)
-                                    l_CurrentPowerUsed = 2;
-                                 l_Caster->ModifyPower(POWER_SHADOW_ORB, -l_CurrentPowerUsed);
-                                    
+                                if (l_CurrentPowerUsed > 3) ///< Maximum 3 Shadow Orb can be consumed (1 of them is base spell cost)
+                                    l_CurrentPowerUsed = 3;
+                                l_Caster->ModifyPower(POWER_SHADOW_ORB, -(l_CurrentPowerUsed - 1));
 
                                 int32 l_MaxDuration = l_PsychicHorror->GetMaxDuration();
                                 int32 l_NewDuration = l_MaxDuration + (GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed) * IN_MILLISECONDS;
@@ -3616,6 +3614,7 @@ class PlayerScript_insanity: public PlayerScript
         }
 };
 
+/// last update : 6.1.2
 /// Chakra: Sanctuary - 81206
 class spell_pri_chakra_sanctuary : public SpellScriptLoader
 {
@@ -3634,6 +3633,12 @@ class spell_pri_chakra_sanctuary : public SpellScriptLoader
                 Player* l_Player = GetCaster()->ToPlayer();
 
                 if (l_Player == nullptr)
+                    return;
+
+                uint32 l_FlagsNot = ProcFlagsExLegacy::PROC_EX_INTERNAL_DOT | ProcFlagsExLegacy::PROC_EX_INTERNAL_HOT;
+                l_FlagsNot |= ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_MULTISTRIKE;
+
+                if (p_EventInfo.GetHitMask() & l_FlagsNot)
                     return;
 
                 if (!p_EventInfo.GetDamageInfo()->GetSpellInfo()->IsHealingSpell())

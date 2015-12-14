@@ -3969,6 +3969,165 @@ class spell_item_gauntlets_of_iron : public SpellScriptLoader
         }
 };
 
+/// Create Ring - 168103
+/// Create Glove - 168115
+/// Create Weapon - 168700
+/// Create Trinket - 168701
+/// Create Belt - 168705
+/// Create Shoulders - 168706
+/// Create Legs - 168707
+/// Create Helm - 168708
+/// Create Glove - 168709
+/// Create Boot - 168710
+/// Create Bracer - 168712
+/// Create Weapon - 168713
+/// Create Trinket - 168714
+/// Create Neck - 168716
+/// Create Shoulders - 168719
+/// Create Boot - 168723
+/// Create Chest - 168724
+/// Create Bracer - 168725
+/// Create Weapon - 168726
+/// Create Trinket - 168727
+/// Create Neck - 168729
+/// Create Shoulders - 168732
+/// Create Boot - 168736
+/// Create Chest - 168737
+/// Create Bracer - 168738
+/// Create Weapon - 168739
+/// Create Trinket - 168740
+/// Create Neck - 168742
+/// Create Shoulders - 168745
+/// Create Boot - 168749
+/// Create Chest - 168750
+/// Create Bracer - 168751
+/// Create Trinket - 168753
+/// Create Trinket - 181732
+class spell_create_reward_item : public SpellScriptLoader
+{
+    public:
+        spell_create_reward_item() : SpellScriptLoader("spell_create_reward_item") { }
+
+        class spell_create_reward_item_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_create_reward_item_SpellScript);
+
+            enum eBonuses
+            {
+                Warforged       = 560,
+                Avoidance       = 40,
+                Indestructible  = 43,
+                Leech           = 41,
+                Speed           = 42,
+                PrismaticSocket = 563
+            };
+
+            uint32 m_ItemID;
+
+            bool Load() override
+            {
+                m_ItemID = 0;
+                return true;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Player* l_Player = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+                if (!l_Player)
+                    return SpellCastResult::SPELL_FAILED_ERROR;
+
+                LootStore& l_LootStore = LootTemplates_Spell;
+                LootTemplate const* l_LootTemplate = l_LootStore.GetLootFor(GetSpellInfo()->Id);
+                if (l_LootTemplate == nullptr)
+                    return SpellCastResult::SPELL_FAILED_ERROR;
+
+                std::list<ItemTemplate const*> l_LootTable;
+                std::vector<uint32> l_Items;
+                l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player, false);
+
+                if (l_LootTable.empty())
+                    return SpellCastResult::SPELL_FAILED_ERROR;
+
+                uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+
+                for (ItemTemplate const* l_Template : l_LootTable)
+                {
+                    if (l_Template->HasSpec((SpecIndex)l_SpecID, l_Player->getLevel()))
+                        l_Items.push_back(l_Template->ItemId);
+                }
+
+                if (l_Items.empty())
+                    return SpellCastResult::SPELL_FAILED_ERROR;
+
+                std::random_shuffle(l_Items.begin(), l_Items.end());
+
+                m_ItemID = l_Items[0];
+
+                ItemPosCountVec l_Destination;
+                InventoryResult l_Message = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Destination, m_ItemID, 1);
+
+                if (l_Message != InventoryResult::EQUIP_ERR_OK)
+                {
+                    l_Player->SendEquipError(InventoryResult::EQUIP_ERR_INV_FULL, nullptr);
+                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void HandleCreateItem(SpellEffIndex p_EffIndex)
+            {
+                PreventHitDefaultEffect(p_EffIndex);
+
+                Player* l_Player = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+                if (!l_Player)
+                    return;
+
+                ItemPosCountVec l_Destination;
+                InventoryResult l_Message = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Destination, m_ItemID, 1);
+
+                if (l_Message != InventoryResult::EQUIP_ERR_OK)
+                    return;
+
+                if (Item* l_Item = l_Player->StoreNewItem(l_Destination, m_ItemID, true, Item::GenerateItemRandomPropertyId(m_ItemID)))
+                {
+                    /// Some of created items have already secondary stats, but only with item level <= 519
+                    if (l_Item->GetTemplate()->ItemLevel > 519)
+                    {
+                        std::vector<uint32> l_BonusList;
+
+                        Item::GenerateItemBonus(m_ItemID, ItemContext::RaidNormal, l_BonusList);
+
+                        std::vector<uint32> l_RandBonus = { eBonuses::Warforged, eBonuses::Avoidance, eBonuses::Indestructible, eBonuses::Leech, eBonuses::Speed, eBonuses::PrismaticSocket };
+
+                        for (uint32 l_Bonus : l_RandBonus)
+                        {
+                            if (roll_chance_i(10))
+                                l_BonusList.push_back(l_Bonus);
+                        }
+
+                        for (uint32 l_Bonus : l_BonusList)
+                            l_Item->AddItemBonus(l_Bonus);
+                    }
+
+                    l_Player->SendNewItem(l_Item, 1, false, true);
+                    l_Player->SendDisplayToast(m_ItemID, 1, DisplayToastMethod::DISPLAY_TOAST_METHOD_LOOT, ToastTypes::TOAST_TYPE_NEW_ITEM, false, false);
+                }
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_create_reward_item_SpellScript::CheckCast);
+                OnEffectHitTarget += SpellEffectFn(spell_create_reward_item_SpellScript::HandleCreateItem, EFFECT_0, SPELL_EFFECT_CREATE_ITEM_2);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_create_reward_item_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4051,4 +4210,5 @@ void AddSC_item_spell_scripts()
     new spell_item_helm_of_iron();
     new spell_item_shoulders_of_iron();
     new spell_item_gauntlets_of_iron();
+    new spell_create_reward_item();
 }

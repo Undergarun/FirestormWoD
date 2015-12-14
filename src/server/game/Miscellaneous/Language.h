@@ -1325,9 +1325,16 @@ enum TrinityStrings
 
     /// Garrison
     GarrisonChop,
+    GarrisonPortalNoItemCount,
+    GarrisonTooMuchPortals,
+    GarrisonNoMageTower,
 
     /// Custom
     WarnRaidTests = 20000,
+
+    /// Chat filtering
+    LANG_CHANNEL_CHAT_LOCALE_FILTERING_OFF = 300000,
+    LANG_CHANNEL_CHAT_LOCALE_FILTERING_ON
 
     // NOT RESERVED IDS                   20001-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

@@ -1679,7 +1679,8 @@ class spell_hun_dire_beast: public SpellScriptLoader
         }
 };
 
-// A Murder of Crows - 131894
+/// last update : 6.1.2
+/// A Murder of Crows - 131894
 class spell_hun_a_murder_of_crows: public SpellScriptLoader
 {
     public:
@@ -1689,11 +1690,18 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_a_murder_of_crows_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (Unit* l_Target = GetTarget())
-                    if (Unit* l_Caster = GetCaster())
-                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->IsValidAttackTarget(l_Target))
+                    l_Caster->CastSpell(l_Target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
+                else
+                    p_AurEff->GetBase()->Remove();
             }
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1702,11 +1710,15 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
                 
                 if (!l_Caster)
                     return;
-
+                
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                {
                     if (Player* l_Player = l_Caster->ToPlayer())
-                    if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
-                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                    {
+                        if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                            l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                    }
+                }
             }
 
             void Register()

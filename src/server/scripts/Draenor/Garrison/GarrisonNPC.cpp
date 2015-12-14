@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2014-2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -14,11 +15,12 @@
 #include "GarrisonMgr.hpp"
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
-#include "Buildings/Alliance/Medium/ABarn.hpp"
-#include "Buildings/Alliance/Medium/ALumberMill.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
+#include "Buildings/Alliance/Large/AMageTower.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 #include "Buildings/Alliance/Medium/ALunarfallInn.hpp"
+#include "Buildings/Alliance/Medium/ABarn.hpp"
+#include "Buildings/Alliance/Medium/ALumberMill.hpp"
 #include "Buildings/Alliance/Small/ATheForge.hpp"
 #include "Buildings/Alliance/Small/ATailoringEmporium.hpp"
 #include "Buildings/Alliance/Small/AAlchemyLab.hpp"
@@ -32,6 +34,7 @@
 #include "Buildings/Alliance/AHerbGarden.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
+#include "Buildings/Horde/Large/HSpiritLodge.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
 #include "Buildings/Horde/Medium/HBarn.hpp"
 #include "Buildings/Horde/Medium/HLumberMill.hpp"
@@ -53,7 +56,7 @@ namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr), m_Owner(nullptr)
     {
 
     }
@@ -322,6 +325,12 @@ namespace MS { namespace Garrison
             OnDataReset();
     }
 
+    void GarrisonNPCAI::SetGUID(uint64 p_Guid, int32 p_Id)
+    {
+        if (p_Id == CreatureAIDataIDs::OwnerGuid)
+            m_Owner = ObjectAccessor::GetPlayer(*me, p_Guid);
+    }
+
     /// Get UInt32 value
     /// @p_ID    : Value ID
     uint32 GarrisonNPCAI::GetData(uint32 p_ID)
@@ -573,6 +582,200 @@ namespace MS { namespace Garrison
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_garrison_atheeru_palestar::npc_garrison_atheeru_palestar()
+        : CreatureScript("npc_garrison_atheeru_palestar")
+    {
+    }
+
+    /// Constructor
+    npc_garrison_atheeru_palestarAI::npc_garrison_atheeru_palestarAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_garrison_atheeru_palestar::GetAI(Creature* p_Creature) const
+    {
+        return new npc_garrison_atheeru_palestarAI(p_Creature);
+    }
+
+    void npc_garrison_atheeru_palestarAI::SpawnAssemblies()
+    {
+        if (GetOwner() == nullptr)
+            return;
+
+        me->DespawnCreaturesInArea(82441);
+
+        const SequencePosition l_SpawnPositions[4] =
+        {
+            /// Alliance
+            { 24.2378f, -8.7516f, 0.0211f, 4.3490f },
+            { 25.6718f, 11.0212f, 0.0001f, 4.4158f },
+            /// Horde
+            { 23.9077f, -4.0247f, -0.1916f, 4.1163f },
+            { 25.5492f, 9.3343f, -0.0021f, 2.0483f }
+        };
+
+        if (GetOwner()->GetTeamId() == TEAM_ALLIANCE)
+        {
+            if (Creature* l_Creature = SummonRelativeCreature(82441, l_SpawnPositions[0].X, l_SpawnPositions[0].Y, l_SpawnPositions[0].Z, l_SpawnPositions[0].O, TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                if (l_Creature->AI())
+                    l_Creature->AI()->SetGUID(GetOwner()->GetGUID());
+            }
+
+            if (Creature* l_Creature = SummonRelativeCreature(82441, l_SpawnPositions[1].X, l_SpawnPositions[1].Y, l_SpawnPositions[1].Z, l_SpawnPositions[1].O, TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                if (l_Creature->AI())
+                    l_Creature->AI()->SetGUID(GetOwner()->GetGUID());
+            }
+        }
+        else if (GetOwner()->GetTeamId() == TEAM_HORDE)
+        {
+            if (Creature* l_Creature = SummonRelativeCreature(82441, l_SpawnPositions[2].X, l_SpawnPositions[2].Y, l_SpawnPositions[2].Z, l_SpawnPositions[2].O, TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                if (l_Creature->AI())
+                    l_Creature->AI()->SetGUID(GetOwner()->GetGUID());
+            }
+
+            if (Creature* l_Creature = SummonRelativeCreature(82441, l_SpawnPositions[3].X, l_SpawnPositions[3].Y, l_SpawnPositions[3].Z, l_SpawnPositions[3].O, TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                if (l_Creature->AI())
+                    l_Creature->AI()->SetGUID(GetOwner()->GetGUID());
+            }
+        }
+    }
+
+    bool npc_garrison_atheeru_palestar::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Bring back the assemblies.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        p_Player->SEND_GOSSIP_MENU(MiscDatas::NpcTextID, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        if (p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Creature->AI())
+            p_Creature->AI()->DoAction(1);
+        return true;
+    }
+
+    void npc_garrison_atheeru_palestarAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    {
+        DoAction(1);
+    }
+
+    void npc_garrison_atheeru_palestarAI::DoAction(int32 const p_Action)
+    {
+        if (p_Action == 1)
+            SpawnAssemblies();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_garrison_amperial_construct::npc_garrison_amperial_construct()
+        : CreatureScript("npc_garrison_amperial_construct")
+    {
+    }
+
+    /// Constructor
+    npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::npc_garrison_amperial_constructAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+        m_OwnerGuid  = 0;
+        m_CheckTimer = 1500;
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_garrison_amperial_construct::GetAI(Creature* p_Creature) const
+    {
+        return new npc_garrison_amperial_constructAI(p_Creature);
+    }
+
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::OnSpellClick(Unit* p_Clicker)
+    {
+        if (m_OwnerGuid == p_Clicker->GetGUID())
+            p_Clicker->CastSpell(me, 166052, true);
+    }
+
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply)
+    {
+        if (!p_Apply)
+        {
+            p_Passenger->RemoveAurasDueToSpell(166052);
+            me->RemoveAurasDueToSpell(166052);
+        }
+    }
+
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::SetGUID(uint64 p_Guid, int32 p_Id)
+    {
+        if (!p_Id)
+            m_OwnerGuid = p_Guid;
+    }
+
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::UpdateAI(const uint32 p_Diff)
+    {
+        if (m_CheckTimer)
+        {
+            if (m_CheckTimer <= p_Diff)
+            {
+                std::list<Player*> l_PlayerList;
+                std::list<Creature*> l_CreatureList;
+
+                GetCreatureListWithEntryInGrid(l_CreatureList, me, 82441, 100.0f);
+                GetPlayerListInGrid(l_PlayerList, me, 2.0f);
+
+                if (l_CreatureList.size() == 2)
+                {
+                    l_CreatureList.remove_if([this](Creature* p_Creature) -> bool
+                    {
+                        if (p_Creature->GetGUID() == me->GetGUID())
+                            return true;
+
+                        return false;
+                    });
+
+                    l_PlayerList.remove_if([this](Player* p_Player) -> bool
+                    {
+                        if (p_Player->GetGUID() != m_OwnerGuid)
+                            return true;
+
+                        return false;
+                    });
+
+                    if (l_PlayerList.empty() || !m_OwnerGuid || l_CreatureList.empty())
+                        return;
+
+                    if (Creature* l_Creature = l_CreatureList.front())
+                    {
+                        if (Player* l_Player = l_PlayerList.front())
+                        {
+                            if (l_Creature->IsInMap(me) && me->HasInArc(M_PI / 2, l_Player))
+                                l_Player->NearTeleportTo(l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ, l_Creature->GetOrientation());
+                        }
+                    }
+                }
+
+                m_CheckTimer = 500;
+            }
+            else
+                m_CheckTimer -= p_Diff;
+        }
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -581,6 +784,8 @@ void AddSC_Garrison_NPC()
     /// Generic
     new MS::Garrison::npc_GarrisonFord;
     new MS::Garrison::npc_CallToArms;
+    new MS::Garrison::npc_garrison_amperial_construct;
+    new MS::Garrison::npc_garrison_atheeru_palestar;
 
     /// Alliance
     {
@@ -654,6 +859,10 @@ void AddSC_Garrison_NPC()
 
         /// Lunarfall Inn
         new MS::Garrison::npc_MadisonClark;
+
+        /// Mage Tower
+        new MS::Garrison::npc_ApprenticeVarNath;
+        new MS::Garrison::npc_AncientWaygateProtector;
     }
 
     /// Horde
@@ -723,5 +932,8 @@ void AddSC_Garrison_NPC()
 
         /// Frostwall Tavern
         new MS::Garrison::npc_Murg;
+
+        /// Spirit Lodge
+        new MS::Garrison::npc_Varsha;
     }
 }

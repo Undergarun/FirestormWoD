@@ -93,7 +93,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags) :
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags, uint32 p_CustomFlags) :
 m_muteTime(mute_time), m_timeOutTime(0),
 m_Player(NULL), m_Socket(sock), _security(sec), _accountId(id), m_expansion(expansion),
 _ispremium(ispremium), m_PremiumType(premiumType), m_VoteRemainingTime(p_VoteRemainingTime), m_VoteTimePassed(0), m_VoteSyncTimer(VOTE_SYNC_TIMER), _logoutTime(0), m_inQueue(false),
@@ -106,7 +106,7 @@ m_TimeLastChannelAnnounceCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLast
 m_TimeLastChannelOwnerCommand(0), m_TimeLastChannelSetownerCommand(0), m_TimeLastChannelUnmoderCommand(0),
 m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServerCommand(0), timeLastArenaTeamCommand(0),
 timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0),
-m_clientTimeDelay(0), m_FirstPremadeMoney(false), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0)
+m_clientTimeDelay(0), m_FirstPremadeMoney(false), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0), m_CustomFlags(p_CustomFlags)
 {
     _warden = NULL;
     _filterAddonMessages = false;
@@ -1462,6 +1462,30 @@ void WorldSession::SetServiceFlags(uint32 p_Flags)
     l_Statement->setUInt32(0, p_Flags);
     l_Statement->setUInt32(1, GetAccountId());
     LoginDatabase.AsyncQuery(l_Statement);
+}
+
+void WorldSession::UnsetServiceFlags(uint32 p_Flags)
+{
+    m_ServiceFlags &= ~p_Flags;
+
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LoginDatabaseStatements::LOGIN_REMOVE_ACCOUNT_SERVICE);
+    l_Statement->setUInt32(0, p_Flags);
+    l_Statement->setUInt32(1, GetAccountId());
+    LoginDatabase.AsyncQuery(l_Statement);
+}
+
+void WorldSession::SetCustomFlags(uint32 p_Flags)
+{
+    m_CustomFlags |= p_Flags;
+
+    LoginDatabase.AsyncPQuery("UPDATE account SET custom_flags = custom_flags | %u WHERE id = %u", p_Flags, GetAccountId());
+}
+
+void WorldSession::UnsetCustomFlags(uint32 p_Flags)
+{
+    m_CustomFlags &= ~p_Flags;
+
+    LoginDatabase.AsyncPQuery("UPDATE account SET custom_flags = custom_flags &~ %u WHERE id = %u", p_Flags, GetAccountId());
 }
 
 void WorldSession::LoadPremades()

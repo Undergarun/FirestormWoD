@@ -4026,7 +4026,10 @@ void Spell::cast(bool skipCheck)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
         //Clear spell cooldowns after every spell is cast if .cheat cooldown is enabled.
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
+        {
             m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
+            m_caster->ToPlayer()->RestoreCharge(m_spellInfo->ChargeCategoryEntry);
+        }
     }
 
     SetExecutedCurrently(false);
@@ -5995,7 +5998,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     /// Check specialization
-    if (!IsTriggered() && !sWorld->getBoolConfig(CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK))
+    if (!IsTriggered() && !sWorld->getBoolConfig(CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK) && !IsDarkSimulacrum())
     {
         if (Player* l_Player = m_caster->ToPlayer())
         {
@@ -7669,7 +7672,7 @@ SpellCastResult Spell::CheckItems()
                 if (m_spellInfo->MaxLevel > 0 && l_ItemLevel > m_spellInfo->MaxLevel)
                     return SPELL_FAILED_HIGHLEVEL;
 
-                bool isItemUsable = false;
+                bool isItemUsable = false; m_spellInfo->MaxLevel;
                 for (uint8 e = 0; e < MAX_ITEM_PROTO_SPELLS; ++e)
                 {
                     ItemTemplate const* proto = targetItem->GetTemplate();

@@ -122,7 +122,7 @@ enum eIronDocksCreatures
     CreatureTurret                       = 84215,
     CreatureZoggosh                      = 83616,  ///< http://www.wowhead.com/npc=83616/zoggosh
     CreatureKoramar                      = 83613,  ///< http://www.wowhead.com/npc=83613/koramar
-    CreatureMakogg                       = 80805,  ///< http://www.wowhead.com/npc=80805/makogg-emberblade
+    CreatureMakogg                       = 86231,  ///< http://www.wowhead.com/npc=80805/makogg-emberblade
     CreatureNox                          = 80808,  ///< http://www.wowhead.com/npc=80808/neesa-nox
     CreatureDuguru                       = 80816,
     /// Boss Adds
@@ -170,12 +170,6 @@ enum eIronDocksActions
     ActionFireArrows,
     ActionBurningArrowSingle,
     ActionBarbedArrowSingle
-};
-
-enum eIronDocksMovementInformed
-{
-    MovementInformWanlderingThundlerOshirThirdKill = 1,
-    MovementInformedWalderingThundlerOshirKills
 };
 
 enum eIronDocksScenario

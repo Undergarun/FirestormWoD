@@ -2874,10 +2874,6 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     bool canParry = true;
     bool canBlock = spell->AttributesEx3 & SPELL_ATTR3_BLOCKABLE_SPELL;
 
-    // Death Strike can't be Parried
-    if (spell->Id == 49998)
-        canParry = false;
-
     // Same spells cannot be parry/dodge
     if (spell->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
         return SPELL_MISS_NONE;
@@ -2885,6 +2881,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     // Ranged attacks can only miss, resist and deflect
     if (attType == WeaponAttackType::RangedAttack)
     {
+        canParry = false;
+        canDodge = false;
+
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
@@ -3844,53 +3843,55 @@ void Unit::_ApplyAuraEffect(AuraPtr aura, uint32 effIndex)
 
 // handles effects of aura application
 // should be done after registering aura in lists
-void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask)
+void Unit::_ApplyAura(AuraApplication* p_AurApp, uint32 p_EffMask)
 {
-    AuraPtr aura = aurApp->GetBase();
+    AuraPtr l_Aura = p_AurApp->GetBase();
 
-    _RemoveNoStackAurasDueToAura(aura);
+    _RemoveNoStackAurasDueToAura(l_Aura);
 
-    if (aurApp->GetRemoveMode())
+    if (p_AurApp->GetRemoveMode())
         return;
 
-    // Update target aura state flag
-    if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState())
-        ModifyAuraState(aState, true);
+    /// Update target aura state flag
+    if (AuraStateType l_AState = l_Aura->GetSpellInfo()->GetAuraState())
+        ModifyAuraState(l_AState, true);
 
-    if (aurApp->GetRemoveMode())
+    if (p_AurApp->GetRemoveMode())
         return;
 
-    // Sitdown on apply aura req seated
-    if (aura->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !IsSitState())
+    /// Sitdown on apply aura req seated
+    if (l_Aura->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !IsSitState())
         SetStandState(UNIT_STAND_STATE_SIT);
 
-    Unit* caster = aura->GetCaster();
+    Unit* l_Caster = l_Aura->GetCaster();
 
-    if (aurApp->GetRemoveMode())
+    if (p_AurApp->GetRemoveMode())
         return;
 
-    aura->HandleAuraSpecificMods(aurApp, caster, true, false);
-    aura->HandleAuraSpecificPeriodics(aurApp, caster);
+    l_Aura->HandleAuraSpecificMods(p_AurApp, l_Caster, true, false);
+    l_Aura->HandleAuraSpecificPeriodics(p_AurApp, l_Caster);
 
-    // Epicurean
+    /// Epicurean
     if (GetTypeId() == TYPEID_PLAYER &&
         getRace() == RACE_PANDAREN_ALLI ||
         getRace() == RACE_PANDAREN_HORDE ||
         getRace() == RACE_PANDAREN_NEUTRAL)
     {
-        if (aura->GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_FOOD_BUFF)
+        if (l_Aura->GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_FOOD_BUFF)
         {
-            for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
-                if (aura->GetEffect(i))
-                    aura->GetEffect(i)->SetAmount(aura->GetSpellInfo()->Effects[i].BasePoints * 2);
+            for (uint8 i = 0; i < l_Aura->GetEffectCount(); ++i)
+            {
+                if (l_Aura->GetEffect(i))
+                    l_Aura->GetEffect(i)->ChangeAmount(l_Aura->GetEffect(i)->GetAmount() * 2);
+            }
         }
     }
 
-    // apply effects of the aura
-    for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
+    /// apply effects of the aura
+    for (uint8 i = 0; i < l_Aura->GetEffectCount(); ++i)
     {
-        if (effMask & 1<<i && (!aurApp->GetRemoveMode()))
-            aurApp->_HandleEffect(i, true);
+        if (p_EffMask & 1<<i && (!p_AurApp->GetRemoveMode()))
+            p_AurApp->_HandleEffect(i, true);
     }
 }
 
@@ -13522,7 +13523,7 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellInfo* spe
         if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_PROC_PER_MINUTE, PPM);
 
-    return floor((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
+    return (WeaponSpeed * PPM) / 600.0f;   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
 }
 
 void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
@@ -15714,13 +15715,22 @@ void Unit::SetHealth(uint32 val)
         if (GetTypeId() == TYPEID_PLAYER)
             sScriptMgr->OnModifyHealth(this->ToPlayer(), val);
     }
-    else if (Pet* pet = ToCreature()->ToPet())
+    else if (Pet* l_Pet = ToCreature()->ToPet())
     {
-        if (pet->isControlled())
+        if (l_Pet->isControlled())
         {
             Unit* owner = GetOwner();
             if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
                 owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_HP);
+            if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->HasAura(171393))
+            {
+                if (l_Pet->GetHealthPct() < 20.0f && !owner->HasAura(171397))
+                    owner->CastSpell(owner, 171397, true);
+
+                /// Remove aura if pet has more than 20% life
+                if (l_Pet->GetHealthPct() >= 20.0f)
+                    owner->RemoveAura(171397);
+            }
         }
     }
 }
@@ -18898,8 +18908,9 @@ void Unit::SetFeared(bool apply)
         }
     }
 
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SetClientControl(this, !apply);
+    if (Player* player = ToPlayer())
+        if(!player->HasUnitState(UNIT_STATE_POSSESSED))
+            player->SetClientControl(this, !apply);
 }
 
 void Unit::SetConfused(bool apply)
@@ -18920,8 +18931,9 @@ void Unit::SetConfused(bool apply)
         }
     }
 
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SetClientControl(this, !apply);
+    if (Player* player = ToPlayer())
+        if (!player->HasUnitState(UNIT_STATE_POSSESSED))
+            player->SetClientControl(this, !apply);
 }
 
 bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* aurApp)

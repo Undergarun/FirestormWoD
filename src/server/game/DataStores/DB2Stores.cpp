@@ -33,6 +33,7 @@ DB2Storage <LocationEntry>                  sLocationStore(LocationEntryfmt);
 std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
 std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
 std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
+std::map<uint32, uint32> g_ItemDisplayIDs;
 
 DB2Storage <CurrencyTypesEntry>             sCurrencyTypesStore(CurrencyTypesfmt);
 DB2Storage <CurvePointEntry>                sCurvePointStore(CurvePointEntryfmt);
@@ -203,6 +204,23 @@ SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem)
     return itr->second.totems[totem];
 }
 
+uint32 GetItemDisplayID(uint32 p_ItemID, uint32 p_AppearanceModID)
+{
+    auto l_Iter = g_ItemDisplayIDs.find(p_ItemID | (p_AppearanceModID << 24));
+    if (l_Iter != g_ItemDisplayIDs.end())
+        return l_Iter->second;
+
+    /// Fall back to unmodified appearance
+    if (p_AppearanceModID)
+    {
+        l_Iter = g_ItemDisplayIDs.find(p_ItemID);
+        if (l_Iter != g_ItemDisplayIDs.end())
+            return l_Iter->second;
+    }
+
+    return 0;
+}
+
 void LoadDB2Stores(const std::string& dataPath)
 {
     std::string db2Path = dataPath + "dbc/";
@@ -340,11 +358,14 @@ void LoadDB2Stores(const std::string& dataPath)
 
     for (uint32 l_Y = 0; l_Y < sItemModifiedAppearanceStore.GetNumRows(); l_Y++)
     {
-        if (const ItemModifiedAppearanceEntry * l_ModifiedAppearanceEntry = sItemModifiedAppearanceStore.LookupEntry(l_Y))
+        if (ItemModifiedAppearanceEntry const* l_ModifiedAppearanceEntry = sItemModifiedAppearanceStore.LookupEntry(l_Y))
         {
+            if (ItemAppearanceEntry const* l_Appearance = sItemAppearanceStore.LookupEntry(l_ModifiedAppearanceEntry->AppearanceID))
+                g_ItemDisplayIDs[l_ModifiedAppearanceEntry->ItemID | (l_ModifiedAppearanceEntry->AppearanceModID << 24)] = l_Appearance->DisplayID;
+
             if (l_ModifiedAppearanceEntry->ItemID != 0 && l_ModifiedAppearanceEntry->Index == 0)
             {
-                const ItemAppearanceEntry * l_AppearanceEntry = sItemAppearanceStore.LookupEntry(l_ModifiedAppearanceEntry->AppearanceID);
+                ItemAppearanceEntry const* l_AppearanceEntry = sItemAppearanceStore.LookupEntry(l_ModifiedAppearanceEntry->AppearanceID);
 
                 uint32 l_DisplayID = 0;
 
@@ -354,11 +375,8 @@ void LoadDB2Stores(const std::string& dataPath)
                     g_ItemFileDataId[l_ModifiedAppearanceEntry->ItemID] = l_AppearanceEntry->IconFileDataID;
                 }
 
-                ItemEntry * l_Entry = const_cast<ItemEntry*>(sItemStore.LookupEntry(l_ModifiedAppearanceEntry->ItemID));
-                if (l_Entry)
-                {
+                if (ItemEntry* l_Entry = const_cast<ItemEntry*>(sItemStore.LookupEntry(l_ModifiedAppearanceEntry->ItemID)))
                     l_Entry->DisplayId = l_DisplayID;
-                }
             }
         }
     }

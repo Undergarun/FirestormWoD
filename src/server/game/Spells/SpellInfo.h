@@ -474,6 +474,7 @@ public:
 
     int8 GetEffectIndex(SpellEffects effect) const;
     bool HasAura(AuraType aura) const;
+    bool HasAuraPositive(AuraType aura) const;
     bool HasAreaAuraEffect() const;
 
     bool HasPersistenAura() const;

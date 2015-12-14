@@ -293,6 +293,42 @@
 	insert into `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `custom_flags`, `protect_anti_doublet`) values('230881','1116','6720','7257','1','1','5464.09','5048.25','-9.18784','2.48512','0','0','0.946613','0.322372','300','0','1','0','0',NULL);
 	insert into `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `custom_flags`, `protect_anti_doublet`) values('230881','1116','6720','7257','1','1','5474.61','5054.72','0.000994467','3.12523','0','0','0.999967','0.00818263','300','0','1','0','0',NULL);
 
+#35174/Quest - Pale Moonlight
 
+	UPDATE creature SET phasemask = 4294967295 WHERE id = 79205;
 
+#91404/NPC - Samantha Scarlet
 
+	DELETE FROM creature WHERE id = 91404;
+
+#91025/NPC - Dorothy Two
+
+	DELETE FROM creature WHERE id = 91025;
+
+#91034/NPC - Calvo Klyne
+
+	DELETE FROM creature WHERE id = 91034;
+
+#91031/NPC - Nicholas Mitrik
+
+	DELETE FROM creature WHERE id = 91031;
+
+#91483/NPC - Fen Tao
+
+	UPDATE creature_template SET scriptname = "npc_ashran_fen_tao", npcflag = npcflag | 1, gossip_menu_id = 90007 WHERE entry = 91483;
+	DELETE FROM gossip_menu WHERE entry IN (90007, 90008);
+	INSERT INTO gossip_menu VALUES
+	(90007, 92005),
+	(90008, 92006);
+	DELETE FROM npc_text WHERE ID IN (92005, 92006);
+	INSERT INTO npc_text (ID, text0_0, text0_1) VALUES
+	(92005,
+	"I have heard stories of your glorious deeds in Pandaria! It's an honor to finally meet you in person!",
+	"I have heard stories of your glorious deeds in Pandaria! It's an honor to finally meet you in person!"
+	),
+	(92006,
+	"My name is Fen Tao, and I am from Pandaria. I have spent many days traveling to these lands. Why you ask? We are a family of helpful people, and you look like someone that could use some help. Just let me know how I can be of service to you.",
+	"My name is Fen Tao, and I am from Pandaria. I have spent many days traveling to these lands. Why you ask? We are a family of helpful people, and you look like someone that could use some help. Just let me know how I can be of service to you."
+	);
+	DELETE FROM gossip_menu_option WHERE menu_id = 92005;
+	INSERT INTO gossip_menu_option (menu_id, option_text) VALUE (92005, "Why are you here?");

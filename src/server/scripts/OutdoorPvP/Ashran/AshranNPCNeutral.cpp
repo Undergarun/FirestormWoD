@@ -1588,6 +1588,62 @@ class npc_ashran_ashmaul_destroyer : public CreatureScript
         }
 };
 
+/// Fen Tao - 91483
+class npc_ashran_fen_tao : public CreatureScript
+{
+    public:
+        npc_ashran_fen_tao() : CreatureScript("npc_ashran_fen_tao") { }
+
+        enum SpellIds
+        {
+            SpellAddFollowerFenTao = 181526
+        };
+
+        enum MiscDatas
+        {
+            GossipMenuId    = 90007,
+            FirstNpcTextID  = 92005,
+            SecondNpcTextID = 92006
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+        {
+            p_Player->PrepareGossipMenu(p_Creature, MiscDatas::GossipMenuId, false);
+            GossipMenuItem const* l_Item = p_Player->PlayerTalkClass->GetGossipMenu().GetItem(MiscDatas::FirstNpcTextID);
+
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, l_Item ? l_Item->Message : "Why are you here?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            p_Player->SEND_GOSSIP_MENU(MiscDatas::FirstNpcTextID, p_Creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+        {
+            p_Player->PlayerTalkClass->ClearMenus();
+
+            switch (p_Action)
+            {
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                {
+                    char const* l_NpcName = "Fen Tao";
+
+                    p_Creature->SendAddFollowerQuery(p_Player, p_Sender, GOSSIP_ACTION_INFO_DEF + 2, l_NpcName);
+                    p_Player->SEND_GOSSIP_MENU(MiscDatas::SecondNpcTextID, p_Creature->GetGUID());
+                    break;
+                }
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    p_Player->CastSpell(p_Player, SpellIds::SpellAddFollowerFenTao, true);
+                    p_Player->PlayerTalkClass->SendCloseGossip();
+                    break;
+                default:
+                    p_Player->PlayerTalkClass->SendCloseGossip();
+                    break;
+            }
+
+            return true;
+        }
+};
+
 void AddSC_AshranNPCNeutral()
 {
     new npc_ashran_herald();
@@ -1607,4 +1663,5 @@ void AddSC_AshranNPCNeutral()
     new npc_ashran_elder_darkweaver_kath();
     new npc_ashran_shadow_figurine();
     new npc_ashran_ashmaul_destroyer();
+    new npc_ashran_fen_tao();
 }
