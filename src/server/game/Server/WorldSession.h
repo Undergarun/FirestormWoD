@@ -190,7 +190,6 @@ namespace AccountCustomFlags
     };
 }
 
-
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
 class PacketFilter
@@ -505,6 +504,8 @@ class WorldSession
         void SetCustomFlags(uint32 p_Flags);
         void UnsetCustomFlags(uint32 p_Flags);
         bool HasCustomFlags(uint32 p_Flags) const { return m_CustomFlags & p_Flags; }
+
+        void LoadPremades();
 
     public:                                                 // opcodes handlers
 

@@ -105,5 +105,5 @@ void AddSC_BattlePay_Services()
     new BattlePay_CharacterService<AtLoginFlags::AT_LOGIN_CHANGE_FACTION>("battlepay_service_change_faction");
     new BattlePay_CharacterService<AtLoginFlags::AT_LOGIN_CHANGE_RACE>("battlepay_service_change_race");
     new BattlePay_CharacterService<AtLoginFlags::AT_LOGIN_CUSTOMIZE>("battlepay_service_customize");
-    new BattlePay_AccountService<ServiceFlags::Premade>("battlepay_service_premade");
+    //new BattlePay_AccountService<ServiceFlags::PremadePve>("battlepay_service_premade");
 }

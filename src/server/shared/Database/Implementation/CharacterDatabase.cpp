@@ -727,6 +727,12 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_GUILD_CHALLENGE, "DELETE FROM guild_completed_challenges WHERE map_id = ? AND guild_id = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////////////////////
+    /// Premades
+    PREPARE_STATEMENT(CHAR_SEL_PREMADES, "SELECT transaction, templateId, faction, type FROM webshop_delivery_premade WHERE account = ? and delivery = 0", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(CHAR_UPD_PREMADE_SUCESS, "UPDATE webshop_delivery_premade SET delivery = 1 WHERE transaction = ?", CONNECTION_ASYNC);
+    //////////////////////////////////////////////////////////////////////////
+
     PREPARE_STATEMENT(CHAR_SEL_DAILY_LOOT_COOLDOWNS, "SELECT `entry` FROM `character_daily_loot_cooldown` WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_DAILY_LOOT_COOLDOWNS, "INSERT INTO `character_daily_loot_cooldown` (`guid`, `entry`) VALUE (?, ?)", CONNECTION_ASYNC);
 
