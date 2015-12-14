@@ -588,7 +588,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
 
             if (l_POIs)
             {
-                l_Data << uint32(l_POIs->size());     ///< Num Blobs
+                l_Data << uint32(l_QuestID);
                 l_Data << uint32(l_POIs->size());     ///< Num Blobs
 
                 const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_QuestID);
@@ -617,8 +617,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
                     l_Data << uint32(l_It->Flags);                ///< Flags
                     l_Data << uint32(l_It->WorldEffectID);        ///< World Effect ID
                     l_Data << uint32(l_It->PlayerConditionID);    ///< Player Condition ID
-                    l_Data << uint32(l_It->Unk);                  ///< Unk
-
+                    l_Data << uint32(0);                          ///< Unk Wod
                     l_Data << uint32(l_It->Points.size());
 
                     for (std::vector<QuestPOIPoint>::const_iterator l_PointIT = l_It->Points.begin(); l_PointIT != l_It->Points.end(); ++l_PointIT)

@@ -68,7 +68,7 @@ enum Opcodes
         SMSG_HOTFIX_NOTIFY                          = 0x0BEC, ///< 6.2.3 20726
         SMSG_WORLD_SERVER_INFO                      = 0x1B78, ///< 6.2.3 20726
         SMSG_INITIAL_SETUP                          = 0x07F0, ///< 6.2.3 20726
-        SMSG_PONG                                   = 0x0000, ///< 6.2.3 20726
+        SMSG_PONG                                   = 0x0288, ///< 6.2.3 20726
         SMSG_UITIME                                 = 0x1B4C, ///< 6.2.3 20726
 
         /// Query
@@ -1301,7 +1301,7 @@ enum Opcodes
     CMSG_CHAT_MESSAGE_CHANNEL                   = 0x0BB2, ///< 6.2.3 20726
 
     /// Channel
-    CMSG_JOIN_CHANNEL                           = 0x18A2, ///< 6.2.3 20726
+    CMSG_JOIN_CHANNEL                           = 0x0BF6, ///< 6.2.3 20726
     CMSG_CHANNEL_ANNOUNCEMENTS                  = 0x02F1, ///< 6.2.3 20726
     CMSG_CHANNEL_BAN                            = 0x16B2, ///< 6.2.3 20726
     CMSG_CHANNEL_DISPLAY_LIST                   = 0x0000, ///< 6.2.0 19173
