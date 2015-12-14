@@ -200,7 +200,8 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                                 /// Frozen Orb gives one stack of FoF on first hit
                                 if (Unit* l_Owner = me->GetOwner())
                                 {
-                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
+                                    if (l_Owner->HasAura(Spells::FingersOfFrost))
+                                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
                                     l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
                                 }
                                 break;

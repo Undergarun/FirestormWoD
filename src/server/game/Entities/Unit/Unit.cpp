@@ -11491,8 +11491,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
         if (l_HasFingerOfFrostProc)
         {
+            if (HasAura(44544))
+                CastSpell(this, 126084, true); ///< Fingers of frost visual
             CastSpell(this, 44544, true);  ///< Fingers of frost proc
-            CastSpell(this, 126084, true); ///< Fingers of frost visual
         }
     }
 

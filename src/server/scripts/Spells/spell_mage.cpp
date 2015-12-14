@@ -925,8 +925,9 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
                 if (l_Target->HasAura(eSpells::WaterJet, l_Pet->GetGUID()))
                 {
+                    if (l_Player->HasAura(eSpells::FingerFrost))
+                        l_Player->CastSpell(l_Player, eSpells::FingerFrostVisual, true); ///< Fingers of frost visual 2 procs
                     l_Player->CastSpell(l_Player, eSpells::FingerFrost, true);  ///< Fingers of frost proc
-                    l_Player->CastSpell(l_Player, eSpells::FingerFrostVisual, true); ///< Fingers of frost visual
                 }
             }
 
