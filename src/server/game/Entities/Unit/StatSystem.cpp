@@ -569,7 +569,9 @@ void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& mi
     /// Speed coefficients from http://wowwiki.wikia.com/Normalization - tested on official server, information is correct
     if (l_UsedWeapon && l_UsedWeapon->GetTemplate())
     {
-        if (l_UsedWeapon->GetTemplate()->IsOneHanded())
+        if (l_UsedWeapon->GetTemplate()->IsRangedWeapon())
+            l_NormalizedSpeedCoef = 2.8f;
+        else if (l_UsedWeapon->GetTemplate()->IsOneHanded())
         {
             if (l_UsedWeapon->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
                 l_NormalizedSpeedCoef = 1.7f;
@@ -578,8 +580,6 @@ void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& mi
         }
         else if (l_UsedWeapon->GetTemplate()->IsTwoHandedWeapon())
             l_NormalizedSpeedCoef = 3.3f;
-        else if (l_UsedWeapon->GetTemplate()->IsRangedWeapon())
-            l_NormalizedSpeedCoef = 2.8f;
     }
 
     min_damage = weapon_mindamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
