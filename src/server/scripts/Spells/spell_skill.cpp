@@ -646,9 +646,9 @@ namespace MS { namespace Skill
                         if (l_Message != EQUIP_ERR_OK)
                             return;
 
-                        Item* l_Item = l_Caster->StoreNewItem(l_Destination, t_ItemID, true, Item::GenerateItemRandomPropertyId(t_ItemID));
+                        l_Caster->UpdateCraftSkill(GetSpellInfo()->Id);
 
-                        if (l_Item)
+                        if (Item* l_Item = l_Caster->StoreNewItem(l_Destination, t_ItemID, true, Item::GenerateItemRandomPropertyId(t_ItemID)))
                             l_Caster->SendNewItem(l_Item, l_RollCount, false, true);
 
                         HandleAdditionalReagents(l_Caster);
