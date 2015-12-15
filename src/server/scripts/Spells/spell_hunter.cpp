@@ -803,32 +803,36 @@ class spell_hun_lone_wolf : public SpellScriptLoader
                 if (!GetUnitOwner())
                     return;
 
-                if (Player* l_Player = GetUnitOwner()->ToPlayer())
-                {
-                    if (Pet* l_Pet = l_Player->GetPet())
-                    {
-                        l_Player->RemoveAura(LoneWolfes::LoneWolfAura);
+                Player* l_Player = GetUnitOwner()->ToPlayer();
 
-                        p_AurEff->ChangeAmount(0, true, true);
+                if (l_Player == nullptr)
+                    return;
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet != nullptr && !l_Pet->m_Stampeded)
+                {
+                    l_Player->RemoveAura(LoneWolfes::LoneWolfAura);
+
+                    p_AurEff->ChangeAmount(0, true, true);
+
+                    if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                        l_AuraEffect->ChangeAmount(0, true, true);
+
+                    for (uint8 l_I = 0; l_I < 8; ++l_I)
+                        l_Player->RemoveAura(g_BuffSpells[l_I]);
+                }
+                else
+                {
+                    /// We don't need to update values and cast this aura every time on update, just if we don't have it yet
+                    if (!l_Player->HasAura(LoneWolfes::LoneWolfAura))
+                    {
+                        l_Player->CastSpell(l_Player, LoneWolfes::LoneWolfAura, true);
+
+                        p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
 
                         if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
-                            l_AuraEffect->ChangeAmount(0, true, true);
-
-                        for (uint8 l_I = 0; l_I < 8; ++l_I)
-                            l_Player->RemoveAura(g_BuffSpells[l_I]);
-                    }
-                    else
-                    {
-                        /// We don't need to update values and cast this aura every time on update, just if we don't have it yet
-                        if (!l_Player->HasAura(LoneWolfes::LoneWolfAura))
-                        {
-                            l_Player->CastSpell(l_Player, LoneWolfes::LoneWolfAura, true);
-
-                            p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
-
-                            if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
-                                l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
-                        }
+                            l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
                     }
                 }
             }
