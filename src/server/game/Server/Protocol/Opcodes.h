@@ -947,7 +947,7 @@ enum Opcodes
         SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x1111, ///< 6.2.3 20726
         SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x1135, ///< 6.2.3 20726
         SMSG_GARRISON_START_MISSION_RESULT                              = 0x1C1A, ///< 6.2.3 20726
-        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x189E, ///< 6.2.3 20726
+        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x149D, ///< 6.2.3 20726
         SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x14B2, ///< 6.2.3 20726
         SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x0000,
         SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,

@@ -1352,6 +1352,7 @@ namespace MS { namespace Garrison
         l_Result << uint32(l_Mission->State);
 
         l_Result << uint32(l_Mission->MissionID);
+        l_Result << uint32(0);  ///< Unk Loop
         l_Result.WriteBit(l_Succeeded);
         l_Result.FlushBits();
 
@@ -2331,7 +2332,7 @@ namespace MS { namespace Garrison
     bool Manager::AddFollower(uint32 p_FollowerID)
     {
         auto l_TempFollower = GetFollower(p_FollowerID);
-        if (!l_TempFollower)
+        if (!l_TempFollower || l_TempFollower->FollowerID != 0)
             return false;
 
         GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
