@@ -4044,10 +4044,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 30814: ///< Mental Quickness
                 spellInfo->Effects[EFFECT_4].Effect = 0;
                 break;
-            /// January 12, 2015 - 6.0.3 Hotfixes for January 12th - Class Tuning Changes, Haste More Effective
-            case 165375:///< Sacred Duty - now causes the Paladin to gain 30% (up from 5%) more of the Haste stat from all sources.
-                spellInfo->Effects[EFFECT_0].BasePoints = 30;
-                break;
             case 149959: // Earth Shatter
             case 149968:
             case 149969:

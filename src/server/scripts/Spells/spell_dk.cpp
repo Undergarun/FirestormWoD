@@ -1959,58 +1959,6 @@ class spell_dk_empowered_obliterate_howling_blast : public SpellScriptLoader
         }
 };
 
-/// Plaguebearer - 161497
-/// Called by Death Coil 47541 & Frost Strike 49143
-class spell_dk_plaguebearer: public SpellScriptLoader
-{
-    public:
-        spell_dk_plaguebearer() : SpellScriptLoader("spell_dk_plaguebearer") { }
-
-        class spell_dk_plaguebearer_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_plaguebearer_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (!l_Caster->HasAura(DK_SPELL_PLAGUEBEARER))
-                        return;
-
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (AuraPtr l_BloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
-                            l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);
-
-                        if (AuraPtr l_FrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
-                            l_FrostFever->SetDuration(l_FrostFever->GetDuration() + 4000);
-
-                        if (l_Caster->HasAura(DK_SPELL_NECROTIC_PLAGUE))
-                            l_Caster->CastSpell(l_Target, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA);
-                    }
-                }
-            }
-
-            void HandleDamage(SpellEffIndex p_EffIndex)
-            {
-                HandleOnHit();
-            }
-
-            void Register()
-            {
-                if (m_scriptSpellId == DK_SPELL_DEATH_COIL)
-                    OnHit += SpellHitFn(spell_dk_plaguebearer_SpellScript::HandleOnHit);
-                else ///< Necessary for Frost Strike, because it has two effects
-                    OnEffectHitTarget += SpellEffectFn(spell_dk_plaguebearer_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_plaguebearer_SpellScript();
-        }
-};
-
 /// last update : 6.1.2 19802
 /// Necrotic Plague - 155159
 class spell_dk_necrotic_plague_aura: public SpellScriptLoader
@@ -3348,7 +3296,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_corpse_explosion();
     new spell_dk_glyph_of_horn_of_winter();
     new spell_dk_icy_touch();
-    new spell_dk_plaguebearer();
     new spell_dk_necrotic_plague_aura();
     new spell_dk_runic_empowerment();
     new spell_dk_runic_corruption();

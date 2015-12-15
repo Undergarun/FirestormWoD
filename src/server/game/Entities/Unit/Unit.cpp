@@ -16655,6 +16655,19 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if ((procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && HasAura(165394) && GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsTwoHandUsed() && procSpell == nullptr)
         CastSpell(this, 163948, true);
 
+    /// Plaguebearer
+    if (procSpell && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
+    {
+        if (AuraPtr l_BloodPlague = target->GetAura(55078, GetGUID()))
+            l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);
+
+        if (AuraPtr l_FrostFever = target->GetAura(55095, GetGUID()))
+            l_FrostFever->SetDuration(l_FrostFever->GetDuration() + 4000);
+
+        if (HasAura(152281))
+            CastSpell(target, 155159);
+    }
+
     // Dematerialize
     if (target && !isVictim && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(122464) && procSpell && procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN))
     {
