@@ -3382,6 +3382,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 182464: ///< Portal to Garrison
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 break;
+            case 179478: ///< Voidtalon of the Dark Star
+                spellInfo->Effects[EFFECT_0].MiscValue = 89959;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 230;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             /// Blackrock Foundry
             ///////////////////////////////////////////////////////////////////////////////////
