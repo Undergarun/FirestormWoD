@@ -1371,19 +1371,6 @@ class spell_sha_earthquake: public SpellScriptLoader
                 ImprovedChainLightning = 157766,
             };
 
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-            {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                AreaTrigger* l_AreaTrigger = l_Caster->GetAreaTrigger(eSpells::Earthquake);
-                if (!l_AreaTrigger)
-                    return;
-
-                l_Caster->CastCustomSpell(l_AreaTrigger->GetPositionX(), l_AreaTrigger->GetPositionY(), l_AreaTrigger->GetPositionZ(), eSpells::EarthquakeSlow, nullptr, nullptr, nullptr, true);
-            }
-
             void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -1407,7 +1394,6 @@ class spell_sha_earthquake: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_sha_earthquake_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -1432,6 +1418,7 @@ public:
         enum eSpells
         {
             EarthquakeTick      = 77478,
+            EarthquakeSlow      = 182387,
             EarthquakeKnockDown = 77505
         };
 
@@ -1448,6 +1435,8 @@ public:
             Unit* l_Target = GetHitUnit();
             if (!l_Caster || !l_Target)
                 return;
+
+            l_Caster->CastSpell(l_Target, eSpells::EarthquakeSlow, true);
 
             /// 10% chance of knocking down affected targets
             if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
