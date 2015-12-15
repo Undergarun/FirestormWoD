@@ -1368,20 +1368,22 @@ enum Opcodes
     CMSG_MOVE_STOP_PITCH                        = 0x045B, ///< 6.1.2 19783
 
     /// ACK
-    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x0407, ///< 6.1.2 19783
-    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x044C, ///< 6.1.2 19783
-    CMSG_MOVE_SET_WALK_SPEED_CHEAT              = 0x0813, ///< 6.1.2 19783
-    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x0517, ///< 6.1.2 19783
-    CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT         = 0x0110, ///< 6.1.2 19783
-    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x004F, ///< 6.1.2 19783
-    CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT       = 0x0148, ///< 6.1.2 19783
-    CMSG_MOVE_SET_TURN_SPEED_CHEAT              = 0x014C, ///< 6.1.2 19783
-    CMSG_MOVE_SET_PITCH_SPEED_CHEAT             = 0x0410, ///< 6.1.2 19783
-    CMSG_MOVE_KNOCK_BACK_ACK                    = 0x040F, ///< 6.1.2 19783
-    CMSG_MOVE_SET_CAN_FLY_ACK                   = 0x0C03, ///< 6.1.2 19783
-    CMSG_MOVE_FEATHER_FALL_ACK                  = 0x0120, ///< 6.1.2 19783
-    CMSG_MOVE_WATER_WALK_ACK                    = 0x0C07, ///< 6.1.2 19783
-    CMSG_MOVE_HOVER_ACK                         = 0x0860, ///< 6.1.2 19783
+    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x0407, ///< 6.1.2 19865
+    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x044C, ///< 6.1.2 19865
+    CMSG_MOVE_SET_WALK_SPEED_CHEAT              = 0x0813, ///< 6.1.2 19865
+    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x0517, ///< 6.1.2 19865
+    CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT         = 0x0110, ///< 6.1.2 19865
+    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x004F, ///< 6.1.2 19865
+    CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT       = 0x0148, ///< 6.1.2 19865
+    CMSG_MOVE_SET_TURN_SPEED_CHEAT              = 0x014C, ///< 6.1.2 19865
+    CMSG_MOVE_SET_PITCH_SPEED_CHEAT             = 0x0410, ///< 6.1.2 19865
+    CMSG_MOVE_KNOCK_BACK_ACK                    = 0x040F, ///< 6.1.2 19865
+    CMSG_MOVE_SET_CAN_FLY_ACK                   = 0x0C03, ///< 6.1.2 19865
+    CMSG_MOVE_FEATHER_FALL_ACK                  = 0x0120, ///< 6.1.2 19865
+    CMSG_MOVE_WATER_WALK_ACK                    = 0x0C07, ///< 6.1.2 19865
+    CMSG_MOVE_HOVER_ACK                         = 0x0860, ///< 6.1.2 19865
+    CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK          = 0x090F, ///< 6.1.2 19865
+    CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK         = 0x090C, ///< 6.1.2 19865
 
     //////////////////////////////////////////////////////////////////////////
     /// Group

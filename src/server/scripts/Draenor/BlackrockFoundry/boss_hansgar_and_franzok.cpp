@@ -1640,8 +1640,8 @@ class npc_foundry_scorching_burns : public CreatureScript
                             if (l_Player->GetDistance(me) >= l_MaxDist)
                                 continue;
 
-                            if (l_Player->GetPositionY() <= me->GetPositionY() + 3.5f &&
-                                l_Player->GetPositionY() >= me->GetPositionY() - 3.5f)
+                            if (l_Player->GetPositionY() <= me->GetPositionY() + 7.2f &&
+                                l_Player->GetPositionY() >= me->GetPositionY() - 7.2f)
                                 l_Targets.insert(l_Player->GetGUID());
                         }
                     }
@@ -1662,7 +1662,14 @@ class npc_foundry_scorching_burns : public CreatureScript
                     for (uint64 l_Guid : l_Targets)
                     {
                         if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
-                            l_Player->SendApplyMovementForce(me->GetGUID(), true, g_ConveyorForceMovesDirection[m_BeltEntry], 6.0f, 0, G3D::Vector3(-6.0f, 0.0f, 0.0f));
+                        {
+                            if (!l_Player->HasMovementForce(me->GetGUID()))
+                            {
+                                l_Player->SendApplyMovementForce(me->GetGUID(), true, g_ConveyorForceMovesDirection[m_BeltEntry], 6.0f, 0, G3D::Vector3(-6.0f, 0.0f, 0.0f));
+
+                                m_AffectedPlayers.insert(l_Guid);
+                            }
+                        }
                     }
                 }
             }
