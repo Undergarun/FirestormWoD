@@ -4945,25 +4945,25 @@ enum PetSlot
 
 enum TradeStatus
 {
-    TRADE_STATUS_YOU_DEAD               = 0,
-    TRADE_STATUS_WRONG_FACTION          = 1,
-    TRADE_STATUS_BACK_TO_TRADE          = 2,
-    TRADE_STATUS_TARGET_TO_FAR          = 5,
-    TRADE_STATUS_TRADE_ACCEPT           = 8,
-    TRADE_STATUS_TARGET_DEAD            = 9,
-    TRADE_STATUS_OPEN_WINDOW            = 10,
-    TRADE_STATUS_TARGET_STUNNED         = 11,
-    TRADE_STATUS_YOU_LOGOUT             = 12,
-    TRADE_STATUS_TRADE_COMPLETE         = 16,
-    TRADE_STATUS_IGNORE_YOU             = 17,
-    TRADE_STATUS_NOT_ELIGIBLE           = 19,
-    TRADE_STATUS_TARGET_LOGOUT          = 20,
-    TRADE_STATUS_BEGIN_TRADE            = 21,
-    TRADE_STATUS_BUSY                   = 22,
+    TRADE_STATUS_YOU_LOGOUT             = 0,
+    TRADE_STATUS_YOU_DEAD               = 3,
+    TRADE_STATUS_TARGET_LOGOUT          = 4,
+    TRADE_STATUS_NOT_ELIGIBLE           = 6,
+    TRADE_STATUS_BEGIN_TRADE            = 10,
+    TRADE_STATUS_TRADE_CANCELED         = 11,
+    TRADE_STATUS_TARGET_STUNNED         = 12,
+    TRADE_STATUS_TARGET_DEAD            = 15,
+    TRADE_STATUS_TRADE_ACCEPT           = 17,
+    TRADE_STATUS_BACK_TO_TRADE          = 22,
     TRADE_STATUS_BEGIN_PROPOSED         = 23,
-    TRADE_STATUS_TRADE_CANCELED         = 26,
-    TRADE_STATUS_YOU_STUNNED            = 30,
-    TRADE_STATUS_NO_TARGET              = 31
+    TRADE_STATUS_YOU_STUNNED            = 24,
+    TRADE_STATUS_OPEN_WINDOW            = 25,
+    TRADE_STATUS_IGNORE_YOU             = 26,
+    TRADE_STATUS_TRADE_COMPLETE         = 28,
+    TRADE_STATUS_BUSY                   = 29,
+    TRADE_STATUS_TARGET_TO_FAR          = 30,
+    TRADE_STATUS_NO_TARGET              = 31,
+    TRADE_STATUS_WRONG_FACTION          = 31,   ///< Deleted ?
 };
 
 enum eUpdateCollisionReasons
