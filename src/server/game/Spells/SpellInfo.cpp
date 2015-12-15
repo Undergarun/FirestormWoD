@@ -1600,7 +1600,7 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
         return true;
 
     // Elemental Blast is affected by Ancestral Swiftness and Maelstrom Weapon
-    if (Id == 117014 && (affectSpell->Id == 16188 || affectSpell->Id == 53817))
+    if (Id == 117014 && (affectSpell->Id == 16188))
         return true;
 
     return false;

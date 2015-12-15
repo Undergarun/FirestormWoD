@@ -5998,7 +5998,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     /// Check specialization
-    if (!IsTriggered() && !sWorld->getBoolConfig(CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK))
+    if (!IsTriggered() && !sWorld->getBoolConfig(CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK) && !IsDarkSimulacrum())
     {
         if (Player* l_Player = m_caster->ToPlayer())
         {
@@ -7669,7 +7669,7 @@ SpellCastResult Spell::CheckItems()
                 if (l_ItemLevel < m_spellInfo->BaseLevel)
                     return SPELL_FAILED_LOWLEVEL;
 
-                if (m_spellInfo->MaxLevel && l_ItemLevel > m_spellInfo->MaxLevel)
+                if (m_spellInfo->MaxLevel > 0 && l_ItemLevel > m_spellInfo->MaxLevel)
                     return SPELL_FAILED_HIGHLEVEL;
 
                 bool isItemUsable = false; m_spellInfo->MaxLevel;

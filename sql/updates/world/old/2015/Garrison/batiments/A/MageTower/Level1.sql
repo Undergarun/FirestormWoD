@@ -28,7 +28,9 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','1','83810','2.25137','-4.56007','1.80375','3.81048');  -- Adventurer
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','1','87760','21.7892','-11.3573','0.502243','5.40877'); -- Training Dummy
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','1','87761','17.0097','-15.3535','0.500702','5.40877'); -- Dungeoneers Training Dummy
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','1','-240601','23.4583','10.5873','0.000046','5.986');  -- Mage Tower Work Orders
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','1','-240602','23.4583','10.5873','0.000046','5.986');  -- Mage Tower Work Orders
+
+UPDATE gameobject_template SET scriptname = "go_garrison_shipment_container" WHERE entry IN (240601, 240602);
 
 #77367/NPC - Archmage Kem -- QuestGiver
 
@@ -49,7 +51,20 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 
 #82571/NPC - Atheeru Palestar -- Summons special pnjs (Amperial Construct)
 
-	-- @TODO
+	UPDATE creature_template SET scriptname = "npc_garrison_atheeru_palestar", npcflag = npcflag | 1, gossip_menu_id = 90010 WHERE entry = 82571;
+	DELETE FROM gossip_menu WHERE entry = 90010;
+	INSERT INTO gossip_menu VALUES
+	(90010, 92007);
+	DELETE FROM npc_text WHERE ID IN (92007);
+	INSERT INTO npc_text (ID, text0_0, text0_1) VALUES
+	(92005,
+	"Do you like my assemblies ?",
+	"Do you like my assemblies ?"
+	);
+
+#82441/NPC - Amperial Construct
+
+	UPDATE creature_template SET unit_flags = unit_flags | 0x00000004, vehicleid = 3696, scriptname = "npc_garrison_amperial_construct" WHERE entry = 82441;
 
 #182464/Spell - Portal to Garrison
 
@@ -57,7 +72,7 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 
 #Spells - Portals Teleport destinations
 
-	REPLACE INTO spell_target_positions VALUES
+	REPLACE INTO spell_target_position VALUES
 	(171596, 0, 1116, 6352.1225, 3857.2192, 92.1352, 2.6386), -- Frostfire Ridge
 	(167835, 0, 1116, 7705.7431, 334.68618, 131.364, 5.1990), -- Gorgrond
 	(167861, 0, 1116, 3174.4289, 7468.4741, 5.96925, 1.6210), -- Nagrand

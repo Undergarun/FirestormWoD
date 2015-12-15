@@ -1267,11 +1267,6 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
 
 uint32 AuraEffect::AbsorbBonusTaken(Unit* p_Caster, int32 p_Amount)
 {
-    float totalMod = 0.0f;
-
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
-        return p_Amount;
-
     /// Dampening, must be calculated off the raw amount
     if (AuraEffectPtr l_AurEff = p_Caster->GetAuraEffect(110310, EFFECT_0))
     {

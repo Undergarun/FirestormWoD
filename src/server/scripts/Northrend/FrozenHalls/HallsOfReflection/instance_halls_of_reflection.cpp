@@ -183,8 +183,14 @@ public:
                 case NPC_WAVE_PRIEST:
                 case NPC_WAVE_MAGE:
                 {
+                    if (!creature->IsAIEnabled)
+                        break;
+
                     uint32 internalWaveId = creature->AI()->GetData(0);
-                    waveGuidList[internalWaveId].erase(creature->GetGUID());
+
+                    if (internalWaveId < 8)
+                        waveGuidList[internalWaveId].erase(creature->GetGUID());
+
                     break;
                 }
             }

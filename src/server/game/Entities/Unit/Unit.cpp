@@ -2874,10 +2874,6 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     bool canParry = true;
     bool canBlock = spell->AttributesEx3 & SPELL_ATTR3_BLOCKABLE_SPELL;
 
-    // Death Strike can't be Parried
-    if (spell->Id == 49998)
-        canParry = false;
-
     // Same spells cannot be parry/dodge
     if (spell->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
         return SPELL_MISS_NONE;
@@ -5230,7 +5226,7 @@ float Unit::GetTotalAuraMultiplier(AuraType auratype) const
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
-        AddPct(multiplier, (*i)->GetAmount());
+        multiplier += CalculatePct(1.0, (*i)->GetAmount());
 
     return multiplier;
 }
@@ -11495,8 +11491,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
         if (l_HasFingerOfFrostProc)
         {
+            if (HasAura(44544))
+                CastSpell(this, 126084, true); ///< Fingers of frost visual
             CastSpell(this, 44544, true);  ///< Fingers of frost proc
-            CastSpell(this, 126084, true); ///< Fingers of frost visual
         }
     }
 
@@ -14300,7 +14297,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     //if (this->ToPlayer())
     //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
 
-    int32 main_speed_mod  = 0;
+    float main_speed_mod  = 1.0f;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
 
@@ -14317,15 +14314,16 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         {
             if (IsMounted()) // Use on mount auras
             {
-                main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED);
+                main_speed_mod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED);
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_SPEED_ALWAYS);
-                non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK) / 100.0f;
+                non_stack_bonus = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK);
             }
             else
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_SPEED);
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_SPEED_ALWAYS);
-                non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_SPEED_NOT_STACK) / 100.0f;
+                non_stack_bonus = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_SPEED_NOT_STACK);
+
             }
             break;
         }
@@ -14342,7 +14340,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS);
 
                 // for some spells this mod is applied on vehicle owner
-                int32 owner_speed_mod = 0;
+                float owner_speed_mod = 0.0f;
 
                 if (Unit* owner = GetCharmer())
                     owner_speed_mod = owner->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
@@ -14369,9 +14367,8 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     }
 
     // now we ready for speed calculation
-    float speed = std::max(non_stack_bonus, stack_bonus);
-    if (main_speed_mod)
-        AddPct(speed, main_speed_mod);
+    float total_non_stack_bonus = std::max(main_speed_mod, non_stack_bonus);
+    float speed = stack_bonus + (total_non_stack_bonus / 100);
 
     if (GetTypeId() == TYPEID_PLAYER)
         speed += CalculatePct(speed, ToPlayer()->GetFloatValue(PLAYER_FIELD_SPEED));
@@ -15719,13 +15716,22 @@ void Unit::SetHealth(uint32 val)
         if (GetTypeId() == TYPEID_PLAYER)
             sScriptMgr->OnModifyHealth(this->ToPlayer(), val);
     }
-    else if (Pet* pet = ToCreature()->ToPet())
+    else if (Pet* l_Pet = ToCreature()->ToPet())
     {
-        if (pet->isControlled())
+        if (l_Pet->isControlled())
         {
             Unit* owner = GetOwner();
             if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
                 owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_HP);
+            if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->HasAura(171393))
+            {
+                if (l_Pet->GetHealthPct() < 20.0f && !owner->HasAura(171397))
+                    owner->CastSpell(owner, 171397, true);
+
+                /// Remove aura if pet has more than 20% life
+                if (l_Pet->GetHealthPct() >= 20.0f)
+                    owner->RemoveAura(171397);
+            }
         }
     }
 }

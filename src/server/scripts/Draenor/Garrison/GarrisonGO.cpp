@@ -152,6 +152,11 @@ namespace MS { namespace Garrison
                 l_RewardItemID = g_HerbEntries[urand(0, 5)];
             else if (l_RewardItemID == 114999) ///< Barn Somptuous Fur, itemID from dbc is wrong
                 l_RewardItemID = 111557;
+            else if (l_RewardItemID == 122589) ///< Mage Tower/Spirit Lodge reward, needs custom handling
+            {
+                l_RewardItemID = 122514;
+                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(1, 5));
+            }
 
             /// Adding items
             uint32 l_NoSpaceForCount = 0;
@@ -650,27 +655,45 @@ namespace MS { namespace Garrison
                 {
                     case GarrisonPortals::PortalsQuests::QuestFrostfireRidge:
                         if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneFrostfireRidge)
+                        {
+                            p_User->DestroyItemCount(117491, 25, true);
                             return true;
+                        }
                         break;
                     case GarrisonPortals::PortalsQuests::QuestGorgrond:
                         if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneGorgrond)
+                        {
+                            p_User->DestroyItemCount(117491, 25, true);
                             return true;
+                        }
                         break;
                     case GarrisonPortals::PortalsQuests::QuestNagrand:
                         if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneNagrand)
+                        {
+                            p_User->DestroyItemCount(117491, 25, true);
                             return true;
+                        }
                         break;
                     case GarrisonPortals::PortalsQuests::QuestShadowmoon:
                         if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneShadowmoon)
+                        {
+                            p_User->DestroyItemCount(117491, 25, true);
                             return true;
+                        }
                         break;
                     case GarrisonPortals::PortalsQuests::QuestSpiresOfArak:
                         if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneSpiresOfArak)
+                        {
+                            p_User->DestroyItemCount(117491, 25, true);
                             return true;
+                        }
                         break;
                     case GarrisonPortals::PortalsQuests::QuestTalador:
                         if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneTalador)
+                        {
+                            p_User->DestroyItemCount(117491, 25, true);
                             return true;
+                        }
                         break;
                     default:
                         break;

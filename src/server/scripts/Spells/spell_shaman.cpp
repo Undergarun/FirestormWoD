@@ -620,7 +620,10 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
                     l_Caster->GetDispellableAuraList(l_Caster, DISPEL_ALL, l_DispelList);
 
                     for (auto itr : l_DispelList)
-                        l_Caster->RemoveAura(itr.first);
+                    {
+                        if (!itr.first->GetSpellInfo()->IsPositive())
+                            l_Caster->RemoveAura(itr.first);
+                    }
                 }
             }
 

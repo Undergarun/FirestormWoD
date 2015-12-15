@@ -5082,8 +5082,45 @@ class spell_gen_inge_trigger_enchant : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2
+/// Mark of the Thunderlord - 159234
+class spell_gen_mark_of_thunderlord : public SpellScriptLoader
+{
+    public:
+        spell_gen_mark_of_thunderlord() : SpellScriptLoader("spell_gen_mark_of_thunderlord") { }
+
+        class spell_gen_mark_of_thunderlord_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_mark_of_thunderlord_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                    return;
+
+                if (!p_AurEff->GetBase()->GetDuration())
+                    return;
+
+                p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() + 2 * IN_MILLISECONDS);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_mark_of_thunderlord_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_mark_of_thunderlord_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_mark_of_thunderlord();
     new spell_gen_inge_trigger_enchant();
     new spell_gen_potion_of_illusion();
     new spell_gen_alchemists_flask();
