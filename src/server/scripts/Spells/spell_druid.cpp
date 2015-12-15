@@ -1827,8 +1827,8 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     l_Summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     l_Summon->SetMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                     l_Summon->SetFullHealth();
+                    l_Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                     l_Summon->CastSpell(l_Summon, eWildMushroomSpells::WildMushroomBirthVisual, true);
-
                     if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestoration || GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestorationGlyph)
                         l_Summon->CastSpell(l_Summon, eWildMushroomSpells::HealAura, true);
                     else if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomBalance)

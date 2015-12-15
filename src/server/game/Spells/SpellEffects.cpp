@@ -2954,6 +2954,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             break;
     }
 
+    sLog->outError(LOG_FILTER_GENERAL, "---> CATEGORY = %d, TYpe = %d", properties->Category, properties->Type);
     switch (properties->Category)
     {
         case SUMMON_CATEGORY_WILD:
@@ -3008,7 +3009,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 }
                 default:
                 {
-                    if ((properties->Flags & 512) || m_spellInfo->Id == 114192) /// Mocking Banner
+                    if ((properties->Flags & 512) || entry == 65282 || entry == 47649) /// Mocking Banner
                     {
                         SummonGuardian(effIndex, entry, properties, numSummons);
                         break;
@@ -3028,6 +3029,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             m_caster->GetRandomPoint(*destTarget, radius, pos);
 
                         summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration);
+
                         if (!summon)
                             continue;
 
