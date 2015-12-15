@@ -57,7 +57,7 @@ void WorldSession::SendTaxiStatus(uint64 p_Guid)
     WorldPacket l_TaxiNodeStatusMsg(SMSG_TAXI_NODE_STATUS, 16 + 2 + 1);
 
     l_TaxiNodeStatusMsg.appendPackGUID(p_Guid);
-    l_TaxiNodeStatusMsg.WriteBits(GetPlayer()->m_taxi.IsTaximaskNodeKnown(l_CurrentLocation) ? 1 : 0, 2);
+    l_TaxiNodeStatusMsg.WriteBits(GetPlayer()->m_taxi.IsTaximaskNodeKnown(l_CurrentLocation) ? 3 : 0, 2);
     l_TaxiNodeStatusMsg.FlushBits();
 
     SendPacket(&l_TaxiNodeStatusMsg);
@@ -163,7 +163,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature * p_Unit)
         WorldPacket l_TaxiNodeStatusMsg(SMSG_TAXI_NODE_STATUS, 16 + 2 + 1);
 
         l_TaxiNodeStatusMsg.appendPackGUID(p_Unit->GetGUID());
-        l_TaxiNodeStatusMsg.WriteBits(0, 2);
+        l_TaxiNodeStatusMsg.WriteBits(3, 2);
 
         SendPacket(&l_TaxiNodeStatusMsg);
 

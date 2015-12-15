@@ -4993,14 +4993,14 @@ enum RemoveMethod
 enum ActivateTaxiReply
 {
 
-    ERR_TAXI_NO_VENDOR_NEARBY           = 15,
-    ERR_TAXI_SAME_NODE                  = 8,
-    ERR_TAXI_NOT_ENOUGH_MONEY           = 14,
-    ERR_TAXI_PLAYER_MOVING              = 1,
-    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 2,
+    ERR_TAXI_NO_VENDOR_NEARBY           = 13,
+    ERR_TAXI_SAME_NODE                  = 12,
+    ERR_TAXI_NOT_ENOUGH_MONEY           = 2,
+    ERR_TAXI_PLAYER_MOVING              = 10,
+    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 1,
     //                                  = 5,
-    ERR_TAXI_PLAYER_SHAPESHIFTED        = 3,
-    ERR_TAXI_PLAYER_BUSY                = 11,
+    ERR_TAXI_PLAYER_SHAPESHIFTED        = 4,
+    ERR_TAXI_PLAYER_BUSY                = 14,
     ERR_TAXI_NO_SUCH_PATH               = 4,
     //                                  = 9,
     //                                  = 10,
