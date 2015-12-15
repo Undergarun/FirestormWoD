@@ -905,7 +905,8 @@ class spell_dk_death_siphon: public SpellScriptLoader
                 if (l_DeathRune == -1)
                     return;
 
-                l_Player->RestoreBaseRune(uint8(l_DeathRune));
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_DK_FROST)
+                    l_Player->RestoreBaseRune(uint8(l_DeathRune));
             }
 
             void Register()
