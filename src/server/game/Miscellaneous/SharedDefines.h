@@ -1352,7 +1352,7 @@ enum PetTameResult
     PET_TAME_ERROR_INVALID_SLOT             = 13    // checked
 };
 
-/// Last update : 6.2.0 20201
+/// check me for 6.2.3
 enum SpellCastResult
 {
     SPELL_FAILED_SUCCESS                                    = 0,
@@ -1623,11 +1623,12 @@ enum SpellCastResult
     SPELL_FAILED_NOT_SOULBOUND                              = 265,
     SPELL_FAILED_RIDING_VEHICLE                             = 266,
     SPELL_FAILED_VETERAN_TRIAL_ABOVE_SKILL_RANK_MAX         = 267,
-    SPELL_FAILED_UNKNOWN                                    = 268,
+    SPELL_FAILED_NOT_WHILE_MERCENARY                        = 269,
+    SPELL_FAILED_UNKNOWN                                    = 270,
     SPELL_CAST_OK                                           = 0xFFFF // custom value, must not be sent to client
 };
 
-/// Last update : 6.2.0 20201
+///< Last update 6.2.3 20779
 enum SpellCustomErrors
 {
     SPELL_CUSTOM_ERROR_NONE                             =  0,
@@ -1890,8 +1891,18 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_REQUIRE_SPIRIT_LODGE_LEVEL3      = 265,  ///< Requires a level 3 Spirit Lodge.
     SPELL_CUSTOM_ERROR_FEEL_LIKE_EEG_AND_HAM            = 266,  ///< You do not like Fel Eggs and Ham.
     SPELL_CUSTOM_ERROR_ALREADY_TRADE                    = 267,  ///< You have already entered in to this trade agreement.
-
-    };
+    SPELL_CUSTOM_ERROR_CANT_STEAL_GURAD                 = 268,  ///< "You cannot steal that while guards are on duty.";
+    SPELL_CUSTOM_ERROR_VANTUS_RUNE_ALREADY_USED_THIS_WEEK   = 269, ///< "You have already used a Vantus Rune this week.";
+    SPELL_CUSTOM_ERROR_ITEM_CAN_BE_OBLITERATED          = 270,  ///< "That item cannot be obliterated.";
+    SPELL_CUSTOM_ERROR_NO_SKINNABLE_CORPSE_IN_RANGE     = 271,  ///< "No skinnable corpse in range";
+    SPELL_CUSTOM_ERROR_MERCENARY_MODE_NEEDED            = 272,  ///< "You must be a Mercenary to use this trinket.";
+    SPELL_CUSTOM_ERROR_YOU_MUST_BE_IN_COMBAT            = 273,  ///< "You must be in combat.";
+    SPELL_CUSTOM_ERROR_NO_ENNEMY_NEAR                   = 274,  ///< "No enemies near target.";
+    SPELL_CUSTOM_ERROR_REQ_LEYSPINE_MISSILE             = 275,  ///< "Requires a Leyspine Missile";
+    SPELL_CUSTOM_ERROR_REQ_BOTH_CONNECTED               = 276,  ///< "Requires both currents connected.";
+    SPELL_CUSTOM_ERROR_CANT_DO_TAHT_IN_DEMON_FORM       = 277,  ///< "Can't do that while in demon form (yet)";
+    SPELL_CUSTOM_ERROR_TAME_LORE_MECHANIC               = 278   ///< "You do not know how to tame or obtain lore about Mechs.";
+};
 
 enum StealthType
 {
@@ -2360,7 +2371,8 @@ enum GameObjectDestructibleState
     GO_DESTRUCTIBLE_REBUILDING  = 3
 };
 
-// EmotesText.dbc Last update 6.2.0 20201
+///< Last update 6.2.3 20779
+///< EmotesText.dbc
 enum TextEmotes
 {
     TEXT_EMOTE_AGREE                = 1,
@@ -2619,7 +2631,8 @@ enum TextEmotes
     TEXT_EMOTE_BOOT                 = 506
 };
 
-// Emotes.dbc Last update 6.2.0 20201
+///< Last update 6.2.3 20779
+///< Emotes.dbc
 enum Emote
 {
     EMOTE_ONESHOT_NONE                           = 0,
@@ -2885,7 +2898,8 @@ enum Emote
 
 };
 
-// AnimationData.dbc Last update 6.2.0 20201
+///< Last update 6.2.3 20779
+///< AnimationData.dbc
 enum Anim
 {
     ANIM_STAND                             = 0,
@@ -3741,6 +3755,7 @@ enum LockKeyType
     LOCK_KEY_SKILL = 2
 };
 
+///< Last update 6.2.3 20779
 enum LockType
 {
     LOCKTYPE_PICKLOCK              = 1,
@@ -3779,7 +3794,8 @@ enum TrainerType                                            // this is important
 
 #define MAX_TRAINER_TYPE 4
 
-// CreatureType.dbc
+///< Last update 6.2.3 20779
+///< CreatureType.db2
 enum CreatureType
 {
     CREATURE_TYPE_BEAST            = 1,
@@ -3803,7 +3819,8 @@ uint32 const CREATURE_TYPEMASK_DEMON_OR_UNDEAD = (1 << (CREATURE_TYPE_DEMON-1)) 
 uint32 const CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD = (1 << (CREATURE_TYPE_HUMANOID-1)) | (1 << (CREATURE_TYPE_UNDEAD-1));
 uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_MECHANICAL-1)) | (1 << (CREATURE_TYPE_ELEMENTAL-1));
 
-// CreatureFamily.dbc Last update 6.2.0 20201
+///< Last update 6.2.3 20779
+///< CreatureFamily.db2
 enum CreatureFamily
 {
     CREATURE_FAMILY_WOLF                = 1,
@@ -3939,7 +3956,8 @@ enum CreatureEliteType
     CREATURE_WEAK                  = 6
 };
 
-// values based at Holidays_*.DB2
+///< Last update 6.2.3 20779
+///< values based at Holidays_*.DB2
 enum HolidayIds
 {
     HOLIDAY_NONE                     = 0,
@@ -4005,12 +4023,11 @@ enum HolidayIds
     HOLIDAY_BONUS_EVENT_BATTLEGROUND        = 563, ///< Honor gains from Battleground objectives and wins increased by 200%. spell : 186403
     HOLIDAY_BONUS_EVENT_DRAENOR_DUNGEON     = 564, ///< Defeating enemies in any level 100 Heroic or Mythic dungeon award reputation with a Draenor faction. spell : 186404
     HOLIDAY_BONUS_EVENT_PET_BATTLE          = 565, ///< Battle pet experience gained increased by 200%. spell : 186406
-    HOLIDAY_ANNIVERSARY_11_YEARS            = 566,
-    
-
+    HOLIDAY_ANNIVERSARY_11_YEARS            = 566
 };
 
-// values based at QuestInfo.db2
+///< Last update 6.2.3 20779
+///< values based at QuestInfo.db2
 enum QuestTypes
 {
     QUEST_TYPE_GROUP               = 1,
@@ -4029,7 +4046,8 @@ enum QuestTypes
     QUEST_TYPE_SIDE_QUEST          = 104    // 6.0.1
 };
 
-// values based at QuestSort.db2
+///< Last update 6.2.3 20779
+///< values based at QuestSort.db2
 enum QuestSort
 {
     QUEST_SORT_EPIC                   = 1,
@@ -4125,7 +4143,8 @@ inline uint8 ClassByQuestSort(int32 QuestSort)
     return 0;
 }
 
-// SkillLine.dbc 6.2.0 20201
+///< Last update 6.2.3 20779
+///< SkillLine.dbc
 enum SkillType
 {
     SKILL_NONE                       = 0,
@@ -4403,6 +4422,7 @@ inline uint32 SkillByQuestSort(int32 QuestSort)
     return 0;
 }
 
+///< Last update 6.2.3 20779
 enum SkillCategory
 {
     SKILL_CATEGORY_UNK1                = 0,     // not in DBC
@@ -4417,7 +4437,8 @@ enum SkillCategory
     SKILL_CATEGORY_JOURNEYMAN_COOKBOOK = 27
 };
 
-// TotemCategory.dbc
+///< Last update 6.2.3 20779
+/// TotemCategory.db2
 enum TotemCategory
 {
     TC_SKINNING_SKIFE_OLD          = 1,
@@ -4945,27 +4966,35 @@ enum PetSlot
 
 #define MAX_PET_STABLES         PET_SLOT_STABLE_LAST
 
+/// last update : 6.2.3 20779
 enum TradeStatus
 {
-    TRADE_STATUS_YOU_LOGOUT             = 0,
-    TRADE_STATUS_YOU_DEAD               = 3,
-    TRADE_STATUS_TARGET_LOGOUT          = 4,
-    TRADE_STATUS_NOT_ELIGIBLE           = 6,
-    TRADE_STATUS_BEGIN_TRADE            = 10,
-    TRADE_STATUS_TRADE_CANCELED         = 11,
-    TRADE_STATUS_TARGET_STUNNED         = 12,
-    TRADE_STATUS_TARGET_DEAD            = 15,
-    TRADE_STATUS_TRADE_ACCEPT           = 17,
-    TRADE_STATUS_BACK_TO_TRADE          = 22,
-    TRADE_STATUS_BEGIN_PROPOSED         = 23,
-    TRADE_STATUS_YOU_STUNNED            = 24,
-    TRADE_STATUS_OPEN_WINDOW            = 25,
-    TRADE_STATUS_IGNORE_YOU             = 26,
-    TRADE_STATUS_TRADE_COMPLETE         = 28,
-    TRADE_STATUS_BUSY                   = 29,
-    TRADE_STATUS_TARGET_TO_FAR          = 30,
-    TRADE_STATUS_NO_TARGET              = 31,
-    TRADE_STATUS_WRONG_FACTION          = 31,   ///< Deleted ?
+    TRADE_STATUS_LOGGING_OUT           = 0,
+    TRADE_STATUS_CURRENCY_NOT_TRADABLE = 1,
+    TRADE_STATUS_RESTRICTED_ACCOUNT    = 2,
+    TRADE_STATUS_DEAD                  = 3,
+    TRADE_STATUS_TARGET_LOGGING_OUT    = 4,
+    TRADE_STATUS_UNACCEPTED            = 5,
+    TRADE_STATUS_ALREADY_TRADING       = 6,
+    TRADE_STATUS_FAILED                = 10,
+    TRADE_STATUS_CANCELLED             = 11,
+    TRADE_STATUS_TARGET_STUNNED        = 12,
+    TRADE_STATUS_TARGET_DEAD           = 15,
+    TRADE_STATUS_WRONG_REALM           = 16,
+    TRADE_STATUS_ACCEPTED              = 17,
+    TRADE_STATUS_NOT_ENOUGH_CURRENCY   = 18,
+    TRADE_STATUS_NOT_ON_TAPLIST        = 19,
+    TRADE_STATUS_WRONG_FACTION         = 20,
+    TRADE_STATUS_STATE_CHANGED         = 22,
+    TRADE_STATUS_PROPOSED              = 23,
+    TRADE_STATUS_STUNNED               = 24,
+    TRADE_STATUS_INITIATED             = 25,
+    TRADE_STATUS_PLAYER_IGNORED        = 26,
+    TRADE_STATUS_PETITION              = 27,
+    TRADE_STATUS_COMPLETE              = 28,
+    TRADE_STATUS_PLAYER_BUSY           = 29,
+    TRADE_STATUS_TOO_FAR_AWAY          = 30,
+    TRADE_STATUS_NO_TARGET             = 31,
 };
 
 enum eUpdateCollisionReasons
@@ -4991,26 +5020,22 @@ enum RemoveMethod
     GROUP_REMOVEMETHOD_LEAVE    = 2
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3 20779
 enum ActivateTaxiReply
 {
-
     ERR_TAXI_NO_VENDOR_NEARBY           = 13,
-    ERR_TAXI_SAME_NODE                  = 12,
-    ERR_TAXI_NOT_ENOUGH_MONEY           = 2,
     ERR_TAXI_PLAYER_MOVING              = 10,
-    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 1,
-    //                                  = 5,
-    ERR_TAXI_PLAYER_SHAPESHIFTED        = 4,
+    ERR_TAXI_PLAYER_ALREADY_MOUNTED     = 5,
     ERR_TAXI_PLAYER_BUSY                = 14,
-    ERR_TAXI_NO_SUCH_PATH               = 4,
-    //                                  = 9,
-    //                                  = 10,
-    ERR_TAXI_PLAYER_ALREADY_MOUNTED     = 6,
-    ERR_TAXI_OK                         = 12,
-    ERR_TAXI_NOT_STANDING               = 13,
-    ERR_TAXI_TOO_FAR_AWAY               = 0,
-    ERR_TAXI_NOT_VISITED                = 7,
+    ERR_TAXI_NOT_ENOUGH_MONEY           = 2,
+    ERR_TAXI_NOT_STANDING               = 11,
+    ERR_TAXI_PLAYER_SHAPESHIFTED        = 4,
+    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 1,
+    ERR_TAXI_NO_SUCH_PATH               = 3,
+    ERR_TAXI_OK                         = 8,
+    ERR_TAXI_SAME_NODE                  = 12,
+    ERR_TAXI_TOO_FAR_AWAY               = 7,
+    ERR_TAXI_NOT_VISITED                = 9
 };
 
 enum ProfessionUI
@@ -5068,6 +5093,7 @@ enum ResetFailedReason
     INSTANCE_RESET_FAILED_OFFLINE   = 0,    ///< "Cannot reset %s.  There are players offline in your party."
     INSTANCE_RESET_FAILED_ZONING    = 1,    ///< "Cannot reset %s.  There are players in your party attempting to zone into an instance."
     INSTANCE_RESET_FAILED           = 2     ///< "Cannot reset %s.  There are players still inside the instance."
+    /// INSTANCE_RESET_SUCCESS = "%s has been reset."
 };
 
 namespace GameError
