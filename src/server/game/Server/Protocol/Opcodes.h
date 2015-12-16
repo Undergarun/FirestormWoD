@@ -1564,13 +1564,13 @@ enum Opcodes
     CMSG_DFGET_SYSTEM_INFO                         = 0x1138, ///< 6.2.3 20726
     CMSG_LFG_GET_PLAYER_INFO                       = 0x0000, 
     CMSG_LFG_GET_STATUS                            = 0x11A7, ///< 6.2.3 20726
-    CMSG_LFG_JOIN                                  = 0x00A8, ///< 6.2.3 20726
+    CMSG_LFG_JOIN                                  = 0x11F8, ///< 6.2.3 20726
     CMSG_LFG_LEAVE                                 = 0x0424, ///< 6.2.3 20726
     CMSG_LFG_PROPOSAL_RESULT                       = 0x11B0, ///< 6.2.3 20726
-    CMSG_LFG_SET_BOOT_VOTE                         = 0x10B4, ///< 6.2.3 20726
+    CMSG_LFG_SET_BOOT_VOTE                         = 0x05AC, ///< 6.2.3 20726
     CMSG_LFG_SET_COMMENT                           = 0x0000, ///< (unused)
     CMSG_DFSET_ROLES                               = 0x003B, ///< 6.2.3 20726
-    CMSG_LFG_TELEPORT                              = 0x05AC, ///< 6.2.3 20726
+    CMSG_LFG_TELEPORT                              = 0x00A8, ///< 6.2.3 20726
     CMSG_SEARCH_LFG_JOIN                           = 0x0000, ///< (unused)
     CMSG_SEARCH_LFG_LEAVE                          = 0x0000, ///< (unused)
     CMSG_RESET_INSTANCES                           = 0x04FF, ///< 6.2.3 20726
@@ -1611,7 +1611,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Transmogrification
     //////////////////////////////////////////////////////////////////////////
-    CMSG_TRANSMOGRIFY_ITEMS                        = 01147, ///< 6.2.0 19173
+    CMSG_TRANSMOGRIFY_ITEMS                        = 0x09A1, ///< 6.2.0 19173
 
     //////////////////////////////////////////////////////////////////////////
     /// Mail
