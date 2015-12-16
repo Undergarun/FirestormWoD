@@ -81,6 +81,7 @@ enum Opcodes
         SMSG_QUERY_TIME_RESPONSE                    = 0x1B7C, ///< 6.2.3 20726
 
         /// Misc
+        SMSG_DISPLAY_GAME_ERROR                     = 0x13EF, ///< 6.2.3 20726
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x17F8, ///< 6.2.3 20726
         SMSG_SET_PROFICIENCY                        = 0x0668, ///< 6.2.3 20726
         SMSG_INIT_WORLD_STATES                      = 0x0770, ///< 6.2.3 20726
@@ -1752,7 +1753,6 @@ enum Opcodes
     CMSG_REDIRECTION_AUTH_PROOF                         = 0x0000,
     CMSG_REQUEST_BATTLEPET_JOURNAL                      = 0x0000,
     CMSG_REQUEST_CATEGORY_COOLDOWNS                     = 0x0000,
-    CMSG_REQUEST_GM_TICKET                              = 0x0000,
     CMSG_REQUEST_PARTY_MEMBER_STATS                     = 0x0000,
     CMSG_REQUEST_RATED_BG_INFO                          = 0x0000,
     CMSG_REQUEST_RATED_BG_STATS                         = 0x0000,
@@ -1799,14 +1799,9 @@ enum Opcodes
     CMSG_ARENA_2v2_STATS_REQUEST                        = 0x0000,
     CMSG_ARENA_3v3_STATS_REQUEST                        = 0x0000,
     
-    CMSG_GMRESPONSE_RESOLVE                         = 0x0000, ///< RIP ????
     CMSG_GMSURVEY_SUBMIT                            = 0x0000, ///< RIP ???
-    CMSG_GMTICKET_CREATE                            = 0x0000, ///< RIP ????
-    CMSG_GMTICKET_DELETETICKET                      = 0x0000, ///< RIP ????
-    CMSG_GMTICKET_GETTICKET                         = 0x0000, ///< RIP ????
     CMSG_GMTICKET_GET_CASE_STATUS                   = 0x0000, ///< RIP ????
     CMSG_GMTICKET_SYSTEMSTATUS                      = 0x0000, ///< RIP ????
-    CMSG_GMTICKET_UPDATETEXT                        = 0x0000, ///< RIP ????
     CMSG_GM_REPORT_LAG                              = 0x0000, ///< RIP ????
 
     // SMSG
@@ -1879,7 +1874,6 @@ enum Opcodes
     SMSG_DAMAGE_CALC_LOG                                = 0x0000,
     SMSG_DIFFERENT_INSTANCE_FROM_PARTY                  = 0x0000,
     SMSG_DISENCHANT_CREDIT                              = 0x0000,
-    SMSG_DISPLAY_GAME_ERROR                             = 0x0000,
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR            = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                     = 0x0000,
     SMSG_FAILED_PLAYER_CONDITION                        = 0x0000,
@@ -1945,12 +1939,6 @@ enum Opcodes
     SMSG_SERVER_BUCK_DATA                               = 0x0000,
     SMSG_SERVER_BUCK_DATA_START                         = 0x0000,
     SMSG_SHOW_MAILBOX                                   = 0x0000,
-    SMSG_GM_TICKET_GET_TICKET_RESPONSE                  = 0x0000,
-    SMSG_GM_TICKET_RESPONSE                             = 0x0000,
-    SMSG_GM_TICKET_RESPONSE_ERROR                       = 0x0000,
-    SMSG_GM_TICKET_RESOLVE_RESPONSE                     = 0x0000,
-    SMSG_GM_TICKET_UPDATE                               = 0x0000,
-    SMSG_GM_TICKET_STATUS_UPDATE                        = 0x0000,
 };
 
 /// Player state

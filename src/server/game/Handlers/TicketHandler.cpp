@@ -27,96 +27,7 @@
 #include "Util.h"
 #include "WowTime.hpp"
 
-void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& p_RecvData)
-{
-    // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
-    if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
-        return;
-
-    if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ))
-    {
-        SendNotification(GetTrinityString(LANG_TICKET_REQ), sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ));
-        return;
-    }
-
-    GMTicketResponse l_Response = GMTICKET_RESPONSE_CREATE_ERROR;
-    // Player must not have opened ticket
-    if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
-    {
-        if (l_Ticket->IsCompleted())
-        {
-            sTicketMgr->CloseTicket(l_Ticket->GetId(), GetPlayer()->GetGUID());
-            sTicketMgr->SendTicket(this, NULL);
-
-            SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
-
-            GmTicket* l_NewTicket = new GmTicket(GetPlayer(), p_RecvData);
-            sTicketMgr->AddTicket(l_NewTicket);
-            sTicketMgr->UpdateLastChange();
-
-            sWorld->SendGMText(LANG_COMMAND_TICKETNEW, GetPlayer()->GetName(), l_NewTicket->GetId());
-
-            sTicketMgr->SendTicket(this, l_NewTicket);
-
-            l_Response = GMTICKET_RESPONSE_CREATE_SUCCESS;
-        }
-        else
-            l_Response = GMTICKET_RESPONSE_ALREADY_EXIST;
-    }
-    else
-    {
-        GmTicket* l_NewTicket = new GmTicket(GetPlayer(), p_RecvData);
-        sTicketMgr->AddTicket(l_NewTicket);
-        sTicketMgr->UpdateLastChange();
-
-        sWorld->SendGMText(LANG_COMMAND_TICKETNEW, GetPlayer()->GetName(), l_NewTicket->GetId());
-
-        sTicketMgr->SendTicket(this, l_NewTicket);
-
-        l_Response = GMTICKET_RESPONSE_CREATE_SUCCESS;
-    }
-
-    SendTicketStatusUpdate(l_Response);
-}
-
-void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& p_RecvData)
-{
-    std::string l_Message;
-
-    uint32 l_MessageLen = p_RecvData.ReadBits(11);
-    p_RecvData.FlushBits();
-    l_Message = p_RecvData.ReadString(l_MessageLen);
-
-    GMTicketResponse l_Response = GMTICKET_RESPONSE_UPDATE_ERROR;
-    if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
-    {
-        SQLTransaction l_Transaction = SQLTransaction(NULL);
-        l_Ticket->SetMessage(l_Message);
-        l_Ticket->SaveToDB(l_Transaction);
-
-        sWorld->SendGMText(LANG_COMMAND_TICKETUPDATED, GetPlayer()->GetName(), l_Ticket->GetId());
-
-        sTicketMgr->SendTicket(this, l_Ticket);
-        l_Response = GMTICKET_RESPONSE_UPDATE_SUCCESS;
-    }
-
-    SendTicketStatusUpdate(l_Response);
-}
-
-void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket& /*p_RecvData*/)
-{
-    if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
-    {
-        SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
-
-        sWorld->SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), l_Ticket->GetId());
-
-        sTicketMgr->CloseTicket(l_Ticket->GetId(), GetPlayer()->GetGUID());
-        sTicketMgr->SendTicket(this, NULL);
-    }
-}
-
-void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket& /*p_RecvData*/)
+void WorldSession::OnGMTicketGetTicketEvent()
 {
     SendQueryTimeResponse();
 
@@ -210,21 +121,35 @@ void WorldSession::HandleReportLag(WorldPacket& p_RecvData)
     CharacterDatabase.Execute(l_Statement);
 }
 
-void WorldSession::HandleGMResponseResolve(WorldPacket& /*p_RecvData*/)
-{
-    // Empty packet
-    if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
-    {
-        SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
-
-        sTicketMgr->CloseTicket(l_Ticket->GetId(), GetPlayer()->GetGUID());
-        sTicketMgr->SendTicket(this, NULL);
-    }
-}
-
 void WorldSession::SendTicketStatusUpdate(uint8 p_Response)
 {
-    WorldPacket l_Data(SMSG_GM_TICKET_UPDATE, 4);
-    l_Data << uint8(p_Response);
-    SendPacket(&l_Data);
+    if (!GetPlayer())
+        return;
+
+    switch (p_Response)
+    {
+        case GMTICKET_RESPONSE_ALREADY_EXIST:       ///< = 1
+            SendGameError(GameError::ERR_TICKET_ALREADY_EXISTS);
+            break;
+        case GMTICKET_RESPONSE_UPDATE_ERROR:        ///< = 5
+            SendGameError(GameError::ERR_TICKET_UPDATE_ERROR);
+            break;
+        case GMTICKET_RESPONSE_CREATE_ERROR:        ///< = 3
+            SendGameError(GameError::ERR_TICKET_CREATE_ERROR);
+            break;
+
+        case GMTICKET_RESPONSE_CREATE_SUCCESS:      ///< = 2
+        case GMTICKET_RESPONSE_UPDATE_SUCCESS:      ///< = 4
+            OnGMTicketGetTicketEvent();
+            break;
+
+        case GMTICKET_RESPONSE_TICKET_DELETED:      ///< = 9
+            GetPlayer()->SendCustomMessage("FSC_TICKET_DELETED");
+            break;
+
+        default:
+            SendGameError(GameError::ERR_TICKET_DB_ERROR);
+            break;
+
+    }
 }

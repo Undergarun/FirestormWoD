@@ -31,30 +31,20 @@ inline float GetAge(uint64 p_T) { return float(time(NULL) - p_T) / DAY; }
 // GM ticket
 GmTicket::GmTicket() { }
 
-GmTicket::GmTicket(Player* p_Player, WorldPacket& p_RecvData) : m_CreateTime(time(NULL)), m_LastModifiedTime(time(NULL)), m_ClosedBy(0), m_AssignedTo(0), m_Completed(false),
+GmTicket::GmTicket(std::string p_PlayerName, uint64 p_PlayerGuid, uint32 p_MapID, WorldLocation p_Position, std::string p_Content) : m_CreateTime(time(NULL)), m_LastModifiedTime(time(NULL)), m_ClosedBy(0), m_AssignedTo(0), m_Completed(false),
 m_EscalatedStatus(TICKET_UNASSIGNED), m_NeedResponse(false), m_Viewed(false), m_HaveTicket(false)
 {
-    m_ID = sTicketMgr->GenerateTicketId();
-    m_PlayerName = p_Player->GetName();
-    m_PlayerGUID = p_Player->GetGUID();
+    m_ID            = sTicketMgr->GenerateTicketId();
+    m_PlayerName    = p_PlayerName;
+    m_PlayerGUID    = p_PlayerGuid;
+    m_MapID         = p_MapID;
+    m_PositionX     = p_Position.m_positionX;
+    m_PositionY     = p_Position.m_positionY;
+    m_PositionZ     = p_Position.m_positionZ;
+    m_HaveTicket    = false;    ///< unk ?
+    m_NeedResponse  = true;     ///< Lua constant
 
-    p_RecvData >> m_MapID;
-    p_RecvData >> m_PositionX;
-    p_RecvData >> m_PositionY;
-    p_RecvData >> m_PositionZ;
-    p_RecvData >> m_HaveTicket;
-
-    uint32 l_MessageLen = p_RecvData.ReadBits(11);
-    p_RecvData.FlushBits();
-    m_Message = p_RecvData.ReadString(l_MessageLen);
-
-    bool l_NeedMoreHelp = p_RecvData.ReadBit(); /// non used
-    
-    m_NeedResponse = p_RecvData.ReadBit();
-    p_RecvData.FlushBits();
-
-    uint32 l_UnkLen = p_RecvData.read<uint32>();
-    std::string l_UnkStr = p_RecvData.ReadString(l_UnkLen);
+    m_Message = p_Content;
 }
 
 GmTicket::~GmTicket() { }
@@ -121,42 +111,70 @@ void GmTicket::DeleteFromDB()
     CharacterDatabase.Execute(l_Statement);
 }
 
-void GmTicket::WritePacket(WorldPacket& p_Data) const
+void GmTicket::WriteData(std::vector<std::string>& p_Data) const
 {
+    /// HelpFrame.lua
+    /// local category, ticketDescription, ticketOpenTime, oldestTicketTime, updateTime, assignedToGM, openedByGM, waitTimeOverrideMessage, waitTimeOverrideMinutes = ...;
+
+    auto l_ReplaceAll = [](std::string& str, const std::string& from, const std::string& to) {
+        if (from.empty())
+            return;
+        size_t start_pos = 0;
+        while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+            str.replace(start_pos, from.length(), to);
+            start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+        }
+    };
+
     std::string l_Message = GetMessage();
+    l_ReplaceAll(l_Message, "|", "/");
+    l_ReplaceAll(l_Message, "\n", "$$n");
 
-    p_Data << uint32(GetId());
-    p_Data << uint8(std::min(m_EscalatedStatus, TICKET_IN_ESCALATION_QUEUE));
-    p_Data << uint32(GetAge(m_LastModifiedTime));
-
+    p_Data.push_back(std::to_string(uint16(std::min(m_EscalatedStatus, TICKET_IN_ESCALATION_QUEUE))));
+    p_Data.push_back(l_Message);
+    p_Data.push_back(std::to_string(GetAge(m_LastModifiedTime)));
+    
     if (GmTicket* ticket = sTicketMgr->GetOldestOpenTicket())
-        p_Data << uint32(GetAge(ticket->GetLastModifiedTime()));
+        p_Data.push_back(std::to_string(uint32(GetAge(ticket->GetLastModifiedTime()))));
     else
-        p_Data << uint32(float(0));
+        p_Data.push_back(std::to_string(uint32(float(0))));
 
-    p_Data << uint32(GetAge(sTicketMgr->GetLastChange()));
-    p_Data << uint8(m_HaveTicket);
-    p_Data << uint8(m_Viewed ? GMTICKET_OPENEDBYGM_STATUS_OPENED : GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED);
-    p_Data << uint32(0);
-
-    p_Data.WriteBits(l_Message.size(), 11);
-    p_Data.WriteBits(l_Message.size(), 10);
-    p_Data.FlushBits();
-    p_Data.WriteString(l_Message);
-    p_Data.WriteString(l_Message);
+    p_Data.push_back(std::to_string(GetAge(sTicketMgr->GetLastChange())));
+    p_Data.push_back(std::to_string(uint16(m_HaveTicket)));
+    p_Data.push_back(std::to_string(uint16(m_Viewed ? GMTICKET_OPENEDBYGM_STATUS_OPENED : GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED)));
+    p_Data.push_back(l_Message);
+    p_Data.push_back(std::to_string(uint32(0)));
 }
 
 void GmTicket::SendResponse(WorldSession* p_Session) const
 {
-    WorldPacket l_Data(SMSG_GM_TICKET_RESPONSE);
-    l_Data << uint32(1);
-    l_Data << uint32(m_ID);
-    l_Data.WriteBits(m_Message.size(), 11);
-    l_Data.WriteBits(m_Response.size(), 14);
-    l_Data.FlushBits();
-    l_Data.WriteString(m_Message);
-    l_Data.WriteString(m_Response);
-    p_Session->SendPacket(&l_Data);
+    auto l_ReplaceAll = [](std::string& str, const std::string& from, const std::string& to) {
+        if (from.empty())
+            return;
+        size_t start_pos = 0;
+        while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+            str.replace(start_pos, from.length(), to);
+            start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+        }
+    };
+
+    if (!p_Session->GetPlayer())
+        return;
+
+
+    std::string l_Message = m_Message;
+    std::string l_Response = m_Response;
+
+    l_ReplaceAll(l_Message, "|", "/");
+    l_ReplaceAll(l_Message, "\n", "$$n");
+    l_ReplaceAll(l_Response, "|", "/");
+    l_ReplaceAll(l_Response, "\n", "$$n");
+
+    std::vector<std::string> l_Data;
+    l_Data.push_back(l_Message);
+    l_Data.push_back(l_Response);
+
+    p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_GM_REPONSE_RECEIVED", l_Data);
 }
 
 std::string GmTicket::FormatMessageString(ChatHandler& p_Handler, bool p_Detailed) const
@@ -379,13 +397,19 @@ void TicketMgr::SendTicket(WorldSession* p_Session, GmTicket* p_Ticket) const
     if (p_Ticket)
         l_Status = GMTICKET_STATUS_HASTEXT;
 
-    WorldPacket l_Data(SMSG_GM_TICKET_GET_TICKET_RESPONSE, 2 * 1024);
-    l_Data << uint32(l_Status);
-    l_Data.WriteBit(l_Status == GMTICKET_STATUS_HASTEXT);
-    l_Data.FlushBits();
-
     if (l_Status == GMTICKET_STATUS_HASTEXT)
-        p_Ticket->WritePacket(l_Data);
+    {
+        std::vector<std::string> l_Data;
+        p_Ticket->WriteData(l_Data);
 
-    p_Session->SendPacket(&l_Data);
+        p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_UPDATE", l_Data);
+    }
+    else
+    {
+        if (!l_Status)
+            p_Session->SendGameError(GameError::ERR_TICKET_DB_ERROR);
+
+        if (p_Session->GetPlayer())
+            p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_DELETED");
+    }
 }

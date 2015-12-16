@@ -505,6 +505,12 @@ class WorldSession
 
         void LoadPremades();
 
+        /// Send a game error
+        /// @p_Error : Game error
+        /// @p_Data1 : Additional data 1
+        /// @p_Data2 : Additional data 2
+        void SendGameError(GameError::Type p_Error, uint32 p_Data1 = 0xF0F0F0F0, uint32 p_Data2 = 0xF0F0F0F0);
+
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPacket& recvPacket);          // not used
@@ -578,15 +584,11 @@ class WorldSession
         void HandleLogoutCancelOpcode(WorldPacket& recvPacket);
 
         // GM Ticket opcodes
-        void HandleGMTicketCreateOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketUpdateOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
-        void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
+        void OnGMTicketGetTicketEvent();
         void HandleGMTicketGetWebTicketOpcode(WorldPacket& recvPacket);
         void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
         void HandleGMSurveySubmit(WorldPacket& recvPacket);
         void HandleReportLag(WorldPacket& recvPacket);
-        void HandleGMResponseResolve(WorldPacket& recvPacket);
         void SendTicketStatusUpdate(uint8 p_Response);
 
         void HandleTogglePvP(WorldPacket& recvPacket);

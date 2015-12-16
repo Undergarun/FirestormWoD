@@ -1615,4 +1615,24 @@ void WorldSession::LoadPremades()
         CharacterDatabase.Execute(l_Statement);
     }
     while (l_Result->NextRow());
+
+/// Send a game error
+/// @p_Error : Game error
+/// @p_Data1 : Additional data 1
+/// @p_Data2 : Additional data 2
+void WorldSession::SendGameError(GameError::Type p_Error, uint32 p_Data1, uint32 p_Data2)
+{
+    WorldPacket l_Packet(SMSG_DISPLAY_GAME_ERROR, 13);
+    l_Packet << uint32(p_Error);
+    l_Packet.WriteBit(p_Data1 != 0xF0F0F0F0);
+    l_Packet.WriteBit(p_Data2 != 0xF0F0F0F0);
+    l_Packet.FlushBits();
+
+    if (p_Data1 != 0xF0F0F0F0)
+        l_Packet << uint32(p_Data1);
+
+    if (p_Data2 != 0xF0F0F0F0)
+        l_Packet << uint32(p_Data2);
+
+    SendPacket(&l_Packet);
 }

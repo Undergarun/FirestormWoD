@@ -34288,10 +34288,31 @@ void Player::_SaveCharacterWorldStates(SQLTransaction& p_Transaction)
     }
 }
 
+void Player::SendCustomMessage(std::string const& p_Opcode)
+{
+    std::ostringstream l_Message;
+    l_Message << p_Opcode << "|" << " " << "|";
+    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+}
 void Player::SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Message)
 {
     std::ostringstream l_Message;
     l_Message << p_Opcode << "|" << p_Message.str() << "|";
+    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+}
+void Player::SendCustomMessage(std::string const& p_Opcode, std::vector<std::string> const& p_Data)
+{
+    std::ostringstream l_Message;
+    l_Message << p_Opcode << "|";
+
+    if (!p_Data.empty())
+    {
+        for (auto const& l_Elem : p_Data)
+            l_Message << l_Elem << "| ";
+    }
+    else
+        l_Message << " " << "|";
+
     ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
 }
 

@@ -3618,7 +3618,9 @@ class Player : public Unit, public GridObject<Player>
         }
 
         /// Send custom message with system message (addon, custom interfaces ...etc)
+        void SendCustomMessage(std::string const& p_Opcode);
         void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
+        void SendCustomMessage(std::string const& p_Opcode, std::vector<std::string> const& p_Data);
 
         uint32 GetBagsFreeSlots() const;
 
