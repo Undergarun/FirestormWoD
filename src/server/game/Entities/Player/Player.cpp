@@ -33233,7 +33233,7 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
         ilvl += item->GetItemLevelBonusFromItemBonuses();
 
     if (itemProto->PvPScalingLevel && !p_IgnorePvPModifiers)
-        if (p_ForcePvPItemLevel || (GetMap() && GetMap()->IsBattlegroundOrArena()) || GetMapId() == 1280) || (IsInPvPCombat() && m_deathState != JUST_DIED))
+        if (p_ForcePvPItemLevel || (GetMap() && GetMap()->IsBattlegroundOrArena()) || GetMapId() == 1280 || (IsInPvPCombat() && m_deathState != JUST_DIED))
             ilvl += itemProto->PvPScalingLevel;
 
     if (uint32 minItemLevel = GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL))
