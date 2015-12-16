@@ -1543,6 +1543,9 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         }
     }
 
+    if (WorldSession* l_Session = GetSession())
+        l_Session->OnGMTicketGetTicketEvent();
+
     SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
     return true;
 }
