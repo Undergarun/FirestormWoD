@@ -1600,7 +1600,7 @@ void Creature::LoadEquipment(int8 p_ID, bool p_Force /*= true*/)
         if (p_Force)
         {
             for (uint8 l_Iter = 0; l_Iter < MAX_EQUIPMENT_ITEMS; ++l_Iter)
-                SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + l_Iter, 0);
+                SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + (l_Iter * 2), 0);
 
             m_equipmentId = 0;
         }
@@ -1613,8 +1613,8 @@ void Creature::LoadEquipment(int8 p_ID, bool p_Force /*= true*/)
 
     m_equipmentId = p_ID;
 
-    for (uint8 l_Iter = 0; l_Iter < 3; ++l_Iter)
-        SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + l_Iter, l_EquipInfos->ItemEntry[l_Iter]);
+    for (uint8 l_Iter = 0; l_Iter < MAX_EQUIPMENT_ITEMS; ++l_Iter)
+        SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + (l_Iter * 2), l_EquipInfos->ItemEntry[l_Iter]);
 
     /// Check if creature has two weapons, and set dual wield
     if (l_EquipInfos->ItemEntry[0] && l_EquipInfos->ItemEntry[1])
@@ -1632,8 +1632,8 @@ void Creature::LoadSpecialEquipment(uint32 p_First, uint32 p_Second, uint32 p_Th
     m_equipmentId = p_ID;
 
     SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, p_First);
-    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 1, p_Second);
-    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, p_Third);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, p_Second);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 4, p_Third);
 
     /// Check if creature has two weapons, and set dual wield
     if (p_First && p_Second)

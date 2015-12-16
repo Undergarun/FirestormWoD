@@ -1274,11 +1274,6 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
 
 uint32 AuraEffect::AbsorbBonusTaken(Unit* p_Caster, int32 p_Amount)
 {
-    float totalMod = 0.0f;
-
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
-        return p_Amount;
-
     /// Dampening, must be calculated off the raw amount
     if (AuraEffectPtr l_AurEff = p_Caster->GetAuraEffect(110310, EFFECT_0))
     {
@@ -2920,13 +2915,13 @@ void AuraEffect::HandleAuraCloneCaster(AuraApplication const* aurApp, uint8 mode
         uint32 l_OffHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_OFFHAND * 2)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1);
 
         target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, l_MainHand);
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, l_OffHand);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, l_OffHand);
 
     }
     else
     {
         target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 0);
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, 0);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, 0);
         target->SetDisplayId(target->GetNativeDisplayId());
     }
 }

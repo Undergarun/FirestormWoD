@@ -242,10 +242,12 @@ public:
     }
 
     // Define the 'Message of the day' for the realm
-    static bool HandleServerSetMotdCommand(ChatHandler* handler, char const* args)
+    static bool HandleServerSetMotdCommand(ChatHandler* p_Handler, char const* p_Args)
     {
-        sWorld->SetMotd(args);
-        handler->PSendSysMessage(LANG_MOTD_NEW, args);
+        std::string l_Motd(p_Args);
+
+        sWorld->SetDBMotd(l_Motd);
+        p_Handler->PSendSysMessage(LANG_MOTD_NEW, l_Motd.c_str());
         return true;
     }
 

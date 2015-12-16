@@ -732,6 +732,9 @@ class World
         /// Allow/Disallow object movements
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
 
+        void LoadDBMotd();
+        void SetDBMotd(const std::string&);
+
         /// Set a new Message of the Day
         void SetMotd(const std::string& motd);
         /// Get the current Message of the Day

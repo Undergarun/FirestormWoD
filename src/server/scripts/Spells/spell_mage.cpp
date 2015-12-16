@@ -925,8 +925,9 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
                 if (l_Target->HasAura(eSpells::WaterJet, l_Pet->GetGUID()))
                 {
+                    if (l_Player->HasAura(eSpells::FingerFrost))
+                        l_Player->CastSpell(l_Player, eSpells::FingerFrostVisual, true); ///< Fingers of frost visual 2 procs
                     l_Player->CastSpell(l_Player, eSpells::FingerFrost, true);  ///< Fingers of frost proc
-                    l_Player->CastSpell(l_Player, eSpells::FingerFrostVisual, true); ///< Fingers of frost visual
                 }
             }
 
@@ -1599,7 +1600,8 @@ class spell_mage_alter_time: public SpellScriptLoader
         }
 };
 
-// Cold Snap - 11958
+/// last update : 6.1.2
+/// Cold Snap - 11958
 class spell_mage_cold_snap: public SpellScriptLoader
 {
     public:
@@ -1609,6 +1611,16 @@ class spell_mage_cold_snap: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_cold_snap_SpellScript);
 
+            enum eSpells
+            {
+                Evanesce        = 157913,
+                IceBlock        = 45438,
+                FrostNova       = 122,
+                ConeOfCold      = 120,
+                DragonBreath    = 31661,
+                PresenceOfMind  = 12043
+            };
+
             bool Load()
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -1616,19 +1628,22 @@ class spell_mage_cold_snap: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    // Resets cooldown of Ice Block, Frost Nova and Cone of Cold
-                    l_Player->RemoveSpellCooldown(SPELL_MAGE_ICE_BLOCK, true);
-                    l_Player->RemoveSpellCooldown(SPELL_MAGE_FROST_NOVA, true);
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                    if (l_Player->GetSpecializationId() == SPEC_MAGE_FROST)
-                        l_Player->RemoveSpellCooldown(SPELL_MAGE_CONE_OF_COLD, true);
-                    if (l_Player->GetSpecializationId() == SPEC_MAGE_FIRE)
-                        l_Player->RemoveSpellCooldown(SPELL_MAGE_DRAGON_BREATH, true);
-                    if (l_Player->GetSpecializationId() == SPEC_MAGE_ARCANE)
-                        l_Player->RemoveSpellCooldown(SPELL_MAGE_PRESENCE_OF_MIND, true);
-                }
+                if (l_Player == nullptr)
+                    return;
+
+                /// Resets cooldown of Ice Block, Frost Nova, Evanesce and Cone of Cold
+                l_Player->RemoveSpellCooldown(eSpells::IceBlock, true);
+                l_Player->RemoveSpellCooldown(eSpells::FrostNova, true);
+                l_Player->RemoveSpellCooldown(eSpells::Evanesce, true);
+
+                if (l_Player->GetSpecializationId() == SPEC_MAGE_FROST)
+                    l_Player->RemoveSpellCooldown(eSpells::ConeOfCold, true);
+                if (l_Player->GetSpecializationId() == SPEC_MAGE_FIRE)
+                    l_Player->RemoveSpellCooldown(eSpells::DragonBreath, true);
+                if (l_Player->GetSpecializationId() == SPEC_MAGE_ARCANE)
+                    l_Player->RemoveSpellCooldown(eSpells::PresenceOfMind, true);
             }
 
             void Register()

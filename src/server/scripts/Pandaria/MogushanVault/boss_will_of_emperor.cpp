@@ -1106,7 +1106,7 @@ class mob_woe_add_generic : public CreatureScript
                                 case NPC_EMPEROR_RAGE:
                                 {
                                     me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, WEAPON_RAGE);
-                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, WEAPON_RAGE);
+                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, WEAPON_RAGE);
                                     break;
                                 }
                                 case NPC_EMPEROR_STRENGHT:
@@ -1117,7 +1117,7 @@ class mob_woe_add_generic : public CreatureScript
                                 case NPC_EMPEROR_COURAGE:
                                 {
                                     me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, WEAPON_COURAGE_LEFT);
-                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, WEAPON_COURAGE_RIGHT);
+                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, WEAPON_COURAGE_RIGHT);
                                 }
                             }
                             // Set visible

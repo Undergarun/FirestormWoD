@@ -465,25 +465,25 @@ public:
                     else
                         target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS));
 
-                    prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1);
-
-                    if (Player* player = caster->ToPlayer())
-                    {
-                        if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, offItem->GetEntry());
-                    }
-                    else
-                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1));
-
                     prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2);
 
                     if (Player* player = caster->ToPlayer())
                     {
-                        if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, rangedItem->GetEntry());
+                        if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, offItem->GetEntry());
                     }
                     else
                         target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2));
+
+                    prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4);
+
+                    if (Player* player = caster->ToPlayer())
+                    {
+                        if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
+                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, rangedItem->GetEntry());
+                    }
+                    else
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4));
                 }
                 break;
             }

@@ -463,7 +463,6 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(ConfigMgr::GetIntDefault("PlayerLimit", 100));
-    SetMotd(ConfigMgr::GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
 
     ///- Read ticket system setting from the config file
     m_bool_configs[CONFIG_ALLOW_TICKETS] = ConfigMgr::GetBoolDefault("AllowTickets", true);
@@ -1486,6 +1485,9 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize config settings
     LoadConfigSettings();
+
+    ///- Load Motd from database
+    LoadDBMotd();
 
     ///- Initialize Allowed Security Level
     LoadDBAllowedSecurityLevel();
@@ -3475,6 +3477,19 @@ void World::ResetBossLooted()
         if (l_Iter->second->GetPlayer())
             l_Iter->second->GetPlayer()->ResetBossLooted();
     }
+}
+
+void World::LoadDBMotd()
+{
+    QueryResult l_Result = LoginDatabase.PQuery("SELECT motd FROM realmlist WHERE id = '%d'", g_RealmID);
+    if (l_Result)
+        SetMotd(l_Result->Fetch()->GetString());
+}
+
+void World::SetDBMotd(const std::string& p_Motd)
+{
+    LoginDatabase.PQuery("UPDATE realmlist SET motd = '%s'", p_Motd.c_str());
+    SetMotd(p_Motd);
 }
 
 void World::LoadDBAllowedSecurityLevel()

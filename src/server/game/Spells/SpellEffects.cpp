@@ -814,10 +814,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (Item* offItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, offItem->GetEntry());
+                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, offItem->GetEntry());
                     }
                     else
-                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1));
+                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2));
                     break;
                 }
                 case 41055: // Copy Mainhand Weapon
@@ -3021,7 +3021,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 }
                 default:
                 {
-                    if ((properties->Flags & 512) || m_spellInfo->Id == 114192) /// Mocking Banner
+                    if ((properties->Flags & 512) || entry == 65282 || entry == 47649) /// Mocking Banner
                     {
                         SummonGuardian(effIndex, entry, properties, numSummons);
                         break;
@@ -3041,6 +3041,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             m_caster->GetRandomPoint(*destTarget, radius, pos);
 
                         summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration);
+
                         if (!summon)
                             continue;
 
