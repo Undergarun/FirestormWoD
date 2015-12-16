@@ -1108,7 +1108,7 @@ struct MountCapabilities
     uint32 Capabilities[MAX_MOUNT_CAPABILITIES];
 };
 
-typedef std::unordered_map<uint32, MountCapabilities> MountCapabilitiesMap;
+typedef std::unordered_map<uint32, std::set<uint32>> MountCapabilitiesMap;
 
 struct MountCapabilityEntry
 {

@@ -484,18 +484,6 @@ void LoadDB2Stores(const std::string& dataPath)
 
     std::set<ResearchSiteEntry const*> sResearchSiteSet;
     std::set<ResearchProjectEntry const*> sResearchProjectSet;
-    
-    for (uint32 l_ID = 0; l_ID < sMountTypeStore.GetNumRows(); ++l_ID)
-    {
-        MountTypeEntry const* l_Entry = sMountTypeStore.LookupEntry(l_ID);
-        if (!l_Entry)
-            continue;
-
-        MountCapabilities l_Capabilities;
-        memset(&l_Capabilities, 0, sizeof(l_Capabilities));
-
-        sMountCapabilitiesMap.insert({l_ID, l_Capabilities});
-    }
 
     for (uint32 l_ID = 0; l_ID < sMountTypeXCapabilityStore.GetNumRows(); ++l_ID)
     {
@@ -503,8 +491,7 @@ void LoadDB2Stores(const std::string& dataPath)
         if (!l_Entry)
             continue;
 
-        assert("MAX_MOUNT_CAPABILITIES too small, needs increase" && l_Entry->Index < MAX_MOUNT_CAPABILITIES);
-        sMountCapabilitiesMap[l_Entry->MountTypeID].Capabilities[l_Entry->Index] = l_Entry->CapabilityID;
+        sMountCapabilitiesMap[l_Entry->MountTypeID].insert(l_Entry->CapabilityID);
     }
 
     //////////////////////////////////////////////////////////////////////////
