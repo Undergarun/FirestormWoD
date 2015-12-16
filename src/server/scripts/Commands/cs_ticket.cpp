@@ -68,7 +68,7 @@ public:
         };
         static ChatCommand commandTable[] =
         {
-            { "ticket",         SEC_MODERATOR,      false, NULL,                                    "", ticketCommandTable },
+            { "ticket",         SEC_PLAYER,         false, NULL,                                    "", ticketCommandTable },
             { NULL,             0,                  false, NULL,                                    "", NULL }
         };
         return commandTable;
