@@ -814,10 +814,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (Item* offItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, offItem->GetEntry());
+                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, offItem->GetEntry());
                     }
                     else
-                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1));
+                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2));
                     break;
                 }
                 case 41055: // Copy Mainhand Weapon
@@ -2963,7 +2963,6 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             break;
     }
 
-    sLog->outError(LOG_FILTER_GENERAL, "---> CATEGORY = %d, TYpe = %d", properties->Category, properties->Type);
     switch (properties->Category)
     {
         case SUMMON_CATEGORY_WILD:

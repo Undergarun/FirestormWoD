@@ -940,9 +940,9 @@ class spell_npc_warr_ravager : public CreatureScript
                     {
                         /// Display Transmogrifications on player's clone
                         if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 1, l_Proto->ItemId);
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, l_Proto->ItemId);
                         else
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 1, l_Item->GetTemplate()->ItemId);
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, l_Item->GetTemplate()->ItemId);
                     }
                 }
             }

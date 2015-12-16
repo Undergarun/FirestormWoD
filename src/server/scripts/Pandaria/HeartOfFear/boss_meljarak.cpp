@@ -943,7 +943,7 @@ public:
             inCombat = false;
             respawn = true;
             me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_9);
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, EQUIP_TRASH_9);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, EQUIP_TRASH_9);
             if (!me->HasAura(SPELL_RED_MANTID_WINGS))
                 DoCast(SPELL_RED_MANTID_WINGS);
         }
