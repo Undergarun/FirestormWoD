@@ -112,6 +112,9 @@ m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_Ti
     _filterAddonMessages = false;
     m_LoginTime = time(nullptr);
 
+    /// Clang compile hackfix ...
+    OnGMTicketGetTicketEvent();
+
     if (sock)
     {
         m_Address = sock->GetRemoteAddress();

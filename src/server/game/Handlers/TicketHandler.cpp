@@ -29,6 +29,9 @@
 
 void WorldSession::OnGMTicketGetTicketEvent()
 {
+    if (m_Player == nullptr)
+        return;
+
     SendQueryTimeResponse();
 
     if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
