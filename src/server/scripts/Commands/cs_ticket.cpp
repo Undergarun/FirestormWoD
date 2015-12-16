@@ -59,11 +59,11 @@ public:
             { "unassign",       SEC_GAMEMASTER,     true,  &HandleGMTicketUnAssignCommand,          "", NULL },
             { "viewid",         SEC_MODERATOR,      true,  &HandleGMTicketGetByIdCommand,           "", NULL },
             { "viewname",       SEC_MODERATOR,      true,  &HandleGMTicketGetByNameCommand,         "", NULL },
-            { "FSCcreate",      SEC_PLAYER,         true,  &FSCHandleGMTicketCreate,                "", NULL },
-            { "FSCupdate",      SEC_PLAYER,         true,  &FSCHandleGMTicketUpdate,                "", NULL },
-            { "FSCdelete",      SEC_PLAYER,         true,  &FSCHandleGMTicketDelete,                "", NULL },
-            { "FSCticketGet",   SEC_PLAYER,         true,  &FSCHandleGMTicketGet,                   "", NULL },
-            { "FSCticketRes",   SEC_PLAYER,         true,  &FSCHandleGMResponseResolve,             "", NULL },
+            { "fsccreate",      SEC_PLAYER,         true,  &FSCHandleGMTicketCreate,                "", NULL },
+            { "fscupdate",      SEC_PLAYER,         true,  &FSCHandleGMTicketUpdate,                "", NULL },
+            { "fscdelete",      SEC_PLAYER,         true,  &FSCHandleGMTicketDelete,                "", NULL },
+            { "fscticketget",   SEC_PLAYER,         true,  &FSCHandleGMTicketGet,                   "", NULL },
+            { "fscticketres",   SEC_PLAYER,         true,  &FSCHandleGMResponseResolve,             "", NULL },
             { NULL,             0,                  false, NULL,                                    "", NULL }
         };
         static ChatCommand commandTable[] =
