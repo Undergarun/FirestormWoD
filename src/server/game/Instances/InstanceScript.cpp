@@ -210,9 +210,12 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     if (lower == upper)
         return;
 
+    EncounterState l_State;
     bool open = true;
     for (DoorInfoMap::iterator itr = lower; itr != upper && open; ++itr)
     {
+        l_State = itr->second.bossInfo->state;
+
         switch (itr->second.type)
         {
             case DOOR_TYPE_ROOM:
@@ -233,8 +236,11 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     if (!open)
     {
         uint64 l_DoorGuid = door->GetGUID();
-        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [l_DoorGuid]() -> void
+        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [l_DoorGuid, l_State]() -> void
         {
+            if (l_State != EncounterState::IN_PROGRESS)
+                return;
+
             if (GameObject* l_Door = sObjectAccessor->FindGameObject(l_DoorGuid))
                 l_Door->SetGoState(GOState::GO_STATE_READY);
         });
