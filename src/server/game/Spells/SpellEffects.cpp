@@ -316,13 +316,14 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
     &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
-    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY  NYI
+    &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
     &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249                     Unused 6.1.2
     &Spell::EffectNULL,                                     //250 SPELL_EFFECT_TAKE_SCREENSHOT
+    &Spell::EffectNULL,                                     //251 SPELL_EFFECT_251
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
@@ -813,10 +814,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (Item* offItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
+                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, offItem->GetEntry());
                     }
                     else
-                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
+                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1));
                     break;
                 }
                 case 41055: // Copy Mainhand Weapon
@@ -830,10 +831,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (Item* mainItem = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, mainItem->GetEntry());
+                            unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, mainItem->GetEntry());
                     }
                     else
-                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID));
+                        unitTarget->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS));
                     break;
                 }
                 default:
@@ -2829,6 +2830,14 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
+        case 127665: ///< Void Tendrils
+        {
+            /// Set special UnitFlags and Type
+            ((SummonPropertiesEntry*)properties)->Flags = (UNIT_FLAG_DISABLE_MOVE + UNIT_FLAG_PVP_ATTACKABLE + UNIT_FLAG_PVP);
+            ((SummonPropertiesEntry*)properties)->Type = SUMMON_TYPE_TOTEM;
+
+            break;
+        }
         case 124927: ///< Call Dog
             if (m_originalCaster->ToPlayer())
                 m_originalCaster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 60 * IN_MILLISECONDS);
@@ -2980,6 +2989,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
                     if (!summon || !summon->isTotem())
                         return;
+
+                    /// Void Tendrils - must be 13% of priest max health
+                    if (m_spellInfo->Id == 127665)
+                        damage = m_caster->CountPctFromMaxHealth(13);
 
                     /// Glyph of Totemic Vigor
                     if (AuraEffectPtr l_GlyphOfTotemicVigor = m_caster->GetAuraEffect(63298, EFFECT_0))
@@ -5245,14 +5258,14 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER || m_glyphIndex >= MAX_GLYPH_SLOT_INDEX)
+    if (m_caster->GetTypeId() != TYPEID_PLAYER || m_Misc[0] >= MAX_GLYPH_SLOT_INDEX)
         return;
 
     Player* l_Player = (Player*)m_caster;
 
     // glyph sockets level requirement
     uint8 l_MinLevel = 0;
-    switch (m_glyphIndex)
+    switch (m_Misc[0])
     {
         case 0:
         case 1:
@@ -5276,7 +5289,7 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
     {
         if (GlyphPropertiesEntry const* l_GlyphProperties = sGlyphPropertiesStore.LookupEntry(l_Glyph))
         {
-            if (GlyphSlotEntry const* l_GlyphSlot = sGlyphSlotStore.LookupEntry(l_Player->GetGlyphSlot(m_glyphIndex)))
+            if (GlyphSlotEntry const* l_GlyphSlot = sGlyphSlotStore.LookupEntry(l_Player->GetGlyphSlot(m_Misc[0])))
             {
                 if (l_GlyphProperties->TypeFlags != l_GlyphSlot->TypeFlags)
                 {
@@ -5307,29 +5320,29 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
             }
 
             // remove old glyph
-            if (uint32 l_OldGlyph = l_Player->GetGlyph(l_Player->GetActiveSpec(), m_glyphIndex))
+            if (uint32 l_OldGlyph = l_Player->GetGlyph(l_Player->GetActiveSpec(), m_Misc[0]))
             {
                 if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(l_OldGlyph))
                 {
                     l_Player->RemoveAurasDueToSpell(old_gp->SpellId);
-                    l_Player->SetGlyph(m_glyphIndex, 0);
+                    l_Player->SetGlyph(m_Misc[0], 0);
                 }
             }
 
             l_Player->CastSpell(m_caster, l_GlyphProperties->SpellId, true);
-            l_Player->SetGlyph(m_glyphIndex, l_Glyph);
+            l_Player->SetGlyph(m_Misc[0], l_Glyph);
             l_Player->SendTalentsInfoData(false);
         }
     }
     else
     {
         // remove old glyph
-        if (uint32 l_OldGlyph = l_Player->GetGlyph(l_Player->GetActiveSpec(), m_glyphIndex))
+        if (uint32 l_OldGlyph = l_Player->GetGlyph(l_Player->GetActiveSpec(), m_Misc[0]))
         {
             if (GlyphPropertiesEntry const* l_OldGlyphProperties = sGlyphPropertiesStore.LookupEntry(l_OldGlyph))
             {
                 l_Player->RemoveAurasDueToSpell(l_OldGlyphProperties->SpellId);
-                l_Player->SetGlyph(m_glyphIndex, 0);
+                l_Player->SetGlyph(m_Misc[0], 0);
                 l_Player->SendTalentsInfoData(false);
             }
         }
@@ -7048,10 +7061,10 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         /// Dancing rune weapon summon
         if (summon->GetEntry() == 27893)
         {
-            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (SLOT_MAIN_HAND * 3)))
+            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (SLOT_MAIN_HAND * 2)))
             {
                 summon->SetDisplayId(11686);
-                summon->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, weapon);
+                summon->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, weapon);
             }
             else
                 summon->SetDisplayId(1126);
@@ -7343,7 +7356,7 @@ void Spell::EffectUnlearnTalent(SpellEffIndex p_EffIndex)
     if (l_Player == nullptr)
         return;
 
-    TalentEntry const* l_Talent = sTalentStore.LookupEntry(m_glyphIndex);
+    TalentEntry const* l_Talent = sTalentStore.LookupEntry(m_Misc[0]);
     if (l_Talent == nullptr)
         return;
 
@@ -7504,22 +7517,13 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex p_EffectIndex)
         return;
 
     std::vector<uint32> l_Maps;
+    std::vector<uint32> l_AreaGroups = GetAreasForGroup(m_spellInfo->AreaGroupId);
 
-    AreaGroupEntry const* l_AreaGroupEntry = sAreaGroupStore.LookupEntry(m_spellInfo->AreaGroupId);
-    while (l_AreaGroupEntry)
+    for (uint32 l_AreaID : l_AreaGroups)
     {
-        for (uint8 l_I = 0; l_I < MAX_GROUP_AREA_IDS; ++l_I)
-        {
-            uint32 l_AreaId = l_AreaGroupEntry->AreaId[l_I];
-            AreaTableEntry const* l_AreaTable = sAreaStore.LookupEntry(l_AreaId);
-            if (l_AreaTable == nullptr)
-                continue;
-
+        AreaTableEntry const* l_AreaTable = sAreaStore.LookupEntry(l_AreaID);
+        if (l_AreaTable)
             l_Maps.push_back(l_AreaTable->ContinentID);
-
-        }
-        // Try search in next group
-        l_AreaGroupEntry = sAreaGroupStore.LookupEntry(l_AreaGroupEntry->nextGroup);
     }
 
     if (l_Maps.empty())
@@ -7832,62 +7836,7 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
     if (!l_Player || !l_GarrisonMgr)
         return;
 
-    bool l_IsArmor = !!m_spellInfo->Effects[p_EffIndex].MiscValue;
-    uint32 l_FollowerEntry = m_glyphIndex;
-
-    MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(l_FollowerEntry);
-
-    if (l_Follower != nullptr && l_Follower->FollowerID != 0)
-    {
-        uint32 l_NewValue = 0;
-        uint32 l_OldArmorValue = l_Follower->ItemLevelArmor;
-        uint32 l_OldWeaponValue = l_Follower->ItemLevelWeapon;
-
-        printf("Follower entry %u \n", m_glyphIndex);
-
-        if (m_spellInfo->Effects[EFFECT_1].Effect == SPELL_EFFECT_DUMMY)
-            l_NewValue = m_spellInfo->Effects[EFFECT_1].BasePoints;
-        else
-        {
-            if (l_IsArmor)
-                l_NewValue = l_OldArmorValue + m_spellInfo->Effects[p_EffIndex].BasePoints;
-            else
-                l_NewValue = l_OldWeaponValue + m_spellInfo->Effects[p_EffIndex].BasePoints;
-        }
-
-        uint32 l_MaxIlvl = m_spellInfo->Effects[p_EffIndex].MiscValueB;
-
-        if (l_IsArmor) ///< Armor case
-        {
-            if ((uint32)l_Follower->ItemLevelArmor < l_MaxIlvl)
-            {
-                if ((uint32)l_Follower->ItemLevelArmor + l_NewValue >= l_MaxIlvl)
-                    l_Follower->SetArmorItemLevel(l_MaxIlvl);
-                else
-                    l_Follower->SetArmorItemLevel(l_NewValue);
-
-                l_Follower->UpdateFollower(l_Player);
-                l_GarrisonMgr->SaveFollowersToDB(l_FollowerEntry);
-            }
-            else
-                SendCastResult(SPELL_FAILED_GARRISON_FOLLOWER_MAX_ITEM_LEVEL);
-        }
-        else ///< Weapon case
-        {
-            if ((uint32)l_Follower->ItemLevelWeapon < l_MaxIlvl)
-            {
-                if ((uint32)l_Follower->ItemLevelWeapon + l_NewValue >= l_MaxIlvl)
-                    l_Follower->SetWeaponItemLevel(l_MaxIlvl);
-                else
-                    l_Follower->SetWeaponItemLevel(l_NewValue);
-
-                l_Follower->UpdateFollower(l_Player);
-                l_GarrisonMgr->SaveFollowersToDB(l_FollowerEntry);
-            }
-            else
-                SendCastResult(SPELL_FAILED_GARRISON_FOLLOWER_MAX_ITEM_LEVEL);
-        }
-    }
+    l_Player->GetGarrison()->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
 }
 
 void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
@@ -8168,12 +8117,12 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
         return;
 
     Player* l_Player = GetCaster()->ToPlayer();
-    HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(m_glyphIndex);
+    HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(m_Misc[0]);
 
     if (!l_Player || !l_HeirloomEntry)
         return;
 
-    if (l_HeirloomEntry->ItemID != m_glyphIndex)
+    if (l_HeirloomEntry->ItemID != m_Misc[0])
         return;
 
     ItemPosCountVec l_Destination;
@@ -8198,18 +8147,36 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
     }
 }
 
+void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    Player* l_Player = GetCaster()->ToPlayer();
+    MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    SpellCastResult l_Result = l_Garrison->CanLearnTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), p_EffIndex);
+    if (l_Result != SPELL_CAST_OK)
+        return;
+
+    l_Garrison->LearnFollowerTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), p_EffIndex);
+}
+
 void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
     Player* l_Player = GetCaster()->ToPlayer();
-    HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(m_glyphIndex);
+    HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(m_Misc[0]);
 
     if (!l_Player || !l_HeirloomEntry || !m_CastItem)
         return;
 
-    if (l_HeirloomEntry->ItemID != m_glyphIndex)
+    if (l_HeirloomEntry->ItemID != m_Misc[0])
         return;
 
     if (!l_Player->HasHeirloom(l_HeirloomEntry))
@@ -8244,7 +8211,7 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
     {
         if (l_Heirlooms[l_I] == l_HeirloomEntry->ItemID)
         {
-            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_I, l_UpgradeFlags);
+            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, l_I, l_UpgradeFlags);
             break;
         }
     }

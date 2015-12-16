@@ -419,6 +419,7 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 p_Entry)
     data << uint32(DB2_REPLY_BROADCAST_TEXT);
     data << uint32(p_Entry);
     data << uint32(sObjectMgr->GetHotfixDate(p_Entry, DB2_REPLY_BROADCAST_TEXT));
+    data.WriteBit(1);                                                         ///< Found ???
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -587,8 +588,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
 
             if (l_POIs)
             {
-                l_Data << uint32(l_QuestID);          ///< Quest ID
-                l_Data << uint32(l_POIs->size());     ///< Num Blobs
+                l_Data << uint32(l_QuestID);
                 l_Data << uint32(l_POIs->size());     ///< Num Blobs
 
                 const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_QuestID);
@@ -617,9 +617,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
                     l_Data << uint32(l_It->Flags);                ///< Flags
                     l_Data << uint32(l_It->WorldEffectID);        ///< World Effect ID
                     l_Data << uint32(l_It->PlayerConditionID);    ///< Player Condition ID
-                    l_Data << uint32(l_It->Points.size());        ///< Num Points
-                    l_Data << uint32(l_It->Unk);                  ///< Unk
-
+                    l_Data << uint32(0);                          ///< Unk Wod
                     l_Data << uint32(l_It->Points.size());
 
                     for (std::vector<QuestPOIPoint>::const_iterator l_PointIT = l_It->Points.begin(); l_PointIT != l_It->Points.end(); ++l_PointIT)
@@ -634,13 +632,11 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
             {
                 l_Data << uint32(l_QuestID);  ///< Quest ID
                 l_Data << uint32(0);          ///< Num Blobs
-                l_Data << uint32(0);          ///< Num Blobs
             }
         }
         else
         {
             l_Data << uint32(l_QuestID);      ///< Quest ID
-            l_Data << uint32(0);              ///< Num Blobs
             l_Data << uint32(0);              ///< Num Blobs
         }
     }
@@ -680,6 +676,7 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
                 l_Data << uint32(l_Type);
                 l_Data << uint32(l_Entry);
                 l_Data << uint32(sObjectMgr->GetHotfixDate(l_Entry, l_Type));
+                l_Data.WriteBit(1);                                                         ///< Found ???
                 l_Data << uint32(l_ResponseData.size());
                 l_Data.append(l_ResponseData);
 
@@ -691,6 +688,7 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
                 l_Data << uint32(l_Type);
                 l_Data << uint32(-int32(l_Entry));
                 l_Data << uint32(time(NULL));
+                l_Data.WriteBit(0);                                                         ///< Found ???
                 l_Data << uint32(0);
 
                 SendPacket(&l_Data);

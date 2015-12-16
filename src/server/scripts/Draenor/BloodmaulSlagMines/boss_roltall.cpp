@@ -189,7 +189,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                             me->CastSpell(s_HeatWavePos.m_positionX, s_HeatWavePos.m_positionY, s_HeatWavePos.m_positionZ, eSpells::SpellHeatWaveAreaTrigger, true);
                             me->CastSpell(me, eSpells::SpellHeatWaveVisual, true);  ///< Heat wind visual
                             me->SetFacingTo(me->GetHomePosition().m_orientation);
-                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                             m_Events.ScheduleEvent(eEvents::EventHeatWaveEnd, 8 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
@@ -229,7 +229,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                             m_Events.ScheduleEvent(eEvents::EventHeatWave, 40 * TimeConstants::IN_MILLISECONDS);
                             break;
                         case eEvents::EventHeatWaveEnd:
-                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                             break;
                         case eEvents::EventFieryBoulder:
                         {

@@ -15,716 +15,400 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef _UPDATEFIELDS_H
 #define _UPDATEFIELDS_H
 
-struct CGObjectData
-{
-    uint32 m_guid[4];
-    uint32 m_data[4];
-    uint32 m_type;
-    uint32 m_entryID;
-    uint32 m_dynamicFlags;
-    uint32 m_scale;
-};
-
-struct CGItemData
-{
-    uint32 m_owner[4];
-    uint32 m_containedIn[4];
-    uint32 m_creator[4];
-    uint32 m_giftCreator[4];
-    uint32 m_stackCount;
-    uint32 m_expiration;
-    uint32 m_spellCharges[5];
-    uint32 m_dynamicFlags;
-    uint32 m_enchantment[39];
-    uint32 m_propertySeed;
-    uint32 m_randomPropertiesID;
-    uint32 m_durability;
-    uint32 m_maxDurability;
-    uint32 m_createPlayedTime;
-    uint32 m_modifiersMask;
-    uint32 m_context;
-};
-
-struct CGContainerData
-{
-    uint32 m_slots[144];
-    uint32 m_numSlots;
-};
-
-struct CGUnitData
-{
-    uint32 charm[4];
-    uint32 summon[4];
-    uint32 critter[4];
-    uint32 charmedBy[4];
-    uint32 summonedBy[4];
-    uint32 createdBy[4];
-    uint32 demonCreator[4];
-    uint32 target[4];
-    uint32 battlePetCompanionGUID[4];
-    uint32 battlePetDBID[2];
-    uint32 channelObject[4];
-    uint32 channelSpell;
-    uint32 summonedByHomeRealm;
-    uint32 sex;
-    uint32 displayPower;
-    uint32 overrideDisplayPowerID;
-    uint32 health;
-    uint32 power[6];
-    uint32 maxHealth;
-    uint32 maxPower[6];
-    uint32 powerRegenFlatModifier[6];
-    uint32 powerRegenInterruptedFlatModifier[6];
-    uint32 level;
-    uint32 effectiveLevel;
-    uint32 factionTemplate;
-    uint32 virtualItemID[3];
-    uint32 flags;
-    uint32 flags2;
-    uint32 flags3;
-    uint32 auraState;
-    uint32 attackRoundBaseTime[2];
-    uint32 rangedAttackRoundBaseTime;
-    uint32 boundingRadius;
-    uint32 combatReach;
-    uint32 displayID;
-    uint32 nativeDisplayID;
-    uint32 mountDisplayID;
-    uint32 minDamage;
-    uint32 maxDamage;
-    uint32 minOffHandDamage;
-    uint32 maxOffHandDamage;
-    uint32 animTier;
-    uint32 petNumber;
-    uint32 petNameTimestamp;
-    uint32 petExperience;
-    uint32 petNextLevelExperience;
-    uint32 modCastingSpeed;
-    uint32 modSpellHaste;
-    uint32 modHaste;
-    uint32 modRangedHaste;
-    uint32 modHasteRegen;
-    uint32 createdBySpell;
-    uint32 npcFlags[2];
-    uint32 emoteState;
-    uint32 stats[5];
-    uint32 statPosBuff[5];
-    uint32 statNegBuff[5];
-    uint32 resistances[7];
-    uint32 resistanceBuffModsPositive[7];
-    uint32 resistanceBuffModsNegative[7];
-    uint32 modBonusArmor;
-    uint32 baseMana;
-    uint32 baseHealth;
-    uint32 shapeshiftForm;
-    uint32 attackPower;
-    uint32 attackPowerModPos;
-    uint32 attackPowerModNeg;
-    uint32 attackPowerMultiplier;
-    uint32 rangedAttackPower;
-    uint32 rangedAttackPowerModPos;
-    uint32 rangedAttackPowerModNeg;
-    uint32 rangedAttackPowerMultiplier;
-    uint32 minRangedDamage;
-    uint32 maxRangedDamage;
-    uint32 powerCostModifier[7];
-    uint32 powerCostMultiplier[7];
-    uint32 maxHealthModifier;
-    uint32 hoverHeight;
-    uint32 minItemLevelCutoff;
-    uint32 minItemLevel;
-    uint32 maxItemLevel;
-    uint32 wildBattlePetLevel;
-    uint32 battlePetCompanionNameTimestamp;
-    uint32 interactSpellID;
-    uint32 stateSpellVisualID;
-    uint32 stateAnimID;
-    uint32 stateAnimKitID;
-    uint32 stateWorldEffectID[4];
-    uint32 scaleDuration;
-    uint32 looksLikeMountID;
-    uint32 looksLikeCreatureID;
-    uint32 lookAtControllerID;
-    uint32 lookAtControllerTarget[4];
-};
-
-struct CGPlayerData
-{
-    uint32 duelArbiter[4];
-    uint32 wowAccount[4];
-    uint32 lootTargetGUID[4];
-    uint32 playerFlags;
-    uint32 playerFlagsEx;
-    uint32 guildRankID;
-    uint32 guildDeleteDate;
-    uint32 guildLevel;
-    uint32 hairColorID;
-    uint32 restState;
-    uint32 arenaFaction;
-    uint32 duelTeam;
-    uint32 guildTimeStamp;
-    uint32 questLog[750];
-    uint32 visibleItems[57];
-    uint32 playerTitle;
-    uint32 fakeInebriation;
-    uint32 virtualPlayerRealm;
-    uint32 currentSpecID;
-    uint32 taxiMountAnimKitID;
-    uint32 avgItemLevelTotal;
-    uint32 avgItemLevelEquipped;
-    uint32 currentBattlePetBreedQuality;
-    uint32 local_invSlots[736];
-    uint32 local_farsightObject[4];
-    uint32 local_knownTitles[10];
-    uint32 local_coinage[2];
-    uint32 local_XP;
-    uint32 local_nextLevelXP;
-    uint32 local_skill[448];
-    uint32 local_characterPoints;
-    uint32 local_maxTalentTiers;
-    uint32 local_trackCreatureMask;
-    uint32 local_trackResourceMask;
-    uint32 local_mainhandExpertise;
-    uint32 local_offhandExpertise;
-    uint32 local_rangedExpertise;
-    uint32 local_combatRatingExpertise;
-    uint32 local_blockPercentage;
-    uint32 local_dodgePercentage;
-    uint32 local_parryPercentage;
-    uint32 local_critPercentage;
-    uint32 local_rangedCritPercentage;
-    uint32 local_offhandCritPercentage;
-    uint32 local_spellCritPercentage[7];
-    uint32 local_shieldBlock;
-    uint32 local_shieldBlockCritPercentage;
-    uint32 local_mastery;
-    uint32 local_amplify;
-    uint32 local_multistrike;
-    uint32 local_multistrikeEffect;
-    uint32 local_readiness;
-    uint32 local_speed;
-    uint32 local_lifesteal;
-    uint32 local_avoidance;
-    uint32 local_sturdiness;
-    uint32 local_cleave;
-    uint32 local_versatility;
-    uint32 local_versatilityBonus;
-    uint32 local_pvpPowerDamage;
-    uint32 local_pvpPowerHealing;
-    uint32 local_exploredZones[200];
-    uint32 local_restStateBonusPool;
-    uint32 local_modDamageDonePos[7];
-    uint32 local_modDamageDoneNeg[7];
-    uint32 local_modDamageDonePercent[7];
-    uint32 local_modHealingDonePos;
-    uint32 local_modHealingPercent;
-    uint32 local_modHealingDonePercent;
-    uint32 local_modPeriodicHealingDonePercent;
-    uint32 local_weaponDmgMultipliers[3];
-    uint32 local_weaponAtkSpeedMultipliers[3];
-    uint32 local_modSpellPowerPercent;
-    uint32 local_modResiliencePercent;
-    uint32 local_overrideSpellPowerByAPPercent;
-    uint32 local_overrideAPBySpellPowerPercent;
-    uint32 local_modTargetResistance;
-    uint32 local_modTargetPhysicalResistance;
-    uint32 local_localFlags;
-    uint32 local_lifetimeMaxRank;
-    uint32 local_selfResSpell;
-    uint32 local_pvpMedals;
-    uint32 local_buybackPrice[12];
-    uint32 local_buybackTimestamp[12];
-    uint32 local_yesterdayHonorableKills;
-    uint32 local_lifetimeHonorableKills;
-    uint32 local_watchedFactionIndex;
-    uint32 local_combatRatings[32];
-    uint32 local_pvpInfo[36];
-    uint32 local_maxLevel;
-    uint32 local_runeRegen[4];
-    uint32 local_noReagentCostMask[4];
-    uint32 local_glyphSlots[6];
-    uint32 local_glyphs[6];
-    uint32 local_glyphSlotsEnabled;
-    uint32 local_petSpellPower;
-    uint32 local_researching[10];
-    uint32 local_professionSkillLine[2];
-    uint32 local_uiHitModifier;
-    uint32 local_uiSpellHitModifier;
-    uint32 local_homeRealmTimeOffset;
-    uint32 local_modPetHaste;
-    uint32 local_summonedBattlePetGUID[4];
-    uint32 local_overrideSpellsID;
-    uint32 local_lfgBonusFactionID;
-    uint32 local_lootSpecID;
-    uint32 local_overrideZonePVPType;
-    uint32 local_itemLevelDelta;
-    uint32 local_bagSlotFlags[4];
-    uint32 local_bankBagSlotFlags[7];
-    uint32 local_insertItemsLeftToRight;
-    uint32 local_questCompleted[625];
-};
-
-struct CGGameObjectData
-{
-    uint32 m_createdBy[4];
-    uint32 m_displayID;
-    uint32 m_flags;
-    uint32 m_parentRotation[4];
-    uint32 m_factionTemplate;
-    uint32 m_level;
-    uint32 m_percentHealth;
-    uint32 m_spellVisualID;
-    uint32 m_stateSpellVisualID;
-    uint32 m_stateAnimID;
-    uint32 m_stateAnimKitID;
-    uint32 m_stateWorldEffectID[4];
-};
-
-struct CGDynamicObjectData
-{
-    uint32 m_caster[4];
-    uint32 m_typeAndVisualID;
-    uint32 m_spellID;
-    uint32 m_radius;
-    uint32 m_castTime;
-};
-
-struct CGCorpseData
-{
-    uint32 m_owner[4];
-    uint32 m_partyGUID[4];
-    uint32 m_displayID;
-    uint32 m_items[19];
-    uint32 m_skinID;
-    uint32 m_facialHairStyleID;
-    uint32 m_flags;
-    uint32 m_dynamicFlags;
-    uint32 m_factionTemplate;
-};
-
-struct CGAreaTriggerData
-{
-    uint32 m_caster[4];
-    uint32 m_duration;
-    uint32 m_spellID;
-    uint32 m_spellVisualID;
-    uint32 m_explicitScale;
-};
-
-struct CGSceneObjectData
-{
-    uint32 m_scriptPackageID;
-    uint32 m_rndSeedVal;
-    uint32 m_createdBy[4];
-    uint32 m_sceneType;
-};
-
-struct CGConversationData
-{
-    uint32 dummy;
-};
-
-// > Object
 enum EObjectFields
 {
-    OBJECT_FIELD_GUID = 0, // SIZE:4
-    OBJECT_FIELD_DATA = 4, // SIZE:4
-    OBJECT_FIELD_TYPE = 8, // SIZE:1
-    OBJECT_FIELD_ENTRY_ID = 9, // SIZE:1
-    OBJECT_FIELD_DYNAMIC_FLAGS = 10, // SIZE:1
-    OBJECT_FIELD_SCALE = 11, // SIZE:1
-    OBJECT_END = 12
+    OBJECT_FIELD_GUID           = 0x0, // Size: 4, Flags: UF_FLAG_PUBLIC
+    OBJECT_FIELD_DATA           = 0x4, // Size: 4, Flags: UF_FLAG_PUBLIC
+    OBJECT_FIELD_TYPE           = 0x8, // Size: 1, Flags: UF_FLAG_PUBLIC
+    OBJECT_FIELD_ENTRY_ID       = 0x9, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT
+    OBJECT_FIELD_DYNAMIC_FLAGS  = 0xA, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    OBJECT_FIELD_SCALE          = 0xB, // Size: 1, Flags: UF_FLAG_PUBLIC
+    OBJECT_END                  = 0xC
 };
 
-enum ObjectDynamicFields
+enum EObjectDynamicFields
 {
-    OBJECT_DYNAMIC_END = 0x000,
+    OBJECT_DYNAMIC_END  = 0x0
 };
 
-// > Object > Item
 enum EItemFields
 {
-    ITEM_FIELD_OWNER = 12, // SIZE:4
-    ITEM_FIELD_CONTAINED_IN = 16, // SIZE:4
-    ITEM_FIELD_CREATOR = 20, // SIZE:4
-    ITEM_FIELD_GIFT_CREATOR = 24, // SIZE:4
-    ITEM_FIELD_STACK_COUNT = 28, // SIZE:1
-    ITEM_FIELD_EXPIRATION = 29, // SIZE:1
-    ITEM_FIELD_SPELL_CHARGES = 30, // SIZE:5
-    ITEM_FIELD_DYNAMIC_FLAGS = 35, // SIZE:1
-    ITEM_FIELD_ENCHANTMENT = 36, // SIZE:39
-    ITEM_FIELD_PROPERTY_SEED = 75, // SIZE:1
-    ITEM_FIELD_RANDOM_PROPERTIES_ID = 76, // SIZE:1
-    ITEM_FIELD_DURABILITY = 77, // SIZE:1
-    ITEM_FIELD_MAX_DURABILITY = 78, // SIZE:1
-    ITEM_FIELD_CREATE_PLAYED_TIME = 79, // SIZE:1
-    ITEM_FIELD_MODIFIERS_MASK = 80, // SIZE:1
-    ITEM_FIELD_CONTEXT = 81, // SIZE:1
-    ITEM_END = 82
+    ITEM_FIELD_OWNER                    = OBJECT_END + 0x00, // Size: 4, Flags: UF_FLAG_PUBLIC
+    ITEM_FIELD_CONTAINED_IN             = OBJECT_END + 0x04, // Size: 4, Flags: UF_FLAG_PUBLIC
+    ITEM_FIELD_CREATOR                  = OBJECT_END + 0x08, // Size: 4, Flags: UF_FLAG_PUBLIC
+    ITEM_FIELD_GIFT_CREATOR             = OBJECT_END + 0x0C, // Size: 4, Flags: UF_FLAG_PUBLIC
+    ITEM_FIELD_STACK_COUNT              = OBJECT_END + 0x10, // Size: 1, Flags: UF_FLAG_OWNER
+    ITEM_FIELD_EXPIRATION               = OBJECT_END + 0x11, // Size: 1, Flags: UF_FLAG_OWNER
+    ITEM_FIELD_SPELL_CHARGES            = OBJECT_END + 0x12, // Size: 5, Flags: UF_FLAG_OWNER
+    ITEM_FIELD_DYNAMIC_FLAGS            = OBJECT_END + 0x17, // Size: 1, Flags: UF_FLAG_PUBLIC
+    ITEM_FIELD_ENCHANTMENT              = OBJECT_END + 0x18, // Size: 39, Flags: UF_FLAG_PUBLIC
+    ITEM_FIELD_PROPERTY_SEED            = OBJECT_END + 0x3F, // Size: 1, Flags: UF_FLAG_PUBLIC
+    ITEM_FIELD_RANDOM_PROPERTIES_ID     = OBJECT_END + 0x40, // Size: 1, Flags: UF_FLAG_PUBLIC
+    ITEM_FIELD_DURABILITY               = OBJECT_END + 0x41, // Size: 1, Flags: UF_FLAG_OWNER
+    ITEM_FIELD_MAX_DURABILITY           = OBJECT_END + 0x42, // Size: 1, Flags: UF_FLAG_OWNER
+    ITEM_FIELD_CREATE_PLAYED_TIME       = OBJECT_END + 0x43, // Size: 1, Flags: UF_FLAG_PUBLIC
+    ITEM_FIELD_MODIFIERS_MASK           = OBJECT_END + 0x44, // Size: 1, Flags: UF_FLAG_OWNER
+    ITEM_FIELD_CONTEXT                  = OBJECT_END + 0x45, // Size: 1, Flags: UF_FLAG_PUBLIC
+    ITEM_END                            = OBJECT_END + 0x46
 };
 
-enum ItemDynamicFields
+enum EItemDynamicFields
 {
-    ITEM_DYNAMIC_FIELD_MODIFIERS = OBJECT_DYNAMIC_END + 0x000, // Flags: OWNER
-    ITEM_DYNAMIC_FIELD_BONUSLIST_IDS = OBJECT_DYNAMIC_END + 0x001, // Flags: OWNER
-    ITEM_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x002,
+    ITEM_DYNAMIC_FIELD_MODIFIERS                = OBJECT_DYNAMIC_END + 0x0, // Flags: UF_FLAG_OWNER
+    ITEM_DYNAMIC_FIELD_BONUS_LIST_IDS           = OBJECT_DYNAMIC_END + 0x1, // Flags: UF_FLAG_OWNER, UF_FLAG_0x100
+    ITEM_DYNAMIC_END                            = OBJECT_DYNAMIC_END + 0x2
 };
 
-// > Object > Item > Container
 enum EContainerFields
 {
-    CONTAINER_FIELD_SLOTS = 82, // SIZE:144
-    CONTAINER_FIELD_NUM_SLOTS = 226, // SIZE:1
-    CONTAINER_END = 227
+    CONTAINER_FIELD_SLOTS       = ITEM_END + 0x00, // Size: 144, Flags: UF_FLAG_PUBLIC
+    CONTAINER_FIELD_NUM_SLOTS   = ITEM_END + 0x90, // Size: 1, Flags: UF_FLAG_PUBLIC
+    CONTAINER_END               = ITEM_END + 0x91
 };
 
-enum ContainerDynamicFields
+enum EContainerDynamicFields
 {
-    CONTAINER_DYNAMIC_END = ITEM_DYNAMIC_END + 0x000,
+    CONTAINER_DYNAMIC_END = ITEM_DYNAMIC_END + 0x0
 };
 
-// > Object > Unit
 enum EUnitFields
 {
-    UNIT_FIELD_CHARM = 12, // SIZE:4
-    UNIT_FIELD_SUMMON = 16, // SIZE:4
-    UNIT_FIELD_CRITTER = 20, // SIZE:4
-    UNIT_FIELD_CHARMED_BY = 24, // SIZE:4
-    UNIT_FIELD_SUMMONED_BY = 28, // SIZE:4
-    UNIT_FIELD_CREATED_BY = 32, // SIZE:4
-    UNIT_FIELD_DEMON_CREATOR = 36, // SIZE:4
-    UNIT_FIELD_TARGET = 40, // SIZE:4
-    UNIT_FIELD_BATTLE_PET_COMPANION_GUID = 44, // SIZE:4
-    UNIT_FIELD_BATTLE_PET_DBID = 48, // SIZE:2
-    UNIT_FIELD_CHANNEL_OBJECT = 50, // SIZE:4
-    UNIT_FIELD_CHANNEL_SPELL = 54, // SIZE:1
-    UNIT_FIELD_SUMMONED_BY_HOME_REALM = 55, // SIZE:1
-    UNIT_FIELD_SEX = 56, // SIZE:1
-    UNIT_FIELD_DISPLAY_POWER = 57, // SIZE:1
-    UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID = 58, // SIZE:1
-    UNIT_FIELD_HEALTH = 59, // SIZE:1
-    UNIT_FIELD_POWER = 60, // SIZE:6
-    UNIT_FIELD_MAX_HEALTH = 66, // SIZE:1
-    UNIT_FIELD_MAX_POWER = 67, // SIZE:6
-    UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER = 73, // SIZE:6
-    UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER = 79, // SIZE:6
-    UNIT_FIELD_LEVEL = 85, // SIZE:1
-    UNIT_FIELD_EFFECTIVE_LEVEL = 86, // SIZE:1
-    UNIT_FIELD_FACTION_TEMPLATE = 87, // SIZE:1
-    UNIT_FIELD_VIRTUAL_ITEM_ID = 88, // SIZE:3
-    UNIT_FIELD_FLAGS = 91, // SIZE:1
-    UNIT_FIELD_FLAGS2 = 92, // SIZE:1
-    UNIT_FIELD_FLAGS3 = 93, // SIZE:1
-    UNIT_FIELD_AURA_STATE = 94, // SIZE:1
-    UNIT_FIELD_ATTACK_ROUND_BASE_TIME = 95, // SIZE:2
-    UNIT_FIELD_RANGED_ATTACK_ROUND_BASE_TIME = 97, // SIZE:1
-    UNIT_FIELD_BOUNDING_RADIUS = 98, // SIZE:1
-    UNIT_FIELD_COMBAT_REACH = 99, // SIZE:1
-    UNIT_FIELD_DISPLAY_ID = 100, // SIZE:1
-    UNIT_FIELD_NATIVE_DISPLAY_ID = 101, // SIZE:1
-    UNIT_FIELD_MOUNT_DISPLAY_ID = 102, // SIZE:1
-    UNIT_FIELD_MIN_DAMAGE = 103, // SIZE:1
-    UNIT_FIELD_MAX_DAMAGE = 104, // SIZE:1
-    UNIT_FIELD_MIN_OFF_HAND_DAMAGE = 105, // SIZE:1
-    UNIT_FIELD_MAX_OFF_HAND_DAMAGE = 106, // SIZE:1
-    UNIT_FIELD_ANIM_TIER = 107, // SIZE:1
-    UNIT_FIELD_PET_NUMBER = 108, // SIZE:1
-    UNIT_FIELD_PET_NAME_TIMESTAMP = 109, // SIZE:1
-    UNIT_FIELD_PET_EXPERIENCE = 110, // SIZE:1
-    UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE = 111, // SIZE:1
-    UNIT_FIELD_MOD_CASTING_SPEED = 112, // SIZE:1
-    UNIT_FIELD_MOD_SPELL_HASTE = 113, // SIZE:1
-    UNIT_FIELD_MOD_HASTE = 114, // SIZE:1
-    UNIT_FIELD_MOD_RANGED_HASTE = 115, // SIZE:1
-    UNIT_FIELD_MOD_HASTE_REGEN = 116, // SIZE:1
-    UNIT_FIELD_CREATED_BY_SPELL = 117, // SIZE:1
-    UNIT_FIELD_NPC_FLAGS = 118, // SIZE:2
-    UNIT_FIELD_EMOTE_STATE = 120, // SIZE:1
-    UNIT_FIELD_STATS = 121, // SIZE:5
-    UNIT_FIELD_STAT_POS_BUFF = 126, // SIZE:5
-    UNIT_FIELD_STAT_NEG_BUFF = 131, // SIZE:5
-    UNIT_FIELD_RESISTANCES = 136, // SIZE:7
-    UNIT_FIELD_RESISTANCE_BUFF_MODS_POSITIVE = 143, // SIZE:7
-    UNIT_FIELD_RESISTANCE_BUFF_MODS_NEGATIVE = 150, // SIZE:7
-    UNIT_FIELD_MOD_BONUS_ARMOR = 157, // SIZE:1
-    UNIT_FIELD_BASE_MANA = 158, // SIZE:1
-    UNIT_FIELD_BASE_HEALTH = 159, // SIZE:1
-    UNIT_FIELD_SHAPESHIFT_FORM = 160, // SIZE:1
-    UNIT_FIELD_ATTACK_POWER = 161, // SIZE:1
-    UNIT_FIELD_ATTACK_POWER_MOD_POS = 162, // SIZE:1
-    UNIT_FIELD_ATTACK_POWER_MOD_NEG = 163, // SIZE:1
-    UNIT_FIELD_ATTACK_POWER_MULTIPLIER = 164, // SIZE:1
-    UNIT_FIELD_RANGED_ATTACK_POWER = 165, // SIZE:1
-    UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS = 166, // SIZE:1
-    UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG = 167, // SIZE:1
-    UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = 168, // SIZE:1
-    UNIT_FIELD_MIN_RANGED_DAMAGE = 169, // SIZE:1
-    UNIT_FIELD_MAX_RANGED_DAMAGE = 170, // SIZE:1
-    UNIT_FIELD_POWER_COST_MODIFIER = 171, // SIZE:7
-    UNIT_FIELD_POWER_COST_MULTIPLIER = 178, // SIZE:7
-    UNIT_FIELD_MAX_HEALTH_MODIFIER = 185, // SIZE:1
-    UNIT_FIELD_HOVER_HEIGHT = 186, // SIZE:1
-    UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF = 187, // SIZE:1
-    UNIT_FIELD_MIN_ITEM_LEVEL = 188, // SIZE:1
-    UNIT_FIELD_MAX_ITEM_LEVEL = 189, // SIZE:1
-    UNIT_FIELD_WILD_BATTLE_PET_LEVEL = 190, // SIZE:1
-    UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP = 191, // SIZE:1
-    UNIT_FIELD_INTERACT_SPELL_ID = 192, // SIZE:1
-    UNIT_FIELD_STATE_SPELL_VISUAL_ID = 193, // SIZE:1
-    UNIT_FIELD_STATE_ANIM_ID = 194, // SIZE:1á
-    UNIT_FIELD_STATE_ANIM_KIT_ID = 195, // SIZE:1
-    UNIT_FIELD_STATE_WORLD_EFFECT_ID = 196, // SIZE:4
-    UNIT_FIELD_SCALE_DURATION = 200, // SIZE:1
-    UNIT_FIELD_LOOKS_LIKE_MOUNT_ID = 201, // SIZE:1
-    UNIT_FIELD_LOOKS_LIKE_CREATURE_ID = 202, // SIZE:1
-    UNIT_FIELD_LOOK_AT_CONTROLLER_ID = 203, // SIZE:1
-    UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET = 204, // SIZE:4
-    UNIT_END = 208
+    UNIT_FIELD_CHARM                                    = OBJECT_END + 0x00, // Size: 4, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_SUMMON                                   = OBJECT_END + 0x04, // Size: 4, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_CRITTER                                  = OBJECT_END + 0x08, // Size: 4, Flags: UF_FLAG_PRIVATE
+    UNIT_FIELD_CHARMED_BY                               = OBJECT_END + 0x0C, // Size: 4, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_SUMMONED_BY                              = OBJECT_END + 0x10, // Size: 4, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_CREATED_BY                               = OBJECT_END + 0x14, // Size: 4, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_DEMON_CREATOR                            = OBJECT_END + 0x18, // Size: 4, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_TARGET                                   = OBJECT_END + 0x1C, // Size: 4, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_BATTLE_PET_COMPANION_GUID                = OBJECT_END + 0x20, // Size: 4, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_BATTLE_PET_DBID                          = OBJECT_END + 0x24, // Size: 2, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_CHANNEL_OBJECT                           = OBJECT_END + 0x26, // Size: 4, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    UNIT_FIELD_CHANNEL_SPELL                            = OBJECT_END + 0x2A, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL              = OBJECT_END + 0x2B, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    UNIT_FIELD_SUMMONED_BY_HOME_REALM                   = OBJECT_END + 0x2C, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_SEX                                      = OBJECT_END + 0x2D, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_DISPLAY_POWER                            = OBJECT_END + 0x2E, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID                = OBJECT_END + 0x2F, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_HEALTH                                   = OBJECT_END + 0x30, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_POWER                                    = OBJECT_END + 0x31, // Size: 6, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT_SELF_ONLY
+    UNIT_FIELD_MAX_HEALTH                               = OBJECT_END + 0x37, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_MAX_POWER                                = OBJECT_END + 0x38, // Size: 6, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER                = OBJECT_END + 0x3E, // Size: 6, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER, UF_FLAG_UNIT_ALL
+    UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER    = OBJECT_END + 0x44, // Size: 6, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER, UF_FLAG_UNIT_ALL
+    UNIT_FIELD_LEVEL                                    = OBJECT_END + 0x4A, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_EFFECTIVE_LEVEL                          = OBJECT_END + 0x4B, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_FACTION_TEMPLATE                         = OBJECT_END + 0x4C, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_VIRTUAL_ITEMS                            = OBJECT_END + 0x4D, // Size: 6, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_FLAGS                                    = OBJECT_END + 0x53, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_FLAGS_2                                  = OBJECT_END + 0x54, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_FLAGS_3                                  = OBJECT_END + 0x55, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_AURA_STATE                               = OBJECT_END + 0x56, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_ATTACK_ROUND_BASE_TIME                   = OBJECT_END + 0x57, // Size: 2, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_RANGED_ATTACK_ROUND_BASE_TIME            = OBJECT_END + 0x59, // Size: 1, Flags: UF_FLAG_PRIVATE
+    UNIT_FIELD_BOUNDING_RADIUS                          = OBJECT_END + 0x5A, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_COMBAT_REACH                             = OBJECT_END + 0x5B, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_DISPLAY_ID                               = OBJECT_END + 0x5C, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    UNIT_FIELD_NATIVE_DISPLAY_ID                        = OBJECT_END + 0x5D, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    UNIT_FIELD_MOUNT_DISPLAY_ID                         = OBJECT_END + 0x5E, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    UNIT_FIELD_MIN_DAMAGE                               = OBJECT_END + 0x5F, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER, UF_FLAG_SPECIAL_INFO
+    UNIT_FIELD_MAX_DAMAGE                               = OBJECT_END + 0x60, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER, UF_FLAG_SPECIAL_INFO
+    UNIT_FIELD_MIN_OFF_HAND_DAMAGE                      = OBJECT_END + 0x61, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER, UF_FLAG_SPECIAL_INFO
+    UNIT_FIELD_MAX_OFF_HAND_DAMAGE                      = OBJECT_END + 0x62, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER, UF_FLAG_SPECIAL_INFO
+    UNIT_FIELD_ANIM_TIER                                = OBJECT_END + 0x63, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_PET_NUMBER                               = OBJECT_END + 0x64, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_PET_NAME_TIMESTAMP                       = OBJECT_END + 0x65, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_PET_EXPERIENCE                           = OBJECT_END + 0x66, // Size: 1, Flags: UF_FLAG_OWNER
+    UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE                = OBJECT_END + 0x67, // Size: 1, Flags: UF_FLAG_OWNER
+    UNIT_FIELD_MOD_CASTING_SPEED                        = OBJECT_END + 0x68, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_MOD_SPELL_HASTE                          = OBJECT_END + 0x69, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_MOD_HASTE                                = OBJECT_END + 0x6A, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_MOD_RANGED_HASTE                         = OBJECT_END + 0x6B, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_MOD_HASTE_REGEN                          = OBJECT_END + 0x6C, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_CREATED_BY_SPELL                         = OBJECT_END + 0x6D, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_NPC_FLAGS                                = OBJECT_END + 0x6E, // Size: 2, Flags: UF_FLAG_PUBLIC, UF_FLAG_VIEWER_DEPENDENT
+    UNIT_FIELD_EMOTE_STATE                              = OBJECT_END + 0x70, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_STATS                                    = OBJECT_END + 0x71, // Size: 5, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_STAT_POS_BUFF                            = OBJECT_END + 0x76, // Size: 5, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_STAT_NEG_BUFF                            = OBJECT_END + 0x7B, // Size: 5, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_RESISTANCES                              = OBJECT_END + 0x80, // Size: 7, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER, UF_FLAG_SPECIAL_INFO
+    UNIT_FIELD_RESISTANCE_BUFF_MODS_POSITIVE            = OBJECT_END + 0x87, // Size: 7, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_RESISTANCE_BUFF_MODS_NEGATIVE            = OBJECT_END + 0x8E, // Size: 7, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_MOD_BONUS_ARMOR                          = OBJECT_END + 0x95, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_BASE_MANA                                = OBJECT_END + 0x96, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_BASE_HEALTH                              = OBJECT_END + 0x97, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_SHAPESHIFT_FORM                          = OBJECT_END + 0x98, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_ATTACK_POWER                             = OBJECT_END + 0x99, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_ATTACK_POWER_MOD_POS                     = OBJECT_END + 0x9A, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_ATTACK_POWER_MOD_NEG                     = OBJECT_END + 0x9B, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_ATTACK_POWER_MULTIPLIER                  = OBJECT_END + 0x9C, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_RANGED_ATTACK_POWER                      = OBJECT_END + 0x9D, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS              = OBJECT_END + 0x9E, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG              = OBJECT_END + 0x9F, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER           = OBJECT_END + 0xA0, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_MIN_RANGED_DAMAGE                        = OBJECT_END + 0xA1, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_MAX_RANGED_DAMAGE                        = OBJECT_END + 0xA2, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_POWER_COST_MODIFIER                      = OBJECT_END + 0xA3, // Size: 7, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_POWER_COST_MULTIPLIER                    = OBJECT_END + 0xAA, // Size: 7, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_MAX_HEALTH_MODIFIER                      = OBJECT_END + 0xB1, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_OWNER
+    UNIT_FIELD_HOVER_HEIGHT                             = OBJECT_END + 0xB2, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF                    = OBJECT_END + 0xB3, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_MIN_ITEM_LEVEL                           = OBJECT_END + 0xB4, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_MAX_ITEM_LEVEL                           = OBJECT_END + 0xB5, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_WILD_BATTLE_PET_LEVEL                    = OBJECT_END + 0xB6, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP      = OBJECT_END + 0xB7, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_INTERACT_SPELL_ID                        = OBJECT_END + 0xB8, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_STATE_SPELL_VISUAL_ID                    = OBJECT_END + 0xB9, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    UNIT_FIELD_STATE_ANIM_ID                            = OBJECT_END + 0xBA, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    UNIT_FIELD_STATE_ANIM_KIT_ID                        = OBJECT_END + 0xBB, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    UNIT_FIELD_STATE_WORLD_EFFECT_ID                    = OBJECT_END + 0xBC, // Size: 4, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    UNIT_FIELD_SCALE_DURATION                           = OBJECT_END + 0xC0, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_LOOKS_LIKE_MOUNT_ID                      = OBJECT_END + 0xC1, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_LOOKS_LIKE_CREATURE_ID                   = OBJECT_END + 0xC2, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_LOOK_AT_CONTROLLER_ID                    = OBJECT_END + 0xC3, // Size: 1, Flags: UF_FLAG_PUBLIC
+    UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET                = OBJECT_END + 0xC4, // Size: 4, Flags: UF_FLAG_PUBLIC
+    UNIT_END                                            = OBJECT_END + 0xC8
 };
 
-enum UnitDynamicFields
+enum EUnitDynamicFields
 {
-    UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS  = OBJECT_DYNAMIC_END + 0x000, //  Flags: PUBLIC, URGENT
-    UNIT_DYNAMIC_FIELD_WORLD_EFFECTS   = OBJECT_DYNAMIC_END + 0x001, //  Flags: PUBLIC, URGENT
-    UNIT_DYNAMIC_END                   = OBJECT_DYNAMIC_END + 0x002,
+    UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS           = OBJECT_DYNAMIC_END + 0x0, // Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    UNIT_DYNAMIC_FIELD_WORLD_EFFECTS            = OBJECT_DYNAMIC_END + 0x1, // Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    UNIT_DYNAMIC_END                            = OBJECT_DYNAMIC_END + 0x2
 };
 
-// > Object > Unit > Player
 enum EPlayerFields
 {
-    PLAYER_FIELD_DUEL_ARBITER = 208, // SIZE:4
-    PLAYER_FIELD_WOW_ACCOUNT = 212, // SIZE:4
-    PLAYER_FIELD_LOOT_TARGET_GUID = 216, // SIZE:4
-    PLAYER_FIELD_PLAYER_FLAGS = 220, // SIZE:1
-    PLAYER_FIELD_PLAYER_FLAGS_EX = 221, // SIZE:1
-    PLAYER_FIELD_GUILD_RANK_ID = 222, // SIZE:1
-    PLAYER_FIELD_GUILD_DELETE_DATE = 223, // SIZE:1
-    PLAYER_FIELD_GUILD_LEVEL = 224, // SIZE:1
-    PLAYER_FIELD_HAIR_COLOR_ID = 225, // SIZE:1
-    PLAYER_FIELD_REST_STATE = 226, // SIZE:1
-    PLAYER_FIELD_ARENA_FACTION = 227, // SIZE:1
-    PLAYER_FIELD_DUEL_TEAM = 228, // SIZE:1
-    PLAYER_FIELD_GUILD_TIME_STAMP = 229, // SIZE:1
-    PLAYER_FIELD_QUEST_LOG = 230, // SIZE:750
-    PLAYER_FIELD_VISIBLE_ITEMS = 980, // SIZE:57
-    PLAYER_FIELD_PLAYER_TITLE = 1037, // SIZE:1
-    PLAYER_FIELD_FAKE_INEBRIATION = 1038, // SIZE:1
-    PLAYER_FIELD_VIRTUAL_PLAYER_REALM = 1039, // SIZE:1
-    PLAYER_FIELD_CURRENT_SPEC_ID = 1040, // SIZE:1
-    PLAYER_FIELD_TAXI_MOUNT_ANIM_KIT_ID = 1041, // SIZE:1
-    PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL = 1042, // SIZE:1
-    PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED = 1043, // SIZE:1
-    PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY = 1044, // SIZE:1
-    PLAYER_FIELD_INV_SLOTS = 1045, // SIZE:736
-    PLAYER_FIELD_FARSIGHT_OBJECT = 1781, // SIZE:4
-    PLAYER_FIELD_KNOWN_TITLES = 1785, // SIZE:10
-    PLAYER_FIELD_COINAGE = 1795, // SIZE:2
-    PLAYER_FIELD_XP = 1797, // SIZE:1
-    PLAYER_FIELD_NEXT_LEVEL_XP = 1798, // SIZE:1
-    PLAYER_FIELD_SKILL = 1799, // SIZE:448
-    PLAYER_FIELD_CHARACTER_POINTS = 2247, // SIZE:1
-    PLAYER_FIELD_MAX_TALENT_TIERS = 2248, // SIZE:1
-    PLAYER_FIELD_TRACK_CREATURE_MASK = 2249, // SIZE:1
-    PLAYER_FIELD_TRACK_RESOURCE_MASK = 2250, // SIZE:1
-    PLAYER_FIELD_MAINHAND_EXPERTISE = 2251, // SIZE:1
-    PLAYER_FIELD_OFFHAND_EXPERTISE = 2252, // SIZE:1
-    PLAYER_FIELD_RANGED_EXPERTISE = 2253, // SIZE:1
-    PLAYER_FIELD_COMBAT_RATING_EXPERTISE = 2254, // SIZE:1
-    PLAYER_FIELD_BLOCK_PERCENTAGE = 2255, // SIZE:1
-    PLAYER_FIELD_DODGE_PERCENTAGE = 2256, // SIZE:1
-    PLAYER_FIELD_PARRY_PERCENTAGE = 2257, // SIZE:1
-    PLAYER_FIELD_CRIT_PERCENTAGE = 2258, // SIZE:1
-    PLAYER_FIELD_RANGED_CRIT_PERCENTAGE = 2259, // SIZE:1
-    PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE = 2260, // SIZE:1
-    PLAYER_FIELD_SPELL_CRIT_PERCENTAGE = 2261, // SIZE:7
-    PLAYER_FIELD_SHIELD_BLOCK = 2268, // SIZE:1
-    PLAYER_FIELD_SHIELD_BLOCK_CRIT_PERCENTAGE = 2269, // SIZE:1
-    PLAYER_FIELD_MASTERY = 2270, // SIZE:1
-    PLAYER_FIELD_AMPLIFY = 2271, // SIZE:1
-    PLAYER_FIELD_MULTISTRIKE = 2272, // SIZE:1
-    PLAYER_FIELD_MULTISTRIKE_EFFECT = 2273, // SIZE:1
-    PLAYER_FIELD_READINESS = 2274, // SIZE:1
-    PLAYER_FIELD_SPEED = 2275, // SIZE:1
-    PLAYER_FIELD_LIFESTEAL = 2276, // SIZE:1
-    PLAYER_FIELD_AVOIDANCE = 2277, // SIZE:1
-    PLAYER_FIELD_STURDINESS = 2278, // SIZE:1
-    PLAYER_FIELD_CLEAVE = 2279, // SIZE:1
-    PLAYER_FIELD_VERSATILITY = 2280, // SIZE:1
-    PLAYER_FIELD_VERSATILITY_BONUS = 2281, // SIZE:1
-    PLAYER_FIELD_PVP_POWER_DAMAGE = 2282, // SIZE:1
-    PLAYER_FIELD_PVP_POWER_HEALING = 2283, // SIZE:1
-    PLAYER_FIELD_EXPLORED_ZONES = 2284, // SIZE:200
-    PLAYER_FIELD_REST_STATE_BONUS_POOL = 2484, // SIZE:1
-    PLAYER_FIELD_MOD_DAMAGE_DONE_POS = 2485, // SIZE:7
-    PLAYER_FIELD_MOD_DAMAGE_DONE_NEG = 2492, // SIZE:7
-    PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT = 2499, // SIZE:7
-    PLAYER_FIELD_MOD_HEALING_DONE_POS = 2506, // SIZE:1
-    PLAYER_FIELD_MOD_HEALING_PERCENT = 2507, // SIZE:1
-    PLAYER_FIELD_MOD_HEALING_DONE_PERCENT = 2508, // SIZE:1
-    PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT = 2509, // SIZE:1
-    PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS = 2510, // SIZE:3
-    PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS = 2513, // SIZE:3
-    PLAYER_FIELD_MOD_SPELL_POWER_PERCENT = 2516, // SIZE:1
-    PLAYER_FIELD_MOD_RESILIENCE_PERCENT = 2517, // SIZE:1
-    PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_APPERCENT = 2518, // SIZE:1
-    PLAYER_FIELD_OVERRIDE_APBY_SPELL_POWER_PERCENT = 2519, // SIZE:1
-    PLAYER_FIELD_MOD_TARGET_RESISTANCE = 2520, // SIZE:1
-    PLAYER_FIELD_MOD_TARGET_PHYSICAL_RESISTANCE = 2521, // SIZE:1
-    PLAYER_FIELD_LOCAL_FLAGS = 2522, // SIZE:1
-    PLAYER_FIELD_LIFETIME_MAX_RANK = 2523, // SIZE:1
-    PLAYER_FIELD_SELF_RES_SPELL = 2524, // SIZE:1
-    PLAYER_FIELD_PVP_MEDALS = 2525, // SIZE:1
-    PLAYER_FIELD_BUYBACK_PRICE = 2526, // SIZE:12
-    PLAYER_FIELD_BUYBACK_TIMESTAMP = 2538, // SIZE:12
-    PLAYER_FIELD_YESTERDAY_HONORABLE_KILLS = 2550, // SIZE:1
-    PLAYER_FIELD_LIFETIME_HONORABLE_KILLS = 2551, // SIZE:1
-    PLAYER_FIELD_WATCHED_FACTION_INDEX = 2552, // SIZE:1
-    PLAYER_FIELD_COMBAT_RATINGS = 2553, // SIZE:32
-    PLAYER_FIELD_PVP_INFO = 2585, // SIZE:36
-    PLAYER_FIELD_MAX_LEVEL = 2621, // SIZE:1
-    PLAYER_FIELD_RUNE_REGEN = 2622, // SIZE:4
-    PLAYER_FIELD_NO_REAGENT_COST_MASK = 2626, // SIZE:4
-    PLAYER_FIELD_GLYPH_SLOTS = 2630, // SIZE:6
-    PLAYER_FIELD_GLYPHS = 2636, // SIZE:6
-    PLAYER_FIELD_GLYPH_SLOTS_ENABLED = 2642, // SIZE:1
-    PLAYER_FIELD_PET_SPELL_POWER = 2643, // SIZE:1
-    PLAYER_FIELD_RESEARCHING = 2644, // SIZE:10
-    PLAYER_FIELD_PROFESSION_SKILL_LINE = 2654, // SIZE:2
-    PLAYER_FIELD_UI_HIT_MODIFIER = 2656, // SIZE:1
-    PLAYER_FIELD_UI_SPELL_HIT_MODIFIER = 2657, // SIZE:1
-    PLAYER_FIELD_HOME_REALM_TIME_OFFSET = 2658, // SIZE:1
-    PLAYER_FIELD_MOD_PET_HASTE = 2659, // SIZE:1
-    PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID = 2660, // SIZE:4
-    PLAYER_FIELD_OVERRIDE_SPELLS_ID = 2664, // SIZE:1
-    PLAYER_FIELD_LFG_BONUS_FACTION_ID = 2665, // SIZE:1
-    PLAYER_FIELD_LOOT_SPEC_ID = 2666, // SIZE:1
-    PLAYER_FIELD_OVERRIDE_ZONE_PVPTYPE = 2667, // SIZE:1
-    PLAYER_FIELD_ITEM_LEVEL_DELTA = 2668, // SIZE:1
-    PLAYER_FIELD_BAG_SLOT_FLAGS = 2669, // SIZE:4
-    PLAYER_FIELD_BANK_BAG_SLOT_FLAGS = 2673, // SIZE:7
-    PLAYER_FIELD_INSERT_ITEMS_LEFT_TO_RIGHT = 2680, // SIZE:1
-    PLAYER_FIELD_QUEST_COMPLETED = 2681, // SIZE:625
-    PLAYER_END = 3306
+    PLAYER_FIELD_DUEL_ARBITER                       = UNIT_END + 0x000, // Size: 4, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_WOW_ACCOUNT                        = UNIT_END + 0x004, // Size: 4, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_LOOT_TARGET_GUID                   = UNIT_END + 0x008, // Size: 4, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_PLAYER_FLAGS                       = UNIT_END + 0x00C, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_PLAYER_FLAGS_EX                    = UNIT_END + 0x00D, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_GUILD_RANK_ID                      = UNIT_END + 0x00E, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_GUILD_DELETE_DATE                  = UNIT_END + 0x00F, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_GUILD_LEVEL                        = UNIT_END + 0x010, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_HAIR_COLOR_ID                      = UNIT_END + 0x011, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_REST_STATE                         = UNIT_END + 0x012, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_ARENA_FACTION                      = UNIT_END + 0x013, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_DUEL_TEAM                          = UNIT_END + 0x014, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_GUILD_TIME_STAMP                   = UNIT_END + 0x015, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_QUEST_LOG                          = UNIT_END + 0x016, // Size: 750, Flags: UF_FLAG_PARTY_MEMBER
+    PLAYER_FIELD_VISIBLE_ITEMS                      = UNIT_END + 0x304, // Size: 38, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_PLAYER_TITLE                       = UNIT_END + 0x32A, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_FAKE_INEBRIATION                   = UNIT_END + 0x32B, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_VIRTUAL_PLAYER_REALM               = UNIT_END + 0x32C, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_CURRENT_SPEC_ID                    = UNIT_END + 0x32D, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_TAXI_MOUNT_ANIM_KIT_ID             = UNIT_END + 0x32E, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_AVG_ITEM_LEVEL                     = UNIT_END + 0x32F, // Size: 4, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY   = UNIT_END + 0x333, // Size: 1, Flags: UF_FLAG_PUBLIC
+    PLAYER_FIELD_INV_SLOTS                          = UNIT_END + 0x334, // Size: 736, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_FARSIGHT_OBJECT                    = UNIT_END + 0x614, // Size: 4, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_KNOWN_TITLES                       = UNIT_END + 0x618, // Size: 12, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_COINAGE                            = UNIT_END + 0x624, // Size: 2, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_XP                                 = UNIT_END + 0x626, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_NEXT_LEVEL_XP                      = UNIT_END + 0x627, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_SKILL                              = UNIT_END + 0x628, // Size: 448, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_CHARACTER_POINTS                   = UNIT_END + 0x7E8, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MAX_TALENT_TIERS                   = UNIT_END + 0x7E9, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_TRACK_CREATURE_MASK                = UNIT_END + 0x7EA, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_TRACK_RESOURCE_MASK                = UNIT_END + 0x7EB, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MAINHAND_EXPERTISE                 = UNIT_END + 0x7EC, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_OFFHAND_EXPERTISE                  = UNIT_END + 0x7ED, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_RANGED_EXPERTISE                   = UNIT_END + 0x7EE, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_COMBAT_RATING_EXPERTISE            = UNIT_END + 0x7EF, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_BLOCK_PERCENTAGE                   = UNIT_END + 0x7F0, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_DODGE_PERCENTAGE                   = UNIT_END + 0x7F1, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_PARRY_PERCENTAGE                   = UNIT_END + 0x7F2, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_CRIT_PERCENTAGE                    = UNIT_END + 0x7F3, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_RANGED_CRIT_PERCENTAGE             = UNIT_END + 0x7F4, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE            = UNIT_END + 0x7F5, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_SPELL_CRIT_PERCENTAGE              = UNIT_END + 0x7F6, // Size: 7, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_SHIELD_BLOCK                       = UNIT_END + 0x7FD, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_SHIELD_BLOCK_CRIT_PERCENTAGE       = UNIT_END + 0x7FE, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MASTERY                            = UNIT_END + 0x7FF, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_AMPLIFY                            = UNIT_END + 0x800, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MULTISTRIKE                        = UNIT_END + 0x801, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MULTISTRIKE_EFFECT                 = UNIT_END + 0x802, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_READINESS                          = UNIT_END + 0x803, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_SPEED                              = UNIT_END + 0x804, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_LIFESTEAL                          = UNIT_END + 0x805, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_AVOIDANCE                          = UNIT_END + 0x806, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_STURDINESS                         = UNIT_END + 0x807, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_CLEAVE                             = UNIT_END + 0x808, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_VERSATILITY                        = UNIT_END + 0x809, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_VERSATILITY_BONUS                  = UNIT_END + 0x80A, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_PVP_POWER_DAMAGE                   = UNIT_END + 0x80B, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_PVP_POWER_HEALING                  = UNIT_END + 0x80C, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_EXPLORED_ZONES                     = UNIT_END + 0x80D, // Size: 256, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_REST_STATE_BONUS_POOL              = UNIT_END + 0x90D, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_DAMAGE_DONE_POS                = UNIT_END + 0x90E, // Size: 7, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_DAMAGE_DONE_NEG                = UNIT_END + 0x915, // Size: 7, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT            = UNIT_END + 0x91C, // Size: 7, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_HEALING_DONE_POS               = UNIT_END + 0x923, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_HEALING_PERCENT                = UNIT_END + 0x924, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_HEALING_DONE_PERCENT           = UNIT_END + 0x925, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT  = UNIT_END + 0x926, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS             = UNIT_END + 0x927, // Size: 3, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS       = UNIT_END + 0x92A, // Size: 3, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_SPELL_POWER_PERCENT            = UNIT_END + 0x92D, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_RESILIENCE_PERCENT             = UNIT_END + 0x92E, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_APPERCENT  = UNIT_END + 0x92F, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_OVERRIDE_APBY_SPELL_POWER_PERCENT  = UNIT_END + 0x930, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_TARGET_RESISTANCE              = UNIT_END + 0x931, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_TARGET_PHYSICAL_RESISTANCE     = UNIT_END + 0x932, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_LOCAL_FLAGS                        = UNIT_END + 0x933, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_LIFETIME_MAX_RANK                  = UNIT_END + 0x934, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_SELF_RES_SPELL                     = UNIT_END + 0x935, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_PVP_MEDALS                         = UNIT_END + 0x936, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_BUYBACK_PRICE                      = UNIT_END + 0x937, // Size: 12, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_BUYBACK_TIMESTAMP                  = UNIT_END + 0x943, // Size: 12, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_YESTERDAY_HONORABLE_KILLS          = UNIT_END + 0x94F, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_LIFETIME_HONORABLE_KILLS           = UNIT_END + 0x950, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_WATCHED_FACTION_INDEX              = UNIT_END + 0x951, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_COMBAT_RATINGS                     = UNIT_END + 0x952, // Size: 32, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_PVP_INFO                           = UNIT_END + 0x972, // Size: 36, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MAX_LEVEL                          = UNIT_END + 0x996, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_RUNE_REGEN                         = UNIT_END + 0x997, // Size: 4, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_NO_REAGENT_COST_MASK               = UNIT_END + 0x99B, // Size: 4, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_GLYPH_SLOTS                        = UNIT_END + 0x99F, // Size: 6, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_GLYPHS                             = UNIT_END + 0x9A5, // Size: 6, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_GLYPH_SLOTS_ENABLED                = UNIT_END + 0x9AB, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_PET_SPELL_POWER                    = UNIT_END + 0x9AC, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_RESEARCHING                        = UNIT_END + 0x9AD, // Size: 10, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_PROFESSION_SKILL_LINE              = UNIT_END + 0x9B7, // Size: 2, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_UI_HIT_MODIFIER                    = UNIT_END + 0x9B9, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_UI_SPELL_HIT_MODIFIER              = UNIT_END + 0x9BA, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_HOME_REALM_TIME_OFFSET             = UNIT_END + 0x9BB, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_MOD_PET_HASTE                      = UNIT_END + 0x9BC, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID           = UNIT_END + 0x9BD, // Size: 4, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_OVERRIDE_SPELLS_ID                 = UNIT_END + 0x9C1, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_URGENT_SELF_ONLY
+    PLAYER_FIELD_LFG_BONUS_FACTION_ID               = UNIT_END + 0x9C2, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_LOOT_SPEC_ID                       = UNIT_END + 0x9C3, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_OVERRIDE_ZONE_PVPTYPE              = UNIT_END + 0x9C4, // Size: 1, Flags: UF_FLAG_PRIVATE, UF_FLAG_URGENT_SELF_ONLY
+    PLAYER_FIELD_ITEM_LEVEL_DELTA                   = UNIT_END + 0x9C5, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_BAG_SLOT_FLAGS                     = UNIT_END + 0x9C6, // Size: 4, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_BANK_BAG_SLOT_FLAGS                = UNIT_END + 0x9CA, // Size: 7, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_INSERT_ITEMS_LEFT_TO_RIGHT         = UNIT_END + 0x9D1, // Size: 1, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_QUEST_COMPLETED                    = UNIT_END + 0x9D2, // Size: 875, Flags: UF_FLAG_PRIVATE
+    PLAYER_END                                      = UNIT_END + 0xD3D
 };
 
 enum EPlayerDynamicFields
 {
-    PLAYER_DYNAMIC_FIELD_RESEARCH_SITE = UNIT_DYNAMIC_END + 0x000, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS = UNIT_DYNAMIC_END + 0x001, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS = UNIT_DYNAMIC_END + 0x002, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_AVAILABLE_QUEST_LINE_X_QUEST_ID = UNIT_DYNAMIC_END + 0x003, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_HEIRLOOMS = UNIT_DYNAMIC_END + 0x004, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS = UNIT_DYNAMIC_END + 0x005, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_TOYS = UNIT_DYNAMIC_END + 0x006, // Flags: PRIVATE
-    PLAYER_DYNAMIC_END = UNIT_DYNAMIC_END + 0x007
+    PLAYER_DYNAMIC_FIELD_RESEARCH_SITES                             = UNIT_DYNAMIC_END + 0x0, // Flags: UF_FLAG_PRIVATE
+    PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS                     = UNIT_DYNAMIC_END + 0x1, // Flags: UF_FLAG_PRIVATE
+    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS_COMPLETED                     = UNIT_DYNAMIC_END + 0x2, // Flags: UF_FLAG_PRIVATE
+    PLAYER_DYNAMIC_FIELD_AVAILABLE_QUEST_LINE_XQUEST_IDS            = UNIT_DYNAMIC_END + 0x3, // Flags: UF_FLAG_PRIVATE
+    PLAYER_DYNAMIC_FIELD_HEIRLOOMS                                  = UNIT_DYNAMIC_END + 0x4, // Flags: UF_FLAG_PRIVATE
+    PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS                             = UNIT_DYNAMIC_END + 0x5, // Flags: UF_FLAG_PRIVATE
+    PLAYER_DYNAMIC_FIELD_TOYS                                       = UNIT_DYNAMIC_END + 0x6, // Flags: UF_FLAG_PRIVATE
+    PLAYER_DYNAMIC_END                                              = UNIT_DYNAMIC_END + 0x7
 };
 
-// > Object > GameObject
 enum EGameObjectFields
 {
-    GAMEOBJECT_FIELD_CREATED_BY = 12, // SIZE:4
-    GAMEOBJECT_FIELD_DISPLAY_ID = 16, // SIZE:1
-    GAMEOBJECT_FIELD_FLAGS = 17, // SIZE:1
-    GAMEOBJECT_FIELD_PARENT_ROTATION = 18, // SIZE:4
-    GAMEOBJECT_FIELD_FACTION_TEMPLATE = 22, // SIZE:1
-    GAMEOBJECT_FIELD_LEVEL = 23, // SIZE:1
-    GAMEOBJECT_BYTES_1 = 24, // SIZE:1
-    GAMEOBJECT_FIELD_SPELL_VISUAL_ID = 25, // SIZE:1
-    GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID = 26, // SIZE:1
-    GAMEOBJECT_FIELD_STATE_ANIM_ID = 27, // SIZE:1
-    GAMEOBJECT_FIELD_STATE_ANIM_KIT_ID = 28, // SIZE:1
-    GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID = 29, // SIZE:4
-    GAMEOBJECT_END = 33
+    GAMEOBJECT_FIELD_CREATED_BY             = OBJECT_END + 0x00, // Size: 4, Flags: UF_FLAG_PUBLIC
+    GAMEOBJECT_FIELD_DISPLAY_ID             = OBJECT_END + 0x04, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_FLAGS                  = OBJECT_END + 0x05, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_PARENT_ROTATION        = OBJECT_END + 0x06, // Size: 4, Flags: UF_FLAG_PUBLIC
+    GAMEOBJECT_FIELD_FACTION_TEMPLATE       = OBJECT_END + 0x0A, // Size: 1, Flags: UF_FLAG_PUBLIC
+    GAMEOBJECT_FIELD_LEVEL                  = OBJECT_END + 0x0B, // Size: 1, Flags: UF_FLAG_PUBLIC
+    GAMEOBJECT_FIELD_PERCENT_HEALTH         = OBJECT_END + 0x0C, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_SPELL_VISUAL_ID        = OBJECT_END + 0x0D, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID  = OBJECT_END + 0x0E, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_STATE_ANIM_ID          = OBJECT_END + 0x0F, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_STATE_ANIM_KIT_ID      = OBJECT_END + 0x10, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID  = OBJECT_END + 0x11, // Size: 4, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    GAMEOBJECT_END                          = OBJECT_END + 0x15
 };
 
-enum GameObjectDynamicFields
+enum EGameObjectDynamicFields
 {
-    GAMEOBJECT_DYNAMIC_UNK = OBJECT_DYNAMIC_END + 0x000,
-    GAMEOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x001,
+    GAMEOBJECT_DYNAMIC_FIELD_ENABLE_DOODAD_SETS             = OBJECT_DYNAMIC_END + 0x0, // Flags: UF_FLAG_PUBLIC
+    GAMEOBJECT_DYNAMIC_END                                  = OBJECT_DYNAMIC_END + 0x1
 };
 
-// > Object > DynamicObject
 enum EDynamicObjectFields
 {
-    DYNAMICOBJECT_FIELD_CASTER = 12, // SIZE:4
-    DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID = 16, // SIZE:1
-    DYNAMICOBJECT_FIELD_SPELL_ID = 17, // SIZE:1
-    DYNAMICOBJECT_FIELD_RADIUS = 18, // SIZE:1
-    DYNAMICOBJECT_FIELD_CAST_TIME = 19, // SIZE:1
-    DYNAMICOBJECT_END = 20
+    DYNAMICOBJECT_FIELD_CASTER              = OBJECT_END + 0x0, // Size: 4, Flags: UF_FLAG_PUBLIC
+    DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID  = OBJECT_END + 0x4, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT
+    DYNAMICOBJECT_FIELD_SPELL_ID            = OBJECT_END + 0x5, // Size: 1, Flags: UF_FLAG_PUBLIC
+    DYNAMICOBJECT_FIELD_RADIUS              = OBJECT_END + 0x6, // Size: 1, Flags: UF_FLAG_PUBLIC
+    DYNAMICOBJECT_FIELD_CAST_TIME           = OBJECT_END + 0x7, // Size: 1, Flags: UF_FLAG_PUBLIC
+    DYNAMICOBJECT_END                       = OBJECT_END + 0x8
 };
 
-enum DynamicObjectDynamicFields
+enum EDynamicObjectDynamicFields
 {
-    DYNAMICOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
+    DYNAMICOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x0
 };
 
-// > Object > Corpse
 enum ECorpseFields
 {
-    CORPSE_FIELD_OWNER = 12, // SIZE:4
-    CORPSE_FIELD_PARTY_GUID = 16, // SIZE:4
-    CORPSE_FIELD_DISPLAY_ID = 20, // SIZE:1
-    CORPSE_FIELD_ITEMS = 21, // SIZE:19
-    CORPSE_FIELD_SKIN_ID = 40, // SIZE:1
-    CORPSE_FIELD_FACIAL_HAIR_STYLE_ID = 41, // SIZE:1
-    CORPSE_FIELD_FLAGS = 42, // SIZE:1
-    CORPSE_FIELD_DYNAMIC_FLAGS = 43, // SIZE:1
-    CORPSE_FIELD_FACTION_TEMPLATE = 44, // SIZE:1
-    CORPSE_END = 45
+    CORPSE_FIELD_OWNER                  = OBJECT_END + 0x00, // Size: 4, Flags: UF_FLAG_PUBLIC
+    CORPSE_FIELD_PARTY_GUID             = OBJECT_END + 0x04, // Size: 4, Flags: UF_FLAG_PUBLIC
+    CORPSE_FIELD_DISPLAY_ID             = OBJECT_END + 0x08, // Size: 1, Flags: UF_FLAG_PUBLIC
+    CORPSE_FIELD_ITEMS                  = OBJECT_END + 0x09, // Size: 19, Flags: UF_FLAG_PUBLIC
+    CORPSE_FIELD_SKIN_ID                = OBJECT_END + 0x1C, // Size: 1, Flags: UF_FLAG_PUBLIC
+    CORPSE_FIELD_FACIAL_HAIR_STYLE_ID   = OBJECT_END + 0x1D, // Size: 1, Flags: UF_FLAG_PUBLIC
+    CORPSE_FIELD_FLAGS                  = OBJECT_END + 0x1E, // Size: 1, Flags: UF_FLAG_PUBLIC
+    CORPSE_FIELD_DYNAMIC_FLAGS          = OBJECT_END + 0x1F, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT
+    CORPSE_FIELD_FACTION_TEMPLATE       = OBJECT_END + 0x20, // Size: 1, Flags: UF_FLAG_PUBLIC
+    CORPSE_END                          = OBJECT_END + 0x21
 };
 
-enum CorpseDynamicFields
+enum ECorpseDynamicFields
 {
-    CORPSE_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
+    CORPSE_DYNAMIC_END  = OBJECT_DYNAMIC_END + 0x0
 };
 
-// > Object > AreaTrigger
 enum EAreaTriggerFields
 {
-    AREATRIGGER_FIELD_CASTER = 12, // SIZE:4
-    AREATRIGGER_FIELD_DURATION = 16, // SIZE:1
-    AREATRIGGER_FIELD_SPELL_ID = 17, // SIZE:1
-    AREATRIGGER_FIELD_SPELL_VISUAL_ID = 18, // SIZE:1
-    AREATRIGGER_FIELD_EXPLICIT_SCALE = 19, // SIZE:1
-    AREATRIGGER_END = 20
+    AREATRIGGER_FIELD_OVERRIDE_SCALE_CURVE  = OBJECT_END + 0x00, // Size: 7, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    AREATRIGGER_FIELD_CASTER                = OBJECT_END + 0x07, // Size: 4, Flags: UF_FLAG_PUBLIC
+    AREATRIGGER_FIELD_DURATION              = OBJECT_END + 0x0B, // Size: 1, Flags: UF_FLAG_PUBLIC
+    AREATRIGGER_FIELD_TIME_TO_TARGET_SCALE  = OBJECT_END + 0x0C, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    AREATRIGGER_FIELD_SPELL_ID              = OBJECT_END + 0x0D, // Size: 1, Flags: UF_FLAG_PUBLIC
+    AREATRIGGER_FIELD_SPELL_VISUAL_ID       = OBJECT_END + 0x0E, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT
+    AREATRIGGER_FIELD_BOUNDS_RADIUS_2D      = OBJECT_END + 0x0F, // Size: 1, Flags: UF_FLAG_VIEWER_DEPENDENT, UF_FLAG_URGENT
+    AREATRIGGER_FIELD_EXPLICIT_SCALE        = OBJECT_END + 0x10, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    AREATRIGGER_END                         = OBJECT_END + 0x11
 };
 
-enum AreaTriggerDynamicFields
+enum EAreaTriggerDynamicFields
 {
-    AREATRIGGER_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
+    AREATRIGGER_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x0
 };
 
-// > Object > SceneObject
 enum ESceneObjectFields
 {
-    SCENEOBJECT_FIELD_SCRIPT_PACKAGE_ID = 12, // SIZE:1
-    SCENEOBJECT_FIELD_RND_SEED_VAL = 13, // SIZE:1
-    SCENEOBJECT_FIELD_CREATED_BY = 14, // SIZE:4
-    SCENEOBJECT_FIELD_SCENE_TYPE = 18, // SIZE:1
-    SCENEOBJECT_END = 19
+    SCENEOBJECT_FIELD_SCRIPT_PACKAGE_ID     = OBJECT_END + 0x0, // Size: 1, Flags: UF_FLAG_PUBLIC
+    SCENEOBJECT_FIELD_RND_SEED_VAL          = OBJECT_END + 0x1, // Size: 1, Flags: UF_FLAG_PUBLIC
+    SCENEOBJECT_FIELD_CREATED_BY            = OBJECT_END + 0x2, // Size: 4, Flags: UF_FLAG_PUBLIC
+    SCENEOBJECT_FIELD_SCENE_TYPE            = OBJECT_END + 0x6, // Size: 1, Flags: UF_FLAG_PUBLIC
+    SCENEOBJECT_END                         = OBJECT_END + 0x7
 };
 
-enum SceneObjectDynamicFields
+enum ESceneObjectDynamicFields
 {
-    SCENEOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
+    SCENEOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x0
 };
 
-// > Object > Conversation
 enum EConversationFields
 {
-    CONVERSATION_FIELD_DUMMY = 12, // SIZE:1
-    CONVERSATION_END = 13
+    CONVERSATION_FIELD_DUMMY    = OBJECT_END + 0x0, // Size: 1, Flags: UF_FLAG_PRIVATE
+    CONVERSATION_END            = OBJECT_END + 0x1
 };
 
-enum ConversationDynamicField
+enum EConversationDynamicFields
 {
-    CONVERSATION_DYNAMIC_FIELD_ACTORS = OBJECT_DYNAMIC_END + 0x000, //  Flags: PUBLIC
-    CONVERSATION_DYNAMIC_FIELD_LINES = OBJECT_DYNAMIC_END + 0x001, //  Flags: 0x100
-    CONVERSATION_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x002,
+    CONVERSATION_DYNAMIC_FIELD_ACTORS           = OBJECT_DYNAMIC_END + 0x0, // Flags: UF_FLAG_PUBLIC
+    CONVERSATION_DYNAMIC_FIELD_LINES            = OBJECT_DYNAMIC_END + 0x1, // Flags: UF_FLAG_0x100
+    CONVERSATION_DYNAMIC_END                    = OBJECT_DYNAMIC_END + 0x2
 };
 
 #define PLAYER_END_NOT_SELF PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY

@@ -1161,7 +1161,6 @@ public:
                         m_Obj->GetMotionMaster()->MoveCharge(g_PositionThirdPlatformThirdMove.GetPositionX(), g_PositionThirdPlatformThirdMove.GetPositionY(), g_PositionThirdPlatformThirdMove.GetPositionZ(), 60.0f);
                         m_Obj->m_Events.AddEvent(new auchindon_soul_transportation_event(m_Obj, 100), m_Obj->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
                         break;
-
                         // fourth soul transport and last
                     case 10:
                         m_Obj->GetMotionMaster()->MoveCharge(g_PositionFourthMovement.GetPositionX(), g_PositionFourthMovement.GetPositionY(), g_PositionFourthMovement.GetPositionZ(), 60.0f);
@@ -1171,7 +1170,7 @@ public:
                         m_Obj->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
 
                         m_Obj->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                        m_Obj->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        m_Obj->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         m_Obj->RemoveAura(eTerongorSpells::SpellTranscend);
                         break;
                 }
@@ -1204,7 +1203,7 @@ public:
                     {
                         player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                         player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-                        player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         player->AddAura(eTerongorSpells::SpellTranscend, player);
 
                         player->m_Events.AddEvent(new auchindon_soul_transportation_event(player, 0), player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
@@ -1235,7 +1234,7 @@ public:
                     {
                         player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                         player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-                        player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         player->AddAura(eTerongorSpells::SpellTranscend, player);
 
                         player->m_Events.AddEvent(new auchindon_soul_transportation_event(player, 4), player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
@@ -1266,7 +1265,7 @@ public:
                     {
                         player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                         player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-                        player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         player->AddAura(eTerongorSpells::SpellTranscend, player);
 
                         player->m_Events.AddEvent(new auchindon_soul_transportation_event(player, 7), player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
@@ -1297,7 +1296,7 @@ public:
                     {
                         player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                         player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-                        player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         player->AddAura(eTerongorSpells::SpellTranscend, player);
 
                         player->m_Events.AddEvent(new auchindon_soul_transportation_event(player, 10), player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));

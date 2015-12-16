@@ -286,7 +286,7 @@ class boss_jin_qin_xi : public CreatureScript
                         _JustReachedHome();
 
                         me->SetDisplayId(DISPLAY_BOSS_INVISIBLE);
-                        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 0);
+                        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 0);
                         events.Reset();
                         summons.DespawnAll();
                         me->SetFullHealth();
@@ -576,7 +576,7 @@ class boss_jin_qin_xi : public CreatureScript
                     case EVENT_BOSS_WAIT:
                     {
                         // Add weapon
-                        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, (me->GetEntry() == NPC_JAN_XI ? WEAPON_JAN_XI : WEAPON_QIN_XI));
+                        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, (me->GetEntry() == NPC_JAN_XI ? WEAPON_JAN_XI : WEAPON_QIN_XI));
                         // Become visible, but wait till the end of halos
                         me->SetDisplayId(me->GetEntry() - DISPLAY_VISIBLE);
                         // Only Qin-Xi makes the machine talk, to avoid "double voices"
@@ -665,8 +665,8 @@ class boss_jin_qin_xi : public CreatureScript
 
                             // Stop looking after victim
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED|UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_STUNNED);
-                            me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                            me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                             
@@ -730,7 +730,7 @@ class boss_jin_qin_xi : public CreatureScript
                             // Can move anew
                             me->RemoveAura(SPELL_FREEZE_ANIM);
                             // Resetting weapons (removed by emote)
-                            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, (me->GetEntry() == NPC_JAN_XI ? WEAPON_JAN_XI : WEAPON_QIN_XI));
+                            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, (me->GetEntry() == NPC_JAN_XI ? WEAPON_JAN_XI : WEAPON_QIN_XI));
                             me->CastSpell(me, SPELL_DEVAST_ARC_2, true);
                             // Ending the attack by reaching a pair number
                             ++devastatingComboPhase;
@@ -769,8 +769,8 @@ class boss_jin_qin_xi : public CreatureScript
                                 me->SetSpeed(MOVE_RUN, moveRun, false);
                                 // Reset attacking to normal
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED|UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_STUNNED);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
-                                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
                                 
@@ -1105,19 +1105,19 @@ class mob_woe_add_generic : public CreatureScript
                             {
                                 case NPC_EMPEROR_RAGE:
                                 {
-                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, WEAPON_RAGE);
-                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, WEAPON_RAGE);
+                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, WEAPON_RAGE);
+                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, WEAPON_RAGE);
                                     break;
                                 }
                                 case NPC_EMPEROR_STRENGHT:
                                 {
-                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, WEAPON_STRENGTH);
+                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, WEAPON_STRENGTH);
                                     break;
                                 }
                                 case NPC_EMPEROR_COURAGE:
                                 {
-                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, WEAPON_COURAGE_LEFT);
-                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, WEAPON_COURAGE_RIGHT);
+                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, WEAPON_COURAGE_LEFT);
+                                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, WEAPON_COURAGE_RIGHT);
                                 }
                             }
                             // Set visible
@@ -1212,7 +1212,7 @@ class mob_woe_add_generic : public CreatureScript
 
                                             me->CastSpell(target, SPELL_FOCALISED_DEFENSE, false);
                                             me->AddAura(SPELL_FOCALISED_ENERGY, target);
-                                            me->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, SPELL_FOCALISED_DEFENSE);
+                                            me->SetChannelSpellID(SPELL_FOCALISED_DEFENSE);
                                         }
                                     }
                                 }

@@ -76,8 +76,8 @@ enum PermissionTypes
 
 enum LootItemType
 {
-    LOOT_ITEM_TYPE_CURRENCY = 2, // Guessed ????
-    LOOT_ITEM_TYPE_ITEM     = 3,
+    LOOT_ITEM_TYPE_CURRENCY = 0, // Guessed ????
+    LOOT_ITEM_TYPE_ITEM     = 2,
 };
 
 enum LootType
@@ -98,21 +98,20 @@ enum LootType
 enum LootItemUiType
 {
     //                                  = 0,
-    LOOT_ITEM_UI_NORMAL                 = 1,
     LOOT_ITEM_UI_ONLY_ONE_LOOTER        = 2,
-    LOOT_ITEM_UI_MASTER                 = 3,
+    LOOT_ITEM_UI_NORMAL                 = 2, // TODO FIX this enum properly
+    LOOT_ITEM_UI_LOOK_BUT_DONT_TOUCH    = 3,
     LOOT_ITEM_UI_ROLL                   = 4,
     //                                  = 5,
-    LOOT_ITEM_UI_ROLL_PENDING           = 6,
-    LOOT_ITEM_UI_LOOK_BUT_DONT_TOUCH    = 7
+    LOOT_ITEM_UI_MASTER                 = 6,
+    //LOOT_ITEM_UI_ROLL_PENDING           = 6,
 };
 
 enum LootListItemType
 {
-    //                                  = 0,
-    LOOT_LIST_ITEM                      = 1,
+    LOOT_LIST_ITEM                      = 0,
+    LOOT_LIST_CURRENCY                  = 1,
     LOOT_LIST_TRACKING_QUEST            = 2,
-    LOOT_LIST_CURRENCY                  = 3
 };
 
 // type of Loot Item in Loot View

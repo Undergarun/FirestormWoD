@@ -335,8 +335,8 @@ class boss_spirit_kings_controler : public CreatureScript
                     flankingGuid[moguNumber] = flankingMogu->GetGUID();
                     flankingMogu->SetReactState(REACT_PASSIVE);
                     flankingMogu->AddAura(SPELL_GHOST_VISUAL, flankingMogu);
-                    flankingMogu->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(EQUIP_FLANKING_MOGU_SWORD));
-                    flankingMogu->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, uint32(EQUIP_FLANKING_MOGU_SHIELD));
+                    flankingMogu->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, uint32(EQUIP_FLANKING_MOGU_SWORD));
+                    flankingMogu->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, uint32(EQUIP_FLANKING_MOGU_SHIELD));
                 }
             }
 

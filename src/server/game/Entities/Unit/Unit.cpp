@@ -66,6 +66,7 @@
 #include "BattlegroundTP.h"
 #include "BattlegroundDG.h"
 #include "Guild.h"
+#include "DB2Stores.h"
 //#include <Reporting/Reporter.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -10291,7 +10292,7 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
                 {
                     if (ReputationRank const* repRank = selfPlayerOwner->GetReputationMgr().GetForcedRankIfAny(targetFactionTemplateEntry))
                         return *repRank;
-                    if (!selfPlayerOwner->HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_IGNORE_REPUTATION))
+                    if (!selfPlayerOwner->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_IGNORE_REPUTATION))
                     {
                         if (FactionEntry const* targetFactionEntry = sFactionStore.LookupEntry(targetFactionTemplateEntry->Faction))
                         {
@@ -10335,7 +10336,7 @@ ReputationRank Unit::GetFactionReactionTo(FactionTemplateEntry const* factionTem
             return REP_HOSTILE;
         if (ReputationRank const* repRank = targetPlayerOwner->GetReputationMgr().GetForcedRankIfAny(factionTemplateEntry))
             return *repRank;
-        if (!target->HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_IGNORE_REPUTATION))
+        if (!target->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_IGNORE_REPUTATION))
         {
             if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplateEntry->Faction))
             {
@@ -11944,7 +11945,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask p_SchoolMask) const
         // Base value
         l_DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
-        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+        if (GetPowerIndex(POWER_MANA, getClass()) != MAX_POWERS)
             l_DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));
 
         // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
@@ -12914,7 +12915,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
     // Healing bonus of spirit, intellect and strength
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+        if (GetPowerIndex(POWER_MANA, getClass()) != MAX_POWERS)
             AdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));
 
         // Base value
@@ -13552,13 +13553,13 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 l_Data.appendPackGUID(GetGUID());   ///< MoverGUID
                 l_Data << uint32(0);                ///< SequenceIndex
                 l_Data << uint32(VehicleId);        ///< VehicleRecID
-                ToPlayer()->GetSession()->SendPacket(&l_Data);
+                SendMessageToSet(&l_Data, true);
 
                 // Send others that we now have a vehicle
                 l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 16 + 2 + 4);
                 l_Data.appendPackGUID(GetGUID());
                 l_Data << uint32(VehicleId);
-                SendMessageToSet(&l_Data, true);
+                ToPlayer()->GetSession()->SendPacket(&l_Data);
 
                 // mounts can also have accessories
                 GetVehicleKit()->InstallAllAccessories(false);
@@ -13608,14 +13609,14 @@ void Unit::Dismount()
 
         WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16 + 2 + 4 + 4);
         l_Data.appendPackGUID(l_Guid);
-        l_Data << uint32(0);        ///< SequenceIndex
-        l_Data << uint32(0);        ///< VehicleRecID
-        ToPlayer()->GetSession()->SendPacket(&l_Data);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        ToPlayer()->SendMessageToSet(&l_Data, true);
 
         l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 4);
         l_Data.appendPackGUID(l_Guid);
         l_Data << uint32(0);
-        ToPlayer()->SendMessageToSet(&l_Data, true);
+        ToPlayer()->GetSession()->SendPacket(&l_Data);
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_MOUNTED);
@@ -13657,7 +13658,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
     for (uint32 i = MAX_MOUNT_CAPABILITIES; i > 0; --i)
     {
-        MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(mountTypeEntry->MountCapability[i - 1]);
+        MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
         if (!mountCapability)
             continue;
 
@@ -13695,7 +13696,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
 void Unit::SendMountResult(MountResult p_Error)
 {
-    if (!ToPlayer())
+    if (GetTypeId() != TYPEID_PLAYER)
         return;
 
     WorldPacket l_Data(SMSG_MOUNT_RESULT, 4);
@@ -15789,51 +15790,29 @@ Unit::PowerTypeSet Unit::GetUsablePowers() const
     return l_Powers;
 }
 
-uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
+uint32 Unit::GetPowerIndex(uint32 powerId, uint32 classId) const
 {
-    uint32 l_PowerIndex = 0;
 
     // See CGUnit_C::GetPowerSlot
     if (GetTypeId() != TYPEID_PLAYER)
     {
         Powers l_DisplayPower = getPowerType();
         if (l_DisplayPower == (Powers)powerId)
-            l_PowerIndex = 0;
+            return 0;
         else if (powerId == Powers::POWER_ALTERNATE_POWER)
-            l_PowerIndex = 1;
+            return 1;
         else if (powerId == Powers::POWER_COMBO_POINT)
-            l_PowerIndex = 2;
+            return 2;
         else
-            l_PowerIndex = Powers::MAX_POWERS;
-
-        return l_PowerIndex;
+            return Powers::MAX_POWERS;
     }
 
-    ChrClassesEntry const* l_ClassEntry = sChrClassesStore.LookupEntry(classId);
-
-    ASSERT(l_ClassEntry && "Class not found");
-    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
-    {
-        ChrPowerTypesEntry const* l_PowerEntry = sChrPowerTypesStore.LookupEntry(l_I);
-        if (!l_PowerEntry)
-            continue;
-
-        if (l_PowerEntry->classId != classId)
-            continue;
-
-        if (l_PowerEntry->power == powerId)
-            return l_PowerIndex;
-
-        ++l_PowerIndex;
-    }
-
-    // return invalid value - this class doesn't use this power
-    return MAX_POWERS;
+    return GetPowerIndexByClass(classId, powerId);
 };
 
 int32 Unit::GetPower(Powers p_Power) const
 {
-    uint32 l_PowerIndex = GetPowerIndexByClass(p_Power, getClass());
+    uint32 l_PowerIndex = GetPowerIndex(p_Power, getClass());
     if (l_PowerIndex == MAX_POWERS)
         return 0;
 
@@ -15842,7 +15821,7 @@ int32 Unit::GetPower(Powers p_Power) const
 
 int32 Unit::GetMaxPower(Powers power) const
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power, getClass());
     if (powerIndex == MAX_POWERS)
         return 0;
 
@@ -15885,7 +15864,7 @@ namespace EclipsePower
 
 void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 {
-    uint32 l_PowerIndex = GetPowerIndexByClass(p_PowerType, getClass());
+    uint32 l_PowerIndex = GetPowerIndex(p_PowerType, getClass());
 
     if (l_PowerIndex == MAX_POWERS)
         return;
@@ -15972,7 +15951,7 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
 void Unit::SetMaxPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
 
@@ -16709,12 +16688,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         || (procSpell->DurationEntry && procSpell->DurationEntry->Duration[0] > 0 && procSpell->DurationEntry->Duration[0] < 4000 && procSpell->AttributesEx & SPELL_ATTR1_CHANNELED_2)))
         if (AuraApplication* aura = GetAuraApplication(108839, GetGUID()))
             aura->GetBase()->DropStack();
-
-    // Hack Fix for Invigoration
-    if (GetTypeId() == TYPEID_UNIT && GetOwner() && GetOwner()->ToPlayer() && GetOwner()->HasAura(53253) &&
-        damage > 0 && ToPet() && ToPet()->IsPermanentPetFor(GetOwner()->ToPlayer()))
-        if (roll_chance_i(15))
-            GetOwner()->EnergizeBySpell(GetOwner(), 53253, 20, POWER_FOCUS);
 
     // Fix Drop charge for Killing Machine
     if (GetTypeId() == TYPEID_PLAYER && HasAura(51124) && getClass() == CLASS_DEATH_KNIGHT && procSpell && (procSpell->Id == 49020 || procSpell->Id == 49143 || procSpell->Id == 66198 || procSpell->Id == 66196))
@@ -18075,8 +18048,11 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
     // Check spellProcEvent data requirements
     if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
-        // Hack Fix Backdraft can be triggered if damage are absorbed
-        if (spellProto && spellProto->Id == 117896 && procSpell && procSpell->Id == 17962 && procExtra && (procExtra & PROC_EX_ABSORB))
+        /// Hack Fix Grimoire of Synergy can be triggered if damage is absorbed
+        if (spellProto && spellProto->Id == 171975 && procSpell && procExtra && (procExtra & PROC_EX_ABSORB))
+            return true;
+        // Hack Fix Backdraft can be triggered if damage is absorbed
+        else if (spellProto && spellProto->Id == 117896 && procSpell && procSpell->Id == 17962 && procExtra && (procExtra & PROC_EX_ABSORB))
             return true;
         else if (spellProto && spellProto->Id == 44448 && procSpell &&
             (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
@@ -20541,7 +20517,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Glyph of Metamorphosis
             if (HasAura(159680))
                 return 0;
-            return 39261;
+            return 25277;
         }
         default:
             break;
@@ -22029,4 +22005,23 @@ void Unit::RemovePoisonTarget(uint32 p_LowGuid, uint32 p_SpellID)
 void Unit::ClearPoisonTargets()
 {
     m_PoisonTargets.clear();
+}
+
+void Unit::SetChannelSpellID(uint32 p_SpellID)
+{
+    SetChannelSpellID(sSpellMgr->GetSpellInfo(p_SpellID));
+}
+
+void Unit::SetChannelSpellID(SpellInfo const* p_SpellInfo)
+{
+    if (p_SpellInfo)
+    {
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, p_SpellInfo->Id);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, p_SpellInfo->FirstSpellXSpellVIsualID);
+    }
+    else
+    {
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, 0);
+    }
 }

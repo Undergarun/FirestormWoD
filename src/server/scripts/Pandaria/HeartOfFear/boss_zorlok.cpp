@@ -230,7 +230,7 @@ class boss_zorlok : public CreatureScript
             {
                 events.Reset();
                 summons.DespawnAll();
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_ZORLOK);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_ZORLOK);
                 // Make sure we can target zorlok
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
@@ -679,8 +679,8 @@ class boss_zorlok : public CreatureScript
                             // Reset Zor'lok in combat
                             me->SetReactState(REACT_DEFENSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED|UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_STUNNED);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
-                            me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                            me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                         }
                         else
                         {
@@ -952,8 +952,8 @@ class boss_zorlok : public CreatureScript
                         me->CastSpell(me, SPELL_ATTENUATION, true);
                         me->SetReactState(REACT_PASSIVE);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED|UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_STUNNED);
-                        me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                        me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
 
                         uint32 action = ((phase == PHASE_ZORLOK1 || isEcho) ? EVENT_ATTENUATION : ChooseAction());
                         events.ScheduleEvent(action, 40000);

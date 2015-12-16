@@ -216,8 +216,8 @@ void Totem::UnSummon(uint32 msTime)
 
 bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
-    // TODO: possibly all negative auras immune?
-    if (GetEntry() == 5925)
+    /// Grounding Totem and Void Tendrils
+    if (GetEntry() == 5925 || GetEntry() == 65282)
         return false;
 
     switch (spellInfo->Effects[index].ApplyAuraName)

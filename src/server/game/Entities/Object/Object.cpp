@@ -373,7 +373,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     {
         uint32 l_MovementForceCount = 0;
 
-        bool l_HasSpline = l_Unit->movespline->Initialized() && !l_Unit->movespline->Finalized();
+        bool l_HasSpline = l_Unit->movespline->Initialized();
 
         /// Movement
         {
@@ -401,7 +401,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                 *p_Data << uint32(0);                                       ///< Remove force IDs
 
             p_Data->WriteBits(l_MovementFlags, 30);                         ///< Movement flags
-            p_Data->WriteBits(l_ExtraMovementFlags, 15);                    ///< Extra movement flags
+            p_Data->WriteBits(l_ExtraMovementFlags, 16);                    ///< Extra movement flags
             p_Data->WriteBit(l_HasTransportInformations);                   ///< Has transport informations
             p_Data->WriteBit(l_HasFallData);                                ///< Has fall data
             p_Data->WriteBit(l_HasSpline);                                  ///< Has Movement Spline
@@ -525,7 +525,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                         break;
                 }
 
-                p_Data->WriteBits(l_Spline->splineflags.raw(), 25);         ///< Spline flags
+                p_Data->WriteBits(l_Spline->splineflags.raw(), 28);         ///< Spline flags
                 p_Data->WriteBits(l_FinalFacingMove, 2);                    ///< Final facing computation
                 p_Data->WriteBit(l_HasJumpGravity);                         ///< Is an parabolic movement and it's not ended
                 p_Data->WriteBit(l_HasSpecialTime);                         ///< Is an parabolic movement or it's animated
@@ -680,6 +680,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
         p_Data->WriteBit(l_Attached);                                                   ///< Attached
         p_Data->WriteBit(l_FaceMovementDir);                                            ///< Face Movement Dir
         p_Data->WriteBit(l_FollowsTerrain);                                             ///< Follows Terrain
+        p_Data->WriteBit(0);                                                            ///< Unk bit 6.2.0 could also be swapped with the other bits above
         p_Data->WriteBit(l_HasTargetRollPitchYaw);                                      ///< HasTargetRollPitchYaw
         p_Data->WriteBit(l_HasScaleCurveID);                                            ///< Has Scale Curve ID
         p_Data->WriteBit(l_HasMorphCurveID);                                            ///< Has Morph Curve ID
@@ -982,7 +983,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
     {
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
-            flags = ItemUpdateFieldFlags;
+            flags = ContainerUpdateFieldFlags;
             if (((Item*)this)->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
             break;
@@ -990,7 +991,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
         case TYPEID_PLAYER:
         {
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
-            flags = UnitUpdateFieldFlags;
+            flags = PlayerUpdateFieldFlags;
             if (ToUnit()->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
 
@@ -1043,7 +1044,7 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
     {
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
-            flags = ItemDynamicUpdateFieldFlags;
+            flags = ContainerDynamicUpdateFieldFlags;
             if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
             break;
@@ -1051,7 +1052,7 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
         case TYPEID_PLAYER:
         {
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
-            flags = UnitDynamicUpdateFieldFlags;
+            flags = PlayerDynamicUpdateFieldFlags;
             if (ToUnit()->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
 
@@ -3277,9 +3278,11 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     /// - Blizzard do like that for some garrison special gameobject but the dynamic update field      ///
     ///   doesn't exist WTF !!                                                                         ///
     /// - Need to wait how this thing will elvove to adapt it                                          ///
+    /// - Note 6.2.0 Tc have found the name "GAMEOBJECT_DYNAMIC_ENABLE_DOODAD_SETS"                    ///
+    ///   maybe is more useful for understand                                                          ///
     /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
     if (p_GarrisonPlotObject)
-        go->SetDynamicValue(GAMEOBJECT_DYNAMIC_UNK, 0, 1);
+        go->SetDynamicValue(GAMEOBJECT_DYNAMIC_FIELD_ENABLE_DOODAD_SETS, 0, 1);
 
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
         ToUnit()->AddGameObject(go);

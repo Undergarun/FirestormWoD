@@ -81,13 +81,13 @@ typedef std::chrono::system_clock Clock;
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
-/// 6.0.3 19116
+/// 6.2.3 20726
 enum ToastTypes
 {
     TOAST_TYPE_NONE         = 0,
-    TOAST_TYPE_NEW_CURRENCY = 1,
-    TOAST_TYPE_NEW_ITEM     = 2,
-    TOAST_TYPE_MONEY        = 3,
+    TOAST_TYPE_NEW_ITEM     = 1,
+    TOAST_TYPE_MONEY        = 2,
+    TOAST_TYPE_NEW_CURRENCY = 3,
 };
 
 /// 6.0.3 19116
@@ -612,6 +612,15 @@ enum PlayerFieldBytes2Offsets
 {
     PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION         = 1,
     PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID  = 2  // uint16!
+};
+
+enum PlayerAvgItemLevelOffsets
+{
+    TotalAvgItemLevel       = 0,
+    EquippedAvgItemLevel    = 1,
+    NonPvPAvgItemLevel      = 2,
+    PvPAvgItemLevel         = 3,
+    MaxAvgItemLevel         = 4
 };
 
 static_assert((PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
@@ -1623,7 +1632,9 @@ class Player : public Unit, public GridObject<Player>
         MS::Garrison::Manager* GetGarrison();
         void CreateGarrison();
         bool IsInGarrison() const;
+        bool IsInShipyard() const;
         int32 GetGarrisonMapID() const;
+        int32 GetShipyardMapID() const;
         void DeleteGarrison();
         std::vector<uint32> GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
         void AddGarrisonTavernData(uint32 p_Data);
@@ -2291,6 +2302,7 @@ class Player : public Unit, public GridObject<Player>
 
         /// Custom functions for spells
         void HandleWarlockWodPvpBonus();
+        uint32 GetRandomWeaponFromPrimaryBag(ItemTemplate const* p_Transmogrified) const;
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
@@ -2661,7 +2673,7 @@ class Player : public Unit, public GridObject<Player>
         void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
-        void SendResetInstanceFailed(uint32 reason, uint32 MapId);
+        void SendResetInstanceFailed(ResetFailedReason reason, uint32 MapId);
         void SendResetFailedNotify();
 
         virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false);
@@ -2828,7 +2840,7 @@ class Player : public Unit, public GridObject<Player>
         void ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply, bool form_change = false);
         void UpdateEquipSpellsAtFormChange();
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx);
-        void CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 cast_count, uint32 glyphIndex);
+        void CastItemUseSpell(Item* p_Item, SpellCastTargets const& p_Targets, uint8 p_CastCount, uint32 p_Misc, uint32 p_Misc2);
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item* item, ItemTemplate const* proto);
 
         void SendEquipmentSetList();
@@ -3320,8 +3332,9 @@ class Player : public Unit, public GridObject<Player>
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
         Spell* m_spellModTakingSpell;
 
-        uint32 GetAverageItemLevelEquipped();
-        uint32 GetAverageItemLevelTotal();
+        uint32 GetAverageItemLevelEquipped() const;
+        uint32 GetAverageItemLevelTotal() const;
+        uint32 GetAverageItemLevelTotalWithOrWithoutPvPBonus(bool p_PvP) const;
         bool isDebugAreaTriggers;
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
@@ -3466,7 +3479,7 @@ class Player : public Unit, public GridObject<Player>
         //////////////////////////////////////////////////////////////////////////
 
         ScalingStatDistributionEntry const* GetSSDForItem(Item const* p_Item) const;
-        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr) const;
+        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr, bool p_IgnorePvPModifiers = false, bool p_ForcePvPItemLevel = false) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
         void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
         bool UpdateItemLevelCutOff(uint32 p_StartsWith, uint32 p_MinLevel, uint32 p_MaxLevel, bool p_RescaleItems = true);
@@ -3550,6 +3563,9 @@ class Player : public Unit, public GridObject<Player>
         void _GarrisonSetIn();
         void _GarrisonSetOut();
 
+        void _SetInShipyard();
+        void _SetOutOfShipyard();
+
         bool AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel = 0);
         bool HasHeirloom(uint32 p_ItemID) const;
         bool HasHeirloom(HeirloomEntry const* p_HeirloomEntry) const;
@@ -3602,7 +3618,9 @@ class Player : public Unit, public GridObject<Player>
         }
 
         /// Send custom message with system message (addon, custom interfaces ...etc)
+        void SendCustomMessage(std::string const& p_Opcode);
         void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
+        void SendCustomMessage(std::string const& p_Opcode, std::vector<std::string> const& p_Data);
 
         uint32 GetBagsFreeSlots() const;
 

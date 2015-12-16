@@ -1907,12 +1907,12 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
         return;
     }
 
-    m_Player->Dismount();
     m_Player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     WorldPacket l_Data(SMSG_DISMOUNT);
     l_Data.appendPackGUID(m_Player->GetGUID());
     m_Player->SendMessageToSet(&l_Data, true);
+
 }
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
@@ -1968,6 +1968,7 @@ void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const 
 {
     ObjectGuid guid = m_Player->GetGUID();
     uint32 unkValue = 0;
+
     uint32 inactiveSwapsCount = 0;
 
     WorldPacket l_ShiftPacket(SMSG_SET_PHASE_SHIFT, 500);
