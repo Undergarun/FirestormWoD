@@ -214,6 +214,7 @@ namespace MS { namespace Garrison
             GatheredPos     = 10004,
             DailyReset      = 10005,
             OwnerGuid       = 10006,
+            DespawnData     = 10007,
             HasRecipe       = 0x40000000
         };
     }
@@ -287,7 +288,10 @@ namespace MS { namespace Garrison
             LunarfallInn_FrostwallTavern_Level3         = 36,
             MageTower_SpiritLodge_Level1                = 37,
             MageTower_SpiritLodge_Level2                = 38,
-            MageTower_SpiritLodge_Level3                = 39
+            MageTower_SpiritLodge_Level3                = 39,
+            Stables_Stables_Level1                      = 65,
+            Stables_Stables_Level2                      = 66,
+            Stables_Stables_Level3                      = 67
         };
     }
 

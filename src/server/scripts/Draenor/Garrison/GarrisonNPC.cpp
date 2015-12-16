@@ -284,6 +284,11 @@ namespace MS { namespace Garrison
 
     }
 
+    void GarrisonNPCAI::OnPlotInstanceUnload()
+    {
+
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -292,37 +297,48 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void GarrisonNPCAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-        if (p_ID == CreatureAIDataIDs::PlotInstanceID)
-        {
-            m_PlotInstanceLocation = nullptr;
 
-            for (uint32 l_I = 0; l_I < Globals::PlotInstanceCount; ++l_I)
+        switch (p_ID)
+        {
+            case CreatureAIDataIDs::PlotInstanceID:
             {
-                if (gGarrisonPlotInstanceInfoLocation[l_I].PlotInstanceID == (p_Value & 0x0000FFFF) && gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == ((p_Value >> 16) & 0x0000FFFF))
+                m_PlotInstanceLocation = nullptr;
+
+                for (uint32 l_I = 0; l_I < Globals::PlotInstanceCount; ++l_I)
                 {
-                    m_PlotInstanceLocation = &gGarrisonPlotInstanceInfoLocation[l_I];
-                    break;
+                    if (gGarrisonPlotInstanceInfoLocation[l_I].PlotInstanceID == (p_Value & 0x0000FFFF) && gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == ((p_Value >> 16) & 0x0000FFFF))
+                    {
+                        m_PlotInstanceLocation = &gGarrisonPlotInstanceInfoLocation[l_I];
+                        break;
+                    }
                 }
-            }
 
-            if (m_PlotInstanceLocation)
-            {
-                G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -m_PlotInstanceLocation->O);
+                if (m_PlotInstanceLocation)
+                {
+                    G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+                    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -m_PlotInstanceLocation->O);
 
-                /// transform plot coord
-                m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
+                    /// transform plot coord
+                    m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
             
-                OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
+                    OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
+                }
+                break;
             }
+            case CreatureAIDataIDs::BuildingID:
+            {
+                m_BuildingID = p_Value;
+                OnSetBuildingID(m_BuildingID);
+            }
+            case CreatureAIDataIDs::DailyReset:
+                OnDataReset();
+                break;
+            case CreatureAIDataIDs::DespawnData:
+                OnPlotInstanceUnload();
+                break;
+            default:
+                break;
         }
-        else if (p_ID == CreatureAIDataIDs::BuildingID)
-        {
-            m_BuildingID = p_Value;
-            OnSetBuildingID(m_BuildingID);
-        }
-        else if (p_ID == CreatureAIDataIDs::DailyReset)
-            OnDataReset();
     }
 
     void GarrisonNPCAI::SetGUID(uint64 p_Guid, int32 p_Id)
@@ -651,6 +667,15 @@ namespace MS { namespace Garrison
                     l_Creature->AI()->SetGUID(GetOwner()->GetGUID());
             }
         }
+    }
+
+    void npc_garrison_atheeru_palestarAI::OnPlotInstanceUnload()
+    {
+        std::list<Creature*> l_CreatureList;
+        me->GetCreatureListWithEntryInGrid(l_CreatureList, 82441, 250.0f);
+
+        for (Creature* l_Creature : l_CreatureList)
+            l_Creature->DespawnOrUnsummon();
     }
 
     bool npc_garrison_atheeru_palestar::OnGossipHello(Player* p_Player, Creature* p_Creature)
