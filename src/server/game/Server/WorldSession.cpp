@@ -1490,9 +1490,9 @@ void WorldSession::LoadPremades()
         Field* l_Fields = l_Result->Fetch();
 
         uint32 l_Transaction = l_Fields[0].GetUInt32();
-        uint32 l_TemplateID  = l_Fields[1].GetUInt32();
-        uint32 l_Faction     = l_Fields[2].GetUInt8();
-        uint8  l_Type        = l_Fields[3].GetUInt8();
+        uint32 l_TemplateID = l_Fields[1].GetUInt32();
+        uint32 l_Faction = l_Fields[2].GetUInt8();
+        uint8  l_Type = l_Fields[3].GetUInt8();
 
         CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(l_TemplateID);
         if (!l_Template)
@@ -1613,8 +1613,8 @@ void WorldSession::LoadPremades()
         l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PREMADE_SUCESS);
         l_Statement->setUInt32(0, l_Transaction);
         CharacterDatabase.Execute(l_Statement);
-    }
-    while (l_Result->NextRow());
+    } while (l_Result->NextRow());
+}
 
 /// Send a game error
 /// @p_Error : Game error
