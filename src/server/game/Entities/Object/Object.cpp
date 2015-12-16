@@ -1151,6 +1151,13 @@ bool Object::RemoveGuidValue(uint16 index, uint64 value)
 
 void Object::SetGuidValue(uint16 index, uint64 value)
 {
+    if (index == PLAYER_FIELD_XP)
+    {
+        ACE_Stack_Trace l_Stack;
+        sLog->outAshran("SetInt32Value(PLAYER_FIELD_XP, %u)", value);
+        sLog->outAshran("%s", l_Stack.c_str());
+    }
+
     ASSERT(index + 4 < m_valuesCount || PrintIndexError(index, true));
 
     Guid128 l_Value = Guid64To128(value);
@@ -1192,6 +1199,13 @@ void Object::SetInt32Value(uint16 index, int32 value)
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
 
+    if (index == PLAYER_FIELD_XP && value > 900000)
+    {
+        ACE_Stack_Trace l_Stack;
+        sLog->outAshran("SetInt32Value(PLAYER_FIELD_XP, %u)", value);
+        sLog->outAshran("%s", l_Stack.c_str());
+    }
+
     if (m_int32Values[index] != value)
     {
         m_int32Values[index] = value;
@@ -1208,6 +1222,13 @@ void Object::SetInt32Value(uint16 index, int32 value)
 void Object::SetUInt32Value(uint16 index, uint32 value)
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+
+    if (index == PLAYER_FIELD_XP && value > 900000)
+    {
+        ACE_Stack_Trace l_Stack;
+        sLog->outAshran("SetInt32Value(PLAYER_FIELD_XP, %u)", value);
+        sLog->outAshran("%s", l_Stack.c_str());
+    }
 
     if (m_uint32Values[index] != value)
     {
@@ -1232,6 +1253,13 @@ void Object::UpdateUInt32Value(uint16 index, uint32 value)
 
 void Object::SetUInt64Value(uint16 index, uint64 value)
 {
+    if (index == PLAYER_FIELD_XP)
+    {
+        ACE_Stack_Trace l_Stack;
+        sLog->outAshran("SetInt32Value(PLAYER_FIELD_XP, %u)", value);
+        sLog->outAshran("%s", l_Stack.c_str());
+    }
+
     ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
     if (*((uint64*)&(m_uint32Values[index])) != value)
     {
@@ -1294,6 +1322,13 @@ bool Object::RemoveUInt64Value(uint16 index, uint64 value)
 
 void Object::SetFloatValue(uint16 index, float value)
 {
+    if (index == PLAYER_FIELD_XP)
+    {
+        ACE_Stack_Trace l_Stack;
+        sLog->outAshran("SetInt32Value(PLAYER_FIELD_XP, %u)", value);
+        sLog->outAshran("%s", l_Stack.c_str());
+    }
+
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
 
     if (m_floatValues[index] != value)
@@ -1312,6 +1347,13 @@ void Object::SetFloatValue(uint16 index, float value)
 void Object::SetByteValue(uint16 index, uint8 offset, uint8 value)
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+
+    if (index == PLAYER_FIELD_XP)
+    {
+        ACE_Stack_Trace l_Stack;
+        sLog->outAshran("SetInt32Value(PLAYER_FIELD_XP, %u)", value);
+        sLog->outAshran("%s", l_Stack.c_str());
+    }
 
     if (offset > 4)
     {
@@ -1341,6 +1383,13 @@ void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
     {
         sLog->outError(LOG_FILTER_GENERAL, "Object::SetUInt16Value: wrong offset %u", offset);
         return;
+    }
+
+    if (index == PLAYER_FIELD_XP)
+    {
+        ACE_Stack_Trace l_Stack;
+        sLog->outAshran("SetInt32Value(PLAYER_FIELD_XP, %u)", value);
+        sLog->outAshran("%s", l_Stack.c_str());
     }
 
     if (uint16(m_uint32Values[index] >> (offset * 16)) != value)
