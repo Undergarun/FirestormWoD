@@ -418,10 +418,10 @@ void ScriptedAI::SetEquipmentSlots(bool loadDefault, int32 mainHand /*= EQUIP_NO
         me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, uint32(mainHand));
 
     if (offHand >= 0)
-        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, uint32(offHand));
+        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, uint32(offHand));
 
     if (ranged >= 0)
-        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, uint32(ranged));
+        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, uint32(ranged));
 }
 
 void ScriptedAI::SetCombatMovement(bool allowMovement)

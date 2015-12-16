@@ -273,7 +273,7 @@ public:
 
                 DoCast(me, SPELL_DUAL_WIELD, true);
                 me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 0);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS+1, 0);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS+2, 0);
             }
 
             if (Phase2)

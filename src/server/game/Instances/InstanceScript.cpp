@@ -210,9 +210,12 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     if (lower == upper)
         return;
 
+    EncounterState l_State;
     bool open = true;
     for (DoorInfoMap::iterator itr = lower; itr != upper && open; ++itr)
     {
+        l_State = itr->second.bossInfo->state;
+
         switch (itr->second.type)
         {
             case DOOR_TYPE_ROOM:
@@ -233,8 +236,11 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     if (!open)
     {
         uint64 l_DoorGuid = door->GetGUID();
-        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [l_DoorGuid]() -> void
+        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [l_DoorGuid, l_State]() -> void
         {
+            if (l_State != EncounterState::IN_PROGRESS)
+                return;
+
             if (GameObject* l_Door = sObjectAccessor->FindGameObject(l_DoorGuid))
                 l_Door->SetGoState(GOState::GO_STATE_READY);
         });
@@ -1283,7 +1289,7 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
                     /// Title removal
                     if (l_KnownTitlesStr)
                     {
-                        uint32 const l_TitleSize = KNOWN_TITLES_SIZE * 2;
+                        uint32 const l_TitleSize = KNOWN_TITLES_SIZE;
                         uint32 l_KnownTitles[l_TitleSize];
                         Tokenizer l_Tokens(l_KnownTitlesStr, ' ', l_TitleSize);
 

@@ -5227,7 +5227,7 @@ float Unit::GetTotalAuraMultiplier(AuraType auratype) const
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
-        AddPct(multiplier, (*i)->GetAmount());
+        multiplier += CalculatePct(1.0, (*i)->GetAmount());
 
     return multiplier;
 }
@@ -11492,8 +11492,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
         if (l_HasFingerOfFrostProc)
         {
+            if (HasAura(44544))
+                CastSpell(this, 126084, true); ///< Fingers of frost visual
             CastSpell(this, 44544, true);  ///< Fingers of frost proc
-            CastSpell(this, 126084, true); ///< Fingers of frost visual
         }
     }
 
@@ -13655,7 +13656,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     if (GetTypeId() == TYPEID_PLAYER)
         ridingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
 
-    for (uint32 i = MAX_MOUNT_CAPABILITIES; i > 0; --i)
+    for (uint32 i = 0; i < MAX_MOUNT_CAPABILITIES; ++i)
     {
         MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
         if (!mountCapability)
@@ -14297,7 +14298,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     //if (this->ToPlayer())
     //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
 
-    int32 main_speed_mod  = 0;
+    float main_speed_mod  = 1.0f;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
 
@@ -14314,15 +14315,16 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         {
             if (IsMounted()) // Use on mount auras
             {
-                main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED);
+                main_speed_mod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED);
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_SPEED_ALWAYS);
-                non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK) / 100.0f;
+                non_stack_bonus = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK);
             }
             else
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_SPEED);
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_SPEED_ALWAYS);
-                non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_SPEED_NOT_STACK) / 100.0f;
+                non_stack_bonus = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_SPEED_NOT_STACK);
+
             }
             break;
         }
@@ -14339,7 +14341,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS);
 
                 // for some spells this mod is applied on vehicle owner
-                int32 owner_speed_mod = 0;
+                float owner_speed_mod = 0.0f;
 
                 if (Unit* owner = GetCharmer())
                     owner_speed_mod = owner->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
@@ -14366,9 +14368,8 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     }
 
     // now we ready for speed calculation
-    float speed = std::max(non_stack_bonus, stack_bonus);
-    if (main_speed_mod)
-        AddPct(speed, main_speed_mod);
+    float total_non_stack_bonus = std::max(main_speed_mod, non_stack_bonus);
+    float speed = stack_bonus + (total_non_stack_bonus / 100);
 
     if (GetTypeId() == TYPEID_PLAYER)
         speed += CalculatePct(speed, ToPlayer()->GetFloatValue(PLAYER_FIELD_SPEED));
@@ -16632,6 +16633,19 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     /// Runic Strikes
     if ((procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && HasAura(165394) && GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsTwoHandUsed() && procSpell == nullptr)
         CastSpell(this, 163948, true);
+
+    /// Plaguebearer
+    if (procSpell && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
+    {
+        if (AuraPtr l_BloodPlague = target->GetAura(55078, GetGUID()))
+            l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);
+
+        if (AuraPtr l_FrostFever = target->GetAura(55095, GetGUID()))
+            l_FrostFever->SetDuration(l_FrostFever->GetDuration() + 4000);
+
+        if (HasAura(152281))
+            CastSpell(target, 155159);
+    }
 
     // Dematerialize
     if (target && !isVictim && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(122464) && procSpell && procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN))

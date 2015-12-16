@@ -3934,13 +3934,18 @@ class npc_void_tendrils : public CreatureScript
 
             void IsSummonedBy(Unit* owner)
             {
+
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER)
                 {
                     me->SetLevel(owner->getLevel());
+
+                    me->SetMaxHealth(owner->CountPctFromMaxHealth(10));
+                    me->SetHealth(me->GetMaxHealth());
+
                     // Set no damage
                     me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 0.0f);
                     me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 0.0f);
-
+                    me->setFaction(owner->getFaction());
                     me->AddAura(SPELL_ROOT_FOR_EVER, me);
                 }
                 else

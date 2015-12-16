@@ -953,7 +953,7 @@ class mob_add_setthik_windblade : public CreatureScript
                 events.Reset();
 
                 me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_6);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, EQUIP_TRASH_6);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, EQUIP_TRASH_6);
 
                 DoZoneInCombat();
 

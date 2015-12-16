@@ -1037,28 +1037,28 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                         case SPELL_COPY_OFFHAND_AURA:
                         case SPELL_COPY_OFFHAND_2_AURA:
                         {
-                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1);
-
-                            if (Player* player = caster->ToPlayer())
-                            {
-                                if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, offItem->GetEntry());
-                            }
-                            else
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1));
-                            break;
-                        }
-                        case SPELL_COPY_RANGED_AURA:
-                        {
                             prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2);
 
                             if (Player* player = caster->ToPlayer())
                             {
-                                if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, rangedItem->GetEntry());
+                                if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, offItem->GetEntry());
                             }
                             else
                                 target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2));
+                            break;
+                        }
+                        case SPELL_COPY_RANGED_AURA:
+                        {
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4);
+
+                            if (Player* player = caster->ToPlayer())
+                            {
+                                if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, rangedItem->GetEntry());
+                            }
+                            else
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4));
                             break;
                         }
                         default:
@@ -1080,10 +1080,10 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                        break;
                     case SPELL_COPY_OFFHAND_AURA:
                     case SPELL_COPY_OFFHAND_2_AURA:
-                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, prevItem);
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, prevItem);
                         break;
                     case SPELL_COPY_RANGED_AURA:
-                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, prevItem);
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, prevItem);
                         break;
                     default:
                         break;

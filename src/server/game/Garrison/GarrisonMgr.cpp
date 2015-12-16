@@ -2891,9 +2891,9 @@ namespace MS { namespace Garrison
 
         for (uint32 l_CurrentValue : gGarrisonBuildingMaxWorkOrderPerBuildingLevel)
         {
-            if (l_CurrentValue == l_BuildingEntry->BonusAmount)
+            if (l_CurrentValue == l_BuildingEntry->MaxShipments)
             {
-                l_MaxWorkOrder += l_BuildingEntry->BonusAmount;
+                l_MaxWorkOrder += l_BuildingEntry->MaxShipments;
                 break;
             }
         }
