@@ -3481,7 +3481,7 @@ void World::LoadDBMotd()
 
 void World::SetDBMotd(const std::string& p_Motd)
 {
-    LoginDatabase.PQuery("UPDATE realmlist SET motd = '%s'", p_Motd.c_str());
+    LoginDatabase.PQuery("UPDATE realmlist SET motd = '%s' WHERE id = '%d'", p_Motd.c_str(), g_RealmID);
     SetMotd(p_Motd);
 }
 
