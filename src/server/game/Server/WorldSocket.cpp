@@ -632,17 +632,13 @@ int WorldSocket::HandleNewPacket()
             if (m_HeaderBuffer.space() > 0)
             {
                 // Couldn't receive the whole header this time.
-                ACE_ASSERT(m_PacketBuffer.length() == 0);
                 errno = EWOULDBLOCK;
                 return -1;
             }
 
             // We just received nice new header
             if (ReadPacketHeader() == -1)
-            {
-                ACE_ASSERT((errno != EWOULDBLOCK) && (errno != EAGAIN));
                 return -1;
-            }
         }
 
         // Its possible on some error situations that this happens
@@ -666,7 +662,6 @@ int WorldSocket::HandleNewPacket()
             if (m_RecvPct.space() > 0)
             {
                 // Couldn't receive the whole data this time.
-                ACE_ASSERT(m_PacketBuffer.length() == 0);
                 errno = EWOULDBLOCK;
                 return -1;
             }
@@ -674,10 +669,7 @@ int WorldSocket::HandleNewPacket()
 
         //just received fresh new payload
         if (HandlePacketData() == -1)
-        {
-            ACE_ASSERT((errno != EWOULDBLOCK) && (errno != EAGAIN));
             return -1;
-        }
     }
 
     return size_t(l_ReadSize) == l_SizeOfBuffer ? 1 : 2;
