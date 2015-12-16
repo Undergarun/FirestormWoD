@@ -82,7 +82,7 @@ class GmTicket
 {
     public:
         GmTicket();
-        explicit GmTicket(Player* p_Player, WorldPacket& p_RecvData);
+        explicit GmTicket(std::string p_PlayerName, uint64 p_PlayerGuid, uint32 p_MapID, WorldLocation p_Position, std::string p_Content);
         ~GmTicket();
 
         bool IsClosed() const { return m_ClosedBy; }
@@ -136,7 +136,7 @@ class GmTicket
         void SaveToDB(SQLTransaction& p_Transaction) const;
         void DeleteFromDB();
 
-        void WritePacket(WorldPacket& p_Data) const;
+        void WriteData(std::vector<std::string>& p_Data) const;
         void SendResponse(WorldSession* p_Session) const;
 
         void TeleportTo(Player* p_Player) const;

@@ -3274,7 +3274,9 @@ class spell_hun_claw_bite : public SpellScriptLoader
         enum eSpells
         {
             EnhancedBasicAttacksAura = 157715,
-            EnhancedBasicAttacksProc = 157717
+            EnhancedBasicAttacksProc = 157717,
+            Invigoration             = 53253,
+            InvigorationEffect       = 53398
         };
 
         class spell_hun_claw_bite_SpellScript : public SpellScript
@@ -3379,6 +3381,11 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_Pet->IsDamageReducedByArmor(SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo()))
                             l_Damage = l_Pet->CalcArmorReducedDamage(GetHitUnit(), l_Damage, GetSpellInfo(), BaseAttack);
                         SetHitDamage(l_Damage);
+
+                        /// Invigoration - 53253
+                        if (l_Hunter->HasAura(eSpells::Invigoration))
+                        if (roll_chance_i(20))
+                            l_Hunter->CastSpell(l_Hunter, eSpells::InvigorationEffect, true);
                     }
                 }
             }

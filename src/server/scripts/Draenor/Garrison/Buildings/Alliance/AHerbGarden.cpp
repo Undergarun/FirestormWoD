@@ -264,7 +264,7 @@ namespace MS { namespace Garrison
             GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(GetBuildingID());
 
             if (l_BuildingEntry)
-                l_Owner->PlayStandaloneScene(l_BuildingEntry->BuiltScene[!l_Owner->GetGarrison()->GetGarrisonFactionIndex()], 0, s_CinematicLoc);
+                l_Owner->PlayStandaloneScene(l_Owner->GetGarrison()->GetGarrisonFactionIndex() ? l_BuildingEntry->HordeActivationScenePackageID : l_BuildingEntry->AllianceActivationScenePackageID, 0, s_CinematicLoc);
 
             l_Owner->GetGarrison()->ActivateBuilding(GetPlotInstanceID());
 

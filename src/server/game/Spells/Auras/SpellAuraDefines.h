@@ -485,7 +485,7 @@ enum AuraType
     SPELL_AURA_424                                          = 424,  // 5.4.0 unk aura (NYI) Heart of the Wild talent related
     SPELL_AURA_425                                          = 425,  // 5.4.0 unused
     SPELL_AURA_426                                          = 426,  // 5.4.0 unk aura (NYI) Brawl queue
-    SPELL_AURA_427                                          = 427,  // 5.4.0 Entering Battleground (91318)
+    SPELL_AURA_427                                          = 427,  // 5.4.0 Related to itemScaling on battleground or draenor spell test
     SPELL_AURA_LINKED_2                                     = 428,  // 5.4.0 SPELL_AURA_LINKED_2
     SPELL_AURA_MOD_PET_DAMAGE_DONE                          = 429,  // 5.4.0
     SPELL_AURA_430                                          = 430,  // 5.4.0 SPELL_AURA_PLAY_SCENE_SCRIPT ?
@@ -496,19 +496,19 @@ enum AuraType
     SPELL_AURA_435                                          = 435,  // 5.4.0 Unused
     SPELL_AURA_436                                          = 436,  // 5.4.0 Kyle's Test Spell (Internal Only)
     SPELL_AURA_437                                          = 437,  // 5.4.0 Two spells (Siege of Orgrimmar)
-    SPELL_AURA_438                                          = 438,  // 6.0.X
+    SPELL_AURA_438                                          = 438,  // 6.0.X Personal Phase related
     SPELL_AURA_439                                          = 439,  // 6.0.X
     SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT                   = 440,  // 6.0.X
     SPELL_AURA_MOD_MULTISTRIKE_PCT                          = 441,  // 6.0.X
-    SPELL_AURA_442                                          = 442,  // 6.0.X
+    SPELL_AURA_442                                          = 442,  // 6.0.X MOD_READINESS_PCT Increases Readiness by 30%. (Ashran artifact)
     SPELL_AURA_MOD_LEECH_PCT                                = 443,  // 6.0.X
     SPELL_AURA_444                                          = 444,  // 6.0.X
     SPELL_AURA_445                                          = 445,  // 6.0.X
-    SPELL_AURA_446                                          = 446,  // 6.0.X
+    SPELL_AURA_446                                          = 446,  // 6.0.X Can use opening abilities without being stealthed.(?)
     SPELL_AURA_MOD_XP_PCT_FROM_KILLING_UNIT_TYPE            = 447,  // 6.0.X
-    SPELL_AURA_448                                          = 448,  // 6.0.X
+    SPELL_AURA_448                                          = 448,  // 6.0.X Battle fatigue (unused)
     SPELL_AURA_449                                          = 449,  // 6.0.X
-    SPELL_AURA_450                                          = 450,  // 6.0.X
+    SPELL_AURA_450                                          = 450,  // 6.0.X Character upgrade system
     SPELL_AURA_OVERRIDE_PET_SPECS                           = 451,  // 6.0.X
     SPELL_AURA_452                                          = 452,  // 6.0.X
     SPELL_AURA_CHARGE_RECOVERY_MOD                          = 453,  // 6.0.X
@@ -517,7 +517,7 @@ enum AuraType
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE            = 456,  // 6.0.X
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN      = 457,  // 6.0.X
     SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE                   = 458,  // 6.0.X
-    SPELL_AURA_459                                          = 459,  // 6.0.X
+    SPELL_AURA_459                                          = 459,  // 6.0.X ignore movement force
     SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL                  = 460,  // 6.0.X
     SPELL_AURA_461                                          = 461,  // 6.0.X
     SPELL_AURA_462                                          = 462,  // 6.0.X
@@ -535,14 +535,21 @@ enum AuraType
     SPELL_AURA_474                                          = 474,  // 6.0.X Upgrade (170733) used on bonus loot item in quest
     SPELL_AURA_475                                          = 475,  // 6.0.X used for garr ability check comments http://fr.wowhead.com/spell=169606#english-comments
     SPELL_AURA_MOD_CURRENCY_GAIN_PCT                        = 476,  // 6.0.X
-    SPELL_AURA_477                                          = 477,  // 6.0.X Draenor Scaling aura (used in beta test)
+    SPELL_AURA_477                                          = 477,  // 6.0.X Draenor Scaling (used in beta test) Scale player level
     SPELL_AURA_478                                          = 478,  // 6.0.X Gladiator stance (new warrior stance in WoD)
     SPELL_AURA_479                                          = 479,  // 6.1.2 unused
     SPELL_AURA_480                                          = 480,  // 6.1.2 unused
-    SPELL_AURA_481                                          = 481,  // 6.1.2
+    SPELL_AURA_481                                          = 481,  // 6.1.2 Deathknight rune of death generation related (SpellID in value)
     SPELL_AURA_482                                          = 482,  // 6.1.2 S.E.L.F.I.E. Camera
     SPELL_AURA_483                                          = 483,  // 6.1.2 Rated PvP Transform Suppression
-    TOTAL_AURAS                                             = 484   // 6.1.2
+    SPELL_AURA_484                                          = 484,  // 6.2.0 Value is SpellID
+    SPELL_AURA_485                                          = 485,  // 6.2.0
+    SPELL_AURA_486                                          = 486,  // 6.2.2
+    SPELL_AURA_487                                          = 487,  // 6.2.2
+    SPELL_AURA_488                                          = 488,  // 6.2.2
+    SPELL_AURA_489                                          = 489,  // 6.2.2
+    SPELL_AURA_490                                          = 490,  // 6.2.2
+    TOTAL_AURAS                                             = 491   // 6.2.2
 };
 
 enum AuraObjectType

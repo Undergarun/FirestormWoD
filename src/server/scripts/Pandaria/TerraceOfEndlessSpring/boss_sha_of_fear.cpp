@@ -241,11 +241,11 @@ class boss_sha_of_fear : public CreatureScript
 
                 me->ReenableEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                 me->AddUnitState(UNIT_STATE_CANNOT_TURN);
                 me->SetPower(POWER_ENERGY, 0);
                 me->SetMaxPower(POWER_ENERGY, 100);
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
                 me->CastSpell(me, SPELL_ENERGY_TO_ZERO, true);
                 if (!me->IsVisible())
                     me->SetVisible(true);
@@ -375,7 +375,7 @@ class boss_sha_of_fear : public CreatureScript
                 {
                     Position homePos = me->GetHomePosition();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                    me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                     isInSecondPhase = false;
                     submerged       = false;
                     isInTeleport    = false;
@@ -906,7 +906,7 @@ class boss_sha_of_fear : public CreatureScript
                             me->SetVisible(true);
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                             me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
                             isInTeleport = false;
 
@@ -978,7 +978,7 @@ class mob_pure_light_terrace : public CreatureScript
             void Reset()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                 me->CastSpell(me, SPELL_LIGHT_WALL, true);
                 me->CastSpell(me, SPELL_LIGHT_WALL_READY, true);
             }
@@ -1337,7 +1337,7 @@ class mob_terror_spawn : public CreatureScript
                 }
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                 me->AddUnitState(UNIT_STATE_CANNOT_TURN);
 
                 me->CastSpell(me, SPELL_DARK_BULWARK, true);

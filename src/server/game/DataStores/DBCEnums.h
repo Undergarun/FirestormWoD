@@ -153,6 +153,8 @@ enum Difficulty
     DifficultyEventDungeon  = 19, ///< difficulty_entry_19
     DifficultyEventScenario = 20, ///< difficulty_entry_20
 
+    DifficultyMythic        = 23,
+    DifficultyTimewalker    = 24,
     MaxDifficulties
 };
 

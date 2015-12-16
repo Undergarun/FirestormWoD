@@ -62,7 +62,7 @@ Group::Group() : m_leaderGuid(0), m_leaderName(""), m_PartyFlags(PARTY_FLAG_NORM
 m_dungeonDifficulty(DifficultyNormal), m_raidDifficulty(DifficultyRaidNormal), m_LegacyRaidDifficuty(Difficulty10N),
     m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
     m_subGroupsCounts(NULL), m_guid(0), m_UpdateCount(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0),
-    m_readyCheck(false), m_membersInInstance(0)
+    m_readyCheck(false), m_membersInInstance(0), m_Team(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
@@ -123,6 +123,8 @@ bool Group::Create(Player* leader)
     m_dungeonDifficulty = DifficultyNormal;
     m_raidDifficulty = DifficultyRaidNormal;
     m_LegacyRaidDifficuty = Difficulty10N;
+
+    m_Team = leader->GetTeam();
 
     if (!isBGGroup() && !isBFGroup())
     {
@@ -1003,14 +1005,14 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
+    l_Data << uint8(LOOT_SLOT_TYPE_OWNER);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data << uint32(p_CountDown);                          ///< the countdown time to choose "need" or "greed"
-    l_Data << uint8(p_Roll.totalPlayersRolling);            ///< maybe the number of players rolling for it???
     l_Data << uint8(p_Roll.rollVoteMask);                   ///< roll type mask
+    l_Data << uint8(p_Roll.totalPlayersRolling);            ///< maybe the number of players rolling for it???
 
     p_Player->GetSession()->SendPacket(&l_Data);
 }
@@ -1026,7 +1028,7 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
+    l_Data << uint8(LOOT_SLOT_TYPE_OWNER);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
@@ -1058,7 +1060,7 @@ void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_Ro
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
+    l_Data << uint8(LOOT_SLOT_TYPE_OWNER);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
@@ -2393,7 +2395,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
             if (isEmpty)
                 SendMsgTo->SendResetInstanceSuccess(instanceSave->GetMapId());
             else
-                SendMsgTo->SendResetInstanceFailed(0, instanceSave->GetMapId());
+                SendMsgTo->SendResetInstanceFailed(INSTANCE_RESET_FAILED_OFFLINE, instanceSave->GetMapId());
         }
 
         if (isEmpty || method == INSTANCE_RESET_GROUP_DISBAND || method == INSTANCE_RESET_CHANGE_DIFFICULTY)

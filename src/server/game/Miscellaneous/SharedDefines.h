@@ -70,6 +70,15 @@ enum Roles
     ROLE_DAMAGE    = 2,
 };
 
+enum MoneyConstants
+{
+    COPPER  = 1,
+    SILVER  = COPPER * 100,
+    GOLD    = SILVER * 100
+};
+
+#define MAX_TALENT_WIPE_COST (66 * GOLD)
+
 enum SpecIndex
 {
     SPEC_NONE                   = 0,
@@ -128,7 +137,8 @@ enum LootModes
     LOOT_MODE_HARD_MODE_1              = 0x2,
     LOOT_MODE_HARD_MODE_2              = 0x4,
     LOOT_MODE_HARD_MODE_3              = 0x8,
-    LOOT_MODE_HARD_MODE_4              = 0x10
+    LOOT_MODE_HARD_MODE_4              = 0x10,
+    LOOT_MODE_JUNK_FISH                = 0x8000
 };
 
 enum Expansion
@@ -144,6 +154,7 @@ enum Expansion
 
 enum Gender
 {
+    GENDER_UNKNOWN                     = -1,
     GENDER_MALE                        = 0,
     GENDER_FEMALE                      = 1,
     GENDER_NONE                        = 2
@@ -321,13 +332,6 @@ enum ReputationRank
 
 #define REP_GUILD           1168
 
-enum MoneyConstants
-{
-    COPPER = 1,
-    SILVER = COPPER*100,
-    GOLD   = SILVER*100
-};
-
 enum Stats
 {
     STAT_STRENGTH                      = 0,
@@ -365,7 +369,7 @@ enum Powers
     MAX_POWERS_COST                     = MAX_POWERS+1
 };
 
-#define MAX_POWERS_PER_CLASS              5
+#define MAX_POWERS_PER_CLASS              6 /// Druid have power 0 1 3 8 10 4 (6.2.0)
 
 enum SpellSchools
 {
@@ -583,7 +587,7 @@ enum SpellAttr3
     SPELL_ATTR3_MAIN_HAND                        = 0x00000400, // 10 Main hand weapon required
     SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can casted only on battleground
     SPELL_ATTR3_ONLY_TARGET_GHOSTS               = 0x00001000, // 12
-    SPELL_ATTR3_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR3_DONT_DISPLAY_CHANNEL_BAR         = 0x00002000, // 13 Clientside attribute - will not display channeling bar
     SPELL_ATTR3_IS_HONORLESS_TARGET              = 0x00004000, // 14 "Honorless Target" only this spells have this flag
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
     SPELL_ATTR3_CANT_TRIGGER_PROC                = 0x00010000, // 16 confirmed with many patchnotes
@@ -720,7 +724,7 @@ enum SpellAttr7
     SPELL_ATTR7_IS_CHEAT_SPELL                   = 0x00000008, //  3 Cannot cast if caster doesn't have UnitFlag2 & UNIT_FLAG2_ALLOW_CHEAT_SPELLS
     SPELL_ATTR7_UNK4                             = 0x00000010, //  4 Only 47883 (Soulstone Resurrection) and test spell.
     SPELL_ATTR7_SUMMON_TOTEM                     = 0x00000020, //  5 Only Shaman totems.
-    SPELL_ATTR7_UNK6                             = 0x00000040, //  6 Dark Surge, Surge of Light, Burning Breath triggers (boss spells).
+    SPELL_ATTR7_NO_PUSHBACK_ON_DAMAGE            = 0x00000040, //  6 Does not cause spell pushback on damage
     SPELL_ATTR7_UNK7                             = 0x00000080, //  7 66218 (Launch) spell.
     SPELL_ATTR7_HORDE_ONLY                       = 0x00000100, //  8 Teleports, mounts and other spells.
     SPELL_ATTR7_ALLIANCE_ONLY                    = 0x00000200, //  9 Teleports, mounts and other spells.
@@ -794,7 +798,7 @@ enum SpellAttr9
     SPELL_ATTR9_SUMMON_PLAYER_TOTEM              = 0x00000020, // 5
     SPELL_ATTR9_UNK6                             = 0x00000040, // 6
     SPELL_ATTR9_UNK7                             = 0x00000080, // 7
-    SPELL_ATTR9_UNK8                             = 0x00000100, // 8
+    SPELL_ATTR9_AIMED_SHOT                       = 0x00000100, // 8
     SPELL_ATTR9_NOT_USABLE_IN_ARENA              = 0x00000200, // 9 Cannot be used in arenas
     SPELL_ATTR9_UNK10                            = 0x00000400, // 10 Ice Storm 88239
     SPELL_ATTR9_UNK11                            = 0x00000800, // 11
@@ -851,7 +855,7 @@ enum SpellAttr10
     SPELL_ATTR10_UNK26                            = 0x04000000, // 26
     SPELL_ATTR10_UNK27                            = 0x08000000, // 27
     SPELL_ATTR10_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR10_MOUNT_CHARACTER                  = 0x20000000, // 29
+    SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE        = 0x20000000, // 29 This mount is stored per-character
     SPELL_ATTR10_UNK30                            = 0x40000000, // 30
     SPELL_ATTR10_UNK31                            = 0x80000000  // 31
 };
@@ -860,7 +864,7 @@ enum SpellAttr11
 {
     SPELL_ATTR11_UNK0                             = 0x00000001, //  0
     SPELL_ATTR11_UNK1                             = 0x00000002, //  1
-    SPELL_ATTR11_CAST_WITH_ITEM                   = 0x00000004, //  2
+    SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL           = 0x00000004, //  2
     SPELL_ATTR11_UNK3                             = 0x00000008, //  3
     SPELL_ATTR11_UNK4                             = 0x00000010, //  4
     SPELL_ATTR11_UNK5                             = 0x00000020, //  5
@@ -1070,6 +1074,8 @@ enum Team
     PANDAREN_NEUTRAL     = 1249,        // Pandaren is neutral on start
     TEAM_OTHER           = 0            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
+
+#define MAX_SPELL_VISUAL 2
 
 enum SpellEffects
 {
@@ -1324,7 +1330,8 @@ enum SpellEffects
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
     SPELL_EFFECT_249                                = 249,
     SPELL_EFFECT_TAKE_SCREENSHOT                    = 250,  ///< Serverside marker for selfie screenshot
-    TOTAL_SPELL_EFFECTS                             = 251
+    SPELL_EFFECT_251                                = 251,  ///< Increases the maximum cache size of your garrison.
+    TOTAL_SPELL_EFFECTS                             = 252
 };
 
 enum PetTameResult
@@ -1345,7 +1352,8 @@ enum PetTameResult
     PET_TAME_ERROR_INVALID_SLOT             = 13    // checked
 };
 
-enum SpellCastResult // 19702
+/// Last update : 6.2.0 20201
+enum SpellCastResult
 {
     SPELL_FAILED_SUCCESS                                    = 0,
     SPELL_FAILED_AFFECTING_COMBAT                           = 1,
@@ -1398,7 +1406,7 @@ enum SpellCastResult // 19702
     SPELL_FAILED_GARRISON_FOLLOWER_MAX_QUALITY              = 48,
     SPELL_FAILED_GARRISON_FOLLOWER_NOT_MAX_LEVEL            = 49,
     SPELL_FAILED_GARRISON_FOLLOWER_HAS_ABILITY              = 50,
-    SPELL_FAILED_GARRISON_FOLLOWER_NO_OVERRIDEABLE_ABILITY  = 51,
+    SPELL_FAILED_GARRISON_FOLLOWER_HAS_SINGLE_MISSION_ABILITY  = 51,
     SPELL_FAILED_GARRISON_MISSION_NOT_IN_PROGRESS           = 52,
     SPELL_FAILED_GARRISON_MISSION_COMPLETE                  = 53,
     SPELL_FAILED_GARRISON_NO_MISSIONS_AVAILABLE             = 54,
@@ -1619,6 +1627,7 @@ enum SpellCastResult // 19702
     SPELL_CAST_OK                                           = 0xFFFF // custom value, must not be sent to client
 };
 
+/// Last update : 6.2.0 20201
 enum SpellCustomErrors
 {
     SPELL_CUSTOM_ERROR_NONE                             =  0,
@@ -1865,8 +1874,24 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_APEXIS_SENTINEL_REQUIRES_ENERGY  = 249,  ///< "This Apexis Sentinel requires energy from a nearby Apexis Pylon to be powered up."
     SPELL_CUSTOM_ERROR_MUST_HAVE_3_OR_FEWER_PLAYERS     = 250,  ///< "You must have 3 or fewer players."
     SPELL_CUSTOM_ERROR_ALREADY_READ_TREASURE_MAP        = 251,  ///< "You have already read that treasure map."
-    SPELL_CUSTOM_ERROR_ONLY_USABLE_DURING_INVASION      = 252   ///< "You may only use this item while your garrison is under attack."
-};
+    SPELL_CUSTOM_ERROR_ONLY_USABLE_DURING_INVASION      = 252,  ///< "You may only use this item while your garrison is under attack."
+    SPELL_CUSTOM_ERROR_REQUIRE_ACTIVE_MUSHROOMS         = 253,  ///< This spell requires active mushrooms for you to detonate.
+    SPELL_CUSTOM_ERROR_REQUIRE_FASTER_TIME              = 254,  ///< Requires a faster time with the basic racer
+    SPELL_CUSTOM_ERROR_REQUIRE_INFERNO_SHOT_AMMO        = 255,  ///< Requires Inferno Shot Ammo!
+    SPELL_CUSTOM_ERROR_YOU_CANT_DO_THAT                 = 256,  ///< You cannot do that right now.
+    SPELL_CUSTOM_ERROR_TRAP_ALREADY_HERE                = 257,  ///< A trap is already placed there.
+    SPELL_CUSTOM_ERROR_ALREADY_ON_QUEST                 = 258,  ///< You are already on that quest.
+    SPELL_CUSTOM_ERROR_REQUIRE_FELFORGED_CUDGEL         = 259,  ///< Requires a Felforged Cudgel!
+    SPELL_CUSTOM_ERROR_CANT_TAKE_UNDER_DAMAGE           = 260,  ///< Can't take while being damaged!
+    SPELL_CUSTOM_ERROR_BOUND_DRAENOR                    = 261,  ///< You are bound to Draenor by Archimonde's magic.
+    SPELL_CUSTOM_ERROR_MAXIMUM_SHIP_AT_SHIPYARD         = 262,  ///< You already have the maximum number of ships your shipyard can support.
+    SPELL_CUSTOM_ERROR_ONLY_ON_SHIPYARD                 = 263,  ///< You must be at your shipyard.
+    SPELL_CUSTOM_ERROR_REQUIRE_MAGE_TOWER_LVL3          = 264,  ///< Requires a level 3 Mage Tower.
+    SPELL_CUSTOM_ERROR_REQUIRE_SPIRIT_LODGE_LEVEL3      = 265,  ///< Requires a level 3 Spirit Lodge.
+    SPELL_CUSTOM_ERROR_FEEL_LIKE_EEG_AND_HAM            = 266,  ///< You do not like Fel Eggs and Ham.
+    SPELL_CUSTOM_ERROR_ALREADY_TRADE                    = 267,  ///< You have already entered in to this trade agreement.
+
+    };
 
 enum StealthType
 {
@@ -1890,8 +1915,34 @@ enum InvisibilityType
     INVISIBILITY_UNK9        =  9,
     INVISIBILITY_UNK10       = 10,
     INVISIBILITY_UNK11       = 11,
-
-    TOTAL_INVISIBILITY_TYPES = 12
+    INVISIBILITY_UNK12       = 12,
+    INVISIBILITY_TRA13       = 13,
+    INVISIBILITY_UNK14       = 14,
+    INVISIBILITY_UNK15       = 15,
+    INVISIBILITY_UNK16       = 16,
+    INVISIBILITY_UNK17       = 17,
+    INVISIBILITY_UNK18       = 18,
+    INVISIBILITY_UNK19       = 19,
+    INVISIBILITY_UNK20       = 20,
+    INVISIBILITY_UNK21       = 21,
+    INVISIBILITY_UNK22       = 22,
+    INVISIBILITY_TRA23       = 23,
+    INVISIBILITY_UNK24       = 24,
+    INVISIBILITY_UNK25       = 25,
+    INVISIBILITY_UNK26       = 26,
+    INVISIBILITY_UNK27       = 27,
+    INVISIBILITY_UNK28       = 28,
+    INVISIBILITY_UNK29       = 29,
+    INVISIBILITY_UNK30       = 30,
+    INVISIBILITY_UNK31       = 31,
+    INVISIBILITY_UNK32       = 32,
+    INVISIBILITY_UNK33       = 33,
+    INVISIBILITY_UNK34       = 34,
+    INVISIBILITY_UNK35       = 35,
+    INVISIBILITY_UNK36       = 36,
+    INVISIBILITY_UNK37       = 37,
+    
+    TOTAL_INVISIBILITY_TYPES = 38
 };
 
 enum ServerSideVisibilityType
@@ -2269,10 +2320,12 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_PHASEABLE_MO           = 43,
     GAMEOBJECT_TYPE_GARRISON_MONUMENT      = 44,
     GAMEOBJECT_TYPE_GARRISON_SHIPMENT      = 45,
-    GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE = 46
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE = 46,
+    GAMEOBJECT_TYPE_DO_NOT_USE_3           = 47,
+    GAMEOBJECT_TYPE_UI_LINK                = 48
 };
 
-#define MAX_GAMEOBJECT_TYPE                  47             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  49             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
@@ -2307,7 +2360,7 @@ enum GameObjectDestructibleState
     GO_DESTRUCTIBLE_REBUILDING  = 3
 };
 
-// EmotesText.dbc
+// EmotesText.dbc Last update 6.2.0 20201
 enum TextEmotes
 {
     TEXT_EMOTE_AGREE                = 1,
@@ -2566,7 +2619,7 @@ enum TextEmotes
     TEXT_EMOTE_BOOT                 = 506
 };
 
-// Emotes.dbc
+// Emotes.dbc Last update 6.2.0 20201
 enum Emote
 {
     EMOTE_ONESHOT_NONE                           = 0,
@@ -2832,7 +2885,7 @@ enum Emote
 
 };
 
-// AnimationData.dbc
+// AnimationData.dbc Last update 6.2.0 20201
 enum Anim
 {
     ANIM_STAND                             = 0,
@@ -3750,7 +3803,7 @@ uint32 const CREATURE_TYPEMASK_DEMON_OR_UNDEAD = (1 << (CREATURE_TYPE_DEMON-1)) 
 uint32 const CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD = (1 << (CREATURE_TYPE_HUMANOID-1)) | (1 << (CREATURE_TYPE_UNDEAD-1));
 uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_MECHANICAL-1)) | (1 << (CREATURE_TYPE_ELEMENTAL-1));
 
-// CreatureFamily.dbc
+// CreatureFamily.dbc Last update 6.2.0 20201
 enum CreatureFamily
 {
     CREATURE_FAMILY_WOLF                = 1,
@@ -3940,14 +3993,24 @@ enum HolidayIds
     HOLIDAY_UNK_601_2                = 508,
     HOLIDAY_ANNIVERSARY_9_YEARS      = 509,
     HOLIDAY_ANNIVERSARY_10_YEARS     = 514,
-    HOLIDAY_CALL_TO_ARMS_DG          = 515,
-    HOLIDAY_UNK_601_6                = 516,
+    HOLIDAY_CALL_TO_ARMS_DG          = 515,     ///< Call to Arms: Deepwind gorge
+    HOLIDAY_CALL_TO_ARMS_DG2         = 516,     ///< Call to Arms: Deepwind gorge
     HOLIDAY_UNK_601_7                = 517,
     HOLIDAY_UNK_601_8                = 518,
-    HOLIDAY_UNK_601_9                = 519
+    HOLIDAY_UNK_601_9                = 519,
+    HOLIDAY_BONUS_EVENT_TIMEWALKING_DUNGEON = 559, ///< Bosses yield loot appropriate for a player's natural level.
+    HOLIDAY_BONUS_EVENT_APEXIS              = 560, ///< Crystals "multiply mysteriously" and they are more plentiful when looting enemies in Draenor. spell : 186400 (something like *2 rate loot for apexis)
+    HOLIDAY_BONUS_EVENT_ARENA_SKIRMISH      = 561, ///< Arena Skirmishes award Honor at triple the usual rate. spell : 186401
+    HOLIDAY_BONUS_EVENT_TIMEWALKING         = 562, ///< Bosses yield loot appropriate for a player's natural level.
+    HOLIDAY_BONUS_EVENT_BATTLEGROUND        = 563, ///< Honor gains from Battleground objectives and wins increased by 200%. spell : 186403
+    HOLIDAY_BONUS_EVENT_DRAENOR_DUNGEON     = 564, ///< Defeating enemies in any level 100 Heroic or Mythic dungeon award reputation with a Draenor faction. spell : 186404
+    HOLIDAY_BONUS_EVENT_PET_BATTLE          = 565, ///< Battle pet experience gained increased by 200%. spell : 186406
+    HOLIDAY_ANNIVERSARY_11_YEARS            = 566,
+    
+
 };
 
-// values based at QuestInfo.dbc <- this dbc are removed in 6.1.X 
+// values based at QuestInfo.db2
 enum QuestTypes
 {
     QUEST_TYPE_GROUP               = 1,
@@ -3966,7 +4029,7 @@ enum QuestTypes
     QUEST_TYPE_SIDE_QUEST          = 104    // 6.0.1
 };
 
-// values based at QuestSort.dbc
+// values based at QuestSort.db2
 enum QuestSort
 {
     QUEST_SORT_EPIC                   = 1,
@@ -4028,7 +4091,8 @@ enum QuestSort
     QUEST_SORT_ASSAULT_ON_DARK_PORTAL = 402,       // 6.0.1
     QUEST_SORT_GARRISON_SUPPORT       = 403,       // 6.0.1
     QUEST_SORT_LOGGIN                 = 404,       // 6.0.1
-    QUEST_SORT_PICKPOCKETING          = 405        // 6.0.2
+    QUEST_SORT_PICKPOCKETING          = 405,       // 6.0.2
+    QUEST_SORT_WEEKEND_EVENT          = 409        ///< 6.2.0 Holiday bonus event quest
 };
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
@@ -4061,7 +4125,7 @@ inline uint8 ClassByQuestSort(int32 QuestSort)
     return 0;
 }
 
-// SkillLine.dbc
+// SkillLine.dbc 6.2.0 20201
 enum SkillType
 {
     SKILL_NONE                       = 0,
@@ -4427,6 +4491,8 @@ enum WeatherType
     WEATHER_TYPE_RAIN       = 1,
     WEATHER_TYPE_SNOW       = 2,
     WEATHER_TYPE_STORM      = 3,
+    WEATHER_TYPE_THUNDERS   = 86,
+    WEATHER_TYPE_BLACKRAIN  = 90
 };
 
 #define MAX_WEATHER_TYPE 4
@@ -4479,10 +4545,10 @@ enum ChatMsg
     CHAT_MSG_RAID_BOSS_WHISPER                  = 0x2A,
     CHAT_MSG_FILTERED                           = 0x2B,
     CHAT_MSG_RESTRICTED                         = 0x2C,
-    CHAT_MSG_UNUSED_1                           = 0x2D,
+    CHAT_MSG_BATTLENET                          = 0x2D,
     CHAT_MSG_ACHIEVEMENT                        = 0x2E,
     CHAT_MSG_GUILD_ACHIEVEMENT                  = 0x2F,
-    CHAT_MSG_UNUSED_2                           = 0x30,
+    CHAT_MSG_ARENA_POINTS                       = 0x30,
     CHAT_MSG_PARTY_LEADER                       = 0x31,
     CHAT_MSG_TARGETICONS                        = 0x32,
     CHAT_MSG_BN_WISPER                          = 0x33,
@@ -4505,6 +4571,18 @@ enum ChatMsg
 };
 
 #define MAX_CHAT_MSG_TYPE 0x44
+
+enum ChatFlags
+{
+    CHAT_FLAG_NONE       = 0x00,
+    CHAT_FLAG_AFK        = 0x01,
+    CHAT_FLAG_DND        = 0x02,
+    CHAT_FLAG_GM         = 0x04,
+    CHAT_FLAG_COM        = 0x08, // Commentator
+    CHAT_FLAG_DEV        = 0x10,
+    CHAT_FLAG_BOSS_SOUND = 0x20, // Plays "RaidBossEmoteWarning" sound on raid boss emote/whisper
+    CHAT_FLAG_MOBILE     = 0x40
+};
 
 enum ChatLinkColors
 {
@@ -4602,6 +4680,7 @@ enum EventId
     EVENT_JUMP              = 1004
 };
 
+/// Last update : 6.2.0 20201
 enum ResponseCodes
 {
     RESPONSE_SUCCESS                                       = 0,
@@ -4681,48 +4760,51 @@ enum ResponseCodes
     CHAR_CREATE_CHARACTER_GOLD_LIMIT                       = 68,
     CHAR_CREATE_FORCE_LOGIN                                = 69,
     CHAR_CREATE_TRIAL                                      = 70,
-    CHAR_CREATE_VETERAN                                    = 71,
 
-    CHAR_DELETE_IN_PROGRESS                                = 72,
-    CHAR_DELETE_SUCCESS                                    = 73,
-    CHAR_DELETE_FAILED                                     = 74,
-    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 75,
-    CHAR_DELETE_FAILED_GUILD_LEADER                        = 76,
-    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 77,
-    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 78,
+    CHAR_DELETE_IN_PROGRESS                                = 71,
+    CHAR_DELETE_SUCCESS                                    = 72,
+    CHAR_DELETE_FAILED                                     = 73,
+    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 74,
+    CHAR_DELETE_FAILED_GUILD_LEADER                        = 75,
+    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 76,
+    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 77,
+    CHAR_DELETE_FAILED_UPGRADE_IN_PROGRESS                 = 78,
+    CHAR_DELETE_FAILED_HAS_WOW_TOKEN                       = 79,
+    CHAR_DELETE_FAILED_VAS_TRANSACTION_IN_PROGRESS         = 80,
 
-    CHAR_LOGIN_IN_PROGRESS                                 = 79,
-    CHAR_LOGIN_SUCCESS                                     = 80,
-    CHAR_LOGIN_NO_WORLD                                    = 81,
-    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 82,
-    CHAR_LOGIN_NO_INSTANCES                                = 83,
-    CHAR_LOGIN_FAILED                                      = 84,
-    CHAR_LOGIN_DISABLED                                    = 85,
-    CHAR_LOGIN_NO_CHARACTER                                = 86,
-    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 87,
-    CHAR_LOGIN_LOCKED_BY_BILLING                           = 88,
-    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 89,
-    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 90,
-    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 91,
-    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 92,
+    CHAR_LOGIN_IN_PROGRESS                                 = 81,
+    CHAR_LOGIN_SUCCESS                                     = 82,
+    CHAR_LOGIN_NO_WORLD                                    = 83,
+    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 84,
+    CHAR_LOGIN_NO_INSTANCES                                = 85,
+    CHAR_LOGIN_FAILED                                      = 86,
+    CHAR_LOGIN_DISABLED                                    = 87,
+    CHAR_LOGIN_NO_CHARACTER                                = 88,
+    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 89,
+    CHAR_LOGIN_LOCKED_BY_BILLING                           = 90,
+    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 91,
+    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 92,
+    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 93,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 94,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_VAS_TRANSACTION           = 95,
 
-    CHAR_NAME_SUCCESS                                      = 93,
-    CHAR_NAME_FAILURE                                      = 94,
-    CHAR_NAME_NO_NAME                                      = 95,
-    CHAR_NAME_TOO_SHORT                                    = 96,
-    CHAR_NAME_TOO_LONG                                     = 97,
-    CHAR_NAME_INVALID_CHARACTER                            = 98,
-    CHAR_NAME_MIXED_LANGUAGES                              = 99,
-    CHAR_NAME_PROFANE                                      = 100,
-    CHAR_NAME_RESERVED                                     = 101,
-    CHAR_NAME_INVALID_APOSTROPHE                           = 102,
-    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 103,
-    CHAR_NAME_THREE_CONSECUTIVE                            = 104,
-    CHAR_NAME_INVALID_SPACE                                = 105,
-    CHAR_NAME_CONSECUTIVE_SPACES                           = 106,
-    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 107,
-    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 108,
-    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 109
+    CHAR_NAME_SUCCESS                                      = 96,
+    CHAR_NAME_FAILURE                                      = 97,
+    CHAR_NAME_NO_NAME                                      = 98,
+    CHAR_NAME_TOO_SHORT                                    = 99,
+    CHAR_NAME_TOO_LONG                                     = 100,
+    CHAR_NAME_INVALID_CHARACTER                            = 101,
+    CHAR_NAME_MIXED_LANGUAGES                              = 102,
+    CHAR_NAME_PROFANE                                      = 103,
+    CHAR_NAME_RESERVED                                     = 104,
+    CHAR_NAME_INVALID_APOSTROPHE                           = 105,
+    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 106,
+    CHAR_NAME_THREE_CONSECUTIVE                            = 107,
+    CHAR_NAME_INVALID_SPACE                                = 108,
+    CHAR_NAME_CONSECUTIVE_SPACES                           = 109,
+    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 110,
+    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 111,
+    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 112
 };
 
 /// Ban function modes
@@ -4774,7 +4856,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
     BATTLEGROUND_DG                 = 754,  // Deepwind Gorge
     BATTLEGROUND_TTP                = 757,  // The Tiger's Peak
-    BATTLEGROUND_SVSTM              = 789   // Southshore vs. Tarren Mill (10th years wow) 100 vs 100
+    BATTLEGROUND_SVSTM              = 789   // Southshore vs. Tarren Mill
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 790
@@ -4865,34 +4947,25 @@ enum PetSlot
 
 enum TradeStatus
 {
-    // The enum has some entiers wrong, well TC will update it properly ^^ - but the important ones are correct
-    TRADE_STATUS_YOU_STUNNED            = 0,
-    TRADE_STATUS_TARGET_DEAD            = 2,
-    TRADE_STATUS_IGNORE_YOU             = 3,
-    TRADE_STATUS_BACK_TO_TRADE          = 4,
-    TRADE_STATUS_TRADE_CANCELED         = 5,
-    TRADE_STATUS_PROPOSED               = 6,
-    TRADE_STATUS_NO_TARGET2             = 7,
-    TRADE_STATUS_TARGET_LOGOUT          = 8,
-    TRADE_STATUS_BEGIN_TRADE            = 9,
-    TRADE_STATUS_TRIAL_ACCOUNT          = 10,
-    TRADE_STATUS_WRONG_REALM            = 12,
-    TRADE_STATUS_NOT_ELIGIBLE           = 14,
-    TRADE_STATUS_TRADE_COMPLETE         = 15,
-    TRADE_STATUS_TARGET_STUNNED         = 16,
+    TRADE_STATUS_YOU_LOGOUT             = 0,
+    TRADE_STATUS_YOU_DEAD               = 3,
+    TRADE_STATUS_TARGET_LOGOUT          = 4,
+    TRADE_STATUS_NOT_ELIGIBLE           = 6,
+    TRADE_STATUS_BEGIN_TRADE            = 10,
+    TRADE_STATUS_TRADE_CANCELED         = 11,
+    TRADE_STATUS_TARGET_STUNNED         = 12,
+    TRADE_STATUS_TARGET_DEAD            = 15,
     TRADE_STATUS_TRADE_ACCEPT           = 17,
-    TRADE_STATUS_NO_TARGET              = 18,
-    TRADE_STATUS_CURRENCY_NOT_TRADABLE  = 19,
-    TRADE_STATUS_WRONG_FACTION          = 20,
-    TRADE_STATUS_NOT_ON_TAPLIST         = 21,
-    TRADE_STATUS_TRADE_DECLINE          = 23,
-    TRADE_STATUS_YOU_LOGOUT             = 24,
-    TRADE_STATUS_TARGET_TO_FAR          = 27,
-    TRADE_STATUS_YOU_DEAD2              = 25,
-    TRADE_STATUS_NOT_ENOUGH_CURRENCY    = 26,
-    TRADE_STATUS_YOU_DEAD               = 28,
-    TRADE_STATUS_OPEN_WINDOW            = 29,
-    TRADE_STATUS_BUSY                   = 30,
+    TRADE_STATUS_BACK_TO_TRADE          = 22,
+    TRADE_STATUS_BEGIN_PROPOSED         = 23,
+    TRADE_STATUS_YOU_STUNNED            = 24,
+    TRADE_STATUS_OPEN_WINDOW            = 25,
+    TRADE_STATUS_IGNORE_YOU             = 26,
+    TRADE_STATUS_TRADE_COMPLETE         = 28,
+    TRADE_STATUS_BUSY                   = 29,
+    TRADE_STATUS_TARGET_TO_FAR          = 30,
+    TRADE_STATUS_NO_TARGET              = 31,
+    TRADE_STATUS_WRONG_FACTION          = 31,   ///< Deleted ?
 };
 
 enum eUpdateCollisionReasons
@@ -4922,14 +4995,14 @@ enum RemoveMethod
 enum ActivateTaxiReply
 {
 
-    ERR_TAXI_NO_VENDOR_NEARBY           = 15,
-    ERR_TAXI_SAME_NODE                  = 8,
-    ERR_TAXI_NOT_ENOUGH_MONEY           = 14,
-    ERR_TAXI_PLAYER_MOVING              = 1,
-    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 2,
+    ERR_TAXI_NO_VENDOR_NEARBY           = 13,
+    ERR_TAXI_SAME_NODE                  = 12,
+    ERR_TAXI_NOT_ENOUGH_MONEY           = 2,
+    ERR_TAXI_PLAYER_MOVING              = 10,
+    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 1,
     //                                  = 5,
-    ERR_TAXI_PLAYER_SHAPESHIFTED        = 3,
-    ERR_TAXI_PLAYER_BUSY                = 11,
+    ERR_TAXI_PLAYER_SHAPESHIFTED        = 4,
+    ERR_TAXI_PLAYER_BUSY                = 14,
     ERR_TAXI_NO_SUCH_PATH               = 4,
     //                                  = 9,
     //                                  = 10,
@@ -4989,5 +5062,956 @@ enum SPELL_WEIGHT_TYPE
     SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS = 0x00,
     SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES = 0x01
 };
+
+enum ResetFailedReason
+{
+    INSTANCE_RESET_FAILED_OFFLINE   = 0,    ///< "Cannot reset %s.  There are players offline in your party."
+    INSTANCE_RESET_FAILED_ZONING    = 1,    ///< "Cannot reset %s.  There are players in your party attempting to zone into an instance."
+    INSTANCE_RESET_FAILED           = 2     ///< "Cannot reset %s.  There are players still inside the instance."
+};
+
+namespace GameError
+{
+    enum Type
+    {
+        ERR_INV_FULL = 0x0,
+        ERR_BANK_FULL = 0x1,
+        ERR_CANT_EQUIP_LEVEL_I = 0x2,
+        ERR_CANT_EQUIP_SKILL = 0x3,
+        ERR_CANT_EQUIP_EVER = 0x4,
+        ERR_CANT_EQUIP_RANK = 0x5,
+        ERR_CANT_EQUIP_RATING = 0x6,
+        ERR_CANT_EQUIP_REPUTATION = 0x7,
+        ERR_PROFICIENCY_NEEDED = 0x8,
+        ERR_WRONG_SLOT = 0x9,
+        ERR_CANT_EQUIP_NEED_TALENT = 0xA,
+        ERR_BAG_FULL = 0xB,
+        ERR_INTERNAL_BAG_ERROR = 0xC,
+        ERR_DESTROY_NONEMPTY_BAG = 0xD,
+        ERR_BAG_IN_BAG = 0xE,
+        ERR_TOO_MANY_SPECIAL_BAGS = 0xF,
+        ERR_TRADE_EQUIPPED_BAG = 0x10,
+        ERR_AMMO_ONLY = 0x11,
+        ERR_NO_SLOT_AVAILABLE = 0x12,
+        ERR_WRONG_BAG_TYPE = 0x13,
+        ERR_ITEM_MAX_COUNT = 0x14,
+        ERR_NOT_EQUIPPABLE = 0x15,
+        ERR_CANT_STACK = 0x16,
+        ERR_CANT_SWAP = 0x17,
+        ERR_SLOT_EMPTY = 0x18,
+        ERR_ITEM_NOT_FOUND = 0x19,
+        ERR_TOO_FEW_TO_SPLIT = 0x1A,
+        ERR_SPLIT_FAILED = 0x1B,
+        ERR_NOT_A_BAG = 0x1C,
+        ERR_NOT_OWNER = 0x1D,
+        ERR_ONLY_ONE_QUIVER = 0x1E,
+        ERR_NO_BANK_SLOT = 0x1F,
+        ERR_NO_BANK_HERE = 0x20,
+        ERR_ITEM_LOCKED = 0x21,
+        ERR_2HANDED_EQUIPPED = 0x22,
+        ERR_VENDOR_NOT_INTERESTED = 0x23,
+        ERR_VENDOR_HATES_YOU = 0x24,
+        ERR_VENDOR_SOLD_OUT = 0x25,
+        ERR_VENDOR_TOO_FAR = 0x26,
+        ERR_VENDOR_DOESNT_BUY = 0x27,
+        ERR_NOT_ENOUGH_MONEY = 0x28,
+        ERR_RECEIVE_ITEM_S = 0x29,
+        ERR_DROP_BOUND_ITEM = 0x2A,
+        ERR_TRADE_BOUND_ITEM = 0x2B,
+        ERR_TRADE_QUEST_ITEM = 0x2C,
+        ERR_TRADE_TEMP_ENCHANT_BOUND = 0x2D,
+        ERR_TRADE_GROUND_ITEM = 0x2E,
+        ERR_TRADE_BAG = 0x2F,
+        ERR_SPELL_FAILED_S = 0x30,
+        ERR_ITEM_COOLDOWN = 0x31,
+        ERR_POTION_COOLDOWN = 0x32,
+        ERR_FOOD_COOLDOWN = 0x33,
+        ERR_SPELL_COOLDOWN = 0x34,
+        ERR_ABILITY_COOLDOWN = 0x35,
+        ERR_SPELL_ALREADY_KNOWN_S = 0x36,
+        ERR_PET_SPELL_ALREADY_KNOWN_S = 0x37,
+        ERR_PROFICIENCY_GAINED_S = 0x38,
+        ERR_SKILL_GAINED_S = 0x39,
+        ERR_SKILL_UP_SI = 0x3A,
+        ERR_LEARN_SPELL_S = 0x3B,
+        ERR_LEARN_ABILITY_S = 0x3C,
+        ERR_LEARN_PASSIVE_S = 0x3D,
+        ERR_LEARN_RECIPE_S = 0x3E,
+        ERR_LEARN_COMPANION_S = 0x3F,
+        ERR_LEARN_MOUNT_S = 0x40,
+        ERR_LEARN_TOY_S = 0x41,
+        ERR_LEARN_HEIRLOOM_S = 0x42,
+        ERR_INVITE_PLAYER_S = 0x43,
+        ERR_INVITE_SELF = 0x44,
+        ERR_INVITED_TO_GROUP_SS = 0x45,
+        ERR_INVITED_ALREADY_IN_GROUP_SS = 0x46,
+        ERR_ALREADY_IN_GROUP_S = 0x47,
+        ERR_CROSS_REALM_RAID_INVITE = 0x48,
+        ERR_PLAYER_BUSY_S = 0x49,
+        ERR_NEW_LEADER_S = 0x4A,
+        ERR_NEW_LEADER_YOU = 0x4B,
+        ERR_NEW_GUIDE_S = 0x4C,
+        ERR_NEW_GUIDE_YOU = 0x4D,
+        ERR_LEFT_GROUP_S = 0x4E,
+        ERR_LEFT_GROUP_YOU = 0x4F,
+        ERR_GROUP_DISBANDED = 0x50,
+        ERR_DECLINE_GROUP_S = 0x51,
+        ERR_JOINED_GROUP_S = 0x52,
+        ERR_UNINVITE_YOU = 0x53,
+        ERR_BAD_PLAYER_NAME_S = 0x54,
+        ERR_NOT_IN_GROUP = 0x55,
+        ERR_TARGET_NOT_IN_GROUP_S = 0x56,
+        ERR_TARGET_NOT_IN_INSTANCE_S = 0x57,
+        ERR_NOT_IN_INSTANCE_GROUP = 0x58,
+        ERR_GROUP_FULL = 0x59,
+        ERR_NOT_LEADER = 0x5A,
+        ERR_PLAYER_DIED_S = 0x5B,
+        ERR_GUILD_CREATE_S = 0x5C,
+        ERR_GUILD_INVITE_S = 0x5D,
+        ERR_INVITED_TO_GUILD_SSS = 0x5E,
+        ERR_ALREADY_IN_GUILD_S = 0x5F,
+        ERR_ALREADY_INVITED_TO_GUILD_S = 0x60,
+        ERR_INVITED_TO_GUILD = 0x61,
+        ERR_ALREADY_IN_GUILD = 0x62,
+        ERR_GUILD_ACCEPT = 0x63,
+        ERR_GUILD_DECLINE_S = 0x64,
+        ERR_GUILD_DECLINE_AUTO_S = 0x65,
+        ERR_GUILD_PERMISSIONS = 0x66,
+        ERR_GUILD_JOIN_S = 0x67,
+        ERR_GUILD_FOUNDER_S = 0x68,
+        ERR_GUILD_PROMOTE_SSS = 0x69,
+        ERR_GUILD_DEMOTE_SS = 0x6A,
+        ERR_GUILD_DEMOTE_SSS = 0x6B,
+        ERR_GUILD_INVITE_SELF = 0x6C,
+        ERR_GUILD_QUIT_S = 0x6D,
+        ERR_GUILD_LEAVE_S = 0x6E,
+        ERR_GUILD_REMOVE_SS = 0x6F,
+        ERR_GUILD_REMOVE_SELF = 0x70,
+        ERR_GUILD_DISBAND_S = 0x71,
+        ERR_GUILD_DISBAND_SELF = 0x72,
+        ERR_GUILD_LEADER_S = 0x73,
+        ERR_GUILD_LEADER_SELF = 0x74,
+        ERR_GUILD_PLAYER_NOT_FOUND_S = 0x75,
+        ERR_GUILD_PLAYER_NOT_IN_GUILD_S = 0x76,
+        ERR_GUILD_PLAYER_NOT_IN_GUILD = 0x77,
+        ERR_GUILD_CANT_PROMOTE_S = 0x78,
+        ERR_GUILD_CANT_DEMOTE_S = 0x79,
+        ERR_GUILD_NOT_IN_A_GUILD = 0x7A,
+        ERR_GUILD_INTERNAL = 0x7B,
+        ERR_GUILD_LEADER_IS_S = 0x7C,
+        ERR_GUILD_LEADER_CHANGED_SS = 0x7D,
+        ERR_GUILD_DISBANDED = 0x7E,
+        ERR_GUILD_NOT_ALLIED = 0x7F,
+        ERR_GUILD_LEADER_LEAVE = 0x80,
+        ERR_GUILD_RANKS_LOCKED = 0x81,
+        ERR_GUILD_RANK_IN_USE = 0x82,
+        ERR_GUILD_RANK_TOO_HIGH_S = 0x83,
+        ERR_GUILD_RANK_TOO_LOW_S = 0x84,
+        ERR_GUILD_NAME_EXISTS_S = 0x85,
+        ERR_GUILD_WITHDRAW_LIMIT = 0x86,
+        ERR_GUILD_NOT_ENOUGH_MONEY = 0x87,
+        ERR_GUILD_TOO_MUCH_MONEY = 0x88,
+        ERR_GUILD_BANK_CONJURED_ITEM = 0x89,
+        ERR_GUILD_BANK_EQUIPPED_ITEM = 0x8A,
+        ERR_GUILD_BANK_BOUND_ITEM = 0x8B,
+        ERR_GUILD_BANK_QUEST_ITEM = 0x8C,
+        ERR_GUILD_BANK_WRAPPED_ITEM = 0x8D,
+        ERR_GUILD_BANK_FULL = 0x8E,
+        ERR_GUILD_BANK_WRONG_TAB = 0x8F,
+        ERR_NO_GUILD_CHARTER = 0x90,
+        ERR_OUT_OF_RANGE = 0x91,
+        ERR_PLAYER_DEAD = 0x92,
+        ERR_CLIENT_LOCKED_OUT = 0x93,
+        ERR_KILLED_BY_S = 0x94,
+        ERR_LOOT_LOCKED = 0x95,
+        ERR_LOOT_TOO_FAR = 0x96,
+        ERR_LOOT_DIDNT_KILL = 0x97,
+        ERR_LOOT_BAD_FACING = 0x98,
+        ERR_LOOT_NOTSTANDING = 0x99,
+        ERR_LOOT_STUNNED = 0x9A,
+        ERR_LOOT_NO_UI = 0x9B,
+        ERR_LOOT_WHILE_INVULNERABLE = 0x9C,
+        ERR_NO_LOOT = 0x9D,
+        ERR_QUEST_ACCEPTED_S = 0x9E,
+        ERR_QUEST_COMPLETE_S = 0x9F,
+        ERR_QUEST_FAILED_S = 0xA0,
+        ERR_QUEST_FAILED_BAG_FULL_S = 0xA1,
+        ERR_QUEST_FAILED_MAX_COUNT_S = 0xA2,
+        ERR_QUEST_FAILED_LOW_LEVEL = 0xA3,
+        ERR_QUEST_FAILED_MISSING_ITEMS = 0xA4,
+        ERR_QUEST_FAILED_WRONG_RACE = 0xA5,
+        ERR_QUEST_FAILED_NOT_ENOUGH_MONEY = 0xA6,
+        ERR_QUEST_FAILED_EXPANSION = 0xA7,
+        ERR_QUEST_ONLY_ONE_TIMED = 0xA8,
+        ERR_QUEST_NEED_PREREQS = 0xA9,
+        ERR_QUEST_NEED_PREREQS_CUSTOM = 0xAA,
+        ERR_QUEST_ALREADY_ON = 0xAB,
+        ERR_QUEST_ALREADY_DONE = 0xAC,
+        ERR_QUEST_ALREADY_DONE_DAILY = 0xAD,
+        ERR_QUEST_HAS_IN_PROGRESS = 0xAE,
+        ERR_QUEST_REWARD_EXP_I = 0xAF,
+        ERR_QUEST_REWARD_ITEM_S = 0xB0,
+        ERR_QUEST_REWARD_ITEM_MULT_IS = 0xB1,
+        ERR_QUEST_REWARD_MONEY_S = 0xB2,
+        ERR_QUEST_MUST_CHOOSE = 0xB3,
+        ERR_QUEST_LOG_FULL = 0xB4,
+        ERR_COMBAT_DAMAGE_SSI = 0xB5,
+        ERR_INSPECT_S = 0xB6,
+        ERR_CANT_USE_ITEM = 0xB7,
+        ERR_CANT_USE_ITEM_IN_ARENA = 0xB8,
+        ERR_CANT_USE_ITEM_IN_RATED_BATTLEGROUND = 0xB9,
+        ERR_MUST_EQUIP_ITEM = 0xBA,
+        ERR_PASSIVE_ABILITY = 0xBB,
+        ERR_2HSKILLNOTFOUND = 0xBC,
+        ERR_NO_ATTACK_TARGET = 0xBD,
+        ERR_INVALID_ATTACK_TARGET = 0xBE,
+        ERR_ATTACK_PVP_TARGET_WHILE_UNFLAGGED = 0xBF,
+        ERR_ATTACK_STUNNED = 0xC0,
+        ERR_ATTACK_PACIFIED = 0xC1,
+        ERR_ATTACK_MOUNTED = 0xC2,
+        ERR_ATTACK_FLEEING = 0xC3,
+        ERR_ATTACK_CONFUSED = 0xC4,
+        ERR_ATTACK_CHARMED = 0xC5,
+        ERR_ATTACK_DEAD = 0xC6,
+        ERR_ATTACK_PREVENTED_BY_MECHANIC_S = 0xC7,
+        ERR_ATTACK_CHANNEL = 0xC8,
+        ERR_TAXISAMENODE = 0xC9,
+        ERR_TAXINOSUCHPATH = 0xCA,
+        ERR_TAXIUNSPECIFIEDSERVERERROR = 0xCB,
+        ERR_TAXINOTENOUGHMONEY = 0xCC,
+        ERR_TAXITOOFARAWAY = 0xCD,
+        ERR_TAXINOVENDORNEARBY = 0xCE,
+        ERR_TAXINOTVISITED = 0xCF,
+        ERR_TAXIPLAYERBUSY = 0xD0,
+        ERR_TAXIPLAYERALREADYMOUNTED = 0xD1,
+        ERR_TAXIPLAYERSHAPESHIFTED = 0xD2,
+        ERR_TAXIPLAYERMOVING = 0xD3,
+        ERR_TAXINOPATHS = 0xD4,
+        ERR_TAXINOTELIGIBLE = 0xD5,
+        ERR_TAXINOTSTANDING = 0xD6,
+        ERR_NO_REPLY_TARGET = 0xD7,
+        ERR_GENERIC_NO_TARGET = 0xD8,
+        ERR_INITIATE_TRADE_S = 0xD9,
+        ERR_TRADE_REQUEST_S = 0xDA,
+        ERR_TRADE_BLOCKED_S = 0xDB,
+        ERR_TRADE_TARGET_DEAD = 0xDC,
+        ERR_TRADE_TOO_FAR = 0xDD,
+        ERR_TRADE_CANCELLED = 0xDE,
+        ERR_TRADE_COMPLETE = 0xDF,
+        ERR_TRADE_BAG_FULL = 0xE0,
+        ERR_TRADE_TARGET_BAG_FULL = 0xE1,
+        ERR_TRADE_MAX_COUNT_EXCEEDED = 0xE2,
+        ERR_TRADE_TARGET_MAX_COUNT_EXCEEDED = 0xE3,
+        ERR_ALREADY_TRADING = 0xE4,
+        ERR_MOUNT_INVALIDMOUNTEE = 0xE5,
+        ERR_MOUNT_TOOFARAWAY = 0xE6,
+        ERR_MOUNT_ALREADYMOUNTED = 0xE7,
+        ERR_MOUNT_NOTMOUNTABLE = 0xE8,
+        ERR_MOUNT_NOTYOURPET = 0xE9,
+        ERR_MOUNT_OTHER = 0xEA,
+        ERR_MOUNT_LOOTING = 0xEB,
+        ERR_MOUNT_RACECANTMOUNT = 0xEC,
+        ERR_MOUNT_SHAPESHIFTED = 0xED,
+        ERR_MOUNT_NO_FAVORITES = 0xEE,
+        ERR_DISMOUNT_NOPET = 0xEF,
+        ERR_DISMOUNT_NOTMOUNTED = 0xF0,
+        ERR_DISMOUNT_NOTYOURPET = 0xF1,
+        ERR_SPELL_FAILED_TOTEMS = 0xF2,
+        ERR_SPELL_FAILED_REAGENTS = 0xF3,
+        ERR_SPELL_FAILED_REAGENTS_GENERIC = 0xF4,
+        ERR_SPELL_FAILED_EQUIPPED_ITEM = 0xF5,
+        ERR_SPELL_FAILED_EQUIPPED_ITEM_CLASS_S = 0xF6,
+        ERR_SPELL_FAILED_SHAPESHIFT_FORM_S = 0xF7,
+        ERR_BADATTACKFACING = 0xF8,
+        ERR_BADATTACKPOS = 0xF9,
+        ERR_CHEST_IN_USE = 0xFA,
+        ERR_USE_CANT_OPEN = 0xFB,
+        ERR_USE_LOCKED = 0xFC,
+        ERR_DOOR_LOCKED = 0xFD,
+        ERR_BUTTON_LOCKED = 0xFE,
+        ERR_USE_LOCKED_WITH_ITEM_S = 0xFF,
+        ERR_USE_LOCKED_WITH_SPELL_S = 0x100,
+        ERR_USE_LOCKED_WITH_SPELL_KNOWN_SI = 0x101,
+        ERR_USE_TOO_FAR = 0x102,
+        ERR_USE_BAD_ANGLE = 0x103,
+        ERR_USE_OBJECT_MOVING = 0x104,
+        ERR_USE_SPELL_FOCUS = 0x105,
+        ERR_USE_DESTROYED = 0x106,
+        ERR_SET_LOOT_FREEFORALL = 0x107,
+        ERR_SET_LOOT_ROUNDROBIN = 0x108,
+        ERR_SET_LOOT_MASTER = 0x109,
+        ERR_SET_LOOT_GROUP = 0x10A,
+        ERR_SET_LOOT_NBG = 0x10B,
+        ERR_SET_LOOT_THRESHOLD_S = 0x10C,
+        ERR_NEW_LOOT_MASTER_S = 0x10D,
+        ERR_SPECIFY_MASTER_LOOTER = 0x10E,
+        ERR_LOOT_SPEC_CHANGED_S = 0x10F,
+        ERR_TAME_FAILED = 0x110,
+        ERR_CHAT_WHILE_DEAD = 0x111,
+        ERR_CHAT_PLAYER_NOT_FOUND_S = 0x112,
+        ERR_NEWTAXIPATH = 0x113,
+        ERR_NO_PET = 0x114,
+        ERR_NOTYOURPET = 0x115,
+        ERR_PET_NOT_RENAMEABLE = 0x116,
+        ERR_QUEST_OBJECTIVE_COMPLETE_S = 0x117,
+        ERR_QUEST_UNKNOWN_COMPLETE = 0x118,
+        ERR_QUEST_ADD_KILL_SII = 0x119,
+        ERR_QUEST_ADD_FOUND_SII = 0x11A,
+        ERR_QUEST_ADD_ITEM_SII = 0x11B,
+        ERR_QUEST_ADD_PLAYER_KILL_SII = 0x11C,
+        ERR_CANNOTCREATEDIRECTORY = 0x11D,
+        ERR_CANNOTCREATEFILE = 0x11E,
+        ERR_PLAYER_WRONG_FACTION = 0x11F,
+        ERR_PLAYER_IS_NEUTRAL = 0x120,
+        ERR_BANKSLOT_FAILED_TOO_MANY = 0x121,
+        ERR_BANKSLOT_INSUFFICIENT_FUNDS = 0x122,
+        ERR_BANKSLOT_NOTBANKER = 0x123,
+        ERR_FRIEND_DB_ERROR = 0x124,
+        ERR_FRIEND_LIST_FULL = 0x125,
+        ERR_FRIEND_ADDED_S = 0x126,
+        ERR_BATTLETAG_FRIEND_ADDED_S = 0x127,
+        ERR_FRIEND_ONLINE_SS = 0x128,
+        ERR_FRIEND_OFFLINE_S = 0x129,
+        ERR_FRIEND_NOT_FOUND = 0x12A,
+        ERR_FRIEND_WRONG_FACTION = 0x12B,
+        ERR_FRIEND_REMOVED_S = 0x12C,
+        ERR_BATTLETAG_FRIEND_REMOVED_S = 0x12D,
+        ERR_FRIEND_ERROR = 0x12E,
+        ERR_FRIEND_ALREADY_S = 0x12F,
+        ERR_FRIEND_SELF = 0x130,
+        ERR_FRIEND_DELETED = 0x131,
+        ERR_IGNORE_FULL = 0x132,
+        ERR_IGNORE_SELF = 0x133,
+        ERR_IGNORE_NOT_FOUND = 0x134,
+        ERR_IGNORE_ALREADY_S = 0x135,
+        ERR_IGNORE_ADDED_S = 0x136,
+        ERR_IGNORE_REMOVED_S = 0x137,
+        ERR_IGNORE_AMBIGUOUS = 0x138,
+        ERR_IGNORE_DELETED = 0x139,
+        ERR_ONLY_ONE_BOLT = 0x13A,
+        ERR_ONLY_ONE_AMMO = 0x13B,
+        ERR_SPELL_FAILED_EQUIPPED_SPECIFIC_ITEM = 0x13C,
+        ERR_WRONG_BAG_TYPE_SUBCLASS = 0x13D,
+        ERR_CANT_WRAP_STACKABLE = 0x13E,
+        ERR_CANT_WRAP_EQUIPPED = 0x13F,
+        ERR_CANT_WRAP_WRAPPED = 0x140,
+        ERR_CANT_WRAP_BOUND = 0x141,
+        ERR_CANT_WRAP_UNIQUE = 0x142,
+        ERR_CANT_WRAP_BAGS = 0x143,
+        ERR_OUT_OF_MANA = 0x144,
+        ERR_OUT_OF_RAGE = 0x145,
+        ERR_OUT_OF_FOCUS = 0x146,
+        ERR_OUT_OF_ENERGY = 0x147,
+        ERR_OUT_OF_CHI = 0x148,
+        ERR_OUT_OF_HEALTH = 0x149,
+        ERR_OUT_OF_RUNES = 0x14A,
+        ERR_OUT_OF_RUNIC_POWER = 0x14B,
+        ERR_OUT_OF_SOUL_SHARDS = 0x14C,
+        ERR_OUT_OF_BALANCE_POSITIVE = 0x14D,
+        ERR_OUT_OF_BALANCE_NEGATIVE = 0x14E,
+        ERR_OUT_OF_HOLY_POWER = 0x14F,
+        ERR_OUT_OF_DARK_FORCE = 0x150,
+        ERR_OUT_OF_COMBO_POINTS = 0x151,
+        ERR_OUT_OF_SHADOW_ORBS = 0x152,
+        ERR_OUT_OF_BURNING_EMBERS = 0x153,
+        ERR_OUT_OF_DEMONIC_FURY = 0x154,
+        ERR_OUT_OF_ARCANE_CHARGES = 0x155,
+        ERR_OUT_OF_POWER_DISPLAY = 0x156,
+        ERR_LOOT_GONE = 0x157,
+        ERR_MOUNT_FORCEDDISMOUNT = 0x158,
+        ERR_AUTOFOLLOW_TOO_FAR = 0x159,
+        ERR_UNIT_NOT_FOUND = 0x15A,
+        ERR_INVALID_FOLLOW_TARGET = 0x15B,
+        ERR_INVALID_INSPECT_TARGET = 0x15C,
+        ERR_GUILDEMBLEM_SUCCESS = 0x15D,
+        ERR_GUILDEMBLEM_INVALID_TABARD_COLORS = 0x15E,
+        ERR_GUILDEMBLEM_NOGUILD = 0x15F,
+        ERR_GUILDEMBLEM_NOTGUILDMASTER = 0x160,
+        ERR_GUILDEMBLEM_NOTENOUGHMONEY = 0x161,
+        ERR_GUILDEMBLEM_INVALIDVENDOR = 0x162,
+        ERR_EMBLEMERROR_NOTABARDGEOSET = 0x163,
+        ERR_SPELL_OUT_OF_RANGE = 0x164,
+        ERR_COMMAND_NEEDS_TARGET = 0x165,
+        ERR_NOAMMO_S = 0x166,
+        ERR_TOOBUSYTOFOLLOW = 0x167,
+        ERR_DUEL_REQUESTED = 0x168,
+        ERR_DUEL_CANCELLED = 0x169,
+        ERR_DEATHBINDALREADYBOUND = 0x16A,
+        ERR_DEATHBIND_SUCCESS_S = 0x16B,
+        ERR_NOEMOTEWHILERUNNING = 0x16C,
+        ERR_ZONE_EXPLORED = 0x16D,
+        ERR_ZONE_EXPLORED_XP = 0x16E,
+        ERR_INVALID_ITEM_TARGET = 0x16F,
+        ERR_IGNORING_YOU_S = 0x170,
+        ERR_FISH_NOT_HOOKED = 0x171,
+        ERR_FISH_ESCAPED = 0x172,
+        ERR_SPELL_FAILED_NOTUNSHEATHED = 0x173,
+        ERR_PETITION_OFFERED_S = 0x174,
+        ERR_PETITION_SIGNED = 0x175,
+        ERR_PETITION_SIGNED_S = 0x176,
+        ERR_PETITION_DECLINED_S = 0x177,
+        ERR_PETITION_ALREADY_SIGNED = 0x178,
+        ERR_PETITION_RESTRICTED_ACCOUNT_TRIAL = 0x179,
+        ERR_PETITION_RESTRICTED_ACCOUNT_VETERAN = 0x17A,
+        ERR_PETITION_ALREADY_SIGNED_OTHER = 0x17B,
+        ERR_PETITION_IN_GUILD = 0x17C,
+        ERR_PETITION_CREATOR = 0x17D,
+        ERR_PETITION_NOT_ENOUGH_SIGNATURES = 0x17E,
+        ERR_PETITION_NOT_SAME_SERVER = 0x17F,
+        ERR_PETITION_FULL = 0x180,
+        ERR_PETITION_ALREADY_SIGNED_BY_S = 0x181,
+        ERR_GUILD_NAME_INVALID = 0x182,
+        ERR_SPELL_UNLEARNED_S = 0x183,
+        ERR_PET_SPELL_ROOTED = 0x184,
+        ERR_PET_SPELL_AFFECTING_COMBAT = 0x185,
+        ERR_PET_SPELL_OUT_OF_RANGE = 0x186,
+        ERR_PET_SPELL_NOT_BEHIND = 0x187,
+        ERR_PET_SPELL_TARGETS_DEAD = 0x188,
+        ERR_PET_SPELL_DEAD = 0x189,
+        ERR_PET_SPELL_NOPATH = 0x18A,
+        ERR_ITEM_CANT_BE_DESTROYED = 0x18B,
+        ERR_TICKET_ALREADY_EXISTS = 0x18C,
+        ERR_TICKET_CREATE_ERROR = 0x18D,
+        ERR_TICKET_UPDATE_ERROR = 0x18E,
+        ERR_TICKET_DB_ERROR = 0x18F,
+        ERR_TICKET_NO_TEXT = 0x190,
+        ERR_TICKET_TEXT_TOO_LONG = 0x191,
+        ERR_OBJECT_IS_BUSY = 0x192,
+        ERR_EXHAUSTION_WELLRESTED = 0x193,
+        ERR_EXHAUSTION_RESTED = 0x194,
+        ERR_EXHAUSTION_NORMAL = 0x195,
+        ERR_EXHAUSTION_TIRED = 0x196,
+        ERR_EXHAUSTION_EXHAUSTED = 0x197,
+        ERR_NO_ITEMS_WHILE_SHAPESHIFTED = 0x198,
+        ERR_CANT_INTERACT_SHAPESHIFTED = 0x199,
+        ERR_REALM_NOT_FOUND = 0x19A,
+        ERR_MAIL_QUEST_ITEM = 0x19B,
+        ERR_MAIL_BOUND_ITEM = 0x19C,
+        ERR_MAIL_CONJURED_ITEM = 0x19D,
+        ERR_MAIL_BAG = 0x19E,
+        ERR_MAIL_TO_SELF = 0x19F,
+        ERR_MAIL_TARGET_NOT_FOUND = 0x1A0,
+        ERR_MAIL_DATABASE_ERROR = 0x1A1,
+        ERR_MAIL_DELETE_ITEM_ERROR = 0x1A2,
+        ERR_MAIL_WRAPPED_COD = 0x1A3,
+        ERR_MAIL_CANT_SEND_REALM = 0x1A4,
+        ERR_MAIL_SENT = 0x1A5,
+        ERR_NOT_HAPPY_ENOUGH = 0x1A6,
+        ERR_USE_CANT_IMMUNE = 0x1A7,
+        ERR_CANT_BE_DISENCHANTED = 0x1A8,
+        ERR_CANT_USE_DISARMED = 0x1A9,
+        ERR_AUCTION_QUEST_ITEM = 0x1AA,
+        ERR_AUCTION_BOUND_ITEM = 0x1AB,
+        ERR_AUCTION_CONJURED_ITEM = 0x1AC,
+        ERR_AUCTION_LIMITED_DURATION_ITEM = 0x1AD,
+        ERR_AUCTION_WRAPPED_ITEM = 0x1AE,
+        ERR_AUCTION_LOOT_ITEM = 0x1AF,
+        ERR_AUCTION_BAG = 0x1B0,
+        ERR_AUCTION_EQUIPPED_BAG = 0x1B1,
+        ERR_AUCTION_DATABASE_ERROR = 0x1B2,
+        ERR_AUCTION_BID_OWN = 0x1B3,
+        ERR_AUCTION_BID_INCREMENT = 0x1B4,
+        ERR_AUCTION_HIGHER_BID = 0x1B5,
+        ERR_AUCTION_MIN_BID = 0x1B6,
+        ERR_AUCTION_REPAIR_ITEM = 0x1B7,
+        ERR_AUCTION_USED_CHARGES = 0x1B8,
+        ERR_AUCTION_ALREADY_BID = 0x1B9,
+        ERR_AUCTION_STARTED = 0x1BA,
+        ERR_AUCTION_REMOVED = 0x1BB,
+        ERR_AUCTION_OUTBID_S = 0x1BC,
+        ERR_AUCTION_WON_S = 0x1BD,
+        ERR_AUCTION_SOLD_S = 0x1BE,
+        ERR_AUCTION_EXPIRED_S = 0x1BF,
+        ERR_AUCTION_REMOVED_S = 0x1C0,
+        ERR_AUCTION_BID_PLACED = 0x1C1,
+        ERR_LOGOUT_FAILED = 0x1C2,
+        ERR_QUEST_PUSH_SUCCESS_S = 0x1C3,
+        ERR_QUEST_PUSH_INVALID_S = 0x1C4,
+        ERR_QUEST_PUSH_ACCEPTED_S = 0x1C5,
+        ERR_QUEST_PUSH_DECLINED_S = 0x1C6,
+        ERR_QUEST_PUSH_BUSY_S = 0x1C7,
+        ERR_QUEST_PUSH_DEAD_S = 0x1C8,
+        ERR_QUEST_PUSH_LOG_FULL_S = 0x1C9,
+        ERR_QUEST_PUSH_ONQUEST_S = 0x1CA,
+        ERR_QUEST_PUSH_ALREADY_DONE_S = 0x1CB,
+        ERR_QUEST_PUSH_NOT_DAILY_S = 0x1CC,
+        ERR_QUEST_PUSH_TIMER_EXPIRED_S = 0x1CD,
+        ERR_QUEST_PUSH_NOT_IN_PARTY_S = 0x1CE,
+        ERR_QUEST_PUSH_DIFFERENT_SERVER_DAILY_S = 0x1CF,
+        ERR_QUEST_PUSH_NOT_ALLOWED_S = 0x1D0,
+        ERR_RAID_GROUP_LOWLEVEL = 0x1D1,
+        ERR_RAID_GROUP_ONLY = 0x1D2,
+        ERR_RAID_GROUP_FULL = 0x1D3,
+        ERR_RAID_GROUP_REQUIREMENTS_UNMATCH = 0x1D4,
+        ERR_CORPSE_IS_NOT_IN_INSTANCE = 0x1D5,
+        ERR_PVP_KILL_HONORABLE = 0x1D6,
+        ERR_PVP_KILL_DISHONORABLE = 0x1D7,
+        ERR_SPELL_FAILED_ALREADY_AT_FULL_HEALTH = 0x1D8,
+        ERR_SPELL_FAILED_ALREADY_AT_FULL_MANA = 0x1D9,
+        ERR_SPELL_FAILED_ALREADY_AT_FULL_POWER_S = 0x1DA,
+        ERR_AUTOLOOT_MONEY_S = 0x1DB,
+        ERR_GENERIC_STUNNED = 0x1DC,
+        ERR_TARGET_STUNNED = 0x1DD,
+        ERR_MUST_REPAIR_DURABILITY = 0x1DE,
+        ERR_RAID_YOU_JOINED = 0x1DF,
+        ERR_RAID_YOU_LEFT = 0x1E0,
+        ERR_INSTANCE_GROUP_JOINED_WITH_PARTY = 0x1E1,
+        ERR_INSTANCE_GROUP_JOINED_WITH_RAID = 0x1E2,
+        ERR_RAID_MEMBER_ADDED_S = 0x1E3,
+        ERR_RAID_MEMBER_REMOVED_S = 0x1E4,
+        ERR_INSTANCE_GROUP_ADDED_S = 0x1E5,
+        ERR_INSTANCE_GROUP_REMOVED_S = 0x1E6,
+        ERR_CLICK_ON_ITEM_TO_FEED = 0x1E7,
+        ERR_TOO_MANY_CHAT_CHANNELS = 0x1E8,
+        ERR_LOOT_ROLL_PENDING = 0x1E9,
+        ERR_LOOT_PLAYER_NOT_FOUND = 0x1EA,
+        ERR_NOT_IN_RAID = 0x1EB,
+        ERR_LOGGING_OUT = 0x1EC,
+        ERR_TARGET_LOGGING_OUT = 0x1ED,
+        ERR_NOT_WHILE_MOUNTED = 0x1EE,
+        ERR_NOT_WHILE_SHAPESHIFTED = 0x1EF,
+        ERR_NOT_IN_COMBAT = 0x1F0,
+        ERR_NOT_WHILE_DISARMED = 0x1F1,
+        ERR_PET_BROKEN = 0x1F2,
+        ERR_TALENT_WIPE_ERROR = 0x1F3,
+        ERR_SPEC_WIPE_ERROR = 0x1F4,
+        ERR_GLYPH_WIPE_ERROR = 0x1F5,
+        ERR_PET_SPEC_WIPE_ERROR = 0x1F6,
+        ERR_FEIGN_DEATH_RESISTED = 0x1F7,
+        ERR_MEETING_STONE_IN_QUEUE_S = 0x1F8,
+        ERR_MEETING_STONE_LEFT_QUEUE_S = 0x1F9,
+        ERR_MEETING_STONE_OTHER_MEMBER_LEFT = 0x1FA,
+        ERR_MEETING_STONE_PARTY_KICKED_FROM_QUEUE = 0x1FB,
+        ERR_MEETING_STONE_MEMBER_STILL_IN_QUEUE = 0x1FC,
+        ERR_MEETING_STONE_SUCCESS = 0x1FD,
+        ERR_MEETING_STONE_IN_PROGRESS = 0x1FE,
+        ERR_MEETING_STONE_MEMBER_ADDED_S = 0x1FF,
+        ERR_MEETING_STONE_GROUP_FULL = 0x200,
+        ERR_MEETING_STONE_NOT_LEADER = 0x201,
+        ERR_MEETING_STONE_INVALID_LEVEL = 0x202,
+        ERR_MEETING_STONE_TARGET_NOT_IN_PARTY = 0x203,
+        ERR_MEETING_STONE_TARGET_INVALID_LEVEL = 0x204,
+        ERR_MEETING_STONE_MUST_BE_LEADER = 0x205,
+        ERR_MEETING_STONE_NO_RAID_GROUP = 0x206,
+        ERR_MEETING_STONE_NEED_PARTY = 0x207,
+        ERR_MEETING_STONE_NOT_FOUND = 0x208,
+        ERR_GUILDEMBLEM_SAME = 0x209,
+        ERR_EQUIP_TRADE_ITEM = 0x20A,
+        ERR_PVP_TOGGLE_ON = 0x20B,
+        ERR_PVP_TOGGLE_OFF = 0x20C,
+        ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS = 0x20D,
+        ERR_GROUP_JOIN_BATTLEGROUND_S = 0x20E,
+        ERR_GROUP_JOIN_BATTLEGROUND_FAIL = 0x20F,
+        ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY = 0x210,
+        ERR_SOLO_JOIN_BATTLEGROUND_S = 0x211,
+        ERR_BATTLEGROUND_TOO_MANY_QUEUES = 0x212,
+        ERR_BATTLEGROUND_CANNOT_QUEUE_FOR_RATED = 0x213,
+        ERR_BATTLEDGROUND_QUEUED_FOR_RATED = 0x214,
+        ERR_BATTLEGROUND_TEAM_LEFT_QUEUE = 0x215,
+        ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND = 0x216,
+        ERR_ALREADY_IN_ARENA_TEAM_S = 0x217,
+        ERR_INVALID_PROMOTION_CODE = 0x218,
+        ERR_BG_PLAYER_JOINED_SS = 0x219,
+        ERR_BG_PLAYER_LEFT_S = 0x21A,
+        ERR_RESTRICTED_ACCOUNT = 0x21B,
+        ERR_RESTRICTED_ACCOUNT_TRIAL = 0x21C,
+        ERR_RESTRICTED_ACCOUNT_VETERAN = 0x21D,
+        ERR_PLAY_TIME_EXCEEDED = 0x21E,
+        ERR_APPROACHING_PARTIAL_PLAY_TIME = 0x21F,
+        ERR_APPROACHING_PARTIAL_PLAY_TIME_2 = 0x220,
+        ERR_APPROACHING_NO_PLAY_TIME = 0x221,
+        ERR_APPROACHING_NO_PLAY_TIME_2 = 0x222,
+        ERR_UNHEALTHY_TIME = 0x223,
+        ERR_CHAT_RESTRICTED_TRIAL = 0x224,
+        ERR_CHAT_RESTRICTED_VETERAN = 0x225,
+        ERR_CHAT_THROTTLED = 0x226,
+        ERR_MAIL_REACHED_CAP = 0x227,
+        ERR_INVALID_RAID_TARGET = 0x228,
+        ERR_RAID_LEADER_READY_CHECK_START_S = 0x229,
+        ERR_READY_CHECK_IN_PROGRESS = 0x22A,
+        ERR_READY_CHECK_THROTTLED = 0x22B,
+        ERR_DUNGEON_DIFFICULTY_FAILED = 0x22C,
+        ERR_DUNGEON_DIFFICULTY_CHANGED_S = 0x22D,
+        ERR_TRADE_WRONG_REALM = 0x22E,
+        ERR_TRADE_NOT_ON_TAPLIST = 0x22F,
+        ERR_CHAT_PLAYER_AMBIGUOUS_S = 0x230,
+        ERR_LOOT_CANT_LOOT_THAT_NOW = 0x231,
+        ERR_LOOT_MASTER_INV_FULL = 0x232,
+        ERR_LOOT_MASTER_UNIQUE_ITEM = 0x233,
+        ERR_LOOT_MASTER_OTHER = 0x234,
+        ERR_FILTERING_YOU_S = 0x235,
+        ERR_USE_PREVENTED_BY_MECHANIC_S = 0x236,
+        ERR_ITEM_UNIQUE_EQUIPPABLE = 0x237,
+        ERR_LFG_LEADER_IS_LFM_S = 0x238,
+        ERR_LFG_PENDING = 0x239,
+        ERR_CANT_SPEAK_LANGAGE = 0x23A,
+        ERR_VENDOR_MISSING_TURNINS = 0x23B,
+        ERR_BATTLEGROUND_NOT_IN_TEAM = 0x23C,
+        ERR_NOT_IN_BATTLEGROUND = 0x23D,
+        ERR_NOT_ENOUGH_HONOR_POINTS = 0x23E,
+        ERR_NOT_ENOUGH_ARENA_POINTS = 0x23F,
+        ERR_SOCKETING_REQUIRES_META_GEM = 0x240,
+        ERR_SOCKETING_META_GEM_ONLY_IN_METASLOT = 0x241,
+        ERR_SOCKETING_REQUIRES_HYDRAULIC_GEM = 0x242,
+        ERR_SOCKETING_HYDRAULIC_GEM_ONLY_IN_HYDRAULICSLOT = 0x243,
+        ERR_SOCKETING_REQUIRES_COGWHEEL_GEM = 0x244,
+        ERR_SOCKETING_COGWHEEL_GEM_ONLY_IN_COGWHEELSLOT = 0x245,
+        ERR_SOCKETING_ITEM_TOO_LOW_LEVEL = 0x246,
+        ERR_ITEM_MAX_COUNT_SOCKETED = 0x247,
+        ERR_SYSTEM_DISABLED = 0x248,
+        ERR_QUEST_FAILED_TOO_MANY_DAILY_QUESTS_I = 0x249,
+        ERR_ITEM_MAX_COUNT_EQUIPPED_SOCKETED = 0x24A,
+        ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED = 0x24B,
+        ERR_USER_SQUELCHED = 0x24C,
+        ERR_TOO_MUCH_GOLD = 0x24D,
+        ERR_NOT_BARBER_SITTING = 0x24E,
+        ERR_QUEST_FAILED_CAIS = 0x24F,
+        ERR_INVITE_RESTRICTED_TRIAL = 0x250,
+        ERR_INVITE_RESTRICTED_VETERAN = 0x251,
+        ERR_VOICE_IGNORE_FULL = 0x252,
+        ERR_VOICE_IGNORE_SELF = 0x253,
+        ERR_VOICE_IGNORE_NOT_FOUND = 0x254,
+        ERR_VOICE_IGNORE_ALREADY_S = 0x255,
+        ERR_VOICE_IGNORE_ADDED_S = 0x256,
+        ERR_VOICE_IGNORE_REMOVED_S = 0x257,
+        ERR_VOICE_IGNORE_AMBIGUOUS = 0x258,
+        ERR_VOICE_IGNORE_DELETED = 0x259,
+        ERR_UNKNOWN_MACRO_OPTION_S = 0x25A,
+        ERR_NOT_DURING_ARENA_MATCH = 0x25B,
+        ERR_PLAYER_SILENCED = 0x25C,
+        ERR_PLAYER_UNSILENCED = 0x25D,
+        ERR_COMSAT_DISCONNECT = 0x25E,
+        ERR_COMSAT_RECONNECT_ATTEMPT = 0x25F,
+        ERR_COMSAT_CONNECT_FAIL = 0x260,
+        ERR_DANCE_CREATE_DUPLICATE = 0x261,
+        ERR_DANCE_SAVE_FAILED = 0x262,
+        ERR_DANCE_DELETE_FAILED = 0x263,
+        ERR_MAIL_INVALID_ATTACHMENT_SLOT = 0x264,
+        ERR_MAIL_TOO_MANY_ATTACHMENTS = 0x265,
+        ERR_MAIL_INVALID_ATTACHMENT = 0x266,
+        ERR_MAIL_ATTACHMENT_EXPIRED = 0x267,
+        ERR_VOICE_CHAT_PARENTAL_DISABLE_ALL = 0x268,
+        ERR_VOICE_CHAT_PARENTAL_DISABLE_MIC = 0x269,
+        ERR_PROFANE_CHAT_NAME = 0x26A,
+        ERR_PLAYER_SILENCED_ECHO = 0x26B,
+        ERR_PLAYER_UNSILENCED_ECHO = 0x26C,
+        ERR_VOICESESSION_FULL = 0x26D,
+        ERR_LOOT_CANT_LOOT_THAT = 0x26E,
+        ERR_ARENA_EXPIRED_CAIS = 0x26F,
+        ERR_GROUP_ACTION_THROTTLED = 0x270,
+        ERR_ALREADY_PICKPOCKETED = 0x271,
+        ERR_NAME_INVALID = 0x272,
+        ERR_NAME_NO_NAME = 0x273,
+        ERR_NAME_TOO_SHORT = 0x274,
+        ERR_NAME_TOO_LONG = 0x275,
+        ERR_NAME_MIXED_LANGUAGES = 0x276,
+        ERR_NAME_PROFANE = 0x277,
+        ERR_NAME_RESERVED = 0x278,
+        ERR_NAME_THREE_CONSECUTIVE = 0x279,
+        ERR_NAME_INVALID_SPACE = 0x27A,
+        ERR_NAME_CONSECUTIVE_SPACES = 0x27B,
+        ERR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS = 0x27C,
+        ERR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 0x27D,
+        ERR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME = 0x27E,
+        ERR_REFER_A_FRIEND_NOT_REFERRED_BY = 0x27F,
+        ERR_REFER_A_FRIEND_TARGET_TOO_HIGH = 0x280,
+        ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS = 0x281,
+        ERR_REFER_A_FRIEND_TOO_FAR = 0x282,
+        ERR_REFER_A_FRIEND_DIFFERENT_FACTION = 0x283,
+        ERR_REFER_A_FRIEND_NOT_NOW = 0x284,
+        ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I = 0x285,
+        ERR_REFER_A_FRIEND_SUMMON_LEVEL_MAX_I = 0x286,
+        ERR_REFER_A_FRIEND_SUMMON_COOLDOWN = 0x287,
+        ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S = 0x288,
+        ERR_REFER_A_FRIEND_INSUF_EXPAN_LVL = 0x289,
+        ERR_REFER_A_FRIEND_NOT_IN_LFG = 0x28A,
+        ERR_REFER_A_FRIEND_NO_XREALM = 0x28B,
+        ERR_REFER_A_FRIEND_MAP_INCOMING_TRANSFER_NOT_ALLOWED = 0x28C,
+        ERR_NOT_SAME_ACCOUNT = 0x28D,
+        ERR_BAD_ON_USE_ENCHANT = 0x28E,
+        ERR_TRADE_SELF = 0x28F,
+        ERR_TOO_MANY_SOCKETS = 0x290,
+        ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS = 0x291,
+        ERR_TRADE_TARGET_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS = 0x292,
+        ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS = 0x293,
+        ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS = 0x294,
+        ERR_SHAPESHIFT_FORM_CANNOT_EQUIP = 0x295,
+        ERR_ITEM_INVENTORY_FULL_SATCHEL = 0x296,
+        ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED = 0x297,
+        ERR_SCALING_STAT_ITEM_LEVEL_TOO_LOW = 0x298,
+        ERR_PURCHASE_LEVEL_TOO_LOW = 0x299,
+        ERR_GROUP_SWAP_FAILED = 0x29A,
+        ERR_INVITE_IN_COMBAT = 0x29B,
+        ERR_INVALID_GLYPH_SLOT = 0x29C,
+        ERR_GENERIC_NO_VALID_TARGETS = 0x29D,
+        ERR_CALENDAR_EVENT_ALERT_S = 0x29E,
+        ERR_PET_LEARN_SPELL_S = 0x29F,
+        ERR_PET_LEARN_ABILITY_S = 0x2A0,
+        ERR_PET_SPELL_UNLEARNED_S = 0x2A1,
+        ERR_INVITE_UNKNOWN_REALM = 0x2A2,
+        ERR_INVITE_NO_PARTY_SERVER = 0x2A3,
+        ERR_INVITE_PARTY_BUSY = 0x2A4,
+        ERR_PARTY_TARGET_AMBIGUOUS = 0x2A5,
+        ERR_PARTY_LFG_INVITE_RAID_LOCKED = 0x2A6,
+        ERR_PARTY_LFG_BOOT_LIMIT = 0x2A7,
+        ERR_PARTY_LFG_BOOT_COOLDOWN_S = 0x2A8,
+        ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S = 0x2A9,
+        ERR_PARTY_LFG_BOOT_INPATIENT_TIMER_S = 0x2AA,
+        ERR_PARTY_LFG_BOOT_IN_PROGRESS = 0x2AB,
+        ERR_PARTY_LFG_BOOT_TOO_FEW_PLAYERS = 0x2AC,
+        ERR_PARTY_LFG_BOOT_VOTE_SUCCEEDED = 0x2AD,
+        ERR_PARTY_LFG_BOOT_VOTE_FAILED = 0x2AE,
+        ERR_PARTY_LFG_BOOT_IN_COMBAT = 0x2AF,
+        ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE = 0x2B0,
+        ERR_PARTY_LFG_BOOT_LOOT_ROLLS = 0x2B1,
+        ERR_PARTY_LFG_BOOT_VOTE_REGISTERED = 0x2B2,
+        ERR_PARTY_PRIVATE_GROUP_ONLY = 0x2B3,
+        ERR_PARTY_LFG_TELEPORT_IN_COMBAT = 0x2B4,
+        ERR_RAID_DISALLOWED_BY_LEVEL = 0x2B5,
+        ERR_RAID_DISALLOWED_BY_CROSS_REALM = 0x2B6,
+        ERR_PARTY_ROLE_NOT_AVAILABLE = 0x2B7,
+        ERR_JOIN_LFG_OBJECT_FAILED = 0x2B8,
+        ERR_LFG_REMOVED_LEVELUP = 0x2B9,
+        ERR_LFG_REMOVED_XP_TOGGLE = 0x2BA,
+        ERR_LFG_REMOVED_FACTION_CHANGE = 0x2BB,
+        ERR_BATTLEGROUND_INFO_THROTTLED = 0x2BC,
+        ERR_BATTLEGROUND_ALREADY_IN = 0x2BD,
+        ERR_ARENA_TEAM_CHANGE_FAILED_QUEUED = 0x2BE,
+        ERR_ARENA_TEAM_PERMISSIONS = 0x2BF,
+        ERR_NOT_WHILE_FALLING = 0x2C0,
+        ERR_NOT_WHILE_FATIGUED = 0x2C1,
+        ERR_MAX_SOCKETS = 0x2C2,
+        ERR_MULTI_CAST_ACTION_TOTEM_S = 0x2C3,
+        ERR_BATTLEGROUND_JOIN_LEVELUP = 0x2C4,
+        ERR_REMOVE_FROM_PVP_QUEUE_XP_GAIN = 0x2C5,
+        ERR_BATTLEGROUND_JOIN_XP_GAIN = 0x2C6,
+        ERR_RAID_DIFFICULTY_FAILED = 0x2C7,
+        ERR_RAID_DIFFICULTY_CHANGED_S = 0x2C8,
+        ERR_LEGACY_RAID_DIFFICULTY_CHANGED_S = 0x2C9,
+        ERR_RAID_LOCKOUT_CHANGED_S = 0x2CA,
+        ERR_RAID_CONVERTED_TO_PARTY = 0x2CB,
+        ERR_PARTY_CONVERTED_TO_RAID = 0x2CC,
+        ERR_PLAYER_DIFFICULTY_CHANGED_S = 0x2CD,
+        ERR_GMRESPONSE_DB_ERROR = 0x2CE,
+        ERR_BATTLEGROUND_JOIN_RANGE_INDEX = 0x2CF,
+        ERR_ARENA_JOIN_RANGE_INDEX = 0x2D0,
+        ERR_REMOVE_FROM_PVP_QUEUE_FACTION_CHANGE = 0x2D1,
+        ERR_BATTLEGROUND_JOIN_FAILED = 0x2D2,
+        ERR_BATTLEGROUND_JOIN_NO_VALID_SPEC_FOR_ROLE = 0x2D3,
+        ERR_BATTLEGROUND_JOIN_RESPEC = 0x2D4,
+        ERR_BATTLEGROUND_INVITATION_DECLINED = 0x2D5,
+        ERR_BATTLEGROUND_JOIN_TIMED_OUT = 0x2D6,
+        ERR_BATTLEGROUND_DUPE_QUEUE = 0x2D7,
+        ERR_BATTLEGROUND_JOIN_MUST_COMPLETE_QUEST = 0x2D8,
+        ERR_IN_BATTLEGROUND_RESPEC = 0x2D9,
+        ERR_MAIL_LIMITED_DURATION_ITEM = 0x2DA,
+        ERR_YELL_RESTRICTED_TRIAL = 0x2DB,
+        ERR_YELL_RESTRICTED_VETERAN = 0x2DC,
+        ERR_CHAT_RAID_RESTRICTED_TRIAL = 0x2DD,
+        ERR_CHAT_RAID_RESTRICTED_VETERAN = 0x2DE,
+        ERR_LFG_ROLE_CHECK_FAILED = 0x2DF,
+        ERR_LFG_ROLE_CHECK_FAILED_TIMEOUT = 0x2E0,
+        ERR_LFG_ROLE_CHECK_FAILED_NOT_VIABLE = 0x2E1,
+        ERR_LFG_READY_CHECK_FAILED = 0x2E2,
+        ERR_LFG_READY_CHECK_FAILED_TIMEOUT = 0x2E3,
+        ERR_LFG_GROUP_FULL = 0x2E4,
+        ERR_LFG_NO_LFG_OBJECT = 0x2E5,
+        ERR_LFG_NO_SLOTS_PLAYER = 0x2E6,
+        ERR_LFG_NO_SLOTS_PARTY = 0x2E7,
+        ERR_LFG_MISMATCHED_SLOTS = 0x2E8,
+        ERR_LFG_MISMATCHED_SLOTS_LOCAL_XREALM = 0x2E9,
+        ERR_LFG_PARTY_PLAYERS_FROM_DIFFERENT_REALMS = 0x2EA,
+        ERR_LFG_MEMBERS_NOT_PRESENT = 0x2EB,
+        ERR_LFG_GET_INFO_TIMEOUT = 0x2EC,
+        ERR_LFG_INVALID_SLOT = 0x2ED,
+        ERR_LFG_DESERTER_PLAYER = 0x2EE,
+        ERR_LFG_DESERTER_PARTY = 0x2EF,
+        ERR_LFG_RANDOM_COOLDOWN_PLAYER = 0x2F0,
+        ERR_LFG_RANDOM_COOLDOWN_PARTY = 0x2F1,
+        ERR_LFG_TOO_MANY_MEMBERS = 0x2F2,
+        ERR_LFG_TOO_FEW_MEMBERS = 0x2F3,
+        ERR_LFG_PROPOSAL_FAILED = 0x2F4,
+        ERR_LFG_PROPOSAL_DECLINED_SELF = 0x2F5,
+        ERR_LFG_PROPOSAL_DECLINED_PARTY = 0x2F6,
+        ERR_LFG_NO_SLOTS_SELECTED = 0x2F7,
+        ERR_LFG_NO_ROLES_SELECTED = 0x2F8,
+        ERR_LFG_ROLE_CHECK_INITIATED = 0x2F9,
+        ERR_LFG_READY_CHECK_INITIATED = 0x2FA,
+        ERR_LFG_PLAYER_DECLINED_ROLE_CHECK = 0x2FB,
+        ERR_LFG_PLAYER_DECLINED_READY_CHECK = 0x2FC,
+        ERR_LFG_JOINED_QUEUE = 0x2FD,
+        ERR_LFG_JOINED_FLEX_QUEUE = 0x2FE,
+        ERR_LFG_JOINED_RF_QUEUE = 0x2FF,
+        ERR_LFG_JOINED_SCENARIO_QUEUE = 0x300,
+        ERR_LFG_JOINED_LIST = 0x301,
+        ERR_LFG_LEFT_QUEUE = 0x302,
+        ERR_LFG_LEFT_LIST = 0x303,
+        ERR_LFG_ROLE_CHECK_ABORTED = 0x304,
+        ERR_LFG_READY_CHECK_ABORTED = 0x305,
+        ERR_LFG_CANT_USE_BATTLEGROUND = 0x306,
+        ERR_LFG_CANT_USE_DUNGEONS = 0x307,
+        ERR_LFG_REASON_TOO_MANY_LFG = 0x308,
+        ERR_INVALID_TELEPORT_LOCATION = 0x309,
+        ERR_TOO_FAR_TO_INTERACT = 0x30A,
+        ERR_BATTLEGROUND_PLAYERS_FROM_DIFFERENT_REALMS = 0x30B,
+        ERR_DIFFICULTY_CHANGE_COOLDOWN_S = 0x30C,
+        ERR_DIFFICULTY_CHANGE_COMBAT_COOLDOWN_S = 0x30D,
+        ERR_DIFFICULTY_CHANGE_WORLDSTATE = 0x30E,
+        ERR_DIFFICULTY_CHANGE_ENCOUNTER = 0x30F,
+        ERR_DIFFICULTY_CHANGE_COMBAT = 0x310,
+        ERR_DIFFICULTY_CHANGE_PLAYER_BUSY = 0x311,
+        ERR_DIFFICULTY_CHANGE_ALREADY_STARTED = 0x312,
+        ERR_DIFFICULTY_CHANGE_OTHER_HEROIC_S = 0x313,
+        ERR_DIFFICULTY_CHANGE_HEROIC_INSTANCE_ALREADY_RUNNING = 0x314,
+        ERR_ARENA_TEAM_PARTY_SIZE = 0x315,
+        ERR_QUEST_FORCE_REMOVED_S = 0x316,
+        ERR_ATTACK_NO_ACTIONS = 0x317,
+        ERR_IN_RANDOM_BG = 0x318,
+        ERR_IN_NON_RANDOM_BG = 0x319,
+        ERR_AUCTION_ENOUGH_ITEMS = 0x31A,
+        ERR_BN_FRIEND_SELF = 0x31B,
+        ERR_BN_FRIEND_ALREADY = 0x31C,
+        ERR_BN_FRIEND_BLOCKED = 0x31D,
+        ERR_BN_FRIEND_LIST_FULL = 0x31E,
+        ERR_BN_FRIEND_REQUEST_SENT = 0x31F,
+        ERR_BN_BROADCAST_THROTTLE = 0x320,
+        ERR_BG_DEVELOPER_ONLY = 0x321,
+        ERR_CURRENCY_SPELL_SLOT_MISMATCH = 0x322,
+        ERR_CURRENCY_NOT_TRADABLE = 0x323,
+        ERR_REQUIRES_EXPANSION_S = 0x324,
+        ERR_QUEST_FAILED_SPELL = 0x325,
+        ERR_TALENT_FAILED_NOT_ENOUGH_TALENTS_IN_PRIMARY_TREE = 0x326,
+        ERR_TALENT_FAILED_NO_PRIMARY_TREE_SELECTED = 0x327,
+        ERR_TALENT_FAILED_UNKNOWN = 0x328,
+        ERR_WARGAME_REQUEST_FAILURE = 0x329,
+        ERR_RANK_REQUIRES_AUTHENTICATOR = 0x32A,
+        ERR_GUILD_BANK_VOUCHER_FAILED = 0x32B,
+        ERR_WARGAME_REQUEST_SENT = 0x32C,
+        ERR_REQUIRES_ACHIEVEMENT_I = 0x32D,
+        ERR_REFUND_RESULT_EXCEED_MAX_CURRENCY = 0x32E,
+        ERR_CANT_BUY_QUANTITY = 0x32F,
+        ERR_ITEM_IS_BATTLE_PAY_LOCKED = 0x330,
+        ERR_PARTY_ALREADY_IN_BATTLEGROUND_QUEUE = 0x331,
+        ERR_PARTY_CONFIRMING_BATTLEGROUND_QUEUE = 0x332,
+        ERR_BATTLEFIELD_TEAM_PARTY_SIZE = 0x333,
+        ERR_INSUFF_TRACKED_CURRENCY_IS = 0x334,
+        ERR_NOT_ON_TOURNAMENT_REALM = 0x335,
+        ERR_GUILD_TRIAL_ACCOUNT_TRIAL = 0x336,
+        ERR_GUILD_TRIAL_ACCOUNT_VETERAN = 0x337,
+        ERR_GUILD_UNDELETABLE_DUE_TO_LEVEL = 0x338,
+        ERR_CANT_DO_THAT_IN_A_GROUP = 0x339,
+        ERR_GUILD_LEADER_REPLACED = 0x33A,
+        ERR_TRANSMOGRIFY_CANT_EQUIP = 0x33B,
+        ERR_TRANSMOGRIFY_INVALID_ITEM_TYPE = 0x33C,
+        ERR_TRANSMOGRIFY_NOT_SOULBOUND = 0x33D,
+        ERR_TRANSMOGRIFY_INVALID_SOURCE = 0x33E,
+        ERR_TRANSMOGRIFY_INVALID_DESTINATION = 0x33F,
+        ERR_TRANSMOGRIFY_MISMATCH = 0x340,
+        ERR_TRANSMOGRIFY_LEGENDARY = 0x341,
+        ERR_TRANSMOGRIFY_SAME_ITEM = 0x342,
+        ERR_TRANSMOGRIFY_SAME_APPEARANCE = 0x343,
+        ERR_TRANSMOGRIFY_NOT_EQUIPPED = 0x344,
+        ERR_VOID_DEPOSIT_FULL = 0x345,
+        ERR_VOID_WITHDRAW_FULL = 0x346,
+        ERR_VOID_STORAGE_WRAPPED = 0x347,
+        ERR_VOID_STORAGE_STACKABLE = 0x348,
+        ERR_VOID_STORAGE_UNBOUND = 0x349,
+        ERR_VOID_STORAGE_REPAIR = 0x34A,
+        ERR_VOID_STORAGE_CHARGES = 0x34B,
+        ERR_VOID_STORAGE_QUEST = 0x34C,
+        ERR_VOID_STORAGE_CONJURED = 0x34D,
+        ERR_VOID_STORAGE_MAIL = 0x34E,
+        ERR_VOID_STORAGE_BAG = 0x34F,
+        ERR_VOID_TRANSFER_STORAGE_FULL = 0x350,
+        ERR_VOID_TRANSFER_INV_FULL = 0x351,
+        ERR_VOID_TRANSFER_INTERNAL_ERROR = 0x352,
+        ERR_VOID_TRANSFER_ITEM_INVALID = 0x353,
+        ERR_DIFFICULTY_DISABLED_IN_LFG = 0x354,
+        ERR_VOID_STORAGE_UNIQUE = 0x355,
+        ERR_VOID_STORAGE_LOOT = 0x356,
+        ERR_VOID_STORAGE_HOLIDAY = 0x357,
+        ERR_VOID_STORAGE_DURATION = 0x358,
+        ERR_VOID_STORAGE_LOAD_FAILED = 0x359,
+        ERR_PARENTAL_CONTROLS_CHAT_MUTED = 0x35A,
+        ERR_SOR_START_EXPERIENCE_INCOMPLETE = 0x35B,
+        ERR_SOR_INVALID_EMAIL = 0x35C,
+        ERR_SOR_INVALID_COMMENT = 0x35D,
+        ERR_CHALLENGE_MODE_RESET_COOLDOWN_S = 0x35E,
+        ERR_PET_JOURNAL_ALREADY_IN_LOADOUT = 0x35F,
+        ERR_REPORT_SUBMITTED_SUCCESSFULLY = 0x360,
+        ERR_REPORT_SUBMISSION_FAILED = 0x361,
+        ERR_SUGGESTION_SUBMITTED_SUCCESSFULLY = 0x362,
+        ERR_BUG_SUBMITTED_SUCCESSFULLY = 0x363,
+        ERR_CHALLENGE_MODE_ENABLED = 0x364,
+        ERR_CHALLENGE_MODE_DISABLED = 0x365,
+        ERR_PETBATTLE_CREATE_FAILED = 0x366,
+        ERR_PETBATTLE_NOT_HERE = 0x367,
+        ERR_PETBATTLE_NOT_HERE_ON_TRANSPORT = 0x368,
+        ERR_PETBATTLE_NOT_HERE_UNEVEN_GROUND = 0x369,
+        ERR_PETBATTLE_NOT_HERE_OBSTRUCTED = 0x36A,
+        ERR_PETBATTLE_NOT_WHILE_IN_COMBAT = 0x36B,
+        ERR_PETBATTLE_NOT_WHILE_DEAD = 0x36C,
+        ERR_PETBATTLE_NOT_WHILE_FLYING = 0x36D,
+        ERR_PETBATTLE_TARGET_INVALID = 0x36E,
+        ERR_PETBATTLE_TARGET_OUT_OF_RANGE = 0x36F,
+        ERR_PETBATTLE_TARGET_NOT_CAPTURABLE = 0x370,
+        ERR_PETBATTLE_NOT_A_TRAINER = 0x371,
+        ERR_PETBATTLE_DECLINED = 0x372,
+        ERR_PETBATTLE_IN_BATTLE = 0x373,
+        ERR_PETBATTLE_INVALID_LOADOUT = 0x374,
+        ERR_PETBATTLE_ALL_PETS_DEAD = 0x375,
+        ERR_PETBATTLE_NO_PETS_IN_SLOTS = 0x376,
+        ERR_PETBATTLE_NO_ACCOUNT_LOCK = 0x377,
+        ERR_PETBATTLE_WILD_PET_TAPPED = 0x378,
+        ERR_PETBATTLE_NOT_WHILE_IN_MATCHED_BATTLE = 0x379,
+        ERR_CANT_HAVE_MORE_PETS_OF_THAT_TYPE = 0x37A,
+        ERR_CANT_HAVE_MORE_PETS = 0x37B,
+        ERR_PVP_MAP_NOT_FOUND = 0x37C,
+        ERR_PVP_MAP_NOT_SET = 0x37D,
+        ERR_PETBATTLE_QUEUE_QUEUED = 0x37E,
+        ERR_PETBATTLE_QUEUE_ALREADY_QUEUED = 0x37F,
+        ERR_PETBATTLE_QUEUE_JOIN_FAILED = 0x380,
+        ERR_PETBATTLE_QUEUE_JOURNAL_LOCK = 0x381,
+        ERR_PETBATTLE_QUEUE_REMOVED = 0x382,
+        ERR_PETBATTLE_QUEUE_PROPOSAL_DECLINED = 0x383,
+        ERR_PETBATTLE_QUEUE_PROPOSAL_TIMEOUT = 0x384,
+        ERR_PETBATTLE_QUEUE_OPPONENT_DECLINED = 0x385,
+        ERR_PETBATTLE_QUEUE_REQUEUED_INTERNAL = 0x386,
+        ERR_PETBATTLE_QUEUE_REQUEUED_REMOVED = 0x387,
+        ERR_PETBATTLE_QUEUE_SLOT_LOCKED = 0x388,
+        ERR_PETBATTLE_QUEUE_SLOT_EMPTY = 0x389,
+        ERR_PETBATTLE_QUEUE_SLOT_NO_TRACKER = 0x38A,
+        ERR_PETBATTLE_QUEUE_SLOT_NO_SPECIES = 0x38B,
+        ERR_PETBATTLE_QUEUE_SLOT_CANT_BATTLE = 0x38C,
+        ERR_PETBATTLE_QUEUE_SLOT_REVOKED = 0x38D,
+        ERR_PETBATTLE_QUEUE_SLOT_DEAD = 0x38E,
+        ERR_PETBATTLE_QUEUE_SLOT_NO_PET = 0x38F,
+        ERR_PETBATTLE_QUEUE_NOT_WHILE_NEUTRAL = 0x390,
+        ERR_PETBATTLE_GAME_TIME_LIMIT_WARNING = 0x391,
+        ERR_PETBATTLE_GAME_ROUNDS_LIMIT_WARNING = 0x392,
+        ERR_ITEM_UPGRADE_ITEM_TOO_LOW_LEVEL = 0x393,
+        ERR_ITEM_UPGRADE_NO_PATH = 0x394,
+        ERR_ITEM_UPGRADE_NO_MORE_UPGRADES = 0x395,
+        ERR_BONUS_ROLL_EMPTY = 0x396,
+        ERR_CHALLENGE_MODE_FULL = 0x397,
+        ERR_BATTLETAG_FRIEND_NOT_FOUND = 0x398,
+        ERR_BATTLETAG_FRIEND_NOT_VALID = 0x399,
+        ERR_BATTLETAG_FRIEND_NOT_ALLOWED = 0x39A,
+        ERR_BATTLETAG_FRIEND_THROTTLED = 0x39B,
+        ERR_BATTLETAG_FRIEND_SUCCESS = 0x39C,
+        ERR_PET_TOO_HIGH_LEVEL_TO_UNCAGE = 0x39D,
+        ERR_PETBATTLE_INTERNAL = 0x39E,
+        ERR_CANT_CAGE_PET_YET = 0x39F,
+        ERR_NO_LOOT_IN_CHALLENGE_MODE = 0x3A0,
+        ERR_QUEST_PET_BATTLE_VICTORIES_PVP_II = 0x3A1,
+        ERR_ROLE_CHECK_ALREADY_IN_PROGRESS = 0x3A2,
+        ERR_RECRUIT_A_FRIEND_ACCOUNT_LIMIT = 0x3A3,
+        ERR_RECRUIT_A_FRIEND_FAILED = 0x3A4,
+        ERR_SET_LOOT_PERSONAL = 0x3A5,
+        ERR_SET_LOOT_METHOD_FAILED_COMBAT = 0x3A6,
+        ERR_REAGENT_BANK_FULL = 0x3A7,
+        ERR_REAGENT_BANK_LOCKED = 0x3A8,
+    };
+}
 
 #endif

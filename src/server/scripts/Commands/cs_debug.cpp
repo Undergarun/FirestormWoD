@@ -129,6 +129,8 @@ class debug_commandscript: public CommandScript
                 { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
                 { "setaianimkit",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAIAnimKit,           "", NULL },
                 { "dumpchartemplate", SEC_CONSOLE,      true,  &HandleDebugDumpCharTemplate,       "", NULL },
+                { "dumprewardlessmissions", SEC_CONSOLE, true, &HandleDebugDumpRewardlessMissions, "", NULL },
+                { "dumpspellrewardlessmissions", SEC_CONSOLE, true, &HandleSpellDebugDumpRewardlessMissions, "", NULL },
                 { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
                 { "packetprofiler", SEC_ADMINISTRATOR,  false, &HandleDebugPacketProfiler,         "", NULL },
                 { "hotfix",         SEC_ADMINISTRATOR,  false, &HandleHotfixOverride,              "", NULL },
@@ -2520,7 +2522,7 @@ class debug_commandscript: public CommandScript
             int32 l_Flags = atoi(arg2);
 
             l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS).size(), l_ID);
-            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS).size(), l_Flags);
+            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS).size(), l_Flags);
 
             return true;
         }
@@ -2604,7 +2606,7 @@ class debug_commandscript: public CommandScript
 
             const uint32 l_HordeMask = 0xFE5FFBB2;
             const uint32 l_AllianceMask = 0xFD7FFC4D;
-            const uint32 l_ItemLevel = 640;
+            const uint32 l_ItemLevel = 725;
             const uint32 l_BagItemId = 114821;
 
             std::string l_SearchString = p_Args; /// Case sensitive search
@@ -2663,6 +2665,10 @@ class debug_commandscript: public CommandScript
 
                 /// Must after bags
                 if (sSpellMgr->GetItemSourceSkills(l_Template->ItemId) != nullptr)
+                    continue;
+
+                printf("%s == %s\n", l_Template->Name1->Get(sWorld->GetDefaultDbcLocale()), l_SearchString.c_str());
+                if (std::string(l_Template->Name1->Get(sWorld->GetDefaultDbcLocale())).find(l_SearchString) == std::string::npos)
                     continue;
 
                 if (l_Template->InventoryType == INVTYPE_TRINKET)
@@ -2957,6 +2963,124 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
+        static bool HandleDebugDumpRewardlessMissions(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            FILE* l_Output = fopen("./rewardless_ids.txt", "w+");
+            if (!l_Output)
+                return false;
+
+            std::ostringstream l_StrBuilder;
+            std::list<uint32> l_AlreadyInserted;
+
+            for (uint32 l_ID = 0; l_ID < sGarrMissionRewardStore.GetNumRows(); l_ID++)
+            {
+                GarrMissionRewardEntry const* l_Entry = sGarrMissionRewardStore.LookupEntry(l_ID);
+
+                if (!l_Entry)
+                    continue;
+
+                if (!l_Entry->ItemID)
+                    continue;
+
+                ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_Entry->ItemID);
+
+                if (!l_Template)
+                    continue;
+
+                if (!(l_Template->Flags & ITEM_FLAG_OPENABLE))
+                    continue;
+
+                if (LootTemplates_Item.HaveLootFor(l_Template->ItemId))
+                    continue;
+
+                if (std::find(l_AlreadyInserted.begin(), l_AlreadyInserted.end(), l_Entry->ItemID) != l_AlreadyInserted.end())
+                    continue;
+
+                l_AlreadyInserted.push_back(l_Entry->ItemID);
+                l_StrBuilder << l_Entry->ItemID << " \\ " << l_Template->Name1->Get(LOCALE_enUS) << "\n";
+            }
+
+            std::string l_String = l_StrBuilder.str();
+            fwrite(l_String.c_str(), l_String.length(), 1, l_Output);
+            fflush(l_Output);
+            fclose(l_Output);
+
+            return true;
+        }
+
+        static bool HandleSpellDebugDumpRewardlessMissions(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            FILE* l_Output = fopen("./rewardless_spell_ids.txt", "w+");
+            if (!l_Output)
+                return false;
+
+            FILE* l_SQL = fopen("./temp_loot_table.sql", "w+");
+            if (!l_SQL)
+                return false;
+
+            std::ostringstream l_StrBuilder;
+            std::ostringstream l_StrBuilder2;
+            std::list<uint32> l_AlreadyInserted;
+
+            for (uint32 l_ID = 0; l_ID < sGarrMissionRewardStore.GetNumRows(); l_ID++)
+            {
+                GarrMissionRewardEntry const* l_Entry = sGarrMissionRewardStore.LookupEntry(l_ID);
+
+                if (!l_Entry)
+                    continue;
+
+                if (!l_Entry->ItemID)
+                    continue;
+
+                ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_Entry->ItemID);
+
+                if (!l_Template)
+                    continue;
+
+                uint32 l_SpellId = l_Template->Spells[0].SpellId;
+
+                if (!l_SpellId)
+                    continue;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellId);
+
+                if (!l_SpellInfo)
+                    continue;
+
+                if (!l_SpellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM_2))
+                    continue;
+
+                if (LootTemplates_Spell.HaveLootFor(l_SpellId))
+                    continue;
+
+                if (std::find(l_AlreadyInserted.begin(), l_AlreadyInserted.end(), l_Entry->ItemID) != l_AlreadyInserted.end())
+                    continue;
+
+                l_AlreadyInserted.push_back(l_Entry->ItemID);
+                l_StrBuilder << l_Entry->ItemID << " \\ " << l_Template->Name1->Get(LOCALE_enUS) << "\n";
+                l_StrBuilder2 << "UPDATE temp_loot_table SET entry = " << l_SpellId << " WHERE entry = " << l_Entry->ItemID << ";\n";
+                l_StrBuilder2 << "DELETE FROM spell_loot_tempalte WHERE entry = " << l_SpellId << ";\n";
+            }
+
+            std::string l_String = l_StrBuilder.str();
+            fwrite(l_String.c_str(), l_String.length(), 1, l_Output);
+            fflush(l_Output);
+            fclose(l_Output);
+
+            std::string l_String2 = l_StrBuilder2.str();
+            fwrite(l_String2.c_str(), l_String2.length(), 1, l_SQL);
+            fflush(l_SQL);
+            fclose(l_SQL);
+
+            return true;
+        }
+
         static bool HandleDebugPlayerCondition(ChatHandler* p_Handler, char const* p_Args)
         {
             char* l_ArgStr = strtok((char*)p_Args, " ");
@@ -3004,6 +3128,7 @@ class debug_commandscript: public CommandScript
                     l_Data << uint32(p_Store->GetHash());
                     l_Data << uint32(p_Entry);
                     l_Data << uint32(sObjectMgr->GetHotfixDate(p_Entry, p_Store->GetHash()));
+                    l_Data.WriteBit(1);                                                         ///< Found ???
                     l_Data << uint32(l_ResponseData.size());
                     l_Data.append(l_ResponseData);
 
@@ -3015,6 +3140,7 @@ class debug_commandscript: public CommandScript
                     l_Data << uint32(p_Store->GetHash());
                     l_Data << uint32(-int32(p_Entry));
                     l_Data << uint32(time(NULL));
+                    l_Data.WriteBit(0);                                                         ///< Not Found ???
                     l_Data << uint32(0);
 
                     p_Handler->GetSession()->SendPacket(&l_Data);
@@ -3107,7 +3233,7 @@ class debug_commandscript: public CommandScript
             }
 
             /// Update display & add mirror image flags
-            l_Target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+            l_Target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
             l_Target->SetDisplayId(l_Display);
 
             /// Forge SMSG_UPDATE_OBJECT, client need to receive it before SMSG_MIRROR_IMAGE_COMPONENTED_DATA

@@ -2748,7 +2748,9 @@ class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
                 GlyphofMystucShout = 58095,
                 GlyphofMystucShoutAura = 121186,
                 GlyphofBloodcurdlingShout = 58096,
-                GlyphofBloodcurdlingShoutAura = 23690
+                GlyphofBloodcurdlingShoutAura = 23690,
+                GlyphofTheWeaponmaster = 146974,
+                GlyphofTheWeaponmasterAura = 147367
             };
 
             void HandleOnCast()
@@ -2762,6 +2764,13 @@ class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
                     l_Player->CastSpell(l_Player, eSpells::GlyphofBloodcurdlingShoutAura, true);
                 if (l_Player->HasGlyph(eSpells::GlyphofMystucShout))
                     l_Player->CastSpell(l_Player, eSpells::GlyphofMystucShoutAura, true);
+                if (l_Player->HasGlyph(eSpells::GlyphofTheWeaponmaster))
+                {
+                    if (l_Player->HasAura(eSpells::GlyphofTheWeaponmasterAura))
+                        l_Player->RemoveAura(eSpells::GlyphofTheWeaponmasterAura);
+
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofTheWeaponmasterAura, true);
+                }
             }
 
             void Register()
@@ -2928,6 +2937,64 @@ class spell_warr_shield_charge_damage : public SpellScriptLoader
         }
 };
 
+/// Glyph of the Weaponmaster - 146974
+/// Weaponmaster - 147367
+class spell_warr_weaponmaster : public SpellScriptLoader
+{
+public:
+    spell_warr_weaponmaster() : SpellScriptLoader("spell_warr_weaponmaster") { }
+
+    class spell_warr_weaponmaster_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_weaponmaster_AuraScript);
+
+        enum eSpells
+        {
+            SingleMindedFury = 81099
+        };
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (!GetCaster())
+                return;
+
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                uint16 l_EndItems = l_Player->HasAura(eSpells::SingleMindedFury) ? EQUIPMENT_SLOT_OFFHAND : EQUIPMENT_SLOT_MAINHAND;
+
+                for (uint16 l_I = EQUIPMENT_SLOT_MAINHAND; l_I <= l_EndItems; l_I++)
+                    if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+                        l_Item->RandomWeaponTransmogrificationFromPrimaryBag(l_Player, l_Item, true);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (!GetCaster())
+                return;
+
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                uint16 l_EndItems = l_Player->HasAura(eSpells::SingleMindedFury) ? EQUIPMENT_SLOT_OFFHAND : EQUIPMENT_SLOT_MAINHAND;
+
+                for (uint16 l_I = EQUIPMENT_SLOT_MAINHAND; l_I <= l_EndItems; l_I++)
+                    if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+                        l_Item->RandomWeaponTransmogrificationFromPrimaryBag(l_Player, l_Item, false);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_warr_weaponmaster_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            OnEffectRemove += AuraEffectRemoveFn(spell_warr_weaponmaster_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_weaponmaster_AuraScript();
+    }
+};
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_revenge();
@@ -2986,6 +3053,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_single_minded_fury();
     new spell_warr_activate_battle_stance();
     new spell_warr_shield_charge_damage();
+    new spell_warr_weaponmaster();
 
     /// Playerscripts
     new PlayerScript_second_wind();

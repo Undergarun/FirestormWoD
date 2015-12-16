@@ -49,7 +49,7 @@ class mob_kor_thik_slicer : public CreatureScript
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_ARTERIAL_SPIRIT, 10000);
                 events.ScheduleEvent(EVENT_VITAL_STRIKES, 5000);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_4);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_4);
             }
 
             void DamageTaken(Unit* killer, uint32& damage, const SpellInfo* p_SpellInfo)
@@ -131,7 +131,7 @@ class mob_kor_thik_extremist : public CreatureScript
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_UNDYING_DEVOTION, 5000);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_5);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_5);
             }
 
             void UpdateAI(const uint32 diff)
@@ -195,7 +195,7 @@ class mob_sra_thik_shield_master : public CreatureScript
                 events.ScheduleEvent(EVENT_MASS_SPELL_REFLEXION, 19000);
                 events.ScheduleEvent(EVENT_SHIELD_SLAM, 26000);
                 events.ScheduleEvent(EVENT_STUNNING_STRIKE, 35000);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_6);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_6);
             }
 
             void UpdateAI(const uint32 diff)
@@ -276,7 +276,7 @@ class mob_set_thik_swiftblade : public CreatureScript
                 events.ScheduleEvent(EVENT_BLURRING_SLASH, 7000);
                 events.ScheduleEvent(EVENT_RIPOSTE, 12000);
 
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_7);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_7);
 
             }
 
@@ -409,7 +409,7 @@ class mob_enslaved_bonesmasher : public CreatureScript
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_JAWBONE_SLAM, 7000);
 
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_8);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_8);
             }
 
             void UpdateAI(const uint32 diff)
@@ -468,7 +468,7 @@ class mob_set_thik_tempest : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_WIND_SLASH, 7000);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_4);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_4);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -592,7 +592,7 @@ class mob_set_thik_zephyrian : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_SUMMON_ZEPHYR, 4000);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_2);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_2);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -658,7 +658,7 @@ class mob_set_thik_gale_slicer : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_SWIFT_STEP, 4000);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_7);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_7);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -718,7 +718,7 @@ class mob_instructor_kli_thak : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_WIND_STEP, 15000);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_7);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_7);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -784,7 +784,7 @@ class mob_instructor_tak_thok : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_OVERWHELMING_ASSAULT, 4000);
 
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_6);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_6);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -844,7 +844,7 @@ class mob_instructor_maltik : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_TRASH_UNSEEN_STRIKE, 15000);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_1);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_1);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -910,7 +910,7 @@ class mob_instructor_zarik : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_TRASH_TEMPEST_SLASH, 15000);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_4);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_4);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -974,7 +974,7 @@ class mob_zar_thik_zealot : public CreatureScript
                     events.ScheduleEvent(EVENT_SLOW, 3000);
                 events.ScheduleEvent(EVENT_ZEALOUS_RUSH, 7000);
 
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_9);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_9);
             }
 
             void UpdateAI(const uint32 diff)
@@ -1034,7 +1034,7 @@ class mob_kor_thik_swarmer : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_UNDERWHELMING_ASSAULT, 4000);
 
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_6);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_6);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -1096,7 +1096,7 @@ class mob_set_thik_gustwing : public CreatureScript
 
                 events.ScheduleEvent(EVENT_GUST, 3000);
                 events.ScheduleEvent(EVENT_ICE_TRAP, 7000);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_3);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_3);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -1278,7 +1278,7 @@ class mob_kor_thik_silentwing : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_1);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_1);
                 events.ScheduleEvent(EVENT_ALMOST_UNSEEN_STRIKE, 15000);
             }
 
@@ -1398,7 +1398,7 @@ public:
         void Reset()
         {
             events.Reset();
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_7);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_7);
             me->SetReactState(REACT_AGGRESSIVE);
             protectedAmberCallerLowGuid = 0;
             protectedAmberGuid = 0;
@@ -1529,7 +1529,7 @@ public:
         void Reset()
         {
             events.Reset();
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_9);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_9);
             me->SetReactState(REACT_PASSIVE);
             isProtected = false;
         }
@@ -1621,7 +1621,7 @@ public:
         void Reset()
         {
             events.Reset();
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TAYAK_MELJARAK);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TAYAK_MELJARAK);
             point = me->GetPositionY() < 460.0f ? 0 : 1;
             direction = -1;
             me->SetWalk(true);
@@ -1941,7 +1941,7 @@ public:
         void Reset()
         {
             events.Reset();
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_ZORLOK);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_ZORLOK);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -2023,8 +2023,8 @@ public:
         {
             events.Reset();
 
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_5);
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, EQUIP_TRASH_5);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_5);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1, EQUIP_TRASH_5);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -2105,7 +2105,7 @@ public:
         void Reset()
         {
             events.Reset();
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_5);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_5);
         }
 
         void EnterCombat(Unit* /*who*/)

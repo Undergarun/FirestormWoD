@@ -90,7 +90,7 @@ class boss_immerseus : public CreatureScript
                 corruptionPct = 100;
                 me->setPowerType(POWER_ENERGY);
                 me->SetPower(POWER_ENERGY, 100);
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
 
                 events.ScheduleEvent(EVENT_SHA_BOLT,        5000);
                 events.ScheduleEvent(EVENT_CORROSIVE_BLAST, 7000);

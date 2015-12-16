@@ -252,7 +252,7 @@ public:
         void Reset() override
         {
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
 
             me->CastSpell(me, eNerzulSpells::SpellOmenOfDeathVisualRune);
@@ -299,7 +299,7 @@ public:
             me->RemoveAllAuras();
             me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FORWARD);
 
             me->CastSpell(me, eNerzulSpells::SpellRitualOfBonesWeirdVisualPoop);

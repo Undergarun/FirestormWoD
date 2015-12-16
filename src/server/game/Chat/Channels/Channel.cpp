@@ -638,7 +638,7 @@ void Channel::List(Player * p_Player)
         l_Data.WriteBits(GetName().length(), 7);                ///< Channel name length
         l_Data.FlushBits();
 
-        l_Data << uint8(GetFlags());                            ///< Channel flags
+        l_Data << uint32(GetFlags());                           ///< Channel flags
         l_Data << uint32(l_MemberCount);                        ///< Member count
         l_Data.WriteString(GetName());                          ///< Channel name
 
@@ -963,7 +963,7 @@ void Channel::MakeYouJoined(WorldPacket* p_Data)
     p_Data->WriteBits(GetName().length(), 7);   ///< Channel Name
     p_Data->WriteBits(l_UnkString.length(), 10);///< ChannelWelcomeMsg
     p_Data->FlushBits();
-    *p_Data << uint8(GetFlags());               ///< Channel Flags
+    *p_Data << uint32(GetFlags());              ///< Channel Flags
     *p_Data << uint32(GetChannelId());          ///< Channel ID
     *p_Data << uint64(0);                       ///< InstanceID
     p_Data->WriteString(GetName());             ///< Channel Name

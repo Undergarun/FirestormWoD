@@ -3837,7 +3837,7 @@ class npc_transcendence_spirit : public CreatureScript
             {
                 me->CastSpell(me, SPELL_MEDITATE, true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
 
             void IsSummonedBy(Unit* owner)
@@ -3891,6 +3891,7 @@ class npc_transcendence_spirit : public CreatureScript
 enum voidTendrilsSpells
 {
     SPELL_VOID_TENDRILS_ROOT = 108920,
+    SPELL_VOID_TENDRILS_GRASP = 114404
 };
 
 class npc_void_tendrils : public CreatureScript
@@ -3917,12 +3918,18 @@ class npc_void_tendrils : public CreatureScript
             void SetGUID(uint64 guid, int32)
             {
                 targetGUID = guid;
+
+                if (Unit* l_Target = ObjectAccessor::FindUnit(targetGUID))
+                    me->CastSpell(l_Target, SPELL_VOID_TENDRILS_GRASP, true);
             }
 
             void JustDied(Unit* killer)
             {
                 if (Unit* m_target = ObjectAccessor::FindUnit(targetGUID))
+                {
                     m_target->RemoveAura(SPELL_VOID_TENDRILS_ROOT);
+                    m_target->RemoveAura(SPELL_VOID_TENDRILS_GRASP);
+                }
             }
 
             void IsSummonedBy(Unit* owner)
@@ -3930,8 +3937,6 @@ class npc_void_tendrils : public CreatureScript
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER)
                 {
                     me->SetLevel(owner->getLevel());
-                    me->SetMaxHealth(owner->CountPctFromMaxHealth(20));
-                    me->SetHealth(me->GetMaxHealth());
                     // Set no damage
                     me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 0.0f);
                     me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 0.0f);
@@ -3946,6 +3951,10 @@ class npc_void_tendrils : public CreatureScript
             {
                 if (!(ObjectAccessor::FindUnit(targetGUID)))
                     me->DespawnOrUnsummon();
+
+                if (Unit* l_Target = ObjectAccessor::FindUnit(targetGUID))
+                    if (!l_Target->HasAura(SPELL_VOID_TENDRILS_GRASP) && !l_Target->HasAura(SPELL_VOID_TENDRILS_ROOT))
+                        me->DespawnOrUnsummon();
             }
         };
 
@@ -4395,7 +4404,7 @@ class npc_rogue_decoy : public CreatureScript
             {
                 m_DespawnTimer = 0;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_RENAME);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
 
             void IsSummonedBy(Unit* p_Owner) override
@@ -4549,7 +4558,7 @@ class npc_training_dummy_damage : public CreatureScript
                 me->ReenableHealthRegen();
 
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);        ///< Immune to knock aways like blast wave
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);   ///< Immune to knock back effects like Whiplash

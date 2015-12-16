@@ -352,7 +352,7 @@ class npc_ashran_spirit_healer : public CreatureScript
             {
                 me->setDeathState(DeathState::DEAD);
                 me->SetGuidValue(EUnitFields::UNIT_FIELD_CHANNEL_OBJECT, me->GetGUID());
-                me->SetUInt32Value(EUnitFields::UNIT_FIELD_CHANNEL_SPELL, eAshranSpells::SpellSpiritHeal);
+                me->SetChannelSpellID(eAshranSpells::SpellSpiritHeal);
                 me->SetFloatValue(EUnitFields::UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
                 me->SetFloatValue(EUnitFields::UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
                 DoCast(me, eAshranSpells::SpellSpiritHeal);

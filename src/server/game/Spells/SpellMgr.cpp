@@ -3131,6 +3131,28 @@ void SpellMgr::LoadSpellInfoStore()
         }
     }
 
+    for (uint32 l_ID = 0; l_ID < sSpellXSpellVisualStore.GetNumRows(); l_ID++)
+    {
+        SpellXSpellVisualEntry const* l_Entry = sSpellXSpellVisualStore.LookupEntry(l_ID);
+
+        if (!l_Entry)
+            continue;
+
+        // unk0 always exists and has same values as l_Entry->Unk != 0 -- could be difficulty ???
+        if (!l_Entry->SpellId || l_Entry->SpellId >= sSpellStore.GetNumRows())
+            continue;
+
+        SpellInfo* l_SpellInfo = mSpellInfoMap[l_Entry->DifficultyID][l_Entry->SpellId];
+
+        if (!l_SpellInfo)
+            continue;
+
+        for (int l_I = 0; l_I < MAX_SPELL_VISUAL; ++l_I)
+            l_SpellInfo->SpellVisual[l_I] = l_Entry->VisualID[l_I];
+
+        l_SpellInfo->FirstSpellXSpellVIsualID = l_Entry->Id;
+    }
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell info store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -3202,6 +3224,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 switch (spellInfo->Effects[j].Effect)
                 {
                     case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
+                    case SPELL_EFFECT_TEACH_FOLLOWER_ABILITY:
                         spellInfo->Effects[j].TargetA = TARGET_UNIT_CASTER;
                         spellInfo->Effects[j].TargetB = TARGET_UNIT_CASTER;
 
@@ -3381,6 +3404,10 @@ void SpellMgr::LoadSpellCustomAttr()
         {
             case 182464: ///< Portal to Garrison
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                break;
+            case 179478: ///< Voidtalon of the Dark Star
+                spellInfo->Effects[EFFECT_0].MiscValue = 89959;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 230;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             /// Blackrock Foundry
@@ -3797,7 +3824,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(10); ///< from 15.0f (RangeEntry.ID 11) to 40.0f
                 break;
             case 144757: /// Increased All Resist 05
-                spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
+                spellInfo->AttributesEx11 &= ~SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL;
                 break;
             case 170893:///< Kronus: Fracture
             case 177607:///< Fangraal: Entangling Roots
@@ -3828,6 +3855,19 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// I guess spellmod type is failed here because of -75% damage
                 spellInfo->Effects[EFFECT_5].MiscValue = SPELLMOD_DAMAGE;
                 spellInfo->Effects[EFFECT_5].BasePoints = -65;
+                /// Hack Fix, try to add visual effect for Chaos Bolt with Fire and Brimstone (157701) from Chaos Bolt (116858)
+                /// TODO !!! Didn't help !!! Chaos Bolt with FaB doesn't have visual model !!!
+                spellInfo->Effects[EFFECT_7].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_7].ApplyAuraName = SPELL_AURA_CHANGE_VISUAL_EFFECT;
+                spellInfo->Effects[EFFECT_7].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_7].BasePoints = 116858;
+                spellInfo->Effects[EFFECT_7].ValueMultiplier = 116858;
+                spellInfo->Effects[EFFECT_7].MiscValue = 157701;
+                spellInfo->Effects[EFFECT_7].MiscValueB = 116858;
+                break;
+            /// Second try to fix, didn't help too.
+            case 157701:///< Chaos Bolt
+                spellInfo->SpellVisual[0] = 45351; ///< Set a visual id from working Chaos Bolt.
                 break;
             case 162472:///< Earth Breaker (Vul'gor)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
@@ -4352,11 +4392,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 134030: ///< Kick Shell
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                break;
-            case 171975: ///< Grimoire of Synergy
-                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 134476: ///< Rockfall (large damage)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
@@ -5902,6 +5937,18 @@ void SpellMgr::LoadSpellCustomAttr()
             case 100:   ///< Charge
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 break;
+            case 47753: ///< Divine Aegis
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                spellInfo->Effects[0].BonusMultiplier = 0;
+                break;
+            case 170995:///< Cripple
+                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(2); ///< 250ms - hack fix to imagine Seduction mechanic
+                spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
+            case 118283:///< Ursol's Vortex
+                spellInfo->Effects[0].ValueMultiplier = 60;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
@@ -5910,10 +5957,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 22599: ///< Chromatic Mantle of the Dawn
             case 86273: ///< Illuminated Healing 
             case 1752:  ///< Sinister Strike
-                spellInfo->Effects[0].BonusMultiplier = 0;
-                break;
-            case 47753: ///< Divine Aegis
-                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
             /// All spells - ProcFlags = 0
@@ -5967,6 +6010,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 111546: ///< Chaotic Energy
                 spellInfo->Effects[1].Effect = 0;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_NONE;
+                break;
+            case 111771: ///< Demonic Gateway (launch spell)
+                spellInfo->Effects[1].Effect = 0;
                 break;
             case 113890: ///< Demonic Gateway
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
@@ -6910,6 +6956,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 default:
                     break;
             }
+
+            /// Our targetting system is weird as fuck - would need a full rewrite for this to work properly, do not touch - hours of debugging
+            if (spellInfo->HasEffect(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL) || spellInfo->HasEffect(SPELL_EFFECT_TEACH_FOLLOWER_ABILITY))
+                spellInfo->ExplicitTargetMask = TARGET_FLAG_NONE;
 
             spellInfo->UpdateSpellEffectCount(); ///< Re-cache the maximum number of effects
         }

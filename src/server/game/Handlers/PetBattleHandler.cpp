@@ -734,6 +734,8 @@ void WorldSession::HandlePetBattleQueryName(WorldPacket& p_RecvData)
     WorldPacket l_Packet(SMSG_QUERY_PET_NAME_RESPONSE, 0x40);
 
     l_Packet.appendPackGUID(l_JournalGuid);
+    l_Packet << uint32(l_Creature->GetEntry());
+    l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
     l_Packet.WriteBit(l_Creature->GetName() ? true : false);
 
     if (l_Creature->GetName())
@@ -749,8 +751,6 @@ void WorldSession::HandlePetBattleQueryName(WorldPacket& p_RecvData)
 
     if (l_Creature->GetName())
     {
-        l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
-
         if (l_Creature->GetName())
             l_Packet.WriteString(l_Creature->GetName());
     }
