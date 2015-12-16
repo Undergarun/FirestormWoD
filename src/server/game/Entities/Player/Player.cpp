@@ -4511,6 +4511,10 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     uint32 nextLvlXP = GetUInt32Value(PLAYER_FIELD_NEXT_LEVEL_XP);
     uint32 newXP = curXP + xp + bonus_xp;
 
+    ACE_Stack_Trace l_StackTrace;
+    sLog->outAshran("Player [%u] reward %u XP (%u + %u + %u)", GetGUIDLow(), newXP, curXP, xp, bonus_xp);
+    sLog->outAshran("%s", l_StackTrace.c_str());
+
     while (newXP >= nextLvlXP && level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         newXP -= nextLvlXP;
