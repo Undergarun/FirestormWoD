@@ -701,7 +701,7 @@ enum eUnitFlags
     UNIT_FLAG_UNK_31                = 0x80000000
 };
 
-// Value masks for UNIT_FIELD_FLAGS2
+// Value masks for UNIT_FIELD_FLAGS_2
 enum eUnitFlags2
 {
     UNIT_FLAG2_FEIGN_DEATH                  = 0x00000001,
@@ -821,7 +821,7 @@ enum NPCFlags2
     UNIT_NPC_FLAG2_GARRISON_ARCHITECT           = 0x00000002,       /// Garrison Architect
     UNIT_NPC_FLAG2_AI_OBSTACLE                  = 0x00000004,       /// AI Obstacle manager
     UNIT_NPC_FLAG2_STEERING                     = 0x00000008,       /// ?
-    UNIT_NPC_FLAG2_UNUSED_1                     = 0x00000010,       /// ?
+    UNIT_NPC_FLAG2_SHIPYARD_MISSION_NPC         = 0x00000020,       /// Garrison Shipyard Mission NPC -- TODO WTF ? UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER == UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER ??????
     UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER    = 0x00000020,       /// Garrison Shipment Crafter
     UNIT_NPC_FLAG2_GARRISON_MISSION_NPC         = 0x00000040,       /// Garrison Mission NPC
     UNIT_NPC_FLAG2_TRADESKILL_NPC               = 0x00000080        /// Garrison tradeskill NPC
@@ -1667,7 +1667,7 @@ class Unit : public WorldObject
         void ClearComboPoints();
 
         PowerTypeSet GetUsablePowers() const;
-        uint32 GetPowerIndexByClass(uint32 powerId, uint32 classId) const;
+        uint32 GetPowerIndex(uint32 powerId, uint32 classId) const;
 
         uint32 GetAttackTime(WeaponAttackType att) const
         {
@@ -1790,8 +1790,8 @@ class Unit : public WorldObject
             switch (attacktype)
             {
                 case WeaponAttackType::BaseAttack: return !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
-                case WeaponAttackType::OffAttack: return !HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISARM_OFFHAND);
-                case WeaponAttackType::RangedAttack: return !HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISARM_RANGED);
+                case WeaponAttackType::OffAttack: return !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISARM_OFFHAND);
+                case WeaponAttackType::RangedAttack: return !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISARM_RANGED);
             }
             return true;
         }
@@ -1849,6 +1849,7 @@ class Unit : public WorldObject
         bool isFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR) || HasAuraType(SPELL_AURA_MOD_FEAR_2); }
         bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2); }
         bool isInStun() const { return HasAuraType(SPELL_AURA_MOD_STUN); }
+        bool isConfused() const { return HasAuraType(SPELL_AURA_MOD_CONFUSE); }
         bool IsPolymorphed() const;
 
         bool isFrozen() const;
@@ -2680,6 +2681,9 @@ class Unit : public WorldObject
         void ClearPoisonTargets();
         ///     LowGuid          SpellIDs
         std::map<uint32, std::set<uint32>> m_PoisonTargets;
+
+        void SetChannelSpellID(uint32 p_SpellID);
+        void SetChannelSpellID(SpellInfo const* p_SpellInfo);
 
         void SetHealingRainTrigger(uint64 p_Guid) { m_HealingRainTrigger = p_Guid; }
         uint64 GetHealingRainTrigger() const { return m_HealingRainTrigger; }

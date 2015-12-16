@@ -700,7 +700,7 @@ class the_everbloom_bramble_patch : public CreatureScript
 
                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
          
                 me->CastSpell(me, eAncientProtectorsSpells::SpellBramblePatchAura);
                 me->CastSpell(me, eAncientProtectorsSpells::SpellDustyCloud); ///< Dusty cloud

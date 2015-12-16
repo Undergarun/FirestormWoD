@@ -147,11 +147,11 @@ namespace MS { namespace Garrison
 
                 /// Init spawning system
                 std::ostringstream l_Str;
-                l_Str << p_MiscData << " " << 0 << " " << 0 << " " << l_BuildingEntry->BuildingLevel;
+                l_Str << p_MiscData << " " << 0 << " " << 0 << " " << l_BuildingEntry->Level;
 
                 for (uint32 l_I = 0; l_I < t_Plots->size(); ++l_I)
                 {
-                    if (t_Plots->at(l_I).BuildingLevel != l_BuildingEntry->BuildingLevel)
+                    if (t_Plots->at(l_I).BuildingLevel != l_BuildingEntry->Level)
                         continue;
 
                     l_Str << " " << GatheringSpawnState::NotSpawned;
@@ -198,11 +198,11 @@ namespace MS { namespace Garrison
                 auto l_UpdateRecursive = [this, &l_Owner, &l_MiscData, &l_PrevSpawnTimeStamp, &l_NextSpawnTimeStamp, &l_BuildingEntry, p_Recursion]() -> void
                 {
                     std::ostringstream l_Str;
-                    l_Str << l_MiscData << " " << l_PrevSpawnTimeStamp << " " << l_NextSpawnTimeStamp << " " << l_BuildingEntry->BuildingLevel;
+                    l_Str << l_MiscData << " " << l_PrevSpawnTimeStamp << " " << l_NextSpawnTimeStamp << " " << l_BuildingEntry->Level;
 
                     for (uint32 l_I = 0; l_I < t_Plots->size(); ++l_I)
                     {
-                        if (t_Plots->at(l_I).BuildingLevel != l_BuildingEntry->BuildingLevel)
+                        if (t_Plots->at(l_I).BuildingLevel != l_BuildingEntry->Level)
                             continue;
 
                         l_Str << " " << SelectGameObjectEntryForGatheringSpawn(l_MiscData);
@@ -212,7 +212,7 @@ namespace MS { namespace Garrison
                     UpdateGatheringPlots(p_Recursion + 1);
                 };
 
-                if (l_BuildingLevel == l_BuildingEntry->BuildingLevel)
+                if (l_BuildingLevel == l_BuildingEntry->Level)
                 {
                     uint32 l_NextDailyQuestReset = sWorld->GetNextDailyQuestsResetTime();
 
@@ -228,7 +228,7 @@ namespace MS { namespace Garrison
                         for (uint32 l_I = 0; l_I < t_Plots->size(); ++l_I)
                         {
                             GatheringPlotInfos& l_Plot = t_Plots->at(l_I);
-                            if (l_Plot.BuildingLevel != l_BuildingEntry->BuildingLevel)
+                            if (l_Plot.BuildingLevel != l_BuildingEntry->Level)
                                 continue;
 
                             uint32 l_StateOrGobEntry = atol(l_Datas[l_Index++]);
@@ -287,12 +287,12 @@ namespace MS { namespace Garrison
                 };
 
                 std::ostringstream l_Str;
-                l_Str << l_MiscData << " " << l_PrevSpawnTimeStamp << " " << l_NextSpawnTimeStamp << " " << l_BuildingEntry->BuildingLevel;
+                l_Str << l_MiscData << " " << l_PrevSpawnTimeStamp << " " << l_NextSpawnTimeStamp << " " << l_BuildingEntry->Level;
 
                 for (uint32 l_I = 0; l_I < t_Plots->size(); ++l_I)
                 {
                     GatheringPlotInfos& l_Plot = t_Plots->at(l_I);
-                    if (l_Plot.BuildingLevel != l_BuildingEntry->BuildingLevel)
+                    if (l_Plot.BuildingLevel != l_BuildingEntry->Level)
                         continue;
 
                     uint32 l_StateOrGobEntry = atol(l_Datas[l_Index++]);

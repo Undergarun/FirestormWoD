@@ -213,6 +213,12 @@ struct LocalizedString
             Str[l_I] = "";
     }
 
+    LocalizedString(char const* p_DefaultValue)
+    {
+        for (uint32 l_I = 0; l_I < TOTAL_LOCALES; l_I++)
+            Str[l_I] = p_DefaultValue;
+    }
+
     inline char const* Get(uint32 p_Locale) const
     {
         if ((Str[p_Locale] == nullptr || strlen(Str[p_Locale]) == 0) && Str[LOCALE_enUS] != nullptr)

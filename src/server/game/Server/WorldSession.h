@@ -27,6 +27,7 @@
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
+#include "LFGListMgr.h"
 #include "MSCallback.hpp"
 
 class Creature;
@@ -54,7 +55,6 @@ struct LfgProposal;
 struct LfgReward;
 struct LfgRoleCheck;
 struct LfgUpdateData;
-struct LFGListEntry;
 struct MovementInfo;
 struct PetBattleRequest;
 class PetBattle;
@@ -476,8 +476,6 @@ class WorldSession
                 return false;
             return true;
         }
-
-        z_stream_s* GetCompressionStream() { return _compressionStream; }
 
         void SetClientBuild(uint16 p_ClientBuild) { m_ClientBuild = p_ClientBuild; }
         uint16 GetClientBuild() const { return m_ClientBuild; }
@@ -998,11 +996,28 @@ class WorldSession
         void HandleLfgListUpdateRequest(WorldPacket& p_RecvData);
         void HandleLfgListLeave(WorldPacket& p_RecvData);
         void HandleLfgListSearch(WorldPacket& p_RecvData);
+        void HandleLfgListApplyForGroup(WorldPacket& p_RecvData);
+        void HandleLfgListInviteApplicant(WorldPacket& p_RecvData);
+        void HandleLfgListRemoveApplicant(WorldPacket& p_RecvData);
+        void HandleLfgListCancelApplication(WorldPacket& p_RecvData);
+        void HandleLfgListInvitationAnswer(WorldPacket& p_RecvData);
+
         void SendLfgListJoinResult(LFGListEntry const* p_Entry, uint8 p_Error);
         void SendLfgSearchResponse(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString);
+        void SendLfgListApplyForGroupResult(LFGListEntry const* p_LFGEntry, LFGListEntry::LFGListApplicationEntry const* p_Application);
+        void SendLfgListApplicantGroupInviteResponse(LFGListEntry::LFGListApplicationEntry const* p_Applicant);
+
         static void BuildLfgListRideTicket(WorldPacket* p_Data, LFGListEntry const* p_Entry);
+        static void BuildLfgListApplicationRideTicket(WorldPacket* p_Data, LFGListEntry::LFGListApplicationEntry const* p_Entry);
+        static void BuildLfgListEntryInfo(WorldPacket* p_Data, LFGListEntry const* p_Entry);
         static void BuildLfgListJoinRequest(WorldPacket* p_Data, LFGListEntry const* p_Entry);
         static void BuildLfgListQueueUpdate(WorldPacket* p_Data, LFGListEntry const* p_Entry, bool p_Listed);
+        static LFGListEntry* ReadLfgListRideTicketInfo(WorldPacket* p_Data, uint32* l_ID);
+        static LFGListEntry::LFGListApplicationEntry* ReadLfgListApplicanmtRideTicketInfo(WorldPacket* p_Data, LFGListEntry* p_ReferenceEntry, uint32* l_ID);
+        static LFGListEntry::LFGListApplicationEntry* ReadLfgListApplicanmtRideTicketInfo(WorldPacket* p_Data, uint32* l_ID);
+        static void BuildLfgListApplicantListUpdate(WorldPacket* p_Data, LFGListEntry const* p_Entry, LFGListEntry::LFGListApplicationEntry const* p_Applicant);
+        static void BuildLfgListApplicantListUpdate(WorldPacket* p_Data, LFGListEntry const* p_Entry, std::list<LFGListEntry::LFGListApplicationEntry const*> p_ApplicantList);
+        static void BuilfLfgListApplicantGroupInvite(WorldPacket* p_Data, LFGListEntry::LFGListApplicationEntry const* p_Applicant);
 
         // Socket gem
         void HandleSocketOpcode(WorldPacket& recvData);
@@ -1122,6 +1137,7 @@ class WorldSession
         void HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData);
         void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData);
         void HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData);
@@ -1132,9 +1148,12 @@ class WorldSession
         void HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonFollowerRename(WorldPacket& p_RecvData);
+        void HandleGarrisonDecommisionShip(WorldPacket& p_RecvData);
 
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
+        void SendGarrisonSetMissionNpc(uint64 p_CreatureGUID);
 
         // Pet Battle System
         void HandlePetBattleSetAbility(WorldPacket& p_RecvData);
@@ -1206,6 +1225,22 @@ class WorldSession
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture m_CharacterLoginCallback;
         QueryResultHolderFuture m_CharacterLoginDBCallback;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New transaction query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using TransactionCallbacks = std::forward_list < std::shared_ptr<MS::Utilities::Callback> > ;
+        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
+        std::mutex m_TransactionCallbackLock;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// New prepare statement query callback system
+        //////////////////////////////////////////////////////////////////////////
+        using PrepareStatementCallback = std::pair < std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture > ;
+        using PreparedStatementCallbacks = std::forward_list < PrepareStatementCallback > ;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacks;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
+        std::mutex m_PreparedStatementCallbackLock;
 
     private:
         // private trade methods
@@ -1301,7 +1336,6 @@ class WorldSession
         uint32 m_uiAntispamMailSentTimer;
 
         uint8 m_PlayerLoginCounter;
-        z_stream_s* _compressionStream;
 
         uint32 m_ServiceFlags;
         uint32 m_CustomFlags;

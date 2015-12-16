@@ -507,7 +507,7 @@ class boss_king_malakk : public CreatureScript
                     RemoveAllEncounterAuras(m_Instance);
                 }
 
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_MALAKK);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_MALAKK);
 
                 coefficient   = 0;
                 counter       = 0;
@@ -1316,7 +1316,7 @@ class boss_sul_the_sandcrawler : public CreatureScript
                     RemoveAllEncounterAuras(m_Instance);
                 }
 
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_SUL);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_SUL);
 
                 events.Reset();
 
@@ -1787,7 +1787,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                     RemoveAllEncounterAuras(m_Instance);
                 }
 
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_MARLI);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_MARLI);
 
                 events.Reset();
 

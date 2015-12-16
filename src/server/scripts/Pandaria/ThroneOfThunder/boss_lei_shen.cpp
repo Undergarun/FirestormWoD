@@ -1429,7 +1429,7 @@ class mob_pillar_controler : public CreatureScript
             void Reset()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK6 | UNIT_FLAG2_REGENERATE_POWER);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK6 | UNIT_FLAG2_REGENERATE_POWER);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
 
                 me->SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, -10.f);
@@ -1490,7 +1490,7 @@ class mob_pillar_controler : public CreatureScript
 
                         me->RemoveDynObject(SPELL_METER_VISUAL_LEVEL_2);
                         me->RemoveDynObject(SPELL_METER_VISUAL_LEVEL_3);
-                        me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK6 | UNIT_FLAG2_REGENERATE_POWER);
+                        me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK6 | UNIT_FLAG2_REGENERATE_POWER);
 
                         /// Need to TP (as the mob is root, MoveTargetedHome won't work here)
                         me->NearTeleportTo(me->GetHomePosition());

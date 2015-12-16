@@ -23,9 +23,11 @@ namespace MS { namespace Garrison
         MapGarrisonHordeLevel1      = 1152,
         MapGarrisonHordeLevel2      = 1330,
         MapGarrisonHordeLevel3      = 1153,
+        MapGarrisonHordeShipyard    = 1474,
         MapGarrisonAllianceLevel1   = 1158,
         MapGarrisonAllianceLevel2   = 1331,
-        MapGarrisonAllianceLevel3   = 1159
+        MapGarrisonAllianceLevel3   = 1159,
+        MapGarrisonAllianceShipyard = 1473
     };
 
     enum GarrisonPhases

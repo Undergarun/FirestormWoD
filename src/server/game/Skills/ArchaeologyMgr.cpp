@@ -499,17 +499,17 @@ namespace MS { namespace Skill { namespace Archaeology
             if (CanResearchWithLevel(l_ID) == RS_RESULT_HIDE)
                 l_ID = 0;
 
-            m_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE, l_Count, l_ID);
+            m_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES, l_Count, l_ID);
 
             for (uint8 i = 0; i < Archaeology::Constants::MaxResearchSites; ++i)
             {
                 if (m_DigSites[i].SiteID == l_ID)
                 {
-                    m_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE + 1, l_Count, m_DigSites[i].SiteLootCount);
+                    m_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES + 1, l_Count, m_DigSites[i].SiteLootCount);
                     break;
                 }
                 else
-                    m_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE + 1, l_Count, 0);
+                    m_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES + 1, l_Count, 0);
             }
 
             ++l_Count;
@@ -573,8 +573,8 @@ namespace MS { namespace Skill { namespace Archaeology
         for (uint8 l_I = 0; l_I < Archaeology::Constants::MaxResearchSites; ++l_I)
         {
             //Replace by GetUInt16Value
-            uint32 l_FirstCurrentSite  = (m_Player->GetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE, l_I) >>  0) & 0xFFFFF;
-            uint32 l_SecondCurrentSite = (m_Player->GetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE, l_I) >> 20) & 0xFFFFF;
+            uint32 l_FirstCurrentSite  = (m_Player->GetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES, l_I) >>  0) & 0xFFFFF;
+            uint32 l_SecondCurrentSite = (m_Player->GetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES, l_I) >> 20) & 0xFFFFF;
 
             if (l_ResearchSiteID == l_FirstCurrentSite)
             {

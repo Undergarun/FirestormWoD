@@ -165,7 +165,7 @@ class boss_brackenspore : public CreatureScript
                 me->SetPower(Powers::POWER_RAGE, 0);
                 me->SetMaxPower(Powers::POWER_RAGE, 500);
 
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
 
                 me->RemoveAura(eSpells::EnergyRegen);
 

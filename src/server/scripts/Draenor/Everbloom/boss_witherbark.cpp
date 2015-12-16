@@ -137,7 +137,7 @@ class boss_witherbark : public CreatureScript
                 me->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, 100);
                 me->SetMaxPower(Powers::POWER_MANA, 100);
                 me->SetInt32Value(EUnitFields::UNIT_FIELD_MAX_POWER, 100);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
 
                 me->AddAura(eWitherbarkSpells::SpellPertifiedBark, me);
             }
@@ -255,7 +255,7 @@ class boss_witherbark : public CreatureScript
                 Talk(eWitherbarkTalks::WitherbarkAggro);
 
                 me->RemoveAura(eWitherbarkSpells::SpellBrittleBarkAura);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
 
                 events.ScheduleEvent(eWitherbarkEvents::EventParchedGrasp,       12 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eWitherbarkEvents::EventUncheckedGrowth,    20 * TimeConstants::IN_MILLISECONDS);

@@ -122,9 +122,9 @@ class boss_archmage_sol : public CreatureScript
                 me->setFaction(FriendlyFaction);
                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             }
-         
+
             InstanceScript* m_Instance;
 
             bool m_CanEvent;
@@ -202,7 +202,7 @@ class boss_archmage_sol : public CreatureScript
                             eUnitFlags::UNIT_FLAG_UNK_6 |
                             eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
 
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         
                         me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                         DespawnCreaturesInArea(eArchmageCreatures::CreatureTriggerArcaneBeam, me);

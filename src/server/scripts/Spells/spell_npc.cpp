@@ -929,19 +929,19 @@ class spell_npc_warr_ravager : public CreatureScript
                     if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_MAINHAND))
                     {
                         /// Display Transmogrifications on player's clone
-                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, l_Proto->ItemId);
+                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, l_Proto->ItemId);
                         else
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, l_Item->GetTemplate()->ItemId);
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, l_Item->GetTemplate()->ItemId);
                     }
 
                     if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_OFFHAND))
                     {
                         /// Display Transmogrifications on player's clone
-                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_Proto->ItemId);
+                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 1, l_Proto->ItemId);
                         else
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_Item->GetTemplate()->ItemId);
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 1, l_Item->GetTemplate()->ItemId);
                     }
                 }
             }
@@ -1140,6 +1140,10 @@ class spell_npc_warl_demonic_gateway_purple : public CreatureScript
                 if (p_Clicker->HasAura(eGatewaySpells::CooldownMarker))
                     return;
 
+                /// Can't use gates in control
+                if (p_Clicker->isFeared() || p_Clicker->isInStun() || p_Clicker->isConfused())
+                    return;
+
                 Unit* l_Owner = me->GetOwner();
                 if (!l_Owner || !l_Owner->ToPlayer())
                     return;
@@ -1162,6 +1166,12 @@ class spell_npc_warl_demonic_gateway_purple : public CreatureScript
                 for (auto itr : l_GreenGates)
                 {
                     p_Clicker->CastSpell(p_Clicker, eGatewaySpells::CooldownMarker, true);
+
+                    Unit* l_CurrentGateOwner = itr->GetOwner();
+
+                    /// Can't teleport to other players Gates
+                    if (l_CurrentGateOwner && l_Owner != l_CurrentGateOwner)
+                        continue;
 
                     // Init dest coordinates
                     float x, y, z;
@@ -1210,6 +1220,10 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
                 if (p_Clicker->HasAura(eGatewaySpells::CooldownMarker))
                     return;
 
+                /// Can't use gates in control
+                if (p_Clicker->isFeared() || p_Clicker->isInStun() || p_Clicker->isConfused())
+                    return;
+
                 Unit* l_Owner = me->GetOwner();
                 if (!l_Owner || !l_Owner->ToPlayer())
                     return;
@@ -1231,6 +1245,12 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
                 l_PurpleGates.sort(JadeCore::DistanceCompareOrderPred(me));
                 for (auto itr : l_PurpleGates)
                 {
+                    Unit* l_CurrentGateOwner = itr->GetOwner();
+
+                    /// Can't teleport to other players Gates
+                    if (l_CurrentGateOwner && l_Owner != l_CurrentGateOwner)
+                        continue;
+
                     p_Clicker->CastSpell(p_Clicker, eGatewaySpells::CooldownMarker, true);
 
                     // Init dest coordinates
@@ -1390,7 +1410,7 @@ class spell_npc_dru_force_of_nature_resto : public CreatureScript
 
                 if (l_Target == nullptr)
                     return;
-                
+
                 if (!me->IsValidAssistTarget(l_Target))
                     return;
 

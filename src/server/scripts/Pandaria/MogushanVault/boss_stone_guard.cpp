@@ -479,7 +479,7 @@ class boss_generic_guardian : public CreatureScript
             boss_generic_guardianAI(Creature* creature) : BossAI(creature, DATA_STONE_GUARD), summons(creature)
             {
                 pInstance = creature->GetInstanceScript();
-                creature->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                creature->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
             }
 
             InstanceScript* pInstance;
@@ -514,7 +514,7 @@ class boss_generic_guardian : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
                 me->setPowerType(POWER_ENERGY);
                 me->SetPower(POWER_ENERGY, 0);
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFacingTo(M_PI * 1.5f);
 
                 me->CastSpell(me, SPELL_SOLID_STONE, true);

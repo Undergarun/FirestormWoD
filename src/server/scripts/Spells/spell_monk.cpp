@@ -5740,4 +5740,5 @@ void AddSC_monk_spell_scripts()
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
     new spell_monk_vital_mists_power();
+    new spell_monk_vital_mists();
 }

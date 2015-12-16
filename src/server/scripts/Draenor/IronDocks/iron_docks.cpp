@@ -666,7 +666,7 @@ public:
         {
             me->setFaction(HostileFaction);
             m_DamageDiff = 1 * TimeConstants::IN_MILLISECONDS;
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -1672,7 +1672,7 @@ class iron_docks_spell_charge_forward : public SpellScriptLoader
                                 if (Unit* l_UnitSelection = l_Unit->ToPlayer()->GetSelectedUnit())
                                 {
                                     l_Caster->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                                    l_Caster->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);
+                                    l_Caster->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);
                                     l_Caster->GetMotionMaster()->MoveCharge(l_UnitSelection, 42.0f, eMovementInformed::MovementInformedIronStarWallContact);                         
                                 }
                             }

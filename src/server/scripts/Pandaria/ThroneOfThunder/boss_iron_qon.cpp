@@ -320,7 +320,7 @@ public:
             m_CycloneList.clear();
 
             me->SetReactState(REACT_DEFENSIVE);
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_IRON_QON);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_IRON_QON);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
 
             RemoveEncounterAuras(m_Instance);
@@ -466,7 +466,7 @@ public:
                         break;
 
                     // Can't change phase if spear is away and producing effects
-                    if (!me->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID))
+                    if (!me->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS))
                     {
                         m_Events.ScheduleEvent(EVENT_CHANGE_MOUNT, 1000, m_Phase);
                         break;
@@ -675,7 +675,7 @@ public:
                         {
                             ++m_SpearIndex;
                             me->CastSpell(l_Target, SPELL_THROW_QON_SPEAR, true);
-                            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 0);
+                            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 0);
                             m_Events.ScheduleEvent(EVENT_ACTIVATE_SPEAR, 4000, m_Phase);
                         }
 
@@ -702,7 +702,7 @@ public:
                     case EVENT_FIST_SMASH:
                     {
                         // Can only perform Fist Smash if not wearing the spear
-                        if (!me->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID))
+                        if (!me->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS))
                         {
                             me->CastSpell(me, SPELL_FIST_SMASH, true);
                             m_Events.ScheduleEvent(EVENT_FIST_SMASH, 20000, m_Phase);
@@ -1142,7 +1142,7 @@ class mob_quetzal : public CreatureScript
                                 return;
 
                             // If Iron Qon's has his spear way, we need to wait before he get it back
-                            if (!l_IronQon->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID))
+                            if (!l_IronQon->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS))
                             {
                                 m_Events.ScheduleEvent(EVENT_WINDSTORM, 1000);
                                 break;
@@ -1983,7 +1983,7 @@ class spell_return_spear : public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Creature* l_IronQon = l_Caster->GetInstanceScript()->instance->GetCreature(l_Caster->GetInstanceScript()->GetData64(NPC_IRON_QON)))
-                        l_IronQon->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_IRON_QON);
+                        l_IronQon->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_IRON_QON);
 
                     if (Creature* l_Spear = l_Caster->ToCreature())
                         l_Spear->DespawnOrUnsummon(500);

@@ -369,8 +369,10 @@ void Player::UpdateMaxPower(Powers p_Power)
 
 void Player::UpdateItemLevel()
 {
-    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, (float)GetAverageItemLevelEquipped());
-    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, (float)GetAverageItemLevelTotal());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::TotalAvgItemLevel, (float)GetAverageItemLevelTotal());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::EquippedAvgItemLevel, (float)GetAverageItemLevelEquipped());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::NonPvPAvgItemLevel, (float)GetAverageItemLevelTotalWithOrWithoutPvPBonus(false));
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::PvPAvgItemLevel, (float)GetAverageItemLevelTotalWithOrWithoutPvPBonus(true));
 }
 
 void Player::UpdateAttackPowerAndDamage(bool ranged)
@@ -1022,7 +1024,7 @@ void Player::UpdateEnergyRegen()
     if (getPowerType() != Powers::POWER_ENERGY)
         return;
 
-    uint32 l_PowerIndex = GetPowerIndexByClass(Powers::POWER_ENERGY, getClass());
+    uint32 l_PowerIndex = GetPowerIndex(Powers::POWER_ENERGY, getClass());
 
     float l_RegenFlatMultiplier = 1.0f;
     Unit::AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);

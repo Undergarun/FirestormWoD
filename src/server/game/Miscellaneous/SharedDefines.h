@@ -128,7 +128,8 @@ enum LootModes
     LOOT_MODE_HARD_MODE_1              = 0x2,
     LOOT_MODE_HARD_MODE_2              = 0x4,
     LOOT_MODE_HARD_MODE_3              = 0x8,
-    LOOT_MODE_HARD_MODE_4              = 0x10
+    LOOT_MODE_HARD_MODE_4              = 0x10,
+    LOOT_MODE_JUNK_FISH                = 0x8000
 };
 
 enum Expansion
@@ -144,6 +145,7 @@ enum Expansion
 
 enum Gender
 {
+    GENDER_UNKNOWN                     = -1,
     GENDER_MALE                        = 0,
     GENDER_FEMALE                      = 1,
     GENDER_NONE                        = 2
@@ -365,7 +367,7 @@ enum Powers
     MAX_POWERS_COST                     = MAX_POWERS+1
 };
 
-#define MAX_POWERS_PER_CLASS              5
+#define MAX_POWERS_PER_CLASS              6 /// Druid have power 0 1 3 8 10 4 (6.2.0)
 
 enum SpellSchools
 {
@@ -583,7 +585,7 @@ enum SpellAttr3
     SPELL_ATTR3_MAIN_HAND                        = 0x00000400, // 10 Main hand weapon required
     SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can casted only on battleground
     SPELL_ATTR3_ONLY_TARGET_GHOSTS               = 0x00001000, // 12
-    SPELL_ATTR3_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR3_DONT_DISPLAY_CHANNEL_BAR         = 0x00002000, // 13 Clientside attribute - will not display channeling bar
     SPELL_ATTR3_IS_HONORLESS_TARGET              = 0x00004000, // 14 "Honorless Target" only this spells have this flag
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
     SPELL_ATTR3_CANT_TRIGGER_PROC                = 0x00010000, // 16 confirmed with many patchnotes
@@ -720,7 +722,7 @@ enum SpellAttr7
     SPELL_ATTR7_IS_CHEAT_SPELL                   = 0x00000008, //  3 Cannot cast if caster doesn't have UnitFlag2 & UNIT_FLAG2_ALLOW_CHEAT_SPELLS
     SPELL_ATTR7_UNK4                             = 0x00000010, //  4 Only 47883 (Soulstone Resurrection) and test spell.
     SPELL_ATTR7_SUMMON_TOTEM                     = 0x00000020, //  5 Only Shaman totems.
-    SPELL_ATTR7_UNK6                             = 0x00000040, //  6 Dark Surge, Surge of Light, Burning Breath triggers (boss spells).
+    SPELL_ATTR7_NO_PUSHBACK_ON_DAMAGE            = 0x00000040, //  6 Does not cause spell pushback on damage
     SPELL_ATTR7_UNK7                             = 0x00000080, //  7 66218 (Launch) spell.
     SPELL_ATTR7_HORDE_ONLY                       = 0x00000100, //  8 Teleports, mounts and other spells.
     SPELL_ATTR7_ALLIANCE_ONLY                    = 0x00000200, //  9 Teleports, mounts and other spells.
@@ -794,7 +796,7 @@ enum SpellAttr9
     SPELL_ATTR9_SUMMON_PLAYER_TOTEM              = 0x00000020, // 5
     SPELL_ATTR9_UNK6                             = 0x00000040, // 6
     SPELL_ATTR9_UNK7                             = 0x00000080, // 7
-    SPELL_ATTR9_UNK8                             = 0x00000100, // 8
+    SPELL_ATTR9_AIMED_SHOT                       = 0x00000100, // 8
     SPELL_ATTR9_NOT_USABLE_IN_ARENA              = 0x00000200, // 9 Cannot be used in arenas
     SPELL_ATTR9_UNK10                            = 0x00000400, // 10 Ice Storm 88239
     SPELL_ATTR9_UNK11                            = 0x00000800, // 11
@@ -851,7 +853,7 @@ enum SpellAttr10
     SPELL_ATTR10_UNK26                            = 0x04000000, // 26
     SPELL_ATTR10_UNK27                            = 0x08000000, // 27
     SPELL_ATTR10_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR10_MOUNT_CHARACTER                  = 0x20000000, // 29
+    SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE        = 0x20000000, // 29 This mount is stored per-character
     SPELL_ATTR10_UNK30                            = 0x40000000, // 30
     SPELL_ATTR10_UNK31                            = 0x80000000  // 31
 };
@@ -860,7 +862,7 @@ enum SpellAttr11
 {
     SPELL_ATTR11_UNK0                             = 0x00000001, //  0
     SPELL_ATTR11_UNK1                             = 0x00000002, //  1
-    SPELL_ATTR11_CAST_WITH_ITEM                   = 0x00000004, //  2
+    SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL           = 0x00000004, //  2
     SPELL_ATTR11_UNK3                             = 0x00000008, //  3
     SPELL_ATTR11_UNK4                             = 0x00000010, //  4
     SPELL_ATTR11_UNK5                             = 0x00000020, //  5
@@ -1070,6 +1072,8 @@ enum Team
     PANDAREN_NEUTRAL     = 1249,        // Pandaren is neutral on start
     TEAM_OTHER           = 0            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
+
+#define MAX_SPELL_VISUAL 2
 
 enum SpellEffects
 {
@@ -1324,7 +1328,8 @@ enum SpellEffects
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
     SPELL_EFFECT_249                                = 249,
     SPELL_EFFECT_TAKE_SCREENSHOT                    = 250,  ///< Serverside marker for selfie screenshot
-    TOTAL_SPELL_EFFECTS                             = 251
+    SPELL_EFFECT_251                                = 251,  ///< Increases the maximum cache size of your garrison.
+    TOTAL_SPELL_EFFECTS                             = 252
 };
 
 enum PetTameResult
@@ -1345,7 +1350,8 @@ enum PetTameResult
     PET_TAME_ERROR_INVALID_SLOT             = 13    // checked
 };
 
-enum SpellCastResult // 19702
+/// Last update : 6.2.0 20201
+enum SpellCastResult
 {
     SPELL_FAILED_SUCCESS                                    = 0,
     SPELL_FAILED_AFFECTING_COMBAT                           = 1,
@@ -1398,7 +1404,7 @@ enum SpellCastResult // 19702
     SPELL_FAILED_GARRISON_FOLLOWER_MAX_QUALITY              = 48,
     SPELL_FAILED_GARRISON_FOLLOWER_NOT_MAX_LEVEL            = 49,
     SPELL_FAILED_GARRISON_FOLLOWER_HAS_ABILITY              = 50,
-    SPELL_FAILED_GARRISON_FOLLOWER_NO_OVERRIDEABLE_ABILITY  = 51,
+    SPELL_FAILED_GARRISON_FOLLOWER_HAS_SINGLE_MISSION_ABILITY  = 51,
     SPELL_FAILED_GARRISON_MISSION_NOT_IN_PROGRESS           = 52,
     SPELL_FAILED_GARRISON_MISSION_COMPLETE                  = 53,
     SPELL_FAILED_GARRISON_NO_MISSIONS_AVAILABLE             = 54,
@@ -1619,6 +1625,7 @@ enum SpellCastResult // 19702
     SPELL_CAST_OK                                           = 0xFFFF // custom value, must not be sent to client
 };
 
+/// Last update : 6.2.0 20201
 enum SpellCustomErrors
 {
     SPELL_CUSTOM_ERROR_NONE                             =  0,
@@ -1865,8 +1872,24 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_APEXIS_SENTINEL_REQUIRES_ENERGY  = 249,  ///< "This Apexis Sentinel requires energy from a nearby Apexis Pylon to be powered up."
     SPELL_CUSTOM_ERROR_MUST_HAVE_3_OR_FEWER_PLAYERS     = 250,  ///< "You must have 3 or fewer players."
     SPELL_CUSTOM_ERROR_ALREADY_READ_TREASURE_MAP        = 251,  ///< "You have already read that treasure map."
-    SPELL_CUSTOM_ERROR_ONLY_USABLE_DURING_INVASION      = 252   ///< "You may only use this item while your garrison is under attack."
-};
+    SPELL_CUSTOM_ERROR_ONLY_USABLE_DURING_INVASION      = 252,  ///< "You may only use this item while your garrison is under attack."
+    SPELL_CUSTOM_ERROR_REQUIRE_ACTIVE_MUSHROOMS         = 253,  ///< This spell requires active mushrooms for you to detonate.
+    SPELL_CUSTOM_ERROR_REQUIRE_FASTER_TIME              = 254,  ///< Requires a faster time with the basic racer
+    SPELL_CUSTOM_ERROR_REQUIRE_INFERNO_SHOT_AMMO        = 255,  ///< Requires Inferno Shot Ammo!
+    SPELL_CUSTOM_ERROR_YOU_CANT_DO_THAT                 = 256,  ///< You cannot do that right now.
+    SPELL_CUSTOM_ERROR_TRAP_ALREADY_HERE                = 257,  ///< A trap is already placed there.
+    SPELL_CUSTOM_ERROR_ALREADY_ON_QUEST                 = 258,  ///< You are already on that quest.
+    SPELL_CUSTOM_ERROR_REQUIRE_FELFORGED_CUDGEL         = 259,  ///< Requires a Felforged Cudgel!
+    SPELL_CUSTOM_ERROR_CANT_TAKE_UNDER_DAMAGE           = 260,  ///< Can't take while being damaged!
+    SPELL_CUSTOM_ERROR_BOUND_DRAENOR                    = 261,  ///< You are bound to Draenor by Archimonde's magic.
+    SPELL_CUSTOM_ERROR_MAXIMUM_SHIP_AT_SHIPYARD         = 262,  ///< You already have the maximum number of ships your shipyard can support.
+    SPELL_CUSTOM_ERROR_ONLY_ON_SHIPYARD                 = 263,  ///< You must be at your shipyard.
+    SPELL_CUSTOM_ERROR_REQUIRE_MAGE_TOWER_LVL3          = 264,  ///< Requires a level 3 Mage Tower.
+    SPELL_CUSTOM_ERROR_REQUIRE_SPIRIT_LODGE_LEVEL3      = 265,  ///< Requires a level 3 Spirit Lodge.
+    SPELL_CUSTOM_ERROR_FEEL_LIKE_EEG_AND_HAM            = 266,  ///< You do not like Fel Eggs and Ham.
+    SPELL_CUSTOM_ERROR_ALREADY_TRADE                    = 267,  ///< You have already entered in to this trade agreement.
+
+    };
 
 enum StealthType
 {
@@ -1890,8 +1913,34 @@ enum InvisibilityType
     INVISIBILITY_UNK9        =  9,
     INVISIBILITY_UNK10       = 10,
     INVISIBILITY_UNK11       = 11,
-
-    TOTAL_INVISIBILITY_TYPES = 12
+    INVISIBILITY_UNK12       = 12,
+    INVISIBILITY_TRA13       = 13,
+    INVISIBILITY_UNK14       = 14,
+    INVISIBILITY_UNK15       = 15,
+    INVISIBILITY_UNK16       = 16,
+    INVISIBILITY_UNK17       = 17,
+    INVISIBILITY_UNK18       = 18,
+    INVISIBILITY_UNK19       = 19,
+    INVISIBILITY_UNK20       = 20,
+    INVISIBILITY_UNK21       = 21,
+    INVISIBILITY_UNK22       = 22,
+    INVISIBILITY_TRA23       = 23,
+    INVISIBILITY_UNK24       = 24,
+    INVISIBILITY_UNK25       = 25,
+    INVISIBILITY_UNK26       = 26,
+    INVISIBILITY_UNK27       = 27,
+    INVISIBILITY_UNK28       = 28,
+    INVISIBILITY_UNK29       = 29,
+    INVISIBILITY_UNK30       = 30,
+    INVISIBILITY_UNK31       = 31,
+    INVISIBILITY_UNK32       = 32,
+    INVISIBILITY_UNK33       = 33,
+    INVISIBILITY_UNK34       = 34,
+    INVISIBILITY_UNK35       = 35,
+    INVISIBILITY_UNK36       = 36,
+    INVISIBILITY_UNK37       = 37,
+    
+    TOTAL_INVISIBILITY_TYPES = 38
 };
 
 enum ServerSideVisibilityType
@@ -2269,10 +2318,12 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_PHASEABLE_MO           = 43,
     GAMEOBJECT_TYPE_GARRISON_MONUMENT      = 44,
     GAMEOBJECT_TYPE_GARRISON_SHIPMENT      = 45,
-    GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE = 46
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE = 46,
+    GAMEOBJECT_TYPE_DO_NOT_USE_3           = 47,
+    GAMEOBJECT_TYPE_UI_LINK                = 48
 };
 
-#define MAX_GAMEOBJECT_TYPE                  47             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  49             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
@@ -2307,7 +2358,7 @@ enum GameObjectDestructibleState
     GO_DESTRUCTIBLE_REBUILDING  = 3
 };
 
-// EmotesText.dbc
+// EmotesText.dbc Last update 6.2.0 20201
 enum TextEmotes
 {
     TEXT_EMOTE_AGREE                = 1,
@@ -2566,7 +2617,7 @@ enum TextEmotes
     TEXT_EMOTE_BOOT                 = 506
 };
 
-// Emotes.dbc
+// Emotes.dbc Last update 6.2.0 20201
 enum Emote
 {
     EMOTE_ONESHOT_NONE                           = 0,
@@ -2832,7 +2883,7 @@ enum Emote
 
 };
 
-// AnimationData.dbc
+// AnimationData.dbc Last update 6.2.0 20201
 enum Anim
 {
     ANIM_STAND                             = 0,
@@ -3750,7 +3801,7 @@ uint32 const CREATURE_TYPEMASK_DEMON_OR_UNDEAD = (1 << (CREATURE_TYPE_DEMON-1)) 
 uint32 const CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD = (1 << (CREATURE_TYPE_HUMANOID-1)) | (1 << (CREATURE_TYPE_UNDEAD-1));
 uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_MECHANICAL-1)) | (1 << (CREATURE_TYPE_ELEMENTAL-1));
 
-// CreatureFamily.dbc
+// CreatureFamily.dbc Last update 6.2.0 20201
 enum CreatureFamily
 {
     CREATURE_FAMILY_WOLF                = 1,
@@ -3940,14 +3991,24 @@ enum HolidayIds
     HOLIDAY_UNK_601_2                = 508,
     HOLIDAY_ANNIVERSARY_9_YEARS      = 509,
     HOLIDAY_ANNIVERSARY_10_YEARS     = 514,
-    HOLIDAY_CALL_TO_ARMS_DG          = 515,
-    HOLIDAY_UNK_601_6                = 516,
+    HOLIDAY_CALL_TO_ARMS_DG          = 515,     ///< Call to Arms: Deepwind gorge
+    HOLIDAY_CALL_TO_ARMS_DG2         = 516,     ///< Call to Arms: Deepwind gorge
     HOLIDAY_UNK_601_7                = 517,
     HOLIDAY_UNK_601_8                = 518,
-    HOLIDAY_UNK_601_9                = 519
+    HOLIDAY_UNK_601_9                = 519,
+    HOLIDAY_BONUS_EVENT_TIMEWALKING_DUNGEON = 559, ///< Bosses yield loot appropriate for a player's natural level.
+    HOLIDAY_BONUS_EVENT_APEXIS              = 560, ///< Crystals "multiply mysteriously" and they are more plentiful when looting enemies in Draenor. spell : 186400 (something like *2 rate loot for apexis)
+    HOLIDAY_BONUS_EVENT_ARENA_SKIRMISH      = 561, ///< Arena Skirmishes award Honor at triple the usual rate. spell : 186401
+    HOLIDAY_BONUS_EVENT_TIMEWALKING         = 562, ///< Bosses yield loot appropriate for a player's natural level.
+    HOLIDAY_BONUS_EVENT_BATTLEGROUND        = 563, ///< Honor gains from Battleground objectives and wins increased by 200%. spell : 186403
+    HOLIDAY_BONUS_EVENT_DRAENOR_DUNGEON     = 564, ///< Defeating enemies in any level 100 Heroic or Mythic dungeon award reputation with a Draenor faction. spell : 186404
+    HOLIDAY_BONUS_EVENT_PET_BATTLE          = 565, ///< Battle pet experience gained increased by 200%. spell : 186406
+    HOLIDAY_ANNIVERSARY_11_YEARS            = 566,
+    
+
 };
 
-// values based at QuestInfo.dbc <- this dbc are removed in 6.1.X 
+// values based at QuestInfo.db2
 enum QuestTypes
 {
     QUEST_TYPE_GROUP               = 1,
@@ -3966,7 +4027,7 @@ enum QuestTypes
     QUEST_TYPE_SIDE_QUEST          = 104    // 6.0.1
 };
 
-// values based at QuestSort.dbc
+// values based at QuestSort.db2
 enum QuestSort
 {
     QUEST_SORT_EPIC                   = 1,
@@ -4028,7 +4089,8 @@ enum QuestSort
     QUEST_SORT_ASSAULT_ON_DARK_PORTAL = 402,       // 6.0.1
     QUEST_SORT_GARRISON_SUPPORT       = 403,       // 6.0.1
     QUEST_SORT_LOGGIN                 = 404,       // 6.0.1
-    QUEST_SORT_PICKPOCKETING          = 405        // 6.0.2
+    QUEST_SORT_PICKPOCKETING          = 405,       // 6.0.2
+    QUEST_SORT_WEEKEND_EVENT          = 409        ///< 6.2.0 Holiday bonus event quest
 };
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
@@ -4061,7 +4123,7 @@ inline uint8 ClassByQuestSort(int32 QuestSort)
     return 0;
 }
 
-// SkillLine.dbc
+// SkillLine.dbc 6.2.0 20201
 enum SkillType
 {
     SKILL_NONE                       = 0,
@@ -4427,6 +4489,8 @@ enum WeatherType
     WEATHER_TYPE_RAIN       = 1,
     WEATHER_TYPE_SNOW       = 2,
     WEATHER_TYPE_STORM      = 3,
+    WEATHER_TYPE_THUNDERS   = 86,
+    WEATHER_TYPE_BLACKRAIN  = 90
 };
 
 #define MAX_WEATHER_TYPE 4
@@ -4479,10 +4543,10 @@ enum ChatMsg
     CHAT_MSG_RAID_BOSS_WHISPER                  = 0x2A,
     CHAT_MSG_FILTERED                           = 0x2B,
     CHAT_MSG_RESTRICTED                         = 0x2C,
-    CHAT_MSG_UNUSED_1                           = 0x2D,
+    CHAT_MSG_BATTLENET                          = 0x2D,
     CHAT_MSG_ACHIEVEMENT                        = 0x2E,
     CHAT_MSG_GUILD_ACHIEVEMENT                  = 0x2F,
-    CHAT_MSG_UNUSED_2                           = 0x30,
+    CHAT_MSG_ARENA_POINTS                       = 0x30,
     CHAT_MSG_PARTY_LEADER                       = 0x31,
     CHAT_MSG_TARGETICONS                        = 0x32,
     CHAT_MSG_BN_WISPER                          = 0x33,
@@ -4505,6 +4569,18 @@ enum ChatMsg
 };
 
 #define MAX_CHAT_MSG_TYPE 0x44
+
+enum ChatFlags
+{
+    CHAT_FLAG_NONE       = 0x00,
+    CHAT_FLAG_AFK        = 0x01,
+    CHAT_FLAG_DND        = 0x02,
+    CHAT_FLAG_GM         = 0x04,
+    CHAT_FLAG_COM        = 0x08, // Commentator
+    CHAT_FLAG_DEV        = 0x10,
+    CHAT_FLAG_BOSS_SOUND = 0x20, // Plays "RaidBossEmoteWarning" sound on raid boss emote/whisper
+    CHAT_FLAG_MOBILE     = 0x40
+};
 
 enum ChatLinkColors
 {
@@ -4602,6 +4678,7 @@ enum EventId
     EVENT_JUMP              = 1004
 };
 
+/// Last update : 6.2.0 20201
 enum ResponseCodes
 {
     RESPONSE_SUCCESS                                       = 0,
@@ -4681,48 +4758,51 @@ enum ResponseCodes
     CHAR_CREATE_CHARACTER_GOLD_LIMIT                       = 68,
     CHAR_CREATE_FORCE_LOGIN                                = 69,
     CHAR_CREATE_TRIAL                                      = 70,
-    CHAR_CREATE_VETERAN                                    = 71,
 
-    CHAR_DELETE_IN_PROGRESS                                = 72,
-    CHAR_DELETE_SUCCESS                                    = 73,
-    CHAR_DELETE_FAILED                                     = 74,
-    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 75,
-    CHAR_DELETE_FAILED_GUILD_LEADER                        = 76,
-    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 77,
-    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 78,
+    CHAR_DELETE_IN_PROGRESS                                = 71,
+    CHAR_DELETE_SUCCESS                                    = 72,
+    CHAR_DELETE_FAILED                                     = 73,
+    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 74,
+    CHAR_DELETE_FAILED_GUILD_LEADER                        = 75,
+    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 76,
+    CHAR_DELETE_FAILED_HAS_HEIRLOOM_OR_MAIL                = 77,
+    CHAR_DELETE_FAILED_UPGRADE_IN_PROGRESS                 = 78,
+    CHAR_DELETE_FAILED_HAS_WOW_TOKEN                       = 79,
+    CHAR_DELETE_FAILED_VAS_TRANSACTION_IN_PROGRESS         = 80,
 
-    CHAR_LOGIN_IN_PROGRESS                                 = 79,
-    CHAR_LOGIN_SUCCESS                                     = 80,
-    CHAR_LOGIN_NO_WORLD                                    = 81,
-    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 82,
-    CHAR_LOGIN_NO_INSTANCES                                = 83,
-    CHAR_LOGIN_FAILED                                      = 84,
-    CHAR_LOGIN_DISABLED                                    = 85,
-    CHAR_LOGIN_NO_CHARACTER                                = 86,
-    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 87,
-    CHAR_LOGIN_LOCKED_BY_BILLING                           = 88,
-    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 89,
-    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 90,
-    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 91,
-    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 92,
+    CHAR_LOGIN_IN_PROGRESS                                 = 81,
+    CHAR_LOGIN_SUCCESS                                     = 82,
+    CHAR_LOGIN_NO_WORLD                                    = 83,
+    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 84,
+    CHAR_LOGIN_NO_INSTANCES                                = 85,
+    CHAR_LOGIN_FAILED                                      = 86,
+    CHAR_LOGIN_DISABLED                                    = 87,
+    CHAR_LOGIN_NO_CHARACTER                                = 88,
+    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 89,
+    CHAR_LOGIN_LOCKED_BY_BILLING                           = 90,
+    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 91,
+    CHAR_LOGIN_TEMPORARY_GM_LOCK                           = 92,
+    CHAR_LOGIN_LOCKED_BY_CHARACTER_UPGRADE                 = 93,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_CHARACTER_UPGRADE         = 94,
+    CHAR_LOGIN_LOCKED_BY_REVOKED_VAS_TRANSACTION           = 95,
 
-    CHAR_NAME_SUCCESS                                      = 93,
-    CHAR_NAME_FAILURE                                      = 94,
-    CHAR_NAME_NO_NAME                                      = 95,
-    CHAR_NAME_TOO_SHORT                                    = 96,
-    CHAR_NAME_TOO_LONG                                     = 97,
-    CHAR_NAME_INVALID_CHARACTER                            = 98,
-    CHAR_NAME_MIXED_LANGUAGES                              = 99,
-    CHAR_NAME_PROFANE                                      = 100,
-    CHAR_NAME_RESERVED                                     = 101,
-    CHAR_NAME_INVALID_APOSTROPHE                           = 102,
-    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 103,
-    CHAR_NAME_THREE_CONSECUTIVE                            = 104,
-    CHAR_NAME_INVALID_SPACE                                = 105,
-    CHAR_NAME_CONSECUTIVE_SPACES                           = 106,
-    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 107,
-    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 108,
-    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 109
+    CHAR_NAME_SUCCESS                                      = 96,
+    CHAR_NAME_FAILURE                                      = 97,
+    CHAR_NAME_NO_NAME                                      = 98,
+    CHAR_NAME_TOO_SHORT                                    = 99,
+    CHAR_NAME_TOO_LONG                                     = 100,
+    CHAR_NAME_INVALID_CHARACTER                            = 101,
+    CHAR_NAME_MIXED_LANGUAGES                              = 102,
+    CHAR_NAME_PROFANE                                      = 103,
+    CHAR_NAME_RESERVED                                     = 104,
+    CHAR_NAME_INVALID_APOSTROPHE                           = 105,
+    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 106,
+    CHAR_NAME_THREE_CONSECUTIVE                            = 107,
+    CHAR_NAME_INVALID_SPACE                                = 108,
+    CHAR_NAME_CONSECUTIVE_SPACES                           = 109,
+    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 110,
+    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 111,
+    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 112
 };
 
 /// Ban function modes
@@ -4774,7 +4854,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena
     BATTLEGROUND_DG                 = 754,  // Deepwind Gorge
     BATTLEGROUND_TTP                = 757,  // The Tiger's Peak
-    BATTLEGROUND_SVSTM              = 789   // Southshore vs. Tarren Mill (10th years wow) 100 vs 100
+    BATTLEGROUND_SVSTM              = 789   // Southshore vs. Tarren Mill
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 790
@@ -4865,34 +4945,25 @@ enum PetSlot
 
 enum TradeStatus
 {
-    // The enum has some entiers wrong, well TC will update it properly ^^ - but the important ones are correct
-    TRADE_STATUS_YOU_STUNNED            = 0,
-    TRADE_STATUS_TARGET_DEAD            = 2,
-    TRADE_STATUS_IGNORE_YOU             = 3,
-    TRADE_STATUS_BACK_TO_TRADE          = 4,
-    TRADE_STATUS_TRADE_CANCELED         = 5,
-    TRADE_STATUS_PROPOSED               = 6,
-    TRADE_STATUS_NO_TARGET2             = 7,
-    TRADE_STATUS_TARGET_LOGOUT          = 8,
-    TRADE_STATUS_BEGIN_TRADE            = 9,
-    TRADE_STATUS_TRIAL_ACCOUNT          = 10,
-    TRADE_STATUS_WRONG_REALM            = 12,
-    TRADE_STATUS_NOT_ELIGIBLE           = 14,
-    TRADE_STATUS_TRADE_COMPLETE         = 15,
-    TRADE_STATUS_TARGET_STUNNED         = 16,
+    TRADE_STATUS_YOU_LOGOUT             = 0,
+    TRADE_STATUS_YOU_DEAD               = 3,
+    TRADE_STATUS_TARGET_LOGOUT          = 4,
+    TRADE_STATUS_NOT_ELIGIBLE           = 6,
+    TRADE_STATUS_BEGIN_TRADE            = 10,
+    TRADE_STATUS_TRADE_CANCELED         = 11,
+    TRADE_STATUS_TARGET_STUNNED         = 12,
+    TRADE_STATUS_TARGET_DEAD            = 15,
     TRADE_STATUS_TRADE_ACCEPT           = 17,
-    TRADE_STATUS_NO_TARGET              = 18,
-    TRADE_STATUS_CURRENCY_NOT_TRADABLE  = 19,
-    TRADE_STATUS_WRONG_FACTION          = 20,
-    TRADE_STATUS_NOT_ON_TAPLIST         = 21,
-    TRADE_STATUS_TRADE_DECLINE          = 23,
-    TRADE_STATUS_YOU_LOGOUT             = 24,
-    TRADE_STATUS_TARGET_TO_FAR          = 27,
-    TRADE_STATUS_YOU_DEAD2              = 25,
-    TRADE_STATUS_NOT_ENOUGH_CURRENCY    = 26,
-    TRADE_STATUS_YOU_DEAD               = 28,
-    TRADE_STATUS_OPEN_WINDOW            = 29,
-    TRADE_STATUS_BUSY                   = 30,
+    TRADE_STATUS_BACK_TO_TRADE          = 22,
+    TRADE_STATUS_BEGIN_PROPOSED         = 23,
+    TRADE_STATUS_YOU_STUNNED            = 24,
+    TRADE_STATUS_OPEN_WINDOW            = 25,
+    TRADE_STATUS_IGNORE_YOU             = 26,
+    TRADE_STATUS_TRADE_COMPLETE         = 28,
+    TRADE_STATUS_BUSY                   = 29,
+    TRADE_STATUS_TARGET_TO_FAR          = 30,
+    TRADE_STATUS_NO_TARGET              = 31,
+    TRADE_STATUS_WRONG_FACTION          = 31,   ///< Deleted ?
 };
 
 enum eUpdateCollisionReasons
@@ -4922,14 +4993,14 @@ enum RemoveMethod
 enum ActivateTaxiReply
 {
 
-    ERR_TAXI_NO_VENDOR_NEARBY           = 15,
-    ERR_TAXI_SAME_NODE                  = 8,
-    ERR_TAXI_NOT_ENOUGH_MONEY           = 14,
-    ERR_TAXI_PLAYER_MOVING              = 1,
-    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 2,
+    ERR_TAXI_NO_VENDOR_NEARBY           = 13,
+    ERR_TAXI_SAME_NODE                  = 12,
+    ERR_TAXI_NOT_ENOUGH_MONEY           = 2,
+    ERR_TAXI_PLAYER_MOVING              = 10,
+    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 1,
     //                                  = 5,
-    ERR_TAXI_PLAYER_SHAPESHIFTED        = 3,
-    ERR_TAXI_PLAYER_BUSY                = 11,
+    ERR_TAXI_PLAYER_SHAPESHIFTED        = 4,
+    ERR_TAXI_PLAYER_BUSY                = 14,
     ERR_TAXI_NO_SUCH_PATH               = 4,
     //                                  = 9,
     //                                  = 10,
@@ -4988,6 +5059,13 @@ enum SPELL_WEIGHT_TYPE
 {
     SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS = 0x00,
     SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES = 0x01
+};
+
+enum ResetFailedReason
+{
+    INSTANCE_RESET_FAILED_OFFLINE   = 0,    ///< "Cannot reset %s.  There are players offline in your party."
+    INSTANCE_RESET_FAILED_ZONING    = 1,    ///< "Cannot reset %s.  There are players in your party attempting to zone into an instance."
+    INSTANCE_RESET_FAILED           = 2     ///< "Cannot reset %s.  There are players still inside the instance."
 };
 
 #endif

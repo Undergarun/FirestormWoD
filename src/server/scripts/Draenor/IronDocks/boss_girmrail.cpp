@@ -454,7 +454,7 @@ class boss_grimrail_makogg : public CreatureScript
                                 me->CastSpell(me, eMakoggSpells::SpellFeignDeath);
                                 me->CastSpell(me, eMakoggSpells::SpellCosmeticFeignDeath);
                                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                                 me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
                                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                                 GrimailEnforcersWiningCondition(m_Instance, me, p_Attacker->GetGUID());

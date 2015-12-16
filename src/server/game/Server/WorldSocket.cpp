@@ -46,73 +46,33 @@
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "ObjectMgr.h"
+#include "zlib.h"
 
 uint32_t gReceivedBytes = 0;
 uint32_t gSentBytes = 0;
 
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
-#pragma pack(push, 1)
-#endif
+std::string const WorldSocket::m_ServerConnectionInitialize("WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT");
+std::string const WorldSocket::m_ClientConnectionInitialize("WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER");
 
-struct ServerPktHeader
+uint32 const g_SizeOfClientHeader[2][2] =
 {
-    ServerPktHeader(uint32 size, uint32 cmd, AuthCrypt* _authCrypt) : size(size)
-    {
-        if (_authCrypt->IsInitialized())
-        {
-            uint32 data = (size << 13) | cmd & 0x1FFF;
-            memcpy(&header[0], &data, 4);
-            _authCrypt->EncryptSend((uint8*)&header[0], getHeaderLength());
-        }
-        else
-        {
-            // Dynamic header size is not needed anymore, we are using not encrypted part for only the first few packets
-            memcpy(&header[0], &size, 2);
-            memcpy(&header[2], &cmd, 2);
-        }
-    }
-
-    uint8 getHeaderLength()
-    {
-        return 4;
-    }
-
-    const uint32 size;
-    uint8 header[4];
+    { 2, 0 },
+    { 6, 4 }
 };
 
-struct AuthClientPktHeader
-{
-    uint16 size;
-    uint32 cmd;
-};
-
-struct WorldClientPktHeader
-{
-    uint16 size;
-    uint16 cmd;
-};
-
-#if defined(__GNUC__)
-#pragma pack()
-#else
-#pragma pack(pop)
-#endif
+uint32 const g_SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint32), sizeof(uint32) };
 
 WorldSocket::WorldSocket(void) : WorldHandler(),
-m_LastPingTime(ACE_Time_Value::zero), m_OverSpeedPings(0), m_Session(0),
-m_RecvWPct(0), m_RecvPct(), m_Header(sizeof(AuthClientPktHeader)),
-m_WorldHeader(sizeof(WorldClientPktHeader)), m_OutBuffer(0),
-m_OutBufferSize(65536), m_OutActive(false),
-
-m_Seed(static_cast<uint32> (rand32()))
+m_LastPingTime(ACE_Time_Value::zero), m_OverSpeedPings(0), m_Session(0), m_RecvWPct(0),
+m_RecvPct(), m_HeaderBuffer(g_SizeOfClientHeader[0][0]), m_PacketBuffer(4096), m_OutBuffer(0),
+m_OutBufferSize(65536), m_OutActive(false), m_Seed(static_cast<uint32> (rand32())), m_Initialized(false),
+m_CompressionStream(nullptr)
 {
     reference_counting_policy().value(ACE_Event_Handler::Reference_Counting_Policy::ENABLED);
 
     msg_queue()->high_water_mark(8 * 1024 * 1024);
     msg_queue()->low_water_mark(8 * 1024 * 1024);
+
 }
 
 WorldSocket::~WorldSocket (void)
@@ -125,6 +85,12 @@ WorldSocket::~WorldSocket (void)
     closing_ = true;
 
     peer().close();
+
+    if (m_CompressionStream)
+    {
+        deflateEnd(m_CompressionStream);
+        delete m_CompressionStream;
+    }
 }
 
 bool WorldSocket::IsClosed (void) const
@@ -175,19 +141,6 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
     gSentBytes += pkt->size() + 3;
 
-   // TODO : Find the compress flag
-   // Empty buffer used in case packet should be compressed
-   /*WorldPacket buff;
-   if (m_Session && pkt->size() > 0x400)
-   {
-   buff.Compress(m_Session->GetCompressionStream(), pkt);
-   pkt = &buff;
-   }*/
-
-    // Remove log for latency
-    if (pkt->GetOpcode() != SMSG_MONSTER_MOVE)
-         sLog->outInfo(LOG_FILTER_OPCODES, "S->C: %s", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
-
 #   ifdef WIN32
     if (sWorld->getBoolConfig(CONFIG_LOG_PACKETS))
     {
@@ -209,39 +162,109 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
     sScriptMgr->OnPacketSend(this, *pkt);
 
-    ServerPktHeader header(!m_Crypt.IsInitialized() ? pkt->size() + 2 : pct.size(), pkt->GetOpcode(), &m_Crypt);
+    ACE_Message_Block* l_Buffer = WritePacketToBuffer(*pkt);
 
-    if (m_OutBuffer->space() >= pkt->size() + header.getHeaderLength() && msg_queue()->is_empty())
+    if (l_Buffer != m_OutBuffer && l_Buffer != nullptr)
     {
-        // Put the packet on the buffer.
-        if (m_OutBuffer->copy((char*)header.header, header.getHeaderLength()) == -1)
-            ACE_ASSERT(false);
-
-        if (!pkt->empty())
-        if (m_OutBuffer->copy((char*)pkt->contents(), pkt->size()) == -1)
-            ACE_ASSERT(false);
-    }
-    else
-    {
-        // Enqueue the packet.
-        ACE_Message_Block* mb;
-
-        ACE_NEW_RETURN(mb, ACE_Message_Block(pkt->size() + header.getHeaderLength()), -1);
-
-        mb->copy((char*)header.header, header.getHeaderLength());
-
-        if (!pkt->empty())
-            mb->copy((const char*)pkt->contents(), pkt->size());
-
-        if (msg_queue()->enqueue_tail(mb, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
+        // Enqueue packet
+        if (msg_queue()->enqueue_tail(l_Buffer, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::SendPacket enqueue_tail failed");
-            mb->release();
+            l_Buffer->release();
             return -1;
         }
     }
 
     return 0;
+}
+
+ACE_Message_Block* WorldSocket::WritePacketToBuffer(WorldPacket const& p_Packet)
+{
+    uint32 l_PacketSize = p_Packet.size();
+    uint32 l_SizeOfHeader = g_SizeOfServerHeader[m_Crypt.IsInitialized()];
+    uint32 l_TotalSize = l_PacketSize + l_SizeOfHeader;
+    uint32 l_Opcode = p_Packet.GetOpcode();
+
+    ACE_Message_Block* l_Buffer;
+
+    // If there is free space in the output buffer insert it instead of enqueing the packet
+    if (m_OutBuffer->space() >= l_TotalSize && msg_queue()->is_empty())
+        l_Buffer = m_OutBuffer;
+    else
+        ACE_NEW_RETURN(l_Buffer, ACE_Message_Block(l_TotalSize), nullptr);
+
+    CompressedWorldPacket l_CompressedPacket;
+    ServerPktHeader* l_HeaderPointer = reinterpret_cast<ServerPktHeader*>(l_Buffer->wr_ptr());
+
+    l_Buffer->wr_ptr(l_SizeOfHeader);
+
+    if (l_PacketSize > 0x400 && m_CompressionStream)
+    {
+        l_CompressedPacket.m_UncompressedSize = l_PacketSize + 4;
+        l_CompressedPacket.m_UncompressedAdler = adler32(adler32(0x9827D8F1, (Bytef*)&l_Opcode, 4), p_Packet.contents(), l_PacketSize);
+
+        /// Reserve space for compression info - uncompressed size and checksums
+        char* l_CompressionInfo = l_Buffer->wr_ptr();
+        l_Buffer->wr_ptr(sizeof(CompressedWorldPacket));
+
+        uint32 l_CompressedSize = CompressPacket(l_Buffer->wr_ptr(), p_Packet);
+        l_CompressedPacket.m_CompressedAdler = adler32(0x9827D8F1, (const Bytef*)l_Buffer->wr_ptr(), l_CompressedSize);
+
+        l_Buffer->wr_ptr(l_CompressedSize);
+        memcpy(l_CompressionInfo, &l_CompressedPacket, sizeof(CompressedWorldPacket));
+
+        l_PacketSize = l_CompressedSize + sizeof(CompressedWorldPacket);
+        l_Opcode = SMSG_COMPRESSED_PACKET;
+    }
+    else if (l_PacketSize)
+    {
+        if (l_Buffer->copy((char*)(p_Packet.contents()), l_PacketSize) == -1)
+            ACE_ASSERT(false);
+    }
+
+    if (m_Crypt.IsInitialized())
+    {
+        l_HeaderPointer->Normal.m_Size = l_PacketSize;
+        l_HeaderPointer->Normal.m_Command = l_Opcode;
+        m_Crypt.EncryptSend((uint8*)l_HeaderPointer, l_SizeOfHeader);
+    }
+    else
+    {
+        l_HeaderPointer->Setup.m_Size = l_PacketSize + 4;
+        l_HeaderPointer->Setup.m_Command = l_Opcode;
+    }
+
+    return l_Buffer;
+}
+
+uint32 WorldSocket::CompressPacket(char* p_Buffer, WorldPacket const& p_Packet)
+{
+    uint32 l_Opcode = p_Packet.GetOpcode();
+    uint32 l_BufferSize = deflateBound(m_CompressionStream, p_Packet.size() + sizeof(l_Opcode));
+
+    m_CompressionStream->next_out = (Bytef*)p_Buffer;
+    m_CompressionStream->avail_out = l_BufferSize;
+    m_CompressionStream->next_in = (Bytef*)&l_Opcode;
+    m_CompressionStream->avail_in = sizeof(uint32);
+
+    int32 z_res = deflate(m_CompressionStream, Z_BLOCK);
+    if (z_res != Z_OK)
+    {
+        sLog->outAshran("Can't compress packet opcode (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), m_CompressionStream->msg);
+        return 0;
+    }
+
+    m_CompressionStream->next_in = (Bytef*)p_Packet.contents();
+    m_CompressionStream->avail_in = p_Packet.size();
+
+    z_res = deflate(m_CompressionStream, Z_SYNC_FLUSH);
+    if (z_res != Z_OK)
+    {
+        sLog->outAshran("Can't compress packet data (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), m_CompressionStream->msg);
+        return 0;
+    }
+
+    return l_BufferSize - m_CompressionStream->avail_out;
 }
 
 long WorldSocket::AddReference (void)
@@ -284,13 +307,14 @@ int WorldSocket::open (void *a)
 
     m_Address = remote_addr.get_host_addr();
 
-    // not an opcode. this packet sends raw string WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT"
-    // because of our implementation, bytes "WO" become the opcode
-    WorldPacket packet(SMSG_HANDSHAKE);
-    packet << "RLD OF WARCRAFT CONNECTION - SERVER TO CLIENT";
+    // Send handshake string -- uint16 size at the beginning
+    uint16 l_SizeOfInitString = m_ServerConnectionInitialize.size();
 
-    if (SendPacket(packet) == -1)
-        return -1;
+    if (m_OutBuffer->copy((char*)&l_SizeOfInitString, sizeof(l_SizeOfInitString)))
+        ACE_ASSERT(false);
+
+    if (m_OutBuffer->copy(m_ServerConnectionInitialize.c_str(), m_ServerConnectionInitialize.size()) == -1)
+        ACE_ASSERT(false);
 
     // Register with ACE Reactor
     if (reactor()->register_handler(this, ACE_Event_Handler::READ_MASK | ACE_Event_Handler::WRITE_MASK) == -1)
@@ -321,7 +345,7 @@ int WorldSocket::handle_input (ACE_HANDLE)
     if (closing_)
         return -1;
 
-    switch (handle_input_missing_data())
+    switch (HandleNewPacket())
     {
     case -1 :
         {
@@ -504,208 +528,120 @@ int WorldSocket::Update (void)
     return ret;
 }
 
-int WorldSocket::handle_input_header (void)
+int WorldSocket::ReadPacketHeader()
 {
-    ACE_ASSERT(m_RecvWPct == NULL);
+    ACE_ASSERT(m_RecvWPct == nullptr && m_HeaderBuffer.size() == g_SizeOfClientHeader[m_Initialized][m_Crypt.IsInitialized()]);
+    m_Crypt.DecryptRecv(reinterpret_cast<uint8*>(m_HeaderBuffer.rd_ptr()), m_HeaderBuffer.size());
 
-    if (m_Crypt.IsInitialized())
+    uint32 l_Opcode;
+    uint32 l_Size;
+
+    ExtractOpcodeAndSize(reinterpret_cast<ClientPktHeader*>(m_HeaderBuffer.rd_ptr()), l_Opcode, l_Size);
+
+#ifdef WIN32
+
+    if (m_Initialized &&sWorld->getBoolConfig(CONFIG_LOG_PACKETS))
     {
-        ACE_ASSERT(m_WorldHeader.length() == sizeof(WorldClientPktHeader));
-        uint8* uintHeader = (uint8*)m_WorldHeader.rd_ptr();
-        m_Crypt.DecryptRecv(uintHeader, sizeof(WorldClientPktHeader));
-        WorldClientPktHeader& header = *(WorldClientPktHeader*)uintHeader;
-
-        uint32 value = *(uint32*)uintHeader;
-        header.cmd = value & 0x1FFF;
-        header.size = ((value & ~(uint32)0x1FFF) >> 13);
-
-#       ifdef WIN32
-        if (sWorld->getBoolConfig(CONFIG_LOG_PACKETS))
-        {
-            std::string opcodeName = GetOpcodeNameForLogging((Opcodes)header.cmd, WOW_CLIENT_TO_SERVER);
-            printf("Receive opcode %s 0x%08.8X size : %u \n", opcodeName.c_str(), header.cmd, header.size);
-        }
-#       endif
-
-        if (header.size > 10236)
-        {
-            Player* _player = m_Session ? m_Session->GetPlayer() : NULL;
-            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::handle_input_header(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %d, cmd: %d)",
-                m_Session ? m_Session->GetAccountId() : 0,
-                _player ? _player->GetGUIDLow() : 0,
-                _player ? _player->GetName() : "<none>",
-                header.size, header.cmd);
-
-            errno = EINVAL;
-            return -1;
-        }
-
-        ACE_NEW_RETURN(m_RecvWPct, WorldPacket(PacketFilter::DropHighBytes((Opcodes)header.cmd), header.size), -1);
-
-        if (header.size > 0)
-        {
-            m_RecvWPct->resize(header.size);
-            m_RecvPct.base((char*)m_RecvWPct->contents(), m_RecvWPct->size());
-        }
-        else
-            ACE_ASSERT(m_RecvPct.space() == 0);
+        std::string l_OopcodeName = GetOpcodeNameForLogging((Opcodes)l_Opcode, WOW_CLIENT_TO_SERVER);
+        printf("Receive opcode %s 0x%08.8X size : %u \n", l_OopcodeName.c_str(), l_Opcode, l_Size);
     }
-    else
+#endif
+
+    if (!ClientPktHeader::IsValidSize(l_Size) || (m_Initialized && !ClientPktHeader::IsValidOpcode(l_Opcode)))
     {
-        ACE_ASSERT(m_Header.length() == sizeof(AuthClientPktHeader));
-        uint8* uintHeader = (uint8*)m_Header.rd_ptr();
-        AuthClientPktHeader& header = *((AuthClientPktHeader*)uintHeader);
+        Player* _player = m_Session ? m_Session->GetPlayer() : NULL;
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadPacketHeader(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %d, cmd: %d)",
+            m_Session ? m_Session->GetAccountId() : 0,
+            _player ? _player->GetGUIDLow() : 0,
+            _player ? _player->GetName() : "<none>",
+            l_Size, l_Opcode);
 
-        if ((header.size < 4) || (header.size > 10240))
-        {
-            Player* _player = m_Session ? m_Session->GetPlayer() : NULL;
-            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::handle_input_header(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %d, cmd: %d)",
-                m_Session ? m_Session->GetAccountId() : 0,
-                _player ? _player->GetGUIDLow() : 0,
-                _player ? _player->GetName() : "<none>",
-                header.size, header.cmd);
-
-            errno = EINVAL;
-            return -1;
-        }
-
-        header.size -= 4;
-
-        ACE_NEW_RETURN(m_RecvWPct, WorldPacket(PacketFilter::DropHighBytes((Opcodes)header.cmd), header.size), -1);
-
-        if (header.size > 0)
-        {
-            m_RecvWPct->resize(header.size);
-            m_RecvPct.base((char*)m_RecvWPct->contents(), m_RecvWPct->size());
-        }
-        else
-            ACE_ASSERT(m_RecvPct.space() == 0);
+        errno = EINVAL;
+        return -1;
     }
+
+    ACE_NEW_RETURN(m_RecvWPct, WorldPacket((Opcodes)l_Opcode, l_Size), -1);
+    m_RecvWPct->resize(l_Size);
+    m_RecvPct.base((char*)m_RecvWPct->contents(), l_Size);
 
     return 0;
 }
 
-int WorldSocket::handle_input_payload (void)
+void WorldSocket::ExtractOpcodeAndSize(ClientPktHeader const* p_Header, uint32& p_Opcode, uint32& p_Size) const
+{
+    if (m_Crypt.IsInitialized())
+    {
+        p_Opcode = p_Header->Normal.m_Command;
+        p_Size = p_Header->Normal.m_Size;
+    }
+    else
+    {
+        p_Opcode = p_Header->Setup.m_Command;
+        p_Size = p_Header->Setup.m_Size;
+
+        // Include opcode
+        if (m_Initialized)
+            p_Size -= 4;
+    }
+}
+
+int WorldSocket::HandlePacketData()
 {
     // set errno properly here on error !!!
     // now have a header and payload
 
-    if (m_Crypt.IsInitialized())
-    {
-        ACE_ASSERT(m_RecvPct.space() == 0);
-        ACE_ASSERT(m_WorldHeader.space() == 0);
-        ACE_ASSERT(m_RecvWPct != NULL);
+    ACE_ASSERT(m_RecvPct.space() == 0);
+    ACE_ASSERT(m_HeaderBuffer.space() == 0);
+    ACE_ASSERT(m_RecvWPct != nullptr);
 
-        const int ret = ProcessIncoming(m_RecvWPct);
+    const int l_ReturnValue = ProcessIncoming(m_RecvWPct);
 
-        m_RecvPct.base(NULL, 0);
-        m_RecvPct.reset();
-        m_RecvWPct = NULL;
+    m_RecvPct.base(nullptr, 0);
+    m_RecvPct.reset();
+    m_RecvWPct = nullptr;
 
-        m_WorldHeader.reset();
+    m_HeaderBuffer.reset();
 
-        if (ret == -1)
-            errno = EINVAL;
+    if (l_ReturnValue == -1)
+        errno = EINVAL;
 
-        return ret;
-    }
-    else
-    {
-        ACE_ASSERT(m_RecvPct.space() == 0);
-        ACE_ASSERT(m_Header.space() == 0);
-        ACE_ASSERT(m_RecvWPct != NULL);
-
-        const int ret = ProcessIncoming(m_RecvWPct);
-
-        m_RecvPct.base(NULL, 0);
-        m_RecvPct.reset();
-        m_RecvWPct = NULL;
-
-        m_Header.reset();
-
-        if (ret == -1)
-            errno = EINVAL;
-
-        return ret;
-    }
+    return l_ReturnValue;
 }
 
-int WorldSocket::handle_input_missing_data (void)
+int WorldSocket::HandleNewPacket()
 {
-    char buf[4096];
+    m_PacketBuffer.reset();
 
-    ACE_Data_Block db(sizeof (buf),
-        ACE_Message_Block::MB_DATA,
-        buf,
-        0,
-        0,
-        ACE_Message_Block::DONT_DELETE,
-        0);
+    const size_t l_SizeOfBuffer = m_PacketBuffer.space();
+    const ssize_t l_ReadSize = peer().recv(m_PacketBuffer.wr_ptr(), l_SizeOfBuffer);
 
-    ACE_Message_Block message_block(&db,
-        ACE_Message_Block::DONT_DELETE,
-        0);
+    if (l_ReadSize <= 0)
+        return int(l_ReadSize);
 
-    const size_t recv_size = message_block.space();
+     m_PacketBuffer.wr_ptr(l_ReadSize);
 
-    const ssize_t n = peer().recv(message_block.wr_ptr(),
-        recv_size);
-
-    if (n <= 0)
-        return int(n);
-
-    message_block.wr_ptr(n);
-
-    while (message_block.length() > 0)
+    while (m_PacketBuffer.length() > 0)
     {
-        if (m_Crypt.IsInitialized())
+        // Receive header first
+        if (m_HeaderBuffer.space() > 0)
         {
-            if (m_WorldHeader.space() > 0)
+            const size_t l_HeaderReadSize = std::min(m_PacketBuffer.size(),  m_HeaderBuffer.space());
+            m_HeaderBuffer.copy(m_PacketBuffer.rd_ptr(), l_HeaderReadSize);
+            m_PacketBuffer.rd_ptr(l_HeaderReadSize);
+
+            if (m_HeaderBuffer.space() > 0)
             {
-                //need to receive the header
-                const size_t to_header = (message_block.length() > m_WorldHeader.space() ? m_WorldHeader.space() : message_block.length());
-                m_WorldHeader.copy(message_block.rd_ptr(), to_header);
-                message_block.rd_ptr(to_header);
-
-                if (m_WorldHeader.space() > 0)
-                {
-                    // Couldn't receive the whole header this time.
-                    ACE_ASSERT(message_block.length() == 0);
-                    errno = EWOULDBLOCK;
-                    return -1;
-                }
-
-                // We just received nice new header
-                if (handle_input_header() == -1)
-                {
-                    ACE_ASSERT((errno != EWOULDBLOCK) && (errno != EAGAIN));
-                    return -1;
-                }
+                // Couldn't receive the whole header this time.
+                ACE_ASSERT(m_PacketBuffer.length() == 0);
+                errno = EWOULDBLOCK;
+                return -1;
             }
-        }
-        else
-        {
-            if (m_Header.space() > 0)
+
+            // We just received nice new header
+            if (ReadPacketHeader() == -1)
             {
-                //need to receive the header
-                const size_t to_header = (message_block.length() > m_Header.space() ? m_Header.space() : message_block.length());
-                m_Header.copy(message_block.rd_ptr(), to_header);
-                message_block.rd_ptr(to_header);
-
-                if (m_Header.space() > 0)
-                {
-                    // Couldn't receive the whole header this time.
-                    ACE_ASSERT(message_block.length() == 0);
-                    errno = EWOULDBLOCK;
-                    return -1;
-                }
-
-                // We just received nice new header
-                if (handle_input_header() == -1)
-                {
-                    ACE_ASSERT((errno != EWOULDBLOCK) && (errno != EAGAIN));
-                    return -1;
-                }
+                ACE_ASSERT((errno != EWOULDBLOCK) && (errno != EAGAIN));
+                return -1;
             }
         }
 
@@ -723,28 +659,28 @@ int WorldSocket::handle_input_missing_data (void)
         if (m_RecvPct.space() > 0)
         {
             //need more data in the payload
-            const size_t to_data = (message_block.length() > m_RecvPct.space() ? m_RecvPct.space() : message_block.length());
-            m_RecvPct.copy(message_block.rd_ptr(), to_data);
-            message_block.rd_ptr(to_data);
+            const size_t l_PacketRecvSize = std::min(m_PacketBuffer.size(), m_RecvPct.space());
+            m_RecvPct.copy(m_PacketBuffer.rd_ptr(), l_PacketRecvSize);
+            m_PacketBuffer.rd_ptr(l_PacketRecvSize);
 
             if (m_RecvPct.space() > 0)
             {
                 // Couldn't receive the whole data this time.
-                ACE_ASSERT(message_block.length() == 0);
+                ACE_ASSERT(m_PacketBuffer.length() == 0);
                 errno = EWOULDBLOCK;
                 return -1;
             }
         }
 
         //just received fresh new payload
-        if (handle_input_payload() == -1)
+        if (HandlePacketData() == -1)
         {
             ACE_ASSERT((errno != EWOULDBLOCK) && (errno != EAGAIN));
             return -1;
         }
     }
 
-    return size_t(n) == recv_size ? 1 : 2;
+    return size_t(l_ReadSize) == l_SizeOfBuffer ? 1 : 2;
 }
 
 int WorldSocket::cancel_wakeup_output (GuardType& g)
@@ -786,112 +722,122 @@ int WorldSocket::schedule_wakeup_output (GuardType& g)
     return 0;
 }
 
-int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
+int WorldSocket::ProcessIncoming(WorldPacket* p_NewPacket)
 {
-    ACE_ASSERT (new_pct);
+    ACE_ASSERT(p_NewPacket);
 
     // manage memory ;)
-    ACE_Auto_Ptr<WorldPacket> aptr(new_pct);
-
-    Opcodes opcode = PacketFilter::DropHighBytes(new_pct->GetOpcode());
+    ACE_Auto_Ptr<WorldPacket> aptr(p_NewPacket);
 
     if (closing_)
         return -1;
 
-    // Dump received packet.
-    if (sPacketLog->CanLogPacket())
-        sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
-
-
-    /// Remove log for latency
-    std::string opcodeName = GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER);
-    if (opcode != CMSG_MOVE_START_FORWARD)
-        sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName.c_str());
-
-    try
+    if (m_Initialized)
     {
-        switch (opcode)
+        // Dump received packet.
+        if (sPacketLog->CanLogPacket())
+            sPacketLog->LogPacket(*p_NewPacket, CLIENT_TO_SERVER);
+
+        try
         {
-            case CMSG_PING:
-                return HandlePing(*new_pct);
-            case CMSG_AUTH_SESSION:
+            switch (p_NewPacket->GetOpcode())
             {
-                if (m_Session)
+                case CMSG_PING:
+                    return HandlePing(*p_NewPacket);
+                case CMSG_AUTH_SESSION:
                 {
-                    sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", m_Session->GetPlayerName(false).c_str());
-                    return -1;
+                    if (m_Session)
+                    {
+                        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", m_Session->GetPlayerName(false).c_str());
+                        return -1;
+                    }
+
+                    sScriptMgr->OnPacketReceive(this, WorldPacket(*p_NewPacket));
+                    return HandleAuthSession(*p_NewPacket);
                 }
-
-                sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
-                return HandleAuthSession(*new_pct);
-            }
-            /*case CMSG_KEEP_ALIVE:
-            {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER).c_str());
-                sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
-                return 0;
-            }*/
-            case CMSG_LOG_DISCONNECT:
-            {
-                new_pct->rfinish(); // contains uint32 disconnectReason;
-                sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
-                return 0;
-            }
-            // not an opcode, client sends string "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER" without opcode
-            // first 4 bytes become the opcode (2 dropped)
-            case CMSG_HANDSHAKE:
-            {
-                sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
-                std::string str;
-                *new_pct >> str;
-                if (str != "D OF WARCRAFT CONNECTION - CLIENT TO SERVER")
-                    return -1;
-                return HandleSendAuthSession();
-            }
-            case CMSG_ENABLE_NAGLE:
-            {
-                sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
-                return m_Session ? m_Session->HandleEnableNagleAlgorithm() : -1;
-            }
-            default:
-            {
-                ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
-                if (!m_Session)
+                case CMSG_KEEP_ALIVE:
                 {
-                    sLog->outError(LOG_FILTER_OPCODES, "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-                    return -1;
-                }
-
-                // prevent invalid memory access/crash with custom opcodes
-                if (opcode >= NUM_OPCODE_HANDLERS)
-                    return 0;
-
-                OpcodeHandler* handler = g_OpcodeTable[WOW_CLIENT_TO_SERVER][opcode];
-                if (!handler || handler->status == STATUS_UNHANDLED)
-                {
-                    sLog->outError(LOG_FILTER_OPCODES, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(new_pct->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), m_Session->GetPlayerName(false).c_str());
+                    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", GetOpcodeNameForLogging(p_NewPacket->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str());
+                    sScriptMgr->OnPacketReceive(this, WorldPacket(*p_NewPacket));
                     return 0;
                 }
+                case CMSG_LOG_DISCONNECT:
+                {
+                    p_NewPacket->rfinish(); // contains uint32 disconnectReason;
+                    sScriptMgr->OnPacketReceive(this, WorldPacket(*p_NewPacket));
+                    return 0;
+                }
+                // not an opcode, client sends string "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER" without opcode
+                // first 4 bytes become the opcode (2 dropped)
+                case CMSG_ENABLE_NAGLE:
+                {
+                    sScriptMgr->OnPacketReceive(this, WorldPacket(*p_NewPacket));
+                    return m_Session ? m_Session->HandleEnableNagleAlgorithm() : -1;
+                }
+                default:
+                {
+                    ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
+                    if (!m_Session)
+                    {
+                        sLog->outError(LOG_FILTER_OPCODES, "ProcessIncoming: Client not authed opcode = %u", uint32(p_NewPacket->GetOpcode()));
+                        return -1;
+                    }
 
-                // Our Idle timer will reset on any non PING opcodes.
-                // Catches people idling on the login screen and any lingering ingame connections.
-                m_Session->ResetTimeOutTime();
+                    // prevent invalid memory access/crash with custom opcodes
+                    if (p_NewPacket->GetOpcode() >= NUM_OPCODE_HANDLERS)
+                        return 0;
 
-                // OK, give the packet to WorldSession
-                aptr.release();
-                // WARNING here we call it with locks held.
-                // Its possible to cause deadlock if QueuePacket calls back
-                m_Session->QueuePacket(new_pct);
-                return 0;
+                    OpcodeHandler* handler = g_OpcodeTable[WOW_CLIENT_TO_SERVER][p_NewPacket->GetOpcode()];
+                    if (!handler || handler->status == STATUS_UNHANDLED)
+                    {
+                        sLog->outError(LOG_FILTER_OPCODES, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(p_NewPacket->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), m_Session->GetPlayerName(false).c_str());
+                        return 0;
+                    }
+
+                    // Our Idle timer will reset on any non PING opcodes.
+                    // Catches people idling on the login screen and any lingering ingame connections.
+                    m_Session->ResetTimeOutTime();
+
+                    // OK, give the packet to WorldSession
+                    aptr.release();
+                    // WARNING here we call it with locks held.
+                    // Its possible to cause deadlock if QueuePacket calls back
+                    m_Session->QueuePacket(p_NewPacket);
+                    return 0;
+                }
             }
         }
+        catch (ByteBufferException &)
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet %s from client %s, accountid=%i. Disconnected client.",
+                GetOpcodeNameForLogging(p_NewPacket->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetRemoteAddress().c_str(), m_Session ? int32(m_Session->GetAccountId()) : -1);
+            p_NewPacket->hexlike();
+            return -1;
+        }
     }
-    catch (ByteBufferException &)
+    else
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet %s from client %s, accountid=%i. Disconnected client.",
-            GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER).c_str(), GetRemoteAddress().c_str(), m_Session ? int32(m_Session->GetAccountId()) : -1);
-        new_pct->hexlike();
-        return -1;
+        if (std::string(reinterpret_cast<char const*>(m_RecvPct.rd_ptr()), std::min(m_RecvPct.size(), m_ClientConnectionInitialize.length())) != m_ClientConnectionInitialize)
+            return -1;
+
+        m_CompressionStream = new z_stream();
+        m_CompressionStream->zalloc = (alloc_func)NULL;
+        m_CompressionStream->zfree = (free_func)NULL;
+        m_CompressionStream->opaque = (voidpf)NULL;
+        m_CompressionStream->avail_in = 0;
+        m_CompressionStream->next_in = NULL;
+
+        int32 z_res = deflateInit2(m_CompressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
+        if (z_res != Z_OK)
+        {
+            sLog->outAshran("Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
+            return false;
+        }
+
+        m_Initialized = true;
+        m_HeaderBuffer.size(g_SizeOfClientHeader[1][0]);
+
+        return HandleSendAuthSession();
     }
 
     ACE_NOTREACHED (return 0);
@@ -900,9 +846,8 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
 int WorldSocket::HandleSendAuthSession()
 {
     WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
-    packet << uint16(0);
-
     packet << m_Seed;
+
     for (int i = 0; i < 8; i++)
         packet << uint32(0);
 
@@ -1099,7 +1044,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     WorldPacket l_AddonsCompressedData;
 
     //////////////////////////////////////////////////////////////////////////
-
     p_RecvPacket >> l_LoginServerID;                    ///< uint32
     p_RecvPacket >> l_ClientBuild;                      ///< uint16
     p_RecvPacket >> l_RegionID;                         ///< uint32
@@ -1114,7 +1058,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
 
     l_AccountNameLenght = p_RecvPacket.ReadBits(11);
     l_AccountName = p_RecvPacket.ReadString(l_AccountNameLenght);
-
     l_UseIpV6 = p_RecvPacket.ReadBit();
 
     p_RecvPacket >> l_AddonsCompressedDataSize;
@@ -1306,6 +1249,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     ACE_NEW_RETURN(m_Session, WorldSession(l_AccountID, this, AccountTypes(l_AccountGMLevel), l_AccountIsPremium, l_AccountPremiumType, l_AccountExpansion, l_MuteTime, l_AccountLocale, l_Recruiter, l_AccountIsRecruiter, l_VoteRemainingTime, l_ServiceFlags, l_CustomFlags), -1);
 
     m_Crypt.Init(&l_SessionKey);
+    m_HeaderBuffer.size(g_SizeOfClientHeader[m_Initialized][m_Crypt.IsInitialized()]);
 
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
