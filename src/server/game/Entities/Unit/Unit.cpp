@@ -13656,7 +13656,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     if (GetTypeId() == TYPEID_PLAYER)
         ridingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
 
-    for (uint32 i = MAX_MOUNT_CAPABILITIES; i > 0; --i)
+    for (uint32 i = 0; i < MAX_MOUNT_CAPABILITIES; ++i)
     {
         MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
         if (!mountCapability)
