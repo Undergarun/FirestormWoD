@@ -967,11 +967,11 @@ void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, Roll const& p_
     l_Data << uint32(p_MapID);                              ///< mapid
 
     l_Data.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);               ///< Type
-    l_Data.WriteBits(LOOT_ITEM_UI_NORMAL, 3);               ///< Ui Type
+    l_Data.WriteBits(LOOT_SLOT_TYPE_ALLOW_LOOT, 3);         ///< Ui Type
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
+    l_Data << uint8(LOOT_LIST_ITEM);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
@@ -1001,11 +1001,11 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     l_Data << uint32(p_MapID);                              ///< mapid
 
     l_Data.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);               ///< Type
-    l_Data.WriteBits(LOOT_ITEM_UI_NORMAL, 3);               ///< Ui Type
+    l_Data.WriteBits(LOOT_SLOT_TYPE_OWNER, 3);              ///< Ui Type
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_OWNER);
+    l_Data << uint8(LOOT_LIST_ITEM);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
@@ -1024,11 +1024,11 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
     l_Data.appendPackGUID(targetGuid);
 
     l_Data.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);               ///< Type
-    l_Data.WriteBits(LOOT_ITEM_UI_NORMAL, 3);               ///< Ui Type
+    l_Data.WriteBits(LOOT_SLOT_TYPE_ALLOW_LOOT, 3);         ///< Ui Type
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_OWNER);
+    l_Data << uint8(LOOT_LIST_ITEM);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
@@ -1056,11 +1056,11 @@ void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_Ro
     l_Data.appendPackGUID(p_Roll.lootedGUID);
 
     l_Data.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);               ///< Type
-    l_Data.WriteBits(LOOT_ITEM_UI_NORMAL, 3);               ///< Ui Type
+    l_Data.WriteBits(LOOT_SLOT_TYPE_ALLOW_LOOT, 3);         ///< Ui Type
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_OWNER);
+    l_Data << uint8(LOOT_LIST_ITEM);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
@@ -1087,11 +1087,11 @@ void Group::SendLootAllPassed(Roll const& p_Roll)
     l_Data.appendPackGUID(p_Roll.lootedGUID);
 
     l_Data.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);               ///< Type
-    l_Data.WriteBits(LOOT_ITEM_UI_NORMAL, 3);               ///< Ui Type
+    l_Data.WriteBits(LOOT_SLOT_TYPE_ALLOW_LOOT, 3);         ///< Ui Type
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
+    l_Data << uint8(LOOT_LIST_ITEM);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
@@ -1430,57 +1430,64 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 
 void Group::MasterLoot(Loot* loot, WorldObject* p_LootedObject)
 {
-    uint32 l_Count = 0;
-
-    for (GroupReference* l_It = GetFirstMember(); l_It != NULL; l_It = l_It->next())
+    for (auto& l_Iter : loot->Items)
     {
-        Player * l_Looter = l_It->getSource();
+        if (l_Iter.freeforall)
+            continue;
+
+        l_Iter.is_blocked = !l_Iter.is_underthreshold;
+    }
+
+    for (auto& l_Iter : loot->QuestItems)
+    {
+        if (!l_Iter.follow_loot_rules)
+            continue;
+
+        l_Iter.is_blocked = !l_Iter.is_underthreshold;
+    }
+
+    uint32 l_Count = 1;
+
+    Player* l_MasterLooter = nullptr;
+    for (GroupReference* l_It = GetFirstMember(); l_It != nullptr; l_It = l_It->next())
+    {
+        Player* l_Looter = l_It->getSource();
+        if (l_Looter->GetGUID() == GetLooterGuid())
+        {
+            l_MasterLooter = l_Looter;
+            continue;
+        }
 
         if (!l_Looter->IsInWorld())
             continue;
 
-        if (l_Looter->IsWithinDistInMap(p_LootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+        if (l_Looter->IsAtGroupRewardDistance(p_LootedObject))
             ++l_Count;
     }
 
     uint64 l_LootedGUID = p_LootedObject->GetGUID();
     sObjectMgr->setLootViewGUID(l_LootedGUID, p_LootedObject->GetGUID());
 
-    WorldPacket l_Data(SMSG_MASTER_LOOT_CANDIDATE_LIST);
-    l_Data.appendPackGUID(MAKE_NEW_GUID(p_LootedObject->GetGUIDLow(), NULL, HIGHGUID_LOOT));
+    WorldPacket l_Data(Opcodes::SMSG_MASTER_LOOT_CANDIDATE_LIST);
+    l_Data.appendPackGUID(MAKE_NEW_GUID(p_LootedObject->GetGUIDLow(), 0, HIGHGUID_LOOT));
     l_Data << uint32(l_Count);
+    l_Data.appendPackGUID(l_MasterLooter->GetGUID());
 
-    for (GroupReference* l_It = GetFirstMember(); l_It != NULL; l_It = l_It->next())
+    for (GroupReference* l_It = GetFirstMember(); l_It != nullptr; l_It = l_It->next())
     {
         Player* l_Looter = l_It->getSource();
 
-        if (!l_Looter->IsInWorld())
+        if (!l_Looter->IsInWorld() || l_Looter == l_MasterLooter)
             continue;
 
-        if (loot && loot->AllowedPlayers.IsEnabled())
-        {
-            if (!loot->AllowedPlayers.HasPlayerGuid(l_Looter->GetGUID()))
-                continue;
-        }
-
-
-        if (l_Looter->IsWithinDistInMap(p_LootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
-        {
+        if (l_Looter->IsAtGroupRewardDistance(p_LootedObject))
             l_Data.appendPackGUID(l_Looter->GetGUID());
-        }
     }
 
-    for (GroupReference* l_It = GetFirstMember(); l_It != NULL; l_It = l_It->next())
+    for (GroupReference* l_It = GetFirstMember(); l_It != nullptr; l_It = l_It->next())
     {
-        Player * l_Looter = l_It->getSource();
-
-        if (loot && loot->AllowedPlayers.IsEnabled())
-        {
-            if (!loot->AllowedPlayers.HasPlayerGuid(l_Looter->GetGUID()))
-                continue;
-        }
-
-        if (l_Looter->IsWithinDistInMap(p_LootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+        Player* l_Looter = l_It->getSource();
+        if (l_Looter->GetGUID() == GetLooterGuid())
             l_Looter->GetSession()->SendPacket(&l_Data);
     }
 }
