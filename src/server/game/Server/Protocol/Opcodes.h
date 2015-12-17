@@ -396,7 +396,7 @@ enum Opcodes
         SMSG_PETBATTLE_FINISHED                             = 0x02F8, ///< 6.2.3 20726
         SMSG_PET_BATTLE_SLOT_UPDATES                        = 0x0FCB, ///< 6.2.3 20726
         SMSG_PETBATTLE_PVP_CHALLENGE                        = 0x0000,
-        SMSG_PETBATTLE_ROUND_RESULT                         = 0x0000,
+        SMSG_PETBATTLE_ROUND_RESULT                         = 0x0EC8, ///< 6.2.3 20726
         SMSG_PETBATTLE_REPLACEMENTS_MADE                    = 0x0000,
 
         /// Instances
