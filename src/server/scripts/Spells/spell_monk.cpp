@@ -3629,7 +3629,7 @@ enum SpinningCraneKickSpells
     SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Spinning Crane Kick - 101546
 class spell_monk_spinning_crane_kick: public SpellScriptLoader
 {
@@ -3692,7 +3692,8 @@ enum RushingJadeWindSpells
     SPELL_MONK_RUSHING_JADE_WIND_HEAL = 162530
 };
 
-// Rushing Jade Wind - 116847
+/// last update : 6.2.3
+/// Rushing Jade Wind - 116847
 class spell_monk_rushing_jade_wind: public SpellScriptLoader
 {
     public:
@@ -3844,7 +3845,8 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
                         return;
 
                     int l_Bp0 = (l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) * 9;
-                    l_Bp0 /= l_SpellInfo->GetDuration() / IN_MILLISECONDS;
+                    l_Bp0 /= ((l_SpellInfo->GetDuration() / IN_MILLISECONDS) / 0.8f);
+
                     SetHitHeal(l_Bp0);
                 }
             }
@@ -3870,6 +3872,7 @@ enum FistsOfFurySpells
     //SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
+/// last update : 6.2.3
 /// Fists of Fury (damage) - 117418
 class spell_monk_fists_of_fury_damage : public SpellScriptLoader
 {
@@ -4051,7 +4054,8 @@ enum TigerPalmSpells
     //SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-// Tiger Palm - 100787
+/// last update : 6.2.3
+/// Tiger Palm - 100787
 class spell_monk_tiger_palm: public SpellScriptLoader
 {
     public:
@@ -4142,7 +4146,7 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
                 // Base damage
-                int32 l_Damage = int32(frand(6.4f * l_Low, 6.4f * l_High));
+                int32 l_Damage = int32(frand(6.688f * l_Low, 6.688f * l_High));
 
                 // Add additionnal stuff depending on spec
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
