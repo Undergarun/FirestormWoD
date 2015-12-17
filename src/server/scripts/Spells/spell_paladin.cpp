@@ -1157,7 +1157,9 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
 
                 /// 1.1 + 1.1^2 + ... + 1.1^9 + 1.1^9 * 5 = 26.727163056
                 /// 1 / 26,727163056 = 0.0374151195, which is the factor to get from the whole spells SP scaling to the base scaling of the 0th tick
-                float l_BaseValue = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000) * 0.0374151195;
+                float l_BaseValue = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000);
+                if (GetSpellInfo()->Id == eSpells::ExecutionSentence)
+                    l_BaseValue *= 0.0374151195f;
 
                 uint32 l_TickNumber = p_AurEff->GetTickNumber();
 
