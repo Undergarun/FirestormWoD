@@ -3655,8 +3655,13 @@ class spell_monk_spinning_crane_kick: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                int l_Bp0 = (((4 * 0.75f * l_Low + 4 * 0.75f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS));
-                
+
+                int32 l_Bp0 = ((4 * 0.9f * l_Low + 4 * 0.9f * l_High) / 2);
+                uint32 l_Amplitude = GetSpellInfo()->Effects[EFFECT_0].Amplitude;
+
+                if (l_Amplitude)
+                    l_Bp0 /= GetSpellInfo()->GetDuration() / l_Amplitude;
+
                 if (!l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT))
                     l_Player->CastCustomSpell(l_Player, SPELL_MONK_SPINNING_CRANE_KICK_DAMAGE, &l_Bp0, NULL, NULL, true);
                 else
