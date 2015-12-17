@@ -95,18 +95,6 @@ enum LootType
     LOOT_INSIGNIA               = 21                        // unsupported by client, sending LOOT_CORPSE instead
 };
 
-enum LootItemUiType
-{
-    //                                  = 0,
-    LOOT_ITEM_UI_ONLY_ONE_LOOTER        = 2,
-    LOOT_ITEM_UI_NORMAL                 = 2, // TODO FIX this enum properly
-    LOOT_ITEM_UI_LOOK_BUT_DONT_TOUCH    = 3,
-    LOOT_ITEM_UI_ROLL                   = 4,
-    //                                  = 5,
-    LOOT_ITEM_UI_MASTER                 = 6,
-    //LOOT_ITEM_UI_ROLL_PENDING           = 6,
-};
-
 enum LootListItemType
 {
     LOOT_LIST_ITEM                      = 0,
@@ -117,11 +105,11 @@ enum LootListItemType
 // type of Loot Item in Loot View
 enum LootSlotType
 {
-    LOOT_SLOT_TYPE_ALLOW_LOOT   = 0,                        // player can loot the item.
-    LOOT_SLOT_TYPE_ROLL_ONGOING = 1,                        // roll is ongoing. player cannot loot.
-    LOOT_SLOT_TYPE_MASTER       = 2,                        // item can only be distributed by group loot master.
+    LOOT_SLOT_TYPE_ALLOW_LOOT   = 4,                        // player can loot the item.
+    LOOT_SLOT_TYPE_ROLL_ONGOING = 7,                        // roll is ongoing. player cannot loot.
+    LOOT_SLOT_TYPE_MASTER       = 6,                        // item can only be distributed by group loot master.
     LOOT_SLOT_TYPE_LOCKED       = 3,                        // item is shown in red. player cannot loot.
-    LOOT_SLOT_TYPE_OWNER        = 4,                        // ignore binding confirmation and etc, for single player looting
+    LOOT_SLOT_TYPE_OWNER        = 5                         // ignore binding confirmation and etc, for single player looting
 };
 
 class Player;
