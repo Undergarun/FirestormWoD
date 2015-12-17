@@ -4599,7 +4599,8 @@ enum RisingSunKickSpells
     PoolOfMists = 173841
 };
 
-/// Rising Sun Kick - 107428
+/// last update : 6.2.3
+/// Rising Sun Kick - 185099
 class spell_monk_rising_sun_kick: public SpellScriptLoader
 {
     public:
@@ -4655,7 +4656,11 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (l_Player->HasAura(RisingSunKickSpells::PoolOfMists))
                     l_PctModifier = l_Player->GetAura(RisingSunKickSpells::PoolOfMists)->GetEffect(EFFECT_3)->GetAmount();
 
-                int32 l_Bp = int32(frand(8.0f * l_Low, 8.0f * l_High));
+                /// Hotfixes : 24 novembre 2015 - now deals 20% more damage while in PvP combat
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    l_PctModifier += 20;
+
+                int32 l_Bp = int32(frand(11.0f * l_Low, 11.0f * l_High));
 
                 l_Bp += CalculatePct(l_Bp, l_PctModifier);
                 l_Bp = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, SPELL_DIRECT_DAMAGE);
