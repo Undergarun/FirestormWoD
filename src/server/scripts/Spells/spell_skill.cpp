@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2014-2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -588,7 +589,7 @@ namespace MS { namespace Skill
         //////////////////////////////////////////////////////////////////////////
         /// GENERIC : Recipe who the created items grow with skill level
         //////////////////////////////////////////////////////////////////////////
-        template<char const* t_Name, int t_SkillID, int t_ItemID> class spell_Skill_GrowFromSkillLevel : public SpellScriptLoader
+        template<char const* t_Name, int t_SkillID, int t_ItemID, int t_BaseCount> class spell_Skill_GrowFromSkillLevel : public SpellScriptLoader
         {
             public:
                 /// Constructor
@@ -601,7 +602,7 @@ namespace MS { namespace Skill
                     uint32 GetItemCount(Player* p_Player)
                     {
                         uint32 l_SkillValue = p_Player->GetSkillValue(t_SkillID);
-                        uint32 l_RollCount = 4;
+                        uint32 l_RollCount = t_BaseCount;
 
                         if (l_SkillValue > 600)
                             l_RollCount += 1 + ((l_SkillValue - 600) / 20);
@@ -730,49 +731,49 @@ namespace MS { namespace Skill
         /// 171690 - Truesteel Ingot
         //////////////////////////////////////////////////////////////////////////
         char  spell_Skill_BlackSmithing_TruesteelIngot_Name[]       = "spell_Skill_BlackSmithing_TruesteelIngot";
-        using spell_Skill_BlackSmithing_TruesteelIngot              = spell_Skill_GrowFromSkillLevel<spell_Skill_BlackSmithing_TruesteelIngot_Name, SKILL_BLACKSMITHING, ItemIDs::TruesteelIngot>;
+        using spell_Skill_BlackSmithing_TruesteelIngot              = spell_Skill_GrowFromSkillLevel<spell_Skill_BlackSmithing_TruesteelIngot_Name, SKILL_BLACKSMITHING, ItemIDs::TruesteelIngot, 8>;
 
         //////////////////////////////////////////////////////////////////////////
         /// 169081 - War Paints
         //////////////////////////////////////////////////////////////////////////
         char  spell_Skill_Inscription_WarPaints_Name[]              = "spell_Skill_Inscription_WarPaints";
-        using spell_Skill_Inscription_WarPaints                     = spell_Skill_GrowFromSkillLevel<spell_Skill_Inscription_WarPaints_Name, SKILL_INSCRIPTION, ItemIDs::WarPaints>;
+        using spell_Skill_Inscription_WarPaints                     = spell_Skill_GrowFromSkillLevel<spell_Skill_Inscription_WarPaints_Name, SKILL_INSCRIPTION, ItemIDs::WarPaints, 4>;
 
         //////////////////////////////////////////////////////////////////////////
         /// 168835 - Hexweave Cloth
         //////////////////////////////////////////////////////////////////////////
         char  spell_Skill_Tailoring_HexweaveCloth_Name[]            = "spell_Skill_Tailoring_HexweaveCloth";
-        using spell_Skill_Tailoring_HexweaveCloth                   = spell_Skill_GrowFromSkillLevel<spell_Skill_Tailoring_HexweaveCloth_Name, SKILL_TAILORING, ItemIDs::HexweaveCloth>;
+        using spell_Skill_Tailoring_HexweaveCloth                   = spell_Skill_GrowFromSkillLevel<spell_Skill_Tailoring_HexweaveCloth_Name, SKILL_TAILORING, ItemIDs::HexweaveCloth, 8>;
 
         //////////////////////////////////////////////////////////////////////////
         /// 172539 - Antiseptic Bandage
         //////////////////////////////////////////////////////////////////////////
         char  spell_Skill_FirstAid_AntisepticBandage_Name[]         = "spell_Skill_FirstAid_AntisepticBandage";
-        using spell_Skill_FirstAid_AntisepticBandage                = spell_Skill_GrowFromSkillLevel<spell_Skill_FirstAid_AntisepticBandage_Name, SKILL_FIRST_AID, ItemIDs::AntisepticBandage>;
+        using spell_Skill_FirstAid_AntisepticBandage                = spell_Skill_GrowFromSkillLevel<spell_Skill_FirstAid_AntisepticBandage_Name, SKILL_FIRST_AID, ItemIDs::AntisepticBandage, 4>;
 
         //////////////////////////////////////////////////////////////////////////
         /// 171391 - Burnished Leather
         //////////////////////////////////////////////////////////////////////////
         char  spell_Skill_Leatherworking_BurnishedLeather_Name[]    = "spell_Skill_Leatherworking_BurnishedLeather";
-        using spell_Skill_Leatherworking_BurnishedLeather           = spell_Skill_GrowFromSkillLevel<spell_Skill_Leatherworking_BurnishedLeather_Name, SKILL_LEATHERWORKING, ItemIDs::BurnishedLeather>;
+        using spell_Skill_Leatherworking_BurnishedLeather           = spell_Skill_GrowFromSkillLevel<spell_Skill_Leatherworking_BurnishedLeather_Name, SKILL_LEATHERWORKING, ItemIDs::BurnishedLeather, 8>;
 
         //////////////////////////////////////////////////////////////////////////
         /// 170700 - Taladite Crystal
         //////////////////////////////////////////////////////////////////////////
         char  spell_Skill_Jewelcrafting_TaladiteCrystal_Name[]      = "spell_Skill_Jewelcrafting_TaladiteCrystal";
-        using spell_Skill_Jewelcrafting_TaladiteCrystal             = spell_Skill_GrowFromSkillLevel<spell_Skill_Jewelcrafting_TaladiteCrystal_Name, SKILL_JEWELCRAFTING, ItemIDs::TaladiteCrystal>;
+        using spell_Skill_Jewelcrafting_TaladiteCrystal             = spell_Skill_GrowFromSkillLevel<spell_Skill_Jewelcrafting_TaladiteCrystal_Name, SKILL_JEWELCRAFTING, ItemIDs::TaladiteCrystal, 8>;
 
         //////////////////////////////////////////////////////////////////////////
         /// 169080 - Gearspring Parts
         //////////////////////////////////////////////////////////////////////////
         char  spell_skill_engineering_gearspring_parts_name[]       = "spell_skill_engineering_gearspring_parts";
-        using spell_skill_engineering_gearspring_parts              = spell_Skill_GrowFromSkillLevel<spell_skill_engineering_gearspring_parts_name, SKILL_ENGINEERING, ItemIDs::GearspringParts>;
+        using spell_skill_engineering_gearspring_parts              = spell_Skill_GrowFromSkillLevel<spell_skill_engineering_gearspring_parts_name, SKILL_ENGINEERING, ItemIDs::GearspringParts, 4>;
 
         //////////////////////////////////////////////////////////////////////////
         /// 156587 - Alchemical Catalyst
         //////////////////////////////////////////////////////////////////////////
         char  spell_skill_alchemy_alchemical_catalyst_name[]        = "spell_skill_alchemy_alchemical_catalyst";
-        using spell_skill_alchemy_alchemical_catalyst               = spell_Skill_GrowFromSkillLevel<spell_skill_alchemy_alchemical_catalyst_name, SKILL_ALCHEMY, ItemIDs::AlchemicalCatalyst>;
+        using spell_skill_alchemy_alchemical_catalyst               = spell_Skill_GrowFromSkillLevel<spell_skill_alchemy_alchemical_catalyst_name, SKILL_ALCHEMY, ItemIDs::AlchemicalCatalyst, 8>;
 
         //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
