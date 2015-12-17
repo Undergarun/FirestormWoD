@@ -4068,7 +4068,7 @@ class spell_monk_tiger_palm: public SpellScriptLoader
 
                 float l_Low = 0;
                 float l_High = 0;
-                float l_Coeff = 3.0f;
+                float l_Coeff = 4.104f;
 
                 Unit* l_Target = GetHitUnit();
                 Player* l_Player = GetCaster()->ToPlayer();
