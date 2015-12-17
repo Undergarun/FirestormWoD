@@ -1071,8 +1071,8 @@ enum Opcodes
     CMSG_MOUNT_SET_FAVORITE                     = 0x142C, ///< 6.2.3 20726
     CMSG_SORT_BAGS                              = 0x01ED, ///< 6.2.3 20726
     CMSG_CHAR_RENAME                            = 0x05F0, ///< 6.2.3 20726
-    CMSG_CHAR_CUSTOMIZE                         = 0x0528, ///< 6.2.3 20726
-    CMSG_CHAR_RACE_OR_FACTION_CHANGE            = 0x04B3, ///< 6.2.3 20726
+    CMSG_CHAR_CUSTOMIZE                         = 0x0433, ///< 6.2.3 20726
+    CMSG_CHAR_RACE_OR_FACTION_CHANGE            = 0x0528, ///< 6.2.3 20726
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
