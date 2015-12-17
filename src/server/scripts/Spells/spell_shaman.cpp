@@ -2546,8 +2546,8 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
-/// 51505 - Lava Burst
+/// last update : 6.2.3
+/// Lava Burst - 51505
 class spell_sha_lava_burst: public SpellScriptLoader
 {
     public:
