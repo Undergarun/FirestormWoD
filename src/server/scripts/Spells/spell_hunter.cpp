@@ -1738,6 +1738,42 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
+/// A Murder of Crows (damage) - 131900
+class spell_hun_a_murder_of_crows_damage : public SpellScriptLoader
+{
+    public:
+        spell_hun_a_murder_of_crows_damage() : SpellScriptLoader("spell_hun_a_murder_of_crows_damage") { }
+
+        class spell_hun_a_murder_of_crows_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_a_murder_of_crows_damage_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Target = GetHitUnit();
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return;
+
+                /// A Murder of Crows now deals only 75% of normal damage against player-controlled targets.
+                if (l_Target->GetSpellModOwner() && l_Player->GetSpecializationId() == SpecIndex::SPEC_HUNTER_BEASTMASTERY)
+                    SetHitDamage(CalculatePct(GetHitDamage(), 75));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_a_murder_of_crows_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_a_murder_of_crows_damage_SpellScript();
+        }
+};
+
 /// Focus Fire - 82692
 class spell_hun_focus_fire : public SpellScriptLoader
 {
@@ -2220,6 +2256,11 @@ class spell_hun_barrage : public SpellScriptLoader
 
                 l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                /// Barrage now deals only 80% of normal damage against player-controlled targets.
+                if (l_Target->GetSpellModOwner())
+                    l_Damage = CalculatePct(l_Damage, 80);
+
                 SetHitDamage(l_Damage);
             }
 
@@ -4074,6 +4115,7 @@ class spell_hun_trap_launcher : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_a_murder_of_crows_damage();
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_thick_hide();
     new spell_hun_lesser_proportion();

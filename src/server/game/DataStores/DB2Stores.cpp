@@ -702,7 +702,7 @@ void LoadDB2Stores(const std::string& dataPath)
         
     for (uint32 i = 0; i < sNameGenStore.GetNumRows(); ++i)
         if (NameGenEntry const* entry = sNameGenStore.LookupEntry(i))
-            sGenNameVectoArraysMap[entry->race].stringVectorArray[entry->gender].push_back(std::string(entry->name));
+            sGenNameVectoArraysMap[entry->race].stringVectorArray[entry->gender].push_back(entry->name->Get(LocaleConstant::LOCALE_enUS));
     sNameGenStore.Clear();
 
     for (uint32 i =0; i < sResearchProjectStore.GetNumRows(); ++i)
@@ -937,7 +937,8 @@ uint8 GetPowerIndexByClass(uint8 p_Class, uint8 p_Power)
         return Powers::MAX_POWERS;
 
     auto const& l_List = sPowersByClassStore[p_Class];
-    for (int l_I = 0; l_I < (int)l_List.size(); ++l_I)
+
+    for (uint8 l_I = 0; l_I < l_List.size(); ++l_I)
     {
         if (l_List[l_I] == p_Power)
             return l_I;
