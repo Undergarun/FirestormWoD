@@ -642,6 +642,17 @@ struct CharacterNameData
     uint32 m_AccountId;
 };
 
+struct BuildInfo
+{
+    bool valid;
+    uint16 year;
+    uint8 month;
+    uint8 day;
+    uint8 hour;
+    uint8 minute;
+    std::string timeStr;
+};
+
 enum RecordDiffType
 {
     RECORD_DIFF_MAP,
@@ -943,6 +954,8 @@ class World
 
         bool ModerateMessage(std::string l_Text);
 
+        const BuildInfo& GetLastBuildInfo() const { return m_LastBuild; }
+
         //////////////////////////////////////////////////////////////////////////
         /// New callback system
         //////////////////////////////////////////////////////////////////////////
@@ -1036,6 +1049,7 @@ class World
         bool m_allowMovement;
         std::string m_motd;
         std::string m_dataPath;
+        BuildInfo m_LastBuild;
 
         // for max speed access
         static float m_MaxVisibleDistanceOnContinents;
