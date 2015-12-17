@@ -2575,9 +2575,13 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     l_Player->CastSpell(l_Player, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
 
                 /// Lavaburst deals 50% more damage with Flame Shock on target
-                /// HotFixe February 27, 2015 : Lava burst no longer deals extra damage in PvP combat for Restoration Shaman.
-                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK) && !(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION && l_Target->GetTypeId() == TYPEID_PLAYER))
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
                     SetHitDamage(int32(float(GetHitDamage()) * 1.5f));
+
+                /// 24 novembre 2015 : now deals 20% more damage while in PvP combat.
+                /// HotFixe February 27, 2015 : Lava burst no longer deals extra damage in PvP combat for Restoration Shaman.
+                if (!(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION) && l_Target->GetTypeId() == TYPEID_PLAYER)
+                    SetHitDamage(int32(float(GetHitDamage()) * 1.2f));
             }
 
             void HandleAfterCast()
