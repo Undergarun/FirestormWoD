@@ -3725,7 +3725,12 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                 {
                     l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                    int l_Bp0 = ((0.72f * l_Low + 0.72f * l_High) / 2 * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+                    int32 l_Bp0 = ((0.72f * l_Low + 0.72f * l_High) / 2 * 9);
+                    uint32 l_Amplitude = GetSpellInfo()->Effects[EFFECT_0].Amplitude;
+
+                    if (l_Amplitude)
+                        l_Bp0 /= GetSpellInfo()->GetDuration() / l_Amplitude;
+
                     l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, &l_Bp0, NULL, NULL, true);
                 }
                 else
