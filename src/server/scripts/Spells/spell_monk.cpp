@@ -3903,7 +3903,7 @@ class spell_monk_fists_of_fury_damage : public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                int32 l_Damage = int32(7.755f * l_Low + 7.755f * l_High) / 2;
+                int32 l_Damage = int32(8.84f * l_Low + 8.84f * l_High) / 2;
                 l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
