@@ -5768,7 +5768,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
     data << uint32(log->blocked);
 
     data.WriteBit(false);               ///< Is periodic
-    data.WriteBits(log->HitInfo, 9);    ///< Flags
+    data.WriteBits(log->HitInfo, 8);    ///< Flags
     data.WriteBit(false);               ///< Has debug info
     data.WriteBit(false);               ///< Has JamSpellCastLogData
     data.FlushBits();
