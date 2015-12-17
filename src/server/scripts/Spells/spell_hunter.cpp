@@ -2256,6 +2256,11 @@ class spell_hun_barrage : public SpellScriptLoader
 
                 l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                /// Barrage now deals only 80% of normal damage against player-controlled targets.
+                if (l_Target->GetSpellModOwner())
+                    l_Damage = CalculatePct(l_Damage, 80);
+
                 SetHitDamage(l_Damage);
             }
 
