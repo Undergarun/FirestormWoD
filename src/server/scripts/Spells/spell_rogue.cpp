@@ -2428,7 +2428,7 @@ class spell_rog_evicerate : public SpellScriptLoader
 
                 if (l_ComboPoint)
                 {
-                    l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.577f) * 0.88f * l_ComboPoint);
+                    l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * 0.88f * l_ComboPoint);
 
                     /// Tier 5 Bonus 2 pieces
                     if (AuraEffectPtr l_Tier5Bonus2P = l_Caster->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
