@@ -1364,7 +1364,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     switch (lv.permission)
                     {
                         case MASTER_PERMISSION:
-                            slottype = uint8(LOOT_SLOT_TYPE_MASTER); ///< @todo slottype IS UNUSED
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
@@ -1393,23 +1393,8 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                 l_ItemsDataBuffer << uint32(item.count);
                 l_ItemsDataBuffer << uint8(l_ItemListType);
                 l_ItemsDataBuffer << uint8(l_Loot.Items.size() + (qi - q_list->begin()));
-                l_ItemsDataBuffer << uint32(item.itemid);
-                l_ItemsDataBuffer << uint32(item.randomSuffix);
-                l_ItemsDataBuffer << uint32(item.randomPropertyId);
 
-                l_ItemsDataBuffer.WriteBit(item.itemBonuses.size());
-                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-
-                if (item.itemBonuses.size())
-                {
-                    l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
-                    l_ItemsDataBuffer << uint32(item.itemBonuses.size());
-
-                    for (uint32 l_J = 0; l_J < item.itemBonuses.size(); l_J++)
-                        l_ItemsDataBuffer << uint32(item.itemBonuses[l_J]);
-                }
-
-                l_ItemsDataBuffer.FlushBits();
+                Item::BuildDynamicItemDatas(l_ItemsDataBuffer, item);
 
                 ++l_ItemCount;
                 ++l_Index;
@@ -1439,23 +1424,8 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                 l_ItemsDataBuffer << uint32(item.count);
                 l_ItemsDataBuffer << uint8(l_ItemListType);
                 l_ItemsDataBuffer << uint8(fi->index);
-                l_ItemsDataBuffer << uint32(item.itemid);
-                l_ItemsDataBuffer << uint32(item.randomSuffix);
-                l_ItemsDataBuffer << uint32(item.randomPropertyId);
 
-                l_ItemsDataBuffer.WriteBit(item.itemBonuses.size());
-                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-
-                if (item.itemBonuses.size())
-                {
-                    l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
-                    l_ItemsDataBuffer << uint32(item.itemBonuses.size());
-
-                    for (uint32 l_J = 0; l_J < item.itemBonuses.size(); l_J++)
-                        l_ItemsDataBuffer << uint32(item.itemBonuses[l_J]);
-                }
-
-                l_ItemsDataBuffer.FlushBits();
+                Item::BuildDynamicItemDatas(l_ItemsDataBuffer, item);
 
                 ++l_ItemCount;
                 ++l_Index;
@@ -1480,7 +1450,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     switch (lv.permission)
                     {
                         case MASTER_PERMISSION:
-                            slottype = uint8(LOOT_SLOT_TYPE_MASTER); ///< @todo slottype IS UNUSED 
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
@@ -1509,23 +1479,8 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                 l_ItemsDataBuffer << uint32(item.count);
                 l_ItemsDataBuffer << uint8(l_ItemListType);
                 l_ItemsDataBuffer << uint8(ci->index);
-                l_ItemsDataBuffer << uint32(item.itemid);
-                l_ItemsDataBuffer << uint32(item.randomSuffix);
-                l_ItemsDataBuffer << uint32(item.randomPropertyId);
 
-                l_ItemsDataBuffer.WriteBit(item.itemBonuses.size());
-                l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-
-                if (item.itemBonuses.size())
-                {
-                    l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
-                    l_ItemsDataBuffer << uint32(item.itemBonuses.size());
-
-                    for (uint32 l_J = 0; l_J < item.itemBonuses.size(); l_J++)
-                        l_ItemsDataBuffer << uint32(item.itemBonuses[l_J]);
-                }
-
-                l_ItemsDataBuffer.FlushBits();
+                Item::BuildDynamicItemDatas(l_ItemsDataBuffer, item);
 
                 ++l_ItemCount;
                 ++l_Index;

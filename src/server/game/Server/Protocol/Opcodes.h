@@ -527,7 +527,7 @@ enum Opcodes
         /// Garrison
         SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP                       = 0x1657, ///< 6.2.3 20726
         SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x0BF7, ///< 6.2.3 20726
-        SMSG_GET_SHIPMENTS                                      = 0x1AF7, ///< 6.2.3 20726
+        SMSG_GARRISON_LANDING_PAGE_SHIPMENT_INFO                = 0x1AF7, ///< 6.2.3 20726
         SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x0EFF, ///< 6.2.3 20726
 
         /// Twitter
@@ -1001,11 +1001,10 @@ enum Opcodes
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0125, ///< 6.2.3 20726
     CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x08ED, ///< 6.2.3 20726
     CMSG_UPGRADE_GARRISON                                   = 0x0466, ///< 6.2.3 20726
-    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
+    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x18AA, ///< 6.2.3 20779
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x08B1, ///< 6.2.3 20726
     CMSG_GET_SHIPMENT_INFO                                  = 0x00EA, ///< 6.2.3 20726
     CMSG_CREATE_SHIPMENT                                    = 0x0575, ///< 6.2.3 20726
-    CMSG_GET_SHIPMENTS                                      = 0x18AA, ///< 6.2.3 20726
     CMSG_REQUEST_SET_MISSION_NPC                            = 0x092D, ///< 6.2.3 20726
 
     /// Shipyard
@@ -1071,8 +1070,8 @@ enum Opcodes
     CMSG_MOUNT_SET_FAVORITE                     = 0x142C, ///< 6.2.3 20726
     CMSG_SORT_BAGS                              = 0x01ED, ///< 6.2.3 20726
     CMSG_CHAR_RENAME                            = 0x05F0, ///< 6.2.3 20726
-    CMSG_CHAR_CUSTOMIZE                         = 0x0528, ///< 6.2.3 20726
-    CMSG_CHAR_RACE_OR_FACTION_CHANGE            = 0x04B3, ///< 6.2.3 20726
+    CMSG_CHAR_CUSTOMIZE                         = 0x0433, ///< 6.2.3 20726
+    CMSG_CHAR_RACE_OR_FACTION_CHANGE            = 0x0528, ///< 6.2.3 20726
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank

@@ -2911,7 +2911,7 @@ namespace MS { namespace Garrison
             if (l_Building->Type != BuildingType::StoreHouse)
                 continue;
 
-            l_MaxWorkOrder += l_Building->BonusAmount;
+            l_MaxWorkOrder += l_Building->MaxShipments;
         }
 
         return l_MaxWorkOrder;

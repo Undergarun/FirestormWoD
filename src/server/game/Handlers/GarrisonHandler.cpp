@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
-void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -146,7 +146,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -165,7 +165,7 @@ void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvDa
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleUpgradeGarrisonOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -196,19 +196,38 @@ void WorldSession::HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData)
     l_Garrison->Upgrade();
 }
 
-void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
 
-    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
 
+    std::vector<MS::Garrison::GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
+
+    WorldPacket l_Data(Opcodes::SMSG_GARRISON_LANDING_PAGE_SHIPMENT_INFO, 1024);
+    l_Data << uint32(l_WorkOrders.size());
+
+    for (uint32 l_I = 0; l_I < l_WorkOrders.size(); ++l_I)
+    {
+        /// @TODO http://www.mmo-champion.com/content/4662-Patch-6-1-Iron-Horde-Scrap-Meltdown-Garrison-Vendor-Rush-Orders-Blue-Posts
+        l_Data << uint32(l_WorkOrders[l_I].ShipmentID);
+        l_Data << uint64(l_WorkOrders[l_I].DatabaseID);
+        l_Data << uint64(0);                                    ///< FollowerID
+        l_Data << uint32(l_WorkOrders[l_I].CreationTime);
+        l_Data << uint32(l_WorkOrders[l_I].CompleteTime - l_WorkOrders[l_I].CreationTime);
+        l_Data << uint32(0);                                    ///< Rewarded XP
+    }
+
+    SendPacket(&l_Data);
+
+    SendGarrisonOpenMissionNpc();
 }
 
-void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -233,7 +252,7 @@ void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
         return;
     }
 
-    SendGarrisonOpenMissionNpc(l_NpcGUID);
+    SendGarrisonOpenMissionNpc();
 }
 
 void WorldSession::HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData)
@@ -261,7 +280,7 @@ void WorldSession::HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData)
     SendGarrisonSetMissionNpc(l_NpcGUID);
 }
 
-void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -313,7 +332,7 @@ void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -422,7 +441,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     SendPacket(&l_PlaceResult);
 }
 
-void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -450,7 +469,7 @@ void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvDa
     l_Garrison->CancelConstruction(l_PlotInstanceID);
 }
 
-void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -489,7 +508,7 @@ void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
     l_Garrison->StartMission(l_MissionID, l_Followers);
 }
 
-void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -516,7 +535,7 @@ void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
     l_Garrison->CompleteMission(l_MissionID);
 }
 
-void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -543,7 +562,7 @@ void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData
     l_Garrison->DoMissionBonusRoll(l_NpcGUID, l_MissionID);
 }
 
-void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -562,7 +581,7 @@ void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket
     l_Garrison->ChangeFollowerActivationState(l_FollowerDBID, !l_Desactivate);
 }
 
-void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket& p_RecvData)
 {
     if (!m_Player)
         return;
@@ -658,7 +677,7 @@ void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
     SendPacket(&l_Response);
 }
 
-void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
 {
     std::function<void(const std::string &)> l_OnError = [this](const std::string & p_Message) -> void
     {
@@ -798,42 +817,6 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
     }
 }
 
-void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData)
-{
-    if (!m_Player)
-        return;
-
-    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
-
-    if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
-        return;
-
-    std::vector<MS::Garrison::GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
-
-    WorldPacket l_Data(SMSG_GET_SHIPMENTS, 1024);
-    l_Data << uint32(l_WorkOrders.size());
-
-    for (uint32 l_I = 0; l_I < l_WorkOrders.size(); ++l_I)
-    {
-        uint32 l_Duration = 0;
-
-        const CharShipmentEntry * l_Entry = sCharShipmentStore.LookupEntry(l_WorkOrders[l_I].ShipmentID);
-
-        if (l_Entry)
-            l_Duration = l_Entry->Duration;
-
-        /// @TODO http://www.mmo-champion.com/content/4662-Patch-6-1-Iron-Horde-Scrap-Meltdown-Garrison-Vendor-Rush-Orders-Blue-Posts
-        l_Data << uint32(l_WorkOrders[l_I].ShipmentID);
-        l_Data << uint64(l_WorkOrders[l_I].DatabaseID);
-        l_Data << uint64(0);                                    ///< FollowerID
-        l_Data << uint32(l_WorkOrders[l_I].CreationTime);
-        l_Data << uint32(l_Duration);
-        l_Data << uint32(0);                                    ///< Rewarded XP
-    }
-
-    SendPacket(&l_Data);
-}
-
 void WorldSession::HandleGarrisonFollowerRename(WorldPacket& p_RecvData)
 {
     uint64 l_DatabaseID;
@@ -887,17 +870,18 @@ void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
 
     SendPacket(&l_Data);
 }
-void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
+
+void WorldSession::SendGarrisonOpenMissionNpc()
 {
-    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
 
-    WorldPacket l_Data(SMSG_GARRISON_OPEN_MISSION_NPC, 9);
+    WorldPacket l_Data(Opcodes::SMSG_GARRISON_OPEN_MISSION_NPC, 9);
     l_Data << uint32(0);
     l_Data << uint32(0);
-    l_Data.WriteBit(false);
+    l_Data.WriteBit(true);
     l_Data.FlushBits();
 
     SendPacket(&l_Data);

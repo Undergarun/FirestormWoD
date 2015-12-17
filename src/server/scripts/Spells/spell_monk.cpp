@@ -3629,7 +3629,7 @@ enum SpinningCraneKickSpells
     SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Spinning Crane Kick - 101546
 class spell_monk_spinning_crane_kick: public SpellScriptLoader
 {
@@ -3655,8 +3655,13 @@ class spell_monk_spinning_crane_kick: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                int l_Bp0 = (((4 * 0.75f * l_Low + 4 * 0.75f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS));
-                
+
+                int32 l_Bp0 = ((4 * 0.9f * l_Low + 4 * 0.9f * l_High) / 2);
+                uint32 l_Amplitude = GetSpellInfo()->Effects[EFFECT_0].Amplitude;
+
+                if (l_Amplitude)
+                    l_Bp0 /= GetSpellInfo()->GetDuration() / l_Amplitude;
+
                 if (!l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT))
                     l_Player->CastCustomSpell(l_Player, SPELL_MONK_SPINNING_CRANE_KICK_DAMAGE, &l_Bp0, NULL, NULL, true);
                 else
@@ -3687,7 +3692,8 @@ enum RushingJadeWindSpells
     SPELL_MONK_RUSHING_JADE_WIND_HEAL = 162530
 };
 
-// Rushing Jade Wind - 116847
+/// last update : 6.2.3
+/// Rushing Jade Wind - 116847
 class spell_monk_rushing_jade_wind: public SpellScriptLoader
 {
     public:
@@ -3720,7 +3726,12 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                 {
                     l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                    int l_Bp0 = ((0.72f * l_Low + 0.72f * l_High) / 2 * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+                    int32 l_Bp0 = ((0.72f * l_Low + 0.72f * l_High) / 2 * 9);
+                    uint32 l_Amplitude = GetSpellInfo()->Effects[EFFECT_0].Amplitude;
+
+                    if (l_Amplitude)
+                        l_Bp0 /= GetSpellInfo()->GetDuration() / l_Amplitude;
+
                     l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, &l_Bp0, NULL, NULL, true);
                 }
                 else
@@ -3834,7 +3845,8 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
                         return;
 
                     int l_Bp0 = (l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) * 9;
-                    l_Bp0 /= l_SpellInfo->GetDuration() / IN_MILLISECONDS;
+                    l_Bp0 /= ((l_SpellInfo->GetDuration() / IN_MILLISECONDS) / 0.8f);
+
                     SetHitHeal(l_Bp0);
                 }
             }
@@ -3860,6 +3872,7 @@ enum FistsOfFurySpells
     //SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
+/// last update : 6.2.3
 /// Fists of Fury (damage) - 117418
 class spell_monk_fists_of_fury_damage : public SpellScriptLoader
 {
@@ -3893,7 +3906,7 @@ class spell_monk_fists_of_fury_damage : public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                int32 l_Damage = int32(7.755f * l_Low + 7.755f * l_High) / 2;
+                int32 l_Damage = int32(8.84f * l_Low + 8.84f * l_High) / 2;
                 l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
@@ -4041,7 +4054,8 @@ enum TigerPalmSpells
     //SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-// Tiger Palm - 100787
+/// last update : 6.2.3
+/// Tiger Palm - 100787
 class spell_monk_tiger_palm: public SpellScriptLoader
 {
     public:
@@ -4058,7 +4072,7 @@ class spell_monk_tiger_palm: public SpellScriptLoader
 
                 float l_Low = 0;
                 float l_High = 0;
-                float l_Coeff = 3.0f;
+                float l_Coeff = 4.104f;
 
                 Unit* l_Target = GetHitUnit();
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -4132,7 +4146,7 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
                 // Base damage
-                int32 l_Damage = int32(frand(6.4f * l_Low, 6.4f * l_High));
+                int32 l_Damage = int32(frand(6.688f * l_Low, 6.688f * l_High));
 
                 // Add additionnal stuff depending on spec
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
@@ -4599,7 +4613,8 @@ enum RisingSunKickSpells
     PoolOfMists = 173841
 };
 
-/// Rising Sun Kick - 107428
+/// last update : 6.2.3
+/// Rising Sun Kick - 185099
 class spell_monk_rising_sun_kick: public SpellScriptLoader
 {
     public:
@@ -4655,7 +4670,11 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (l_Player->HasAura(RisingSunKickSpells::PoolOfMists))
                     l_PctModifier = l_Player->GetAura(RisingSunKickSpells::PoolOfMists)->GetEffect(EFFECT_3)->GetAmount();
 
-                int32 l_Bp = int32(frand(8.0f * l_Low, 8.0f * l_High));
+                /// Hotfixes : 24 novembre 2015 - now deals 20% more damage while in PvP combat
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    l_PctModifier += 20;
+
+                int32 l_Bp = int32(frand(11.0f * l_Low, 11.0f * l_High));
 
                 l_Bp += CalculatePct(l_Bp, l_PctModifier);
                 l_Bp = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, SPELL_DIRECT_DAMAGE);
