@@ -20706,7 +20706,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetGuidValue(PLAYER_FIELD_WOW_ACCOUNT, GetSession()->GetWoWAccountGUID());
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
-    SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, fields[60].GetUInt8());
+    SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, fields[61].GetUInt8());
 
     m_currentPetSlot = (PetSlot)fields[62].GetUInt8();
 
@@ -20746,7 +20746,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     uint32 instanceId = fields[53].GetUInt32();
 
     SetDungeonDifficultyID(CheckLoadedDungeonDifficultyID(Difficulty(fields[39].GetUInt8())));
-    SetRaidDifficultyID(CheckLoadedRaidDifficultyID(Difficulty(fields[67].GetUInt8())));
+    SetRaidDifficultyID(CheckLoadedRaidDifficultyID(Difficulty(fields[68].GetUInt8())));
     SetLegacyRaidDifficultyID(CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[69].GetUInt8())));
 
     std::string taxi_nodes = fields[38].GetString();
