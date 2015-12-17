@@ -315,6 +315,9 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2"                                                         );
     LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2",            "map_challenge_mode",           "ID");
     LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2",                       "mount",                        "ID");
+    LoadDB2(bad_db2_files, sMountTypeStore,                 db2Path, "MountType.db2",                   "mount_type",                   "ID");
+    LoadDB2(bad_db2_files, sMountCapabilityStore,           db2Path, "MountCapability.db2",             "mount_capability",             "ID");
+    LoadDB2(bad_db2_files, sMountTypeXCapabilityStore,      db2Path, "MountTypeXCapability.db2",        "mount_type_x_capability",      "ID");
     LoadDB2(bad_db2_files, sPlayerConditionStore,           db2Path, "PlayerCondition.db2"                                                  );
     LoadDB2(bad_db2_files, sVignetteStore,                  db2Path, "Vignette.db2"                                                         );
     LoadDB2(bad_db2_files, sGlyphRequiredSpecStore,         db2Path, "GlyphRequiredSpec.db2"                                                );
@@ -443,9 +446,6 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files,  sItemSpecOverrideStore,       db2Path, "ItemSpecOverride.db2");                                             // 17399
     LoadDB2(bad_db2_files,  sItemSpecStore,               db2Path, "ItemSpec.db2");                                                     // 19116
     LoadDB2(bad_db2_files,  sItemDisenchantLootStore,     db2Path, "ItemDisenchantLoot.db2");                                           // 17399
-    LoadDB2(bad_db2_files,  sMountCapabilityStore,        db2Path, "MountCapability.db2");                                              // 17399
-    LoadDB2(bad_db2_files,  sMountTypeStore,              db2Path, "MountType.db2");                                                    // 17399
-    LoadDB2(bad_db2_files,  sMountTypeXCapabilityStore,   db2Path, "MountTypeXCapability.db2");
     LoadDB2(bad_db2_files,  sNameGenStore,                db2Path, "NameGen.db2");                                                      // 17399
     LoadDB2(bad_db2_files,  sQuestV2Store,                db2Path, "QuestV2.db2");                                                      // 19342
     LoadDB2(bad_db2_files,  sQuestXPStore,                db2Path, "QuestXP.db2");                                                      // 17399
@@ -484,7 +484,7 @@ void LoadDB2Stores(const std::string& dataPath)
 
     std::set<ResearchSiteEntry const*> sResearchSiteSet;
     std::set<ResearchProjectEntry const*> sResearchProjectSet;
-    
+
     for (uint32 l_ID = 0; l_ID < sMountTypeStore.GetNumRows(); ++l_ID)
     {
         MountTypeEntry const* l_Entry = sMountTypeStore.LookupEntry(l_ID);
@@ -937,7 +937,7 @@ uint8 GetPowerIndexByClass(uint8 p_Class, uint8 p_Power)
         return Powers::MAX_POWERS;
 
     auto const& l_List = sPowersByClassStore[p_Class];
-    for (int l_I = 0; l_I < l_List.size(); ++l_I)
+    for (int l_I = 0; l_I < (int)l_List.size(); ++l_I)
     {
         if (l_List[l_I] == p_Power)
             return l_I;

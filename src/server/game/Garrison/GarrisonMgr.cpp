@@ -4254,8 +4254,7 @@ namespace MS { namespace Garrison
         if (l_Iter == m_Followers.end())
             return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
 
-        int l_Index = 0;
-        for (; l_Index < l_Iter->Abilities.size(); ++l_Index)
+        for (int l_Index = 0; l_Index < (int)l_Iter->Abilities.size(); ++l_Index)
         {
             if (l_Iter->Abilities[l_Index] == p_Slot)
                 break;
@@ -4300,7 +4299,7 @@ namespace MS { namespace Garrison
             return;
 
         int l_Index = 0;
-        for (; l_Index < l_Iter->Abilities.size(); ++l_Index)
+        for (; l_Index < (int)l_Iter->Abilities.size(); ++l_Index)
         {
             if (l_Iter->Abilities[l_Index] == p_Slot)
                 break;

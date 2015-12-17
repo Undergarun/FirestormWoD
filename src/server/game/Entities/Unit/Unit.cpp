@@ -13644,54 +13644,56 @@ void Unit::Dismount()
 MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 {
     if (!mountType)
-        return NULL;
+        return nullptr;
 
-    MountTypeEntry const* mountTypeEntry = sMountTypeStore.LookupEntry(mountType);
-    if (!mountTypeEntry)
-        return NULL;
+    MountTypeEntry const* l_MountTypeEntry = sMountTypeStore.LookupEntry(mountType);
+    if (!l_MountTypeEntry)
+        return nullptr;
 
-    uint32 zoneId, areaId;
-    GetZoneAndAreaId(zoneId, areaId);
-    uint32 ridingSkill = 5000;
+    uint32 l_ZoneId;
+    uint32 l_AreaId;
+    GetZoneAndAreaId(l_ZoneId, l_AreaId);
+
+    uint32 l_RidingSkill = 5000;
     if (GetTypeId() == TYPEID_PLAYER)
-        ridingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
+        l_RidingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
 
-    for (uint32 i = 0; i < MAX_MOUNT_CAPABILITIES; ++i)
+    for (uint32 i = 0; i < MAX_MOUNT_CAPABILITIES; i++)
     {
-        MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
-        if (!mountCapability)
+        MountCapabilityEntry const* l_MountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
+        if (!l_MountCapability)
             continue;
 
-        if (ridingSkill < mountCapability->RequiredRidingSkill)
+        if (l_RidingSkill < l_MountCapability->RequiredRidingSkill)
             continue;
 
         if (HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
         {
-            if (!(mountCapability->Flags & MOUNT_FLAG_CAN_PITCH))
+            if (!(l_MountCapability->Flags & MOUNT_FLAG_CAN_PITCH))
                 continue;
         }
         else if (HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
         {
-            if (!(mountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
+            if (!(l_MountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
                 continue;
         }
 
-        if (mountCapability->RequiredMap != -1 && int32(GetMapId()) != mountCapability->RequiredMap)
+        if (l_MountCapability->RequiredMap != -1 && int32(GetMapId()) != l_MountCapability->RequiredMap)
             continue;
 
-        if (mountCapability->RequiredArea && (mountCapability->RequiredArea != zoneId && mountCapability->RequiredArea != areaId))
+        if (l_MountCapability->RequiredArea && (l_MountCapability->RequiredArea != l_ZoneId && l_MountCapability->RequiredArea != l_AreaId))
             continue;
 
-        if (mountCapability->RequiredAura && !HasAura(mountCapability->RequiredAura))
+        if (l_MountCapability->RequiredAura && !HasAura(l_MountCapability->RequiredAura))
             continue;
 
-        if (mountCapability->RequiredSpell && (GetTypeId() != TYPEID_PLAYER || !ToPlayer()->HasSpell(mountCapability->RequiredSpell)))
+        if (l_MountCapability->RequiredSpell && (GetTypeId() != TYPEID_PLAYER || !ToPlayer()->HasSpell(l_MountCapability->RequiredSpell)))
             continue;
 
-        return mountCapability;
+        return l_MountCapability;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void Unit::SendMountResult(MountResult p_Error)

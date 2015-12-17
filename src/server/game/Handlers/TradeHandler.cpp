@@ -40,15 +40,15 @@ void WorldSession::SendTradeStatus(TradeStatus p_Status)
 
     switch (p_Status)
     {
-        case TRADE_STATUS_TARGET_LOGOUT:
+        case TRADE_STATUS_TARGET_LOGGING_OUT:
             l_Data.WriteBit(0);
             l_Data << uint32(0);
             l_Data << uint32(0);
             break;
-        case TRADE_STATUS_NOT_ELIGIBLE:
+        case TRADE_STATUS_NOT_ON_TAPLIST:
             l_Data << uint8(0); // unk
             break;
-        case TRADE_STATUS_OPEN_WINDOW:
+        case TRADE_STATUS_INITIATED:
             m_Player->InitializeClientStateIndex();
             l_Data << uint32(1);
             break;
@@ -61,7 +61,7 @@ void WorldSession::SendTradeStatus(TradeStatus p_Status)
 
 void WorldSession::HandleIgnoreTradeOpcode(WorldPacket& /*p_RecvData*/)
 {
-    SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+    SendTradeStatus(TRADE_STATUS_CANCELLED);
 }
 
 void WorldSession::SendUpdateTrade(bool p_WhichPlayer /*= true*/)
@@ -298,13 +298,13 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*p_RecvData*/)
         {
             if (!l_Item->CanBeTraded(false, true))
             {
-                SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+                SendTradeStatus(TRADE_STATUS_CANCELLED);
                 return;
             }
             if (l_Item->IsBindedNotWith(l_Trader))
             {
-                SendTradeStatus(TRADE_STATUS_NOT_ELIGIBLE);
-                SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+                SendTradeStatus(TRADE_STATUS_NOT_ON_TAPLIST);
+                SendTradeStatus(TRADE_STATUS_CANCELLED);
                 return;
             }
         }
@@ -313,7 +313,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*p_RecvData*/)
         {
             if (!l_Item->CanBeTraded(false, true))
             {
-                SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+                SendTradeStatus(TRADE_STATUS_CANCELLED);
                 return;
             }
         }
@@ -401,7 +401,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*p_RecvData*/)
         }
 
         // Inform partner client
-        l_Trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPT);
+        l_Trader->GetSession()->SendTradeStatus(TRADE_STATUS_ACCEPTED);
 
         // Test if item will fit in each inventory
         l_HisCanCompleteTrade = (l_Trader->CanStoreItems(l_MyItems, TRADE_SLOT_TRADED_COUNT) == EQUIP_ERR_OK);
@@ -497,11 +497,11 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*p_RecvData*/)
         l_Trader->SaveInventoryAndGoldToDB(l_Transaction);
         CharacterDatabase.CommitTransaction(l_Transaction);
 
-        l_Trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_COMPLETE);
-        SendTradeStatus(TRADE_STATUS_TRADE_COMPLETE);
+        l_Trader->GetSession()->SendTradeStatus(TRADE_STATUS_COMPLETE);
+        SendTradeStatus(TRADE_STATUS_COMPLETE);
     }
     else
-        l_Trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPT);
+        l_Trader->GetSession()->SendTradeStatus(TRADE_STATUS_ACCEPTED);
 }
 
 void WorldSession::HandleBusyTradeOpcode(WorldPacket& /*p_RecvData*/)
@@ -510,7 +510,7 @@ void WorldSession::HandleBusyTradeOpcode(WorldPacket& /*p_RecvData*/)
     if (!l_Trade)
         return;
 
-    SendTradeStatus(TRADE_STATUS_OPEN_WINDOW);
+    SendTradeStatus(TRADE_STATUS_INITIATED);
 }
 
 void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*p_RecvData*/)
@@ -528,7 +528,7 @@ void WorldSession::HandleBeginTradeOpcode(WorldPacket& /*p_RecvData*/)
     if (!l_Trade)
         return;
 
-    SendTradeStatus(TRADE_STATUS_OPEN_WINDOW);
+    SendTradeStatus(TRADE_STATUS_INITIATED);
 }
 
 void WorldSession::SendCancelTrade()
@@ -536,7 +536,7 @@ void WorldSession::SendCancelTrade()
     if (PlayerRecentlyLoggedOut() || PlayerLogout())
         return;
 
-    SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+    SendTradeStatus(TRADE_STATUS_CANCELLED);
 }
 
 void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*p_RecvData*/)
@@ -556,25 +556,25 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
 
     if (!GetPlayer()->isAlive())
     {
-        SendTradeStatus(TRADE_STATUS_YOU_DEAD);
+        SendTradeStatus(TRADE_STATUS_DEAD);
         return;
     }
 
     if (GetPlayer()->HasUnitState(UNIT_STATE_STUNNED))
     {
-        SendTradeStatus(TRADE_STATUS_YOU_STUNNED);
+        SendTradeStatus(TRADE_STATUS_STUNNED);
         return;
     }
 
     if (isLogingOut())
     {
-        SendTradeStatus(TRADE_STATUS_YOU_LOGOUT);
+        SendTradeStatus(TRADE_STATUS_LOGGING_OUT);
         return;
     }
 
     if (GetPlayer()->isInFlight())
     {
-        SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
+        SendTradeStatus(TRADE_STATUS_TOO_FAR_AWAY);
         return;
     }
 
@@ -594,7 +594,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
     if (l_Player == GetPlayer() || l_Player->m_trade)
     {
         // Ignore
-        SendTradeStatus(TRADE_STATUS_BUSY);
+        SendTradeStatus(TRADE_STATUS_PLAYER_BUSY);
         return;
     }
 
@@ -606,7 +606,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
 
     if (l_Player->isInFlight())
     {
-        SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
+        SendTradeStatus(TRADE_STATUS_TOO_FAR_AWAY);
         return;
     }
 
@@ -618,13 +618,13 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
 
     if (l_Player->GetSession()->isLogingOut())
     {
-        SendTradeStatus(TRADE_STATUS_TARGET_LOGOUT);
+        SendTradeStatus(TRADE_STATUS_TARGET_LOGGING_OUT);
         return;
     }
 
     if (l_Player->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
     {
-        SendTradeStatus(TRADE_STATUS_IGNORE_YOU);
+        SendTradeStatus(TRADE_STATUS_PLAYER_IGNORED);
         return;
     }
 
@@ -636,7 +636,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
 
     if (!l_Player->IsWithinDistInMap(m_Player, 10.0f, false))
     {
-        SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
+        SendTradeStatus(TRADE_STATUS_TOO_FAR_AWAY);
         return;
     }
 
@@ -654,7 +654,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
     {
         WorldPacket l_Data(SMSG_TRADE_STATUS);
         l_Data.WriteBit(false);
-        l_Data.WriteBits(TRADE_STATUS_BEGIN_TRADE, 5);
+        l_Data.WriteBits(TRADE_STATUS_PROPOSED, 5);
         l_Data.WriteBit(false);
         l_Data.FlushBits();
         l_Data.appendPackGUID(l_Guid);
@@ -666,7 +666,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
     {
         WorldPacket l_Data(SMSG_TRADE_STATUS);
         l_Data.WriteBit(false);
-        l_Data.WriteBits(TRADE_STATUS_BEGIN_TRADE, 5);
+        l_Data.WriteBits(TRADE_STATUS_PROPOSED, 5);
         l_Data.WriteBit(false);
         l_Data.FlushBits();
         l_Data.appendPackGUID(m_Player->GetGUID());
@@ -710,7 +710,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& p_RecvData)
     // Invalid slot number
     if (l_TradeSlot >= TRADE_SLOT_COUNT)
     {
-        SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+        SendTradeStatus(TRADE_STATUS_CANCELLED);
         return;
     }
 
@@ -718,7 +718,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& p_RecvData)
     Item* l_Item = m_Player->GetItemByPos(l_SrcBag, l_SrcSlot);
     if (!l_Item || (l_TradeSlot != TRADE_SLOT_TRADED_COUNT && !l_Item->CanBeTraded(false, true)))
     {
-        SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+        SendTradeStatus(TRADE_STATUS_CANCELLED);
         return;
     }
 
@@ -728,7 +728,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& p_RecvData)
     if (l_MyTrade->HasItem(l_ItemGuid))
     {
         // Cheating attempt
-        SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
+        SendTradeStatus(TRADE_STATUS_CANCELLED);
         return;
     }
 
