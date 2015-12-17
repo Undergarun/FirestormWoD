@@ -16637,7 +16637,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         CastSpell(this, 163948, true);
 
     /// Plaguebearer
-    if (procSpell && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
+    if (procSpell && target && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
     {
         if (AuraPtr l_BloodPlague = target->GetAura(55078, GetGUID()))
             l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);
