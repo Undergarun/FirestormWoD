@@ -1142,7 +1142,7 @@ struct MountTypeXCapabilityEntry
 struct NameGenEntry
 {
     //uint32    id;                                                 ///< 0      m_ID
-    char*   name;                                                   ///< 1      m_Name
+    LocalizedString const*   name;                                  ///< 1      m_Name
     uint32  race;                                                   ///< 2      m_RaceID
     uint32  gender;                                                 ///< 3      m_Sex
 };
