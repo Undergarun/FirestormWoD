@@ -13189,26 +13189,28 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             DoneTotalMod += CalculatePct(1.0, amount);
     }
 
-    // Custom MoP Script
-    // 76856 - Mastery : Unshackled Fury
+    /// 76856 - Mastery : Unshackled Fury
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0)
     {
         if (HasAura(76856) && HasAuraState(AURA_STATE_ENRAGE))
         {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.375f;
-            DoneTotalMod += CalculatePct(1.0, Mastery);
+            if (AuraEffectPtr l_AurEff = GetAuraEffect(76856, EFFECT_0, GetGUID()))
+            {
+                float l_Mastery = (float)l_AurEff->GetAmount();
+
+                DoneTotalMod += CalculatePct(1.0, l_Mastery);
+            }
         }
     }
 
-    // Custom MoP Script
-    // 76806 - Mastery : Main Gauche
+    /// 76806 - Mastery : Main Gauche
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == WeaponAttackType::BaseAttack)
     {
-        if (HasAura(76806))
+        if (AuraEffectPtr l_AurEff = GetAuraEffect(76806, EFFECT_0, GetGUID()))
         {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
+            float l_Mastery = (float)l_AurEff->GetAmount();
 
-            if (roll_chance_f(Mastery))
+            if (roll_chance_f(l_Mastery))
                 CastSpell(victim, 86392, true);
         }
     }
