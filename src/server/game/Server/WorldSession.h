@@ -1134,26 +1134,27 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
-        void HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData);
-        void HandleRequestGarrisonUpgradeableOpcode(WorldPacket& p_RecvData);
-        void HandleUpgradeGarrisonOpcode(WorldPacket& p_RecvData);
-        void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& p_RecvData);
-        void HandleGarrisonMissionNPCHelloOpcode(WorldPacket& p_RecvData);
+        void HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData);
+        void HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData);
+        void HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData);
+        void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData);
-        void HandleGarrisonRequestBuildingsOpcode(WorldPacket& p_RecvData);
-        void HandleGarrisonPurchaseBuildingOpcode(WorldPacket& p_RecvData);
-        void HandleGarrisonCancelConstructionOpcode(WorldPacket& p_RecvData);
-        void HandleGarrisonStartMissionOpcode(WorldPacket& p_RecvData);
-        void HandleGarrisonCompleteMissionOpcode(WorldPacket& p_RecvData);
-        void HandleGarrisonMissionBonusRollOpcode(WorldPacket& p_RecvData);
-        void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket& p_RecvData);
-        void HandleGarrisonGetShipmentInfoOpcode(WorldPacket& p_RecvData);
-        void HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonFollowerRename(WorldPacket& p_RecvData);
         void HandleGarrisonDecommisionShip(WorldPacket& p_RecvData);
 
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
-        void SendGarrisonOpenMissionNpc();
+        void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
         void SendGarrisonSetMissionNpc(uint64 p_CreatureGUID);
 
         // Pet Battle System
