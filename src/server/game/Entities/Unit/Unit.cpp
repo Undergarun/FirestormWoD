@@ -3895,7 +3895,7 @@ void Unit::_ApplyAura(AuraApplication* p_AurApp, uint32 p_EffMask)
             for (uint8 i = 0; i < l_Aura->GetEffectCount(); ++i)
             {
                 if (l_Aura->GetEffect(i))
-                    l_Aura->GetEffect(i)->ChangeAmount(l_Aura->GetEffect(i)->GetAmount() * 2);
+                    l_Aura->GetEffect(i)->ChangeAmount(l_Aura->GetEffect(i)->CalculateAmount(this) * 2);
             }
         }
     }
