@@ -1,0 +1,1 @@
+DELETE FROM `character_spell` WHERE spell = 115610;
