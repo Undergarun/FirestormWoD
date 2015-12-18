@@ -1216,7 +1216,7 @@ enum Opcodes
     CMSG_SHOW_TRADE_SKILL                       = 0x1033, ///< 6.2.3 20726
     CMSG_SCENE_PLAYBACK_CANCELED                = 0x0C65, ///< 6.2.3 20726
     CMSG_REQUEST_RESEARCH_HISTORY               = 0x017A, ///< 6.2.3 20726
-    CMSG_SUMMON_RESPONSE                        = 0x0133, ///< 6.2.3 20726
+    CMSG_SUMMON_RESPONSE                        = 0x0577, ///< 6.2.3 20726
     CMSG_SET_FACTION_ATWAR                      = 0x1582, ///< 6.2.3 20726
     CMSG_UNSET_FACTION_ATWAR                    = 0x077D, ///< 6.2.3 20726
 
@@ -1717,7 +1717,7 @@ enum Opcodes
     CMSG_COMMENTATOR_INSTANCE_COMMAND                   = 0x0000,
     CMSG_COMMENTATOR_SKIRMISH_QUEUE_COMMAND             = 0x0000,
     CMSG_COMMENTATOR_START_WARGAME                      = 0x0000,
-    CMSG_COMPLAIN                                       = 0x0000,
+    CMSG_COMPLAIN                                       = 0x0133,
     CMSG_CONNECT_TO_FAILED                              = 0x0000,
     CMSG_DANCE_QUERY                                    = 0x0000,
     CMSG_DEL_VOICE_IGNORE                               = 0x0000,
