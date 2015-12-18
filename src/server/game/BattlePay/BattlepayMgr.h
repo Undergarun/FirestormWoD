@@ -57,9 +57,9 @@ namespace Battlepay
         Other                      = 0,
         //AlreadyOwned             = 0,     ///< This error is client-side only, can't be sended by the server
         ParentalControlsNoPurchase = 34,
-        Denied                     = 1
+        Denied                     = 1,
         ConsumableTokenOwned       = 46,
-        TooManyTokens              = 47,
+        TooManyTokens              = 47
         /// ItemUnavailable
     };
 
