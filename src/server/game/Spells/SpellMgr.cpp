@@ -6832,6 +6832,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81298: ///< Consecration Visual
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_DEST_DEST;
                 break;
+            case 159556:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                spellInfo->Effects[0].Amplitude = 1000;
             case 159740: ///< Glyph of Raging Blow
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TriggerSpell = 159747;
                 break;
