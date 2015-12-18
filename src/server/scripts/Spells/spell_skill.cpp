@@ -930,6 +930,650 @@ namespace MS { namespace Skill
             }
     };
 
+    /// Upgrade Armor - Taladite Amplifier - 187551
+    class spell_skill_taladite_amplifier_upgrade : public SpellScriptLoader
+    {
+        public:
+            spell_skill_taladite_amplifier_upgrade() : SpellScriptLoader("spell_skill_taladite_amplifier_upgrade") { }
+
+            class spell_skill_taladite_amplifier_upgrade_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_skill_taladite_amplifier_upgrade_SpellScript);
+
+                enum eUpgradeSpells
+                {
+                    FirstUpgrade    = 173014,
+                    SecondUpgrade   = 173023,
+                    ThirdUpgrade    = 181410
+                };
+
+                SpellCastResult CheckCast()
+                {
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                                return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                        }
+                    }
+
+                    return SpellCastResult::SPELL_CAST_OK;
+                }
+
+                void HandleChangeBonuses(SpellEffIndex p_EffIndex)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            uint32 l_Triggered = 0;
+                            uint32 l_ItemLevel = l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget);
+
+                            if (l_ItemLevel >= 670)
+                                l_Triggered = eUpgradeSpells::ThirdUpgrade;
+                            else if (l_ItemLevel >= 655)
+                                l_Triggered = eUpgradeSpells::SecondUpgrade;
+                            else if (l_ItemLevel >= 640)
+                                l_Triggered = eUpgradeSpells::FirstUpgrade;
+
+                            if (l_Triggered)
+                                l_Player->CastSpell(l_ItemTarget, l_Triggered, true);
+                        }
+                    }
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_skill_taladite_amplifier_upgrade_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_skill_taladite_amplifier_upgrade_SpellScript::HandleChangeBonuses, EFFECT_0, SPELL_EFFECT_CHANGE_ITEM_BONUSES);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_skill_taladite_amplifier_upgrade_SpellScript();
+            }
+    };
+
+    /// Upgrade Armor - Burnished Essence - 187541
+    class spell_skill_burnished_essence_upgrade : public SpellScriptLoader
+    {
+        public:
+            spell_skill_burnished_essence_upgrade() : SpellScriptLoader("spell_skill_burnished_essence_upgrade") { }
+
+            class spell_skill_burnished_essence_upgrade_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_skill_burnished_essence_upgrade_SpellScript);
+
+                enum eUpgradeSpells
+                {
+                    FirstUpgrade    = 171223,
+                    SecondUpgrade   = 171224,
+                    ThirdUpgrade    = 181406
+                };
+
+                SpellCastResult CheckCast()
+                {
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                                return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                        }
+                    }
+
+                    return SpellCastResult::SPELL_CAST_OK;
+                }
+
+                void HandleChangeBonuses(SpellEffIndex p_EffIndex)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            uint32 l_Triggered = 0;
+                            uint32 l_ItemLevel = l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget);
+
+                            if (l_ItemLevel >= 670)
+                                l_Triggered = eUpgradeSpells::ThirdUpgrade;
+                            else if (l_ItemLevel >= 655)
+                                l_Triggered = eUpgradeSpells::SecondUpgrade;
+                            else if (l_ItemLevel >= 640)
+                                l_Triggered = eUpgradeSpells::FirstUpgrade;
+
+                            if (l_Triggered)
+                                l_Player->CastSpell(l_ItemTarget, l_Triggered, true);
+                        }
+                    }
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_skill_burnished_essence_upgrade_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_skill_burnished_essence_upgrade_SpellScript::HandleChangeBonuses, EFFECT_0, SPELL_EFFECT_CHANGE_ITEM_BONUSES);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_skill_burnished_essence_upgrade_SpellScript();
+            }
+    };
+
+    /// Upgrade Weapon - Steelforged Essence - 187550
+    class spell_skill_steelforged_essence_upgrade : public SpellScriptLoader
+    {
+        public:
+            spell_skill_steelforged_essence_upgrade() : SpellScriptLoader("spell_skill_steelforged_essence_upgrade") { }
+
+            class spell_skill_steelforged_essence_upgrade_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_skill_steelforged_essence_upgrade_SpellScript);
+
+                enum eUpgradeSpells
+                {
+                    FirstUpgrade    = 171652,
+                    SecondUpgrade   = 171653,
+                    ThirdUpgrade    = 181407
+                };
+
+                SpellCastResult CheckCast()
+                {
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                                return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                        }
+                    }
+
+                    return SpellCastResult::SPELL_CAST_OK;
+                }
+
+                void HandleChangeBonuses(SpellEffIndex p_EffIndex)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            uint32 l_Triggered = 0;
+                            uint32 l_ItemLevel = l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget);
+
+                            if (l_ItemLevel >= 660)
+                                l_Triggered = eUpgradeSpells::ThirdUpgrade;
+                            else if (l_ItemLevel >= 645)
+                                l_Triggered = eUpgradeSpells::SecondUpgrade;
+                            else if (l_ItemLevel >= 630)
+                                l_Triggered = eUpgradeSpells::FirstUpgrade;
+
+                            if (l_Triggered)
+                                l_Player->CastSpell(l_ItemTarget, l_Triggered, true);
+                        }
+                    }
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_skill_steelforged_essence_upgrade_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_skill_steelforged_essence_upgrade_SpellScript::HandleChangeBonuses, EFFECT_0, SPELL_EFFECT_CHANGE_ITEM_BONUSES);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_skill_steelforged_essence_upgrade_SpellScript();
+            }
+    };
+
+    /// Upgrade Armor - Truesteel Essence - 187546
+    class spell_skill_truesteel_essence_upgrade : public SpellScriptLoader
+    {
+        public:
+            spell_skill_truesteel_essence_upgrade() : SpellScriptLoader("spell_skill_truesteel_essence_upgrade") { }
+
+            class spell_skill_truesteel_essence_upgrade_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_skill_truesteel_essence_upgrade_SpellScript);
+
+                enum eUpgradeSpells
+                {
+                    FirstUpgrade    = 171640,
+                    SecondUpgrade   = 171649,
+                    ThirdUpgrade    = 181408
+                };
+
+                SpellCastResult CheckCast()
+                {
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                                return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                        }
+                    }
+
+                    return SpellCastResult::SPELL_CAST_OK;
+                }
+
+                void HandleChangeBonuses(SpellEffIndex p_EffIndex)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            uint32 l_Triggered = 0;
+                            uint32 l_ItemLevel = l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget);
+
+                            if (l_ItemLevel >= 670)
+                                l_Triggered = eUpgradeSpells::ThirdUpgrade;
+                            else if (l_ItemLevel >= 655)
+                                l_Triggered = eUpgradeSpells::SecondUpgrade;
+                            else if (l_ItemLevel >= 640)
+                                l_Triggered = eUpgradeSpells::FirstUpgrade;
+
+                            if (l_Triggered)
+                                l_Player->CastSpell(l_ItemTarget, l_Triggered, true);
+                        }
+                    }
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_skill_truesteel_essence_upgrade_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_skill_truesteel_essence_upgrade_SpellScript::HandleChangeBonuses, EFFECT_0, SPELL_EFFECT_CHANGE_ITEM_BONUSES);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_skill_truesteel_essence_upgrade_SpellScript();
+            }
+    };
+
+    /// Upgrade Weapon - True Iron Trigger - 187552
+    class spell_skill_true_iron_trigger_upgrade : public SpellScriptLoader
+    {
+        public:
+            spell_skill_true_iron_trigger_upgrade() : SpellScriptLoader("spell_skill_true_iron_trigger_upgrade") { }
+
+            class spell_skill_true_iron_trigger_upgrade_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_skill_true_iron_trigger_upgrade_SpellScript);
+
+                enum eUpgradeSpells
+                {
+                    FirstUpgrade    = 177361,
+                    SecondUpgrade   = 177362,
+                    ThirdUpgrade    = 181413
+                };
+
+                SpellCastResult CheckCast()
+                {
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                                return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                        }
+                    }
+
+                    return SpellCastResult::SPELL_CAST_OK;
+                }
+
+                void HandleChangeBonuses(SpellEffIndex p_EffIndex)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            uint32 l_Triggered = 0;
+                            uint32 l_ItemLevel = l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget);
+
+                            if (l_ItemLevel >= 660)
+                                l_Triggered = eUpgradeSpells::ThirdUpgrade;
+                            else if (l_ItemLevel >= 645)
+                                l_Triggered = eUpgradeSpells::SecondUpgrade;
+                            else if (l_ItemLevel >= 630)
+                                l_Triggered = eUpgradeSpells::FirstUpgrade;
+
+                            if (l_Triggered)
+                                l_Player->CastSpell(l_ItemTarget, l_Triggered, true);
+                        }
+                    }
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_skill_true_iron_trigger_upgrade_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_skill_true_iron_trigger_upgrade_SpellScript::HandleChangeBonuses, EFFECT_0, SPELL_EFFECT_CHANGE_ITEM_BONUSES);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_skill_true_iron_trigger_upgrade_SpellScript();
+            }
+    };
+
+    /// Upgrade Armor - Linkgrease Locksprocket - 187538
+    class spell_skill_linkgrease_locksprocket_upgrade : public SpellScriptLoader
+    {
+        public:
+            spell_skill_linkgrease_locksprocket_upgrade() : SpellScriptLoader("spell_skill_linkgrease_locksprocket_upgrade") { }
+
+            class spell_skill_linkgrease_locksprocket_upgrade_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_skill_linkgrease_locksprocket_upgrade_SpellScript);
+
+                enum eUpgradeSpells
+                {
+                    FirstUpgrade    = 168095,
+                    SecondUpgrade   = 168120,
+                    ThirdUpgrade    = 181414
+                };
+
+                SpellCastResult CheckCast()
+                {
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                                return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                        }
+                    }
+
+                    return SpellCastResult::SPELL_CAST_OK;
+                }
+
+                void HandleChangeBonuses(SpellEffIndex p_EffIndex)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            uint32 l_Triggered = 0;
+                            uint32 l_ItemLevel = l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget);
+
+                            if (l_ItemLevel >= 670)
+                                l_Triggered = eUpgradeSpells::ThirdUpgrade;
+                            else if (l_ItemLevel >= 655)
+                                l_Triggered = eUpgradeSpells::SecondUpgrade;
+                            else if (l_ItemLevel >= 640)
+                                l_Triggered = eUpgradeSpells::FirstUpgrade;
+
+                            if (l_Triggered)
+                                l_Player->CastSpell(l_ItemTarget, l_Triggered, true);
+                        }
+                    }
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_skill_linkgrease_locksprocket_upgrade_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_skill_linkgrease_locksprocket_upgrade_SpellScript::HandleChangeBonuses, EFFECT_0, SPELL_EFFECT_CHANGE_ITEM_BONUSES);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_skill_linkgrease_locksprocket_upgrade_SpellScript();
+            }
+    };
+
+    /// Upgrade Weapon - Weapon Crystal - 187535
+    class spell_skill_weapon_crystal_upgrade : public SpellScriptLoader
+    {
+        public:
+            spell_skill_weapon_crystal_upgrade() : SpellScriptLoader("spell_skill_weapon_crystal_upgrade") { }
+
+            class spell_skill_weapon_crystal_upgrade_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_skill_weapon_crystal_upgrade_SpellScript);
+
+                enum eUpgradeSpells
+                {
+                    FirstUpgrade    = 165808,
+                    SecondUpgrade   = 178250,
+                    ThirdUpgrade    = 181411
+                };
+
+                SpellCastResult CheckCast()
+                {
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                                return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                        }
+                    }
+
+                    return SpellCastResult::SPELL_CAST_OK;
+                }
+
+                void HandleChangeBonuses(SpellEffIndex p_EffIndex)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            uint32 l_Triggered = 0;
+                            uint32 l_ItemLevel = l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget);
+
+                            if (l_ItemLevel >= 660)
+                                l_Triggered = eUpgradeSpells::ThirdUpgrade;
+                            else if (l_ItemLevel >= 645)
+                                l_Triggered = eUpgradeSpells::SecondUpgrade;
+                            else if (l_ItemLevel >= 630)
+                                l_Triggered = eUpgradeSpells::FirstUpgrade;
+
+                            if (l_Triggered)
+                                l_Player->CastSpell(l_ItemTarget, l_Triggered, true);
+                        }
+                    }
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_skill_weapon_crystal_upgrade_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_skill_weapon_crystal_upgrade_SpellScript::HandleChangeBonuses, EFFECT_0, SPELL_EFFECT_CHANGE_ITEM_BONUSES);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_skill_weapon_crystal_upgrade_SpellScript();
+            }
+    };
+
+    /// Upgrade Armor - Ensorcelled Tarot - 187537
+    class spell_skill_ensorcelled_tarot_upgrade : public SpellScriptLoader
+    {
+        public:
+            spell_skill_ensorcelled_tarot_upgrade() : SpellScriptLoader("spell_skill_ensorcelled_tarot_upgrade") { }
+
+            class spell_skill_ensorcelled_tarot_upgrade_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_skill_ensorcelled_tarot_upgrade_SpellScript);
+
+                enum eUpgradeSpells
+                {
+                    FirstUpgrade    = 165836,
+                    SecondUpgrade   = 178247,
+                    ThirdUpgrade    = 181411
+                };
+
+                SpellCastResult CheckCast()
+                {
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            switch (l_ItemTarget->GetTemplate()->InventoryType)
+                            {
+                                case InventoryType::INVTYPE_HOLDABLE:
+                                    if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                                        return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                                    break;
+                                case InventoryType::INVTYPE_TRINKET:
+                                    if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                                        return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+
+                    return SpellCastResult::SPELL_CAST_OK;
+                }
+
+                void HandleChangeBonuses(SpellEffIndex p_EffIndex)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            uint32 l_Triggered = 0;
+                            uint32 l_ItemLevel = l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget);
+
+                            switch (l_ItemTarget->GetTemplate()->InventoryType)
+                            {
+                                case InventoryType::INVTYPE_HOLDABLE:
+                                {
+                                    if (l_ItemLevel >= 670)
+                                        l_Triggered = eUpgradeSpells::ThirdUpgrade;
+                                    else if (l_ItemLevel >= 655)
+                                        l_Triggered = eUpgradeSpells::SecondUpgrade;
+                                    else if (l_ItemLevel >= 640)
+                                        l_Triggered = eUpgradeSpells::FirstUpgrade;
+
+                                    break;
+                                }
+                                case InventoryType::INVTYPE_TRINKET:
+                                {
+                                    if (l_ItemLevel >= 660)
+                                        l_Triggered = eUpgradeSpells::ThirdUpgrade;
+                                    else if (l_ItemLevel >= 645)
+                                        l_Triggered = eUpgradeSpells::SecondUpgrade;
+                                    else if (l_ItemLevel >= 630)
+                                        l_Triggered = eUpgradeSpells::FirstUpgrade;
+
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+
+                            if (l_Triggered)
+                                l_Player->CastSpell(l_ItemTarget, l_Triggered, true);
+                        }
+                    }
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_skill_ensorcelled_tarot_upgrade_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_skill_ensorcelled_tarot_upgrade_SpellScript::HandleChangeBonuses, EFFECT_0, SPELL_EFFECT_CHANGE_ITEM_BONUSES);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_skill_ensorcelled_tarot_upgrade_SpellScript();
+            }
+    };
+
+    /// Upgrade Armor - Hexweave Essence - 187539
+    class spell_skill_hexweave_essence_upgrade : public SpellScriptLoader
+    {
+        public:
+            spell_skill_hexweave_essence_upgrade() : SpellScriptLoader("spell_skill_hexweave_essence_upgrade") { }
+
+            class spell_skill_hexweave_essence_upgrade_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_skill_hexweave_essence_upgrade_SpellScript);
+
+                enum eUpgradeSpells
+                {
+                    FirstUpgrade    = 168865,
+                    SecondUpgrade   = 168867,
+                    ThirdUpgrade    = 181409
+                };
+
+                SpellCastResult CheckCast()
+                {
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            if (l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget) >= (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                                return SpellCastResult::SPELL_FAILED_HIGHLEVEL;
+                        }
+                    }
+
+                    return SpellCastResult::SPELL_CAST_OK;
+                }
+
+                void HandleChangeBonuses(SpellEffIndex p_EffIndex)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+
+                    if (Item* l_ItemTarget = GetExplTargetItem())
+                    {
+                        if (Player* l_Player = GetCaster()->ToPlayer())
+                        {
+                            uint32 l_Triggered = 0;
+                            uint32 l_ItemLevel = l_Player->GetEquipItemLevelFor(l_ItemTarget->GetTemplate(), l_ItemTarget);
+
+                            if (l_ItemLevel >= 670)
+                                l_Triggered = eUpgradeSpells::ThirdUpgrade;
+                            else if (l_ItemLevel >= 655)
+                                l_Triggered = eUpgradeSpells::SecondUpgrade;
+                            else if (l_ItemLevel >= 640)
+                                l_Triggered = eUpgradeSpells::FirstUpgrade;
+
+                            if (l_Triggered)
+                                l_Player->CastSpell(l_ItemTarget, l_Triggered, true);
+                        }
+                    }
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_skill_hexweave_essence_upgrade_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_skill_hexweave_essence_upgrade_SpellScript::HandleChangeBonuses, EFFECT_0, SPELL_EFFECT_CHANGE_ITEM_BONUSES);
+                }
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_skill_hexweave_essence_upgrade_SpellScript();
+            }
+    };
+
 }   ///< namespace Skill
 }   ///< namespace MS
 
@@ -950,4 +1594,14 @@ void AddSC_spell_skill()
     new MS::Skill::DailyMajorSkills::spell_Skill_Enchantment_TemporalCrystal();
     new MS::Skill::DailyMajorSkills::spell_skill_engineering_gearspring_parts();
     new MS::Skill::DailyMajorSkills::spell_skill_alchemy_alchemical_catalyst();
+
+    new MS::Skill::spell_skill_taladite_amplifier_upgrade();
+    new MS::Skill::spell_skill_burnished_essence_upgrade();
+    new MS::Skill::spell_skill_steelforged_essence_upgrade();
+    new MS::Skill::spell_skill_truesteel_essence_upgrade();
+    new MS::Skill::spell_skill_true_iron_trigger_upgrade();
+    new MS::Skill::spell_skill_linkgrease_locksprocket_upgrade();
+    new MS::Skill::spell_skill_weapon_crystal_upgrade();
+    new MS::Skill::spell_skill_ensorcelled_tarot_upgrade();
+    new MS::Skill::spell_skill_hexweave_essence_upgrade();
 }
