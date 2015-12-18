@@ -204,10 +204,10 @@ World::World()
 
     if (m_LastBuild.valid)
     {
-        const std::size_t l_TimeBufferSize = 100;
+        std::size_t const l_TimeBufferSize = 100;
 
         char timeBuffer[l_TimeBufferSize];
-        int l_Written = snprintf(timeBuffer, l_TimeBufferSize, "%d-%02d-%02d at %02d:%02d (GMT)%n", m_LastBuild.year, m_LastBuild.month, m_LastBuild.day, m_LastBuild.hour, m_LastBuild.minute);
+        int l_Written = snprintf(timeBuffer, l_TimeBufferSize, "%d-%02d-%02d at %02d:%02d (GMT)", m_LastBuild.year, m_LastBuild.month, m_LastBuild.day, m_LastBuild.hour, m_LastBuild.minute);
 
         /// In case anyone would like to change the buffer
         if (l_Written >= l_TimeBufferSize)
