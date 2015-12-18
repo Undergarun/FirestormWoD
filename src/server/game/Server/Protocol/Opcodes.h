@@ -1647,20 +1647,20 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Calendarr
     //////////////////////////////////////////////////////////////////////////
-    CMSG_CALENDAR_ADD_EVENT                         = 0x0130, ///< 6.2.3 20726
+    CMSG_CALENDAR_ADD_EVENT                         = 0x00F8, ///< 6.2.3 20726
     CMSG_CALENDAR_COMPLAIN                          = 0x0180, ///< 6.2.3 20726
-    CMSG_CALENDAR_COPY_EVENT                        = 0x01BB, ///< 6.2.3 20726
+    CMSG_CALENDAR_COPY_EVENT                        = 0x01B7, ///< 6.2.3 20726
     CMSG_CALENDAR_EVENT_INVITE                      = 0x0438, ///< 6.2.3 20726
-    CMSG_CALENDAR_EVENT_MODERATOR_STATUS            = 0x00F8, ///< 6.2.3 20726
-    CMSG_CALENDAR_EVENT_REMOVE_INVITE               = 0x01A8, ///< 6.2.3 20726
-    CMSG_CALENDAR_EVENT_RSVP                        = 0x1067, ///< 6.2.3 20726
-    CMSG_CALENDAR_EVENT_SIGNUP                      = 0x00E7, ///< 6.2.3 20726
+    CMSG_CALENDAR_EVENT_MODERATOR_STATUS            = 0x0130, ///< 6.2.3 20726
+    CMSG_CALENDAR_EVENT_REMOVE_INVITE               = 0x1067, ///< 6.2.3 20726
+    CMSG_CALENDAR_EVENT_RSVP                        = 0x1040, ///< 6.2.3 20726
+    CMSG_CALENDAR_EVENT_SIGNUP                      = 0x01A8, ///< 6.2.3 20726
     CMSG_CALENDAR_EVENT_STATUS                      = 0x013C, ///< 6.2.3 20726
-    CMSG_CALENDAR_GET_CALENDAR                      = 0x04A3, ///< 6.2.3 20726
-    CMSG_CALENDAR_GET_EVENT                         = 0x1040, ///< 6.2.3 20726
+    CMSG_CALENDAR_GET_CALENDAR                      = 0x0477, ///< 6.2.3 20726
+    CMSG_CALENDAR_GET_EVENT                         = 0x01BB, ///< 6.2.3 20726
     CMSG_CALENDAR_GET_NUM_PENDING                   = 0x00A7, ///< 6.2.3 20726
-    CMSG_CALENDAR_GUILD_FILTER                      = 0x0000, ///<
-    CMSG_CALENDAR_REMOVE_EVENT                      = 0x01B7, ///< 6.2.3 20726
+    CMSG_CALENDAR_GUILD_FILTER                      = 0x04A3, ///< 6.2.3 20726
+    CMSG_CALENDAR_REMOVE_EVENT                      = 0x00E7, ///< 6.2.3 20726
     CMSG_CALENDAR_UPDATE_EVENT                      = 0x042C, ///< 6.2.3 20726
 
     //////////////////////////////////////////////////////////////////////////
