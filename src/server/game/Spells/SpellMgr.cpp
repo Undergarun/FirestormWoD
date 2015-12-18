@@ -5686,6 +5686,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 15;
                 spellInfo->ProcCharges = 15;
                 break;
+            case 53817: ///< Maelstrom Weapon
+                spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
+                spellInfo->Effects[EFFECT_2].MiscValue = SPELLMOD_DAMAGE;
+                spellInfo->Effects[EFFECT_4].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_4].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
+                spellInfo->Effects[EFFECT_4].MiscValue = SPELLMOD_DAMAGE;
+                spellInfo->ProcFlags = 0;
+                break;
             case 126135: ///< Lightwell
                 spellInfo->OverrideSpellList.push_back(724); ///< Add old Lightwell to override list
                 break;
