@@ -130,17 +130,9 @@ class misc_commandscript: public CommandScript
                 { "selectfaction",      SEC_ADMINISTRATOR,  false,  &HandleSelectFactionCommand,    "", NULL },
                 { "wargame",            SEC_GAMEMASTER,     false,  &HandleWargameCommand,          "", NULL },
                 { "chatfilter",         SEC_PLAYER,         false,  &HandleToggleChatFiltering,     "", NULL },
-                { "lastbuild",          SEC_MODERATOR,      false,  &HandleLastBuildCommand,        "", NULL },
                 { NULL,                 0,                  false,  NULL,                           "", NULL }
             };
             return commandTable;
-        }
-
-        static bool HandleLastBuildCommand(ChatHandler* p_Handler, char const* p_Args)
-        {
-            /// Get last build from last time modified information
-            p_Handler->PSendSysMessage("Last core build: %s", sWorld->GetLastBuildInfo().timeStr.data());
-            return true;
         }
 
         static bool HandleToggleChatFiltering(ChatHandler* p_Handler, char const* p_Args)

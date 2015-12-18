@@ -1083,9 +1083,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
-
-        if (sWorld->getIntConfig(CONFIG_REALM_ZONE) == REALM_ZONE_DEVELOPMENT)
-            chH.PSendSysMessage("Last PTR update: %s", sWorld->GetLastBuildInfo().timeStr.data());
     }
 
     SendTimeZoneInformations();
