@@ -496,7 +496,6 @@ namespace MS { namespace Skill
                         case SpellIDs::TaladiteRecrystalizer5:
                         case SpellIDs::TruesteelReshaper:
                         case SpellIDs::LeatherRefurbishingKit:
-                        case SpellIDs::UpgradeArmor:
                             l_RequireIlevel = 640;
                             break;
                         default:
