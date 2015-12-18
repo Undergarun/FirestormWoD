@@ -2474,6 +2474,7 @@ class spell_pal_holy_shield: public SpellScriptLoader
         }
 };
 
+/// Last Build 6.2.3
 /// Beacon of Faith - 156910
 class spell_pal_beacon_of_faith: public SpellScriptLoader
 {
@@ -2486,10 +2487,15 @@ class spell_pal_beacon_of_faith: public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                if (Unit* l_Target = GetExplTargetUnit())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
                 if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
                     return SPELL_FAILED_BAD_TARGETS;
+                    
                 return SPELL_CAST_OK;
             }
 
