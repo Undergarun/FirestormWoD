@@ -2113,7 +2113,8 @@ class npc_ebon_gargoyle : public CreatureScript
         }
 };
 
-// Lightwell - 64571
+/// Last Build 6.2.3
+/// Lightwell - 64571
 class npc_new_lightwell : public CreatureScript
 {
     public:
@@ -2121,12 +2122,22 @@ class npc_new_lightwell : public CreatureScript
 
         struct npc_new_lightwellAI : public PassiveAI
         {
+            enum eSpells
+            {
+                LightWellHeal = 60123,
+                LightWellHealAura = 126154,
+                ChargeAura = 59907
+            };
+
+            uint64 m_OwnerGUID = 0;
+            uint32 m_RenewTimer;
+
             npc_new_lightwellAI(Creature* creature) : PassiveAI(creature)
             {
-                DoCast(me, 59907, false);
-                renewTimer = 1000;
+                DoCast(me, eSpells::ChargeAura, false);
+                m_RenewTimer = 1000;
 
-                if (AuraPtr charges = me->GetAura(59907))
+                if (AuraPtr charges = me->GetAura(eSpells::ChargeAura))
                 {
                     charges->SetCharges(15);
                     charges->GetEffect(0)->ChangeAmount(15);
@@ -2142,8 +2153,6 @@ class npc_new_lightwell : public CreatureScript
                 }
             }
 
-            uint32 renewTimer;
-
             void EnterEvadeMode()
             {
                 if (!me->isAlive())
@@ -2154,39 +2163,53 @@ class npc_new_lightwell : public CreatureScript
                 me->ResetPlayerDamageReq();
             }
 
+
+            void IsSummonedBy(Unit* p_Owner)
+            {
+                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
+                    m_OwnerGUID = p_Owner->GetGUID();
+            }
+
             void UpdateAI(const uint32 diff)
             {
-                if (renewTimer)
+                if (m_RenewTimer)
                 {
-                    if (renewTimer <= diff)
+                    if (m_RenewTimer <= diff)
                     {
-                        if (me->GetOwner())
+                        Unit* l_Owner = ObjectAccessor::FindUnit(m_OwnerGUID);
+                        if (l_Owner != nullptr)
                         {
-                            if (Player* plr = me->GetOwner()->ToPlayer())
+                            if (Player* l_Player = l_Owner->ToPlayer())
                             {
-                                std::list<Unit*> party;
-                                std::list<Unit*> tempList;
-                                plr->GetRaidMembers(party);
+                                std::list<Unit*> l_Party;
+                                std::list<Unit*> l_TempList;
+                                l_Player->GetRaidMembers(l_Party);
 
-                                for (auto itr : party)
+                                for (auto itr : l_Party)
                                 {
                                     if (itr->GetHealthPct() >= 50.0f ||
                                         itr->GetDistance(me) >= 40.0f ||
-                                        itr->HasAura(7001))
+                                        itr->HasAura(eSpells::LightWellHealAura))
                                         continue;
 
-                                    tempList.push_back(itr);
+                                    l_TempList.push_back(itr);
                                 }
 
-                                for (auto itr : tempList)
-                                    me->CastSpell(itr, 60123, true);
+                                for (auto itr : l_TempList)
+                                {
+                                    me->CastSpell(itr, eSpells::LightWellHeal, true);
+                                    if (AuraPtr l_Charges = me->GetAura(eSpells::ChargeAura))
+                                    {
+                                        l_Charges->DropCharge();
+                                        l_Charges->GetEffect(0)->ChangeAmount(l_Charges->GetCharges());
+                                    }
+                                }
                             }
                         }
-
-                        renewTimer = 1000;
+                        m_RenewTimer = 1000;
                     }
                     else
-                        renewTimer -= diff;
+                        m_RenewTimer -= diff;
                 }
             }
         };
