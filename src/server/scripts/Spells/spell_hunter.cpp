@@ -2203,6 +2203,7 @@ class spell_hun_cobra_strikes: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Barrage damage - 120361
 class spell_hun_barrage : public SpellScriptLoader
 {
@@ -2230,6 +2231,9 @@ class spell_hun_barrage : public SpellScriptLoader
                 p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr || !p_Object->IsWithinLOSInMap(l_Caster))
+                        return true;
+
+                    if (p_Object->ToUnit() && !l_Caster->IsValidAttackTarget(p_Object->ToUnit()))
                         return true;
 
                     return false;
