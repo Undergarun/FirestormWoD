@@ -47,8 +47,7 @@ namespace MS { namespace Skill
             TaladiteRecrystalizer2   = 178351,
             TaladiteRecrystalizer3   = 178381,
             TaladiteRecrystalizer4   = 178382,
-            TaladiteRecrystalizer5   = 178383,
-            UpgradeArmor             = 168865
+            TaladiteRecrystalizer5   = 178383
         };
     }
 
