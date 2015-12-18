@@ -36,12 +36,11 @@ enum OpcodeTransferDirection : uint8
 /// List of Opcodes
 enum Opcodes
 {
-    MAX_OPCODE                                      = 0x1FFF,
-    NUM_OPCODE_HANDLERS                             = MAX_OPCODE + 1,
-    UNKNOWN_OPCODE                                  = (0xFFFF+1),
-    NULL_OPCODE                                     = 0,
-
-    SMSG_COMPRESSED_PACKET                          = 0x0224, ///< 6.2.3 20726
+    MAX_OPCODE                                        = (0x7FFF+1),
+    NUM_OPCODE_HANDLERS                               = MAX_OPCODE + 1,
+    UNKNOWN_OPCODE                                    = (0xFFFF+1),
+    NULL_OPCODE                                       = 0,
+    COMPRESSED_OPCODE_MASK                            = 0x8000,
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Protocol
@@ -965,6 +964,12 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Low protocol
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_HANDSHAKE                              = 0x4F57,
+    SMSG_HANDSHAKE                              = 0x4F57,
 
     //////////////////////////////////////////////////////////////////////////
     /// Garrison
