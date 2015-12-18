@@ -14,8 +14,10 @@
 
 namespace MS { namespace Garrison
 {
+    static const uint32 g_SagePalunaQuestgiverEntry = 87242;
+
     //////////////////////////////////////////////////////////////////////////
-    /// 91582 - Apprentice Var'Nath                                        ///
+    /// 86979 - Tormak                                                     ///
     //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
@@ -31,6 +33,10 @@ namespace MS { namespace Garrison
 
             virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
 
+            virtual bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override;
+
+            bool CheckRewardQuest(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestList);
+
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
             CreatureAI* GetAI(Creature* p_Creature) const;
@@ -43,6 +49,28 @@ namespace MS { namespace Garrison
             npc_TormakAI(Creature* p_Creature);
 
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    /// 87242 - Sage Paluna                                                ///
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_SagePaluna : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_SagePaluna();
+
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
+
+            virtual bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override;
+
+            bool CheckRewardQuest(Player* p_Player, Creature* p_Creature, std::vector<uint32> p_QuestList);
     };
 }   ///< namespace Garrison
 }   ///< namespace MS

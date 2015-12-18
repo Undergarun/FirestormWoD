@@ -83,6 +83,7 @@
 #include "UpdateFieldFlags.h"
 #include "SceneObject.h"
 #include "GarrisonMgr.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "PetBattle.h"
 #include "MSCallback.hpp"
 #include "Vignette.hpp"
@@ -27718,6 +27719,18 @@ void Player::ResetGarrisonDatas()
                         l_Creature->AI()->SetData(MS::Garrison::CreatureAIDataIDs::DailyReset, 0);
                 }
             }
+        }
+
+        if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::Stables_Stables_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        {
+            if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
+            {
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_Value &= ~MS::Garrison::StablesData::g_PendingQuestFlag);
+                GetBattleground();
+            }
+
+            if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_Value &= ~MS::Garrison::StablesData::g_PendingQuestFlag);
         }
     }
 }

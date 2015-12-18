@@ -61,16 +61,17 @@ class garrison_commandscript: public CommandScript
 
             static ChatCommand garrisonCommandTable[] =
             {
-                { "blueprint", SEC_GAMEMASTER,  true,   NULL, "", blueprintCommandTable   },
-                { "plot",      SEC_GAMEMASTER,  true,   NULL, "", plotCommandTable        },
-                { "follower",  SEC_GAMEMASTER,  true,   NULL, "", followerCommandTable    },
-                { "mission" ,  SEC_GAMEMASTER,  true,   NULL, "", missionCommandTable     },
-                { "building",  SEC_GAMEMASTER,  true,   NULL, "", buildingCommandTable    },
-                { "shipment",  SEC_GAMEMASTER,  true,   NULL, "", shipmentCommandTable    },
-                { "info",      SEC_GAMEMASTER,  true,   &HandleGarrisonInfo,     "", NULL },
-                { "setlevel",  SEC_GAMEMASTER,  true,   &HandleGarrisonSetLevel, "", NULL },
-                { "create",    SEC_GAMEMASTER,  true,   &HandleGarrisonCreate,   "", NULL },
-                { "delete",    SEC_GAMEMASTER,  true,   &HandleGarrisonDelete,   "", NULL },
+                { "blueprint", SEC_GAMEMASTER,  true,   NULL, "",       blueprintCommandTable },
+                { "plot",      SEC_GAMEMASTER,  true,   NULL, "",       plotCommandTable      },
+                { "follower",  SEC_GAMEMASTER,  true,   NULL, "",       followerCommandTable  },
+                { "mission" ,  SEC_GAMEMASTER,  true,   NULL, "",       missionCommandTable   },
+                { "building",  SEC_GAMEMASTER,  true,   NULL, "",       buildingCommandTable  },
+                { "shipment",  SEC_GAMEMASTER,  true,   NULL, "",       shipmentCommandTable  },
+                { "info",      SEC_GAMEMASTER,  true,   &HandleGarrisonInfo,         "", NULL },
+                { "setlevel",  SEC_GAMEMASTER,  true,   &HandleGarrisonSetLevel,     "", NULL },
+                { "create",    SEC_GAMEMASTER,  true,   &HandleGarrisonCreate,       "", NULL },
+                { "delete",    SEC_GAMEMASTER,  true,   &HandleGarrisonDelete,       "", NULL },
+                { "resetdata", SEC_GAMEMASTER,  true,   &HandleGarrisonResetDatas,   "", NULL },
                 { NULL,        0,               false,  NULL, "", NULL }
             };
 
@@ -205,6 +206,29 @@ class garrison_commandscript: public CommandScript
 
             if (l_TargetPlayer->GetCurrency(MS::Garrison::Globals::CurrencyID, false))
                 l_TargetPlayer->ModifyCurrency(MS::Garrison::Globals::CurrencyID, -(int32)l_TargetPlayer->GetCurrency(MS::Garrison::Globals::CurrencyID, false));
+
+            return true;
+        }
+
+        static bool HandleGarrisonResetDatas(ChatHandler * p_Handler, char const* p_Args)
+        {
+            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer)
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->PSendSysMessage("Player doesnt have a garrison");
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_TargetPlayer->ResetGarrisonDatas();
 
             return true;
         }

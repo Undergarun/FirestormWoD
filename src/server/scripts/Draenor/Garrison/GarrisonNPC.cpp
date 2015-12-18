@@ -34,6 +34,7 @@
 #include "Buildings/Alliance/AHerbGarden.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
+#include "Buildings/Horde/Large/HStables.hpp"
 #include "Buildings/Horde/Large/HSpiritLodge.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
 #include "Buildings/Horde/Medium/HBarn.hpp"
@@ -960,5 +961,8 @@ void AddSC_Garrison_NPC()
 
         /// Spirit Lodge
         new MS::Garrison::npc_Varsha;
+
+        /// Stables
+        new MS::Garrison::npc_Tormak;
     }
 }
