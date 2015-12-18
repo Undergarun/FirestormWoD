@@ -8,6 +8,7 @@
 
 #include "BattlepayPacketFactory.h"
 #include "Chat.h"
+#include "ObjectMgr.h"
 #include <sstream>
 
 namespace Battlepay
