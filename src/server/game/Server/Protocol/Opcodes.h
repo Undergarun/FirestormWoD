@@ -1147,10 +1147,10 @@ enum Opcodes
     CMSG_QUEST_POI_QUERY                        = 0x04AF, ///< 6.2.3 20726
     CMSG_REALM_NAME_QUERY                       = 0x0000,
     CMSG_GAMEOBJECT_QUERY                       = 0x182D, ///< 6.2.3 20726
-    CMSG_PETITION_QUERY                         = 0x08BA, ///< 6.2.3 20726
+    CMSG_PETITION_QUERY                         = 0x050A, ///< 6.2.3 20726
     CMSG_QUERY_GUILD_INFO                       = 0x00BC, ///< 6.2.3 20726
     CMSG_PAGE_TEXT_QUERY                        = 0x0C21, ///< 6.2.3 20726
-    CMSG_ITEM_TEXT_QUERY                        = 0x016C, ///< 6.2.3 20726
+    CMSG_ITEM_TEXT_QUERY                        = 0x08BA, ///< 6.2.3 20726
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -1434,7 +1434,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Pet
     //////////////////////////////////////////////////////////////////////////
-    CMSG_PET_NAME_QUERY                         = 0x0CE1, ///< 6.2.3 20726
+    CMSG_PET_NAME_QUERY                         = 0x0569, ///< 6.2.3 20726
     CMSG_PET_RENAME                             = 0x05F7, ///< 6.2.3 20726
     CMSG_PET_ABANDON                            = 0x1129, ///< 6.2.3 20726
     CMSG_PET_ACTION                             = 0x0312, ///< 6.2.3 20726
@@ -1540,7 +1540,7 @@ enum Opcodes
     CMSG_PETBATTLE_SET_ABILITY                     = 0x0538,   ///< 6.2.3 20726
     CMSG_PETBATTLE_RENAME                          = 0x00E3,   ///< 6.2.3 20726
     CMSG_PETBATTLE_CAGE_PET                        = 0x0000,
-    CMSG_PETBATTLE_QUERY_NAME                      = 0x050A,   ///< 6.2.3 20726
+    CMSG_PETBATTLE_QUERY_NAME                      = 0x0CE1,   ///< 6.2.3 20726
     CMSG_PETBATTLE_REQUEST_WILD                    = 0x05AE,   ///< 6.2.3 20726
     CMSG_PETBATTLE_REQUEST_PVP                     = 0x0000,
     CMSG_PETBATTLE_JOIN_QUEUE                      = 0x0000,
