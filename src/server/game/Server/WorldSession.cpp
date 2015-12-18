@@ -1659,4 +1659,3 @@ void WorldSession::SendGameError(GameError::Type p_Error, uint32 p_Data1, uint32
 
     SendPacket(&l_Packet);
 }
-

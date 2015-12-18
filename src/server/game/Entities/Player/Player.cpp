@@ -12276,11 +12276,6 @@ void Player::SendNotifyLootItemRemoved(uint8 p_LootSlot, bool p_IsAoELoot /*= fa
     ObjectGuid l_Guid       = GetLootGUID();
     ObjectGuid l_LootGuid   = MAKE_NEW_GUID(GUID_LOPART(l_Guid), 0, HIGHGUID_LOOT);
 
-    if (!p_IsAoELoot)
-        l_LootGuid = GetGUID();
-    else
-        sObjectMgr->setLootViewGUID(l_LootGuid, l_Guid);
-
     WorldPacket l_Data(SMSG_LOOT_REMOVED);
 
     l_Data.appendPackGUID(l_Guid);
