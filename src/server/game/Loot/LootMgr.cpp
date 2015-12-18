@@ -1233,7 +1233,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     {
                         uint8 l_SlotType;
 
-                        if (l_Loot.Items[l_LinkedLoot.slot].is_blocked)
+                        if (l_LinkedLootAround->Items[l_LinkedLoot.slot].is_blocked)
                         {
                             switch (lv.permission)
                             {
