@@ -14369,8 +14369,8 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             return;
     }
 
-    // now we ready for speed calculation
-    float total_non_stack_bonus = std::max(main_speed_mod, non_stack_bonus);
+    /// Now we ready for speed calculation
+    float total_non_stack_bonus = main_speed_mod + non_stack_bonus;
     float speed = stack_bonus + (total_non_stack_bonus / 100);
 
     if (GetTypeId() == TYPEID_PLAYER)
