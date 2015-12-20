@@ -1087,7 +1087,7 @@ enum Opcodes
     CMSG_AUTOSTORE_BANK_ITEM                    = 0x1312, ///< 6.2.3 20726
     CMSG_BUY_BANK_SLOT                          = 0x0016, ///< 6.2.3 20726
     CMSG_BUY_REAGENT_BANK                       = 0x0636, ///< 6.2.3 20726
-    CMSG_SORT_BANK_BAGS                         = 0x05AA, ///< 6.2.3 20726
+    CMSG_SORT_BANK_BAGS                         = 0x09F2, ///< 6.2.3 20726
     CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0CA2, ///< 6.2.3 20726
     CMSG_DEPOSIT_ALL_REAGENTS                   = 0x0C69, ///< 6.2.3 20726
 
