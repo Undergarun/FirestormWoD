@@ -35,6 +35,7 @@ namespace Battlepay
             ConsumableTokenOwned       = 46,
             TooManyTokens              = 47,
             Ok                         = 0
+            /// ItemUnavailable
         };
 
         /// Result of SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE

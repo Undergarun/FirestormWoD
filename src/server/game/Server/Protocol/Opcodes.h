@@ -36,12 +36,11 @@ enum OpcodeTransferDirection : uint8
 /// List of Opcodes
 enum Opcodes
 {
-    MAX_OPCODE                                      = 0x1FFF,
-    NUM_OPCODE_HANDLERS                             = MAX_OPCODE + 1,
-    UNKNOWN_OPCODE                                  = (0xFFFF+1),
-    NULL_OPCODE                                     = 0,
-
-    SMSG_COMPRESSED_PACKET                          = 0x0224, ///< 6.2.3 20726
+    MAX_OPCODE                                        = (0x7FFF+1),
+    NUM_OPCODE_HANDLERS                               = MAX_OPCODE + 1,
+    UNKNOWN_OPCODE                                    = (0xFFFF+1),
+    NULL_OPCODE                                       = 0,
+    COMPRESSED_OPCODE_MASK                            = 0x8000,
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Protocol
@@ -527,7 +526,7 @@ enum Opcodes
         /// Garrison
         SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP                       = 0x1657, ///< 6.2.3 20726
         SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x0BF7, ///< 6.2.3 20726
-        SMSG_GARRISON_LANDING_PAGE_SHIPMENT_INFO                = 0x1AF7, ///< 6.2.3 20726
+        SMSG_GET_SHIPMENTS                                      = 0x1AF7, ///< 6.2.3 20726
         SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x0EFF, ///< 6.2.3 20726
 
         /// Twitter
@@ -967,6 +966,12 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
+    /// Low protocol
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_HANDSHAKE                              = 0x4F57,
+    SMSG_HANDSHAKE                              = 0x4F57,
+
+    //////////////////////////////////////////////////////////////////////////
     /// Garrison
     //////////////////////////////////////////////////////////////////////////
     CMSG_GARRISON_CREATE_CHEAT                              = 0x0000,
@@ -1001,10 +1006,11 @@ enum Opcodes
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0125, ///< 6.2.3 20726
     CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x08ED, ///< 6.2.3 20726
     CMSG_UPGRADE_GARRISON                                   = 0x0466, ///< 6.2.3 20726
-    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x18AA, ///< 6.2.3 20779
+    CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x08B1, ///< 6.2.3 20726
     CMSG_GET_SHIPMENT_INFO                                  = 0x00EA, ///< 6.2.3 20726
     CMSG_CREATE_SHIPMENT                                    = 0x0575, ///< 6.2.3 20726
+    CMSG_GET_SHIPMENTS                                      = 0x18AA, ///< 6.2.3 20726
     CMSG_REQUEST_SET_MISSION_NPC                            = 0x092D, ///< 6.2.3 20726
 
     /// Shipyard
@@ -1146,10 +1152,10 @@ enum Opcodes
     CMSG_QUEST_POI_QUERY                        = 0x04AF, ///< 6.2.3 20726
     CMSG_REALM_NAME_QUERY                       = 0x0000,
     CMSG_GAMEOBJECT_QUERY                       = 0x182D, ///< 6.2.3 20726
-    CMSG_PETITION_QUERY                         = 0x08BA, ///< 6.2.3 20726
+    CMSG_PETITION_QUERY                         = 0x050A, ///< 6.2.3 20726
     CMSG_QUERY_GUILD_INFO                       = 0x00BC, ///< 6.2.3 20726
     CMSG_PAGE_TEXT_QUERY                        = 0x0C21, ///< 6.2.3 20726
-    CMSG_ITEM_TEXT_QUERY                        = 0x016C, ///< 6.2.3 20726
+    CMSG_ITEM_TEXT_QUERY                        = 0x08BA, ///< 6.2.3 20726
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -1215,7 +1221,7 @@ enum Opcodes
     CMSG_SHOW_TRADE_SKILL                       = 0x1033, ///< 6.2.3 20726
     CMSG_SCENE_PLAYBACK_CANCELED                = 0x0C65, ///< 6.2.3 20726
     CMSG_REQUEST_RESEARCH_HISTORY               = 0x017A, ///< 6.2.3 20726
-    CMSG_SUMMON_RESPONSE                        = 0x0133, ///< 6.2.3 20726
+    CMSG_SUMMON_RESPONSE                        = 0x0577, ///< 6.2.3 20726
     CMSG_SET_FACTION_ATWAR                      = 0x1582, ///< 6.2.3 20726
     CMSG_UNSET_FACTION_ATWAR                    = 0x077D, ///< 6.2.3 20726
 
@@ -1433,7 +1439,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Pet
     //////////////////////////////////////////////////////////////////////////
-    CMSG_PET_NAME_QUERY                         = 0x0CE1, ///< 6.2.3 20726
+    CMSG_PET_NAME_QUERY                         = 0x0569, ///< 6.2.3 20726
     CMSG_PET_RENAME                             = 0x05F7, ///< 6.2.3 20726
     CMSG_PET_ABANDON                            = 0x1129, ///< 6.2.3 20726
     CMSG_PET_ACTION                             = 0x0312, ///< 6.2.3 20726
@@ -1539,7 +1545,7 @@ enum Opcodes
     CMSG_PETBATTLE_SET_ABILITY                     = 0x0538,   ///< 6.2.3 20726
     CMSG_PETBATTLE_RENAME                          = 0x00E3,   ///< 6.2.3 20726
     CMSG_PETBATTLE_CAGE_PET                        = 0x0000,
-    CMSG_PETBATTLE_QUERY_NAME                      = 0x050A,   ///< 6.2.3 20726
+    CMSG_PETBATTLE_QUERY_NAME                      = 0x0CE1,   ///< 6.2.3 20726
     CMSG_PETBATTLE_REQUEST_WILD                    = 0x05AE,   ///< 6.2.3 20726
     CMSG_PETBATTLE_REQUEST_PVP                     = 0x0000,
     CMSG_PETBATTLE_JOIN_QUEUE                      = 0x0000,
@@ -1646,20 +1652,20 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Calendarr
     //////////////////////////////////////////////////////////////////////////
-    CMSG_CALENDAR_ADD_EVENT                         = 0x0130, ///< 6.2.3 20726
+    CMSG_CALENDAR_ADD_EVENT                         = 0x00F8, ///< 6.2.3 20726
     CMSG_CALENDAR_COMPLAIN                          = 0x0180, ///< 6.2.3 20726
-    CMSG_CALENDAR_COPY_EVENT                        = 0x01BB, ///< 6.2.3 20726
+    CMSG_CALENDAR_COPY_EVENT                        = 0x01B7, ///< 6.2.3 20726
     CMSG_CALENDAR_EVENT_INVITE                      = 0x0438, ///< 6.2.3 20726
-    CMSG_CALENDAR_EVENT_MODERATOR_STATUS            = 0x00F8, ///< 6.2.3 20726
-    CMSG_CALENDAR_EVENT_REMOVE_INVITE               = 0x01A8, ///< 6.2.3 20726
-    CMSG_CALENDAR_EVENT_RSVP                        = 0x1067, ///< 6.2.3 20726
-    CMSG_CALENDAR_EVENT_SIGNUP                      = 0x00E7, ///< 6.2.3 20726
+    CMSG_CALENDAR_EVENT_MODERATOR_STATUS            = 0x0130, ///< 6.2.3 20726
+    CMSG_CALENDAR_EVENT_REMOVE_INVITE               = 0x1067, ///< 6.2.3 20726
+    CMSG_CALENDAR_EVENT_RSVP                        = 0x1040, ///< 6.2.3 20726
+    CMSG_CALENDAR_EVENT_SIGNUP                      = 0x01A8, ///< 6.2.3 20726
     CMSG_CALENDAR_EVENT_STATUS                      = 0x013C, ///< 6.2.3 20726
-    CMSG_CALENDAR_GET_CALENDAR                      = 0x04A3, ///< 6.2.3 20726
-    CMSG_CALENDAR_GET_EVENT                         = 0x1040, ///< 6.2.3 20726
+    CMSG_CALENDAR_GET_CALENDAR                      = 0x0477, ///< 6.2.3 20726
+    CMSG_CALENDAR_GET_EVENT                         = 0x01BB, ///< 6.2.3 20726
     CMSG_CALENDAR_GET_NUM_PENDING                   = 0x00A7, ///< 6.2.3 20726
-    CMSG_CALENDAR_GUILD_FILTER                      = 0x0000, ///<
-    CMSG_CALENDAR_REMOVE_EVENT                      = 0x01B7, ///< 6.2.3 20726
+    CMSG_CALENDAR_GUILD_FILTER                      = 0x04A3, ///< 6.2.3 20726
+    CMSG_CALENDAR_REMOVE_EVENT                      = 0x00E7, ///< 6.2.3 20726
     CMSG_CALENDAR_UPDATE_EVENT                      = 0x042C, ///< 6.2.3 20726
 
     //////////////////////////////////////////////////////////////////////////
@@ -1716,7 +1722,7 @@ enum Opcodes
     CMSG_COMMENTATOR_INSTANCE_COMMAND                   = 0x0000,
     CMSG_COMMENTATOR_SKIRMISH_QUEUE_COMMAND             = 0x0000,
     CMSG_COMMENTATOR_START_WARGAME                      = 0x0000,
-    CMSG_COMPLAIN                                       = 0x0000,
+    CMSG_COMPLAIN                                       = 0x0133,
     CMSG_CONNECT_TO_FAILED                              = 0x0000,
     CMSG_DANCE_QUERY                                    = 0x0000,
     CMSG_DEL_VOICE_IGNORE                               = 0x0000,

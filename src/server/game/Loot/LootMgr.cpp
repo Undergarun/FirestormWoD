@@ -1233,7 +1233,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     {
                         uint8 l_SlotType;
 
-                        if (l_Loot.Items[l_LinkedLoot.slot].is_blocked)
+                        if (l_LinkedLootAround->Items[l_LinkedLoot.slot].is_blocked)
                         {
                             switch (lv.permission)
                             {
@@ -1253,7 +1253,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                                     break;
                             }
                         }
-                        else if (l_Loot.RoundRobinPlayer == 0 || !l_Loot.Items[l_LinkedLoot.slot].is_underthreshold || lv.viewer->GetGUID() == l_Loot.RoundRobinPlayer)
+                        else if (l_LinkedLootAround->RoundRobinPlayer == 0 || !l_LinkedLootAround->Items[l_LinkedLoot.slot].is_underthreshold || lv.viewer->GetGUID() == l_LinkedLootAround->RoundRobinPlayer)
                         {
                             // no round robin owner or he has released the loot
                             // or it IS the round robin group owner
