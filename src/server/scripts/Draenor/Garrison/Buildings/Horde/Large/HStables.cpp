@@ -54,7 +54,7 @@ namespace MS { namespace Garrison
         {
             p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
 
-            if (l_QuestID == *g_BoarQuests._Mylast && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+            if (l_QuestID == g_BoarQuests.back() && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
             {
                 using namespace StablesData::Horde;
                 reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SummonRelativeCreature(g_SagePalunaQuestgiverEntry,
