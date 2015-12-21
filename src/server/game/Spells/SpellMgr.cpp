@@ -5932,6 +5932,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 118283:///< Ursol's Vortex
                 spellInfo->Effects[0].ValueMultiplier = 60;
                 break;
+            case 6262:  ///< Healthstone
+                spellInfo->AttributesEx2 &= ~SPELL_ATTR2_CANT_CRIT;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
