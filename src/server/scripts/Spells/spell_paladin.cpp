@@ -2136,7 +2136,9 @@ class spell_pal_eternal_flame : public SpellScriptLoader
                 T17Holy2P   = 165438,
                 T17Holy4P   = 167697,
                 LawfulWords = 166780,
-                LightsFavor = 166781
+                LightsFavor = 166781,
+                WoDPvPHoly4PBonusAura   = 180766,
+                WoDPvPHoly4PBonus       = 180767,
             };
 
             int32 m_PowerUsed = 0;
@@ -2227,6 +2229,17 @@ class spell_pal_eternal_flame : public SpellScriptLoader
 
                                 l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * m_PowerUsed);
                                 l_Aura->SetNeedClientUpdateForTargets();
+                            }
+                        }
+
+                        if (l_Caster->HasAura(eSpells::WoDPvPHoly4PBonusAura))
+                        {
+                            l_Caster->CastSpell(l_Target, eSpells::WoDPvPHoly4PBonus, true);
+
+                            if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPHoly4PBonusAura))
+                            {
+                                if (AuraPtr l_Aura = l_Target->GetAura(eSpells::WoDPvPHoly4PBonus))
+                                    l_Aura->GetEffect(EFFECT_0)->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * -m_PowerUsed);
                             }
                         }
                     }
