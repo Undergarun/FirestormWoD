@@ -12059,7 +12059,9 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target)
 
     if (p_ProcSpell && p_ProcSpell->Id == 51505) ///< Lava Burst
     {
-        if (roll_chance_f(GetUnitSpellCriticalChance(p_Target, p_ProcSpell, p_ProcSpell->GetSchoolMask())))
+        float l_Crit_chance = (float)m_baseSpellCritChance;
+        l_Crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, p_ProcSpell->SchoolMask);
+        if (roll_chance_f(l_Crit_chance))
             l_ProcTimes++;
     }
 
