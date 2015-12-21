@@ -353,16 +353,6 @@ struct CreatureModelDataEntry
     //float     m_HoverHeight;                              // 33       m_HoverHeight
 };
 
-#define MAX_CREATURE_SPELL_DATA_SLOT 4
-
-/// #TODO 6.2 This DBC is removed since 6.2.0 20002 find another way !
-struct CreatureSpellDataEntry
-{
-    uint32  ID;                                             // 0        m_ID
-    uint32  spellId[MAX_CREATURE_SPELL_DATA_SLOT];          // 1-4      m_spells[4]
-    //uint32    availability[MAX_CREATURE_SPELL_DATA_SLOT]; // 4-7      m_availability[4]
-};
-
 struct DifficultyEntry
 {
     uint32 ID;                                              ///< 0

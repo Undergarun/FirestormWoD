@@ -37,7 +37,6 @@ const char CinematicCameraEntryfmt[]          = "nsiffff";
 char const CreatureDisplayInfoExtrafmt[]      = "dixxxxxxxxxxxxxxxxxxxx";
 const char CreatureModelDatafmt[]             = "nixxxxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
 const char CreatureFamilyfmt[]                = "nfifiiiiixsx";
-const char CreatureSpellDatafmt[]             = "niiiixxxx";
 const char DifficultyEntryfmt[]               = "niiiiiiiiiisix";
 const char DungeonEncounterfmt[]              = "iiiiisiii";
 const char DurabilityCostsfmt[]               = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
