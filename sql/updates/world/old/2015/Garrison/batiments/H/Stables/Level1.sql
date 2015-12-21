@@ -16,15 +16,7 @@
 
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -65 AND faction_index = 0; -- horde
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','79836','6.73913','-0.149402','2.188','6.25459');
-	
-	-- ///////////////////////////// TO MOVE //////////////////////////////////
-    -- //////////////////// FIX CHARACTER_WORLDSTATES //////////////////////////
-	ALTER TABLE `character_worldstates` -- //////////////////////////////////
-	   CHANGE `guid` `guid` INT(10) UNSIGNED NOT NULL, -- //////////////////////////////////
-	   CHANGE `worldstate` `worldstate` INT(10) UNSIGNED NOT NULL,-- //////////////////////////////////
-	   ADD PRIMARY KEY(`guid`, `worldstate`);-- //////////////////////////////////
-	-- //////////////////////////////////
-	-- //////////////////////////////////
+
 
 	-- Tormak le balafré
 
