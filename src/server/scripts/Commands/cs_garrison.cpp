@@ -36,7 +36,11 @@ class garrison_commandscript: public CommandScript
 
             static ChatCommand followerCommandTable[] =
             {
-                { "add", SEC_GAMEMASTER, true, &HandleFollowerAddCommand, "", NULL },
+                { "add",        SEC_GAMEMASTER, true, &HandleFollowerAddCommand,    "", NULL },
+                { "remove",     SEC_GAMEMASTER, true, &HandleFollowerRemoveCommand, "", NULL },
+                { "reroll",     SEC_GAMEMASTER, true, &HandleFollowerRerollCommand, "", NULL },
+                { "list",       SEC_GAMEMASTER, true, &HandleFollowerListCommand,   "", NULL },
+                { "promote",    SEC_GAMEMASTER, true, &HandleFollowerPromoteCommand,"", NULL },
                 { NULL,        0,               false,  NULL, "", NULL }
             };
 
@@ -44,6 +48,7 @@ class garrison_commandscript: public CommandScript
             {
                 { "add",            SEC_GAMEMASTER, true, &HandleMissionAddCommand, "", NULL },
                 { "completeall",    SEC_GAMEMASTER, true, &HandleMissionCompleteAllCommand, "", NULL },
+                { "reroll",         SEC_GAMEMASTER, true, &HandleMissionRerollCommand, "", NULL },
                 { NULL,        0,               false,  NULL, "", NULL }
             };
 
@@ -75,10 +80,17 @@ class garrison_commandscript: public CommandScript
                 { NULL,        0,               false,  NULL, "", NULL }
             };
 
+            static ChatCommand shipyardCommandTable[] =
+            {
+                { "open",       SEC_ADMINISTRATOR, false, &HandleShipyardOpen, NULL      },
+                { NULL,         0,                 false, NULL, "", NULL                 }
+            };
+
             static ChatCommand commandTable[] =
             {
-                { "garrison",   SEC_GAMEMASTER, false, NULL, "", garrisonCommandTable },
-                { NULL,         0,              false, NULL, "", NULL }
+                { "garrison",   SEC_GAMEMASTER,    false, NULL, "", garrisonCommandTable },
+                { "shipyard",   SEC_ADMINISTRATOR, false, NULL, "", shipyardCommandTable },
+                { NULL,         0,                 false, NULL, "", NULL                 }
             };
             return commandTable;
         }
@@ -154,7 +166,7 @@ class garrison_commandscript: public CommandScript
 
             l_TargetPlayer->CreateGarrison();
 
-            uint32 l_MovieID = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
+            uint32 l_MovieID = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MovieID;
             uint32 l_MapID   = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
             uint32 l_TeamID  = l_TargetPlayer->GetTeamId();
 
@@ -255,7 +267,7 @@ class garrison_commandscript: public CommandScript
                         const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_I);
 
                         if (l_Entry)
-                            l_TargetPlayer->GetGarrison()->LearnBlueprint(l_Entry->BuildingID);
+                            l_TargetPlayer->GetGarrison()->LearnBlueprint(l_Entry->ID);
                     }
 
                     return true;
@@ -302,8 +314,8 @@ class garrison_commandscript: public CommandScript
             {
                 const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 
-                p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->BuildingID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == MS::Garrison::FactionIndex::Alliance ? l_Entry->NameA : l_Entry->NameH);
-                p_Handler->PSendSysMessage("Active %u Level %u", l_Building.Active, l_Entry->BuildingLevel);
+                p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->ID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == MS::Garrison::FactionIndex::Alliance ? l_Entry->NameAlliance : l_Entry->NameHorde);
+                p_Handler->PSendSysMessage("Active %u Level %u", l_Building.Active, l_Entry->Level);
             }
 
             float l_X = l_TargetPlayer->GetPositionX();
@@ -653,6 +665,24 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
+        static bool HandleFollowerPromoteCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!p_Args)
+                return false;
+
+            uint32 l_FollowerID = atoi(p_Args);
+            return l_TargetPlayer->GetGarrison()->LevelUpFollower(l_FollowerID);
+        }
+
         static bool HandleFollowerAddCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
@@ -690,6 +720,68 @@ class garrison_commandscript: public CommandScript
                     return l_TargetPlayer->GetGarrison()->AddFollower(l_FollowerID);
                 }
             }
+
+            return true;
+        }
+
+        static bool HandleFollowerRemoveCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!p_Args)
+                return false;
+
+            uint32 l_FollowerID = atoi(p_Args);
+            return l_TargetPlayer->GetGarrison()->RemoveFollower(l_FollowerID, true);
+        }
+
+        static bool HandleFollowerRerollCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!p_Args)
+                return false;
+
+            uint32 l_FollowerID = atoi(p_Args);
+            l_TargetPlayer->GetGarrison()->GenerateFollowerAbilities(l_FollowerID, true, true, true, true);
+
+            return true;
+        }
+
+        static bool HandleFollowerListCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_Type  = 0;
+
+            if (p_Args)
+                l_Type = atoi(p_Args);
+
+            auto l_List = l_TargetPlayer->GetGarrison()->GenerateFollowerTextList(l_Type);
+
+            for (auto l_Str  : l_List)
+                p_Handler->SendSysMessage(l_Str.c_str());
 
             return true;
         }
@@ -751,6 +843,22 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
+        static bool HandleMissionRerollCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            uint32 l_MissionCount = std::min(p_Args ? atoi(p_Args) : 0, 30);
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_TargetPlayer->GetGarrison()->UpdateMissionDistribution(true, l_MissionCount);
+            return true;
+         }
+
         static bool HandleBuildingCompleteCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
@@ -803,6 +911,19 @@ class garrison_commandscript: public CommandScript
                             l_PlotWorkOrder[l_OrderI].CompleteTime = l_CurrentTimeStamp;
                     }
                 }
+            }
+            return true;
+        }
+
+        static bool HandleShipyardOpen(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
             }
 
             return true;

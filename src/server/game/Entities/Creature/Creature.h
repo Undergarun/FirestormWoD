@@ -88,6 +88,8 @@ enum CreatureFlagsExtra
 #define ENTRY_DOOMGUARD         11859
 #define ENTRY_ABYSSAL           58997
 #define ENTRY_TERRORGUARD       59000
+#define ENTRY_INFERNAL_PET      78217
+#define ENTRY_DOOMGUARD_PET     78158
 
 // Mage
 #define ENTRY_WATER_ELEMENTAL   510
@@ -515,6 +517,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void UpdateStatsForLevel();
         void UpdateGroupSizeStats();
         void LoadEquipment(int8 p_ID = 1, bool p_Force = false);
+        void LoadSpecialEquipment(uint32 p_First, uint32 p_Second = 0, uint32 p_Third = 0);
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 

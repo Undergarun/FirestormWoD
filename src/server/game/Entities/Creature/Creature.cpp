@@ -402,9 +402,9 @@ bool Creature::UpdateEntry(uint32 p_Entry, uint32 p_Team, const CreatureData* p_
     SetAttackTime(WeaponAttackType::RangedAttack, l_CreatureTemplate->rangeattacktime);
 
     SetUInt32Value(UNIT_FIELD_FLAGS, l_UnitFlags1);
-    SetUInt32Value(UNIT_FIELD_FLAGS2, l_UnitFlags2);
-    SetUInt32Value(UNIT_FIELD_FLAGS3, l_UnitFlags3);
-    SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+    SetUInt32Value(UNIT_FIELD_FLAGS_2, l_UnitFlags2);
+    SetUInt32Value(UNIT_FIELD_FLAGS_3, l_UnitFlags3);
+    SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
 
     SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, l_DynamicFlags);
 
@@ -1133,8 +1133,8 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     uint32 l_NpcFlags1      = GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
     uint32 l_NpcFlags2      = GetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1);
     uint32 l_UnitFlags1     = GetUInt32Value(UNIT_FIELD_FLAGS);
-    uint32 l_UnitFlags2     = GetUInt32Value(UNIT_FIELD_FLAGS2);
-    uint32 l_UnitFlags3     = GetUInt32Value(UNIT_FIELD_FLAGS3);
+    uint32 l_UnitFlags2     = GetUInt32Value(UNIT_FIELD_FLAGS_2);
+    uint32 l_UnitFlags3     = GetUInt32Value(UNIT_FIELD_FLAGS_3);
     uint32 l_Dynamicflags   = GetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS);
     uint32 l_WorldEffectID  = GetUInt32Value(UNIT_FIELD_STATE_WORLD_EFFECT_ID);
 
@@ -1600,7 +1600,7 @@ void Creature::LoadEquipment(int8 p_ID, bool p_Force /*= true*/)
         if (p_Force)
         {
             for (uint8 l_Iter = 0; l_Iter < MAX_EQUIPMENT_ITEMS; ++l_Iter)
-                SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + l_Iter, 0);
+                SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + (l_Iter * 2), 0);
 
             m_equipmentId = 0;
         }
@@ -1613,11 +1613,30 @@ void Creature::LoadEquipment(int8 p_ID, bool p_Force /*= true*/)
 
     m_equipmentId = p_ID;
 
-    for (uint8 l_Iter = 0; l_Iter < 3; ++l_Iter)
-        SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + l_Iter, l_EquipInfos->ItemEntry[l_Iter]);
+    for (uint8 l_Iter = 0; l_Iter < MAX_EQUIPMENT_ITEMS; ++l_Iter)
+        SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + (l_Iter * 2), l_EquipInfos->ItemEntry[l_Iter]);
 
     /// Check if creature has two weapons, and set dual wield
     if (l_EquipInfos->ItemEntry[0] && l_EquipInfos->ItemEntry[1])
+        m_canDualWield = true;
+}
+
+void Creature::LoadSpecialEquipment(uint32 p_First, uint32 p_Second, uint32 p_Third)
+{
+    int8 p_ID = -1;
+
+    EquipmentInfo const* l_EquipInfos = sObjectMgr->GetEquipmentInfo(GetEntry(), p_ID);
+    if (!l_EquipInfos)
+        return;
+
+    m_equipmentId = p_ID;
+
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, p_First);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, p_Second);
+    SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 4, p_Third);
+
+    /// Check if creature has two weapons, and set dual wield
+    if (p_First && p_Second)
         m_canDualWield = true;
 }
 
@@ -1982,7 +2001,7 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)
         return false;
 
     // Creature is immune to main mechanic of the spell
-    if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))
+    if (ToPet() == nullptr && GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))
         return true;
 
     // This check must be done instead of 'if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))' for not break
@@ -2364,7 +2383,7 @@ bool Creature::_IsTargetAcceptable(const Unit* target) const
     if (target->HasUnitState(UNIT_STATE_DIED))
     {
         // guards can detect fake death
-        if (isGuard() && target->HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH))
+        if (isGuard() && target->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH))
             return true;
         else
             return false;

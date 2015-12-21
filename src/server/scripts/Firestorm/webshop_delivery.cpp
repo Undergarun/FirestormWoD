@@ -49,7 +49,7 @@ namespace WebShop
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
                 QueryResultFuture& l_Callback = m_QueryResultFutures[p_Player->GetGUIDLow()];
-                l_Callback = CharacterDatabase.AsyncPQuery("SELECT itemid, count, transaction FROM webshop_delivery_item WHERE guid = '%u' and delivery = 0", l_LowGuid);
+                l_Callback = CharacterDatabase.AsyncPQuery("SELECT itemid, ItemBonus, count, transaction FROM webshop_delivery_item WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
             void OnUpdate(Player* p_Player, uint32 p_Diff) override
@@ -78,8 +78,9 @@ namespace WebShop
                 {
                     Field* l_Field = l_Result->Fetch();
                     uint32 l_ItemID = l_Field[0].GetUInt32();
-                    uint32 l_ItemCount = l_Field[1].GetUInt32();
-                    uint32 l_Transaction = l_Field[2].GetUInt32();
+                    std::string l_Bonuses = l_Field[1].GetString();
+                    uint32 l_ItemCount = l_Field[2].GetUInt32();
+                    uint32 l_Transaction = l_Field[3].GetUInt32();
 
                     ItemPosCountVec l_Dest;
                     InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_ItemID, l_ItemCount);
@@ -90,7 +91,13 @@ namespace WebShop
                         continue;
                     }
 
-                    p_Player->AddItem(l_ItemID, l_ItemCount);
+                    std::list<uint32> l_BonusesID;
+                    Tokenizer l_Tokens(l_Bonuses, ',');
+
+                    for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
+                        l_BonusesID.push_back(uint32(atol(*l_Iter)));
+
+                    p_Player->AddItem(l_ItemID, l_ItemCount, l_BonusesID);
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_item SET delivery = 1 WHERE transaction = %u", l_Transaction);
                 } 
                 while (l_Result->NextRow());

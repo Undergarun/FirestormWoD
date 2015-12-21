@@ -156,7 +156,7 @@ class mob_animated_staff : public CreatureScript
             mob_animated_staff_AI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisplayId(42195);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 76364);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 76364);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
             }
 

@@ -77,6 +77,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object/Updates
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Unit
   ${CMAKE_SOURCE_DIR}/src/server/game/Combat
+  ${CMAKE_SOURCE_DIR}/src/server/game/DungeonFinding
   ${CMAKE_SOURCE_DIR}/src/server/game/Loot
   ${CMAKE_SOURCE_DIR}/src/server/game/Miscellaneous
   ${CMAKE_SOURCE_DIR}/src/server/game/Grids

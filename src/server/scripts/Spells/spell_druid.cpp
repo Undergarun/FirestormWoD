@@ -1827,8 +1827,8 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     l_Summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     l_Summon->SetMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                     l_Summon->SetFullHealth();
+                    l_Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                     l_Summon->CastSpell(l_Summon, eWildMushroomSpells::WildMushroomBirthVisual, true);
-
                     if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestoration || GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestorationGlyph)
                         l_Summon->CastSpell(l_Summon, eWildMushroomSpells::HealAura, true);
                     else if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomBalance)
@@ -2277,7 +2277,7 @@ class spell_dru_eclipse : public PlayerScript
             uint64 l_ActualTime = 0;
             ACE_OS::gettimeofday().msec(l_ActualTime);
 
-            uint32 l_PowerIndex = p_Player->GetPowerIndexByClass(Powers::POWER_ECLIPSE, p_Player->getClass());
+            uint32 l_PowerIndex = p_Player->GetPowerIndex(Powers::POWER_ECLIPSE, p_Player->getClass());
             if (l_PowerIndex == MAX_POWERS)
                 return;
 
@@ -2403,6 +2403,7 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
             enum eSpells
             {
                 Starsurge       = 78674,
+                StellarFlare    = 152221,
                 MasteryEclipse  = 77492
             };
 
@@ -2466,6 +2467,15 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                             l_BonusDamage = CalculatePct(GetHitDamage(), l_BonusSolarSpells);
                     }
 
+                    /// Stellar Flare has the two schools, dealing the most damage when they are balanced (= 0)
+                    if (l_SpellInfo->Id == eSpells::StellarFlare)
+                    {
+                        if (l_Eclipse < 0)
+                            l_Eclipse *= -1;
+
+                        l_BonusDamage = CalculatePct(GetHitDamage(), l_DamageModPCT - CalculatePct(l_DamageModPCT, l_Eclipse));
+                    }
+
                     SetHitDamage(l_Damage + l_BonusDamage);
                 }
             }
@@ -2482,10 +2492,11 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
 
             enum eSpells
             {
-                Starsurge = 78674,
-                MasteryEclipse = 77492,
-                MoonFireDamage = 164812,
-                SunFireDamage = 164815
+                Starsurge       = 78674,
+                StellarFlare    = 152221,
+                MasteryEclipse  = 77492,
+                MoonFireDamage  = 164812,
+                SunFireDamage   = 164815
             };
 
             void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
@@ -2550,6 +2561,15 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                         else if (l_Eclipse < 0)
                             l_BonusDamage = CalculatePct(p_Amount, l_BonusSolarSpells);
                     }
+
+                    /// Stellar Flare has the two schools, dealing the most damage when they are balanced (= 0)
+                    if (l_SpellInfo->Id == eSpells::StellarFlare)
+                    {
+                        if (l_Eclipse < 0)
+                            l_Eclipse *= -1;
+
+                        l_BonusDamage = CalculatePct(p_Amount, l_DamageModPCT - CalculatePct(l_DamageModPCT, l_Eclipse));
+                    }
                     p_Amount = l_Damage + l_BonusDamage;
                 }
             }
@@ -2560,6 +2580,7 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                 {
                 case eSpells::MoonFireDamage:
                 case eSpells::SunFireDamage:
+                case eSpells::StellarFlare:
                     DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_eclipse_mod_damage_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
                     break;
                 default:
@@ -3205,7 +3226,7 @@ enum DruidFormsSpells
     SPELL_DRUID_GLYPH_OF_THE_STAG = 114338,
     SPELL_DRUID_STAG_FORM         = 165961,
 
-    ///< Extra spells
+    /// Extra spells
     SPELL_COLD_WEATHER_FLYING      = 54197,
     SPELL_MASTER_FLYING            = 90265,
     SPELL_FLIGHT_MASTERS_LICENSE   = 90267,

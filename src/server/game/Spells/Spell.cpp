@@ -57,6 +57,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "GuildMgr.h"
+#include "GarrisonMgr.hpp"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -514,6 +515,8 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_applyMultiplierMask = 0;
     m_auraScaleMask = 0;
 
+    memset(m_Misc, 0, sizeof(m_Misc));
+
     // Get data for type of attack
     switch (m_spellInfo->DmgClass)
     {
@@ -574,7 +577,6 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     m_cast_count = 0;
     m_CastItemEntry = 0;
-    m_glyphIndex = 0;
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
     m_spellAura = NULLAURA;
@@ -3292,6 +3294,25 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         // Haste modifies duration of channeled spells
                         if (m_spellInfo->IsChanneled())
                             m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
+                        /// If this aura not affected by new wod aura system, we should change amplitude according to amount of haste
+                        else if (GetSpellInfo() && !GetSpellInfo()->IsAffectedByWodAuraSystem() && m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
+                        {
+                            int32 l_OriginalDuration = duration;
+                            float l_HastePct = m_originalCaster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED);
+                            duration = 0;
+                            for (uint8 l_I = 0; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
+                            {
+                                if (constAuraEffectPtr l_Effect = m_spellAura->GetEffect(l_I))
+                                {
+                                    if (int32 l_Amplitude = l_Effect->GetAmplitude())  // amplitude is hastened by UNIT_FIELD_MOD_CASTING_SPEED
+                                        duration = int32(l_OriginalDuration / (2.0f - l_HastePct));
+                                }
+                            }
+
+                            // if there is no periodic effect
+                            if (!duration)
+                                duration = int32(l_OriginalDuration * (2.0f - l_HastePct));
+                        }
                     }
 
                     if (duration != m_spellAura->GetMaxDuration())
@@ -3997,6 +4018,19 @@ void Spell::cast(bool skipCheck)
 
     CallScriptAfterCastHandlers();
 
+    /// Trigger all effects if this spell should do that after cast
+    if (IsSpellTriggeredAfterCast())
+    {
+        // triggered spell pointer can be not set in some cases
+        // this is needed for proper apply of triggered spell mods
+        m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
+
+        // Take mods after trigger spell (needed for 14177 to affect 48664)
+        // mods are taken only on succesfull cast and independantly from targets of the spell
+        m_caster->ToPlayer()->RemoveSpellMods(this);
+        m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+    }
+
     if (m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
         m_caster->ToCreature()->AI()->OnSpellCasted(m_spellInfo);
 
@@ -4448,7 +4482,7 @@ void Spell::finish(bool ok)
     }
 
     // potions disabled by client, send event "not in combat" if need
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && !IsSpellTriggeredAfterCast())
     {
         if (!m_triggeredByAuraSpell)
             m_caster->ToPlayer()->UpdatePotionCooldown(this);
@@ -4775,6 +4809,7 @@ void Spell::SendSpellStart()
     data.appendPackGUID(l_CasterGuid2);
     data << uint8(m_cast_count);
     data << uint32(m_spellInfo->Id);
+    data << uint32(m_spellInfo->FirstSpellXSpellVIsualID);
     data << uint32(l_CastFlags);
     data << uint32(m_casttime);
     data << uint32(0);                      ///< Hitted target count
@@ -4848,11 +4883,8 @@ void Spell::SendSpellStart()
 
     data << uint32(l_ExtraTargetsCount);
 
-    if (l_CastFlags & CAST_FLAG_IMMUNITY)
-    {
-        data << uint32(l_SchoolImmunityMask);
-        data << uint32(l_MechanicImmunityMask);
-    }
+    data << uint32(l_SchoolImmunityMask);
+    data << uint32(l_MechanicImmunityMask);
 
     data << uint32(l_PredictAmount);
     data << uint8(l_PredicType);
@@ -4866,16 +4898,9 @@ void Spell::SendSpellStart()
         data << float(l_Itr._position.GetPositionZ());
     }
 
-    data.WriteBits(l_CastFlagsEx, 18);                  ///< Cast flag ex
+    data.WriteBits(l_CastFlagsEx, 20);  ///< Cast flag ex
     data.WriteBit(false);
-    data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
     data.FlushBits();
-
-    if (l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN)
-    {
-        data << uint32(0); ///< Projectile Visual 1
-        data << uint32(0); ///< Projectile Visual 2
-    }
 
     m_caster->SendMessageToSet(&data, true);
 }
@@ -4992,6 +5017,7 @@ void Spell::SendSpellGo()
     l_Data.appendPackGUID(l_CasterGuid2);
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
+    l_Data << uint32(m_spellInfo->FirstSpellXSpellVIsualID);
     l_Data << uint32(l_CastFlags);
     l_Data << uint32(getMSTime());
     l_Data << uint32(l_HitCount);
@@ -5133,9 +5159,8 @@ void Spell::SendSpellGo()
         l_Data << float(l_Itr._position.GetPositionZ());
     }
 
-    l_Data.WriteBits(l_CastFlagsEx, 18);                        ///< Cast flag ex
+    l_Data.WriteBits(l_CastFlagsEx, 20);                        ///< Cast flag ex
     l_Data.WriteBit(l_HasRuneData);                             ///< HasRuneData
-    l_Data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
     l_Data.FlushBits();
 
     // JamRuneData
@@ -5155,13 +5180,6 @@ void Spell::SendSpellGo()
 
             l_Data << uint8(l_Cooldown);                        ///< Cooldowns
         }
-    }
-
-    // JamProjectileVisual
-    if (l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN)
-    {
-        l_Data << uint32(0);                                    ///< Projectile Visual 1
-        l_Data << uint32(0);                                    ///< Projectile Visual 2
     }
 
     l_Data.WriteBit(l_HasSpellCastLogData);
@@ -5342,7 +5360,7 @@ void Spell::SendChannelUpdate(uint32 p_Time)
     if (p_Time == 0)
     {
         //m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
-        m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
+        m_caster->SetChannelSpellID(nullptr);
     }
 
     WorldPacket l_Data(SMSG_SPELL_CHANNEL_UPDATE, 16 + 2 + 4);
@@ -5400,7 +5418,7 @@ void Spell::SendChannelStart(uint32 p_Duration)
 
     /// 101546 Spinning Crane Kick
     if (m_spellInfo->Id != 101546)
-        m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, m_spellInfo->Id);
+        m_caster->SetChannelSpellID(m_spellInfo->Id);
 }
 
 void Spell::SendResurrectRequest(Player* p_Target)
@@ -5998,7 +6016,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     /// Check specialization
-    if (!IsTriggered() && !sWorld->getBoolConfig(CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK))
+    if (!IsTriggered() && !sWorld->getBoolConfig(CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK) && !IsDarkSimulacrum())
     {
         if (Player* l_Player = m_caster->ToPlayer())
         {
@@ -6067,7 +6085,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_NOT_READY;
     }
 
-    if (m_spellInfo->AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL && !m_caster->HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS))
+    if (m_spellInfo->AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL && !m_caster->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS))
     {
         m_customError = SPELL_CUSTOM_ERROR_GM_ONLY;
         return SPELL_FAILED_CUSTOM_ERROR;
@@ -6798,7 +6816,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!l_Player)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (!l_Player->HasHeirloom(m_glyphIndex))
+                if (!l_Player->HasHeirloom(m_Misc[0]))
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
                 break;
@@ -6806,7 +6824,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             case SPELL_EFFECT_UPGRADE_HEIRLOOM:
             {
                 Player* l_Player = m_caster->ToPlayer();
-                HeirloomEntry const* l_Heirloom = GetHeirloomEntryByItemID(m_glyphIndex);
+                HeirloomEntry const* l_Heirloom = GetHeirloomEntryByItemID(m_Misc[0]);
 
                 if (!l_Player || !l_Heirloom || !m_CastItem)
                     return SPELL_FAILED_BAD_TARGETS;
@@ -6816,6 +6834,43 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 if (!l_Player->CanUpgradeHeirloomWith(l_Heirloom, m_CastItem->GetTemplate()->ItemId))
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                break;
+            }
+            case SPELL_EFFECT_TEACH_FOLLOWER_ABILITY:
+            {
+                Player* l_Player = m_caster->ToPlayer();
+
+                if (!l_Player)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
+
+                if (!l_Garrison)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                printf("%i %i\n", m_Misc[0], m_Misc[1]);
+                SpellCastResult l_Result = l_Garrison->CanLearnTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), i);
+                if (l_Result != SPELL_CAST_OK)
+                    return l_Result;
+
+                break;
+            }
+            case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
+            {
+                Player* l_Player = m_caster->ToPlayer();
+
+                if (!l_Player)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                MS::Garrison::Manager* l_Garrison = l_Player->GetGarrison();
+
+                if (!l_Garrison)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                SpellCastResult l_Result = l_Garrison->CanUpgradeItemLevelWith(m_Misc[0], GetSpellInfo());
+                if (l_Result != SPELL_CAST_OK)
+                    return l_Result;
+
                 break;
             }
             default:
@@ -7669,10 +7724,10 @@ SpellCastResult Spell::CheckItems()
                 if (l_ItemLevel < m_spellInfo->BaseLevel)
                     return SPELL_FAILED_LOWLEVEL;
 
-                if (l_ItemLevel > m_spellInfo->MaxLevel)
+                if (m_spellInfo->MaxLevel > 0 && l_ItemLevel > m_spellInfo->MaxLevel)
                     return SPELL_FAILED_HIGHLEVEL;
 
-                bool isItemUsable = false;
+                bool isItemUsable = false; m_spellInfo->MaxLevel;
                 for (uint8 e = 0; e < MAX_ITEM_PROTO_SPELLS; ++e)
                 {
                     ItemTemplate const* proto = targetItem->GetTemplate();
@@ -9106,6 +9161,19 @@ bool Spell::IsMorePowerfulAura(Unit const* target) const
                 break;
         }
     }
+    return false;
+}
+
+bool Spell::IsSpellTriggeredAfterCast() const
+{
+    switch (m_spellInfo->Id)
+    {
+        case 29722:  ///< Incinerate
+            return true;
+        default:
+            return false;
+    }
+
     return false;
 }
 

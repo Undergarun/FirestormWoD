@@ -270,7 +270,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     loot.SetSource(GetGUID());
 
-    // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
+    // GAMEOBJECT_FIELD_PERCENT_HEALTH, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
     SetGoArtKit(artKit);
@@ -438,7 +438,7 @@ void GameObject::Update(uint32 diff)
                     if (visualStateBefore != visualStateAfter)
                     {
                         ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_LEVEL);
-                        ForceValuesUpdateAtIndex(GAMEOBJECT_BYTES_1);
+                        ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_PERCENT_HEALTH);
                     }
                 }
             }
@@ -2271,7 +2271,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 
 void GameObject::SetGoState(GOState state)
 {
-    SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+    SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0, state);
 
     if (AI() != nullptr)
         AI()->OnStateChanged(state);
@@ -2428,7 +2428,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
     {
         if (_fieldNotifyFlags & flags[index] ||
             ((updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(index) : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
-            (index == GAMEOBJECT_FIELD_FLAGS && forcedFlags) || index == OBJECT_FIELD_DYNAMIC_FLAGS || index == GAMEOBJECT_BYTES_1 || (index == GAMEOBJECT_FIELD_LEVEL && IsTransport()))
+            (index == GAMEOBJECT_FIELD_FLAGS && forcedFlags) || index == OBJECT_FIELD_DYNAMIC_FLAGS || index == GAMEOBJECT_FIELD_PERCENT_HEALTH || (index == GAMEOBJECT_FIELD_LEVEL && IsTransport()))
         {
             updateMask.SetBit(index);
 
@@ -2479,7 +2479,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                 else
                     fieldBuffer << m_uint32Values[index];
             }
-            else if (index == GAMEOBJECT_BYTES_1)
+            else if (index == GAMEOBJECT_FIELD_PERCENT_HEALTH)
             {
                 uint32 bytes1 = m_uint32Values[index];
                 if (isStoppableTransport

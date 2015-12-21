@@ -718,7 +718,8 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
                 DivineStorm             = 53385,
                 FinalVerdict            = 157048,
                 Inquisition             = 111341,
-                HandOfLightEffect       = 96172
+                HandOfLightEffect       = 96172,
+                EmpoweredHammerofWrath  = 158392
             };
 
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
@@ -732,7 +733,8 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
 
                 if (l_SpellInfo->Id != eSpells::CrusaderStrike && l_SpellInfo->Id != eSpells::HammeroftheRighteous 
                     && l_SpellInfo->Id != eSpells::HammerofWrath && l_SpellInfo->Id != eSpells::TemplarsVerdict 
-                    && l_SpellInfo->Id != eSpells::DivineStorm && l_SpellInfo->Id != eSpells::FinalVerdict)
+                    && l_SpellInfo->Id != eSpells::DivineStorm && l_SpellInfo->Id != eSpells::FinalVerdict &&
+                    l_SpellInfo->Id != eSpells::EmpoweredHammerofWrath)
                     return;
 
                 Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();

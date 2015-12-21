@@ -175,19 +175,6 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
     gSentBytes += pkt->size() + 3;
 
-   // TODO : Find the compress flag
-   // Empty buffer used in case packet should be compressed
-   /*WorldPacket buff;
-   if (m_Session && pkt->size() > 0x400)
-   {
-   buff.Compress(m_Session->GetCompressionStream(), pkt);
-   pkt = &buff;
-   }*/
-
-    // Remove log for latency
-    if (pkt->GetOpcode() != SMSG_MONSTER_MOVE)
-         sLog->outInfo(LOG_FILTER_OPCODES, "S->C: %s", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
-
 #   ifdef WIN32
     if (sWorld->getBoolConfig(CONFIG_LOG_PACKETS))
     {
@@ -802,11 +789,10 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
 
-
     /// Remove log for latency
-    std::string opcodeName = GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER);
-    if (opcode != CMSG_MOVE_START_FORWARD)
-        sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName.c_str());
+    ///std::string opcodeName = GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER);
+    ///if (opcode != CMSG_MOVE_START_FORWARD)
+    ///    sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName.c_str());
 
     try
     {
@@ -825,12 +811,12 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return HandleAuthSession(*new_pct);
             }
-            /*case CMSG_KEEP_ALIVE:
+            case CMSG_KEEP_ALIVE:
             {
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER).c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
-            }*/
+            }
             case CMSG_LOG_DISCONNECT:
             {
                 new_pct->rfinish(); // contains uint32 disconnectReason;
@@ -1312,6 +1298,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     m_Session->ReadAddonsInfo(l_AddonsCompressedData);
     m_Session->SetClientBuild(l_ClientBuild);
     m_Session->SetAccountJoinDate(l_JoinDateTimestamp);
+    m_Session->LoadPremades();
 
     /// Initialize Warden system only if it is enabled by config
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))

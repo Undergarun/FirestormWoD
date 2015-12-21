@@ -1,0 +1,2 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_pal_glyph_of_the_consecration' AND spell_id = 159556;
+INSERT INTO `spell_script_names` VALUES (159556, 'spell_pal_glyph_of_the_consecration');

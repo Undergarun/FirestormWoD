@@ -152,6 +152,74 @@ World::World()
     m_TransactionCallbacksBuffer       = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
     m_PreparedStatementCallbacks       = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
     m_PreparedStatementCallbacksBuffer = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
+
+    m_LastBuild.valid = false;
+    #ifdef _WIN32
+    TCHAR l_FileName[MAX_PATH];
+    if (GetModuleFileName(nullptr, l_FileName, MAX_PATH) != 0)
+    {
+        HANDLE l_FileHandle = CreateFile(l_FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
+        if (l_FileHandle != INVALID_HANDLE_VALUE)
+        {
+            FILETIME l_LastWrite;
+            if (GetFileTime(l_FileHandle, nullptr, nullptr, &l_LastWrite))
+            {
+                SYSTEMTIME l_UtcTime;
+                FileTimeToSystemTime(&l_LastWrite, &l_UtcTime);
+
+                m_LastBuild.valid = true;
+                m_LastBuild.year = l_UtcTime.wYear;
+                m_LastBuild.month = l_UtcTime.wMonth;
+                m_LastBuild.day = l_UtcTime.wDay;
+                m_LastBuild.hour = l_UtcTime.wHour;
+                m_LastBuild.minute = l_UtcTime.wMinute;
+            }
+
+            CloseHandle(l_FileHandle);
+        }
+    }
+    #else
+    char l_FileName[PATH_MAX+1];
+    ssize_t l_Len = ::readlink("/proc/self/exe", l_FileName, PATH_MAX);
+    if (l_Len != -1)
+    {
+        l_FileName[l_Len] = 0;
+
+        struct stat l_StatResult;
+        if (stat(l_FileName, &l_StatResult) == 0)
+        {
+            struct tm l_UtcTime;
+            if (gmtime_r(&l_StatResult.st_mtime, &l_UtcTime))
+            {
+                m_LastBuild.valid  = true;
+                m_LastBuild.year   = l_UtcTime.tm_year + 1900;
+                m_LastBuild.month  = l_UtcTime.tm_mon + 1;
+                m_LastBuild.day    = l_UtcTime.tm_mday;
+                m_LastBuild.hour   = l_UtcTime.tm_hour;
+                m_LastBuild.minute = l_UtcTime.tm_min;
+            }
+        }
+    }
+    #endif
+
+    if (m_LastBuild.valid)
+    {
+        std::size_t const l_TimeBufferSize = 100;
+
+        char timeBuffer[l_TimeBufferSize];
+        int l_Written = snprintf(timeBuffer, l_TimeBufferSize, "%d-%02d-%02d at %02d:%02d (GMT)", m_LastBuild.year, m_LastBuild.month, m_LastBuild.day, m_LastBuild.hour, m_LastBuild.minute);
+
+        /// In case anyone would like to change the buffer
+        if (l_Written >= l_TimeBufferSize)
+        {
+            sLog->outAshran("Time buffer is too small (%d required, %z provided), last core build string will be truncated.", l_Written + 1, l_TimeBufferSize);
+            l_Written = l_TimeBufferSize - 1;
+        }
+
+        m_LastBuild.timeStr.assign(timeBuffer, l_Written);
+    }
+    else
+        m_LastBuild.timeStr = "Failed to query last build info";
 }
 
 /// World destructor
@@ -463,7 +531,6 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(ConfigMgr::GetIntDefault("PlayerLimit", 100));
-    SetMotd(ConfigMgr::GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
 
     ///- Read ticket system setting from the config file
     m_bool_configs[CONFIG_ALLOW_TICKETS] = ConfigMgr::GetBoolDefault("AllowTickets", true);
@@ -1479,6 +1546,9 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize config settings
     LoadConfigSettings();
+
+    ///- Load Motd from database
+    LoadDBMotd();
 
     ///- Initialize Allowed Security Level
     LoadDBAllowedSecurityLevel();
@@ -2503,6 +2573,8 @@ void World::Update(uint32 diff)
     SetRecordDiff(RECORD_DIFF_CALLBACK, getMSTime() - diffTime);
     RecordTimeDiff("ProcessQueryCallbacks");
 
+    sLFGListMgr->Update(diff);
+
     ///- Erase corpses once every 20 minutes
     if (m_timers[WUPDATE_CORPSES].Passed())
     {
@@ -3466,6 +3538,19 @@ void World::ResetBossLooted()
         if (l_Iter->second->GetPlayer())
             l_Iter->second->GetPlayer()->ResetBossLooted();
     }
+}
+
+void World::LoadDBMotd()
+{
+    QueryResult l_Result = LoginDatabase.PQuery("SELECT motd FROM realmlist WHERE id = '%d'", g_RealmID);
+    if (l_Result)
+        SetMotd(l_Result->Fetch()->GetString());
+}
+
+void World::SetDBMotd(const std::string& p_Motd)
+{
+    LoginDatabase.PQuery("UPDATE realmlist SET motd = '%s' WHERE id = '%d'", p_Motd.c_str(), g_RealmID);
+    SetMotd(p_Motd);
 }
 
 void World::LoadDBAllowedSecurityLevel()

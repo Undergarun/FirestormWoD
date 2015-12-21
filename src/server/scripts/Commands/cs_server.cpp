@@ -113,7 +113,8 @@ public:
         std::string l_Uptime          = secsToTimeString(sWorld->GetUptime());
         uint32 l_UpdateTime           = sWorld->GetUpdateTime();
 
-        p_Handler->PSendSysMessage("Ashran 6.1.2");
+        p_Handler->PSendSysMessage("Firestorm WoD 6.2.3");
+        p_Handler->PSendSysMessage("Firestorm WoD Core: Last Update: %s", sWorld->GetLastBuildInfo().timeStr.data());
         p_Handler->PSendSysMessage(LANG_CONNECTED_USERS, l_ActiveClientsNum, l_MaxActiveClientsNum, l_QueuedClientsNum, l_MaxQueuedClientsNum);
         p_Handler->PSendSysMessage(LANG_UPTIME, l_Uptime.c_str());
         p_Handler->PSendSysMessage("Server delay: %u ms", l_UpdateTime);
@@ -242,10 +243,12 @@ public:
     }
 
     // Define the 'Message of the day' for the realm
-    static bool HandleServerSetMotdCommand(ChatHandler* handler, char const* args)
+    static bool HandleServerSetMotdCommand(ChatHandler* p_Handler, char const* p_Args)
     {
-        sWorld->SetMotd(args);
-        handler->PSendSysMessage(LANG_MOTD_NEW, args);
+        std::string l_Motd(p_Args);
+
+        sWorld->SetDBMotd(l_Motd);
+        p_Handler->PSendSysMessage(LANG_MOTD_NEW, l_Motd.c_str());
         return true;
     }
 

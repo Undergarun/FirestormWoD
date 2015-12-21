@@ -540,6 +540,13 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //481 SPELL_AURA_481
     &AuraEffect::HandleNULL,                                      //482 SPELL_AURA_482
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_483
+    &AuraEffect::HandleNULL,                                      //484 SPELL_AURA_484
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_485
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_486
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_487
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_488
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_489
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_490
 };
 
 AuraEffect::AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster):
@@ -1267,11 +1274,6 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
 
 uint32 AuraEffect::AbsorbBonusTaken(Unit* p_Caster, int32 p_Amount)
 {
-    float totalMod = 0.0f;
-
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
-        return p_Amount;
-
     /// Dampening, must be calculated off the raw amount
     if (AuraEffectPtr l_AurEff = p_Caster->GetAuraEffect(110310, EFFECT_0))
     {
@@ -2909,17 +2911,17 @@ void AuraEffect::HandleAuraCloneCaster(AuraApplication const* aurApp, uint8 mode
         // What must be cloned? at least display and scale
         target->SetDisplayId(caster->GetDisplayId());
 
-        uint32 l_MainHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_MAINHAND * 3)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
-        uint32 l_OffHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_OFFHAND * 3)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
+        uint32 l_MainHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_MAINHAND * 2)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS);
+        uint32 l_OffHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_OFFHAND * 2)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1);
 
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, l_MainHand);
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_OffHand);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, l_MainHand);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, l_OffHand);
 
     }
     else
     {
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 0);
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, 0);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 0);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, 0);
         target->SetDisplayId(target->GetNativeDisplayId());
     }
 }
@@ -2937,10 +2939,10 @@ void AuraEffect::HandleAuraInitializeImages(AuraApplication const* aurApp, uint8
         if (!caster || caster == target)
             return;
 
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
     }
     else
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
 }
 
 void AuraEffect::HandleAuraEnableBossUnitFrame(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
@@ -3019,7 +3021,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
             // blizz like 2.0.x
             target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
             // blizz like 2.0.x
-            target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+            target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
             // blizz like 2.0.x
             target->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
 
@@ -3034,7 +3036,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
             // blizz like 2.0.x
             target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
             // blizz like 2.0.x
-            target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+            target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
             // blizz like 2.0.x
             target->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
 
@@ -3090,13 +3092,13 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* p_AurApp, uint8 p_Mo
             l_AttType = WeaponAttackType::BaseAttack;
             break;
         case SPELL_AURA_MOD_DISARM_OFFHAND:
-            l_Field   = UNIT_FIELD_FLAGS2;
+            l_Field   = UNIT_FIELD_FLAGS_2;
             l_Flag    = UNIT_FLAG2_DISARM_OFFHAND;
             l_Slot    = EQUIPMENT_SLOT_OFFHAND;
             l_AttType = WeaponAttackType::OffAttack;
             break;
         case SPELL_AURA_MOD_DISARM_RANGED:
-            /*field=UNIT_FIELD_FLAGS2;
+            /*field=UNIT_FIELD_FLAGS_2;
             flag=UNIT_FLAG2_DISARM_RANGED;
             slot=EQUIPMENT_SLOT_MAINHAND;
             attType=RANGED_ATTACK;
@@ -3662,13 +3664,13 @@ void AuraEffect::HandleForceMoveForward(AuraApplication const* aurApp, uint8 mod
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
     else
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (target->HasAuraType(GetAuraType()))
             return;
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
     }
 }
 
@@ -5094,7 +5096,7 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
                 l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
             }
 
-            uint32 l_PowerIndex = l_Player->GetPowerIndexByClass(GetMiscValue(), l_Player->getClass());
+            uint32 l_PowerIndex = l_Player->GetPowerIndex(GetMiscValue(), l_Player->getClass());
             if (l_PowerIndex != MAX_POWERS)
             {
                 /// HACKFIX
@@ -6613,13 +6615,13 @@ void AuraEffect::HandleComprehendLanguage(AuraApplication const* aurApp, uint8 m
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_COMPREHEND_LANG);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_COMPREHEND_LANG);
     else
     {
         if (target->HasAuraType(GetAuraType()))
             return;
 
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_COMPREHEND_LANG);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_COMPREHEND_LANG);
     }
 }
 
@@ -7566,48 +7568,52 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     /// In WoD blizzards have implemented system of "not full finaly tick damage"
     if (AuraPtr l_Aura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
     {
-        int32 l_LeftDuration = l_Aura->GetDuration();
-        int32 l_MaxDuration = l_Aura->GetMaxDuration();
-        int32 l_Amplitude = GetAmplitude();
-        int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
-
-        /// If it was last tick, we should deal instant damage, according to left duration
-        if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
+        /// Check if we need to use new wod aura system
+        if (GetSpellInfo() && GetSpellInfo()->IsAffectedByWodAuraSystem())
         {
-            uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
+            int32 l_LeftDuration = l_Aura->GetDuration();
+            int32 l_MaxDuration = l_Aura->GetMaxDuration();
+            int32 l_Amplitude = GetAmplitude();
+            int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
 
-            bool l_CritAdditional = CanPeriodicTickCrit(target, caster);
-            uint32 l_AbsorbAdditional = 0;
-            uint32 l_ResistAdditional = 0;
+            /// If it was last tick, we should deal instant damage, according to left duration and this left damage can be dealed just if left duration smaller then amplitude
+            if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
+            {
+                uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
 
-            if (l_CritAdditional)
-                damage = caster->SpellCriticalDamageBonus(m_spellInfo, l_LeftDamage, target);
+                bool l_CritAdditional = CanPeriodicTickCrit(target, caster);
+                uint32 l_AbsorbAdditional = 0;
+                uint32 l_ResistAdditional = 0;
 
-            caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, GetSpellInfo());
+                if (l_CritAdditional)
+                    damage = caster->SpellCriticalDamageBonus(m_spellInfo, l_LeftDamage, target);
 
-            caster->DealDamageMods(target, damage, &l_AbsorbAdditional);
+                caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, GetSpellInfo());
 
-            // Set trigger flag for additional proc
-            uint32 l_ProcAttacker = PROC_FLAG_DONE_PERIODIC;
-            uint32 l_ProcVictim = PROC_FLAG_TAKEN_PERIODIC;
-            uint32 l_ProcEx = (l_CritAdditional ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_DOT;
-            if (l_AbsorbAdditional)
-                l_ProcEx |= PROC_EX_ABSORB;
+                caster->DealDamageMods(target, damage, &l_AbsorbAdditional);
 
-            l_LeftDamage = (l_LeftDamage <= l_AbsorbAdditional + l_ResistAdditional) ? 0 : (l_LeftDamage - l_AbsorbAdditional - l_ResistAdditional);
-            if (l_LeftDamage)
-                l_ProcVictim |= PROC_FLAG_TAKEN_DAMAGE;
+                // Set trigger flag for additional proc
+                uint32 l_ProcAttacker = PROC_FLAG_DONE_PERIODIC;
+                uint32 l_ProcVictim = PROC_FLAG_TAKEN_PERIODIC;
+                uint32 l_ProcEx = (l_CritAdditional ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_DOT;
+                if (l_AbsorbAdditional)
+                    l_ProcEx |= PROC_EX_ABSORB;
 
-            int32 l_OverkillAdditional = l_LeftDamage - target->GetHealth();
-            if (l_OverkillAdditional < 0)
-                l_OverkillAdditional = 0;
+                l_LeftDamage = (l_LeftDamage <= l_AbsorbAdditional + l_ResistAdditional) ? 0 : (l_LeftDamage - l_AbsorbAdditional - l_ResistAdditional);
+                if (l_LeftDamage)
+                    l_ProcVictim |= PROC_FLAG_TAKEN_DAMAGE;
 
-            SpellPeriodicAuraLogInfo pInfo(CONST_CAST(AuraEffect, shared_from_this()), l_LeftDamage, l_OverkillAdditional, l_AbsorbAdditional, l_ResistAdditional, 0.0f, l_CritAdditional);
-            target->SendPeriodicAuraLog(&pInfo);
+                int32 l_OverkillAdditional = l_LeftDamage - target->GetHealth();
+                if (l_OverkillAdditional < 0)
+                    l_OverkillAdditional = 0;
 
-            caster->ProcDamageAndSpell(target, l_ProcAttacker, l_ProcVictim, l_ProcEx, l_LeftDamage, l_AbsorbAdditional, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
+                SpellPeriodicAuraLogInfo pInfo(CONST_CAST(AuraEffect, shared_from_this()), l_LeftDamage, l_OverkillAdditional, l_AbsorbAdditional, l_ResistAdditional, 0.0f, l_CritAdditional);
+                target->SendPeriodicAuraLog(&pInfo);
 
-            caster->DealDamage(target, l_LeftDamage, NULL, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+                caster->ProcDamageAndSpell(target, l_ProcAttacker, l_ProcVictim, l_ProcEx, l_LeftDamage, l_AbsorbAdditional, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
+
+                caster->DealDamage(target, l_LeftDamage, NULL, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+            }
         }
     }
 
@@ -8471,7 +8477,7 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* p_AurApp, ui
     if (!l_Player)
         return;
 
-    if (l_Player->GetPowerIndexByClass(POWER_MANA, l_Player->getClass()) == MAX_POWERS)
+    if (l_Player->GetPowerIndex(POWER_MANA, l_Player->getClass()) == MAX_POWERS)
         return;
 
     float l_Mod   = 1.f;

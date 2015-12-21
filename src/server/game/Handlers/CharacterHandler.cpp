@@ -470,7 +470,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     if (l_TemplateSetID)
     {
-        bool l_TemplateAvailable            = m_ServiceFlags & ServiceFlags::Premade || sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED);
+        bool l_TemplateAvailable = sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED);
         CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(l_TemplateSetID);
 
         if (!l_TemplateAvailable || !l_Template || l_Template->m_PlayerClass != l_CharacterClass)
@@ -609,7 +609,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     delete _charCreateCallback.GetParam();  // Delete existing if any, to make the callback chain reset to stage 0
 
-    _charCreateCallback.SetParam(new CharacterCreateInfo(l_CharacterName, l_CharacterRace, l_CharacterClass, l_CharacterGender, l_CharacterSkin, l_CharacterFace, l_CharacterHairStyle, l_CharacterHairColor, l_CharacterFacialHair, l_CharacterOutfitID, l_TemplateSetID, p_RecvData));
+    _charCreateCallback.SetParam(new CharacterCreateInfo(l_CharacterName, l_CharacterRace, l_CharacterClass, l_CharacterGender, l_CharacterSkin, l_CharacterFace, l_CharacterHairStyle, l_CharacterHairColor, l_CharacterFacialHair, 1, l_TemplateSetID, p_RecvData));
 
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     l_Stmt->setString(0, l_CharacterName);
@@ -859,17 +859,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             LoginDatabase.CommitTransaction(trans);
 
-            /// Remove premade service flags if we've just create a premade and premade aren't free on that realm.
-            if (createInfo->TemplateId && !sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED))
-            {
-                PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REMOVE_ACCOUNT_SERVICE);
-                l_Statement->setUInt32(0, ServiceFlags::Premade);
-                l_Statement->setUInt32(1, GetAccountId());
-                LoginDatabase.Execute(l_Statement);
-
-                m_ServiceFlags &= ~ServiceFlags::Premade;
-            }
-
             std::string IP_str = GetRemoteAddress();
             sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sScriptMgr->OnPlayerCreate(&newChar);
@@ -1094,6 +1083,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
+
+        if (sWorld->getIntConfig(CONFIG_REALM_ZONE) == REALM_ZONE_DEVELOPMENT)
+            chH.PSendSysMessage("Last PTR update: %s", sWorld->GetLastBuildInfo().timeStr.data());
     }
 
     SendTimeZoneInformations();
@@ -1156,6 +1148,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         {
             l_Data << uint32(extendedCost->ID);
             l_Data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, sItemExtendedCostStore.GetHash()));
+            l_Data.WriteBit(1);                                                         ///< Found ???
             l_Data << uint32(l_ResponseData.size());
             l_Data.append(l_ResponseData);
         }
@@ -1163,6 +1156,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         {
             l_Data << uint32(-1);
             l_Data << uint32(time(NULL));
+            l_Data.WriteBit(0);                                                         ///< Not Found ???
             l_Data << uint32(0);
         }
 
@@ -1411,9 +1405,9 @@ void WorldSession::HandleSetFactionCheat(WorldPacket& /*recvData*/)
 
 enum TUTORIAL_ACTIONS
 {
-    TUTORIAL_ACTION_FLAG    = 0,
-    TUTORIAL_ACTION_CLEAR   = 1,
-    TUTORIAL_ACTION_RESET   = 2,
+    TUTORIAL_ACTION_RESET   = 1,
+    TUTORIAL_ACTION_CLEAR   = 2,
+    TUTORIAL_ACTION_FLAG    = 3,
 };
 
 void WorldSession::HandleTutorial(WorldPacket& p_RecvPacket)
@@ -2614,7 +2608,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
         // Title conversion
         if (l_KnownTitlesStr)
         {
-            const uint32 l_KnowTitleCount = KNOWN_TITLES_SIZE * 2;
+            const uint32 l_KnowTitleCount = KNOWN_TITLES_SIZE;
             uint32 l_KnownTitles[l_KnowTitleCount];
             Tokenizer l_Tokens(l_KnownTitlesStr, ' ', l_KnowTitleCount);
 

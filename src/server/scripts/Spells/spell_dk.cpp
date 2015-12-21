@@ -905,7 +905,8 @@ class spell_dk_death_siphon: public SpellScriptLoader
                 if (l_DeathRune == -1)
                     return;
 
-                l_Player->RestoreBaseRune(uint8(l_DeathRune));
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_DK_FROST)
+                    l_Player->RestoreBaseRune(uint8(l_DeathRune));
             }
 
             void Register()
@@ -1958,58 +1959,6 @@ class spell_dk_empowered_obliterate_howling_blast : public SpellScriptLoader
         }
 };
 
-/// Plaguebearer - 161497
-/// Called by Death Coil 47541 & Frost Strike 49143
-class spell_dk_plaguebearer: public SpellScriptLoader
-{
-    public:
-        spell_dk_plaguebearer() : SpellScriptLoader("spell_dk_plaguebearer") { }
-
-        class spell_dk_plaguebearer_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_plaguebearer_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (!l_Caster->HasAura(DK_SPELL_PLAGUEBEARER))
-                        return;
-
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (AuraPtr l_BloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
-                            l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);
-
-                        if (AuraPtr l_FrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
-                            l_FrostFever->SetDuration(l_FrostFever->GetDuration() + 4000);
-
-                        if (l_Caster->HasAura(DK_SPELL_NECROTIC_PLAGUE))
-                            l_Caster->CastSpell(l_Target, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA);
-                    }
-                }
-            }
-
-            void HandleDamage(SpellEffIndex p_EffIndex)
-            {
-                HandleOnHit();
-            }
-
-            void Register()
-            {
-                if (m_scriptSpellId == DK_SPELL_DEATH_COIL)
-                    OnHit += SpellHitFn(spell_dk_plaguebearer_SpellScript::HandleOnHit);
-                else ///< Necessary for Frost Strike, because it has two effects
-                    OnEffectHitTarget += SpellEffectFn(spell_dk_plaguebearer_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_plaguebearer_SpellScript();
-        }
-};
-
 /// last update : 6.1.2 19802
 /// Necrotic Plague - 155159
 class spell_dk_necrotic_plague_aura: public SpellScriptLoader
@@ -2843,48 +2792,6 @@ class spell_dk_army_transform : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
-/// Glyph of Icy Runes - 159418
-class spell_dk_glyph_of_icy_runes : public SpellScriptLoader
-{
-    public:
-        spell_dk_glyph_of_icy_runes() : SpellScriptLoader("spell_dk_glyph_of_icy_runes") { }
-
-        class spell_dk_glyph_of_icy_runes_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_glyph_of_icy_runes_AuraScript);
-
-            enum eSpells
-            {
-                GlyphofIcyRunesProc = 159419
-            };
-
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
-            {
-                PreventDefaultAction();
-
-                Unit* l_Caster = GetCaster();
-
-                if (!l_Caster)
-                    return;
-
-                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != DK_SPELL_CHAINS_OF_ICE)
-                    return;
-
-                l_Caster->CastSpell(l_Caster, eSpells::GlyphofIcyRunesProc, true);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_dk_glyph_of_icy_runes_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_glyph_of_icy_runes_AuraScript();
-        }
-};
 
 /// Gargoyle Strike - 51963
 class spell_dk_gargoyle_strike : public SpellScriptLoader
@@ -3347,7 +3254,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_corpse_explosion();
     new spell_dk_glyph_of_horn_of_winter();
     new spell_dk_icy_touch();
-    new spell_dk_plaguebearer();
     new spell_dk_necrotic_plague_aura();
     new spell_dk_runic_empowerment();
     new spell_dk_runic_corruption();
@@ -3362,7 +3268,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_improved_death_grip();
     new spell_dk_glyph_of_deaths_embrace();
     new spell_dk_will_of_the_necropolis();
-    new spell_dk_glyph_of_icy_runes();
     new spell_dk_enhanced_death_coil();
     new spell_dk_gargoyle_strike();
     new spell_dk_blood_rites();

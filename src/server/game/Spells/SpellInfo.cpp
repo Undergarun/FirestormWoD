@@ -487,7 +487,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
 
             if (l_SpellScaling->ScalesFromItemLevel == 0)
             {
-                if ((_spellInfo->AttributesEx11 & SPELL_ATTR11_CAST_WITH_ITEM) == 0)
+                if ((_spellInfo->AttributesEx11 & SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL) == 0)
                 {
                     int32 l_ScalingClassIndex = _spellInfo->ScalingClass;
 
@@ -1138,8 +1138,9 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     DurationEntry = _misc ? (_misc->DurationIndex ? sSpellDurationStore.LookupEntry(_misc->DurationIndex) : NULL) : NULL;
     RangeEntry = _misc ? (_misc->rangeIndex ? sSpellRangeStore.LookupEntry(_misc->rangeIndex) : NULL) : NULL;
     Speed = _misc ? _misc->speed : 1.00f;
-    for (uint8 i = 0; i < 2; ++i)
-        SpellVisual[i] = _misc ? _misc->SpellVisual[i] : 0;
+
+    memset(SpellVisual, 0, sizeof(SpellVisual));
+
     SpellIconID = _misc ? _misc->SpellIconID : 0;
     ActiveIconID = _misc ? _misc->activeIconID : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
@@ -1151,8 +1152,10 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     for (uint8 i = 0; i < MAX_SPELL_REAGENTS; ++i)
         ReagentCount[i] = _reagents ? _reagents->ReagentCount[i] : 0;
 
-    CurrencyID = _reagents ? _reagents->CurrencyID : 0;
-    CurrencyCount = _reagents ? _reagents->CurrencyCount : 0;
+    SpellReagentsCurrencyEntry const* l_CurrencyReagents = sSpellReagentsCurrencyStore.LookupEntry(p_SpellEntry->Id);
+    CurrencyID = l_CurrencyReagents ? l_CurrencyReagents->CurrencyID : 0;
+    CurrencyCount = l_CurrencyReagents ? l_CurrencyReagents->CurrencyCount : 0;
+
 
     // SpellShapeshiftEntry
     SpellShapeshiftEntry const* _shapeshift = GetSpellShapeshift();
@@ -1193,6 +1196,7 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     ChainEntry = NULL;
 
     ResearchProject =  p_SpellEntry->ResearchProject;
+    FirstSpellXSpellVIsualID = 0;
 }
 
 SpellInfo::~SpellInfo()
@@ -1599,7 +1603,7 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
         return true;
 
     // Elemental Blast is affected by Ancestral Swiftness and Maelstrom Weapon
-    if (Id == 117014 && (affectSpell->Id == 16188 || affectSpell->Id == 53817))
+    if (Id == 117014 && (affectSpell->Id == 16188))
         return true;
 
     return false;
@@ -1851,20 +1855,18 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // normal case
     if (AreaGroupId > 0)
     {
-        bool found = false;
-        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(AreaGroupId);
-        while (groupEntry)
+        bool l_Found = false;
+        std::vector<uint32> l_AreaGroups = GetAreasForGroup(AreaGroupId);
+        for (uint32 areaId : l_AreaGroups)
         {
-            for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
-                if (groupEntry->AreaId[i] == zone_id || groupEntry->AreaId[i] == area_id)
-                    found = true;
-            if (found || !groupEntry->nextGroup)
+            if (areaId == zone_id || areaId == area_id)
+            {
+                l_Found = true;
                 break;
-            // Try search in next group
-            groupEntry = sAreaGroupStore.LookupEntry(groupEntry->nextGroup);
+            }
         }
 
-        if (!found)
+        if (!l_Found)
             return SPELL_FAILED_INCORRECT_AREA;
     }
 
@@ -2119,7 +2121,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
                         if (!player->GetWeaponForAttack(WeaponAttackType::BaseAttack) || !player->IsUseEquipedWeapon(true))
                             return SPELL_FAILED_TARGET_NO_WEAPONS;
                     }
-                    else if (!unitTarget->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID) && Id != 64058) // Custom MoP Script - Hack Fix Psychic Horror
+                    else if (!unitTarget->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS) && Id != 64058) // Custom MoP Script - Hack Fix Psychic Horror
                         return SPELL_FAILED_TARGET_NO_WEAPONS;
                 }
             }
@@ -2184,6 +2186,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     // not allow passengers to be implicitly hit by spells, however this target type should be an exception,
     // if this is left it kills spells that award kill credit from vehicle to master and some or all* spells,
     // the use of these 2 covers passenger target check
+
     if (!(Targets & TARGET_UNIT_MASTER) && !caster->IsVehicle())
     {
         if (TargetAuraState && !unitTarget->HasAuraState(AuraStateType(TargetAuraState), this, caster))
@@ -2774,10 +2777,6 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
     if (p_Caster)
         p_Caster->ModSpellCastTime(this, l_CastTime, p_Spell);
 
-    /// Fix Cultivation - with Herb Gathering
-    if (Id == 2366 && p_Caster && p_Caster->HasAura(20552))
-        l_CastTime = 500;
-
     /// Glyph of Capacitor Totem
     if (p_Caster && Id == 118905)
     {
@@ -2798,6 +2797,19 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
     /// Flayer
     if (HasEffect(SPELL_EFFECT_SKINNING) && p_Caster->HasAura(68978))
         l_CastTime = CalculatePct(l_CastTime, 66);
+
+    /// Cultivation
+    if (HasEffect(SPELL_EFFECT_SKILL) && p_Caster->HasAura(20552) && AttributesEx10 & SPELL_ATTR10_HERB_GATHERING_MINING)
+    {
+        for (uint8 i = 0; i < EffectCount; ++i)
+        {
+            if (Effects[i].Effect == SPELL_EFFECT_SKILL && Effects[i].MiscValue == SKILL_HERBALISM)
+            {
+                l_CastTime = CalculatePct(l_CastTime, 66);
+                break;
+            }
+        }
+    }
 
     /// Elegon - Overloaded
     if (p_Caster && p_Caster->HasAura(117204))
@@ -4566,4 +4578,17 @@ void SpellInfo::UpdateSpellEffectCount()
         if (Effects[l_I].IsEffect())
             EffectCount = l_I + 1;
     }
+}
+
+bool SpellInfo::IsAffectedByWodAuraSystem() const
+{
+    switch (Id)
+    {
+        case 158831: ///< Devouring Plague DOT
+            return false;
+        default:
+            return true;
+    }
+
+    return true;
 }

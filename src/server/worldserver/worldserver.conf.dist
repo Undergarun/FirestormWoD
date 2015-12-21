@@ -1108,15 +1108,6 @@ Event.Announce = 0
 BeepAtStart = 1
 
 #
-#    Motd
-#        Description: Message of the Day, displayed at login.
-#                     Use '@' for a newline and be sure to escape special characters.
-#        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
-#        Default:     "Welcome to a Trinity Core server."
-
-Motd = "Welcome on Garrosh, the first WoD server !"
-
-#
 #    Server.LoginInfo
 #        Description: Display core version (.server info) on login.
 #        Default:     0 - (Disabled)

@@ -952,8 +952,8 @@ class mob_add_setthik_windblade : public CreatureScript
             {
                 events.Reset();
 
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_6);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, EQUIP_TRASH_6);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_6);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, EQUIP_TRASH_6);
 
                 DoZoneInCombat();
 
@@ -1059,7 +1059,7 @@ class mob_korthik_reaver : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_4);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_4);
 
                 events.ScheduleEvent(EVENT_POISON_BOMB, 10000);
                 events.ScheduleEvent(EVENT_TOXIC_SLIME, 14000);

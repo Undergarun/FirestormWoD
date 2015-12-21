@@ -790,7 +790,7 @@ class mob_conductive_water : public CreatureScript
             {
                 events.Reset();
 
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                 me->CastSpell(me, SPELL_CONDUCTIVE_WATER_VISUAL, true);
                 summoner->CastSpell(summoner, SPELL_CONDUCTIVE_WATER_FOUNTAIN, true);
                 me->CastSpell(me, SPELL_CONDUCTIVE_WATER_GROW_SCALE, true);
@@ -857,7 +857,7 @@ class mob_call_da_storm_stalker : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
         };
 
@@ -929,7 +929,7 @@ class mob_lightning_pillar_stalker : public CreatureScript
 
                 me->CastSpell(me, SPELL_LIGHTNING_STRIKE_PILLAR_VISUAL, true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
                 events.ScheduleEvent(EVENT_SPAWN_LIGHTNING_SPARKS, 4000);
             }
 

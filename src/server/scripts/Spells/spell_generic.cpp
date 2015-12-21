@@ -35,6 +35,7 @@
 #include "LFGMgr.h"
 #include "Player.h"
 #include "GameEventMgr.h"
+#include "DB2Stores.h"
 
 class spell_gen_absorb0_hitlimit1: public SpellScriptLoader
 {
@@ -600,7 +601,7 @@ class spell_creature_permanent_feign_death: public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 target->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-                target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
                 if (target->GetTypeId() == TYPEID_UNIT)
                     target->ToCreature()->SetReactState(REACT_PASSIVE);
@@ -1023,41 +1024,41 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                         case SPELL_COPY_WEAPON_2_AURA:
                         case SPELL_COPY_WEAPON_3_AURA:
                         {
-                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS);
 
                             if (Player* player = caster->ToPlayer())
                             {
                                 if (Item* mainItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, mainItem->GetEntry());
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, mainItem->GetEntry());
                             }
                             else
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID));
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS));
                             break;
                         case SPELL_COPY_OFFHAND_AURA:
                         case SPELL_COPY_OFFHAND_2_AURA:
                         {
-                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2);
 
                             if (Player* player = caster->ToPlayer())
                             {
                                 if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, offItem->GetEntry());
                             }
                             else
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2));
                             break;
                         }
                         case SPELL_COPY_RANGED_AURA:
                         {
-                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2);
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4);
 
                             if (Player* player = caster->ToPlayer())
                             {
                                 if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, rangedItem->GetEntry());
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, rangedItem->GetEntry());
                             }
                             else
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2));
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4));
                             break;
                         }
                         default:
@@ -1075,14 +1076,14 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                     case SPELL_COPY_WEAPON_AURA:
                     case SPELL_COPY_WEAPON_2_AURA:
                     case SPELL_COPY_WEAPON_3_AURA:
-                       target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, prevItem);
+                       target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, prevItem);
                        break;
                     case SPELL_COPY_OFFHAND_AURA:
                     case SPELL_COPY_OFFHAND_2_AURA:
-                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, prevItem);
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, prevItem);
                         break;
                     case SPELL_COPY_RANGED_AURA:
-                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, prevItem);
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, prevItem);
                         break;
                     default:
                         break;
@@ -2997,48 +2998,6 @@ public:
     }
 };
 
-// TP to Stormwind (17334) or Orgrimmar (17609)
-class spell_gen_tp_storm_orgri: public SpellScriptLoader
-{
-    public:
-        spell_gen_tp_storm_orgri() : SpellScriptLoader("spell_gen_tp_storm_orgri") { }
-
-        class spell_gen_tp_storm_orgri_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_tp_storm_orgri_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(17334) || !sSpellMgr->GetSpellInfo(17609))
-                    return false;
-                return true;
-            }
-
-            void HandleAfterCast()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    // Tp to Stormwind
-                    if (GetSpellInfo()->Id == 17334)
-                        _player->TeleportTo(0, -8833.07f, 622.778f, 93.9317f, _player->GetOrientation());
-                    // Tp to Orgrimmar
-                    else if (GetSpellInfo()->Id == 17609)
-                        _player->TeleportTo(1, 1569.97f, -4397.41f, 16.0472f, _player->GetOrientation());
-                }
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_gen_tp_storm_orgri_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_gen_tp_storm_orgri_SpellScript();
-        }
-};
-
 // Gift of the Naaru - 59548 or 59547 or 59545 or 59544 or 59543 or 59542 or 121093 or 28880
 class spell_gen_gift_of_the_naaru: public SpellScriptLoader
 {
@@ -4697,17 +4656,26 @@ class spell_gen_draenic_philosophers : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                Unit* l_Target = GetTarget();
+                Player* l_Player = GetTarget()->ToPlayer();
                 Stats l_MaxStatValue = STAT_STRENGTH;
+
+                if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                    return;
 
                 for (int8 l_I = 0; l_I < 3; l_I++)
                 {
-                    if (l_Target->GetStat(g_DraenicStats[l_I]) >= l_Target->GetStat(g_DraenicStats[l_MaxStatValue]))
+                    if (l_Player->GetStat(g_DraenicStats[l_I]) >= l_Player->GetStat(g_DraenicStats[l_MaxStatValue]))
                         l_MaxStatValue = (Stats)l_I;
                 }
 
-                l_Target->CastSpell(l_Target, g_DraenicAuras[l_MaxStatValue], true);
-                if (AuraEffectPtr l_DreanicAura = l_Target->GetAuraEffect(g_DraenicAuras[l_MaxStatValue], EFFECT_0))
+                /// Can proc just on damage spell, also check for absorbed damage, because all damage can be absorbed but it's still damage spell
+                if (p_EventInfo.GetDamageInfo() && p_EventInfo.GetDamageInfo()->GetDamage() == 0 && p_EventInfo.GetDamageInfo()->GetAbsorb() == 0)
+                    return;
+
+                l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, 55 * IN_MILLISECONDS, true);
+
+                l_Player->CastSpell(l_Player, g_DraenicAuras[l_MaxStatValue], true);
+                if (AuraEffectPtr l_DreanicAura = l_Player->GetAuraEffect(g_DraenicAuras[l_MaxStatValue], EFFECT_0))
                     l_DreanicAura->ChangeAmount(m_Value);
             }
 
@@ -5003,8 +4971,116 @@ class spell_gen_potion_of_illusion : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2
+/// Hemet's Heartseeker - 173286, Megawatt Filament - 156059, Oglethorpe's Missile Splitter - 156052
+class spell_gen_inge_trigger_enchant : public SpellScriptLoader
+{
+    public:
+        spell_gen_inge_trigger_enchant() : SpellScriptLoader("spell_gen_inge_trigger_enchant") { }
+
+        class spell_gen_inge_trigger_enchant_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_inge_trigger_enchant_AuraScript);
+
+            enum eSpells
+            {
+                HemetsHeartseekerAura   = 173286,
+                HemetsHeartseeker       = 173288,
+                MegawattFilamentAura    = 156059,
+                MegawattFilament        = 156060,
+                OglethorpesMissileAura  = 156052,
+                OglethorpesMissile      = 156055
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+                
+                DamageInfo* l_DamageInfo = p_EventInfo.GetDamageInfo();
+
+                if (l_DamageInfo == nullptr)
+                    return;
+
+                Unit* l_Target = l_DamageInfo->GetVictim();
+                Unit* l_Caster = l_DamageInfo->GetAttacker();
+
+                if (l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                uint32 l_WeaponSpeed = l_Caster->GetAttackTime(WeaponAttackType::RangedAttack);
+                float l_Chance = l_Caster->GetPPMProcChance(l_WeaponSpeed, 1.55f, GetSpellInfo());
+
+                if (!roll_chance_f(l_Chance))
+                    return;
+
+                switch (GetSpellInfo()->Id)
+                {
+                case eSpells::HemetsHeartseekerAura:
+                    l_Caster->CastSpell(l_Caster, eSpells::HemetsHeartseeker, true);
+                    break;
+                case eSpells::MegawattFilamentAura:
+                    l_Caster->CastSpell(l_Caster, eSpells::MegawattFilament, true);
+                    break;
+                case eSpells::OglethorpesMissileAura:
+                    l_Caster->CastSpell(l_Caster, eSpells::OglethorpesMissile, true);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_inge_trigger_enchant_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_inge_trigger_enchant_AuraScript();
+        }
+};
+
+/// last update : 6.1.2
+/// Mark of the Thunderlord - 159234
+class spell_gen_mark_of_thunderlord : public SpellScriptLoader
+{
+    public:
+        spell_gen_mark_of_thunderlord() : SpellScriptLoader("spell_gen_mark_of_thunderlord") { }
+
+        class spell_gen_mark_of_thunderlord_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_mark_of_thunderlord_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                    return;
+
+                if (!p_AurEff->GetBase()->GetDuration())
+                    return;
+
+                p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() + 2 * IN_MILLISECONDS);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_mark_of_thunderlord_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_mark_of_thunderlord_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_mark_of_thunderlord();
+    new spell_gen_inge_trigger_enchant();
     new spell_gen_potion_of_illusion();
     new spell_gen_alchemists_flask();
     new spell_gen_jards_peculiar_energy_source();
@@ -5074,7 +5150,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_mount("spell_blazing_hippogryph", 0, 0, 0, SPELL_BLAZING_HIPPOGRYPH_150, SPELL_BLAZING_HIPPOGRYPH_280);
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_bonked();
-    new spell_gen_tp_storm_orgri();
     new spell_gen_gift_of_the_naaru();
     new spell_gen_running_wild();
     new spell_gen_two_forms();

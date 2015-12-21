@@ -1341,7 +1341,8 @@ class spell_pri_smite: public SpellScriptLoader
         }
 };
 
-// Lightwell Renew - 60123
+/// Last Build 6.2.3
+/// Lightwell Renew - 60123
 class spell_pri_lightwell_renew: public SpellScriptLoader
 {
     public:
@@ -1353,24 +1354,19 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster->GetTypeId() != TYPEID_UNIT || !l_Caster->ToCreature()->isSummon())
-                            return;
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                        // proc a spellcast
-                        if (AuraPtr l_ChargesAura = l_Caster->GetAura(LIGHTWELL_CHARGES))
-                        {
-                            if (!l_Target->HasAura(LIGHTSPRING_RENEW))
-                            {
-                                l_Caster->CastSpell(l_Target, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, l_Caster->ToTempSummon()->GetSummonerGUID());
-                                if (l_ChargesAura->ModCharges(-1))
-                                    l_Caster->ToTempSummon()->UnSummon();
-                            }
-                        }
-                    }
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->GetTypeId() != TYPEID_UNIT || !l_Caster->ToCreature()->isSummon())
+                    return;
+
+                if (AuraPtr l_ChargesAura = l_Caster->GetAura(LIGHTWELL_CHARGES))
+                {
+                    if (!l_Target->HasAura(LIGHTSPRING_RENEW))
+                        l_Caster->CastSpell(l_Target, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, l_Caster->ToTempSummon()->GetSummonerGUID());
                 }
             }
 
@@ -1674,8 +1670,10 @@ class spell_pri_devouring_plague_aura: public SpellScriptLoader
 
             void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
             {
+                /// Devouring Plague periodic damage deals 100% from instant damage in 6 seconds
+                /// Instant damage is ~300% spd, 300 /6 = 50% per tick
                 if (Unit* l_Caster = GetCaster())
-                    amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL), sSpellMgr->GetSpellInfo(2944)->Effects[EFFECT_1].BasePoints);
+                    amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL), 50);
             }
 
             void OnTick(constAuraEffectPtr p_AurEff)
@@ -2278,18 +2276,18 @@ class spell_pri_halo: public SpellScriptLoader
                             l_Area->GetCreatureListInGrid(l_TempListCreature, GetSpellInfo()->RangeEntry->maxRangeHostile);
                             for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
                             {
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player))
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAttackTarget(l_Player))
                                     l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAssistTarget(l_Player))
                                     l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
                             }
 
                             l_Area->GetPlayerListInGrid(l_TempListPlayer, GetSpellInfo()->RangeEntry->maxRangeHostile);
                             for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
                             {
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && (*i)->IsHostileTo(l_Player))
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAttackTarget(l_Player))
                                     l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAssistTarget(l_Player))
                                     l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
                             }
                         }
@@ -2971,6 +2969,11 @@ class spell_pri_void_tendrils: public SpellScriptLoader
         class spell_pri_void_tendrils_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pri_void_tendrils_SpellScript);
+
+            enum eSpells
+            {
+                VoidTendrilsGrasp = 114404
+            };
 
             void HandleOnHit()
             {

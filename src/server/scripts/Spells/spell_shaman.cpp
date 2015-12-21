@@ -620,7 +620,10 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
                     l_Caster->GetDispellableAuraList(l_Caster, DISPEL_ALL, l_DispelList);
 
                     for (auto itr : l_DispelList)
-                        l_Caster->RemoveAura(itr.first);
+                    {
+                        if (!itr.first->GetSpellInfo()->IsPositive())
+                            l_Caster->RemoveAura(itr.first);
+                    }
                 }
             }
 
@@ -1368,19 +1371,6 @@ class spell_sha_earthquake: public SpellScriptLoader
                 ImprovedChainLightning = 157766,
             };
 
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-            {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                AreaTrigger* l_AreaTrigger = l_Caster->GetAreaTrigger(eSpells::Earthquake);
-                if (!l_AreaTrigger)
-                    return;
-
-                l_Caster->CastCustomSpell(l_AreaTrigger->GetPositionX(), l_AreaTrigger->GetPositionY(), l_AreaTrigger->GetPositionZ(), eSpells::EarthquakeSlow, nullptr, nullptr, nullptr, true);
-            }
-
             void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -1404,7 +1394,6 @@ class spell_sha_earthquake: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_sha_earthquake_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -1429,6 +1418,7 @@ public:
         enum eSpells
         {
             EarthquakeTick      = 77478,
+            EarthquakeSlow      = 182387,
             EarthquakeKnockDown = 77505
         };
 
@@ -1445,6 +1435,8 @@ public:
             Unit* l_Target = GetHitUnit();
             if (!l_Caster || !l_Target)
                 return;
+
+            l_Caster->CastSpell(l_Target, eSpells::EarthquakeSlow, true);
 
             /// 10% chance of knocking down affected targets
             if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
@@ -2554,8 +2546,8 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
-/// 51505 - Lava Burst
+/// last update : 6.2.3
+/// Lava Burst - 51505
 class spell_sha_lava_burst: public SpellScriptLoader
 {
     public:
@@ -2583,9 +2575,13 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     l_Player->CastSpell(l_Player, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
 
                 /// Lavaburst deals 50% more damage with Flame Shock on target
-                /// HotFixe February 27, 2015 : Lava burst no longer deals extra damage in PvP combat for Restoration Shaman.
-                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK) && !(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION && l_Target->GetTypeId() == TYPEID_PLAYER))
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
                     SetHitDamage(int32(float(GetHitDamage()) * 1.5f));
+
+                /// 24 novembre 2015 : now deals 20% more damage while in PvP combat.
+                /// HotFixe February 27, 2015 : Lava burst no longer deals extra damage in PvP combat for Restoration Shaman.
+                if (!(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION) && l_Target->GetTypeId() == TYPEID_PLAYER)
+                    SetHitDamage(int32(float(GetHitDamage()) * 1.2f));
             }
 
             void HandleAfterCast()
