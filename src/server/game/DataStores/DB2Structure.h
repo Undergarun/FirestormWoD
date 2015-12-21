@@ -307,21 +307,21 @@ struct CreatureDisplayInfoEntry
     //uint32    m_sounID;                                           ///< 2      m_SoundID
     uint32  ExtendedDisplayInfoID;                                  ///< 3      m_ExtendedDisplayInfoID
     float   scale;                                                  ///< 4      m_CreatureModelScale
-    //uint32    m_creatureModelAlpha;                               ///< 5      m_CreatureModelAlpha
-    //char*     m_textureName;                                      ///< 6-8    m_TextureVariation[3]
-    //char*     m_portraitTextureName ;                             ///< 9      m_PortraitTextureName
-    //uint32    m_PortraitCreatureDisplayInfoID                     ///< 10     m_PortraitCreatureDisplayInfoID
-    //uint32    m_SizeClass;                                        ///< 11     m_SizeClasss
-    //uint32    m_BloodID;                                          ///< 12     m_BloodID
-    //uint32    m_NPCSoundID;                                       ///< 13     m_NPCSoundID
-    //uint32    m_ParticleColorID;                                  ///< 14     m_ParticleColorID
-    //uint32    m_CreatureGeosetData;                               ///< 15     m_CreatureGeosetData
-    //uint32    m_ObjectEffectPackageID;                            ///< 16     m_ObjectEffectPackageID
-    //uint32    m_AnimReplacementSetID;                             ///< 17     m_AnimReplacementSetID
-    //uint32    m_Flags;                                            ///< 18     m_Flags
-    //int32     m_Gender;                                           ///< 19     m_Gender
-    //uint32    m_StateSpellVisualKitID;                            ///< 20     m_StateSpellVisualKitID
-    //uint32    UNK;                                                ///< 21     Unk field
+    //float     620_unk                                             ///< 5
+    //uint32    m_creatureModelAlpha;                               ///< 6      m_CreatureModelAlpha
+    //char*     m_textureName;                                      ///< 7-9    m_TextureVariation[3]
+    //char*     m_portraitTextureName ;                             ///< 10      m_PortraitTextureName
+    //uint32    m_PortraitCreatureDisplayInfoID                     ///< 11     m_PortraitCreatureDisplayInfoID
+    //uint32    m_SizeClass;                                        ///< 12     m_SizeClasss
+    //uint32    m_BloodID;                                          ///< 13     m_BloodID
+    //uint32    m_NPCSoundID;                                       ///< 14     m_NPCSoundID
+    //uint32    m_ParticleColorID;                                  ///< 15     m_ParticleColorID
+    //uint32    m_CreatureGeosetData;                               ///< 16     m_CreatureGeosetData
+    //uint32    m_ObjectEffectPackageID;                            ///< 17     m_ObjectEffectPackageID
+    //uint32    m_AnimReplacementSetID;                             ///< 18     m_AnimReplacementSetID
+    //uint32    m_Flags;                                            ///< 19     m_Flags
+    //int32     m_Gender;                                           ///< 20     m_Gender
+    //uint32    m_StateSpellVisualKitID;                            ///< 21     m_StateSpellVisualKitID
 };
 
 struct CreatureTypeEntry
@@ -342,8 +342,13 @@ struct VignetteEntry
     float  Y;                                                       ///< 5
 };
 
-////////////////////////////////////////////////////////////////////
-/// Destructible GameObject DB2
+struct ChrClassXPowerTypesEntry
+{
+    uint32   entry;                                          // 0
+    uint32   classId;                                        // 1
+    uint32   power;                                          // 2
+};
+
 ////////////////////////////////////////////////////////////////////
 /// CurrencyCategorie.db2 is used as enum
 
@@ -497,7 +502,7 @@ struct GarrMissionRewardEntry
     uint32 Unk1;                                                    ///< 7
     uint32 Unk2;                                                    ///< 8
     uint32 Unk3;                                                    ///< 9
-    uint32 Unk4;                                                    ///< 10 6.2.0
+    uint32 Unk4;                                                    ///< 10 6.2.0 Related to Category: Ship-Bonus data on ship mission map
 };
 
 struct GarrMissionXEncouterEntry
@@ -993,7 +998,7 @@ struct ItemEffectEntry
     uint32 SpellCooldown;                                           ///< 6
     uint32 SpellCategory;                                           ///< 7
     uint32 SpellCategoryCooldown;                                   ///< 8
-    uint32 Unk1;                                                    ///< 9
+    uint32 Unk1;                                                    ///< 9 ChrSpecializationID NYI
 };
 
 #define MAX_HEIRLOOM_UPGRADE_LEVEL 2
@@ -1330,8 +1335,8 @@ struct MapChallengeModeEntry
     uint32 BronzeTime;                                              ///< 5
     uint32 SilverTime;                                              ///< 6
     uint32 GoldTime;                                                ///< 7
-    uint32 Field8;                                                  ///< 8
-    uint32 Field9;                                                  ///< 9
+    uint32 Field8;                                                  ///< 8 no data
+    uint32 Field9;                                                  ///< 9 no data
 };
 
 struct SceneScriptEntry
@@ -1690,10 +1695,6 @@ struct SpellTotem
 
 typedef std::map<uint32, SpellTotem> SpellTotemMap;
 
-////////////////////////////////////////////////////////////////////
-/// Transport DB2
-////////////////////////////////////////////////////////////////////
-
 struct WbAccessControlListEntry
 {
     uint32 ID;
@@ -1712,6 +1713,10 @@ struct WbCertWhitelistEntry
     uint8  Unk2;
     uint32 Unk3;
 };
+
+////////////////////////////////////////////////////////////////////
+/// Transport DB2
+////////////////////////////////////////////////////////////////////
 
 struct TransportAnimationEntry
 {

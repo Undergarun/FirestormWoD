@@ -250,14 +250,6 @@ struct ChrRacesEntry
     //uint32    Unk_601_18612;                              // 38       6.0.1 18612 unk related to displayID HightRes for Worgen
 };
 
-// Removed in 6.0.1 18612
-struct ChrPowerTypesEntry
-{
-   uint32   entry;                                          // 0
-   uint32   classId;                                        // 1
-   uint32   power;                                          // 2
-};
-
 struct ChrSpecializationsEntry
 {
     uint32  ID;                                             // 0        m_ID
