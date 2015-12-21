@@ -4667,9 +4667,6 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
                 l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
 
-                if (l_Player->HasAura(RisingSunKickSpells::PoolOfMists))
-                    l_PctModifier = l_Player->GetAura(RisingSunKickSpells::PoolOfMists)->GetEffect(EFFECT_3)->GetAmount();
-
                 /// Hotfixes : 24 novembre 2015 - now deals 20% more damage while in PvP combat
                 if (l_Target->GetTypeId() == TYPEID_PLAYER)
                     l_PctModifier += 20;
