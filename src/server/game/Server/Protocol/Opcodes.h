@@ -36,7 +36,7 @@ enum OpcodeTransferDirection : uint8
 /// List of Opcodes
 enum Opcodes
 {
-    MAX_OPCODE                                        = (0x7FFF+1),
+    MAX_OPCODE                                        = 0x1FFF,
     NUM_OPCODE_HANDLERS                               = MAX_OPCODE + 1,
     UNKNOWN_OPCODE                                    = (0xFFFF+1),
     NULL_OPCODE                                       = 0,
