@@ -349,7 +349,7 @@ class boss_hansgar : public CreatureScript
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 m_State = 0;
 
@@ -499,7 +499,7 @@ class boss_hansgar : public CreatureScript
                         /// Handle "phase" switch
                         case eStates::HansgarOut1:
                         {
-                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                             me->GetMotionMaster()->Clear();
                             me->SetReactState(ReactStates::REACT_PASSIVE);
