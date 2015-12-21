@@ -1481,10 +1481,14 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 }
 
                 l_TargetList.clear();
-
                 if (l_Target)
-                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (m_TotalAbsorbAmount / 6), l_Target);
-
+                {
+                    int32 l_Damage = p_DmgInfo.GetDamage();
+                    if (AuraEffectPtr l_PreviousAura = l_Target->GetAuraEffect(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, EFFECT_0))
+                        l_Damage += l_PreviousAura->GetAmount() * (l_PreviousAura->GetBase()->GetDuration() / l_PreviousAura->GetAmplitude());
+                    l_Damage /= 6;
+                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, l_Damage, l_Target);
+                }
             }
 
             void Register()
