@@ -17,6 +17,7 @@
 #include "Buildings/Alliance/Large/ABarracks.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/Large/AMageTower.hpp"
+#include "Buildings/Alliance/Large/AStables.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 #include "Buildings/Alliance/Medium/ALunarfallInn.hpp"
 #include "Buildings/Alliance/Medium/ABarn.hpp"
@@ -34,6 +35,7 @@
 #include "Buildings/Alliance/AHerbGarden.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
+#include "Buildings/Horde/Large/HStables.hpp"
 #include "Buildings/Horde/Large/HSpiritLodge.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
 #include "Buildings/Horde/Medium/HBarn.hpp"
@@ -284,6 +286,11 @@ namespace MS { namespace Garrison
 
     }
 
+    void GarrisonNPCAI::OnPlotInstanceUnload()
+    {
+
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -292,37 +299,48 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void GarrisonNPCAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-        if (p_ID == CreatureAIDataIDs::PlotInstanceID)
-        {
-            m_PlotInstanceLocation = nullptr;
 
-            for (uint32 l_I = 0; l_I < Globals::PlotInstanceCount; ++l_I)
+        switch (p_ID)
+        {
+            case CreatureAIDataIDs::PlotInstanceID:
             {
-                if (gGarrisonPlotInstanceInfoLocation[l_I].PlotInstanceID == (p_Value & 0x0000FFFF) && gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == ((p_Value >> 16) & 0x0000FFFF))
+                m_PlotInstanceLocation = nullptr;
+
+                for (uint32 l_I = 0; l_I < Globals::PlotInstanceCount; ++l_I)
                 {
-                    m_PlotInstanceLocation = &gGarrisonPlotInstanceInfoLocation[l_I];
-                    break;
+                    if (gGarrisonPlotInstanceInfoLocation[l_I].PlotInstanceID == (p_Value & 0x0000FFFF) && gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == ((p_Value >> 16) & 0x0000FFFF))
+                    {
+                        m_PlotInstanceLocation = &gGarrisonPlotInstanceInfoLocation[l_I];
+                        break;
+                    }
                 }
-            }
 
-            if (m_PlotInstanceLocation)
-            {
-                G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -m_PlotInstanceLocation->O);
+                if (m_PlotInstanceLocation)
+                {
+                    G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+                    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -m_PlotInstanceLocation->O);
 
-                /// transform plot coord
-                m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
+                    /// transform plot coord
+                    m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
             
-                OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
+                    OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
+                }
+                break;
             }
+            case CreatureAIDataIDs::BuildingID:
+            {
+                m_BuildingID = p_Value;
+                OnSetBuildingID(m_BuildingID);
+            }
+            case CreatureAIDataIDs::DailyReset:
+                OnDataReset();
+                break;
+            case CreatureAIDataIDs::DespawnData:
+                OnPlotInstanceUnload();
+                break;
+            default:
+                break;
         }
-        else if (p_ID == CreatureAIDataIDs::BuildingID)
-        {
-            m_BuildingID = p_Value;
-            OnSetBuildingID(m_BuildingID);
-        }
-        else if (p_ID == CreatureAIDataIDs::DailyReset)
-            OnDataReset();
     }
 
     void GarrisonNPCAI::SetGUID(uint64 p_Guid, int32 p_Id)
@@ -654,6 +672,15 @@ namespace MS { namespace Garrison
         }
     }
 
+    void npc_garrison_atheeru_palestarAI::OnPlotInstanceUnload()
+    {
+        std::list<Creature*> l_CreatureList;
+        me->GetCreatureListWithEntryInGrid(l_CreatureList, 82441, 250.0f);
+
+        for (Creature* l_Creature : l_CreatureList)
+            l_Creature->DespawnOrUnsummon();
+    }
+
     bool npc_garrison_atheeru_palestar::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Bring back the assemblies.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -880,6 +907,10 @@ void AddSC_Garrison_NPC()
         /// Mage Tower
         new MS::Garrison::npc_ApprenticeVarNath;
         new MS::Garrison::npc_AncientWaygateProtector;
+
+        /// Stables
+        new MS::Garrison::npc_FannyFirebeard;
+        new MS::Garrison::npc_KeeganFirebeard;
     }
 
     /// Horde
@@ -952,6 +983,10 @@ void AddSC_Garrison_NPC()
 
         /// Spirit Lodge
         new MS::Garrison::npc_Varsha;
+
+        /// Stables
+        new MS::Garrison::npc_Tormak;
+        new MS::Garrison::npc_SagePaluna;
     }
 
     /// General
