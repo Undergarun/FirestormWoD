@@ -9557,9 +9557,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (!(procEx & PROC_EX_DODGE) && !(procEx & PROC_EX_PARRY))
                 return false;
 
-            if (!roll_chance_i(30))
-                return false;
-
             break;
         }
         case 68164:// Glyph of Thunder Strike
