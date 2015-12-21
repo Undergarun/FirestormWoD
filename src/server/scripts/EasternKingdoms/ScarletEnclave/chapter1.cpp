@@ -38,7 +38,6 @@ enum eDeathKnightSpells
 
     SPELL_ICY_TOUCH                 = 52372,
     SPELL_PLAGUE_STRIKE             = 52373,
-    SPELL_BLOOD_STRIKE              = 52374, ///< Removed in 6.0.2 http://eu.battle.net/wow/en/blog/15682579
     SPELL_DEATH_COIL                = 52375
 };
 
@@ -263,11 +262,6 @@ public:
                         DoCast(me->getVictim(), SPELL_PLAGUE_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(SPELL_PLAGUE_STRIKE, 5000, GCD_CAST);
-                        break;
-                    case EVENT_BLOOD_STRIKE:
-                        DoCast(me->getVictim(), SPELL_BLOOD_STRIKE);
-                        events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5000, GCD_CAST);
                         break;
                     case EVENT_DEATH_COIL:
                         DoCast(me->getVictim(), SPELL_DEATH_COIL);
