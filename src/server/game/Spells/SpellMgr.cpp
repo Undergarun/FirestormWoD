@@ -5686,6 +5686,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 15;
                 spellInfo->ProcCharges = 15;
                 break;
+            case 53817: ///< Maelstrom Weapon
+                spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
+                spellInfo->Effects[EFFECT_2].MiscValue = SPELLMOD_DAMAGE;
+                spellInfo->Effects[EFFECT_4].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_4].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
+                spellInfo->Effects[EFFECT_4].MiscValue = SPELLMOD_DAMAGE;
+                spellInfo->ProcFlags = 0;
+                break;
             case 126135: ///< Lightwell
                 spellInfo->OverrideSpellList.push_back(724); ///< Add old Lightwell to override list
                 break;
@@ -6823,6 +6832,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81298: ///< Consecration Visual
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_DEST_DEST;
                 break;
+            case 159556:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                spellInfo->Effects[0].Amplitude = 1000;
             case 159740: ///< Glyph of Raging Blow
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TriggerSpell = 159747;
                 break;
@@ -6857,6 +6870,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 89792: ///< Flee
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetB = Targets::TARGET_UNIT_SUMMONER;
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetB = Targets::TARGET_UNIT_SUMMONER;
+                break;
+            case 110310: ///< Dampening
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].Amplitude = 10000;  ///< 10 secs
                 break;
             default:
                 break;

@@ -1341,7 +1341,8 @@ class spell_pri_smite: public SpellScriptLoader
         }
 };
 
-// Lightwell Renew - 60123
+/// Last Build 6.2.3
+/// Lightwell Renew - 60123
 class spell_pri_lightwell_renew: public SpellScriptLoader
 {
     public:
@@ -1353,24 +1354,19 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster->GetTypeId() != TYPEID_UNIT || !l_Caster->ToCreature()->isSummon())
-                            return;
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                        // proc a spellcast
-                        if (AuraPtr l_ChargesAura = l_Caster->GetAura(LIGHTWELL_CHARGES))
-                        {
-                            if (!l_Target->HasAura(LIGHTSPRING_RENEW))
-                            {
-                                l_Caster->CastSpell(l_Target, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, l_Caster->ToTempSummon()->GetSummonerGUID());
-                                if (l_ChargesAura->ModCharges(-1))
-                                    l_Caster->ToTempSummon()->UnSummon();
-                            }
-                        }
-                    }
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->GetTypeId() != TYPEID_UNIT || !l_Caster->ToCreature()->isSummon())
+                    return;
+
+                if (AuraPtr l_ChargesAura = l_Caster->GetAura(LIGHTWELL_CHARGES))
+                {
+                    if (!l_Target->HasAura(LIGHTSPRING_RENEW))
+                        l_Caster->CastSpell(l_Target, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, l_Caster->ToTempSummon()->GetSummonerGUID());
                 }
             }
 

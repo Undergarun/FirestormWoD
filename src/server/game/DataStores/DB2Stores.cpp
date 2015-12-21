@@ -937,7 +937,6 @@ uint8 GetPowerIndexByClass(uint8 p_Class, uint8 p_Power)
         return Powers::MAX_POWERS;
 
     auto const& l_List = sPowersByClassStore[p_Class];
-
     for (uint8 l_I = 0; l_I < l_List.size(); ++l_I)
     {
         if (l_List[l_I] == p_Power)

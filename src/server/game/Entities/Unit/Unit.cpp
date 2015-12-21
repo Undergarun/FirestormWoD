@@ -3895,7 +3895,7 @@ void Unit::_ApplyAura(AuraApplication* p_AurApp, uint32 p_EffMask)
             for (uint8 i = 0; i < l_Aura->GetEffectCount(); ++i)
             {
                 if (l_Aura->GetEffect(i))
-                    l_Aura->GetEffect(i)->ChangeAmount(l_Aura->GetEffect(i)->GetAmount() * 2);
+                    l_Aura->GetEffect(i)->ChangeAmount(l_Aura->GetEffect(i)->CalculateAmount(this) * 2);
             }
         }
     }
@@ -13672,7 +13672,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     if (GetTypeId() == TYPEID_PLAYER)
         l_RidingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
 
-    for (uint32 i = 0; i < MAX_MOUNT_CAPABILITIES; i++)
+    for (uint32 i = 0; i < MAX_MOUNT_CAPABILITIES; ++i)
     {
         MountCapabilityEntry const* l_MountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
         if (!l_MountCapability)
