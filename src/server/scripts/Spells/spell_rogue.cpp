@@ -2652,6 +2652,10 @@ class spell_rog_bandits_guile : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
+                /// Talent works from 60 lvl
+                if (l_Caster && l_Caster->getLevel() < 60)
+                    return;
+
                 l_Caster->SetInsightCount(l_Caster->GetInsightCount() + 1);
 
                 /// it takes a total of 4 strikes to get a proc, or a level up
