@@ -757,7 +757,7 @@ public:
             if (target->GetUInt32Value(UNIT_FIELD_FLAGS) & unitFlags[i].flag)
                 handler->PSendSysMessage(unitFlags[i].text, unitFlags[i].flag);
 
-        handler->PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS2), target->GetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS), target->getFaction());
+        handler->PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS_2), target->GetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS), target->getFaction());
         handler->PSendSysMessage(LANG_COMMAND_RESPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
         handler->PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
         handler->PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());

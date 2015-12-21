@@ -387,7 +387,7 @@ class boss_koragh : public CreatureScript
                         me->CastSpell(me, eSpells::KnockbackForRecharge, true);
                         me->CastSpell(me, eSpells::VulnerabilityAura, true);
 
-                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                         m_Events.DelayEvent(eEvents::EventOverflowingEnergy, 20 * TimeConstants::IN_MILLISECONDS);
 
@@ -579,7 +579,7 @@ class boss_koragh : public CreatureScript
                         me->RemoveAura(eSpells::VulnerabilityAura);
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                         me->GetMotionMaster()->Clear();
 

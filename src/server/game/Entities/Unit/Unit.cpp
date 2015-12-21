@@ -66,6 +66,7 @@
 #include "BattlegroundTP.h"
 #include "BattlegroundDG.h"
 #include "Guild.h"
+#include "DB2Stores.h"
 //#include <Reporting/Reporter.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -1464,6 +1465,18 @@ void Unit::CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castI
     targets.SetGOTarget(go);
 
     CastSpell(targets, spellInfo, NULL, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
+}
+
+void Unit::CastSpell(Item* p_ItemTarget, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem, AuraEffectPtr p_TriggeredByAura, uint64 p_OriginalCaster)
+{
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
+    if (!l_SpellInfo)
+        return;
+
+    SpellCastTargets l_Targets;
+    l_Targets.SetItemTarget(p_ItemTarget);
+
+    CastSpell(l_Targets, l_SpellInfo, nullptr, p_Triggered ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE, p_CastItem, p_TriggeredByAura, p_OriginalCaster);
 }
 
 // Obsolete func need remove, here only for comotability vs another patches
@@ -3882,7 +3895,7 @@ void Unit::_ApplyAura(AuraApplication* p_AurApp, uint32 p_EffMask)
             for (uint8 i = 0; i < l_Aura->GetEffectCount(); ++i)
             {
                 if (l_Aura->GetEffect(i))
-                    l_Aura->GetEffect(i)->ChangeAmount(l_Aura->GetEffect(i)->GetAmount() * 2);
+                    l_Aura->GetEffect(i)->ChangeAmount(l_Aura->GetEffect(i)->CalculateAmount(this) * 2);
             }
         }
     }
@@ -5226,7 +5239,7 @@ float Unit::GetTotalAuraMultiplier(AuraType auratype) const
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
-        multiplier += CalculatePct(1.0, (*i)->GetAmount());
+        AddPct(multiplier, (*i)->GetAmount());
 
     return multiplier;
 }
@@ -5767,7 +5780,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
     data << uint32(log->blocked);
 
     data.WriteBit(false);               ///< Is periodic
-    data.WriteBits(log->HitInfo, 9);    ///< Flags
+    data.WriteBits(log->HitInfo, 8);    ///< Flags
     data.WriteBit(false);               ///< Has debug info
     data.WriteBit(false);               ///< Has JamSpellCastLogData
     data.FlushBits();
@@ -10291,7 +10304,7 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
                 {
                     if (ReputationRank const* repRank = selfPlayerOwner->GetReputationMgr().GetForcedRankIfAny(targetFactionTemplateEntry))
                         return *repRank;
-                    if (!selfPlayerOwner->HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_IGNORE_REPUTATION))
+                    if (!selfPlayerOwner->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_IGNORE_REPUTATION))
                     {
                         if (FactionEntry const* targetFactionEntry = sFactionStore.LookupEntry(targetFactionTemplateEntry->Faction))
                         {
@@ -10335,7 +10348,7 @@ ReputationRank Unit::GetFactionReactionTo(FactionTemplateEntry const* factionTem
             return REP_HOSTILE;
         if (ReputationRank const* repRank = targetPlayerOwner->GetReputationMgr().GetForcedRankIfAny(factionTemplateEntry))
             return *repRank;
-        if (!target->HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_IGNORE_REPUTATION))
+        if (!target->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_IGNORE_REPUTATION))
         {
             if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplateEntry->Faction))
             {
@@ -11944,7 +11957,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask p_SchoolMask) const
         // Base value
         l_DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
-        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+        if (GetPowerIndex(POWER_MANA, getClass()) != MAX_POWERS)
             l_DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));
 
         // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
@@ -12914,7 +12927,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
     // Healing bonus of spirit, intellect and strength
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+        if (GetPowerIndex(POWER_MANA, getClass()) != MAX_POWERS)
             AdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));
 
         // Base value
@@ -13188,26 +13201,28 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             DoneTotalMod += CalculatePct(1.0, amount);
     }
 
-    // Custom MoP Script
-    // 76856 - Mastery : Unshackled Fury
+    /// 76856 - Mastery : Unshackled Fury
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0)
     {
         if (HasAura(76856) && HasAuraState(AURA_STATE_ENRAGE))
         {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.375f;
-            DoneTotalMod += CalculatePct(1.0, Mastery);
+            if (AuraEffectPtr l_AurEff = GetAuraEffect(76856, EFFECT_0, GetGUID()))
+            {
+                float l_Mastery = (float)l_AurEff->GetAmount();
+
+                DoneTotalMod += CalculatePct(1.0, l_Mastery);
+            }
         }
     }
 
-    // Custom MoP Script
-    // 76806 - Mastery : Main Gauche
+    /// 76806 - Mastery : Main Gauche
     if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == WeaponAttackType::BaseAttack)
     {
-        if (HasAura(76806))
+        if (AuraEffectPtr l_AurEff = GetAuraEffect(76806, EFFECT_0, GetGUID()))
         {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
+            float l_Mastery = (float)l_AurEff->GetAmount();
 
-            if (roll_chance_f(Mastery))
+            if (roll_chance_f(l_Mastery))
                 CastSpell(victim, 86392, true);
         }
     }
@@ -13552,13 +13567,13 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 l_Data.appendPackGUID(GetGUID());   ///< MoverGUID
                 l_Data << uint32(0);                ///< SequenceIndex
                 l_Data << uint32(VehicleId);        ///< VehicleRecID
-                ToPlayer()->GetSession()->SendPacket(&l_Data);
+                SendMessageToSet(&l_Data, true);
 
                 // Send others that we now have a vehicle
                 l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 16 + 2 + 4);
                 l_Data.appendPackGUID(GetGUID());
                 l_Data << uint32(VehicleId);
-                SendMessageToSet(&l_Data, true);
+                ToPlayer()->GetSession()->SendPacket(&l_Data);
 
                 // mounts can also have accessories
                 GetVehicleKit()->InstallAllAccessories(false);
@@ -13608,14 +13623,14 @@ void Unit::Dismount()
 
         WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16 + 2 + 4 + 4);
         l_Data.appendPackGUID(l_Guid);
-        l_Data << uint32(0);        ///< SequenceIndex
-        l_Data << uint32(0);        ///< VehicleRecID
-        ToPlayer()->GetSession()->SendPacket(&l_Data);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        ToPlayer()->SendMessageToSet(&l_Data, true);
 
         l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 4);
         l_Data.appendPackGUID(l_Guid);
         l_Data << uint32(0);
-        ToPlayer()->SendMessageToSet(&l_Data, true);
+        ToPlayer()->GetSession()->SendPacket(&l_Data);
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_MOUNTED);
@@ -13643,59 +13658,61 @@ void Unit::Dismount()
 MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 {
     if (!mountType)
-        return NULL;
+        return nullptr;
 
-    MountTypeEntry const* mountTypeEntry = sMountTypeStore.LookupEntry(mountType);
-    if (!mountTypeEntry)
-        return NULL;
+    MountTypeEntry const* l_MountTypeEntry = sMountTypeStore.LookupEntry(mountType);
+    if (!l_MountTypeEntry)
+        return nullptr;
 
-    uint32 zoneId, areaId;
-    GetZoneAndAreaId(zoneId, areaId);
-    uint32 ridingSkill = 5000;
+    uint32 l_ZoneId;
+    uint32 l_AreaId;
+    GetZoneAndAreaId(l_ZoneId, l_AreaId);
+
+    uint32 l_RidingSkill = 5000;
     if (GetTypeId() == TYPEID_PLAYER)
-        ridingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
+        l_RidingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
 
-    for (uint32 i = MAX_MOUNT_CAPABILITIES; i > 0; --i)
+    for (uint32 i = 0; i < MAX_MOUNT_CAPABILITIES; ++i)
     {
-        MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(mountTypeEntry->MountCapability[i - 1]);
-        if (!mountCapability)
+        MountCapabilityEntry const* l_MountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
+        if (!l_MountCapability)
             continue;
 
-        if (ridingSkill < mountCapability->RequiredRidingSkill)
+        if (l_RidingSkill < l_MountCapability->RequiredRidingSkill)
             continue;
 
         if (HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
         {
-            if (!(mountCapability->Flags & MOUNT_FLAG_CAN_PITCH))
+            if (!(l_MountCapability->Flags & MOUNT_FLAG_CAN_PITCH))
                 continue;
         }
         else if (HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
         {
-            if (!(mountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
+            if (!(l_MountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
                 continue;
         }
 
-        if (mountCapability->RequiredMap != -1 && int32(GetMapId()) != mountCapability->RequiredMap)
+        if (l_MountCapability->RequiredMap != -1 && int32(GetMapId()) != l_MountCapability->RequiredMap)
             continue;
 
-        if (mountCapability->RequiredArea && (mountCapability->RequiredArea != zoneId && mountCapability->RequiredArea != areaId))
+        if (l_MountCapability->RequiredArea && (l_MountCapability->RequiredArea != l_ZoneId && l_MountCapability->RequiredArea != l_AreaId))
             continue;
 
-        if (mountCapability->RequiredAura && !HasAura(mountCapability->RequiredAura))
+        if (l_MountCapability->RequiredAura && !HasAura(l_MountCapability->RequiredAura))
             continue;
 
-        if (mountCapability->RequiredSpell && (GetTypeId() != TYPEID_PLAYER || !ToPlayer()->HasSpell(mountCapability->RequiredSpell)))
+        if (l_MountCapability->RequiredSpell && (GetTypeId() != TYPEID_PLAYER || !ToPlayer()->HasSpell(l_MountCapability->RequiredSpell)))
             continue;
 
-        return mountCapability;
+        return l_MountCapability;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void Unit::SendMountResult(MountResult p_Error)
 {
-    if (!ToPlayer())
+    if (GetTypeId() != TYPEID_PLAYER)
         return;
 
     WorldPacket l_Data(SMSG_MOUNT_RESULT, 4);
@@ -14366,8 +14383,8 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             return;
     }
 
-    // now we ready for speed calculation
-    float total_non_stack_bonus = std::max(main_speed_mod, non_stack_bonus);
+    /// Now we ready for speed calculation
+    float total_non_stack_bonus = main_speed_mod + non_stack_bonus;
     float speed = stack_bonus + (total_non_stack_bonus / 100);
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -15789,51 +15806,29 @@ Unit::PowerTypeSet Unit::GetUsablePowers() const
     return l_Powers;
 }
 
-uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
+uint32 Unit::GetPowerIndex(uint32 powerId, uint32 classId) const
 {
-    uint32 l_PowerIndex = 0;
 
     // See CGUnit_C::GetPowerSlot
     if (GetTypeId() != TYPEID_PLAYER)
     {
         Powers l_DisplayPower = getPowerType();
         if (l_DisplayPower == (Powers)powerId)
-            l_PowerIndex = 0;
+            return 0;
         else if (powerId == Powers::POWER_ALTERNATE_POWER)
-            l_PowerIndex = 1;
+            return 1;
         else if (powerId == Powers::POWER_COMBO_POINT)
-            l_PowerIndex = 2;
+            return 2;
         else
-            l_PowerIndex = Powers::MAX_POWERS;
-
-        return l_PowerIndex;
+            return Powers::MAX_POWERS;
     }
 
-    ChrClassesEntry const* l_ClassEntry = sChrClassesStore.LookupEntry(classId);
-
-    ASSERT(l_ClassEntry && "Class not found");
-    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
-    {
-        ChrPowerTypesEntry const* l_PowerEntry = sChrPowerTypesStore.LookupEntry(l_I);
-        if (!l_PowerEntry)
-            continue;
-
-        if (l_PowerEntry->classId != classId)
-            continue;
-
-        if (l_PowerEntry->power == powerId)
-            return l_PowerIndex;
-
-        ++l_PowerIndex;
-    }
-
-    // return invalid value - this class doesn't use this power
-    return MAX_POWERS;
+    return GetPowerIndexByClass(classId, powerId);
 };
 
 int32 Unit::GetPower(Powers p_Power) const
 {
-    uint32 l_PowerIndex = GetPowerIndexByClass(p_Power, getClass());
+    uint32 l_PowerIndex = GetPowerIndex(p_Power, getClass());
     if (l_PowerIndex == MAX_POWERS)
         return 0;
 
@@ -15842,7 +15837,7 @@ int32 Unit::GetPower(Powers p_Power) const
 
 int32 Unit::GetMaxPower(Powers power) const
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power, getClass());
     if (powerIndex == MAX_POWERS)
         return 0;
 
@@ -15885,7 +15880,7 @@ namespace EclipsePower
 
 void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 {
-    uint32 l_PowerIndex = GetPowerIndexByClass(p_PowerType, getClass());
+    uint32 l_PowerIndex = GetPowerIndex(p_PowerType, getClass());
 
     if (l_PowerIndex == MAX_POWERS)
         return;
@@ -15972,7 +15967,7 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
 void Unit::SetMaxPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    uint32 powerIndex = GetPowerIndex(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
 
@@ -16655,6 +16650,19 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if ((procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && HasAura(165394) && GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsTwoHandUsed() && procSpell == nullptr)
         CastSpell(this, 163948, true);
 
+    /// Plaguebearer
+    if (procSpell && target && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
+    {
+        if (AuraPtr l_BloodPlague = target->GetAura(55078, GetGUID()))
+            l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);
+
+        if (AuraPtr l_FrostFever = target->GetAura(55095, GetGUID()))
+            l_FrostFever->SetDuration(l_FrostFever->GetDuration() + 4000);
+
+        if (HasAura(152281))
+            CastSpell(target, 155159);
+    }
+
     // Dematerialize
     if (target && !isVictim && target->GetTypeId() == TYPEID_PLAYER && target->HasAura(122464) && procSpell && procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN))
     {
@@ -16696,12 +16704,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         || (procSpell->DurationEntry && procSpell->DurationEntry->Duration[0] > 0 && procSpell->DurationEntry->Duration[0] < 4000 && procSpell->AttributesEx & SPELL_ATTR1_CHANNELED_2)))
         if (AuraApplication* aura = GetAuraApplication(108839, GetGUID()))
             aura->GetBase()->DropStack();
-
-    // Hack Fix for Invigoration
-    if (GetTypeId() == TYPEID_UNIT && GetOwner() && GetOwner()->ToPlayer() && GetOwner()->HasAura(53253) &&
-        damage > 0 && ToPet() && ToPet()->IsPermanentPetFor(GetOwner()->ToPlayer()))
-        if (roll_chance_i(15))
-            GetOwner()->EnergizeBySpell(GetOwner(), 53253, 20, POWER_FOCUS);
 
     // Fix Drop charge for Killing Machine
     if (GetTypeId() == TYPEID_PLAYER && HasAura(51124) && getClass() == CLASS_DEATH_KNIGHT && procSpell && (procSpell->Id == 49020 || procSpell->Id == 49143 || procSpell->Id == 66198 || procSpell->Id == 66196))
@@ -18062,8 +18064,11 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
     // Check spellProcEvent data requirements
     if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
-        // Hack Fix Backdraft can be triggered if damage are absorbed
-        if (spellProto && spellProto->Id == 117896 && procSpell && procSpell->Id == 17962 && procExtra && (procExtra & PROC_EX_ABSORB))
+        /// Hack Fix Grimoire of Synergy can be triggered if damage is absorbed
+        if (spellProto && spellProto->Id == 171975 && procSpell && procExtra && (procExtra & PROC_EX_ABSORB))
+            return true;
+        // Hack Fix Backdraft can be triggered if damage is absorbed
+        else if (spellProto && spellProto->Id == 117896 && procSpell && procSpell->Id == 17962 && procExtra && (procExtra & PROC_EX_ABSORB))
             return true;
         else if (spellProto && spellProto->Id == 44448 && procSpell &&
             (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
@@ -20554,7 +20559,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Glyph of Metamorphosis
             if (HasAura(159680))
                 return 0;
-            return 39261;
+            return 25277;
         }
         default:
             break;
@@ -22042,4 +22047,23 @@ void Unit::RemovePoisonTarget(uint32 p_LowGuid, uint32 p_SpellID)
 void Unit::ClearPoisonTargets()
 {
     m_PoisonTargets.clear();
+}
+
+void Unit::SetChannelSpellID(uint32 p_SpellID)
+{
+    SetChannelSpellID(sSpellMgr->GetSpellInfo(p_SpellID));
+}
+
+void Unit::SetChannelSpellID(SpellInfo const* p_SpellInfo)
+{
+    if (p_SpellInfo)
+    {
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, p_SpellInfo->Id);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, p_SpellInfo->FirstSpellXSpellVIsualID);
+    }
+    else
+    {
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, 0);
+    }
 }

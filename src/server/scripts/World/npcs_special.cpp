@@ -2113,7 +2113,8 @@ class npc_ebon_gargoyle : public CreatureScript
         }
 };
 
-// Lightwell - 64571
+/// Last Build 6.2.3
+/// Lightwell - 64571
 class npc_new_lightwell : public CreatureScript
 {
     public:
@@ -2121,12 +2122,22 @@ class npc_new_lightwell : public CreatureScript
 
         struct npc_new_lightwellAI : public PassiveAI
         {
+            enum eSpells
+            {
+                LightWellHeal = 60123,
+                LightWellHealAura = 126154,
+                ChargeAura = 59907
+            };
+
+            uint64 m_OwnerGUID = 0;
+            uint32 m_RenewTimer;
+
             npc_new_lightwellAI(Creature* creature) : PassiveAI(creature)
             {
-                DoCast(me, 59907, false);
-                renewTimer = 1000;
+                DoCast(me, eSpells::ChargeAura, false);
+                m_RenewTimer = 1000;
 
-                if (AuraPtr charges = me->GetAura(59907))
+                if (AuraPtr charges = me->GetAura(eSpells::ChargeAura))
                 {
                     charges->SetCharges(15);
                     charges->GetEffect(0)->ChangeAmount(15);
@@ -2142,8 +2153,6 @@ class npc_new_lightwell : public CreatureScript
                 }
             }
 
-            uint32 renewTimer;
-
             void EnterEvadeMode()
             {
                 if (!me->isAlive())
@@ -2154,39 +2163,53 @@ class npc_new_lightwell : public CreatureScript
                 me->ResetPlayerDamageReq();
             }
 
+
+            void IsSummonedBy(Unit* p_Owner)
+            {
+                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
+                    m_OwnerGUID = p_Owner->GetGUID();
+            }
+
             void UpdateAI(const uint32 diff)
             {
-                if (renewTimer)
+                if (m_RenewTimer)
                 {
-                    if (renewTimer <= diff)
+                    if (m_RenewTimer <= diff)
                     {
-                        if (me->GetOwner())
+                        Unit* l_Owner = ObjectAccessor::FindUnit(m_OwnerGUID);
+                        if (l_Owner != nullptr)
                         {
-                            if (Player* plr = me->GetOwner()->ToPlayer())
+                            if (Player* l_Player = l_Owner->ToPlayer())
                             {
-                                std::list<Unit*> party;
-                                std::list<Unit*> tempList;
-                                plr->GetRaidMembers(party);
+                                std::list<Unit*> l_Party;
+                                std::list<Unit*> l_TempList;
+                                l_Player->GetRaidMembers(l_Party);
 
-                                for (auto itr : party)
+                                for (auto itr : l_Party)
                                 {
                                     if (itr->GetHealthPct() >= 50.0f ||
                                         itr->GetDistance(me) >= 40.0f ||
-                                        itr->HasAura(7001))
+                                        itr->HasAura(eSpells::LightWellHealAura))
                                         continue;
 
-                                    tempList.push_back(itr);
+                                    l_TempList.push_back(itr);
                                 }
 
-                                for (auto itr : tempList)
-                                    me->CastSpell(itr, 60123, true);
+                                for (auto itr : l_TempList)
+                                {
+                                    me->CastSpell(itr, eSpells::LightWellHeal, true);
+                                    if (AuraPtr l_Charges = me->GetAura(eSpells::ChargeAura))
+                                    {
+                                        l_Charges->DropCharge();
+                                        l_Charges->GetEffect(0)->ChangeAmount(l_Charges->GetCharges());
+                                    }
+                                }
                             }
                         }
-
-                        renewTimer = 1000;
+                        m_RenewTimer = 1000;
                     }
                     else
-                        renewTimer -= diff;
+                        m_RenewTimer -= diff;
                 }
             }
         };
@@ -3837,7 +3860,7 @@ class npc_transcendence_spirit : public CreatureScript
             {
                 me->CastSpell(me, SPELL_MEDITATE, true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
 
             void IsSummonedBy(Unit* owner)
@@ -3891,6 +3914,7 @@ class npc_transcendence_spirit : public CreatureScript
 enum voidTendrilsSpells
 {
     SPELL_VOID_TENDRILS_ROOT = 108920,
+    SPELL_VOID_TENDRILS_GRASP = 114404
 };
 
 class npc_void_tendrils : public CreatureScript
@@ -3917,25 +3941,34 @@ class npc_void_tendrils : public CreatureScript
             void SetGUID(uint64 guid, int32)
             {
                 targetGUID = guid;
+
+                if (Unit* l_Target = ObjectAccessor::FindUnit(targetGUID))
+                    me->CastSpell(l_Target, SPELL_VOID_TENDRILS_GRASP, true);
             }
 
             void JustDied(Unit* killer)
             {
                 if (Unit* m_target = ObjectAccessor::FindUnit(targetGUID))
+                {
                     m_target->RemoveAura(SPELL_VOID_TENDRILS_ROOT);
+                    m_target->RemoveAura(SPELL_VOID_TENDRILS_GRASP);
+                }
             }
 
             void IsSummonedBy(Unit* owner)
             {
+
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER)
                 {
                     me->SetLevel(owner->getLevel());
-                    me->SetMaxHealth(owner->CountPctFromMaxHealth(20));
+
+                    me->SetMaxHealth(owner->CountPctFromMaxHealth(10));
                     me->SetHealth(me->GetMaxHealth());
+
                     // Set no damage
                     me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, 0.0f);
                     me->SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, 0.0f);
-
+                    me->setFaction(owner->getFaction());
                     me->AddAura(SPELL_ROOT_FOR_EVER, me);
                 }
                 else
@@ -3946,6 +3979,10 @@ class npc_void_tendrils : public CreatureScript
             {
                 if (!(ObjectAccessor::FindUnit(targetGUID)))
                     me->DespawnOrUnsummon();
+
+                if (Unit* l_Target = ObjectAccessor::FindUnit(targetGUID))
+                    if (!l_Target->HasAura(SPELL_VOID_TENDRILS_GRASP) && !l_Target->HasAura(SPELL_VOID_TENDRILS_ROOT))
+                        me->DespawnOrUnsummon();
             }
         };
 
@@ -4395,7 +4432,7 @@ class npc_rogue_decoy : public CreatureScript
             {
                 m_DespawnTimer = 0;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_RENAME);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
 
             void IsSummonedBy(Unit* p_Owner) override
@@ -4549,7 +4586,7 @@ class npc_training_dummy_damage : public CreatureScript
                 me->ReenableHealthRegen();
 
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);        ///< Immune to knock aways like blast wave
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);   ///< Immune to knock back effects like Whiplash

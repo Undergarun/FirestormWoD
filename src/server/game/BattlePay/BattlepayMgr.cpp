@@ -10,6 +10,7 @@
 #include "BattlepayPacketFactory.h"
 #include "Chat.h"
 #include "ScriptMgr.h"
+#include "ObjectMgr.h"
 
 namespace Battlepay
 {

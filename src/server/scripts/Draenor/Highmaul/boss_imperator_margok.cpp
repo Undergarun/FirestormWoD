@@ -363,7 +363,7 @@ class boss_imperator_margok : public CreatureScript
                     {
                         AddTimedDelayedOperation(200, [this]() -> void
                         {
-                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                             me->SetAIAnimKitId(0);
                             me->SetAnimTier(0);
@@ -1208,7 +1208,7 @@ class boss_imperator_margok : public CreatureScript
             {
                 me->AttackStop();
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 Talk(eTalks::TalkRuneOfDisplacement);
 
@@ -1259,7 +1259,7 @@ class boss_imperator_margok : public CreatureScript
             {
                 me->AttackStop();
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 me->CastSpell(me, eSpells::EncounterEvent, true);
                 me->CastSpell(me, eSpells::TeleportToFortification, true);
@@ -1351,7 +1351,7 @@ class boss_imperator_margok : public CreatureScript
             {
                 me->AttackStop();
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 me->CastSpell(me, eSpells::EncounterEvent, true);
                 me->CastSpell(me, eSpells::TeleportToReplication, true);
@@ -1777,7 +1777,7 @@ class npc_highmaul_destructive_resonance : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 switch (m_Phase)
                 {
@@ -2000,7 +2000,7 @@ class npc_highmaul_destructive_resonance_replication : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 me->CastSpell(me, eSpells::DestructiveResonanceReplicationAura, true);
 

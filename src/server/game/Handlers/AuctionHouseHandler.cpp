@@ -674,9 +674,19 @@ void WorldSession::HandleAuctionListItems(WorldPacket& p_RecvData)
     p_RecvData >> l_Quality;
     p_RecvData >> l_SortCount;
 
+    uint32 l_UnkCount = p_RecvData.read<uint32>();
+    uint8 l_UnkByte = p_RecvData.read<uint8>();
+
+    std::vector<uint8> l_UnkBytes;
+    l_UnkBytes.resize(l_UnkCount);
+
+    for (uint32 l_I = 0; l_I < l_UnkCount; ++l_I)
+        l_UnkBytes[l_I] = p_RecvData.read<uint8>();
+
     l_NameLen = p_RecvData.ReadBits(8);
     p_RecvData.FlushBits();
     l_Name = p_RecvData.ReadString(l_NameLen);
+
     l_Usable = p_RecvData.ReadBit();
     l_ExactMatch = p_RecvData.ReadBit();
 

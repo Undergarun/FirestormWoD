@@ -75,6 +75,7 @@ enum PaladinSpells
     PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE    = 88852,
     PALADIN_SPELL_BEACON_OF_LIGHT               = 53563,
     PALADIN_SPELL_BEACON_OF_FAITH               = 156910,
+    PALADIN_SPELL_SELFLESS_HEALER_VISUAL        = 128863,
     PALADIN_SPELL_SELFLESS_HEALER_STACK         = 114250,
     PALADIN_SPELL_SELFLESS_HEALER               = 85804,
     PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC  = 132403,
@@ -1156,7 +1157,9 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
 
                 /// 1.1 + 1.1^2 + ... + 1.1^9 + 1.1^9 * 5 = 26.727163056
                 /// 1 / 26,727163056 = 0.0374151195, which is the factor to get from the whole spells SP scaling to the base scaling of the 0th tick
-                float l_BaseValue = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000) * 0.0374151195;
+                float l_BaseValue = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000);
+                if (GetSpellInfo()->Id == eSpells::ExecutionSentence)
+                    l_BaseValue *= 0.0374151195f;
 
                 uint32 l_TickNumber = p_AurEff->GetTickNumber();
 
@@ -2473,6 +2476,7 @@ class spell_pal_holy_shield: public SpellScriptLoader
         }
 };
 
+/// Last Build 6.2.3
 /// Beacon of Faith - 156910
 class spell_pal_beacon_of_faith: public SpellScriptLoader
 {
@@ -2485,10 +2489,15 @@ class spell_pal_beacon_of_faith: public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                if (Unit* l_Target = GetExplTargetUnit())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
                 if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
                     return SPELL_FAILED_BAD_TARGETS;
+                    
                 return SPELL_CAST_OK;
             }
 
@@ -2786,6 +2795,10 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
                     return;
 
                 l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
+
+                if (AuraPtr l_SelflessHealer = l_Caster->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
+                    if (l_SelflessHealer->GetStackAmount() == 3)
+                        l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_VISUAL, true);
             }
 
             void Register()
@@ -3422,6 +3435,39 @@ class spell_pal_t17_protection_4p : public SpellScriptLoader
         }
 };
 
+/// Glyph of the Consecrator - 159556
+class spell_pal_glyph_of_the_consecration : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_the_consecration() : SpellScriptLoader("spell_pal_glyph_of_the_consecration") { }
+
+        class spell_pal_glyph_of_the_consecration_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_glyph_of_the_consecration_AuraScript);
+
+            enum eSpells
+            {
+                ConsecrationDamage = 159561
+            };
+
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpells::ConsecrationDamage, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_glyph_of_the_consecration_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_glyph_of_the_consecration_AuraScript();
+        }
+};
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -3460,6 +3506,7 @@ class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_glyph_of_the_consecration();
     new spell_pal_beacon_of_light();
     new spell_pal_beacon_of_light_proc();
     new spell_pal_glyph_of_flash_of_light();

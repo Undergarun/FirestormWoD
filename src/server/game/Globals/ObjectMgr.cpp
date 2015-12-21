@@ -3012,7 +3012,6 @@ void ObjectMgr::LoadItemSpecs()
             continue;
         
         ItemSpecStats itemSpecStats(sItemStore.LookupEntry(l_ItemTemplate.ItemId), sItemSparseStore.LookupEntry(l_ItemTemplate.ItemId));
-
         if (itemSpecStats.ItemSpecStatCount)
         {
             for (uint32 l_SpecIndex = 0; l_SpecIndex < sItemSpecStore.GetNumRows(); l_SpecIndex++)
@@ -3073,7 +3072,6 @@ void ObjectMgr::LoadItemSpecs()
             }
         }
     }
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
@@ -9777,7 +9775,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     return NULL;
 }
 
-void ObjectMgr::LoadResearchSiteZones()
+ void ObjectMgr::LoadResearchSiteZones()
 {
     uint32 l_OldMSTime = getMSTime();
 

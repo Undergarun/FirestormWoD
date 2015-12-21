@@ -37,10 +37,10 @@ enum UpdatefieldFlags
     UF_FLAG_URGENT_SELF_ONLY    = 0x400
 };
 
-extern uint32 ItemUpdateFieldFlags[CONTAINER_END];
-extern uint32 ItemDynamicUpdateFieldFlags[CONTAINER_DYNAMIC_END];
-extern uint32 UnitUpdateFieldFlags[PLAYER_END];
-extern uint32 UnitDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END];
+extern uint32 ContainerUpdateFieldFlags[CONTAINER_END];
+extern uint32 ContainerDynamicUpdateFieldFlags[CONTAINER_DYNAMIC_END];
+extern uint32 PlayerUpdateFieldFlags[PLAYER_END];
+extern uint32 PlayerDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END];
 extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
 extern uint32 GameObjectDynamicUpdateFieldFlags[GAMEOBJECT_DYNAMIC_END];
 extern uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END];

@@ -803,32 +803,36 @@ class spell_hun_lone_wolf : public SpellScriptLoader
                 if (!GetUnitOwner())
                     return;
 
-                if (Player* l_Player = GetUnitOwner()->ToPlayer())
-                {
-                    if (Pet* l_Pet = l_Player->GetPet())
-                    {
-                        l_Player->RemoveAura(LoneWolfes::LoneWolfAura);
+                Player* l_Player = GetUnitOwner()->ToPlayer();
 
-                        p_AurEff->ChangeAmount(0, true, true);
+                if (l_Player == nullptr)
+                    return;
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet != nullptr && !l_Pet->m_Stampeded)
+                {
+                    l_Player->RemoveAura(LoneWolfes::LoneWolfAura);
+
+                    p_AurEff->ChangeAmount(0, true, true);
+
+                    if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                        l_AuraEffect->ChangeAmount(0, true, true);
+
+                    for (uint8 l_I = 0; l_I < 8; ++l_I)
+                        l_Player->RemoveAura(g_BuffSpells[l_I]);
+                }
+                else
+                {
+                    /// We don't need to update values and cast this aura every time on update, just if we don't have it yet
+                    if (!l_Player->HasAura(LoneWolfes::LoneWolfAura))
+                    {
+                        l_Player->CastSpell(l_Player, LoneWolfes::LoneWolfAura, true);
+
+                        p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
 
                         if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
-                            l_AuraEffect->ChangeAmount(0, true, true);
-
-                        for (uint8 l_I = 0; l_I < 8; ++l_I)
-                            l_Player->RemoveAura(g_BuffSpells[l_I]);
-                    }
-                    else
-                    {
-                        /// We don't need to update values and cast this aura every time on update, just if we don't have it yet
-                        if (!l_Player->HasAura(LoneWolfes::LoneWolfAura))
-                        {
-                            l_Player->CastSpell(l_Player, LoneWolfes::LoneWolfAura, true);
-
-                            p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
-
-                            if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
-                                l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
-                        }
+                            l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
                     }
                 }
             }
@@ -1734,6 +1738,42 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
+/// A Murder of Crows (damage) - 131900
+class spell_hun_a_murder_of_crows_damage : public SpellScriptLoader
+{
+    public:
+        spell_hun_a_murder_of_crows_damage() : SpellScriptLoader("spell_hun_a_murder_of_crows_damage") { }
+
+        class spell_hun_a_murder_of_crows_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_a_murder_of_crows_damage_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Target = GetHitUnit();
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return;
+
+                /// A Murder of Crows now deals only 75% of normal damage against player-controlled targets.
+                if (l_Target->GetSpellModOwner() && l_Player->GetSpecializationId() == SpecIndex::SPEC_HUNTER_BEASTMASTERY)
+                    SetHitDamage(CalculatePct(GetHitDamage(), 75));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_a_murder_of_crows_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_a_murder_of_crows_damage_SpellScript();
+        }
+};
+
 /// Focus Fire - 82692
 class spell_hun_focus_fire : public SpellScriptLoader
 {
@@ -2163,6 +2203,7 @@ class spell_hun_cobra_strikes: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Barrage damage - 120361
 class spell_hun_barrage : public SpellScriptLoader
 {
@@ -2192,6 +2233,9 @@ class spell_hun_barrage : public SpellScriptLoader
                     if (p_Object == nullptr || !p_Object->IsWithinLOSInMap(l_Caster))
                         return true;
 
+                    if (p_Object->ToUnit() && !l_Caster->IsValidAttackTarget(p_Object->ToUnit()))
+                        return true;
+
                     return false;
                 });
             }
@@ -2216,6 +2260,11 @@ class spell_hun_barrage : public SpellScriptLoader
 
                 l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                /// Barrage now deals only 80% of normal damage against player-controlled targets.
+                if (l_Target->GetSpellModOwner())
+                    l_Damage = CalculatePct(l_Damage, 80);
+
                 SetHitDamage(l_Damage);
             }
 
@@ -3274,7 +3323,9 @@ class spell_hun_claw_bite : public SpellScriptLoader
         enum eSpells
         {
             EnhancedBasicAttacksAura = 157715,
-            EnhancedBasicAttacksProc = 157717
+            EnhancedBasicAttacksProc = 157717,
+            Invigoration             = 53253,
+            InvigorationEffect       = 53398
         };
 
         class spell_hun_claw_bite_SpellScript : public SpellScript
@@ -3379,6 +3430,11 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_Pet->IsDamageReducedByArmor(SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo()))
                             l_Damage = l_Pet->CalcArmorReducedDamage(GetHitUnit(), l_Damage, GetSpellInfo(), BaseAttack);
                         SetHitDamage(l_Damage);
+
+                        /// Invigoration - 53253
+                        if (l_Hunter->HasAura(eSpells::Invigoration))
+                        if (roll_chance_i(20))
+                            l_Hunter->CastSpell(l_Hunter, eSpells::InvigorationEffect, true);
                     }
                 }
             }
@@ -4063,6 +4119,7 @@ class spell_hun_trap_launcher : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_a_murder_of_crows_damage();
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_thick_hide();
     new spell_hun_lesser_proportion();

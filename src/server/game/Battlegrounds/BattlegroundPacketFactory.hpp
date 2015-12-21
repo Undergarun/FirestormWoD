@@ -401,6 +401,7 @@ namespace MS
                     *p_Data << uint32(l_Buffer.size() / 4);                                         ///< Stats count
                     *p_Data << int32(l_Player->GetSpecializationId(l_Player->GetActiveSpec()));     ///< PrimaryTalentTree
                     *p_Data << int32(l_Player->getGender());                                        ///< Gender
+                    *p_Data << int32(l_Player->getRace());                                          ///< Race
 
                     p_Data->append(l_Buffer);                                                       ///< Stats
 

@@ -727,6 +727,10 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
     WorldLocation l_DestinationTargetPosition;
 
     p_RecvPacket >> l_CastCount;
+
+    for (int l_I = 0; l_I < 2; l_I++)
+        p_RecvPacket.read_skip<uint32>();
+
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
 

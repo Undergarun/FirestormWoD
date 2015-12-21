@@ -164,7 +164,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 return;
 
-            switch (l_BuildingEntry->BuildingLevel)
+            switch (l_BuildingEntry->Level)
             {
                 case 1:
                     (*t_SetupLevel1)(this, me);
@@ -648,6 +648,15 @@ namespace MS { namespace Garrison
 
                 virtual void UpdateAI(const uint32 p_Diff) override;
             };
+
+    };
+
+    // Fleet Command Talbe
+    class npc_FleetCommandTable : public CreatureScript
+    {
+        public:
+            npc_FleetCommandTable();
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
     };
 

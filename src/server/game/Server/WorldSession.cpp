@@ -120,7 +120,13 @@ m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_Ti
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
 
+    new TransactionCallbacks();
+
     InitializeQueryCallbackParameters();
+
+    m_TransactionCallbacks             = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
+    m_PreparedStatementCallbacks       = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
+    m_PreparedStatementCallbacksBuffer = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
 
     _compressionStream = new z_stream();
     _compressionStream->zalloc = (alloc_func)NULL;
@@ -1506,9 +1512,9 @@ void WorldSession::LoadPremades()
         Field* l_Fields = l_Result->Fetch();
 
         uint32 l_Transaction = l_Fields[0].GetUInt32();
-        uint32 l_TemplateID  = l_Fields[1].GetUInt32();
-        uint32 l_Faction     = l_Fields[2].GetUInt8();
-        uint8  l_Type        = l_Fields[3].GetUInt8();
+        uint32 l_TemplateID = l_Fields[1].GetUInt32();
+        uint32 l_Faction = l_Fields[2].GetUInt8();
+        uint8  l_Type = l_Fields[3].GetUInt8();
 
         CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(l_TemplateID);
         if (!l_Template)
@@ -1629,6 +1635,26 @@ void WorldSession::LoadPremades()
         l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PREMADE_SUCESS);
         l_Statement->setUInt32(0, l_Transaction);
         CharacterDatabase.Execute(l_Statement);
-    }
-    while (l_Result->NextRow());
+    } while (l_Result->NextRow());
+}
+
+/// Send a game error
+/// @p_Error : Game error
+/// @p_Data1 : Additional data 1
+/// @p_Data2 : Additional data 2
+void WorldSession::SendGameError(GameError::Type p_Error, uint32 p_Data1, uint32 p_Data2)
+{
+    WorldPacket l_Packet(SMSG_DISPLAY_GAME_ERROR, 13);
+    l_Packet << uint32(p_Error);
+    l_Packet.WriteBit(p_Data1 != 0xF0F0F0F0);
+    l_Packet.WriteBit(p_Data2 != 0xF0F0F0F0);
+    l_Packet.FlushBits();
+
+    if (p_Data1 != 0xF0F0F0F0)
+        l_Packet << uint32(p_Data1);
+
+    if (p_Data2 != 0xF0F0F0F0)
+        l_Packet << uint32(p_Data2);
+
+    SendPacket(&l_Packet);
 }

@@ -369,8 +369,10 @@ void Player::UpdateMaxPower(Powers p_Power)
 
 void Player::UpdateItemLevel()
 {
-    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, (float)GetAverageItemLevelEquipped());
-    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, (float)GetAverageItemLevelTotal());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::TotalAvgItemLevel, (float)GetAverageItemLevelTotal());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::EquippedAvgItemLevel, (float)GetAverageItemLevelEquipped());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::NonPvPAvgItemLevel, (float)GetAverageItemLevelTotalWithOrWithoutPvPBonus(false));
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::PvPAvgItemLevel, (float)GetAverageItemLevelTotalWithOrWithoutPvPBonus(true));
 }
 
 void Player::UpdateAttackPowerAndDamage(bool ranged)
@@ -569,7 +571,9 @@ void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& mi
     /// Speed coefficients from http://wowwiki.wikia.com/Normalization - tested on official server, information is correct
     if (l_UsedWeapon && l_UsedWeapon->GetTemplate())
     {
-        if (l_UsedWeapon->GetTemplate()->IsOneHanded())
+        if (l_UsedWeapon->GetTemplate()->IsRangedWeapon())
+            l_NormalizedSpeedCoef = 2.8f;
+        else if (l_UsedWeapon->GetTemplate()->IsOneHanded())
         {
             if (l_UsedWeapon->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
                 l_NormalizedSpeedCoef = 1.7f;
@@ -578,8 +582,6 @@ void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& mi
         }
         else if (l_UsedWeapon->GetTemplate()->IsTwoHandedWeapon())
             l_NormalizedSpeedCoef = 3.3f;
-        else if (l_UsedWeapon->GetTemplate()->IsRangedWeapon())
-            l_NormalizedSpeedCoef = 2.8f;
     }
 
     min_damage = weapon_mindamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
@@ -1022,7 +1024,7 @@ void Player::UpdateEnergyRegen()
     if (getPowerType() != Powers::POWER_ENERGY)
         return;
 
-    uint32 l_PowerIndex = GetPowerIndexByClass(Powers::POWER_ENERGY, getClass());
+    uint32 l_PowerIndex = GetPowerIndex(Powers::POWER_ENERGY, getClass());
 
     float l_RegenFlatMultiplier = 1.0f;
     Unit::AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);

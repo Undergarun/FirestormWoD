@@ -344,7 +344,7 @@ class boss_oregorger : public CreatureScript
                         p_Summon->SetReactState(ReactStates::REACT_PASSIVE);
                         p_Summon->AddUnitState(UnitState::UNIT_STATE_STUNNED);
                         p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         break;
                     }
                     case eCreatures::UnstableSlag:
@@ -522,7 +522,7 @@ class boss_oregorger : public CreatureScript
                                 l_Crate->SetReactState(ReactStates::REACT_PASSIVE);
                                 l_Crate->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                                 l_Crate->AddUnitState(UnitState::UNIT_STATE_STUNNED | UnitState::UNIT_STATE_ROOT);
-                                l_Crate->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                                l_Crate->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                                 l_Crate->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
                             }
                         }

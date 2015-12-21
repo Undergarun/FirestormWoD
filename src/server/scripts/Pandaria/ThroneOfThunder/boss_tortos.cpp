@@ -144,7 +144,7 @@ class boss_tortos : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->SetPower(POWER_ENERGY, 0);
                 me->SetMaxPower(POWER_ENERGY, 100);
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
                 me->RemoveAura(SPELL_ROCK_FALL);
 
                 breathScheduled = false;
@@ -369,7 +369,7 @@ class mob_rockfall : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
         };
 
@@ -551,7 +551,7 @@ class mob_humming_crystal : public CreatureScript
                 me->CastSpell(me, SPELL_CRYSTAL_SHELL_AURA, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             }
         };
 

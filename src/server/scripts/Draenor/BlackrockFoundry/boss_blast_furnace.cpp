@@ -174,7 +174,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_SELECTION_DISABLED);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_SELECTION_DISABLED);
 
                 me->SetPower(Powers::POWER_ALTERNATE_POWER, 0);
 
@@ -460,7 +460,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                                 me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
 
                                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_SELECTION_DISABLED);
+                                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_SELECTION_DISABLED);
 
                                 Talk(eTalks::Phase3Freedom);
 
@@ -1225,7 +1225,7 @@ class npc_foundry_primal_elementalist : public CreatureScript
 
             void Reset() override
             {
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
@@ -2012,7 +2012,7 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                 m_Target = 0;
 
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -2081,7 +2081,7 @@ class npc_foundry_slag_elemental : public CreatureScript
                         me->RemoveAura(eSpells::SlagBomb);
 
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
@@ -2138,7 +2138,7 @@ class npc_foundry_slag_elemental : public CreatureScript
                     me->StopMoving();
 
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                     me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 

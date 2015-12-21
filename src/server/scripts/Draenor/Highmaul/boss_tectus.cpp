@@ -244,7 +244,7 @@ class boss_tectus : public CreatureScript
 
                 me->SetPower(Powers::POWER_ENERGY, 0);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                 m_CrystallineBarrageTarget = 0;
 
@@ -551,7 +551,7 @@ class boss_tectus : public CreatureScript
                         me->CastSpell(me, eSpells::ZeroPowerZeroRegen, true);
 
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                         me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
                         me->SetAIAnimKitId(eAnimKits::AnimFall);

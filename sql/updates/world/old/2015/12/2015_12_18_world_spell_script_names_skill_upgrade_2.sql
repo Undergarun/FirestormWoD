@@ -1,0 +1,1 @@
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_Skill_ResetSecondaryProperties' AND spell_id = 168865;

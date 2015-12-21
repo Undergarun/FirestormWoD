@@ -68,7 +68,7 @@ void OPvPCapturePoint_Middle::ChangeState()
 
     GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID);
     if (l_Flag)
-        l_Flag->SetByteValue(EGameObjectFields::GAMEOBJECT_BYTES_1, 2, l_UpdateVal);
+        l_Flag->SetByteValue(EGameObjectFields::GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, l_UpdateVal);
 
     UpdateTowerState();
 }
@@ -120,7 +120,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, eFlagStates::FlagNeutral);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, eFlagStates::FlagNeutral);
 
                 DelCreature(eSpecialSpawns::EmberfallTowerSpiritHealer);
 
@@ -130,7 +130,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
             else
             {
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, p_Faction == eControlStatus::ControlHorde ? eFlagStates::FlagHorde : eFlagStates::FlagAlliance);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, p_Faction == eControlStatus::ControlHorde ? eFlagStates::FlagHorde : eFlagStates::FlagAlliance);
 
                 if (l_IsInitialized)
                 {
@@ -187,12 +187,12 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, eFlagStates::FlagNeutral);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, eFlagStates::FlagNeutral);
             }
             else
             {
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, p_Faction == eControlStatus::ControlHorde ? eFlagStates::FlagHorde : eFlagStates::FlagAlliance);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, p_Faction == eControlStatus::ControlHorde ? eFlagStates::FlagHorde : eFlagStates::FlagAlliance);
 
                 if (l_IsInitialized)
                 {
@@ -242,12 +242,12 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     DelObject(l_Count);
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, eFlagStates::FlagNeutral);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, eFlagStates::FlagNeutral);
             }
             else
             {
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, p_Faction == eControlStatus::ControlHorde ? eFlagStates::FlagHorde : eFlagStates::FlagAlliance);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, p_Faction == eControlStatus::ControlHorde ? eFlagStates::FlagHorde : eFlagStates::FlagAlliance);
 
                 if (l_IsInitialized)
                 {
@@ -288,12 +288,12 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, eFlagStates::FlagNeutral);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, eFlagStates::FlagNeutral);
             }
             else
             {
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, p_Faction == eControlStatus::ControlHorde ? eFlagStates::FlagHorde : eFlagStates::FlagAlliance);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, p_Faction == eControlStatus::ControlHorde ? eFlagStates::FlagHorde : eFlagStates::FlagAlliance);
 
                 if (l_IsInitialized)
                 {
@@ -339,7 +339,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, eFlagStates::FlagNeutral);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, eFlagStates::FlagNeutral);
 
                 DelCreature(eSpecialSpawns::ArchmageOverwatchSpiritHealer);
 
@@ -349,7 +349,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
             else
             {
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
-                    l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, p_Faction == eControlStatus::ControlHorde ? eFlagStates::FlagHorde : eFlagStates::FlagAlliance);
+                    l_Flag->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, p_Faction == eControlStatus::ControlHorde ? eFlagStates::FlagHorde : eFlagStates::FlagAlliance);
 
                 if (l_IsInitialized)
                 {
@@ -467,7 +467,7 @@ void OPvPCapturePoint_Graveyard::ChangeState()
 
     GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID);
     if (l_Flag)
-        l_Flag->SetByteValue(EGameObjectFields::GAMEOBJECT_BYTES_1, 2, l_UpdateVal);
+        l_Flag->SetByteValue(EGameObjectFields::GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, l_UpdateVal);
 
     UpdateTowerState();
 }
@@ -1310,7 +1310,7 @@ void OutdoorPvPAshran::ScheduleNextBattle(uint32 p_Diff)
                 l_ControlPoint->UpdateTowerState();
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(l_ControlPoint->m_capturePointGUID))
-                    l_Flag->SetByteValue(EGameObjectFields::GAMEOBJECT_BYTES_1, 2, eFlagStates::FlagNeutral);
+                    l_Flag->SetByteValue(EGameObjectFields::GAMEOBJECT_FIELD_PERCENT_HEALTH, 2, eFlagStates::FlagNeutral);
             }
         }
         /// Bosses battle

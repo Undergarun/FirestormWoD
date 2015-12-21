@@ -1827,8 +1827,8 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     l_Summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     l_Summon->SetMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                     l_Summon->SetFullHealth();
+                    l_Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                     l_Summon->CastSpell(l_Summon, eWildMushroomSpells::WildMushroomBirthVisual, true);
-
                     if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestoration || GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomRestorationGlyph)
                         l_Summon->CastSpell(l_Summon, eWildMushroomSpells::HealAura, true);
                     else if (GetSpellInfo()->Id == eWildMushroomSpells::WildMushroomBalance)
@@ -2277,7 +2277,7 @@ class spell_dru_eclipse : public PlayerScript
             uint64 l_ActualTime = 0;
             ACE_OS::gettimeofday().msec(l_ActualTime);
 
-            uint32 l_PowerIndex = p_Player->GetPowerIndexByClass(Powers::POWER_ECLIPSE, p_Player->getClass());
+            uint32 l_PowerIndex = p_Player->GetPowerIndex(Powers::POWER_ECLIPSE, p_Player->getClass());
             if (l_PowerIndex == MAX_POWERS)
                 return;
 
@@ -3226,7 +3226,7 @@ enum DruidFormsSpells
     SPELL_DRUID_GLYPH_OF_THE_STAG = 114338,
     SPELL_DRUID_STAG_FORM         = 165961,
 
-    ///< Extra spells
+    /// Extra spells
     SPELL_COLD_WEATHER_FLYING      = 54197,
     SPELL_MASTER_FLYING            = 90265,
     SPELL_FLIGHT_MASTERS_LICENSE   = 90267,

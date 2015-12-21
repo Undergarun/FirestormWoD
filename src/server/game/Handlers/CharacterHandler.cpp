@@ -1083,6 +1083,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
+
+        if (sWorld->getIntConfig(CONFIG_REALM_ZONE) == REALM_ZONE_DEVELOPMENT)
+            chH.PSendSysMessage("Last PTR update: %s", sWorld->GetLastBuildInfo().timeStr.data());
     }
 
     SendTimeZoneInformations();
@@ -1145,6 +1148,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         {
             l_Data << uint32(extendedCost->ID);
             l_Data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, sItemExtendedCostStore.GetHash()));
+            l_Data.WriteBit(1);                                                         ///< Found ???
             l_Data << uint32(l_ResponseData.size());
             l_Data.append(l_ResponseData);
         }
@@ -1152,6 +1156,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         {
             l_Data << uint32(-1);
             l_Data << uint32(time(NULL));
+            l_Data.WriteBit(0);                                                         ///< Not Found ???
             l_Data << uint32(0);
         }
 
@@ -1400,9 +1405,9 @@ void WorldSession::HandleSetFactionCheat(WorldPacket& /*recvData*/)
 
 enum TUTORIAL_ACTIONS
 {
-    TUTORIAL_ACTION_FLAG    = 0,
-    TUTORIAL_ACTION_CLEAR   = 1,
-    TUTORIAL_ACTION_RESET   = 2,
+    TUTORIAL_ACTION_RESET   = 1,
+    TUTORIAL_ACTION_CLEAR   = 2,
+    TUTORIAL_ACTION_FLAG    = 3,
 };
 
 void WorldSession::HandleTutorial(WorldPacket& p_RecvPacket)
@@ -2603,7 +2608,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
         // Title conversion
         if (l_KnownTitlesStr)
         {
-            const uint32 l_KnowTitleCount = KNOWN_TITLES_SIZE * 2;
+            const uint32 l_KnowTitleCount = KNOWN_TITLES_SIZE;
             uint32 l_KnownTitles[l_KnowTitleCount];
             Tokenizer l_Tokens(l_KnownTitlesStr, ' ', l_KnowTitleCount);
 

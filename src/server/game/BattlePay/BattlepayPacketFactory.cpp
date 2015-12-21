@@ -8,6 +8,7 @@
 
 #include "BattlepayPacketFactory.h"
 #include "Chat.h"
+#include "ObjectMgr.h"
 #include <sstream>
 
 namespace Battlepay
@@ -227,8 +228,9 @@ namespace Battlepay
         void SendDistributionList(WorldSession* p_Session)
         {
             WorldPacket l_Data(SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE);
-            l_Data << uint32(0);    ///< Result
-            l_Data << uint32(0);    ///< Count
+            l_Data << uint32(0);        ///< Result
+            l_Data.WriteBits(0, 11);    ///< Count
+            l_Data.FlushBits();
 
             p_Session->SendPacket(&l_Data);
         }

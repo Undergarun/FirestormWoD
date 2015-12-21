@@ -239,8 +239,8 @@ public:
             InnerDemon_Count = 0;
             me->SetSpeed(MOVE_RUN, 2.0f, true);
             me->SetDisplayId(MODEL_NIGHTELF);
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID  , 0);
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID+1, 0);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS  , 0);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS+2, 0);
             DoCast(me, SPELL_DUAL_WIELD, true);
             me->SetCorpseDelay(1000*60*60);
             if (instance)
@@ -340,8 +340,8 @@ public:
                 me->SetDisplayId(MODEL_DEMON);
 
                 // and removing weapons
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID  , 0);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID+1, 0);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS  , 0);
+                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS+2, 0);
             }
         }
 
@@ -495,8 +495,8 @@ public:
                         me->RemoveAurasDueToSpell(SPELL_WHIRLWIND, 0);
                         me->SetDisplayId(MODEL_DEMON);
                         DoScriptText(SAY_SWITCH_TO_DEMON, me);
-                        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID  , 0);
-                        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID+1, 0);
+                        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS  , 0);
+                        me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS+2, 0);
                         DemonForm = true;
                         NeedThreatReset = true;
                         SwitchToDemon_Timer = 45000;

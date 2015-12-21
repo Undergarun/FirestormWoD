@@ -734,6 +734,8 @@ void WorldSession::HandlePetBattleQueryName(WorldPacket& p_RecvData)
     WorldPacket l_Packet(SMSG_QUERY_PET_NAME_RESPONSE, 0x40);
 
     l_Packet.appendPackGUID(l_JournalGuid);
+    l_Packet << uint32(l_Creature->GetEntry());
+    l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
     l_Packet.WriteBit(l_Creature->GetName() ? true : false);
 
     if (l_Creature->GetName())
@@ -749,8 +751,6 @@ void WorldSession::HandlePetBattleQueryName(WorldPacket& p_RecvData)
 
     if (l_Creature->GetName())
     {
-        l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
-
         if (l_Creature->GetName())
             l_Packet.WriteString(l_Creature->GetName());
     }
@@ -811,7 +811,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     // Player can't be already in battle
     if (m_Player->_petBattleId)
     {
-        SendPetBattleRequestFailed(PETBATTLE_REQUEST_ALREADY_IN_PETBATTLE);
+        SendPetBattleRequestFailed(PETBATTLE_REQUEST_IN_BATTLE);
         sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
         return;
     }
@@ -819,7 +819,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     // Player can't be in combat
     if (m_Player->isInCombat())
     {
-        SendPetBattleRequestFailed(PETBATTLE_REQUEST_ALREADY_IN_COMBAT);
+        SendPetBattleRequestFailed(PETBATTLE_REQUEST_NOT_WHILE_IN_COMBAT);
         sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
         return;
     }
@@ -831,7 +831,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
                                                                         l_BattleRequest->TeamPosition[l_CurrentTeamID][0],  l_BattleRequest->TeamPosition[l_CurrentTeamID][1],  l_BattleRequest->TeamPosition[l_CurrentTeamID][2],
                                                                         l_BattleRequest->TeamPosition[l_CurrentTeamID][0],  l_BattleRequest->TeamPosition[l_CurrentTeamID][1],  l_BattleRequest->TeamPosition[l_CurrentTeamID][2], 0.0f))
         {
-            SendPetBattleRequestFailed(PETBATTLE_REQUEST_GROUND_NOT_ENOUGHT_SMOOTH);
+            SendPetBattleRequestFailed(PETBATTLE_REQUEST_NOT_HERE_UNEVEN_GROUND);
             sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
             return;
         }
@@ -841,7 +841,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     Creature* l_WildPet = m_Player->GetNPCIfCanInteractWith(l_BattleRequest->OpponentGuid, UNIT_NPC_FLAG_PETBATTLE);
     if (!l_WildPet)
     {
-        SendPetBattleRequestFailed(PETBATTLE_REQUEST_INVALID_TARGET);
+        SendPetBattleRequestFailed(PETBATTLE_REQUEST_TARGET_NOT_CAPTURABLE);
         sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
         return;
     }
@@ -858,7 +858,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     BattlePetInstance::Ptr  l_WildBattlePet;
     size_t                  l_PlayerPetCount = 0;
     PetBattle*              l_Battle;
-    uint32                  l_ErrorCode = PETBATTLE_REQUEST_FAILED;
+    uint32                  l_ErrorCode = PETBATTLE_REQUEST_CREATE_FAILED;
 
     // Temporary pet buffer
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
@@ -868,7 +868,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 
     if (!l_Wild)
     {
-        l_ErrorCode = PETBATTLE_REQUEST_INVALID_TARGET;
+        l_ErrorCode = PETBATTLE_REQUEST_TARGET_NOT_CAPTURABLE;
 
         m_Player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
         m_Player->SetRooted(false);
@@ -913,7 +913,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     // Check player team
     if (!l_PlayerPetCount)
     {
-        l_ErrorCode = PETBATTLE_REQUEST_NEED_PET_IN_SLOTS;
+        l_ErrorCode = PETBATTLE_REQUEST_NO_PETS_IN_SLOT;
 
         m_Player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
         m_Player->SetRooted(false);
@@ -941,7 +941,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     // Wild should be wild
     if (!sWildBattlePetMgr->IsWildPet(l_Wild))
     {
-        l_ErrorCode = PETBATTLE_REQUEST_INVALID_TARGET;
+        l_ErrorCode = PETBATTLE_REQUEST_TARGET_NOT_CAPTURABLE;
 
         m_Player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
         m_Player->SetRooted(false);
@@ -968,7 +968,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 
     if (!l_WildBattlePet)
     {
-        l_ErrorCode = PETBATTLE_REQUEST_INVALID_TARGET;
+        l_ErrorCode = PETBATTLE_REQUEST_TARGET_NOT_CAPTURABLE;
 
         m_Player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
         m_Player->SetRooted(false);

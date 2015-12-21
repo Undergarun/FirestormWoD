@@ -448,7 +448,7 @@ namespace MS { namespace Garrison
             p_Player->CLOSE_GOSSIP_MENU();
             p_Player->CreateGarrison();
 
-            uint32 l_MovieID    = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
+            uint32 l_MovieID    = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MovieID;
             uint32 l_MapID      = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
             uint32 l_TeamID     = p_Player->GetTeamId();
 
@@ -584,6 +584,7 @@ namespace MS { namespace Garrison
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -776,6 +777,22 @@ namespace MS { namespace Garrison
         }
     }
 
+    // Because blizzard does it this way - also icon type 27 could be for this purpose only
+
+    npc_FleetCommandTable::npc_FleetCommandTable() : CreatureScript("npc_FleetCommandTable")
+    {
+    }
+
+    bool npc_FleetCommandTable::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        if (!p_Player->GetGarrison())
+            return true;
+
+        p_Player->GetSession()->SendGarrisonSetMissionNpc(p_Creature->GetGUID());
+        return true;
+    }
+
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -935,5 +952,11 @@ void AddSC_Garrison_NPC()
 
         /// Spirit Lodge
         new MS::Garrison::npc_Varsha;
+    }
+
+    /// General
+    {
+        /// Shipyard
+        new MS::Garrison::npc_FleetCommandTable;
     }
 }
