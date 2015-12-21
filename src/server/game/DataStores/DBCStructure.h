@@ -378,7 +378,7 @@ struct DifficultyEntry
     uint32 GroupSizeSpellPointsCurveID;                     ///< 10
     char*  NameLang;                                        ///< 11
     uint32 ItemBonusTreeModID;                              ///< 12
-    //uint32 Unk6.2.0;                                      ///< 13
+    //uint32 OrderIndex;                                    ///< 13
 };
 
 struct DungeonEncounterEntry
@@ -790,7 +790,7 @@ struct LFGDungeonEntry
     uint32  reclevel;                                       // 4        m_TargetLevel
     uint32  recminlevel;                                    // 5        m_TargetLevelMin
     uint32  recmaxlevel;                                    // 6        m_TargetLevelMax
-    int32   map;                                             // 7       m_MapID
+    int32   map;                                            // 7        m_MapID
     uint32  difficulty;                                     // 8        m_DifficultyID
     uint32  flags;                                          // 9        m_Flags
     uint32  type;                                           // 10       m_TypeID
@@ -809,7 +809,7 @@ struct LFGDungeonEntry
     //uint32    m_MinCountDamage;                           // 23       m_MinCountDamage
     //uint32    m_ScenarioID;                               // 24       m_ScenarioID
     uint32  category;                                       // 25       m_Subtype
-    //uint32    m_Unk6.2.0                                  // 26
+    //uint32    m_LastBossJournalEncounterID                // 26
     //uint32    m_BonusReputationAmount;                    // 27       m_BonusReputationAmount
     //uint32    m_MentorCharLevel;                          // 28       m_MentorCharLevel
     //uint32    m_MentorItemLevel;                          // 29       m_MentorItemLevel
@@ -822,31 +822,26 @@ struct LFGDungeonEntry
 
 struct LiquidTypeEntry
 {
-    uint32  Id;                                             // 1
-    //char*     Name;                                       // 2
-    //uint32    Flags;                                      // 3
-    uint32  Type;                                           // 4
-    //uint32    SoundId;                                    // 5
-    uint32  SpellId;                                        // 6
-    //float     MaxDarkenDepth;                             // 7
-    //float     FogDarkenIntensity;                         // 8
-    //float     AmbDarkenIntensity;                         // 9
-    //float     DirDarkenIntensity;                         // 10
-    //uint32    LightID;                                    // 11
-    //float     ParticleScale;                              // 12
-    //uint32    ParticleMovement;                           // 13
-    //uint32    ParticleTexSlots;                           // 14
-    //uint32    LiquidMaterialID;                           // 15
-    //char*     Texture[6];                                 // 16-22
-    //uint32    Color[2];                                   // 23-24
-    //float     Unk1[18];                                   // 25-42
-    //uint32    Unk2[4];                                    // 43-46
-    //uint32
-    //uint32
-    //uint32
-    //uint32
-    //uint32
-    //uint32                                                // 50
+    uint32  Id;                                             // 0
+    //char*     Name;                                       // 1
+    //uint32    Flags;                                      // 2
+    uint32  Type;                                           // 3
+    //uint32    SoundId;                                    // 4
+    uint32  SpellId;                                        // 5
+    //float     MaxDarkenDepth;                             // 6
+    //float     FogDarkenIntensity;                         // 7
+    //float     AmbDarkenIntensity;                         // 8
+    //float     DirDarkenIntensity;                         // 9
+    //uint32    LightID;                                    // 10
+    //float     ParticleScale;                              // 11
+    //uint32    ParticleMovement;                           // 12
+    //uint32    ParticleTexSlots;                           // 13
+    //uint32    LiquidMaterialID;                           // 14
+    //char*     Texture[6];                                 // 15-20
+    //uint32    Color[2];                                   // 21-23
+    //float     Unk1[18];                                   // 24-41
+    //uint32    Unk2[4];                                    // 42-45
+    //uint32    Unk3[5];                                    // 46-50
 };
 
 #define MAX_LOCK_CASE 8
@@ -994,23 +989,6 @@ struct RandomPropertiesPointsEntry
     uint32  EpicPropertiesPoints[5];                        // 1-5
     uint32  RarePropertiesPoints[5];                        // 6-10
     uint32  UncommonPropertiesPoints[5];                    // 11-15
-};
-
-// 6.0.2 19027 - DBC doesn't exists
-struct ScalingStatValuesEntry
-{
-    uint32 Id;                                              // 0        m_ID
-    uint32 Level;                                           // 1        m_Charlevel
-    uint32 dpsMod[7];                                       // 2-8      m_EffectiveLevel + m_WeaponDPS1H + m_WeaponDPS2H + m_SpellcasterDPS1H + m_SpellcasterDPS2H + m_RangedDPS + m_WandDPS
-    uint32 Spellpower;                                      // 9        m_SpellPower
-    uint32 StatMultiplier[5];                               // 10-14    m_BudgetPrimary + m_BudgetSecondary + m_BudgetTertiary + m_BudgetSub + m_BudgetTrivial
-    uint32 Armor[8][4];                                     // 15-47    m_ArmorShoulder[4] + m_ArmorChest[4] + m_ArmorHead[4] + m_ArmorLegs[4] + m_ArmorFeet[4] + m_ArmorWaist[4] + m_ArmorHands[4] + m_ArmorWrists[4]
-    uint32 CloakArmor;                                      // 48       m_ArmorBack
-    //uint32 m_ArmorShield;                                 // 49       m_ArmorShield
-
-    uint32 GetStatMultiplier(uint32 inventoryType) const;
-    uint32 GetArmor(uint32 inventoryType, uint32 armorType) const;
-    uint32 GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const;
 };
 
 struct ScenarioStepEntry
