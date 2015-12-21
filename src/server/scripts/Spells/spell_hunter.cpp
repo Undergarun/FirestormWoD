@@ -3433,7 +3433,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
 
                         /// Invigoration - 53253
                         if (l_Hunter->HasAura(eSpells::Invigoration))
-                        if (roll_chance_i(20))
+                        if (roll_chance_i(15))
                             l_Hunter->CastSpell(l_Hunter, eSpells::InvigorationEffect, true);
                     }
                 }
