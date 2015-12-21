@@ -1481,10 +1481,14 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 }
 
                 l_TargetList.clear();
-
                 if (l_Target)
-                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (m_TotalAbsorbAmount / 6), l_Target);
-
+                {
+                    int32 l_Damage = p_DmgInfo.GetDamage();
+                    if (AuraEffectPtr l_PreviousAura = l_Target->GetAuraEffect(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, EFFECT_0))
+                        l_Damage += l_PreviousAura->GetAmount() * (l_PreviousAura->GetBase()->GetDuration() / l_PreviousAura->GetAmplitude());
+                    l_Damage /= 6;
+                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, l_Damage, l_Target);
+                }
             }
 
             void Register()
@@ -4666,9 +4670,6 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
                 /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
                 l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
-
-                if (l_Player->HasAura(RisingSunKickSpells::PoolOfMists))
-                    l_PctModifier = l_Player->GetAura(RisingSunKickSpells::PoolOfMists)->GetEffect(EFFECT_3)->GetAmount();
 
                 /// Hotfixes : 24 novembre 2015 - now deals 20% more damage while in PvP combat
                 if (l_Target->GetTypeId() == TYPEID_PLAYER)

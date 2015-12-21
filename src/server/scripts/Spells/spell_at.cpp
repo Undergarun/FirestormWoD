@@ -590,10 +590,6 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
                     }
                     l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
                     p_AreaTrigger->Remove(0);
-
-                    /// Item - Hunter WoD PvP 2P Bonus
-                    if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::HunterWodPvp2PBonus))
-                        l_AreaTriggerCaster->CastSpell(l_AreaTriggerCaster, (uint32)HunterFreezingTrap::HunterWodPvp2PBonusEffect, true);
                 }
             }
         }
