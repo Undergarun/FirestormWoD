@@ -616,23 +616,6 @@ class spell_hun_steady_focus: public SpellScriptLoader
 
                 switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
                 {
-                    ///< Marksmanship
-                    ///< - Steady Shot twice in a row
-                    case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
-                    {
-                        ///< Not Steady Shot
-                        if (l_SpellID != SteadyFocusSpells::SteadyShot)
-                        {
-                            ///< Shitty procs
-                            if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
-                                p_AurEff->GetBase()->SetCharges(0);
-
-                            return;
-                        }
-
-                        DealWithCharges(p_AurEff, l_Player);
-                        break;
-                    }
                     ///< Beast Mastery and Survival (Level 81)
                     ///< - Cobra Shot twice in a row
                     case SpecIndex::SPEC_HUNTER_BEASTMASTERY:
@@ -650,6 +633,21 @@ class spell_hun_steady_focus: public SpellScriptLoader
 
                         DealWithCharges(p_AurEff, l_Player);
                         break;
+                    }
+                    default:
+                    {
+                        ///< Not Steady Shot
+                        if (l_SpellID != SteadyFocusSpells::SteadyShot)
+                        {
+                            ///< Shitty procs
+                            if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                p_AurEff->GetBase()->SetCharges(0);
+
+                            return;
+                        }
+
+                        DealWithCharges(p_AurEff, l_Player);
+                        break;  
                     }
                 }
             }
@@ -4114,8 +4112,6 @@ class spell_hun_trap_launcher : public SpellScriptLoader
             return new spell_hun_trap_launcher_AuraScript();
         }
 };
-
-
 
 void AddSC_hunter_spell_scripts()
 {
