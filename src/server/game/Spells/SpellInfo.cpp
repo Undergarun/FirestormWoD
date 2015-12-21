@@ -3169,7 +3169,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             }
             break;
         case SPELLFAMILY_MAGE:
-            // Amplify Magic, Dampen Magic
+            // Dampen Magic
             if (SpellFamilyFlags[0] == 0x00002000)
                 return true;
             // Ignite

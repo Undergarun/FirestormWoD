@@ -191,6 +191,12 @@ enum TalentTree // talent tabs
     TALENT_TREE_DRUID_RESTORATION    = 748
 };
 
+enum CharacterWorldStates
+{
+    CharWorldStateGarrisonStablesFirstQuest  = 1,
+    CharWorldStateGarrisonStablesSecondQuest = 2
+};
+
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {

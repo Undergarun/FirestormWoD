@@ -1072,7 +1072,7 @@ enum Opcodes
     CMSG_RESURRECT_RESPONSE                     = 0x003C, ///< 6.2.3 20726
     CMSG_QUERY_INSPECT_ACHIEVEMENTS             = 0x08CE, ///< 6.2.3 20726
     CMSG_SPLIT_ITEM                             = 0x1219, ///< 6.2.3 20726
-    CMSG_SET_PLAYER_DECLINED_NAMES              = 0x0433, ///< 6.2.3 20726
+    CMSG_SET_PLAYER_DECLINED_NAMES              = 0x04B3, ///< 6.2.3 20726
     CMSG_MOUNT_SET_FAVORITE                     = 0x142C, ///< 6.2.3 20726
     CMSG_SORT_BAGS                              = 0x01ED, ///< 6.2.3 20726
     CMSG_CHAR_RENAME                            = 0x05F0, ///< 6.2.3 20726
@@ -1218,7 +1218,7 @@ enum Opcodes
     CMSG_COMPLETE_MOVIE                         = 0x0612, ///< 6.2.3 20726
     CMSG_SCENE_TRIGGER_EVENT                    = 0x084D, ///< 6.2.3 20726
     CMSG_GET_MIRRORIMAGE_DATA                   = 0x0461, ///< 6.2.3 20726
-    CMSG_SHOW_TRADE_SKILL                       = 0x1033, ///< 6.2.3 20726
+    CMSG_SHOW_TRADE_SKILL                       = 0x11C0, ///< 6.2.3 20726
     CMSG_SCENE_PLAYBACK_CANCELED                = 0x0C65, ///< 6.2.3 20726
     CMSG_REQUEST_RESEARCH_HISTORY               = 0x017A, ///< 6.2.3 20726
     CMSG_SUMMON_RESPONSE                        = 0x0577, ///< 6.2.3 20726
