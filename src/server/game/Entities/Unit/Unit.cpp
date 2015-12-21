@@ -1467,6 +1467,18 @@ void Unit::CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castI
     CastSpell(targets, spellInfo, NULL, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
 
+void Unit::CastSpell(Item* p_ItemTarget, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem, AuraEffectPtr p_TriggeredByAura, uint64 p_OriginalCaster)
+{
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
+    if (!l_SpellInfo)
+        return;
+
+    SpellCastTargets l_Targets;
+    l_Targets.SetItemTarget(p_ItemTarget);
+
+    CastSpell(l_Targets, l_SpellInfo, nullptr, p_Triggered ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE, p_CastItem, p_TriggeredByAura, p_OriginalCaster);
+}
+
 // Obsolete func need remove, here only for comotability vs another patches
 uint32 Unit::SpellNonMeleeDamageLog(Unit* victim, uint32 spellID, uint32 damage)
 {
@@ -5768,7 +5780,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
     data << uint32(log->blocked);
 
     data.WriteBit(false);               ///< Is periodic
-    data.WriteBits(log->HitInfo, 9);    ///< Flags
+    data.WriteBits(log->HitInfo, 8);    ///< Flags
     data.WriteBit(false);               ///< Has debug info
     data.WriteBit(false);               ///< Has JamSpellCastLogData
     data.FlushBits();
@@ -13646,54 +13658,56 @@ void Unit::Dismount()
 MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 {
     if (!mountType)
-        return NULL;
+        return nullptr;
 
-    MountTypeEntry const* mountTypeEntry = sMountTypeStore.LookupEntry(mountType);
-    if (!mountTypeEntry)
-        return NULL;
+    MountTypeEntry const* l_MountTypeEntry = sMountTypeStore.LookupEntry(mountType);
+    if (!l_MountTypeEntry)
+        return nullptr;
 
-    uint32 zoneId, areaId;
-    GetZoneAndAreaId(zoneId, areaId);
-    uint32 ridingSkill = 5000;
+    uint32 l_ZoneId;
+    uint32 l_AreaId;
+    GetZoneAndAreaId(l_ZoneId, l_AreaId);
+
+    uint32 l_RidingSkill = 5000;
     if (GetTypeId() == TYPEID_PLAYER)
-        ridingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
+        l_RidingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
 
     for (uint32 i = 0; i < MAX_MOUNT_CAPABILITIES; ++i)
     {
-        MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
-        if (!mountCapability)
+        MountCapabilityEntry const* l_MountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
+        if (!l_MountCapability)
             continue;
 
-        if (ridingSkill < mountCapability->RequiredRidingSkill)
+        if (l_RidingSkill < l_MountCapability->RequiredRidingSkill)
             continue;
 
         if (HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
         {
-            if (!(mountCapability->Flags & MOUNT_FLAG_CAN_PITCH))
+            if (!(l_MountCapability->Flags & MOUNT_FLAG_CAN_PITCH))
                 continue;
         }
         else if (HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
         {
-            if (!(mountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
+            if (!(l_MountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
                 continue;
         }
 
-        if (mountCapability->RequiredMap != -1 && int32(GetMapId()) != mountCapability->RequiredMap)
+        if (l_MountCapability->RequiredMap != -1 && int32(GetMapId()) != l_MountCapability->RequiredMap)
             continue;
 
-        if (mountCapability->RequiredArea && (mountCapability->RequiredArea != zoneId && mountCapability->RequiredArea != areaId))
+        if (l_MountCapability->RequiredArea && (l_MountCapability->RequiredArea != l_ZoneId && l_MountCapability->RequiredArea != l_AreaId))
             continue;
 
-        if (mountCapability->RequiredAura && !HasAura(mountCapability->RequiredAura))
+        if (l_MountCapability->RequiredAura && !HasAura(l_MountCapability->RequiredAura))
             continue;
 
-        if (mountCapability->RequiredSpell && (GetTypeId() != TYPEID_PLAYER || !ToPlayer()->HasSpell(mountCapability->RequiredSpell)))
+        if (l_MountCapability->RequiredSpell && (GetTypeId() != TYPEID_PLAYER || !ToPlayer()->HasSpell(l_MountCapability->RequiredSpell)))
             continue;
 
-        return mountCapability;
+        return l_MountCapability;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void Unit::SendMountResult(MountResult p_Error)
@@ -16637,7 +16651,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         CastSpell(this, 163948, true);
 
     /// Plaguebearer
-    if (procSpell && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
+    if (procSpell && target && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
     {
         if (AuraPtr l_BloodPlague = target->GetAura(55078, GetGUID()))
             l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);

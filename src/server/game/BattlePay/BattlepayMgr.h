@@ -10,6 +10,7 @@
 # define _BATTLEPAY_MGR_HPP
 
 #include "Common.h"
+#include "WorldSession.h"
 
 namespace Battlepay
 {
@@ -56,7 +57,10 @@ namespace Battlepay
         Other                      = 0,
         //AlreadyOwned             = 0,     ///< This error is client-side only, can't be sended by the server
         ParentalControlsNoPurchase = 34,
-        Denied                     = 1
+        Denied                     = 1,
+        ConsumableTokenOwned       = 46,
+        TooManyTokens              = 47
+        /// ItemUnavailable
     };
 
     namespace CallbackEvent
@@ -155,7 +159,7 @@ namespace Battlepay
 
             Manager()
             {
-                m_WalletName      = "Ashran points";     ///< @TODO: Take it from server conf
+                m_WalletName      = "Firestorm points";     ///< @TODO: Take it from server conf
                 m_PurchaseIDCount = 0;
             }
 

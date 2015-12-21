@@ -2332,7 +2332,7 @@ namespace MS { namespace Garrison
     bool Manager::AddFollower(uint32 p_FollowerID)
     {
         auto l_TempFollower = GetFollower(p_FollowerID);
-        if (!l_TempFollower || l_TempFollower->FollowerID != 0)
+        if (l_TempFollower && l_TempFollower->FollowerID != 0)
             return false;
 
         GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
@@ -2891,9 +2891,9 @@ namespace MS { namespace Garrison
 
         for (uint32 l_CurrentValue : gGarrisonBuildingMaxWorkOrderPerBuildingLevel)
         {
-            if (l_CurrentValue == l_BuildingEntry->BonusAmount)
+            if (l_CurrentValue == l_BuildingEntry->MaxShipments)
             {
-                l_MaxWorkOrder += l_BuildingEntry->BonusAmount;
+                l_MaxWorkOrder += l_BuildingEntry->MaxShipments;
                 break;
             }
         }
@@ -2911,7 +2911,7 @@ namespace MS { namespace Garrison
             if (l_Building->Type != BuildingType::StoreHouse)
                 continue;
 
-            l_MaxWorkOrder += l_Building->BonusAmount;
+            l_MaxWorkOrder += l_Building->MaxShipments;
         }
 
         return l_MaxWorkOrder;
@@ -4254,8 +4254,7 @@ namespace MS { namespace Garrison
         if (l_Iter == m_Followers.end())
             return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
 
-        int l_Index = 0;
-        for (; l_Index < l_Iter->Abilities.size(); ++l_Index)
+        for (int l_Index = 0; l_Index < (int)l_Iter->Abilities.size(); ++l_Index)
         {
             if (l_Iter->Abilities[l_Index] == p_Slot)
                 break;
@@ -4300,7 +4299,7 @@ namespace MS { namespace Garrison
             return;
 
         int l_Index = 0;
-        for (; l_Index < l_Iter->Abilities.size(); ++l_Index)
+        for (; l_Index < (int)l_Iter->Abilities.size(); ++l_Index)
         {
             if (l_Iter->Abilities[l_Index] == p_Slot)
                 break;

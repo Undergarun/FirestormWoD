@@ -1289,7 +1289,7 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
                     /// Title removal
                     if (l_KnownTitlesStr)
                     {
-                        uint32 const l_TitleSize = KNOWN_TITLES_SIZE * 2;
+                        uint32 const l_TitleSize = KNOWN_TITLES_SIZE;
                         uint32 l_KnownTitles[l_TitleSize];
                         Tokenizer l_Tokens(l_KnownTitlesStr, ' ', l_TitleSize);
 

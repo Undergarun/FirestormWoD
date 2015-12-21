@@ -2608,7 +2608,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
         // Title conversion
         if (l_KnownTitlesStr)
         {
-            const uint32 l_KnowTitleCount = KNOWN_TITLES_SIZE * 2;
+            const uint32 l_KnowTitleCount = KNOWN_TITLES_SIZE;
             uint32 l_KnownTitles[l_KnowTitleCount];
             Tokenizer l_Tokens(l_KnownTitlesStr, ' ', l_KnowTitleCount);
 

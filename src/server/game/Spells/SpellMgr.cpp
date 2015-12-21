@@ -6871,6 +6871,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetB = Targets::TARGET_UNIT_SUMMONER;
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetB = Targets::TARGET_UNIT_SUMMONER;
                 break;
+            case 110310: ///< Dampening
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].Amplitude = 10000;  ///< 10 secs
+                break;
             default:
                 break;
         }
