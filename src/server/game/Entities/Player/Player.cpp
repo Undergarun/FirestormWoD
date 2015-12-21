@@ -19950,6 +19950,9 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
             {
                 if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC && l_Objective.ObjectID == (int32)real_entry)
                 {
+                    if (!CheckGarrisonStablesQuestsConditions(questid))
+                        continue;
+
                     uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                     if (currentCounter < uint32(l_Objective.Amount))
                     {
@@ -19969,6 +19972,51 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
             }
         }
     }
+}
+
+bool Player::CheckGarrisonStablesQuestsConditions(uint32 p_QuestID)
+{
+    using namespace MS::Garrison::StablesData::Alliance;
+    using namespace MS::Garrison::StablesData::Horde;
+
+    if (std::find(FannyQuestGiver::g_BoarQuests.begin(), FannyQuestGiver::g_BoarQuests.end(), p_QuestID) != FannyQuestGiver::g_BoarQuests.end() ||
+        std::find(TormakQuestGiver::g_BoarQuests.begin(), TormakQuestGiver::g_BoarQuests.end(), p_QuestID) != TormakQuestGiver::g_BoarQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::RockstuckTrainingMountAura))
+            return false;
+    }
+    else if (std::find(FannyQuestGiver::g_ClefthoofQuests.begin(), FannyQuestGiver::g_ClefthoofQuests.end(), p_QuestID) != FannyQuestGiver::g_ClefthoofQuests.end() ||
+             std::find(TormakQuestGiver::g_ClefthoofQuests.begin(), TormakQuestGiver::g_ClefthoofQuests.end(), p_QuestID) != TormakQuestGiver::g_ClefthoofQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::IcehoofTrainingMountAura))
+            return false;
+    }
+    else if (std::find(FannyQuestGiver::g_ElekkQuests.begin(), FannyQuestGiver::g_ElekkQuests.end(), p_QuestID) != FannyQuestGiver::g_ElekkQuests.end() ||
+             std::find(TormakQuestGiver::g_ElekkQuests.begin(), TormakQuestGiver::g_ElekkQuests.end(), p_QuestID) != TormakQuestGiver::g_ElekkQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::MeadowstomperTrainingMountAura))
+            return false;
+    }
+    else if (std::find(KeeganQuestGiver::g_RiverbeastQuests.begin(), KeeganQuestGiver::g_RiverbeastQuests.end(), p_QuestID) != KeeganQuestGiver::g_RiverbeastQuests.end() ||
+             std::find(SagePalunaQuestGiver::g_RiverbeastQuests.begin(), SagePalunaQuestGiver::g_RiverbeastQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_RiverbeastQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::RiverwallowTrainingMountAura))
+            return false;
+    }
+    else if (std::find(KeeganQuestGiver::g_TalbukQuests.begin(), KeeganQuestGiver::g_TalbukQuests.end(), p_QuestID) != KeeganQuestGiver::g_TalbukQuests.end() ||
+             std::find(SagePalunaQuestGiver::g_TalbukQuests.begin(), SagePalunaQuestGiver::g_TalbukQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_TalbukQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::SilverpeltTrainingMountAura))
+            return false;
+    }
+    else if (std::find(KeeganQuestGiver::g_WolfQuests.begin(), KeeganQuestGiver::g_WolfQuests.end(), p_QuestID) != KeeganQuestGiver::g_WolfQuests.end() ||
+             std::find(SagePalunaQuestGiver::g_WolfQuests.begin(), SagePalunaQuestGiver::g_WolfQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_WolfQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::SnarlerTrainingMountAura))
+            return false;
+    }
+
+    return true;
 }
 
 void Player::KilledPlayerCredit()
