@@ -173,6 +173,13 @@ namespace MS { namespace Garrison
 
     namespace StablesData
     {
+        /// Sequence position structure
+        struct SequencePosition
+        {
+            /// Position
+            float X, Y, Z, O;
+        };
+
         static const uint64 g_PendingQuestFlag = 0x40000000;
 
         /// Get from Mount.db2 with spellIDs used as questline rewards

@@ -17,6 +17,7 @@
 #include "Buildings/Alliance/Large/ABarracks.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/Large/AMageTower.hpp"
+#include "Buildings/Alliance/Large/AStables.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 #include "Buildings/Alliance/Medium/ALunarfallInn.hpp"
 #include "Buildings/Alliance/Medium/ABarn.hpp"
@@ -889,6 +890,10 @@ void AddSC_Garrison_NPC()
         /// Mage Tower
         new MS::Garrison::npc_ApprenticeVarNath;
         new MS::Garrison::npc_AncientWaygateProtector;
+
+        /// Stables
+        new MS::Garrison::npc_FannyFirebeard;
+        new MS::Garrison::npc_KeeganFirebeard;
     }
 
     /// Horde
@@ -964,5 +969,6 @@ void AddSC_Garrison_NPC()
 
         /// Stables
         new MS::Garrison::npc_Tormak;
+        new MS::Garrison::npc_SagePaluna;
     }
 }
