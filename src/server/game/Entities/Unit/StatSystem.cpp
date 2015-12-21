@@ -898,7 +898,11 @@ void Player::UpdateMasteryPercentage()
                         l_AurEff->ChangeAmount(0, true, true);
                     else
                     {
-                        l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+                        /// Gladiator Stance increases mastery for 50%
+                        if (!HasAura(165393))
+                            l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+                        else
+                            l_AurEff->ChangeAmount((int32)(value * 1.5f * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
                     }
                 }
             }
