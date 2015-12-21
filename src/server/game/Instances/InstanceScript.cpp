@@ -200,7 +200,7 @@ void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)
     }
 }
 
-void InstanceScript::UpdateDoorState(GameObject* door)
+void InstanceScript::UpdateDoorState(GameObject* door, bool p_WithDelay /*= false*/)
 {
     if (!door)
         return;
@@ -210,12 +210,9 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     if (lower == upper)
         return;
 
-    EncounterState l_State;
     bool open = true;
     for (DoorInfoMap::iterator itr = lower; itr != upper && open; ++itr)
     {
-        l_State = itr->second.bossInfo->state;
-
         switch (itr->second.type)
         {
             case DOOR_TYPE_ROOM:
@@ -235,14 +232,17 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     /// Delay Door closing, like retail
     if (!open)
     {
-        uint64 l_DoorGuid = door->GetGUID();
-        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [l_DoorGuid, l_State]() -> void
+        if (!p_WithDelay)
         {
-            if (l_State != EncounterState::IN_PROGRESS)
-                return;
+            door->SetGoState(GOState::GO_STATE_READY);
+            return;
+        }
 
+        uint64 l_DoorGuid = door->GetGUID();
+        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this, l_DoorGuid]() -> void
+        {
             if (GameObject* l_Door = sObjectAccessor->FindGameObject(l_DoorGuid))
-                l_Door->SetGoState(GOState::GO_STATE_READY);
+                UpdateDoorState(l_Door);
         });
     }
     else
@@ -445,7 +445,7 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
         for (uint32 l_Type = 0; l_Type < DoorType::MAX_DOOR_TYPES; ++l_Type)
         {
             for (DoorSet::iterator l_Iter = l_BossInfos->door[l_Type].begin(); l_Iter != l_BossInfos->door[l_Type].end(); ++l_Iter)
-                UpdateDoorState(*l_Iter);
+                UpdateDoorState(*l_Iter, true);
         }
 
         for (MinionSet::iterator l_Iter = l_BossInfos->minion.begin(); l_Iter != l_BossInfos->minion.end(); ++l_Iter)
