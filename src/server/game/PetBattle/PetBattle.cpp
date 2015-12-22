@@ -539,6 +539,9 @@ void PetBattleAura::Process(PetBattle* p_Battle)
             if (l_AbilityTurnInfo->turn != Turn && l_TurnCount != 1 && l_MaxTurnID != 1)
                 continue;
 
+            if (l_AbilityTurnInfo->hasProcType && l_AbilityTurnInfo->procType != PETBATTLE_ABILITY_TURN0_PROC_ON_TURN)
+                continue;
+
             for (uint32 l_AbilityEffectId = 0; l_AbilityEffectId < sBattlePetAbilityEffectStore.GetNumRows(); ++l_AbilityEffectId)
             {
                 BattlePetAbilityEffectEntry const* l_AbilityEffectInfo = sBattlePetAbilityEffectStore.LookupEntry(l_AbilityEffectId);
