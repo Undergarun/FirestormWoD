@@ -2476,6 +2476,7 @@ class spell_pal_holy_shield: public SpellScriptLoader
         }
 };
 
+/// Last Build 6.2.3
 /// Beacon of Faith - 156910
 class spell_pal_beacon_of_faith: public SpellScriptLoader
 {
@@ -2488,10 +2489,15 @@ class spell_pal_beacon_of_faith: public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                if (Unit* l_Target = GetExplTargetUnit())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
                 if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
                     return SPELL_FAILED_BAD_TARGETS;
+                    
                 return SPELL_CAST_OK;
             }
 
@@ -3429,6 +3435,39 @@ class spell_pal_t17_protection_4p : public SpellScriptLoader
         }
 };
 
+/// Glyph of the Consecrator - 159556
+class spell_pal_glyph_of_the_consecration : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_the_consecration() : SpellScriptLoader("spell_pal_glyph_of_the_consecration") { }
+
+        class spell_pal_glyph_of_the_consecration_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_glyph_of_the_consecration_AuraScript);
+
+            enum eSpells
+            {
+                ConsecrationDamage = 159561
+            };
+
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpells::ConsecrationDamage, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_glyph_of_the_consecration_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_glyph_of_the_consecration_AuraScript();
+        }
+};
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -3467,6 +3506,7 @@ class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_glyph_of_the_consecration();
     new spell_pal_beacon_of_light();
     new spell_pal_beacon_of_light_proc();
     new spell_pal_glyph_of_flash_of_light();
