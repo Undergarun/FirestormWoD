@@ -6,164 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "blackrock_foundry.hpp"
-
-Position const g_StampingPressCosmeticPos[4] =
-{
-    { 143.168f, 3492.93f, 130.463f, 0.0f },
-    { 123.540f, 3507.37f, 130.466f, 0.0f },
-    { 123.540f, 3478.47f, 130.466f, 0.0f },
-    { 103.832f, 3492.93f, 130.468f, 0.0f }
-};
-
-Position const g_SmartStampCollisionPos[4] =
-{
-    { 146.668f, 3507.37f, 130.116f, 0.0f },
-    { 139.668f, 3507.37f, 130.116f, 0.0f },
-    { 127.040f, 3463.96f, 130.116f, 0.0f },
-    { 120.040f, 3463.96f, 130.116f, 0.0f }
-};
-
-Position const g_StampingPressIntroPos[2] =
-{
-    { 143.168f, 3507.37f, 130.463f, 0.0f },
-    { 123.540f, 3478.47f, 130.466f, 0.0f }
-};
-
-Position const g_HansgarJumpPosIn = { 103.434f, 3517.066f, 130.1161f, 0.0f };
-Position const g_FranzokJumpPosIn = { 102.6545f, 3465.035f, 130.2772f, 0.0f };
-
-Position const g_HansgarJumpPosOut = { 88.03299f, 3467.769f, 138.4438f, 3.141593f };
-Position const g_HansgarJumpPosRetreat = { 85.60069f, 3517.861f, 138.235f, 3.141593f };
-
-float const g_HansgarRetreatOrientation = 5.94246f;
-
-float const g_ScorchingBurnsXPos = 182.5f;
-
-/// Cyclic patterns which always happens for normal/heroic mode
-std::vector<uint32> const g_SearingPlatesCycles[5] =
-{
-    { eFoundryGameObjects::ConveyorBelt002, eFoundryGameObjects::ConveyorBelt003, eFoundryGameObjects::ConveyorBelt004, eFoundryGameObjects::ConveyorBelt005, eFoundryGameObjects::ConveyorBelt001 },
-    { eFoundryGameObjects::ConveyorBelt001, eFoundryGameObjects::ConveyorBelt002, eFoundryGameObjects::ConveyorBelt003, eFoundryGameObjects::ConveyorBelt004, eFoundryGameObjects::ConveyorBelt005 },
-    { eFoundryGameObjects::ConveyorBelt005, eFoundryGameObjects::ConveyorBelt001, eFoundryGameObjects::ConveyorBelt002, eFoundryGameObjects::ConveyorBelt003, eFoundryGameObjects::ConveyorBelt004 },
-    { eFoundryGameObjects::ConveyorBelt004, eFoundryGameObjects::ConveyorBelt005, eFoundryGameObjects::ConveyorBelt001, eFoundryGameObjects::ConveyorBelt002, eFoundryGameObjects::ConveyorBelt003 },
-    { eFoundryGameObjects::ConveyorBelt003, eFoundryGameObjects::ConveyorBelt004, eFoundryGameObjects::ConveyorBelt005, eFoundryGameObjects::ConveyorBelt001, eFoundryGameObjects::ConveyorBelt002 }
-};
-
-/// Forge Overdrive spawn pos for each Conveyor Belt
-std::map<uint32, Position const> g_ForgeOverdriveSpawnPos =
-{
-    { eFoundryGameObjects::ConveyorBelt001, { 191.8142f, 3522.539f, 130.5489f, 3.196286f } },
-    { eFoundryGameObjects::ConveyorBelt002, { 191.7986f, 3508.009f, 130.5486f, 3.147189f } },
-    { eFoundryGameObjects::ConveyorBelt003, { 191.5920f, 3492.890f, 130.5486f, 3.139562f } },
-    { eFoundryGameObjects::ConveyorBelt004, { 190.5399f, 3478.265f, 130.3344f, 3.141593f } },
-    { eFoundryGameObjects::ConveyorBelt005, { 190.8819f, 3463.978f, 130.5486f, 3.140998f } }
-};
-
-/// Forge Overdrive dest pos for each Conveyor Belt
-std::map<uint32, Position const> g_ForgeOverdriveDestPos =
-{
-    { eFoundryGameObjects::ConveyorBelt001, { 74.61285f, 3522.023f, 130.4776f, 3.196286f } },
-    { eFoundryGameObjects::ConveyorBelt002, { 72.65278f, 3507.342f, 130.7546f, 3.147189f } },
-    { eFoundryGameObjects::ConveyorBelt003, { 71.13541f, 3493.135f, 130.5421f, 3.139562f } },
-    { eFoundryGameObjects::ConveyorBelt004, { 80.53993f, 3478.265f, 130.3344f, 3.141593f } },
-    { eFoundryGameObjects::ConveyorBelt005, { 76.74827f, 3464.046f, 130.4773f, 3.140998f } }
-};
-
-/// Movement Force directions for each Conveyor Belt
-std::map<uint32, Position const> g_ConveyorForceMovesDirection =
-{
-    { eFoundryGameObjects::ConveyorBelt001, { 136.2731f, 3521.869f, 130.4693f, 0.0f } },
-    { eFoundryGameObjects::ConveyorBelt002, { 136.0504f, 3507.557f, 130.4693f, 0.0f } },
-    { eFoundryGameObjects::ConveyorBelt003, { 132.4271f, 3492.807f, 130.4693f, 0.0f } },
-    { eFoundryGameObjects::ConveyorBelt004, { 132.4292f, 3478.443f, 130.4693f, 0.0f } },
-    { eFoundryGameObjects::ConveyorBelt005, { 131.7153f, 3464.024f, 130.4693f, 0.0f } }
-};
-
-struct StampingPressData
-{
-    StampingPressData()
-    {
-        StampingPresses = 0;
-        StampingPress   = 0;
-    }
-
-    StampingPressData(uint64 p_Creature, uint64 p_GameObject)
-    {
-        StampingPresses = p_Creature;
-        StampingPress   = p_GameObject;
-    }
-
-    uint64 StampingPresses; ///< Creature
-    uint64 StampingPress;   ///< GameObject
-};
-
-typedef std::list<StampingPressData> StampingPressList;
-
-/// CoveyorBelt Entry - StampingPresses Y pos (or Scorching Burns Y pos)
-typedef std::map <uint32, float> ConveyorDatas;
-
-ConveyorDatas const g_ConveyorBeltBurns =
-{
-    { eFoundryGameObjects::ConveyorBelt001, 3522.769043f },
-    { eFoundryGameObjects::ConveyorBelt002, 3507.606934f },
-    { eFoundryGameObjects::ConveyorBelt003, 3492.773926f },
-    { eFoundryGameObjects::ConveyorBelt004, 3477.840088f },
-    { eFoundryGameObjects::ConveyorBelt005, 3461.691895f }
-};
-
-void RespawnBrothers(Creature* p_Source, InstanceScript* p_Instance)
-{
-    if (p_Source == nullptr || p_Instance == nullptr)
-        return;
-
-    if (Creature* l_Other = Creature::GetCreature(*p_Source, (p_Source->GetEntry() == eFoundryCreatures::BossFranzok) ? eFoundryCreatures::BossHansgar : eFoundryCreatures::BossFranzok))
-    {
-        l_Other->Respawn();
-        l_Other->GetMotionMaster()->MoveTargetedHome();
-    }
-}
-
-void StartBrothers(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instance)
-{
-    if (p_Source == nullptr || p_Target == nullptr || p_Instance == nullptr)
-        return;
-
-    uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::BossFranzok) ? eFoundryCreatures::BossHansgar : eFoundryCreatures::BossFranzok;
-    if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
-    {
-        if (l_Other->IsAIEnabled)
-            l_Other->AI()->AttackStart(p_Target);
-    }
-}
-
-/// This class is used to activate Stamping Press
-class StampingPressActivation : public BasicEvent
-{
-    public:
-        StampingPressActivation(uint64 p_Guid, uint32 p_AnimID, bool p_Maintain) : m_Guid(p_Guid), m_AnimID(p_AnimID), m_Maintain(p_Maintain), BasicEvent() { }
-        virtual ~StampingPressActivation() { }
-
-        virtual bool Execute(uint64 p_EndTime, uint32 p_Time)
-        {
-            if (GameObject* l_GameObject = HashMapHolder<GameObject>::Find(m_Guid))
-            {
-                l_GameObject->SendGameObjectActivateAnimKit(m_AnimID, m_Maintain);
-
-                /// Register AnimKitID to send it in UpdateObject
-                l_GameObject->SetAIAnimKitId(m_AnimID, false);
-            }
-
-            return true;
-        }
-
-        virtual void Abort(uint64 p_EndTime) { }
-
-    private:
-        uint64 m_Guid;
-        uint32 m_AnimID;
-        bool m_Maintain;
-};
+# include "boss_hansgar_and_franzok.hpp"
 
 /// Hans'gar - 76973
 class boss_hansgar : public CreatureScript
@@ -242,28 +85,8 @@ class boss_hansgar : public CreatureScript
             ForgeOverdrive              = 77258
         };
 
-        enum eGameObjects
+        enum eGameObject
         {
-            StampingPress16     = 229574,
-            StampingPress20     = 229575,
-            StampingPress19     = 229576,
-            StampingPress18     = 229577,
-            StampingPress17     = 229578,
-            StampingPress15     = 229579,
-            StampingPress14     = 229580,
-            StampingPress13     = 229581,
-            StampingPress12     = 229582,
-            StampingPress11     = 229583,
-            StampingPress06     = 229584,
-            StampingPress07     = 229585,
-            StampingPress08     = 229586,
-            StampingPress09     = 229587,
-            StampingPress10     = 229588,
-            StampingPress05     = 229589,
-            StampingPress04     = 229590,
-            StampingPress01     = 229591,
-            StampingPress02     = 229592,
-            StampingPress03     = 229593,
             SmartStampCollision = 231082
         };
 
@@ -529,6 +352,7 @@ class boss_hansgar : public CreatureScript
                     {
                         /// Handle "phase" switch
                         case eStates::HansgarOut1:
+                        case eStates::HansgarOut2:
                         {
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
@@ -562,6 +386,7 @@ class boss_hansgar : public CreatureScript
                             break;
                         }
                         case eStates::BothInArena2:
+                        case eStates::BothInArenaFinal:
                         {
                             Talk(eTalks::ReturningFromControls);
 
@@ -589,14 +414,6 @@ class boss_hansgar : public CreatureScript
                             EndSearingPlatesEvent();
                             break;
                         }
-                        case eStates::HansgarOut2:
-                        {
-                            Talk(eTalks::ActivateAssemblyLine);
-
-                            StartSearingPlatesEvent();
-                            break;
-                        }
-                        case eStates::BothInArenaFinal:
                         default:
                             break;
                     }
@@ -645,14 +462,14 @@ class boss_hansgar : public CreatureScript
                         uint32 l_Time = 5 * TimeConstants::IN_MILLISECONDS;
                         AddTimedDelayedOperation(l_Time, [this]() -> void
                         {
-                            ActivatePress(eGameObjects::StampingPress09, true);
-                            ActivatePress(eGameObjects::StampingPress11, true);
+                            ActivatePress(eFoundryGameObjects::StampingPress09, true);
+                            ActivatePress(eFoundryGameObjects::StampingPress11, true);
 
                             m_SmartStampCollisions.clear();
 
                             for (uint8 l_I = 0; l_I < 4; ++l_I)
                             {
-                                if (GameObject* l_Collision = me->SummonGameObject(eGameObjects::SmartStampCollision, g_SmartStampCollisionPos[l_I], 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                                if (GameObject* l_Collision = me->SummonGameObject(eGameObject::SmartStampCollision, g_SmartStampCollisionPos[l_I], 0.0f, 0.0f, 0.0f, 0.0f, 0))
                                     m_SmartStampCollisions.push_back(l_Collision->GetGUID());
                             }
                         });
@@ -839,15 +656,15 @@ class boss_hansgar : public CreatureScript
 
                         if (urand(0, 1))
                         {
-                            l_Entries = { eGameObjects::StampingPress01, eGameObjects::StampingPress03, eGameObjects::StampingPress05, eGameObjects::StampingPress07,
-                                          eGameObjects::StampingPress09, eGameObjects::StampingPress11, eGameObjects::StampingPress13, eGameObjects::StampingPress15,
-                                          eGameObjects::StampingPress17, eGameObjects::StampingPress19 };
+                            l_Entries = { eFoundryGameObjects::StampingPress01, eFoundryGameObjects::StampingPress03, eFoundryGameObjects::StampingPress05, eFoundryGameObjects::StampingPress07,
+                                          eFoundryGameObjects::StampingPress09, eFoundryGameObjects::StampingPress11, eFoundryGameObjects::StampingPress13, eFoundryGameObjects::StampingPress15,
+                                          eFoundryGameObjects::StampingPress17, eFoundryGameObjects::StampingPress19 };
                         }
                         else
                         {
-                            l_Entries = { eGameObjects::StampingPress02, eGameObjects::StampingPress04, eGameObjects::StampingPress06, eGameObjects::StampingPress08,
-                                          eGameObjects::StampingPress10, eGameObjects::StampingPress12, eGameObjects::StampingPress14, eGameObjects::StampingPress16,
-                                          eGameObjects::StampingPress18, eGameObjects::StampingPress20 };
+                            l_Entries = { eFoundryGameObjects::StampingPress02, eFoundryGameObjects::StampingPress04, eFoundryGameObjects::StampingPress06, eFoundryGameObjects::StampingPress08,
+                                          eFoundryGameObjects::StampingPress10, eFoundryGameObjects::StampingPress12, eFoundryGameObjects::StampingPress14, eFoundryGameObjects::StampingPress16,
+                                          eFoundryGameObjects::StampingPress18, eFoundryGameObjects::StampingPress20 };
                         }
 
                         for (uint32 l_Entry : l_Entries)
@@ -958,15 +775,6 @@ class boss_hansgar : public CreatureScript
 
             void StartSearingPlatesEvent()
             {
-                ConveyorDatas const l_ConveyorBeltPos =
-                {
-                    { eFoundryGameObjects::ConveyorBelt001, 3521.840088f },
-                    { eFoundryGameObjects::ConveyorBelt002, 3507.370117f },
-                    { eFoundryGameObjects::ConveyorBelt003, 3492.929932f },
-                    { eFoundryGameObjects::ConveyorBelt004, 3478.469971f },
-                    { eFoundryGameObjects::ConveyorBelt005, 3463.969961f }
-                };
-
                 for (uint32 l_Entry = eFoundryGameObjects::ConveyorBelt002; l_Entry <= eFoundryGameObjects::ConveyorBelt005; ++l_Entry)
                 {
                     if (GameObject* l_ConveyorBelt = me->FindNearestGameObject(l_Entry, 100.0f))
@@ -991,49 +799,52 @@ class boss_hansgar : public CreatureScript
                     if (l_BurnList.empty())
                         return;
 
-                    /// Start all cycles in advance
-                    for (uint8 l_I = 0; l_I < eDatas::MaxConveyorBelts; ++l_I)
+                    /// Start all cycles three times in advance, it should be enough
+                    for (uint8 l_J = 0; l_J < 3; ++l_J)
                     {
-                        for (uint32 l_BeltEntry : g_SearingPlatesCycles[l_I])
+                        for (uint8 l_I = 0; l_I < eDatas::MaxConveyorBelts; ++l_I)
                         {
-                            if (GameObject* l_Belt = me->FindNearestGameObject(l_BeltEntry, 100.0f))
+                            for (uint32 l_BeltEntry : g_SearingPlatesCycles[l_I])
                             {
-                                std::list<Creature*> l_TempList = l_BurnList;
-
-                                auto l_BurnsDatas = g_ConveyorBeltBurns.find(l_BeltEntry);
-
-                                l_TempList.remove_if([this, l_BurnsDatas](Creature* p_Creature) -> bool
+                                if (GameObject* l_Belt = me->FindNearestGameObject(l_BeltEntry, 100.0f))
                                 {
-                                    if (p_Creature == nullptr)
-                                        return true;
+                                    std::list<Creature*> l_TempList = l_BurnList;
 
-                                    if (p_Creature->GetPositionY() != l_BurnsDatas->second)
+                                    auto l_BurnsDatas = g_ConveyorBeltBurns.find(l_BeltEntry);
+
+                                    l_TempList.remove_if([this, l_BurnsDatas](Creature* p_Creature) -> bool
                                     {
-                                        Position l_Pos      = *p_Creature;
-                                        l_Pos.m_positionX   = g_ScorchingBurnsXPos;
-                                        l_Pos.m_positionY   = l_BurnsDatas->second;
-
-                                        if (!p_Creature->IsNearPosition(&l_Pos, 2.0f))
+                                        if (p_Creature == nullptr)
                                             return true;
-                                    }
 
-                                    return false;
-                                });
+                                        if (p_Creature->GetPositionY() != l_BurnsDatas->second)
+                                        {
+                                            Position l_Pos = *p_Creature;
+                                            l_Pos.m_positionX = g_ScorchingBurnsXPos;
+                                            l_Pos.m_positionY = l_BurnsDatas->second;
 
-                                if (l_TempList.empty())
-                                    continue;
+                                            if (!p_Creature->IsNearPosition(&l_Pos, 2.0f))
+                                                return true;
+                                        }
 
-                                if (Creature* l_Burns = l_TempList.front())
-                                {
-                                    if (l_Burns->IsAIEnabled)
+                                        return false;
+                                    });
+
+                                    if (l_TempList.empty())
+                                        continue;
+
+                                    if (Creature* l_Burns = l_TempList.front())
                                     {
-                                        l_Burns->AI()->SetData(eDatas::DataBeltEntry, l_BeltEntry);
-                                        l_Burns->AI()->SetData(eDatas::DataSpawnTimer, l_Time * l_Index);
+                                        if (l_Burns->IsAIEnabled)
+                                        {
+                                            l_Burns->AI()->SetData(eDatas::DataBeltEntry, l_BeltEntry);
+                                            l_Burns->AI()->SetData(eDatas::DataSpawnTimer, l_Time * l_Index);
+                                        }
                                     }
                                 }
-                            }
 
-                            ++l_Index;
+                                ++l_Index;
+                            }
                         }
                     }
                 }
@@ -1060,13 +871,13 @@ class boss_hansgar : public CreatureScript
                         }
                     }
 
-                    for (auto l_Datas : l_ConveyorBeltPos)
+                    for (auto l_Datas : g_ConveyorBeltPos)
                     {
                         if (l_Datas.first == m_DisabledBelt)
                             continue;
 
-                        auto l_BurnsDatas = l_ConveyorBeltBurns.find(l_Datas.first);
-                        if (l_BurnsDatas == l_ConveyorBeltBurns.end())
+                        auto l_BurnsDatas = g_ConveyorBeltBurns.find(l_Datas.first);
+                        if (l_BurnsDatas == g_ConveyorBeltBurns.end())
                             continue;
 
                         float l_PressY = l_Datas.second;
@@ -1254,22 +1065,34 @@ class boss_franzok : public CreatureScript
         enum eActions
         {
             ActionIntro,
-            ActionIntroFinished
+            ActionIntroFinished,
+            ActionStamp,
+            ActionCancelStamp
         };
 
         enum eVisuals
         {
+            AnimStamp1 = 5924,
+            AnimStamp2 = 6741,
+            AnimStamp3 = 5836
         };
 
         enum eCreatures
         {
+            MobStampingPresses  = 78358,
+            ScorchingBurns      = 78823
         };
 
         enum eDatas
         {
             DataMainTankHealth,
             DataOffTankHealth,  ///< ExplicitTarget of Crippling Suplex
-            DataMaxTankHealths
+            DataMaxTankHealths,
+            DataStampTimer,
+
+            MaxPatternActivation = 5,
+            MaxConveyorBelts = 5,
+            DataBeltEntry = 0
         };
 
         enum eStates
@@ -1313,6 +1136,8 @@ class boss_franzok : public CreatureScript
 
             uint64 m_BodySlamTarget;
 
+            StampingPressList m_StampingPresses;
+
             bool CanRespawn() override
             {
                 return false;
@@ -1340,6 +1165,23 @@ class boss_franzok : public CreatureScript
                 m_State = 0;
 
                 m_BodySlamTarget = 0;
+
+                if (m_StampingPresses.empty())
+                {
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        std::list<Creature*> l_StampingPresses;
+                        me->GetCreatureListWithEntryInGrid(l_StampingPresses, eCreatures::MobStampingPresses, 150.0f);
+
+                        for (Creature* l_Press : l_StampingPresses)
+                        {
+                            if (GameObject* l_StampingPress = l_Press->FindNearestGameObject(2.0f))
+                                m_StampingPresses.push_back(StampingPressData(l_Press->GetGUID(), l_StampingPress->GetGUID()));
+                        }
+                    });
+                }
+                else
+                    DeactivatePress();
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -1484,12 +1326,33 @@ class boss_franzok : public CreatureScript
                                 Talk(eTalks::ActivateAssemblyLine);
                             });
 
-                            ///StartSearingPlatesEvent();
+                            StartStampingPressesEvent();
                             break;
                         }
                         case eStates::BothInArena3:
                         {
+                            Talk(eTalks::ReturningFromControls);
+
+                            me->CastSpell(me, eSpells::NotReady, true);
+
                             m_Events.CancelEvent(eEvents::EventBodySlam);
+
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            {
+                                me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
+                                m_BodySlamTarget = l_Target->GetGUID();
+
+                                float l_O = me->GetAngle(l_Target);
+                                AddTimedDelayedOperation(50, [this, l_O]() -> void
+                                {
+                                    me->SetFacingTo(l_O);
+                                });
+                            }
+
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            EndStampingPressesEvent();
                             break;
                         }
                         default:
@@ -1579,7 +1442,7 @@ class boss_franzok : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::BodySlamTriggered, true);
 
-                        if (m_State == eStates::BothInArena2)
+                        if (m_State == eStates::BothInArena3)
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
                         if (p_ID == eSpells::BodySlamOut && me->HasReactState(ReactStates::REACT_PASSIVE))
@@ -1714,6 +1577,190 @@ class boss_franzok : public CreatureScript
 
                 if (me->GetReactState() == ReactStates::REACT_AGGRESSIVE)
                     DoMeleeAttackIfReady();
+            }
+
+            void StartStampingPressesEvent()
+            {
+                for (uint32 l_Entry = eFoundryGameObjects::ConveyorBelt002; l_Entry <= eFoundryGameObjects::ConveyorBelt005; ++l_Entry)
+                {
+                    if (GameObject* l_ConveyorBelt = me->FindNearestGameObject(l_Entry, 100.0f))
+                        l_ConveyorBelt->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStart);
+                }
+
+                uint32 l_Time = 0;
+
+                for (uint8 l_I = 0; l_I < eDatas::MaxPatternActivation; ++l_I)
+                {
+                    for (StampingPressPattern l_Pattern : g_PatternActivation[l_I])
+                    {
+                        for (uint32 l_Entry : l_Pattern)
+                            ActivatePress(l_Entry, l_Time);
+
+                        l_Time += 5 * TimeConstants::IN_MILLISECONDS;
+                    }
+                }
+
+                std::list<Creature*> l_BurnList;
+                me->GetCreatureListWithEntryInGrid(l_BurnList, eCreatures::ScorchingBurns, 200.0f);
+
+                if (l_BurnList.empty())
+                    return;
+
+                /// Activate movement forces
+                for (uint8 l_I = 0; l_I < eDatas::MaxConveyorBelts; ++l_I)
+                {
+                    for (uint32 l_BeltEntry : g_SearingPlatesCycles[l_I])
+                    {
+                        if (GameObject* l_Belt = me->FindNearestGameObject(l_BeltEntry, 100.0f))
+                        {
+                            std::list<Creature*> l_TempList = l_BurnList;
+
+                            auto l_BurnsDatas = g_ConveyorBeltBurns.find(l_BeltEntry);
+
+                            l_TempList.remove_if([this, l_BurnsDatas](Creature* p_Creature) -> bool
+                            {
+                                if (p_Creature == nullptr)
+                                    return true;
+
+                                if (p_Creature->GetPositionY() != l_BurnsDatas->second)
+                                {
+                                    Position l_Pos = *p_Creature;
+                                    l_Pos.m_positionX = g_ScorchingBurnsXPos;
+                                    l_Pos.m_positionY = l_BurnsDatas->second;
+
+                                    if (!p_Creature->IsNearPosition(&l_Pos, 2.0f))
+                                        return true;
+                                }
+
+                                return false;
+                            });
+
+                            if (l_TempList.empty())
+                                continue;
+
+                            if (Creature* l_Burns = l_TempList.front())
+                            {
+                                if (l_Burns->IsAIEnabled)
+                                    l_Burns->AI()->SetData(eDatas::DataBeltEntry, l_BeltEntry);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void EndStampingPressesEvent()
+            {
+                for (uint32 l_Entry = eFoundryGameObjects::ConveyorBelt002; l_Entry <= eFoundryGameObjects::ConveyorBelt005; ++l_Entry)
+                {
+                    if (GameObject* l_ConveyorBelt = me->FindNearestGameObject(l_Entry, 100.0f))
+                        l_ConveyorBelt->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStop);
+                }
+
+                DeactivatePress();
+
+                std::list<Creature*> l_BurnList;
+                me->GetCreatureListWithEntryInGrid(l_BurnList, eCreatures::ScorchingBurns, 200.0f);
+
+                if (l_BurnList.empty())
+                    return;
+
+                /// End movement forces
+                for (uint8 l_I = 0; l_I < eDatas::MaxConveyorBelts; ++l_I)
+                {
+                    for (uint32 l_BeltEntry : g_SearingPlatesCycles[l_I])
+                    {
+                        if (GameObject* l_Belt = me->FindNearestGameObject(l_BeltEntry, 100.0f))
+                        {
+                            std::list<Creature*> l_TempList = l_BurnList;
+
+                            auto l_BurnsDatas = g_ConveyorBeltBurns.find(l_BeltEntry);
+
+                            l_TempList.remove_if([this, l_BurnsDatas](Creature* p_Creature) -> bool
+                            {
+                                if (p_Creature == nullptr)
+                                    return true;
+
+                                if (p_Creature->GetPositionY() != l_BurnsDatas->second)
+                                {
+                                    Position l_Pos = *p_Creature;
+                                    l_Pos.m_positionX = g_ScorchingBurnsXPos;
+                                    l_Pos.m_positionY = l_BurnsDatas->second;
+
+                                    if (!p_Creature->IsNearPosition(&l_Pos, 2.0f))
+                                        return true;
+                                }
+
+                                return false;
+                            });
+
+                            if (l_TempList.empty())
+                                continue;
+
+                            if (Creature* l_Burns = l_TempList.front())
+                            {
+                                if (l_Burns->IsAIEnabled)
+                                    l_Burns->AI()->Reset();
+                            }
+                        }
+                    }
+                }
+            }
+
+            void ActivatePress(uint32 p_Entry, uint32 p_BaseTime = 0)
+            {
+                for (StampingPressData l_StampingPress : m_StampingPresses)
+                {
+                    if (GameObject* l_Press = GameObject::GetGameObject(*me, l_StampingPress.StampingPress))
+                    {
+                        if (l_Press->GetEntry() != p_Entry)
+                            continue;
+
+                        /// Floor anim + down anim
+                        l_Press->m_Events.AddEvent(new StampingPressActivation(l_StampingPress.StampingPress, eVisuals::AnimStamp1, true),
+                            l_Press->m_Events.CalculateTime(p_BaseTime + 1));
+
+                        /// Handle Pulverized damages
+                        if (Creature* l_StampingPresses = Creature::GetCreature(*me, l_StampingPress.StampingPresses))
+                        {
+                            if (l_StampingPresses->IsAIEnabled)
+                            {
+                                l_StampingPresses->AI()->SetData(eDatas::DataStampTimer, p_BaseTime + 2 * TimeConstants::IN_MILLISECONDS + 500);
+                                l_StampingPresses->AI()->DoAction(eActions::ActionStamp);
+                            }
+                        }
+
+                        /// Stamp + up anim
+                        l_Press->m_Events.AddEvent(new StampingPressActivation(l_StampingPress.StampingPress, eVisuals::AnimStamp2, true),
+                            l_Press->m_Events.CalculateTime(p_BaseTime + 3 * TimeConstants::IN_MILLISECONDS));
+
+                        /// Stay up
+                        l_Press->m_Events.AddEvent(new StampingPressActivation(l_StampingPress.StampingPress, eVisuals::AnimStamp3, true),
+                            l_Press->m_Events.CalculateTime(p_BaseTime + 5 * TimeConstants::IN_MILLISECONDS));
+                    }
+                }
+            }
+
+            void DeactivatePress(uint32 p_Entry = 0)
+            {
+                for (StampingPressData l_StampingPress : m_StampingPresses)
+                {
+                    if (GameObject* l_Press = GameObject::GetGameObject(*me, l_StampingPress.StampingPress))
+                    {
+                        if (p_Entry && l_Press->GetEntry() != p_Entry)
+                            continue;
+
+                        if (Creature* l_StampingPresses = Creature::GetCreature(*me, l_StampingPress.StampingPresses))
+                        {
+                            if (l_StampingPresses->IsAIEnabled)
+                                l_StampingPresses->AI()->DoAction(eActions::ActionCancelStamp);
+                        }
+
+                        l_Press->m_Events.KillAllEvents(false);
+
+                        l_Press->m_Events.AddEvent(new StampingPressActivation(l_StampingPress.StampingPress, eVisuals::AnimStamp3, true),
+                            l_Press->m_Events.CalculateTime(1));
+                    }
+                }
             }
         };
 
@@ -2025,6 +2072,100 @@ class npc_foundry_scorching_burns : public CreatureScript
         }
 };
 
+/// Stamping Presses - 78358
+class npc_foundry_stamping_presses : public CreatureScript
+{
+    public:
+        npc_foundry_stamping_presses() : CreatureScript("npc_foundry_stamping_presses") { }
+
+        enum eSpell
+        {
+            PulverizedDamage = 158140
+        };
+
+        enum eActions
+        {
+            ActionStamp = 2,
+            ActionCancelStamp
+        };
+
+        enum eData
+        {
+            DataStampTimer = 3
+        };
+
+        struct npc_foundry_stamping_pressesAI : public ScriptedAI
+        {
+            npc_foundry_stamping_pressesAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_StampTimer = 0;
+            }
+
+            uint32 m_StampTimer;
+
+            void SetData(uint32 p_ID, uint32 p_Value) override
+            {
+                if (p_ID == eData::DataStampTimer)
+                    m_StampTimer = p_Value;
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eActions::ActionStamp:
+                    {
+                        AddTimedDelayedOperation(m_StampTimer, [this]() -> void
+                        {
+                            float l_CheckX = 4.5f;
+                            float l_CheckY = 6.5f;
+
+                            std::set<uint64> l_Targets;
+
+                            Map::PlayerList const& l_PlayerList = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+                            {
+                                if (Player* l_Player = l_Iter->getSource())
+                                {
+                                    if (l_Player->GetPositionX() <= (me->GetPositionX() + l_CheckX) && l_Player->GetPositionX() >= (me->GetPositionX() - l_CheckX) &&
+                                        l_Player->GetPositionY() <= (me->GetPositionY() + l_CheckY) && l_Player->GetPositionY() >= (me->GetPositionY() - l_CheckY))
+                                        l_Targets.insert(l_Player->GetGUID());
+                                }
+                            }
+
+                            for (uint64 l_Guid : l_Targets)
+                            {
+                                if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                                    me->CastSpell(l_Player, eSpell::PulverizedDamage, true);
+                            }
+
+                            m_StampTimer = 0;
+                        });
+
+                        break;
+                    }
+                    case eActions::ActionCancelStamp:
+                    {
+                        ClearDelayedOperations();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_stamping_pressesAI(p_Creature);
+        }
+};
+
 /// Pumped Up - 155665
 class spell_foundry_pumped_up : public SpellScriptLoader
 {
@@ -2159,6 +2300,7 @@ void AddSC_boss_hansgar_and_franzok()
     /// Creatures
     new npc_foundry_forge_overdrive();
     new npc_foundry_scorching_burns();
+    new npc_foundry_stamping_presses();
 
     /// Spells
     new spell_foundry_pumped_up();
