@@ -136,7 +136,7 @@ class GmTicket
         void SaveToDB(SQLTransaction& p_Transaction) const;
         void DeleteFromDB();
 
-        void WriteData(std::vector<std::string>& p_Data) const;
+        void WriteData(std::vector<std::string>& p_Data, std::string & p_Message) const;
         void SendResponse(WorldSession* p_Session) const;
 
         void TeleportTo(Player* p_Player) const;
