@@ -12375,7 +12375,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 // Hack fix for these spells - They deal Chaos damage, SPELL_SCHOOL_MASK_ALL
                             case 103964:// Touch of Chaos
                             case 124915:// Chaos Wave
-                                crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
+                                crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
                                 break;
                         }
                         break;
