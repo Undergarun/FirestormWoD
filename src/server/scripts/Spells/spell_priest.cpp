@@ -1622,6 +1622,9 @@ class spell_pri_devouring_plague: public SpellScriptLoader
 
                             int32 l_Heal = GetHitDamage();
                             l_Player->CastCustomSpell(l_Player, PRIEST_DEVOURING_PLAGUE_HEAL, &l_Heal, NULL, NULL, true);
+
+                            /// Store Devouring Plague instant damage for DOT damage - if crit, multiply
+                            l_Player->SetDevouringPlagueDamage(GetSpell()->IsCritForTarget(l_Target) ? GetHitDamage() * 2 : GetHitDamage());
                         }
                     }
                 }
@@ -1671,9 +1674,11 @@ class spell_pri_devouring_plague_aura: public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 /// Devouring Plague periodic damage deals 100% from instant damage in 6 seconds
-                /// Instant damage is ~300% spd, 300 /6 = 50% per tick
                 if (Unit* l_Caster = GetCaster())
-                    amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL), 50);
+                {
+                    if (l_Caster->GetDevouringPlagueDamage())
+                        amount = int32(l_Caster->GetDevouringPlagueDamage() / 6);
+                }
             }
 
             void OnTick(constAuraEffectPtr p_AurEff)

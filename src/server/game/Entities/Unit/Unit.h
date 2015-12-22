@@ -2666,6 +2666,10 @@ class Unit : public WorldObject
         void ClearLastUsedLeapBackSpell() { l_LastUsedLeapBackSpell = 0; }
         uint32 GetLastUsedLeapBackSpell() { return l_LastUsedLeapBackSpell; }
 
+        /// helpers for Devouring Plague DOT damage
+        void SetDevouringPlagueDamage(uint32 l_CurrentDamage) { m_DevouringPlagueDamage = l_CurrentDamage; }
+        uint32 GetDevouringPlagueDamage() { return m_DevouringPlagueDamage; }
+
         void DisableHealthRegen() { m_disableHealthRegen = true; }
         void ReenableHealthRegen() { m_disableHealthRegen = false; }
         bool HealthRegenIsDisable() const { return m_disableHealthRegen; }
@@ -2857,6 +2861,7 @@ class Unit : public WorldObject
         uint64 soulSwapTargetGUID;
         bool soulSwapRefreshDuration;
         uint32 l_LastUsedLeapBackSpell;
+        uint32 m_DevouringPlagueDamage;
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us
