@@ -5600,9 +5600,29 @@ class spell_monk_breath_of_the_serpent_tick : public SpellScriptLoader
                 }
             }
 
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Owner = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                uint32 l_SpellId = GetTargetApplication()->GetBase()->GetId();
+
+                if (l_RemoveMode != AURA_REMOVE_BY_CANCEL || !l_SpellId)
+                    return;
+
+                /// Remove aura from statue too
+                if (l_Owner->HasAura(l_SpellId))
+                    l_Owner->RemoveAura(l_SpellId);
+            }
+
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_breath_of_the_serpent_tick_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_monk_breath_of_the_serpent_tick_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
