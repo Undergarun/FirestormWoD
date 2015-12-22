@@ -1776,6 +1776,80 @@ class spell_pal_judgment: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Empowered Seals - 152263
+/// Call by Turalyons Justice - 156987, Uthers Insight - 156988, Liadrins Righteousness - 156989, Maraads Truth - 156990
+class spell_pal_empowered_seals : public SpellScriptLoader
+{
+    public:
+        spell_pal_empowered_seals() : SpellScriptLoader("spell_pal_empowered_seals") { }
+
+        enum eSpells
+        {
+            TuralyonsJustice        = 156987,
+            UthersInsight           = 156988,
+            LiadrinsRighteousness   = 156989,
+            MaraadsTruth            = 156990,
+            EmpowredSealsVisual     = 172319
+        };
+
+        class spell_pal_empowered_seals_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_empowered_seals_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->CastSpell(l_Target, eSpells::EmpowredSealsVisual, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                bool m_HasStillAura = false;
+
+                for (uint32 l_I = eSpells::TuralyonsJustice; l_I <= eSpells::MaraadsTruth; ++l_I)
+                {
+                    if (l_Target->HasAura(l_I))
+                        m_HasStillAura = true;
+                }
+                if (!m_HasStillAura)
+                    l_Target->RemoveAura(eSpells::EmpowredSealsVisual);
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::TuralyonsJustice:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::UthersInsight:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::LiadrinsRighteousness:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::MaraadsTruth:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_empowered_seals_AuraScript();
+        }
+};
+
 /// Ardent Defender - 31850
 class spell_pal_ardent_defender: public SpellScriptLoader
 {
@@ -3519,6 +3593,7 @@ class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_empowered_seals();
     new spell_pal_glyph_of_the_consecration();
     new spell_pal_beacon_of_light();
     new spell_pal_beacon_of_light_proc();
