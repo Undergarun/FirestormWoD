@@ -500,7 +500,7 @@ public:
     }
 };
 
-/// Sargerei Soulbinder - 
+/// Sargerei Soulbinder - 77812
 class auchindon_creature_sargerei_soulbinder : public CreatureScript
 {
 public:

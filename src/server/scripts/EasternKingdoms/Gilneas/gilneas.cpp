@@ -584,7 +584,8 @@ struct Paths
     Point paths[8][10];   //pathID, pointID, Point
 };
 
-class npc_frightened_citizen : public CreatureScript
+/// @todo refactor me : lolz the mysql query
+/*class npc_frightened_citizen : public CreatureScript
 {
 public:
     npc_frightened_citizen() : CreatureScript("npc_frightened_citizen") {}
@@ -742,6 +743,7 @@ public:
         }
     };
 };
+ */
 
 //Phase 4
 /*######
@@ -2929,7 +2931,7 @@ void AddSC_gilneas()
     new go_merchant_square_door();
     new npc_sergeant_cleese();
     new npc_bloodfang_worgen();
-    new npc_frightened_citizen();
+    ///new npc_frightened_citizen();
     new npc_gilnean_royal_guard();
     new npc_mariam_spellwalker();
     new npc_sean_dempsey();
