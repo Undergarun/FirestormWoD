@@ -4109,9 +4109,53 @@ public:
     }
 };
 
+/// last update : 6.2.3
+/// Incinerate - 2972, Incinerate (Fire and Brimstone) - 114654
+class spell_warl_incinerate : public SpellScriptLoader
+{
+    public:
+        spell_warl_incinerate() : SpellScriptLoader("spell_warl_incinerate") { }
+
+        class spell_warl_incinerate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_incinerate_SpellScript);
+
+            enum eSpells
+            {
+                WarlockWoDPvPDestruction4PBonus = 189209,
+                ImmolateDamage                  = 157736
+            };
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WarlockWoDPvPDestruction4PBonus, EFFECT_0))
+                {
+                    if (l_Target->HasAura(eSpells::ImmolateDamage, l_Caster->GetGUID()))
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_AuraEffect->GetAmount()));
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_incinerate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_incinerate_SpellScript();
+        }
+};
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_incinerate();
     new spell_warl_glyph_of_life_tap_periodic();
     new spell_warl_glyph_of_life_tap();
     new spell_warl_demonic_servitude();
