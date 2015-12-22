@@ -7765,6 +7765,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     switch (procSpell->Id)
                     {
+                        case 633:
                         case 85673:
                         case 19750:
                         case 82326:
