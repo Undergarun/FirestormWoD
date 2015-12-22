@@ -19543,8 +19543,8 @@ float Unit::MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell,
     // Calculate miss chance
     float l_MissChance = p_Victim->GetUnitMissChancePhysical(this, p_AttType);
 
-    if (p_Spell && !p_Spell->Id && haveOffhandWeapon())
-        l_MissChance += 17;
+    if (p_Spell && !p_Spell->Id && haveOffhandWeapon() && (!ToPlayer() || ToPlayer()->GetSpecializationId() != SPEC_ROGUE_COMBAT))
+        l_MissChance += 19.0f;
 
     // Calculate hit chance
     float l_HitChance = 100.0f;
