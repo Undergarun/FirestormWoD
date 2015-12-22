@@ -993,12 +993,12 @@ struct ItemEffectEntry
     uint32 ItemID;                                                  ///< 1
     uint32 EffectIndex;                                             ///< 2
     uint32 SpellID;                                                 ///< 3
-    uint32 SpellTrigger;                                            ///< 4
+    int32  SpellTrigger;                                            ///< 4
     int32  SpellCharge;                                             ///< 5
-    uint32 SpellCooldown;                                           ///< 6
+    int32  SpellCooldown;                                           ///< 6
     uint32 SpellCategory;                                           ///< 7
-    uint32 SpellCategoryCooldown;                                   ///< 8
-    uint32 Unk1;                                                    ///< 9 ChrSpecializationID NYI
+    int32  SpellCategoryCooldown;                                   ///< 8
+    uint32 ChrSpecializationID;                                     ///< 9 @todo implement me NYI
 };
 
 #define MAX_HEIRLOOM_UPGRADE_LEVEL 2
