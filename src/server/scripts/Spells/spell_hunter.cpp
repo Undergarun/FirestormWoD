@@ -1692,6 +1692,11 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_a_murder_of_crows_AuraScript);
 
+            enum eSpells
+            {
+                FreezingTrap = 3355
+            };
+
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
@@ -1704,6 +1709,9 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
                     l_Caster->CastSpell(l_Target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
                 else
                     p_AurEff->GetBase()->Remove();
+
+                if (l_Target->HasAura(eSpells::FreezingTrap))
+                    l_Target->RemoveAura(eSpells::FreezingTrap);
             }
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
