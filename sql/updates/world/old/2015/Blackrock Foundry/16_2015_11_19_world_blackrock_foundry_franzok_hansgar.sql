@@ -19,11 +19,12 @@ DELETE FROM areatrigger_scripts WHERE entry = 9998;
 INSERT INTO areatrigger_scripts VALUE
 (9998, 'areatrigger_at_foundry_hansgar_and_franzok_entrance');
 
-DELETE FROM conditions WHERE SourceEntry IN (177379, 156611);
+DELETE FROM conditions WHERE SourceEntry IN (177379, 156611, 156613);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
 (13, 1, 177379, 31, 0, 3, 237598),
 (13, 1, 177379, 31, 0, 3, 237597),
-(13, 1, 156611, 31, 0, 3, 76974);
+(13, 1, 156611, 31, 0, 3, 76974),
+(13, 1, 156613, 31, 0, 3, 76973);
 
 SET @REF_HANSGAR = 76973;
 SET @REF_FRANZOK = 76974;

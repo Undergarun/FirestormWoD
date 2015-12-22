@@ -100,6 +100,18 @@ struct StampingPressData
 
 typedef std::list<StampingPressData> StampingPressList;
 
+/// CoveyorBelt Entry - StampingPresses Y pos (or Scorching Burns Y pos)
+typedef std::map <uint32, float> ConveyorDatas;
+
+ConveyorDatas const g_ConveyorBeltBurns =
+{
+    { eFoundryGameObjects::ConveyorBelt001, 3522.769043f },
+    { eFoundryGameObjects::ConveyorBelt002, 3507.606934f },
+    { eFoundryGameObjects::ConveyorBelt003, 3492.773926f },
+    { eFoundryGameObjects::ConveyorBelt004, 3477.840088f },
+    { eFoundryGameObjects::ConveyorBelt005, 3461.691895f }
+};
+
 void RespawnBrothers(Creature* p_Source, InstanceScript* p_Instance)
 {
     if (p_Source == nullptr || p_Instance == nullptr)
@@ -190,6 +202,7 @@ class boss_hansgar : public CreatureScript
             BodySlamRedArrowAura    = 156892,
             BodySlamOut             = 155747,
             /// Crippling Suplex
+            CripplingSuplexThrow    = 156938,
             CripplingSuplexScript   = 156546,   ///< This triggers 156547
             CripplingSuplexJump     = 156547,   ///< Force player to enter boss
             CripplingSuplexSwitch   = 156609
@@ -209,7 +222,6 @@ class boss_hansgar : public CreatureScript
         {
             ActionIntro,
             ActionIntroFinished,
-            ActionCripplingSuplex,
             ActionSearingPlate
         };
 
@@ -218,8 +230,7 @@ class boss_hansgar : public CreatureScript
             AnimStamp1      = 5924,
             AnimStamp2      = 6741,
             AnimStamp3      = 5836,
-            BodySlamVisual  = 38379,
-            ChainPullVisual = 6006
+            BodySlamVisual  = 38379
         };
 
         enum eCreatures
@@ -227,7 +238,8 @@ class boss_hansgar : public CreatureScript
             MobStampingPresses          = 78358,
             BlackrockForgeSpecialist    = 79200,
             BlackrockEnforcer           = 79208,
-            ScorchingBurns              = 78823
+            ScorchingBurns              = 78823,
+            ForgeOverdrive              = 77258
         };
 
         enum eGameObjects
@@ -257,6 +269,11 @@ class boss_hansgar : public CreatureScript
 
         enum eDatas
         {
+            DataMainTankHealth,
+            DataOffTankHealth,  ///< ExplicitTarget of Crippling Suplex
+            DataMaxTankHealths,
+
+            /// Misc
             MaxStampingPresses  = 20,
             MaxConveyorBelts    = 5,
             DataBeltEntry       = 0,
@@ -284,6 +301,8 @@ class boss_hansgar : public CreatureScript
 
                 m_SwitchStatePct.resize(eStates::MaxSwitchStates);
                 m_SwitchStatePct = { 85, 70, 55, 40, 25, 15, 0 };
+
+                m_TankHealths.resize(eDatas::DataMaxTankHealths);
             }
 
             InstanceScript* m_Instance;
@@ -306,6 +325,9 @@ class boss_hansgar : public CreatureScript
             uint64 m_BodySlamTarget;
 
             uint32 m_DisabledBelt;
+
+            uint64 m_ExitTankGuid;
+            std::vector<uint32> m_TankHealths;
 
             bool CanRespawn() override
             {
@@ -358,11 +380,11 @@ class boss_hansgar : public CreatureScript
 
                 m_DisabledBelt = 0;
 
+                m_ExitTankGuid = 0;
+
                 me->setPowerType(Powers::POWER_ENERGY);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
                 me->SetPower(Powers::POWER_ENERGY, 0);
-
-                me->SetAIAnimKitId(0);
 
                 ResetArea();
             }
@@ -454,6 +476,16 @@ class boss_hansgar : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventBodySlam, 3 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
+                    case eSpells::CripplingSuplexThrow:
+                    {
+                        if (Unit* l_Passenger = m_Vehicle->GetPassenger(0))
+                        {
+                            if (Unit* l_Tank = Unit::GetUnit(*me, m_ExitTankGuid))
+                                l_Passenger->ExitVehicle(l_Tank);
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -487,7 +519,6 @@ class boss_hansgar : public CreatureScript
                 }
             }
 
-            /// Handle that only for Hans'gar is enough, brothers have shared health
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
                 if (me->HealthBelowPctDamaged(m_SwitchStatePct[m_State], p_Damage))
@@ -532,13 +563,32 @@ class boss_hansgar : public CreatureScript
                         }
                         case eStates::BothInArena2:
                         {
-                            EndSearingPlatesEvent();
                             Talk(eTalks::ReturningFromControls);
+
+                            me->CastSpell(me, eSpells::NotReady, true);
+
+                            m_Events.CancelEvent(eEvents::EventBodySlam);
+
+                            m_BodySlamJumps = 1;
+
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            {
+                                me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
+                                m_BodySlamTarget = l_Target->GetGUID();
+
+                                float l_O = me->GetAngle(l_Target);
+                                AddTimedDelayedOperation(50, [this, l_O]() -> void
+                                {
+                                    me->SetFacingTo(l_O);
+                                });
+                            }
+
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            EndSearingPlatesEvent();
                             break;
                         }
-                        case eStates::FranzokOut:
-                        case eStates::BothInArena3:
-                            break;
                         case eStates::HansgarOut2:
                         {
                             Talk(eTalks::ActivateAssemblyLine);
@@ -547,12 +597,34 @@ class boss_hansgar : public CreatureScript
                             break;
                         }
                         case eStates::BothInArenaFinal:
-                            break;
-                        /// End of the fight
                         default:
                             break;
                     }
                 }
+            }
+
+            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            {
+                /// Handle Crippling Suplex
+                if (p_Apply && (m_State == eStates::FranzokOut))
+                {
+                    me->AddAura(VEHICLE_SPELL_RIDE_HARDCODED, p_Passenger);
+
+                    m_TankHealths[eDatas::DataMainTankHealth] = p_Passenger->GetMaxHealth();
+
+                    AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true, -VEHICLE_SPELL_RIDE_HARDCODED))
+                        {
+                            m_ExitTankGuid = l_Target->GetGUID();
+                            m_TankHealths[eDatas::DataOffTankHealth] = l_Target->GetMaxHealth();
+
+                            me->CastSpell(l_Target, eSpells::CripplingSuplexThrow, false);
+                        }
+                    });
+                }
+                else if (!p_Apply)
+                    p_Passenger->RemoveAura(VEHICLE_SPELL_RIDE_HARDCODED);
             }
 
             void DoAction(int32 const p_Action) override
@@ -644,7 +716,14 @@ class boss_hansgar : public CreatureScript
                         if (m_BodySlamJumps)
                             me->CastSpell(me, eSpells::JumpSlamSearcher, true);
 
-                        if (p_ID == eSpells::BodySlamOut)
+                        if (m_State == eStates::BothInArena2)
+                        {
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                            m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
+                        }
+
+                        if (p_ID == eSpells::BodySlamOut && me->HasReactState(ReactStates::REACT_PASSIVE))
                         {
                             me->RemoveAura(eSpells::NotReady);
 
@@ -657,11 +736,6 @@ class boss_hansgar : public CreatureScript
 
                         break;
                     }
-                    case eSpells::TacticalRetreatOther:
-                    {
-                        me->SetAIAnimKitId(eVisuals::ChainPullVisual);
-                        break;
-                    }
                     default:
                         break;
                 }
@@ -671,6 +745,10 @@ class boss_hansgar : public CreatureScript
             {
                 switch (p_ID)
                 {
+                    case eDatas::DataMainTankHealth:
+                        return m_TankHealths[eDatas::DataMainTankHealth];
+                    case eDatas::DataOffTankHealth:
+                        return m_TankHealths[eDatas::DataOffTankHealth];
                     default:
                         break;
                 }
@@ -810,8 +888,6 @@ class boss_hansgar : public CreatureScript
                         {
                             me->CastSpell(me, eSpells::NotReady, true);
 
-                            me->SetAIAnimKitId(0);
-
                             m_BodySlamJumps = 1;
 
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
@@ -882,9 +958,6 @@ class boss_hansgar : public CreatureScript
 
             void StartSearingPlatesEvent()
             {
-                /// CoveyorBelt Entry - StampingPresses Y pos (or Scorching Burns Y pos)
-                using ConveyorDatas = std::map <uint32, float>;
-
                 ConveyorDatas const l_ConveyorBeltPos =
                 {
                     { eFoundryGameObjects::ConveyorBelt001, 3521.840088f },
@@ -892,15 +965,6 @@ class boss_hansgar : public CreatureScript
                     { eFoundryGameObjects::ConveyorBelt003, 3492.929932f },
                     { eFoundryGameObjects::ConveyorBelt004, 3478.469971f },
                     { eFoundryGameObjects::ConveyorBelt005, 3463.969961f }
-                };
-
-                ConveyorDatas const l_ConveyorBeltBurns =
-                {
-                    { eFoundryGameObjects::ConveyorBelt001, 3522.769043f },
-                    { eFoundryGameObjects::ConveyorBelt002, 3507.606934f },
-                    { eFoundryGameObjects::ConveyorBelt003, 3492.773926f },
-                    { eFoundryGameObjects::ConveyorBelt004, 3477.840088f },
-                    { eFoundryGameObjects::ConveyorBelt005, 3461.691895f }
                 };
 
                 for (uint32 l_Entry = eFoundryGameObjects::ConveyorBelt002; l_Entry <= eFoundryGameObjects::ConveyorBelt005; ++l_Entry)
@@ -936,7 +1000,7 @@ class boss_hansgar : public CreatureScript
                             {
                                 std::list<Creature*> l_TempList = l_BurnList;
 
-                                auto l_BurnsDatas = l_ConveyorBeltBurns.find(l_BeltEntry);
+                                auto l_BurnsDatas = g_ConveyorBeltBurns.find(l_BeltEntry);
 
                                 l_TempList.remove_if([this, l_BurnsDatas](Creature* p_Creature) -> bool
                                 {
@@ -1019,6 +1083,12 @@ class boss_hansgar : public CreatureScript
                         l_ConveyorBelt->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStop);
                 }
 
+                std::list<Creature*> l_BurnList;
+                me->GetCreatureListWithEntryInGrid(l_BurnList, eCreatures::ScorchingBurns, 200.0f);
+
+                if (l_BurnList.empty())
+                    return;
+
                 /// Clear all pending cycles
                 for (uint8 l_I = 0; l_I < eDatas::MaxConveyorBelts; ++l_I)
                 {
@@ -1026,7 +1096,32 @@ class boss_hansgar : public CreatureScript
                     {
                         if (GameObject* l_Belt = me->FindNearestGameObject(l_BeltEntry, 100.0f))
                         {
-                            if (Creature* l_Burns = l_Belt->FindNearestCreature(eCreatures::ScorchingBurns, 50.0f))
+                            std::list<Creature*> l_TempList = l_BurnList;
+
+                            auto l_BurnsDatas = g_ConveyorBeltBurns.find(l_BeltEntry);
+
+                            l_TempList.remove_if([this, l_BurnsDatas](Creature* p_Creature) -> bool
+                            {
+                                if (p_Creature == nullptr)
+                                    return true;
+
+                                if (p_Creature->GetPositionY() != l_BurnsDatas->second)
+                                {
+                                    Position l_Pos = *p_Creature;
+                                    l_Pos.m_positionX = g_ScorchingBurnsXPos;
+                                    l_Pos.m_positionY = l_BurnsDatas->second;
+
+                                    if (!p_Creature->IsNearPosition(&l_Pos, 2.0f))
+                                        return true;
+                                }
+
+                                return false;
+                            });
+
+                            if (l_TempList.empty())
+                                continue;
+
+                            if (Creature* l_Burns = l_TempList.front())
                             {
                                 if (l_Burns->IsAIEnabled)
                                     l_Burns->AI()->Reset();
@@ -1038,11 +1133,19 @@ class boss_hansgar : public CreatureScript
 
             void ResetArea()
             {
+                DespawnCreaturesInArea(eCreatures::ForgeOverdrive, me);
+
                 for (uint32 l_Entry = eFoundryGameObjects::ConveyorBelt002; l_Entry <= eFoundryGameObjects::ConveyorBelt005; ++l_Entry)
                 {
                     if (GameObject* l_ConveyorBelt = me->FindNearestGameObject(l_Entry, 100.0f))
                         l_ConveyorBelt->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStop);
                 }
+
+                std::list<Creature*> l_BurnList;
+                me->GetCreatureListWithEntryInGrid(l_BurnList, eCreatures::ScorchingBurns, 200.0f);
+
+                if (l_BurnList.empty())
+                    return;
 
                 /// Clear all pending cycles
                 for (uint8 l_I = 0; l_I < eDatas::MaxConveyorBelts; ++l_I)
@@ -1051,7 +1154,32 @@ class boss_hansgar : public CreatureScript
                     {
                         if (GameObject* l_Belt = me->FindNearestGameObject(l_BeltEntry, 100.0f))
                         {
-                            if (Creature* l_Burns = l_Belt->FindNearestCreature(eCreatures::ScorchingBurns, 50.0f))
+                            std::list<Creature*> l_TempList = l_BurnList;
+
+                            auto l_BurnsDatas = g_ConveyorBeltBurns.find(l_BeltEntry);
+
+                            l_TempList.remove_if([this, l_BurnsDatas](Creature* p_Creature) -> bool
+                            {
+                                if (p_Creature == nullptr)
+                                    return true;
+
+                                if (p_Creature->GetPositionY() != l_BurnsDatas->second)
+                                {
+                                    Position l_Pos = *p_Creature;
+                                    l_Pos.m_positionX = g_ScorchingBurnsXPos;
+                                    l_Pos.m_positionY = l_BurnsDatas->second;
+
+                                    if (!p_Creature->IsNearPosition(&l_Pos, 2.0f))
+                                        return true;
+                                }
+
+                                return false;
+                            });
+
+                            if (l_TempList.empty())
+                                continue;
+
+                            if (Creature* l_Burns = l_TempList.front())
                             {
                                 if (l_Burns->IsAIEnabled)
                                     l_Burns->AI()->Reset();
@@ -1084,6 +1212,7 @@ class boss_franzok : public CreatureScript
             ReturningFromControls,
             Slay,
             Wipe,
+            Death,
             DisruptingRoar,
             BodySlam
         };
@@ -1093,18 +1222,29 @@ class boss_franzok : public CreatureScript
             /// Misc
             PumpedUp                = 155665,
             BoundByBlood            = 161030,
+            NotReady                = 158656,
+            TacticalRetreat         = 156220,
+            TacticalRetreatOther    = 156883,
             /// Disrupting Roar
             SpellDisruptingRoar     = 160838,
             /// Skullcracker
             Skullcracker            = 153470,
             /// Crippling Suplex
-            CripplingSuplexThrow    = 156938
+            CripplingSuplexThrow    = 156938,
+            CripplingSuplexScript   = 156546,   ///< This triggers 156547
+            CripplingSuplexJump     = 156547,   ///< Force player to enter boss
+            CripplingSuplexSwitch   = 156612,
+            /// Body Slam (When out)
+            BodySlamTriggered       = 154785,
+            BodySlamRedArrowAura    = 156892,
+            BodySlamOut             = 155747
         };
 
         enum eEvents
         {
             EventDisruptingRoar = 1,
-            EventSkullcracker
+            EventSkullcracker,
+            EventBodySlam
         };
 
         enum eCosmeticEvents
@@ -1114,8 +1254,7 @@ class boss_franzok : public CreatureScript
         enum eActions
         {
             ActionIntro,
-            ActionIntroFinished,
-            ActionCripplingSuplex
+            ActionIntroFinished
         };
 
         enum eVisuals
@@ -1133,6 +1272,18 @@ class boss_franzok : public CreatureScript
             DataMaxTankHealths
         };
 
+        enum eStates
+        {
+            BothInArena1,
+            HansgarOut1,
+            BothInArena2,
+            FranzokOut,
+            BothInArena3,
+            HansgarOut2,
+            BothInArenaFinal,
+            MaxSwitchStates
+        };
+
         struct boss_franzokAI : public BossAI
         {
             boss_franzokAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataHansgarAndFranzok), m_Vehicle(p_Creature->GetVehicleKit())
@@ -1141,6 +1292,9 @@ class boss_franzok : public CreatureScript
                 m_IntroDone = false;
 
                 m_TankHealths.resize(eDatas::DataMaxTankHealths);
+
+                m_SwitchStatePct.resize(eStates::MaxSwitchStates);
+                m_SwitchStatePct = { 85, 70, 55, 40, 25, 15, 0 };
             }
 
             InstanceScript* m_Instance;
@@ -1153,6 +1307,11 @@ class boss_franzok : public CreatureScript
 
             uint64 m_ExitTankGuid;
             std::vector<uint32> m_TankHealths;
+
+            uint8 m_State;
+            std::vector<int32> m_SwitchStatePct;
+
+            uint64 m_BodySlamTarget;
 
             bool CanRespawn() override
             {
@@ -1177,6 +1336,10 @@ class boss_franzok : public CreatureScript
                 me->SetPower(Powers::POWER_ENERGY, 0);
 
                 m_ExitTankGuid = 0;
+
+                m_State = 0;
+
+                m_BodySlamTarget = 0;
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -1248,6 +1411,21 @@ class boss_franzok : public CreatureScript
 
                         break;
                     }
+                    case eSpells::BodySlamOut:
+                    {
+                        if (Unit* l_Target = Unit::GetUnit(*me, m_BodySlamTarget))
+                        {
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MoveJump(*l_Target, 30.0f, 10.0f, p_SpellInfo->Id);
+                        }
+
+                        break;
+                    }
+                    case eSpells::TacticalRetreat:
+                    {
+                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 3 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1257,18 +1435,81 @@ class boss_franzok : public CreatureScript
             {
                 if (p_Target == nullptr)
                     return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::CripplingSuplexScript:
+                    {
+                        p_Target->CastSpell(me, eSpells::CripplingSuplexJump, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (me->HealthBelowPctDamaged(m_SwitchStatePct[m_State], p_Damage))
+                {
+                    ++m_State;
+
+                    switch (m_State)
+                    {
+                        case eStates::FranzokOut:
+                        {
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            me->GetMotionMaster()->Clear();
+                            me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(l_Target, eSpells::CripplingSuplexScript, true);
+
+                            uint32 l_Time = 4 * TimeConstants::IN_MILLISECONDS;
+                            AddTimedDelayedOperation(l_Time, [this]() -> void
+                            {
+                                /// Force player to cast 156613 and enter other boss
+                                me->CastSpell(me, eSpells::CripplingSuplexSwitch, true);
+                            });
+
+                            l_Time += 3 * TimeConstants::IN_MILLISECONDS;
+                            AddTimedDelayedOperation(l_Time, [this]() -> void
+                            {
+                                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                                me->GetMotionMaster()->Clear();
+                                me->CastSpell(g_HansgarJumpPosOut, eSpells::TacticalRetreat, true);
+
+                                Talk(eTalks::ActivateAssemblyLine);
+                            });
+
+                            ///StartSearingPlatesEvent();
+                            break;
+                        }
+                        case eStates::BothInArena3:
+                        {
+                            m_Events.CancelEvent(eEvents::EventBodySlam);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
             {
                 /// Handle Crippling Suplex
-                if (p_Apply)
+                if (p_Apply && (m_State == eStates::HansgarOut1 || m_State == eStates::HansgarOut2))
                 {
+                    me->AddAura(VEHICLE_SPELL_RIDE_HARDCODED, p_Passenger);
+
                     m_TankHealths[eDatas::DataMainTankHealth] = p_Passenger->GetMaxHealth();
 
                     AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true, -VEHICLE_SPELL_RIDE_HARDCODED))
                         {
                             m_ExitTankGuid = l_Target->GetGUID();
                             m_TankHealths[eDatas::DataOffTankHealth] = l_Target->GetMaxHealth();
@@ -1277,6 +1518,8 @@ class boss_franzok : public CreatureScript
                         }
                     });
                 }
+                else if (!p_Apply)
+                    p_Passenger->RemoveAura(VEHICLE_SPELL_RIDE_HARDCODED);
             }
 
             void DoAction(int32 const p_Action) override
@@ -1323,8 +1566,33 @@ class boss_franzok : public CreatureScript
 
                         break;
                     }
-                    case eActions::ActionCripplingSuplex:
+                    default:
+                        break;
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                switch (p_ID)
+                {
+                    case eSpells::BodySlamOut:
                     {
+                        me->CastSpell(me, eSpells::BodySlamTriggered, true);
+
+                        if (m_State == eStates::BothInArena2)
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                        if (p_ID == eSpells::BodySlamOut && me->HasReactState(ReactStates::REACT_PASSIVE))
+                        {
+                            me->RemoveAura(eSpells::NotReady);
+
+                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                me->GetMotionMaster()->Clear();
+                                me->CastSpell(g_HansgarJumpPosRetreat, eSpells::TacticalRetreatOther, true);
+                            });
+                        }
+
                         break;
                     }
                     default:
@@ -1426,11 +1694,26 @@ class boss_franzok : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventSkullcracker, 21 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
+                    case eEvents::EventBodySlam:
+                    {
+                        me->CastSpell(me, eSpells::NotReady, true);
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        {
+                            m_BodySlamTarget = l_Target->GetGUID();
+
+                            me->SetFacingTo(me->GetAngle(l_Target));
+                            me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
 
-                DoMeleeAttackIfReady();
+                if (me->GetReactState() == ReactStates::REACT_AGGRESSIVE)
+                    DoMeleeAttackIfReady();
             }
         };
 
@@ -1470,6 +1753,8 @@ class npc_foundry_forge_overdrive : public CreatureScript
 
             uint32 m_BeltEntry;
 
+            std::set<uint64> m_AffectedPlayers;
+
             void Reset() override
             {
                 me->CastSpell(me, eSpells::SearingPlatesAT, true);
@@ -1484,6 +1769,8 @@ class npc_foundry_forge_overdrive : public CreatureScript
                         me->GetMotionMaster()->MovePoint(eMove::MoveDespawn, l_DestPos);
                     }
                 });
+
+                m_AffectedPlayers.clear();
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -1498,9 +1785,66 @@ class npc_foundry_forge_overdrive : public CreatureScript
                 }
             }
 
+            void JustDespawned() override
+            {
+                for (uint64 l_Guid : m_AffectedPlayers)
+                {
+                    if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                    {
+                        if (l_Player->HasAura(eSpells::SearingPlatesDoT, me->GetGUID()))
+                            l_Player->RemoveAura(eSpells::SearingPlatesDoT, me->GetGUID());
+                    }
+                }
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
+
+                float l_CheckX = 4.5f;
+                float l_CheckY = 6.5f;
+
+                std::set<uint64> l_Targets;
+
+                Map::PlayerList const& l_PlayerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+                {
+                    if (Player* l_Player = l_Iter->getSource())
+                    {
+                        if (l_Player->GetPositionX() <= (me->GetPositionX() + l_CheckX) && l_Player->GetPositionX() >= (me->GetPositionX() - l_CheckX) &&
+                            l_Player->GetPositionY() <= (me->GetPositionY() + l_CheckY) && l_Player->GetPositionY() >= (me->GetPositionY() - l_CheckY))
+                            l_Targets.insert(l_Player->GetGUID());
+                    }
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) == l_Targets.end())
+                    {
+                        if (Player* l_Player = Player::GetPlayer(*me, (*l_Iter)))
+                        {
+                            if (l_Player->HasAura(eSpells::SearingPlatesDoT, me->GetGUID()))
+                                l_Player->RemoveAura(eSpells::SearingPlatesDoT, me->GetGUID());
+                        }
+
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                    }
+                    else
+                        ++l_Iter;
+                }
+
+                for (uint64 l_Guid : l_Targets)
+                {
+                    if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                    {
+                        if (!l_Player->HasAura(eSpells::SearingPlatesDoT, me->GetGUID()))
+                        {
+                            me->CastSpell(l_Player, eSpells::SearingPlatesDoT, true);
+
+                            m_AffectedPlayers.insert(l_Guid);
+                        }
+                    }
+                }
             }
         };
 
@@ -1527,7 +1871,7 @@ class npc_foundry_scorching_burns : public CreatureScript
 
         enum eAction
         {
-            ActionSearingPlate = 3
+            ActionSearingPlate = 2
         };
 
         enum eCreature
@@ -1640,8 +1984,8 @@ class npc_foundry_scorching_burns : public CreatureScript
                             if (l_Player->GetDistance(me) >= l_MaxDist)
                                 continue;
 
-                            if (l_Player->GetPositionY() <= me->GetPositionY() + 7.2f &&
-                                l_Player->GetPositionY() >= me->GetPositionY() - 7.2f)
+                            if (l_Player->GetPositionY() <= me->GetPositionY() + 6.5f &&
+                                l_Player->GetPositionY() >= me->GetPositionY() - 6.5f)
                                 l_Targets.insert(l_Player->GetGUID());
                         }
                     }
@@ -1770,7 +2114,7 @@ class spell_foundry_crippling_suplex : public SpellScriptLoader
         }
 };
 
-/// Pumped Up - 155665
+/// Body Slam (Red Arrow) - 156892
 class spell_foundry_body_slam_red_arrow : public SpellScriptLoader
 {
     public:

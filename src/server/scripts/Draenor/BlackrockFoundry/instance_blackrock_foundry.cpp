@@ -44,6 +44,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                 m_HansgarGuid               = 0;
                 m_FranzokGuid               = 0;
+                m_StampStampRevolution      = true;
             }
 
             /// Slagworks
@@ -66,6 +67,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             /// Slagmill Press
             uint64 m_HansgarGuid;
             uint64 m_FranzokGuid;
+            bool m_StampStampRevolution;
 
             void Initialize() override
             {
@@ -170,7 +172,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         {
                             case EncounterState::DONE:
                             {
-                                if (m_PristineTrueIronOres >= eFoundryDatas::MaxPristineTrueIronOres)
+                                if (m_PristineTrueIronOres >= eFoundryDatas::MaxPristineTrueIronOres && !instance->IsLFR())
                                     DoCompleteAchievement(eFoundryAchievements::TheIronPrince);
 
                                 break;
@@ -192,7 +194,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         {
                             case EncounterState::DONE:
                             {
-                                if (m_VolatileOreGrinded)
+                                if (m_VolatileOreGrinded && !instance->IsLFR())
                                     DoCompleteAchievement(eFoundryAchievements::HeShootsHeOres);
 
                                 break;
@@ -214,7 +216,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         {
                             case EncounterState::DONE:
                             {
-                                if (m_YaWeveGotTimeAchiev)
+                                if (m_YaWeveGotTimeAchiev && !instance->IsLFR())
                                     DoCompleteAchievement(eFoundryAchievements::YaWeveGotTime);
 
                                 break;
@@ -228,6 +230,26 @@ class instance_blackrock_foundry : public InstanceMapScript
                         }
 
                         break;
+                    }
+                    case eFoundryDatas::DataHansgarAndFranzok:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                if (m_StampStampRevolution && !instance->IsLFR())
+                                    DoCompleteAchievement(eFoundryAchievements::StampStampRevolution);
+
+                                break;
+                            }
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_StampStampRevolution = true;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
                     }
                     default:
                         break;
@@ -272,6 +294,14 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 m_YaWeveGotTimeAchiev = true;
                         }
 
+                        break;
+                    }
+                    case eFoundryDatas::PlayerStamped:
+                    {
+                        if (instance->IsLFR())
+                            break;
+
+                        m_StampStampRevolution = false;
                         break;
                     }
                     default:

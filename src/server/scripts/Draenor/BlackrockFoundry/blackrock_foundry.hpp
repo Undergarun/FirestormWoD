@@ -139,6 +139,7 @@ enum eFoundryDatas
     PristineTrueIronOres    = 0,
     VolatileOreGrinded      = 1,
     PrimalElementalistTime  = 2,
+    PlayerStamped           = 3,
 
     /// Counters
     /// Gruul
@@ -160,9 +161,10 @@ enum eFoundrySpells
 
 enum eFoundryAchievements
 {
-    TheIronPrince   = 8978,
-    HeShootsHeOres  = 8979,
-    YaWeveGotTime   = 8930
+    TheIronPrince           = 8978,
+    HeShootsHeOres          = 8979,
+    YaWeveGotTime           = 8930,
+    StampStampRevolution    = 8980
 };
 
 enum eFoundryVisuals
