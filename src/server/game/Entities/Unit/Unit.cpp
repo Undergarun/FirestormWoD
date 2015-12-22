@@ -15778,9 +15778,9 @@ void Unit::SetMaxHealth(uint32 val)
 Unit::PowerTypeSet Unit::GetUsablePowers() const
 {
     PowerTypeSet l_Powers;
-    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
+    for (uint32 l_I = 0; l_I <= sChrClassXPowerTypesStore.GetNumRows(); ++l_I)
     {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(l_I);
+        ChrClassXPowerTypesEntry const* powerEntry = sChrClassXPowerTypesStore.LookupEntry(l_I);
         if (!powerEntry)
             continue;
 
@@ -15793,7 +15793,7 @@ Unit::PowerTypeSet Unit::GetUsablePowers() const
         l_Powers.insert(Powers(powerEntry->power));
     }
 
-    // POWER_RUNES isn't in ChrClassesXPowerTypes.dbc
+    // POWER_RUNES isn't in ChrClassesXPowerTypes.db2
     if (getClass() == CLASS_DEATH_KNIGHT)
         l_Powers.insert(POWER_RUNES);
 

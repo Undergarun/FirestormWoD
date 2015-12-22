@@ -184,6 +184,16 @@ namespace MS { namespace Garrison
 
         static const uint64 g_PendingQuestFlag = 0x40000000;
 
+        enum TrainingMountsAuras
+        {
+            RockstuckTrainingMountAura     = 174221, ///< Boar Quests
+            MeadowstomperTrainingMountAura = 174219, ///< Elekk Quests
+            IcehoofTrainingMountAura       = 174218, ///< Clefthoof Quests
+            SnarlerTrainingMountAura       = 174216, ///< Wolf Quests
+            RiverwallowTrainingMountAura   = 174220, ///< Riverbeast Quests
+            SilverpeltTrainingMountAura    = 174222  ///< Talbuk Quests
+        };
+
         /// Get from Mount.db2 with spellIDs used as questline rewards
         enum MountDisplayIDs
         {

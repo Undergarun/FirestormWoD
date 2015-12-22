@@ -127,19 +127,6 @@ m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_Ti
     m_TransactionCallbacks             = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
     m_PreparedStatementCallbacks       = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
     m_PreparedStatementCallbacksBuffer = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
-
-    _compressionStream = new z_stream();
-    _compressionStream->zalloc = (alloc_func)NULL;
-    _compressionStream->zfree = (free_func)NULL;
-    _compressionStream->opaque = (voidpf)NULL;
-    _compressionStream->avail_in = 0;
-    _compressionStream->next_in = NULL;
-    int32 z_res = deflateInit(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION));
-    if (z_res != Z_OK)
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
-        return;
-    }
 }
 
 /// WorldSession destructor
@@ -169,15 +156,6 @@ WorldSession::~WorldSession()
         LoginDatabase.PExecute("UPDATE account_vote SET remainingTime = remainingTime - %u WHERE account = %u", m_VoteTimePassed, GetAccountId());
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
-
-    int32 z_res = deflateEnd(_compressionStream);
-    if (z_res != Z_OK && z_res != Z_DATA_ERROR) // Z_DATA_ERROR signals that internal state was BUSY
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Can't close packet compression stream (zlib: deflateEnd) Error code: %i (%s)", z_res, zError(z_res));
-        return;
-    }
-
-    delete _compressionStream;
 }
 
 /// Get the player name

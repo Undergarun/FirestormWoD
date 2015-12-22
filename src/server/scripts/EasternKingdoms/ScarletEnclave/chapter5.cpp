@@ -159,7 +159,6 @@ enum mograine
     NPC_KOLTIRA_DEATHWEAVER           = 29199,
     NPC_ORBAZ_BLOODBANE               = 29204, // this guy fleed
     NPC_THASSARIAN                    = 29200, // he also does SPELL_THE_LIGHT_OF_DAWN 53658
-    SPELL_BLOOD_STRIKE1               = 52374,
     SPELL_DEATH_GRIP                  = 49576,
     SPELL_ICY_TOUCH2                  = 52372,
     SPELL_PLAGUE_STRIKE1              = 50668,
