@@ -804,6 +804,74 @@ namespace MS { namespace Garrison
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_GarrisonStablesCreatures::npc_GarrisonStablesCreatures()
+        : CreatureScript("npc_GarrisonStablesCreatures")
+    {
+    }
+
+    /// Constructor
+    npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::npc_GarrisonStablesCreaturesAI(Creature* p_Creature)
+        : npc_escortAI(p_Creature)
+    {
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_GarrisonStablesCreatures::GetAI(Creature* p_Creature) const
+    {
+        return new npc_GarrisonStablesCreaturesAI(p_Creature);
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::Reset()
+    {
+        SetMaxPlayerDistance(200.0f);
+        SetDespawnAtFar(false);
+        SetDespawnAtEnd(false);
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+    {
+        if (p_SpellInfo && p_SpellInfo->Id == StablesData::g_LassoAura)
+            Start(false, true, p_Caster->GetGUID());
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::MovementInform(uint32 p_Type, uint32 p_ID)
+    {
+
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::WaypointReached(uint32 p_PointId)
+    {
+        switch (me->GetEntry())
+        {
+            case eCreaturesEntries::NpcIcehoof:
+                break;
+            case eCreaturesEntries::NpcMeadowstomper:
+                break;
+            case eCreaturesEntries::NpcRiverwallow:
+                break;
+            case eCreaturesEntries::NpcRocktusk:
+                break;
+            case eCreaturesEntries::NpcSilverpelt:
+                break;
+            case eCreaturesEntries ::NpcSnarler:
+                break;
+            default:
+                break;
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     // Because blizzard does it this way - also icon type 27 could be for this purpose only
 
     npc_FleetCommandTable::npc_FleetCommandTable() : CreatureScript("npc_FleetCommandTable")

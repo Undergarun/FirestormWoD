@@ -10,8 +10,8 @@
 
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
+#include "../../../game/AI/ScriptedAI/ScriptedEscortAI.h"
 #include <map>
-
 #include "ScriptedCosmeticAI.hpp"
 
 namespace MS { namespace Garrison 
@@ -622,8 +622,6 @@ namespace MS { namespace Garrison
             void OnPlotInstanceUnload() override;
     };
 
-
-
     /// Amperial Construct
     class npc_garrison_amperial_construct : public CreatureScript
     {
@@ -651,6 +649,44 @@ namespace MS { namespace Garrison
                 virtual void SetGUID(uint64 p_Guid, int32 p_Id) override;
 
                 virtual void UpdateAI(const uint32 p_Diff) override;
+            };
+
+    };
+
+    /// Amperial Construct
+    class npc_GarrisonStablesCreatures : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_GarrisonStablesCreatures();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_GarrisonStablesCreaturesAI : public npc_escortAI
+            {
+                /// Constructor
+                npc_GarrisonStablesCreaturesAI(Creature * p_Creature);
+
+                enum eCreaturesEntries
+                {
+                    NpcIcehoof       = 86847,
+                    NpcRocktusk      = 86850,
+                    NpcSilverpelt    = 86801,
+                    NpcMeadowstomper = 86852,
+                    NpcRiverwallow   = 86848,
+                    NpcSnarler       = 86851
+                };
+
+                virtual void Reset() override;
+
+                virtual void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override;
+
+                virtual void MovementInform(uint32 p_Type, uint32 p_ID) override;
+
+                virtual void WaypointReached(uint32 p_PointId) override;
             };
 
     };

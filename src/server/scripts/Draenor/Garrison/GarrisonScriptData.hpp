@@ -183,6 +183,7 @@ namespace MS { namespace Garrison
         };
 
         static const uint64 g_PendingQuestFlag = 0x40000000;
+        static const uint32 g_LassoAura = 173686;
 
         enum TrainingMountsAuras
         {

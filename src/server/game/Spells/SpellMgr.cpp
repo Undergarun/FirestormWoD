@@ -3402,6 +3402,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 173686:
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
+                break;
             case 182464: ///< Portal to Garrison
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 break;
