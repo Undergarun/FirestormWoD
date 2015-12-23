@@ -46,7 +46,6 @@
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "ObjectMgr.h"
-#include "zlib.h"
 
 uint32_t gReceivedBytes = 0;
 uint32_t gSentBytes = 0;
@@ -65,8 +64,7 @@ uint32 const g_SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint32), sizeof
 WorldSocket::WorldSocket(void) : WorldHandler(),
 m_LastPingTime(ACE_Time_Value::zero), m_OverSpeedPings(0), m_Session(0), m_RecvWPct(0),
 m_RecvPct(), m_HeaderBuffer(g_SizeOfClientHeader[0][0]), m_PacketBuffer(4096), m_OutBuffer(0),
-m_OutBufferSize(65536), m_OutActive(false), m_Seed(static_cast<uint32> (rand32())), m_Initialized(false),
-m_CompressionStream(nullptr)
+m_OutBufferSize(65536), m_OutActive(false), m_Seed(static_cast<uint32> (rand32())), m_Initialized(false)
 {
     reference_counting_policy().value(ACE_Event_Handler::Reference_Counting_Policy::ENABLED);
 
@@ -85,12 +83,6 @@ WorldSocket::~WorldSocket (void)
     closing_ = true;
 
     peer().close();
-
-    if (m_CompressionStream)
-    {
-        deflateEnd(m_CompressionStream);
-        delete m_CompressionStream;
-    }
 }
 
 bool WorldSocket::IsClosed (void) const
@@ -162,9 +154,21 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
     sScriptMgr->OnPacketSend(this, *pkt);
 
-    ACE_Message_Block* l_Buffer = WritePacketToBuffer(*pkt);
+    uint32 l_PacketSize = pkt->size();
+    uint32 l_SizeOfHeader = g_SizeOfServerHeader[m_Crypt.IsInitialized()];
+    uint32 l_TotalSize = l_PacketSize + l_SizeOfHeader;
 
-    if (l_Buffer != m_OutBuffer && l_Buffer != nullptr)
+    ACE_Message_Block* l_Buffer;
+
+    // If there is free space in the output buffer insert it instead of enqueing the packet
+    if (m_OutBuffer->space() >= l_TotalSize && msg_queue()->is_empty())
+        l_Buffer = m_OutBuffer;
+    else
+        ACE_NEW_RETURN(l_Buffer, ACE_Message_Block(l_TotalSize), -1);
+
+    WritePacketToBuffer(pct, l_Buffer);
+
+    if (l_Buffer != m_OutBuffer)
     {
         // Enqueue packet
         if (msg_queue()->enqueue_tail(l_Buffer, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
@@ -178,95 +182,33 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
     return 0;
 }
 
-ACE_Message_Block* WorldSocket::WritePacketToBuffer(WorldPacket const& p_Packet)
+void WorldSocket::WritePacketToBuffer(WorldPacket const& p_Packet, ACE_Message_Block* p_Buffer)
 {
-    uint32 l_PacketSize = p_Packet.size();
-    uint32 l_SizeOfHeader = g_SizeOfServerHeader[m_Crypt.IsInitialized()];
-    uint32 l_TotalSize = l_PacketSize + l_SizeOfHeader;
-    uint32 l_Opcode = p_Packet.GetOpcode();
-
-    ACE_Message_Block* l_Buffer;
-
-    // If there is free space in the output buffer insert it instead of enqueing the packet
-    if (m_OutBuffer->space() >= l_TotalSize && msg_queue()->is_empty())
-        l_Buffer = m_OutBuffer;
-    else
-        ACE_NEW_RETURN(l_Buffer, ACE_Message_Block(l_TotalSize), nullptr);
-
     ServerPktHeader l_Header;
-    CompressedWorldPacket l_CompressedPacket;
-
-    char* l_HeaderPointer = l_Buffer->wr_ptr();
-    l_Buffer->wr_ptr(l_SizeOfHeader);
-
-    if (l_PacketSize > 0x400 && m_CompressionStream)
-    {
-        l_CompressedPacket.m_UncompressedSize = l_PacketSize + 4;
-        l_CompressedPacket.m_UncompressedAdler = adler32(adler32(0x9827D8F1, (Bytef*)&l_Opcode, 4), p_Packet.contents(), l_PacketSize);
-
-        /// Reserve space for compression info - uncompressed size and checksums
-        char* l_CompressionInfo = l_Buffer->wr_ptr();
-        l_Buffer->wr_ptr(sizeof(CompressedWorldPacket));
-
-        uint32 l_CompressedSize = CompressPacket(l_Buffer->wr_ptr(), p_Packet);
-        l_CompressedPacket.m_CompressedAdler = adler32(0x9827D8F1, (const Bytef*)l_Buffer->wr_ptr(), l_CompressedSize);
-
-        l_Buffer->wr_ptr(l_CompressedSize);
-        memcpy(l_CompressionInfo, &l_CompressedPacket, sizeof(CompressedWorldPacket));
-
-        l_PacketSize = l_CompressedSize + sizeof(CompressedWorldPacket);
-        l_Opcode = SMSG_COMPRESSED_PACKET;
-    }
-    else if (l_PacketSize)
-    {
-        if (l_Buffer->copy((char*)(p_Packet.contents()), l_PacketSize) == -1)
-            ACE_ASSERT(false);
-    }
+    uint32 l_SizeOfHeader = g_SizeOfServerHeader[m_Crypt.IsInitialized()];
+    uint32 l_Opcode = p_Packet.GetOpcode();
+    uint32 l_PacketSize = p_Packet.size();
 
     if (m_Crypt.IsInitialized())
     {
-        l_Header.Normal.m_Size = l_PacketSize;
-        l_Header.Normal.m_Command = l_Opcode;
+        l_Header.Normal.Size = l_PacketSize;
+        l_Header.Normal.Command = l_Opcode;
         m_Crypt.EncryptSend((uint8*)&l_Header, l_SizeOfHeader);
     }
     else
     {
-        l_Header.Setup.m_Size = l_PacketSize + 4;
-        l_Header.Setup.m_Command = l_Opcode;
+        l_Header.Setup.Size = l_PacketSize + 4;
+        l_Header.Setup.Command = l_Opcode;
     }
 
-    memcpy(l_HeaderPointer, &l_Header, l_SizeOfHeader);
-    return l_Buffer;
-}
+    if (p_Buffer->copy((char*)&l_Header, l_SizeOfHeader) == -1)
+        ACE_ASSERT(false);
 
-uint32 WorldSocket::CompressPacket(char* p_Buffer, WorldPacket const& p_Packet)
-{
-    uint32 l_Opcode = p_Packet.GetOpcode();
-    uint32 l_BufferSize = deflateBound(m_CompressionStream, p_Packet.size() + sizeof(l_Opcode));
+    if (!l_PacketSize)
+        return;
 
-    m_CompressionStream->next_out = (Bytef*)p_Buffer;
-    m_CompressionStream->avail_out = l_BufferSize;
-    m_CompressionStream->next_in = (Bytef*)&l_Opcode;
-    m_CompressionStream->avail_in = sizeof(uint32);
-
-    int32 z_res = deflate(m_CompressionStream, Z_BLOCK);
-    if (z_res != Z_OK)
-    {
-        sLog->outAshran("Can't compress packet opcode (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), m_CompressionStream->msg);
-        return 0;
-    }
-
-    m_CompressionStream->next_in = (Bytef*)p_Packet.contents();
-    m_CompressionStream->avail_in = p_Packet.size();
-
-    z_res = deflate(m_CompressionStream, Z_SYNC_FLUSH);
-    if (z_res != Z_OK)
-    {
-        sLog->outAshran("Can't compress packet data (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), m_CompressionStream->msg);
-        return 0;
-    }
-
-    return l_BufferSize - m_CompressionStream->avail_out;
+    if (p_Buffer->copy((char*)(p_Packet.contents()), l_PacketSize) == -1)
+        ACE_ASSERT(false);
 }
 
 long WorldSocket::AddReference (void)
@@ -813,20 +755,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* p_NewPacket)
     {
         if (std::string(reinterpret_cast<char const*>(m_RecvPct.rd_ptr()), std::min(m_RecvPct.size(), m_ClientConnectionInitialize.length())) != m_ClientConnectionInitialize)
             return -1;
-
-        m_CompressionStream = new z_stream();
-        m_CompressionStream->zalloc = (alloc_func)NULL;
-        m_CompressionStream->zfree = (free_func)NULL;
-        m_CompressionStream->opaque = (voidpf)NULL;
-        m_CompressionStream->avail_in = 0;
-        m_CompressionStream->next_in = NULL;
-
-        int32 z_res = deflateInit2(m_CompressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
-        if (z_res != Z_OK)
-        {
-            sLog->outAshran("Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
-            return false;
-        }
 
         m_Initialized = true;
         m_HeaderBuffer.size(g_SizeOfClientHeader[1][0]);
