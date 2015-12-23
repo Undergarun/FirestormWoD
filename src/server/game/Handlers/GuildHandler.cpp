@@ -61,8 +61,8 @@ void WorldSession::HandleQueryGuildInfoOpcode(WorldPacket& p_Packet)
             return;
         }
     }
-
-    Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
+    else if (!GetInterRealmBG())
+       Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
 }
 
 void WorldSession::HandleGuildInviteByNameOpcode(WorldPacket& p_Packet)

@@ -87,6 +87,7 @@
 #include "MSCallback.hpp"
 #include "Vignette.hpp"
 #include "WowTime.hpp"
+#include "InterRealmOpcodes.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -1006,6 +1007,12 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_CinematicSequence         = NULL;
     m_InCinematic               = false;
     m_CinematicClientStartTime  = 0;
+
+    m_irZoneId = 0;
+    m_irAreaId = 0;
+    m_irMapId = 0;
+
+    m_forceCleanupChannels = false;
 
     m_BattlePetSummon = 0;
 
@@ -2794,7 +2801,7 @@ void Player::SendTeleportPacket(Position& p_OldPosition)
     SendMessageToSet(&l_TeleportUpdatePacket, this);
 }
 
-bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_Options)
+bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_Options, bool forced_far /*= false*/)
 {
     if (!MapManager::IsValidMapCoord(p_MapID, p_X, p_Y, p_Z, p_O))
     {
@@ -2870,7 +2877,7 @@ bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p
     if (m_Duel && GetMapId() != p_MapID && GetMap()->GetGameObject(GetGuidValue(EPlayerFields::PLAYER_FIELD_DUEL_ARBITER)))
         DuelComplete(DuelCompleteType::DUEL_FLED);
 
-    if (GetMapId() == p_MapID)
+    if (GetMapId() == p_MapID && !forced_far)
     {
         /// Lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
@@ -3193,7 +3200,7 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
     UpdateZone(l_NewZone, l_NewArea);
 }
 
-bool Player::TeleportToBGEntryPoint()
+bool Player::TeleportToBGEntryPoint(bool inter_realm /*= false*/)
 {
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID)
         return false;
@@ -3201,7 +3208,7 @@ bool Player::TeleportToBGEntryPoint()
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-    return TeleportTo(m_bgData.joinPos);
+    return TeleportTo(m_bgData.joinPos, 0, inter_realm);
 }
 
 void Player::ProcessDelayedOperations()
@@ -3273,6 +3280,12 @@ void Player::ProcessDelayedOperations()
     {
         if (Group *g = GetGroup())
             g->SendUpdateToPlayer(GetGUID());
+    }
+
+    if (m_DelayedOperations & DELAYED_BG_UPDATE_ZONE)
+    {
+        m_zoneUpdateId = 0;
+        UpdateZone(GetZoneId(), GetAreaId());
     }
 
     //we have executed ALL delayed ops, so clear the flag
@@ -22993,10 +23006,13 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
 /*********************************************************/
 /***                   SAVE SYSTEM                     ***/
 /*********************************************************/
-void Player::SaveToDB(bool create /*=false*/)
+void Player::SaveToDB(bool create /*=false*/ , bool afterSave /*=false*/)
 {
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
+
+    if (GetSession()->GetInterRealmBG())
+        return;
 
     //lets allow only players in world to be saved
     if (IsBeingTeleportedFar())
@@ -23338,11 +23354,11 @@ void Player::SaveToDB(bool create /*=false*/)
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
         _SaveStats(trans);
 
-    MS::Utilities::CallBackPtr l_CharCreateCallback = nullptr;
+    MS::Utilities::CallBackPtr l_SaveTransactionCallback = nullptr;
     if (create)
     {
         uint32 l_AccountID = m_session->GetAccountId();
-        l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+        l_SaveTransactionCallback = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
         {
             WorldSession* l_Session = sWorld->FindSession(l_AccountID);
             if (l_Session == nullptr)
@@ -23354,13 +23370,18 @@ void Player::SaveToDB(bool create /*=false*/)
         });
     }
 
+    if (afterSave)
+    {
+        /// @TODO: cross event
+    }
+
     for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
     {
         BattlePet::Ptr l_Pet = (*l_It);
         l_Pet->Save(accountTrans);
     }
 
-    CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);
+    CharacterDatabase.CommitTransaction(trans, l_SaveTransactionCallback);
     LoginDatabase.CommitTransaction(accountTrans);
 
     // we save the data here to prevent spamming

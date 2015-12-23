@@ -1667,3 +1667,9 @@ void WorldSession::SendGameError(GameError::Type p_Error, uint32 p_Data1, uint32
 
     SendPacket(&l_Packet);
 }
+
+/// @TODO : Disconnect the player and then reload it
+void WorldSession::LoadAfterInterRealm()
+{
+
+}

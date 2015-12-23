@@ -264,6 +264,7 @@ class Channel
         Channel(const std::string& name, uint32 channel_id, uint32 Team = 0);
         std::string GetName() const { return m_name; }
         uint32 GetChannelId() const { return m_channelId; }
+        bool IsSpecial() const { return _special; }
         bool IsConstant() const { return m_channelId != 0 || _special; }
         bool IsAnnounce() const { return m_announce; }
         bool IsLFG() const { return GetFlags() & CHANNEL_FLAG_LFG; }

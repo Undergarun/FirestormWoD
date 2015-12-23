@@ -696,10 +696,13 @@ class Guild
         };
 
         typedef UNORDERED_MAP<uint32, Member*> Members;
-        typedef std::vector<RankInfo> Ranks;
         typedef std::vector<BankTab*> BankTabs;
 
     public:
+
+        typedef std::vector<RankInfo> Ranks;
+        Ranks const* GetRanks() { return &m_ranks; }
+
         static void SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, const std::string& param = "");
         static void SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode);
 

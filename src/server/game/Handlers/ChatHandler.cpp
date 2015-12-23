@@ -364,7 +364,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
                 break;
             }
 
-            Player* l_Receiver = sObjectAccessor->FindPlayerByName(l_ReceiverName.c_str());
+            Player* l_Receiver = sObjectAccessor->FindPlayerByNameInOrOutOfWorld(l_ReceiverName.c_str());
 
             bool l_SenderIsPlayer   = AccountMgr::IsPlayerAccount(GetSecurity());
             bool l_ReceiverIsPlayer = AccountMgr::IsPlayerAccount(l_Receiver ? l_Receiver->GetSession()->GetSecurity() : SEC_PLAYER);
