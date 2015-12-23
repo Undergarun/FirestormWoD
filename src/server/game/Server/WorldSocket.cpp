@@ -625,13 +625,12 @@ int WorldSocket::HandleNewPacket()
         // Receive header first
         if (m_HeaderBuffer.space() > 0)
         {
-            const size_t l_HeaderReadSize = std::min(m_PacketBuffer.length(),  m_HeaderBuffer.space());
+            const size_t l_HeaderReadSize = std::min(m_PacketBuffer.size(),  m_HeaderBuffer.space());
             m_HeaderBuffer.copy(m_PacketBuffer.rd_ptr(), l_HeaderReadSize);
             m_PacketBuffer.rd_ptr(l_HeaderReadSize);
 
             if (m_HeaderBuffer.space() > 0)
             {
-                ACE_ASSERT(m_PacketBuffer.length() == 0);
                 // Couldn't receive the whole header this time.
                 errno = EWOULDBLOCK;
                 return -1;
@@ -656,13 +655,12 @@ int WorldSocket::HandleNewPacket()
         if (m_RecvPct.space() > 0)
         {
             //need more data in the payload
-            const size_t l_PacketRecvSize = std::min(m_PacketBuffer.length(), m_RecvPct.space());
+            const size_t l_PacketRecvSize = std::min(m_PacketBuffer.size(), m_RecvPct.space());
             m_RecvPct.copy(m_PacketBuffer.rd_ptr(), l_PacketRecvSize);
             m_PacketBuffer.rd_ptr(l_PacketRecvSize);
 
             if (m_RecvPct.space() > 0)
             {
-                ACE_ASSERT(m_PacketBuffer.length() == 0);
                 // Couldn't receive the whole data this time.
                 errno = EWOULDBLOCK;
                 return -1;
