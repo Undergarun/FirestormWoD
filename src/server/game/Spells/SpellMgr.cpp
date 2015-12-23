@@ -3469,6 +3469,15 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155200: ///< Burn (Slag Elemental)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            case 156220: ///< Tactical Retreat
+            case 156883: ///< Tactical Retreat (Other)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 155747: ///< Body Slam
+            case 157923: ///< Jump Slam
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30;
+                break;
             case 156324: ///< Acid Torrent (AoE)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;

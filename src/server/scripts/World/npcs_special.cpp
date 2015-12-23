@@ -3144,81 +3144,6 @@ class npc_generic_harpoon_cannon : public CreatureScript
 };
 
 /*######
-## npc_choose_faction (unused)
-######*/
-
-#define GOSSIP_CHOOSE_FACTION     "I would like to choose my faction"
-#define GOSSIP_TP_STORMIND        "I would like to go to Stormwind"
-#define GOSSIP_TP_ORGRI           "I would like to go to Orgrimmar"
-
-class npc_choose_faction : public CreatureScript
-{
-    public:
-        npc_choose_faction() : CreatureScript("npc_choose_faction") { }
-
-        bool OnGossipHello(Player* player, Creature* creature)
-        {
-            if (player->getRace() == RACE_PANDAREN_NEUTRAL)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            else if (player->getRace() == RACE_PANDAREN_ALLI)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_STORMIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            else if (player->getRace() == RACE_PANDAREN_HORDE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_EXP, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->ShowNeutralPlayerFactionSelectUI();
-            else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-                player->TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
-            else if (action == GOSSIP_ACTION_INFO_DEF + 3)
-                player->TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
-
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
-        }
-};
-
-class npc_choose_faction_after_shop : public CreatureScript
-{
-    public:
-        npc_choose_faction_after_shop() : CreatureScript("npc_choose_faction_after_shop") { }
-
-        bool OnGossipHello(Player* player, Creature* creature)
-        {
-            if (player->getRace() == RACE_PANDAREN_NEUTRAL)
-            {
-                if (player->getLevel() > 69) // minimum level sale = 70
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            }
-            else if (player->getRace() == RACE_PANDAREN_ALLI)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_STORMIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            else if (player->getRace() == RACE_PANDAREN_HORDE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->ShowNeutralPlayerFactionSelectUI();
-            else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-                player->TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
-            else if (action == GOSSIP_ACTION_INFO_DEF + 3)
-                player->TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
-
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
-        }
-};
-
-/*######
 ## npc_rate_xp_modifier
 ######*/
 
@@ -4169,7 +4094,7 @@ class npc_force_of_nature : public CreatureScript
         }
 };
 
-// Swiftmend - 142423
+/// Swiftmend - 142423
 class spell_special_swiftmend: public SpellScriptLoader
 {
     public:
@@ -4836,7 +4761,6 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
-    new npc_choose_faction();
     //new npc_rate_xp_modifier();
     new npc_demoralizing_banner();
     new npc_guardian_of_ancient_kings();

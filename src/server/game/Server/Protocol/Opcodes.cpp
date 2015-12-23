@@ -1014,6 +1014,12 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
+    /// Low protocol
+    //////////////////////////////////////////////////////////////////////////
+    DEFINE_OPCODE_HANDLER(CMSG_HANDSHAKE,                                       STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::Handle_EarlyProccess             );
+    DEFINE_OPCODE_HANDLER(SMSG_HANDSHAKE,                                       STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::Handle_ServerSide                );
+
+    //////////////////////////////////////////////////////////////////////////
     /// Garrison
     //////////////////////////////////////////////////////////////////////////
     DEFINE_OPCODE_HANDLER(CMSG_GARRISON_CREATE_CHEAT,                               STATUS_UNHANDLED,   PROCESS_THREADSAFE,        &WorldSession::Handle_NULL                      );
@@ -1427,6 +1433,8 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_FEATHER_FALL_ACK,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_WATER_WALK_ACK,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_HOVER_ACK,                                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK,                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK,                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
 
     //////////////////////////////////////////////////////////////////////////
     /// Group

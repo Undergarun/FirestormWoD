@@ -36,12 +36,11 @@ enum OpcodeTransferDirection : uint8
 /// List of Opcodes
 enum Opcodes
 {
-    MAX_OPCODE                                      = 0x1FFF,
-    NUM_OPCODE_HANDLERS                             = MAX_OPCODE + 1,
-    UNKNOWN_OPCODE                                  = (0xFFFF+1),
-    NULL_OPCODE                                     = 0,
-
-    SMSG_COMPRESSED_PACKET                          = 0x0224, ///< 6.2.3 20726
+    MAX_OPCODE                                        = (0x7FFF+1),
+    NUM_OPCODE_HANDLERS                               = MAX_OPCODE + 1,
+    UNKNOWN_OPCODE                                    = (0xFFFF+1),
+    NULL_OPCODE                                       = 0,
+    COMPRESSED_OPCODE_MASK                            = 0x8000,
 
     //////////////////////////////////////////////////////////////////////////
     /// Jam Client Protocol
@@ -967,6 +966,12 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
+    /// Low protocol
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_HANDSHAKE                              = 0x4F57,
+    SMSG_HANDSHAKE                              = 0x4F57,
+
+    //////////////////////////////////////////////////////////////////////////
     /// Garrison
     //////////////////////////////////////////////////////////////////////////
     CMSG_GARRISON_CREATE_CHEAT                              = 0x0000,
@@ -1383,6 +1388,8 @@ enum Opcodes
     CMSG_MOVE_FEATHER_FALL_ACK                  = 0x11BE, ///< 6.2.3 20726
     CMSG_MOVE_WATER_WALK_ACK                    = 0x18B2, ///< 6.2.3 20726
     CMSG_MOVE_HOVER_ACK                         = 0x111D, ///< 6.2.3 20726
+    CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK          = 0x1195, ///< 6.2.3 20779
+    CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK         = 0x141E, ///< 6.2.3 20779
 
     //////////////////////////////////////////////////////////////////////////
     /// Group

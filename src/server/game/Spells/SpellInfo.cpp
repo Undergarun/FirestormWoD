@@ -24,6 +24,7 @@
 #include "ConditionMgr.h"
 #include "Vehicle.h"
 #include "Group.h"
+#include "CreatureAI.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -2816,6 +2817,12 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
     {
         if (AuraPtr overloaded = p_Caster->GetAura(117204))
             l_CastTime -= CalculatePct(l_CastTime, (20 * overloaded->GetStackAmount()));
+    }
+
+    if (p_Caster && p_Caster->GetTypeId() == TypeID::TYPEID_UNIT)
+    {
+        if (p_Caster->ToCreature()->IsAIEnabled)
+            p_Caster->ToCreature()->AI()->OnCalculateCastingTime(this, l_CastTime);
     }
 
     return (l_CastTime > 0) ? uint32(l_CastTime) : 0;
