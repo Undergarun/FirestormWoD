@@ -103,6 +103,33 @@ enum eFoundryGameObjects
     /// The Black Forge - Part 2
     BlackForgePortcullis        = 238836,
     VolatileBlackrockOre        = 237308,
+    HansgarAndFranzokEntrance   = 229318,
+    HansgarAndFranzokExit       = 229319,
+    ConveyorBelt002             = 230481,
+    ConveyorBelt001             = 230482,
+    ConveyorBelt003             = 230483,
+    ConveyorBelt004             = 230484,
+    ConveyorBelt005             = 230485,
+    StampingPress16             = 229574,
+    StampingPress20             = 229575,
+    StampingPress19             = 229576,
+    StampingPress18             = 229577,
+    StampingPress17             = 229578,
+    StampingPress15             = 229579,
+    StampingPress14             = 229580,
+    StampingPress13             = 229581,
+    StampingPress12             = 229582,
+    StampingPress11             = 229583,
+    StampingPress06             = 229584,
+    StampingPress07             = 229585,
+    StampingPress08             = 229586,
+    StampingPress09             = 229587,
+    StampingPress10             = 229588,
+    StampingPress05             = 229589,
+    StampingPress04             = 229590,
+    StampingPress01             = 229591,
+    StampingPress02             = 229592,
+    StampingPress03             = 229593,
     /// Iron Assembly - Part 3
     IronAssembleyGate           = 238837,
     /// Blackhand's Crucible - Part 4
@@ -132,6 +159,7 @@ enum eFoundryDatas
     PristineTrueIronOres    = 0,
     VolatileOreGrinded      = 1,
     PrimalElementalistTime  = 2,
+    PlayerStamped           = 3,
 
     /// Counters
     /// Gruul
@@ -153,14 +181,17 @@ enum eFoundrySpells
 
 enum eFoundryAchievements
 {
-    TheIronPrince   = 8978,
-    HeShootsHeOres  = 8979,
-    YaWeveGotTime   = 8930
+    TheIronPrince           = 8978,
+    HeShootsHeOres          = 8979,
+    YaWeveGotTime           = 8930,
+    StampStampRevolution    = 8980
 };
 
 enum eFoundryVisuals
 {
-    CrucibleVisuals = 6922
+    CrucibleVisuals = 6922,
+    ConveyorsStart  = 7621,
+    ConveyorsStop   = 7336
 };
 
 #endif
