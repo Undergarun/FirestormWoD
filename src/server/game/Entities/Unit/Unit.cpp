@@ -11489,15 +11489,19 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     {
         bool l_HasFingerOfFrostProc = false;
 
-        if (spellProto->Id == 116 || spellProto->Id == 44614 || spellProto->Id == 84721)    ///< Frostbolt || Frostfire Bolt || Frozen Orb
+        if (spellProto->Id == 116 || spellProto->Id == 44614)    ///< Frostbolt || Frostfire Bolt
             l_HasFingerOfFrostProc = roll_chance_i(15);
         else if (spellProto->Id == 42208)                                                   ///< Blizzard
             l_HasFingerOfFrostProc = roll_chance_i(5);
 
         if (l_HasFingerOfFrostProc)
         {
+            sLog->outError(LOG_FILTER_GENERAL, "---------> ENTER");
             if (HasAura(44544))
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "---------> ENTER 2");
                 CastSpell(this, 126084, true); ///< Fingers of frost visual
+            }
             CastSpell(this, 44544, true);  ///< Fingers of frost proc
         }
     }

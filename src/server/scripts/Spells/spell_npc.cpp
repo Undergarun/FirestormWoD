@@ -114,8 +114,8 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
         enum Spells
         {
-            FingersOfFrost          = 126084,
-            FingersOfFrostVisual    = 44544,
+            FingersOfFrostVisual    = 126084,
+            FingersOfFrost          = 44544,
             FrozenOrbVisual         = 123605,
             SelfSnare90Pct          = 82736,
             TargetSnareAndDamage    = 84721,
@@ -201,8 +201,8 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                                 if (Unit* l_Owner = me->GetOwner())
                                 {
                                     if (l_Owner->HasAura(Spells::FingersOfFrost))
-                                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
-                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
+                                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true); ///< Fingers of frost visual
+                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);  ///< Fingers of frost proc
                                 }
                                 break;
                             }
