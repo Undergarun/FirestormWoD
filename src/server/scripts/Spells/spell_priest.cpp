@@ -3661,7 +3661,7 @@ class spell_pri_chakra_sanctuary : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_pri_chakra_sanctuary_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_pri_chakra_sanctuary_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
