@@ -5077,6 +5077,81 @@ class spell_gen_mark_of_thunderlord : public SpellScriptLoader
         }
 };
 
+/// Leather Specialization (Feral) - 86097
+class spell_gen_leather_specialization : public SpellScriptLoader
+{
+public:
+    spell_gen_leather_specialization() : SpellScriptLoader("spell_gen_leather_specialization") { }
+
+    class spell_gen_leather_specialization_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_leather_specialization_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (!l_Player)
+                return;
+            
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(GetSpellInfo()->Id);
+            if (!l_SpellInfo)
+                return;
+
+            uint8 l_AmountOfLeatherItems = 0;
+            /// Head, Shoulders, Chest, Waist, Legs, Feet, Wrists, Hands - 8 items
+            uint8 l_AmountOfRequiredLeatherItems = 8;
+
+            /// Check if all our items are leather
+            for (uint8 l_I = EQUIPMENT_SLOT_START; l_I < EQUIPMENT_SLOT_MAINHAND; ++l_I)
+            {
+                if (Item* l_Item = l_Player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+                {
+                    if (ItemTemplate const* l_ItemTemplate = l_Item->GetTemplate())
+                    {
+                        if (l_ItemTemplate->SubClass == ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_LEATHER)
+                        {
+                            switch (l_ItemTemplate->InventoryType)
+                            {
+                                case InventoryType::INVTYPE_HEAD:
+                                case InventoryType::INVTYPE_SHOULDERS:
+                                case InventoryType::INVTYPE_CHEST:
+                                case InventoryType::INVTYPE_WAIST:
+                                case InventoryType::INVTYPE_LEGS:
+                                case InventoryType::INVTYPE_FEET:
+                                case InventoryType::INVTYPE_WRISTS:
+                                case InventoryType::INVTYPE_HANDS:
+                                case InventoryType::INVTYPE_ROBE:
+                                    l_AmountOfLeatherItems++;
+                                    break;
+                                default:
+                                    continue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If not all our items are leather - don't apply bonus
+            if (l_AmountOfLeatherItems != l_AmountOfRequiredLeatherItems)
+                amount = 0;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_leather_specialization_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_gen_leather_specialization_AuraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_mark_of_thunderlord();
@@ -5173,6 +5248,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_check_faction();
     new spell_gen_stoneform_dwarf_racial();
     new spell_gen_elixir_of_wandering_spirits();
+    new spell_gen_leather_specialization();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
