@@ -2974,6 +2974,10 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
         if (Id == 86213 && PowerType == POWER_MANA)
             powerCost = 0;
 
+        /// Hack fix: Wild Strike shouldn't take rage if warrior has Bloodsurge
+        if (PowerType == POWER_RAGE && Id == 100130 && caster->HasAura(46916))
+            powerCost = 0;
+
         m_powerCost[POWER_TO_INDEX(PowerType)] += powerCost;
     }
 }
