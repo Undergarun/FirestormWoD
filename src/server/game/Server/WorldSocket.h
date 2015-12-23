@@ -85,52 +85,8 @@ typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> WorldHandler;
  * notification.
  *
  */
-
-#include "Opcodes.h"
-
-#pragma pack(push, 1)
- 
-union ClientPktHeader
-{
-    struct
-    {
-        uint16 m_Size;
-        uint32 m_Command;
-    } Setup;
-
-    struct
-    {
-        uint32 m_Command : 13;
-        uint32 m_Size : 19;
-    } Normal;
-
-    static bool IsValidSize(uint32 p_Size) { return p_Size < 10240; }
-    static bool IsValidOpcode(uint32 p_Opcode) { return p_Opcode < NUM_OPCODE_HANDLERS; }
-};
-
-union ServerPktHeader
-{
-    struct
-    {
-        uint16 Size;
-        uint32 Command;
-    } Setup;
-
-    struct
-    {
-        uint32 Command : 13;
-        uint32 Size : 19;
-    } Normal;
-};
-
-#pragma pack(pop)
-
 class WorldSocket : public WorldHandler
 {
-
-    static std::string const m_ServerConnectionInitialize;
-    static std::string const m_ClientConnectionInitialize;
-
     public:
         WorldSocket (void);
         virtual ~WorldSocket (void);
@@ -154,9 +110,6 @@ class WorldSocket : public WorldHandler
         /// @param pct packet to send
         /// @return -1 of failure
         int SendPacket(const WorldPacket& pct);
-
-        /// Write packet to the specified buffer
-        void WritePacketToBuffer(WorldPacket const& p_Packet, ACE_Message_Block* p_Buffer);
 
         /// Add reference to this object.
         long AddReference (void);
@@ -187,11 +140,9 @@ class WorldSocket : public WorldHandler
 
     private:
         /// Helper functions for processing incoming data.
-        int ReadPacketHeader();
-        int HandlePacketData();
-        int HandleNewPacket();
-
-        void ExtractOpcodeAndSize(ClientPktHeader const* p_Header, uint32& p_Opcode, uint32& p_Size) const;
+        int handle_input_header (void);
+        int handle_input_payload (void);
+        int handle_input_missing_data (void);
 
         /// Help functions to mark/unmark the socket for output.
         /// @param g the guard is for m_OutBufferLock, the function will release it
@@ -203,7 +154,7 @@ class WorldSocket : public WorldHandler
 
         /// process one incoming packet.
         /// @param new_pct received packet, note that you need to delete it.
-        int ProcessIncoming(WorldPacket* p_NewPacket);
+        int ProcessIncoming (WorldPacket* new_pct);
 
         /// Called by ProcessIncoming() on CMSG_AUTH_SESSION.
         int HandleAuthSession (WorldPacket& recvPacket);
@@ -244,8 +195,8 @@ class WorldSocket : public WorldHandler
         ACE_Message_Block m_RecvPct;
 
         /// Fragment of the received header.
-        ACE_Message_Block m_HeaderBuffer;
-        ACE_Message_Block m_PacketBuffer;
+        ACE_Message_Block m_Header;
+        ACE_Message_Block m_WorldHeader;
 
         /// Mutex for protecting output related data.
         LockType m_OutBufferLock;
@@ -259,11 +210,7 @@ class WorldSocket : public WorldHandler
         /// True if the socket is registered with the reactor for output
         bool m_OutActive;
 
-        /// Encryption seed sent in SMSG_AUTH_CHALLENGE and later used
         uint32 m_Seed;
-
-        ///  Set to true after receiving "CLIENT TO SERVER" string
-        bool m_Initialized;
 };
 
 #endif  /* _WORLDSOCKET_H */
