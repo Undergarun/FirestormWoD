@@ -1050,6 +1050,7 @@ class spell_npc_warl_wild_imp : public CreatureScript
         }
 };
 
+/// Last Update 6.2.3
 /// Doomguard - 78158
 class spell_npc_warl_doomguard: public CreatureScript
 {
@@ -1067,6 +1068,7 @@ class spell_npc_warl_doomguard: public CreatureScript
 
             void Reset()
             {
+                me->SetPower(Powers::POWER_ENERGY, me->GetMaxPower(Powers::POWER_ENERGY));
                 me->SetReactState(REACT_HELPER);
             }
 
