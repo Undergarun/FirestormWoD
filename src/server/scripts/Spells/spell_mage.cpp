@@ -1841,7 +1841,7 @@ class spell_mage_unstable_magic: public SpellScriptLoader
         }
 };
 
-// Ice Lance - 30455
+/// Ice Lance - 30455
 class spell_mage_ice_lance: public SpellScriptLoader
 {
     public:
@@ -1862,47 +1862,62 @@ class spell_mage_ice_lance: public SpellScriptLoader
                 FrozenOrb = 45322
             };
 
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                srand(time(NULL));
+                int32 l_RandomScale =  rand() % 100 + 1;
+                float l_Multiplier = GetSpellInfo()->Effects[EFFECT_0].DeltaScalingMultiplier * 100;
+                int32 l_Damage = GetHitDamage();
+                int32 l_Scale = CalculatePct(l_Damage, l_Multiplier);
+
+                int32 l_ScaleValue = ((l_Scale * 2 ) / 100) * l_RandomScale;
+
+                l_Damage -= l_Scale;
+                l_Damage += l_ScaleValue;
+                SetHitDamage(l_Damage);
+            }
+
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+
+                /// Each Ice Lance cast while Frozen Orb is active reduces the cast time of Frostbolt by 2% and increases the damage of Frostbolt by 2% for 10 sec. Stacks up to 10 times.
+                if (l_Caster->HasAura(eSpells::T17Frost4P))
                 {
-                    /// Each Ice Lance cast while Frozen Orb is active reduces the cast time of Frostbolt by 2% and increases the damage of Frostbolt by 2% for 10 sec. Stacks up to 10 times.
-                    if (l_Caster->HasAura(eSpells::T17Frost4P))
+                    Creature* l_FrostOrb = nullptr;
+                    for (auto l_Iter : l_Caster->m_Controlled)
                     {
-                        Creature* l_FrostOrb = nullptr;
-                        for (auto l_Iter : l_Caster->m_Controlled)
-                        {
-                            if (l_Iter->GetEntry() == eCreature::FrozenOrb)
-                                l_FrostOrb = l_Iter->ToCreature();
-                        }
-
-                        if (l_FrostOrb == nullptr)
-                            return;
-
-                        l_Caster->CastSpell(l_Caster, eSpells::IceShard, true);
+                        if (l_Iter->GetEntry() == eCreature::FrozenOrb)
+                            l_FrostOrb = l_Iter->ToCreature();
                     }
 
-                    if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
-                    {
-                        if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
-                        {
-                            int32 l_IncreaseDuration = sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS;
-                            int32 l_NewDuration = (l_Aura->GetDuration() + l_IncreaseDuration) > 30000 ? 30000 : (l_Aura->GetDuration() + l_IncreaseDuration);
-                            l_Aura->SetDuration(l_NewDuration);
-                        }
-                    }
+                    if (l_FrostOrb == nullptr)
+                        return;
 
-                    if (Unit* l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Caster, eSpells::IceShard, true);
+                }
+
+                if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
+                {
+                    if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
                     {
-                        if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA, l_Caster->GetGUID()))
-                            l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
+                        int32 l_IncreaseDuration = sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS;
+                        int32 l_NewDuration = (l_Aura->GetDuration() + l_IncreaseDuration) > 30000 ? 30000 : (l_Aura->GetDuration() + l_IncreaseDuration);
+                        l_Aura->SetDuration(l_NewDuration);
                     }
+                }
+
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA, l_Caster->GetGUID()))
+                        l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
                 }
             }
 
             void Register()
             {
                 OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_ice_lance_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
