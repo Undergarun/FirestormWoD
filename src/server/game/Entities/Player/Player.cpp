@@ -1388,7 +1388,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 // Give bags first to the players, then the equipment
                 if (l_Proto->Class == ITEM_CLASS_CONTAINER)
                 {
-                    StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+                    if (!l_Item.m_Faction || (l_Item.m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item.m_Faction == 2 && GetTeam() == HORDE))
+                        StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
                     continue;
                 }
             }
@@ -1402,8 +1403,9 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 if ((l_Proto->AllowableRace & getRaceMask()) == 0)
                     continue;
 
-                if (l_Item->m_Type == 1)
-                    StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, ItemContext::RaidLfr);
+                if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && GetTeam() == HORDE))
+                    if (l_Item->m_Type == 0 || l_Item->m_Type == 1)
+                        StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, ItemContext::RaidLfr);
             }
         }
     }
