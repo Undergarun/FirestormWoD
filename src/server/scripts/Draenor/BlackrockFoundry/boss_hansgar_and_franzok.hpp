@@ -414,3 +414,47 @@ class StampingPressActivation : public BasicEvent
         uint32 m_AnimID;
         bool m_Maintain;
 };
+
+enum eStates
+{
+    BothInArena1,
+    HansgarOut1,
+    BothInArena2,
+    FranzokOut,
+    BothInArena3,
+    HansgarOut2,
+    BothInArenaFinal,
+    MaxSwitchStates
+};
+
+enum eDatas
+{
+    DataMainTankHealth,
+    DataOffTankHealth,  ///< ExplicitTarget of Crippling Suplex
+    DataMaxTankHealths,
+    DataStampTimer,
+
+    /// Misc
+    MaxStampingPresses      = 20,
+    MaxConveyorBelts        = 5,
+    MaxPatternActivation    = 5,
+    DataBeltEntry           = 0,
+    DataSpawnTimer          = 1
+};
+
+enum eCreatures
+{
+    MobStampingPresses          = 78358,
+    BlackrockForgeSpecialist    = 79200,
+    BlackrockEnforcer           = 79208,
+    ScorchingBurns              = 78823,
+    ForgeOverdrive              = 77258
+};
+
+enum eVisuals
+{
+    AnimStamp1      = 5924,
+    AnimStamp2      = 6741,
+    AnimStamp3      = 5836,
+    BodySlamVisual  = 38379
+};

@@ -38,6 +38,8 @@ class boss_hansgar : public CreatureScript
             ShatteredVertebrae      = 157139,
             AftershockDoT           = 157853,
             NotReady                = 158656,
+            ScorchingBurnsDoT       = 155818,
+            SearingPlatesDoT        = 161570,
             /// Body Slam
             JumpSlamSearcher        = 157922,
             JumpSlamCast            = 157923,
@@ -68,51 +70,9 @@ class boss_hansgar : public CreatureScript
             ActionSearingPlate
         };
 
-        enum eVisuals
-        {
-            AnimStamp1      = 5924,
-            AnimStamp2      = 6741,
-            AnimStamp3      = 5836,
-            BodySlamVisual  = 38379
-        };
-
-        enum eCreatures
-        {
-            MobStampingPresses          = 78358,
-            BlackrockForgeSpecialist    = 79200,
-            BlackrockEnforcer           = 79208,
-            ScorchingBurns              = 78823,
-            ForgeOverdrive              = 77258
-        };
-
         enum eGameObject
         {
             SmartStampCollision = 231082
-        };
-
-        enum eDatas
-        {
-            DataMainTankHealth,
-            DataOffTankHealth,  ///< ExplicitTarget of Crippling Suplex
-            DataMaxTankHealths,
-
-            /// Misc
-            MaxStampingPresses  = 20,
-            MaxConveyorBelts    = 5,
-            DataBeltEntry       = 0,
-            DataSpawnTimer      = 1
-        };
-
-        enum eStates
-        {
-            BothInArena1,
-            HansgarOut1,
-            BothInArena2,
-            FranzokOut,
-            BothInArena3,
-            HansgarOut2,
-            BothInArenaFinal,
-            MaxSwitchStates
         };
 
         struct boss_hansgarAI : public BossAI
@@ -250,6 +210,8 @@ class boss_hansgar : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ShatteredVertebrae);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AftershockDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ScorchingBurnsDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SearingPlatesDoT);
                 }
 
                 CreatureAI::EnterEvadeMode();
@@ -271,6 +233,8 @@ class boss_hansgar : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ShatteredVertebrae);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AftershockDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ScorchingBurnsDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SearingPlatesDoT);
                 }
 
                 AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -344,6 +308,9 @@ class boss_hansgar : public CreatureScript
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
+                if (me->HasAura(eSpells::NotReady))
+                    return;
+
                 if (me->HealthBelowPctDamaged(m_SwitchStatePct[m_State], p_Damage))
                 {
                     ++m_State;
@@ -393,8 +360,6 @@ class boss_hansgar : public CreatureScript
                             me->CastSpell(me, eSpells::NotReady, true);
 
                             m_Events.CancelEvent(eEvents::EventBodySlam);
-
-                            m_BodySlamJumps = 1;
 
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             {
@@ -533,17 +498,17 @@ class boss_hansgar : public CreatureScript
                         if (m_BodySlamJumps)
                             me->CastSpell(me, eSpells::JumpSlamSearcher, true);
 
-                        if (m_State == eStates::BothInArena2)
+                        if (m_State == eStates::BothInArena2 || m_State == eStates::BothInArenaFinal)
                         {
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
                             m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
                         }
 
+                        me->RemoveAura(eSpells::NotReady);
+
                         if (p_ID == eSpells::BodySlamOut && me->HasReactState(ReactStates::REACT_PASSIVE))
                         {
-                            me->RemoveAura(eSpells::NotReady);
-
                             AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             {
                                 me->GetMotionMaster()->Clear();
@@ -571,15 +536,6 @@ class boss_hansgar : public CreatureScript
                 }
 
                 return 0;
-            }
-
-            void SetData(uint32 p_ID, uint32 p_Value) override
-            {
-                switch (p_ID)
-                {
-                    default:
-                        break;
-                }
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
@@ -703,8 +659,6 @@ class boss_hansgar : public CreatureScript
                         /// When Hans'gar is out, jumps only once
                         if (me->GetReactState() == ReactStates::REACT_PASSIVE)
                         {
-                            me->CastSpell(me, eSpells::NotReady, true);
-
                             m_BodySlamJumps = 1;
 
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
@@ -717,6 +671,8 @@ class boss_hansgar : public CreatureScript
                         }
                         else
                             me->CastSpell(me, eSpells::JumpSlamSearcher, true);
+
+                        me->CastSpell(me, eSpells::NotReady, true);
 
                         m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -1070,43 +1026,6 @@ class boss_franzok : public CreatureScript
             ActionCancelStamp
         };
 
-        enum eVisuals
-        {
-            AnimStamp1 = 5924,
-            AnimStamp2 = 6741,
-            AnimStamp3 = 5836
-        };
-
-        enum eCreatures
-        {
-            MobStampingPresses  = 78358,
-            ScorchingBurns      = 78823
-        };
-
-        enum eDatas
-        {
-            DataMainTankHealth,
-            DataOffTankHealth,  ///< ExplicitTarget of Crippling Suplex
-            DataMaxTankHealths,
-            DataStampTimer,
-
-            MaxPatternActivation = 5,
-            MaxConveyorBelts = 5,
-            DataBeltEntry = 0
-        };
-
-        enum eStates
-        {
-            BothInArena1,
-            HansgarOut1,
-            BothInArena2,
-            FranzokOut,
-            BothInArena3,
-            HansgarOut2,
-            BothInArenaFinal,
-            MaxSwitchStates
-        };
-
         struct boss_franzokAI : public BossAI
         {
             boss_franzokAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataHansgarAndFranzok), m_Vehicle(p_Creature->GetVehicleKit())
@@ -1292,6 +1211,9 @@ class boss_franzok : public CreatureScript
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
+                if (me->HasAura(eSpells::NotReady))
+                    return;
+
                 if (me->HealthBelowPctDamaged(m_SwitchStatePct[m_State], p_Damage))
                 {
                     ++m_State;
@@ -1445,10 +1367,10 @@ class boss_franzok : public CreatureScript
                         if (m_State == eStates::BothInArena3)
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
+                        me->RemoveAura(eSpells::NotReady);
+
                         if (p_ID == eSpells::BodySlamOut && me->HasReactState(ReactStates::REACT_PASSIVE))
                         {
-                            me->RemoveAura(eSpells::NotReady);
-
                             AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             {
                                 me->GetMotionMaster()->Clear();
@@ -1476,15 +1398,6 @@ class boss_franzok : public CreatureScript
                 }
 
                 return 0;
-            }
-
-            void SetData(uint32 p_ID, uint32 p_Value) override
-            {
-                switch (p_ID)
-                {
-                    default:
-                        break;
-                }
             }
 
             void RegeneratePower(Powers p_Power, int32& p_Value)
@@ -1724,7 +1637,7 @@ class boss_franzok : public CreatureScript
                         {
                             if (l_StampingPresses->IsAIEnabled)
                             {
-                                l_StampingPresses->AI()->SetData(eDatas::DataStampTimer, p_BaseTime + 2 * TimeConstants::IN_MILLISECONDS + 500);
+                                l_StampingPresses->AI()->SetData(eDatas::DataStampTimer, p_BaseTime + 2 * TimeConstants::IN_MILLISECONDS + 200);
                                 l_StampingPresses->AI()->DoAction(eActions::ActionStamp);
                             }
                         }
@@ -1909,7 +1822,8 @@ class npc_foundry_scorching_burns : public CreatureScript
 
         enum eSpells
         {
-            ScorchingBurnsAT    = 159182
+            ScorchingBurnsAT    = 159182,
+            ScorchingBurnsDoT   = 155818
         };
 
         enum eEvents
@@ -2016,6 +1930,28 @@ class npc_foundry_scorching_burns : public CreatureScript
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
+
+                if (me->HasAura(eSpells::ScorchingBurnsAT))
+                {
+                    float l_DistCheck = 13.0f;
+
+                    std::list<Player*> l_PlayerList;
+                    me->GetPlayerListInGrid(l_PlayerList, 30.0f);
+
+                    for (Player* l_Player : l_PlayerList)
+                    {
+                        if (l_Player->GetDistance(me) <= l_DistCheck)
+                        {
+                            if (!l_Player->HasAura(eSpells::ScorchingBurnsDoT, me->GetGUID()))
+                                me->CastSpell(l_Player, eSpells::ScorchingBurnsDoT, true);
+                        }
+                        else if (l_Player->FindNearestCreature(me->GetEntry(), l_DistCheck) == nullptr)
+                        {
+                            if (l_Player->HasAura(eSpells::ScorchingBurnsDoT, me->GetGUID()))
+                                l_Player->RemoveAura(eSpells::ScorchingBurnsDoT, me->GetGUID());
+                        }
+                    }
+                }
 
                 if (g_ConveyorForceMovesDirection.find(m_BeltEntry) != g_ConveyorForceMovesDirection.end())
                 {
@@ -2131,6 +2067,13 @@ class npc_foundry_stamping_presses : public CreatureScript
                                         l_Player->GetPositionY() <= (me->GetPositionY() + l_CheckY) && l_Player->GetPositionY() >= (me->GetPositionY() - l_CheckY))
                                         l_Targets.insert(l_Player->GetGUID());
                                 }
+                            }
+
+                            /// Achievement disabled
+                            if (!l_Targets.empty())
+                            {
+                                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                                    l_Instance->SetData(eFoundryDatas::PlayerStamped, 1);
                             }
 
                             for (uint64 l_Guid : l_Targets)
