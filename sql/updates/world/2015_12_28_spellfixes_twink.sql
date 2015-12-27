@@ -12,3 +12,6 @@ UPDATE `creature_template` SET `unit_flags`='131596' WHERE `entry`='61146';
 -- fix Leather Specialization (Feral)
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_gen_leather_specialization';
 INSERT INTO `spell_script_names` VALUES (86097, 'spell_gen_leather_specialization');
+
+-- fix Doomguard and Terrorguard
+UPDATE `creature_template` SET `ScriptName`='spell_npc_warl_doomguard' WHERE `entry` IN (78158, 78215);
