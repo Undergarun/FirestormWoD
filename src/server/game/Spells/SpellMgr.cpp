@@ -5939,6 +5939,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 6262:  ///< Healthstone
                 spellInfo->AttributesEx2 &= ~SPELL_ATTR2_CANT_CRIT;
                 break;
+            case 95861: ///< Meditation
+                spellInfo->Effects[1].Effect = 0;  ///< On retail priests don't have this bonus, also in tooltip nothing said about that
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
