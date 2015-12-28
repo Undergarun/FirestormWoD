@@ -616,23 +616,6 @@ class spell_hun_steady_focus: public SpellScriptLoader
 
                 switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
                 {
-                    ///< Marksmanship
-                    ///< - Steady Shot twice in a row
-                    case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
-                    {
-                        ///< Not Steady Shot
-                        if (l_SpellID != SteadyFocusSpells::SteadyShot)
-                        {
-                            ///< Shitty procs
-                            if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
-                                p_AurEff->GetBase()->SetCharges(0);
-
-                            return;
-                        }
-
-                        DealWithCharges(p_AurEff, l_Player);
-                        break;
-                    }
                     ///< Beast Mastery and Survival (Level 81)
                     ///< - Cobra Shot twice in a row
                     case SpecIndex::SPEC_HUNTER_BEASTMASTERY:
@@ -650,6 +633,21 @@ class spell_hun_steady_focus: public SpellScriptLoader
 
                         DealWithCharges(p_AurEff, l_Player);
                         break;
+                    }
+                    default:
+                    {
+                        ///< Not Steady Shot
+                        if (l_SpellID != SteadyFocusSpells::SteadyShot)
+                        {
+                            ///< Shitty procs
+                            if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                p_AurEff->GetBase()->SetCharges(0);
+
+                            return;
+                        }
+
+                        DealWithCharges(p_AurEff, l_Player);
+                        break;  
                     }
                 }
             }
@@ -1694,6 +1692,11 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_a_murder_of_crows_AuraScript);
 
+            enum eSpells
+            {
+                FreezingTrap = 3355
+            };
+
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
@@ -1706,6 +1709,9 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
                     l_Caster->CastSpell(l_Target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
                 else
                     p_AurEff->GetBase()->Remove();
+
+                if (l_Target->HasAura(eSpells::FreezingTrap))
+                    l_Target->RemoveAura(eSpells::FreezingTrap);
             }
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3433,7 +3439,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
 
                         /// Invigoration - 53253
                         if (l_Hunter->HasAura(eSpells::Invigoration))
-                        if (roll_chance_i(20))
+                        if (roll_chance_i(15))
                             l_Hunter->CastSpell(l_Hunter, eSpells::InvigorationEffect, true);
                     }
                 }
@@ -3747,7 +3753,7 @@ class spell_hun_explosive_shot : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
 
-                int32 l_Damage = (int32)(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.553f);
+                int32 l_Damage = (int32)(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.47f);
                 l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
@@ -3780,7 +3786,7 @@ class spell_hun_explosive_shot : public SpellScriptLoader
                 if (p_AuraEffect->GetBase() == nullptr || p_AuraEffect->GetBase()->GetDuration() == 0)
                     return;
 
-                p_Amount = (int32)((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.553f * 1.08f) / float(p_AuraEffect->GetBase()->GetDuration() / p_AuraEffect->GetAmplitude()));
+                p_Amount = (int32)((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.47f) / float(p_AuraEffect->GetBase()->GetDuration() / p_AuraEffect->GetAmplitude()));
             }
 
             void Register()
@@ -4114,8 +4120,6 @@ class spell_hun_trap_launcher : public SpellScriptLoader
             return new spell_hun_trap_launcher_AuraScript();
         }
 };
-
-
 
 void AddSC_hunter_spell_scripts()
 {

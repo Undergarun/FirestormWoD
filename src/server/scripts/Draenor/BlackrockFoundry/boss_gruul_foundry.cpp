@@ -232,13 +232,6 @@ class boss_gruul_foundry : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CaveInDoT);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::GruulBonus, true);
-
-                    if (IsLFR())
-                    {
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                    }
                 }
             }
 

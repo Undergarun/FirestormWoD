@@ -67,6 +67,7 @@ const Position posTurnPoint = {232.83f, 1367.78f, 48.58f, 1.79f};
 const Position posDownPoint = {227.75f, 1460.83f, 25.98f, 4.75f};
 const Position posUpPoint   = {280.12f, 1380.63f, 49.35f, 3.46f};
 
+/// Forest Frog - 24396
 class npc_zulaman_forest_frog : public CreatureScript
 {
     public:

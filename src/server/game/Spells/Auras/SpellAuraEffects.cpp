@@ -7483,7 +7483,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
 
         /// Poisoned Ammo
-        if (GetSpellInfo()->Id == 162543)
+        if (GetSpellInfo()->Id == 162543 || GetSpellInfo()->Id == 158831)
             /// To prevent double multiplication
             damage = std::max(GetAmount(), 0);
 

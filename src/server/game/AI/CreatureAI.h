@@ -188,6 +188,9 @@ class CreatureAI : public UnitAI
         /// Called when taunted
         virtual void OnTaunt(Unit* p_Taunter) { }
 
+        /// Called when a casting time is calculated
+        virtual void OnCalculateCastingTime(SpellInfo const* p_SpellInfo, int32& p_CastingTime) { }
+
         // Called at any threat added from any attacker (before threat apply)
         virtual void OnAddThreat(Unit* /*victim*/, float& /*fThreat*/, SpellSchoolMask /*schoolMask*/, SpellInfo const* /*threatSpell*/) {}
 

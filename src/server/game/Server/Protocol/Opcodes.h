@@ -1388,6 +1388,8 @@ enum Opcodes
     CMSG_MOVE_FEATHER_FALL_ACK                  = 0x11BE, ///< 6.2.3 20726
     CMSG_MOVE_WATER_WALK_ACK                    = 0x18B2, ///< 6.2.3 20726
     CMSG_MOVE_HOVER_ACK                         = 0x111D, ///< 6.2.3 20726
+    CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK          = 0x1195, ///< 6.2.3 20779
+    CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK         = 0x141E, ///< 6.2.3 20779
 
     //////////////////////////////////////////////////////////////////////////
     /// Group

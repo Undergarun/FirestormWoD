@@ -142,6 +142,50 @@ class spell_mastery_molten_earth_periodic: public SpellScriptLoader
         }
 };
 
+/// Last Build 6.2.3
+/// Molten Earth damage - 170379
+class spell_mastery_molten_earth_damage : public SpellScriptLoader
+{
+    public:
+        spell_mastery_molten_earth_damage() : SpellScriptLoader("spell_mastery_molten_earth_damage") { }
+
+        class spell_mastery_molten_earth_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mastery_molten_earth_damage_SpellScript);
+
+            enum eSpells
+            {
+                MoltenEarth = 170374
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                float l_Mastery = 0.0f;
+                float l_SpellPower = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
+
+                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::MoltenEarth, EFFECT_0))
+                    l_Mastery = l_AuraEffect->GetAmount();
+
+                int32 l_Damage = (l_Mastery / 100) * l_SpellPower;
+
+                SetHitDamage(l_Damage);
+            }
+
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mastery_molten_earth_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mastery_molten_earth_damage_SpellScript;
+        }
+};
+
+
 /// Mastery: Sniper Training - 76659
 class spell_mastery_sniper_training : public SpellScriptLoader
 {
@@ -928,6 +972,7 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_icicles_proc();
     new spell_mastery_molten_earth();
     new spell_mastery_molten_earth_periodic();
+    new spell_mastery_molten_earth_damage();
     new spell_mastery_sniper_training();
     new spell_mastery_recently_moved();
     new spell_mastery_sniper_training_aura();

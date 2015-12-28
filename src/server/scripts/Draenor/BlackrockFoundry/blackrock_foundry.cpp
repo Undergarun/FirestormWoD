@@ -1740,6 +1740,189 @@ class npc_foundry_slag_behemoth : public CreatureScript
         }
 };
 
+/// Blackrock Enforcer - 79208
+class npc_foundry_blackrock_enforcer : public CreatureScript
+{
+    public:
+        npc_foundry_blackrock_enforcer() : CreatureScript("npc_foundry_blackrock_enforcer") { }
+
+        enum eSpells
+        {
+            ClobberingStrike    = 160102,
+            FireBombMissile     = 160250,
+            Intimidation        = 160109
+        };
+
+        enum eEvents
+        {
+            EventClobberingStrike = 1,
+            EventFireBomb,
+            EventIntimidation
+        };
+
+        struct npc_foundry_blackrock_enforcerAI : public ScriptedAI
+        {
+            npc_foundry_blackrock_enforcerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventClobberingStrike, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventFireBomb, 7 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventIntimidation, 10 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    if (Creature* l_Hansgar = Creature::GetCreature(*me, l_Instance->GetData64(eFoundryCreatures::BossHansgar)))
+                    {
+                        if (l_Hansgar->IsAIEnabled)
+                            l_Hansgar->AI()->SetGUID(me->GetGUID(), 0);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventClobberingStrike:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::ClobberingStrike, false);
+                        m_Events.ScheduleEvent(eEvents::EventClobberingStrike, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventFireBomb:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::FireBombMissile, false);
+                        m_Events.ScheduleEvent(eEvents::EventFireBomb, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventIntimidation:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(*l_Target, eSpells::Intimidation, false);
+                        m_Events.ScheduleEvent(eEvents::EventIntimidation, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_blackrock_enforcerAI(p_Creature);
+        }
+};
+
+/// Blackrock Forge Specialist - 79200
+class npc_foundry_blackrock_forge_specialist : public CreatureScript
+{
+    public:
+        npc_foundry_blackrock_forge_specialist() : CreatureScript("npc_foundry_blackrock_forge_specialist") { }
+
+        enum eSpells
+        {
+            RendingSlash    = 160092,
+            ShreddingSpear  = 160079
+        };
+
+        enum eEvents
+        {
+            EventRendingSlash = 1,
+            EventShreddingSpear
+        };
+
+        struct npc_foundry_blackrock_forge_specialistAI : public ScriptedAI
+        {
+            npc_foundry_blackrock_forge_specialistAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventRendingSlash, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventShreddingSpear, 8 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    if (Creature* l_Hansgar = Creature::GetCreature(*me, l_Instance->GetData64(eFoundryCreatures::BossHansgar)))
+                    {
+                        if (l_Hansgar->IsAIEnabled)
+                            l_Hansgar->AI()->SetGUID(me->GetGUID(), 0);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventRendingSlash:
+                    {
+                        me->CastSpell(me, eSpells::RendingSlash, false);
+                        m_Events.ScheduleEvent(eEvents::EventRendingSlash, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventShreddingSpear:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 5.0f))
+                            me->CastSpell(l_Target, eSpells::ShreddingSpear, false);
+                        m_Events.ScheduleEvent(eEvents::EventShreddingSpear, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_blackrock_forge_specialistAI(p_Creature);
+        }
+};
+
 /// Grievous Mortal Wounds - 175624
 class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
 {
@@ -2145,6 +2328,59 @@ class spell_foundry_blast_wave : public SpellScriptLoader
         }
 };
 
+/// Rending Slash - 160092
+class spell_foundry_rending_slash : public SpellScriptLoader
+{
+    public:
+        spell_foundry_rending_slash() : SpellScriptLoader("spell_foundry_rending_slash") { }
+
+        class spell_foundry_rending_slash_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_rending_slash_SpellScript);
+
+            enum eSpell
+            {
+                TargetRestrict = 22509
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Angle = 2 * M_PI / 360 * l_Restriction->ConeAngle;
+                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster, l_Angle))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_rending_slash_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_rending_slash_SpellScript();
+        }
+};
+
 /// Acidback Puddle - 159121
 class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
 {
@@ -2226,6 +2462,69 @@ class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
         AreaTriggerEntityScript* GetAI() const override
         {
             return new areatrigger_foundry_acidback_puddle();
+        }
+};
+
+/// Fire Bomb - 160259
+class areatrigger_foundry_fire_bomb : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_fire_bomb() : AreaTriggerEntityScript("areatrigger_foundry_fire_bomb") { }
+
+        enum eSpell
+        {
+            FireBombDoT = 160260
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 30.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->GetDistance(p_AreaTrigger) <= 12.0f)
+                    {
+                        if (!l_Unit->HasAura(eSpell::FireBombDoT, l_Caster->GetGUID()))
+                            l_Caster->CastSpell(l_Unit, eSpell::FireBombDoT, true);
+                    }
+                    else
+                    {
+                        if (l_Unit->HasAura(eSpell::FireBombDoT, l_Caster->GetGUID()))
+                            l_Unit->RemoveAura(eSpell::FireBombDoT, l_Caster->GetGUID());
+                    }
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 30.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->HasAura(eSpell::FireBombDoT, l_Caster->GetGUID()))
+                        l_Unit->RemoveAura(eSpell::FireBombDoT, l_Caster->GetGUID());
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_fire_bomb();
         }
 };
 
@@ -2319,6 +2618,36 @@ class areatrigger_at_foundry_second_floor_trap : public AreaTriggerScript
         }
 };
 
+/// Hans'gar & Franzok Entrance - 9998
+class areatrigger_at_foundry_hansgar_and_franzok_entrance : public AreaTriggerScript
+{
+    public:
+        areatrigger_at_foundry_hansgar_and_franzok_entrance() : AreaTriggerScript("areatrigger_at_foundry_hansgar_and_franzok_entrance") { }
+
+        enum eAction
+        {
+            ActionIntro
+        };
+
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) override
+        {
+            if (InstanceScript* l_Instance = p_Player->GetInstanceScript())
+            {
+                if (Creature* l_Hansgar = Creature::GetCreature(*p_Player, l_Instance->GetData64(eFoundryCreatures::BossHansgar)))
+                {
+                    if (l_Hansgar->IsAIEnabled)
+                        l_Hansgar->AI()->DoAction(eAction::ActionIntro);
+                }
+
+                if (Creature* l_Franzok = Creature::GetCreature(*p_Player, l_Instance->GetData64(eFoundryCreatures::BossFranzok)))
+                {
+                    if (l_Franzok->IsAIEnabled)
+                        l_Franzok->AI()->DoAction(eAction::ActionIntro);
+                }
+            }
+        }
+};
+
 void AddSC_blackrock_foundry()
 {
     /// NPCs
@@ -2341,6 +2670,8 @@ void AddSC_blackrock_foundry()
     new npc_foundry_darkshard_gnasher();
     new npc_foundry_darkshard_crystalback();
     new npc_foundry_slag_behemoth();
+    new npc_foundry_blackrock_enforcer();
+    new npc_foundry_blackrock_forge_specialist();
 
     /// Spells
     new spell_foundry_grievous_mortal_wounds();
@@ -2351,13 +2682,16 @@ void AddSC_blackrock_foundry()
     new spell_foundry_shattering_charge();
     new spell_foundry_ignite_aura();
     new spell_foundry_blast_wave();
+    new spell_foundry_rending_slash();
 
     /// GameObjects
 
     /// AreaTriggers (spell)
     new areatrigger_foundry_acidback_puddle();
+    new areatrigger_foundry_fire_bomb();
 
     /// AreaTriggers (world)
     new areatrigger_at_foundry_first_floor_trap();
     new areatrigger_at_foundry_second_floor_trap();
+    new areatrigger_at_foundry_hansgar_and_franzok_entrance();
 }
