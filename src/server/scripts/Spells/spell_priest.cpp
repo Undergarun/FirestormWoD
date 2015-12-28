@@ -4085,6 +4085,40 @@ class spell_pri_dominate_mind : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Focused Will - 45243
+class spell_pri_focused_will : public SpellScriptLoader
+{
+    public:
+        spell_pri_focused_will() : SpellScriptLoader("spell_pri_focused_will") { }
+
+        class spell_pri_focused_will_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_focused_will_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                if (p_EventInfo.GetActor()->GetGUID() == l_Caster->GetGUID())
+                    PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_focused_will_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_focused_will_AuraScript();
+        }
+};
+
 /// Word of Mending - 152117
 class PlayerScript_word_of_mending : public PlayerScript
 {
@@ -4117,6 +4151,7 @@ class PlayerScript_word_of_mending : public PlayerScript
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_focused_will();
     new spell_pri_dispel_mass();
     new spell_pri_shadowy_apparition();
     new spell_pri_mind_flay();
