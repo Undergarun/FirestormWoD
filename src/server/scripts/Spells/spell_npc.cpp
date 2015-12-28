@@ -579,7 +579,7 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget))
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
@@ -663,7 +663,7 @@ class spell_npc_sha_fire_elemental : public CreatureScript
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget))
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
@@ -741,7 +741,7 @@ class spell_npc_sha_earth_elemental : public CreatureScript
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget))
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
