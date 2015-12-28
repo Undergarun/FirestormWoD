@@ -3452,7 +3452,10 @@ class spell_warl_nightfall : public SpellScriptLoader
                 if (!l_SpellInfoNightfall)
                     return;
 
-                uint8 l_Chance = l_SpellInfoNightfall->Effects[EFFECT_0].BasePoints / 10;
+                float l_Chance = 0.0f;
+
+                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::Nightfall, EFFECT_0))
+                    l_Chance = (l_AuraEffect->GetAmount() / 10);
 
                 /// While channeling Drain Soul on a target afflicted by your Corruption, Unstable Affliction, and Agony, the chance for Nightfall to activate is increased by 5%.
                 if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Affliction2P, EFFECT_0))
@@ -3472,7 +3475,7 @@ class spell_warl_nightfall : public SpellScriptLoader
                     }
                 }
 
-                if (roll_chance_i(l_Chance))
+                if (roll_chance_f(l_Chance))
                 {
                     l_Caster->CastSpell(l_Caster, eSpells::NightfallGain, true);
 
