@@ -5830,6 +5830,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 73651: ///< Recuperate
                 spellInfo->Effects[1].Effect = 0;
             case 153564:///< Meteor
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
             case 153561:///< Meteor (launch spell)
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 break;
