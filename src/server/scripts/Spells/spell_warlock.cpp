@@ -3925,7 +3925,7 @@ public:
             p_Player->RemoveAura(eSpells::TwoSoulShards);     ///< 2 shards visual
             
             /// Glyph of Subtlety
-            if (!p_Player->HasAura(eSpells::GlyphOfSubtlety)
+            if (!p_Player->HasAura(eSpells::GlyphOfSubtlety))
             {
                 if ((p_NewValue > (1 * p_Player->GetPowerCoeff(p_Power))) && (p_NewValue < (2 * p_Player->GetPowerCoeff(p_Power))))
                 {
