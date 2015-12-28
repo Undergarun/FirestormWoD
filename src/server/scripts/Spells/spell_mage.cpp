@@ -915,9 +915,6 @@ class spell_mage_frostbolt: public SpellScriptLoader
                 if (l_SpellInfo == nullptr)
                     return;
 
-                if (l_Player->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-                    l_Player->CastSpell(l_Player, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
-
                 Pet* l_Pet = l_Player->GetPet();
 
                 if (l_Pet == nullptr)
