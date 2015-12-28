@@ -1622,6 +1622,9 @@ class spell_pri_devouring_plague: public SpellScriptLoader
 
                             int32 l_Heal = GetHitDamage();
                             l_Player->CastCustomSpell(l_Player, PRIEST_DEVOURING_PLAGUE_HEAL, &l_Heal, NULL, NULL, true);
+
+                            /// Store Devouring Plague instant damage for DOT damage - if crit, multiply
+                            l_Player->SetDevouringPlagueDamage(GetSpell()->IsCritForTarget(l_Target) ? GetHitDamage() * 2 : GetHitDamage());
                         }
                     }
                 }
@@ -1671,9 +1674,11 @@ class spell_pri_devouring_plague_aura: public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 /// Devouring Plague periodic damage deals 100% from instant damage in 6 seconds
-                /// Instant damage is ~300% spd, 300 /6 = 50% per tick
                 if (Unit* l_Caster = GetCaster())
-                    amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL), 50);
+                {
+                    if (l_Caster->GetDevouringPlagueDamage())
+                        amount = int32(l_Caster->GetDevouringPlagueDamage() / 6);
+                }
             }
 
             void OnTick(constAuraEffectPtr p_AurEff)
@@ -3656,7 +3661,7 @@ class spell_pri_chakra_sanctuary : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_pri_chakra_sanctuary_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_pri_chakra_sanctuary_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -4080,6 +4085,40 @@ class spell_pri_dominate_mind : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Focused Will - 45243
+class spell_pri_focused_will : public SpellScriptLoader
+{
+    public:
+        spell_pri_focused_will() : SpellScriptLoader("spell_pri_focused_will") { }
+
+        class spell_pri_focused_will_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_focused_will_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                if (p_EventInfo.GetActor()->GetGUID() == l_Caster->GetGUID())
+                    PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_focused_will_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_focused_will_AuraScript();
+        }
+};
+
 /// Word of Mending - 152117
 class PlayerScript_word_of_mending : public PlayerScript
 {
@@ -4112,6 +4151,7 @@ class PlayerScript_word_of_mending : public PlayerScript
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_focused_will();
     new spell_pri_dispel_mass();
     new spell_pri_shadowy_apparition();
     new spell_pri_mind_flay();

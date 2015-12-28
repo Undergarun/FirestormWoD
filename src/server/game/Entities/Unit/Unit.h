@@ -859,6 +859,7 @@ enum MovementFlags
     MOVEMENTFLAG_WATERWALKING          = 0x04000000,               // prevent unit from falling through water
     MOVEMENTFLAG_FALLING_SLOW          = 0x08000000,               // active rogue safe fall spell (passive)
     MOVEMENTFLAG_HOVER                 = 0x10000000,               // hover, cannot jump
+    MOVEMENTFLAG_CAN_SAFE_FALL         = 0x20000000,
 
     // TODO: Check if PITCH_UP and PITCH_DOWN really belong here..
     MOVEMENTFLAG_MASK_MOVING =
@@ -2405,7 +2406,7 @@ class Unit : public WorldObject
         bool   isBlockCritical();
         bool   IsSpellMultistrike() const;
         uint32 GetMultistrikeBasePoints(uint32 p_Damage) const;
-        void   ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType = WeaponAttackType::BaseAttack, SpellInfo const* p_ProcAura = NULL, constAuraEffectPtr p_OwnerAuraEffect = NULL);
+        uint8  ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType = WeaponAttackType::BaseAttack, SpellInfo const* p_ProcAura = NULL, constAuraEffectPtr p_OwnerAuraEffect = NULL);
         uint8  ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target);
         void   ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int32& p_Amount);
         bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
@@ -2666,6 +2667,10 @@ class Unit : public WorldObject
         void ClearLastUsedLeapBackSpell() { l_LastUsedLeapBackSpell = 0; }
         uint32 GetLastUsedLeapBackSpell() { return l_LastUsedLeapBackSpell; }
 
+        /// helpers for Devouring Plague DOT damage
+        void SetDevouringPlagueDamage(uint32 l_CurrentDamage) { m_DevouringPlagueDamage = l_CurrentDamage; }
+        uint32 GetDevouringPlagueDamage() { return m_DevouringPlagueDamage; }
+
         void DisableHealthRegen() { m_disableHealthRegen = true; }
         void ReenableHealthRegen() { m_disableHealthRegen = false; }
         bool HealthRegenIsDisable() const { return m_disableHealthRegen; }
@@ -2857,6 +2862,7 @@ class Unit : public WorldObject
         uint64 soulSwapTargetGUID;
         bool soulSwapRefreshDuration;
         uint32 l_LastUsedLeapBackSpell;
+        uint32 m_DevouringPlagueDamage;
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us

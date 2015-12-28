@@ -1572,8 +1572,17 @@ void WorldSession::LoadPremades()
                 if ((l_Proto->AllowableRace & l_NewCharacter.getRaceMask()) == 0)
                     continue;
 
-                if (l_Item->m_Type == 0 || l_Type == l_Item->m_Type)
-                    l_NewCharacter.StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count);
+                if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && l_NewCharacter.GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && l_NewCharacter.GetTeam() == HORDE))
+                {
+                    ItemContext l_Context = ItemContext::None;
+
+                    /// Pve premade have LFR items
+                    if (l_Type == 1)
+                        l_Context = ItemContext::RaidLfr;
+
+                    if (l_Item->m_Type == 0 || l_Type == l_Item->m_Type)
+                        l_NewCharacter.StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, l_Context);
+                }
             }
         }
 

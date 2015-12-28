@@ -526,7 +526,7 @@ class boss_xeritac : public CreatureScript
         }
 };
 
-/// Vendom Sprayer - 86547
+/// Venom Sprayer - 86547
 class the_everbloom_venom_sprayer : public CreatureScript
 {
     public:

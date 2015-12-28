@@ -191,6 +191,12 @@ enum TalentTree // talent tabs
     TALENT_TREE_DRUID_RESTORATION    = 748
 };
 
+enum CharacterWorldStates
+{
+    CharWorldStateGarrisonStablesFirstQuest  = 1,
+    CharWorldStateGarrisonStablesSecondQuest = 2
+};
+
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -1641,6 +1647,7 @@ class Player : public Unit, public GridObject<Player>
         void AddGarrisonTavernData(uint32 p_Data);
         void SetGarrisonTavernData(uint32 p_Data);
         void CleanGarrisonTavernData() { m_GarrisonDailyTavernData.clear(); };
+        bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID);
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 
@@ -3088,7 +3095,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
-        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0);
+        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0, G3D::Vector3 p_TransportPos = G3D::Vector3(0.0f, 0.0f, 0.0f));
         void RemoveAllMovementForces(uint32 p_Entry = 0);
         bool HasMovementForce(uint64 p_Source = 0, bool p_IsEntry = false);
 

@@ -4,6 +4,7 @@
 #include "InstanceScript.h"
 #include "mechanar.h"
 
+/// Gatewatcher Gyro-Kill - 19218
 class gatewatcher_gyro_kill : public CreatureScript
 {
     public:

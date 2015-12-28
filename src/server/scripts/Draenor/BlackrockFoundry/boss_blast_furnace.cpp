@@ -1441,6 +1441,10 @@ class npc_foundry_bellows_operator : public CreatureScript
                     /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
                     me->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
 
+                    /// @WORKAROUND - Clear ON VEHICLE state to allow healing (Invalid target errors)
+                    /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
+                    me->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
+
                     if (me->GetEntry() == eCreatures::OperatorForFight)
                         m_CosmeticEvent.ScheduleEvent(eCosmeticEvent::EventActivateBellows, 1 * TimeConstants::IN_MILLISECONDS);
                 });

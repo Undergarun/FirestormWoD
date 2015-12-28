@@ -524,7 +524,6 @@ public:
             cInfo->spells[5]           = fields[l_Index++].GetUInt32();
             cInfo->spells[6]           = fields[l_Index++].GetUInt32();
             cInfo->spells[7]           = fields[l_Index++].GetUInt32();
-            cInfo->PetSpellDataId      = fields[l_Index++].GetUInt32();
             cInfo->VehicleId           = fields[l_Index++].GetUInt32();
             cInfo->mingold             = fields[l_Index++].GetUInt32();
             cInfo->maxgold             = fields[l_Index++].GetUInt32();

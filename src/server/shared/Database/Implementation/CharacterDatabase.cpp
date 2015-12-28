@@ -743,4 +743,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_REP_WORLD_STATES, "REPLACE INTO `character_worldstates` (`guid`, `worldstate`, `value`) VALUES (?, ?, ?)", CONNECTION_ASYNC);
 
     PREPARE_STATEMENT(CHAR_INS_FIRST_PREMADE_MONEY, "INSERT INTO `first_premade_money` (account) VALUES (?)", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(CHAR_UPD_WORLD_STATE, "UPDATE `character_worldstates` SET `value` = ? WHERE `guid` = ? and `worldstate` = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_WORLD_STATE_DATA, "DELETE FROM `character_worldstates` WHERE `guid` = ? AND `worldstate` = ? and `value` = ?", CONNECTION_ASYNC);
 }

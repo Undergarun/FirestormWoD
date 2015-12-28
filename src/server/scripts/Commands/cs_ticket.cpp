@@ -61,6 +61,8 @@ public:
             { "viewname",       SEC_MODERATOR,      true,  &HandleGMTicketGetByNameCommand,         "", NULL },
             { "fsccreate",      SEC_PLAYER,         true,  &FSCHandleGMTicketCreate,                "", NULL },
             { "fscupdate",      SEC_PLAYER,         true,  &FSCHandleGMTicketUpdate,                "", NULL },
+            { "fscappend",      SEC_PLAYER,         true,  &FSCHandleGMTicketAppend,                "", NULL },
+            { "fscend",         SEC_PLAYER,         true,  &FSCHandleGMTicketEnd,                "", NULL },
             { "fscdelete",      SEC_PLAYER,         true,  &FSCHandleGMTicketDelete,                "", NULL },
             { "fscticketget",   SEC_PLAYER,         true,  &FSCHandleGMTicketGet,                   "", NULL },
             { "fscticketres",   SEC_PLAYER,         true,  &FSCHandleGMResponseResolve,             "", NULL },
@@ -124,7 +126,7 @@ public:
 
                 sWorld->SendGMText(LANG_COMMAND_TICKETNEW, l_Player->GetName(), l_NewTicket->GetId());
 
-                sTicketMgr->SendTicket(p_Handler->GetSession(), l_NewTicket);
+                //sTicketMgr->SendTicket(p_Handler->GetSession(), l_NewTicket);
 
                 l_Response = GMTICKET_RESPONSE_CREATE_SUCCESS;
             }
@@ -139,7 +141,7 @@ public:
 
             sWorld->SendGMText(LANG_COMMAND_TICKETNEW, l_Player->GetName(), l_NewTicket->GetId());
 
-            sTicketMgr->SendTicket(p_Handler->GetSession(), l_NewTicket);
+            //sTicketMgr->SendTicket(p_Handler->GetSession(), l_NewTicket);
 
             l_Response = GMTICKET_RESPONSE_CREATE_SUCCESS;
         }
@@ -186,6 +188,63 @@ public:
         }
 
         p_Handler->GetSession()->SendTicketStatusUpdate(l_Response);
+
+        return true;
+    }
+
+    static bool FSCHandleGMTicketAppend(ChatHandler* p_Handler, char const* p_Args)
+    {
+        auto l_ReplaceAll = [](std::string& str, const std::string& from, const std::string& to) {
+            if (from.empty())
+                return;
+            size_t start_pos = 0;
+            while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+                str.replace(start_pos, from.length(), to);
+                start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+            }
+        };
+
+        // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+        if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+            return true;
+
+        Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+        if (!l_Player)
+            return true;
+
+        std::string l_Message = p_Args;
+        l_ReplaceAll(l_Message, "$$n", "\n");
+
+        GMTicketResponse l_Response = GMTICKET_RESPONSE_UPDATE_ERROR;
+        if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(l_Player->GetGUID()))
+        {
+            SQLTransaction l_Transaction = SQLTransaction(NULL);
+            l_Ticket->SetMessage(l_Ticket->GetMessage() + l_Message);
+            l_Ticket->SaveToDB(l_Transaction);
+        }
+
+        p_Handler->GetSession()->SendTicketStatusUpdate(l_Response);
+
+        return true;
+    }
+    
+    static bool FSCHandleGMTicketEnd(ChatHandler* p_Handler, char const* p_Args)
+    {
+        // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+        if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+            return true;
+
+        Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+        if (!l_Player)
+            return true;
+
+        GMTicketResponse l_Response = GMTICKET_RESPONSE_UPDATE_ERROR;
+        if (GmTicket* l_Ticket = sTicketMgr->GetTicketByPlayer(l_Player->GetGUID()))
+        {
+            sTicketMgr->SendTicket(p_Handler->GetSession(), l_Ticket);
+        }
 
         return true;
     }

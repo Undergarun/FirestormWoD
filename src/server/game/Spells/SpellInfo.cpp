@@ -24,6 +24,7 @@
 #include "ConditionMgr.h"
 #include "Vehicle.h"
 #include "Group.h"
+#include "CreatureAI.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -2823,6 +2824,12 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
             l_CastTime -= CalculatePct(l_CastTime, (20 * overloaded->GetStackAmount()));
     }
 
+    if (p_Caster && p_Caster->GetTypeId() == TypeID::TYPEID_UNIT)
+    {
+        if (p_Caster->ToCreature()->IsAIEnabled)
+            p_Caster->ToCreature()->AI()->OnCalculateCastingTime(this, l_CastTime);
+    }
+
     return (l_CastTime > 0) ? uint32(l_CastTime) : 0;
 }
 
@@ -2977,6 +2984,10 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
 
         /// Hack fix: Soul Swap Exhale shouldn't take any mana
         if (Id == 86213 && PowerType == POWER_MANA)
+            powerCost = 0;
+
+        /// Hack fix: Wild Strike shouldn't take rage if warrior has Bloodsurge
+        if (PowerType == POWER_RAGE && Id == 100130 && caster->HasAura(46916))
             powerCost = 0;
 
         m_powerCost[POWER_TO_INDEX(PowerType)] += powerCost;
@@ -3174,7 +3185,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             }
             break;
         case SPELLFAMILY_MAGE:
-            // Amplify Magic, Dampen Magic
+            // Dampen Magic
             if (SpellFamilyFlags[0] == 0x00002000)
                 return true;
             // Ignite

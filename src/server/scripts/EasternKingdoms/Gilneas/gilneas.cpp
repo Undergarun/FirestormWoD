@@ -584,7 +584,8 @@ struct Paths
     Point paths[8][10];   //pathID, pointID, Point
 };
 
-class npc_frightened_citizen : public CreatureScript
+/// @todo refactor me : lolz the mysql query
+/*class npc_frightened_citizen : public CreatureScript
 {
 public:
     npc_frightened_citizen() : CreatureScript("npc_frightened_citizen") {}
@@ -742,6 +743,7 @@ public:
         }
     };
 };
+ */
 
 //Phase 4
 /*######
@@ -2837,7 +2839,7 @@ public:
             {
                 Burning = true;
 
-                if(me->getVictim()->GetTypeId() == TYPEID_PLAYER)//We should ONLY switch our victim if we currently have the player targeted
+                if(me->getVictim() && me->getVictim()->GetTypeId() == TYPEID_PLAYER)//We should ONLY switch our victim if we currently have the player targeted
                 {
                     me->getThreatManager().resetAllAggro();//We need to aggro on crowley's horse, not the player
                     horse->AddThreat(me, 1.0f);
@@ -2929,7 +2931,7 @@ void AddSC_gilneas()
     new go_merchant_square_door();
     new npc_sergeant_cleese();
     new npc_bloodfang_worgen();
-    new npc_frightened_citizen();
+    ///new npc_frightened_citizen();
     new npc_gilnean_royal_guard();
     new npc_mariam_spellwalker();
     new npc_sean_dempsey();

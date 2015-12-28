@@ -415,11 +415,11 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID,   family, trainer_type, trainer_spell, trainer_class, trainer_race, type, "
     //                                            42          43           44          45          46         47         48            49         50            51           52
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                           53     54       55     56       57     58       59      60        61           62          63      64       65         66
-                                             "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                           67             68          69         70           71           72         73            74           75          76         77          78
+    //                                           53     54       55     56       57     58       59      60        61       62       63      64       65
+                                             "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
+    //                                           66             67          68         69           70           71         72            73           74          75         76          77
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            79           80         81          82               83               84              85            86
+    //                                            78           79         80          81               82               83              84            85
                                              "questItem6, movementId, VignetteID, TrackingQuestID,  RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
@@ -508,7 +508,6 @@ void ObjectMgr::LoadCreatureTemplates()
         for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
             l_CreatureTemplate->spells[i] = fields[index++].GetUInt32();
 
-        l_CreatureTemplate->PetSpellDataId = fields[index++].GetUInt32();
         l_CreatureTemplate->VehicleId      = fields[index++].GetUInt32();
         l_CreatureTemplate->mingold        = fields[index++].GetUInt32();
         l_CreatureTemplate->maxgold        = fields[index++].GetUInt32();
@@ -897,13 +896,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
              sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has a non-existing VehicleId (%u). This *WILL* cause the client to freeze!", cInfo->Entry, cInfo->VehicleId);
              const_cast<CreatureTemplate*>(cInfo)->VehicleId = 0;
         }
-    }
-
-    if (cInfo->PetSpellDataId)
-    {
-        CreatureSpellDataEntry const* spellDataId = sCreatureSpellDataStore.LookupEntry(cInfo->PetSpellDataId);
-        if (!spellDataId)
-            sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has non-existing PetSpellDataId (%u).", cInfo->Entry, cInfo->PetSpellDataId);
     }
 
     for (uint8 j = 0; j < CREATURE_MAX_SPELLS; ++j)
@@ -2031,6 +2023,7 @@ void ObjectMgr::LoadGameobjects()
             sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid `state` (%u) value, skip", guid, data.id, go_state);
             continue;
         }
+
         data.go_state       = GOState(go_state);
 
         data.isActive       = fields[16].GetBool();
