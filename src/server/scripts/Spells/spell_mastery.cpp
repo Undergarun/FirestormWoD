@@ -417,10 +417,6 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                /// Mastery works from 80 lvl
-                if (l_Player->getLevel() < 80)
-                    return;
-
                 /// Calculate damage
                 int32 l_HitDamage = p_EventInfo.GetDamageInfo()->GetDamage() + p_EventInfo.GetDamageInfo()->GetAbsorb();
 
@@ -521,8 +517,7 @@ class spell_mastery_icicles_trigger : public SpellScriptLoader
                 {
                     if (Unit* l_HitUnit = GetHitUnit())
                     {
-                        /// Mastery works from 80 lvl
-                        if (l_HitUnit->isAlive() && l_Caster->getLevel() >= 80)
+                        if (l_HitUnit->isAlive())
                         {
                             l_Caster->SetIciclesTarget(l_HitUnit->GetGUID());
                             l_Caster->CastSpell(l_Caster, SPELL_MAGE_ICICLE_PERIODIC_TRIGGER, true);
