@@ -718,7 +718,7 @@ class spell_warl_agony: public SpellScriptLoader
                     l_Agony->ModStackAmount(p_AurEff->GetBaseAmount());
 
                     /// Patch 6.2.2 (2015-09-01): Now deals 10 % less damage in PvP combat.
-                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER && p_AurEff->GetTickNumber() == 1)
                         l_Agony->GetEffect(EFFECT_0)->ChangeAmount(l_Agony->GetEffect(EFFECT_0)->GetAmount() - CalculatePct(l_Agony->GetEffect(EFFECT_0)->GetAmount(), 10));
                 }
             }
@@ -3428,7 +3428,7 @@ class spell_warl_havoc: public SpellScriptLoader
 
 /// Called by Corruption - 146739
 /// Nightfall - 108558
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 class spell_warl_nightfall : public SpellScriptLoader
 {
     public:
@@ -3454,6 +3454,7 @@ class spell_warl_nightfall : public SpellScriptLoader
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
                 if (!l_Caster)
                     return;
 
@@ -3497,6 +3498,13 @@ class spell_warl_nightfall : public SpellScriptLoader
                         if (Player* l_Player = l_Caster->ToPlayer())
                             l_Player->ReduceSpellCooldown(eSpells::DarkSoulMisery, l_AuraEffect->GetAmount());
                     }
+                }
+
+                if (AuraPtr l_Corruption = l_Target->GetAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                {
+                    /// Patch 6.2.2 (2015-09-01): Now deals 10 % less damage in PvP combat.
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER && p_AurEff->GetTickNumber() == 1)
+                        l_Corruption->GetEffect(EFFECT_0)->ChangeAmount(l_Corruption->GetEffect(EFFECT_0)->GetAmount() - CalculatePct(l_Corruption->GetEffect(EFFECT_0)->GetAmount(), 10));
                 }
             }
 
