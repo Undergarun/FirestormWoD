@@ -1455,7 +1455,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 if (l_Attacker == nullptr || l_Caster == nullptr)
                     return;
 
-                Unit* l_Target;
+                Unit* l_Target = nullptr;
                 std::list<Unit*> l_TargetList;
                 m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
 
