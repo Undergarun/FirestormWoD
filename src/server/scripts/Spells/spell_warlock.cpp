@@ -3617,21 +3617,16 @@ class spell_warl_doom_bolt : public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Owner = l_Caster->GetOwner();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Owner == nullptr || l_Target == nullptr)
+                if (l_Target == nullptr)
                     return;
 
-                int32 l_Damage = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+                int32 l_Damage = GetHitDamage();
 
                 /// If target has less then 20% damage we should increase damage by 20%
-                if (l_Target->GetHealthPct() <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                if (l_Target->GetHealthPct() <= (float)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
                     AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-
-                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
             }
