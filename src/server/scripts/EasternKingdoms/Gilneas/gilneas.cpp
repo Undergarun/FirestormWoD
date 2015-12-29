@@ -2839,7 +2839,7 @@ public:
             {
                 Burning = true;
 
-                if(me->getVictim()->GetTypeId() == TYPEID_PLAYER)//We should ONLY switch our victim if we currently have the player targeted
+                if(me->getVictim() && me->getVictim()->GetTypeId() == TYPEID_PLAYER)//We should ONLY switch our victim if we currently have the player targeted
                 {
                     me->getThreatManager().resetAllAggro();//We need to aggro on crowley's horse, not the player
                     horse->AddThreat(me, 1.0f);

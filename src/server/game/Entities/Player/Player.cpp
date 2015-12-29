@@ -33581,18 +33581,23 @@ void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry
     auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
     if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
     {
-        float l_Count = GetMaxCharges(p_ChargeCategoryEntry) - l_Itr->second.size();
-        if (l_Count < 0.0f)
-            l_Count = 0.0f;
+        uint32 l_ConsumedCharges = l_Itr->second.size();
+        bool   l_IsPet = false;
 
-        std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
-
-        l_Count += 1.0f - (float)l_CooldownDuration.count() / (float)GetChargeRecoveryTime(p_ChargeCategoryEntry);
         WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
-        l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data << float(l_Count);
-        l_Data.WriteBit(false); ///< IsPet
+        l_Data << uint32(p_ChargeCategoryEntry->Id);
+        l_Data << uint32(p_ChargeCategoryEntry->ChargeRecoveryTime);
+        l_Data << uint8(l_ConsumedCharges);
+        l_Data.WriteBit(l_IsPet);
         l_Data.FlushBits();
+
+
+        if (l_IsPet)
+        {
+            l_Data << uint32(0);    ///< unk
+            l_Data << uint32(0);    ///< unk
+        }
+
         SendDirectMessage(&l_Data);
     }
 }
@@ -33663,15 +33668,24 @@ void Player::RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
     if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
     {
         l_Itr->second.pop_back();
-        float l_Count = GetMaxCharges(p_ChargeCategoryEntry) - l_Itr->second.size();
-        if (l_Count < 0.0f)
-            l_Count = 0.0f;
+
+        uint32 l_ConsumedCharges = l_Itr->second.size();
+
+        bool l_IsPet = false;
 
         WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
-        l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data << float(l_Count);
-        l_Data.WriteBit(false); ///< IsPet
+        l_Data << uint32(p_ChargeCategoryEntry->Id);
+        l_Data << uint32(p_ChargeCategoryEntry->ChargeRecoveryTime);
+        l_Data << uint8(l_ConsumedCharges);
+        l_Data.WriteBit(l_IsPet);
         l_Data.FlushBits();
+
+        if (l_IsPet)
+        {
+            l_Data << uint32(0);    ///< unk
+            l_Data << uint32(0);    ///< unk
+        }
+
         SendDirectMessage(&l_Data);
     }
 }

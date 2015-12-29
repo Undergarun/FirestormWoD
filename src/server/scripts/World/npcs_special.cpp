@@ -4706,6 +4706,7 @@ class npc_xuen_the_white_tiger : public CreatureScript
 
         enum eSpells
         {
+            INVOKE_XUEN_THE_WHITE_TIGER = 123995,
             CRACKLING_TIGER_LIGHTNING = 123999
         };
         struct npc_xuen_the_white_tigerAI : public PetAI
@@ -4715,6 +4716,20 @@ class npc_xuen_the_white_tiger : public CreatureScript
             npc_xuen_the_white_tigerAI(Creature* creature) : PetAI(creature)
             {
                 me->SetReactState(ReactStates::REACT_HELPER);
+
+                Unit* l_Owner = me->ToTempSummon() ? me->ToTempSummon()->GetSummoner() : NULL;
+                Unit* l_Target = l_Owner ? (l_Owner->getVictim() ? l_Owner->getVictim() : (l_Owner->ToPlayer() ? l_Owner->ToPlayer()->GetSelectedUnit() : NULL)) : NULL;
+
+                if (!l_Owner || !l_Target)
+                    return;
+
+                /// Start attack
+                if (me->IsValidAttackTarget(l_Target))
+                {
+                    AttackStart(l_Target);
+                    ///me->GetMotionMaster()->MoveJump(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), 15.0f, 10.0f, l_Target->GetOrientation(), MOVE_DESPAWN);
+                    me->CastSpell(l_Target, eSpells::INVOKE_XUEN_THE_WHITE_TIGER, true);
+                }
             }
 
             void Reset() override

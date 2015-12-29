@@ -3925,36 +3925,41 @@ public:
     {
         OneMainSoulShard = 104756,
         TwoMainSoulShards = 123171,
-        TwoSoulShards = 104759
-
+        TwoSoulShards = 104759,
+        GlyphOfSubtlety = 56217
     };
 
     /// Override
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
     {
+        ///< Works only in Afflication spec and if warlock doesn't have Glyph of Subtlety
         if (p_Power == POWER_SOUL_SHARDS && p_Player->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
         {
             p_Player->RemoveAura(eSpells::OneMainSoulShard);  ///< 1 center shard visual
             p_Player->RemoveAura(eSpells::TwoMainSoulShards); ///< 2 center shards visual
             p_Player->RemoveAura(eSpells::TwoSoulShards);     ///< 2 shards visual
-
-            if ((p_NewValue > (1 * p_Player->GetPowerCoeff(p_Power))) && (p_NewValue < (2 * p_Player->GetPowerCoeff(p_Power))))
+            
+            /// Glyph of Subtlety
+            if (!p_Player->HasAura(eSpells::GlyphOfSubtlety))
             {
-                p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
-            }
-            else if (p_NewValue < (3 * p_Player->GetPowerCoeff(p_Power)))
-            {
-                p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
-            }
-            else if (p_NewValue < (4 * p_Player->GetPowerCoeff(p_Power)))
-            {
-                p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
-                p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
-            }
-            else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(p_Power)))
-            {
-                p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
-                p_Player->CastSpell(p_Player, eSpells::TwoSoulShards, true);
+                if ((p_NewValue > (1 * p_Player->GetPowerCoeff(p_Power))) && (p_NewValue < (2 * p_Player->GetPowerCoeff(p_Power))))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
+                }
+                else if (p_NewValue < (3 * p_Player->GetPowerCoeff(p_Power)))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+                }
+                else if (p_NewValue < (4 * p_Player->GetPowerCoeff(p_Power)))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
+                    p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+                }
+                else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(p_Power)))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+                    p_Player->CastSpell(p_Player, eSpells::TwoSoulShards, true);
+                }
             }
         }
     }

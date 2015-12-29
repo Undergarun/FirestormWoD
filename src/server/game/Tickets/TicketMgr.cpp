@@ -111,7 +111,7 @@ void GmTicket::DeleteFromDB()
     CharacterDatabase.Execute(l_Statement);
 }
 
-void GmTicket::WriteData(std::vector<std::string>& p_Data) const
+void GmTicket::WriteData(std::vector<std::string>& p_Data, std::string & p_Message) const
 {
     /// HelpFrame.lua
     /// local category, ticketDescription, ticketOpenTime, oldestTicketTime, updateTime, assignedToGM, openedByGM, waitTimeOverrideMessage, waitTimeOverrideMinutes = ...;
@@ -129,9 +129,9 @@ void GmTicket::WriteData(std::vector<std::string>& p_Data) const
     std::string l_Message = GetMessage();
     l_ReplaceAll(l_Message, "|", "/");
     l_ReplaceAll(l_Message, "\n", "$$n");
+    p_Message = l_Message;
 
     p_Data.push_back(std::to_string(uint16(std::min(m_EscalatedStatus, TICKET_IN_ESCALATION_QUEUE))));
-    p_Data.push_back(l_Message);
     p_Data.push_back(std::to_string(GetAge(m_LastModifiedTime)));
     
     if (GmTicket* ticket = sTicketMgr->GetOldestOpenTicket())
@@ -142,7 +142,6 @@ void GmTicket::WriteData(std::vector<std::string>& p_Data) const
     p_Data.push_back(std::to_string(GetAge(sTicketMgr->GetLastChange())));
     p_Data.push_back(std::to_string(uint16(m_HaveTicket)));
     p_Data.push_back(std::to_string(uint16(m_Viewed ? GMTICKET_OPENEDBYGM_STATUS_OPENED : GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED)));
-    p_Data.push_back(l_Message);
     p_Data.push_back(std::to_string(uint32(0)));
 }
 
@@ -170,11 +169,67 @@ void GmTicket::SendResponse(WorldSession* p_Session) const
     l_ReplaceAll(l_Response, "|", "/");
     l_ReplaceAll(l_Response, "\n", "$$n");
 
-    std::vector<std::string> l_Data;
-    l_Data.push_back(l_Message);
-    l_Data.push_back(l_Response);
+    auto l_StringSplit = [](std::string const& p_Str, char p_Delimeter) -> std::vector<std::string>
+    {
+        std::vector<std::string> l_Result;
 
-    p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_GM_REPONSE_RECEIVED", l_Data);
+        std::stringstream l_StringStream(p_Str);
+        std::string l_Item;
+
+        while (std::getline(l_StringStream, l_Item, p_Delimeter))
+            l_Result.push_back(l_Item);
+
+        return l_Result;
+    };
+
+    auto l_Tokenize = [&l_StringSplit](std::string const& l_Message) -> std::vector<std::string>
+    {
+        const int l_MaxLineLenght = 180; ///< Magic value
+
+        std::vector<std::string> l_Lines;
+        std::vector<std::string> l_Words = l_StringSplit(l_Message, ' ');
+        std::string l_Buffer = "";
+
+        for (std::string const& l_Word : l_Words)
+        {
+            if ((l_Buffer.length() + 1 + l_Word.length()) <= l_MaxLineLenght)
+                l_Buffer += (!l_Buffer.empty() ? " " : "") + l_Word;
+            else
+            {
+                l_Lines.push_back(l_Buffer);
+                l_Buffer = l_Word;
+            }
+        }
+
+        if (!l_Buffer.empty())
+            l_Lines.push_back(l_Buffer);
+
+        return l_Lines;
+    };
+
+    auto l_MessageTokenized     = l_Tokenize(l_Message);
+    auto l_ResponseTokenized    = l_Tokenize(l_Response);
+
+
+    p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_GM_REPONSE_RECEIVED_BEG");
+
+    for (auto l_Current : l_MessageTokenized)
+    {
+        std::vector<std::string> l_OutData;
+        l_OutData.push_back(l_Current);
+
+        p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_GM_REPONSE_RECEIVED_UPD_A", l_OutData);
+    }
+
+    for (auto l_Current : l_ResponseTokenized)
+    {
+        std::vector<std::string> l_OutData;
+        l_OutData.push_back(l_Current);
+
+        p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_GM_REPONSE_RECEIVED_UPD_B", l_OutData);
+    }
+
+    p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_GM_REPONSE_RECEIVED_END");
 }
 
 std::string GmTicket::FormatMessageString(ChatHandler& p_Handler, bool p_Detailed) const
@@ -399,10 +454,54 @@ void TicketMgr::SendTicket(WorldSession* p_Session, GmTicket* p_Ticket) const
 
     if (l_Status == GMTICKET_STATUS_HASTEXT)
     {
-        std::vector<std::string> l_Data;
-        p_Ticket->WriteData(l_Data);
+        auto l_StringSplit = [](std::string const& p_Str, char p_Delimeter) -> std::vector<std::string>
+        {
+            std::vector<std::string> l_Result;
 
-        p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_UPDATE", l_Data);
+            std::stringstream l_StringStream(p_Str);
+            std::string l_Item;
+
+            while (std::getline(l_StringStream, l_Item, p_Delimeter))
+                l_Result.push_back(l_Item);
+
+            return l_Result;
+        };
+
+        std::vector<std::string> l_Data;
+        std::string l_Message = "";
+        p_Ticket->WriteData(l_Data, l_Message);
+
+        p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_UPDATE_BEG");
+
+        const int l_MaxLineLenght = 180; ///< Magic value
+
+        std::vector<std::string> l_Words = l_StringSplit(l_Message, ' ');
+        std::string l_Buffer = "";
+
+        for (std::string const& l_Word : l_Words)
+        {
+            if ((l_Buffer.length() + 1 + l_Word.length()) <= l_MaxLineLenght)
+                l_Buffer += (!l_Buffer.empty() ? " " : "") + l_Word;
+            else
+            {
+                std::vector<std::string> l_OutData;
+                l_OutData.push_back(l_Buffer);
+
+                p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_UPDATE_UPD", l_OutData);
+
+                l_Buffer = l_Word;
+            }
+        }
+
+        if (!l_Buffer.empty())
+        {
+            std::vector<std::string> l_OutData;
+            l_OutData.push_back(l_Buffer);
+
+            p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_UPDATE_UPD", l_OutData);
+        }
+
+        p_Session->GetPlayer()->SendCustomMessage("FSC_TICKET_UPDATE_END", l_Data);
     }
     else
     {

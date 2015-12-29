@@ -5696,6 +5696,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 3411:  ///< Intervene
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_RAID;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG;
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
                 spellInfo->OverrideSpellList.push_back(114029); ///< Add Safeguard to override spell list of Intervene
                 break;
@@ -5930,6 +5931,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 118283:///< Ursol's Vortex
                 spellInfo->Effects[0].ValueMultiplier = 60;
+                break;
+            case 6262:  ///< Healthstone
+                spellInfo->AttributesEx2 &= ~SPELL_ATTR2_CANT_CRIT;
+                break;
+            case 95861: ///< Meditation
+                spellInfo->Effects[1].Effect = 0;  ///< On retail priests don't have this bonus, also in tooltip nothing said about that
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
