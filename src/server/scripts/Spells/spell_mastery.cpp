@@ -76,10 +76,6 @@ class spell_mastery_molten_earth : public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                /// Mastery works from 80 lvl
-                if (l_Caster->getLevel() < 80)
-                    return;
-
                 /// Assuming it's a 33.33% proc chance
                 if (!roll_chance_f(33.33f))
                     return;
