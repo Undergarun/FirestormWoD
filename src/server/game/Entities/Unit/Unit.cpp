@@ -12587,7 +12587,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
 
     Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
 
-    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()))
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat() || l_ModVictimOwner->IsInPvPCombat()))
         l_CritPctBonus = 50; ///< 150% on pvp
 
     l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
