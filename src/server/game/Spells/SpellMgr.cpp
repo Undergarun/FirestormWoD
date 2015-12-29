@@ -4664,7 +4664,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155057:///< Magma Pool (DoT)
             case 166730:///< Burning Bridge (DoT)
             case 176037:///< Noxious Spit (DoT)
-            case 88611: ///< Smoke Bomb
             case 161635:///< Molten Bomb
             case 159311:///< Flame Jet
             case 161517:///< Splitting Breath (DoT)
