@@ -2415,8 +2415,8 @@ enum ChiBurstSpells
     SPELL_MONK_CHI_BURST_HEAL             = 130654,
 };
 
-/// last update : 6.1.2 19802
-/// Chi Burst - 123986
+/// last update : 6.2.3
+/// Chi Burst - 130654
 class spell_monk_chi_burst: public SpellScriptLoader
 {
     public:
@@ -2426,7 +2426,7 @@ class spell_monk_chi_burst: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_burst_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
@@ -2438,13 +2438,12 @@ class spell_monk_chi_burst: public SpellScriptLoader
 
                 int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
 
-                if (l_Target->GetGUID() != l_Player->GetGUID())
-                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
+                SetHitHeal(l_Healing);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_monk_chi_burst_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_burst_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
