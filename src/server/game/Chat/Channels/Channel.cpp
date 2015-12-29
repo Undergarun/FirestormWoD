@@ -856,6 +856,9 @@ void Channel::SendToAll(WorldPacket* data, uint64 p, uint64 p_SenderGUID)
 {
     uint32 l_SenderLocaleMask = 0;
 
+    if (!l_SenderLocaleMask)
+        l_SenderLocaleMask = 0xFFFFFFFF;
+
     if ((IsWorld() || IsConstant()) && p_SenderGUID && m_Players.find(p_SenderGUID) != m_Players.end())
     {
         if (Player* l_Player = ObjectAccessor::FindPlayer(p_SenderGUID))

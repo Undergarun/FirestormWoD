@@ -701,6 +701,7 @@
     <field type="int" name="m_soundID" />
     <field type="int" name="m_extendedDisplayInfoID" />
     <field type="float" name="m_creatureModelScale" />
+    <field type="float" name="unk620" />
     <field type="int" name="m_creatureModelAlpha" />
     <field type="string" name="m_textureVariation_1" />
     <field type="string" name="m_textureVariation_2" />
@@ -717,7 +718,6 @@
     <field type="int" name="m_flags" />
     <field type="int" name="m_gender" />
     <field type="int" name="m_stateSpellVisualKitID" />
-    <field type="int" name="newField" />
   </CreatureDisplayInfo>
   <CreatureFamily build="0">
     <index>
@@ -5937,7 +5937,7 @@
     <field type="int" name="map" />
     <field type="int" name="Difficulty" />
     <field type="int" name="ZoneID" />
-    <field type="int" name="field10" />
+    <field type="int" name="Type" />
     <field type="int" name="field11" />
     <field type="int" name="maxplayers" />
     <field type="string" name="Name" />
@@ -6895,4 +6895,13 @@
     <field type="int" name="field7" />
     <field type="int" name="field8" />
   </SpellScaling>
+  <RulesetItemUpgrade build="0">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="unk" />
+    <field type="int" name="itemupgradeid" />
+    <field type="int" name="itemid" />
+  </RulesetItemUpgrade>
 </DBFilesClient>

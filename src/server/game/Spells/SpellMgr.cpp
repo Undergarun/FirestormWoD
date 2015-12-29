@@ -2629,35 +2629,6 @@ void SpellMgr::LoadPetDefaultSpells()
     uint32 countCreature = 0;
     uint32 countData = 0;
 
-    CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
-    uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
-
-    for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
-    {
-        CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
-        if (l_CreatureTemplate == nullptr)
-            continue;
-
-        if (!l_CreatureTemplate->PetSpellDataId)
-            continue;
-
-        // for creature with PetSpellDataId get default pet spells from dbc
-        CreatureSpellDataEntry const* spellDataEntry = sCreatureSpellDataStore.LookupEntry(l_CreatureTemplate->PetSpellDataId);
-        if (!spellDataEntry)
-            continue;
-
-        int32 petSpellsId = -int32(l_CreatureTemplate->PetSpellDataId);
-        PetDefaultSpellsEntry petDefSpells;
-        for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
-            petDefSpells.spellid[j] = spellDataEntry->spellId[j];
-
-        if (LoadPetDefaultSpells_helper(l_CreatureTemplate, petDefSpells))
-        {
-            mPetDefaultSpellsMap[petSpellsId] = petDefSpells;
-            ++countData;
-        }
-    }
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded addition spells for %u pet spell data entries in %u ms", countData, GetMSTimeDiffToNow(oldMSTime));
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading summonable creature templates...");
@@ -2679,11 +2650,7 @@ void SpellMgr::LoadPetDefaultSpells()
                 if (!cInfo)
                     continue;
 
-                // already loaded
-                if (cInfo->PetSpellDataId)
-                    continue;
-
-                // for creature without PetSpellDataId get default pet spells from creature_template
+                /// Get default pet spells from creature_template
                 int32 petSpellsId = cInfo->Entry;
                 if (mPetDefaultSpellsMap.find(cInfo->Entry) != mPetDefaultSpellsMap.end())
                     continue;
@@ -3501,6 +3468,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155200: ///< Burn (Slag Elemental)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 156220: ///< Tactical Retreat
+            case 156883: ///< Tactical Retreat (Other)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 155747: ///< Body Slam
+            case 157923: ///< Jump Slam
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30;
                 break;
             case 156324: ///< Acid Torrent (AoE)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
@@ -5686,6 +5662,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 15;
                 spellInfo->ProcCharges = 15;
                 break;
+            case 53817: ///< Maelstrom Weapon
+                spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
+                spellInfo->Effects[EFFECT_2].MiscValue = SPELLMOD_DAMAGE;
+                spellInfo->Effects[EFFECT_4].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_4].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
+                spellInfo->Effects[EFFECT_4].MiscValue = SPELLMOD_DAMAGE;
+                spellInfo->ProcFlags = 0;
+                break;
             case 126135: ///< Lightwell
                 spellInfo->OverrideSpellList.push_back(724); ///< Add old Lightwell to override list
                 break;
@@ -5830,9 +5815,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 118:   ///< Polymorph
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
-                break;
             case 50273: ///< Arcane Barrage
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
@@ -5848,6 +5830,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 73651: ///< Recuperate
                 spellInfo->Effects[1].Effect = 0;
             case 153564:///< Meteor
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
             case 153561:///< Meteor (launch spell)
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 break;
@@ -6808,6 +6795,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 124280:// Touch of Karma (DoT)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                break;
             case 49016: // Unholy Frenzy
             case 87023: // Cauterize
             case 110914:// Dark Bargain (DoT)
@@ -6823,6 +6812,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81298: ///< Consecration Visual
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_DEST_DEST;
                 break;
+            case 159556:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                spellInfo->Effects[0].Amplitude = 1000;
             case 159740: ///< Glyph of Raging Blow
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TriggerSpell = 159747;
                 break;
@@ -6857,6 +6850,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 89792: ///< Flee
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetB = Targets::TARGET_UNIT_SUMMONER;
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].TargetB = Targets::TARGET_UNIT_SUMMONER;
+                break;
+            case 110310: ///< Dampening
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].Amplitude = 10000;  ///< 10 secs
                 break;
             default:
                 break;

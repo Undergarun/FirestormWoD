@@ -2583,10 +2583,10 @@ class debug_commandscript: public CommandScript
                 return false;
 
             std::ostringstream l_StrBuilder;
-            l_StrBuilder << "DELETE FROM character_template;" << std::endl;
-            l_StrBuilder << "DELETE FROM character_template_item;" << std::endl;
-            l_StrBuilder << "DELETE FROM character_template_spell;" << std::endl;
-            l_StrBuilder << "DELETE FROM character_template_reputation;" << std::endl << std::endl;
+            l_StrBuilder << "TRUNCATE TABLE character_template;" << std::endl;
+            l_StrBuilder << "TRUNCATE TABLE character_template_item;" << std::endl;
+            l_StrBuilder << "TRUNCATE TABLE character_template_spell;" << std::endl;
+            l_StrBuilder << "TRUNCATE TABLE character_template_reputation;" << std::endl << std::endl;
 
             bool l_FirstEntry = true;
             l_StrBuilder << "INSERT INTO character_template VALUES";
@@ -2606,7 +2606,7 @@ class debug_commandscript: public CommandScript
 
             const uint32 l_HordeMask = 0xFE5FFBB2;
             const uint32 l_AllianceMask = 0xFD7FFC4D;
-            const uint32 l_ItemLevel = 725;
+            const uint32 l_ItemLevel = 700;
             const uint32 l_BagItemId = 114821;
 
             std::string l_SearchString = p_Args; /// Case sensitive search
@@ -2617,7 +2617,7 @@ class debug_commandscript: public CommandScript
             std::map<uint8, uint8> l_TrinketsFind[3];
 
             l_FirstEntry = true;
-            l_StrBuilder << "INSERT INTO character_template_item (id, itemID, faction, count) VALUES ";
+            l_StrBuilder << "INSERT INTO character_template_item (id, itemID, faction, count, type) VALUES ";
 
             ItemTemplateContainer const* l_Store = sObjectMgr->GetItemTemplateStore();
             for (ItemTemplateContainer::const_iterator l_Iter = l_Store->begin(); l_Iter != l_Store->end(); ++l_Iter)
@@ -2648,14 +2648,16 @@ class debug_commandscript: public CommandScript
                                          << l_ClassId << ", "
                                          << l_BagItemId << ", "
                                          << "1, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << "0"
                                          << ")";
                             l_StrBuilder << "," << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_BagItemId << ", "
                                          << "2, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << "0"
                                          << ")";
 
                             l_FirstEntry = false;
@@ -2667,7 +2669,7 @@ class debug_commandscript: public CommandScript
                 if (sSpellMgr->GetItemSourceSkills(l_Template->ItemId) != nullptr)
                     continue;
 
-                printf("%s == %s\n", l_Template->Name1->Get(sWorld->GetDefaultDbcLocale()), l_SearchString.c_str());
+                //printf("%s == %s\n", l_Template->Name1->Get(sWorld->GetDefaultDbcLocale()), l_SearchString.c_str());
                 if (std::string(l_Template->Name1->Get(sWorld->GetDefaultDbcLocale())).find(l_SearchString) == std::string::npos)
                     continue;
 
@@ -2699,14 +2701,16 @@ class debug_commandscript: public CommandScript
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "1, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << "0"
                                          << ")";
                             l_StrBuilder << "," << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "2, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << "0"
                                          << ")";
 
                              l_FirstEntry = false;
@@ -2739,14 +2743,16 @@ class debug_commandscript: public CommandScript
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "1, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << "0"
                                          << ")";
                             l_StrBuilder << "," << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "2, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << "0"
                                          << ")";
 
                             l_FirstEntry = false;
@@ -2780,14 +2786,16 @@ class debug_commandscript: public CommandScript
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          <<  "1, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << "0"
                                          << ")";
                             l_StrBuilder << "," << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "2, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << "0"
                                          << ")";
 
                             l_FirstEntry = false;
@@ -2882,15 +2890,17 @@ class debug_commandscript: public CommandScript
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          <<  "1, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << "0"
                                          << ")";
                             l_StrBuilder << "," << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "2, "
-                                         << l_Count
-                                        << ")";
+                                         << l_Count << ", "
+                                         << "0"
+                                         << ")";
 
                             l_FirstEntry = false;
                         }
@@ -2908,14 +2918,16 @@ class debug_commandscript: public CommandScript
                             << l_ClassId << ", "
                             << l_TomeOfTheClearMindId << ", "
                             <<  "1, "
-                            << l_Count
+                            << l_Count << ", "
+                            << "0"
                             << ")";
                 l_StrBuilder << "," << std::endl
                             << "("
                             << l_ClassId << ", "
                             << l_TomeOfTheClearMindId << ", "
                             << "2, "
-                            << l_Count
+                            << l_Count << ", "
+                            << "0"
                             << ")";
             }
 
@@ -2923,6 +2935,15 @@ class debug_commandscript: public CommandScript
 
             l_FirstEntry = true;
             l_StrBuilder << "INSERT INTO character_template_spell VALUES";
+
+            /// Learn Dual spec for all classes
+            for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+            {
+                l_StrBuilder << std::endl;
+                l_StrBuilder << "(" << l_ClassId << ", 63644)," << std::endl;
+                l_StrBuilder << "(" << l_ClassId << ", 63645),";
+            }
+
             for (uint32 l_ID = 0; l_ID < sSpellStore.GetNumRows(); ++l_ID)
             {
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ID);

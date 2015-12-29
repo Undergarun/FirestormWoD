@@ -7651,15 +7651,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 }
             }
 
-            switch (dummySpell->Id)
-            {
-                ///@remove me in 6.2.0
-                case 172106: // Aspect of the Fox
-                {
-                    EnergizeBySpell(this, 172106, 2, POWER_FOCUS);
-                    break;
-                }
-            }
             break;
         }
         case SPELLFAMILY_PALADIN:
@@ -7774,6 +7765,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     switch (procSpell->Id)
                     {
+                        case 633:
                         case 85673:
                         case 19750:
                         case 82326:
@@ -11497,7 +11489,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     {
         bool l_HasFingerOfFrostProc = false;
 
-        if (spellProto->Id == 116 || spellProto->Id == 44614 || spellProto->Id == 84721)    ///< Frostbolt || Frostfire Bolt || Frozen Orb
+        if (spellProto->Id == 116 || spellProto->Id == 44614)    ///< Frostbolt || Frostfire Bolt
             l_HasFingerOfFrostProc = roll_chance_i(15);
         else if (spellProto->Id == 42208)                                                   ///< Blizzard
             l_HasFingerOfFrostProc = roll_chance_i(5);
@@ -12059,7 +12051,9 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target)
 
     if (p_ProcSpell && p_ProcSpell->Id == 51505) ///< Lava Burst
     {
-        if (roll_chance_f(GetUnitSpellCriticalChance(p_Target, p_ProcSpell, p_ProcSpell->GetSchoolMask())))
+        float l_Crit_chance = (float)m_baseSpellCritChance;
+        l_Crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, p_ProcSpell->SchoolMask);
+        if (roll_chance_f(l_Crit_chance))
             l_ProcTimes++;
     }
 
@@ -12074,7 +12068,7 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target)
     return l_ProcTimes;
 }
 
-void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType /* = WeaponAttackType::BaseAttack*/ , SpellInfo const* p_ProcAura /*= NULL*/, constAuraEffectPtr p_OwnerAuraEffect /*= NULL*/)
+uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType /* = WeaponAttackType::BaseAttack*/ , SpellInfo const* p_ProcAura /*= NULL*/, constAuraEffectPtr p_OwnerAuraEffect /*= NULL*/)
 {
     uint32 l_InitialDamage = p_Damage;
     Player* l_ModOwner = GetSpellModOwner();
@@ -12191,6 +12185,7 @@ void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 
             ProcDamageAndSpell(damageInfo.target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.attackType);
         }
     }
+    return l_ProcTimes;
 }
 
 bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
@@ -12382,7 +12377,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 // Hack fix for these spells - They deal Chaos damage, SPELL_SCHOOL_MASK_ALL
                             case 103964:// Touch of Chaos
                             case 124915:// Chaos Wave
-                                crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
+                                crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
                                 break;
                         }
                         break;
@@ -13672,7 +13667,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     if (GetTypeId() == TYPEID_PLAYER)
         l_RidingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
 
-    for (uint32 i = 0; i < MAX_MOUNT_CAPABILITIES; i++)
+    for (uint32 i = 0; i < MAX_MOUNT_CAPABILITIES; ++i)
     {
         MountCapabilityEntry const* l_MountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
         if (!l_MountCapability)
@@ -15784,9 +15779,9 @@ void Unit::SetMaxHealth(uint32 val)
 Unit::PowerTypeSet Unit::GetUsablePowers() const
 {
     PowerTypeSet l_Powers;
-    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
+    for (uint32 l_I = 0; l_I <= sChrClassXPowerTypesStore.GetNumRows(); ++l_I)
     {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(l_I);
+        ChrClassXPowerTypesEntry const* powerEntry = sChrClassXPowerTypesStore.LookupEntry(l_I);
         if (!powerEntry)
             continue;
 
@@ -15799,7 +15794,7 @@ Unit::PowerTypeSet Unit::GetUsablePowers() const
         l_Powers.insert(Powers(powerEntry->power));
     }
 
-    // POWER_RUNES isn't in ChrClassesXPowerTypes.dbc
+    // POWER_RUNES isn't in ChrClassesXPowerTypes.db2
     if (getClass() == CLASS_DEATH_KNIGHT)
         l_Powers.insert(POWER_RUNES);
 
@@ -16573,12 +16568,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         return;
     /// Multistrike...
     int32 l_TotalDamage = damage + absorb;
+    uint8 l_TotalMultistrike = 0;
     if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL) &&
         l_TotalDamage && target && GetSpellModOwner() && !(procSpell && (!procSpell->IsPositive() && !procSpell->IsHealingSpell()) && target->GetGUID() == GetGUID()))
         {
         /// ...grants your spells, abilities, and auto-attacks...
         if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
-            ProcMultistrike(procSpell, target, procFlag, procExtra, l_TotalDamage, attType, procAura, ownerAuraEffect);
+            l_TotalMultistrike = ProcMultistrike(procSpell, target, procFlag, procExtra, l_TotalDamage, attType, procAura, ownerAuraEffect);
         }
 
     // For melee/ranged based attack need update skills and set some Aura states if victim present
@@ -16644,6 +16640,15 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             CastSpell(this, 68285, true); // Heal himself
             ToPlayer()->AddSpellCooldown(68285, 0, 6 * IN_MILLISECONDS); // 6s ICD
         }
+    }
+
+    /// Brain Freeze
+    if (procSpell && procSpell->Id == 116 && HasAura(44549) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
+    {
+        int32 l_Chance = 10;
+        l_Chance += (l_TotalMultistrike * 15);
+        if (roll_chance_i(l_Chance))
+            CastSpell(this, 57761, true);
     }
 
     /// Runic Strikes
@@ -18551,6 +18556,32 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         {
             Map* l_InstanceMap = l_KilledCreature->GetMap();
 
+            if (l_InstanceMap->IsLFR())
+            {
+                Map::PlayerList const& l_PlayerList = l_InstanceMap->GetPlayers();
+                if (l_PlayerList.isEmpty())
+                    return;
+
+                /// Handle end of dungeon rewarding for LFR
+                if (l_KilledCreature->GetNativeTemplate()->flags_extra & CreatureFlagsExtra::CREATURE_FLAG_EXTRA_DUNGEON_END_BOSS)
+                {
+                    for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = l_Itr->getSource())
+                        {
+                            uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                            if (!l_KilledCreature || l_Player->IsAtGroupRewardDistance(l_KilledCreature))
+                                sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+                        }
+                    }
+                }
+
+                /// Handle loot assignation for LFR
+                Player* l_Player = l_PlayerList.begin()->getSource();
+                if (l_Player && l_Player->GetGroup())
+                    sLFGMgr->AutomaticLootAssignation(l_KilledCreature, l_Player->GetGroup());
+            }
+
             /// @TODO: do instance binding anyway if the charmer/owner is offline
             if (l_InstanceMap->IsDungeon() && l_KillerPlayer)
             {
@@ -19550,8 +19581,8 @@ float Unit::MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell,
     // Calculate miss chance
     float l_MissChance = p_Victim->GetUnitMissChancePhysical(this, p_AttType);
 
-    if (p_Spell && !p_Spell->Id && haveOffhandWeapon())
-        l_MissChance += 17;
+    if (p_Spell && !p_Spell->Id && haveOffhandWeapon() && (!ToPlayer() || ToPlayer()->GetSpecializationId() != SPEC_ROGUE_COMBAT))
+        l_MissChance += 19.0f;
 
     // Calculate hit chance
     float l_HitChance = 100.0f;

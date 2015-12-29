@@ -1091,8 +1091,10 @@ class spell_warr_bloodthirst: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, eSpells::BloodthirstHeal, true);
 
                     if (AuraEffectPtr l_Bloodsurge = l_Caster->GetAuraEffect(eSpells::Bloodsurge, EFFECT_0))
+                    {
                         if (roll_chance_i(l_Bloodsurge->GetAmount()))
                             l_Caster->CastSpell(l_Caster, eSpells::BloodsurgeProc, true);
+                    }
                 }
             }
 
@@ -1842,16 +1844,6 @@ class spell_warr_whirlwind: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, eSpells::GlyphOfTheRagingWhirlwindAura, true);
             }
 
-            void HandleOnHit()
-            {
-                Player* l_Player = GetCaster()->ToPlayer();
-                Unit* l_Target = GetHitUnit();
-                if (!l_Player || !l_Target)
-                    return;
-
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                    l_Player->CastSpell(l_Target, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
-            }
 
             void HandleNormalizedWeaponDamage(SpellEffIndex p_EffIndex)
             {
@@ -1862,6 +1854,9 @@ class spell_warr_whirlwind: public SpellScriptLoader
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
                     PreventHitDefaultEffect(p_EffIndex);
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                    l_Player->CastSpell(l_Player, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
             }
 
             void HandleWeaponPercentDamage(SpellEffIndex p_EffIndex)
@@ -1882,7 +1877,6 @@ class spell_warr_whirlwind: public SpellScriptLoader
             {
                 OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
                 OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-                OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
                 OnCast += SpellCastFn(spell_warr_whirlwind_SpellScript::HandleOnCast);
             }
         };
@@ -2388,7 +2382,7 @@ class spell_warr_shield_slam : public SpellScriptLoader
                     return;
 
                 /// Formula : $apmult=${0.366+$gte($PL,80)*0.426+$gte($PL,85)*2.46}
-                float l_ApMul = 0.366f + gte(l_Caster->getLevel(), 80) * 0.426f + gte(l_Caster->getLevel(), 85) * 2.46f;
+                float l_ApMul = 0.561f + gte(l_Caster->getLevel(), 80) * 0.426f + gte(l_Caster->getLevel(), 85) * 2.46f;
                 /// $gladmult=$?a156291[${1.05}][${1.0}] -> Already apply by Gladiator Stance
                 /// $shieldchargemult=$?a169667[${1.25}][${1.0}] -> Already apply on spell_warr_shield_charge
 

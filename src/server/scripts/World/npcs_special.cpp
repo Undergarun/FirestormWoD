@@ -2113,7 +2113,8 @@ class npc_ebon_gargoyle : public CreatureScript
         }
 };
 
-// Lightwell - 64571
+/// Last Build 6.2.3
+/// Lightwell - 64571
 class npc_new_lightwell : public CreatureScript
 {
     public:
@@ -2121,12 +2122,22 @@ class npc_new_lightwell : public CreatureScript
 
         struct npc_new_lightwellAI : public PassiveAI
         {
+            enum eSpells
+            {
+                LightWellHeal = 60123,
+                LightWellHealAura = 126154,
+                ChargeAura = 59907
+            };
+
+            uint64 m_OwnerGUID = 0;
+            uint32 m_RenewTimer;
+
             npc_new_lightwellAI(Creature* creature) : PassiveAI(creature)
             {
-                DoCast(me, 59907, false);
-                renewTimer = 1000;
+                DoCast(me, eSpells::ChargeAura, false);
+                m_RenewTimer = 1000;
 
-                if (AuraPtr charges = me->GetAura(59907))
+                if (AuraPtr charges = me->GetAura(eSpells::ChargeAura))
                 {
                     charges->SetCharges(15);
                     charges->GetEffect(0)->ChangeAmount(15);
@@ -2142,8 +2153,6 @@ class npc_new_lightwell : public CreatureScript
                 }
             }
 
-            uint32 renewTimer;
-
             void EnterEvadeMode()
             {
                 if (!me->isAlive())
@@ -2154,39 +2163,53 @@ class npc_new_lightwell : public CreatureScript
                 me->ResetPlayerDamageReq();
             }
 
+
+            void IsSummonedBy(Unit* p_Owner)
+            {
+                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
+                    m_OwnerGUID = p_Owner->GetGUID();
+            }
+
             void UpdateAI(const uint32 diff)
             {
-                if (renewTimer)
+                if (m_RenewTimer)
                 {
-                    if (renewTimer <= diff)
+                    if (m_RenewTimer <= diff)
                     {
-                        if (me->GetOwner())
+                        Unit* l_Owner = ObjectAccessor::FindUnit(m_OwnerGUID);
+                        if (l_Owner != nullptr)
                         {
-                            if (Player* plr = me->GetOwner()->ToPlayer())
+                            if (Player* l_Player = l_Owner->ToPlayer())
                             {
-                                std::list<Unit*> party;
-                                std::list<Unit*> tempList;
-                                plr->GetRaidMembers(party);
+                                std::list<Unit*> l_Party;
+                                std::list<Unit*> l_TempList;
+                                l_Player->GetRaidMembers(l_Party);
 
-                                for (auto itr : party)
+                                for (auto itr : l_Party)
                                 {
                                     if (itr->GetHealthPct() >= 50.0f ||
                                         itr->GetDistance(me) >= 40.0f ||
-                                        itr->HasAura(7001))
+                                        itr->HasAura(eSpells::LightWellHealAura))
                                         continue;
 
-                                    tempList.push_back(itr);
+                                    l_TempList.push_back(itr);
                                 }
 
-                                for (auto itr : tempList)
-                                    me->CastSpell(itr, 60123, true);
+                                for (auto itr : l_TempList)
+                                {
+                                    me->CastSpell(itr, eSpells::LightWellHeal, true);
+                                    if (AuraPtr l_Charges = me->GetAura(eSpells::ChargeAura))
+                                    {
+                                        l_Charges->DropCharge();
+                                        l_Charges->GetEffect(0)->ChangeAmount(l_Charges->GetCharges());
+                                    }
+                                }
                             }
                         }
-
-                        renewTimer = 1000;
+                        m_RenewTimer = 1000;
                     }
                     else
-                        renewTimer -= diff;
+                        m_RenewTimer -= diff;
                 }
             }
         };
@@ -3117,81 +3140,6 @@ class npc_generic_harpoon_cannon : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_generic_harpoon_cannonAI(creature);
-        }
-};
-
-/*######
-## npc_choose_faction (unused)
-######*/
-
-#define GOSSIP_CHOOSE_FACTION     "I would like to choose my faction"
-#define GOSSIP_TP_STORMIND        "I would like to go to Stormwind"
-#define GOSSIP_TP_ORGRI           "I would like to go to Orgrimmar"
-
-class npc_choose_faction : public CreatureScript
-{
-    public:
-        npc_choose_faction() : CreatureScript("npc_choose_faction") { }
-
-        bool OnGossipHello(Player* player, Creature* creature)
-        {
-            if (player->getRace() == RACE_PANDAREN_NEUTRAL)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            else if (player->getRace() == RACE_PANDAREN_ALLI)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_STORMIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            else if (player->getRace() == RACE_PANDAREN_HORDE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_EXP, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->ShowNeutralPlayerFactionSelectUI();
-            else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-                player->TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
-            else if (action == GOSSIP_ACTION_INFO_DEF + 3)
-                player->TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
-
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
-        }
-};
-
-class npc_choose_faction_after_shop : public CreatureScript
-{
-    public:
-        npc_choose_faction_after_shop() : CreatureScript("npc_choose_faction_after_shop") { }
-
-        bool OnGossipHello(Player* player, Creature* creature)
-        {
-            if (player->getRace() == RACE_PANDAREN_NEUTRAL)
-            {
-                if (player->getLevel() > 69) // minimum level sale = 70
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            }
-            else if (player->getRace() == RACE_PANDAREN_ALLI)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_STORMIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            else if (player->getRace() == RACE_PANDAREN_HORDE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
-        {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->ShowNeutralPlayerFactionSelectUI();
-            else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-                player->TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
-            else if (action == GOSSIP_ACTION_INFO_DEF + 3)
-                player->TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
-
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
         }
 };
 
@@ -4146,7 +4094,7 @@ class npc_force_of_nature : public CreatureScript
         }
 };
 
-// Swiftmend - 142423
+/// Swiftmend - 142423
 class spell_special_swiftmend: public SpellScriptLoader
 {
     public:
@@ -4813,7 +4761,6 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
-    new npc_choose_faction();
     //new npc_rate_xp_modifier();
     new npc_demoralizing_banner();
     new npc_guardian_of_ancient_kings();

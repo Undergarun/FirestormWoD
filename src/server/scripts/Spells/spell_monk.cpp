@@ -1459,6 +1459,9 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 std::list<Unit*> l_TargetList;
                 m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
 
+                if (p_DmgInfo.GetSpellInfo())
+                    sLog->outAshran("spell_monk_touch_of_karma id : %u" ,p_DmgInfo.GetSpellInfo()->Id);
+
                 l_Caster->GetAttackableUnitListInRange(l_TargetList, 20.0f);
 
                 for (auto l_Itr : l_TargetList)
@@ -1481,10 +1484,14 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 }
 
                 l_TargetList.clear();
-
                 if (l_Target)
-                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (m_TotalAbsorbAmount / 6), l_Target);
-
+                {
+                    int32 l_Damage = p_DmgInfo.GetDamage();
+                    if (AuraEffectPtr l_PreviousAura = l_Target->GetAuraEffect(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, EFFECT_0))
+                        l_Damage += l_PreviousAura->GetAmount() * (l_PreviousAura->GetBase()->GetDuration() / l_PreviousAura->GetAmplitude());
+                    l_Damage /= 6;
+                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, l_Damage, l_Target);
+                }
             }
 
             void Register()
@@ -4667,9 +4674,6 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
                 l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
 
-                if (l_Player->HasAura(RisingSunKickSpells::PoolOfMists))
-                    l_PctModifier = l_Player->GetAura(RisingSunKickSpells::PoolOfMists)->GetEffect(EFFECT_3)->GetAmount();
-
                 /// Hotfixes : 24 novembre 2015 - now deals 20% more damage while in PvP combat
                 if (l_Target->GetTypeId() == TYPEID_PLAYER)
                     l_PctModifier += 20;
@@ -5436,13 +5440,15 @@ class spell_monk_breath_of_the_serpent : public SpellScriptLoader
 
             enum eSpells
             {
-                BreathoftheSerpentHeal = 157590,
-                BreathoftheSerpentPeriodic = 157627
+                BreathoftheSerpentHeal      = 157590,
+                BreathoftheSerpentPeriodic  = 157627,
+                BreathoftheSerpentVisual    = 157636
             };
             
             enum eNPCs
             {
-                SerpentStatue = 60849
+                SerpentStatue       = 60849,
+                SerpentStatueVisual = 78065
             };
 
             void HandleCast()
@@ -5454,7 +5460,10 @@ class spell_monk_breath_of_the_serpent : public SpellScriptLoader
 
                 std::list<Creature*> l_TempList;
                 std::list<Creature*> l_StatueList;
+                std::list<Creature*> l_TempListVisual;
+                std::list<Creature*> l_StatueListVisual;
                 Creature* l_Statue = nullptr;
+                Creature* l_StatueVisual = nullptr;
 
                 l_Player->GetCreatureListWithEntryInGrid(l_TempList, eNPCs::SerpentStatue, 100.0f);
                 l_Player->GetCreatureListWithEntryInGrid(l_StatueList, eNPCs::SerpentStatue, 100.0f);
@@ -5477,7 +5486,33 @@ class spell_monk_breath_of_the_serpent : public SpellScriptLoader
                     if (l_Statue && (l_Statue->isPet() || l_Statue->isGuardian()))
                     {
                         if (l_Statue->GetOwner() && l_Statue->GetOwner()->GetGUID() == l_Player->GetGUID())
-                            l_Statue->CastSpell(l_Statue, eSpells::BreathoftheSerpentPeriodic, true);
+                            l_Statue->CastSpell(l_Statue, eSpells::BreathoftheSerpentVisual, true, 0, 0, l_Player->GetGUID());
+                    }
+                }
+
+                /// Select visual statue
+                l_Player->GetCreatureListWithEntryInGrid(l_TempListVisual, eNPCs::SerpentStatueVisual, 100.0f);
+                l_Player->GetCreatureListWithEntryInGrid(l_StatueListVisual, eNPCs::SerpentStatueVisual, 100.0f);
+
+                /// Remove other players visual statue
+                for (std::list<Creature*>::iterator i = l_TempListVisual.begin(); i != l_TempListVisual.end(); ++i)
+                {
+                    Unit* l_Owner = (*i)->GetOwner();
+                    if (l_Owner && l_Owner->GetGUID() == l_Player->GetGUID() && (*i)->isSummon())
+                        continue;
+
+                    l_StatueListVisual.remove((*i));
+                }
+
+                if (l_StatueListVisual.size() == 1)
+                {
+                    for (auto itrBis : l_StatueListVisual)
+                        l_StatueVisual = itrBis;
+
+                    if (l_StatueVisual)
+                    {
+                        if (l_StatueVisual->GetOwner() && l_StatueVisual->GetOwner()->GetGUID() == l_Player->GetGUID())
+                            l_StatueVisual->CastSpell(l_StatueVisual, eSpells::BreathoftheSerpentPeriodic, true);
                     }
                 }
             }
@@ -5504,7 +5539,7 @@ class spell_monk_breath_of_the_serpent_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_breath_of_the_serpent_heal_SpellScript);
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -5515,9 +5550,10 @@ class spell_monk_breath_of_the_serpent_heal : public SpellScriptLoader
                 if (Unit* l_Owner = l_Caster->GetOwner())
                 {
                     int32 l_Heal = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC);
-                    l_Heal = l_Owner->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, p_EffIndex, HEAL);
+                    l_Heal = l_Owner->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, EFFECT_0, HEAL);
                     l_Heal = l_Target->SpellHealingBonusTaken(l_Owner, GetSpellInfo(), l_Heal, HEAL);
-                    SetHitHeal(l_Heal);
+                    l_Owner->HealBySpell(l_Target, GetSpellInfo(), l_Heal, GetSpell()->IsCritForTarget(l_Target), false);
+                    SetHitHeal(0);
                 }
             }
 
@@ -5556,9 +5592,12 @@ class spell_monk_breath_of_the_serpent_tick : public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
-                /* Get SPELL_ATTR1_CHANNEL_TRACK_TARGET, so normally statue has to follow owner but doen't */
-                /*l_Target->SetOrientation(l_Target->GetAngle(l_Caster));*/
-                l_Target->CastSpell(l_Target, eSpells::BreathoftheSerpentHeal, true);
+                if (Unit* l_Owner = l_Caster->GetSpellModOwner())
+                {
+                    l_Caster->SetOrientation(l_Caster->GetAngle(l_Owner));
+                    l_Caster->SetFacingTo(l_Caster->GetAngle(l_Owner));
+                    l_Target->CastSpell(l_Owner, eSpells::BreathoftheSerpentHeal, true);
+                }
             }
 
             void Register()

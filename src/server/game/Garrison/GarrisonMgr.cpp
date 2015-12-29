@@ -3390,6 +3390,9 @@ namespace MS { namespace Garrison
                             l_Crea->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DISABLE_CLIENT_SIDE);
                             l_Crea->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1);
 
+                            if (l_Crea->AI())
+                                l_Crea->AI()->SetData(CreatureAIDataIDs::DespawnData, 0);
+
                             UpdateData l_UpdateData(m_Owner->GetMapId());
                             WorldPacket l_UpdatePacket;
 

@@ -3968,9 +3968,37 @@ class spell_dru_rip: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_rip_AuraScript);
 
+            uint32 m_PreviousTick = 0;
+
+            void OnReApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Caster->GetGUID()))
+                    m_PreviousTick = ((l_AurEff->GetAmount() * (l_AurEff->GetBase()->GetDuration() / l_AurEff->GetAmplitude())) / (p_AurEff->GetBase()->GetMaxDuration() / p_AurEff->GetAmplitude()));
+
+            }
+
+            void AfterReApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Caster->GetGUID()))
+                    l_AurEff->SetAmount(l_AurEff->GetAmount() + m_PreviousTick);
+            }
+
             void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
+
                 if (l_Caster == nullptr)
                     return;
 
@@ -3982,6 +4010,8 @@ class spell_dru_rip: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_rip_AuraScript::OnReApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_rip_AuraScript::AfterReApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
