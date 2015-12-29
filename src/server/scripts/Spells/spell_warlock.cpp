@@ -694,7 +694,8 @@ class spell_warl_rain_of_fire_damage: public SpellScriptLoader
         }
 };
 
-// Agony - 980
+/// Last Update 6.2.3
+/// Agony - 980
 class spell_warl_agony: public SpellScriptLoader
 {
     public:
@@ -706,9 +707,20 @@ class spell_warl_agony: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (GetCaster())
-                    if (AuraPtr l_Agony = GetTarget()->GetAura(p_AurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                        l_Agony->ModStackAmount(p_AurEff->GetBaseAmount());
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (AuraPtr l_Agony = l_Target->GetAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                {
+                    l_Agony->ModStackAmount(p_AurEff->GetBaseAmount());
+
+                    /// Patch 6.2.2 (2015-09-01): Now deals 10 % less damage in PvP combat.
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                        l_Agony->GetEffect(EFFECT_0)->ChangeAmount(l_Agony->GetEffect(EFFECT_0)->GetAmount() - CalculatePct(l_Agony->GetEffect(EFFECT_0)->GetAmount(), 10));
+                }
             }
 
             bool CanRefreshProcDummy()
@@ -3604,7 +3616,7 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3git 
 /// Doom Bolt - 85692
 class spell_warl_doom_bolt : public SpellScriptLoader
 {
