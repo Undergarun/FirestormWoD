@@ -520,10 +520,6 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
     if (!spellInfo)
         return false;
 
-    /// Hack fix for DPS Caster Crit Damage Bonus - fully removed in WOD
-    if (spellInfo->Id == 85801)
-        return false;
-
     bool need_check_reagents = false;
 
     // check effects
