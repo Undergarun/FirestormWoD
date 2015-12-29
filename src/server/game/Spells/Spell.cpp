@@ -4528,7 +4528,7 @@ void Spell::finish(bool ok)
             if (m_UniqueTargetInfo.empty())
                 break;
 
-            if (m_UniqueTargetInfo.front().missCondition != SPELL_MISS_IMMUNE)
+            if (m_UniqueTargetInfo.front().missCondition != SPELL_MISS_IMMUNE && m_UniqueTargetInfo.front().missCondition != SPELL_MISS_IMMUNE2)
                 break;
 
             if (m_caster->HasAura(59309)) // Glyph of Resilient Grip
