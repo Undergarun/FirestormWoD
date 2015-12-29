@@ -6925,6 +6925,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 109248:///< Binding Shot
                 case 173229:///< Creeping Moss (Brackenspore)
                 case 102793:///< Ursol's Vortex
+                case 123986:///< Chi Butst
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 116011:///< Rune of Power
