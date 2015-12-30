@@ -516,7 +516,8 @@ class spell_mage_glyph_of_slow: public SpellScriptLoader
         }
 };
 
-// Frost Nova (Water Elemental) - 33395
+/// Last Update 6.2.3
+/// Frost Nova (Water Elemental) - 33395
 class spell_mage_pet_frost_nova: public SpellScriptLoader
 {
     public:

@@ -2989,8 +2989,63 @@ public:
         return new spell_warr_weaponmaster_AuraScript();
     }
 };
+
+/// Last Update 6.2.3
+/// Sweeping Strikes - 12328
+class spell_warr_sweeping_strikes : public SpellScriptLoader
+{
+    public:
+        spell_warr_sweeping_strikes() : SpellScriptLoader("spell_warr_sweeping_strikes") { }
+
+        class spell_warr_sweeping_strikes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_sweeping_strikes_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfo)
+            {
+                Unit* l_Target = GetTarget();
+                if (p_ProcInfo.GetDamageInfo() == nullptr)
+                    return;
+
+                Unit* l_DamageTarget = p_ProcInfo.GetDamageInfo()->GetVictim();
+
+                if (l_DamageTarget == nullptr)
+                    return;
+
+                if (p_ProcInfo.GetDamageInfo()->GetSpellInfo() && p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == 12723)
+                    return;
+
+                int32 l_Damage = CalculatePct(p_ProcInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount());
+
+                if ((l_Target->GetTypeId() == TYPEID_PLAYER || l_Target->IsPetGuardianStuff()) && l_DamageTarget->GetTypeId() == TYPEID_UNIT)
+                    l_Damage /= l_Target->CalculateDamageDealtFactor(l_Target, l_DamageTarget->ToCreature());
+                else if (l_Target->GetTypeId() == TYPEID_UNIT && (l_DamageTarget->GetTypeId() == TYPEID_PLAYER || l_DamageTarget->IsPetGuardianStuff()))
+                    l_Damage /= l_Target->CalculateDamageTakenFactor(l_DamageTarget, l_Target->ToCreature());
+
+                Unit* l_NewTarget = l_Target->SelectNearbyTarget(l_Target, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
+
+                if (l_NewTarget == nullptr)
+                    return;
+
+                l_Target->CastCustomSpell(l_NewTarget, 12723, &l_Damage, NULL, NULL, true);
+
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_sweeping_strikes_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_sweeping_strikes_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_sweeping_strikes();
     new spell_warr_revenge();
     new spell_warr_glyph_of_crow_feast();
     new spell_warr_glyph_of_mystic_shout();

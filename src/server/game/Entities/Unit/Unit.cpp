@@ -6998,20 +6998,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     target = victim;
                     break;
                 }
-                // Sweeping Strikes
-                case 12328:
-                {
-                    target = SelectNearbyTarget(victim, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
-                    if (!target)
-                        return false;
-
-                    if (!damage)
-                        return false;
-
-                    basepoints0 = CalculatePct(damage, 50); ///< last update 6.0.3 Build 18711
-                    triggered_spell_id = 12723;
-                    break;
-                }
                 // Victorious
                 case 32216:
                 {
