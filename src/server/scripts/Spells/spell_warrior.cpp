@@ -2151,42 +2151,6 @@ class spell_warr_blood_bath : public SpellScriptLoader
         }
 };
 
-enum SweepingStrikes
-{
-    SpellWarrGlyphOfSweepingStrikes         = 58384,
-    SpellWarrSweepingStrikesRageBonus       = 124333
-};
-
-/// Sweeping Strikes (proc) - 12723
-class spell_warr_sweeping_strikes : public SpellScriptLoader
-{
-    public:
-        spell_warr_sweeping_strikes() : SpellScriptLoader("spell_warr_sweeping_strikes") { }
-
-        class spell_warr_sweeping_strikes_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_sweeping_strikes_SpellScript);
-
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(SweepingStrikes::SpellWarrGlyphOfSweepingStrikes))
-                    l_Caster->CastSpell(l_Caster, SweepingStrikes::SpellWarrSweepingStrikesRageBonus, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_sweeping_strikes_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_sweeping_strikes_SpellScript();
-        }
-};
-
 enum BloodCrazeSpells
 {
     SPELL_WARR_BLOOD_CRAZE_HEAL = 159363
@@ -2997,6 +2961,30 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
     public:
         spell_warr_sweeping_strikes() : SpellScriptLoader("spell_warr_sweeping_strikes") { }
 
+        class spell_warr_sweeping_strikes_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_sweeping_strikes_SpellScript);
+
+            enum SweepingStrikes
+            {
+                SpellWarrGlyphOfSweepingStrikes = 58384,
+                SpellWarrSweepingStrikesRageBonus = 124333
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SweepingStrikes::SpellWarrGlyphOfSweepingStrikes))
+                    l_Caster->CastSpell(l_Caster, SweepingStrikes::SpellWarrSweepingStrikesRageBonus, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_sweeping_strikes_SpellScript::HandleOnHit);
+            }
+        };
+
         class spell_warr_sweeping_strikes_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_warr_sweeping_strikes_AuraScript);
@@ -3040,6 +3028,11 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warr_sweeping_strikes_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_sweeping_strikes_SpellScript();
         }
 };
 
