@@ -3263,8 +3263,45 @@ class spell_dk_item_t17_frost_4p_driver_periodic : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Soul Reaper (Bonus) - 114868
+class spell_dk_soul_reaper_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dk_soul_reaper_bonus() : SpellScriptLoader("spell_dk_soul_reaper_bonus") {}
+
+        class spell_dk_soul_reaper_bonus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_soul_reaper_bonus_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofSwiftDeath = 146645
+            };
+
+            void HandleModSpeed(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphofSwiftDeath))
+                    PreventHitAura();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_soul_reaper_bonus_SpellScript::HandleModSpeed, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_soul_reaper_bonus_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_soul_reaper_bonus();
     new spell_dk_death_coil();
     new spell_dk_empowered_obliterate_icy_touch();
     new spell_dk_empowered_obliterate_howling_blast();
