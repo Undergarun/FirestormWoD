@@ -526,6 +526,12 @@ class spell_mage_pet_frost_nova: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_pet_frost_nova_AuraScript);
 
+            enum eSpells
+            {
+                FingerFrost = 44544,
+                FingerFrostVisual = 126084
+            };
+
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
@@ -534,7 +540,9 @@ class spell_mage_pet_frost_nova: public SpellScriptLoader
                     {
                         if (Player* l_Player = l_Caster->GetOwner()->ToPlayer())
                         {
-                            l_Player->CastSpell(l_Player, SPELL_MAGE_FINGER_OF_FROST_VISUAL, true);
+                            if (l_Player->HasAura(eSpells::FingerFrost))
+                                l_Player->CastSpell(l_Player, eSpells::FingerFrostVisual, true); ///< Fingers of frost visual 2 procs
+                            l_Player->CastSpell(l_Player, eSpells::FingerFrost, true);  ///< Fingers of frost proc
                         }
                     }
                 }
