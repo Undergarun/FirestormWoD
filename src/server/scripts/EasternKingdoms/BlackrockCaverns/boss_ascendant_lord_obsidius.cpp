@@ -38,7 +38,7 @@ const Position shadowofobsidiusPos[3] =
 {
 	{328.19f, 561.97f, 66.0f, 4.50f},
 	{335.24f, 556.08f, 66.0f, 1.64f},
-	{330.25f, 549.84f, 660.f, 3.10f}
+	{330.25f, 549.84f, 66.0f, 3.10f}
 };
 class boss_ascendant_lord_obsidius : public CreatureScript
 {
