@@ -2290,6 +2290,9 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
                 if (!l_Owner)
                     return;
 
+                if (p_EventInfo.GetDamageInfo() == nullptr)
+                    return;
+
                 int32 l_TakenDamage = p_EventInfo.GetDamageInfo()->GetDamage();
                 if (!l_TakenDamage)
                     return;
