@@ -1392,8 +1392,9 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                         StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
                     continue;
                 }
+                else
+                    l_RemainingTemplates.push_back(&l_Item);
             }
-            l_RemainingTemplates.push_back(&l_Item);
         }
 
         for (auto l_Item : l_RemainingTemplates)
@@ -1404,8 +1405,23 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                     continue;
 
                 if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && GetTeam() == HORDE))
-                    if (l_Item->m_Type == 0 || l_Item->m_Type == 1)
-                        StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, ItemContext::RaidLfr);
+                {
+                    ItemContext l_ItemContext = ItemContext::None;
+                    switch (l_Item->m_Type)
+                    {
+                        case 1: ///< Shop PvE premade
+                            l_ItemContext = ItemContext::RaidLfr;
+                            break;
+                        case 3: ///< PTR PvE templates
+                            l_ItemContext = ItemContext::RaidNormal;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (l_ItemContext != ItemContext::None)
+                        StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, l_ItemContext);
+                }
             }
         }
     }
