@@ -12247,10 +12247,10 @@ void Player::SendNotifyLootMoneyRemoved(bool p_IsAoE)
 
     sObjectMgr->setLootViewGUID(l_Guid, GetLootGUID());
 
-    if (p_IsAoE)
+    //if (p_IsAoE)
         l_Data.appendPackGUID(l_Guid);
-    else
-        l_Data.appendPackGUID(GetGUID());
+    //else
+    //    l_Data.appendPackGUID(GetGUID()); <--- WTF ? Why would you send player guid ???????
 
     GetSession()->SendPacket(&l_Data);
 }
