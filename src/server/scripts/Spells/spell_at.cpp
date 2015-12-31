@@ -1316,7 +1316,7 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Charging Ox Wave - 119392
 class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
 {
@@ -1360,7 +1360,7 @@ class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (!l_Target->HasAura(eSpells::Stun))
+                if (!l_Target->HasAura(eSpells::Stun) && l_AreaTriggerCaster->IsValidAttackTarget(l_Target))
                     l_AreaTriggerCaster->CastSpell(l_Target, eSpells::Stun, true);
             }
         }
