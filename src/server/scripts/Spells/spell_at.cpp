@@ -1245,6 +1245,7 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
 /// Chi burst - 123986
 class spell_at_monk_chi_burst : public AreaTriggerEntityScript
 {
@@ -1300,9 +1301,9 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
 
             for (Unit* l_Target : l_TargetList)
             {
-                if (l_Target->IsFriendlyTo(l_Caster))
+                if (l_Target->IsFriendlyTo(l_Caster) && l_Caster->IsValidAssistTarget(l_Target))
                     l_Player->CastCustomSpell(l_Target, eSpells::ChiBurstHeal, &l_Healing, NULL, NULL, true);
-                else
+                else if (l_Caster->IsValidAttackTarget(l_Target))
                     l_Player->CastCustomSpell(l_Target, eSpells::ChiBurstDamage, &l_Damage, NULL, NULL, true);
 
                 m_UnitGUIDList.push_back(l_Target->GetGUID());
