@@ -1071,8 +1071,8 @@ class spell_rog_sanguinary_vein: public SpellScriptLoader
 
             enum eSpells
             {
-                SanguinaryVein           = 79147,
-                SanguinaryVeinDebuff     = 124271,
+                SanguinaryVein = 79147,
+                SanguinaryVeinDebuff = 124271,
                 GlyphOfHemorrhagingVeins = 146631
             };
 

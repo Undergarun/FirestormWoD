@@ -1331,12 +1331,6 @@ class spell_dk_anti_magic_shell_raid: public SpellScriptLoader
         }
 };
 
-enum GlyphOfRegenerativeMagicSpells
-{
-    GlyphOfRegenerativeMagicAura = 146648,
-    AntiMagicShellSpell          = 48707
-};
-
 // 48707 - Anti-Magic Shell (on self)
 class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 {
@@ -1352,7 +1346,9 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 
             enum eSpells
             {
-                WoDPvPBlood4PBonus = 171456
+                AntiMagicShell           = 48707,
+                GlyphOfRegenerativeMagic = 146648,
+                WoDPvPBlood4PBonus       = 171456
             };
 
             bool Load()
@@ -1437,25 +1433,24 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
-
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                if (!GetCaster() || m_AmountAbsorb == 0)
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster || m_AmountAbsorb == 0)
                     return;
 
-                if (Player* l_Caster = GetCaster()->ToPlayer())
+                if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::GlyphOfRegenerativeMagic))
                 {
-                    if (l_Caster->HasAura(GlyphOfRegenerativeMagicSpells::GlyphOfRegenerativeMagicAura))
-                    {
-                        SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(GlyphOfRegenerativeMagicSpells::GlyphOfRegenerativeMagicAura);
+                    SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::AntiMagicShell);
+                    if (l_SpellInfo == nullptr)
+                        return;
 
-                        if (l_SpellInfo == nullptr)
-                            return;
+                    float l_RemainingPct = l_Aura->GetEffect(EFFECT_0)->GetAmount() - (m_Absorbed / (m_AmountAbsorb / 100));
+                    int32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
 
-                        int32 l_Reduce = ((45 * IN_MILLISECONDS) / 100) * (m_Absorbed / (m_AmountAbsorb / 100));
-                        l_Caster->ReduceSpellCooldown(GlyphOfRegenerativeMagicSpells::AntiMagicShellSpell, l_Reduce);
-                    }
+                    if (Player* l_Player = l_Caster->ToPlayer())
+                        l_Player->ReduceSpellCooldown(eSpells::AntiMagicShell, l_ReduceTime);
                 }
             }
 
