@@ -323,16 +323,18 @@ void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_
     switch (p_Status)
     {
         case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_INVITED:
+        {
             if ((!p_Application->m_Owner->m_Group->isRaidGroup() && GetMemeberCountInGroupIncludingInvite(p_Application->m_Owner) >= 5) || CanQueueFor(p_Application->m_Owner, p_Application->GetPlayer()) != LFG_LIST_STATUS_ERROR_NONE)
                 break;
-
+        }
         case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_APPLIED:
         {
             p_Application->ResetTimeout();
             p_Application->m_Owner->ResetTimeout();
 
-            if (p_Notify)
+            if (p_Notify && p_Application->GetPlayer() != nullptr)
                 p_Application->GetPlayer()->GetSession()->SendLfgListApplyForGroupResult(p_Application->m_Owner, p_Application);
+
             break;
         }
         case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_INVITEDECLINED:
@@ -344,8 +346,9 @@ void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_
             p_Application->m_Listed = false;
             l_Remove = true;
 
-            if (p_Notify)
+            if (p_Notify && p_Application->GetPlayer() != nullptr)
                 p_Application->GetPlayer()->GetSession()->SendLfgListApplicantGroupInviteResponse(p_Application);
+
             break;
         }
         case LFGListEntry::LFGListApplicationEntry::LFG_LIST_APPLICATION_STATUS_INVITEACCEPTED:
@@ -357,8 +360,9 @@ void LFGListMgr::ChangeApplicantStatus(LFGListEntry::LFGListApplicationEntry* p_
             l_Remove = true;
             p_Application->m_Owner->m_Group->AddMember(p_Application->GetPlayer());
 
-            if (p_Notify)
+            if (p_Notify && p_Application->GetPlayer() != nullptr)
                 p_Application->GetPlayer()->GetSession()->SendLfgListApplicantGroupInviteResponse(p_Application);
+
             break;
         }
     }
