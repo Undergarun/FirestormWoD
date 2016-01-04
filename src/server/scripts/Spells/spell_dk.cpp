@@ -675,6 +675,11 @@ class spell_dk_soul_reaper: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_soul_reaper_SpellScript);
 
+            enum eSpells
+            {
+                T18Blood2P = 187872
+            };
+
             void HandleAfterHit()
             {
                 if (!GetCaster())
@@ -684,7 +689,15 @@ class spell_dk_soul_reaper: public SpellScriptLoader
                 {
                     /// Only in blood spec
                     if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DK_BLOOD)
+                    {
                         l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+
+                        if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::T18Blood2P, EFFECT_1))
+                        {
+                            if (roll_chance_i(l_AurEff->GetAmount()))
+                                l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+                        }
+                    }
                 }
             }
 
@@ -1598,6 +1611,11 @@ class spell_dk_blood_boil: public SpellScriptLoader
             int32 m_FrostFever  = 0;
             int32 m_BloodPlague = 0;
 
+            enum eSpells
+            {
+                T18Blood2P = 187872
+            };
+
             SpellCastResult CheckTarget()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -1666,7 +1684,15 @@ class spell_dk_blood_boil: public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                    {
                         l_Player->CastSpell(l_Player, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+
+                        if (AuraEffectPtr l_AurEff = l_Player->GetAuraEffect(eSpells::T18Blood2P, EFFECT_1))
+                        {
+                            if (roll_chance_i(l_AurEff->GetAmount()))
+                                l_Player->CastSpell(l_Player, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+                        }
+                    }
                 }
             }
 
