@@ -6998,20 +6998,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     target = victim;
                     break;
                 }
-                // Sweeping Strikes
-                case 12328:
-                {
-                    target = SelectNearbyTarget(victim, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
-                    if (!target)
-                        return false;
-
-                    if (!damage)
-                        return false;
-
-                    basepoints0 = CalculatePct(damage, 50); ///< last update 6.0.3 Build 18711
-                    triggered_spell_id = 12723;
-                    break;
-                }
                 // Victorious
                 case 32216:
                 {
@@ -9555,9 +9541,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             if (!(procEx & PROC_EX_DODGE) && !(procEx & PROC_EX_PARRY))
-                return false;
-
-            if (!roll_chance_i(30))
                 return false;
 
             break;
@@ -12237,8 +12220,9 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             // We need more spells to find a general way (if there is any)
             switch (spellProto->Id)
             {
-                case 53353: // Chimera Shot - Healing can crit, other spells - not
-                case 34428: // Victory Rush
+                case 53353: ///< Chimera Shot - Healing can crit, other spells - not
+                case 34428: ///< Victory Rush
+                case 6262:  ///< Healthstone
                     break;
                 default:
                     if (spellProto->HasEffect(SPELL_EFFECT_HEAL_PCT))
@@ -12371,12 +12355,13 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             case 116858:///< Chaos Bolt ...
                             case 157701:///< Chaos Bolt (Fire and Brimstone)
                             case 31117: ///< Unstable Affliction dispell
-                                // ... are always critical hit
+                                ///< ... are always critical hit
                                 return 100.0f;
                                 break;
-                                // Hack fix for these spells - They deal Chaos damage, SPELL_SCHOOL_MASK_ALL
-                            case 103964:// Touch of Chaos
-                            case 124915:// Chaos Wave
+                                /// Hack fix for these spells - They deal Chaos damage, SPELL_SCHOOL_MASK_ALL
+                            case 103964:///< Touch of Chaos
+                            case 124915:///< Chaos Wave
+                            case 6262:  ///< Healthstone
                                 crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
                                 break;
                         }
@@ -12587,7 +12572,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
 
     Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
 
-    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()))
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat() || l_ModVictimOwner->IsInPvPCombat()))
         l_CritPctBonus = 50; ///< 150% on pvp
 
     l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
