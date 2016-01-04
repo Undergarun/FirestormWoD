@@ -482,6 +482,9 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             /// Psychic Scream - 6 seconds in PvP
             if (spellproto->Id == 8122)
                 return 6 * IN_MILLISECONDS;
+            /// Power Word: Shield - 11 seconds in PvP
+            if (spellproto->Id == 17)
+                return 11 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_WARLOCK:
