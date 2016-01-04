@@ -4451,6 +4451,9 @@ bool SpellInfo::DoesIgnoreGlobalCooldown(Unit* caster) const
 {
     switch (Id)
     {
+        case 5019:
+            return true;
+        break;
         case 85673: // Word of Glory
         case 114163:// Eternal Flame
         case 136494:// Word of Glory (other)
