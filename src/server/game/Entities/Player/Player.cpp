@@ -12256,22 +12256,18 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
-void Player::SendNotifyLootMoneyRemoved(bool p_IsAoE)
+void Player::SendNotifyLootMoneyRemoved()
 {
-    WorldPacket l_Data(SMSG_COIN_REMOVED);
     ObjectGuid l_Guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
 
     sObjectMgr->setLootViewGUID(l_Guid, GetLootGUID());
 
-    //if (p_IsAoE)
-        l_Data.appendPackGUID(l_Guid);
-    //else
-    //    l_Data.appendPackGUID(GetGUID()); <--- WTF ? Why would you send player guid ???????
-
+    WorldPacket l_Data(SMSG_COIN_REMOVED);
+    l_Data.appendPackGUID(l_Guid);
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNotifyLootItemRemoved(uint8 p_LootSlot, bool p_IsAoELoot /*= false*/)
+void Player::SendNotifyLootItemRemoved(uint8 p_LootSlot)
 {
     ObjectGuid l_Guid       = GetLootGUID();
     ObjectGuid l_LootGuid   = MAKE_NEW_GUID(GUID_LOPART(l_Guid), 0, HIGHGUID_LOOT);
@@ -29616,7 +29612,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         if (CurrencyTypesEntry const * currencyEntry = sCurrencyTypesStore.LookupEntry(item->itemid))
             ModifyCurrency(item->itemid, int32(item->count * currencyEntry->GetPrecision()));
 
-        SendNotifyLootItemRemoved(lootSlot, loot->m_IsAoELoot);
+        SendNotifyLootItemRemoved(lootSlot);
         currency->is_looted = true;
         --loot->UnlootedCount;
         return;
@@ -29634,7 +29630,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
             qitem->is_looted = true;
             //freeforall is 1 if everyone's supposed to get the quest item.
             if (item->freeforall || loot->GetPlayerQuestItems().size() == 1)
-                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot, loot->m_IsAoELoot);
+                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             else
                 loot->NotifyQuestItemRemoved(qitem->index);
         }
@@ -29644,7 +29640,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
             {
                 //freeforall case, notify only one player of the removal
                 ffaitem->is_looted = true;
-                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot, loot->m_IsAoELoot);
+                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             }
             else
             {
