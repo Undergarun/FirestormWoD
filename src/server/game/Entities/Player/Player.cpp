@@ -1405,8 +1405,9 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                         StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
                     continue;
                 }
+                else
+                    l_RemainingTemplates.push_back(&l_Item);
             }
-            l_RemainingTemplates.push_back(&l_Item);
         }
 
         for (auto l_Item : l_RemainingTemplates)
@@ -1417,8 +1418,23 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                     continue;
 
                 if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && GetTeam() == HORDE))
-                    if (l_Item->m_Type == 0 || l_Item->m_Type == 1)
-                        StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, ItemContext::RaidLfr);
+                {
+                    ItemContext l_ItemContext = ItemContext::None;
+                    switch (l_Item->m_Type)
+                    {
+                        case 1: ///< Shop PvE premade
+                            l_ItemContext = ItemContext::RaidLfr;
+                            break;
+                        case 3: ///< PTR PvE templates
+                            l_ItemContext = ItemContext::RaidNormal;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (l_ItemContext != ItemContext::None)
+                        StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, l_ItemContext);
+                }
             }
         }
     }
@@ -12263,22 +12279,18 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
-void Player::SendNotifyLootMoneyRemoved(bool p_IsAoE)
+void Player::SendNotifyLootMoneyRemoved()
 {
-    WorldPacket l_Data(SMSG_COIN_REMOVED);
     ObjectGuid l_Guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
 
     sObjectMgr->setLootViewGUID(l_Guid, GetLootGUID());
 
-    if (p_IsAoE)
-        l_Data.appendPackGUID(l_Guid);
-    else
-        l_Data.appendPackGUID(GetGUID());
-
+    WorldPacket l_Data(SMSG_COIN_REMOVED);
+    l_Data.appendPackGUID(l_Guid);
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNotifyLootItemRemoved(uint8 p_LootSlot, bool p_IsAoELoot /*= false*/)
+void Player::SendNotifyLootItemRemoved(uint8 p_LootSlot)
 {
     ObjectGuid l_Guid       = GetLootGUID();
     ObjectGuid l_LootGuid   = MAKE_NEW_GUID(GUID_LOPART(l_Guid), 0, HIGHGUID_LOOT);
@@ -29637,7 +29649,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         if (CurrencyTypesEntry const * currencyEntry = sCurrencyTypesStore.LookupEntry(item->itemid))
             ModifyCurrency(item->itemid, int32(item->count * currencyEntry->GetPrecision()));
 
-        SendNotifyLootItemRemoved(lootSlot, loot->m_IsAoELoot);
+        SendNotifyLootItemRemoved(lootSlot);
         currency->is_looted = true;
         --loot->UnlootedCount;
         return;
@@ -29655,7 +29667,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
             qitem->is_looted = true;
             //freeforall is 1 if everyone's supposed to get the quest item.
             if (item->freeforall || loot->GetPlayerQuestItems().size() == 1)
-                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot, loot->m_IsAoELoot);
+                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             else
                 loot->NotifyQuestItemRemoved(qitem->index);
         }
@@ -29665,7 +29677,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
             {
                 //freeforall case, notify only one player of the removal
                 ffaitem->is_looted = true;
-                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot, loot->m_IsAoELoot);
+                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             }
             else
             {

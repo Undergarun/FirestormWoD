@@ -1,0 +1,1 @@
+UPDATE `spell_script_names` SET spell_id = 130654 WHERE ScriptName="spell_monk_chi_burst";

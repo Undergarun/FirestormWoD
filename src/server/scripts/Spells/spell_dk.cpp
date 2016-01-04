@@ -1337,6 +1337,11 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
             int32 m_AbsorbPct, m_HpPct, m_AmountAbsorb = 0;
             uint32 m_Absorbed = 0;
 
+            enum eSpells
+            {
+                WoDPvPBlood4PBonus = 171456
+            };
+
             bool Load()
             {
                 m_AbsorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
@@ -1375,6 +1380,47 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 target->CastCustomSpell(target, DK_SPELL_RUNIC_POWER_ENERGIZE, &bp, NULL, NULL, true, NULL, aurEff);
             }
 
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (!l_Caster->HasAura(eSpells::WoDPvPBlood4PBonus))
+                    return;
+
+                if (l_Caster->GetGUID() != l_Target->GetGUID())
+                    return;
+
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 30.0f;
+
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Ucheck(l_Target, l_Target, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_TargetList, l_Ucheck);
+                l_Target->VisitNearbyObject(l_Radius, l_Searcher);
+
+                l_TargetList.remove_if([this, l_Caster, l_Target](Unit* p_Unit) -> bool
+                {
+                    if (p_Unit == nullptr)
+                        return true;
+
+                    if (!l_Caster->IsValidAssistTarget(p_Unit))
+                        return true;
+
+                    if (l_Caster->GetGUID() == p_Unit->GetGUID())
+                        return true;
+
+                    return false;
+                });
+
+                l_TargetList.sort(JadeCore::WorldObjectDistanceCompareOrderPred(l_Caster));
+
+                if (l_TargetList.size() > 2)
+                l_TargetList.resize(2);
+
+                for (auto l_Itr : l_TargetList)
+                    l_Itr->CastCustomSpell(l_Itr, GetSpellInfo()->Id, 0, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+            }
+
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
@@ -1404,6 +1450,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_self_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectApply += AuraEffectApplyFn(spell_dk_anti_magic_shell_self_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Trigger, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 OnEffectRemove += AuraEffectRemoveFn(spell_dk_anti_magic_shell_self_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
@@ -3216,8 +3263,45 @@ class spell_dk_item_t17_frost_4p_driver_periodic : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Soul Reaper (Bonus) - 114868
+class spell_dk_soul_reaper_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dk_soul_reaper_bonus() : SpellScriptLoader("spell_dk_soul_reaper_bonus") {}
+
+        class spell_dk_soul_reaper_bonus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_soul_reaper_bonus_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofSwiftDeath = 146645
+            };
+
+            void HandleModSpeed(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphofSwiftDeath))
+                    PreventHitAura();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_soul_reaper_bonus_SpellScript::HandleModSpeed, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_soul_reaper_bonus_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_soul_reaper_bonus();
     new spell_dk_death_coil();
     new spell_dk_empowered_obliterate_icy_touch();
     new spell_dk_empowered_obliterate_howling_blast();

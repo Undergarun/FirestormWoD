@@ -694,7 +694,8 @@ class spell_warl_rain_of_fire_damage: public SpellScriptLoader
         }
 };
 
-// Agony - 980
+/// Last Update 6.2.3
+/// Agony - 980
 class spell_warl_agony: public SpellScriptLoader
 {
     public:
@@ -706,9 +707,20 @@ class spell_warl_agony: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (GetCaster())
-                    if (AuraPtr l_Agony = GetTarget()->GetAura(p_AurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                        l_Agony->ModStackAmount(p_AurEff->GetBaseAmount());
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (AuraPtr l_Agony = l_Target->GetAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                {
+                    l_Agony->ModStackAmount(p_AurEff->GetBaseAmount());
+
+                    /// Patch 6.2.2 (2015-09-01): Now deals 10 % less damage in PvP combat.
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER && p_AurEff->GetTickNumber() == 1)
+                        l_Agony->GetEffect(EFFECT_0)->ChangeAmount(l_Agony->GetEffect(EFFECT_0)->GetAmount() - CalculatePct(l_Agony->GetEffect(EFFECT_0)->GetAmount(), 10));
+                }
             }
 
             bool CanRefreshProcDummy()
@@ -3416,7 +3428,7 @@ class spell_warl_havoc: public SpellScriptLoader
 
 /// Called by Corruption - 146739
 /// Nightfall - 108558
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 class spell_warl_nightfall : public SpellScriptLoader
 {
     public:
@@ -3442,6 +3454,7 @@ class spell_warl_nightfall : public SpellScriptLoader
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
                 if (!l_Caster)
                     return;
 
@@ -3485,6 +3498,13 @@ class spell_warl_nightfall : public SpellScriptLoader
                         if (Player* l_Player = l_Caster->ToPlayer())
                             l_Player->ReduceSpellCooldown(eSpells::DarkSoulMisery, l_AuraEffect->GetAmount());
                     }
+                }
+
+                if (AuraPtr l_Corruption = l_Target->GetAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                {
+                    /// Patch 6.2.2 (2015-09-01): Now deals 10 % less damage in PvP combat.
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER && p_AurEff->GetTickNumber() == 1)
+                        l_Corruption->GetEffect(EFFECT_0)->ChangeAmount(l_Corruption->GetEffect(EFFECT_0)->GetAmount() - CalculatePct(l_Corruption->GetEffect(EFFECT_0)->GetAmount(), 10));
                 }
             }
 
@@ -3604,7 +3624,7 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3git 
 /// Doom Bolt - 85692
 class spell_warl_doom_bolt : public SpellScriptLoader
 {
@@ -3617,21 +3637,16 @@ class spell_warl_doom_bolt : public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Owner = l_Caster->GetOwner();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Owner == nullptr || l_Target == nullptr)
+                if (l_Target == nullptr)
                     return;
 
-                int32 l_Damage = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+                int32 l_Damage = GetHitDamage();
 
                 /// If target has less then 20% damage we should increase damage by 20%
-                if (l_Target->GetHealthPct() <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                if (l_Target->GetHealthPct() <= (float)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
                     AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-
-                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
             }
@@ -3910,36 +3925,41 @@ public:
     {
         OneMainSoulShard = 104756,
         TwoMainSoulShards = 123171,
-        TwoSoulShards = 104759
-
+        TwoSoulShards = 104759,
+        GlyphOfSubtlety = 56217
     };
 
     /// Override
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
     {
+        ///< Works only in Afflication spec and if warlock doesn't have Glyph of Subtlety
         if (p_Power == POWER_SOUL_SHARDS && p_Player->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
         {
             p_Player->RemoveAura(eSpells::OneMainSoulShard);  ///< 1 center shard visual
             p_Player->RemoveAura(eSpells::TwoMainSoulShards); ///< 2 center shards visual
             p_Player->RemoveAura(eSpells::TwoSoulShards);     ///< 2 shards visual
-
-            if ((p_NewValue > (1 * p_Player->GetPowerCoeff(p_Power))) && (p_NewValue < (2 * p_Player->GetPowerCoeff(p_Power))))
+            
+            /// Glyph of Subtlety
+            if (!p_Player->HasAura(eSpells::GlyphOfSubtlety))
             {
-                p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
-            }
-            else if (p_NewValue < (3 * p_Player->GetPowerCoeff(p_Power)))
-            {
-                p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
-            }
-            else if (p_NewValue < (4 * p_Player->GetPowerCoeff(p_Power)))
-            {
-                p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
-                p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
-            }
-            else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(p_Power)))
-            {
-                p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
-                p_Player->CastSpell(p_Player, eSpells::TwoSoulShards, true);
+                if ((p_NewValue > (1 * p_Player->GetPowerCoeff(p_Power))) && (p_NewValue < (2 * p_Player->GetPowerCoeff(p_Power))))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
+                }
+                else if (p_NewValue < (3 * p_Player->GetPowerCoeff(p_Power)))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+                }
+                else if (p_NewValue < (4 * p_Player->GetPowerCoeff(p_Power)))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
+                    p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+                }
+                else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(p_Power)))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+                    p_Player->CastSpell(p_Player, eSpells::TwoSoulShards, true);
+                }
             }
         }
     }

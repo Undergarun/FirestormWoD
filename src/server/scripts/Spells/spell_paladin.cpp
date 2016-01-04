@@ -3591,6 +3591,44 @@ class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
         }
 };
 
+/// Grand Crusader - 85416
+/// Crusader Strike - 35395, Hammer of the Righteous - 53595
+class spell_pal_grand_crusader : public SpellScriptLoader
+{
+public:
+    spell_pal_grand_crusader() : SpellScriptLoader("spell_pal_grand_crusader") { }
+
+    class spell_pal_grand_crusader_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_grand_crusader_SpellScript);
+
+        enum eSpells
+        {
+            GrandCrusaderEffect = 85416,
+        };
+
+        void HandleAfterCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId() == SPEC_PALADIN_PROTECTION)
+                    if (roll_chance_i(30))
+                        l_Caster->CastSpell(l_Caster, eSpells::GrandCrusaderEffect, true);
+            }
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_pal_grand_crusader_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pal_grand_crusader_SpellScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_empowered_seals();
@@ -3657,6 +3695,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_avenging_wrath();
     new spell_pal_avengers_shield();
     new spell_pal_t17_protection_4p();
+    new spell_pal_grand_crusader();
 
     /// PlayerScripts
     new PlayerScript_empowered_divine_storm();

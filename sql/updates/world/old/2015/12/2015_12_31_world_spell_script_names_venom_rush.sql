@@ -1,0 +1,1 @@
+UPDATE `spell_script_names` SET spell_id=174130 WHERE ScriptName='spell_rog_venom_rush' AND spell_id=112961;

@@ -1660,29 +1660,32 @@ bool SpellInfo::CanCritDamageClassNone() const
 {
     switch (Id)
     {
-        case 379:   // Shaman - Earth Shield
-        case 73685: // Shaman - Unleash Elements - Unleash Life
+        case 379:   ///< Shaman - Earth Shield
+        case 73685: ///< Shaman - Unleash Elements - Unleash Life
 
-        case 86958: // Shaman - Cleansing Waters
+        case 86958: ///< Shaman - Cleansing Waters
         case 86961:
 
-        case 33778: // Druid - Lifebloom Final Bloom
-        case 22845: // Druid - Frenzied Regeneration
+        case 33778: ///< Druid - Lifebloom Final Bloom
+        case 22845: ///< Druid - Frenzied Regeneration
 
-        case 64844: // Priest - Divine Hymn
+        case 64844: ///< Priest - Divine Hymn
 
-        case 85222: // Paladin - Light of Dawn
+        case 85222: ///< Paladin - Light of Dawn
 
-        case 94286: // Paladin - Protector of the Innocent proc
+        case 94286: ///< Paladin - Protector of the Innocent proc
         case 94288:
         case 94289:
 
-        case 71607:  // Item - Bauble of True Blood 10m
-        case 71646:  // Item - Bauble of True Blood 25m
-        case 109825: // Item - Windward Heart heroic
-        case 108000: // Item - Windward Heart lfr
-        case 109822: // Item - Windward Heart normal
-        case 119611: // Renewing Mist
+        case 6262:   ///< Warlock - Healthstone
+
+        case 119611: ///< Monk - Renewing Mist
+
+        case 71607:  ///< Item - Bauble of True Blood 10m
+        case 71646:  ///< Item - Bauble of True Blood 25m
+        case 109825: ///< Item - Windward Heart heroic
+        case 108000: ///< Item - Windward Heart lfr
+        case 109822: ///< Item - Windward Heart normal
             return true;
     }
     return false;

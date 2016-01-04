@@ -2114,41 +2114,50 @@ class npc_ebon_gargoyle : public CreatureScript
 };
 
 /// Last Build 6.2.3
-/// Lightwell - 64571
-class npc_new_lightwell : public CreatureScript
+/// Lightwell - 31897 & 64571
+class npc_lightwell : public CreatureScript
 {
     public:
-        npc_new_lightwell() : CreatureScript("npc_new_lightwell") { }
+        npc_lightwell() : CreatureScript("npc_lightwell") { }
 
-        struct npc_new_lightwellAI : public PassiveAI
+        struct npc_lightwellAI : public PassiveAI
         {
+            npc_lightwellAI(Creature* p_Creature) : PassiveAI(p_Creature) { }
+
             enum eSpells
             {
-                LightWellHeal = 60123,
-                LightWellHealAura = 126154,
-                ChargeAura = 59907
+                GlyphOfDeepWells  = 55673,
+                ChargeAura        = 59907,
+                LightWellHeal     = 60123,
+                GlyphOfLightwell  = 126133,
+                LightWellHealAura = 126154
             };
 
             uint64 m_OwnerGUID = 0;
             uint32 m_RenewTimer;
 
-            npc_new_lightwellAI(Creature* creature) : PassiveAI(creature)
+            void IsSummonedBy(Unit* p_Owner)
             {
-                DoCast(me, eSpells::ChargeAura, false);
+                if (!p_Owner)
+                    return;
+
                 m_RenewTimer = 1000;
 
-                if (AuraPtr charges = me->GetAura(eSpells::ChargeAura))
+                if (p_Owner->GetTypeId() == TYPEID_PLAYER)
+                    m_OwnerGUID = p_Owner->GetGUID();
+
+                me->SetMaxHealth(p_Owner->GetMaxHealth());
+                me->SetHealth(p_Owner->GetHealth());
+
+                if (AuraPtr l_Charges = me->AddAura(eSpells::ChargeAura, me))
                 {
-                    charges->SetCharges(15);
-                    charges->GetEffect(0)->ChangeAmount(15);
-                    if (Unit* owner = me->GetOwner())
+                    l_Charges->SetCharges(15);
+                    l_Charges->GetEffect(EFFECT_0)->ChangeAmount(15);
+
+                    if (p_Owner->HasAura(eSpells::GlyphOfDeepWells))
                     {
-                        // Glyph of Deep Wells
-                        if (owner->HasAura(55673))
-                        {
-                            charges->SetCharges(17);
-                            charges->GetEffect(0)->ChangeAmount(17);
-                        }
+                        l_Charges->SetCharges(17);
+                        l_Charges->GetEffect(EFFECT_0)->ChangeAmount(17);
                     }
                 }
             }
@@ -2163,13 +2172,6 @@ class npc_new_lightwell : public CreatureScript
                 me->ResetPlayerDamageReq();
             }
 
-
-            void IsSummonedBy(Unit* p_Owner)
-            {
-                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
-                    m_OwnerGUID = p_Owner->GetGUID();
-            }
-
             void UpdateAI(const uint32 diff)
             {
                 if (m_RenewTimer)
@@ -2179,6 +2181,9 @@ class npc_new_lightwell : public CreatureScript
                         Unit* l_Owner = ObjectAccessor::FindUnit(m_OwnerGUID);
                         if (l_Owner != nullptr)
                         {
+                            if (l_Owner->HasAura(eSpells::GlyphOfLightwell))
+                                return;
+
                             if (Player* l_Player = l_Owner->ToPlayer())
                             {
                                 std::list<Unit*> l_Party;
@@ -2214,54 +2219,9 @@ class npc_new_lightwell : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const
         {
-            return new npc_new_lightwellAI(creature);
-        }
-};
-
-// Lightwell - 31897
-class npc_lightwell : public CreatureScript
-{
-    public:
-        npc_lightwell() : CreatureScript("npc_lightwell") { }
-
-        struct npc_lightwellAI : public PassiveAI
-        {
-            npc_lightwellAI(Creature* creature) : PassiveAI(creature)
-            {
-                DoCast(me, 59907, false);
-
-                if (AuraPtr charges = me->GetAura(59907))
-                {
-                    charges->SetCharges(15);
-                    charges->GetEffect(0)->ChangeAmount(15);
-                    if (Unit* owner = me->GetOwner())
-                    {
-                        // Glyph of Deep Wells
-                        if (owner->HasAura(55673))
-                        {
-                            charges->SetCharges(17);
-                            charges->GetEffect(0)->ChangeAmount(17);
-                        }
-                    }
-                }
-            }
-
-            void EnterEvadeMode()
-            {
-                if (!me->isAlive())
-                    return;
-
-                me->DeleteThreatList();
-                me->CombatStop(true);
-                me->ResetPlayerDamageReq();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_lightwellAI(creature);
+            return new npc_lightwellAI(p_Creature);
         }
 };
 
@@ -4706,6 +4666,7 @@ class npc_xuen_the_white_tiger : public CreatureScript
 
         enum eSpells
         {
+            INVOKE_XUEN_THE_WHITE_TIGER = 123995,
             CRACKLING_TIGER_LIGHTNING = 123999
         };
         struct npc_xuen_the_white_tigerAI : public PetAI
@@ -4715,6 +4676,20 @@ class npc_xuen_the_white_tiger : public CreatureScript
             npc_xuen_the_white_tigerAI(Creature* creature) : PetAI(creature)
             {
                 me->SetReactState(ReactStates::REACT_HELPER);
+
+                Unit* l_Owner = me->ToTempSummon() ? me->ToTempSummon()->GetSummoner() : NULL;
+                Unit* l_Target = l_Owner ? (l_Owner->getVictim() ? l_Owner->getVictim() : (l_Owner->ToPlayer() ? l_Owner->ToPlayer()->GetSelectedUnit() : NULL)) : NULL;
+
+                if (!l_Owner || !l_Target)
+                    return;
+
+                /// Start attack
+                if (me->IsValidAttackTarget(l_Target))
+                {
+                    AttackStart(l_Target);
+                    ///me->GetMotionMaster()->MoveJump(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), 15.0f, 10.0f, l_Target->GetOrientation(), MOVE_DESPAWN);
+                    me->CastSpell(l_Target, eSpells::INVOKE_XUEN_THE_WHITE_TIGER, true);
+                }
             }
 
             void Reset() override
@@ -4750,7 +4725,6 @@ void AddSC_npcs_special()
     new npc_snake_trap();
     new npc_mirror_image();
     new npc_ebon_gargoyle();
-    new npc_new_lightwell();
     new npc_lightwell();
     new mob_mojo();
     new npc_training_dummy();

@@ -1460,7 +1460,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
 
                 if (p_DmgInfo.GetSpellInfo())
-                    sLog->outAshran("spell_monk_touch_of_karma id : %u" ,p_DmgInfo.GetSpellInfo()->Id);
+                    sLog->outAshran("spell_monk_touch_of_karma id : %u", p_DmgInfo.GetSpellInfo()->Id);
 
                 l_Caster->GetAttackableUnitListInRange(l_TargetList, 20.0f);
 
@@ -2416,8 +2416,8 @@ enum ChiBurstSpells
     SPELL_MONK_CHI_BURST_HEAL             = 130654,
 };
 
-/// last update : 6.1.2 19802
-/// Chi Burst - 123986
+/// last update : 6.2.3
+/// Chi Burst - 130654
 class spell_monk_chi_burst: public SpellScriptLoader
 {
     public:
@@ -2427,7 +2427,7 @@ class spell_monk_chi_burst: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_burst_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
@@ -2439,13 +2439,12 @@ class spell_monk_chi_burst: public SpellScriptLoader
 
                 int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
 
-                if (l_Target->GetGUID() != l_Player->GetGUID())
-                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
+                SetHitHeal(l_Healing);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_monk_chi_burst_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_burst_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -5328,7 +5327,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
                 GlyphofFreedomRoll = 159534
             };
 
-            void HandleOnHit()
+            void HandleBeforeHit()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -5338,7 +5337,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleOnHit);
+                BeforeHit += SpellHitFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleBeforeHit);
             }
         };
 
@@ -5600,9 +5599,29 @@ class spell_monk_breath_of_the_serpent_tick : public SpellScriptLoader
                 }
             }
 
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Owner = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                uint32 l_SpellId = GetTargetApplication()->GetBase()->GetId();
+
+                if (l_RemoveMode != AURA_REMOVE_BY_CANCEL || !l_SpellId)
+                    return;
+
+                /// Remove aura from statue too
+                if (l_Owner->HasAura(l_SpellId))
+                    l_Owner->RemoveAura(l_SpellId);
+            }
+
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_breath_of_the_serpent_tick_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_monk_breath_of_the_serpent_tick_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

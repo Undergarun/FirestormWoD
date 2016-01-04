@@ -3829,6 +3829,7 @@ enum SpellsFerociousBite
     SPELL_DRUID_RIP = 1079
 };
 
+/// Last Update 6.2.3
 /// Ferocious Bite - 22568
 class spell_dru_ferocious_bite: public SpellScriptLoader
 {
@@ -3840,6 +3841,8 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
             PrepareSpellScript(spell_dru_ferocious_bite_SpellScript);
 
             int32 m_SpellCost = 25;
+            int32 m_EnergyConsumedExtra = 0;
+            bool m_IsFreeCost = false;
 
             void HandleOnPrepare()
             {
@@ -3847,6 +3850,9 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
 
                 if (l_Caster->HasAura(SpellsFerociousBite::SPELL_DRUID_BERSEK))
                     m_SpellCost = 12;
+
+                if (l_Caster->HasAura(135700))
+                    m_IsFreeCost = true;
             }
 
             void HandleOnHit()
@@ -3869,6 +3875,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                 AddPct(l_Damage, l_EnergyConsumed * (100 / m_SpellCost));
                 SetHitDamage(l_Damage);
 
+                m_EnergyConsumedExtra = l_EnergyConsumed;
                 /// Glyph of Ferocious Bite
                 if (AuraPtr l_GlyphOfFerociousBite = l_Caster->GetAura(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE))
                 {
@@ -3883,10 +3890,21 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                     l_Rip->RefreshDuration();
             }
 
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                if (m_IsFreeCost)
+                {
+                    l_Caster->SetPower(POWER_ENERGY, l_Caster->GetPower(POWER_ENERGY) + m_EnergyConsumedExtra);
+                    m_IsFreeCost = false;
+                }
+            }
+
             void Register()
             {
                 OnPrepare += SpellOnPrepareFn(spell_dru_ferocious_bite_SpellScript::HandleOnPrepare);
                 OnHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleAfterHit);
             }
         };
 
