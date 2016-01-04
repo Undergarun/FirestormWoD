@@ -1213,7 +1213,7 @@ enum MasterySpells
     MASTERY_SPELL_DISCIPLINE_SHIELD = 77484
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Power Word: Shield - 17
 class spell_pri_power_word_shield : public SpellScriptLoader
 {
@@ -1225,6 +1225,13 @@ public:
         PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
 
         int32 m_HealByGlyph = 0;
+
+        enum eSpells
+        {
+            WordOfMendingAura = 152117,
+            WordOfMendingProc = 155363,
+            WordOfMendingStack = 155362,
+        };
 
         void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
         {
@@ -1255,6 +1262,12 @@ public:
 
             if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
+
+            if (l_Owner->HasAura(eSpells::WordOfMendingAura))
+            {
+                if (!l_Owner->HasAura(eSpells::WordOfMendingProc))
+                    l_Owner->CastSpell(l_Owner, eSpells::WordOfMendingStack, true);
+            }
         }
 
         void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_ShieldValue*/)
