@@ -2835,7 +2835,7 @@ public:
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             Creature* horse = me->FindNearestCreature(NPC_CROWLEY_HORSE, 100, true);
-            if (spell->Id == SPELL_THROW_TORCH)
+            if (horse && spell->Id == SPELL_THROW_TORCH)
             {
                 Burning = true;
 
