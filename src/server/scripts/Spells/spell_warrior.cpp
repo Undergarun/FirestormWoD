@@ -1498,7 +1498,7 @@ class spell_warr_spell_reflection: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Intervene - 3411
 class spell_warr_intervene: public SpellScriptLoader
 {
@@ -1525,6 +1525,9 @@ class spell_warr_intervene: public SpellScriptLoader
 
                 if (l_Player->GetDistance(l_Target) >= 25.0f)
                     return SPELL_FAILED_OUT_OF_RANGE;
+
+                if (l_Player->HasAuraType(SPELL_AURA_MOD_ROOT) || l_Player->HasAuraType(SPELL_AURA_MOD_ROOT_2))
+                    return SPELL_FAILED_ROOTED;
 
                 return SPELL_CAST_OK;
             }
