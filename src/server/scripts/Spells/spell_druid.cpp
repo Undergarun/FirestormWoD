@@ -4400,6 +4400,20 @@ class spell_dru_healing_touch: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_healing_touch_SpellScript);
 
+            enum eSpells
+            {
+                BearForm = 5487
+            };
+
+            void HandleOnPrepare()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                /// Healing Touch no longer cancels Bear Form for Guardian Druids.
+                if (l_Player->HasAura(eSpells::BearForm) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_DRUID_GUARDIAN)
+                    l_Player->RemoveAura(eSpells::BearForm);
+            }
+
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -4412,6 +4426,7 @@ class spell_dru_healing_touch: public SpellScriptLoader
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_dru_healing_touch_SpellScript::HandleOnPrepare);
                 OnCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleOnCast);
             }
         };
