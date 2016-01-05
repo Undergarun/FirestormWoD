@@ -5111,8 +5111,49 @@ class spell_generic_iron_horde_pirate_costume : public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
+/// Kilrogg's Dead Eye - 184762
+class spell_gen_kilroggs_dead_eye : public SpellScriptLoader
+{
+    public:
+        spell_gen_kilroggs_dead_eye() : SpellScriptLoader("spell_gen_kilroggs_dead_eye") { }
+
+        class spell_gen_kilroggs_dead_eye_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_kilroggs_dead_eye_AuraScript);
+
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            {
+                Unit* l_Target = GetCaster();
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Multiplier = (p_AurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() / 100) * ((100.0f - l_Target->GetHealthPct()) / 100.0f);
+                p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), l_Multiplier);
+            }
+
+            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                amount = -1;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_kilroggs_dead_eye_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_gen_kilroggs_dead_eye_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_kilroggs_dead_eye_AuraScript();
+        }
+};
+
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_kilroggs_dead_eye();
     new spell_generic_iron_horde_pirate_costume();
     new spell_gen_mark_of_thunderlord();
     new spell_gen_inge_trigger_enchant();
