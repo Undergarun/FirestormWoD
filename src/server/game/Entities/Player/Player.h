@@ -3128,6 +3128,13 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
+        WorldLocation GetPreviousLocation() const;
+        uint32 m_PreviousLocationMapId;
+        float m_PreviousLocationX;
+        float m_PreviousLocationY;
+        float m_PreviousLocationZ;
+        float m_PreviousLocationO;
+
         // current pet slot
         PetSlot m_currentPetSlot;
         uint64 m_petSlotUsed;

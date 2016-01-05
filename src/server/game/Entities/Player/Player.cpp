@@ -1056,6 +1056,12 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     ///////////////////////////////////////////////////////////
 
     m_WargameRequest = nullptr;
+
+    m_PreviousLocationMapId = MAPID_INVALID;
+    m_PreviousLocationX = 0;
+    m_PreviousLocationY = 0;
+    m_PreviousLocationZ = 0;
+    m_PreviousLocationO = 0;
 }
 
 Player::~Player()
@@ -2893,6 +2899,13 @@ bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p
     /// ObjectAccessor won't find the flag.
     if (m_Duel && GetMapId() != p_MapID && GetMap()->GetGameObject(GetGuidValue(EPlayerFields::PLAYER_FIELD_DUEL_ARBITER)))
         DuelComplete(DuelCompleteType::DUEL_FLED);
+
+    /// Save previous location
+    m_PreviousLocationMapId = GetMapId();
+    m_PreviousLocationX     = GetPositionX();
+    m_PreviousLocationY     = GetPositionY();
+    m_PreviousLocationZ     = GetPositionZ();
+    m_PreviousLocationO     = GetOrientation();
 
     if (GetMapId() == p_MapID)
     {
@@ -26945,6 +26958,11 @@ WorldLocation Player::GetStartPosition() const
     if (getClass() == CLASS_DEATH_KNIGHT && HasSpell(50977))
         mapId = 0;
     return WorldLocation(mapId, info->positionX, info->positionY, info->positionZ, 0);
+}
+
+WorldLocation Player::GetPreviousLocation() const
+{
+    return WorldLocation(m_PreviousLocationMapId, m_PreviousLocationX, m_PreviousLocationY, m_PreviousLocationZ, m_PreviousLocationO);
 }
 
 bool Player::IsNeverVisible() const
