@@ -32985,11 +32985,15 @@ void Player::SendToyBox()
 
 void Player::AddNewToyToBox(uint32 p_ItemID)
 {
-    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
-    l_Statement->setUInt32(0, GetSession()->GetAccountId());
-    l_Statement->setUInt32(1, p_ItemID);
-    l_Statement->setBool(2, false);
-    LoginDatabase.Execute(l_Statement);
+    /// Save toys to database only for live realms
+    if (sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+    {
+        PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
+        l_Statement->setUInt32(0, GetSession()->GetAccountId());
+        l_Statement->setUInt32(1, p_ItemID);
+        l_Statement->setBool(2, false);
+        LoginDatabase.Execute(l_Statement);
+    }
 
     if (!HasToy(p_ItemID))
     {
