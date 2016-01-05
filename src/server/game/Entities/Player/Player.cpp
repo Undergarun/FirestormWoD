@@ -23682,10 +23682,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
 void Player::_SaveVoidStorage(SQLTransaction& trans)
 {
     if (!m_VoidStorageLoaded)
-    {
-        sLog->outAshran("Trying to save Void Storage before loaded it!");
         return;
-    }
 
     PreparedStatement* stmt = NULL;
     uint32 lowGuid = GetGUIDLow();
