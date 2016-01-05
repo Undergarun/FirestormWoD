@@ -1234,7 +1234,7 @@ class mob_lun_chi : public CreatureScript
                             damage = 0;
                             me->SetFullHealth();
                             DoAction(ACTION_REINITIALIZE);
-                            player->KilledMonsterCredit(60996);
+                            player->KilledMonsterCredit(60994);
                             me->DespawnOrUnsummon();
                         }
                     }

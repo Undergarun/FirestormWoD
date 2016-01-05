@@ -2222,7 +2222,7 @@ enum Targets
     TARGET_UNK_134                     = 134,
     TARGET_UNK_135                     = 135,
     TARGET_UNK_136                     = 136,
-    TARGET_UNK_137                     = 137,
+    TARGET_DEST_CASTER_DIRECTION       = 137,
     TARGET_UNK_138                     = 138,
     TARGET_UNK_139                     = 139,
     TARGET_UNK_140                     = 140,
@@ -2264,8 +2264,7 @@ enum SpellHitType
     SPELL_HIT_TYPE_VICTIM_IS_ATTACKER  = 0x00010,
     SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG  = 0x00020,
     SPELL_HIT_TYPE_UNK                 = 0x00040,
-    SPELL_HIT_TYPE_NO_ATTACKER         = 0x00080,
-    SPELL_HIT_TYPE_MULTISTRIKE         = 0x00100,
+    SPELL_HIT_TYPE_MULTISTRIKE         = 0x00080
 };
 
 enum SpellDmgClass

@@ -1441,6 +1441,10 @@ class npc_foundry_bellows_operator : public CreatureScript
                     /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
                     me->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
 
+                    /// @WORKAROUND - Clear ON VEHICLE state to allow healing (Invalid target errors)
+                    /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
+                    me->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
+
                     if (me->GetEntry() == eCreatures::OperatorForFight)
                         m_CosmeticEvent.ScheduleEvent(eCosmeticEvent::EventActivateBellows, 1 * TimeConstants::IN_MILLISECONDS);
                 });
@@ -2588,6 +2592,29 @@ class spell_foundry_shields_down : public SpellScriptLoader
                 DamageShield = 155176
             };
 
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    AuraPtr l_Aura = p_AurEff->GetBase();
+                    if (l_Target->GetMap()->IsHeroic())
+                    {
+                        l_Aura->SetDuration(30 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(30 * TimeConstants::IN_MILLISECONDS);
+                    }
+                    else if (l_Target->GetMap()->IsMythic())
+                    {
+                        l_Aura->SetDuration(20 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(20 * TimeConstants::IN_MILLISECONDS);
+                    }
+                    else
+                    {
+                        l_Aura->SetDuration(40 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(40 * TimeConstants::IN_MILLISECONDS);
+                    }
+                }
+            }
+
             void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (GetTarget() == nullptr)
@@ -2612,6 +2639,7 @@ class spell_foundry_shields_down : public SpellScriptLoader
 
             void Register() override
             {
+                AfterEffectApply += AuraEffectApplyFn(spell_foundry_shields_down_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_shields_down_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };

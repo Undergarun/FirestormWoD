@@ -766,14 +766,14 @@ void Loot::NotifyItemRemoved(uint8 lootIndex, uint64 p_PersonalLooter /*= 0*/)
             if (p_PersonalLooter && (*i) != p_PersonalLooter)
                 continue;
 
-            player->SendNotifyLootItemRemoved(lootIndex, m_IsAoELoot);
+            player->SendNotifyLootItemRemoved(lootIndex);
         }
         else
             PlayersLooting.erase(i);
     }
 }
 
-void Loot::NotifyMoneyRemoved(bool p_IsAoE /*= false*/)
+void Loot::NotifyMoneyRemoved()
 {
     // notify all players that are looting this that the money was removed
     std::set<uint64>::iterator i_next;
@@ -782,7 +782,7 @@ void Loot::NotifyMoneyRemoved(bool p_IsAoE /*= false*/)
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyLootMoneyRemoved(p_IsAoE);
+            player->SendNotifyLootMoneyRemoved();
         else
             PlayersLooting.erase(i);
     }
@@ -814,7 +814,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
                         break;
 
                 if (j < pql.size())
-                    player->SendNotifyLootItemRemoved(Items.size() + j, m_IsAoELoot);
+                    player->SendNotifyLootItemRemoved(Items.size() + j);
             }
         }
         else

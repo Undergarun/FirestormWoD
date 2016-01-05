@@ -24,6 +24,7 @@
 #include "ConditionMgr.h"
 #include "Vehicle.h"
 #include "Group.h"
+#include "CreatureAI.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -1659,29 +1660,32 @@ bool SpellInfo::CanCritDamageClassNone() const
 {
     switch (Id)
     {
-        case 379:   // Shaman - Earth Shield
-        case 73685: // Shaman - Unleash Elements - Unleash Life
+        case 379:   ///< Shaman - Earth Shield
+        case 73685: ///< Shaman - Unleash Elements - Unleash Life
 
-        case 86958: // Shaman - Cleansing Waters
+        case 86958: ///< Shaman - Cleansing Waters
         case 86961:
 
-        case 33778: // Druid - Lifebloom Final Bloom
-        case 22845: // Druid - Frenzied Regeneration
+        case 33778: ///< Druid - Lifebloom Final Bloom
+        case 22845: ///< Druid - Frenzied Regeneration
 
-        case 64844: // Priest - Divine Hymn
+        case 64844: ///< Priest - Divine Hymn
 
-        case 85222: // Paladin - Light of Dawn
+        case 85222: ///< Paladin - Light of Dawn
 
-        case 94286: // Paladin - Protector of the Innocent proc
+        case 94286: ///< Paladin - Protector of the Innocent proc
         case 94288:
         case 94289:
 
-        case 71607:  // Item - Bauble of True Blood 10m
-        case 71646:  // Item - Bauble of True Blood 25m
-        case 109825: // Item - Windward Heart heroic
-        case 108000: // Item - Windward Heart lfr
-        case 109822: // Item - Windward Heart normal
-        case 119611: // Renewing Mist
+        case 6262:   ///< Warlock - Healthstone
+
+        case 119611: ///< Monk - Renewing Mist
+
+        case 71607:  ///< Item - Bauble of True Blood 10m
+        case 71646:  ///< Item - Bauble of True Blood 25m
+        case 109825: ///< Item - Windward Heart heroic
+        case 108000: ///< Item - Windward Heart lfr
+        case 109822: ///< Item - Windward Heart normal
             return true;
     }
     return false;
@@ -2818,6 +2822,12 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
             l_CastTime -= CalculatePct(l_CastTime, (20 * overloaded->GetStackAmount()));
     }
 
+    if (p_Caster && p_Caster->GetTypeId() == TypeID::TYPEID_UNIT)
+    {
+        if (p_Caster->ToCreature()->IsAIEnabled)
+            p_Caster->ToCreature()->AI()->OnCalculateCastingTime(this, l_CastTime);
+    }
+
     return (l_CastTime > 0) ? uint32(l_CastTime) : 0;
 }
 
@@ -2972,6 +2982,10 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
 
         /// Hack fix: Soul Swap Exhale shouldn't take any mana
         if (Id == 86213 && PowerType == POWER_MANA)
+            powerCost = 0;
+
+        /// Hack fix: Wild Strike shouldn't take rage if warrior has Bloodsurge
+        if (PowerType == POWER_RAGE && Id == 100130 && caster->HasAura(46916))
             powerCost = 0;
 
         m_powerCost[POWER_TO_INDEX(PowerType)] += powerCost;
@@ -4437,6 +4451,9 @@ bool SpellInfo::DoesIgnoreGlobalCooldown(Unit* caster) const
 {
     switch (Id)
     {
+        case 5019:
+            return true;
+        break;
         case 85673: // Word of Glory
         case 114163:// Eternal Flame
         case 136494:// Word of Glory (other)

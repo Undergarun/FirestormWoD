@@ -420,7 +420,7 @@ struct Loot
 
     void NotifyItemRemoved(uint8 lootIndex, uint64 p_PersonalLooter = 0);
     void NotifyQuestItemRemoved(uint8 questIndex);
-    void NotifyMoneyRemoved(bool p_IsAoE = false);
+    void NotifyMoneyRemoved();
     void AddLooter(uint64 GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(uint64 GUID) { PlayersLooting.erase(GUID); }
     bool IsLooter(uint64 GUID) { return PlayersLooting.find(GUID) != PlayersLooting.end(); }

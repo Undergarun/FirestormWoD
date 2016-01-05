@@ -134,7 +134,7 @@ extern DB2Storage<BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore;
 extern DB2Storage <AuctionHouseEntry>            sAuctionHouseStore;
 extern DB2Storage <BarberShopStyleEntry>         sBarberShopStyleStore;
 extern DB2Storage <CharStartOutfitEntry>         sCharStartOutfitStore;
-extern DB2Storage <ChrPowerTypesEntry>           sChrPowerTypesStore;
+extern DB2Storage <ChrClassXPowerTypesEntry>     sChrClassXPowerTypesStore;
 extern DB2Storage <CinematicSequencesEntry>      sCinematicSequencesStore;
 extern DB2Storage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStore;
 extern DB2Storage <CreatureTypeEntry>            sCreatureTypeStore;

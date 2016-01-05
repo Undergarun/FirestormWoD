@@ -869,7 +869,7 @@ class spell_pal_seal_of_insight: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_seal_of_insight_SpellScript::FilterTargets, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_seal_of_insight_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
                 OnEffectLaunch += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnSelfHeal, EFFECT_0, SPELL_EFFECT_HEAL);
                 OnEffectLaunch += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnRaidHeal, EFFECT_1, SPELL_EFFECT_HEAL);
             }
@@ -1773,6 +1773,80 @@ class spell_pal_judgment: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pal_judgment_SpellScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Empowered Seals - 152263
+/// Call by Turalyons Justice - 156987, Uthers Insight - 156988, Liadrins Righteousness - 156989, Maraads Truth - 156990
+class spell_pal_empowered_seals : public SpellScriptLoader
+{
+    public:
+        spell_pal_empowered_seals() : SpellScriptLoader("spell_pal_empowered_seals") { }
+
+        enum eSpells
+        {
+            TuralyonsJustice        = 156987,
+            UthersInsight           = 156988,
+            LiadrinsRighteousness   = 156989,
+            MaraadsTruth            = 156990,
+            EmpowredSealsVisual     = 172319
+        };
+
+        class spell_pal_empowered_seals_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_empowered_seals_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->CastSpell(l_Target, eSpells::EmpowredSealsVisual, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                bool m_HasStillAura = false;
+
+                for (uint32 l_I = eSpells::TuralyonsJustice; l_I <= eSpells::MaraadsTruth; ++l_I)
+                {
+                    if (l_Target->HasAura(l_I))
+                        m_HasStillAura = true;
+                }
+                if (!m_HasStillAura)
+                    l_Target->RemoveAura(eSpells::EmpowredSealsVisual);
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::TuralyonsJustice:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::UthersInsight:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::LiadrinsRighteousness:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::MaraadsTruth:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_empowered_seals_AuraScript();
         }
 };
 
@@ -3517,8 +3591,47 @@ class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
         }
 };
 
+/// Grand Crusader - 85416
+/// Crusader Strike - 35395, Hammer of the Righteous - 53595
+class spell_pal_grand_crusader : public SpellScriptLoader
+{
+public:
+    spell_pal_grand_crusader() : SpellScriptLoader("spell_pal_grand_crusader") { }
+
+    class spell_pal_grand_crusader_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_grand_crusader_SpellScript);
+
+        enum eSpells
+        {
+            GrandCrusaderEffect = 85416,
+        };
+
+        void HandleAfterCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId() == SPEC_PALADIN_PROTECTION)
+                    if (roll_chance_i(30))
+                        l_Caster->CastSpell(l_Caster, eSpells::GrandCrusaderEffect, true);
+            }
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_pal_grand_crusader_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pal_grand_crusader_SpellScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_empowered_seals();
     new spell_pal_glyph_of_the_consecration();
     new spell_pal_beacon_of_light();
     new spell_pal_beacon_of_light_proc();
@@ -3582,6 +3695,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_avenging_wrath();
     new spell_pal_avengers_shield();
     new spell_pal_t17_protection_4p();
+    new spell_pal_grand_crusader();
 
     /// PlayerScripts
     new PlayerScript_empowered_divine_storm();

@@ -539,6 +539,9 @@ void PetBattleAura::Process(PetBattle* p_Battle)
             if (l_AbilityTurnInfo->turn != Turn && l_TurnCount != 1 && l_MaxTurnID != 1)
                 continue;
 
+            if (l_AbilityTurnInfo->hasProcType && l_AbilityTurnInfo->procType != PETBATTLE_ABILITY_TURN0_PROC_ON_TURN)
+                continue;
+
             for (uint32 l_AbilityEffectId = 0; l_AbilityEffectId < sBattlePetAbilityEffectStore.GetNumRows(); ++l_AbilityEffectId)
             {
                 BattlePetAbilityEffectEntry const* l_AbilityEffectInfo = sBattlePetAbilityEffectStore.LookupEntry(l_AbilityEffectId);
@@ -1203,6 +1206,9 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
             {
                 BattlePetInstance::Ptr l_CurrentPet = Teams[l_CurrentTeamID]->TeamPets[l_CurrentPetID];
 
+                if (!l_CurrentPet)
+                    continue;
+
                 if (l_CurrentPet->Health < 0)
                     l_CurrentPet->Health = 0;
 
@@ -1621,6 +1627,12 @@ bool PetBattle::AddAura(uint32 p_CasterPetID, uint32 p_TargetPetID, uint32 p_Abi
 /// Set pet state
 void PetBattle::SetPetState(uint32 p_SourcePetID, uint32 p_TargetPetID, uint32 p_FromAbilityEffectID, uint32 p_State, int32 p_Value, bool p_FromCapture, uint32 p_Flags)
 {
+    if (p_State >= NUM_BATTLEPET_STATES)
+    {
+        sLog->outSlack("#jarvis", "danger", true, "PetBattle::SetPetState %u %u %u", p_FromAbilityEffectID, p_State, p_Value);
+        return;
+    }
+
     if (Pets[p_TargetPetID]->States[p_State] == p_Value)
         return;
 

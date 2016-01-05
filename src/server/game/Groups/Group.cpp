@@ -1446,17 +1446,11 @@ void Group::MasterLoot(Loot* loot, WorldObject* p_LootedObject)
         l_Iter.is_blocked = !l_Iter.is_underthreshold;
     }
 
-    uint32 l_Count = 1;
+    uint32 l_Count = 0;
 
-    Player* l_MasterLooter = nullptr;
     for (GroupReference* l_It = GetFirstMember(); l_It != nullptr; l_It = l_It->next())
     {
         Player* l_Looter = l_It->getSource();
-        if (l_Looter->GetGUID() == GetLooterGuid())
-        {
-            l_MasterLooter = l_Looter;
-            continue;
-        }
 
         if (!l_Looter->IsInWorld())
             continue;
@@ -1471,13 +1465,12 @@ void Group::MasterLoot(Loot* loot, WorldObject* p_LootedObject)
     WorldPacket l_Data(Opcodes::SMSG_MASTER_LOOT_CANDIDATE_LIST);
     l_Data.appendPackGUID(MAKE_NEW_GUID(p_LootedObject->GetGUIDLow(), 0, HIGHGUID_LOOT));
     l_Data << uint32(l_Count);
-    l_Data.appendPackGUID(l_MasterLooter->GetGUID());
 
     for (GroupReference* l_It = GetFirstMember(); l_It != nullptr; l_It = l_It->next())
     {
         Player* l_Looter = l_It->getSource();
 
-        if (!l_Looter->IsInWorld() || l_Looter == l_MasterLooter)
+        if (!l_Looter->IsInWorld())
             continue;
 
         if (l_Looter->IsAtGroupRewardDistance(p_LootedObject))

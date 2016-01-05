@@ -679,7 +679,7 @@ public:
     }
 };
 
-// Venom Spray
+// Venom Spray - 173052
 class the_everbloom_venom_spray : public SpellScriptLoader
 {
 public:

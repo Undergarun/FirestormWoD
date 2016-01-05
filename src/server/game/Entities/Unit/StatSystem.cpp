@@ -1077,7 +1077,11 @@ float Player::GetRegenForPower(Powers p_Power)
         /// Client calculate this value itself, i don't know how, it has base value 5, but it should be 4, so just -1.0f
         /// I've done some tests and now it's fine, please don't touch, just if server version is changed and client-part value is fixed
         case Powers::POWER_FOCUS:
-            return -1.0f;
+            /// Steady Focus increase focus regen, i don't want to remove a hack with return -1 because it works fine
+            if (HasAura(177668))
+                return 1.0f;
+            else
+                return -1.0f;
         case Powers::POWER_ENERGY:
         case Powers::POWER_RUNES:
             l_BaseRegen = 10.0f;

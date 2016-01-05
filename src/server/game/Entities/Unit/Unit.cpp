@@ -6998,20 +6998,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     target = victim;
                     break;
                 }
-                // Sweeping Strikes
-                case 12328:
-                {
-                    target = SelectNearbyTarget(victim, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
-                    if (!target)
-                        return false;
-
-                    if (!damage)
-                        return false;
-
-                    basepoints0 = CalculatePct(damage, 50); ///< last update 6.0.3 Build 18711
-                    triggered_spell_id = 12723;
-                    break;
-                }
                 // Victorious
                 case 32216:
                 {
@@ -7765,6 +7751,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     switch (procSpell->Id)
                     {
+                        case 633:
                         case 85673:
                         case 19750:
                         case 82326:
@@ -9554,9 +9541,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             if (!(procEx & PROC_EX_DODGE) && !(procEx & PROC_EX_PARRY))
-                return false;
-
-            if (!roll_chance_i(30))
                 return false;
 
             break;
@@ -11488,7 +11472,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     {
         bool l_HasFingerOfFrostProc = false;
 
-        if (spellProto->Id == 116 || spellProto->Id == 44614 || spellProto->Id == 84721)    ///< Frostbolt || Frostfire Bolt || Frozen Orb
+        if (spellProto->Id == 116 || spellProto->Id == 44614)    ///< Frostbolt || Frostfire Bolt
             l_HasFingerOfFrostProc = roll_chance_i(15);
         else if (spellProto->Id == 42208)                                                   ///< Blizzard
             l_HasFingerOfFrostProc = roll_chance_i(5);
@@ -12067,7 +12051,7 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target)
     return l_ProcTimes;
 }
 
-void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType /* = WeaponAttackType::BaseAttack*/ , SpellInfo const* p_ProcAura /*= NULL*/, constAuraEffectPtr p_OwnerAuraEffect /*= NULL*/)
+uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType /* = WeaponAttackType::BaseAttack*/ , SpellInfo const* p_ProcAura /*= NULL*/, constAuraEffectPtr p_OwnerAuraEffect /*= NULL*/)
 {
     uint32 l_InitialDamage = p_Damage;
     Player* l_ModOwner = GetSpellModOwner();
@@ -12184,6 +12168,7 @@ void Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 
             ProcDamageAndSpell(damageInfo.target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.attackType);
         }
     }
+    return l_ProcTimes;
 }
 
 bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
@@ -12235,8 +12220,9 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             // We need more spells to find a general way (if there is any)
             switch (spellProto->Id)
             {
-                case 53353: // Chimera Shot - Healing can crit, other spells - not
-                case 34428: // Victory Rush
+                case 53353: ///< Chimera Shot - Healing can crit, other spells - not
+                case 34428: ///< Victory Rush
+                case 6262:  ///< Healthstone
                     break;
                 default:
                     if (spellProto->HasEffect(SPELL_EFFECT_HEAL_PCT))
@@ -12369,13 +12355,14 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             case 116858:///< Chaos Bolt ...
                             case 157701:///< Chaos Bolt (Fire and Brimstone)
                             case 31117: ///< Unstable Affliction dispell
-                                // ... are always critical hit
+                                ///< ... are always critical hit
                                 return 100.0f;
                                 break;
-                                // Hack fix for these spells - They deal Chaos damage, SPELL_SCHOOL_MASK_ALL
-                            case 103964:// Touch of Chaos
-                            case 124915:// Chaos Wave
-                                crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
+                                /// Hack fix for these spells - They deal Chaos damage, SPELL_SCHOOL_MASK_ALL
+                            case 103964:///< Touch of Chaos
+                            case 124915:///< Chaos Wave
+                            case 6262:  ///< Healthstone
+                                crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + SPELL_SCHOOL_MASK_NORMAL);
                                 break;
                         }
                         break;
@@ -12585,7 +12572,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
 
     Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
 
-    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()))
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat() || l_ModVictimOwner->IsInPvPCombat()))
         l_CritPctBonus = 50; ///< 150% on pvp
 
     l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
@@ -15777,9 +15764,9 @@ void Unit::SetMaxHealth(uint32 val)
 Unit::PowerTypeSet Unit::GetUsablePowers() const
 {
     PowerTypeSet l_Powers;
-    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
+    for (uint32 l_I = 0; l_I <= sChrClassXPowerTypesStore.GetNumRows(); ++l_I)
     {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(l_I);
+        ChrClassXPowerTypesEntry const* powerEntry = sChrClassXPowerTypesStore.LookupEntry(l_I);
         if (!powerEntry)
             continue;
 
@@ -15792,7 +15779,7 @@ Unit::PowerTypeSet Unit::GetUsablePowers() const
         l_Powers.insert(Powers(powerEntry->power));
     }
 
-    // POWER_RUNES isn't in ChrClassesXPowerTypes.dbc
+    // POWER_RUNES isn't in ChrClassesXPowerTypes.db2
     if (getClass() == CLASS_DEATH_KNIGHT)
         l_Powers.insert(POWER_RUNES);
 
@@ -16566,12 +16553,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         return;
     /// Multistrike...
     int32 l_TotalDamage = damage + absorb;
+    uint8 l_TotalMultistrike = 0;
     if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL) &&
         l_TotalDamage && target && GetSpellModOwner() && !(procSpell && (!procSpell->IsPositive() && !procSpell->IsHealingSpell()) && target->GetGUID() == GetGUID()))
         {
         /// ...grants your spells, abilities, and auto-attacks...
         if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
-            ProcMultistrike(procSpell, target, procFlag, procExtra, l_TotalDamage, attType, procAura, ownerAuraEffect);
+            l_TotalMultistrike = ProcMultistrike(procSpell, target, procFlag, procExtra, l_TotalDamage, attType, procAura, ownerAuraEffect);
         }
 
     // For melee/ranged based attack need update skills and set some Aura states if victim present
@@ -16637,6 +16625,15 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             CastSpell(this, 68285, true); // Heal himself
             ToPlayer()->AddSpellCooldown(68285, 0, 6 * IN_MILLISECONDS); // 6s ICD
         }
+    }
+
+    /// Brain Freeze
+    if (procSpell && procSpell->Id == 116 && HasAura(44549) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
+    {
+        int32 l_Chance = 10;
+        l_Chance += (l_TotalMultistrike * 15);
+        if (roll_chance_i(l_Chance))
+            CastSpell(this, 57761, true);
     }
 
     /// Runic Strikes
@@ -18544,6 +18541,32 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         {
             Map* l_InstanceMap = l_KilledCreature->GetMap();
 
+            if (l_InstanceMap->IsLFR())
+            {
+                Map::PlayerList const& l_PlayerList = l_InstanceMap->GetPlayers();
+                if (l_PlayerList.isEmpty())
+                    return;
+
+                /// Handle end of dungeon rewarding for LFR
+                if (l_KilledCreature->GetNativeTemplate()->flags_extra & CreatureFlagsExtra::CREATURE_FLAG_EXTRA_DUNGEON_END_BOSS)
+                {
+                    for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = l_Itr->getSource())
+                        {
+                            uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                            if (!l_KilledCreature || l_Player->IsAtGroupRewardDistance(l_KilledCreature))
+                                sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+                        }
+                    }
+                }
+
+                /// Handle loot assignation for LFR
+                Player* l_Player = l_PlayerList.begin()->getSource();
+                if (l_Player && l_Player->GetGroup())
+                    sLFGMgr->AutomaticLootAssignation(l_KilledCreature, l_Player->GetGroup());
+            }
+
             /// @TODO: do instance binding anyway if the charmer/owner is offline
             if (l_InstanceMap->IsDungeon() && l_KillerPlayer)
             {
@@ -19543,8 +19566,8 @@ float Unit::MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell,
     // Calculate miss chance
     float l_MissChance = p_Victim->GetUnitMissChancePhysical(this, p_AttType);
 
-    if (p_Spell && !p_Spell->Id && haveOffhandWeapon())
-        l_MissChance += 17;
+    if (p_Spell && !p_Spell->Id && haveOffhandWeapon() && (!ToPlayer() || ToPlayer()->GetSpecializationId() != SPEC_ROGUE_COMBAT))
+        l_MissChance += 19.0f;
 
     // Calculate hit chance
     float l_HitChance = 100.0f;
@@ -19815,12 +19838,15 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
 
             bool kingOfTheJungle = HasAura(102543);
             bool clawsOfShirvallah = HasAura(171745); // Claws of Shirvallah
+            uint32 l_ClawOfShirvallahModel = 0;
+            uint32 l_KingOfTheJungleModel = 0;
+            uint32 l_BaseCatModel = 0;
 
             // Based on Hair color
             if (getRace() == RACE_NIGHTELF)
             {
                 if (clawsOfShirvallah)
-                    return 59268; // Panther
+                    l_ClawOfShirvallahModel =  59268; // Panther
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
@@ -19829,46 +19855,46 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     case 8:
                     {
                         if (kingOfTheJungle)
-                            return 43764;
+                            l_KingOfTheJungleModel = 43764;
                         else
-                            return 29405;
+                            l_BaseCatModel = 29405;
                     }
                     case 3: // Light Blue
                     {
                         if (kingOfTheJungle)
-                            return 43763;
+                            l_KingOfTheJungleModel = 43763;
                         else
-                            return 29406;
+                            l_BaseCatModel = 29406;
                     }
                     case 0: // Green
                     case 1: // Light Green
                     case 2: // Dark Green
                     {
                         if (kingOfTheJungle)
-                            return 43762;
+                            l_KingOfTheJungleModel = 43762;
                         else
-                            return 29407;
+                            l_BaseCatModel = 29407;
                     }
                     case 4: // White
                     {
                         if (kingOfTheJungle)
-                            return 43765;
+                            l_KingOfTheJungleModel = 43765;
                         else
                             return 29408;
                     }
                     default: // original - Dark Blue
                     {
                         if (kingOfTheJungle)
-                            return 43761;
+                            l_KingOfTheJungleModel = 43761;
                         else
-                            return 892;
+                            l_BaseCatModel = 892;
                     }
                 }
             }
             else if (getRace() == RACE_TROLL)
             {
                 if (clawsOfShirvallah)
-                    return 59270; // Tiger
+                    l_ClawOfShirvallahModel = 59270; // Tiger
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
@@ -19877,48 +19903,48 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     case 1:
                     {
                         if (kingOfTheJungle)
-                            return 43776;
+                            l_KingOfTheJungleModel = 43776;
                         else
-                            return 33668;
+                            l_BaseCatModel = 33668;
                     }
                     case 2: // Yellow
                     case 3:
                     {
                         if (kingOfTheJungle)
-                            return 43778;
+                            l_KingOfTheJungleModel = 43778;
                         else
-                            return 33667;
+                            l_BaseCatModel = 33667;
                     }
                     case 4: // Blue
                     case 5:
                     case 6:
                     {
                         if (kingOfTheJungle)
-                            return 43773;
+                            l_KingOfTheJungleModel = 43773;
                         else
-                            return 33666;
+                            l_BaseCatModel = 33666;
                     }
                     case 7: // Purple
                     case 10:
                     {
                         if (kingOfTheJungle)
-                            return 43775;
+                            l_KingOfTheJungleModel = 43775;
                         else
-                            return 33665;
+                            l_BaseCatModel = 33665;
                     }
                     default: // original - white
                     {
                         if (kingOfTheJungle)
-                            return 43777;
+                            l_KingOfTheJungleModel = 43777;
                         else
-                            return 33669;
+                            l_BaseCatModel = 33669;
                     }
                 }
             }
             else if (getRace() == RACE_WORGEN)
             {
                 if (clawsOfShirvallah)
-                    return 59269; // Snowleopard
+                    l_ClawOfShirvallahModel = 59269; // Snowleopard
 
                 // Based on Skin color
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
@@ -19930,39 +19956,39 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 1: // Brown
                         {
                             if (kingOfTheJungle)
-                                return 43781;
+                                l_KingOfTheJungleModel = 43781;
                             else
-                                return 33662;
+                                l_BaseCatModel = 33662;
                         }
                         case 2: // Black
                         case 7:
                         {
                             if (kingOfTheJungle)
-                                return 43780;
+                                l_KingOfTheJungleModel = 43780;
                             else
-                                return 33661;
+                                l_BaseCatModel = 33661;
                         }
                         case 4: // yellow
                         {
                             if (kingOfTheJungle)
-                                return 43784;
+                                l_KingOfTheJungleModel = 43784;
                             else
-                                return 33664;
+                                l_KingOfTheJungleModel = 33664;
                         }
                         case 3: // White
                         case 5:
                         {
                             if (kingOfTheJungle)
-                                return 43785;
+                                l_KingOfTheJungleModel = 43785;
                             else
-                                return 33663;
+                                l_BaseCatModel = 33663;
                         }
                         default: // original - Gray
                         {
                             if (kingOfTheJungle)
-                                return 43782;
+                                l_KingOfTheJungleModel = 43782;
                             else
-                                return 33660;
+                                l_BaseCatModel = 33660;
                         }
                     }
                 }
@@ -19975,39 +20001,39 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 6:
                         {
                             if (kingOfTheJungle)
-                                return 43781;
+                                l_KingOfTheJungleModel = 43781;
                             else
-                                return 33662;
+                                l_BaseCatModel = 33662;
                         }
                         case 7: // Black
                         case 8:
                         {
                             if (kingOfTheJungle)
-                                return 43780;
+                                l_KingOfTheJungleModel = 43780;
                             else
-                                return 33661;
+                                l_BaseCatModel = 33661;
                         }
                         case 3: // yellow
                         case 4:
                         {
                             if (kingOfTheJungle)
-                                return 43784;
+                                l_KingOfTheJungleModel = 43784;
                             else
-                                return 33664;
+                                l_BaseCatModel = 33664;
                         }
                         case 2: // White
                         {
                             if (kingOfTheJungle)
-                                return 43785;
+                                l_KingOfTheJungleModel = 43785;
                             else
-                                return 33663;
+                                l_BaseCatModel = 33663;
                         }
                         default: // original - Gray
                         {
                             if (kingOfTheJungle)
-                                return 43782;
+                                l_KingOfTheJungleModel = 43782;
                             else
-                                return 33660;
+                                l_BaseCatModel = 33660;
                         }
                     }
                 }
@@ -20016,7 +20042,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_TAUREN)
             {
                 if (clawsOfShirvallah)
-                    return 59267; // Lion
+                    l_ClawOfShirvallahModel = 59267; // Lion
 
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
                 // Male
@@ -20030,27 +20056,27 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 18: // Completly White
                         {
                             if (kingOfTheJungle)
-                                return 43769;
+                                l_KingOfTheJungleModel = 43769;
                             else
-                                return 29409;
+                                l_BaseCatModel = 29409;
                         }
                         case 9: // Light Brown
                         case 10:
                         case 11:
                         {
                             if (kingOfTheJungle)
-                                return 43770;
+                                l_KingOfTheJungleModel = 43770;
                             else
-                                return 29410;
+                                l_BaseCatModel = 29410;
                         }
                         case 6: // Brown
                         case 7:
                         case 8:
                         {
                             if (kingOfTheJungle)
-                                return 43768;
+                                l_KingOfTheJungleModel = 43768;
                             else
-                                return 29411;
+                                l_BaseCatModel = 29411;
                         }
                         case 0: // Dark
                         case 1:
@@ -20060,16 +20086,16 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 5:
                         {
                             if (kingOfTheJungle)
-                                return 43766;
+                                l_KingOfTheJungleModel = 43766;
                             else
-                                return 29412;
+                                l_BaseCatModel = 29412;
                         }
                         default: // original - Grey
                         {
                             if (kingOfTheJungle)
-                                return 43767;
+                                l_KingOfTheJungleModel = 43767;
                             else
-                                return 8571;
+                                l_BaseCatModel = 8571;
                         }
                     }
                 }
@@ -20081,25 +20107,25 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 10: // White
                         {
                             if (kingOfTheJungle)
-                                return 43769;
+                                l_KingOfTheJungleModel = 43769;
                             else
-                                return 29409;
+                                l_BaseCatModel = 29409;
                         }
                         case 6: // Light Brown
                         case 7:
                         {
                             if (kingOfTheJungle)
-                                return 43770;
+                                l_KingOfTheJungleModel = 43770;
                             else
-                                return 29410;
+                                l_BaseCatModel = 29410;
                         }
                         case 4: // Brown
                         case 5:
                         {
                             if (kingOfTheJungle)
-                                return 43768;
+                                l_KingOfTheJungleModel = 43768;
                             else
-                                return 29411;
+                                l_BaseCatModel = 29411;
                         }
                         case 0: // Dark
                         case 1:
@@ -20107,20 +20133,26 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 3:
                         {
                             if (kingOfTheJungle)
-                                return 43766;
+                                l_KingOfTheJungleModel = 43766;
                             else
-                                return 29412;
+                                l_BaseCatModel = 29412;
                         }
                         default: // original - Grey
                         {
                             if (kingOfTheJungle)
-                                return 43767;
+                                l_KingOfTheJungleModel = 43767;
                             else
-                                return 8571;
+                                l_BaseCatModel = 8571;
                         }
                     }
                 }
             }
+            if (l_KingOfTheJungleModel)
+                return l_KingOfTheJungleModel;
+            else if (l_ClawOfShirvallahModel)
+                return l_ClawOfShirvallahModel;
+            else if (l_BaseCatModel)
+                return l_BaseCatModel;
             else if (Player::TeamForRace(getRace()) == ALLIANCE)
                 return 892;
             else

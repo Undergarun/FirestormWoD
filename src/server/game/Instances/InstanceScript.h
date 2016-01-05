@@ -585,7 +585,7 @@ class InstanceScript : public ZoneScript
         void AddDoor(GameObject* door, bool add);
         void AddMinion(Creature* minion, bool add);
 
-        void UpdateDoorState(GameObject* door);
+        void UpdateDoorState(GameObject* door, bool p_WithDelay = false);
         void UpdateMinionState(Creature* minion, EncounterState state);
 
         std::string LoadBossState(char const* data);
