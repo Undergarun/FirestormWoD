@@ -1293,7 +1293,7 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
             std::list<uint64> l_UnitGUIDList = m_UnitGUIDList;
             l_TargetList.remove_if([this, l_Caster, l_UnitGUIDList](Unit* p_Unit) -> bool
             {
-                if (p_Unit == nullptr || p_Unit->GetGUID() == l_Caster->GetGUID())
+                if (p_Unit == nullptr)
                     return true;
 
                 if (!(std::find(l_UnitGUIDList.begin(), l_UnitGUIDList.end(), p_Unit->GetGUID()) == l_UnitGUIDList.end()))
