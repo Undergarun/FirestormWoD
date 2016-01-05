@@ -19838,12 +19838,15 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
 
             bool kingOfTheJungle = HasAura(102543);
             bool clawsOfShirvallah = HasAura(171745); // Claws of Shirvallah
+            uint32 l_ClawOfShirvallahModel = 0;
+            uint32 l_KingOfTheJungleModel = 0;
+            uint32 l_BaseCatModel = 0;
 
             // Based on Hair color
             if (getRace() == RACE_NIGHTELF)
             {
                 if (clawsOfShirvallah)
-                    return 59268; // Panther
+                    l_ClawOfShirvallahModel =  59268; // Panther
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
@@ -19852,46 +19855,46 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     case 8:
                     {
                         if (kingOfTheJungle)
-                            return 43764;
+                            l_KingOfTheJungleModel = 43764;
                         else
-                            return 29405;
+                            l_BaseCatModel = 29405;
                     }
                     case 3: // Light Blue
                     {
                         if (kingOfTheJungle)
-                            return 43763;
+                            l_KingOfTheJungleModel = 43763;
                         else
-                            return 29406;
+                            l_BaseCatModel = 29406;
                     }
                     case 0: // Green
                     case 1: // Light Green
                     case 2: // Dark Green
                     {
                         if (kingOfTheJungle)
-                            return 43762;
+                            l_KingOfTheJungleModel = 43762;
                         else
-                            return 29407;
+                            l_BaseCatModel = 29407;
                     }
                     case 4: // White
                     {
                         if (kingOfTheJungle)
-                            return 43765;
+                            l_KingOfTheJungleModel = 43765;
                         else
                             return 29408;
                     }
                     default: // original - Dark Blue
                     {
                         if (kingOfTheJungle)
-                            return 43761;
+                            l_KingOfTheJungleModel = 43761;
                         else
-                            return 892;
+                            l_BaseCatModel = 892;
                     }
                 }
             }
             else if (getRace() == RACE_TROLL)
             {
                 if (clawsOfShirvallah)
-                    return 59270; // Tiger
+                    l_ClawOfShirvallahModel = 59270; // Tiger
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
@@ -19900,48 +19903,48 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     case 1:
                     {
                         if (kingOfTheJungle)
-                            return 43776;
+                            l_KingOfTheJungleModel = 43776;
                         else
-                            return 33668;
+                            l_BaseCatModel = 33668;
                     }
                     case 2: // Yellow
                     case 3:
                     {
                         if (kingOfTheJungle)
-                            return 43778;
+                            l_KingOfTheJungleModel = 43778;
                         else
-                            return 33667;
+                            l_BaseCatModel = 33667;
                     }
                     case 4: // Blue
                     case 5:
                     case 6:
                     {
                         if (kingOfTheJungle)
-                            return 43773;
+                            l_KingOfTheJungleModel = 43773;
                         else
-                            return 33666;
+                            l_BaseCatModel = 33666;
                     }
                     case 7: // Purple
                     case 10:
                     {
                         if (kingOfTheJungle)
-                            return 43775;
+                            l_KingOfTheJungleModel = 43775;
                         else
-                            return 33665;
+                            l_BaseCatModel = 33665;
                     }
                     default: // original - white
                     {
                         if (kingOfTheJungle)
-                            return 43777;
+                            l_KingOfTheJungleModel = 43777;
                         else
-                            return 33669;
+                            l_BaseCatModel = 33669;
                     }
                 }
             }
             else if (getRace() == RACE_WORGEN)
             {
                 if (clawsOfShirvallah)
-                    return 59269; // Snowleopard
+                    l_ClawOfShirvallahModel = 59269; // Snowleopard
 
                 // Based on Skin color
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
@@ -19953,39 +19956,39 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 1: // Brown
                         {
                             if (kingOfTheJungle)
-                                return 43781;
+                                l_KingOfTheJungleModel = 43781;
                             else
-                                return 33662;
+                                l_BaseCatModel = 33662;
                         }
                         case 2: // Black
                         case 7:
                         {
                             if (kingOfTheJungle)
-                                return 43780;
+                                l_KingOfTheJungleModel = 43780;
                             else
-                                return 33661;
+                                l_BaseCatModel = 33661;
                         }
                         case 4: // yellow
                         {
                             if (kingOfTheJungle)
-                                return 43784;
+                                l_KingOfTheJungleModel = 43784;
                             else
-                                return 33664;
+                                l_KingOfTheJungleModel = 33664;
                         }
                         case 3: // White
                         case 5:
                         {
                             if (kingOfTheJungle)
-                                return 43785;
+                                l_KingOfTheJungleModel = 43785;
                             else
-                                return 33663;
+                                l_BaseCatModel = 33663;
                         }
                         default: // original - Gray
                         {
                             if (kingOfTheJungle)
-                                return 43782;
+                                l_KingOfTheJungleModel = 43782;
                             else
-                                return 33660;
+                                l_BaseCatModel = 33660;
                         }
                     }
                 }
@@ -19998,39 +20001,39 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 6:
                         {
                             if (kingOfTheJungle)
-                                return 43781;
+                                l_KingOfTheJungleModel = 43781;
                             else
-                                return 33662;
+                                l_BaseCatModel = 33662;
                         }
                         case 7: // Black
                         case 8:
                         {
                             if (kingOfTheJungle)
-                                return 43780;
+                                l_KingOfTheJungleModel = 43780;
                             else
-                                return 33661;
+                                l_BaseCatModel = 33661;
                         }
                         case 3: // yellow
                         case 4:
                         {
                             if (kingOfTheJungle)
-                                return 43784;
+                                l_KingOfTheJungleModel = 43784;
                             else
-                                return 33664;
+                                l_BaseCatModel = 33664;
                         }
                         case 2: // White
                         {
                             if (kingOfTheJungle)
-                                return 43785;
+                                l_KingOfTheJungleModel = 43785;
                             else
-                                return 33663;
+                                l_BaseCatModel = 33663;
                         }
                         default: // original - Gray
                         {
                             if (kingOfTheJungle)
-                                return 43782;
+                                l_KingOfTheJungleModel = 43782;
                             else
-                                return 33660;
+                                l_BaseCatModel = 33660;
                         }
                     }
                 }
@@ -20039,7 +20042,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_TAUREN)
             {
                 if (clawsOfShirvallah)
-                    return 59267; // Lion
+                    l_ClawOfShirvallahModel = 59267; // Lion
 
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
                 // Male
@@ -20053,27 +20056,27 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 18: // Completly White
                         {
                             if (kingOfTheJungle)
-                                return 43769;
+                                l_KingOfTheJungleModel = 43769;
                             else
-                                return 29409;
+                                l_BaseCatModel = 29409;
                         }
                         case 9: // Light Brown
                         case 10:
                         case 11:
                         {
                             if (kingOfTheJungle)
-                                return 43770;
+                                l_KingOfTheJungleModel = 43770;
                             else
-                                return 29410;
+                                l_BaseCatModel = 29410;
                         }
                         case 6: // Brown
                         case 7:
                         case 8:
                         {
                             if (kingOfTheJungle)
-                                return 43768;
+                                l_KingOfTheJungleModel = 43768;
                             else
-                                return 29411;
+                                l_BaseCatModel = 29411;
                         }
                         case 0: // Dark
                         case 1:
@@ -20083,16 +20086,16 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 5:
                         {
                             if (kingOfTheJungle)
-                                return 43766;
+                                l_KingOfTheJungleModel = 43766;
                             else
-                                return 29412;
+                                l_BaseCatModel = 29412;
                         }
                         default: // original - Grey
                         {
                             if (kingOfTheJungle)
-                                return 43767;
+                                l_KingOfTheJungleModel = 43767;
                             else
-                                return 8571;
+                                l_BaseCatModel = 8571;
                         }
                     }
                 }
@@ -20104,25 +20107,25 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 10: // White
                         {
                             if (kingOfTheJungle)
-                                return 43769;
+                                l_KingOfTheJungleModel = 43769;
                             else
-                                return 29409;
+                                l_BaseCatModel = 29409;
                         }
                         case 6: // Light Brown
                         case 7:
                         {
                             if (kingOfTheJungle)
-                                return 43770;
+                                l_KingOfTheJungleModel = 43770;
                             else
-                                return 29410;
+                                l_BaseCatModel = 29410;
                         }
                         case 4: // Brown
                         case 5:
                         {
                             if (kingOfTheJungle)
-                                return 43768;
+                                l_KingOfTheJungleModel = 43768;
                             else
-                                return 29411;
+                                l_BaseCatModel = 29411;
                         }
                         case 0: // Dark
                         case 1:
@@ -20130,20 +20133,26 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 3:
                         {
                             if (kingOfTheJungle)
-                                return 43766;
+                                l_KingOfTheJungleModel = 43766;
                             else
-                                return 29412;
+                                l_BaseCatModel = 29412;
                         }
                         default: // original - Grey
                         {
                             if (kingOfTheJungle)
-                                return 43767;
+                                l_KingOfTheJungleModel = 43767;
                             else
-                                return 8571;
+                                l_BaseCatModel = 8571;
                         }
                     }
                 }
             }
+            if (l_KingOfTheJungleModel)
+                return l_KingOfTheJungleModel;
+            else if (l_ClawOfShirvallahModel)
+                return l_ClawOfShirvallahModel;
+            else if (l_BaseCatModel)
+                return l_BaseCatModel;
             else if (Player::TeamForRace(getRace()) == ALLIANCE)
                 return 892;
             else

@@ -102,11 +102,6 @@ enum PriestSpells
     PRIEST_SPELL_SOUL_OF_DIAMOND                    = 96219,
     PRIEST_SPELL_4P_S12_HEAL                        = 131566,
     PRIEST_SPELL_HOLY_SPARK                         = 131567,
-    PRIEST_SPELL_SPIRIT_OF_REDEMPTION_IMMUNITY      = 62371,
-    PRIEST_SPELL_SPIRIT_OF_REDEMPTION_FORM          = 27795,
-    PRIEST_SPELL_SPIRIT_OF_REDEMPTION_TALENT        = 20711,
-    PRIEST_SPELL_SPIRIT_OF_REDEMPTION_ROOT          = 27792,
-    PRIEST_SPELL_SPIRIT_OF_REDEMPTION_SHAPESHIFT    = 27827,
     PRIEST_SPELL_LEVITATE                           = 111758,
     PRIEST_SPELL_VOID_TENDRILS_SUMMON               = 127665,
     PRIEST_SPELL_SPECTRAL_GUISE_CHARGES             = 119030,
@@ -543,15 +538,24 @@ class spell_pri_spirit_of_redemption_form: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_spirit_of_redemption_form_AuraScript);
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            enum eSpells
             {
-                if (Unit* caster = GetCaster())
-                {
-                    caster->RemoveAura(PRIEST_SPELL_SPIRIT_OF_REDEMPTION_IMMUNITY);
-                    caster->RemoveAura(PRIEST_SPELL_SPIRIT_OF_REDEMPTION_FORM);
-                    caster->RemoveAura(PRIEST_SPELL_SPIRIT_OF_REDEMPTION_ROOT);
-                    caster->setDeathState(JUST_DIED);
-                }
+                SpiritOfRedemptionImmunity      = 62371,
+                //SpiritOfRedemptionTalent        = 20711,
+                SpiritOfRedemptionRoot          = 27792,
+                SpiritOfRedemptionForm          = 27795,
+            };
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                l_Caster->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
+                l_Caster->RemoveAura(eSpells:: SpiritOfRedemptionRoot);
+                l_Caster->RemoveAura(eSpells::SpiritOfRedemptionForm);
+                l_Caster->setDeathState(JUST_DIED);
             }
 
             void Register()
@@ -576,28 +580,37 @@ class spell_pri_spirit_of_redemption: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_spirit_of_redemption_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+            enum eSpells
             {
-                amount = -1;
+                SpiritOfRedemptionImmunity      = 62371,
+                SpiritOfRedemptionRoot          = 27792,
+                SpiritOfRedemptionForm          = 27795,
+                SpiritOfRedemptionShapeshift    = 27827
+            };
+
+            void CalculateAmount(constAuraEffectPtr /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            {
+                p_Amount = -1;
             }
 
-            void Absorb(AuraEffectPtr /*auraEffect*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void Absorb(AuraEffectPtr /*p_AuraEffect*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (dmgInfo.GetDamage() < caster->GetHealth())
-                        return;
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-                    if (caster->HasAura(PRIEST_SPELL_SPIRIT_OF_REDEMPTION_SHAPESHIFT))
-                        return;
+                if (p_DmgInfo.GetDamage() < l_Caster->GetHealth())
+                    return;
 
-                    caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_FORM, true);
-                    caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_IMMUNITY, true);
-                    caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_ROOT, true);
-                    caster->CastSpell(caster, PRIEST_SPELL_SPIRIT_OF_REDEMPTION_SHAPESHIFT, true);
+                if (l_Caster->HasAura(eSpells::SpiritOfRedemptionShapeshift))
+                    return;
 
-                    absorbAmount = caster->GetHealth() - 1;
-                }
+                l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionImmunity, true);
+                l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionRoot, true);
+                l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionForm, true);
+                l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionShapeshift, true);
+
+                p_AbsorbAmount = l_Caster->GetHealth() - 1;
             }
 
             void Register()
@@ -1213,7 +1226,7 @@ enum MasterySpells
     MASTERY_SPELL_DISCIPLINE_SHIELD = 77484
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Power Word: Shield - 17
 class spell_pri_power_word_shield : public SpellScriptLoader
 {
@@ -1225,6 +1238,13 @@ public:
         PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
 
         int32 m_HealByGlyph = 0;
+
+        enum eSpells
+        {
+            WordOfMendingAura = 152117,
+            WordOfMendingProc = 155363,
+            WordOfMendingStack = 155362,
+        };
 
         void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
         {
@@ -1255,6 +1275,12 @@ public:
 
             if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
+
+            if (l_Owner->HasAura(eSpells::WordOfMendingAura))
+            {
+                if (!l_Owner->HasAura(eSpells::WordOfMendingProc))
+                    l_Owner->CastSpell(l_Owner, eSpells::WordOfMendingStack, true);
+            }
         }
 
         void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_ShieldValue*/)

@@ -431,7 +431,7 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
-                if (l_Target != nullptr)
+                if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target))
                 {
                     l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellIceTrapEffect, true);
@@ -480,7 +480,7 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
-                if (l_Target != nullptr)
+                if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target))
                 {
                     l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
@@ -523,7 +523,10 @@ class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
             p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
 
             for (auto itr : targetList)
-                itr->CastSpell(itr, IceTrapEffect, true);
+            {
+                if (l_Caster->IsValidAttackTarget(itr))
+                    itr->CastSpell(itr, IceTrapEffect, true);
+            }
 
             // Glyph of Black Ice
             if (l_Caster->GetDistance(p_AreaTrigger) <= l_Radius && l_Caster->HasAura(GlyphOfBlackIce) && !l_Caster->HasAura(BlackIceEffect))
@@ -580,7 +583,7 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
-                if (l_Target != nullptr)
+                if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target))
                 {
                     if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::SpellGlyphOfSolace)) ///< Your Freezing Trap also removes all damage over time effects from its target.
                     {
@@ -628,7 +631,7 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
-                if (l_Target != nullptr)
+                if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target))
                 {
                     l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HunterExplosiveTrap::SpellExplosiveEffect, true);
                     p_AreaTrigger->Remove(0);

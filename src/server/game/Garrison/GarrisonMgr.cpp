@@ -770,6 +770,9 @@ namespace MS { namespace Garrison
     /// Can upgrade the garrison
     bool Manager::CanUpgrade() const
     {
+        if (m_Owner->isGameMaster() && m_GarrisonLevel < 3)
+            return true;
+
         if (!m_Owner->HasCurrency(Globals::CurrencyID, GetGarrisonSiteLevelEntry()->UpgradeCost))
             return false;
 
@@ -787,8 +790,11 @@ namespace MS { namespace Garrison
     /// Upgrade the garrison
     void Manager::Upgrade()
     {
-        m_Owner->ModifyCurrency(Globals::CurrencyID, -((int32)GetGarrisonSiteLevelEntry()->UpgradeCost));
-        m_Owner->ModifyMoney(-((int64)GetGarrisonSiteLevelEntry()->UpgradeMoneyCost));
+        if (!m_Owner->isGameMaster())
+        {
+            m_Owner->ModifyCurrency(Globals::CurrencyID, -((int32)GetGarrisonSiteLevelEntry()->UpgradeCost));
+            m_Owner->ModifyMoney(-((int64)GetGarrisonSiteLevelEntry()->UpgradeMoneyCost));
+        }
 
         SetLevel(m_GarrisonLevel + 1);
 
