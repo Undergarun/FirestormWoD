@@ -6867,6 +6867,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 110310: ///< Dampening
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].Amplitude = 10000;  ///< 10 secs
                 break;
+            case 108415: ///< Soul Link
+            case 108446:
+                spellInfo->AttributesEx8 &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
+                break;
             default:
                 break;
         }
