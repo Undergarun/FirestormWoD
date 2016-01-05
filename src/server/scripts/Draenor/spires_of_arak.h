@@ -41,7 +41,9 @@ namespace SpiresOfArakEvents
         EventSolarRadiation   = 6,
         EventMoveToPlayer     = 7,
         EventTurnPhoenixToAsh = 8,
-        EventPhoenixFixatePlr = 9
+        EventPhoenixFixatePlr = 9,
+        EventFlyDestReached   = 10,
+        EventFlyOver          = 11
     };
 }
 
