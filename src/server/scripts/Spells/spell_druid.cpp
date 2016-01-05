@@ -2071,34 +2071,6 @@ class spell_dru_faerie_fire: public SpellScriptLoader
         }
 };
 
-/// Teleport : Moonglade - 18960
-class spell_dru_teleport_moonglade: public SpellScriptLoader
-{
-    public:
-        spell_dru_teleport_moonglade() : SpellScriptLoader("spell_dru_teleport_moonglade") { }
-
-        class spell_dru_teleport_moonglade_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_teleport_moonglade_SpellScript);
-
-            void HandleAfterCast()
-            {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->TeleportTo(1, 7964.063f, -2491.099f, 487.83f, l_Player->GetOrientation());
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_dru_teleport_moonglade_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dru_teleport_moonglade_SpellScript();
-        }
-};
-
 /// Druid of the flames - 138927
 class spell_dru_druid_flames : public SpellScriptLoader
 {
@@ -5759,7 +5731,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_stampeding_roar();
     new spell_dru_lacerate();
     new spell_dru_faerie_fire();
-    new spell_dru_teleport_moonglade();
     new spell_dru_eclipse();
     new spell_dru_eclipse_mod_damage();
     new spell_dru_moonfire();

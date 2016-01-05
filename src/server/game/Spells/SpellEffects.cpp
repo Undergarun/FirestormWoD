@@ -1477,6 +1477,14 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
                     destTarget = new WorldLocation(1, 1569.97f, -4397.41f, 16.0472f, 0.543025f);
             }
             break;
+        case 18960: ///< Teleport: Moonglade
+            if (unitTarget->GetZoneId() == 493 && unitTarget->GetMapId() == 1) ///< Moonglade, Kalimdor
+            {
+                WorldLocation l_Loc = unitTarget->ToPlayer()->GetPreviousLocation();
+                if (l_Loc.GetMapId() != MAPID_INVALID)
+                    destTarget = &l_Loc;
+            }
+            break;
         case 48129:  ///< Scroll of Recall
             uiMaxSafeLevel = 40;
         case 60320:  ///< Scroll of Recall II
