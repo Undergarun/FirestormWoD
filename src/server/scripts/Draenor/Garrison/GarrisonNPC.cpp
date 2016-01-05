@@ -833,16 +833,26 @@ namespace MS { namespace Garrison
         SetMaxPlayerDistance(200.0f);
         SetDespawnAtFar(false);
         SetDespawnAtEnd(false);
+        SetEscortPaused(true);
     }
 
     void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
     {
         if (p_SpellInfo && p_SpellInfo->Id == StablesData::g_LassoAura)
+        {
             Start(false, true, p_Caster->GetGUID());
+            SetRun(true);
+            SetEscortPaused(false);
+        }
     }
 
     void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::MovementInform(uint32 p_Type, uint32 p_ID)
     {
+        npc_escortAI::MovementInform(p_Type, p_ID);
+
+        if (p_Type != EFFECT_MOTION_TYPE)
+            return;
+
 
     }
 
@@ -850,9 +860,20 @@ namespace MS { namespace Garrison
     {
         switch (me->GetEntry())
         {
-            case eCreaturesEntries::NpcIcehoof:
-                break;
             case eCreaturesEntries::NpcMeadowstomper:
+            {
+                switch (p_PointId)
+                {
+                    case 17:
+                        break;
+                    case 27:
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case eCreaturesEntries::NpcIcehoof:
                 break;
             case eCreaturesEntries::NpcRiverwallow:
                 break;
@@ -860,11 +881,16 @@ namespace MS { namespace Garrison
                 break;
             case eCreaturesEntries::NpcSilverpelt:
                 break;
-            case eCreaturesEntries ::NpcSnarler:
+            case eCreaturesEntries::NpcSnarler:
                 break;
             default:
                 break;
         }
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::UpdateAI(uint32 const p_Diff)
+    {
+        npc_escortAI::UpdateAI(p_Diff);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -898,6 +924,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_CallToArms;
     new MS::Garrison::npc_garrison_amperial_construct;
     new MS::Garrison::npc_garrison_atheeru_palestar;
+    new MS::Garrison::npc_GarrisonStablesCreatures;
 
     /// Alliance
     {

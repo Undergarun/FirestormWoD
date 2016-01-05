@@ -3374,6 +3374,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 173702:
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
+                break;
             case 173686:
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
                 break;
