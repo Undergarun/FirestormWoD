@@ -4185,7 +4185,14 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
                 if (l_ChaosBolt)
                     continue;
                 else
+                {
                     l_ChaosBolt = true;
+                    if (l_SpellMod->charges < 3)
+                    {
+                        p_RemoveStacks = false;
+                        continue;
+                    }
+                }
             }
             /// Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
             else if ((l_SpellMod->spellId == 48108 || l_SpellMod->spellId == 12043) && l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 11366)
