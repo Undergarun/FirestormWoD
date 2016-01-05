@@ -923,7 +923,7 @@ void PetBattle::AddPet(uint32 p_TeamID, std::shared_ptr<BattlePetInstance> p_Pet
     TotalPetCount++;
     Teams[p_TeamID]->TeamPetCount++;
 
-    if (Teams[p_TeamID]->TeamPetCount >= MAX_PETBATTLE_SLOTS)
+    if (Teams[p_TeamID]->TeamPetCount > MAX_PETBATTLE_SLOTS)
     {
         ACE_Stack_Trace l_StackTrace;
         sLog->outAshran("PetBattle::AddPet TeamPetCount overflow (%u)", Teams[p_TeamID]->TeamPetCount);
