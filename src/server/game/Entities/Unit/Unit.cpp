@@ -12533,8 +12533,8 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
     int32 l_Diff = 0;
     float l_PctSpellMod = 0.0f;
 
-    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && p_SpellProto->Id != 116858)
-        l_CritPctBonus = 50; ///< 150% on pvp, except Chaos Bolt
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr)
+        l_CritPctBonus = 50; ///< 150% on pvp
 
     /// Special case for Prismatic Crystal - 150% crit
     if (l_ModOwner != nullptr && l_ModOwner->getClass() == CLASS_MAGE && p_Victim->GetTypeId() == TYPEID_UNIT && p_Victim->HasAura(155153))
