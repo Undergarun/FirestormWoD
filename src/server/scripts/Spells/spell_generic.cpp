@@ -5128,7 +5128,7 @@ class spell_gen_kilroggs_dead_eye : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                int32 l_Multiplier = (p_AurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() / 100) * ((100.0f - l_Target->GetHealthPct()) / 100.0f);
+                float l_Multiplier = (p_AurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() / 100) * ((100.0f - l_Target->GetHealthPct()) / 100.0f);
                 p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), l_Multiplier);
             }
 
