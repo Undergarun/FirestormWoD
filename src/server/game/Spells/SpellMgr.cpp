@@ -3374,12 +3374,30 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Stables
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 174216:
+            case 174218:
+            case 174219:
+            case 174220:
+            case 174221:
+            case 174222:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOUNTED;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].MiscValue = 305;
+                spellInfo->Effects[0].MiscValueB = 230;
+                break;
             case 173702:
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 173686:
+            case 173686: ///< Stables Lasso
+            case 174070: ///< Stables Lasso
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(5); ///< 300s
                 break;
+            ///////////////////////////////////////////////////////////////////////////////////
             case 182464: ///< Portal to Garrison
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 break;

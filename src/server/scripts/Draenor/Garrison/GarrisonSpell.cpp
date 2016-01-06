@@ -283,16 +283,28 @@ namespace MS { namespace Garrison
                     if (l_Caster == nullptr || l_Target == nullptr)
                         return;
 
-                    if (l_Caster->GetDistance2d(l_Target) >= 10.0f)
+                    if (l_Caster->GetDistance2d(l_Target) >= 15.0f)
                     {
                         if (Creature* l_Creature = l_Target->ToCreature())
                             l_Creature->CastSpell(l_Creature, 173702, true);
                     }
                 }
 
+                void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+                {
+                    WorldObject* l_Target = GetOwner();
+
+                    if (l_Target == nullptr)
+                        return;
+
+                    if (Creature* l_Creature = l_Target->ToCreature())
+                        l_Creature->DespawnOrUnsummon();
+                }
+
                 void Register() override
                 {
                     OnEffectPeriodic += AuraEffectPeriodicFn(spell_garrison_stables_lasso_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_garrison_stables_lasso_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
                 }
             };
 

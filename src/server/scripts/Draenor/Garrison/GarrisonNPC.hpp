@@ -680,6 +680,22 @@ namespace MS { namespace Garrison
                     NpcSnarler       = 86851
                 };
 
+                enum CreatureJumps
+                {
+                    MeadowstomperFirstJump = 1,
+                    MeadowstomperSecondJump,
+                    MeadowstomperThirdJump,
+                    SnarlerFirstJump,
+                    SnarlerSecondJump,
+                    SnarlerThirdJump,
+                    SnarlerFourthJump,
+                    SnarlerFifthJump,
+                    SnarlerSixthJump,
+                    SnarlerSeventhJump,
+                    SilverpeltFirstJump,
+                    SilverpeltSecondJump
+                };
+
                 virtual void Reset() override;
 
                 virtual void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override;
@@ -687,6 +703,10 @@ namespace MS { namespace Garrison
                 virtual void MovementInform(uint32 p_Type, uint32 p_ID) override;
 
                 virtual void WaypointReached(uint32 p_PointId) override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+
+                void StopEscortEvent(uint32 p_KillCredit, uint32 p_SpellID);
             };
 
     };
