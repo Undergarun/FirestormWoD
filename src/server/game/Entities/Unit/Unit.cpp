@@ -11603,6 +11603,10 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     if (GetSpellModOwner())
         DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
+    /// Some spells damages are modify on pvp
+    if (GetSpellModOwner() && victim->GetSpellModOwner())
+        AddPct(DoneTotalMod, GetDiminishingPVPDamage(spellProto));
+
     AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
     {
@@ -21955,6 +21959,19 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
     }
 
     return l_DamageTakenFactor;
+}
+
+
+float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
+{
+    /// Explicit diminishing Pvp damage
+    switch (p_Spellproto->SpellFamilyName)
+    {
+    default:
+        break;
+    }
+
+    return 0.0f;
 }
 
 void Unit::BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_TargetFramePriority /*= 0*/)

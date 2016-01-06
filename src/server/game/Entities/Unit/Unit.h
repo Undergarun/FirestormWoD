@@ -1773,6 +1773,8 @@ class Unit : public WorldObject
         float CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature);
         float CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature);
 
+        float GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const;
+
         float MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell, WeaponAttackType p_AttType) const;
         float MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spell);
