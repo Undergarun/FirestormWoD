@@ -10628,7 +10628,7 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
         {
             RemoveFlag(UNIT_FIELD_AURA_STATE, 1<<(flag-1));
 
-            if (flag != AURA_STATE_ENRAGE)                  // enrage aura state triggering continues auras
+            if (flag)                  // enrage aura state triggering continues auras
             {
                 Unit::AuraApplicationMap& tAuras = GetAppliedAuras();
                 for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
@@ -13175,20 +13175,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                 amount += float((*i)->GetAmount());
 
             DoneTotalMod += CalculatePct(1.0, amount);
-    }
-
-    /// 76856 - Mastery : Unshackled Fury
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0)
-    {
-        if (HasAura(76856) && HasAuraState(AURA_STATE_ENRAGE))
-        {
-            if (AuraEffectPtr l_AurEff = GetAuraEffect(76856, EFFECT_0, GetGUID()))
-            {
-                float l_Mastery = (float)l_AurEff->GetAmount();
-
-                DoneTotalMod += CalculatePct(1.0, l_Mastery);
-            }
-        }
     }
 
     /// 76806 - Mastery : Main Gauche
