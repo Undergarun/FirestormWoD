@@ -344,6 +344,12 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
             if (p_State == EncounterState::DONE)
                 SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
 
+            for (uint32 l_Type = 0; l_Type < DoorType::MAX_DOOR_TYPES; ++l_Type)
+            {
+                for (DoorSet::iterator l_Iter = l_BossInfos->door[l_Type].begin(); l_Iter != l_BossInfos->door[l_Type].end(); ++l_Iter)
+                    UpdateDoorState(*l_Iter, true);
+            }
+
             return false;
         }
         else
