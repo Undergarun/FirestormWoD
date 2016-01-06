@@ -3551,8 +3551,21 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
                 l_Backdraft->ModCharges(-3);
             }
 
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                /// Chaos Bolt now deals 33% more damage in PvP combat
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), 33));
+            }
+
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_chaos_bolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 AfterCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleAfterCast);
             }
         };
