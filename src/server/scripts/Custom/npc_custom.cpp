@@ -502,6 +502,6 @@ class npc_pve_tests_manager : public CreatureScript
 
 void AddSC_npc_custom()
 {
-    new npc_world_boss_gossip();
+///    new npc_world_boss_gossip();
     new npc_pve_tests_manager();
 }

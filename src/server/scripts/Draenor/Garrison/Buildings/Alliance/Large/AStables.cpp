@@ -216,6 +216,12 @@ namespace MS { namespace Garrison
 
         PlayerSpellMap &l_SpellMap = l_Owner->GetSpellMap();
         std::vector<uint32> l_MountEntries;
+        std::list<Creature*> l_CreatureList;
+
+        me->GetCreatureListInGrid(l_CreatureList, 12.0f);
+
+        for (Creature* l_Creature : l_CreatureList)
+            l_Creature->DespawnOrUnsummon();
 
         if (!l_SpellMap.empty())
         {

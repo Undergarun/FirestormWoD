@@ -14,8 +14,8 @@
 
 	-- plot content (only fixed spawn are tormak and ka'la (81494), else is dynamic)
 
-	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -65 AND faction_index = 0; -- horde
-	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','79836','6.73913','-0.149402','2.188','6.25459');
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -65 AND faction_index = 1; -- horde
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-65','1','86974','2.35014','0.122752','1.14831','0.745757');
 
 
 	-- Tormak le balafré
