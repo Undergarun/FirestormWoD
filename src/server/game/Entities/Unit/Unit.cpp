@@ -11701,13 +11701,9 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                 if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
                     DoneTotalMod += 1.0f;
 
-                // Fingers of Frost
+                /// Fingers of Frost
                 if (AuraPtr l_Aura = GetAura(44544))
                     AddPct(DoneTotalMod, l_Aura->GetEffect(1)->GetAmount());
-
-                /// Fingers of Frost gives 25% damage bonus to Ice Lance
-                if (HasAura(44544))
-                    AddPct(DoneTotalMod, 25.0f);
             }
 
             /// Torment the weak
