@@ -5150,9 +5150,103 @@ class spell_gen_kilroggs_dead_eye : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Blood Elf Illusion - 160331
+class spell_gen_blood_elfe_illusion : public SpellScriptLoader
+{
+    public:
+        spell_gen_blood_elfe_illusion() : SpellScriptLoader("spell_gen_blood_elfe_illusion") { }
+
+        class spell_gen_blood_elfe_illusion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_blood_elfe_illusion_AuraScript);
+
+            uint8 m_Race = 0;
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+               /* PlayerInfo const* l_BloodElfInfo = sObjectMgr->GetPlayerInfo(RACE_BLOODELF, l_Player->getClass());
+
+                m_Race = l_Player->getRace();
+                uint32 RaceClassPower = (RACE_BLOODELF) | (l_Player->getClass() << 8) | (l_Player->getPowerType() << 16);
+
+                l_Player->SetUInt32Value(UNIT_FIELD_SEX, (RaceClassPower | (l_Player->getGender() << 24)));
+
+                if (l_BloodElfInfo == nullptr)
+                    return;*/
+
+                uint8 l_Gender = l_Player->getGender();
+                uint32 l_CreatureID = 0;
+                switch (l_Gender)
+                {
+                case GENDER_FEMALE:
+                    l_CreatureID = 21631;
+                    break;
+                case GENDER_MALE:
+                    l_CreatureID = 21630;
+                    break;
+                default:
+                    break;
+                }
+
+                if (!l_CreatureID)
+                    return;
+
+                CreatureTemplate const* l_Template = sObjectMgr->GetCreatureTemplate(l_CreatureID);
+                if (l_Template)
+                {
+                    uint32 l_ModelId = 0;
+
+                    if (uint32 l_Model = l_Template->GetRandomValidModelId())
+                        l_ModelId = l_Model;
+
+                    if (l_ModelId)
+                        l_Player->SetDisplayId(l_ModelId);
+                }
+
+                /*for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
+                {
+                    if (Item* l_Item = l_Player->GetItemByPos(i))
+                    {
+                        l_Player->SetVisibleItemSlot(i, l_Item);
+                    }
+                }*/
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /*uint32 l_RaceClassPower = (m_Race) | (l_Player->getClass() << 8) | (l_Player->getPowerType() << 16);
+
+                l_Player->SetUInt32Value(UNIT_FIELD_SEX, (l_RaceClassPower | (l_Player->getGender() << 24)));*/
+                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_blood_elfe_illusion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_blood_elfe_illusion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_blood_elfe_illusion_AuraScript();
+        }
+};
 
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_blood_elfe_illusion();
     new spell_gen_kilroggs_dead_eye();
     new spell_generic_iron_horde_pirate_costume();
     new spell_gen_mark_of_thunderlord();
