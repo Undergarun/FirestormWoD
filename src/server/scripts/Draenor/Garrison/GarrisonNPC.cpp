@@ -804,6 +804,230 @@ namespace MS { namespace Garrison
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_GarrisonStablesCreatures::npc_GarrisonStablesCreatures()
+        : CreatureScript("npc_GarrisonStablesCreatures")
+    {
+    }
+
+    /// Constructor
+    npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::npc_GarrisonStablesCreaturesAI(Creature* p_Creature)
+        : npc_escortAI(p_Creature)
+    {
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_GarrisonStablesCreatures::GetAI(Creature* p_Creature) const
+    {
+        return new npc_GarrisonStablesCreaturesAI(p_Creature);
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::Reset()
+    {
+        SetMaxPlayerDistance(200.0f);
+        SetDespawnAtFar(false);
+        SetDespawnAtEnd(false);
+        SetEscortPaused(true);
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+    {
+        if (p_SpellInfo && (p_SpellInfo->Id == StablesData::g_LassoAllianceAura || p_SpellInfo->Id == StablesData::g_LassoHordeAura))
+        {
+            Start(false, true, p_Caster->GetGUID());
+            SetRun(true);
+            me->SetWalk(false);
+            SetEscortPaused(false);
+        }
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::MovementInform(uint32 p_Type, uint32 p_ID)
+    {
+        npc_escortAI::MovementInform(p_Type, p_ID);
+
+        if (p_Type != EFFECT_MOTION_TYPE)
+            return;
+
+        using namespace StablesData;
+
+        switch (p_ID)
+        {
+            case CreatureJumps::MeadowstomperSecondJump:
+                me->GetMotionMaster()->MoveJump(g_CreaturesJumps[2].x, g_CreaturesJumps[2].y, g_CreaturesJumps[2].z, 10.0f, 10.0f, me->GetOrientation(), CreatureJumps::MeadowstomperThirdJump);
+                break;
+            case CreatureJumps::SilverpeltFirstJump:
+                me->GetMotionMaster()->MoveJump(g_CreaturesJumps[11].x, g_CreaturesJumps[11].y, g_CreaturesJumps[11].z, 10.0f, 10.0f, me->GetOrientation(), CreatureJumps::SilverpeltSecondJump);
+                break;
+            case CreatureJumps::MeadowstomperFirstJump:
+            case CreatureJumps::MeadowstomperThirdJump:
+            case CreatureJumps::SnarlerFirstJump:
+            case CreatureJumps::SnarlerSecondJump:
+            case CreatureJumps::SnarlerThirdJump:
+            case CreatureJumps::SnarlerFourthJump:
+            case CreatureJumps::SnarlerFifthJump:
+            case CreatureJumps::SnarlerSixthJump:
+            case CreatureJumps::SnarlerSeventhJump:
+            case CreatureJumps::SilverpeltSecondJump:
+                SetEscortPaused(false);
+                break;
+            default:
+                break;
+
+        }
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::WaypointReached(uint32 p_PointId)
+    {
+        using namespace StablesData;
+
+        uint32 l_Index  = 0;
+        uint32 l_JumpID = 0;
+
+        switch (me->GetEntry())
+        {
+            case eCreaturesEntries::NpcMeadowstomper:
+            {
+                switch (p_PointId)
+                {
+                    case 17:
+                        l_JumpID = CreatureJumps::MeadowstomperFirstJump;
+                        break;
+                    case 26:
+                        l_Index = 1;
+                        l_JumpID = CreatureJumps::MeadowstomperSecondJump;
+                        break;
+                    case 29:
+                        StopEscortEvent(eKillCredits::ElekkKillCredit, g_LassoAllianceAura);
+                        StopEscortEvent(eKillCredits::ElekkKillCredit, g_LassoHordeAura);
+                        return;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case eCreaturesEntries::NpcSnarler:
+            {
+                switch (p_PointId)
+                {
+                    case 4:
+                        l_Index = 3;
+                        l_JumpID = CreatureJumps::SnarlerFirstJump;
+                        break;
+                    case 5:
+                        l_Index = 4;
+                        l_JumpID = CreatureJumps::SnarlerSecondJump;
+                        break;
+                    case 7:
+                        l_Index = 5;
+                        l_JumpID = CreatureJumps::SnarlerThirdJump;
+                        break;
+                    case 17:
+                        l_Index = 6;
+                        l_JumpID = CreatureJumps::SnarlerFourthJump;
+                        break;
+                    case 21:
+                        l_Index = 7;
+                        l_JumpID = CreatureJumps::SnarlerFifthJump;
+                        break;
+                    case 23:
+                        l_Index = 8;
+                        l_JumpID = CreatureJumps::SnarlerSixthJump;
+                        break;
+                    case 24:
+                        l_Index = 9;
+                        l_JumpID = CreatureJumps::SnarlerSeventhJump;
+                        break;
+                    case 36:
+                        StopEscortEvent(eKillCredits::WolfKillCredit, g_LassoAllianceAura);
+                        StopEscortEvent(eKillCredits::WolfKillCredit, g_LassoHordeAura);
+                        return;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case eCreaturesEntries::NpcSilverpelt:
+            {
+                switch (p_PointId)
+                {
+                    case 24:
+                        l_Index = 10;
+                        l_JumpID = CreatureJumps::SilverpeltFirstJump;
+                        break;
+                    case 30:
+                        StopEscortEvent(eKillCredits::TalbukKillCredit, g_LassoAllianceAura);
+                        StopEscortEvent(eKillCredits::TalbukKillCredit, g_LassoHordeAura);
+                        return;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case eCreaturesEntries::NpcIcehoof:
+            {
+                if (p_PointId == 43)
+                {
+                    StopEscortEvent(eKillCredits::ClefthoofKillCredit, g_LassoAllianceAura);
+                    StopEscortEvent(eKillCredits::ClefthoofKillCredit, g_LassoHordeAura);
+                }
+                return;
+            }
+            case eCreaturesEntries::NpcRiverwallow:
+            {
+                if (p_PointId == 28)
+                {
+                    StopEscortEvent(eKillCredits::RiverbeasttKillCredit, g_LassoAllianceAura);
+                    StopEscortEvent(eKillCredits::RiverbeasttKillCredit, g_LassoHordeAura);
+                }
+                return;
+            }
+            case eCreaturesEntries::NpcRocktusk:
+            {
+                if (p_PointId == 45)
+                {
+                    StopEscortEvent(eKillCredits::BoarKillCredit, g_LassoAllianceAura);
+                    StopEscortEvent(eKillCredits::BoarKillCredit, g_LassoHordeAura);
+                }
+                return;
+            }
+            default:
+                break;
+        }
+
+        if (!l_JumpID)
+            return;
+
+        SetEscortPaused(true);
+        me->GetMotionMaster()->MoveJump(g_CreaturesJumps[l_Index].x, g_CreaturesJumps[l_Index].y, g_CreaturesJumps[l_Index].z, 10.0f, 10.0f, me->GetOrientation(), l_JumpID);
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::StopEscortEvent(uint32 p_KillCredit, uint32 p_SpellID)
+    {
+        if (Player* l_Player = HashMapHolder<Player>::Find(GetEventStarterGUID()))
+        {
+            l_Player->KilledMonsterCredit(p_KillCredit);
+            me->RemoveAura(p_SpellID);
+            SetEscortPaused(true);
+            me->DespawnOrUnsummon();
+        }
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::UpdateAI(uint32 const p_Diff)
+    {
+        npc_escortAI::UpdateAI(p_Diff);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     // Because blizzard does it this way - also icon type 27 could be for this purpose only
 
     npc_FleetCommandTable::npc_FleetCommandTable() : CreatureScript("npc_FleetCommandTable")
@@ -830,6 +1054,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_CallToArms;
     new MS::Garrison::npc_garrison_amperial_construct;
     new MS::Garrison::npc_garrison_atheeru_palestar;
+    new MS::Garrison::npc_GarrisonStablesCreatures;
 
     /// Alliance
     {

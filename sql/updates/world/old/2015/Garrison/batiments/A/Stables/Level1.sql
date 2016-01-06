@@ -1,11 +1,10 @@
 -- Stables
 
-	-- templates
-
 	-- plot content
 
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -65 AND faction_index = 0; -- horde
-	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','79836','6.73913','-0.149402','2.188','6.25459');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-65','0','86979','4.78931','-3.73092','0.930573','1.86515');
+
 	
 	UPDATE creature_template SET npcflag = npcflag | 1, scriptname = "npc_FannyFirebeard_Garr" WHERE entry = 86974;
 	UPDATE creature_template SET npcflag = npcflag | 1, scriptname = "npc_KeeganFirebeard_Garr" WHERE entry = 86973;
