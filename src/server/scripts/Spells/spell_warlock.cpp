@@ -3520,6 +3520,7 @@ class spell_warl_nightfall : public SpellScriptLoader
         }
 };
 
+/// Last Update : 6.2.3
 /// Chaos Bolt - 116858 and Chaos Bolt (Fire and Brimstone) - 157701
 class spell_warl_chaos_bolt : public SpellScriptLoader
 {
@@ -3530,13 +3531,24 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_chaos_bolt_SpellScript);
 
+            enum eSpells
+            {
+                Backdraft = 117828
+            };
+
             void HandleAfterCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (AuraPtr l_Backdraft = l_Caster->GetAura(WARLOCK_BACKDRAFT))
-                        l_Backdraft->ModCharges(-3);
-                }
+                Unit* l_Caster = GetCaster();
+
+                AuraPtr l_Backdraft = l_Caster->GetAura(eSpells::Backdraft);
+
+                if (l_Backdraft == nullptr)
+                    return;
+
+                if (l_Backdraft->GetCharges() < 3)
+                    return;
+
+                l_Backdraft->ModCharges(-3);
             }
 
             void Register()
