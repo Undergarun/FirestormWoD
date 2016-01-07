@@ -6662,14 +6662,11 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
             if (GetMiscValue() != player->GetCurrentRune(i))
                 continue;
 
-            if (!player->GetRuneCooldown(i))
-            {
-                player->AddRuneBySpell(i, rune, GetId());
-                if (permanently)
-                    player->SetRuneConvertType(i, permanently);
+            player->AddRuneBySpell(i, rune, GetId());
+            if (permanently)
+                player->SetRuneConvertType(i, permanently);
 
-                --runes;
-            }
+            --runes;
         }
     }
     else
