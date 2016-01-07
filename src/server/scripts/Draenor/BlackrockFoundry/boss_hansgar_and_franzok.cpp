@@ -225,6 +225,8 @@ class boss_hansgar : public CreatureScript
 
                 summons.DespawnAll();
 
+                EndSearingPlatesEvent();
+
                 _JustDied();
 
                 if (m_Instance != nullptr)
@@ -353,30 +355,14 @@ class boss_hansgar : public CreatureScript
                             break;
                         }
                         case eStates::BothInArena2:
+                        {
+                            EndOutPhaseEvent();
+                            break;
+                        }
                         case eStates::BothInArenaFinal:
                         {
-                            Talk(eTalks::ReturningFromControls);
-
-                            me->CastSpell(me, eSpells::NotReady, true);
-
-                            m_Events.CancelEvent(eEvents::EventBodySlam);
-
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            {
-                                me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
-                                m_BodySlamTarget = l_Target->GetGUID();
-
-                                float l_O = me->GetAngle(l_Target);
-                                AddTimedDelayedOperation(50, [this, l_O]() -> void
-                                {
-                                    me->SetFacingTo(l_O);
-                                });
-                            }
-
-                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-
-                            EndSearingPlatesEvent();
+                            EndOutPhaseEvent();
+                            StartSearingPlatesEvent();
                             break;
                         }
                         default:
@@ -493,7 +479,8 @@ class boss_hansgar : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::BodySlamTriggered, true);
 
-                        --m_BodySlamJumps;
+                        if (m_BodySlamJumps)
+                            --m_BodySlamJumps;
 
                         if (m_BodySlamJumps)
                             me->CastSpell(me, eSpells::JumpSlamSearcher, true);
@@ -898,6 +885,32 @@ class boss_hansgar : public CreatureScript
                 }
             }
 
+            void EndOutPhaseEvent()
+            {
+                Talk(eTalks::ReturningFromControls);
+
+                me->CastSpell(me, eSpells::NotReady, true);
+
+                m_Events.CancelEvent(eEvents::EventBodySlam);
+
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                {
+                    me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
+                    m_BodySlamTarget = l_Target->GetGUID();
+
+                    float l_O = me->GetAngle(l_Target);
+                    AddTimedDelayedOperation(50, [this, l_O]() -> void
+                    {
+                        me->SetFacingTo(l_O);
+                    });
+                }
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                EndSearingPlatesEvent();
+            }
+
             void ResetArea()
             {
                 DespawnCreaturesInArea(eCreatures::ForgeOverdrive, me);
@@ -1152,6 +1165,8 @@ class boss_franzok : public CreatureScript
 
                 summons.DespawnAll();
 
+                EndStampingPressesEvent();
+
                 _JustDied();
 
                 if (m_Instance != nullptr)
@@ -1275,6 +1290,11 @@ class boss_franzok : public CreatureScript
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                             EndStampingPressesEvent();
+                            break;
+                        }
+                        case eStates::BothInArenaFinal:
+                        {
+                            StartStampingPressesEvent();
                             break;
                         }
                         default:
