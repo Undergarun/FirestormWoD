@@ -25,14 +25,14 @@ std::map<uint32, uint32> gPacketProfilerData;
 //! Compresses packet in place
 void WorldPacket::Compress(z_stream* compressionStream)
 {
-    Opcodes uncompressedOpcode = GetOpcode();
+    uint16 uncompressedOpcode = GetOpcode();
     if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;
     }
 
-    Opcodes opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
+    uint16 opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
     uint32 size = wpos();
     uint32 destsize = compressBound(size);
 
@@ -57,14 +57,14 @@ void WorldPacket::Compress(z_stream* compressionStream, WorldPacket const* sourc
 {
     ASSERT(source != this);
 
-    Opcodes uncompressedOpcode = source->GetOpcode();
+    uint16 uncompressedOpcode = source->GetOpcode();
     if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;
     }
 
-    Opcodes opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
+    uint16 opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
     uint32 size = source->size();
     uint32 destsize = compressBound(size);
 

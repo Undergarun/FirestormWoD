@@ -1,18 +1,18 @@
-#ifndef __IRSOCKETACCEPTOR_H_
-#define __IRSOCKETACCEPTOR_H_
+#ifndef __IRSOCKETCONNECTOR_H_
+#define __IRSOCKETCONNECTOR_H_
 
 #include "Common.h"
 
-#include <ace/Acceptor.h>
-#include <ace/SOCK_Acceptor.h>
+#include <ace/Connector.h>
+#include <ace/SOCK_Connector.h>
 
 #include "IRSocket.h"
 
-class IRSocketAcceptor : public ACE_Acceptor<IRSocket, ACE_SOCK_Acceptor>
+class IRSocketConnector : public ACE_Connector<IRSocket, ACE_SOCK_Connector>
 {
 public:
-    IRSocketAcceptor(void) { }
-    virtual ~IRSocketAcceptor(void)
+    IRSocketConnector(void) { }
+    virtual ~IRSocketConnector(void)
     {
         if (reactor())
             reactor()->cancel_timer(this, 1);
@@ -22,7 +22,7 @@ protected:
 
     virtual int handle_timeout(const ACE_Time_Value& /*current_time*/, const void* /*act = 0*/)
     {
-        sLog->outDebug(LOG_FILTER_INTERREALM, "Resuming acceptor");
+        sLog->outError(LOG_FILTER_INTERREALM, "Resuming acceptor");
         reactor()->cancel_timer(this, 1);
         return reactor()->register_handler(this, ACE_Event_Handler::ACCEPT_MASK);
     }
@@ -41,5 +41,5 @@ protected:
     }
 };
 
-#endif /* __IRSOCKETACCEPTOR_H_ */
+#endif /* __IRSOCKETCONNECTOR_H_ */
 /// @}

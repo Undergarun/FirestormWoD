@@ -9,8 +9,6 @@
 #include <ace/Reactor.h>
 #include <ace/Auto_Ptr.h>
 
-#include "IRSocket.h"
-#include "InterRealmOpcodes.h"
 #include "Common.h"
 
 #include "Util.h"
@@ -23,12 +21,13 @@
 #include "BigNumber.h"
 #include "SHA1.h"
 #include "WorldSession.h"
-#include "IRSocketMgr.h"
+#include "WorldSocketMgr.h"
+#include "IRSocket.h"
+#include "InterRealmSession.h"
 #include "Log.h"
-#include "PacketLog.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
-#include "InterRealmMgr.h"
+#include "InterRealmOpcodes.h"
 #include "ObjectMgr.h"
 
 #if defined(__GNUC__)
@@ -43,17 +42,16 @@
 #pragma pack(pop)
 #endif
 
-IRSocket::IRSocket(): IRHandler(),
-m_LastPingTime(ACE_Time_Value::zero),
+IRSocket::IRSocket (void): IRHandler(),
+m_LastPingTime(ACE_Time_Value::zero), m_OverSpeedPings(0), m_InterRealmSession(0),
 m_RecvWPct(0), m_RecvPct(), m_Header(sizeof (IRInPktHeader)),
-m_OutBuffer(0), m_OutBufferSize(65536), m_OutActive(false)
+m_OutBuffer(0), m_OutBufferSize(65536), m_OutActive(false),
+m_Seed(static_cast<uint32> (rand32()))
 {
     reference_counting_policy().value (ACE_Event_Handler::Reference_Counting_Policy::ENABLED);
 
     msg_queue()->high_water_mark(8 * 1024 * 1024);
     msg_queue()->low_water_mark(8 * 1024 * 1024);
-
-    m_InterRealmClient = NULL;
 }
 
 IRSocket::~IRSocket (void)
@@ -76,14 +74,22 @@ bool IRSocket::IsClosed (void) const
 void IRSocket::CloseSocket (void)
 {
     {
-        ACE_GUARD (LockType, Guard, m_OutBufferLock);
-
         if (closing_)
             return;
+
+        ACE_GUARD (LockType, Guard, m_OutBufferLock);
 
         closing_ = true;
         peer().close_writer();
     }
+
+    {
+        ACE_GUARD (LockType, Guard, m_SessionLock);
+
+        m_InterRealmSession = NULL;
+    }
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "[INTERREALM] IRSocket::CloseSocket");
 }
 
 const std::string& IRSocket::GetRemoteAddress (void) const
@@ -93,8 +99,6 @@ const std::string& IRSocket::GetRemoteAddress (void) const
 
 int IRSocket::SendPacket(WorldPacket const* pct)
 {
-    ASSERT(!(pct->GetOpcode() & COMPRESSED_OPCODE_MASK)); // Packet not compressed
-
     ACE_GUARD_RETURN (LockType, Guard, m_OutBufferLock, -1);
 
     if (closing_)
@@ -147,6 +151,11 @@ long IRSocket::RemoveReference (void)
 
 int IRSocket::open (void *a)
 {
+    m_InterRealmSession = sWorld->GetInterRealmSession();
+
+    if (!m_InterRealmSession)
+        return -1;
+
     ACE_UNUSED_ARG (a);
 
     // Prevent double call to this func.
@@ -158,26 +167,22 @@ int IRSocket::open (void *a)
     m_OutActive = true;
 
     // Hook for the manager.
-    if (sIRSocketMgr->OnSocketOpen(this) == -1)
+    if (m_InterRealmSession->OnSocketOpen(this) == -1)
         return -1;
 
     // Allocate the buffer.
     ACE_NEW_RETURN (m_OutBuffer, ACE_Message_Block (m_OutBufferSize), -1);
 
-    ACE_NEW_RETURN(m_InterRealmClient, InterRealmClient(this), -1);
-
-    sInterRealmMgr->RegisterClient(m_InterRealmClient);
-
     // Store peer address.
     ACE_INET_Addr remote_addr;
 
-    if (peer().get_remote_addr(remote_addr) == -1)
+    /*if (peer().get_remote_addr(remote_addr) == -1)
     {
-        sLog->outError(LOG_FILTER_INTERREALM, "IRSocket::open: peer().get_remote_addr errno = %s", ACE_OS::strerror (errno));
+        sLog->outError(LOG_FILTER_NETWORKIO, "IRSocket::open: peer().get_remote_addr errno = %s", ACE_OS::strerror (errno));
         return -1;
     }
 
-    m_Address = remote_addr.get_host_addr();
+    m_Address = remote_addr.get_host_addr();*/
 
     // Register with ACE Reactor
     if (reactor()->register_handler(this, ACE_Event_Handler::READ_MASK | ACE_Event_Handler::WRITE_MASK) == -1)
@@ -215,17 +220,17 @@ int IRSocket::handle_input (ACE_HANDLE)
             if ((errno == EWOULDBLOCK) ||
                 (errno == EAGAIN))
             {
-                return Update();                           // interesting line, isn't it ?
+                return Update();  // interesting line, isn't it ?
             }
 
-            sLog->outDebug(LOG_FILTER_INTERREALM, "IRSocket::handle_input: Peer error closing connection errno = %s", ACE_OS::strerror (errno));
+            sLog->outError(LOG_FILTER_INTERREALM, "IRSocket::handle_input: Peer error closing connection errno = %s", ACE_OS::strerror (errno));
 
             errno = ECONNRESET;
             return -1;
         }
         case 0:
         {
-            sLog->outDebug(LOG_FILTER_INTERREALM, "IRSocket::handle_input: Peer has closed connection");
+            sLog->outError(LOG_FILTER_INTERREALM, "IRSocket::handle_input: Peer has closed connection");
 
             errno = ECONNRESET;
             return -1;
@@ -348,13 +353,7 @@ int IRSocket::handle_output_queue (GuardType& g)
 
 int IRSocket::handle_close (ACE_HANDLE h, ACE_Reactor_Mask)
 {
-	sLog->outDebug(LOG_FILTER_INTERREALM, "IRSocket::handle_close");
-
-    // Remove all players
-    if (m_InterRealmClient)
-    {
-        m_InterRealmClient->SetNeedClose(true);
-    }
+    sLog->outDebug(LOG_FILTER_INTERREALM, "IRSocket::handle_close");
 
     // Critical section
     {
@@ -364,6 +363,19 @@ int IRSocket::handle_close (ACE_HANDLE h, ACE_Reactor_Mask)
 
         if (h == ACE_INVALID_HANDLE)
             peer().close_writer();
+    }
+
+    // Critical section
+    {
+        ACE_GUARD_RETURN (LockType, Guard, m_SessionLock, -1);
+
+        if (m_InterRealmSession)
+        {
+            m_InterRealmSession->SetConnected(false);
+            m_InterRealmSession->SetProcessDisconnect(true);
+            m_InterRealmSession->ClearSocket();
+            m_InterRealmSession = NULL;
+        }
     }
 
     reactor()->remove_handler(this, ACE_Event_Handler::DONT_CALL | ACE_Event_Handler::ALL_EVENTS_MASK);
@@ -407,7 +419,7 @@ int IRSocket::handle_input_header (void)
 
     header.size -= 4;
 
-    ACE_NEW_RETURN(m_RecvWPct, WorldPacket (PacketFilter::DropHighBytes(Opcodes(header.cmd)), header.size), -1);
+    ACE_NEW_RETURN(m_RecvWPct, WorldPacket (Opcodes(header.cmd), header.size), -1);
 
     if (header.size > 0)
     {
@@ -440,7 +452,10 @@ int IRSocket::handle_input_payload (void)
     m_Header.reset();
 
     if (ret == -1)
+    {
+        sLog->outError(LOG_FILTER_INTERREALM, "handle_input_payload failed.");
         errno = EINVAL;
+    }
 
     return ret;
 }
@@ -475,7 +490,6 @@ int IRSocket::handle_input_missing_data (void)
     {
         if (m_Header.space() > 0)
         {
-            int a = sizeof(IRInPktHeader);
             //need to receive the header
             const size_t to_header = (message_block.length() > m_Header.space() ? m_Header.space() : message_block.length());
             m_Header.copy (message_block.rd_ptr(), to_header);
@@ -579,35 +593,36 @@ int IRSocket::ProcessIncoming(WorldPacket* new_pct)
     ACE_ASSERT (new_pct);
 
     // manage memory ;)
-    //ACE_Auto_Ptr<WorldPacket> aptr(new_pct);
 
-    uint16 opcode = PacketFilter::DropHighBytes(new_pct->GetOpcode());
+    uint16 opcode = new_pct->GetOpcode();
 
     if (closing_)
         return -1;
 
-    std::string opcodeName = GetIROpcodeNameForLogging(opcode);
+    //std::string opcodeName = GetIROpcodeNameForLogging(opcode);
 
     try
     {
         switch (opcode)
         {
-            case IR_CMSG_TUNNEL_PACKET:
-                //ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
-                m_InterRealmClient->Handle_TunneledPacket(new_pct);
+            case IR_SMSG_TUNNEL_PACKET:
+                return Handle_TunneledPacket(new_pct);
                 break;
             default:
-                //aptr.release();
-                m_InterRealmClient->AddPacket(new_pct);
-                break;
-        }
+            {
+                ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
 
-        return 0;
+                // WARNING here we call it with locks held.
+                // Its possible to cause deadlock if QueuePacket calls back
+                m_InterRealmSession->AddPacket(new_pct);
+                return 0;
+            }
+        }
     }
     catch (ByteBufferException &)
     {
-        sLog->outError(LOG_FILTER_INTERREALM, "IRSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet %s from client %s. Disconnected client.",
-                       opcodeName.c_str(), GetRemoteAddress().c_str());
+        /*sLog->outInfo(LOG_FILTER_SERVER_LOADING, "[INTERREALM] IRSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet %s from client %s. Disconnected client.",
+                       opcodeName.c_str(), GetRemoteAddress().c_str());*/
         new_pct->hexlike();
         return -1;
     }
@@ -615,41 +630,27 @@ int IRSocket::ProcessIncoming(WorldPacket* new_pct)
     ACE_NOTREACHED (return 0);
 }
 
-int IRSocket::Handle_Ping(WorldPacket* packet)
+int IRSocket::Handle_TunneledPacket(WorldPacket* packet)
 {
-    uint32 ping;
-    uint32 latency;
     uint64 playerGuid;
+    uint16 opcodeId;
 
-    // Get the ping packet content
     *packet >> playerGuid;
-    *packet >> latency;
-    *packet >> ping;
+    *packet >> opcodeId;
+
+    packet->eraseFirst(10); // remove playerGuid and opcodeId data
+    packet->SetOpcode((Opcodes)opcodeId);
+    packet->rfinish();
+
+    // Now we have standart packet
+
+    if (Player* pPlayer = sObjectAccessor->FindPlayerInOrOutOfWorld(playerGuid))
+    {
+        if (pPlayer->GetSession())
+            pPlayer->GetSession()->SendPacket(packet, false, true);
+    }
 
     delete packet;
 
-    Player* player = sObjectAccessor->FindPlayerInOrOutOfWorld(playerGuid);
-    if (!player)
-        return 0;
-
-    if (m_LastPingTime == ACE_Time_Value::zero)
-        m_LastPingTime = ACE_OS::gettimeofday(); // for 1st ping
-    else
-    {
-        ACE_Time_Value cur_time = ACE_OS::gettimeofday();
-        ACE_Time_Value diff_time (cur_time);
-        diff_time -= m_LastPingTime;
-        m_LastPingTime = cur_time;
-    }
-
-    // critical section
-    {
-        player->GetSession()->SetLatency(latency);
-        player->GetSession()->ResetClientTimeDelay();
-    }
-
-    WorldPacket data(SMSG_PONG, 4);
-    data << ping;
-    player->GetSession()->SendPacket(&data);
     return 0;
 }

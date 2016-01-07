@@ -32,6 +32,7 @@
 #include "Callback.h"
 #include "TimeDiffMgr.h"
 #include "DatabaseWorkerPool.h"
+#include "InterRealmSession.h"
 
 #include <map>
 #include <set>
@@ -216,6 +217,7 @@ enum WorldBoolConfigs
     CONFIG_LOG_PACKETS,
     CONFIG_BATTLEPAY_ENABLE,
     CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK,
+    CONFIG_INTERREALM_ENABLE,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -934,6 +936,10 @@ class World
         void UpdateCharacterNameDataLevel(uint32 guid, uint8 level);
         void DeleteCharacterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
         bool HasCharacterNameData(uint32 guid) { return _characterNameDataMap.find(guid) != _characterNameDataMap.end(); }
+
+        void SetInterRealmSession(InterRealmSession* irt) { m_InterRealmSession = irt; }
+        InterRealmSession* GetInterRealmSession() { return m_InterRealmSession; }
+
         uint64 GetCharacterGuidByName(std::string p_Name);
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
@@ -1002,6 +1008,7 @@ class World
         void ResetRandomBG();
         //void AutoRestartServer();
     private:
+        InterRealmSession* m_InterRealmSession;
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;

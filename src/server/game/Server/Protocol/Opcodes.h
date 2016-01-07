@@ -2017,15 +2017,12 @@ inline bool CanBeSentDuringInterRealm(uint16 id)
 {
     switch (id)
     {
-        case SMSG_MESSAGE_CHAT:
-
+        case SMSG_CHAT:
         case SMSG_CONTACT_LIST:
-
-        case SMSG_GUILD_BANK_LIST:
+        case SMSG_GUILD_BANK_QUERY_RESULTS:
         case SMSG_GUILD_COMMAND_RESULT:
-        case SMSG_GUILD_DECLINE:
         case SMSG_GUILD_INVITE:
-        case SMSG_GUILD_QUERY_RESPONSE:
+        case SMSG_QUERY_GUILD_INFO_RESPONSE:
         case SMSG_GUILD_ROSTER:
             return true;
     }

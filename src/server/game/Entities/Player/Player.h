@@ -3627,6 +3627,13 @@ class Player : public Unit, public GridObject<Player>
         bool IsSummoned() const { return m_Summoned; }
         void FinishSummon() { m_Summoned = false; }
         void BeginSummon() { m_Summoned = true; }
+
+        uint32 GetInterRealmZoneId() const { return m_irZoneId; }
+        void SetInterRealmZoneId(uint32 val) { m_irZoneId = val; }
+        uint32 GetInterRealmAreaId() const { return m_irAreaId; }
+        void SetInterRealmAreaId(uint32 val) { m_irAreaId = val; }
+        uint32 GetInterRealmMapId() const { return m_irMapId; }
+        void SetInterRealmMapId(uint32 val) { m_irMapId = val; }
         
     protected:
         void OnEnterPvPCombat();
@@ -3979,13 +3986,6 @@ class Player : public Unit, public GridObject<Player>
             if (operation < DELAYED_END)
                 m_DelayedOperations |= operation;
         }
-
-        uint32 GetInterRealmZoneId() const { return m_irZoneId; }
-        void SetInterRealmZoneId(uint32 val) { m_irZoneId = val; }
-        uint32 GetInterRealmAreaId() const { return m_irAreaId; }
-        void SetInterRealmAreaId(uint32 val) { m_irAreaId = val; }
-        uint32 GetInterRealmMapId() const { return m_irMapId; }
-        void SetInterRealmMapId(uint32 val) { m_irMapId = val; }
 
         MapReference m_mapRef;
 

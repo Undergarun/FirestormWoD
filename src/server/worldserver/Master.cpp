@@ -554,6 +554,11 @@ int Master::Run()
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, g_RealmID);
 
+    InterRealmSession* irt = new InterRealmSession();
+    ACE_Based::Thread interrealm_thread(irt, "InterRealm");
+    interrealm_thread.setPriority(ACE_Based::Highest);
+    sWorld->SetInterRealmSession(irt);
+
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon) ready...", _FULLVERSION);
 
     // when the main thread closes the singletons get unloaded

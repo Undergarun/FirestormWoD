@@ -85,6 +85,7 @@
 #include "PlayerDump.h"
 #include "TransportMgr.h"
 #include "BattlepayMgr.h"
+#include "InterRealmOpcodes.h"
 
 uint32 gOnlineGameMaster = 0;
 #include "GarrisonShipmentManager.hpp"
@@ -145,6 +146,8 @@ World::World()
         m_recordDiff[i] = 0;
 
     m_lexicsCutter = nullptr;
+
+    m_InterRealmSession = nullptr;
 
     m_QueryHolderCallbacks             = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
     m_QueryHolderCallbacksBuffer       = std::unique_ptr<QueryHolderCallbacks>(new QueryHolderCallbacks());
@@ -1524,6 +1527,9 @@ void World::LoadConfigSettings(bool reload)
     m_lexicsCutter->IgnoreMiddleSpaces = ConfigMgr::GetBoolDefault("LexicsCutterIgnoreSpaces", true);
     m_lexicsCutter->CheckLetterContains = ConfigMgr::GetBoolDefault("LexicsCutterCheckContains", false);
 
+    // InterRealm settings
+    m_bool_configs[CONFIG_INTERREALM_ENABLE] = ConfigMgr::GetBoolDefault("InterRealm.Enabled", false);
+
     m_int_configs[CONFIG_SPELLOG_FLAGS] = ConfigMgr::GetIntDefault("SpellLog.Flags", SPELLLOG_OUTPUT_FLAG_PLAYER);
 
     sReporter->SetActiveState(ConfigMgr::GetBoolDefault("Reporting.Enabled", false));
@@ -2202,6 +2208,8 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Initializing Opcodes...");
     InitOpcodes();
 
+    IRopcodeTable.Initialize();
+
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading hotfix info...");
     sObjectMgr->LoadHotfixData();
     sObjectMgr->LoadHotfixTableHashs();
@@ -2566,6 +2574,9 @@ void World::Update(uint32 diff)
     SetRecordDiff(RECORD_DIFF_LFG, getMSTime() - diffTime);
     diffTime = getMSTime();
     RecordTimeDiff("UpdateLFGMgr");
+
+    if (InterRealmSession* tunnel = GetInterRealmSession())
+        tunnel->Update(diff);
 
     // execute callbacks from sql queries that were queued recently
     ProcessQueryCallbacks();

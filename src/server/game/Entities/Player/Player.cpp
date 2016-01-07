@@ -1012,8 +1012,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_irAreaId = 0;
     m_irMapId = 0;
 
-    m_forceCleanupChannels = false;
-
     m_BattlePetSummon = 0;
 
     m_ignoreMovementCount = 0;
@@ -3280,12 +3278,6 @@ void Player::ProcessDelayedOperations()
     {
         if (Group *g = GetGroup())
             g->SendUpdateToPlayer(GetGUID());
-    }
-
-    if (m_DelayedOperations & DELAYED_BG_UPDATE_ZONE)
-    {
-        m_zoneUpdateId = 0;
-        UpdateZone(GetZoneId(), GetAreaId());
     }
 
     //we have executed ALL delayed ops, so clear the flag
@@ -23372,7 +23364,26 @@ void Player::SaveToDB(bool create /*=false*/ , bool afterSave /*=false*/)
 
     if (afterSave)
     {
-        /// @TODO: cross event
+
+        uint32 l_AccountID = m_session->GetAccountId();
+        l_SaveTransactionCallback = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+        {
+            WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+            if (l_Session == nullptr)
+                return;
+
+            /*if (InterRealmSession* ir_session = sWorld->GetInterRealmSession())
+            {
+                WorldPacket pckt(IR_CMSG_BATTLEFIELD_PORT, 8 + 4 + 4 + 1);
+
+                pckt << uint64(_battlegroundPortData.PlayerGuid);
+                pckt << uint32(_battlegroundPortData.Time);
+                pckt << uint32(_battlegroundPortData.QueueSlot);
+                pckt << uint8(_battlegroundPortData.Action);
+
+                ir_session->SendPacket(&pckt);
+            }*/
+        });
     }
 
     for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)

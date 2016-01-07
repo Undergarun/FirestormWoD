@@ -1,9 +1,8 @@
-
-#ifndef INTERREALM_OPCODES_H_
-#define INTERREALM_OPCODES_H_
+#ifndef INTERREALM_OPCODES_H
+#define INTERREALM_OPCODES_H
 
 #include "WorldPacket.h"
-#include "InterRealmClient.h"
+#include "InterRealmSession.h"
 
 enum IROpcodes
 {
@@ -122,7 +121,7 @@ enum IROpcodes
     IR_CMSG_QUEST_STATUS_REWARDED_INFO              = 0x5D,
     IR_CMSG_DAILY_QUEST_STATUS_INFO                 = 0x5E,
     IR_CMSG_WEEKLY_QUEST_STATUS_INFO                = 0x5F,
-    IR_CMSG_SEASONAL_QUEST_STATUS_INFO              = 0x60,
+    IR_CMSG_SEASONAL_STATUS_INFO                    = 0x60,
     IR_CMSG_REPUTATION_INFO                         = 0x61,
     IR_CMSG_INVENTORY_INFO                          = 0x62,
 
@@ -131,14 +130,13 @@ enum IROpcodes
     IR_SMSG_ACHIEVEMENT_REWARD                      = 0x64,
 
     IR_CMSG_SUMMON_PLAYER                           = 0x65,
-
     IR_CMSG_APPEAR_REQUEST                          = 0x66,
     IR_SMSG_APPEAR_REQUEST_RESP                     = 0x67,
     IR_CMSG_APPEAR                                  = 0x68,
 
     IR_CMSG_ADDITIONAL_INFO                         = 0x69,
     IR_SMSG_ADDITIONAL_INFO                         = 0x6A,
-    
+
     IR_CMSG_ACCOUNT_SPELLS                          = 0x6B,
 
     IR_SMSG_ANTICHEAT_REPORT                        = 0x6C,
@@ -151,7 +149,7 @@ enum IROpcodes
     IR_NUM_MSG_TYPES,
 };
 
-typedef void(InterRealmClient::*pIROpcodeHandler)(WorldPacket& recvPacket);
+typedef void (InterRealmSession::*pIROpcodeHandler)(WorldPacket& recvPacket);
 
 struct IROpcodeHandler
 {
@@ -195,21 +193,17 @@ class IROpcodeTable
 
 extern IROpcodeTable IRopcodeTable;
 
+
 inline std::string GetIROpcodeNameForLogging(uint16 id)
 {
     uint32 opcode = uint32(id);
     std::ostringstream ss;
     ss << '[';
 
-    if (id < UNKNOWN_OPCODE)
-    {
-        if (IROpcodeHandler const* handler = IRopcodeTable[uint32(id) & 0x7FFF])
-            ss << handler->name;
-        else
-            ss << "UNKNOWN OPCODE";
-    }
+    if (IROpcodeHandler const* handler = IRopcodeTable[uint32(id) & 0x7FFF])
+        ss << handler->name;
     else
-        ss << "INVALID OPCODE";
+        ss << "UNKNOWN OPCODE";
 
     ss << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
     return ss.str();

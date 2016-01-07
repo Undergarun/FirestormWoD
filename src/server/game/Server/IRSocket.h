@@ -15,13 +15,10 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "Common.h"
-#include "AuthCrypt.h"
 
 class ACE_Message_Block;
 class WorldPacket;
-class InterRealmClient;
-
-struct z_stream_s;
+class InterRealmSession;
 
 /// Handler that can communicate over stream sockets.
 typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> IRHandler;
@@ -29,10 +26,8 @@ typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> IRHandler;
 class IRSocket : public IRHandler
 {
     public:
-        IRSocket ();
+        IRSocket (void);
         virtual ~IRSocket (void);
-
-        friend class WorldSocketMgr;
 
         /// Mutex type used for various synchronizations.
         typedef ACE_Thread_Mutex LockType;
@@ -83,9 +78,6 @@ class IRSocket : public IRHandler
         size_t m_OutBufferSize;
 
     private:
-
-        int Handle_Ping(WorldPacket* packet);
-
         /// Helper functions for processing incoming data.
         int handle_input_header (void);
         int handle_input_payload (void);
@@ -103,12 +95,20 @@ class IRSocket : public IRHandler
         /// @param new_pct received packet, note that you need to delete it.
         int ProcessIncoming (WorldPacket* new_pct);
 
+        int Handle_TunneledPacket(WorldPacket* new_pct);
+
     private:
         /// Time in which the last ping was received
         ACE_Time_Value m_LastPingTime;
 
+        /// Keep track of over-speed pings, to prevent ping flood.
+        uint32 m_OverSpeedPings;
+
         /// Address of the remote peer
         std::string m_Address;
+
+        /// Mutex lock to protect m_Session
+        LockType m_SessionLock;
 
         /// here are stored the fragments of the received data
         WorldPacket* m_RecvWPct;
@@ -127,10 +127,12 @@ class IRSocket : public IRHandler
         /// Buffer used for writing output.
         ACE_Message_Block* m_OutBuffer;
 
-        InterRealmClient* m_InterRealmClient;
-
         /// True if the socket is registered with the reactor for output
         bool m_OutActive;
+
+        uint32 m_Seed;
+
+        InterRealmSession* m_InterRealmSession;
 };
 
 #endif  /* _IRSOCKET_H */
