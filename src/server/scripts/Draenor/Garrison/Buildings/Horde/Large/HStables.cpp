@@ -220,6 +220,14 @@ namespace MS { namespace Garrison
 
         me->GetCreatureListInGrid(l_CreatureList, 12.0f);
 
+        l_CreatureList.remove_if([](Creature* p_Creature) -> bool
+        {
+            if (p_Creature->GetEntry() == g_TormakQuestgiverEntry)
+                return true;
+
+            return false;
+        });
+
         for (Creature* l_Creature : l_CreatureList)
             l_Creature->DespawnOrUnsummon();
 

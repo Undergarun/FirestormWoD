@@ -14,6 +14,7 @@
 
 namespace MS { namespace Garrison
 {
+    static const uint32 g_FannyQuestgiverEntry  = 86974;
     static const uint32 g_KeeganQuestgiverEntry = 86973;
 
     //////////////////////////////////////////////////////////////////////////
