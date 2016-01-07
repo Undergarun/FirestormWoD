@@ -21967,6 +21967,13 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
     /// Explicit diminishing Pvp damage
     switch (p_Spellproto->SpellFamilyName)
     {
+    case SPELLFAMILY_DRUID:
+    {
+        // Rake - In pvp, damages reduce by 20%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x1000)
+            return -20.0f;
+        break;
+    }
     default:
         break;
     }
