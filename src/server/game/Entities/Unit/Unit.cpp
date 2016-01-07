@@ -22001,6 +22001,27 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Unstable Affliction - In pvp, damages reduce by 10%
         if (p_Spellproto->SpellFamilyFlags[1] & 0x100)
             return -10.0f;
+        /// Unstable ShadowBurn - In pvp, damages increase by 20%
+        if (p_Spellproto->SpellFamilyFlags[3] & 0x400000)
+            return 20.0f;
+        break;
+    }
+    case SPELLFAMILY_SHAMAN:
+    {
+        /// Lava Burst - In pvp, damages increase by 20%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x1000)
+            return 20.0f;
+        break;
+    }
+    case SPELLFAMILY_HUNTER:
+    {
+        break;
+    }
+    case SPELLFAMILY_MONK:
+    {
+        /// Rising Sun Kick - In pvp, increase reduce by 20%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x80)
+            return 20.0f;
         break;
     }
     default:

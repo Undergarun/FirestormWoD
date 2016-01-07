@@ -2650,10 +2650,6 @@ class spell_sha_lava_burst: public SpellScriptLoader
                 /// Lavaburst deals 50% more damage with Flame Shock on target
                 if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
                     SetHitDamage(int32(GetHitDamage() * 1.5f));
-
-                /// Hotfix: 24 novembre 2015 : now deals 20% more damage while in PvP combat.
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
-                    SetHitDamage(int32(GetHitDamage() * 1.2f));
             }
 
             void HandleAfterCast()
