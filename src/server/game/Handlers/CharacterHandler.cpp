@@ -639,60 +639,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             ASSERT(_charCreateCallback.GetParam() == createInfo);
 
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SUM_REALM_CHARACTERS);
-            stmt->setUInt32(0, GetAccountId());
-
-            _charCreateCallback.FreeResult();
-            _charCreateCallback.SetFutureResult(LoginDatabase.AsyncQuery(stmt));
-            _charCreateCallback.NextStage();
-        }
-        break;
-        case 1:
-        {
-            uint16 acctCharCount = 0;
-            if (result)
-            {
-                Field* fields = result->Fetch();
-                // SELECT SUM(x) is MYSQL_TYPE_NEWDECIMAL - needs to be read as string
-                const char* ch = fields[0].GetCString();
-                if (ch)
-                {
-                    // Try crashfix, atoi -> std::stoi with handling of exception
-                    // We have log in Pandashan.log to make better fix
-                    try
-                    {
-                        acctCharCount = std::stoi(ch);
-                    }
-                    catch(...)
-                    {
-                        acctCharCount = 0;
-                        sLog->outAshran("Exception (invalid argument) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);
-                        KickPlayer();
-                        return;
-                    }
-                    /*catch(std::out_of_range)
-                    {
-                        acctCharCount = 0;
-                        sLog->outAshran("Exception (out of range) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);
-                        KickPlayer();
-                        return;
-                    }*/
-                }
-            }
-
-            if (acctCharCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_ACCOUNT))
-            {
-                WorldPacket data(SMSG_CREATE_CHAR, 1);
-                data << uint8(CHAR_CREATE_ACCOUNT_LIMIT);
-                SendPacket(&data);
-                delete createInfo;
-                _charCreateCallback.Reset();
-                return;
-            }
-
-
-            ASSERT(_charCreateCallback.GetParam() == createInfo);
-
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
             stmt->setUInt32(0, GetAccountId());
 
@@ -701,7 +647,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             _charCreateCallback.NextStage();
         }
         break;
-        case 2:
+        case 1:
         {
             if (result)
             {
@@ -735,10 +681,10 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             }
 
             _charCreateCallback.NextStage();
-            HandleCharCreateCallback(PreparedQueryResult(NULL), createInfo);   // Will jump to case 3
+            HandleCharCreateCallback(PreparedQueryResult(NULL), createInfo);   // Will jump to case 2
         }
         break;
-        case 3:
+        case 2:
         {
             bool haveSameRace = false;
             uint32 heroicReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
