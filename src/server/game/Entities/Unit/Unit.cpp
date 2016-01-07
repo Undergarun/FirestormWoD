@@ -21998,6 +21998,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Agnoy - In pvp, damages reduce by 10%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x400)
             return -10.0f;
+        /// Unstable Affliction - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x100)
+            return -10.0f;
         break;
     }
     default:
