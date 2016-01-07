@@ -21982,6 +21982,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Devouring Plague - In pvp, damages reduce by 10%
         if (p_Spellproto->SpellFamilyFlags[3] & 0x10)
             return -10.0f;
+        /// Mind Blast - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x2000)
+            return -10.0f;
         break;
     }
     default:
