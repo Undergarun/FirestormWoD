@@ -1030,21 +1030,13 @@ class boss_foreman_feldspar : public CreatureScript
 
             void CallAddsInCombat(Unit* p_Attacker)
             {
-                std::list<Creature*> l_CreatureList;
-
-                uint32 const l_Entries[4] = { eCreatures::SecurityGuard, eCreatures::FurnaceEngineer, eCreatures::BellowsOperator, eCreatures::HeatRegulator };
-
-                for (uint8 l_I = 0; l_I < 4; ++l_I)
+                for (uint64 l_Guid : m_GuardiansGuids)
                 {
-                    l_CreatureList.clear();
-
-                    me->GetCreatureListWithEntryInGrid(l_CreatureList, l_Entries[l_I], 150.0f);
-
-                    for (Creature* l_Iter : l_CreatureList)
+                    if (Creature* l_Iter = Creature::GetCreature(*me, l_Guid))
                     {
                         if (l_Iter->IsAIEnabled)
                         {
-                            if (l_I < 2)
+                            if (l_Iter->GetEntry() != eCreatures::BellowsOperator && l_Iter->GetEntry() != eCreatures::HeatRegulator)
                                 l_Iter->AI()->AttackStart(p_Attacker);
                             else
                                 l_Iter->SetInCombatWithZone();
@@ -2086,19 +2078,6 @@ class npc_foundry_slag_elemental : public CreatureScript
             {
                 switch (p_SpellInfo->Id)
                 {
-                    case eSpells::SlagBomb:
-                    {
-                        std::list<Creature*> l_Elementalists;
-                        me->GetCreatureListWithEntryInGrid(l_Elementalists, eCreature::PrimalElementalist, 8.0f);
-
-                        for (Creature* l_Creature : l_Elementalists)
-                        {
-                            if (l_Creature->HasAura(eSpells::DamageShield))
-                                l_Creature->RemoveAura(eSpells::DamageShield);
-                        }
-
-                        break;
-                    }
                     case eSpells::Reanimate:
                     {
                         me->RemoveAura(eSpells::SlagBomb);
@@ -2169,6 +2148,18 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                     me->CastSpell(me, eSpells::DropTarget, true);
                     me->CastSpell(me, eSpells::SlagBomb, false);
+
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        std::list<Creature*> l_Elementalists;
+                        me->GetCreatureListWithEntryInGrid(l_Elementalists, eCreature::PrimalElementalist, 8.0f);
+
+                        for (Creature* l_Creature : l_Elementalists)
+                        {
+                            if (l_Creature->HasAura(eSpells::DamageShield))
+                                l_Creature->RemoveAura(eSpells::DamageShield);
+                        }
+                    });
                 }
             }
 
