@@ -21969,12 +21969,19 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
     {
     case SPELLFAMILY_DRUID:
     {
-        // Rake - In pvp, damages reduce by 20%
+        /// Rake - In pvp, damages reduce by 20%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x1000)
             return -20.0f;
-        // Rip - In pvp, damages reduce by 20%
+        /// Rip - In pvp, damages reduce by 20%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x800000 && p_Spellproto->SpellFamilyFlags[2] & 0x200000)
             return -20.0f;
+        break;
+    }
+    case SPELLFAMILY_PRIEST:
+    {
+        /// Devouring Plague - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[3] & 0x10)
+            return -10.0f;
         break;
     }
     default:
