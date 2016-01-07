@@ -21972,6 +21972,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         // Rake - In pvp, damages reduce by 20%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x1000)
             return -20.0f;
+        // Rip - In pvp, damages reduce by 20%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x800000 && p_Spellproto->SpellFamilyFlags[2] & 0x200000)
+            return -20.0f;
         break;
     }
     default:
