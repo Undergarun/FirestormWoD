@@ -21995,6 +21995,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Corruption - In pvp, damages reduce by 10%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x2)
             return -10.0f;
+        /// Agnoy - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x400)
+            return -10.0f;
         break;
     }
     default:
