@@ -3311,6 +3311,9 @@ namespace MS { namespace Garrison
                 {
                     l_Crea->DestroyForNearbyPlayers();
                     l_Crea->AddObjectToRemoveList();
+
+                    if (l_Crea->AI())
+                        l_Crea->AI()->SetData(CreatureAIDataIDs::DespawnData, 0);
                 }
             }
         }

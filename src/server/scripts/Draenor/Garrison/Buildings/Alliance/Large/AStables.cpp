@@ -209,11 +209,7 @@ namespace MS { namespace Garrison
 
     void npc_FannyFirebeardAI::OnPlotInstanceUnload()
     {
-        for (uint64 l_GUID : m_SummonsGUIDs)
-        {
-            if (Creature* l_Creature = HashMapHolder<Creature>::Find(l_GUID))
-                l_Creature->DespawnOrUnsummon();
-        }
+        me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
     }
 
     void npc_FannyFirebeardAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
@@ -222,6 +218,8 @@ namespace MS { namespace Garrison
 
         if (l_Owner == nullptr)
             return;
+
+        me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
 
         PlayerSpellMap &l_SpellMap = l_Owner->GetSpellMap();
         std::vector<uint32> l_MountEntries;
@@ -243,7 +241,7 @@ namespace MS { namespace Garrison
         using namespace StablesData::Alliance;
 
         if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_AllianceCreaturesPos[0].X, g_AllianceCreaturesPos[0].Y, g_AllianceCreaturesPos[0].Z, g_AllianceCreaturesPos[0].O, TEMPSUMMON_MANUAL_DESPAWN))
-            m_SummonsGUIDs.push_back(l_Creature->GetGUID());
+            m_SummonsEntries.push_back(l_Creature->GetEntry());
 
         l_MountEntries.erase(std::remove(l_MountEntries.begin(), l_MountEntries.end(), l_MountEntry), l_MountEntries.end());
         l_MountEntry = 0;
@@ -254,7 +252,7 @@ namespace MS { namespace Garrison
         if (l_MountEntry)
         {
             if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_AllianceCreaturesPos[1].X, g_AllianceCreaturesPos[1].Y, g_AllianceCreaturesPos[1].Z, g_AllianceCreaturesPos[1].O, TEMPSUMMON_MANUAL_DESPAWN))
-                m_SummonsGUIDs.push_back(l_Creature->GetGUID());
+                m_SummonsEntries.push_back(l_Creature->GetEntry());
         }
 
         using namespace StablesData::Alliance::FannyQuestGiver;
@@ -267,7 +265,7 @@ namespace MS { namespace Garrison
 
             if (Creature* l_FirstCreature = SummonRelativeCreature(305, g_AllianceCreaturesPos[2].X, g_AllianceCreaturesPos[2].Y, g_AllianceCreaturesPos[2].Z, g_AllianceCreaturesPos[2].O, TEMPSUMMON_MANUAL_DESPAWN))
             {
-                m_SummonsGUIDs.push_back(l_FirstCreature->GetGUID());
+                m_SummonsEntries.push_back(l_FirstCreature->GetEntry());
 
                 if (std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID) != g_BoarQuests.end() || l_QuestID == BoarQuests::QuestBestingABoar)
                     l_FirstCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedRocktusk);
@@ -287,7 +285,7 @@ namespace MS { namespace Garrison
 
             if (Creature* l_SecondCreature = SummonRelativeCreature(305, g_AllianceCreaturesPos[3].X, g_AllianceCreaturesPos[3].Y, g_AllianceCreaturesPos[3].Z, g_AllianceCreaturesPos[3].O, TEMPSUMMON_MANUAL_DESPAWN))
             {
-                m_SummonsGUIDs.push_back(l_SecondCreature->GetGUID());
+                m_SummonsEntries.push_back(l_SecondCreature->GetEntry());
 
                 if (std::find(g_WolfQuests.begin(), g_WolfQuests.end(), l_QuestID) != g_WolfQuests.end() || l_QuestID == WolfQuests::QuestWanglingAWolf)
                     l_SecondCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedSnarler);
@@ -308,7 +306,7 @@ namespace MS { namespace Garrison
                 g_AllianceCreaturesPos[4].Z,
                 g_AllianceCreaturesPos[4].O,
                 TEMPSUMMON_MANUAL_DESPAWN))
-                m_SummonsGUIDs.push_back(l_Creature->GetGUID());
+                m_SummonsEntries.push_back(l_Creature->GetEntry());
         }
     }
 
