@@ -4707,7 +4707,8 @@ class spell_gen_jards_peculiar_energy_source : public SpellScriptLoader
                 SkyGolem                    = 139192,
                 RascalBot                   = 143714,
                 Pierre                      = 139196,
-                AdvancedRefrigerationUnit   = 139197
+                AdvancedRefrigerationUnit   = 139197,
+                JardPeculiarenergySource    = 139176
             };
 
             void HandleOnHit()
@@ -4721,6 +4722,7 @@ class spell_gen_jards_peculiar_energy_source : public SpellScriptLoader
                 l_Player->learnSpell(eSpells::RascalBot, false);
                 l_Player->learnSpell(eSpells::Pierre, false);
                 l_Player->learnSpell(eSpells::AdvancedRefrigerationUnit, false);
+                l_Player->learnSpell(eSpells::JardPeculiarenergySource, false);
             }
 
             void Register()

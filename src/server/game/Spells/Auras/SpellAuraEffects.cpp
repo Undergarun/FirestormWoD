@@ -3499,6 +3499,27 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
             case 171837:
                 l_DisplayId = 59536;    ///< Warsong Direfang
                 break;
+            ///< Hackfix for Stables, already tried through hotfix db but didn't work live
+            case 174216:                ///< Snarler
+                l_DisplayId = 59757;
+                break;
+            case 174218:                ///< Icehoof
+                l_DisplayId = 59320;
+                break;
+            case 174219:                ///< Meadowstomper
+                l_DisplayId = 59340;
+                break;
+            case 174220:                ///< Riverwallow
+                l_DisplayId = 59743;
+                break;
+            case 174221:                ///< Rocktusk
+                l_DisplayId = 59735;
+                break;
+            case 174222:                ///< Silverpelt
+                l_DisplayId = 59365;
+                break;
+            default:
+                break;
         }
 
         l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());

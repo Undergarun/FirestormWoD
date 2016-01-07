@@ -18,6 +18,9 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+/// x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
+/// n - index (included), l - bool
+
 char const PathNodeEntryfmt[] =
 {
     FT_INDEX,
