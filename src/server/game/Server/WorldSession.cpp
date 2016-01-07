@@ -1150,9 +1150,10 @@ void WorldSession::SendFeatureSystemStatus()
 
     uint32 l_ComplainSystemStatus = 2;                              ///< 0 - Disabled | 1 - Calendar & Mail | 2 - Calendar & Mail & Ignoring system
 
-    uint32 l_TwitterMsTillCanPost = 20;
-    uint32 l_TokenPollTimeSeconds = 300;
-    uint32 l_TokenRedeemIndex = 0;
+    uint32 l_TwitterPostThrottleLimit       = 60;
+    uint32 l_TwitterPostThrottleCooldown    = 20;
+    uint32 l_TokenPollTimeSeconds           = 300;
+    uint32 l_TokenRedeemIndex               = 0;
 
     WorldPacket l_Data(SMSG_FEATURE_SYSTEM_STATUS, 100);
 
@@ -1161,8 +1162,8 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data << uint32(l_SORRemaining);                               ///< SOR remaining
     l_Data << uint32(l_ConfigRealmID);                              ///< Config Realm ID
     l_Data << uint32(l_ConfigRealmRecordID);                        ///< Config Realm Record ID (used for url dbc reading)
-    l_Data << uint32(60);                                           ///< Unk 6.1.0
-    l_Data << uint32(l_TwitterMsTillCanPost);                       ///< TwitterMsTillCanPost
+    l_Data << uint32(l_TwitterPostThrottleLimit);                   ///< Number of twitter posts the client can send before they start being throttled
+    l_Data << uint32(l_TwitterPostThrottleCooldown);                ///< Time in seconds the client has to wait before posting again after hitting post limit
     l_Data << uint32(l_TokenPollTimeSeconds);                       ///< TokenPollTimeSeconds
     l_Data << uint32(l_TokenRedeemIndex);                           ///< TokenRedeemIndex
 

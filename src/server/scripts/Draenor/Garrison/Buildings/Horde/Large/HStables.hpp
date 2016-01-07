@@ -49,7 +49,7 @@ namespace MS { namespace Garrison
             /// Constructor
             npc_TormakAI(Creature* p_Creature);
 
-            std::vector<uint64> m_SummonsGUIDs;
+            std::vector<uint32> m_SummonsEntries;
 
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
 
