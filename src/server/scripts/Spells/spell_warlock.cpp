@@ -4185,7 +4185,7 @@ class spell_warl_incinerate : public SpellScriptLoader
                 if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WarlockWoDPvPDestruction4PBonus, EFFECT_0))
                 {
                     if (l_Target->HasAura(eSpells::ImmolateDamage, l_Caster->GetGUID()))
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_AuraEffect->GetAmount()));
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), 100)); ///< Patch 6.2.3 Hotfixes: November 17 - 23 : 4-piece PvP set bonus for Destruction Warlocks now increases damage dealt by Incinerate on targets afflicted by the casting Warlock's Immolate by 100% (up from 50%)
                 }
             }
 
