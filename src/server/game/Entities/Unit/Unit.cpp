@@ -21985,6 +21985,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Mind Blast - In pvp, damages reduce by 10%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x2000)
             return -10.0f;
+        /// Mind Spike - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[2] & 0x10000)
+            return -10.0f;
         break;
     }
     default:
