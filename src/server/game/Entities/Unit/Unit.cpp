@@ -22015,6 +22015,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
     }
     case SPELLFAMILY_HUNTER:
     {
+        /// Chimera Shot - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[2] & 0x1)
+            return -10.0f;
         break;
     }
     case SPELLFAMILY_MONK:
