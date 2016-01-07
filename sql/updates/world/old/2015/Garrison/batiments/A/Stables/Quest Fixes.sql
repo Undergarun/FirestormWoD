@@ -376,9 +376,9 @@ REPLACE INTO spell_script_names VALUES
 
 -- /!\ HOTFIX DATABASE /!\
 REPLACE INTO mount (ID, SpellID, Category, CreatureDisplayID, Flags, `Name`, Description) VALUES 
-(600002, 174216, 230, 59757, 0, "Snarler in Training", "Summons a Snarler in training"),
-(600003, 174218, 230, 59320, 0, "Icehoof in Training", "Summons an Icehoof in training"),
-(600004, 174219, 230, 59340, 0, "Meadowstomper in Training", "Summons a Meadowstomper in training"),
-(600005, 174220, 230, 59743, 0, "Riverwallow in Training", "Summons a Riverwallow in training"),
-(600006, 174221, 230, 59735, 0, "Rocktusk in Training", "Summons an Rocktusk in training"),
-(600007, 174222, 230, 59365, 0, "Silverpelt in Training", "Summons an Silverpelt in training");
+(600002, 174216, 230, 59757, 0, "Snarler in Training", "Summons a Snarler in training"), -- grogneur/loup - 86851
+(600003, 174218, 230, 59320, 0, "Icehoof in Training", "Summons an Icehoof in training"),-- sabot-fourchu (clefthoof)/sabot glacé - 86847
+(600004, 174219, 230, 59340, 0, "Meadowstomper in Training", "Summons a Meadowstomper in training"),-- foule-prairie - 86852
+(600005, 174220, 230, 59743, 0, "Riverwallow in Training", "Summons a Riverwallow in training"), -- bourbefleuve/potamodonte - 86848
+(600006, 174221, 230, 59735, 0, "Rocktusk in Training", "Summons an Rocktusk in training"), -- Brochepierre - 86850
+(600007, 174222, 230, 59365, 0, "Silverpelt in Training", "Summons an Silverpelt in training"); -- Pelargent - 86801

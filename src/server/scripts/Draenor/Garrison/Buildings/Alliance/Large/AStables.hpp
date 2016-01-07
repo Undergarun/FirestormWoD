@@ -49,7 +49,11 @@ namespace MS { namespace Garrison
             /// Constructor
             npc_FannyFirebeardAI(Creature* p_Creature);
 
+            std::vector<uint64> m_SummonsGUIDs;
+
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+
+            virtual void OnPlotInstanceUnload() override;
     };
 
     //////////////////////////////////////////////////////////////////////////
