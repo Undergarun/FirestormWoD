@@ -18981,6 +18981,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
     bool rewarded = (m_RewardedQuests.find(l_QuestId) != m_RewardedQuests.end());
 
     float QuestXpRate = 1;
+
     if (GetPersonnalXpRate())
         QuestXpRate = GetPersonnalXpRate();
     else
@@ -20674,8 +20675,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     /// totalKills,   todayKills,     yesterdayKills, chosenTitle,       watchedFaction,           drunk,                    health,          power1,            power2,              power3,
     /// 50            51              52      53              54                 55                        56                        57               58                 59                   60
     /// power4,       power5,         power6, instance_id,    speccount,         activespec,               specialization1,          specialization2, exploredZones,     equipmentCache,      knownTitles,
-    /// 61            62              63              64                 65                        66                        67               68                 69                   70
-    /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet
+    /// 61            62              63              64                 65                        66                        67               68                 69                   70             71
+    /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet, xprate
 
     uint32 l_StartTime = getMSTime();
     std::vector<uint32> l_Times;
@@ -21150,6 +21151,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         m_deathExpireTime = now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP-1;
 
     m_LastSummonedBattlePet = fields[70].GetUInt32();
+    m_PersonnalXpRate = fields[71].GetFloat();
 
     // clear channel spell data (if saved at channel spell casting)
     SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
@@ -21464,9 +21466,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     m_achievementMgr.CheckAllAchievementCriteria(this);
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
-
-    /*if (QueryResult PersonnalRateResult = CharacterDatabase.PQuery("SELECT rate FROM character_rates WHERE guid='%u' LIMIT 1", GetGUIDLow()))
-        m_PersonnalXpRate = (PersonnalRateResult->Fetch())[0].GetFloat();*/
 
     if (mustResurrectFromUnlock)
         ResurrectPlayer(1, true);
@@ -23221,6 +23220,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, m_currentPetSlot);
         stmt->setUInt32(index++, m_grantableLevels);
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
+        stmt->setFloat(index++, m_PersonnalXpRate);
     }
     else
     {
@@ -23370,6 +23370,8 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetSpecializationResetCost());
         stmt->setUInt32(index++, GetSpecializationResetTime());
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
+
+        stmt->setFloat(index++, m_PersonnalXpRate);
 
         // Index
         stmt->setUInt32(index++, GetGUIDLow());
@@ -32022,25 +32024,14 @@ void Player::ShowNeutralPlayerFactionSelectUI()
     GetSession()->SendPacket(&data);
 }
 
-void Player::SetPersonnalXpRate(float PersonnalXpRate)
+void Player::SetPersonnalXpRate(float p_PersonnalXPRate)
 {
-    if (PersonnalXpRate != m_PersonnalXpRate)
-    {
-        if (PersonnalXpRate)
-        {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("REPLACE INTO character_rates VALUES ('%u', '%f');", GetGUIDLow(), PersonnalXpRate);
-            CharacterDatabase.CommitTransaction(trans);
-        }
-        else // Rates normales
-        {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("DELETE FROM character_rates WHERE guid = '%u';", GetGUIDLow());
-            CharacterDatabase.CommitTransaction(trans);
-        }
-    }
+    m_PersonnalXpRate = p_PersonnalXPRate;
 
-    m_PersonnalXpRate = PersonnalXpRate;
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_XP_RATE);
+    l_Statement->setFloat(0, p_PersonnalXPRate);
+    l_Statement->setUInt32(1, GetGUIDLow());
+    CharacterDatabase.Execute(l_Statement);
 }
 
 void Player::HandleStoreGoldCallback(PreparedQueryResult result)

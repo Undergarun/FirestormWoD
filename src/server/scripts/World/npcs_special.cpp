@@ -3103,55 +3103,41 @@ class npc_generic_harpoon_cannon : public CreatureScript
         }
 };
 
-/*######
-## npc_rate_xp_modifier
-######*/
-
-#define GOSSIP_TEXT_EXP_MODIF    1587
-#define GOSSIP_TEXT_EXP_MODIF_OK 1588
-#define GOSSIP_TEXT_EXP_NORMAL   1589
-#define GOSSIP_ITEM_XP_CLOSE     "Good bye."
-
+/// Toran <Experience Rate Master> - 159753
 class npc_rate_xp_modifier : public CreatureScript
 {
     public:
         npc_rate_xp_modifier() : CreatureScript("npc_rate_xp_modifier") { }
 
-        bool OnGossipHello(Player *pPlayer, Creature *pCreature)
+        enum eOptions
         {
-            for (uint32 i = 1; i < sWorld->getRate(RATE_XP_KILL); ++i)
-            {
-                std::ostringstream gossipText;
-                gossipText << "I would like to change my rates" << i;
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, i);
-            }
+            Rate1,
+            Rate3,
+            Rate5,
+            OriginalRate
+        };
 
-            if (pPlayer->GetPersonnalXpRate())
-            {
-                std::ostringstream gossipText;
-                gossipText << "I would like to restore my rates (" << sWorld->getRate(RATE_XP_KILL) << ")";
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, 0);
-            }
-
-            pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_EXP_MODIF, pCreature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
         {
-            if (uiAction >= sWorld->getRate(RATE_XP_KILL))
+            switch (p_Action)
             {
-                pPlayer->PlayerTalkClass->SendCloseGossip();
-                return true;
+                case eOptions::Rate1:
+                    p_Player->SetPersonnalXpRate(1.0f);
+                    break;
+                case eOptions::Rate3:
+                    p_Player->SetPersonnalXpRate(3.0f);
+                    break;
+                case eOptions::Rate5:
+                    p_Player->SetPersonnalXpRate(5.0f);
+                    break;
+                case eOptions::OriginalRate:
+                    p_Player->SetPersonnalXpRate(sWorld->getRate(RATE_XP_KILL));
+                    break;
+                default:
+                    break;
             }
 
-            pPlayer->SetPersonnalXpRate(float(uiAction));
-
-            pPlayer->PlayerTalkClass->ClearMenus();
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_XP_CLOSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_EXP_MODIF_OK, pCreature->GetGUID());
-
-            return true;
+            return false;
         }
 };
 
@@ -4735,7 +4721,7 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
-    //new npc_rate_xp_modifier();
+    new npc_rate_xp_modifier();
     new npc_demoralizing_banner();
     new npc_guardian_of_ancient_kings();
     new npc_dire_beast();
