@@ -809,7 +809,7 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
                 if (l_Player->HasTalent(eSpells::CloakAndDagger, l_Player->GetActiveSpec()) && !l_Player->HasUnitState(UNIT_STATE_ROOT))
                     l_Player->CastSpell(l_Target, eSpells::TeleportBack, true);
 
-                if (GetSpellInfo()->Id == eSpells::GarroteDot && l_Player->HasAura(eSpells::FindWeekness))
+                if (l_Player->HasAura(eSpells::FindWeekness))
                     l_Player->AddAura(eSpells::FindWeeknessProc, l_Target);
             }
 
