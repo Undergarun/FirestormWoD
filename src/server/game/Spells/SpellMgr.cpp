@@ -4281,6 +4281,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 3;
                 spellInfo->Effects[1].BasePoints = 3;
                 break;
+            case 159234: ///< Thunderlord
+            case 159675: ///< Warsong
+            case 159676: ///< Frostwolf
+            case 173322: ////< BleedingHollow
             case 118334: ///< Dancing Steel (agility)
             case 118335: ///< Dancing Steel (strength)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ENCHANT_STACK;
