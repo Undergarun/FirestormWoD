@@ -969,7 +969,12 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    LoginQueryHolder* l_LoginQueryHolder = new LoginQueryHolder(GetAccountId(), l_PlayerGuid);
+    LoginPlayer(l_PlayerGuid);
+}
+
+void WorldSession::LoginPlayer(uint64 p_Guid)
+{
+    LoginQueryHolder* l_LoginQueryHolder = new LoginQueryHolder(GetAccountId(), p_Guid);
     LoginDBQueryHolder* l_LoginDBQueryHolder = new LoginDBQueryHolder(GetAccountId());
 
     if (!l_LoginQueryHolder->Initialize() || !l_LoginDBQueryHolder->Initialize())
@@ -983,6 +988,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
     m_CharacterLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)l_LoginQueryHolder);
     m_CharacterLoginDBCallback = LoginDatabase.DelayQueryHolder((SQLQueryHolder*)l_LoginDBQueryHolder);
 }
+
 
 void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
 {

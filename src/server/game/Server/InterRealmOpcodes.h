@@ -146,6 +146,8 @@ enum IROpcodes
     IR_CMSG_GUILD                                   = 0x6E,
     IR_SMSG_GUILD_QUERY                             = 0x6F,
 
+    IR_CMSG_BATTLEFIELD_LEAVE                       = 0x70,
+
     IR_NUM_MSG_TYPES,
 };
 

@@ -86,6 +86,14 @@ struct AccountData
     std::string Data;
 };
 
+struct BattlegroundPortData
+{
+    uint64 PlayerGuid;
+    uint32 Time;
+    uint32 QueueSlot;
+    uint8 Action;
+};
+
 enum PartyCommand
 {
     PARTY_CMD_INVITE   = 0,
@@ -331,6 +339,8 @@ class WorldSession
             _battlegroundPortData.Action = action;
         }
 
+        BattlegroundPortData const& GetBattlegroundPortData() const { return _battlegroundPortData; }
+
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
 
@@ -349,7 +359,8 @@ class WorldSession
             return (_logoutTime > 0 && currTime >= _logoutTime + 20);
         }
 
-        void LogoutPlayer(bool Save);
+        void LoginPlayer(uint64 p_Guid);
+        void LogoutPlayer(bool p_Save, bool p_AfterInterRealm = false);
         void KickPlayer();
 
         void QueuePacket(WorldPacket* new_packet);
@@ -1219,16 +1230,6 @@ class WorldSession
 
         void SendChallengeModeMapStatsUpdate(uint32 p_MapID);
 
-        // Interrealm handling packets
-        void HandleIRBattlemasterJoinOpcode(WorldPacket& recvData, InterRealmSession* tunnel);
-        void HandleIRBattlemasterJoinArena(WorldPacket& recvData, InterRealmSession* tunnel);
-        void HandleIRBattlemasterJoinRated(WorldPacket& recvData, InterRealmSession* tunnel);
-        void HandleIRBattlefieldPortOpcode(WorldPacket &recvData, InterRealmSession* tunnel);
-        void HandleIRLeaveBattlefieldOpcode(WorldPacket &recvData, InterRealmSession* tunnel);
-        void HandleIRBattlefieldStatusOpcode(InterRealmSession* tunnel);
-
-        void LoadAfterInterRealm();
-
         /// Auto sort bags.
         void HandleSortBags(WorldPacket& p_RecvData);
 
@@ -1267,14 +1268,6 @@ class WorldSession
         std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacks;
         std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
         std::mutex m_PreparedStatementCallbackLock;
-
-        struct BattlegroundPortData
-        {
-            uint64 PlayerGuid;
-            uint32 Time;
-            uint32 QueueSlot;
-            uint8 Action;
-        };
 
         BattlegroundPortData _battlegroundPortData;
 

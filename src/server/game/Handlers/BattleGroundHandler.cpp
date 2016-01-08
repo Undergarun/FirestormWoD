@@ -276,9 +276,9 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
         return;
 
     if (!l_JoinAsGroup)
-        l_Tunnel->SendRegisterPlayer(m_Player, l_InstanceID, l_QueueID, l_BGTypeID);
+        l_Tunnel->SendRegisterPlayer(m_Player, l_InstanceID, l_QueueID, l_BGTypeID, l_Roles, l_BlacklistMap);
     else
-        l_Tunnel->SendRegisterGroup(l_Group, l_InstanceID, l_QueueID, l_BGTypeID);
+        l_Tunnel->SendRegisterGroup(l_Group, l_InstanceID, l_QueueID, l_BGTypeID, l_Roles, l_BlacklistMap);
 }
 
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
@@ -547,8 +547,11 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     }
 }
 
-void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
+void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& p_RecvData)
 {
+    if (m_Player == nullptr)
+        return;
+
     bool l_InterRealmEnable = sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE);
     InterRealmSession* l_Tunnel = nullptr;
 
@@ -564,7 +567,9 @@ void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
 
     if (l_InterRealmEnable)
     {
-        /// @TODO: Implement IR_CMSG_LEAVE_BATTLEFIELD
+        WorldPacket l_Data(IR_CMSG_BATTLEFIELD_LEAVE);
+        l_Data << uint64(m_Player->GetGUID());
+        l_Tunnel->SendPacket(&l_Data);
         return;
     }
 

@@ -23364,7 +23364,6 @@ void Player::SaveToDB(bool create /*=false*/ , bool afterSave /*=false*/)
 
     if (afterSave)
     {
-
         uint32 l_AccountID = m_session->GetAccountId();
         l_SaveTransactionCallback = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
         {
@@ -23372,17 +23371,19 @@ void Player::SaveToDB(bool create /*=false*/ , bool afterSave /*=false*/)
             if (l_Session == nullptr)
                 return;
 
-            /*if (InterRealmSession* ir_session = sWorld->GetInterRealmSession())
+            if (InterRealmSession* ir_session = sWorld->GetInterRealmSession())
             {
+                BattlegroundPortData l_PortData = l_Session->GetBattlegroundPortData();
+
                 WorldPacket pckt(IR_CMSG_BATTLEFIELD_PORT, 8 + 4 + 4 + 1);
 
-                pckt << uint64(_battlegroundPortData.PlayerGuid);
-                pckt << uint32(_battlegroundPortData.Time);
-                pckt << uint32(_battlegroundPortData.QueueSlot);
-                pckt << uint8(_battlegroundPortData.Action);
+                pckt << uint64(l_PortData.PlayerGuid);
+                pckt << uint32(l_PortData.Time);
+                pckt << uint32(l_PortData.QueueSlot);
+                pckt << uint8(l_PortData.Action);
 
                 ir_session->SendPacket(&pckt);
-            }*/
+            }
         });
     }
 

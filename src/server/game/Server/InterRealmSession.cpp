@@ -191,23 +191,17 @@ void InterRealmSession::ProcessPlayersAfterDisconnect()
             {
                 itr->second->SetInterRealmBG(0);
 
-                if (Player* pPlayer = itr->second->GetPlayer())
+                if (Player* l_Player = itr->second->GetPlayer())
                 {
-                    /// @TODO: Rework load after inter realm
-                    /*pPlayer->SetForceCleanupChannels(true);
-                    pPlayer->GetSession()->LoadAfterInterRealm();
+                    uint64 l_Guid = l_Player->GetGUID();
 
-                    pPlayer->ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
-                    pPlayer->ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
-                    pPlayer->ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-                    pPlayer->ScheduleDelayedOperation(DELAYED_BG_UPDATE_ZONE);
-                    pPlayer->ScheduleDelayedOperation(DELAYED_BG_NAME_RESTORE);
+                    /// Logout player ...
+                    WorldSession* l_Session = l_Player->GetSession();
+                    l_Session->LogoutPlayer(false, true);
+                    l_Player = nullptr;
 
-                    pPlayer->TeleportToBGEntryPoint(true);  
-
-                    pPlayer->SetInterRealmZoneId(0);
-                    pPlayer->SetInterRealmAreaId(0);
-                    pPlayer->SetInterRealmMapId(0);*/
+                    /// Then login again
+                    l_Session->LoginPlayer(l_Guid);
                 }
             }
         }
@@ -750,38 +744,22 @@ void InterRealmSession::SendPlayerTeleport(Player *player, uint32 zoneId, Player
     SendPacket(&data);
 }
 
-void InterRealmSession::Handle_BattlefieldLeave(WorldPacket& packet)
+void InterRealmSession::Handle_BattlefieldLeave(WorldPacket& p_Packet)
 {
     //sLog->outInterRealm(LOG_FILTER_GENERAL, "[INTERREALM] Received a packet IR_SMSG_BATTLEFIELD_LEAVE");
 
-    uint64 playerGuid;
-    uint8 desertir;
+    uint64 l_PlayerGuid;
+    p_Packet >> l_PlayerGuid;
 
-    packet >> playerGuid;
-    packet >> desertir;
-
-    if (Player* pPlayer = sObjectAccessor->FindPlayerInOrOutOfWorld(playerGuid))
+    if (Player* l_Player = sObjectAccessor->FindPlayerInOrOutOfWorld(l_PlayerGuid))
     {
-        /// @TODO: Rework load after inter realm
-        /*pPlayer->SetForceCleanupChannels(true);
-        pPlayer->GetSession()->SetInterRealmBG(0);
-        pPlayer->GetSession()->LoadAfterInterRealm();
+        /// Logout player ...
+        WorldSession* l_Session = l_Player->GetSession();
+        l_Session->LogoutPlayer(false, true);
+        l_Player = nullptr;
 
-        pPlayer->ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
-        pPlayer->ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
-        pPlayer->ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-        pPlayer->ScheduleDelayedOperation(DELAYED_BG_UPDATE_ZONE);
-        pPlayer->ScheduleDelayedOperation(DELAYED_BG_NAME_RESTORE);
-        if (desertir)
-            pPlayer->ScheduleDelayedOperation(DELAYED_SPELL_CAST_DESERTER);
-        if (pPlayer->isSpectator())
-            pPlayer->ScheduleDelayedOperation(DELAYED_SPECTATOR_REMOVE);
-
-        pPlayer->TeleportToBGEntryPoint(true);
-
-        pPlayer->SetInterRealmZoneId(0);
-        pPlayer->SetInterRealmAreaId(0);
-        pPlayer->SetInterRealmMapId(0);*/
+        /// Then login again
+        l_Session->LoginPlayer(l_PlayerGuid);
     }
 }
 
@@ -1353,7 +1331,7 @@ void InterRealmSession::BuildPlayerArenaInfoBlock(Player* player, ByteBuffer& pa
     }
 }
 
-void InterRealmSession::SendRegisterPlayer(Player* player, uint32 bgInstanceId, uint64 bgGuid, uint32 bgTypeId)
+void InterRealmSession::SendRegisterPlayer(Player* player, uint32 bgInstanceId, uint64 bgGuid, uint32 bgTypeId, uint8 role, uint32* blacklist)
 {
     WorldPacket pckt(IR_CMSG_REGISTER_PLAYER, 8 + 4 + 1 + 1 + 1 + 8 + 1 + 1 + NUM_ACCOUNT_DATA_TYPES * 1
                          + 10 + strlen(player->GetName()) + 1 + 1 + 1 + 4 + 4 + 1 + 1 + 4 + 8);
@@ -1392,13 +1370,17 @@ void InterRealmSession::SendRegisterPlayer(Player* player, uint32 bgInstanceId, 
     pckt << uint32(bgInstanceId); // bg instance id
     pckt << uint64(bgGuid); // bg guid
     pckt << uint32(bgTypeId);
+    pckt << uint8(role);
+
+    for (int i = 0; i < 2; i++)
+        pckt << blacklist[i];
 
     BuildPlayerArenaInfoBlock(player, pckt);
 
     SendPacket(&pckt);
 }
 
-void InterRealmSession::SendRegisterGroup(Group* group, uint32 bgInstanceId, uint64 bgGuid, uint32 bgTypeId)
+void InterRealmSession::SendRegisterGroup(Group* group, uint32 bgInstanceId, uint64 bgGuid, uint32 bgTypeId, uint8 role, uint32* blacklist)
 {
     WorldPacket pckt(IR_CMSG_REGISTER_GROUP, (8 + 4 + 8 + 4 + 1 + 1 + 1 + 8 + 1 + 1 +
             10 + 1 + 1 + 1 + 4 + 4 + 1 + 1));
@@ -1410,6 +1392,10 @@ void InterRealmSession::SendRegisterGroup(Group* group, uint32 bgInstanceId, uin
     pckt << uint32(bgInstanceId); // bg instance id
     pckt << uint64(bgGuid); // bg guid
     pckt << uint32(bgTypeId);
+    pckt << uint8(role);
+
+    for (int i = 0; i < 2; i++)
+        pckt << uint32(blacklist[i]);
 
     uint8 count = 0;
     for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
@@ -1701,6 +1687,7 @@ void InterRealmSession::SendGuild(uint64 guildGuid)
     packet << guild->GetEmblemInfo().GetBorderStyle();
     packet << guild->GetEmblemInfo().GetBorderColor();
     packet << guild->GetEmblemInfo().GetBackgroundColor();
+    packet << guild->GetAchievementMgr().GetAchievementPoints();
 
     Guild::Ranks const* ranks = guild->GetRanks();
 

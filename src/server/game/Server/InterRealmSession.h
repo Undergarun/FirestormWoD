@@ -117,8 +117,8 @@ class InterRealmSession: public ACE_Based::Runnable
 
         void SendRegisterArena(Group* group, uint32 arenaSlot);
         void SendRegisterRated(Group* group, uint32 personalRating, uint32 matchmakerRating);
-        void SendRegisterPlayer(Player* player, uint32 bgInstanceId, uint64 bgGuid, uint32 bgTypeId);
-        void SendRegisterGroup(Group* group, uint32 bgInstanceId, uint64 bgGuid, uint32 bgTypeId);
+        void SendRegisterPlayer(Player* player, uint32 bgInstanceId, uint64 bgGuid, uint32 bgTypeId, uint8 role, uint32* blacklist);
+        void SendRegisterGroup(Group* group, uint32 bgInstanceId, uint64 bgGuid, uint32 bgTypeId, uint8 role, uint32* blacklist);
         void SendRegisterSpectator(Player* player, uint64 targetGuid);
 
         void Handle_Unhandled(WorldPacket& recvPacket);

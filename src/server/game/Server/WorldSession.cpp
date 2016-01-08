@@ -447,6 +447,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                                 break;
                             // Opcodes has a local handle 
                             // but player not in world and is at interrealm bg
+                            case CMSG_LEAVE_BATTLEFIELD:
                             case CMSG_ACCEPT_GUILD_INVITE:
                             //case CMSG_GUILD_ACHIEVEMENT_MEMBERS:
                             //case CMSG_GUILD_ACHIEVEMENT_PROGRESS_QUERY:
@@ -632,7 +633,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 }
 
 /// %Log the player out
-void WorldSession::LogoutPlayer(bool Save)
+void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
 {
     // fix exploit with Aura Bind Sight
     m_Player->StopCastingBindSight();
@@ -644,7 +645,7 @@ void WorldSession::LogoutPlayer(bool Save)
         HandleMoveWorldportAckOpcode();
 
     m_playerLogout = true;
-    m_playerSave = Save;
+    m_playerSave = p_Save;
 
     if (m_Player)
     {
@@ -701,8 +702,8 @@ void WorldSession::LogoutPlayer(bool Save)
             // give bg rewards and update counters like kill by first from attackers
             // this can't be called for all attackers.
             if (!aset.empty())
-                if (Battleground* bg = m_Player->GetBattleground())
-                    bg->HandleKillPlayer(m_Player, *aset.begin());
+            if (Battleground* bg = m_Player->GetBattleground())
+                bg->HandleKillPlayer(m_Player, *aset.begin());
         }
         else if (m_Player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
         {
@@ -734,7 +735,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         sOutdoorPvPMgr->HandlePlayerLeaveZone(m_Player, m_Player->GetZoneId());
 
-        for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+        for (int i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         {
             if (MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i))
             {
@@ -744,7 +745,7 @@ void WorldSession::LogoutPlayer(bool Save)
         }
 
         /// If, when the player logout, the battleground pointer of the player is still good, we apply deserter buff.
-        if (Save && m_Player->GetBattleground() != nullptr && m_Player->GetBattleground()->GetStatus() != STATUS_WAIT_LEAVE)
+        if (p_Save && m_Player->GetBattleground() != nullptr && m_Player->GetBattleground()->GetStatus() != STATUS_WAIT_LEAVE)
         {
             /// We add the Deserter buff, otherwise it can be used bug.
             m_Player->AddAura(MS::Battlegrounds::Spells::DeserterBuff, m_Player);
@@ -777,7 +778,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
-        if (Save)
+        if (p_Save)
         {
             uint32 eslot;
             for (int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)
@@ -809,11 +810,15 @@ void WorldSession::LogoutPlayer(bool Save)
         }
 
         //! Broadcast a logout message to the player's friends
-        sSocialMgr->SendFriendStatus(m_Player, FRIEND_OFFLINE, m_Player->GetGUIDLow(), true);
-        sSocialMgr->RemovePlayerSocial(m_Player->GetGUIDLow());
 
-        //! Call script hook before deletion
-        sScriptMgr->OnPlayerLogout(m_Player);
+        if (!p_AfterInterRealm)
+        {
+            sSocialMgr->SendFriendStatus(m_Player, FRIEND_OFFLINE, m_Player->GetGUIDLow(), true);
+            sSocialMgr->RemovePlayerSocial(m_Player->GetGUIDLow());
+
+            //! Call script hook before deletion
+            sScriptMgr->OnPlayerLogout(m_Player);
+        }
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
@@ -826,15 +831,18 @@ void WorldSession::LogoutPlayer(bool Save)
 
         SetPlayer(NULL); //! Pointer already deleted during RemovePlayerFromMap
 
-        //! Send the 'logout complete' packet to the client
-        //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
-        WorldPacket data(SMSG_LOGOUT_COMPLETE, 16);
-        data.appendPackGUID(0);
-        SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
+        if (!p_AfterInterRealm)
+        {
+            //! Send the 'logout complete' packet to the client
+            //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
+            WorldPacket data(SMSG_LOGOUT_COMPLETE, 16);
+            data.appendPackGUID(0);
+            SendPacket(&data);
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
 
-        //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
-        CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", GetAccountId());
+            //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
+            CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", GetAccountId());
+        }
     }
 
     m_playerLogout = false;
@@ -1746,10 +1754,4 @@ void WorldSession::SendGameError(GameError::Type p_Error, uint32 p_Data1, uint32
         l_Packet << uint32(p_Data2);
 
     SendPacket(&l_Packet);
-}
-
-/// @TODO : Disconnect the player and then reload it
-void WorldSession::LoadAfterInterRealm()
-{
-
 }
