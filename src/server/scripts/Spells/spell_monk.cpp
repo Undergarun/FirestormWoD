@@ -2638,7 +2638,7 @@ class spell_monk_tigers_lust: public SpellScriptLoader
         }
 };
 
-// Flying Serpent Kick - 115057
+/// Flying Serpent Kick - 115057
 class spell_monk_flying_serpent_kick: public SpellScriptLoader
 {
     public:
@@ -2705,7 +2705,7 @@ class spell_monk_flying_serpent_kick: public SpellScriptLoader
         }
 };
 
-// Chi Torpedo - 115008 or Chi Torpedo (3 charges) - 121828
+/// Chi Torpedo - 115008
 class spell_monk_chi_torpedo: public SpellScriptLoader
 {
     public:
@@ -3511,7 +3511,7 @@ class spell_monk_fortifying_brew: public SpellScriptLoader
         }
 };
 
-// Roll - 109132 or Roll (3 charges) - 121827
+// Roll - 109132
 class spell_monk_roll: public SpellScriptLoader
 {
     public:
