@@ -4185,7 +4185,7 @@ class spell_warl_incinerate : public SpellScriptLoader
                 if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WarlockWoDPvPDestruction4PBonus, EFFECT_0))
                 {
                     if (l_Target->HasAura(eSpells::ImmolateDamage, l_Caster->GetGUID()))
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_AuraEffect->GetAmount()));
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), 100)); ///< Patch 6.2.3 Hotfixes: November 17 - 23 : 4-piece PvP set bonus for Destruction Warlocks now increases damage dealt by Incinerate on targets afflicted by the casting Warlock's Immolate by 100% (up from 50%)
                 }
             }
 
@@ -4201,52 +4201,8 @@ class spell_warl_incinerate : public SpellScriptLoader
         }
 };
 
-/// last update : 6.2.3
-/// Shadowburn - 17877
-class spell_warl_shadowburn_damage : public SpellScriptLoader
-{
-    public:
-        spell_warl_shadowburn_damage() : SpellScriptLoader("spell_warl_shadowburn_damage") { }
-
-        class spell_warl_shadowburn_damage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_shadowburn_damage_SpellScript);
-
-            enum eSpells
-            {
-                WarlockWoDPvPDestruction4PBonus = 189209,
-                ImmolateDamage = 157736
-            };
-
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-
-                if (l_Target == nullptr)
-                    return;
-
-                /// Hotfixes: November 17 - 23 : Shadowburn now deals 20% more damage while in PvP combat.
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), 20));
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warl_shadowburn_damage_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_shadowburn_damage_SpellScript();
-        }
-};
-
 void AddSC_warlock_spell_scripts()
 {
-    new spell_warl_shadowburn_damage();
-    new spell_warl_incinerate();
     new spell_warl_glyph_of_life_tap_periodic();
     new spell_warl_glyph_of_life_tap();
     new spell_warl_demonic_servitude();

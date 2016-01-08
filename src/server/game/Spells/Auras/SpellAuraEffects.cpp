@@ -6662,14 +6662,11 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
             if (GetMiscValue() != player->GetCurrentRune(i))
                 continue;
 
-            if (!player->GetRuneCooldown(i))
-            {
-                player->AddRuneBySpell(i, rune, GetId());
-                if (permanently)
-                    player->SetRuneConvertType(i, permanently);
+            player->AddRuneBySpell(i, rune, GetId());
+            if (permanently)
+                player->SetRuneConvertType(i, permanently);
 
-                --runes;
-            }
+            --runes;
         }
     }
     else
@@ -8377,7 +8374,7 @@ void AuraEffect::HandleAuraStrangulate(AuraApplication const* aurApp, uint8 mode
     // Asphyxiate
     if (m_spellInfo->Id == 108194)
     {
-        int32 newZ = 5;
+        float newZ = 4.9f;
         target->SetControlled(apply, UNIT_STATE_STUNNED);
 
         if (apply)
