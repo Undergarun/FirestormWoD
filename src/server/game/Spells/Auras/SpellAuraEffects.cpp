@@ -6966,18 +6966,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
         {
             switch (GetSpellInfo()->Id)
             {
-                // Camouflage
-                case 80326:
-                {
-                    if ((caster->isMoving() && !caster->HasAura(119449)) || caster->HasAura(80325))
-                        return;
-
-                    if (caster->HasAura(119449) || (caster->GetOwner() && caster->GetOwner()->HasAura(119449)))
-                        caster->CastSpell(caster, 119450, true);
-                    else
-                        caster->CastSpell(caster, 80325, true);
-                    break;
-                }
                 // Feeding Frenzy Rank 1
                 case 53511:
                     if (target->getVictim() && target->getVictim()->HealthBelowPct(35))
