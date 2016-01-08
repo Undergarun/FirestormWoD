@@ -2896,41 +2896,6 @@ class spell_hun_chimaera_shot: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
-/// Chimaera Shot (damage), Frost - 171454, Nature - 171457
-class spell_hun_chimaera_shot_damage : public SpellScriptLoader
-{
-    public:
-        spell_hun_chimaera_shot_damage() : SpellScriptLoader("spell_hun_chimaera_shot_damage") { }
-
-        class spell_hun_chimaera_shot_damage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_chimaera_shot_damage_SpellScript);
-
-            void HandleDamage(SpellEffIndex)
-            {
-                Unit* l_Target = GetHitUnit();
-
-                if (l_Target == nullptr)
-                    return;
-
-                /// HotFixe February 27, 2015 : Chimaera Shot now deals 20% less damage in PvP combat.
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
-                    SetHitDamage(GetHitDamage() - CalculatePct(GetHitDamage(), 20));
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_chimaera_shot_damage_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_chimaera_shot_damage_SpellScript();
-        }
-};
-
 class spell_hun_last_stand_pet: public SpellScriptLoader
 {
     public:
@@ -4137,7 +4102,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_cobra_shot();
     new spell_hun_steady_shot();
     new spell_hun_chimaera_shot();
-    new spell_hun_chimaera_shot_damage();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
     new spell_hun_pet_heart_of_the_phoenix();

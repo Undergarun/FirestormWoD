@@ -21967,6 +21967,66 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
     /// Explicit diminishing Pvp damage
     switch (p_Spellproto->SpellFamilyName)
     {
+    case SPELLFAMILY_DRUID:
+    {
+        /// Rake - In pvp, damages reduce by 20%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x1000)
+            return -20.0f;
+        /// Rip - In pvp, damages reduce by 20%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x800000 && p_Spellproto->SpellFamilyFlags[2] & 0x200000)
+            return -20.0f;
+        break;
+    }
+    case SPELLFAMILY_PRIEST:
+    {
+        /// Devouring Plague - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[3] & 0x10)
+            return -10.0f;
+        /// Mind Blast - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x2000)
+            return -10.0f;
+        /// Mind Spike - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[2] & 0x10000)
+            return -10.0f;
+        break;
+    }
+    case SPELLFAMILY_WARLOCK:
+    {
+        /// Corruption - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x2)
+            return -10.0f;
+        /// Agnoy - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x400)
+            return -10.0f;
+        /// Unstable Affliction - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x100)
+            return -10.0f;
+        /// Unstable ShadowBurn - In pvp, damages increase by 20%
+        if (p_Spellproto->SpellFamilyFlags[3] & 0x400000)
+            return 20.0f;
+        break;
+    }
+    case SPELLFAMILY_SHAMAN:
+    {
+        /// Lava Burst - In pvp, damages increase by 20%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x1000)
+            return 20.0f;
+        break;
+    }
+    case SPELLFAMILY_HUNTER:
+    {
+        /// Chimera Shot - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[2] & 0x1)
+            return -10.0f;
+        break;
+    }
+    case SPELLFAMILY_MONK:
+    {
+        /// Rising Sun Kick - In pvp, increase reduce by 20%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x80)
+            return 20.0f;
+        break;
+    }
     default:
         break;
     }

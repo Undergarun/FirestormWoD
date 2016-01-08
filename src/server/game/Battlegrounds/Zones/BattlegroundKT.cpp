@@ -216,7 +216,7 @@ void BattlegroundKT::EventPlayerDroppedOrb(Player* source)
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundKT::RemovePlayer(Player* plr, ObjectGuid guid)
+void BattlegroundKT::RemovePlayer(Player* plr, uint64 guid, uint32 /*team*/)
 {
     EventPlayerDroppedOrb(plr);
     m_playersZone.erase(plr->GetGUID());

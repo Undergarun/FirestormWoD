@@ -209,7 +209,7 @@ class BattlegroundKT : public Battleground
         virtual void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj) { EventPlayerClickedOnOrb(source, target_obj); }
         void EventPlayerClickedOnOrb(Player* source, GameObject* target_obj);
 
-        void RemovePlayer(Player* plr, ObjectGuid guid);
+        void RemovePlayer(Player* plr, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* source, uint32 trigger);
         void HandleKillPlayer(Player* player, Player* killer);
         bool SetupBattleground();
