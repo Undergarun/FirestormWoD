@@ -9006,7 +9006,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
         return false;
     }
 
-    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS) // FIXME: GetItemCount range 0...255 MAX_VENDOR_ITEMS = 300
+    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS)
     {
         if (player)
             ChatHandler(player).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);

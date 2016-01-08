@@ -497,7 +497,7 @@ typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 // max different by z coordinate for creature aggro reaction
 #define CREATURE_Z_ATTACK_RANGE 3
 
-#define MAX_VENDOR_ITEMS 450                                // Limitation in 4.x.x item count in SMSG_LIST_INVENTORY
+#define MAX_VENDOR_ITEMS 500    ///< Old Limitation in 4.x.x item count in SMSG_LIST_INVENTORY was 450
 
 class Creature : public Unit, public GridObject<Creature>, public MapObject
 {
