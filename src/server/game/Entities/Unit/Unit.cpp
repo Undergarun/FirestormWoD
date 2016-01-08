@@ -12440,10 +12440,10 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         if (HasAura(34483)) // Careful Aim
                         {
                             ///< Increases the critical strike chance of your Steady Shot, Focusing Shot, and Aimed Shot
-                            ///< by 60% on targets who are above 80% health...
+                            ///< by 50% on targets who are above 80% health...
                             ///< ... or while Rapid Fire is active.
                             if (victim->GetHealthPct() > 80.0f || HasAura(3045))
-                                crit_chance += 60.0f;
+                                crit_chance += 50.0f;
                         }
 
                         break;

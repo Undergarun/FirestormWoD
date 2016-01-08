@@ -4129,6 +4129,7 @@ class spell_hun_camouflage : public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
 /// Camouflage - 80326
 class spell_hun_camouflage_visual : public SpellScriptLoader
 {
@@ -4203,6 +4204,7 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
 /// Camouflage - 80325, Camoufflage - 119450
 class spell_hun_camouflage_buff : public SpellScriptLoader
 {
