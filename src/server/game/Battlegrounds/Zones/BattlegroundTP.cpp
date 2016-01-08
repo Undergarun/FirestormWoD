@@ -631,7 +631,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player *Source, GameObject* target
     Source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundTP::RemovePlayer(Player *player, uint64 guid)
+void BattlegroundTP::RemovePlayer(Player *player, uint64 guid, uint32 /*team*/)
 {
     // sometimes flag auras are not removed :(
     if (IsAllianceFlagPickedup() && _flagKeepers[TEAM_ALLIANCE] == guid)
