@@ -78,7 +78,7 @@ class spell_enchantment_mark : public SpellScriptLoader
                         l_Player->CastSpell(l_Player, eEnchantmentMarkProc::Warsong, true, l_Item);
                         break;
                     case eEnchantmentMarkAura::BleedingHollow:
-                        l_Player)->CastSpell(l_Player, eEnchantmentMarkProc::BleedingHollow, true, l_Item);
+                        l_Player->CastSpell(l_Player, eEnchantmentMarkProc::BleedingHollow, true, l_Item);
                         break;
                     case eEnchantmentMarkAura::Frostwolf:
                         l_Player->CastSpell(l_Player, eEnchantmentMarkProc::Frostwolf, true, l_Item);
