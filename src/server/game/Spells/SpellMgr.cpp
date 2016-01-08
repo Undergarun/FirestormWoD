@@ -4173,6 +4173,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 77756: ///< Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
                 break;
+            case 77762: ///< Lava Surge
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); ///< 10s
+                break;
+            case 138106: ///< Cloack and Dagger
+                spellInfo->Stances = 0;
+                break;
             case 8188:   ///< Magma Totem Passive
             case 5672:   ///< Healing Streams
             case 114941: ///< Healing Tide
@@ -4281,6 +4287,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 3;
                 spellInfo->Effects[1].BasePoints = 3;
                 break;
+            case 159234: ///< Thunderlord
+            case 159675: ///< Warsong
+            case 159676: ///< Frostwolf
+            case 173322: ////< BleedingHollow
             case 118334: ///< Dancing Steel (agility)
             case 118335: ///< Dancing Steel (strength)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ENCHANT_STACK;
@@ -5725,7 +5735,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 3411:  ///< Intervene
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_RAID;
-                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG;
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
                 spellInfo->OverrideSpellList.push_back(114029); ///< Add Safeguard to override spell list of Intervene

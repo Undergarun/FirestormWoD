@@ -2470,38 +2470,6 @@ class spell_hun_powershot: public SpellScriptLoader
         }
 };
 
-// Camouflage - 51755
-class spell_hun_camouflage_visual: public SpellScriptLoader
-{
-    public:
-        spell_hun_camouflage_visual() : SpellScriptLoader("spell_hun_camouflage_visual") { }
-
-        class spell_hun_camouflage_visual_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_camouflage_visual_AuraScript);
-
-            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetCaster())
-                {
-                    GetCaster()->RemoveAura(HUNTER_SPELL_CAMOUFLAGE_VISUAL);
-                    GetCaster()->RemoveAura(HUNTER_SPELL_GLYPH_OF_CAMOUFLAGE_VISUAL);
-                    GetCaster()->RemoveAura(HUNTER_SPELL_CAMOUFLAGE_PERIODIC_HEAL);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_camouflage_visual_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_INTERFERE_TARGETTING, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_camouflage_visual_AuraScript();
-        }
-};
-
 // Called by Multi Shot - 2643
 // Serpent Spread - 87935
 class spell_hun_serpent_spread: public SpellScriptLoader
@@ -4048,8 +4016,249 @@ class spell_hun_trap_launcher : public SpellScriptLoader
         }
 };
 
+
+/// last update : 6.2.3
+/// Camouflage - 51753
+class spell_hun_camouflage_triggered : public SpellScriptLoader
+{
+    public:
+        spell_hun_camouflage_triggered() : SpellScriptLoader("spell_hun_camouflage_triggered") { }
+
+        class spell_hun_camouflage_triggered_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_camouflage_triggered_AuraScript);
+
+            enum eSpells
+            {
+                Camouflage = 51755
+            };
+
+            void OnApply(constAuraEffectPtr p_AuraEffect, AuraEffectHandleModes)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->isMoving() && !l_Target->HasAura(119449))
+                    l_Target->RemoveAura(GetSpellInfo()->Id);
+                else
+                    l_Target->CastSpell(l_Target, eSpells::Camouflage, true);
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::Camouflage))
+                    l_Target->RemoveAura(eSpells::Camouflage);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_camouflage_triggered_AuraScript::OnApply, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_camouflage_triggered_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_camouflage_triggered_AuraScript();
+        }
+};
+
+/// last update : 6.2.3
+/// Camouflage - 51755
+class spell_hun_camouflage : public SpellScriptLoader
+{
+    public:
+        spell_hun_camouflage() : SpellScriptLoader("spell_hun_camouflage") { }
+
+        class spell_hun_camouflage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_camouflage_AuraScript);
+
+            enum eSpells
+            {
+                CamouflageBuff = 80326
+            };
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->CastSpell(l_Player, eSpells::CamouflageBuff, true);
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet != nullptr)
+                {
+                    l_Pet->CastSpell(l_Pet, GetSpellInfo()->Id, true);
+                    l_Pet->CastSpell(l_Pet, eSpells::CamouflageBuff, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->RemoveAura(eSpells::CamouflageBuff);
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet)
+                {
+                    l_Player->RemoveAura(GetSpellInfo()->Id);
+                    l_Player->RemoveAura(eSpells::CamouflageBuff);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_camouflage_AuraScript::OnApply, EFFECT_2, SPELL_AURA_MOD_CAMOUFLAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_camouflage_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_CAMOUFLAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_camouflage_AuraScript();
+        }
+};
+
+/// last update : 6.2.3
+/// Camouflage - 80326
+class spell_hun_camouflage_visual : public SpellScriptLoader
+{
+    public:
+        spell_hun_camouflage_visual() : SpellScriptLoader("spell_hun_camouflage_visual") { }
+
+        class spell_hun_camouflage_visual_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_camouflage_visual_AuraScript);
+
+            enum eSpells
+            {
+                CamouflageBuffVisual        = 80325,
+                GlyphOfCamouflage           = 119449,
+                GlyphOfCamouflageBuff       = 119450,
+            };
+
+           void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if ((l_Player->isMoving() && !l_Player->HasAura(119449)) || l_Player->HasAura(80325))
+                    return;
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Player->HasAura(eSpells::GlyphOfCamouflage))
+                {
+                    if (l_Pet != nullptr)
+                        l_Pet->CastSpell(l_Pet, eSpells::GlyphOfCamouflageBuff, true);
+                    l_Player->CastSpell(l_Player, eSpells::GlyphOfCamouflageBuff, true);
+                }
+                else
+                {
+                    if (l_Pet != nullptr)
+                        l_Pet->CastSpell(l_Pet, eSpells::CamouflageBuffVisual, true);
+                    l_Player->CastSpell(l_Player, eSpells::CamouflageBuffVisual, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                l_Player->RemoveAura(eSpells::GlyphOfCamouflageBuff);
+                l_Player->RemoveAura(eSpells::CamouflageBuffVisual);
+                if (l_Pet != nullptr)
+                {
+                    l_Pet->RemoveAura(eSpells::GlyphOfCamouflageBuff);
+                    l_Pet->RemoveAura(eSpells::CamouflageBuffVisual);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_camouflage_visual_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_camouflage_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_camouflage_visual_AuraScript();
+        }
+};
+
+/// last update : 6.2.3
+/// Camouflage - 80325, Camoufflage - 119450
+class spell_hun_camouflage_buff : public SpellScriptLoader
+{
+    public:
+        spell_hun_camouflage_buff() : SpellScriptLoader("spell_hun_camouflage_buff") { }
+
+        class spell_hun_camouflage_buff_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_camouflage_buff_AuraScript);
+
+            enum eSpells
+            {
+                CamouflageBuffVisual    = 80326,
+                Camouflage              = 51755,
+                HealthBuff              = 51753
+            };
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                l_Player->RemoveAura(eSpells::CamouflageBuffVisual);
+                l_Player->RemoveAura(eSpells::Camouflage);
+                l_Player->RemoveAura(eSpells::HealthBuff);
+                if (l_Pet != nullptr)
+                {
+                    l_Pet->RemoveAura(eSpells::CamouflageBuffVisual);
+                    l_Pet->RemoveAura(eSpells::Camouflage);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_camouflage_buff_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_camouflage_buff_AuraScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_camouflage_buff();
+    new spell_hun_camouflage_visual();
+    new spell_hun_camouflage();
+    new spell_hun_camouflage_triggered();
     new spell_hun_a_murder_of_crows_damage();
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_thick_hide();
@@ -4094,7 +4303,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_binding_shot();
     new spell_hun_binding_shot_zone();
     new spell_hun_powershot();
-    new spell_hun_camouflage_visual();
     new spell_hun_serpent_spread();
     new spell_hun_ancient_hysteria();
     new spell_hun_netherwinds();

@@ -55,22 +55,33 @@ class spell_enchantment_mark : public SpellScriptLoader
 
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
-                if (!GetOwner() || !GetOwner()->ToPlayer())
+                if (!GetOwner())
                     return;
+
+                Player* l_Player = GetOwner()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                Item* l_Item = nullptr;
+                if (p_EventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)
+                    l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                else
+                    l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
                 switch (GetSpellInfo()->Id)
                 {
                     case eEnchantmentMarkAura::Thunderlord:
-                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Thunderlord, TRIGGERED_FULL_MASK);
+                        l_Player->CastSpell(l_Player, eEnchantmentMarkProc::Thunderlord, true, l_Item);
                         break;
                     case eEnchantmentMarkAura::Warsong:
-                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Warsong, TRIGGERED_FULL_MASK);
+                        l_Player->CastSpell(l_Player, eEnchantmentMarkProc::Warsong, true, l_Item);
                         break;
                     case eEnchantmentMarkAura::BleedingHollow:
-                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::BleedingHollow, TRIGGERED_FULL_MASK);
+                        l_Player->CastSpell(l_Player, eEnchantmentMarkProc::BleedingHollow, true, l_Item);
                         break;
                     case eEnchantmentMarkAura::Frostwolf:
-                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Frostwolf, TRIGGERED_FULL_MASK);
+                        l_Player->CastSpell(l_Player, eEnchantmentMarkProc::Frostwolf, true, l_Item);
                         break;
                     /*
                      case eEnchantmentMarkAura::Blackrock:

@@ -4174,8 +4174,56 @@ class PlayerScript_word_of_mending : public PlayerScript
         }
 };
 
+
+/// Last Update : 6.2.3
+/// Shadowform - 15473
+class spell_pri_shadowform : public SpellScriptLoader
+{
+    public:
+        spell_pri_shadowform() : SpellScriptLoader("spell_pri_shadowform") { }
+
+        class spell_pri_shadowform_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_shadowform_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfShadowAura   = 107906,
+                GlyphOfShadowEffect = 107904
+            };
+
+            void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::GlyphOfShadowAura))
+                    l_Target->CastSpell(l_Target, eSpells::GlyphOfShadowEffect, true);
+            }
+
+            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::GlyphOfShadowEffect))
+                    l_Target->RemoveAura(eSpells::GlyphOfShadowEffect);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_pri_shadowform_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pri_shadowform_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_shadowform_AuraScript();
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_shadowform();
     new spell_pri_penance_aura();
     new spell_pri_focused_will();
     new spell_pri_dispel_mass();
