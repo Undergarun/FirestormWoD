@@ -895,6 +895,7 @@ void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
         return;
 
     WorldPacket l_Data(SMSG_GARRISON_OPEN_MISSION_NPC, 9);
+
     l_Data << uint32(0);
     l_Data << uint32(0);
     l_Data.WriteBit(false);

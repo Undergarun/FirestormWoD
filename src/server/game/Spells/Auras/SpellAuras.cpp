@@ -2102,24 +2102,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (caster && caster->HasAura(56845))
                         target->CastSpell(target, 61394, true);
                 }
-
-                switch (GetSpellInfo()->Id)
-                {
-                    case 51753: ///< Camouflage
-                    {
-                        if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
-                            break;
-
-                        if (Pet* l_Pet = caster->ToPlayer()->GetPet())
-                        {
-                            l_Pet->RemoveAura(GetSpellInfo()->Id);
-                            l_Pet->RemoveAura(80325);
-                        }
-
-                        break;
-                    }
-                }
-
                 break;
             }
             case SPELLFAMILY_SHAMAN:
