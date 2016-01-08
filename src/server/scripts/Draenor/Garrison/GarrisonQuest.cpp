@@ -42,6 +42,7 @@ namespace MS { namespace Garrison
         switch (p_Item->GetVisibleEntry())
         {
             case Items::ItemGarrisonResources:
+            case Items::ItemSecondGarrisonResources:
             {
                 uint64 l_PlayerGuid = p_Player->GetGUID();
                 uint64 l_ItemGuid = p_Item->GetGUID();
