@@ -9006,15 +9006,6 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
         return false;
     }
 
-    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS)
-    {
-        if (player)
-            ChatHandler(player).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
-        else
-            sLog->outError(LOG_FILTER_SQL, "Table `npc_vendor` has too many items (%u >= %i) for vendor (Entry: %u), ignore", vItems->GetItemCount(), MAX_VENDOR_ITEMS, vendor_entry);
-        return false;
-    }
-
     if (type == ITEM_VENDOR_TYPE_CURRENCY && maxcount == 0)
     {
         sLog->outError(LOG_FILTER_SQL, "Table `(game_event_)npc_vendor` have Item (Entry: %u, type: %u) with missing maxcount for vendor (%u), ignore", id, type, ExtendedCost, vendor_entry);
