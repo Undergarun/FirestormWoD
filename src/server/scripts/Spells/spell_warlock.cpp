@@ -4203,6 +4203,7 @@ class spell_warl_incinerate : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_incinerate();
     new spell_warl_glyph_of_life_tap_periodic();
     new spell_warl_glyph_of_life_tap();
     new spell_warl_demonic_servitude();
