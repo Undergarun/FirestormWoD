@@ -1511,8 +1511,9 @@ class spell_warr_intervene: public SpellScriptLoader
 
             enum eSpells
             {
-                InterveneAura = 34784,
-                InterveneCharge = 147833
+                InterveneAura           = 34784,
+                InterveneCharge         = 147833,
+                GlyphoftheWatchfulEye   = 146973
             };
 
             SpellCastResult CheckCast()
@@ -1520,14 +1521,37 @@ class spell_warr_intervene: public SpellScriptLoader
                 Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetExplTargetUnit();
 
-                if (!l_Player || !l_Target)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (l_Player->GetDistance(l_Target) >= 25.0f)
-                    return SPELL_FAILED_OUT_OF_RANGE;
 
                 if (l_Player->HasAuraType(SPELL_AURA_MOD_ROOT) || l_Player->HasAuraType(SPELL_AURA_MOD_ROOT_2))
                     return SPELL_FAILED_ROOTED;
+
+                if (l_Player->HasAura(eSpells::GlyphoftheWatchfulEye))
+                {
+                    std::list<Unit*> l_MemberList;
+                    std::list<Unit*> l_MemberListInRange;
+
+                    l_Player->GetRaidMembers(l_MemberList);
+
+                    for (auto l_Itr : l_MemberList)
+                    {
+                        if (l_Itr->IsWithinDistInMap(l_Player, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend) && l_Player->GetGUID() != l_Itr->GetGUID())
+                            l_MemberListInRange.push_back(l_Itr);
+                    }
+
+                    if (l_MemberListInRange.size() < 1)
+                        return SPELL_FAILED_TARGET_FRIENDLY;
+
+                    return SPELL_CAST_OK;
+                }
+
+                if (!l_Player || !l_Target)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->GetGUID() == l_Target->GetGUID())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (l_Player->GetDistance(l_Target) >= 25.0f)
+                    return SPELL_FAILED_OUT_OF_RANGE;
 
                 return SPELL_CAST_OK;
             }
@@ -1536,6 +1560,25 @@ class spell_warr_intervene: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Caster->HasAura(eSpells::GlyphoftheWatchfulEye))
+                {
+                    std::list<Unit*> l_MemberList;
+                    std::list<Unit*> l_MemberListInRange;
+
+                    l_Caster->GetRaidMembers(l_MemberList);
+
+                    for (auto l_Itr : l_MemberList)
+                    {
+                        if (l_Itr->IsWithinDistInMap(l_Caster, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend) && l_Caster->GetGUID() != l_Itr->GetGUID())
+                            l_MemberListInRange.push_back(l_Itr);
+                    }
+
+                    l_MemberListInRange.sort(JadeCore::HealthPctOrderPred());
+                    
+                    if (l_MemberListInRange.front())
+                        l_Target = l_MemberListInRange.front();
+                }
 
                 if (l_Target == nullptr)
                     return;

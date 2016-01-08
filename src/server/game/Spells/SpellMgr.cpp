@@ -5729,7 +5729,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 3411:  ///< Intervene
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_RAID;
-                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG;
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
                 spellInfo->OverrideSpellList.push_back(114029); ///< Add Safeguard to override spell list of Intervene
