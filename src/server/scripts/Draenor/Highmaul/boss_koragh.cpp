@@ -473,27 +473,6 @@ class boss_koragh : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExpelMagicFrostAura);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::KoraghBonus, true);
-
-                    if (IsLFR())
-                    {
-                        Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
-                        if (l_PlayerList.isEmpty())
-                            return;
-
-                        for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
-                        {
-                            if (Player* l_Player = l_Itr->getSource())
-                            {
-                                uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
-                                if (!me || l_Player->IsAtGroupRewardDistance(me))
-                                    sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
-                            }
-                        }
-
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                    }
                 }
 
                 Talk(eTalks::Death);

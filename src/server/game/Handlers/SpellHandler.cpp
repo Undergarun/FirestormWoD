@@ -784,7 +784,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& p_Packet)
         return;
 
     /// channeled spell case (it currently casted then)
-    if (l_SpellInfo->IsChanneled())
+    if (l_SpellInfo->IsChanneled() && l_SpellInfo->Id != 157627) ///< Breath of the Serpent can be canceled
     {
         if (Spell* curSpell = m_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
             if (curSpell->m_spellInfo->Id == l_SpellID)

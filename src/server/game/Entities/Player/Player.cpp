@@ -83,6 +83,7 @@
 #include "UpdateFieldFlags.h"
 #include "SceneObject.h"
 #include "GarrisonMgr.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "PetBattle.h"
 #include "MSCallback.hpp"
 #include "Vignette.hpp"
@@ -1387,11 +1388,13 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 // Give bags first to the players, then the equipment
                 if (l_Proto->Class == ITEM_CLASS_CONTAINER)
                 {
-                    StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+                    if (!l_Item.m_Faction || (l_Item.m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item.m_Faction == 2 && GetTeam() == HORDE))
+                        StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
                     continue;
                 }
+                else
+                    l_RemainingTemplates.push_back(&l_Item);
             }
-            l_RemainingTemplates.push_back(&l_Item);
         }
 
         for (auto l_Item : l_RemainingTemplates)
@@ -1401,8 +1404,24 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 if ((l_Proto->AllowableRace & getRaceMask()) == 0)
                     continue;
 
-                if (l_Item->m_Type == 1)
-                    StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, ItemContext::RaidLfr);
+                if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && GetTeam() == HORDE))
+                {
+                    ItemContext l_ItemContext = ItemContext::None;
+                    switch (l_Item->m_Type)
+                    {
+                        case 1: ///< Shop PvE premade
+                            l_ItemContext = ItemContext::RaidLfr;
+                            break;
+                        case 3: ///< PTR PvE templates
+                            l_ItemContext = ItemContext::RaidNormal;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (l_ItemContext != ItemContext::None)
+                        StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, l_ItemContext);
+                }
             }
         }
     }
@@ -1700,6 +1719,11 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage p_Type, uint32 p_Damage)
         CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, p_Damage, &l_Absorb, &l_Resist);
     else if (p_Type == DAMAGE_FALL)
     {
+        /// Falling damages are disabled in Blackrock Foundry
+        /// @TODO: Maybe find a new MapFlag?
+        if (GetMapId() == 1205)
+            return 0;
+
         /// Glyph of Falling Meteor - 56247
         if (getClass() == CLASS_WARLOCK && HasAura(109151) && HasAura(56247))
             AddPct(p_Damage, -95);
@@ -7931,12 +7955,11 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         level = GT_MAX_LEVEL;
 
     GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr * GT_MAX_LEVEL + level - 1);
-    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
-    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass() - 1) * GT_MAX_RATING + cr + 1);
-    if (!Rating || !classRating)
-        return 1.0f;                                        // By default use minimum coefficient (not must be called)
+    
+    if (!Rating || !Rating->ratio)
+        return 1.0f; ///< By default use minimum coefficient (not must be called)
 
-    return classRating->ratio / Rating->ratio;
+    return 1.0f / Rating->ratio;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
@@ -12233,22 +12256,18 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
-void Player::SendNotifyLootMoneyRemoved(bool p_IsAoE)
+void Player::SendNotifyLootMoneyRemoved()
 {
-    WorldPacket l_Data(SMSG_COIN_REMOVED);
     ObjectGuid l_Guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
 
     sObjectMgr->setLootViewGUID(l_Guid, GetLootGUID());
 
-    if (p_IsAoE)
-        l_Data.appendPackGUID(l_Guid);
-    else
-        l_Data.appendPackGUID(GetGUID());
-
+    WorldPacket l_Data(SMSG_COIN_REMOVED);
+    l_Data.appendPackGUID(l_Guid);
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNotifyLootItemRemoved(uint8 p_LootSlot, bool p_IsAoELoot /*= false*/)
+void Player::SendNotifyLootItemRemoved(uint8 p_LootSlot)
 {
     ObjectGuid l_Guid       = GetLootGUID();
     ObjectGuid l_LootGuid   = MAKE_NEW_GUID(GUID_LOPART(l_Guid), 0, HIGHGUID_LOOT);
@@ -19949,6 +19968,9 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
             {
                 if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC && l_Objective.ObjectID == (int32)real_entry)
                 {
+                    if (!CheckGarrisonStablesQuestsConditions(questid))
+                        continue;
+
                     uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                     if (currentCounter < uint32(l_Objective.Amount))
                     {
@@ -19968,6 +19990,51 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
             }
         }
     }
+}
+
+bool Player::CheckGarrisonStablesQuestsConditions(uint32 p_QuestID)
+{
+    using namespace MS::Garrison::StablesData::Alliance;
+    using namespace MS::Garrison::StablesData::Horde;
+
+    if (std::find(FannyQuestGiver::g_BoarQuests.begin(), FannyQuestGiver::g_BoarQuests.end(), p_QuestID) != FannyQuestGiver::g_BoarQuests.end() ||
+        std::find(TormakQuestGiver::g_BoarQuests.begin(), TormakQuestGiver::g_BoarQuests.end(), p_QuestID) != TormakQuestGiver::g_BoarQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::RockstuckTrainingMountAura))
+            return false;
+    }
+    else if (std::find(FannyQuestGiver::g_ClefthoofQuests.begin(), FannyQuestGiver::g_ClefthoofQuests.end(), p_QuestID) != FannyQuestGiver::g_ClefthoofQuests.end() ||
+             std::find(TormakQuestGiver::g_ClefthoofQuests.begin(), TormakQuestGiver::g_ClefthoofQuests.end(), p_QuestID) != TormakQuestGiver::g_ClefthoofQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::IcehoofTrainingMountAura))
+            return false;
+    }
+    else if (std::find(FannyQuestGiver::g_ElekkQuests.begin(), FannyQuestGiver::g_ElekkQuests.end(), p_QuestID) != FannyQuestGiver::g_ElekkQuests.end() ||
+             std::find(TormakQuestGiver::g_ElekkQuests.begin(), TormakQuestGiver::g_ElekkQuests.end(), p_QuestID) != TormakQuestGiver::g_ElekkQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::MeadowstomperTrainingMountAura))
+            return false;
+    }
+    else if (std::find(KeeganQuestGiver::g_RiverbeastQuests.begin(), KeeganQuestGiver::g_RiverbeastQuests.end(), p_QuestID) != KeeganQuestGiver::g_RiverbeastQuests.end() ||
+             std::find(SagePalunaQuestGiver::g_RiverbeastQuests.begin(), SagePalunaQuestGiver::g_RiverbeastQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_RiverbeastQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::RiverwallowTrainingMountAura))
+            return false;
+    }
+    else if (std::find(KeeganQuestGiver::g_TalbukQuests.begin(), KeeganQuestGiver::g_TalbukQuests.end(), p_QuestID) != KeeganQuestGiver::g_TalbukQuests.end() ||
+             std::find(SagePalunaQuestGiver::g_TalbukQuests.begin(), SagePalunaQuestGiver::g_TalbukQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_TalbukQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::SilverpeltTrainingMountAura))
+            return false;
+    }
+    else if (std::find(KeeganQuestGiver::g_WolfQuests.begin(), KeeganQuestGiver::g_WolfQuests.end(), p_QuestID) != KeeganQuestGiver::g_WolfQuests.end() ||
+             std::find(SagePalunaQuestGiver::g_WolfQuests.begin(), SagePalunaQuestGiver::g_WolfQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_WolfQuests.end())
+    {
+        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::SnarlerTrainingMountAura))
+            return false;
+    }
+
+    return true;
 }
 
 void Player::KilledPlayerCredit()
@@ -27875,6 +27942,18 @@ void Player::ResetGarrisonDatas()
                 }
             }
         }
+
+        if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::Stables_Stables_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        {
+            if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
+            {
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_Value &= ~MS::Garrison::StablesData::g_PendingQuestFlag);
+                GetBattleground();
+            }
+
+            if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_Value &= ~MS::Garrison::StablesData::g_PendingQuestFlag);
+        }
     }
 }
 
@@ -29533,7 +29612,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         if (CurrencyTypesEntry const * currencyEntry = sCurrencyTypesStore.LookupEntry(item->itemid))
             ModifyCurrency(item->itemid, int32(item->count * currencyEntry->GetPrecision()));
 
-        SendNotifyLootItemRemoved(lootSlot, loot->m_IsAoELoot);
+        SendNotifyLootItemRemoved(lootSlot);
         currency->is_looted = true;
         --loot->UnlootedCount;
         return;
@@ -29551,7 +29630,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
             qitem->is_looted = true;
             //freeforall is 1 if everyone's supposed to get the quest item.
             if (item->freeforall || loot->GetPlayerQuestItems().size() == 1)
-                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot, loot->m_IsAoELoot);
+                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             else
                 loot->NotifyQuestItemRemoved(qitem->index);
         }
@@ -29561,7 +29640,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
             {
                 //freeforall case, notify only one player of the removal
                 ffaitem->is_looted = true;
-                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot, loot->m_IsAoELoot);
+                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             }
             else
             {
@@ -32310,20 +32389,11 @@ void Player::SetEmoteState(uint32 anim_id)
     m_emote = anim_id;
 }
 
-void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/)
+void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/, G3D::Vector3 p_TransportPos /*= G3D::Vector3(0.0f, 0.0f, 0.0f)*/)
 {
-/* Removed because some Unit* can also be source of movement force
-    if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
-    {
-        sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
-        return;
-    }
-*/
-
     if (p_Apply)
     {
         uint32 l_TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
-        G3D::Vector3 l_Vector(0, 0, 0);
 
         WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 2 + 16 + 4 + 2 + 16 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
         l_Data.appendPackGUID(GetGUID());               ///< Mover GUID
@@ -32333,7 +32403,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << float(p_Direction.GetPositionX());    ///< Direction X
         l_Data << float(p_Direction.GetPositionY());    ///< Direction Y
         l_Data << float(p_Direction.GetPositionZ());    ///< Direction Z
-        l_Data.WriteVector3(l_Vector);                  ///< TransportPosition
+        l_Data.WriteVector3(p_TransportPos);            ///< TransportPosition
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 
@@ -33523,18 +33593,23 @@ void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry
     auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
     if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
     {
-        float l_Count = GetMaxCharges(p_ChargeCategoryEntry) - l_Itr->second.size();
-        if (l_Count < 0.0f)
-            l_Count = 0.0f;
+        uint32 l_ConsumedCharges = l_Itr->second.size();
+        bool   l_IsPet = false;
 
-        std::chrono::milliseconds l_CooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(l_Itr->second.front().RechargeEnd - l_Now);
-
-        l_Count += 1.0f - (float)l_CooldownDuration.count() / (float)GetChargeRecoveryTime(p_ChargeCategoryEntry);
         WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
-        l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data << float(l_Count);
-        l_Data.WriteBit(false); ///< IsPet
+        l_Data << uint32(p_ChargeCategoryEntry->Id);
+        l_Data << uint32(p_ChargeCategoryEntry->ChargeRecoveryTime);
+        l_Data << uint8(l_ConsumedCharges);
+        l_Data.WriteBit(l_IsPet);
         l_Data.FlushBits();
+
+
+        if (l_IsPet)
+        {
+            l_Data << uint32(0);    ///< unk
+            l_Data << uint32(0);    ///< unk
+        }
+
         SendDirectMessage(&l_Data);
     }
 }
@@ -33605,15 +33680,24 @@ void Player::RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry)
     if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
     {
         l_Itr->second.pop_back();
-        float l_Count = GetMaxCharges(p_ChargeCategoryEntry) - l_Itr->second.size();
-        if (l_Count < 0.0f)
-            l_Count = 0.0f;
+
+        uint32 l_ConsumedCharges = l_Itr->second.size();
+
+        bool l_IsPet = false;
 
         WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
-        l_Data << int32(p_ChargeCategoryEntry->Id);
-        l_Data << float(l_Count);
-        l_Data.WriteBit(false); ///< IsPet
+        l_Data << uint32(p_ChargeCategoryEntry->Id);
+        l_Data << uint32(p_ChargeCategoryEntry->ChargeRecoveryTime);
+        l_Data << uint8(l_ConsumedCharges);
+        l_Data.WriteBit(l_IsPet);
         l_Data.FlushBits();
+
+        if (l_IsPet)
+        {
+            l_Data << uint32(0);    ///< unk
+            l_Data << uint32(0);    ///< unk
+        }
+
         SendDirectMessage(&l_Data);
     }
 }

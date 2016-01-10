@@ -4093,17 +4093,6 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
     if (!target)
         return;
 
-    switch (m_spellInfo->Id)
-    {
-        case 114868:// Soul Reaper - Haste
-            // Don't increase speed if caster doesn't have glyph
-            if (!target->HasAura(146645))
-                return;
-            break;
-        default:
-            break;
-    }
-
     if (GetAuraType() == SPELL_AURA_INCREASE_MIN_SWIM_SPEED)
     {
         target->UpdateSpeed(MOVE_SWIM, false);
@@ -7483,7 +7472,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
 
         /// Poisoned Ammo
-        if (GetSpellInfo()->Id == 162543)
+        if (GetSpellInfo()->Id == 162543 || GetSpellInfo()->Id == 158831)
             /// To prevent double multiplication
             damage = std::max(GetAmount(), 0);
 

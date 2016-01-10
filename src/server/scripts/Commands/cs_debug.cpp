@@ -2583,10 +2583,10 @@ class debug_commandscript: public CommandScript
                 return false;
 
             std::ostringstream l_StrBuilder;
-            l_StrBuilder << "DELETE FROM character_template;" << std::endl;
-            l_StrBuilder << "DELETE FROM character_template_item;" << std::endl;
-            l_StrBuilder << "DELETE FROM character_template_spell;" << std::endl;
-            l_StrBuilder << "DELETE FROM character_template_reputation;" << std::endl << std::endl;
+            l_StrBuilder << "TRUNCATE TABLE character_template;" << std::endl;
+            l_StrBuilder << "TRUNCATE TABLE character_template_item;" << std::endl;
+            l_StrBuilder << "TRUNCATE TABLE character_template_spell;" << std::endl;
+            l_StrBuilder << "TRUNCATE TABLE character_template_reputation;" << std::endl << std::endl;
 
             bool l_FirstEntry = true;
             l_StrBuilder << "INSERT INTO character_template VALUES";
@@ -2606,7 +2606,8 @@ class debug_commandscript: public CommandScript
 
             const uint32 l_HordeMask = 0xFE5FFBB2;
             const uint32 l_AllianceMask = 0xFD7FFC4D;
-            const uint32 l_ItemLevel = 725;
+            const uint32 l_ItemLevel = 695;
+            const uint32 l_ItemType = 3; ///< 1 Shop PvE, 2 Shop PvP, 3 Test PvE, 4 Test PvP
             const uint32 l_BagItemId = 114821;
 
             std::string l_SearchString = p_Args; /// Case sensitive search
@@ -2617,19 +2618,19 @@ class debug_commandscript: public CommandScript
             std::map<uint8, uint8> l_TrinketsFind[3];
 
             l_FirstEntry = true;
-            l_StrBuilder << "INSERT INTO character_template_item (id, itemID, faction, count) VALUES ";
+            l_StrBuilder << "INSERT INTO character_template_item (id, itemID, faction, count, type) VALUES ";
 
             ItemTemplateContainer const* l_Store = sObjectMgr->GetItemTemplateStore();
             for (ItemTemplateContainer::const_iterator l_Iter = l_Store->begin(); l_Iter != l_Store->end(); ++l_Iter)
             {
                 ItemTemplate const* l_Template = &l_Iter->second;
 
-                uint8 idx = 0;
+                uint8 l_Faction = 0;
 
                 if (l_Template->AllowableRace == l_HordeMask)
-                    idx = 1;
+                    l_Faction = 1;
                 else if (l_Template->AllowableRace == l_AllianceMask)
-                    idx = 2;
+                    l_Faction = 2;
 
                 if (l_Template->InventoryType == INVTYPE_BAG)
                 {
@@ -2648,14 +2649,16 @@ class debug_commandscript: public CommandScript
                                          << l_ClassId << ", "
                                          << l_BagItemId << ", "
                                          << "1, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << l_ItemType
                                          << ")";
                             l_StrBuilder << "," << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_BagItemId << ", "
                                          << "2, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << l_ItemType
                                          << ")";
 
                             l_FirstEntry = false;
@@ -2667,7 +2670,7 @@ class debug_commandscript: public CommandScript
                 if (sSpellMgr->GetItemSourceSkills(l_Template->ItemId) != nullptr)
                     continue;
 
-                printf("%s == %s\n", l_Template->Name1->Get(sWorld->GetDefaultDbcLocale()), l_SearchString.c_str());
+                //printf("%s == %s\n", l_Template->Name1->Get(sWorld->GetDefaultDbcLocale()), l_SearchString.c_str());
                 if (std::string(l_Template->Name1->Get(sWorld->GetDefaultDbcLocale())).find(l_SearchString) == std::string::npos)
                     continue;
 
@@ -2686,27 +2689,29 @@ class debug_commandscript: public CommandScript
                             if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
-                            if (l_TrinketsFind[idx].find(l_ClassId) != l_TrinketsFind[idx].end() && l_TrinketsFind[idx][l_ClassId] == 2)
+                            if (l_TrinketsFind[l_Faction].find(l_ClassId) != l_TrinketsFind[l_Faction].end() && l_TrinketsFind[l_Faction][l_ClassId] == 2)
                                 continue;
 
-                            if (l_TrinketsFind[idx].find(l_ClassId) == l_TrinketsFind[idx].end())
-                                l_TrinketsFind[idx][l_ClassId] = 1;
+                            if (l_TrinketsFind[l_Faction].find(l_ClassId) == l_TrinketsFind[l_Faction].end())
+                                l_TrinketsFind[l_Faction][l_ClassId] = 1;
                             else
-                                l_TrinketsFind[idx][l_ClassId] = 2;
+                                l_TrinketsFind[l_Faction][l_ClassId] = 2;
 
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "1, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << l_ItemType
                                          << ")";
                             l_StrBuilder << "," << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "2, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << l_ItemType
                                          << ")";
 
                              l_FirstEntry = false;
@@ -2729,24 +2734,26 @@ class debug_commandscript: public CommandScript
                             if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
-                            if (std::find(l_CloaksFind[idx].begin(), l_CloaksFind[idx].end(), l_ClassId) != l_CloaksFind[idx].end())
+                            if (std::find(l_CloaksFind[l_Faction].begin(), l_CloaksFind[l_Faction].end(), l_ClassId) != l_CloaksFind[l_Faction].end())
                                 continue;
 
-                            l_CloaksFind[idx].push_back(l_ClassId);
+                            l_CloaksFind[l_Faction].push_back(l_ClassId);
 
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "1, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << l_ItemType
                                          << ")";
                             l_StrBuilder << "," << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "2, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << l_ItemType
                                          << ")";
 
                             l_FirstEntry = false;
@@ -2769,25 +2776,27 @@ class debug_commandscript: public CommandScript
                             if (!l_Template->HasClassSpec(l_ClassId, 100))
                                 continue;
 
-                            if (std::find(l_ClassWeaponFind[idx].begin(), l_ClassWeaponFind[idx].end(), l_ClassId | l_Template->SubClass << 16) != l_ClassWeaponFind[idx].end())
+                            if (std::find(l_ClassWeaponFind[l_Faction].begin(), l_ClassWeaponFind[l_Faction].end(), l_ClassId | l_Template->SubClass << 16) != l_ClassWeaponFind[l_Faction].end())
                                 continue;
 
-                            l_ClassWeaponFind[idx].push_back(l_ClassId | l_Template->SubClass << 16);
+                            l_ClassWeaponFind[l_Faction].push_back(l_ClassId | l_Template->SubClass << 16);
 
                             l_Count = l_Template->IsOneHanded() || (l_Template->IsTwoHandedWeapon() && l_ClassId == CLASS_WARRIOR) ? 2 : 1;
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
-                                         <<  "1, "
-                                         << l_Count
+                                         << "1, "
+                                         << l_Count << ", "
+                                         << l_ItemType
                                          << ")";
                             l_StrBuilder << "," << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "2, "
-                                         << l_Count
+                                         << l_Count << ", "
+                                         << l_ItemType
                                          << ")";
 
                             l_FirstEntry = false;
@@ -2798,7 +2807,10 @@ class debug_commandscript: public CommandScript
                 /// Armor
                 //if (std::string(l_Template->Name1->Get(LOCALE_enUS)).find(l_SearchString) != std::string::npos)
                 {
-                    if (l_Template->Class != ITEM_CLASS_ARMOR)
+                    if (l_Template->Class != ITEM_CLASS_ARMOR ||
+                        l_Template->InventoryType == INVTYPE_BAG ||
+                        l_Template->InventoryType == INVTYPE_TRINKET ||
+                        l_Template->InventoryType == INVTYPE_CLOAK)
                         continue;
 
                     uint32 l_Count = 1;
@@ -2872,25 +2884,27 @@ class debug_commandscript: public CommandScript
                             if (!l_Template->HasSpec((SpecIndex)l_SpecId, 100))
                                 continue;
 
-                            if (std::find(l_ArmorSlotFind[idx].begin(), l_ArmorSlotFind[idx].end(), l_SpecId | l_Template->InventoryType << 16) != l_ArmorSlotFind[idx].end())
+                            if (std::find(l_ArmorSlotFind[l_Faction].begin(), l_ArmorSlotFind[l_Faction].end(), l_SpecId | l_Template->InventoryType << 16) != l_ArmorSlotFind[l_Faction].end())
                                 continue;
 
-                            l_ArmorSlotFind[idx].push_back(l_SpecId | l_Template->InventoryType << 16);
+                            l_ArmorSlotFind[l_Faction].push_back(l_SpecId | l_Template->InventoryType << 16);
 
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
-                                         <<  "1, "
-                                         << l_Count
+                                         << "1, "
+                                         << l_Count << ", "
+                                         << l_ItemType
                                          << ")";
                             l_StrBuilder << "," << std::endl
                                          << "("
                                          << l_ClassId << ", "
                                          << l_Template->ItemId << ", "
                                          << "2, "
-                                         << l_Count
-                                        << ")";
+                                         << l_Count << ", "
+                                         << l_ItemType
+                                         << ")";
 
                             l_FirstEntry = false;
                         }
@@ -2907,15 +2921,17 @@ class debug_commandscript: public CommandScript
                             << "("
                             << l_ClassId << ", "
                             << l_TomeOfTheClearMindId << ", "
-                            <<  "1, "
-                            << l_Count
+                            << "1, "
+                            << l_Count << ", "
+                            << l_ItemType
                             << ")";
                 l_StrBuilder << "," << std::endl
                             << "("
                             << l_ClassId << ", "
                             << l_TomeOfTheClearMindId << ", "
                             << "2, "
-                            << l_Count
+                            << l_Count << ", "
+                            << l_ItemType
                             << ")";
             }
 
@@ -2923,6 +2939,15 @@ class debug_commandscript: public CommandScript
 
             l_FirstEntry = true;
             l_StrBuilder << "INSERT INTO character_template_spell VALUES";
+
+//            /// Learn Dual spec for all classes
+//            for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+//            {
+//                l_StrBuilder << std::endl;
+//                l_StrBuilder << "(" << l_ClassId << ", 63644)," << std::endl;
+//                l_StrBuilder << "(" << l_ClassId << ", 63645),";
+//            }
+
             for (uint32 l_ID = 0; l_ID < sSpellStore.GetNumRows(); ++l_ID)
             {
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ID);

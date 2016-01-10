@@ -26,15 +26,15 @@ struct LFGListEntry
     {
         enum LFGListApplicationStatus
         {
-            LFG_LIST_APPLICATION_STATUS_CANCELLED        = 1,
-            LFG_LIST_APPLICATION_INVITEDECLINED         = 2,
-            LFG_LIST_APPLICATION_STATUS_APPLIED          = 5,
-            LFG_LIST_APPLICATION_STATUS_DECLINED         = 8,
-            LFG_LIST_APPLICATION_STATUS_INVITEACCEPTED   = 9,
-            LFG_LIST_APPLICATION_STATUS_FAILED           = 12,
-            LFG_LIST_APPLICATION_STATUS_TIMEOUT          = 13,
-            LFG_LIST_APPLICATION_STATUS_NONE            = 14,
-            LFG_LIST_APPLICATION_STATUS_INVITED          = 15,
+            LFG_LIST_APPLICATION_STATUS_DECLINED         = 0,
+            LFG_LIST_APPLICATION_STATUS_NONE             = 2,
+            LFG_LIST_APPLICATION_STATUS_CANCELLED        = 3,
+            LFG_LIST_APPLICATION_STATUS_INVITEACCEPTED   = 4,
+            LFG_LIST_APPLICATION_INVITEDECLINED          = 7,
+            LFG_LIST_APPLICATION_STATUS_APPLIED          = 8,
+            LFG_LIST_APPLICATION_STATUS_TIMEOUT          = 11,
+            LFG_LIST_APPLICATION_STATUS_INVITED          = 12,
+            LFG_LIST_APPLICATION_STATUS_FAILED           = 13,
         };
 
         LFGListApplicationEntry(uint32 p_PlayerGuid, LFGListEntry* p_Owner);

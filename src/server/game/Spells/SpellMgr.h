@@ -564,6 +564,8 @@ typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 typedef std::map<uint32, float>  AreaTriggerVisuals;
 typedef std::map<uint16, uint16> ItemUpgradeDatas;
 
+#define MAX_CREATURE_SPELL_DATA_SLOT 4
+
 struct PetDefaultSpellsEntry
 {
     uint32 spellid[MAX_CREATURE_SPELL_DATA_SLOT];

@@ -1055,6 +1055,7 @@ class WorldObject : public Object, public WorldLocation
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
+        GameObject* FindNearestGameObject(float p_Range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player*     FindNearestPlayer(float range, bool alive = true);
         AreaTrigger* FindNearestAreaTrigger(uint32 p_SpellID, float p_Range) const;
@@ -1110,7 +1111,7 @@ class WorldObject : public Object, public WorldLocation
         virtual float GetStationaryO() const { return GetOrientation(); }
 
         uint16 GetAIAnimKitId() const { return m_AIAnimKitId; }
-        void SetAIAnimKitId(uint16 animKitId);
+        void SetAIAnimKitId(uint16 animKitId, bool p_Packet = true);
         uint16 GetMovementAnimKitId() const { return m_MovementAnimKitId; }
         void SetMovementAnimKitId(uint16 animKitId);
         uint16 GetMeleeAnimKitId() const { return m_MeleeAnimKitId; }

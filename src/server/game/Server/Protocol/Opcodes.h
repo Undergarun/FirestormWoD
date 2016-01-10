@@ -1072,7 +1072,7 @@ enum Opcodes
     CMSG_RESURRECT_RESPONSE                     = 0x003C, ///< 6.2.3 20726
     CMSG_QUERY_INSPECT_ACHIEVEMENTS             = 0x08CE, ///< 6.2.3 20726
     CMSG_SPLIT_ITEM                             = 0x1219, ///< 6.2.3 20726
-    CMSG_SET_PLAYER_DECLINED_NAMES              = 0x0433, ///< 6.2.3 20726
+    CMSG_SET_PLAYER_DECLINED_NAMES              = 0x04B3, ///< 6.2.3 20726
     CMSG_MOUNT_SET_FAVORITE                     = 0x142C, ///< 6.2.3 20726
     CMSG_SORT_BAGS                              = 0x01ED, ///< 6.2.3 20726
     CMSG_CHAR_RENAME                            = 0x05F0, ///< 6.2.3 20726
@@ -1218,7 +1218,7 @@ enum Opcodes
     CMSG_COMPLETE_MOVIE                         = 0x0612, ///< 6.2.3 20726
     CMSG_SCENE_TRIGGER_EVENT                    = 0x084D, ///< 6.2.3 20726
     CMSG_GET_MIRRORIMAGE_DATA                   = 0x0461, ///< 6.2.3 20726
-    CMSG_SHOW_TRADE_SKILL                       = 0x1033, ///< 6.2.3 20726
+    CMSG_SHOW_TRADE_SKILL                       = 0x11C0, ///< 6.2.3 20726
     CMSG_SCENE_PLAYBACK_CANCELED                = 0x0C65, ///< 6.2.3 20726
     CMSG_REQUEST_RESEARCH_HISTORY               = 0x017A, ///< 6.2.3 20726
     CMSG_SUMMON_RESPONSE                        = 0x0577, ///< 6.2.3 20726
@@ -1308,29 +1308,29 @@ enum Opcodes
 
     /// Channel
     CMSG_JOIN_CHANNEL                           = 0x0BF6, ///< 6.2.3 20726
-    CMSG_CHANNEL_ANNOUNCEMENTS                  = 0x02F1, ///< 6.2.3 20726
-    CMSG_CHANNEL_BAN                            = 0x16B2, ///< 6.2.3 20726
-    CMSG_CHANNEL_DISPLAY_LIST                   = 0x0000, ///< 6.2.0 19173
-    CMSG_CHANNEL_INVITE                         = 0x0FB1, ///< 6.2.3 20726
+    CMSG_CHANNEL_ANNOUNCEMENTS                  = 0x0BBE, ///< 6.2.3 20726
+    CMSG_CHANNEL_BAN                            = 0x0FFA, ///< 6.2.3 20726
+    CMSG_CHANNEL_DISPLAY_LIST                   = 0x039E, ///< 6.2.0 19173
+    CMSG_CHANNEL_INVITE                         = 0x07DE, ///< 6.2.3 20726
     CMSG_CHANNEL_KICK                           = 0x12B6, ///< 6.2.3 20726
-    CMSG_CHANNEL_LIST                           = 0x13F1, ///< 6.2.3 20726
-    CMSG_CHANNEL_MODERATOR                      = 0x03DD, ///< 6.2.3 20726
-    CMSG_CHANNEL_MUTE                           = 0x02D2, ///< 6.2.3 20726
+    CMSG_CHANNEL_LIST                           = 0x139D, ///< 6.2.3 20726
+    CMSG_CHANNEL_MODERATOR                      = 0x13B1, ///< 6.2.3 20726
+    CMSG_CHANNEL_MUTE                           = 0x1295, ///< 6.2.3 20726
     CMSG_CHANNEL_OWNER                          = 0x0EFE, ///< 6.2.3 20726
-    CMSG_CHANNEL_PASSWORD                       = 0x13DE, ///< 6.2.3 20726
-    CMSG_CHANNEL_SET_OWNER                      = 0x039E, ///< 6.2.3 20726
-    CMSG_CHANNEL_SILENCE_ALL                    = 0x0FFA, ///< 6.2.3 20726
-    CMSG_CHANNEL_SILENCE_VOICE                  = 0x0BF5, ///< 6.2.3 20726
-    CMSG_CHANNEL_UNBAN                          = 0x0BBE, ///< 6.2.3 20726
-    CMSG_CHANNEL_UNMODERATOR                    = 0x13B1, ///< 6.2.3 20726
-    CMSG_CHANNEL_UNMUTE                         = 0x13D2, ///< 6.2.3 20726
-    CMSG_CHANNEL_UNSILENCE_ALL                  = 0x07DE, ///< 6.2.3 20726
-    CMSG_CHANNEL_UNSILENCE_VOICE                = 0x139D, ///< 6.2.3 20726
-    CMSG_CHANNEL_VOICE_OFF                      = 0x1A96, ///< 6.2.3 20726
-    CMSG_CHANNEL_VOICE_ON                       = 0x0EDE, ///< 6.2.3 20726
-    CMSG_DECLINE_CHANNEL_INVITE                 = 0x1295, ///< 6.2.3 20726
+    CMSG_CHANNEL_PASSWORD                       = 0x16B2, ///< 6.2.3 20726
+    CMSG_CHANNEL_SET_OWNER                      = 0x13D2, ///< 6.2.3 20726
+    CMSG_CHANNEL_SILENCE_ALL                    = 0x13DE, ///< 6.2.3 20726
+    CMSG_CHANNEL_SILENCE_VOICE                  = 0x02F1, ///< 6.2.3 20726
+    CMSG_CHANNEL_UNBAN                          = 0x0FB1, ///< 6.2.3 20726
+    CMSG_CHANNEL_UNMODERATOR                    = 0x13F1, ///< 6.2.3 20726
+    CMSG_CHANNEL_UNMUTE                         = 0x03DD, ///< 6.2.3 20726
+    CMSG_CHANNEL_UNSILENCE_ALL                  = 0x02D2, ///< 6.2.3 20726
+    CMSG_CHANNEL_UNSILENCE_VOICE                = 0x0AF9, ///< 6.2.3 20726
+    CMSG_CHANNEL_VOICE_OFF                      = 0x0EDE, ///< 6.2.3 20726
+    CMSG_CHANNEL_VOICE_ON                       = 0x1A96, ///< 6.2.3 20726
+    CMSG_DECLINE_CHANNEL_INVITE                 = 0x0BF5, ///< 6.2.3 20726
     CMSG_LEAVE_CHANNEL                          = 0x0BF1, ///< 6.2.3 20726
-    CMSG_SET_ACTIVE_VOICE_CHANNEL               = 0x113B, ///< 6.2.3 20726
+    CMSG_SET_ACTIVE_VOICE_CHANNEL               = 0x00FF, ///< 6.2.3 20726
 
 
     //////////////////////////////////////////////////////////////////////////
@@ -1388,6 +1388,8 @@ enum Opcodes
     CMSG_MOVE_FEATHER_FALL_ACK                  = 0x11BE, ///< 6.2.3 20726
     CMSG_MOVE_WATER_WALK_ACK                    = 0x18B2, ///< 6.2.3 20726
     CMSG_MOVE_HOVER_ACK                         = 0x111D, ///< 6.2.3 20726
+    CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK          = 0x1195, ///< 6.2.3 20779
+    CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK         = 0x141E, ///< 6.2.3 20779
 
     //////////////////////////////////////////////////////////////////////////
     /// Group

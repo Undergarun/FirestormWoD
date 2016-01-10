@@ -933,7 +933,7 @@ class spell_generic_clone: public SpellScriptLoader
                 }
                 else
                 {
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
                     OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
                 }
             }
@@ -5077,8 +5077,43 @@ class spell_gen_mark_of_thunderlord : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Iron Horde Pirate Costume - 173956
+class spell_generic_iron_horde_pirate_costume : public SpellScriptLoader
+{
+    public:
+        spell_generic_iron_horde_pirate_costume() : SpellScriptLoader("spell_generic_iron_horde_pirate_costume") { }
+
+        class spell_generic_iron_horde_pirate_costume_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_generic_iron_horde_pirate_costume_SpellScript);
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->getGender() == GENDER_MALE)
+                    l_Caster->CastSpell(l_Caster, 173958, true);
+                else
+                    l_Caster->CastSpell(l_Caster, 173959, true);
+
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_generic_iron_horde_pirate_costume_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_generic_iron_horde_pirate_costume_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_generic_iron_horde_pirate_costume();
     new spell_gen_mark_of_thunderlord();
     new spell_gen_inge_trigger_enchant();
     new spell_gen_potion_of_illusion();

@@ -178,9 +178,7 @@ public:
 
 };
 
-/*######
-## npc_engineer_spark_overgrind
-######*/
+/// npc_engineer_spark_overgrind - 17243
 
 enum Overgrind
 {

@@ -592,6 +592,10 @@ class spell_rog_killing_spree: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
+                    /// From 6.2.0 stun can interrupt Killing Spree
+                    if (l_Caster->isInStun())
+                        return;
+
                     if (!l_Caster->HasAura(ROGUE_SPELL_BLADE_FLURRY_AURA))
                     {
                         Unit* l_Target = l_Caster->getVictim();

@@ -419,6 +419,76 @@ class spell_sha_totemic_projection: public SpellScriptLoader
         }
 };
 
+/// Last Build 6.2.3
+/// Call by Ascendance - 114050, Ascendance - 114051, Ascendance - 114052
+/// Glyph of Ascendance - 186198
+class spell_sha_glyph_of_ascendance : public SpellScriptLoader
+{
+    public:
+        spell_sha_glyph_of_ascendance() : SpellScriptLoader("spell_sha_glyph_of_ascendance") { }
+
+        class spell_sha_glyph_of_ascendance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_glyph_of_ascendance_AuraScript);
+
+            enum eSpells
+            {
+                GlyphofAscendance               = 186198,
+                GlyphofAscendanceVisualElem     = 186199,
+                GlyphofAscendanceVisualResto    = 186200,
+                GlyphofAscendanceVisualEnh       = 186201
+            };
+
+            void AfterApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasAura(eSpells::GlyphofAscendance))
+                    return;
+
+                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+
+                switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                {
+                case SPEC_SHAMAN_ELEMENTAL:
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofAscendanceVisualElem, true);
+                    break;
+                case SPEC_SHAMAN_ENHANCEMENT:
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofAscendanceVisualEnh, true);
+                    break;
+                case SPEC_SHAMAN_RESTORATION:
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofAscendanceVisualResto, true);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->RemoveAura(eSpells::GlyphofAscendanceVisualElem);
+                l_Target->RemoveAura(eSpells::GlyphofAscendanceVisualEnh);
+                l_Target->RemoveAura(eSpells::GlyphofAscendanceVisualResto);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_sha_glyph_of_ascendance_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_sha_glyph_of_ascendance_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_glyph_of_ascendance_AuraScript();
+        }
+};
+
 /// Ascendance (Flame) - 114050
 /// last update: 6.1.2 19865
 class spell_sha_ascendance_flame : public SpellScriptLoader
@@ -432,7 +502,7 @@ class spell_sha_ascendance_flame : public SpellScriptLoader
 
             enum eSpells
             {
-                LavaBurst = 51505
+                LavaBurst                           = 51505
             };
 
             void HandleOnHit()
@@ -440,7 +510,7 @@ class spell_sha_ascendance_flame : public SpellScriptLoader
                 Player* l_Player = GetCaster()->ToPlayer();
                 if (!l_Player)
                     return;
-
+                
                 if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                     l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
             }
@@ -2220,6 +2290,9 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
                 if (!l_Owner)
                     return;
 
+                if (p_EventInfo.GetDamageInfo() == nullptr)
+                    return;
+
                 int32 l_TakenDamage = p_EventInfo.GetDamageInfo()->GetDamage();
                 if (!l_TakenDamage)
                     return;
@@ -3347,6 +3420,7 @@ class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
 
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_glyph_of_ascendance();
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_glyph_of_flame_shock();
     new spell_sha_eye_of_the_storm();

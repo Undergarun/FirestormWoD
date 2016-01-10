@@ -102,6 +102,8 @@ namespace MS { namespace Garrison
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID);
             /// When the daily garrison datas are reset
             virtual void OnDataReset();
+            ///
+            virtual void OnPlotInstanceUnload();
 
         public:
             /// Set UInt32 value
@@ -616,6 +618,8 @@ namespace MS { namespace Garrison
             void SpawnAssemblies();
 
             void DoAction(int32 const p_Action) override;
+
+            void OnPlotInstanceUnload() override;
     };
 
 
