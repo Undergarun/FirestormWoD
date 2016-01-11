@@ -2805,6 +2805,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
         }
 };
 
+/// Las Update 6.2.3
 /// Riptide - 61295
 class spell_sha_riptide : public SpellScriptLoader
 {
@@ -2813,7 +2814,8 @@ class spell_sha_riptide : public SpellScriptLoader
 
         enum eSpells
         {
-            UnleashLife = 73685
+            UnleashLife = 73685,
+            UnleashFury = 118473
         };
 
         class spell_sha_riptide_SpellScript : public SpellScript
@@ -2823,13 +2825,21 @@ class spell_sha_riptide : public SpellScriptLoader
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
+                SpellInfo const* l_UnleashLife = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
+                SpellInfo const* l_UnleashFurry = sSpellMgr->GetSpellInfo(eSpells::UnleashFury);
 
-                if (l_SpellInfo == nullptr)
+                if (l_UnleashLife == nullptr || l_UnleashFurry == nullptr)
                     return;
 
+                int32 l_BonusHealPct = 0;
+
+                if (l_Caster->HasAura(eSpells::UnleashFury))
+                    l_BonusHealPct += l_UnleashFurry->Effects[EFFECT_0].BasePoints;
+
                 if (l_Caster->HasAura(eSpells::UnleashLife))
-                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_2].BasePoints));
+                    l_BonusHealPct += l_UnleashFurry->Effects[EFFECT_2].BasePoints;
+
+                SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_BonusHealPct));
             }
 
             void HandleAfterHit()
@@ -2838,6 +2848,8 @@ class spell_sha_riptide : public SpellScriptLoader
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
                     l_Caster->RemoveAurasDueToSpell(eSpells::UnleashLife);
+                if (l_Caster->HasAura(eSpells::UnleashFury))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::UnleashFury);
             }
 
             void Register()
