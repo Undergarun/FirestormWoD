@@ -6781,6 +6781,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             /// ENDOF ULDUAR SPELLS
             ///
+            case 108194: ///< Asphixiate
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
+                break;
             case 49560: ///< Death Grip
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
