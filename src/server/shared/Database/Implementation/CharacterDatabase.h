@@ -687,6 +687,8 @@ enum CharacterDatabaseStatements
 
     CHAR_INS_FIRST_PREMADE_MONEY,
 
+    CHAR_UPD_XP_RATE,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 

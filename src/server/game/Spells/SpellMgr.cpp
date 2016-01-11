@@ -482,6 +482,9 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             /// Psychic Scream - 6 seconds in PvP
             if (spellproto->Id == 8122)
                 return 6 * IN_MILLISECONDS;
+            /// Power Word: Shield - 11 seconds in PvP
+            if (spellproto->Id == 17)
+                return 11 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_WARLOCK:
@@ -3371,6 +3374,30 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Stables
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 174216:
+            case 174218:
+            case 174219:
+            case 174220:
+            case 174221:
+            case 174222:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOUNTED;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].MiscValue = 305;
+                spellInfo->Effects[0].MiscValueB = 230;
+                break;
+            case 173702:
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
+                break;
+            case 173686: ///< Stables Lasso
+            case 174070: ///< Stables Lasso
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(5); ///< 300s
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
             case 182464: ///< Portal to Garrison
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 break;
@@ -4146,6 +4173,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 77756: ///< Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
                 break;
+            case 77762: ///< Lava Surge
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); ///< 10s
+                break;
+            case 138106: ///< Cloack and Dagger
+                spellInfo->Stances = 0;
+                break;
             case 8188:   ///< Magma Totem Passive
             case 5672:   ///< Healing Streams
             case 114941: ///< Healing Tide
@@ -4254,6 +4287,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 3;
                 spellInfo->Effects[1].BasePoints = 3;
                 break;
+            case 159234: ///< Thunderlord
+            case 159675: ///< Warsong
+            case 159676: ///< Frostwolf
+            case 173322: ////< BleedingHollow
             case 118334: ///< Dancing Steel (agility)
             case 118335: ///< Dancing Steel (strength)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ENCHANT_STACK;
@@ -5534,7 +5571,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(114163); ///< Replace World of glory by Eternal Flame
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
-            case 136494: ///< Word of Glory (overide by Glyph of Harsh Words)
+            case 136494: ///< Word of Glory (overide by Glyph of Harsh Words
+            case 130551: ///< Word of Glory (overide by Glyph of Harsh Words)
             case 20066: ///< Repentance
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
@@ -5697,7 +5735,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 3411:  ///< Intervene
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_RAID;
-                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG;
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
                 spellInfo->OverrideSpellList.push_back(114029); ///< Add Safeguard to override spell list of Intervene
@@ -6862,6 +6899,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 110310: ///< Dampening
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].Amplitude = 10000;  ///< 10 secs
+                break;
+            case 108415: ///< Soul Link
+            case 108446:
+                spellInfo->AttributesEx8 &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 break;
             default:
                 break;

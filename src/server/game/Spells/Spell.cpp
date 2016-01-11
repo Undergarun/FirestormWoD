@@ -6565,8 +6565,13 @@ SpellCastResult Spell::CheckCast(bool strict)
                 uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 
                 int32 skillValue = m_caster->ToPlayer()->GetSkillValue(skill);
-                int32 TargetLevel = m_targets.GetUnitTarget()->getLevel();
+                int32 TargetLevel = creature->getLevel();
                 int32 ReqValue = (skillValue < 100 ? (TargetLevel-10) * 10 : TargetLevel * 5);
+
+                /// Skinning in Draenor doesn't require to have a specific skill level, 1 is enough
+                if (skillValue && creature->GetCreatureTemplate()->expansion >= Expansion::EXPANSION_WARLORDS_OF_DRAENOR)
+                    break;
+
                 if (ReqValue > skillValue)
                     return SPELL_FAILED_LOW_CASTLEVEL;
 

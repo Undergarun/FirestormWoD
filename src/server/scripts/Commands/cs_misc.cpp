@@ -412,6 +412,29 @@ class misc_commandscript: public CommandScript
                 cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
                 zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap);
 
+#ifdef WIN32
+            char   l_Buffer[120];
+            char * lPtrData = nullptr;
+
+            sprintf(l_Buffer, "%.4f, %.4f, %.4f, ", object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
+
+            HANDLE l_Handle;
+
+            int l_BufferSize = strlen(l_Buffer);
+
+            l_Handle = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, l_BufferSize + 1);
+
+            lPtrData = (char*)GlobalLock(l_Handle);
+            memcpy(lPtrData, l_Buffer, l_BufferSize + 1);
+
+            GlobalUnlock(l_Handle);
+
+            OpenClipboard(nullptr);
+            EmptyClipboard();
+            SetClipboardData(CF_TEXT, l_Handle);
+            CloseClipboard();
+#endif
+
             LiquidData liquidStatus;
             ZLiquidStatus status = map->getLiquidStatus(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus);
 

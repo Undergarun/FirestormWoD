@@ -770,6 +770,9 @@ namespace MS { namespace Garrison
     /// Can upgrade the garrison
     bool Manager::CanUpgrade() const
     {
+        if (m_Owner->isGameMaster() && m_GarrisonLevel < 3)
+            return true;
+
         if (!m_Owner->HasCurrency(Globals::CurrencyID, GetGarrisonSiteLevelEntry()->UpgradeCost))
             return false;
 
@@ -787,8 +790,11 @@ namespace MS { namespace Garrison
     /// Upgrade the garrison
     void Manager::Upgrade()
     {
-        m_Owner->ModifyCurrency(Globals::CurrencyID, -((int32)GetGarrisonSiteLevelEntry()->UpgradeCost));
-        m_Owner->ModifyMoney(-((int64)GetGarrisonSiteLevelEntry()->UpgradeMoneyCost));
+        if (!m_Owner->isGameMaster())
+        {
+            m_Owner->ModifyCurrency(Globals::CurrencyID, -((int32)GetGarrisonSiteLevelEntry()->UpgradeCost));
+            m_Owner->ModifyMoney(-((int64)GetGarrisonSiteLevelEntry()->UpgradeMoneyCost));
+        }
 
         SetLevel(m_GarrisonLevel + 1);
 
@@ -1062,6 +1068,29 @@ namespace MS { namespace Garrison
         if (l_Count)
             return false;
 
+        std::vector<GarrisonFollower> l_Followers = GetFollowers();
+        uint32 l_FollowermaxLevel = 0;
+        uint32 l_MaxIlvl = 0;
+
+        for (auto l_Follower : l_Followers)
+        {
+            if (l_Follower.Level < 100)
+            {
+                l_FollowermaxLevel = l_Follower.Level;
+                continue;
+            }
+
+            uint32 l_MaxFollowerIlvl = std::round((l_Follower.ItemLevelArmor + l_Follower.ItemLevelWeapon) / 2);
+
+            if (l_MaxFollowerIlvl > l_MaxIlvl)
+                l_MaxIlvl = l_MaxFollowerIlvl;
+        }
+
+        if (!l_MaxIlvl && (uint32)l_MissionEntry->RequiredLevel > l_FollowermaxLevel)
+            return false;
+        else if (l_MaxIlvl && (uint32)l_MissionEntry->RequiredItemLevel > l_MaxIlvl)
+            return false;
+
         GarrisonMission l_Mission;
         l_Mission.DatabaseID        = sObjectMgr->GetNewGarrisonMissionID();
         l_Mission.MissionID         = p_MissionRecID;
@@ -1179,14 +1208,6 @@ namespace MS { namespace Garrison
             /// Should not happen
             if (l_It->Flags & GARRISON_FOLLOWER_FLAG_INACTIVE)
                 return;
-
-            uint32 l_FollowerItemLevel = (l_It->ItemLevelWeapon + l_It->ItemLevelArmor) / 2;
-
-            if ((int32)l_FollowerItemLevel < l_MissionTemplate->RequiredItemLevel)
-            {
-                StartMissionFailed(p_MissionRecID, p_Followers);
-                return;
-            }
         }
 
         m_Owner->ModifyCurrency(Globals::CurrencyID, -(int32)l_MissionTemplate->CurrencyCost);
@@ -3305,6 +3326,9 @@ namespace MS { namespace Garrison
                 {
                     l_Crea->DestroyForNearbyPlayers();
                     l_Crea->AddObjectToRemoveList();
+
+                    if (l_Crea->AI())
+                        l_Crea->AI()->SetData(CreatureAIDataIDs::DespawnData, 0);
                 }
             }
         }

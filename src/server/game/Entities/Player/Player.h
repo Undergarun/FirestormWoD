@@ -3129,6 +3129,13 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
+        WorldLocation GetPreviousLocation() const;
+        uint32 m_PreviousLocationMapId;
+        float m_PreviousLocationX;
+        float m_PreviousLocationY;
+        float m_PreviousLocationZ;
+        float m_PreviousLocationO;
+
         // current pet slot
         PetSlot m_currentPetSlot;
         uint64 m_petSlotUsed;
@@ -4198,7 +4205,14 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
                 if (l_ChaosBolt)
                     continue;
                 else
+                {
                     l_ChaosBolt = true;
+                    if (l_SpellMod->charges < 3)
+                    {
+                        p_RemoveStacks = false;
+                        continue;
+                    }
+                }
             }
             /// Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
             else if ((l_SpellMod->spellId == 48108 || l_SpellMod->spellId == 12043) && l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 11366)

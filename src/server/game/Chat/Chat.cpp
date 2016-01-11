@@ -909,17 +909,18 @@ uint32 ChatHandler::GetItemIDAndBonusesFromLink(char* p_Text, std::vector<uint32
     char* l_CBonuses = l_CKeys;
     char* l_CKeysTail = strtok(nullptr, "");
 
-    /// Bonus is the last one
-    uint32 l_Bonus = 0;
+    /// Can have different bonuses, always at the end
     char* l_CBonus = strtok(l_CBonuses, ":|");
     while (l_CBonus != nullptr)
     {
-        l_Bonus = l_CBonus ? atol(l_CBonus) : 0;
+        if (l_CBonus)
+        {
+            if (GetItemBonusesByID(atol(l_CBonus)))
+                p_Bonuses.push_back(atol(l_CBonus));
+        }
+
         l_CBonus = strtok(nullptr, ":|");
     }
-
-    if (l_Bonus)
-        p_Bonuses.push_back(l_Bonus);
 
     char* l_CKey = strtok(l_CKeys, ":|");                   ///< Extract key
     if (p_Something)

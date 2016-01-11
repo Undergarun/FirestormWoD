@@ -3520,6 +3520,7 @@ class spell_warl_nightfall : public SpellScriptLoader
         }
 };
 
+/// Last Update : 6.2.3
 /// Chaos Bolt - 116858 and Chaos Bolt (Fire and Brimstone) - 157701
 class spell_warl_chaos_bolt : public SpellScriptLoader
 {
@@ -3530,17 +3531,41 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_chaos_bolt_SpellScript);
 
+            enum eSpells
+            {
+                Backdraft = 117828
+            };
+
             void HandleAfterCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (AuraPtr l_Backdraft = l_Caster->GetAura(WARLOCK_BACKDRAFT))
-                        l_Backdraft->ModCharges(-3);
-                }
+                Unit* l_Caster = GetCaster();
+
+                AuraPtr l_Backdraft = l_Caster->GetAura(eSpells::Backdraft);
+
+                if (l_Backdraft == nullptr)
+                    return;
+
+                if (l_Backdraft->GetCharges() < 3)
+                    return;
+
+                l_Backdraft->ModCharges(-3);
+            }
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                /// Chaos Bolt now deals 33% more damage in PvP combat
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), 33));
             }
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_chaos_bolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 AfterCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleAfterCast);
             }
         };
@@ -4160,7 +4185,7 @@ class spell_warl_incinerate : public SpellScriptLoader
                 if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WarlockWoDPvPDestruction4PBonus, EFFECT_0))
                 {
                     if (l_Target->HasAura(eSpells::ImmolateDamage, l_Caster->GetGUID()))
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_AuraEffect->GetAmount()));
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), 100)); ///< Patch 6.2.3 Hotfixes: November 17 - 23 : 4-piece PvP set bonus for Destruction Warlocks now increases damage dealt by Incinerate on targets afflicted by the casting Warlock's Immolate by 100% (up from 50%)
                 }
             }
 

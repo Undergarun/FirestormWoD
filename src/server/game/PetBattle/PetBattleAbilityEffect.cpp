@@ -362,6 +362,10 @@ bool PetBattleAbilityEffect::Damage(uint32 l_Target, int32 l_Damage, bool p_Cant
             if ((*l_It)->Expired)
                 continue;
 
+            /// Can't self-proc, avoid deadloop
+            if (AbilityID == (*l_It)->AbilityID)
+                continue;
+
             if ((*l_It)->CasterPetID == Caster)
                 PetBattleInstance->Cast((*l_It)->CasterPetID, (*l_It)->AbilityID, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_DAMAGE_DEALT, PETBATTLE_CAST_TRIGGER_ALL);
             else if ((*l_It)->CasterPetID == l_Target)

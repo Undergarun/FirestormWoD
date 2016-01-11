@@ -675,6 +675,11 @@ class spell_dk_soul_reaper: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_soul_reaper_SpellScript);
 
+            enum eSpells
+            {
+                T18Blood2P = 187872
+            };
+
             void HandleAfterHit()
             {
                 if (!GetCaster())
@@ -684,7 +689,15 @@ class spell_dk_soul_reaper: public SpellScriptLoader
                 {
                     /// Only in blood spec
                     if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DK_BLOOD)
+                    {
                         l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+
+                        if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::T18Blood2P, EFFECT_1))
+                        {
+                            if (roll_chance_i(l_AurEff->GetAmount()))
+                                l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+                        }
+                    }
                 }
             }
 
@@ -1318,12 +1331,6 @@ class spell_dk_anti_magic_shell_raid: public SpellScriptLoader
         }
 };
 
-enum GlyphOfRegenerativeMagicSpells
-{
-    GlyphOfRegenerativeMagicAura = 146648,
-    AntiMagicShellSpell          = 48707
-};
-
 // 48707 - Anti-Magic Shell (on self)
 class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 {
@@ -1339,7 +1346,9 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 
             enum eSpells
             {
-                WoDPvPBlood4PBonus = 171456
+                AntiMagicShell           = 48707,
+                GlyphOfRegenerativeMagic = 146648,
+                WoDPvPBlood4PBonus       = 171456
             };
 
             bool Load()
@@ -1424,25 +1433,24 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
-
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                if (!GetCaster() || m_AmountAbsorb == 0)
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster || m_AmountAbsorb == 0)
                     return;
 
-                if (Player* l_Caster = GetCaster()->ToPlayer())
+                if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::GlyphOfRegenerativeMagic))
                 {
-                    if (l_Caster->HasAura(GlyphOfRegenerativeMagicSpells::GlyphOfRegenerativeMagicAura))
-                    {
-                        SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(GlyphOfRegenerativeMagicSpells::GlyphOfRegenerativeMagicAura);
+                    SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::AntiMagicShell);
+                    if (l_SpellInfo == nullptr)
+                        return;
 
-                        if (l_SpellInfo == nullptr)
-                            return;
+                    float l_RemainingPct = l_Aura->GetEffect(EFFECT_0)->GetAmount() - (m_Absorbed / (m_AmountAbsorb / 100));
+                    int32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
 
-                        int32 l_Reduce = ((45 * IN_MILLISECONDS) / 100) * (m_Absorbed / (m_AmountAbsorb / 100));
-                        l_Caster->ReduceSpellCooldown(GlyphOfRegenerativeMagicSpells::AntiMagicShellSpell, l_Reduce);
-                    }
+                    if (Player* l_Player = l_Caster->ToPlayer())
+                        l_Player->ReduceSpellCooldown(eSpells::AntiMagicShell, l_ReduceTime);
                 }
             }
 
@@ -1598,6 +1606,11 @@ class spell_dk_blood_boil: public SpellScriptLoader
             int32 m_FrostFever  = 0;
             int32 m_BloodPlague = 0;
 
+            enum eSpells
+            {
+                T18Blood2P = 187872
+            };
+
             SpellCastResult CheckTarget()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -1666,7 +1679,15 @@ class spell_dk_blood_boil: public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                    {
                         l_Player->CastSpell(l_Player, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+
+                        if (AuraEffectPtr l_AurEff = l_Player->GetAuraEffect(eSpells::T18Blood2P, EFFECT_1))
+                        {
+                            if (roll_chance_i(l_AurEff->GetAmount()))
+                                l_Player->CastSpell(l_Player, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+                        }
+                    }
                 }
             }
 
@@ -3299,8 +3320,84 @@ class spell_dk_soul_reaper_bonus : public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
+/// Defile - 152280
+class spell_dk_defile_absorb_effect : public SpellScriptLoader
+{
+    public:
+        spell_dk_defile_absorb_effect() : SpellScriptLoader("spell_dk_defile_absorb_effect") { }
+
+        class spell_dk_defile_absorb_effect_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_defile_absorb_effect_AuraScript);
+
+            bool IsInDefileArea(Unit* p_Victim, Unit *p_Attacker)
+            {
+                if (p_Attacker == nullptr || p_Victim == nullptr)
+                    return false;
+
+                std::list<AreaTrigger*> l_DefileList;
+
+                p_Victim->GetAreaTriggerList(l_DefileList, GetSpellInfo()->Id);
+
+                if (!l_DefileList.empty())
+                {
+                    for (auto itr : l_DefileList)
+                    {
+                        if (itr->IsInRange(p_Attacker, 0, itr->GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE) * 8.0f))
+                            return true;
+                    }
+                }
+                return false;
+            }
+
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            {
+                Unit* l_Victim = p_DmgInfo.GetVictim();
+                Unit* l_Attacker = p_DmgInfo.GetAttacker();
+
+                if (l_Victim == nullptr || l_Attacker == nullptr)
+                    return;
+
+                if (IsInDefileArea(l_Victim, l_Attacker))
+                    p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_3].BasePoints);
+            }
+
+            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /// Only in blood spec
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_DK_BLOOD)
+                    amount = 0;
+                else
+                    amount = -1;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_defile_absorb_effect_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_defile_absorb_effect_AuraScript::OnAbsorb, EFFECT_3, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_defile_absorb_effect_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_defile_absorb_effect();
     new spell_dk_soul_reaper_bonus();
     new spell_dk_death_coil();
     new spell_dk_empowered_obliterate_icy_touch();

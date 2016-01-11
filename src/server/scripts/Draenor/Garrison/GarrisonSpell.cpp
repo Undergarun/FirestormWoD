@@ -263,11 +263,63 @@ namespace MS { namespace Garrison
         return new spell_garrison_shipyard_SpellScript();
     }
 
+    /// Stables Lassos - 173686
+    class spell_garrison_stables_lasso : public SpellScriptLoader
+    {
+        public:
+            uint32 g_LassoBreakSpellID;
+            spell_garrison_stables_lasso() : SpellScriptLoader("spell_garrison_stables_lasso") { g_LassoBreakSpellID = 173702; }
+
+            class spell_garrison_stables_lasso_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_garrison_stables_lasso_AuraScript);
+
+
+                void OnTick(constAuraEffectPtr p_AurEff)
+                {
+                    Unit* l_Caster = GetCaster();
+                    WorldObject* l_Target = GetOwner();
+
+                    if (l_Caster == nullptr || l_Target == nullptr)
+                        return;
+
+                    if (l_Caster->GetDistance2d(l_Target) >= 15.0f)
+                    {
+                        if (Creature* l_Creature = l_Target->ToCreature())
+                            l_Creature->CastSpell(l_Creature, 173702, true);
+                    }
+                }
+
+                void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+                {
+                    WorldObject* l_Target = GetOwner();
+
+                    if (l_Target == nullptr)
+                        return;
+
+                    if (Creature* l_Creature = l_Target->ToCreature())
+                        l_Creature->DespawnOrUnsummon();
+                }
+
+                void Register() override
+                {
+                    OnEffectPeriodic += AuraEffectPeriodicFn(spell_garrison_stables_lasso_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                    OnEffectRemove += AuraEffectRemoveFn(spell_garrison_stables_lasso_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                }
+            };
+
+            AuraScript* GetAuraScript() const
+            {
+                return new spell_garrison_stables_lasso_AuraScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
 void AddSC_Garrison()
 {
+    new MS::Garrison::spell_garrison_stables_lasso();
     new MS::Garrison::spell_garrison_hearthstone();
     new MS::Garrison::spell_garrison_portal();
     new MS::Garrison::spell_garrison_shipyard();

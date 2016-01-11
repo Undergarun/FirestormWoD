@@ -147,9 +147,6 @@ DBCStorage <PvPDifficultyEntry>          sPvPDifficultyStore(PvPDifficultyfmt);
 DBCStorage <QuestFactionRewEntry>        sQuestFactionRewardStore(QuestFactionRewardfmt);
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
 
-std::set<ResearchSiteEntry const*>      sResearchSiteSet;
-std::set<ResearchProjectEntry const*>   sResearchProjectSet;
-
 DBCStorage <ScenarioStepEntry> sScenarioStepStore(ScenarioStepEntryfmt);
 
 DBCStorage <SkillLineEntry>              sSkillLineStore(SkillLinefmt);

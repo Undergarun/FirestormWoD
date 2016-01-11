@@ -46,7 +46,6 @@ enum RogueSpells
     ROGUE_SPELL_KILLING_SPREE                   = 51690,
     ROGUE_SPELL_SPRINT                          = 2983,
     ROGUE_SPELL_HEMORRHAGE                      = 16511,
-    ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF          = 124271,
     ROGUE_SPELL_NIGHTSTALKER_AURA               = 14062,
     ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE        = 130493,
     ROGUE_SPELL_SHADOW_FOCUS_AURA               = 108209,
@@ -69,7 +68,6 @@ enum RogueSpells
     ROGUE_SPELL_DECOY_SUMMON                    = 89765,
     ROGUE_SPELL_KILLING_SPREE_TELEPORT          = 57840,
     ROGUE_SPELL_KILLING_SPREE_DAMAGES           = 57841,
-    ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS     = 146631,
     ROGUE_SPELL_GLYPH_OF_RECUPERATE             = 56806,
     ROGUE_SPELL_BURST_OF_SPEED                  = 137573,
     ROGUE_SPELL_INTERNAL_BLEEDING               = 154953,
@@ -811,7 +809,7 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
                 if (l_Player->HasTalent(eSpells::CloakAndDagger, l_Player->GetActiveSpec()) && !l_Player->HasUnitState(UNIT_STATE_ROOT))
                     l_Player->CastSpell(l_Target, eSpells::TeleportBack, true);
 
-                if (GetSpellInfo()->Id == eSpells::GarroteDot && l_Player->HasAura(eSpells::FindWeekness))
+                if (l_Player->HasAura(eSpells::FindWeekness))
                     l_Player->AddAura(eSpells::FindWeeknessProc, l_Target);
             }
 
@@ -1059,10 +1057,6 @@ class spell_rog_nerve_strike: public SpellScriptLoader
         }
 };
 
-enum SanguinaryVein
-{
-    SpellRogueSanguinaryVein = 79147
-};
 
 /// Called by Rupture - 1943, Garrote - 703, Crimson Tempest - 122233
 /// Sanguinary Vein - 79147
@@ -1075,6 +1069,13 @@ class spell_rog_sanguinary_vein: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_sanguinary_vein_AuraScript);
 
+            enum eSpells
+            {
+                SanguinaryVein = 79147,
+                SanguinaryVeinDebuff = 124271,
+                GlyphOfHemorrhagingVeins = 146631
+            };
+
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -1083,10 +1084,10 @@ class spell_rog_sanguinary_vein: public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                if (!l_Caster->HasAura(SanguinaryVein::SpellRogueSanguinaryVein))
+                if (!l_Caster->HasAura(eSpells::SanguinaryVein))
                     return;
 
-                l_Caster->CastSpell(l_Target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
+                l_Caster->CastSpell(l_Target, eSpells::SanguinaryVeinDebuff, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1097,15 +1098,15 @@ class spell_rog_sanguinary_vein: public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                if (l_Target->HasAura(ROGUE_SPELL_HEMORRHAGE, l_Caster->GetGUID()) && l_Caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
+                if (l_Target->HasAura(ROGUE_SPELL_HEMORRHAGE, l_Caster->GetGUID()) && l_Caster->HasAura(eSpells::GlyphOfHemorrhagingVeins))
                     return;
 
                 if (l_Target->HasAura(ROGUE_SPELL_RUPTURE_DOT, l_Caster->GetGUID()) ||
                     l_Target->HasAura(ROGUE_SPELL_GARROTE_DOT, l_Caster->GetGUID()) || l_Target->HasAura(ROGUE_SPELL_CRIMSON_TEMPEST_DOT, l_Caster->GetGUID()))
                     return;
 
-                if (l_Target->HasAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, l_Caster->GetGUID()))
-                    l_Target->RemoveAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, l_Caster->GetGUID());
+                if (l_Target->HasAura(eSpells::SanguinaryVeinDebuff, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::SanguinaryVeinDebuff, l_Caster->GetGUID());
             }
 
             void Register()
@@ -1128,32 +1129,33 @@ class spell_rog_hemorrhage: public SpellScriptLoader
     public:
         spell_rog_hemorrhage() : SpellScriptLoader("spell_rog_hemorrhage") { }
 
+        enum eSpells
+        {
+            GlyphOfHemorrhage        = 56807,
+            SanguinaryVein           = 79147,
+            SanguinaryVeinDebuff     = 124271,
+            GlyphOfHemorrhagingVeins = 146631
+        };
+
         class spell_rog_hemorrhage_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_rog_hemorrhage_SpellScript);
-
-            enum eSpells
-            {
-                GlyphofHemorrhage           = 56807,
-                GlyphofHemorrhagingVeins    = 146631
-            };
 
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Caster->HasAura(eSpells::GlyphofHemorrhagingVeins))
-                    l_Caster->CastSpell(l_Target, eSpells::GlyphofHemorrhagingVeins, true);
+                if (l_Caster->HasAura(eSpells::GlyphOfHemorrhagingVeins))
+                    l_Caster->CastSpell(l_Target, eSpells::GlyphOfHemorrhagingVeins, true);
 
-                if (l_Caster->HasAura(eSpells::GlyphofHemorrhage))
+                if (l_Caster->HasAura(eSpells::GlyphOfHemorrhage))
                 {
                     if (!l_Target->HasAuraState(AURA_STATE_BLEEDING))
                         return;
 
                     SetHitDamage(0);
                 }
-
             }
 
             void Register()
@@ -1179,13 +1181,13 @@ class spell_rog_hemorrhage: public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                if (!l_Caster->HasAura(SanguinaryVein::SpellRogueSanguinaryVein))
+                if (!l_Caster->HasAura(eSpells::SanguinaryVein))
                     return;
 
-                if (!l_Caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
+                if (!l_Caster->HasAura(eSpells::GlyphOfHemorrhagingVeins))
                     return;
 
-                l_Caster->CastSpell(l_Target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
+                l_Caster->CastSpell(l_Target, eSpells::SanguinaryVeinDebuff, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1200,8 +1202,8 @@ class spell_rog_hemorrhage: public SpellScriptLoader
                     l_Target->HasAura(ROGUE_SPELL_GARROTE_DOT, l_Caster->GetGUID()) || l_Target->HasAura(ROGUE_SPELL_CRIMSON_TEMPEST_DOT, l_Caster->GetGUID()))
                     return;
 
-                if (l_Target->HasAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, l_Caster->GetGUID()))
-                    l_Target->RemoveAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, l_Caster->GetGUID());
+                if (l_Target->HasAura(eSpells::SanguinaryVeinDebuff, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::SanguinaryVeinDebuff, l_Caster->GetGUID());
             }
 
             void Register()

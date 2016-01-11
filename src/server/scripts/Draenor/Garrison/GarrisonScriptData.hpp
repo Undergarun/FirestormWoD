@@ -182,7 +182,28 @@ namespace MS { namespace Garrison
             float X, Y, Z, O;
         };
 
-        static const uint64 g_PendingQuestFlag = 0x40000000;
+        std::vector<G3D::Vector3> const g_CreaturesJumps =
+        {
+            /// meadowstomper - 86852
+            { 3419.6072f, 4388.9111f, 228.3024f },
+            { 3323.6699f, 4510.6533f, 180.0031f },
+            { 3322.0098f, 4475.1860f, 169.4178f },
+            /// snarler - 86851
+            { 2572.6372f, 6142.9878f, 80.2156f },
+            { 2515.4197f, 6132.1719f, 80.0046f },
+            { 2483.2539f, 6104.6841f, 83.2874f },
+            { 2576.8103f, 5949.7192f, 80.4125f },
+            { 2642.7153f, 5938.2900f, 84.2296f },
+            { 2641.6606f, 5977.7524f, 82.7445f },
+            { 2611.9395f, 6015.2808f, 78.9488f },
+            /// silverpelt - 86801
+            { 1511.6106f, -1065.3923f, 12.7051f },
+            { 1470.9410f, -1051.7019f, -4.3017f }
+        };
+
+        static const uint64 g_PendingQuestFlag  = 0x40000000;
+        static const uint32 g_LassoAllianceAura = 173686;
+        static const uint32 g_LassoHordeAura    = 174070;
 
         enum TrainingMountsAuras
         {
@@ -203,6 +224,16 @@ namespace MS { namespace Garrison
             DisplayTrainedSnarler       = 59757,
             DisplayTrainedRiverwallow   = 59743,
             DisplayTrainedSilverpelt    = 59365
+        };
+
+        enum eKillCredits
+        {
+            ElekkKillCredit          = 87009,
+            TalbukKillCredit         = 87007,
+            WolfKillCredit           = 87008,
+            RiverbeasttKillCredit    = 87010,
+            ClefthoofKillCredit      = 87011,
+            BoarKillCredit           = 87013
         };
 
         namespace Alliance
@@ -737,6 +768,7 @@ namespace MS { namespace Garrison
         ItemTimber                              = 114781,
         ItemTimberSample                        = 114827,
         ItemGarrisonResources                   = 114677,
+        ItemSecondGarrisonResources             = 118111,
         ItemMine                                = 116055,
         ItemBlackrockOre                        = 109118,
         ItemTrueIronOre                         = 109119

@@ -888,18 +888,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 53478: // Last Stand (Tenacity)
                     m_caster->CastSpell(m_caster, 53479, true);
                     break;
-                case 51753: // Camouflage
-                    m_caster->CastSpell(m_caster, 51755, true);
-                    m_caster->CastSpell(m_caster, 80326, true);
-
-                    if (m_caster->isInCombat())
-                        if (AuraPtr camouflage = m_caster->GetAura(51755))
-                            camouflage->SetDuration(6000);
-
-                    if (Unit* pet = m_caster->GetGuardianPet())
-                        pet->CastSpell(pet, 51753, true);
-
-                    break;
                 case 63487: // Ice Trap
                     if (Unit* owner = m_caster->GetOwner())
                         owner->CastSpell(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 13810, true);
@@ -1468,47 +1456,64 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     uint8 uiMaxSafeLevel = 0;
     switch (m_spellInfo->Id)
     {
-    case 48129:  ///< Scroll of Recall
-        uiMaxSafeLevel = 40;
-    case 60320:  ///< Scroll of Recall II
-        if (!uiMaxSafeLevel)
-            uiMaxSafeLevel = 70;
-    case 60321:  ///< Scroll of Recal III
-        if (!uiMaxSafeLevel)
-            uiMaxSafeLevel = 80;
+        case 556: ///< Astral Recall
+            if (unitTarget->HasAura(147787) && unitTarget->ToPlayer()) ///< Glyph of Astral Fixation
+            {
+                if (unitTarget->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
+                    destTarget = new WorldLocation(0, -8833.07f, 622.778f, 93.9317f, 0.6771f);
+                else
+                    destTarget = new WorldLocation(1, 1569.97f, -4397.41f, 16.0472f, 0.543025f);
+            }
+            break;
+        case 18960: ///< Teleport: Moonglade
+            if (unitTarget->GetZoneId() == 493 && unitTarget->GetMapId() == 1) ///< Moonglade, Kalimdor
+            {
+                WorldLocation l_Loc = unitTarget->ToPlayer()->GetPreviousLocation();
+                if (l_Loc.GetMapId() != MAPID_INVALID)
+                    destTarget = &l_Loc;
+            }
+            break;
+        case 48129:  ///< Scroll of Recall
+            uiMaxSafeLevel = 40;
+        case 60320:  ///< Scroll of Recall II
+            if (!uiMaxSafeLevel)
+                uiMaxSafeLevel = 70;
+        case 60321:  ///< Scroll of Recal III
+            if (!uiMaxSafeLevel)
+                uiMaxSafeLevel = 80;
 
-        if (unitTarget->getLevel() > uiMaxSafeLevel)
-        {
-            unitTarget->AddAura(60444, unitTarget); //Apply Lost! Aura
+            if (unitTarget->getLevel() > uiMaxSafeLevel)
+            {
+                unitTarget->AddAura(60444, unitTarget); //Apply Lost! Aura
 
-            // ALLIANCE from 60323 to 60330 - HORDE from 60328 to 60335
+                // ALLIANCE from 60323 to 60330 - HORDE from 60328 to 60335
 
-            uint32 spellId = 60323;
-            if (m_caster->ToPlayer()->GetTeam() == HORDE)
-                spellId += 5;
-            spellId += urand(0, 7);
-            m_caster->CastSpell(m_caster, spellId, true);
-            return;
-        }
-        break;
-    case 66550: // teleport outside (Isle of Conquest)
-        if (Player* target = unitTarget->ToPlayer())
-        {
-            if (target->GetTeamId() == TEAM_ALLIANCE)
-                m_targets.SetDst(442.24f, -835.25f, 44.30f, 0.06f, 628);
-            else
-                m_targets.SetDst(1120.43f, -762.11f, 47.92f, 2.94f, 628);
-        }
-        break;
-    case 66551: // teleport inside (Isle of Conquest)
-        if (Player* target = unitTarget->ToPlayer())
-        {
-            if (target->GetTeamId() == TEAM_ALLIANCE)
-                m_targets.SetDst(389.57f, -832.38f, 48.65f, 3.00f, 628);
-            else
-                m_targets.SetDst(1174.85f, -763.24f, 48.72f, 6.26f, 628);
-        }
-        break;
+                uint32 spellId = 60323;
+                if (m_caster->ToPlayer()->GetTeam() == HORDE)
+                    spellId += 5;
+                spellId += urand(0, 7);
+                m_caster->CastSpell(m_caster, spellId, true);
+                return;
+            }
+            break;
+        case 66550: // teleport outside (Isle of Conquest)
+            if (Player* target = unitTarget->ToPlayer())
+            {
+                if (target->GetTeamId() == TEAM_ALLIANCE)
+                    m_targets.SetDst(442.24f, -835.25f, 44.30f, 0.06f, 628);
+                else
+                    m_targets.SetDst(1120.43f, -762.11f, 47.92f, 2.94f, 628);
+            }
+            break;
+        case 66551: // teleport inside (Isle of Conquest)
+            if (Player* target = unitTarget->ToPlayer())
+            {
+                if (target->GetTeamId() == TEAM_ALLIANCE)
+                    m_targets.SetDst(389.57f, -832.38f, 48.65f, 3.00f, 628);
+                else
+                    m_targets.SetDst(1174.85f, -763.24f, 48.72f, 6.26f, 628);
+            }
+            break;
     }
 
     // If not exist data for dest location - return
@@ -4149,7 +4154,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             spell_bonus = int32(spell_bonus * weapon_total_pct);
     }
 
-    int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, true);
+    int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, false);
     int32 autoAttacksBonus = std::max(1 + (m_caster->GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE) / 100), 1);
     weaponDamage /= autoAttacksBonus;
 

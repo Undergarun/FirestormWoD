@@ -330,18 +330,6 @@ void AreaTrigger::UnbindFromCaster()
     }
 }
 
-void AreaTrigger::SendMovementUpdate()
-{
-    WorldPacket l_Data(SMSG_AREA_TRIGGER_MOVEMENT_UPDATE, 24);
-
-    // startX
-    // startY
-    // endY
-    // endZ
-    // startZ
-    // endX
-}
-
 void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
 {
     AreaTriggerTemplate const* l_template = GetMainTemplate();
