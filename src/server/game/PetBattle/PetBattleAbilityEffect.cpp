@@ -55,7 +55,7 @@ static PetBattleAbilityEffectHandler Handlers[MAX_PETBATTLE_EFFECT_TYPES] =
     /* EFFECT 19  */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 20  */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 21  */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
-    /* EFFECT 22  */{0,                                                         PETBATTLE_TARGET_NONE}, // Dummy
+    /* EFFECT 22  */{&PetBattleAbilityEffect::HandleDummy,                      PETBATTLE_TARGET_CASTER}, // Dummy
     /* EFFECT 23  */{&PetBattleAbilityEffect::HandleHeal,                       PETBATTLE_TARGET_CASTER},
     /* EFFECT 24  */{&PetBattleAbilityEffect::HandleDamage,                     PETBATTLE_TARGET_TARGET},
     /* EFFECT 25  */{&PetBattleAbilityEffect::HandleCatch,                      PETBATTLE_TARGET_TARGET},
@@ -561,19 +561,20 @@ bool PetBattleAbilityEffect::SetHealth(uint32 p_Target, int32 p_Value)
 
     if (!(Flags & FailFlags))
     {
-        if (p_Value <= 0)
+        if (p_Value <= 0 && !GetAura(p_Target, 284))    ///< Buff : Suvival http://www.wowhead.com/petability=283/survival
         {
             Flags |= PETBATTLE_EVENT_FLAG_UNK_KILL;
 
             if (!GetState(p_Target, BATTLEPET_STATE_Is_Dead))
                 PetBattleInstance->SetPetState(Caster, p_Target, EffectInfo->id, BATTLEPET_STATE_Internal_HealthBeforeInstakill, PetBattleInstance->Pets[p_Target]->Health);
         }
+        else if (p_Value <= 0 && GetAura(p_Target, 284))    ///< Buff : Suvival http://www.wowhead.com/petability=283/survival
+            p_Value = 1;
 
         PetBattleInstance->Pets[p_Target]->Health = p_Value;
     }
 
     PetBattleEvent l_Event(PETBATTLE_EVENT_SET_HEALTH, Caster, Flags, EffectInfo->id, PetBattleInstance->RoundTurn++, 0, 1);
-
     l_Event.UpdateHealth(p_Target, PetBattleInstance->Pets[p_Target]->Health);
 
     PetBattleInstance->RoundEvents.push_back(l_Event);
@@ -774,6 +775,11 @@ bool PetBattleAbilityEffect::Execute()
     return l_Result;
 }
 
+bool PetBattleAbilityEffect::HandleDummy()
+{
+    return true;
+}
+
 bool PetBattleAbilityEffect::HandleDamage()
 {
     CalculateHit(EffectInfo->prop[1]);
@@ -858,8 +864,13 @@ bool PetBattleAbilityEffect::HandleHealPercentDealt()
 
     // Recovery
     int32 heal = CalculatePct(GetState(Caster, BATTLEPET_STATE_Last_HitDealt), EffectInfo->prop[0]);
+    int32 l_ModPercent = 0;
 
-    return Heal(Target, CalculateHeal(heal));
+    // Modifiers Dealt / Taken
+    l_ModPercent += GetState(Caster, BATTLEPET_STATE_Mod_HealingDealtPercent);
+    l_ModPercent += GetState(Target, BATTLEPET_STATE_Mod_HealingTakenPercent);
+
+    return Heal(Target, heal + CalculatePct(heal, l_ModPercent));
 }
 
 bool PetBattleAbilityEffect::HandleHeal()
@@ -926,7 +937,13 @@ bool PetBattleAbilityEffect::HandleHealLastHitTaken()
 
     // Recovery
     int32 heal = CalculatePct(GetState(Caster, BATTLEPET_STATE_Last_HitTaken), EffectInfo->prop[0]);
-    return Heal(Target, CalculateHeal(heal));
+    int32 l_ModPercent = 0;
+
+    // Modifiers Dealt / Taken
+    l_ModPercent += GetState(Caster, BATTLEPET_STATE_Mod_HealingDealtPercent);
+    l_ModPercent += GetState(Target, BATTLEPET_STATE_Mod_HealingTakenPercent);
+
+    return Heal(Target, heal + CalculatePct(heal, l_ModPercent));
 }
 
 bool PetBattleAbilityEffect::HandleRemoveAura()
