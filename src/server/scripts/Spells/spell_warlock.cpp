@@ -3701,9 +3701,11 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
 
             enum eSpells
             {
-                GrimoireOfService = 108501,
-                GrimoireDoomguard = 157900,
-                GrimoireInfernal = 157901
+                GrimoireOfService   = 108501,
+                GrimoireDoomguard   = 157900,
+                GrimoireInfernal    = 157901,
+                GrimoireofSupremacy = 108499,
+                SummonAbyssal       = 157899
             };
 
             void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -3725,6 +3727,12 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
                     if (!l_Player->HasSpell(eSpells::GrimoireInfernal))
                         l_Player->learnSpell(eSpells::GrimoireInfernal, false);
                 }
+                if (l_Player->HasAura(eSpells::GrimoireofSupremacy)) ///< Grimoire of Supremacy
+                {
+                    if (!l_Player->HasSpell(eSpells::SummonAbyssal))
+                        l_Player->learnSpell(eSpells::SummonAbyssal, false);
+                }
+
             }
 
             void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -3743,6 +3751,8 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
                     l_Player->removeSpell(eSpells::GrimoireDoomguard, false, false);
                 if (l_Player->HasSpell(eSpells::GrimoireInfernal))
                     l_Player->removeSpell(eSpells::GrimoireInfernal, false, false);
+                if (l_Player->HasSpell(eSpells::SummonAbyssal))
+                    l_Player->removeSpell(eSpells::SummonAbyssal, false, false);
             }
 
             void Register()

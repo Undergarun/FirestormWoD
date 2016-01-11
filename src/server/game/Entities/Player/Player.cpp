@@ -32325,6 +32325,8 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
         case 108499:// Grimoire of Supremacy
             if (!HasAura(108499))
                 AddAura(108499, this);
+            if (HasAura(152107)) ///< Demonic Servitude
+                learnSpell(157901, false);  ///< WARLOCK_GRIMOIRE_INFERNAL
             break;
         case 108501:// Grimoire of Service
             learnSpell(111859, false);  ///< WARLOCK_GRIMOIRE_IMP
@@ -32338,7 +32340,7 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
                 if (HasAura(152107)) ///< Demonic Servitude
                 {
                     learnSpell(157900, false);  ///< WARLOCK_GRIMOIRE_DOOMGUARD
-                    learnSpell(157901, false);  ///< WARLOCK_GRIMOIRE_INFERNAL
+                    learnSpell(157899, false);  ///< WARLOCK_GRIMOIRE_ABYSSAL
                 }
             }
             break;
@@ -32370,6 +32372,8 @@ void Player::RemovePassiveTalentSpell(SpellInfo const* info)
             break;
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
+            if (HasSpell(157899))
+                removeSpell(157899, false, false);  // WARLOCK_GRIMOIRE_ABYSSAL
             break;
         case 108501:// Grimoire of Service
             if (HasSpell(111859))
