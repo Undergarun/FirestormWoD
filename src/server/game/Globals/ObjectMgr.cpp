@@ -357,10 +357,10 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     {
         Field* fields = result->Fetch();
 
-        uint16 menuId   = fields[0].GetUInt32();
+        uint32 menuId   = fields[0].GetUInt32();
         uint16 id       = fields[1].GetUInt16();
 
-        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, id)];
+        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR64(menuId, id)];
 
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
