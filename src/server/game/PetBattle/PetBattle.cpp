@@ -310,8 +310,6 @@ void BattlePetInstance::UpdateOriginalInstance()
 
     OriginalBattlePet->JournalID       = JournalID;
     OriginalBattlePet->Slot            = Slot;
-    OriginalBattlePet->Name            = Name;
-    OriginalBattlePet->NameTimeStamp   = NameTimeStamp;
     OriginalBattlePet->Species         = Species;
     OriginalBattlePet->Quality         = Quality;
     OriginalBattlePet->Breed           = Breed;
