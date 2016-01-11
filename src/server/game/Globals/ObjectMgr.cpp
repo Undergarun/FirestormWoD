@@ -4398,14 +4398,14 @@ void ObjectMgr::LoadQuests()
 
                 if (!qinfo->RewardItemIdCount[j])
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = %u but `RewardItemIdCount%d` = 0, quest will not reward this item.",
+                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = %u but `RewardItemCount%d` = 0, quest will not reward this item.",
                         qinfo->GetQuestId(), j+1, id, j+1);
                     // No changes
                 }
             }
             else if (qinfo->RewardItemIdCount[j]>0)
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = 0 but `RewardItemIdCount%d` = %u.",
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = 0 but `RewardItemCount%d` = %u.",
                     qinfo->GetQuestId(), j+1, j+1, qinfo->RewardItemIdCount[j]);
                 // No changes, quest ignore this data
             }
@@ -9003,15 +9003,6 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
             ChatHandler(player).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, id, ExtendedCost, type);
         else
             sLog->outError(LOG_FILTER_SQL, "Table `npc_vendor` has duplicate items %u (with extended cost %u, type %u) for vendor (Entry: %u), ignoring", id, ExtendedCost, type, vendor_entry);
-        return false;
-    }
-
-    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS)
-    {
-        if (player)
-            ChatHandler(player).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
-        else
-            sLog->outError(LOG_FILTER_SQL, "Table `npc_vendor` has too many items (%u >= %i) for vendor (Entry: %u), ignore", vItems->GetItemCount(), MAX_VENDOR_ITEMS, vendor_entry);
         return false;
     }
 
