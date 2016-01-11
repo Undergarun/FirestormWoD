@@ -24192,6 +24192,28 @@ void Player::_SaveStats(SQLTransaction& trans)
     trans->Append(stmt);
 }
 
+void Player::_SaveCharacterGarrisonTavernDatas(SQLTransaction& p_Transaction)
+{
+    MS::Garrison::Manager* l_GarrisonMgr = GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA_CHAR);
+    l_Stmt->setUInt32(0, GetGUIDLow());
+    p_Transaction->Append(l_Stmt);
+
+    for (uint32 l_TavernData : l_GarrisonMgr->GetGarrisonTavernDatas())
+    {
+        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR);
+        l_Stmt->setUInt32(0, GetGUIDLow());
+        l_Stmt->setUInt32(1, l_TavernData);
+        p_Transaction->Append(l_Stmt);
+    }
+
+    CharacterDatabase.CommitTransaction(p_Transaction);
+}
+
 void Player::outDebugValues() const
 {
     if (!sLog->ShouldLog(LOG_FILTER_UNITS, LOG_LEVEL_DEBUG))
@@ -33170,20 +33192,36 @@ void Player::DeleteGarrison()
     m_Garrison = nullptr;
 }
 
+std::vector<uint32> Player::GetGarrisonTavernDatas()
+{
+    std::vector<uint32> l_GarrisonDatas;
+    if (MS::Garrison::Manager* l_GarrisonMgr = GetGarrison())
+    {
+        for (uint32 l_TavernData : l_GarrisonMgr->GetGarrisonTavernDatas())
+            l_GarrisonDatas.push_back(l_TavernData);
+    }
+
+    return l_GarrisonDatas;
+}
+
 void Player::AddGarrisonTavernData(uint32 p_Data)
 {
-    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR);
-
-    l_Stmt->setUInt32(0, GetGUIDLow());
-    l_Stmt->setUInt32(1, p_Data);
-    CharacterDatabase.AsyncQuery(l_Stmt);
-
     SetGarrisonTavernData(p_Data);
+
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+    _SaveCharacterGarrisonTavernDatas(l_Transaction);
 }
 
 void Player::SetGarrisonTavernData(uint32 p_Data)
 {
-    m_GarrisonDailyTavernData.push_back(p_Data);
+    if (MS::Garrison::Manager* l_GarrisonMgr = GetGarrison())
+        l_GarrisonMgr->GetGarrisonTavernDatas().push_back(p_Data);
+}
+
+void Player::CleanGarrisonTavernData()
+{
+    if (MS::Garrison::Manager* l_GarrisonMgr = GetGarrison())
+        l_GarrisonMgr->GetGarrisonTavernDatas().clear();
 }
 
 Stats Player::GetPrimaryStat() const
