@@ -7306,14 +7306,17 @@ void ObjectMgr::LoadCurrencyOnKill()
         l_CurrOnKill[l_Fields[2].GetUInt16()] = l_Fields[5].GetInt32();
         l_CurrOnKill[l_Fields[3].GetUInt16()] = l_Fields[6].GetInt32();
 
-
         if (!GetCreatureTemplate(l_Creature_id))
         {
             sLog->outError(LOG_FILTER_SQL, "Table `creature_creature` have data for not existed creature entry (%u), skipped", l_Creature_id);
             continue;
         }
+
         for (CurrencyOnKillEntry::const_iterator i = l_CurrOnKill.begin(); i != l_CurrOnKill.end(); ++i)
         {
+            if (!i->first)
+                continue;
+
             if (!sCurrencyTypesStore.LookupEntry(i->first))
             {
                 sLog->outError(LOG_FILTER_SQL, "CurrencyType (CurrencyTypes.dbc) %u does not exist but is used in `creature_currency`", i->first);
