@@ -218,6 +218,9 @@ void BattlegroundKT::EventPlayerDroppedOrb(Player* source)
 
 void BattlegroundKT::RemovePlayer(Player* plr, uint64 guid, uint32 /*team*/)
 {
+    if (plr == nullptr)
+        return;
+
     EventPlayerDroppedOrb(plr);
     m_playersZone.erase(plr->GetGUID());
 }
