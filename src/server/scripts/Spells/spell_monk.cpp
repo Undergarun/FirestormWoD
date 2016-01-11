@@ -3935,6 +3935,7 @@ class spell_monk_fists_of_fury_damage : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Fists of Fury (Stun) - 120086
 class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 {
@@ -3945,6 +3946,17 @@ class spell_monk_fists_of_fury_stun: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_fists_of_fury_stun_SpellScript);
 
+            enum eSpells
+            {
+                GlyphoftheFloatingButterfly = 159490
+            };
+
+            void HandleStun(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (GetCaster()->HasAura(eSpells::GlyphoftheFloatingButterfly))
+                    PreventHitAura();
+            }
+
             void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
             {
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id, GetCaster()->GetGUID()));
@@ -3952,16 +3964,18 @@ class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_stun_SpellScript::HandleStun, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_fists_of_fury_stun_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_24);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_fists_of_fury_stun_SpellScript();
         }
 };
 
+/// Last Update 6.2.3
 /// Fists of Fury - 113656
 class spell_monk_fists_of_fury : public SpellScriptLoader
 {
@@ -3974,8 +3988,8 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
 
             enum eSpells
             {
-                T17Windwalker2P = 165403,
-                TigereyeBrew    = 125195
+                T17Windwalker2P             = 165403,
+                TigereyeBrew                = 125195
             };
 
             void HandleDummy(SpellEffIndex p_EffIndex)
@@ -3990,7 +4004,7 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
