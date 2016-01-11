@@ -2822,7 +2822,6 @@ class npc_lady_liadrin_blackrock : public CreatureScript
             {
                 if (p_Creature->GetAI())
                 {
-                    p_Creature->AI()->SetGUID(p_Player->GetGUID(), 0);
                     p_Creature->AI()->DoAction(1);
                 }
             }
@@ -2840,32 +2839,18 @@ class npc_lady_liadrin_blackrock : public CreatureScript
             npc_lady_liadrin_blackrockAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_PlayerGuid = 0;
-                m_KeliDanPlayerGuid = 0;
                 m_Summoned = false;
             }
 
             uint64 m_PlayerGuid;
-            uint64 m_KeliDanPlayerGuid;
             bool m_Summoned;
-
-            void SetGUID(uint64 p_Guid, int32 p_Type) override
-            {
-                m_KeliDanPlayerGuid = p_Guid;
-            }
-
             void DoAction(int32 const p_Id) override
             {
                 /// TALK
                 Talk(0);
 
-                if (m_KeliDanPlayerGuid)
-                {
-                    if (GameObject* l_Gob = GetClosestGameObjectWithEntry(me, TanaanGameObjects::GobIronCageDoor, 80.0f))
-                    {
-                        if (Player* l_Player = me->GetPlayer(*me, m_KeliDanPlayerGuid))
-                            l_Gob->UseDoorOrButton(120000, false, l_Player);
-                    }
-                }
+                if (GameObject* l_Gob = GetClosestGameObjectWithEntry(me, TanaanGameObjects::GobIronCageDoor, 80.0f))
+                    l_Gob->UseDoorOrButton(120000, false);
             }
 
             void IsSummonedBy(Unit* p_Summoner) override
