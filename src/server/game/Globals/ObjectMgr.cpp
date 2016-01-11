@@ -4398,14 +4398,14 @@ void ObjectMgr::LoadQuests()
 
                 if (!qinfo->RewardItemIdCount[j])
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = %u but `RewardItemIdCount%d` = 0, quest will not reward this item.",
+                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = %u but `RewardItemCount%d` = 0, quest will not reward this item.",
                         qinfo->GetQuestId(), j+1, id, j+1);
                     // No changes
                 }
             }
             else if (qinfo->RewardItemIdCount[j]>0)
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = 0 but `RewardItemIdCount%d` = %u.",
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = 0 but `RewardItemCount%d` = %u.",
                     qinfo->GetQuestId(), j+1, j+1, qinfo->RewardItemIdCount[j]);
                 // No changes, quest ignore this data
             }
