@@ -33277,13 +33277,11 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
     if (uint32 maxItemLevel = GetUInt32Value(UNIT_FIELD_MAX_ITEM_LEVEL))
         ilvl = std::min(ilvl, maxItemLevel);
 
-    if (GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame())
+    if (!(GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame()))
     {
-        if ((itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY) == 0)
+        if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
             ilvl = 1;
     }
-    else if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
-        ilvl = 1;
 
     return ilvl;
 }
