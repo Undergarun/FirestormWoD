@@ -2036,7 +2036,7 @@ class npc_archmage_khadgar_bridge : public CreatureScript
                             Position l_Pos;
                             l_Player->GetPosition(&l_Pos);
                             if (g_KillYourHundredPlayerScript)
-                                g_KillYourHundredPlayerScript->m_PlayerSceneFirstInstanceId[l_Player->GetGUID()] = l_Player->PlayStandaloneScene(TanaanSceneObjects::SceneEnterKarGathArena, 16, l_Pos);
+                                g_KillYourHundredPlayerScript->m_PlayerSceneFirstInstanceId[l_Player->GetGUID()] = l_Player->PlayStandaloneScene(TanaanSceneObjects::SceneEnterKarGathArena, 63, l_Pos);
                         }
                     }
                     else
@@ -2225,7 +2225,7 @@ class npc_shattered_hand_brawler : public CreatureScript
                 if (l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainAdd) == 98 && l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainInArena) == 99)
                 {
                     if (g_KillYourHundredPlayerScript)
-                        g_KillYourHundredPlayerScript->m_PlayerSceneThirdInstanceId[l_Player->GetGUID()] = l_Player->PlayStandaloneScene(TanaanSceneObjects::SceneEscapingTheArena, 16, l_Pos);
+                        g_KillYourHundredPlayerScript->m_PlayerSceneThirdInstanceId[l_Player->GetGUID()] = l_Player->PlayStandaloneScene(TanaanSceneObjects::SceneEscapingTheArena, 63, l_Pos);
 
                     l_Player->QuestObjectiveSatisfy(TanaanKillCredits::CreditCombattantSlainAdd, 1);
                 }
@@ -3712,7 +3712,7 @@ class npc_tanaan_khadgar_final : public CreatureScript
                     p_Player->GetPosition(&l_Pos);
 
                     if (g_SceneAllianceBoatPlayerScript)
-                        g_SceneAllianceBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneAllianceBoat, 16, l_Pos);
+                        g_SceneAllianceBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneAllianceBoat, 63, l_Pos);
                     break;
                 }
                 case TanaanQuests::QuestTheHomeStretchHorde:
@@ -3721,7 +3721,7 @@ class npc_tanaan_khadgar_final : public CreatureScript
                     p_Player->GetPosition(&l_Pos);
 
                     if (g_SceneHordeBoatPlayerScript)
-                        g_SceneHordeBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneHordeBoat, 16, l_Pos);
+                        g_SceneHordeBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneHordeBoat, 63, l_Pos);
                     break;
                 }
                 default:
