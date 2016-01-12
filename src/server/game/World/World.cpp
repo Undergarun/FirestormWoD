@@ -2334,7 +2334,6 @@ void World::LoadAutobroadcasts()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u autobroadcasts definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
 }
 
 /// Update the World !

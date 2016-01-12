@@ -143,7 +143,7 @@ public:
     // Display the 'Message of the day' for the realm
     static bool HandleServerMotdCommand(ChatHandler* handler, char const* /*args*/)
     {
-        handler->PSendSysMessage(LANG_MOTD_CURRENT, sWorld->GetMotd().Text);
+        handler->PSendSysMessage(LANG_MOTD_CURRENT, sWorld->GetMotd().Text.c_str());
         return true;
     }
 
