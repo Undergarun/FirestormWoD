@@ -3565,7 +3565,7 @@ class PlayerScript_thrill_of_the_hunt: public PlayerScript
                     if (roll_chance_i(sSpellMgr->GetSpellInfo(HUNTER_SPELL_THRILL_OF_THE_HUNT)->Effects[EFFECT_0].BasePoints))
                     {
                         p_Player->CastSpell(p_Player, HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC, true);
-                        for (int8 l_I = 3; l_I >= 0; l_I--)
+                        for (uint8 l_I = 0; l_I < 3; ++l_I)
                             p_Player->CastSpell(p_Player, g_VisualSpells[l_I], true);
                         break;
                     }
