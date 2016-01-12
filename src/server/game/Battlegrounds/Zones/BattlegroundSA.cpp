@@ -68,14 +68,14 @@ void BattlegroundSA::GetTeamStartLoc(uint32 p_TeamID, float &p_PositionX, float 
 {
     uint32 l_AttackersTeam = Attackers == TEAM_ALLIANCE ? ALLIANCE : HORDE;
 
-    if (!ShipsStarted)
+    if (GetStatus() != STATUS_IN_PROGRESS)
     {
         if (p_TeamID == l_AttackersTeam)
         {
-            p_PositionX = 1828.809f;
-            p_PositionY = -28.069f;
-            p_PositionZ = 57.951f;
-            p_Orientation = 3.11f;
+            p_PositionX = 2956.101f;
+            p_PositionY = -513.759f;
+            p_PositionZ = 9.245f;
+            p_Orientation = 2.932f;
         }
         else
         {
@@ -87,46 +87,31 @@ void BattlegroundSA::GetTeamStartLoc(uint32 p_TeamID, float &p_PositionX, float 
     }
     else
     {
-        if (p_TeamID == l_AttackersTeam)
-        {
-            p_PositionX = 1600.381f;
-            p_PositionY = -106.263f;
-            p_PositionZ = 8.8745f;
-            p_Orientation = 3.78f;
-        }
-        else
+        if (p_TeamID != l_AttackersTeam)
         {
             p_PositionX = 1209.7f;
             p_PositionY = -65.16f;
             p_PositionZ = 70.1f;
             p_Orientation = 0.0f;
         }
+        else
+        {
+            if (rand() % 2)
+            {
+                p_PositionX = 1600.381f;
+                p_PositionY = -106.263f;
+                p_PositionZ = 8.8745f;
+                p_Orientation = 3.78f;
+            }
+            else
+            {
+                p_PositionX = 1601.5917f;
+                p_PositionY = 51.205f;
+                p_PositionZ = 7.822f;
+                p_Orientation = 2.61f;
+            }
+        }
     }
-
-    /*if (p_TeamID == l_AttackersTeam && !ShipsStarted)
-    {
-        uint8 l_Boat  = urand(0, 1);
-        p_PositionX   = g_BG_SA_AttackerPosition[l_Boat][0];
-        p_PositionY   = g_BG_SA_AttackerPosition[l_Boat][1];
-        p_PositionZ   = g_BG_SA_AttackerPosition[l_Boat][2];
-        p_Orientation = g_BG_SA_AttackerPosition[l_Boat][3];
-        return;
-    }
-
-    WorldSafeLocsEntry const* l_DefenderStartPosition = sWorldSafeLocsStore.LookupEntry(p_TeamID == l_AttackersTeam ? BG_SA_WORLDSAFELOC_ATTACKER_START : BG_SA_WORLDSAFELOC_DEFENDER_START);
-    if (!l_DefenderStartPosition)
-    {
-        p_PositionX = 0.0f;
-        p_PositionY = 0.0f;
-        p_PositionZ = 0.0f;
-        p_Orientation = 0.0f;
-        return;
-    }
-
-    p_PositionX   = l_DefenderStartPosition->x;
-    p_PositionY   = l_DefenderStartPosition->y;
-    p_PositionZ   = l_DefenderStartPosition->z;
-    p_Orientation = l_DefenderStartPosition->o;*/
 }
 
 bool BattlegroundSA::SetupBattleground()
@@ -411,8 +396,28 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, (Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
             // status was set to STATUS_WAIT_JOIN manually for Preparation, set it back now
             SetStatus(STATUS_IN_PROGRESS);
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if (Player* p = ObjectAccessor::FindPlayer(itr->first))
+
+            /// Teleports players on boat to beach
+            for (BattlegroundPlayerMap::const_iterator l_Itr = GetPlayers().begin(); l_Itr != GetPlayers().end(); ++l_Itr)
+            {
+                if (Player* l_Player = ObjectAccessor::FindPlayer(l_Itr->first))
+                {
+                    uint32 l_AttackerTeam = Attackers == TEAM_ALLIANCE ? ALLIANCE : HORDE;
+                    if (l_Player->GetBGTeam() != l_AttackerTeam)
+                        continue;
+
+                    float l_PositionX = 0.0f;
+                    float l_PositionY = 0.0f;
+                    float l_PositionZ = 0.0f;
+                    float l_Orientation = 0.0f;
+                    GetTeamStartLoc(l_AttackerTeam, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
+
+                    l_Player->TeleportTo(607, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
+                }
+            }
+
+            for (BattlegroundPlayerMap::const_iterator l_Itr = GetPlayers().begin(); l_Itr != GetPlayers().end(); ++l_Itr)
+                if (Player* p = ObjectAccessor::FindPlayer(l_Itr->first))
                 {
                     p->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, false);
                     p->RemoveAurasDueToSpell(SPELL_PREPARATION);
@@ -590,39 +595,37 @@ void BattlegroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
 
 void BattlegroundSA::TeleportPlayers()
 {
-    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+    for (BattlegroundPlayerMap::const_iterator l_Itr = GetPlayers().begin(); l_Itr != GetPlayers().end(); ++l_Itr)
     {
-        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+        if (Player* l_Player = ObjectAccessor::FindPlayer(l_Itr->first))
         {
-            player->RemoveAurasDueToSpell(52459);
+            l_Player->RemoveAurasDueToSpell(52459);
 
             // should remove spirit of redemption
-            if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
-                player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+            if (l_Player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+                l_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
-            player->RemoveAurasByType(SPELL_AURA_MOD_FEAR);
+            l_Player->RemoveAurasByType(SPELL_AURA_MOD_FEAR);
 
-            if (!player->isAlive())
+            if (!l_Player->isAlive())
             {
-                player->ResurrectPlayer(1.0f);
-                player->SpawnCorpseBones();
+                l_Player->ResurrectPlayer(1.0f);
+                l_Player->SpawnCorpseBones();
             }
 
-            player->ResetAllPowers();
-            player->CombatStopWithPets(true);
+            l_Player->ResetAllPowers();
+            l_Player->CombatStopWithPets(true);
 
-            player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
-            player->CastSpell(player, SPELL_PREPARATION, true);
+            l_Player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
+            l_Player->CastSpell(l_Player, SPELL_PREPARATION, true);
 
-            if (player->GetTeamId() == Attackers)
-            {
-                player->CastSpell(player, 12438, true);     //Without this player falls before boat loads...
+            float l_PositionX = 0.0f;
+            float l_PositionY = 0.0f;
+            float l_PositionZ = 0.0f;
+            float l_Orientation = 0.0f;
+            GetTeamStartLoc(l_Player->GetBGTeam(), l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
 
-                player->TeleportTo(607, 1828.809f, -28.069f, 57.951f, 3.11f, 0);
-
-            }
-            else
-                player->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
+            l_Player->TeleportTo(607, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
         }
     }
 }
