@@ -2330,7 +2330,9 @@ void World::LoadAutobroadcasts()
 
     m_Autobroadcasts.clear();
 
-    QueryResult result = CharacterDatabase.Query("SELECT text FROM autobroadcast");
+    std::string l_Query = "SELECT Text, TextFR, TextES, TextRU FROM autobroadcast WHERE Expension IN(-1, 5) AND RealmID IN(-1, " + std::to_string(g_RealmID) + ")";
+
+    QueryResult result = LoginDatabase.Query(l_Query.c_str());
 
     if (!result)
     {
@@ -2345,9 +2347,14 @@ void World::LoadAutobroadcasts()
     {
 
         Field* fields = result->Fetch();
-        std::string message = fields[0].GetString();
 
-        m_Autobroadcasts.push_back(message);
+        AutoBroadcastText l_AutobrodCastText;
+        l_AutobrodCastText.Text   = fields[0].GetString();
+        l_AutobrodCastText.TextFR = fields[1].GetString();
+        l_AutobrodCastText.TextES = fields[2].GetString();
+        l_AutobrodCastText.TextRU = fields[3].GetString();
+
+        m_Autobroadcasts.push_back(l_AutobrodCastText);
 
         ++count;
     }
@@ -3225,36 +3232,45 @@ void World::SendAutoBroadcast()
     if (m_Autobroadcasts.empty())
         return;
 
-    std::string msg;
+    AutoBroadcastText l_AutobroadcastText;
+    l_AutobroadcastText = JadeCore::Containers::SelectRandomContainerElement(m_Autobroadcasts);
 
-    msg = JadeCore::Containers::SelectRandomContainerElement(m_Autobroadcasts);
-
-    uint32 abcenter = sWorld->getIntConfig(CONFIG_AUTOBROADCAST_CENTER);
-
-    if (abcenter == 0)
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-
-    else if (abcenter == 1)
+    SessionMap::const_iterator itr;
+    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
-        l_Data.WriteBits(msg.length(), 12);
-        l_Data.FlushBits();
-        l_Data.WriteString(msg);
-        sWorld->SendGlobalMessage(&l_Data);
+        if (itr->second &&
+            itr->second->GetPlayer() &&
+            itr->second->GetPlayer()->IsInWorld())
+        {
+            std::string l_AutoBrodcast = "";
+
+            switch (itr->second->GetSessionDbLocaleIndex())
+            {
+                case LocaleConstant::LOCALE_frFR:
+                    l_AutoBrodcast = l_AutobroadcastText.TextFR;
+                    break;
+                case LocaleConstant::LOCALE_esMX:
+                case LocaleConstant::LOCALE_esES:
+                    l_AutoBrodcast = l_AutobroadcastText.TextES;
+                    break;
+                case LocaleConstant::LOCALE_ruRU:
+                    l_AutoBrodcast = l_AutobroadcastText.TextRU;
+                    break;
+                default:
+                    l_AutoBrodcast = l_AutobroadcastText.Text;
+                    break;
+            }
+
+            if (l_AutoBrodcast.empty())
+                continue;
+
+            std::string l_AnnounceFormat = "|cffffff00[|c00077766Autobroadcast|cffffff00]: |cFFF222FF" + l_AutoBrodcast + "|r";
+
+            WorldPacket l_Data;
+            ChatHandler::FillMessageData(&l_Data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, l_AnnounceFormat.c_str(), NULL);
+            itr->second->SendPacket(&l_Data);
+        }
     }
-
-    else if (abcenter == 2)
-    {
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-
-        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
-        l_Data.WriteBits(msg.length(), 12);
-        l_Data.FlushBits();
-        l_Data.WriteString(msg);
-        sWorld->SendGlobalMessage(&l_Data);
-    }
-
-    sLog->outDebug(LOG_FILTER_GENERAL, "AutoBroadcast: '%s'", msg.c_str());
 }
 
 void World::UpdateRealmCharCount(uint32 accountId)

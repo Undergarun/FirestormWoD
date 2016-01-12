@@ -1085,7 +1085,15 @@ class World
         // used versions
         std::string m_DBVersion;
 
-        std::list<std::string> m_Autobroadcasts;
+        struct AutoBroadcastText
+        {
+            std::string Text;
+            std::string TextFR;
+            std::string TextRU;
+            std::string TextES;
+        };
+
+        std::list<AutoBroadcastText> m_Autobroadcasts;
 
         std::map<uint32, CharacterNameData> _characterNameDataMap;
         void LoadCharacterNameData();
