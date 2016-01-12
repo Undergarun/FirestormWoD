@@ -19986,8 +19986,11 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
             {
                 if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC && l_Objective.ObjectID == (int32)real_entry)
                 {
-                    if (!CheckGarrisonStablesQuestsConditions(questid))
-                        continue;
+                    if (MS::Garrison::Manager* l_GarrisonMgr = GetGarrison())
+                    {
+                        if (!l_GarrisonMgr->CheckGarrisonStablesQuestsConditions(questid, this))
+                            continue;
+                    }
 
                     uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                     if (currentCounter < uint32(l_Objective.Amount))
@@ -20008,51 +20011,6 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
             }
         }
     }
-}
-
-bool Player::CheckGarrisonStablesQuestsConditions(uint32 p_QuestID)
-{
-    using namespace MS::Garrison::StablesData::Alliance;
-    using namespace MS::Garrison::StablesData::Horde;
-
-    if (std::find(FannyQuestGiver::g_BoarQuests.begin(), FannyQuestGiver::g_BoarQuests.end(), p_QuestID) != FannyQuestGiver::g_BoarQuests.end() ||
-        std::find(TormakQuestGiver::g_BoarQuests.begin(), TormakQuestGiver::g_BoarQuests.end(), p_QuestID) != TormakQuestGiver::g_BoarQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::RockstuckTrainingMountAura))
-            return false;
-    }
-    else if (std::find(FannyQuestGiver::g_ClefthoofQuests.begin(), FannyQuestGiver::g_ClefthoofQuests.end(), p_QuestID) != FannyQuestGiver::g_ClefthoofQuests.end() ||
-             std::find(TormakQuestGiver::g_ClefthoofQuests.begin(), TormakQuestGiver::g_ClefthoofQuests.end(), p_QuestID) != TormakQuestGiver::g_ClefthoofQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::IcehoofTrainingMountAura))
-            return false;
-    }
-    else if (std::find(FannyQuestGiver::g_ElekkQuests.begin(), FannyQuestGiver::g_ElekkQuests.end(), p_QuestID) != FannyQuestGiver::g_ElekkQuests.end() ||
-             std::find(TormakQuestGiver::g_ElekkQuests.begin(), TormakQuestGiver::g_ElekkQuests.end(), p_QuestID) != TormakQuestGiver::g_ElekkQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::MeadowstomperTrainingMountAura))
-            return false;
-    }
-    else if (std::find(KeeganQuestGiver::g_RiverbeastQuests.begin(), KeeganQuestGiver::g_RiverbeastQuests.end(), p_QuestID) != KeeganQuestGiver::g_RiverbeastQuests.end() ||
-             std::find(SagePalunaQuestGiver::g_RiverbeastQuests.begin(), SagePalunaQuestGiver::g_RiverbeastQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_RiverbeastQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::RiverwallowTrainingMountAura))
-            return false;
-    }
-    else if (std::find(KeeganQuestGiver::g_TalbukQuests.begin(), KeeganQuestGiver::g_TalbukQuests.end(), p_QuestID) != KeeganQuestGiver::g_TalbukQuests.end() ||
-             std::find(SagePalunaQuestGiver::g_TalbukQuests.begin(), SagePalunaQuestGiver::g_TalbukQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_TalbukQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::SilverpeltTrainingMountAura))
-            return false;
-    }
-    else if (std::find(KeeganQuestGiver::g_WolfQuests.begin(), KeeganQuestGiver::g_WolfQuests.end(), p_QuestID) != KeeganQuestGiver::g_WolfQuests.end() ||
-             std::find(SagePalunaQuestGiver::g_WolfQuests.begin(), SagePalunaQuestGiver::g_WolfQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_WolfQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::SnarlerTrainingMountAura))
-            return false;
-    }
-
-    return true;
 }
 
 void Player::KilledPlayerCredit()
@@ -22534,6 +22492,11 @@ void Player::_LoadSpells(PreparedQueryResult result)
 
 void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
 {
+    MS::Garrison::Manager* l_GarrisonMgr = GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
     if (p_Result)
     {
         do
@@ -22541,20 +22504,21 @@ void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
             Field* fields = p_Result->Fetch();
 
             uint32 l_NpcEntry = fields[1].GetUInt32();
-            SetGarrisonTavernData(l_NpcEntry);
+            l_GarrisonMgr->SetGarrisonTavernData(l_NpcEntry);
         }
         while (p_Result->NextRow());
     }
     else
     {
-        if (GetGarrison() != nullptr && GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
+
+        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
         {
             if (roll_chance_i(50))
             {
                 uint32 l_Entry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
 
-                CleanGarrisonTavernData();
-                AddGarrisonTavernData(l_Entry);
+                l_GarrisonMgr->CleanGarrisonTavernData();
+                l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
             }
             else
             {
@@ -22565,9 +22529,9 @@ void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
                     l_SecondEntry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
                 while (l_SecondEntry == l_FirstEntry);
 
-                CleanGarrisonTavernData();
-                AddGarrisonTavernData(l_FirstEntry);
-                AddGarrisonTavernData(l_SecondEntry);
+                l_GarrisonMgr->CleanGarrisonTavernData();
+                l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
+                l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
             }
         }
     }
@@ -23418,6 +23382,7 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveCurrency(trans);
     m_archaeologyMgr.SaveArchaeology(trans);
     _SaveCharacterWorldStates(trans);
+    _SaveCharacterGarrisonTavernDatas(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -24215,8 +24180,6 @@ void Player::_SaveCharacterGarrisonTavernDatas(SQLTransaction& p_Transaction)
         l_Stmt->setUInt32(1, l_TavernData);
         p_Transaction->Append(l_Stmt);
     }
-
-    CharacterDatabase.CommitTransaction(p_Transaction);
 }
 
 void Player::outDebugValues() const
@@ -33199,38 +33162,6 @@ void Player::DeleteGarrison()
 
     delete m_Garrison;
     m_Garrison = nullptr;
-}
-
-std::vector<uint32> Player::GetGarrisonTavernDatas()
-{
-    std::vector<uint32> l_GarrisonDatas;
-    if (MS::Garrison::Manager* l_GarrisonMgr = GetGarrison())
-    {
-        for (uint32 l_TavernData : l_GarrisonMgr->GetGarrisonTavernDatas())
-            l_GarrisonDatas.push_back(l_TavernData);
-    }
-
-    return l_GarrisonDatas;
-}
-
-void Player::AddGarrisonTavernData(uint32 p_Data)
-{
-    SetGarrisonTavernData(p_Data);
-
-    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
-    _SaveCharacterGarrisonTavernDatas(l_Transaction);
-}
-
-void Player::SetGarrisonTavernData(uint32 p_Data)
-{
-    if (MS::Garrison::Manager* l_GarrisonMgr = GetGarrison())
-        l_GarrisonMgr->GetGarrisonTavernDatas().push_back(p_Data);
-}
-
-void Player::CleanGarrisonTavernData()
-{
-    if (MS::Garrison::Manager* l_GarrisonMgr = GetGarrison())
-        l_GarrisonMgr->GetGarrisonTavernDatas().clear();
 }
 
 Stats Player::GetPrimaryStat() const
