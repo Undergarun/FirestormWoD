@@ -2646,6 +2646,7 @@ class spell_sha_lava_burst: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_lava_burst_SpellScript);
 
+            bool m_HasLavaSurge = false;
             enum eSpells
             {
                 LavaSurge = 77762,
@@ -2668,6 +2669,13 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     SetHitDamage(int32(GetHitDamage() * 1.5f));
             }
 
+            void HandleBeforeCast()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster->HasAura(eSpells::LavaSurge))
+                    m_HasLavaSurge = true;
+            }
+
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -2676,14 +2684,25 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
                 if (SpellInfo const* l_LavaSurge = sSpellMgr->GetSpellInfo(eSpells::LavaSurge))
                     l_Player->RestoreCharge(l_LavaSurge->ChargeCategoryEntry);
+            }
 
-                if (l_Player->HasAura(eSpells::LavaSurge))
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (l_Player->HasAura(eSpells::LavaSurge) && !m_HasLavaSurge)
+                {
                     if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                         l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
+                }
             }
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_sha_lava_burst_SpellScript::HandleBeforeCast);
+                AfterHit += SpellHitFn(spell_sha_lava_burst_SpellScript::HandleAfterHit);
                 AfterCast += SpellCastFn(spell_sha_lava_burst_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
