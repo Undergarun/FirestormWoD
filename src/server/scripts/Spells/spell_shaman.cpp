@@ -1255,6 +1255,7 @@ class spell_sha_fulmination: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// 77762 - Lava Surge
 class spell_sha_lava_surge: public SpellScriptLoader
 {
@@ -1267,7 +1268,8 @@ class spell_sha_lava_surge: public SpellScriptLoader
 
             enum eSpells
             {
-                LavaBurst = 51505
+                LavaBurst               = 51505,
+                LavaSurgeVisualRight    = 174928
             };
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
@@ -1281,11 +1283,25 @@ class spell_sha_lava_surge: public SpellScriptLoader
 
                 if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                     l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
+
+                l_Player->CastSpell(l_Player, eSpells::LavaSurgeVisualRight, true);
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::LavaSurgeVisualRight))
+                    l_Caster->RemoveAura(eSpells::LavaSurgeVisualRight);
             }
 
             void Register()
             {
                 OnEffectApply += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
