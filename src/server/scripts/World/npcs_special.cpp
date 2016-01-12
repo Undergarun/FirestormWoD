@@ -3141,6 +3141,20 @@ class npc_rate_xp_modifier : public CreatureScript
         }
 };
 
+/// Send current rate XP at login
+class RatesXPWarner : public PlayerScript
+{
+    public:
+        RatesXPWarner() : PlayerScript("RatesXPWarner") {}
+
+        void OnLogin(Player* p_Player)
+        {
+            uint32 l_Rate = p_Player->GetPersonnalXpRate();
+
+            ChatHandler(p_Player).PSendSysMessage(TrinityStrings::CharXPRateWarn, l_Rate);
+        }
+};
+
 /*######
 # npc_demoralizing_banner
 ######*/
@@ -4722,6 +4736,7 @@ void AddSC_npcs_special()
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
     new npc_rate_xp_modifier();
+    new RatesXPWarner();
     new npc_demoralizing_banner();
     new npc_guardian_of_ancient_kings();
     new npc_dire_beast();
