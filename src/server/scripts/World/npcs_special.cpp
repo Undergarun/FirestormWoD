@@ -3117,27 +3117,35 @@ class npc_rate_xp_modifier : public CreatureScript
             OriginalRate
         };
 
-        bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+        struct npc_rate_xp_modifierAI : public ScriptedAI
         {
-            switch (p_Action)
-            {
-                case eOptions::Rate1:
-                    p_Player->SetPersonnalXpRate(1.0f);
-                    break;
-                case eOptions::Rate3:
-                    p_Player->SetPersonnalXpRate(3.0f);
-                    break;
-                case eOptions::Rate5:
-                    p_Player->SetPersonnalXpRate(5.0f);
-                    break;
-                case eOptions::OriginalRate:
-                    p_Player->SetPersonnalXpRate(sWorld->getRate(RATE_XP_KILL));
-                    break;
-                default:
-                    break;
-            }
+            npc_rate_xp_modifierAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            return false;
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eOptions::Rate1:
+                        p_Player->SetPersonnalXpRate(1.0f);
+                        break;
+                    case eOptions::Rate3:
+                        p_Player->SetPersonnalXpRate(3.0f);
+                        break;
+                    case eOptions::Rate5:
+                        p_Player->SetPersonnalXpRate(5.0f);
+                        break;
+                    case eOptions::OriginalRate:
+                        p_Player->SetPersonnalXpRate(sWorld->getRate(RATE_XP_KILL));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_rate_xp_modifierAI(p_Creature);
         }
 };
 
@@ -3145,7 +3153,7 @@ class npc_rate_xp_modifier : public CreatureScript
 class RatesXPWarner : public PlayerScript
 {
     public:
-        RatesXPWarner() : PlayerScript("RatesXPWarner") {}
+        RatesXPWarner() : PlayerScript("RatesXPWarner") { }
 
         void OnLogin(Player* p_Player)
         {
