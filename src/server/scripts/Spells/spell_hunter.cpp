@@ -3531,16 +3531,16 @@ class spell_hun_mend_pet : public SpellScriptLoader
 
 enum ThrilloftheHunt
 {
-    VisualEffect3 = 170622,
+    VisualEffect1 = 170620,
     VisualEffect2 = 170621,
-    VisualEffect1 = 170620
+    VisualEffect3 = 170622
 };
 
 static uint32 const g_VisualSpells[3] =
 {
-    ThrilloftheHunt::VisualEffect1,
+    ThrilloftheHunt::VisualEffect3,
     ThrilloftheHunt::VisualEffect2,
-    ThrilloftheHunt::VisualEffect3
+    ThrilloftheHunt::VisualEffect1
 };
 
 /// last update : 6.1.2 19802
