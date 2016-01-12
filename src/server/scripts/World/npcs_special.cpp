@@ -3117,27 +3117,49 @@ class npc_rate_xp_modifier : public CreatureScript
             OriginalRate
         };
 
-        bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+        struct npc_rate_xp_modifierAI : public ScriptedAI
         {
-            switch (p_Action)
-            {
-                case eOptions::Rate1:
-                    p_Player->SetPersonnalXpRate(1.0f);
-                    break;
-                case eOptions::Rate3:
-                    p_Player->SetPersonnalXpRate(3.0f);
-                    break;
-                case eOptions::Rate5:
-                    p_Player->SetPersonnalXpRate(5.0f);
-                    break;
-                case eOptions::OriginalRate:
-                    p_Player->SetPersonnalXpRate(sWorld->getRate(RATE_XP_KILL));
-                    break;
-                default:
-                    break;
-            }
+            npc_rate_xp_modifierAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            return false;
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eOptions::Rate1:
+                        p_Player->SetPersonnalXpRate(1.0f);
+                        break;
+                    case eOptions::Rate3:
+                        p_Player->SetPersonnalXpRate(3.0f);
+                        break;
+                    case eOptions::Rate5:
+                        p_Player->SetPersonnalXpRate(5.0f);
+                        break;
+                    case eOptions::OriginalRate:
+                        p_Player->SetPersonnalXpRate(sWorld->getRate(RATE_XP_KILL));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_rate_xp_modifierAI(p_Creature);
+        }
+};
+
+/// Send current rate XP at login
+class RatesXPWarner : public PlayerScript
+{
+    public:
+        RatesXPWarner() : PlayerScript("RatesXPWarner") { }
+
+        void OnLogin(Player* p_Player)
+        {
+            uint32 l_Rate = p_Player->GetPersonnalXpRate();
+
+            ChatHandler(p_Player).PSendSysMessage(TrinityStrings::CharXPRateWarn, l_Rate);
         }
 };
 
@@ -4722,6 +4744,7 @@ void AddSC_npcs_special()
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
     new npc_rate_xp_modifier();
+    new RatesXPWarner();
     new npc_demoralizing_banner();
     new npc_guardian_of_ancient_kings();
     new npc_dire_beast();

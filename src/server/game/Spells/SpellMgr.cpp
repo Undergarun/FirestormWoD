@@ -5001,6 +5001,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 1122: ///< Summon Infernal
                 spellInfo->OverrideSpellList.push_back(112921); ///< Summon Abyssal
                 break;
+            case 112921: ///< Summon Abyssal
+                spellInfo->OverrideSpellList.push_back(157899); ///< Summon Abyssal
+                break;
             case 18540: ///< Summon Doomguard
                 spellInfo->OverrideSpellList.push_back(112927); ///< Summon Terrorguard
                 break;
@@ -6778,6 +6781,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             /// ENDOF ULDUAR SPELLS
             ///
+            case 108194: ///< Asphixiate
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
+                break;
             case 49560: ///< Death Grip
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;

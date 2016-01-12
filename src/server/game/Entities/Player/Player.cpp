@@ -1062,6 +1062,11 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_PreviousLocationY = 0;
     m_PreviousLocationZ = 0;
     m_PreviousLocationO = 0;
+
+    for (uint8 l_I = 0; l_I < StoreCallback::MaxDelivery; l_I++)
+        m_StoreDeliveryProcessed[l_I] = false;
+
+    m_StoreDeliverySave = false;
 }
 
 Player::~Player()
@@ -32288,6 +32293,8 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
         case 108499:// Grimoire of Supremacy
             if (!HasAura(108499))
                 AddAura(108499, this);
+            if (HasAura(152107)) ///< Demonic Servitude
+                learnSpell(157901, false);  ///< WARLOCK_GRIMOIRE_INFERNAL
             break;
         case 108501:// Grimoire of Service
             learnSpell(111859, false);  ///< WARLOCK_GRIMOIRE_IMP
@@ -32301,7 +32308,7 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
                 if (HasAura(152107)) ///< Demonic Servitude
                 {
                     learnSpell(157900, false);  ///< WARLOCK_GRIMOIRE_DOOMGUARD
-                    learnSpell(157901, false);  ///< WARLOCK_GRIMOIRE_INFERNAL
+                    learnSpell(157899, false);  ///< WARLOCK_GRIMOIRE_ABYSSAL
                 }
             }
             break;
@@ -32333,6 +32340,8 @@ void Player::RemovePassiveTalentSpell(SpellInfo const* info)
             break;
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
+            if (HasSpell(157899))
+                removeSpell(157899, false, false);  // WARLOCK_GRIMOIRE_ABYSSAL
             break;
         case 108501:// Grimoire of Service
             if (HasSpell(111859))
@@ -33245,13 +33254,11 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
     if (uint32 maxItemLevel = GetUInt32Value(UNIT_FIELD_MAX_ITEM_LEVEL))
         ilvl = std::min(ilvl, maxItemLevel);
 
-    if (GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame())
+    if (!(GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame()))
     {
-        if ((itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY) == 0)
+        if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
             ilvl = 1;
     }
-    else if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
-        ilvl = 1;
 
     return ilvl;
 }
