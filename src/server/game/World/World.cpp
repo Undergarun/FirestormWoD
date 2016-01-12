@@ -278,36 +278,9 @@ void World::SetClosed(bool val)
     sScriptMgr->OnOpenStateChange(!val);
 }
 
-void World::SetMotd(const std::string& motd)
+MotdText const& World::GetMotd() const
 {
-    m_motd = motd;
-
-    sScriptMgr->OnMotdChange(m_motd);
-}
-
-const char* World::GetMotd() const
-{
-    return m_motd.c_str();
-}
-
-const uint32 World::GetMotdLineCount() const
-{
-    std::string::size_type pos, nextpos;
-    uint32 linecount = 0;
-    pos = 0;
-
-    while ((nextpos = m_motd.find('@', pos)) != std::string::npos)
-    {
-        if (nextpos != pos)
-            ++linecount;
-
-        pos = nextpos+1;
-    }
-
-    if (pos < m_motd.length())
-        ++linecount;
-
-    return linecount;
+    return m_Motd;
 }
 
 /// Find a session by its id
@@ -3558,15 +3531,24 @@ void World::ResetBossLooted()
 
 void World::LoadDBMotd()
 {
-    QueryResult l_Result = LoginDatabase.PQuery("SELECT motd FROM realmlist WHERE id = '%d'", g_RealmID);
+    QueryResult l_Result = LoginDatabase.PQuery("SELECT Text, TextFR, TextES, TextRU FROM motd WHERE RealmID = '%d'", g_RealmID);
     if (l_Result)
-        SetMotd(l_Result->Fetch()->GetString());
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        MotdText l_Motd;
+        l_Motd.Text   = l_Fields[0].GetString();
+        l_Motd.TextFR = l_Fields[1].GetString();
+        l_Motd.TextES = l_Fields[2].GetString();
+        l_Motd.TextRU = l_Fields[3].GetString();
+
+        SetDBMotd(l_Motd);
+    }
 }
 
-void World::SetDBMotd(const std::string& p_Motd)
+void World::SetDBMotd(MotdText p_MotdText)
 {
-    LoginDatabase.PQuery("UPDATE realmlist SET motd = '%s' WHERE id = '%d'", p_Motd.c_str(), g_RealmID);
-    SetMotd(p_Motd);
+    m_Motd = p_MotdText;
 }
 
 void World::LoadDBAllowedSecurityLevel()
