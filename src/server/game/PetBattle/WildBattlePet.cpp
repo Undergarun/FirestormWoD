@@ -123,8 +123,11 @@ void WildBattlePetZonePools::OnAddToMap(Creature* p_Creature)
     {
         WildBattlePetPoolTemplate* l_Template = &m_Templates[l_I];
 
-        if (l_Template->Replace == p_Creature->GetEntry() && std::find(l_Template->ToBeReplaced.begin(), l_Template->ToBeReplaced.end(), p_Creature->GetGUID()) == l_Template->ToBeReplaced.end())
+        if (l_Template->Replace == p_Creature->GetEntry() && std::find(l_Template->ToBeReplaced.begin(), l_Template->ToBeReplaced.end(), p_Creature->GetGUID()) == l_Template->ToBeReplaced.end()
+            && l_Template->ReplacedBattlePetInstances.find(p_Creature->GetGUID()) == l_Template->ReplacedBattlePetInstances.end())
+        {
             l_Template->ToBeReplaced.push_back(p_Creature->GetGUID());
+        }
     }
 }
 void WildBattlePetZonePools::OnRemoveToMap(Creature* p_Creature)

@@ -1556,6 +1556,16 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+enum StoreCallback
+{
+    ItemDelivery,
+    GoldDelivery,
+    CurrencyDelivery,
+    LevelDelivery,
+    ProfessionDelivery,
+    MaxDelivery
+};
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -3641,6 +3651,13 @@ class Player : public Unit, public GridObject<Player>
         bool IsSummoned() const { return m_Summoned; }
         void FinishSummon() { m_Summoned = false; }
         void BeginSummon() { m_Summoned = true; }
+
+        /// Store callback
+        bool IsStoreDeliverySaved() const { return m_StoreDeliverySave; }
+        bool IsStoreDeliveryProccesed(StoreCallback p_DeliveryType) const { return m_StoreDeliveryProcessed[p_DeliveryType]; }
+
+        void SetStoreDeliverySaved() { m_StoreDeliverySave = true; }
+        void SetStoreDeliveryProccesed(StoreCallback p_DeliveryType) { m_StoreDeliveryProcessed[p_DeliveryType] = true; }
         
     protected:
         void OnEnterPvPCombat();
@@ -4080,9 +4097,12 @@ class Player : public Unit, public GridObject<Player>
 
         MS::Skill::Archaeology::Manager m_archaeologyMgr;
 
-        // Store callback
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
+
+        /// Store callback
+        bool m_StoreDeliveryProcessed[StoreCallback::MaxDelivery];
+        bool m_StoreDeliverySave;
 
         uint8 m_bgRoles;
 

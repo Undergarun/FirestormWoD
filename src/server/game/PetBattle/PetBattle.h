@@ -474,6 +474,8 @@ struct PetBattleEvent
 
     /// Make an health update
     PetBattleEvent& UpdateHealth(int8 p_TargetPetID, int32 p_Health);
+    /// Make an max health update
+    PetBattleEvent& UpdateMaxHealth(int8 p_TargetPetID, int32 p_MaxHealth);
     /// Make an state update
     PetBattleEvent& UpdateState(int8 p_TargetPetID, uint32 p_StateID, int32 p_Value);
     /// Make an front pet change

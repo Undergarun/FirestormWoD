@@ -1062,6 +1062,11 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_PreviousLocationY = 0;
     m_PreviousLocationZ = 0;
     m_PreviousLocationO = 0;
+
+    for (uint8 l_I = 0; l_I < StoreCallback::MaxDelivery; l_I++)
+        m_StoreDeliveryProcessed[l_I] = false;
+
+    m_StoreDeliverySave = false;
 }
 
 Player::~Player()
