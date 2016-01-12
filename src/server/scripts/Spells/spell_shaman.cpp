@@ -2872,7 +2872,7 @@ class spell_sha_riptide : public SpellScriptLoader
                     l_BonusHealPct += l_UnleashFurry->Effects[EFFECT_0].BasePoints;
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
-                    l_BonusHealPct += l_UnleashFurry->Effects[EFFECT_2].BasePoints;
+                    l_BonusHealPct += l_UnleashLife->Effects[EFFECT_2].BasePoints;
 
                 SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_BonusHealPct));
             }
