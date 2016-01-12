@@ -3158,6 +3158,14 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* p_AurApp, uint8 p_M
             break;
     }
 
+    /// Glyph of Strangulate - 58618
+    /// Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
+    if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618) && l_Target->HasUnitState(UnitState::UNIT_STATE_CASTING))
+    {
+        p_AurApp->GetBase()->SetMaxDuration(p_AurApp->GetBase()->GetMaxDuration() + 2000);
+        p_AurApp->GetBase()->RefreshDuration();
+    }
+
     if (p_Apply)
     {
         l_Target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
@@ -3173,14 +3181,6 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* p_AurApp, uint8 p_M
                 if (spell->m_spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::Pacify))
                     l_Target->InterruptSpell(CurrentSpellTypes(i), false);
             }
-        }
-
-        // Glyph of Strangulate - 58618
-        // Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
-        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618) && l_Target->HasUnitState(UnitState::UNIT_STATE_CASTING))
-        {
-            p_AurApp->GetBase()->SetMaxDuration(p_AurApp->GetBase()->GetMaxDuration() + 2000);
-            p_AurApp->GetBase()->RefreshDuration();
         }
 
         /// Item - Warlock WoD PvP Affliction 2P Bonus
