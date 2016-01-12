@@ -88,6 +88,7 @@
 
 uint32 gOnlineGameMaster = 0;
 #include "GarrisonShipmentManager.hpp"
+#include "GarrisonMgr.hpp"
 #include "ChatLexicsCutter.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
@@ -3483,7 +3484,9 @@ void World::ResetGarrisonDatas()
 
         if (l_Player)
         {
-            l_Player->CleanGarrisonTavernData();
+            if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+                l_GarrisonMgr->CleanGarrisonTavernData();
+
             l_Player->ResetGarrisonDatas();
         }
     }

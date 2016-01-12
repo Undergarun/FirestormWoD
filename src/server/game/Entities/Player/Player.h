@@ -1642,11 +1642,6 @@ class Player : public Unit, public GridObject<Player>
         int32 GetGarrisonMapID() const;
         int32 GetShipyardMapID() const;
         void DeleteGarrison();
-        std::vector<uint32> GetGarrisonTavernDatas();
-        void AddGarrisonTavernData(uint32 p_Data);
-        void SetGarrisonTavernData(uint32 p_Data);
-        void CleanGarrisonTavernData();
-        bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID);
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 
