@@ -52,9 +52,9 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_GUARD               = 0x00008000,       ///< Creature is guard
     CREATURE_FLAG_EXTRA_NO_CRIT             = 0x00020000,       ///< creature can't do critical strikes
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN        = 0x00040000,       ///< creature won't increase weapon skills
-    CREATURE_FLAG_EXTRA_TAUNT_DIMINISH      = 0x00080000,       ///< Taunt is a subject to diminishing returns on this creautre
+    CREATURE_FLAG_EXTRA_TAUNT_DIMINISH      = 0x00080000,       ///< Taunt is a subject to diminishing returns on this creautre·
     CREATURE_FLAG_EXTRA_ALL_DIMINISH        = 0x00100000,       ///< Creature is subject to all diminishing returns as player are
-    CREATURE_FLAG_EXTRA_DUNGEON_BOSS        = 0x10000000,       ///< creature is a dungeon boss (SET DYNAMICALLY, DO NOT ADD IN DB)
+    CREATURE_FLAG_EXTRA_DUNGEON_BOSS        = 0x10000000,       ///< creature is a dungeon boss
     CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING  = 0x20000000,       ///< creature ignore pathfinding (NYI)
     CREATURE_FLAG_EXTRA_DUNGEON_END_BOSS    = 0x40000000        ///< Creature is the last boss of the dungeon where he is
 };
@@ -64,7 +64,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_CRUSH | CREATURE_FLAG_EXTRA_NO_XP_AT_KILL | CREATURE_FLAG_EXTRA_TRIGGER | \
     CREATURE_FLAG_EXTRA_NO_TAUNT | CREATURE_FLAG_EXTRA_WORLDEVENT | CREATURE_FLAG_EXTRA_NO_CRIT | \
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
-    CREATURE_FLAG_EXTRA_GUARD)
+    CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_DUNGEON_END_BOSS | CREATURE_FLAG_EXTRA_DUNGEON_BOSS)
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
