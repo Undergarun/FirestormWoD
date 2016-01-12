@@ -3393,7 +3393,7 @@ void ObjectMgr::LoadPetStatInfo()
     l_DefaultPetStat.m_Speed             = 1.14f;
     l_DefaultPetStat.m_PowerStat         = PetStatInfo::PowerStatBase::SpellPower;
     l_DefaultPetStat.m_ArmorCoef         = 1.0f;
-    l_DefaultPetStat.m_APSPCoef          = 0.5f;
+    l_DefaultPetStat.m_APSPCoef          = 1.0f;
     l_DefaultPetStat.m_HealthCoef        = 0.7f;
     l_DefaultPetStat.m_DamageCoef        = 0.85f;
     l_DefaultPetStat.m_AttackSpeed       = 2.0f;
