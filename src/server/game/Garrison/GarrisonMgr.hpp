@@ -107,7 +107,7 @@ namespace MS { namespace Garrison
             /// Get plot instance ID by activation game object
             uint32 GetPlotInstanceIDByActivationGameObject(uint64 p_Guid) const;
             /// Return Daily Tavern Datas
-            std::vector<uint32> GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
+            std::vector<uint32>& GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
 
             /// Add mission
             bool AddMission(uint32 p_MissionRecID);
@@ -209,6 +209,12 @@ namespace MS { namespace Garrison
             uint32 GetGarrisonID() { return m_ID; };
             /// Get Garrison Level
             uint32 GetGarrisonLevel() { return m_GarrisonLevel; };
+            /// Check if the players has the right mount
+            bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID, Player* p_Player);
+
+            void AddGarrisonTavernData(uint32 p_Data);
+            void SetGarrisonTavernData(uint32 p_Data);
+            void CleanGarrisonTavernData();
 
             /// Get known blueprints
             std::vector<int32> GetKnownBlueprints() const;

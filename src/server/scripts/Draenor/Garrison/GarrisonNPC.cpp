@@ -331,6 +331,7 @@ namespace MS { namespace Garrison
             {
                 m_BuildingID = p_Value;
                 OnSetBuildingID(m_BuildingID);
+                break;
             }
             case CreatureAIDataIDs::DailyReset:
                 OnDataReset();

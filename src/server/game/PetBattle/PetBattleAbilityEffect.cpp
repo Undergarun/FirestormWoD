@@ -255,11 +255,11 @@ static PetBattleAbilityEffectHandler Handlers[MAX_PETBATTLE_EFFECT_TYPES] =
     /* EFFECT 219 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 220 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 221 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
-    /* EFFECT 222 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
+    /* EFFECT 222 */{&PetBattleAbilityEffect::HandleDamageUnk,                  PETBATTLE_TARGET_TARGET},
     /* EFFECT 223 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 224 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 225 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
-    /* EFFECT 226 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
+    /* EFFECT 226 */{&PetBattleAbilityEffect::HandleDamageWithBonus,            PETBATTLE_TARGET_NONE},
     /* EFFECT 227 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 228 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 229 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
@@ -1695,4 +1695,25 @@ bool PetBattleAbilityEffect::HandleDamagePercentTaken()
 
     int32 damage = CalculateDamage(CalculatePct(GetState(Caster, BATTLEPET_STATE_Last_HitTaken), EffectInfo->prop[0]));
     return Damage(Target, damage);
+}
+
+bool PetBattleAbilityEffect::HandleDamageUnk()
+{
+    CalculateHit(EffectInfo->prop[1]);
+
+    /// @TODO figure out prop[2]
+
+    return Damage(Target, CalculateDamage(EffectInfo->prop[0]));
+}
+
+bool PetBattleAbilityEffect::HandleDamageWithBonus()
+{
+    CalculateHit(EffectInfo->prop[1]);
+
+    uint32 l_Damage = CalculateDamage(EffectInfo->prop[0]);
+
+    if (EffectInfo->prop[4] && GetState(Caster, EffectInfo->prop[4]))
+        l_Damage += CalculateDamage(EffectInfo->prop[2]);
+
+    return Damage(Target, l_Damage);
 }
