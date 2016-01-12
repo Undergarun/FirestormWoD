@@ -1712,7 +1712,7 @@ bool PetBattleAbilityEffect::HandleDamageWithBonus()
 
     uint32 l_Damage = CalculateDamage(EffectInfo->prop[0]);
 
-    if (EffectInfo->prop[4] && GetState(Caster, EffectInfo->prop[4]))
+    if (EffectInfo->prop[3] && GetState(Caster, EffectInfo->prop[3]))
         l_Damage += CalculateDamage(EffectInfo->prop[2]);
 
     return Damage(Target, l_Damage);
