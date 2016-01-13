@@ -309,6 +309,8 @@ class boss_twin_ogron_pol : public CreatureScript
 
             void EnterEvadeMode() override
             {
+                me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+
                 CreatureAI::EnterEvadeMode();
 
                 if (m_Instance != nullptr)
