@@ -14009,13 +14009,23 @@ bool Unit::IsValidAssistTarget(Unit const* target) const
 }
 
 // function based on function Unit::CanAssist from 13850 client
-bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) const
+bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell, bool duelFlag) const
 {
     ASSERT(target);
 
     // can assist to self
     if (this == target)
         return true;
+
+    /// on duel, the healing spells should not proc on other target than caster
+    if (duelFlag && GetSpellModOwner() && GetSpellModOwner()->m_Duel)
+    {
+        if (target->GetSpellModOwner() == nullptr)
+            return false;
+
+        if (GetSpellModOwner()->GetGUID() != target->GetSpellModOwner()->GetGUID())
+            return false;
+    }
 
     // can't assist unattackable units or GMs
     if (target->HasUnitState(UNIT_STATE_UNATTACKABLE)

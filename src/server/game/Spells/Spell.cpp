@@ -9227,7 +9227,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
             case TARGET_CHECK_ALLY:
                 if (unitTarget->isTotem())
                     return false;
-                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo))
+                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo, false))
                     return false;
                 break;
             case TARGET_CHECK_PARTY:
