@@ -11122,6 +11122,17 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(unit, targetList, u_check);
             unit->VisitNearbyObject(6.0f, searcher);
 
+            targetList.remove_if([this, unit](WorldObject* p_Object) -> bool
+            {
+                if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                    return true;
+
+                if (!unit->IsValidAssistTarget(p_Object->ToUnit()))
+                    return true;
+
+                return false;
+            });
+
             if (!targetList.empty())
             {
                 targetList.sort(JadeCore::HealthPctOrderPred());
