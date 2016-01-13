@@ -13177,18 +13177,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             DoneTotalMod += CalculatePct(1.0, amount);
     }
 
-    /// 76806 - Mastery : Main Gauche
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == WeaponAttackType::BaseAttack)
-    {
-        if (AuraEffectPtr l_AurEff = GetAuraEffect(76806, EFFECT_0, GetGUID()))
-        {
-            float l_Mastery = (float)l_AurEff->GetAmount();
-
-            if (roll_chance_f(l_Mastery))
-                CastSpell(victim, 86392, true);
-        }
-    }
-
     /// Custom WoD Script - Glyph of Frostbrand Weapon
     if (GetTypeId() == TYPEID_PLAYER && victim && ToPlayer()->getClass() == CLASS_SHAMAN && ToPlayer()->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT && attType == WeaponAttackType::BaseAttack)
     {
@@ -16728,7 +16716,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             continue;
         ProcTriggeredData triggerData(itr->second->GetBase());
         // Defensive procs are active on absorbs (so absorption effects are not a hindrance)
-        bool active = damage || (procExtra & PROC_EX_BLOCK && isVictim);
+        bool active = (damage + absorb) || (procExtra & PROC_EX_BLOCK && isVictim);
         if (isVictim)
             procExtra &= ~PROC_EX_INTERNAL_REQ_FAMILY;
 
@@ -16741,7 +16729,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 if (spellProto->Effects[i].TriggerSpell)
                     triggerSpell = true;
 
-            if (damage || triggerSpell)
+            if ((damage + absorb) || triggerSpell)
                 active = true;
         }
 
@@ -18036,13 +18024,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
     // Check spellProcEvent data requirements
     if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
-        /// Hack Fix Grimoire of Synergy can be triggered if damage is absorbed
-        if (spellProto && spellProto->Id == 171975 && procSpell && procExtra && (procExtra & PROC_EX_ABSORB))
-            return true;
-        // Hack Fix Backdraft can be triggered if damage is absorbed
-        else if (spellProto && spellProto->Id == 117896 && procSpell && procSpell->Id == 17962 && procExtra && (procExtra & PROC_EX_ABSORB))
-            return true;
-        else if (spellProto && spellProto->Id == 44448 && procSpell &&
+        if (spellProto && spellProto->Id == 44448 && procSpell &&
             (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
             return true;
         // Hack fix Mutilate can Trigger Blindside

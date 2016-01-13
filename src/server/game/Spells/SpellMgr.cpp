@@ -1018,8 +1018,8 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     // Check for extra req (if none) and hit/crit
     if (procEvent_procEx == PROC_EX_NONE)
     {
-        // No extra req, so can trigger only for hit/crit - spell has to be active
-        if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && active)
+        // No extra req, so can trigger only for hit/crit/absorb - spell has to be active
+        if ((procExtra & (PROC_EX_NORMAL_HIT | PROC_EX_CRITICAL_HIT | PROC_EX_ABSORB)) && active)
             return true;
     }
     else // Passive spells hits here only if resist/reflect/immune/evade
@@ -1036,7 +1036,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             if (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS)
                 return true;
             // PROC_EX_NOT_ACTIVE_SPELL and PROC_EX_ONLY_ACTIVE_SPELL flags handle: if passed checks before
-            if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && ((procEvent_procEx & (AURA_SPELL_PROC_EX_MASK)) == 0))
+            if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT|PROC_EX_ABSORB)) && ((procEvent_procEx & (AURA_SPELL_PROC_EX_MASK)) == 0))
                 return true;
         }
         // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
