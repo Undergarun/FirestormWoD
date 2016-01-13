@@ -678,6 +678,15 @@ struct QueryHolderCallback
     std::function<void(SQLQueryHolder*)>   m_Callback;
 };
 
+
+struct MotdText
+{
+    std::string Text;
+    std::string TextFR;
+    std::string TextES;
+    std::string TextRU;
+};
+
 /// The World
 class World
 {
@@ -742,14 +751,10 @@ class World
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
 
         void LoadDBMotd();
-        void SetDBMotd(const std::string&);
+        void SetDBMotd(MotdText p_MotdText);
 
-        /// Set a new Message of the Day
-        void SetMotd(const std::string& motd);
         /// Get the current Message of the Day
-        const char* GetMotd() const;
-        /// Get lines count of current Message of the Day
-        const uint32 GetMotdLineCount() const;
+        MotdText const& GetMotd() const;
 
         /// Set the string for new characters (first login)
         void SetNewCharString(std::string str) { m_newCharString = str; }
@@ -1048,9 +1053,9 @@ class World
         uint32 m_availableDbcLocaleMask;                       // by loaded DBC
         void DetectDBCLang();
         bool m_allowMovement;
-        std::string m_motd;
         std::string m_dataPath;
         BuildInfo m_LastBuild;
+        MotdText m_Motd;
 
         // for max speed access
         static float m_MaxVisibleDistanceOnContinents;
@@ -1086,7 +1091,15 @@ class World
         // used versions
         std::string m_DBVersion;
 
-        std::list<std::string> m_Autobroadcasts;
+        struct AutoBroadcastText
+        {
+            std::string Text;
+            std::string TextFR;
+            std::string TextRU;
+            std::string TextES;
+        };
+
+        std::list<AutoBroadcastText> m_Autobroadcasts;
 
         std::map<uint32, CharacterNameData> _characterNameDataMap;
         void LoadCharacterNameData();

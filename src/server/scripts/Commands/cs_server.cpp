@@ -69,7 +69,6 @@ public:
         {
             { "difftime",       SEC_CONSOLE,        true,  &HandleServerSetDiffTimeCommand,         "", NULL },
             { "loglevel",       SEC_CONSOLE,        true,  &HandleServerSetLogLevelCommand,         "", NULL },
-            { "motd",           SEC_ADMINISTRATOR,  true,  &HandleServerSetMotdCommand,             "", NULL },
             { "closed",         SEC_ADMINISTRATOR,  true,  &HandleServerSetClosedCommand,           "", NULL },
             { NULL,             0,                  false, NULL,                                    "", NULL }
         };
@@ -144,7 +143,7 @@ public:
     // Display the 'Message of the day' for the realm
     static bool HandleServerMotdCommand(ChatHandler* handler, char const* /*args*/)
     {
-        handler->PSendSysMessage(LANG_MOTD_CURRENT, sWorld->GetMotd());
+        handler->PSendSysMessage(LANG_MOTD_CURRENT, sWorld->GetMotd().Text.c_str());
         return true;
     }
 
@@ -239,16 +238,6 @@ public:
     {
         handler->SendSysMessage(LANG_COMMAND_EXIT);
         World::StopNow(SHUTDOWN_EXIT_CODE);
-        return true;
-    }
-
-    // Define the 'Message of the day' for the realm
-    static bool HandleServerSetMotdCommand(ChatHandler* p_Handler, char const* p_Args)
-    {
-        std::string l_Motd(p_Args);
-
-        sWorld->SetDBMotd(l_Motd);
-        p_Handler->PSendSysMessage(LANG_MOTD_NEW, l_Motd.c_str());
         return true;
     }
 
