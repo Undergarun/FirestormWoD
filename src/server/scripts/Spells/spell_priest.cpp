@@ -1277,6 +1277,19 @@ public:
                 if (!l_Owner->HasAura(eSpells::WordOfMendingProc))
                     l_Owner->CastSpell(l_Owner, eSpells::WordOfMendingStack, true);
             }
+
+            Player* l_OwnerPlayer = l_Owner->ToPlayer();
+            Player* l_TargetPlayer = l_Target->ToPlayer();
+
+            if (l_OwnerPlayer == nullptr || l_TargetPlayer == nullptr)
+                return;
+
+            /// 11 seconds in PvP
+            if (l_OwnerPlayer->IsInPvPCombat() || l_TargetPlayer->IsInPvPCombat())
+            {
+                if (AuraPtr l_AuraPtr = l_Target->GetAura(GetSpellInfo()->Id))
+                    l_AuraPtr->SetDuration(11 * IN_MILLISECONDS);
+            }
         }
 
         void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_ShieldValue*/)
