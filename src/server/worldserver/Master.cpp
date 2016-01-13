@@ -85,7 +85,7 @@ public:
     FreezeDetectorRunnable()
     {
         m_Delaytime = 0;
-        m_CanStop = true;
+        m_CanStop = false;
     }
 
     uint32 m_loops, m_lastchange;
