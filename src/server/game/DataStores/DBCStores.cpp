@@ -1526,7 +1526,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         p_Instructions.push_back("call GetWorldStateValue");
 #endif
 
-        if (p_Player && sWorldStateStore.LookupEntry(l_WorldStateID))
+        if (p_Player)
             return p_Player->GetWorldState(l_WorldStateID);
     }
     else if(l_OpType == WorldStateExpressionCustomOpType::CallFunction)
@@ -1538,7 +1538,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         int l_Arg2 = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
 
         if (l_FunctionID > (sizeof(g_WorldStateExpressionFunction) / sizeof(g_WorldStateExpressionFunction[0])))
-            return 0;
+            return 0xCDCDCDCD;
 
 #ifdef _MSC_VER
         p_Instructions.push_back("push " + std::to_string(l_Arg1));
@@ -1549,7 +1549,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         return g_WorldStateExpressionFunction[l_FunctionID](p_Player, l_Arg1, l_Arg2);
     }
 
-    return 0;
+    return 0xCDCDCDCD;
 #undef UNPACK_INT32
 #undef UNPACK_UINT8
 }
