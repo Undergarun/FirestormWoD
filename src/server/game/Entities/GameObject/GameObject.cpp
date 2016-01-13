@@ -2537,6 +2537,16 @@ void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* 
         *ori = GetOrientation();
 }
 
+Transport* GameObject::ToTransport()
+{
+    return dynamic_cast<Transport*>(this);
+}
+
+Transport const* GameObject::ToTransport() const
+{
+    return dynamic_cast<Transport const*>(this);
+}
+
 void GameObject::SendTransportToOutOfRangePlayers() const
 {
     Map::PlayerList const& players = GetMap()->GetPlayers();
