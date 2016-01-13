@@ -14,7 +14,7 @@ before_install:
   - sudo add-apt-repository ppa:kalakris/cmake -y
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get -qq update
-  - sudo apt-get -qq install build-essential gcc-4.8 g++-4.8 make cmake openssl
+  - sudo apt-get -qq install build-essential gcc-5 g++-5 make cmake openssl
   - sudo apt-get -qq install libmysqlclient-dev libmysql++-dev libssl-dev libace-dev libreadline6-dev zlib1g-dev libbz2-dev libtool
 
 install:
