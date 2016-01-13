@@ -6911,7 +6911,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 108415: ///< Soul Link
             case 108446:
-                spellInfo->AttributesEx8 &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
+                spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 break;
             default:
                 break;

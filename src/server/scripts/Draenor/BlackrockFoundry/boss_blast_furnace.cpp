@@ -2126,6 +2126,13 @@ class npc_foundry_slag_elemental : public CreatureScript
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
+                /// Prevent damage taken after fake death
+                if (me->GetReactState() == ReactStates::REACT_PASSIVE)
+                {
+                    p_Damage = 0;
+                    return;
+                }
+
                 if (p_Damage >= me->GetHealth() && me->GetReactState() != ReactStates::REACT_PASSIVE)
                 {
                     me->SetReactState(ReactStates::REACT_PASSIVE);
