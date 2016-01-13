@@ -1538,7 +1538,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         int l_Arg2 = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
 
         if (l_FunctionID > (sizeof(g_WorldStateExpressionFunction) / sizeof(g_WorldStateExpressionFunction[0])))
-            return 0xCDCDCDCD;
+            return (uint32)-1;
 
 #ifdef _MSC_VER
         p_Instructions.push_back("push " + std::to_string(l_Arg1));
@@ -1549,7 +1549,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         return g_WorldStateExpressionFunction[l_FunctionID](p_Player, l_Arg1, l_Arg2);
     }
 
-    return 0xCDCDCDCD;
+    return (uint32)-1;
 #undef UNPACK_INT32
 #undef UNPACK_UINT8
 }
