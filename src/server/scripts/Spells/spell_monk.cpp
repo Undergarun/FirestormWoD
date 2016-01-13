@@ -2086,6 +2086,17 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 /// Remove friendly unit with already renewing mist apply
                 l_FriendlyUnitList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
 
+                l_FriendlyUnitList.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
                 /// Sort friendly unit by pourcentage of health and get the most injured
                 if (l_FriendlyUnitList.size() > 1)
                 {
