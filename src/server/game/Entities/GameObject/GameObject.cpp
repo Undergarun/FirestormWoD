@@ -153,17 +153,14 @@ void GameObject::AddToWorld()
 
         sObjectAccessor->AddObject(this);
 
-        // The state can be changed after GameObject::Create but before GameObject::AddToWorld
-        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
-        if (m_model)
-            GetMap()->InsertGameObjectModel(*m_model);
-
         if (GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
         {
             GetMap()->AddGameObjectTransport(this);
             SendTransportToOutOfRangePlayers();
         }
 
+        // The state can be changed after GameObject::Create but before GameObject::AddToWorld
+        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
         if (m_model)
         {
             if (Transport* trans = ToTransport())
