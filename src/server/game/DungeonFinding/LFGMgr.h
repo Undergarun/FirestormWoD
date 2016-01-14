@@ -407,6 +407,7 @@ class LFGMgr
         uint32 m_NumWaitTimeHealer;                        ///< Num of players used to calc healers wait time
         uint32 m_NumWaitTimeDps;                           ///< Num of players used to calc dps wait time
         LfgDungeonMap m_CachedDungeonMap;                  ///< Stores all dungeons by groupType
+        LfgDungeonSet m_InvalidDungeons;                   ///< Stores dungeons which don't fill conditions for AccessRequirement, LFRAccessRequirement, LfgEntrancePositionMap
         LfgEntrancePositionMap m_entrancePositions;        ///< Stores special entrance positions
         // Reward System
         LfgRewardMap m_RewardMap;                          ///< Stores rewards for random dungeons

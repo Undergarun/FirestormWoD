@@ -543,6 +543,9 @@ void LFGMgr::InitializeLockedDungeons(Player* p_Player)
     LfgDungeonSet l_Dungeons    = GetDungeonsByRandom(0);
     LfgLockMap l_Lock;
 
+    for (uint32 l_InvalidDungeonID : m_InvalidDungeons)
+        l_Dungeons.insert(l_InvalidDungeonID);
+
     for (LfgDungeonSet::const_iterator l_Iter = l_Dungeons.begin(); l_Iter != l_Dungeons.end(); ++l_Iter)
     {
         LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(*l_Iter);
@@ -720,6 +723,16 @@ void LFGMgr::InitializeLockedDungeons(Player* p_Player)
 
         if (l_LockData.lockstatus != LFG_LOCKSTATUS_OK)
             l_Lock[l_Dungeon->Entry()] = l_LockData;
+
+        if (std::find(m_InvalidDungeons.begin(), m_InvalidDungeons.end(), l_Dungeon->ID) != m_InvalidDungeons.end())
+        {
+            /// Those ones are invalid because of : AccessRequirement, LFRAccessRequirement, or LfgEntrancePositionMap and must not be sent to client
+            /// Data are placeholder, cannot add any custom lockstatus
+            l_LockData.lockstatus = LFG_LOCKSTATUS_OK;
+            l_LockData.SubReason1 = 0;
+            l_LockData.SubReason2 = 0;
+            l_Lock[l_Dungeon->Entry()] = l_LockData;
+        }
     }
 
     SetLockedDungeons(l_Guid, l_Lock);
@@ -2498,8 +2511,8 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
 {
     LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(p_RandDungeon);
     uint32 l_GroupType = l_Dungeon ? l_Dungeon->grouptype : 0;
-
     LfgDungeonSet& l_CachedDungeon = m_CachedDungeonMap[l_GroupType];
+
     for (LfgDungeonSet::const_iterator l_Iter = l_CachedDungeon.begin(); l_Iter != l_CachedDungeon.end();)
     {
         l_Dungeon = sLFGDungeonStore.LookupEntry(*l_Iter);
@@ -2508,6 +2521,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
             LfgEntrancePositionMap::const_iterator l_Itr = m_entrancePositions.find(l_Dungeon->ID);
             if (l_Itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(l_Dungeon->map))
             {
+                m_InvalidDungeons.insert(*l_Iter);
                 l_CachedDungeon.erase(l_Iter++);
                 continue;
             }
@@ -2516,6 +2530,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
             {
                 if (l_AccessReq->levelMin > MAX_LEVEL || l_AccessReq->levelMax > MAX_LEVEL)
                 {
+                    m_InvalidDungeons.insert(*l_Iter);
                     l_CachedDungeon.erase(l_Iter++);
                     continue;
                 }
@@ -2525,6 +2540,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
             {
                 if (l_LFRAccessReq->LevelMin > MAX_LEVEL || l_LFRAccessReq->LevelMax > MAX_LEVEL)
                 {
+                    m_InvalidDungeons.insert(*l_Iter);
                     l_CachedDungeon.erase(l_Iter++);
                     continue;
                 }
