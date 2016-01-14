@@ -85,6 +85,7 @@
 #include "PlayerDump.h"
 #include "TransportMgr.h"
 #include "BattlepayMgr.h"
+#include <ctime>
 
 uint32 gOnlineGameMaster = 0;
 #include "GarrisonShipmentManager.hpp"
@@ -2348,7 +2349,7 @@ void World::Update(uint32 diff)
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
         {
-            LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
+            LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u, lastupdate=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), std::time(nullptr), g_RealmID);
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
@@ -2366,7 +2367,7 @@ void World::Update(uint32 diff)
         m_serverDelaySum = 0;
         m_serverUpdateCount = 0;
         
-        LoginDatabase.PExecute("UPDATE realmlist set delay=%u where id=%u", delay, g_RealmID);
+        LoginDatabase.PExecute("UPDATE realmlist set delay=%u, lastupdate=%u where id=%u", delay, std::time(nullptr), g_RealmID);
         m_serverDelayTimer -= m_int_configs[CONFIG_INTERVAL_LOG_UPDATE];
     }
     else
