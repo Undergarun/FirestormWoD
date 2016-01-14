@@ -3336,7 +3336,13 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victi
 
 void Unit::_DeleteRemovedAuras()
 {
-    m_removedAuras.clear();
+    while (!m_removedAuras.empty())
+    {
+        AuraPtr l_Aura = m_removedAuras.front();
+        l_Aura->Delink();
+        l_Aura.reset();
+        m_removedAuras.pop_front();
+    }
 }
 
 void Unit::_UpdateSpells(uint32 time)
