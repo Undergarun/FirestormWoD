@@ -2366,7 +2366,7 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
 
                 if (!(l_Caster->HasAura(eSpells::ImprovedLightningShield) && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::LavaBust))
                 {
-                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::LightningBolt && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ChainLightning)
+                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::LightningBolt && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ChainLightning && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != 114074)
                         return;
                 }
 
