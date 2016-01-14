@@ -7994,7 +7994,7 @@ void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
     if (l_Target == nullptr)
         l_Target = m_caster;
 
-    m_caster->CastSpell(l_Target, l_SpellInfo->Id, true);
+    m_caster->CastSpell(l_Target, l_SpellInfo->Id, false);
 }
 
 void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)

@@ -130,6 +130,9 @@ enum eFoundryGameObjects
     StampingPress01             = 229591,
     StampingPress02             = 229592,
     StampingPress03             = 229593,
+    ConveyorBelt006             = 233238,
+    ConveyorBelt007             = 233239,
+    ConveyorBelt008             = 233240,
     /// Iron Assembly - Part 3
     IronAssembleyGate           = 238837,
     /// Blackhand's Crucible - Part 4
@@ -157,9 +160,10 @@ enum eFoundryDatas
 
     /// Misc
     PristineTrueIronOres    = 0,
-    VolatileOreGrinded      = 1,
-    PrimalElementalistTime  = 2,
-    PlayerStamped           = 3,
+    VolatileOreGrinded,
+    PrimalElementalistTime,
+    PlayerStamped,
+    IronTaskmasterAggro,
 
     /// Counters
     /// Gruul
@@ -191,7 +195,8 @@ enum eFoundryVisuals
 {
     CrucibleVisuals = 6922,
     ConveyorsStart  = 7621,
-    ConveyorsStop   = 7336
+    ConveyorsStop   = 7336,
+    ConveyorsStart2 = 6975
 };
 
 #endif

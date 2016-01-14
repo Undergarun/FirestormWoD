@@ -2558,6 +2558,9 @@ void GameObject::SendTransportToOutOfRangePlayers() const
 
 void GameObject::SendGameObjectActivateAnimKit(uint32 p_AnimKitID, bool p_Maintain /*= true*/, Player* p_Target /*= nullptr*/)
 {
+    /// It'll be sent in CreateObject
+    SetAIAnimKitId(p_AnimKitID, false);
+
     WorldPacket l_Data(Opcodes::SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(p_AnimKitID);
