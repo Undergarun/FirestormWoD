@@ -210,6 +210,8 @@ class Aura : public std::enable_shared_from_this<Aura>
         void TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         SpellPowerEntry const* GetSpellPowerData() const { return m_spellPowerData; }
 
+        void Delink();
+
         // AuraScript
         void LoadScripts();
         bool CallScriptCheckAreaTargetHandlers(Unit* target);
