@@ -3964,7 +3964,6 @@ enum eForceOfNatureSpells
     SPELL_TREANT_SWIFTMEND      = 142421,
     SPELL_TREANT_HEAL           = 113828,
     SPELL_TREANT_WRATH          = 113769,
-    SPELL_TREANT_EFFLORESCENCE  = 142424
 };
 
 class npc_force_of_nature : public CreatureScript
@@ -4059,37 +4058,6 @@ class npc_force_of_nature : public CreatureScript
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_force_of_natureAI(pCreature);
-        }
-};
-
-/// Swiftmend - 142423
-class spell_special_swiftmend: public SpellScriptLoader
-{
-    public:
-        spell_special_swiftmend() : SpellScriptLoader("spell_special_swiftmend") { }
-
-        class spell_special_swiftmend_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_special_swiftmend_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_TREANT_SWIFTMEND))
-                        caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_TREANT_EFFLORESCENCE, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_special_swiftmend_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_special_swiftmend_AuraScript();
         }
 };
 
@@ -4757,7 +4725,6 @@ void AddSC_npcs_special()
     new npc_void_tendrils();
     new npc_spectral_guise();
     new npc_force_of_nature();
-    new spell_special_swiftmend();
     new npc_luo_meng();
     new npc_monk_spirit();
     new npc_rogue_decoy();

@@ -9897,7 +9897,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
 
             l_Packet << uint32(p_CurrencyID);
             l_Packet << uint32(l_NewTotalCount);
-            l_Packet << uint32(0);                        // Flags
+            l_Packet << uint32(l_CurrencyIT->second.flags);
 
             l_Packet.WriteBit(l_WeekCap != 0);
             l_Packet.WriteBit(l_CurrencyIT->second.seasonTotal);

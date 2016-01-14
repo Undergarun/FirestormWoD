@@ -173,6 +173,14 @@ class DatabaseWorkerPool
         //! Statement must be prepared with CONNECTION_ASYNC flag.
         void Execute(PreparedStatement* stmt)
         {
+            if (stmt->getIndex() == 0)
+            {
+                ACE_Stack_Trace l_Stack;
+                sLog->outAshran("DatabaseWorkerPool::Execute: Statement index 0");
+                sLog->outAshran(l_Stack.c_str());
+                return;
+            }
+
             PreparedStatementTask* task = new PreparedStatementTask(stmt);
             Enqueue(task);
         }
@@ -213,6 +221,14 @@ class DatabaseWorkerPool
         //! Statement must be prepared with the CONNECTION_SYNCH flag.
         void DirectExecute(PreparedStatement* stmt)
         {
+            if (stmt->getIndex() == 0)
+            {
+                ACE_Stack_Trace l_Stack;
+                sLog->outAshran("DatabaseWorkerPool::DirectExecute: Statement index 0");
+                sLog->outAshran(l_Stack.c_str());
+                return;
+            }
+
             T* t = GetFreeConnection();
             t->Execute(stmt);
             t->Unlock();
@@ -223,6 +239,14 @@ class DatabaseWorkerPool
 
         bool DirectExecuteWithReturn(PreparedStatement* stmt)
         {
+            if (stmt->getIndex() == 0)
+            {
+                ACE_Stack_Trace l_Stack;
+                sLog->outAshran("DatabaseWorkerPool::DirectExecuteWithReturn: Statement index 0");
+                sLog->outAshran(l_Stack.c_str());
+                return false;
+            }
+
             T* t = GetFreeConnection();
             bool result = t->Execute(stmt);
             t->Unlock();
@@ -291,6 +315,14 @@ class DatabaseWorkerPool
         //! Statement must be prepared with CONNECTION_SYNCH flag.
         PreparedQueryResult Query(PreparedStatement* stmt)
         {
+            if (stmt->getIndex() == 0)
+            {
+                ACE_Stack_Trace l_Stack;
+                sLog->outAshran("DatabaseWorkerPool::Query: Statement index 0");
+                sLog->outAshran(l_Stack.c_str());
+                return PreparedQueryResult(NULL);
+            }
+
             T* t = GetFreeConnection();
             PreparedResultSet* ret = t->Query(stmt);
             t->Unlock();
@@ -339,6 +371,14 @@ class DatabaseWorkerPool
         //! Statement must be prepared with CONNECTION_ASYNC flag.
         PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt)
         {
+            if (stmt->getIndex() == 0)
+            {
+                ACE_Stack_Trace l_Stack;
+                sLog->outAshran("DatabaseWorkerPool::AsyncQuery: Statement index 0");
+                sLog->outAshran(l_Stack.c_str());
+                return PreparedQueryResultFuture();
+            }
+
             PreparedQueryResultFuture res;
             PreparedStatementTask* task = new PreparedStatementTask(stmt, res);
             Enqueue(task);
@@ -350,6 +390,14 @@ class DatabaseWorkerPool
         //! Statement must be prepared with CONNECTION_ASYNC flag.
         PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt, std::function<void(PreparedQueryResult)> p_Callback)
         {
+            if (stmt->getIndex() == 0)
+            {
+                ACE_Stack_Trace l_Stack;
+                sLog->outAshran("DatabaseWorkerPool::AsyncQuery(callback): Statement index 0");
+                sLog->outAshran(l_Stack.c_str());
+                return PreparedQueryResultFuture();
+            }
+
             PreparedQueryResultFuture res;
             PreparedStatementTask* task = new PreparedStatementTask(stmt, res);
             Enqueue(task);
@@ -451,6 +499,14 @@ class DatabaseWorkerPool
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
         void ExecuteOrAppend(SQLTransaction& trans, PreparedStatement* stmt)
         {
+            if (stmt->getIndex() == 0)
+            {
+                ACE_Stack_Trace l_Stack;
+                sLog->outAshran("DatabaseWorkerPool::ExecuteOrAppend: Statement index 0");
+                sLog->outAshran(l_Stack.c_str());
+                return;
+            }
+
             if (trans.null())
                 Execute(stmt);
             else

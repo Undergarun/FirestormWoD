@@ -72,7 +72,7 @@ UPDATE gameobject_template SET ScriptName="gob_talador_portal" WHERE entry=23668
 UPDATE gameobject_template SET ScriptName="gob_talador_portal" WHERE entry=236689;
 UPDATE gameobject_template SET ScriptName="gob_talador_portal" WHERE entry=236689;
 
-
+delete from spell_script_names where spell_id in (154356, 156921, 173052, 177731, 142423);
 INSERT INTO spell_script_names VALUES 
 (154356, "auchindon_spell_psychic_terror"),
 (156921, "auchindon_teronogor_seed_of_malevolence"),

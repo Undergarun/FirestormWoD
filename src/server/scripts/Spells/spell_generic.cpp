@@ -5342,7 +5342,7 @@ void AddSC_generic_spell_scripts()
     new spell_taunt_flag_targeting();
     new spell_gen_raid_buff_stack();
     new spell_gen_sword_technique();
-    new spell_gen_check_faction();
+    //new spell_gen_check_faction(); -- temp disable
     new spell_gen_stoneform_dwarf_racial();
     new spell_gen_elixir_of_wandering_spirits();
 
