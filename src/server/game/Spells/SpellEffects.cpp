@@ -7647,7 +7647,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     std::vector<uint32> l_Items;
     l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player, l_IsBGReward);
 
-    float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + l_Player->GetBonusRollFails();
+    float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + (l_Player->GetBonusRollFails() * 2);
     uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
 
     if (l_IsBGReward)
@@ -7686,7 +7686,30 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
 
         if (roll_chance_i(l_DropChance) && !l_Items.empty())
         {
-            l_Player->AddItem(l_Items[0], 1);
+            std::vector<uint32> l_Bonuses;
+            std::list<uint32> l_OtherBonuses;
+
+            uint32 l_ItemID = l_Items[0];
+
+            switch (l_Player->GetMap()->GetDifficultyID())
+            {
+                case Difficulty::DifficultyRaidNormal:
+                    Item::GenerateItemBonus(l_ItemID, ItemContext::RaidNormal, l_Bonuses);
+                    break;
+                case Difficulty::DifficultyRaidHeroic:
+                    Item::GenerateItemBonus(l_ItemID, ItemContext::RaidHeroic, l_Bonuses);
+                    break;
+                case Difficulty::DifficultyRaidMythic:
+                    Item::GenerateItemBonus(l_ItemID, ItemContext::RaidMythic, l_Bonuses);
+                    break;
+                default:
+                    break;
+            }
+
+            for (uint32 l_Bonus : l_Bonuses)
+                l_OtherBonuses.push_back(l_Bonus);
+
+            l_Player->AddItem(l_Items[0], 1, l_OtherBonuses);
             l_Player->SendDisplayToast(l_Items[0], 1, l_IsBGReward ? DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST : DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
 
             if (!l_IsBGReward)
@@ -7706,8 +7729,6 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
             l_Player->GetSession()->SendPacket(&l_Data);
         }
     }
-
-    l_Player->ModifyCurrency(m_spellInfo->CurrencyID, -int32(m_spellInfo->CurrencyCount), false);
 }
 
 void Spell::EffectDeathGrip(SpellEffIndex effIndex)
