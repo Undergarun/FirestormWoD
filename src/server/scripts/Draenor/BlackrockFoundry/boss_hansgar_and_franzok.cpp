@@ -238,11 +238,6 @@ class boss_hansgar : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ScorchingBurnsDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SearingPlatesDoT);
                 }
-
-                AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                {
-                    Talk(eTalks::Death);
-                });
             }
 
             void OnSpellCasted(SpellInfo const* p_SpellInfo) override

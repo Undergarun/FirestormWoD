@@ -45,6 +45,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_HansgarGuid               = 0;
                 m_FranzokGuid               = 0;
                 m_StampStampRevolution      = true;
+
+                m_IronTaskmasterAggro       = false;
             }
 
             /// Slagworks
@@ -68,6 +70,9 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_HansgarGuid;
             uint64 m_FranzokGuid;
             bool m_StampStampRevolution;
+
+            /// Burning Front
+            bool m_IronTaskmasterAggro;
 
             void Initialize() override
             {
@@ -137,6 +142,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::ConveyorBelt005:
                         p_GameObject->SetAIAnimKitId(eFoundryVisuals::ConveyorsStop);
                         break;
+                    case eFoundryGameObjects::ConveyorBelt006:
+                    case eFoundryGameObjects::ConveyorBelt007:
+                    case eFoundryGameObjects::ConveyorBelt008:
+                        p_GameObject->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStart2, true);
+                        break;
                     default:
                         break;
                 }
@@ -161,8 +171,14 @@ class instance_blackrock_foundry : public InstanceMapScript
 
             bool SetBossState(uint32 p_BossID, EncounterState p_State) override
             {
+                uint32 l_OldState = GetBossState(p_BossID);
+
                 if (!InstanceScript::SetBossState(p_BossID, p_State))
                     return false;
+
+                /// Don't handle the next in case of loading
+                if (l_OldState != EncounterState::IN_PROGRESS)
+                    return true;
 
                 switch (p_BossID)
                 {
@@ -240,6 +256,15 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 if (m_StampStampRevolution && !instance->IsLFR())
                                     DoCompleteAchievement(eFoundryAchievements::StampStampRevolution);
 
+                                AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                                {
+                                    if (Creature* l_Hansgar = instance->GetCreature(m_HansgarGuid))
+                                    {
+                                        if (l_Hansgar->IsAIEnabled)
+                                            l_Hansgar->AI()->Talk(8);   ///< Death
+                                    }
+                                });
+
                                 break;
                             }
                             case EncounterState::NOT_STARTED:
@@ -304,9 +329,27 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_StampStampRevolution = false;
                         break;
                     }
+                    case eFoundryDatas::IronTaskmasterAggro:
+                    {
+                        m_IronTaskmasterAggro = true;
+                        break;
+                    }
                     default:
                         break;
                 }
+            }
+
+            uint32 GetData(uint32 p_ID) override
+            {
+                switch (p_ID)
+                {
+                    case eFoundryDatas::IronTaskmasterAggro:
+                        return (uint32)m_IronTaskmasterAggro;
+                    default:
+                        break;
+                }
+
+                return 0;
             }
 
             uint64 GetData64(uint32 p_Type) override
