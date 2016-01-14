@@ -2124,6 +2124,32 @@ bool WorldObject::IsInAxe(WorldObject const* p_Object, float p_Width, float p_Ra
     return (p_Width * p_Width) >= GetExactDist2dSq(p_Object->GetPositionX() + cos(l_Angle) * l_Dist, p_Object->GetPositionY() + sin(l_Angle) * l_Dist);
 }
 
+bool WorldObject::IsInElipse(const WorldObject* p_Obj1, const WorldObject* p_Obj2, float p_With, float p_Thickness) const
+{
+    if (!p_Obj1 || !p_Obj2)
+        return false;
+
+    float l_CoefRadius = p_Obj1->GetDistance(this) - (p_Obj1->GetDistance(p_Obj2) / 2);
+    if (l_CoefRadius < 0.0f)
+        l_CoefRadius *= -1;
+    else
+        l_CoefRadius = (p_Obj1->GetDistance(p_Obj2) / 2) - l_CoefRadius;
+
+    if (l_CoefRadius > (p_Obj1->GetDistance(p_Obj2) / 2))
+        return false;
+
+    if (!IsInBetween(p_Obj1, p_Obj2, p_With + (p_Thickness / 2)))
+        return false;
+
+    l_CoefRadius /= (p_Obj1->GetDistance(p_Obj2) / 2);
+
+    l_CoefRadius *= p_With;
+
+    if (l_CoefRadius && IsInBetween(p_Obj1, p_Obj2, l_CoefRadius + (p_Thickness / 2)) && !IsInBetween(p_Obj1, p_Obj2, l_CoefRadius - (p_Thickness / 2)))
+        return true;
+    return false;
+}
+
 bool WorldObject::isInFront(WorldObject const* target,  float arc) const
 {
     return HasInArc(arc, target);
