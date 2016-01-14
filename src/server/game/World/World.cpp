@@ -85,6 +85,7 @@
 #include "PlayerDump.h"
 #include "TransportMgr.h"
 #include "BattlepayMgr.h"
+#include <ctime>
 
 uint32 gOnlineGameMaster = 0;
 #include "GarrisonShipmentManager.hpp"
@@ -278,36 +279,9 @@ void World::SetClosed(bool val)
     sScriptMgr->OnOpenStateChange(!val);
 }
 
-void World::SetMotd(const std::string& motd)
+MotdText const& World::GetMotd() const
 {
-    m_motd = motd;
-
-    sScriptMgr->OnMotdChange(m_motd);
-}
-
-const char* World::GetMotd() const
-{
-    return m_motd.c_str();
-}
-
-const uint32 World::GetMotdLineCount() const
-{
-    std::string::size_type pos, nextpos;
-    uint32 linecount = 0;
-    pos = 0;
-
-    while ((nextpos = m_motd.find('@', pos)) != std::string::npos)
-    {
-        if (nextpos != pos)
-            ++linecount;
-
-        pos = nextpos+1;
-    }
-
-    if (pos < m_motd.length())
-        ++linecount;
-
-    return linecount;
+    return m_Motd;
 }
 
 /// Find a session by its id
@@ -2337,7 +2311,9 @@ void World::LoadAutobroadcasts()
 
     m_Autobroadcasts.clear();
 
-    QueryResult result = CharacterDatabase.Query("SELECT text FROM autobroadcast");
+    std::string l_Query = "SELECT Text, TextFR, TextES, TextRU FROM autobroadcast WHERE Expension IN(-1, 5) AND RealmID IN(-1, " + std::to_string(g_RealmID) + ")";
+
+    QueryResult result = LoginDatabase.Query(l_Query.c_str());
 
     if (!result)
     {
@@ -2352,16 +2328,20 @@ void World::LoadAutobroadcasts()
     {
 
         Field* fields = result->Fetch();
-        std::string message = fields[0].GetString();
 
-        m_Autobroadcasts.push_back(message);
+        AutoBroadcastText l_AutobrodCastText;
+        l_AutobrodCastText.Text   = fields[0].GetString();
+        l_AutobrodCastText.TextFR = fields[1].GetString();
+        l_AutobrodCastText.TextES = fields[2].GetString();
+        l_AutobrodCastText.TextRU = fields[3].GetString();
+
+        m_Autobroadcasts.push_back(l_AutobrodCastText);
 
         ++count;
     }
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u autobroadcasts definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
 }
 
 /// Update the World !
@@ -2376,7 +2356,7 @@ void World::Update(uint32 diff)
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
         {
-            LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
+            LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u, lastupdate=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), std::time(nullptr), g_RealmID);
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
@@ -2394,7 +2374,7 @@ void World::Update(uint32 diff)
         m_serverDelaySum = 0;
         m_serverUpdateCount = 0;
         
-        LoginDatabase.PExecute("UPDATE realmlist set delay=%u where id=%u", delay, g_RealmID);
+        LoginDatabase.PExecute("UPDATE realmlist set delay=%u, lastupdate=%u where id=%u", delay, std::time(nullptr), g_RealmID);
         m_serverDelayTimer -= m_int_configs[CONFIG_INTERVAL_LOG_UPDATE];
     }
     else
@@ -3232,36 +3212,45 @@ void World::SendAutoBroadcast()
     if (m_Autobroadcasts.empty())
         return;
 
-    std::string msg;
+    AutoBroadcastText l_AutobroadcastText;
+    l_AutobroadcastText = JadeCore::Containers::SelectRandomContainerElement(m_Autobroadcasts);
 
-    msg = JadeCore::Containers::SelectRandomContainerElement(m_Autobroadcasts);
-
-    uint32 abcenter = sWorld->getIntConfig(CONFIG_AUTOBROADCAST_CENTER);
-
-    if (abcenter == 0)
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-
-    else if (abcenter == 1)
+    SessionMap::const_iterator itr;
+    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
-        l_Data.WriteBits(msg.length(), 12);
-        l_Data.FlushBits();
-        l_Data.WriteString(msg);
-        sWorld->SendGlobalMessage(&l_Data);
+        if (itr->second &&
+            itr->second->GetPlayer() &&
+            itr->second->GetPlayer()->IsInWorld())
+        {
+            std::string l_AutoBrodcast = "";
+
+            switch (itr->second->GetSessionDbLocaleIndex())
+            {
+                case LocaleConstant::LOCALE_frFR:
+                    l_AutoBrodcast = l_AutobroadcastText.TextFR;
+                    break;
+                case LocaleConstant::LOCALE_esMX:
+                case LocaleConstant::LOCALE_esES:
+                    l_AutoBrodcast = l_AutobroadcastText.TextES;
+                    break;
+                case LocaleConstant::LOCALE_ruRU:
+                    l_AutoBrodcast = l_AutobroadcastText.TextRU;
+                    break;
+                default:
+                    l_AutoBrodcast = l_AutobroadcastText.Text;
+                    break;
+            }
+
+            if (l_AutoBrodcast.empty())
+                continue;
+
+            std::string l_AnnounceFormat = "|cffffff00[|c00077766Autobroadcast|cffffff00]: |cFFF222FF" + l_AutoBrodcast + "|r";
+
+            WorldPacket l_Data;
+            ChatHandler::FillMessageData(&l_Data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, l_AnnounceFormat.c_str(), NULL);
+            itr->second->SendPacket(&l_Data);
+        }
     }
-
-    else if (abcenter == 2)
-    {
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-
-        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
-        l_Data.WriteBits(msg.length(), 12);
-        l_Data.FlushBits();
-        l_Data.WriteString(msg);
-        sWorld->SendGlobalMessage(&l_Data);
-    }
-
-    sLog->outDebug(LOG_FILTER_GENERAL, "AutoBroadcast: '%s'", msg.c_str());
 }
 
 void World::UpdateRealmCharCount(uint32 accountId)
@@ -3549,15 +3538,24 @@ void World::ResetBossLooted()
 
 void World::LoadDBMotd()
 {
-    QueryResult l_Result = LoginDatabase.PQuery("SELECT motd FROM realmlist WHERE id = '%d'", g_RealmID);
+    QueryResult l_Result = LoginDatabase.PQuery("SELECT Text, TextFR, TextES, TextRU FROM motd WHERE RealmID = '%d'", g_RealmID);
     if (l_Result)
-        SetMotd(l_Result->Fetch()->GetString());
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        MotdText l_Motd;
+        l_Motd.Text   = l_Fields[0].GetString();
+        l_Motd.TextFR = l_Fields[1].GetString();
+        l_Motd.TextES = l_Fields[2].GetString();
+        l_Motd.TextRU = l_Fields[3].GetString();
+
+        SetDBMotd(l_Motd);
+    }
 }
 
-void World::SetDBMotd(const std::string& p_Motd)
+void World::SetDBMotd(MotdText p_MotdText)
 {
-    LoginDatabase.PQuery("UPDATE realmlist SET motd = '%s' WHERE id = '%d'", p_Motd.c_str(), g_RealmID);
-    SetMotd(p_Motd);
+    m_Motd = p_MotdText;
 }
 
 void World::LoadDBAllowedSecurityLevel()

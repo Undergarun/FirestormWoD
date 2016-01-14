@@ -1062,6 +1062,11 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_PreviousLocationY = 0;
     m_PreviousLocationZ = 0;
     m_PreviousLocationO = 0;
+
+    for (uint8 l_I = 0; l_I < StoreCallback::MaxDelivery; l_I++)
+        m_StoreDeliveryProcessed[l_I] = false;
+
+    m_StoreDeliverySave = false;
 }
 
 Player::~Player()
@@ -33318,13 +33323,11 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
     if (uint32 maxItemLevel = GetUInt32Value(UNIT_FIELD_MAX_ITEM_LEVEL))
         ilvl = std::min(ilvl, maxItemLevel);
 
-    if (GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame())
+    if (!(GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame()))
     {
-        if ((itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY) == 0)
+        if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
             ilvl = 1;
     }
-    else if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
-        ilvl = 1;
 
     return ilvl;
 }

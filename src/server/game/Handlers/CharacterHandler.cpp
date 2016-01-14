@@ -987,9 +987,28 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
     uint32 time2 = getMSTime() - time1;
 
-    // Send MOTD
+    /// Send MOTD
     {
-        std::string l_MotdStr = sWorld->GetMotd();
+        MotdText const l_MotdText = sWorld->GetMotd();
+        std::string l_MotdStr = "";
+
+        switch (GetSessionDbLocaleIndex())
+        {
+            case LocaleConstant::LOCALE_frFR:
+                l_MotdStr = l_MotdText.TextFR;
+                break;
+            case LocaleConstant::LOCALE_esMX:
+            case LocaleConstant::LOCALE_esES:
+                l_MotdStr = l_MotdText.TextES;
+                break;
+            case LocaleConstant::LOCALE_ruRU:
+                l_MotdStr = l_MotdText.TextRU;
+                break;
+            default:
+                l_MotdStr = l_MotdText.Text;
+                break;
+        }
+
         std::string::size_type l_Position, l_NextPosition;
         std::vector<std::string> l_Lines;
         uint32 l_LineCount = 0;
